@@ -5,11 +5,14 @@ on:
     branches: ["main"]
     paths:
       - "myrm-website/**"
+      - "myrm-docs/**"
       - ".github/workflows/website-ci.yml"
   pull_request:
     branches: ["main"]
     paths:
       - "myrm-website/**"
+      - "myrm-docs/**"
+      - ".github/workflows/website-ci.yml"
 
 jobs:
   build:
@@ -25,6 +28,8 @@ jobs:
           bun-version: latest
       - name: Install dependencies
         run: bun install --frozen-lockfile
+      - name: Validate docs slug contract
+        run: bun run validate:docs-slugs
       - name: Bake desktop release manifest
         run: bun run bake:release
         env:

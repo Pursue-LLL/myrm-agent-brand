@@ -5,12 +5,13 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "dev:3002": "next dev --turbopack -p 3002",
-    "build": "bun run validate:locales && bun run bake:release && next build",
+    "build": "bun run validate:locales && bun run validate:docs-slugs && bun run bake:release && next build",
     "bake:release": "bun run scripts/bake-desktop-release.ts",
     "start": "next start",
     "lint": "tsc --noEmit",
     "test": "bun test scripts/desktop-release.test.ts scripts/deploy-paths.test.ts",
     "validate:locales": "bun run scripts/validate-marketing-locales.ts",
+    "validate:docs-slugs": "bun run scripts/validate-docs-slugs.ts",
     "generate:hero-webm": "bun run scripts/generate-hero-demo-webm.ts"
   },
   "dependencies": {

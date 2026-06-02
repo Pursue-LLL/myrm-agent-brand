@@ -8,11 +8,14 @@
  * [POS]
  * Single source of truth for SaaS / Local WebUI / Tauri deployment paths on the marketing site.
  */
+import { LOCAL_DEPLOY_DOCS_PATH } from '@/lib/docs-contract';
 import {
   getAppUrl,
   getDesktopDownloadPath,
   getDocsUrl,
 } from '@/lib/deploy-mode';
+
+export { LOCAL_DEPLOY_DOCS_PATH };
 
 export const DEPLOY_PATH_IDS = ['saas', 'localWebui', 'tauri'] as const;
 
@@ -40,9 +43,6 @@ const CARD_KEY_BY_PATH: Record<DeployPathId, DeployCardKey> = {
   localWebui: 'local',
   tauri: 'tauri',
 };
-
-/** Docs path for Local WebUI self-host guide. */
-export const LOCAL_DEPLOY_DOCS_PATH = '/getting-started/quickstart';
 
 /** Raw GitHub URL for the local one-line installer (marketing Quick Start). */
 export const LOCAL_INSTALL_SCRIPT_RAW =

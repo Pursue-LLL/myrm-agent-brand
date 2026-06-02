@@ -20,7 +20,9 @@ export const BENTO_KEYS = [
 
 export type BentoKey = (typeof BENTO_KEYS)[number];
 
-const COMPARE_PAGE = '/getting-started/competitor-comparison';
+import { COMPETITOR_COMPARISON_DOC_PATH } from '@/lib/docs-contract';
+
+const COMPARE_PAGE = COMPETITOR_COMPARISON_DOC_PATH;
 
 /** Per-theme anchors on the docs competitor comparison page (Mintlify slugs). */
 export const BENTO_DOC_PATHS: Record<BentoKey, string> = {

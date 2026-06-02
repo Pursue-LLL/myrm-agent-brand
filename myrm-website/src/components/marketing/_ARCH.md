@@ -64,6 +64,7 @@ Hero → WorkspacePreview → HowItWorks（路径 Tab）→ QuickStart → Marqu
 |------|----------|------|
 | `getAppUrl()` | `NEXT_PUBLIC_APP_URL` | `https://app.myrmagent.ai` |
 | `getDocsUrl()` | `NEXT_PUBLIC_DOCS_URL` | `https://docs.myrmagent.ai` |
+| 文档路径契约 | `lib/docs-contract.ts` | Mintlify slug 与营销外链一致；CI `validate:docs-slugs` |
 | `getDesktopDownloadPath()` | — | `/download` |
 | `getDeployPathHref()` / `getDeployPathSectionLink()` | — | 见 `lib/deploy-paths.ts` |
 | `buildMarketingNavLinks()` | — | 见 `lib/marketing-nav.ts` |
