@@ -19,7 +19,7 @@ import {
 } from '@/lib/desktop-release';
 
 const APP_BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.myrmagent.ai';
-const DOCS_BASE_URL = process.env.NEXT_PUBLIC_DOCS_URL ?? 'https://myrmagent.ai/docs';
+const DOCS_BASE_URL = process.env.NEXT_PUBLIC_DOCS_URL ?? 'https://docs.myrmagent.ai';
 
 export const DESKTOP_DOWNLOAD_PATH = '/download';
 

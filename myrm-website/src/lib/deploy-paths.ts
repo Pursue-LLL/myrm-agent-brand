@@ -42,7 +42,7 @@ const CARD_KEY_BY_PATH: Record<DeployPathId, DeployCardKey> = {
 };
 
 /** Docs path for Local WebUI self-host guide. */
-export const LOCAL_DEPLOY_DOCS_PATH = '/docs/getting-started/quick-start';
+export const LOCAL_DEPLOY_DOCS_PATH = '/getting-started/quickstart';
 
 /** Raw GitHub URL for the local one-line installer (marketing Quick Start). */
 export const LOCAL_INSTALL_SCRIPT_RAW =

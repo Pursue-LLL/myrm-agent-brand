@@ -63,13 +63,13 @@ Hero → WorkspacePreview → HowItWorks（路径 Tab）→ QuickStart → Marqu
 | 函数 | 环境变量 | 默认 |
 |------|----------|------|
 | `getAppUrl()` | `NEXT_PUBLIC_APP_URL` | `https://app.myrmagent.ai` |
-| `getDocsUrl()` | `NEXT_PUBLIC_DOCS_URL` | `https://myrmagent.ai/docs` |
+| `getDocsUrl()` | `NEXT_PUBLIC_DOCS_URL` | `https://docs.myrmagent.ai` |
 | `getDesktopDownloadPath()` | — | `/download` |
 | `getDeployPathHref()` / `getDeployPathSectionLink()` | — | 见 `lib/deploy-paths.ts` |
 | `buildMarketingNavLinks()` | — | 见 `lib/marketing-nav.ts` |
 | `getGitHubReleasesPageUrl()` | `NEXT_PUBLIC_GITHUB_RELEASE_REPO` | GitHub latest release |
 
-工程深度区竞品全文对比：`getDocsUrl('/docs/getting-started/competitor-comparison')`
+工程深度区竞品全文对比：`getDocsUrl('/getting-started/competitor-comparison')`
 
 ## i18n
 

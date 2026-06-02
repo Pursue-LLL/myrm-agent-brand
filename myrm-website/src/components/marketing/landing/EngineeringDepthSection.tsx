@@ -152,7 +152,7 @@ function DepthGroupPanel({
 export default function EngineeringDepthSection() {
   const t = useTranslations('marketing');
   const isDesktop = useMinWidth(768);
-  const compareHref = getDocsUrl('/docs/getting-started/competitor-comparison');
+  const compareHref = getDocsUrl('/getting-started/competitor-comparison');
   const [activeId, setActiveId] = useState(DEFAULT_ACTIVE_ID);
 
   const activeGroup = DEPTH_GROUPS.find((g) => g.id === activeId) ?? DEPTH_GROUPS[0];

@@ -48,7 +48,7 @@ describe('getDeployPathHref', () => {
 
     const localHref = getDeployPathHref('localWebui');
     expect(localHref).toContain('utm_campaign=localWebui');
-    expect(localHref).toContain('/docs/getting-started/quick-start');
+    expect(localHref).toContain('/getting-started/quickstart');
   });
 
   test('uses desktop download path for tauri', () => {
