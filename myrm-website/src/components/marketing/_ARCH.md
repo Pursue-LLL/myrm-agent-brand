@@ -2,7 +2,7 @@
 
 ## 概述
 
-`myrm-website` 是独立的闭源营销官网，承载纯展示性页面。登录、支付等操作通过 `getAppUrl()` 跳转 `app.myrmagent.ai`。
+`myrm-website` 是 `myrm-agent-brand` 仓内的 Next.js 营销站（Vercel 部署）。纯展示页；登录经 `getAppUrl()` 跳转 `app.myrmagent.ai`；文档经 `getDocsUrl()` 跳转 `docs.myrmagent.ai`。
 
 ## 页面路由
 

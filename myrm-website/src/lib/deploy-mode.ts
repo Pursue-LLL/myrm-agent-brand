@@ -9,7 +9,7 @@
  * - deploy-paths.ts (POS: 部署路径 registry) builds on getAppUrl/getDocsUrl/getDesktopDownloadPath
  *
  * [POS]
- * 营销站外部链接统一入口，避免硬编码域名分裂。
+ * 营销站外部链接统一入口。默认文档域名为 docs.myrmagent.ai（Mintlify 子域，非 Next 同构部署）。
  */
 import {
   DESKTOP_RELEASE_REPO,
