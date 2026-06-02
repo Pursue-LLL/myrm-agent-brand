@@ -8,7 +8,7 @@
 
 | 目录 | 地位 | 职责 | 部署 |
 |------|------|------|------|
-| `myrm-website/` | 核心 | Next.js 营销站、下载页、法务页 | Vercel，Root Directory = `myrm-website` |
+| `myrm-website/` | 核心 | Next.js 营销站、下载页、法务页 | Vercel（仓根 `vercel.json` 或 Root Directory = `myrm-website`） |
 | `myrm-docs/` | 核心 | Mintlify 文档（MDX + `docs.json`） | Mintlify → `docs.myrmagent.ai` |
 | `.github/workflows/` | 辅助 | `website-ci.yml` 构建 `myrm-website` | GitHub Actions |
 
