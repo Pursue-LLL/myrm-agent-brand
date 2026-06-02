@@ -1,0 +1,220 @@
+---
+title: MCP Integration
+description: Connect external tools and services using the Model Context Protocol.
+---
+
+# MCP Integration
+
+Myrm supports the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) for connecting external tools and services to your agents.
+
+## What is MCP?
+
+MCP is an open standard that lets AI agents connect to external data sources and tools through a unified protocol. Instead of building custom integrations, you can connect any MCP-compatible server.
+
+## Adding MCP Servers
+
+### From the GUI
+
+1. Navigate to **Settings > Tools > MCP**
+2. Click **Add Server**
+3. Enter the server configuration:
+   - **Name**: Display name for the server
+   - **Command**: The command to start the server (e.g., `npx @mcp/server-github`)
+   - **Arguments**: Command-line arguments
+   - **Environment Variables**: Required environment variables (e.g., API keys)
+4. Save — the server starts automatically and its tools become available to agents
+
+### From Configuration File
+
+Add MCP servers to `mcp_servers.json`:
+
+```json
+{
+  "servers": [
+    {
+      "name": "github",
+      "command": "npx",
+      "args": ["@mcp/server-github"],
+      "env": {
+        "GITHUB_TOKEN": "ghp_..."
+      }
+    }
+  ]
+}
+```
+
+## Schema Handling
+
+Myrm automatically optimizes MCP tool schemas for LLM compatibility:
+
+| Feature | Description |
+|---------|-------------|
+| **Schema Flattening** | Deeply nested schemas (depth > 2 or leaves > 10) are automatically flattened |
+| **Type Correction** | 5 auto-fixes (string → int, bool → string, etc.) for common schema issues |
+| **Dot-Path Detection** | Automatically detects if the model uses dot notation for nested params |
+| **$ref Resolution** | Full recursive JSON Schema `$ref` resolution |
+| **Circular Reference Guard** | Max depth limit + visited tracking prevents infinite recursion |
+
+## Connection Management
+
+### Persistent Sessions
+
+Each MCP server runs on a single, persistent session that stays warm for the entire agent lifetime. Tool calls are serialized onto the session through an internal queue — no subprocess is spawned per call, and no re-initialization handshake is needed between calls.
+
+### Self-Healing Reconnection
+
+When a transport break occurs (subprocess crash, SSE/HTTP drop, idle timeout), the session actor reconnects in place:
+
+- **Bounded backoff** — Up to 5 reconnect attempts with exponential backoff (0.5s to 8s cap)
+- **Budget refresh** — A session that ran stable for 60+ seconds earns a fresh retry budget, so an unrelated blip hours later still gets full retries
+- **In-flight call fails explicitly** — The call that hit the break is failed (no silent auto-retry of non-idempotent tools), but subsequent calls succeed on the fresh session
+- **Proxy stability** — The tool objects held by the agent remain identical across reconnects, preserving prompt prefix cache hits
+
+### Transport-Aware Keepalive
+
+Remote transports (SSE, streamable HTTP) sit behind load balancers and NAT that silently drop idle TCP connections. The session actor sends a lightweight in-band ping (`list_tools`) every 180 seconds to keep the connection warm. Local stdio transports (pipes to subprocesses) never idle-disconnect and are left unprobed.
+
+### Connection Pool
+
+- **Singleton per server** — One warm connection per config-hash prevents resource leaks
+- **Loop-aware** — Connections rebuild automatically on event-loop change
+- **TTL recycling** — Long-idle connections are closed and recreated on demand
+- **Last-resort rebuild** — The pool only rebuilds a connection when the actor's internal reconnect budget is fully exhausted
+
+### CancelledError Protection
+
+A guard prevents Python `CancelledError` from leaking through MCP channels, which could otherwise crash the MCP server process.
+
+### Metrics
+
+Connection metrics (success rate, latency, error rate) are tracked and available through the diagnostics API.
+
+## Security
+
+### SSRF Prevention
+
+Myrm implements DNS pinning for MCP tool URLs:
+
+- Resolved IPs are checked against private ranges (10.x, 172.16-31.x, 192.168.x)
+- Localhost and link-local addresses are blocked by default
+- URL validation prevents redirect-based SSRF attacks
+
+### Malicious Package Detection
+
+When MCP tools install dependencies, the OSV (Open Source Vulnerability) API is consulted in real-time to detect known malicious packages.
+
+### Tool Approval
+
+MCP tools follow the same approval flow as built-in tools:
+
+- Read-only tools execute automatically
+- Write/destructive tools require user approval (unless in YOLO mode)
+- Custom approval policies can be configured per MCP server
+
+## Multimodal Tool Results
+
+MCP tools can return rich content beyond plain text — screenshots, images, and structured data are all handled natively.
+
+### Image Content
+
+When an MCP server returns `ImageContent` (e.g., Playwright screenshots, diagram generators), Myrm renders the image directly in the chat:
+
+- Base64 image data flows through the streaming pipeline and renders in the **Tool Image Gallery**
+- Multiple images per tool result are supported (grid layout with lightbox preview)
+- For models that don't support vision, images are automatically stripped by the media filter — no configuration needed
+
+### Structured Content
+
+When an MCP server returns `structuredContent` (JSON metadata alongside text), Myrm extracts and includes it as supplementary context for the LLM, enabling more precise structured reasoning.
+
+### Tool Filtering
+
+You can control which tools are exposed per MCP server, **per agent**:
+
+- **Include list** — Only specified tools are registered (whitelist)
+- **Exclude list** — Specified tools are hidden (blacklist)
+- **Per-agent granularity** — Different agents can enable different tools from the same MCP server (e.g., a "Code Reviewer" agent sees only read-only GitHub tools, while a "DevOps" agent sees all)
+- Configure via the GUI in the **Agent Config Panel > MCP > Tool Selection**
+
+### Safety Annotations
+
+MCP tools carry [annotation hints](https://spec.modelcontextprotocol.io/specification/2025-03-26/server/tools/#annotations) that Myrm uses for automatic risk management:
+
+| Annotation | Effect |
+|------------|--------|
+| `readOnlyHint` | Tool marked as read-only; eligible for auto-approval in sandboxed (PTC) execution paths |
+| `destructiveHint` | Tool marked as dangerous; **disabled by default** in the smart safe set and highlighted with a warning badge in the GUI |
+| `idempotentHint` | Tool marked as safe to retry |
+| `openWorldHint` | Tool may interact with external systems beyond the MCP server |
+
+### Default Safe Set
+
+When you first enable an MCP server for an agent, Myrm inspects tool annotations and automatically builds a **safe default selection**:
+
+- All `readOnlyHint` tools are enabled
+- Tools with `destructiveHint` are disabled and flagged with a warning banner ("N destructive tools disabled by default")
+- You can always override the defaults in the Tool Selection GUI
+
+### Tool Name Isolation
+
+When multiple MCP servers are enabled, tool names can collide (e.g. both a GitHub and GitLab server may expose `search_repos`). Myrm applies **server-prefix isolation** to every MCP tool:
+
+```
+mcp__{server}__{tool}
+```
+
+- **Double-underscore delimiters** — Unlike single-underscore schemes (which are ambiguous when server names contain underscores), the `__` delimiter allows unambiguous parsing back to `(server, tool)` pairs
+- **Permission safety** — Prefixed names never collide with built-in tool names, preventing accidental permission bypass
+- **Audit traceability** — Every tool invocation log entry clearly shows which MCP server the tool belongs to
+- **Transparent to users** — The GUI always displays the friendly original tool name; prefixing is internal to the engine
+
+## Dynamic Tool Discovery
+
+When an MCP server adds, removes, or updates its tools at runtime, Myrm detects the change automatically via the standard `notifications/tools/list_changed` notification:
+
+- **Zero-downtime refresh** — The session actor re-fetches the tool list and updates the execution layer without interrupting in-flight calls (serialized through the internal queue, no locks)
+- **Prompt cache stability** — The prompt-facing proxy tools remain frozen; only the internal execution map is updated, so prompt prefix cache hits are never compromised
+- **Timeout protection** — The refresh re-fetch is bounded by the same connect timeout as session initialization, so a hung MCP server cannot deadlock the owner task
+- **Change logging** — Added and removed tools are logged at WARNING level for visibility; no-op refreshes are logged at INFO level
+- **Transparent to agents** — Agents continue using their existing tool references; new tools become callable immediately, removed tools fail explicitly on next invocation
+
+This is especially useful for MCP servers that dynamically register tools based on user state (e.g., a project management server that adds tools when a new board is created).
+
+## Deferred Loading
+
+To prevent tool schema bloat in the system prompt, MCP tools support **deferred loading**:
+
+- Tools are registered but not included in the initial prompt
+- When the agent needs a specific capability, the tool is loaded on demand
+- This keeps the system prompt compact and cache-friendly
+
+## Built-in MCP Support
+
+Myrm can also act as an **MCP server**, exposing its own capabilities to other MCP clients:
+
+| Resource | Description |
+|----------|-------------|
+| Memory | Access agent memory entries |
+| Tools | Execute Myrm tools via MCP |
+| Sessions | Manage chat sessions |
+
+## Troubleshooting
+
+### Server Won't Start
+
+1. Check the command path is correct and accessible
+2. Verify required environment variables are set
+3. Check server logs in **Settings > Tools > MCP > Logs**
+
+### Tools Not Appearing
+
+1. Wait 5-10 seconds after server start for tool discovery
+2. Click **Refresh** in the MCP settings panel
+3. Check if the server's tool list response is valid JSON Schema
+
+### Connection Drops
+
+The self-healing reconnect system handles most connection issues transparently — the session actor rebuilds the connection in place without user intervention. If a tool call fails due to a transport break, retry the message and the next call will land on the fresh session. For persistent failures after 5 reconnect attempts, check:
+- Network connectivity to the MCP server
+- Server process health (may need restart)
+- Resource limits (file descriptors, memory)

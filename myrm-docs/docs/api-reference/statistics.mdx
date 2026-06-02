@@ -1,0 +1,108 @@
+---
+title: Statistics
+description: Endpoints for analytics, growth metrics, and daily activity journals.
+---
+
+# Statistics API
+
+Endpoints for querying agent activity analytics, growth metrics, and daily work journals.
+
+## Daily Journal
+
+Retrieve a consolidated view of all agent activity for a specific day.
+
+```
+GET /api/v1/statistics/daily-journal?date=YYYY-MM-DD&agent_id=optional
+```
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `date` | string | Yes | Date in `YYYY-MM-DD` format |
+| `agent_id` | string | No | Filter by specific agent ID |
+
+### Response
+
+```json
+{
+  "code": 0,
+  "data": {
+    "date": "2026-05-31",
+    "overview": {
+      "total_sessions": 5,
+      "total_tokens": 42000,
+      "total_cost": 0.35,
+      "tool_call_count": 28,
+      "approval_count": 2,
+      "cron_run_count": 1,
+      "kanban_event_count": 3,
+      "sessions_by_source": {
+        "web": 3,
+        "telegram": 1,
+        "api": 1
+      }
+    },
+    "sessions": [
+      {
+        "id": "abc-123",
+        "title": "Code review session",
+        "source": "web",
+        "started_at": "2026-05-31T09:15:00Z",
+        "total_tokens": 12000,
+        "total_cost": 0.10
+      }
+    ],
+    "approvals": [],
+    "cron_runs": [],
+    "kanban_events": [],
+    "timeline": [
+      {
+        "type": "session",
+        "time": "2026-05-31T09:15:00Z",
+        "title": "Code review session",
+        "detail": { "source": "web", "tokens": 12000 }
+      }
+    ]
+  }
+}
+```
+
+### Data Sources
+
+The journal aggregates data from 6 existing sources without any additional storage:
+
+| Source | Data |
+|--------|------|
+| Chat | Session metadata (title, source, timestamps) |
+| Message | Token counts and cost per session |
+| ApprovalRecord | Human approval events |
+| CronRunModel | Scheduled task executions |
+| KanbanTaskEventModel | Kanban board events |
+| EventLog | Tool call counts (file-based) |
+
+### Error Responses
+
+| Code | Description |
+|------|-------------|
+| 400 | Invalid date format (must be `YYYY-MM-DD`) |
+| 400 | Missing `date` parameter |
+
+## Growth Statistics
+
+Growth dashboard metrics are available through the GUI and provide:
+
+- Skill KPI summary (total, success rate, evolution count)
+- Usage heat maps and capability radar charts
+- Weekly trend analysis
+- Evolution timeline
+
+## Harness Observability Metrics (Prometheus)
+
+The Myrm Engine exposes underlying Prometheus telemetry metrics for deep DevOps & SRE monitoring. These metrics run on the `/metrics` endpoint and incur zero operational overhead.
+
+### Advanced Agent Metrics
+
+- `myrm_time_to_first_action_seconds` (Histogram): Captures the precise Time-To-First-Action (TTFA), calculating the exact time from receiving a user's instruction until the agent invokes its first tool.
+- `myrm_policy_denial_total` (Counter): Tracks the number of times agent actions were blocked, redacted, or denied by the Security Guardrails and Path Policies.
+- `myrm_tool_execution_total` & `myrm_tool_execution_failed_total` (Counters): Monitors execution results for all individual skills, providing real-time data for calculating the overall "Tool Effectiveness Ratio" on Grafana dashboards.

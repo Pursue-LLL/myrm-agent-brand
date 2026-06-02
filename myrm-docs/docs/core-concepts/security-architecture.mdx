@@ -1,0 +1,206 @@
+---
+title: Security Architecture
+description: Six-layer defense-in-depth security model with encryption, audit trails, and PII protection.
+---
+
+# Security Architecture
+
+Myrm implements a defense-in-depth security model with six layers, ensuring agents operate safely even when given broad autonomy.
+
+## Security Layers
+
+| Layer | Function | How It Works |
+|-------|----------|--------------|
+| **L1** | Budget Control | Token and WU spending limits with 3-level warnings (35/45/48 turns) |
+| **L2** | Permission | 12-dimension tool and resource access policies |
+| **L3** | Rate Limiting | HTTP signature detection + minimum recovery time + SSE event throttling |
+| **L4** | Loop Detection | 5 detectors (repetition, ping-pong, no-progress, divergence, output-diminishing) |
+| **L5** | PII Protection | Automatic PII detection, redaction, and taint tracking |
+| **L5.5** | Trajectory Classification | Behavioral analysis with blind trajectory classifier for anomaly detection |
+
+## Approval Modes
+
+Control how much autonomy agents have:
+
+| Mode | Description |
+|------|-------------|
+| **Auto** | Read-only operations auto-approved, writes require confirmation |
+| **YOLO** | All operations auto-approved (for trusted environments) |
+| **HITL** | Human-in-the-loop approval for every action |
+| **Always-Allow** | Per-tool permanent approval |
+| **Domain-HITL** | Approval based on domain/resource classification |
+
+## Error Self-Healing
+
+14-layer error recovery system automatically handles failures without user intervention. See [Error Recovery](/docs/core-concepts/error-recovery) for details.
+
+Key capabilities:
+- Stream interruption recovery (token-level precision)
+- Circuit breaker with 3-tier cooldown
+- Model fallback chains
+- Truncation auto-retry with progressive budget boost
+- Deterministic fallback (LLM-free safety net)
+
+## Prompt Injection Defense
+
+Two complementary subsystems protect against prompt injection — one for untrusted external content flowing **into** the agent, and one guarding user/file **inputs**.
+
+### Content Boundary (Output-Side)
+
+5-layer defense wrapping all external content and tool output before it enters the LLM context:
+
+| Layer | Technique | What It Catches |
+|-------|-----------|-----------------|
+| **1** | Unicode folding | Invisible Unicode characters used to smuggle payloads |
+| **2** | Structural framing strip | Removes XML/HTML-like structural markers that mimic system tags |
+| **3** | Marker sanitization | Replaces known boundary/delimiter patterns to prevent breakout |
+| **4** | Random boundary | Wraps content in a cryptographically random delimiter (`===BOUNDARY_xxx===`) unpredictable to attackers |
+| **5** | Pattern detection | Detects remaining injection patterns (role override, instruction override, system simulation) |
+
+### Prompt Guard (Input-Side)
+
+108 detection patterns across 7+ threat categories scan user messages, project rules, and skill files:
+
+- **Anti-obfuscation**: Leet speak reversal, invisible Unicode stripping, whitespace folding, Base64 decoding
+- **Bilingual detection**: English and Chinese prompt injection patterns (e.g., "忽略之前的指令")
+- **Two-pass detection**: First on normalized text, then on Base64-decoded content
+
+### Sub-Agent Security
+
+Multi-agent workflows introduce identity drift and privilege escalation risks. Myrm addresses this at every level:
+
+| Control | Mechanism |
+|---------|-----------|
+| **Tool Whitelisting** | `DelegationCapabilityManifest` — parent explicitly declares which tools each child agent can access |
+| **Memory Isolation** | 3 policies: `EPHEMERAL_SESSION` (clean slate), `READ_ONLY_GLOBAL` (read but not write), `COLLABORATIVE_SESSION` (shared with audit) |
+| **Taint Propagation** | `TaintTracker` labels flow from child → parent. If a child touches external network data, the parent session is automatically tainted |
+| **Sink Policies** | Tainted sessions escalate to HITL approval for dangerous tool combinations (e.g., `EXTERNAL_NETWORK` taint + `bash_tool` = blocked without approval) |
+| **Budget Boundary** | 4-dimension `DelegationBudget` (token + USD + time + max descendants) prevents runaway sub-agent chains |
+
+## MCP Tool Security
+
+### Tool Name Isolation
+
+When multiple MCP servers are enabled, tool names can collide (e.g., both a GitHub and GitLab server expose `search_repos`). Myrm prefixes every MCP tool name with double-underscore delimiters:
+
+```
+mcp__{server}__{tool}
+```
+
+- **Unambiguous parsing** — Unlike single-underscore schemes, `__` delimiters allow exact reverse parsing even when server names contain underscores
+- **Permission isolation** — Prefixed MCP tool names never collide with built-in tools, preventing accidental permission bypass
+- **Audit traceability** — Every tool invocation log entry identifies the originating MCP server
+
+### SSRF Prevention
+
+DNS pinning for MCP tool URLs blocks access to private network ranges (10.x, 172.16-31.x, 192.168.x), localhost, and link-local addresses by default.
+
+### Malicious Package Detection
+
+When MCP tools install dependencies, the OSV (Open Source Vulnerability) API is consulted in real-time to detect known malicious packages.
+
+### Per-Agent Tool Filtering
+
+Different agents can enable different MCP tools from the same server — a "Code Reviewer" agent sees only read-only tools, while a "DevOps" agent sees all. Tools with `destructiveHint` annotations are disabled by default in the safe set.
+
+## Shell Command Security
+
+Commands are analyzed through a multi-layer pipeline before execution:
+
+| Layer | Detection |
+|-------|-----------|
+| **L1** | Binary and Unicode encoding detection |
+| **L1.5** | ANSI-C and locale quote disguise blocking |
+| **L2** | Injection vector and dangerous command detection |
+| **L3** | Suspicious behavioral pattern analysis |
+
+This catches sophisticated attacks like Unicode homoglyph injection and base64-encoded payloads that simple regex patterns miss.
+
+## Encryption & Incognito Mode
+
+| Scope | Standard |
+|-------|----------|
+| **At Rest** | AES-256-GCM for stored data (secrets, API keys, user content) |
+| **In Transit** | TLS 1.3 for all network connections |
+| **API Keys** | Encrypted secrets vault with per-user isolation |
+| **Memory** | Optional encryption for sensitive memory entries |
+| **Incognito Mode** | Physical isolation and read-after-burn for sensitive sessions |
+
+## Credential Protection
+
+### Leak Detection
+
+40+ regex patterns detect credentials in agent output:
+
+- API keys (OpenAI, Anthropic, AWS, GCP, Azure, etc.)
+- Database connection strings
+- JWT tokens and session IDs
+- SSH private keys
+- Entropy-based detection for unknown credential formats
+
+### PII Redaction
+
+Multi-tier PII handling:
+
+| Tier | Action | Example |
+|------|--------|---------|
+| **BLOCKED** | Content completely blocked | Injected prompt attacks |
+| **REDACTED** | Sensitive data replaced with `[REDACTED]` | Credit card numbers |
+| **WARN** | Warning logged, content passed through | Email addresses in context |
+| **CLEAN** | No action needed | Normal text |
+
+### Taint Tracking
+
+`TaintTracker` follows the information flow of sensitive data through the agent's execution, ensuring PII doesn't leak through indirect channels (e.g., a tool reading a file containing credentials, then using that data in a web request).
+
+## Audit Trail
+
+### Merkle-Based Logging
+
+Every agent action is recorded in a cryptographically verifiable audit log:
+
+- Each event is hashed with the previous event's hash (Merkle chain)
+- Tampering with any event invalidates the entire subsequent chain
+- Events include: tool calls, approvals, model switches, errors, completions
+
+### Event Types
+
+47 structured event types cover the complete agent lifecycle, including:
+
+- `TOOL_CALL_START` / `TOOL_CALL_END`
+- `APPROVAL_REQUESTED` / `APPROVAL_GRANTED` / `APPROVAL_DENIED`
+- `MODEL_SWITCHED` / `FALLBACK_ACTIVATED`
+- `ITERATION_LIMIT_REACHED` / `BUDGET_EXHAUSTED`
+- `LOOP_DETECTED` / `CANCELLED`
+- `COMPRESSION_TRIGGERED` / `CHECKPOINT_CREATED`
+
+## Workspace Rules Security
+
+When loading project configuration files (`.myrm.md`, `AGENTS.md`, etc.), Myrm scans for injection attacks:
+
+- **108 detection patterns** across 7+ threat categories
+- **Anti-obfuscation**: Leet speak, invisible Unicode, whitespace folding, Base64 decoding
+- **Chinese injection detection**: Supports CJK character-based prompt injection
+- Blocked content is replaced with a `[BLOCKED]` placeholder with structured metadata
+
+## Emergency Controls
+
+| Control | Description |
+|---------|-------------|
+| **E-Stop** | One-click emergency stop that halts all running agents immediately |
+| **Session Kill** | Terminate a specific agent session |
+| **Tool Blacklist** | Dynamically block specific tools across all agents |
+| **Budget Override** | Hard spending cap that overrides all agent budgets |
+
+## vs CaMeL Guard (hermes-agent-camel)
+
+The CaMeL Guard project implements a research-based trust boundary model (trusted controller vs untrusted data). Myrm's security architecture provides significantly deeper coverage:
+
+| Dimension | CaMeL Guard | Myrm |
+|-----------|:---:|:---:|
+| Defense layers | 1 (trust boundary) | **6** (onion defense-in-depth) |
+| Loop detection | Simple threshold (warn after N, block after M) | **5 domain-specific detectors** with targeted suggestions (bash/browser/file/web/memory) |
+| Error classification | Single-level FailoverReason enum | **3-layer system** (Recoverability → FailoverReason → ProbePolicy) |
+| Credential pool | 2 strategies (fill_first/round_robin) | **4 strategies** + exponential backoff + jitter anti-stampede |
+| Path security | Allowlist-based path checking | **PTC process-level sandbox isolation** |
+| Context management | Single-file compressor | **20+ module pipeline** (cache healer + anti-thrashing + session notes) |

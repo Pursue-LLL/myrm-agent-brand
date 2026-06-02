@@ -1,0 +1,179 @@
+---
+title: Kanban & Sub-Agent Orchestration
+description: Visual task board with DAG dependencies and 6 orchestration patterns for multi-agent workflows.
+---
+
+# Kanban & Sub-Agent Orchestration
+
+Myrm provides a visual Kanban board for tracking complex, multi-step tasks and a powerful sub-agent system with 6 orchestration patterns.
+
+## Kanban Task Board
+
+The Kanban board gives you a drag-and-drop interface to manage agent tasks across 7 columns.
+
+### Task States
+
+| State | Description |
+|-------|-------------|
+| **Backlog** | Tasks waiting to be scheduled |
+| **Ready** | Dependencies met, available for pickup |
+| **Running** | Currently being executed by an agent |
+| **Completed** | Successfully finished and verified |
+| **Failed** | Execution failed (auto-retry or manual review) |
+| **Blocked** | Waiting on external input or a dependency |
+| **Archived** | Completed tasks moved out of the active board |
+
+### Key Features
+
+<CardGroup cols={2}>
+  <Card title="DAG Dependencies" icon="diagram-project">
+    Define task dependencies as a directed acyclic graph. Tasks auto-start when all upstream dependencies complete. Cycle detection prevents deadlocks.
+  </Card>
+  <Card title="Priority Scheduling" icon="arrow-up-1-9">
+    4 priority levels (Urgent / High / Normal / Low) with automatic dispatch to the next available worker.
+  </Card>
+  <Card title="Zombie Detection" icon="ghost">
+    Heartbeat monitoring detects stalled tasks. If a task stops reporting progress, it's automatically reclaimed and reassigned.
+  </Card>
+  <Card title="Transient Error Recovery" icon="rotate">
+    429/503 API rate limits trigger smart backoff — the task is paused for 15 minutes, then automatically retried. No manual intervention needed.
+  </Card>
+</CardGroup>
+
+### Pipeline Wizard
+
+For complex workflows, use the **Pipeline Wizard** to create a task DAG from a template:
+
+1. Navigate to **Kanban > New Pipeline**
+2. Select a template (or create your own)
+3. The wizard generates a connected task graph with dependencies
+4. Review and launch — tasks execute in dependency order
+
+Custom templates are defined as YAML frontmatter in Skill files, making them reusable and version-controlled.
+
+### Git Worktree Isolation
+
+Each Kanban task can optionally run in an isolated Git worktree:
+
+- Parallel workers edit the same repo without conflicts
+- Each task gets its own branch
+- On completion, changes can be merged as a PR-per-task
+
+---
+
+## Sub-Agent Orchestration
+
+When a single agent isn't enough, Myrm's sub-agent system enables multi-agent collaboration with 6 patterns.
+
+### Orchestration Patterns
+
+| Pattern | Description | Use Case |
+|---------|-------------|----------|
+| **Spawn** | Single child agent delegation | Offload a side task without blocking the parent |
+| **Chain** | Sequential A → B → C | Multi-step pipelines where order matters |
+| **Batch** | Parallel independent tasks | Research across multiple topics simultaneously |
+| **DAG** | Directed graph with dependencies | Complex workflows with prerequisites |
+| **Verified** | Worker + independent Verifier | Critical tasks requiring cross-validation |
+| **Swarm Fission** | Autonomous fission/merge | Exploratory tasks that may spawn sub-tasks dynamically |
+
+### Verified Pattern (Adversarial Verification)
+
+The Verified pattern prevents agents from "self-grading":
+
+1. **Worker** agent executes the task
+2. **Verifier** agent independently reviews the result in a read-only sandbox
+3. If verification fails, the Worker retries with the Verifier's feedback
+4. Maximum retry count is configurable
+
+This ensures high-quality output for critical tasks.
+
+### Budget Control
+
+Sub-agents operate under strict budget limits:
+
+| Dimension | Description |
+|-----------|-------------|
+| `max_descendants` | Maximum total sub-agents spawned (default: 20) |
+| `max_children_per_agent` | Maximum direct children per agent (default: 5) |
+| `max_spawn_depth` | Maximum nesting depth |
+| `context_budget` | Independent token budget per sub-agent |
+| `budget_tokens` / `max_cost_usd` | Hard spending limits |
+
+Budget exhaustion produces structured errors with clear reasons, not silent failures.
+
+### Workspace Isolation
+
+Each sub-agent runs in an isolated workspace:
+
+- **CoW cloning** — Copy-on-Write workspace duplication
+- **Precise sync** — Only modified files are synced back
+- **.git protection** — Git directory is excluded from operations
+- **Automatic cleanup** — Workspaces are cleaned up on completion
+
+---
+
+## Completion Verification
+
+Every task, whether Kanban or conversational, can be verified before being marked complete.
+
+### CompletionVerifier Protocol
+
+```python
+class CompletionVerifier(Protocol):
+    async def verify(self, task: KanbanTask, result: str) -> VerificationResult: ...
+```
+
+Verification results include:
+- `passed` — Whether the task meets acceptance criteria
+- `reason` — Explanation of the verdict
+- `error_logs` — Specific issues found
+
+### Goal-Level Verification
+
+Goals support dual-engine verification:
+
+1. **Shell verification** — Run test commands (e.g., `pytest`, `npm test`)
+2. **Semantic verification** — LLM-based assessment against acceptance criteria
+
+Both must pass for a goal to be marked complete.
+
+---
+
+## Task Diagnostics
+
+Myrm includes a built-in diagnostic engine that proactively detects unhealthy tasks and surfaces actionable recommendations.
+
+### 6 Diagnostic Rules
+
+| Rule | Detects | Action |
+|------|---------|--------|
+| **Stranded in Ready** | Task sitting in READY too long without being picked up | Archive or check dispatcher |
+| **Repeated Failures** | High consecutive failure count (auto-blocked) | Review task description or archive |
+| **Stuck in Blocked** | Task blocked for too long without resolution | Add comment, unblock, or archive |
+| **Dead Dependency** | All parent tasks are in terminal failed/archived state | Archive the orphaned task |
+| **Stranded in Triage** | Rough idea sitting in TRIAGE without being specified | Run Specify or archive |
+| **Block→Unblock Cycling** | Task repeatedly blocked by agent after being unblocked — root cause not addressed | Review block reasons, try different intervention |
+
+### Severity Auto-Escalation
+
+Each rule automatically escalates severity based on how far past the threshold the task is:
+
+- **Warning** (1×–2× threshold) — yellow badge on card
+- **Error** (2×–7× threshold) — orange badge
+- **Critical** (≥7× threshold) — red badge with urgent attention needed
+
+### Card-Level Badges
+
+Diagnostic results are evaluated at O(1) cost per card and displayed as severity badges directly on Kanban cards. Click any badge to open the diagnostic drawer with detailed explanations and one-click action buttons (archive, unblock, add comment, etc.).
+
+---
+
+## Getting Started
+
+1. **Kanban Board**: Navigate to the Kanban page in the sidebar
+2. **Create a Task**: Click "New Task" and describe what needs to be done
+3. **Set Dependencies**: Drag connections between tasks to define execution order
+4. **Launch**: Tasks auto-execute based on priority and dependency order
+5. **Monitor**: Watch real-time progress with heartbeat updates
+
+For sub-agent orchestration, simply describe a complex task to any agent — it will automatically decompose and delegate using the appropriate pattern.

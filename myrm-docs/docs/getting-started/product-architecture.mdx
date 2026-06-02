@@ -1,0 +1,71 @@
+---
+title: Product Architecture
+description: How the open frontend + server and the harness runtime fit together.
+---
+
+# Product Architecture
+
+Myrm ships as **two product layers** plus optional cloud control plane. Understanding the split helps you deploy, debug, and migrate from other agents.
+
+## Layers
+
+| Layer | Repo / package | License | What you run |
+|-------|----------------|---------|--------------|
+| **Product UI & API** | `myrm-agent-frontend` + `myrm-agent-server` | Open source | Browser WebUI, REST/SSE API, auth, billing hooks |
+| **Agent harness** | `myrm-agent-harness` | Proprietary runtime (bundled) | Tool execution, memory, browser, sub-agents, compression |
+| **Control plane** (optional) | `myrm-control-plane` | SaaS / self-host | LLM relay, Work Units, unified tool gateway |
+| **Desktop shell** (optional) | `myrm-agent-desktop` | Open source (Tauri) | Native app wrapping the WebUI + local backend |
+
+**Plain language:** the frontend is what you click; the server is the door into your workspace; the harness is the brain and hands inside the sandbox.
+
+## Request flow (typical chat)
+
+1. User sends a message in **frontend** (or an IM channel via server).
+2. **Server** authenticates, loads agent profile, streams events to the UI.
+3. **Harness** runs the agent loop: tools, memory recall, sub-agents, context compression.
+4. Results stream back through server → UI (and optional channel notification).
+
+## What to configure where
+
+| Task | Where |
+|------|--------|
+| Models, API keys, agent personality | Frontend **Settings** → persisted by server |
+| Skills, MCP, cron, goals | Frontend UI + server APIs |
+| Memory browse / approve / delete | Frontend **Memory** panel |
+| Sandbox files & code execution | Harness inside per-user sandbox (not raw SSH) |
+| SaaS billing & gateway tools | Control plane (when `DEPLOY_MODE` is SaaS) |
+
+## Deployment modes (same features, different packaging)
+
+| Mode | Best for | You get |
+|------|----------|---------|
+| **Local WebUI** | Developers, BYOK | Full GUI on `localhost`, data stays on your machine |
+| **Tauri desktop** | Daily driver on Mac/Win/Linux | App icon in dock, deep links, no browser tab clutter |
+| **SaaS** | Teams without ops burden | Managed sandboxes, Work Units, optional tool gateway |
+| **PWA** | Mobile add-to-home | Install from browser after `bun run build`; see archived runbook `MYRM_BRAND_LOGO_AND_PWA.md` in `temp-docs/archive/` |
+
+## Migrating from other agents
+
+- **Config:** import paths for Hermes / OpenClaw-style exports (see **Quick Start**).
+- **Memory:** Myrm uses structured DB memory + GUI — not a single `MEMORY.md` file.
+- **Skills:** prebuilt + community discovery; evolution is approval-gated.
+- **Channels:** 25+ built-in providers — re-link OAuth/ tokens in Settings.
+
+For an honest feature matrix vs OpenClaw, Hermes, Claude Code, and others, see [Competitor Comparison](/docs/getting-started/competitor-comparison).
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="rocket" href="/docs/getting-started/quickstart">
+    Run locally in minutes.
+  </Card>
+  <Card title="Memory System" icon="brain" href="/docs/core-concepts/memory-system">
+    How cross-session memory works.
+  </Card>
+  <Card title="Sandbox Runtime" icon="server" href="/docs/core-concepts/sandbox-runtime">
+    Where tools actually execute.
+  </Card>
+  <Card title="Desktop App" icon="desktop" href="/docs/getting-started/desktop-app">
+    Tauri packaging and updates.
+  </Card>
+</CardGroup>

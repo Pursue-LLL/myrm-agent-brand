@@ -1,0 +1,97 @@
+---
+title: Architecture Overview
+description: High-level architecture of the Myrm platform.
+---
+
+# Architecture Overview
+
+Myrm is composed of five independent repositories, each serving a distinct role in the platform.
+
+## Repository Structure
+
+| Repository | Description | License |
+|------------|-------------|---------|
+| `myrm-agent-harness` | Python agent runtime engine | Closed Source |
+| `myrm-agent-server` | Backend API server (FastAPI) | Open Source |
+| `myrm-agent-frontend` | Next.js web application | Open Source |
+| `myrm-agent-desktop` | Tauri desktop client | Open Source |
+| `myrm-control-plane` | SaaS multi-tenant orchestrator | Closed Source |
+
+### Separation of Concerns
+
+```
+┌────────────────────────────────┐
+│     myrm-control-plane         │  SaaS only: sandbox allocation, tenant routing
+├────────────────────────────────┤
+│     myrm-agent-server          │  Business logic, API, single-machine deployment
+├────────────────────────────────┤
+│     myrm-agent-harness         │  Agent runtime engine (model-agnostic)
+└────────────────────────────────┘
+```
+
+- **Harness** is the framework layer — model management, middleware chain, context pipeline, security, tools
+- **Server** is the business layer — user management, session persistence, API endpoints, single-machine deployment
+- **Control Plane** is the orchestration layer — sandbox provisioning, billing, multi-tenant routing (SaaS only)
+
+## Frontend Architecture
+
+Next.js App Router with:
+
+- **Tailwind CSS v4** for styling with dual theme support (light/dark)
+- **next-intl** for Chinese/English internationalization
+- **Zustand** for client-side state management
+- **WebSocket + SSE** for real-time streaming
+- **Responsive design** for mobile and desktop
+
+## Backend Architecture
+
+Python async service with:
+
+- **FastAPI** for REST API endpoints
+- **LiteLLM** for unified multi-model access (100+ models)
+- **LangGraph** for agent orchestration and state management
+- **SQLite** for primary data storage (single-machine, no distributed DB needed)
+- **Qdrant** for vector search (memory, skills, wiki)
+- **38+ Middleware** chain for security, logging, approval, and behavior control
+
+## Key Architectural Decisions
+
+### PPAF (Perception, Planning, Action, Feedback) Loop
+
+Myrm embraces the PPAF framework for its core execution loop:
+- **Perception**: Extracting intent from multi-modal user input and reading memory context.
+- **Planning**: Breaking down complex instructions via the Planner Middleware or `sequentialthinking` subagent.
+- **Action**: Executing isolated, sandboxed tools and scripts via the Tool Executor.
+- **Feedback**: Analyzing tool execution outcomes and performing dynamic replanning or error recovery.
+
+### R.E.S.T. Engineering Standard
+
+Myrm's Harness layer is built around the R.E.S.T. philosophy:
+- **Reliability (可靠性)**: 14 dynamic self-healing strategies, exponential backoff, and circuit breakers.
+- **Efficiency (高效性)**: Context compression, caching optimization, and prompt-prefix protection.
+- **Security (安全性)**: 6-layer defense-in-depth, including zero-trust sandboxing and strict policy gateways.
+- **Traceability (可追溯性)**: Advanced metrics, structured audit logs, and granular session debugging.
+
+### Modular Middleware vs Monolithic Agent
+
+Unlike some frameworks that put all agent logic in a single large class, Myrm uses a middleware chain architecture where each concern (security, approval, loop detection, completion checking, etc.) is an independent, testable module.
+
+### Async-First
+
+All I/O operations use `asyncio` coroutines. This provides better resource utilization than thread pools for I/O-bound workloads (LLM API calls, file operations, network requests).
+
+### Framework-Business Separation
+
+The harness engine contains zero business logic. It provides generic agent capabilities (tool execution, memory, security, streaming) that any business application can use. The server layer adds user management, session handling, and API contracts on top.
+
+## Security Model
+
+6-layer defense-in-depth. See [Security Architecture](/docs/core-concepts/security-architecture) for the complete model.
+
+## Deployment Modes
+
+| Mode | Components | Use Case |
+|------|-----------|----------|
+| **Local WebUI** | Server + Frontend | Personal use, development |
+| **Tauri Desktop** | Desktop + embedded Server | Native app experience |
+| **SaaS Cloud** | Control Plane + Server + Frontend | Managed hosting, teams |

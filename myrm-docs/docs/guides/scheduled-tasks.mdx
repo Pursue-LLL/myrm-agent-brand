@@ -1,0 +1,93 @@
+---
+title: Scheduled Tasks
+description: Complete guide to cron scheduling, task chaining, and unattended automation.
+---
+
+# Scheduled Tasks
+
+Create recurring tasks using natural language descriptions. Myrm's cron system supports three scheduling modes, task chaining, situation reports, and 10-layer anti-noise defense — far beyond basic cron scheduling.
+
+## Creating a Task
+
+### Via Chat (Natural Language)
+
+Describe your schedule naturally in any conversation:
+
+> "Every morning at 9 AM, scrape competitor prices and email me a comparison report"
+
+The agent will parse intent, create the schedule, and confirm before activation. Recurring schedules require explicit confirmation (`recurring_confirmed`) to prevent accidental creation.
+
+### Via GUI
+
+Navigate to **Tasks > Scheduled** and click **Create Task** to use the visual configuration dialog with schedule picker, model selector, and delivery options.
+
+## Three Scheduling Modes
+
+| Mode | Syntax | Example |
+|------|--------|---------|
+| **CRON** | Standard cron expression | `0 9 * * *` (daily 9 AM) |
+| **INTERVAL** | Every N minutes (min 5) | `every_minutes=30` |
+| **ONCE** | ISO 8601 one-shot | `2026-06-01T10:00:00` |
+
+## Task Chaining (context_from)
+
+Chain tasks together so one task's output feeds into another:
+
+> "Task A collects daily sales data, Task B analyzes it and generates a report"
+
+Set `context_from` to inject referenced jobs' latest successful output into the next task's prompt.
+
+## Heartbeat Monitoring
+
+Built-in periodic self-check (`__heartbeat__`) with **Situation Report** injection — the agent reviews memory changes, pending reminders, and system health before each tick, transforming blind checks into intelligence-driven actions.
+
+## Smart Delivery
+
+| Feature | Description |
+|---------|-------------|
+| **Multi-channel** | Results delivered via chat, webhook, Feishu, Slack, or any of 35+ channels |
+| **[SILENT] skip** | When there's nothing actionable, the agent responds `[SILENT]` to skip notification |
+| **Failure alerts** | Separate `failure_webhook_url` for ops alerting |
+
+## 10-Layer Anti-Noise Defense
+
+| Layer | Mechanism | Effect |
+|-------|-----------|--------|
+| 1 | Active Hours | Only runs within configured time window |
+| 2 | [SILENT] instruction | AI self-judges no-value content, skips push |
+| 3 | Output Hash dedup | Identical results not re-pushed |
+| 4 | Cooldown period | Enforced minimum interval between pushes |
+| 5 | Max Fires limit | Auto-stops after N executions |
+| 6 | Skip If Active | Won't spawn new instance while previous runs |
+| 7 | Expires At | Auto-stops at expiration datetime |
+| 8 | PreFlight Condition | Sandboxed probe script must pass before execution |
+| 9 | No-content Skip | Heartbeat skips LLM call when all sections empty |
+| 10 | Failure Alert Cooldown | Even failure alerts have cooldown periods |
+
+## Security
+
+- **Prompt injection scanning** before every execution
+- **ContextVar self-scheduling guard** prevents infinite task chains (cron job cannot create new cron jobs)
+- **Budget enforcement** blocks execution when daily budget is exceeded
+- **YOLO mode auto-enable** for unattended execution (no HITL blocking)
+
+## Desktop Power Management
+
+On Tauri desktop, scheduled tasks automatically acquire a **PowerLock** to prevent system sleep during execution:
+
+- **macOS**: `caffeinate` subprocess
+- **Linux**: `systemd-inhibit`
+- **Windows**: `SetThreadExecutionState`
+
+The lock is RAII-guarded and auto-released when the task completes, even on failure.
+
+## Examples
+
+| Description | Schedule | Features Used |
+|-------------|----------|---------------|
+| Daily report | `0 9 * * *` | Cron + channel delivery |
+| Weekly backup | `0 2 * * 1` | Cron + shell command |
+| Hourly monitoring | `0 * * * *` | Interval + [SILENT] skip |
+| One-time reminder | `2026-06-01T10:00:00` | Once + chat delivery |
+| Data pipeline | `0 8 * * *` | Cron + context_from chaining |
+| Heartbeat self-check | Configurable | Heartbeat + Situation Report |

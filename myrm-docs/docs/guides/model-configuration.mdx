@@ -1,0 +1,60 @@
+---
+title: Model Configuration
+description: Configure and switch between 100+ LLM models.
+---
+
+# Model Configuration
+
+Myrm uses LiteLLM for unified access to 100+ models from any provider.
+
+## Adding API Keys
+
+Navigate to **Settings > Models** or set environment variables:
+
+```env
+OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-ant-...
+DEEPSEEK_API_KEY=...
+GOOGLE_API_KEY=...
+```
+
+## Smart Routing
+
+The complexity router automatically selects the optimal model based on task requirements:
+
+- Simple queries use lightweight models
+- Complex reasoning escalates to frontier models
+- Cost and latency are optimized per request
+
+## Key Rotation
+
+4-strategy key rotation maximizes throughput and availability across multiple API keys per provider.
+
+## Privacy Routing
+
+Myrm's Privacy Routing automatically selects cloud or local models based on data sensitivity — no manual switching required:
+
+| Sensitivity | Routing | Data Handling |
+|-------------|---------|---------------|
+| **S1** — Public | Cloud model | Direct to cloud |
+| **S2** — Internal | Cloud (after PII redaction) or local | Auto-redaction or local routing |
+| **S3** — Confidential | Local model only | Data never leaves your machine |
+
+Privacy Routing wraps the model behind a standard interface. Agents, middlewares, and the execution loop are completely unaware of the routing — they interact with a normal model.
+
+Combined with Ollama, LM Studio, or vLLM for local backends, this enables fully air-gapped operation for sensitive workloads.
+
+## Fault Tolerance
+
+The 14-layer error recovery system handles failures automatically:
+
+- Rate limit errors (4-strategy key rotation + credential pool)
+- Provider outages (Circuit Breaker with 3-tier cooldown + fallback presets)
+- Stream interruptions (token-level precise resume)
+- Response truncation (progressive output budget boost 2x → 3x → 4x)
+- Oversized images (automatic re-encoding and compression)
+- Model thinking mode errors (automatic mode adjustment and retry)
+- Empty responses (parameter adjustment and retry)
+- Iteration limits (grace-call summary — users never see a blank response)
+
+See [Error Recovery](/docs/core-concepts/error-recovery) for the full 14-layer architecture.

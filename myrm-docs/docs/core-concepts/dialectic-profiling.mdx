@@ -1,0 +1,45 @@
+---
+title: Dialectic Profiling
+description: Async Cognitive Deriver extracts communication style, decision habits, and implicit goals — not regex guessing.
+---
+
+# Dialectic Profiling (Cognitive Deriver)
+
+Myrm replaces brittle regex-based preference extraction with an **async Cognitive Deriver**: after a conversation ends, a background LLM pass performs dialectic reasoning over the exchange and writes structured profile entries into memory.
+
+## What gets inferred
+
+| Dimension | Examples stored as profile memory |
+|-----------|-----------------------------------|
+| **Communication style** | Concise vs verbose, formal vs casual, language mix |
+| **Decision logic** | Risk tolerance, prefers options vs direct recommendation |
+| **Implicit goals** | Ongoing projects, unstated priorities surfaced from context |
+
+Evidence-backed only: if the model cannot cite clear signals, fields stay empty (anti-hallucination).
+
+## How it works (runtime)
+
+1. **Extraction** — `MemoryExtractor` prompts include a dialectic section; conclusions land as `memory_type="profile"` with high confidence when supported.
+2. **Deriver cycle** — `cognitive/deriver.py` runs async dialectic reasoning on recent messages and updates vector + graph evidence.
+   - **Token-Aware Sliding Window**: Automatically limits input messages to ~16,000 characters before sending to the LLM to prevent OOM errors and save budget.
+   - **Dual-Write Degradation**: Securely dual-writes to GraphStore and SemanticMemory; if the graph backend fails or is disabled, gracefully degrades to SemanticMemory without losing data.
+3. **Taste Summary** — `compile_taste_summary` consolidates active semantic/profile rows into a fast-read summary for the system prompt.
+4. **Injection** — `MemoryContextMiddleware` injects taste summary **before** each turn (no extra tool round-trip vs Honcho-style `honcho_context` calls).
+5. **SSE Noise Reduction** — UI only notifies you when a **disruptive** change (contradict/supersede) occurs; standard preferences are extracted entirely silently in the background.
+6. **GUI** — `TasteSummaryCard` shows badges; users can edit or remove inferred traits in the Memory Command Center.
+
+## vs Honcho / Mem0-style SaaS
+
+| Aspect | Typical memory SaaS | Myrm |
+|--------|---------------------|------|
+| Preference extraction | Observation → representation pipelines | **Cognitive Deriver** after chat, LLM dialectic |
+| Context assembly | Agent calls a memory tool per turn | **Automatic** middleware injection |
+| Management | Often CLI-only | **GUI** browse, approve, audit, rollback |
+| “Dream” long-horizon goals | Separate expensive pipeline | **Zero extra pipeline** — goals folded into taste summary maintenance |
+
+## Related docs
+
+- [Memory System](/docs/core-concepts/memory-system) — 8 memory types, retrieval, forgetting
+- [Product Architecture](/docs/getting-started/product-architecture) — harness vs server vs UI layers
+
+For competitive positioning detail, see internal materials `MEMORY_ADVANTAGE.md` (§ vs Honcho / Mem0).

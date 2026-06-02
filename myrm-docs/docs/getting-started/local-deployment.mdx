@@ -1,0 +1,65 @@
+---
+title: Local Deployment
+description: Self-host Myrm with Docker or manually.
+---
+
+# Local Deployment
+
+Run Myrm on your own machine with full control over your data.
+
+## Prerequisites
+
+- Docker 24+ and Docker Compose v2
+- 4GB RAM minimum (8GB recommended)
+- 10GB disk space
+
+## Docker Compose (Recommended)
+
+```bash
+git clone https://github.com/myrm-ai/myrm.git
+cd myrm
+cp .env.example .env
+docker compose up -d
+```
+
+## Configuration
+
+Edit `.env` to set your API keys:
+
+```env
+# LLM Provider (at least one required)
+OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-ant-...
+
+# Optional: Additional providers
+DEEPSEEK_API_KEY=...
+GOOGLE_API_KEY=...
+```
+
+See [Environment Variables](/docs/self-hosting/environment-variables) for the full reference.
+
+## Verify Installation
+
+```bash
+curl http://localhost:3000/api/health
+```
+
+Expected response:
+
+```json
+{ "status": "ok" }
+```
+
+## Production Docker builds (OSS server image)
+
+When building the open-source server image from pre-built harness wheels, the builder selects the correct platform core wheel via BuildKit `TARGETPLATFORM` and runs `verify-harness-distribution` before the image is considered ready. Mismatched or incomplete installs fail at build/startup time—not mid-conversation.
+
+See the harness distribution guide in the monorepo: `myrm-agent-harness/harness_packaging/DISTRIBUTION_SYSTEM.md`.
+
+## Updating
+
+```bash
+git pull
+docker compose pull
+docker compose up -d
+```

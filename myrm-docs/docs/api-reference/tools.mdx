@@ -1,0 +1,59 @@
+---
+title: Tools API
+description: Manage and execute tools programmatically.
+---
+
+# Tools API
+
+## List Available Tools
+
+```bash
+GET /api/tools
+```
+
+## Execute Tool
+
+```bash
+POST /api/tools/:name/execute
+```
+
+```json
+{
+  "parameters": {
+    "url": "https://example.com"
+  }
+}
+```
+
+## Built-in Tools
+
+| Tool | Description |
+|------|-------------|
+| `browser` | Web browsing and scraping |
+| `file_system` | File read/write operations |
+| `terminal` | Shell command execution |
+| `code_execute` | Code execution in sandbox |
+| `web_search` | Multi-engine search with BM25/Reranker filtering — returns cleaned, deduplicated snippets |
+| `web_fetch` | 3-tier local fetch (HTTP/Browser/Stealth) with DOM pruning and Markdown extraction |
+| `github` | GitHub API integration |
+
+## MCP Tools
+
+External tools connected via [MCP](/docs/guides/mcp-integration) are automatically registered alongside built-in tools. MCP tool names are internally prefixed as `mcp__{server}__{tool}` for namespace isolation — the API accepts both the prefixed and original names.
+
+```bash
+POST /api/tools/mcp__github__search_repos/execute
+```
+
+### Filtering
+
+Per-agent tool filtering is supported via `tool_include` / `tool_exclude` in MCP server config:
+
+```json
+{
+  "tool_include": ["search_repos", "get_issue"],
+  "tool_exclude": ["delete_repo"]
+}
+```
+
+See [MCP Integration > Tool Filtering](/docs/guides/mcp-integration#tool-filtering) for details.

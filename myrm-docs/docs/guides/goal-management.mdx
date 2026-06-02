@@ -1,0 +1,157 @@
+---
+title: Goal Management
+description: Define long-running objectives with budget control, acceptance criteria, and autonomous execution.
+---
+
+# Goal Management
+
+Goals transform Myrm from a chat assistant into an autonomous worker. Define an objective, set constraints, and let the agent work independently across multiple turns.
+
+## Creating a Goal
+
+### From the GUI
+
+1. Navigate to the **Goal** panel in the sidebar
+2. Click **New Goal**
+3. Describe the objective (e.g., "Refactor the authentication module to use JWT tokens")
+4. Optionally set acceptance criteria, constraints, and budget limits
+5. Submit — the agent begins planning and executing
+
+### From Chat
+
+Simply describe a complex task in natural language. The agent will detect it requires sustained effort and offer to create a goal.
+
+## Goal Lifecycle
+
+```
+PENDING_APPROVAL → ACTIVE → PAUSED → COMPLETED / FAILED / CANCELLED
+                              ↕
+                           QUEUED
+```
+
+| State | Description |
+|-------|-------------|
+| `PENDING_APPROVAL` | Waiting for user to approve the execution plan |
+| `ACTIVE` | Agent is actively working toward the objective |
+| `PAUSED` | Temporarily halted (budget limit or user pause) |
+| `QUEUED` | Waiting for the current active goal to finish |
+| `COMPLETED` | Objective met and verified |
+| `FAILED` | Unable to complete within budget |
+| `CANCELLED` | Explicitly cancelled by user |
+
+## Budget Control
+
+Every goal has 4 budget dimensions:
+
+| Dimension | Description | Example |
+|-----------|-------------|---------|
+| `max_tokens` | Maximum total tokens consumed | 500,000 |
+| `max_usd` | Maximum dollar spend | $5.00 |
+| `max_time_seconds` | Maximum wall-clock time | 3600 (1 hour) |
+| `max_turns` | Maximum agent turns | 30 |
+
+Budget exhaustion pauses the goal with a structured summary of progress. You can **resume** the goal with additional budget at any time.
+
+## Acceptance Criteria
+
+Define what "done" looks like:
+
+```
+All tests pass, code coverage > 80%, no new linting errors
+```
+
+The agent uses **dual-engine verification**:
+
+1. **Shell verification** — Runs test commands (e.g., `pytest`, `npm test`) and checks results
+2. **Semantic verification** — LLM-based assessment against your acceptance criteria
+
+Both engines must agree for the goal to be marked complete.
+
+## Constraints
+
+Hard rules the agent must follow:
+
+```
+Do not modify the database schema
+Do not introduce new dependencies
+Keep all changes backward compatible
+```
+
+Constraints are injected into the agent's prompt every turn as a "CONSTRAINTS (MUST NOT VIOLATE)" block, and the semantic judge evaluates compliance during completion verification.
+
+## 7-Step Continuation Guard
+
+At the end of every turn, the continuation guard chain determines whether the agent should continue:
+
+1. Check if the user cancelled
+2. Check budget limits (all 4 dimensions)
+3. Check if tools reported completion
+4. Check semantic completion (LLM judge)
+5. Check constraint compliance
+6. Check for stalled progress
+7. Check if dynamic subgoals are satisfied
+
+This prevents both premature termination and runaway execution.
+
+## Priority Queue
+
+When you create multiple goals, they're automatically queued:
+
+- The first goal runs immediately
+- Subsequent goals enter `QUEUED` state
+- When the active goal finishes, the next queued goal auto-starts
+- Drag-and-drop reordering in the GUI
+
+Set `auto_approve: true` to skip the approval step for queued goals, enabling fully unattended execution of goal chains.
+
+## Dynamic Subgoals
+
+During execution, you can add new objectives without interrupting the agent:
+
+1. Open the active goal's detail panel
+2. Add a subgoal (e.g., "Also add unit tests for the new module")
+3. The subgoal is injected into the agent's context with highest priority
+
+Subgoals are included in the semantic judge's completion criteria.
+
+## Objective Hot-Edit
+
+Change the goal's direction mid-execution:
+
+1. Open the active goal's detail panel
+2. Edit the objective text
+3. The change is injected as a steering message — the agent adjusts course without losing progress
+
+## Execution Summary
+
+After completion, every goal produces a `GoalExecutionSummary` with:
+
+- Files modified (with diff links)
+- Token usage breakdown
+- Cost breakdown by model
+- Time elapsed
+- Turn count
+- Completion reason
+
+This summary is available in the GUI and via API.
+
+## Example Workflow
+
+```
+User: "Migrate the API from Express to Fastify"
+
+Goal created:
+  Objective: Migrate Express → Fastify
+  Criteria: All existing tests pass, no API contract changes
+  Constraints: Don't modify the database layer
+  Budget: max_turns=50, max_usd=$10
+
+Agent:
+  Turn 1-3: Plans migration, identifies 12 affected files
+  Turn 4-15: Rewrites route handlers
+  Turn 16-20: Updates middleware
+  Turn 21-25: Fixes failing tests
+  Turn 26: All tests pass, semantic judge confirms completion
+  
+Goal COMPLETED — 26 turns, $3.47 spent
+```

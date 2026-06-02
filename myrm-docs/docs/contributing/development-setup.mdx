@@ -1,0 +1,47 @@
+---
+title: Development Setup
+description: Set up your development environment for contributing to Myrm.
+---
+
+# Development Setup
+
+## Prerequisites
+
+- Node.js 20+
+- Python 3.11+
+- Bun 1.2+ (package manager)
+- Docker (for backend services)
+
+## Clone and Install
+
+```bash
+git clone https://github.com/myrm-ai/myrm.git
+cd myrm
+
+# Frontend
+cd myrm-agent-frontend
+bun install
+bun dev
+
+# Backend
+cd ../myrm-agent-harness
+pip install -e ".[dev]"
+```
+
+## Running Tests
+
+```bash
+# Frontend tests
+cd myrm-agent-frontend
+bun test
+
+# Backend tests
+cd myrm-agent-harness
+pytest
+```
+
+## Code Quality
+
+- Frontend: ESLint + Prettier (auto-format on save)
+- Backend: Ruff + mypy (strict type checking)
+- Pre-commit hooks enforced via Husky

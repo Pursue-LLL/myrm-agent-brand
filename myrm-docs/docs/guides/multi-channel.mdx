@@ -1,0 +1,113 @@
+---
+title: Multi-Channel
+description: Connect your agent to 35+ messaging platforms with channel-aware output.
+---
+
+# Multi-Channel Integration
+
+Access your agent from any messaging platform — 35+ channels with automatic format adaptation.
+
+## Supported Channels
+
+| Category | Channels | Count |
+|----------|----------|-------|
+| Instant Messaging | Discord, Slack, Telegram, WhatsApp, Signal, Line, Matrix, Mattermost, IRC | 9 |
+| China Ecosystem | WeChat, WeCom, WeCom AIBot, DingTalk, Feishu, QQ, OneBot, WeChat Official | 8 |
+| Enterprise | Microsoft Teams, Google Chat | 2 |
+| Voice | Discord Voice (with DAVE E2E encryption) | 1 |
+| Other | Email, SMS, iMessage, Webhook, Zalo | 5 |
+
+## Setup
+
+Navigate to **Settings > Channels** in the GUI to connect a platform. Each channel has its own configuration panel with connection status indicators.
+
+## Message Types
+
+All channels support:
+
+- Text messages with platform-appropriate formatting
+- Image / document / audio / video attachments (`MediaType` enum)
+- File uploads with automatic type detection
+
+## Channel-Aware Output Adaptation
+
+Myrm uses a **dual-insurance** architecture to ensure output renders correctly on every platform:
+
+### Pre-hoc Guidance (channel_output_hints)
+
+At agent initialization, a channel-specific format hint is injected into the system prompt. This tells the LLM what the platform supports *before* it generates content:
+
+- **Telegram**: "NO table syntax — use bullet lists or key: value pairs"
+- **WhatsApp**: "Markdown does NOT render — use plain text only"
+- **Discord**: "Messages over 2000 chars are split automatically"
+- **Voice**: "Speak as you would to a person in conversation"
+
+24 channel hints are pre-configured and KV-Cache safe (injected once at init).
+
+### Post-hoc Format Downgrade (renderer)
+
+Even if the LLM ignores hints, the rendering pipeline applies format downgrades:
+
+- `supports_tables=false` → Markdown tables converted to bullet lists
+- `supports_latex=false` → LaTeX formulas stripped to plain text
+- HTML/SVG code blocks replaced with short placeholders on IM channels
+- Orphan citation markers auto-cleaned when no sources are present
+
+### Smart Message Splitting
+
+Long messages are automatically split at natural boundaries:
+
+- Code fence state machine ensures code blocks are properly closed and reopened across chunks
+- Intelligent line splitting at whitespace and punctuation boundaries
+- Configurable overflow tolerance for semantic preservation
+- Per-channel length limits (e.g., Discord 2000 chars, Telegram 4096 chars)
+
+## Group Chat Features
+
+### AllowPolicy
+
+Three preset policies control when the agent responds in group chats:
+
+| Policy | DM | Group |
+|--------|-----|-------|
+| OPEN | Allow all | Allow all (no mention needed) |
+| SELECTIVE | Allow all | Mention required |
+| STRICT | Mention required | Mention required |
+
+### GroupContextBuffer
+
+Non-trigger messages in group chats are accumulated in a per-group ring buffer. When a trigger message arrives (e.g., @agent), the buffer is drained and injected as context — giving the agent conversational awareness of the group discussion.
+
+### SessionGate
+
+Rapid-fire messages from the same conversation are debounced (default 300ms window) and merged into a single request, preventing duplicate processing.
+
+## Agent-Initiated Notifications
+
+Your agent can proactively push notifications to configured channels — no manual polling needed.
+
+### How It Works
+
+1. Configure notification targets in your agent's settings (channel + recipient whitelist)
+2. The agent calls `channel_notify_tool` when it needs to alert you (task completion, anomaly detection, scheduled report ready)
+3. The message is delivered through the ChannelGateway infrastructure with retry and dead-letter queue support
+
+### Security
+
+| Layer | Protection |
+|-------|-----------|
+| Whitelist | Only user-configured targets are reachable — no arbitrary recipients |
+| Rate limit | Per-session cap prevents notification spam (default: 10 per session) |
+| Content cap | Messages exceeding `max_body_length` (4000 chars) are automatically truncated |
+| Audit trail | Every notification target used is recorded in session state |
+| Priority | Agent notifications always use NORMAL priority (system-level messages are separate) |
+
+### Example Scenarios
+
+- Scheduled task completes at 3 AM → agent sends summary to your Telegram
+- Long-running code analysis finishes → results pushed to Slack channel
+- Anomaly detected in monitored data → alert sent to configured notification target
+
+## Cross-Platform Handoff
+
+Transfer a conversation from one platform to another without losing context. Use the `/handoff` command in any IM channel or the "Transfer to..." menu in Web UI. The handoff is instant (single DB update, millisecond latency) and preserves the full prompt cache.

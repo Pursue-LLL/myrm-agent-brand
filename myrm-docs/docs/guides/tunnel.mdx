@@ -1,0 +1,58 @@
+---
+title: Tunnel (NAT Traversal)
+description: Access your local agent from anywhere.
+---
+
+# Tunnel
+
+Access your locally-hosted Myrm instance from anywhere using built-in tunnel support.
+
+## How It Works
+
+Myrm integrates with Cloudflare Tunnel to expose your local instance through a secure, encrypted tunnel.
+
+## Setup
+
+1. Open **Settings > System**
+2. Enable **password protection** (required for Tauri; enabled by default in browser local mode)
+3. Under **Quick Tunnel**, click **Start tunnel**
+4. Copy the generated public URL (webhooks sync to **Public Ingress** automatically)
+
+## Use Cases
+
+- Access your home agent from your phone
+- Share your agent with team members temporarily
+- Connect messaging channels to a local instance
+
+## Stable custom domain
+
+Quick Tunnel uses a random `trycloudflare.com` hostname. For a **fixed domain** (webhooks in production):
+
+1. Create a [Cloudflare Named Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) (or another reverse proxy) to your WebUI port (default `3000`).
+2. In **Settings > System**, set **Public Ingress** to `https://your.domain` (do not start Quick Tunnel).
+3. Run **Test connectivity**, then configure messaging channels.
+
+## Security
+
+- All traffic is encrypted end-to-end
+- Enable **password protection** before starting Quick Tunnel
+- Quick Tunnel URLs change each session; use a stable domain for long-lived webhooks
+
+## Troubleshooting
+
+### `cloudflared binary not found`
+
+- **Tauri desktop**: the app bundles `cloudflared`; reinstall or update the desktop build if the sidecar is missing.
+- **WebUI / dev**: install [cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/) and ensure it is on `PATH`, or set `CLOUDFLARED_PATH` to the full binary path before starting the server.
+
+### Tunnel start times out or fails immediately
+
+1. Confirm the WebUI port in **Settings > System** matches the port Myrm is actually listening on (default `3000`).
+2. Check server logs for `Quick Tunnel failed` — the last lines of **cloudflared stderr** are included to show the real error (firewall, DNS, or Cloudflare outage).
+3. Retry after a minute; Quick Tunnels are best-effort when not using a Cloudflare account.
+
+### Webhook still shows `localhost` on a channel page
+
+1. Start **Quick Tunnel** (or set **Public Ingress**) under **Settings > System** first.
+2. Re-open the channel page so the webhook URL refreshes from the public ingress resolver.
+3. For production webhooks, use a **stable custom domain** instead of a random `trycloudflare.com` URL.

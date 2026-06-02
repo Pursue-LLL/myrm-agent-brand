@@ -1,0 +1,64 @@
+---
+title: Wiki Knowledge Base
+description: Manage structured knowledge with the Settings tree UI, hybrid search, and one-click save from chat.
+---
+
+# Wiki Knowledge Base
+
+Myrm includes a **compiled knowledge base (Wiki)**—not a pile of markdown skills for the agent to interpret. A dedicated engine handles compile, index, search, review, and maintenance. The same workflow works on **Local WebUI**, **Tauri desktop**, and **SaaS cloud**.
+
+## Open Wiki settings
+
+1. Go to **Settings → Wiki 知识库 (Wiki)**.
+2. Use the tabs:
+   - **Overview** — purpose, stats, compile/maintain actions, ad-hoc query.
+   - **Concepts (词条管理)** — folder tree, CRUD, drag-and-drop.
+   - **Pending edits** — human-in-the-loop approve/reject for LLM drafts.
+   - **Queue** — document ingestion pipeline status.
+
+## Manage concepts in the tree
+
+In **Concepts**:
+
+- **New folder** — pick an optional parent folder (root or nested), then name the folder.
+- **Rename / delete** — hover a row; delete shows the full path and how many items inside will be removed.
+- **Drag and drop** — move folders or concepts between parents (link refs are updated server-side).
+- **Detail panel** — select a concept to view or edit Markdown content.
+
+<Note>
+Wiki files remain plain Markdown on disk. Obsidian and other editors can open the same vault; Myrm adds indexing, search, and GUI management on top.
+</Note>
+
+## Save a chat message to Wiki
+
+On any **completed assistant message**, use **Save to Wiki** (book icon) in the message action bar:
+
+1. Choose a filename and optional target folder in the tree picker.
+2. Confirm save — content is written as a new concept (or overwrite confirm if the path already exists).
+3. Each save adds YAML frontmatter: `source_chat`, `source_message`, `saved_at` for traceability.
+
+This closes the loop: **conversation → one-click archive → searchable knowledge**.
+
+## Search and maintain
+
+- **Query Wiki** (Overview tab) — natural-language answers from indexed concepts.
+- **Compile / Maintain** — incremental compile and linter-driven health fixes (broken links, drift, etc.).
+- **Library / Brain views** — 3D knowledge graph and concept exploration (product navigation may vary by deployment).
+
+## Compared to DIY wiki skills
+
+| DIY (e.g. Hermes llm-wiki SKILL) | Myrm |
+|----------------------------------|------|
+| Agent must follow hundreds of lines of instructions | Python engine runs compile/search/lint reliably |
+| Manual folder layout | Settings tree GUI + APIs |
+| Copy/paste good answers | Save to Wiki button + provenance metadata |
+| Obsidian required for graphs | Built-in 3D graph + web Settings |
+
+<Warning>
+Myrm does not yet offer a Notion-style recycle bin for Wiki deletes. Treat delete confirmations seriously; use backups for critical notes.
+</Warning>
+
+## Related
+
+- [Memory system](/docs/core-concepts/memory-system) — episodic/semantic memory vs compiled Wiki articles
+- [Competitor comparison](/docs/getting-started/competitor-comparison) — migration and positioning

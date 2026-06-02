@@ -1,0 +1,45 @@
+---
+title: Agents API
+description: Create, configure, and interact with agents programmatically.
+---
+
+# Agents API
+
+## List Agents
+
+```bash
+GET /api/agents
+```
+
+## Create Agent
+
+```bash
+POST /api/agents
+```
+
+```json
+{
+  "name": "Research Assistant",
+  "model": "gpt-4o",
+  "tools": ["browser", "file_system"],
+  "system_prompt": "You are a research assistant..."
+}
+```
+
+## Send Message
+
+```bash
+POST /api/agents/:id/messages
+```
+
+```json
+{
+  "content": "Research the AI agent market in 2026"
+}
+```
+
+## Get Conversation History
+
+```bash
+GET /api/agents/:id/messages
+```

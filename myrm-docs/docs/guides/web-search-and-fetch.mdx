@@ -1,0 +1,173 @@
+---
+title: Web Search & Fetch
+description: Built-in web_search and web_fetch — multi-engine search, 3-tier fetch, and content filtering that keeps junk out of your Agent context.
+---
+
+# Web Search & Fetch
+
+Myrm includes **web_search** and **web_fetch** as built-in tools. They work together: search finds sources, fetch reads pages — both filter content **before** it reaches the LLM.
+
+## Why It Matters
+
+Most agents pass raw search snippets or full HTML into the model. That wastes tokens and hurts answer quality. Myrm runs a local filter pipeline:
+
+```
+Query → multi-engine search → BM25/Reranker → relevant snippets
+URL   → 3-tier fetch → DOM prune → (optional) BM25+vector+Reranker → clean text
+```
+
+**Result:** ~40–50% fewer tokens on web-heavy tasks, $0/month local operation.
+
+:::note Honest comparison
+Hermes, OpenClaw, OpenCode, and Claude Code all have basic web search/fetch tools. Myrm's advantage is the **full local filter pipeline** — not merely having the tools, but cleaning content before it hits the LLM.
+:::
+
+## Web Search
+
+### Engines
+
+Supports **7 providers** (configure in Settings → Search):
+
+| Provider | Best for |
+|----------|----------|
+| SearxNG (self-hosted) | Privacy, 70+ aggregated engines including Baidu |
+| Tavily | General research |
+| Exa | Semantic/neural search |
+| Perplexity | Q&A style |
+| Google PSE | Custom site search |
+| DataForSEO | SEO/data tasks |
+| Firecrawl | Search-as-a-service fallback |
+
+### Intent Detection (Zero LLM Cost)
+
+Myrm auto-detects **7 intent types** and adjusts engine parameters:
+
+- Code, News, Academic, Finance, Security, Social, General
+
+Say *"latest AI security CVEs"* — no mode picker needed.
+
+### Retrieval Modes
+
+| Mode | When | Pipeline |
+|------|------|----------|
+| **Basic** (default) | Most queries | BM25 + RRF multi-query fusion → smart truncation |
+| **Precision** | Long documents | Chunk → BM25 top-50 → Reranker top-20 → merge adjacent |
+
+Precision mode uses semantic reranking (score threshold **0.6**) — low-relevance chunks are dropped.
+
+### Image Search
+
+Built-in `image_search_tool` (DuckDuckGo-powered) with 15-minute cache — useful for visual research without extra Skills.
+
+### Resilience
+
+- **Engine fallback** — primary fails → automatic switch
+- **15-minute result cache** — repeat queries cost nothing
+- **30s health probe** — detects unavailable engines early
+
+## Web Fetch
+
+### 3-Tier Architecture
+
+| Tier | Speed | Use case |
+|------|-------|----------|
+| L1 HTTP | ~100ms | Static pages, APIs |
+| L2 Browser | ~1–3s | JavaScript-rendered pages |
+| L3 Stealth | ~3–5s | Cloudflare, anti-bot sites |
+
+**AdaptiveRouter** learns per-domain costs and picks the optimal tier automatically.
+
+### fetch_and_extract (Smart Extraction)
+
+When reranker + embedding are configured, `web_fetch` supports **fetch_and_extract**:
+
+1. 3-tier crawl (HTTP → Browser → Stealth)
+2. Chunk page content
+3. **BM25 + vector hybrid retrieval** (Qdrant embeddings)
+4. Reranker re-ranking → top relevant passages only
+
+This replaces cloud LLM summarization (e.g. Hermes `web_extract` + Gemini) with **zero-LLM local filtering**.
+
+### Content Cleaning
+
+Before text enters the Agent context:
+
+1. **DOM pruning** — removes nav, ads, footer, sidebar
+2. **HTML → Markdown** — structured, LLM-friendly
+3. **Smart truncation** — `max_chars` with `was_truncated` flag
+4. **Binary routing** — PDFs parsed separately (no garbled HTML)
+
+### Caching
+
+- Request coalescing (concurrent same-URL = one fetch)
+- Stale-While-Revalidate
+- ETag / Last-Modified conditional requests
+- 35+ tracking params stripped from URLs
+
+## vs Competitors
+
+| | Myrm | Hermes | OpenClaw | OpenCode |
+|---|:---:|:------:|:--------:|:--------:|
+| Built-in search | ✅ | ✅ | ✅ | ✅ |
+| Result filtering | ✅ BM25/Reranker | ❌ API passthrough | ❌ raw snippet | ❌ API passthrough |
+| Built-in fetch | ✅ 3-tier local | ⚠️ Firecrawl+LLM | ⚠️ HTTP/Firecrawl | ⚠️ HTTP only |
+| Vector extract mode | ✅ fetch_and_extract | ❌ (LLM summary) | ❌ | ❌ |
+| DOM pruning | ✅ | ❌ | ❌ regex/text | ❌ Turndown full page |
+| Chinese search | ✅ SearxNG+Baidu | ⚠️ backend-dependent | ❌ DDG poor | ⚠️ cloud API |
+| Image search | ✅ built-in | ❌ | ❌ | ❌ |
+| Monthly cost (local) | **$0** | API fees | Firecrawl fallback fees | Exa/Parallel fees |
+
+### Where Hermes Differs (not stronger)
+
+- Plugin backends (Exa/Tavily/Firecrawl) — more cloud vendors, but all require API keys
+- `web_extract` skips local embedding setup by using **LLM summarization instead** — easier setup, **costs tokens per page**
+- SSRF + URL secret blocking — mature, same class as Myrm (not a differentiator)
+
+### Auto Strip Ads & Redundancy
+
+| Cleanup | Myrm | OpenClacky | OpenCode | Hermes |
+|---------|:----:|:----------:|:--------:|:------:|
+| Remove nav/sidebar/footer | ✅ DOM tree prune | ❌ full regex | ❌ Turndown full page | ⚠️ API/LLM dependent |
+| Remove ads (link_density scoring) | ✅ ContentPruningFilter | ❌ | ❌ | ❌ |
+| Clean search snippets | ✅ | ❌ | ❌ | ❌ |
+| Dedup multi-query results | ✅ URL+content hash | ❌ | ❌ | ❌ |
+| Drop low-relevance passages | ✅ Reranker threshold 0.6 | ❌ | ❌ | ❌ |
+
+**Plain language:** We don't dump whole pages into the AI — we extract body text, strip ads and nav, dedupe, and keep only passages that match your question.
+
+### Zero-Config Comparison (corrected)
+
+| | Myrm | Hermes |
+|---|------|--------|
+| web_fetch out of box | ✅ **Local 3-tier + DOM prune**, no API key | ❌ Needs Firecrawl/Exa API key |
+| web_search out of box | ✅ GUI one-click SearxNG/DuckDuckGo | ⚠️ `hermes tools` + backend key |
+| Smart long-page extract | ✅ fetch_and_extract (BM25+vector+Reranker) | ⚠️ LLM summary (costs tokens) |
+
+**Myrm is more zero-config on fetch** — cleaning works locally without cloud APIs.
+
+## PTC Integration
+
+In Programmatic Tool Calling scripts:
+
+```python
+results = await tools.web_search("competitor pricing 2026", max_results=5)
+page = await tools.web_fetch("https://example.com/pricing")
+```
+
+No extra API round-trips — search and fetch run inside the sandbox.
+
+## Configuration
+
+1. Open **Settings → Search** — pick engine, API keys, SearxNG URL
+2. Enable **Reranker** in retriever settings for Precision mode on long docs
+3. **Web Fetch** works out of the box (browser tier uses Patchright if installed)
+
+## Migration Tips
+
+| From | Action |
+|------|--------|
+| Hermes | Import config; disable Firecrawl-only web_extract; use local web_fetch |
+| OpenClaw | Import config; remove manual Tavily/baidu Skills |
+| Claude Code | Enable SearxNG for self-hosted search; configure same models via LiteLLM |
+
+See [Competitor Comparison](/docs/getting-started/competitor-comparison#web-search--web-fetch--dual-engine-vs-hermes--openclaw--claude-code) for full migration benefits.

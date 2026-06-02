@@ -1,0 +1,125 @@
+---
+title: Context Management
+description: 5-layer context pipeline with reversible compression and Prompt Cache optimization.
+---
+
+# Context Management
+
+Myrm's context management system ensures agents can sustain 200+ turn conversations without information loss, while keeping costs low through intelligent compression and cache optimization.
+
+## Architecture Overview
+
+Every message passes through a multi-stage pipeline before reaching the LLM:
+
+```
+User Message → Filter → Cache TTL Prune → Compress → Summarize → Cache Optimize → LLM
+```
+
+## Compression Pipeline
+
+### Layer 1: Instant Filtering
+
+Large tool outputs (e.g., file contents, search results) are immediately truncated to preserve only the most relevant portions. Zero API cost.
+
+### Layer 2: Cache TTL Pruning
+
+Expired cached content is automatically cleared. This prevents stale data from consuming valuable context window space.
+
+### Layer 3: Priority-Aware Compression
+
+Messages are classified into three priority tiers:
+
+| Priority | Treatment |
+|----------|-----------|
+| **Critical** | Never compressed (user instructions, active errors) |
+| **Important** | Compressed last (recent tool results, key decisions) |
+| **Standard** | Compressed first (older conversation turns) |
+
+Three strategies are applied in order: **Dedup** (remove exact duplicates) → **Truncate** (shorten verbose outputs) → **Remove** (discard low-value turns).
+
+### Layer 4: Structured Summarization
+
+When compression alone isn't sufficient, an LLM generates a structured summary with 11 fields (user goal, active tasks, errors, decisions, etc.) to replace the compressed history.
+
+### Layer 5: Cache Optimization
+
+Provider-specific cache markers (Anthropic `cache_control`, Qwen prefixed cache) are injected to maximize prompt cache hits on subsequent requests.
+
+## Reversible Compression
+
+Unlike competitors that permanently discard compressed content, Myrm's compression is **reversible**:
+
+- Tool outputs are offloaded to `.context/` storage, not deleted
+- Archive Checkpoints capture full state before compression
+- Content can be restored on demand
+
+This means agents can "look back" at earlier details even after compression.
+
+## Prompt Cache Optimization
+
+Prompt caching reduces input token costs by up to 90% when cache hits occur.
+
+### Design Principles
+
+1. **Static/Dynamic Separation** — System prompt is frozen (cacheable); all dynamic content goes into user messages
+2. **4-Layer Stable Prefix** — System prompt → tools → workspace rules → first user message form a stable prefix
+3. **Cache Break Detection** — `cache_break_detector` actively monitors for cache invalidation and reports the cause
+4. **Only-Append Policy** — History messages are never modified in-place, preserving prefix stability
+
+### Protection Features
+
+| Feature | Description |
+|---------|-------------|
+| **Hot Cache Bypass** | When cache is already warm, skip unnecessary compression to preserve hits |
+| **Anti-Thrashing** | Detect and skip repeated low-yield compression cycles |
+| **90% Safety Net** | Emergency compression at 90% context window utilization to prevent OOM |
+| **Cache-TTL Archive** | Expired cache entries are archived (not deleted) for potential restoration |
+
+## Thinking Content Management
+
+When using reasoning/thinking models (DeepSeek, MiMo, Kimi, Anthropic Claude), the `ThinkingBlockCleaner` processor automatically manages `reasoning_content` and `thinking_blocks` to prevent context bloat:
+
+- **Anthropic models** — `reasoning_content` is removed (redundant with `thinking_blocks`); `thinking_blocks` are preserved
+- **DeepSeek/MiMo/Kimi** — Historical `reasoning_content` from older turns (before the last user message) is selectively removed, **except** on messages that carry `tool_calls` (API requirement). Current-turn reasoning is always preserved
+- **Model switching** — When switching from a non-thinking model to a thinking model mid-session, empty `reasoning_content` fields are automatically back-filled on historical assistant messages to prevent 400 errors
+
+In a typical 20-turn DeepSeek session, this saves ~8,000–20,000 reasoning tokens (~50% of reasoning overhead).
+
+## Extreme Scenario Anti-Explosion
+
+To ensure unparalleled stability even during massive context accumulations and multimodal autonomous tasks, Myrm employs a 4-layer protective moat:
+
+### 1. Gateway Hygiene (Token Block)
+
+Before requests even reach the Agent Harness, the Control Plane gateway scans the payload size. Massive malicious or malformed payloads (>120K tokens) are instantly intercepted with a `400 Bad Request`. This prevents LLM compute nodes from suffering Out-Of-Memory (OOM) crashes and system halts.
+
+### 2. Auxiliary Ratio Shield (Graceful Degradation)
+
+When the main model (e.g., 200K window) is nearing its limit, context is compressed using an auxiliary model. If the user configured an overly small auxiliary model (e.g., 8K window), passing 100K tokens to it would cause a fatal crash and loss of conversation history. Myrm dynamically checks this ratio; if the auxiliary model is too small, it silently degrades and uses the main model for summarization, issuing a warning but keeping the session alive.
+
+### 3. Smart Media Stripping
+
+For vision models operating autonomously (e.g., Computer Use), screenshots are heavily appended. Myrm implements a **Sliding Visual Evidence Window**, retaining only the last 2 media-containing messages for visual reasoning while stripping all large Base64 images from older history. This drastically reduces token bloat while maintaining vision capability.
+
+### 4. Tail Budget Ratio
+
+Instead of arbitrarily truncating messages, Myrm calculates a dedicated token budget (e.g., 20% of max context) exclusively reserved for the most recent conversation tail. This ensures that the agent's current working memory and active tool results are never compressed or squeezed out, guaranteeing task continuity.
+
+## Session Notes
+
+Agents can create structured notes during a session — these persist in the context at zero API cost (no LLM call needed) and serve as a lightweight alternative to full compression.
+
+## Dynamic Thresholds
+
+Compression thresholds adapt automatically based on context utilization:
+
+| Utilization | Action |
+|-------------|--------|
+| 40% | Begin monitoring, prepare for compression |
+| 50% | Light compression (dedup, truncation) |
+| 70% | Full compression (priority-aware removal) |
+| 90% | Emergency compression (safety net) |
+
+## Auxiliary Model Guard
+
+When using a smaller LLM for summarization, Myrm dynamically detects the aux model's context window and truncates messages before sending. This prevents small models from crashing during compression — they gracefully handle any input size.

@@ -1,0 +1,39 @@
+---
+title: Sandbox Runtime
+description: Per-user persistent sandbox for code execution and tool usage.
+---
+
+# Sandbox Runtime
+
+Every user gets an isolated, persistent sandbox environment that survives restarts.
+
+## Persistence
+
+Unlike ephemeral sandboxes, Myrm sandboxes retain:
+
+- Installed packages and tools
+- File system state
+- Environment configuration
+- Running processes (with auto-restart)
+
+## Isolation
+
+Each sandbox runs in an isolated container with:
+
+- Dedicated filesystem volume
+- Network namespace isolation
+- Resource limits (CPU, memory, disk)
+- Security policies enforced at runtime
+
+## Code Execution
+
+Agents can execute code directly in the sandbox:
+
+- Python, Node.js, shell scripts
+- Package installation via pip, npm, apt
+- File read/write operations
+- Network access (configurable)
+
+## Sleep & Wake
+
+Sandboxes automatically sleep after inactivity and wake on demand, preserving all state.

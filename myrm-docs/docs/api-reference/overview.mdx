@@ -1,0 +1,44 @@
+---
+title: API Overview
+description: REST API and WebSocket endpoints for programmatic access.
+---
+
+# API Overview
+
+Myrm exposes REST API and WebSocket endpoints for programmatic access.
+
+## Base URL
+
+- **SaaS**: `https://app.myrm.ai/api`
+- **Self-hosted**: `http://localhost:3000/api`
+
+## Authentication
+
+All API requests require a Bearer token:
+
+```bash
+curl -H "Authorization: Bearer YOUR_TOKEN" \
+  https://app.myrm.ai/api/agents
+```
+
+See [Authentication](/docs/api-reference/authentication) for token management.
+
+## Response Format
+
+All responses use JSON with consistent structure:
+
+```json
+{
+  "data": { ... },
+  "meta": { "timestamp": "2026-05-30T00:00:00Z" }
+}
+```
+
+## Rate Limits
+
+| Plan | Requests/min |
+|------|-------------|
+| Free | 30 |
+| Companion | 120 |
+| Pro | 300 |
+| Max | 600 |

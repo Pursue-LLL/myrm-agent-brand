@@ -1,0 +1,39 @@
+---
+title: Webhooks
+description: Configure webhooks for event-driven integrations.
+---
+
+# Webhooks
+
+Receive real-time notifications when events occur in your Myrm workspace.
+
+## Setup
+
+1. Navigate to **Settings > Webhooks**
+2. Add a webhook URL
+3. Select events to subscribe to
+4. Save and verify
+
+## Events
+
+| Event | Description |
+|-------|-------------|
+| `agent.message.created` | New message from agent |
+| `agent.task.completed` | Scheduled task finished |
+| `agent.task.failed` | Scheduled task failed |
+| `memory.created` | New memory entry |
+| `skill.evolved` | Skill evolution completed |
+
+## Payload Format
+
+```json
+{
+  "event": "agent.message.created",
+  "timestamp": "2026-05-30T00:00:00Z",
+  "data": { ... }
+}
+```
+
+## Security
+
+Webhook payloads include an HMAC signature in the `X-Myrm-Signature` header for verification.

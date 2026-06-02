@@ -1,0 +1,179 @@
+---
+title: Skill Evolution
+description: 42-module native self-evolution system with 5-layer safety, GUI approval, and evidence-driven learning.
+---
+
+# Skill Evolution
+
+Agents autonomously learn, test, and deploy new skills through a **42-module native evolution system** — no external dependencies, no CLI wrappers, no AGPL risks.
+
+## How It Works
+
+The evolution engine follows a **Retrieve-Before-Generate** strategy: before creating new solutions, it searches existing high-confidence fixes. This alone eliminates redundant LLM calls.
+
+1. **Discovery** — Agent identifies a recurring task pattern or detects a failure signal
+2. **Evidence Aggregation** — Collects success and failure cases across multiple executions
+3. **Variant Generation** — Creates 3 candidate variants in parallel (cost-efficient vs competitors' 50-500 LLM calls)
+4. **Scoring** — LLM-as-Judge evaluation with four dimensions (Function / Quality / Safety / Compatibility)
+5. **Approval** — GUI-based human approval workflow with diff preview
+6. **Deployment** — A/B tested with automatic rollback on regression
+
+## Four Evolution Types
+
+| Type | Trigger | What It Does |
+|------|---------|-------------|
+| **FIX** | 3 consecutive failures or success rate below 50% | Auto-repair failed skills using trace analysis |
+| **DERIVED** | User feedback or frustration signals | Optimize skill based on explicit or implicit feedback |
+| **CAPTURED** | Repeated user commands detected | Learn new skills from recurring patterns |
+| **OPTIMIZE_DESCRIPTION** | Low match rate | Refine skill description for better semantic matching |
+
+## 5-Layer Safety
+
+Every evolved skill passes through five independent safety gates before reaching production:
+
+| Layer | Mechanism | What It Prevents |
+|-------|-----------|-----------------|
+| **Sandbox** | Isolated execution environment | Runtime failures and side effects |
+| **AST Signature** | Function signature integrity check | Core API breakage |
+| **Size Guard** | Maximum 120% growth ratio | Code bloat and complexity creep |
+| **Anti-Loop** | TTL + attempt limits per skill | Infinite evolution cycles |
+| **A/B Testing** | Side-by-side performance comparison | Silent regressions |
+
+## Frustration Detection
+
+The system detects user dissatisfaction through **5 categories and 38 bilingual patterns** (Chinese + English), triggering DERIVED evolution without explicit user feedback:
+
+- **Verbosity** — "just give me the answer"
+- **Style** — "be more concise"
+- **Format** — "use a table instead"
+- **Workflow** — "stop doing X first"
+- **General** — frustration expressions
+
+## Evidence-Driven Evolution
+
+Unlike competitors that evolve from single failure signals, Myrm aggregates evidence across multiple executions:
+
+- **Success cases** — preserved to prevent regressions
+- **Failure cases** — analyzed for root cause patterns
+- **Minimum evidence threshold** — requires at least 3 executions and 1 failure before triggering evolution
+
+## Quality Monitoring
+
+**3-dimensional degradation detection** with sliding window statistics:
+
+- Success rate monitoring with configurable threshold (default: 70%)
+- P95 latency tracking with automatic alerting
+- Server error rate (5xx) monitoring
+
+Skills that degrade are automatically isolated via **1-Strike** (critical failure) or **3-Strikes** (gradual degradation) policies.
+
+## Curator: Lifecycle Governance
+
+Automated skill lifecycle management through the Curator system:
+
+- **Cluster Detection** — Identifies semantically similar skills via prefix + embedding analysis
+- **Umbrella Merge** — GUI preview before merging, preventing accidental consolidation
+- **Automatic Pruning** — Removes inactive and low-quality skills
+- **History Visualization** — Timeline view of all evolution events in the GUI
+
+## Skill Library
+
+24+ prebuilt skills available out of the box, with multi-source marketplace integration.
+
+### Toolset-Aware Skills
+
+Skills automatically adapt to your deployment environment. Each skill can declare which tools or tool groups it requires:
+
+- **requires_tools / requires_tool_groups** — skill only appears when specific tools are available
+- **fallback_for_tools / fallback_for_tool_groups** — skill auto-activates as a tutorial/workaround when a native tool is missing
+
+8 standardized tool groups (web, browser, file_ops, shell, computer_use, memory, kanban, wiki) ensure consistent behavior across Local WebUI, Tauri Desktop, and SaaS Cloud deployments.
+
+### Zero-Roundtrip Skill Injection
+
+When you explicitly invoke a skill (e.g., "use code-review"), Myrm injects the full SOP directly into context — no extra LLM tool call needed. This saves 2-5 seconds and 500-2000 tokens per invocation compared to the traditional "request → LLM calls select tool → load SOP" flow.
+
+The injected payload includes:
+- Full SOP content with `${SKILL_DIR}` template variables resolved
+- `[Skill directory: /path/to/skill]` for file access
+- Auxiliary file listing (scripts, references, templates)
+- `[IMPORTANT: The user has invoked...]` strong-signal header for model compliance
+
+### Three-Way Hash Protection
+
+When Myrm upgrades bundled prebuilt skills, user customizations are never silently overwritten:
+
+| Scenario | What Happens |
+|----------|-------------|
+| User hasn't modified the skill | Upstream update applied silently |
+| User modified the skill & upstream changed | User version preserved; "Update Available" badge shown in GUI |
+| User accepts the upstream update | One-click apply via **Accept Upstream** button |
+| User rejects | Skill stays as-is; badge dismissed |
+
+Under the hood, `origin_hash` (SHA-256 of the bundled source at last sync) is compared against the current stored content hash. If they differ, the user has customized the skill and the upgrade is deferred — not forced.
+
+This solves a common problem with prebuilt/template systems: users who tweak defaults lose their changes on every update.
+
+## Growth Dashboard
+
+Track your agent's learning progress visually:
+
+- KPI summary (total skills, success rate, evolution count)
+- Heat map of skill usage patterns
+- Radar chart of capability coverage
+- Weekly statistics and trend analysis
+- Skill evolution timeline
+
+### Daily Work Journal
+
+The **Daily Journal** tab provides a consolidated view of everything your agent did on any given day:
+
+- **Overview metrics** — sessions, tokens, cost, tool calls, approvals, cron runs, kanban events
+- **Source breakdown** — sessions grouped by origin channel (Web UI, Telegram, API, etc.)
+- **Unified timeline** — all events (sessions, approvals, cron runs, kanban events) sorted chronologically
+- **Date navigation** — browse any past day with a date picker
+- **Agent filtering** — filter by specific agent when running multiple agents
+
+Zero new storage is required — the journal aggregates data from 6 existing sources (Chat, Message, ApprovalRecord, CronRunModel, KanbanTaskEventModel, EventLog) in real time.
+
+## Multi-Agent Skill Scoping & Sharing
+
+In a multi-agent sandbox, skills are perfectly isolated yet securely shareable.
+
+- **Scope Isolation**: Skills natively belong to the agent that learned them. They don't pollute a global pool like in OpenClaw or Hermes.
+- **Cross-Agent Mounting**: Users can mount a skill from Agent A to Agent B with a single click in the GUI, complete with a visual origin badge.
+- **Copy-on-Write (CoW) Forking**: If Agent B evolves a skill mounted from Agent A, Myrm automatically forks a localized variant for Agent B. Agent A's original skill remains untouched and pristine.
+- **1-Click Rollback**: Undo an evolution on a CoW fork, and the system intelligently restores the cross-agent mount mapping, retaining complete semantic history.
+- **Robust Garbage Collection**: Deleting an agent cascade-deletes its exclusive skills (both database records and physical `rmtree` wipe with path boundary protection), leaving zero orphan data or "ghost" skills.
+
+## Compared to Alternatives
+
+| Capability | Myrm | Hermes darwinian-evolver | Generic LLM agents |
+|-----------|:----:|:---:|:---:|
+| Integration | Native (42 modules) | External CLI wrapper (AGPL) | None |
+| Safety layers | 5 | 0 | 0 |
+| GUI approval | Yes | No | No |
+| Evolution cost | 3 variants/run | 50-500 LLM calls/run | N/A |
+| Data persistence | SQLite + Qdrant | Pickle files | N/A |
+| Frustration detection | 38 bilingual patterns | None | None |
+| Quality monitoring | 3D degradation | None | None |
+| Environment fingerprint | Cross-device safe sharing | None | None |
+
+### vs Hermes Ecosystem Plugins
+
+Hermes requires **5 separate third-party plugins** to approximate what Myrm provides natively:
+
+| Plugin | What It Does | Myrm Native Equivalent |
+|--------|-------------|----------------------|
+| **curator-evolver** | Auto-evolution via HTML comment managed blocks | 8-stage evolution pipeline with SkillLineage versioning |
+| **SkillClaw** | Cross-agent skill sync with 3-stage pipeline | Single-product native evolution + cloud sync |
+| **CaMeL Guard** | Trust boundary security (trusted/untrusted separation) | 6-layer onion defense-in-depth |
+| **lineworks** | LINE WORKS enterprise communication | 35+ channel adapters |
+| **agent-docker** | Minimal Docker packaging | PTC sandbox + Docker + Tauri multi-layer isolation |
+
+Key advantages of Myrm's native approach:
+
+- **No dependency fragmentation** — a single product vs 5 separate repos with different maintainers, licenses, and update cycles
+- **Deeper integration** — evolution system talks directly to security, context management, and GUI layers
+- **GUI-first experience** — every feature has visual management vs CLI-only tooling
+- **Production-grade safety** — 5-layer evolution safety + 6-layer platform security vs ad-hoc checks

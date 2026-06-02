@@ -1,0 +1,38 @@
+---
+title: Database Configuration
+description: Configure SQLite and Qdrant for data storage.
+---
+
+# Database Configuration
+
+## SQLite (Primary)
+
+Myrm uses SQLite as the primary database. No additional setup needed for basic usage.
+
+Data is stored at `./data/myrm.db` by default. Configure with `DATABASE_URL`.
+
+## Qdrant (Vector Store)
+
+Qdrant provides vector search capabilities for the memory system.
+
+### Docker Compose (Default)
+
+Qdrant is included in the default Docker Compose configuration and starts automatically.
+
+### External Qdrant
+
+To use an existing Qdrant instance:
+
+```env
+QDRANT_URL=http://your-qdrant-host:6333
+```
+
+## Backup
+
+```bash
+# SQLite backup
+cp ./data/myrm.db ./backups/myrm-$(date +%Y%m%d).db
+
+# Qdrant snapshot
+curl -X POST http://localhost:6333/collections/myrm/snapshots
+```

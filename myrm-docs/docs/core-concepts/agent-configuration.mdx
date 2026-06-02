@@ -1,0 +1,161 @@
+---
+title: Agent Configuration
+description: Configure and customize your AI agents with models, tools, skills, and behavioral parameters.
+---
+
+# Agent Configuration
+
+Agents are the core unit of work in Myrm. Each agent can be independently configured with a specific model, custom system prompt, tools, skills, memory, and behavioral parameters.
+
+## Creating an Agent
+
+1. Navigate to **Agents > New Agent**
+2. Choose a name and description
+3. Select a model (or let smart routing decide)
+4. Configure tools, skills, and permissions
+5. Save — the agent is ready to use
+
+A default general-purpose agent is created automatically on first launch.
+
+## Model Selection
+
+Myrm supports 100+ models through LiteLLM integration:
+
+| Provider | Models |
+|----------|--------|
+| **OpenAI** | GPT-4o, GPT-4.1, o4-mini |
+| **Anthropic** | Claude Sonnet 4, Claude 3.5 |
+| **Google** | Gemini 2.5, Gemini 2.0 |
+| **DeepSeek** | DeepSeek V3, DeepSeek R1, DeepSeek V4 Flash, DeepSeek V4 Pro |
+| **Local Models** | Ollama, LM Studio, vLLM |
+| **Custom** | Any OpenAI-compatible API |
+
+### Smart Routing
+
+The complexity router automatically selects the optimal model tier:
+
+| Tier | When Used | Cost |
+|------|-----------|------|
+| **SIMPLE** | Quick questions, simple lookups | Cheapest |
+| **STANDARD** | General tasks, moderate complexity | Moderate |
+| **REASONING** | Complex analysis, multi-step planning | Highest |
+
+The router uses a two-stage assessment (rule-based + LLM judge) with session momentum — short follow-up messages inherit the session's established tier.
+
+### Thinking Intensity
+
+6 levels of reasoning depth, adjustable per conversation:
+
+`off` → `low` → `medium` → `high` → `xhigh` → `max`
+
+Each model remembers your preferred thinking level via localStorage.
+
+## Prompt Modes
+
+Three prompt modes control system prompt construction:
+
+| Mode | Description | Token Cost |
+|------|-------------|------------|
+| **Minimal** | Essential instructions only | ~1,765 tokens |
+| **Standard** | Full capabilities with tools | ~2,200 tokens |
+| **Extended** | All features + context injection | Variable |
+
+Myrm's optimized system prompt uses only ~1,765 tokens in minimal mode — **86% less** than comparable platforms (Hermes: ~15,520, OpenClaw: ~18,000).
+
+## Custom System Prompt
+
+Each agent can have a custom system prompt that defines its personality, expertise, and behavioral rules. This is combined with Myrm's core rules (safety, tool usage, etc.) at runtime.
+
+## Tool Configuration
+
+Agents can access:
+
+- **Built-in tools**: File operations, terminal, browser, search, code execution
+- **MCP tools**: External tools via Model Context Protocol servers
+- **Skills**: Reusable task-specific capabilities
+
+Tools can be enabled/disabled per agent, with approval policies configured individually.
+
+## Memory
+
+Each agent has:
+
+- **Agent-specific memory**: Knowledge unique to this agent
+- **Global shared memory**: Knowledge accessible by all agents
+
+Memory persists across sessions, enabling agents to learn and adapt. See [Memory System](/docs/core-concepts/memory-system) for details.
+
+## Personality
+
+16 built-in personality presets (8 professional + 8 creative) with:
+
+- Chinese and English bilingual support
+- Emoji + tone customization
+- Category-based gallery in the GUI
+- Custom personality creation
+
+## Sub-Agent Orchestration
+
+Complex tasks can be decomposed using 5 orchestration patterns:
+
+| Pattern | Description |
+|---------|-------------|
+| **Chain** | Sequential execution A → B → C |
+| **DAG** | Directed acyclic graph with dependencies |
+| **Batch** | Parallel independent tasks |
+| **Verified** | Worker + independent Verifier cross-validation |
+| **Swarm** | Autonomous multi-agent fission and merge |
+
+See [Kanban & Orchestration](/docs/core-concepts/kanban-orchestration) for details.
+
+## Agent Profile: Precision Without Crosstalk
+
+Each Agent Profile is a full-dimension configuration unit — far beyond simple skill grouping.
+
+| Dimension | Configurable |
+|-----------|:---:|
+| **Skills** | `skill_ids[]` — exact set of skills this agent can use |
+| **Model** | Per-agent model selection (different agents, different models) |
+| **Built-in Tools** | `enabled_builtin_tools[]` — whitelist of enabled tools |
+| **MCP Tools** | `mcp_tool_selections{}` — per-server tool selection |
+| **Security** | `security_overrides{}` — independent security policy |
+| **Sub-Agents** | `subagent_ids[]` — multi-layer collaboration |
+| **Notifications** | `notify_targets[]` — proactive push to configured channels |
+| **System Prompt** | Custom personality and behavioral rules |
+| **Memory** | Independent memory + global shared memory |
+
+### How It Prevents Skill Crosstalk
+
+When an agent has too many skills loaded, the LLM may invoke irrelevant ones — a problem known as "crosstalk." Myrm solves this with 5 layers:
+
+1. **Agent Profile** — Each agent loads only its designated skills via `skill_ids[]`
+2. **Tool Condition Activation** — Skills auto-show/hide based on available tools via `requires_tools` / `fallback_for_tools`
+3. **Progressive Disclosure (L0–L3)** — Only relevant skill details are expanded to full content
+4. **Noise Gauge** — Skills exceeding noise thresholds are automatically attenuated
+5. **Hybrid Retrieval** — Qdrant vector search selects the most relevant skill for each query
+
+### vs. Competitor Approaches
+
+Some platforms use "Skill Bundles" — YAML files that group skills under a slash command. Myrm's Agent Profile is a complete superset:
+
+| Capability | Skill Bundles | Agent Profile |
+|------------|:---:|:---:|
+| Multi-skill grouping | YAML `skills[]` | GUI-configurable `skill_ids[]` |
+| Model selection | No | Per-agent model |
+| Tool-level control | No | Whitelist per agent |
+| Security policy | No | Per-agent overrides |
+| Anti-crosstalk | Single layer (fewer skills) | 5-layer defense |
+| Configuration | CLI + YAML files | Visual GUI editor |
+
+## Agent Bindings
+
+Agents can be bound to different contexts:
+
+| Context | Description |
+|---------|-------------|
+| **Web Sessions** | Default agent for new chat conversations |
+| **Scheduled Tasks** | Agent used for cron job execution |
+| **Channels** | Agent assigned to specific messaging channels |
+| **IM Topics** | `/bind` command assigns agent to a chat topic |
+
+Unbound contexts use the default general-purpose agent. Switch agents anytime via the GUI or the `/bind` / `/unbind` commands in messaging channels.

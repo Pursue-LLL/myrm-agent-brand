@@ -1,0 +1,128 @@
+---
+title: Memory System
+description: Cross-session memory with knowledge graph and intelligent forgetting.
+---
+
+# Memory System
+
+Myrm's memory system is the most complete implementation of the Agentic Memory Operations (AMO) paradigm — a 42+ module cognitive system that persists across sessions, learns from every interaction, and proactively surfaces insights.
+
+## Memory Types
+
+The system supports **8 memory types** stored in SQLite + Qdrant (compared to Mem0's 3 types):
+
+| Type | What It Remembers | Example |
+|------|------------------|---------|
+| **Profile** | User identity and attributes | "User is a full-stack engineer" |
+| **Semantic** | Factual knowledge and preferences | "User prefers TypeScript over JavaScript" |
+| **Episodic** | Specific events with temporal context | "Yesterday helped fix the login page bug" |
+| **Conversation** | Dialogue context summaries | Cross-session topic continuity |
+| **Procedural** | How to do things (trigger → action rules) | "Deploy requires build then push" |
+| **Claim** | User assertions and corrections | AI respects your corrections |
+| **Task Digest** | Task execution summaries | AI remembers what was accomplished |
+| **Integration** | Third-party service data | Calendar events, Git activity |
+
+## Zero-Cost Goal Deduction (Dream Mechanism)
+
+Inspired by Honcho's Dream mechanism but implemented with zero additional LLM cost, Myrm asynchronously extracts the user's **Long-term Goals and Ongoing Projects** during the routine "Taste Summary" generation. This provides the AI with a persistent "long-term memory target" without the high token costs and data corruption risks of traditional free-text Dream mechanisms.
+
+## AMO Operations — Full Coverage
+
+The AMO paradigm (2025-2026) defines four core operations that a complete memory system must support. Anthropic's Dreaming covers steps 1-2; Mem0 covers Store and partial Retrieve. Myrm implements all four with production-grade depth:
+
+| Operation | What It Does | Myrm Implementation |
+|-----------|-------------|-------------------|
+| **Store** | Structured write with provenance tracking | 8 types + 5-level scope + correction chains + confidence scoring |
+| **Forget** | Compliance deletion + temporal decay + cognitive noise reduction | 5-dimension retention scoring + 3 modes (soft/hard/archive) + preference lifecycle |
+| **Retrieve** | Intent-aware multi-signal retrieval | 7-signal fusion (semantic + BM25 + entity + recency + frequency + importance + preference) + MMR diversity |
+| **Synthetize** | Cross-session knowledge distillation | Consolidation (5 operations) + pattern discovery + subsumption + hierarchical tree summarization |
+
+## 7-Signal Retrieval Fusion
+
+Unlike traditional vector-only search, Myrm combines 7 independent scoring signals via weighted geometric mean:
+
+1. **Semantic similarity** — Qdrant vector embedding match
+2. **Keyword match** — SQLite FTS5 + BM25 precise recall
+3. **Entity match** — Graph-enhanced multi-hop traversal
+4. **Recency** — Exponential time decay (configurable half-life per type)
+5. **Frequency** — Access count with logarithmic saturation
+6. **Importance** — User-assigned or LLM-extracted importance scores
+7. **Preference** — Preference-type boost for preference queries
+
+## Anti-Chitchat Memory (No-Op Default)
+
+Mem0 and Codex extractors lean toward **High Recall**, eagerly pulling transient thoughts ("Hello", "It's sunny today") into the database. Over time, this drastically dilutes meaningful constraints and pollutes the RAG context.
+
+Myrm invented the **No-Op Default (Strict Precision)** paradigm:
+- The underlying LLM extractor is heavily penalized for outputting trivialities.
+- It is instructed to default to returning an empty array `[]` representing No-Op.
+- Only critical business constraints (e.g., "I must use Python 3.14") and high-leverage knowledge cross the `0.6` importance threshold.
+- The result: **Absolute context purity**, ensuring AI decisions and long-tail constraint memories achieve a near 100% precision hit rate without token waste.
+
+## Dynamic Age Warning (Hallucination Guard)
+
+Retrieving outdated information (like a file path from a month ago) causes naive Agents to blindly use broken context and fail repeatedly.
+
+Myrm's memory retriever injects `[Created: YYYY-MM-DD]` timestamps into every loaded episodic/semantic memory. Furthermore, if the system detects sensitive time-decaying assets (like code paths), it dynamically prepends a `[CRITICAL WARNING]` instructing the LLM: *"This path may be outdated. You MUST use Read/Grep tools to verify its existence before making code assumptions."* This effectively immunizes the Agent against RAG-induced code hallucinations.
+
+Additional enhancements: 5 result boosters (keyword overlap, temporal proximity, person name, quoted phrase, preference), MMR diversity reranking, correction-chain suppression, and adaptive dual-channel selection saving ~35% query cost.
+
+## Knowledge Graph
+
+Relationships between memory entries are modeled as a knowledge graph with 4 semantic relation types (SUPPORTED, CONTRADICTED, SUPERSEDED, CONSTRAINED) and multi-hop traversal. Supports both SQLite CTE and Apache AGE backends with 3D visualization in the GUI.
+
+## Intelligent Forgetting & Incognito Mode
+
+Five-dimension forgetting strategy prevents memory bloat while preserving what matters:
+
+1. **Recency** — Older memories decay with configurable half-life (90 days default)
+2. **Frequency** — Rarely accessed memories are deprioritized
+3. **Importance** — Explicitly flagged or high-importance memories are preserved
+4. **Relevance** — Context-mismatched memories are archived
+5. **Composite** — Weighted combination of all dimensions
+
+Three forgetting modes: **soft** (demote in ranking), **hard** (permanent delete), **archive** (move to cold storage).
+
+**Incognito Mode (阅后即焚)**: For sensitive conversations, Myrm offers a true Incognito Mode. When enabled, the AI's memory tools are physically disabled for that session. The conversation is marked as incognito in the database, hidden from the frontend sidebar, excluded from global search, and physically deleted from the database by a background cron job after 60 minutes. This guarantees zero persistence and complete isolation.
+
+## Memory Staleness Defense
+
+Mem0's 2026 benchmark identified "memory staleness" as the hardest open problem — high-frequency memories that become outdated lead to confidently wrong answers. Myrm's 7-layer defense:
+
+| Layer | Mechanism | Effect |
+|-------|-----------|--------|
+| 1 | Time-based retention decay (90-day half-life) | Old memories naturally lose weight |
+| 2 | Recency signal in retrieval (7-30 day half-life) | Stale memories rank lower |
+| 3 | Preference stability lifecycle (6 categories, independent half-lives) | Preferences auto-decay by category |
+| 4 | Consolidation contradiction detection | New vs old conflicts auto-corrected |
+| 5 | Extractor auto-update on new conversations | Fresh facts replace outdated ones |
+| 6 | Subsumption cognitive consolidation | New knowledge subsumes old memories |
+| 7 | User explicit correction action | Correction chains + penalty scoring |
+
+## Cross-Session Consolidation
+
+Periodic consolidation analyzes accumulated memories via LLM to detect contradictions, redundancies, and generate insights:
+
+- **Merge** — Combine duplicate or overlapping memories
+- **Correct** — Fix outdated or contradictory information
+- **Update** — Enrich existing memories with new context
+- **Archive** — Move low-value memories to cold storage
+- **Split** — Break compound memories into atomic facts
+
+One-click rollback with zero extra storage — uses existing metadata mechanisms to reverse consolidation operations.
+
+## Pattern Discovery
+
+Cross-cycle behavioral pattern analysis (runs weekly) surfaces insights users may not notice:
+
+- Recurring work habits and routines
+- Knowledge evolution over time
+- Unresolved threads and concerns
+- Preference drift across sessions
+- Blind spots the user never directly addresses
+
+Discoveries include actionable suggestions that the agent proactively surfaces via Heartbeat injection.
+
+## Memory Health
+
+The diagnostic system monitors memory quality with quantified health scores and provides actionable repair recommendations. Includes memory import/export for 10 formats, archive management, and recall benchmarking with IR metrics (NDCG, MRR, precision).
