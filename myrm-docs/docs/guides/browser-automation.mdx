@@ -9,10 +9,12 @@ Myrm agents can autonomously browse the web, fill forms, extract data, and perfo
 
 ## Browser Engine
 
-Three-layer browser engine architecture:
+**Dual stealth engines (Patchright + Camoufox)** — When a site blocks the default Chromium path, Myrm can hot-swap to a Firefox-based stealth engine **without losing your login cookies**, so authenticated workflows do not bounce back to a sign-in page.
 
-1. **Headless Chrome** — Full browser rendering
-2. **DOM Parser** — Structured content extraction
+Three-layer interaction stack:
+
+1. **Headless Chrome / Camoufox** — Full browser rendering with anti-bot fallback
+2. **DOM Parser** — Structured content extraction (self-healing locators, Shadow DOM)
 3. **Vision** — Screenshot-based interaction for complex UIs
 
 ## Capabilities
@@ -22,6 +24,16 @@ Three-layer browser engine architecture:
 - Extract text and structured data
 - Take screenshots
 - Handle authentication flows
+
+## Credential Vault (Login Without Leaking Passwords)
+
+For sites and apps that require login, configure **Form Credential Vault** entries in **Settings → Credentials**:
+
+1. Add a **label** (e.g. `company-admin`), password, and optional TOTP seed.
+2. Tell the agent to sign in — it references the label only.
+3. Myrm injects credentials at the browser DOM or desktop input layer; values never appear in the conversation.
+
+**Why it matters:** Tool arguments and chat history are durable. Passing `"hunter2"` through `type` or `fill` copies the password across logs, retries, and context. Label-based injection keeps secrets in the vault boundary — the same principle used by research-grade browser vault designs, extended here to desktop Computer Use and product GUI.
 
 ## Search Integration
 

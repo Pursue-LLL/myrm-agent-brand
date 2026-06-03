@@ -135,7 +135,7 @@ export default function PricingPage() {
                     )}
                     variant={plan.highlight ? 'default' : 'outline'}
                   >
-                    <a href={getAppUrl('/auth/register')}>
+                    <a href={getAppUrl('/auth/login')}>
                       {t('nav.getStarted')}
                       <ArrowRight02Icon className="ml-1 h-4 w-4" />
                     </a>

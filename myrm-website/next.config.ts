@@ -15,8 +15,9 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_HAS_HERO_DEMO_WEBM: hasHeroDemoWebm ? 'true' : 'false',
   },
   turbopack: {
+    root: rootDir,
     resolveAlias: {
-      '#locales': path.join(path.dirname(fileURLToPath(import.meta.url)), 'locales'),
+      '#locales': path.join(rootDir, 'locales'),
     },
   },
   output: 'export',

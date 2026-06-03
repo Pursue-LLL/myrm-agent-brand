@@ -20,6 +20,7 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **Channels** | ✅ 25+ messaging (25 built-in) | ~23 (19 with platform hints) | ~7 | ⚠️ Feishu/DingTalk | ⚠️ IM bots | ❌ Lark only | ❌ |
 | **Sub-Agent** | ✅ 6 orchestration modes | ⚠️ v0.15 Kanban Swarm (1 mode) | ⚠️ Basic spawn (linear only) | ⚠️ Basic spawn | ❌ Single agent | ⚠️ L-W-V | ❌ |
 | **Security** | ✅ 6-layer defense | ⚠️ v0.15 Promptware 3 chokepoints | 1 layer | ⚠️ Unknown | ⚠️ Basic sandbox | ⚠️ Closed | ❌ |
+| **Credential Vault** | ✅ Label inject + TOTP (browser + desktop) | ❌ Plaintext in tool args | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Goal Mode** | ✅ 7 states + 4D budget | /goal | ❌ | ❌ | ❌ | ⚠️ Plan-approve | ❌ |
 | **Context Management** | ✅ 6-layer Prompt Cache + 22+ middleware pipeline | ⚠️ system_and_3 (4 breakpoints) + 8-layer fixed stack | LCM | LCM | ⚠️ Idle compress + dual cache | ⚠️ Worker isolation | ⚠️ 4-layer stack |
 | **Smart Concurrency Router** | ✅ O(1) path lock, zero read-write race | ⚠️ Coarse write lock only | ❌ Unsafe | ⚠️ Unknown | ❌ | ⚠️ Unknown | ❌ |
@@ -180,6 +181,7 @@ Myrm ships **web_search** and **web_fetch** as first-class built-in tools. Compe
 |------------|-----------|--------------|
 | **Web Search** | 7 engines + 7 intent types (zero LLM) + BM25/RRF + optional Reranker | Relevant snippets only — no duplicate junk in context |
 | **Web Fetch** | HTTP → Browser → Stealth + DOM pruning + Markdown | Article body, not nav/ads HTML — **~40–50% fewer tokens** |
+| **Logged-in fetch** | SessionVault: CookieJar (HTTP) + `storage_state` (browser) | One login works across fetch tiers — competitors often lose cookies on engine switch |
 | **fetch_and_extract** | Crawl → BM25 + vector hybrid → Reranker | Long pages → only relevant passages (zero LLM cost vs Hermes Gemini summary) |
 | **Image search** | Built-in `image_search_tool` | Visual research without extra Skills |
 | **Cost** | 100% local processing | **$0/month** vs Firecrawl/Jina/Exa subscriptions |
@@ -419,6 +421,37 @@ Users migrating from raw Playwright automation or other Agent frameworks gain:
 - **Zero-Crash UI Navigation**: End the frustration of "Element not found" errors ruining a 20-minute agent task.
 - **Blazing Fast Data Retrieval**: Don't burn memory on full Chromium instances for simple text extraction; Myrm degrades to HTTP seamlessly.
 - **Production Grade Reliability**: Handles CAPTCHAs and Cloudflare invisibly.
+
+## Credential Vault — Passwords & 2FA Never Enter the LLM
+
+When agents automate login flows, the default pattern in most frameworks is catastrophic: the model generates the password string and passes it through `type` or `fill` tool arguments. That value persists in chat history, MCP logs, and retry buffers.
+
+Myrm's **Form Credential Vault** separates *knowing* a credential from *using* it:
+
+| Layer | What happens |
+|-------|--------------|
+| **You** | Configure labels in Settings → Credentials (password + optional TOTP seed) |
+| **Agent / LLM** | Sees label names only; calls `fill_credential` (browser) or `type_credential` (desktop) |
+| **Harness** | Decrypts in memory, injects at DOM or OS layer — plaintext never returns to context |
+
+### Where Myrm Goes Further
+
+| Area | Hermes / OpenClaw | FSB (Chrome extension) | Myrm | User Benefit |
+|------|-------------------|------------------------|------|-------------|
+| **Vault boundary** | ❌ Plaintext in tool args | ✅ Browser DOM injection | ✅ Browser + desktop | Login automation without password in chat |
+| **TOTP / 2FA** | ❌ Manual | ❌ Not documented | ✅ Built-in RFC 6238 | Agent completes 2FA without you reading codes |
+| **Management UI** | ❌ Env vars / chat | Extension popup | ✅ WebUI Settings panel | One place for all automation credentials |
+| **Security stack integration** | ⚠️ Post-hoc patches | Standalone extension | ✅ 6-layer defense + leak detection + audit | Vault is part of enterprise security, not a bolt-on |
+
+### Honest Comparison with FSB
+
+FSB pioneered the vault-boundary pattern for browser automation (label reference → extension decrypts → DOM fill). Myrm adopts the **same security principle** and extends it to **desktop Computer Use**, **native TOTP**, and **unified product GUI** — without requiring a separate Chrome extension. FSB still leads on payment-card-specific APIs (`use_payment_method`); Myrm covers password fields and 2FA today.
+
+### Migration Wins
+
+- **From Hermes / OpenClaw**: Stop pasting passwords into prompts; configure once in Settings.
+- **From FSB**: Same mental model (labels), plus desktop apps and TOTP in one workspace.
+- **For enterprise**: Combine vault with 12-dimension permissions, Merkle audit (calls logged, not secrets), and incognito sessions for sensitive runs.
 
 ## vs MemPalace — AI Memory System (14.9K+ Stars)
 

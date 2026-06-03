@@ -268,9 +268,9 @@ export function detectUserPlatform(): PlatformDetection {
   }
 
   if (ua.includes('mac') || platform.includes('mac')) {
-    if (ua.includes('intel mac')) {
-      return { platform: 'macos-x86_64', macArchConfirmed: true };
-    }
+    // Safari on Apple Silicon still reports "Intel Mac OS X" for compatibility.
+    // If we reach here, userAgentData was unavailable, so we CANNOT reliably tell ARM vs Intel.
+    // We must return false so the user is directed to the download page to choose manually.
     return { platform: 'macos-aarch64', macArchConfirmed: false };
   }
 

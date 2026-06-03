@@ -87,6 +87,7 @@ export const COMPARE_ROW_KEYS = [
   'shellCompression',
   'pixelDiff',
   'toolSecurity',
+  'credentialVault',
   'visionFusion',
   'codeGraph',
   'searchIntelligence',
@@ -112,7 +113,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'searchIntelligence',
     'agentTemplates',
   ],
-  security: ['sandbox', 'securityLayers', 'toolSecurity', 'fileEditSafety', 'toolIntegration', 'unifiedToolGateway'],
+  security: ['sandbox', 'securityLayers', 'toolSecurity', 'credentialVault', 'fileEditSafety', 'toolIntegration', 'unifiedToolGateway'],
   automation: [
     'subAgent',
     'multiChannel',
