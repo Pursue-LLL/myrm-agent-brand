@@ -239,6 +239,20 @@ export interface PlatformDetection {
   macArchConfirmed: boolean;
 }
 
+function getWebGLRenderer(): string | null {
+  if (typeof document === 'undefined') return null;
+  try {
+    const canvas = document.createElement('canvas');
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    if (!gl) return null;
+    const debugInfo = (gl as WebGLRenderingContext).getExtension('WEBGL_debug_renderer_info');
+    if (!debugInfo) return null;
+    return (gl as WebGLRenderingContext).getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+  } catch {
+    return null;
+  }
+}
+
 export function detectUserPlatform(): PlatformDetection {
   if (typeof navigator === 'undefined') {
     return { platform: 'unknown', macArchConfirmed: true };
@@ -269,8 +283,18 @@ export function detectUserPlatform(): PlatformDetection {
 
   if (ua.includes('mac') || platform.includes('mac')) {
     // Safari on Apple Silicon still reports "Intel Mac OS X" for compatibility.
-    // If we reach here, userAgentData was unavailable, so we CANNOT reliably tell ARM vs Intel.
-    // We must return false so the user is directed to the download page to choose manually.
+    const renderer = getWebGLRenderer()?.toLowerCase() ?? '';
+    if (renderer.includes('apple')) {
+      return { platform: 'macos-aarch64', macArchConfirmed: true };
+    }
+    if (renderer.includes('intel') || renderer.includes('amd') || renderer.includes('radeon')) {
+      return { platform: 'macos-x86_64', macArchConfirmed: true };
+    }
+    if (ua.includes('intel mac')) {
+      // Fallback: If WebGL fails, we CANNOT rely on "intel mac" due to Safari M1 spoofing.
+      // We must return false so the user is directed to the download page to choose manually.
+      return { platform: 'macos-aarch64', macArchConfirmed: false };
+    }
     return { platform: 'macos-aarch64', macArchConfirmed: false };
   }
 

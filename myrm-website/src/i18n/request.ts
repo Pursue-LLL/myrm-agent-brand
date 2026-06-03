@@ -3,7 +3,7 @@ import { getRequestConfig } from 'next-intl/server';
 import enMessages from '#locales/en.json';
 import zhMessages from '#locales/zh.json';
 
-import { defaultLocale, type Locale } from './config';
+import { defaultLocale, defaultTimeZone, type Locale } from './config';
 
 type Messages = typeof zhMessages;
 
@@ -16,4 +16,5 @@ const messagesByLocale: Record<Locale, Messages> = {
 export default getRequestConfig(async () => ({
   locale: defaultLocale,
   messages: messagesByLocale[defaultLocale],
+  timeZone: defaultTimeZone,
 }));

@@ -200,6 +200,7 @@ export const DEPTH_GROUPS: readonly DepthGroupDef[] = [
       { source: 'extendedHighlights', itemKey: 'toolSecurity' },
       { source: 'extendedHighlights', itemKey: 'productionEngineIntegrity' },
       { source: 'extendedHighlights', itemKey: 'unifiedToolGateway' },
+      { source: 'extendedHighlights', itemKey: 'enterpriseTesting' },
     ],
   },
   {

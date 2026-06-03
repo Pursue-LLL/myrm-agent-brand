@@ -5,7 +5,7 @@ import { NextIntlClientProvider } from 'next-intl';
 
 import enMessages from '#locales/en.json';
 import zhMessages from '#locales/zh.json';
-import { defaultLocale, type Locale } from '@/i18n/config';
+import { defaultLocale, defaultTimeZone, type Locale } from '@/i18n/config';
 
 const STORAGE_KEY = 'NEXT_LOCALE';
 
@@ -52,7 +52,11 @@ export function LocaleRootProvider({ children }: { children: React.ReactNode }) 
 
   return (
     <LocaleContext.Provider value={value}>
-      <NextIntlClientProvider locale={activeLocale} messages={messagesByLocale[activeLocale]}>
+      <NextIntlClientProvider
+        locale={activeLocale}
+        messages={messagesByLocale[activeLocale]}
+        timeZone={defaultTimeZone}
+      >
         {children}
       </NextIntlClientProvider>
     </LocaleContext.Provider>
