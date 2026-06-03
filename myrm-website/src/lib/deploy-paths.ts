@@ -44,12 +44,15 @@ const CARD_KEY_BY_PATH: Record<DeployPathId, DeployCardKey> = {
   tauri: 'tauri',
 };
 
-/** Raw GitHub URL for the local one-line installer (marketing Quick Start). */
+/** Public installer URL (Vercel redirect → myrm-agent install-remote.sh on GitHub). */
+export const LOCAL_INSTALL_SCRIPT_URL = 'https://myrmagent.ai/install.sh';
+
+/** Raw GitHub fallback (same script as LOCAL_INSTALL_SCRIPT_URL). */
 export const LOCAL_INSTALL_SCRIPT_RAW =
   'https://raw.githubusercontent.com/Pursue-LLL/myrm-agent/main/scripts/install-remote.sh';
 
 export function getLocalInstallOneliner(): string {
-  return `curl -fsSL ${LOCAL_INSTALL_SCRIPT_RAW} | bash`;
+  return `curl -fsSL ${LOCAL_INSTALL_SCRIPT_URL} | bash`;
 }
 
 export const LOCAL_START_COMMAND = 'myrm start';
