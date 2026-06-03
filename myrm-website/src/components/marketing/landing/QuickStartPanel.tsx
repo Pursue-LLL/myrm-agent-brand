@@ -21,6 +21,7 @@ import SmartDownloadButton from '@/components/download/SmartDownloadButton';
 import {
   getDeployPathHref,
   getLocalInstallOneliner,
+  getLocalInstallOnelinerWindows,
   LOCAL_START_COMMAND,
 } from '@/lib/deploy-paths';
 import { getDesktopDownloadPath } from '@/lib/deploy-mode';
@@ -43,7 +44,21 @@ function DeviceDots() {
   );
 }
 
-const SHELL_KEYWORDS = new Set(['git', 'clone', 'cd', 'curl', 'bash', '&&', '||', 'docker', 'compose', '|']);
+const SHELL_KEYWORDS = new Set([
+  'git',
+  'clone',
+  'cd',
+  'curl',
+  'bash',
+  'irm',
+  'iex',
+  'powershell',
+  '&&',
+  '||',
+  'docker',
+  'compose',
+  '|',
+]);
 
 function ShellCommandText({ text }: { text: string }) {
   const tokens = text.split(/(\s+|https?:\/\/\S+)/g).filter((part) => part.length > 0);
@@ -168,7 +183,8 @@ export default function QuickStartPanel({ activeTab, onTabClick }: QuickStartPan
     window.setTimeout(() => setCopiedLine(null), 2000);
   };
 
-  const installCmd = getLocalInstallOneliner();
+  const installCmdUnix = getLocalInstallOneliner();
+  const installCmdWindows = getLocalInstallOnelinerWindows();
   const startCmd = LOCAL_START_COMMAND;
   const copyLabel = t('quickStart.copyHint');
 
@@ -207,9 +223,17 @@ export default function QuickStartPanel({ activeTab, onTabClick }: QuickStartPan
         <div key="local" className="ed-code-content ed-quickstart-panel-fade">
           <div className="ed-code-line ed-code-line-comment">{t('quickStart.local.step1')}</div>
           <InstallStep
-            label={t('quickStart.local.installLabel')}
-            command={installCmd}
-            lineId="local-install"
+            label={t('quickStart.local.installLabelUnix')}
+            command={installCmdUnix}
+            lineId="local-install-unix"
+            copiedLine={copiedLine}
+            onCopy={handleCopy}
+            copyLabel={copyLabel}
+          />
+          <InstallStep
+            label={t('quickStart.local.installLabelWindows')}
+            command={installCmdWindows}
+            lineId="local-install-windows"
             copiedLine={copiedLine}
             onCopy={handleCopy}
             copyLabel={copyLabel}

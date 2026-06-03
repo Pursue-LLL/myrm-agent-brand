@@ -4,6 +4,7 @@
  *
  * [OUTPUT]
  * - DeployPathId, DEPLOY_PATH_IDS, path href/section-link/analytics helpers
+ * - getLocalInstallOneliner / getLocalInstallOnelinerWindows (curl|bash / irm|iex)
  *
  * [POS]
  * Single source of truth for SaaS / Local WebUI / Tauri deployment paths on the marketing site.
@@ -47,12 +48,22 @@ const CARD_KEY_BY_PATH: Record<DeployPathId, DeployCardKey> = {
 /** Public installer URL (Vercel redirect → myrm-agent install-remote.sh on GitHub). */
 export const LOCAL_INSTALL_SCRIPT_URL = 'https://myrmagent.ai/install.sh';
 
+/** Windows installer (Vercel redirect → install-remote.ps1). */
+export const LOCAL_INSTALL_SCRIPT_PS1_URL = 'https://myrmagent.ai/install.ps1';
+
 /** Raw GitHub fallback (same script as LOCAL_INSTALL_SCRIPT_URL). */
 export const LOCAL_INSTALL_SCRIPT_RAW =
   'https://raw.githubusercontent.com/Pursue-LLL/myrm-agent/main/scripts/install-remote.sh';
 
+export const LOCAL_INSTALL_SCRIPT_PS1_RAW =
+  'https://raw.githubusercontent.com/Pursue-LLL/myrm-agent/main/scripts/install-remote.ps1';
+
 export function getLocalInstallOneliner(): string {
   return `curl -fsSL ${LOCAL_INSTALL_SCRIPT_URL} | bash`;
+}
+
+export function getLocalInstallOnelinerWindows(): string {
+  return `irm ${LOCAL_INSTALL_SCRIPT_PS1_URL} | iex`;
 }
 
 export const LOCAL_START_COMMAND = 'myrm start';
