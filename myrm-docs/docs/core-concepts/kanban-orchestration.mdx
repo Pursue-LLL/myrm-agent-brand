@@ -63,7 +63,16 @@ Each Kanban task can optionally run in an isolated Git worktree:
 
 ## Sub-Agent Orchestration
 
-When a single agent isn't enough, Myrm's sub-agent system enables multi-agent collaboration with 6 patterns.
+When a single agent isn't enough, Myrm's sub-agent system enables multi-agent collaboration with 6 patterns and dynamic discovery capabilities.
+
+### Dynamic Agent Discovery & @ Mention
+
+Myrm supports an intuitive, Coze-like dynamic discovery and delegation mechanism:
+
+- **Dynamic Roster:** Agents with `allow_discovery` enabled are automatically registered into the system's dynamic catalog. The main agent (Planner/Leader) dynamically fetches this roster and learns about its available teammates' capabilities via System Directives.
+- **Explicit @ Mention:** In the Chat UI, users can simply type `@` to bring up a ReferenceMentionPopover, autocomplete an agent's name, and explicitly tag them in the message. 
+- **Forced Attention:** When an agent is tagged, the backend injects a Forced Attention Directive, guaranteeing the main agent will delegate the task to the tagged sub-agent instead of hallucinating or ignoring the request.
+- **Speaker Identity:** The `memory_context_middleware` injects `[Agent: {Name}]` prefixes into AI messages, completely eliminating "split-brain" hallucinations where agents forget who said what.
 
 ### Orchestration Patterns
 

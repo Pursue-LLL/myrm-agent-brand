@@ -55,6 +55,7 @@ export const COMPARE_ROW_KEYS = [
   'incognitoMode',
   'sandbox',
   'subAgent',
+  'dynamicDiscovery',
   'multiChannel',
   'voiceInteraction',
   'securityLayers',
@@ -116,6 +117,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
   security: ['sandbox', 'securityLayers', 'toolSecurity', 'credentialVault', 'fileEditSafety', 'toolIntegration', 'unifiedToolGateway'],
   automation: [
     'subAgent',
+    'dynamicDiscovery',
     'multiChannel',
     'voiceInteraction',
     'computerUse',
