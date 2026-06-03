@@ -7,18 +7,48 @@ description: Self-host Myrm with Docker or manually.
 
 Run Myrm on your own machine with full control over your data.
 
-## Prerequisites
+## One-liner install (fastest)
+
+**macOS / Linux / Git Bash**
+
+```bash
+curl -fsSL https://myrmagent.ai/install.sh | bash
+myrm start
+```
+
+**Windows (PowerShell)**
+
+```powershell
+irm https://myrmagent.ai/install.ps1 | iex
+myrm start
+```
+
+Open **http://localhost:3000** and add your LLM API key in Settings. Harness comes from PyPI; no separate harness repo required for self-host.
+
+## Clone and develop (OSS repo)
+
+```bash
+git clone https://github.com/Pursue-LLL/myrm-agent.git
+cd myrm-agent
+myrm setup          # uv sync + bun install
+myrm start          # backend (terminal 1)
+cd myrm-agent-frontend && bun run dev   # frontend (terminal 2)
+```
+
+Dev scripts live under `scripts/` in the open-source repo so contributors clone once and run locally.
+
+## Prerequisites (Docker path)
 
 - Docker 24+ and Docker Compose v2
 - 4GB RAM minimum (8GB recommended)
 - 10GB disk space
 
-## Docker Compose (Recommended)
+## Docker Compose
 
 ```bash
-git clone https://github.com/myrm-ai/myrm.git
-cd myrm
-cp .env.example .env
+git clone https://github.com/Pursue-LLL/myrm-agent.git
+cd myrm-agent/myrm-agent-server
+cp .env.example .env   # if present
 docker compose up -d
 ```
 
