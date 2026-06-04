@@ -81,7 +81,7 @@ Hero → WorkspacePreview → HowItWorks（路径 Tab）→ QuickStart → Marqu
 - **Bento 证据链**：`BENTO_DOC_PATHS` 按主题映射 docs 竞品对比锚点
 - **对比表**：`whyMyrmAgent.rows.*` + `whyMyrmAgent.tabs.*`（`COMPARE_TAB_ROWS` 映射）
 - **迁移 CTA**：主链 `/download`；次链 `getAppLoginRedirectUrl(APP_MIGRATION_WIZARD_PATH)`（Local 已部署用户）
-- **同步规则**：见 `temp-docs/materials/COMPETITIVE_ADVANTAGE.md` 官网落地页条款；禁止脚本批量灌入 7+ bullet
+- **同步规则**：落地页 Bento / 对比表条款与 [`docs/getting-started/competitor-comparison`](/docs/getting-started/competitor-comparison) 保持一致；禁止脚本批量灌入 7+ bullet
 - **键校验**：`bun run validate:locales`（`scripts/validate-marketing-locales.ts` + `landing/marketing-keys.ts`）；`bun run build` 前自动执行
 
 ## 与 App 的关系
@@ -93,7 +93,7 @@ Hero → WorkspacePreview → HowItWorks（路径 Tab）→ QuickStart → Marqu
 ## 部署
 
 - CI/CD：GitHub Actions + Vercel
-- 域名：`myrm.ai`
+- 域名：`myrmagent.ai`
 - 本地开发：`bun run dev:3002`（端口 3002，与 App 3000 分离）
 - 桌面 release bake：`bun run bake:release`（写入 `public/desktop-release.json`；CI 使用 `GITHUB_TOKEN`）
 - Hero 动效：`public/marketing/hero-demo.webm`；从预览图生成：`bun run generate:hero-webm`（可用真实 App 录屏覆盖）

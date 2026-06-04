@@ -1,8 +1,9 @@
 /**
  * Ensures marketing doc links match Mintlify pages and on-disk MDX files.
+ * Also fails when an MDX file exists but is not listed in docs.json navigation.
  */
-import { readFileSync, existsSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
+import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MARKETING_DOC_PATHS } from '../src/lib/docs-contract';
 
@@ -40,6 +41,29 @@ function mintlifyPageToUrlPath(pageId: string): string {
   return `/${pageId.slice('docs/'.length)}`;
 }
 
+function collectMdxPageIds(docsRoot: string): Set<string> {
+  const docsDir = join(docsRoot, 'docs');
+  const pageIds = new Set<string>();
+
+  function walk(dir: string): void {
+    for (const entry of readdirSync(dir)) {
+      const fullPath = join(dir, entry);
+      if (statSync(fullPath).isDirectory()) {
+        walk(fullPath);
+        continue;
+      }
+      if (!entry.endsWith('.mdx')) {
+        continue;
+      }
+      const rel = relative(docsDir, fullPath).replace(/\.mdx$/, '').replace(/\\/g, '/');
+      pageIds.add(`docs/${rel}`);
+    }
+  }
+
+  walk(docsDir);
+  return pageIds;
+}
+
 function main(): void {
   const doc = JSON.parse(readFileSync(DOCS_JSON, 'utf8')) as DocsJson;
   const mintlifyPages = collectMintlifyPages(doc);
@@ -62,13 +86,20 @@ function main(): void {
     }
   }
 
+  const diskPageIds = collectMdxPageIds(DOCS_ROOT);
+  for (const pageId of diskPageIds) {
+    if (!mintlifyPages.has(pageId)) {
+      errors.push(`Orphan MDX (on disk but not in docs.json navigation): ${pageId}`);
+    }
+  }
+
   if (errors.length > 0) {
     console.error('Docs slug contract validation failed:\n' + errors.map((e) => `  - ${e}`).join('\n'));
     process.exit(1);
   }
 
   console.log(
-    `Docs slug contract OK (${MARKETING_DOC_PATHS.length} marketing paths, ${mintlifyPages.size} Mintlify pages)`,
+    `Docs slug contract OK (${MARKETING_DOC_PATHS.length} marketing paths, ${mintlifyPages.size} Mintlify pages, ${diskPageIds.size} MDX files)`,
   );
 }
 

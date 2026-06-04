@@ -225,3 +225,10 @@ export function depthItemBasePath(source: DepthItemSource, itemKey: string): str
   if (source === 'highlights') return `highlights.items.${itemKey}`;
   return `extendedHighlights.items.${itemKey}`;
 }
+
+/** /pricing page plan cards (full feature list). */
+export const PRICING_PAGE_PLAN_KEYS = ['free', 'companion', 'pro', 'max'] as const;
+
+export type PricingPagePlanKey = (typeof PRICING_PAGE_PLAN_KEYS)[number];
+
+export const HIGHLIGHT_PRICING_PLAN: PricingPagePlanKey = 'pro';

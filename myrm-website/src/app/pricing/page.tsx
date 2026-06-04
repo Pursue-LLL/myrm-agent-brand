@@ -6,50 +6,11 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils/classnameUtils';
 import { getAppUrl } from '@/lib/deploy-mode';
 import MarketingShell from '@/components/marketing/MarketingShell';
-
-interface PlanDisplay {
-  name: string;
-  price: string;
-  period: string;
-  wu: string;
-  features: string[];
-  highlight: boolean;
-}
-
-const PLANS: PlanDisplay[] = [
-  {
-    name: 'Free',
-    price: '$0',
-    period: '/mo',
-    wu: '600 WU/mo',
-    features: ['1 agent', 'Basic memory', 'Community support'],
-    highlight: false,
-  },
-  {
-    name: 'Companion',
-    price: '$19',
-    period: '/mo',
-    wu: '6,000 WU/mo',
-    features: ['Unlimited agents', 'Full memory system', 'Multi-channel support'],
-    highlight: false,
-  },
-  {
-    name: 'Pro',
-    price: '$49',
-    period: '/mo',
-    wu: '18,000 WU/mo',
-    features: ['Everything in Companion', 'Priority support', '7-day free trial'],
-    highlight: true,
-  },
-  {
-    name: 'Max',
-    price: '$149',
-    period: '/mo',
-    wu: '60,000 WU/mo',
-    features: ['Everything in Pro', 'Dedicated support', 'Custom integrations'],
-    highlight: false,
-  },
-];
+import {
+  HIGHLIGHT_PRICING_PLAN,
+  PRICING_PAGE_PLAN_KEYS,
+  type PricingPagePlanKey,
+} from '@/components/marketing/landing/marketing-keys';
 
 export default function PricingPage() {
   const t = useTranslations('marketing');
@@ -73,76 +34,102 @@ export default function PricingPage() {
           </div>
 
           <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4 items-start">
-            {PLANS.map((plan) => (
-              <div
-                key={plan.name}
-                className={cn(
-                  'group relative flex flex-col rounded-2xl p-[1px] transition-all duration-500',
-                  plan.highlight
-                    ? 'bg-gradient-to-b from-primary/60 via-primary/30 to-primary-dark/20 scale-[1.02] xl:-mt-4 xl:mb-4 shadow-2xl shadow-primary/10'
-                    : 'bg-border/50 hover:bg-border/80',
-                )}
-              >
+            {PRICING_PAGE_PLAN_KEYS.map((planKey) => {
+              const highlight = planKey === HIGHLIGHT_PRICING_PLAN;
+              const features = t.raw(`pricingPage.plans.${planKey}.features`) as string[];
+
+              return (
                 <div
+                  key={planKey}
                   className={cn(
-                    'relative flex flex-col flex-1 rounded-[15px] p-6 sm:p-7 transition-all duration-300',
-                    plan.highlight ? 'bg-background' : 'bg-background/95 backdrop-blur-sm group-hover:bg-background',
+                    'group relative flex flex-col rounded-2xl p-[1px] transition-all duration-500',
+                    highlight
+                      ? 'bg-gradient-to-b from-primary/60 via-primary/30 to-primary-dark/20 scale-[1.02] xl:-mt-4 xl:mb-4 shadow-2xl shadow-primary/10'
+                      : 'bg-border/50 hover:bg-border/80',
                   )}
                 >
-                  {plan.highlight && (
-                    <div className="absolute -top-px left-1/2 -translate-x-1/2 h-[2px] w-3/4 bg-gradient-to-r from-transparent via-primary/80 to-transparent" />
-                  )}
-
-                  <div className="mb-6">
-                    <h3 className="text-base font-bold tracking-tight">{plan.name}</h3>
-                  </div>
-
-                  <div className="mb-6">
-                    <div className="flex items-baseline gap-1.5">
-                      <span className={cn(
-                        'text-[42px] font-black tracking-tighter leading-none',
-                        plan.highlight ? 'bg-gradient-to-br from-foreground via-foreground to-foreground/60 bg-clip-text text-transparent' : '',
-                      )}>
-                        {plan.price}
-                      </span>
-                      <span className="text-sm text-muted-foreground/60 font-medium">{plan.period}</span>
-                    </div>
-                  </div>
-
-                  <div className={cn(
-                    'mb-6 rounded-lg px-3 py-2',
-                    plan.highlight ? 'bg-primary/[0.06]' : 'bg-muted/40',
-                  )}>
-                    <p className="text-sm font-bold text-foreground/90">{plan.wu}</p>
-                  </div>
-
-                  <ul className="space-y-3 text-[13px] text-muted-foreground/80 mb-8 flex-1">
-                    {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-start gap-2.5">
-                        <svg className={cn('shrink-0 mt-0.5 h-3.5 w-3.5', plan.highlight ? 'text-primary' : 'text-muted-foreground/50')} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <Button
-                    asChild
+                  <div
                     className={cn(
-                      'w-full rounded-full',
-                      plan.highlight && 'bg-gradient-to-r from-primary to-primary-hover hover:opacity-90 shadow-lg shadow-primary/20 border-0 font-semibold',
+                      'relative flex flex-col flex-1 rounded-[15px] p-6 sm:p-7 transition-all duration-300',
+                      highlight ? 'bg-background' : 'bg-background/95 backdrop-blur-sm group-hover:bg-background',
                     )}
-                    variant={plan.highlight ? 'default' : 'outline'}
                   >
-                    <a href={getAppUrl('/auth/login')}>
-                      {t('nav.getStarted')}
-                      <ArrowRight02Icon className="ml-1 h-4 w-4" />
-                    </a>
-                  </Button>
+                    {highlight && (
+                      <div className="absolute -top-px left-1/2 -translate-x-1/2 h-[2px] w-3/4 bg-gradient-to-r from-transparent via-primary/80 to-transparent" />
+                    )}
+
+                    <div className="mb-6">
+                      <h3 className="text-base font-bold tracking-tight">
+                        {t(`pricingPage.plans.${planKey}.name`)}
+                      </h3>
+                    </div>
+
+                    <div className="mb-6">
+                      <div className="flex items-baseline gap-1.5">
+                        <span
+                          className={cn(
+                            'text-[42px] font-black tracking-tighter leading-none',
+                            highlight
+                              ? 'bg-gradient-to-br from-foreground via-foreground to-foreground/60 bg-clip-text text-transparent'
+                              : '',
+                          )}
+                        >
+                          {t(`pricingPage.plans.${planKey}.price`)}
+                        </span>
+                        <span className="text-sm text-muted-foreground/60 font-medium">
+                          {t('pricingPage.period')}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div
+                      className={cn(
+                        'mb-6 rounded-lg px-3 py-2',
+                        highlight ? 'bg-primary/[0.06]' : 'bg-muted/40',
+                      )}
+                    >
+                      <p className="text-sm font-bold text-foreground/90">
+                        {t(`pricingPage.plans.${planKey}.wu`)}
+                      </p>
+                    </div>
+
+                    <ul className="space-y-3 text-[13px] text-muted-foreground/80 mb-8 flex-1">
+                      {features.map((feature) => (
+                        <li key={feature} className="flex items-start gap-2.5">
+                          <svg
+                            className={cn(
+                              'shrink-0 mt-0.5 h-3.5 w-3.5',
+                              highlight ? 'text-primary' : 'text-muted-foreground/50',
+                            )}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <Button
+                      asChild
+                      className={cn(
+                        'w-full rounded-full',
+                        highlight &&
+                          'bg-gradient-to-r from-primary to-primary-hover hover:opacity-90 shadow-lg shadow-primary/20 border-0 font-semibold',
+                      )}
+                      variant={highlight ? 'default' : 'outline'}
+                    >
+                      <a href={getAppUrl('/auth/login')}>
+                        {t('nav.getStarted')}
+                        <ArrowRight02Icon className="ml-1 h-4 w-4" />
+                      </a>
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="mt-12 text-center">

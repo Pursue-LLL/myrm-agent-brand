@@ -12,6 +12,7 @@ import {
   DEPTH_GROUPS,
   depthAdvantageItemKeys,
   depthItemBasePath,
+  PRICING_PAGE_PLAN_KEYS,
 } from '../src/components/marketing/landing/marketing-keys';
 
 const ROOT = join(import.meta.dir, '..');
@@ -117,6 +118,19 @@ for (const locale of LOCALES) {
       const base = depthItemBasePath(ref.source, ref.itemKey);
       assertKey(locale, marketing, `${base}.title`, errors);
       assertKey(locale, marketing, `${base}.desc`, errors);
+    }
+  }
+
+  assertKey(locale, marketing, 'pricingPage.period', errors);
+  for (const planKey of PRICING_PAGE_PLAN_KEYS) {
+    const base = `pricingPage.plans.${planKey}`;
+    assertKey(locale, marketing, `${base}.name`, errors);
+    assertKey(locale, marketing, `${base}.price`, errors);
+    assertKey(locale, marketing, `${base}.wu`, errors);
+    assertKey(locale, marketing, `${base}.features`, errors);
+    const features = getAt(marketing, `${base}.features`);
+    if (features !== undefined && !Array.isArray(features)) {
+      errors.push(`[${locale}] marketing.${base}.features must be an array`);
     }
   }
 }
