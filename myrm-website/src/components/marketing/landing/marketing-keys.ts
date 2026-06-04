@@ -184,6 +184,7 @@ export const DEPTH_GROUPS: readonly DepthGroupDef[] = [
       { source: 'highlights', itemKey: 'computerUse' },
       { source: 'highlights', itemKey: 'webSearchFetch' },
       { source: 'extendedHighlights', itemKey: 'enterpriseScenarios' },
+      { source: 'extendedHighlights', itemKey: 'artifactDeploy' },
       { source: 'highlights', itemKey: 'ptc' },
       { source: 'highlights', itemKey: 'codexParity' },
       { source: 'highlights', itemKey: 'kanbanCollaboration' },
