@@ -92,6 +92,7 @@ export const COMPARE_ROW_KEYS = [
   'visionFusion',
   'codeGraph',
   'searchIntelligence',
+  'smartDesktopDistribution',
 ] as const;
 
 export type CompareRowKey = (typeof COMPARE_ROW_KEYS)[number];
@@ -143,7 +144,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'cacheObservability',
     'shellCompression',
   ],
-  platform: ['gui', 'desktopApp', 'configRuntime', 'codeGraph'],
+  platform: ['gui', 'desktopApp', 'smartDesktopDistribution', 'configRuntime', 'codeGraph'],
 };
 
 export type DepthItemSource = 'advantages' | 'highlights' | 'extendedHighlights';
@@ -208,7 +209,10 @@ export const DEPTH_GROUPS: readonly DepthGroupDef[] = [
   {
     id: 'migration',
     defaultOpen: false,
-    items: [{ source: 'highlights', itemKey: 'cjkMigration' }],
+    items: [
+      { source: 'highlights', itemKey: 'cjkMigration' },
+      { source: 'extendedHighlights', itemKey: 'smartDesktopDistribution' }
+    ],
   },
 ] as const;
 

@@ -665,6 +665,21 @@ Users migrating from 360 LobsterAI gain:
 - **Unlimited extensibility** — Skill Marketplace + custom agents vs fixed presets
 - **Full data ownership** — self-hosted option, no vendor lock-in
 
+## Smart Multi-Platform Distribution & OTA (vs Hermes / Cursor)
+
+When distributing desktop agents, traditional competitors force users to figure out their CPU architecture (Apple Silicon vs. Intel) or suffer from silent auto-update failures when CI/CD workflows overwrite release manifests.
+
+Myrm introduces **Zero-Friction Distribution & Map-Reduce OTA Updates**:
+
+| Area | Hermes / Cursor (Early) | Myrm | User Benefit |
+|------|-------------------------|------|-------------|
+| **Mac M-Series Downloads** | Requires manual user selection (ARM vs Intel) or accidentally delivers Rosetta-bound Intel binaries on Safari due to UA spoofing. | **Hardware WebGL Sniffing** | Pierces Safari's "Intel Mac OS X" UA mask by reading the unmasked GPU renderer. **100% accurate, zero-click correct DMG delivery.** |
+| **iPadOS Spoofing** | Serves useless `.dmg` installers to iPads because Safari claims to be macOS. | **Physical Touchpoint Interception** | Uses `maxTouchPoints` to detect iPad hardware, gracefully redirecting users to the SaaS Cloud WebUI. |
+| **OTA Auto-Updates (CI/CD)**| Multi-platform CI jobs race to overwrite `latest.json`, breaking auto-updates for users on the slower-building OS. | **Map-Reduce CI Architecture** | Platforms build in isolation, artifact their manifests, and a final cloud job **merges all `latest.json` objects** securely. No race conditions. |
+| **Release Confidence** | "Upload and hope" | Automated sanity checks on the merged manifest before GitHub Release | Users never get stranded on broken auto-update channels. |
+
+**Result: Migrating users get a flawless day-one install experience and rock-solid background updates that just work.**
+
 ## Local Migration Wizard (v1.4)
 
 Myrm provides a **GUI-first competitor migration wizard** on Local and Tauri deployments. It is honest about scope: five filesystem discovery sources, four preview lanes, and manual follow-up for integrations Hermes CLI might auto-wire.
