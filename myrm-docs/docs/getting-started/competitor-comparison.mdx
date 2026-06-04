@@ -33,7 +33,7 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **Scheduled Tasks** | ✅ GUI-configured Cron | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ |
 | **Unified Tool Gateway** | ✅ 4-in-1 Gateway + Elastic BYOK Fallback | ⚠️ Hard Switch (Error Prone) | ❌ N/A | ⚠️ Unknown | ❌ | ⚠️ Unknown | ❌ |
 | **Voice** | ✅ STT + TTS + Real-time | ❌ | WebRTC | ⚠️ Basic | ❌ | ❌ | ❌ |
-| **Computer Use** | ✅ Desktop automation + visual approval (BBox) | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Computer Use** | ✅ Desktop automation + BBox approval + Tauri OS overlay | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Browser Engine** | ✅ 3-layer engine | ❌ | ❌ | ❌ | ❌ | ⚠️ Unknown | ❌ |
 | **Web Search** | ✅ 7 engines + BM25/Reranker filter | ⚠️ Cloud API passthrough | ⚠️ DDG/Bing scrape | ⚠️ Same as OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
 | **Web Fetch** | ✅ 3-tier + vector extract + DOM prune | ⚠️ web_extract (Firecrawl + LLM) | ⚠️ HTTP / Firecrawl fallback | ⚠️ Same | ⚠️ HTTP only | ❌ | ❌ |
@@ -429,6 +429,7 @@ While typical AI agents use standard Playwright/Selenium wrappers (like BrowserU
 | **Native Spatial Engine** | Fails on dynamic layouts, slow Python-level bounding box calculations | **Direct C++ Layout Selectors** | Zero-latency, highly accurate element targeting based on visual layout (e.g. "right-of", "below") seamlessly native to the rendering engine, with 0 LLM hallucination risk. |
 | **Render Engine Degradation** | Heavy Chromium renders everything | **Autonomous Hybrid Engine** | Detects static pages and injects HTTP pre-fetch via `page.route` — skipping JS/CSS load. **90% faster and lighter.** |
 | **Anti-Bot Evasion** | Fails at Cloudflare (BrowserUse) / Manual config (Scrapling) | **Dual Stealth Hot-Swap** | Seamlessly escalates from HTTP → Patchright → Camoufox stealth engine automatically when challenged. |
+| **Proxy Pool Rotation** | Global network hooks cause cross-task pollution & lost login state | **Zero-Network V8 Injection** | Swaps IPs instantly while injecting local storage via V8 initialization. Perfect state inheritance with exponential backoff. |
 | **Element Safety** | Blindly clicks overlapping elements | **Semantic Veto** | Prevents mis-clicks using strict contextual checking (even in Chinese/English i18n). |
 
 ### Migration Wins
@@ -587,6 +588,11 @@ Codex recently shipped two flagship features: **Appshots** (window capture + tex
 | DPI handling | Not mentioned | Binary-search downsampling prevents Retina coordinate drift |
 | Return format | Screenshot + text | `list[ContentBlock]` structured multimodal (text + image) |
 | Safety | Computer Use permission | 5 blocked key combos + dangerous-text regex + **TOCTOU revalidation after approval delay** + GUI BBox approval card |
+| Visual approval | Text-only or iPhone push | **Inline BBox + AttentionBar + Tauri OS red frame** on the target monitor (screen-absolute coords, multi-monitor match) |
+
+**What you get**: When the agent wants to click your desktop, you see **where** — not just "Approve?" in text. On Tauri, a **system-level red box** stays visible even if the chat window is covered.
+
+**Honest limit**: OS overlay smoke requires the Tauri desktop app; browser-only WebUI gets inline + AttentionBar but not the OS frame.
 
 ### /goal Mode
 

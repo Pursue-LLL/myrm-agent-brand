@@ -580,7 +580,7 @@
           "feature": "Desktop automation · cross-platform + BBox approval overlay",
           "hermes": "_no",
           "openclaw": "_no",
-          "myrmAgent": "Cross-platform+TOCTOU revalidation"
+          "myrmAgent": "OS overlay+TOCTOU+Retina coords"
         },
         "browserEngine": {
           "feature": "Browser engine · auto browse + visual QA",
@@ -828,6 +828,14 @@
           "point1": "Extreme concurrency: atomic locks keep multi-agent / kanban updates from crosstalk",
           "point2": "Elastic fallback: missing OCR/vector libs degrade gracefully instead of killing the process",
           "point3": "Approval TOCTOU: out-of-sandbox writes queue for approval; desktop actions re-snapshot after delay (automated tests lock this in)"
+        },
+        "precisionMultimodal": {
+          "badge": "Anti-fraud vision",
+          "title": "Intent-aware multimodal: vision only when UI actually changed",
+          "desc": "No blind screenshot spam — the pipeline traces real UI actions and invokes vision only for verification; text-only tasks stay text-only.",
+          "point1": "Intent-level trigger: filters execution flow so “page open” alone never burns vision tokens",
+          "point2": "Sandbox-linked capture: framework pulls physical screenshots without flaky HTTP bridges",
+          "point3": "Up to ~99% fewer vision calls vs always-on screenshot judges — anti-cheat without waste"
         }
       }
     },
@@ -868,7 +876,8 @@
           "point1": "Screenshots, mouse/keyboard, and accessible window text",
           "point2": "Hi-DPI coordinates + region zoom + post-action screenshots",
           "point3": "Risky shortcuts/commands blocked + sensitive actions need your approval",
-          "point4": "Approval dialog overlays screenshot BBox; stale coordinates hard-blocked after re-snapshot"
+          "point4": "Approval dialog overlays screenshot BBox; stale coordinates hard-blocked after re-snapshot",
+          "point5": "Tauri desktop: system-level red frame on the target monitor — visible even when chat is covered"
         },
         "codexParity": {
           "badge": "Design loop · auto QA",
