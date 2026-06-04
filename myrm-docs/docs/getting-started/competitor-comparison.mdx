@@ -21,6 +21,7 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **Sub-Agent** | ✅ 6 orchestration modes | ⚠️ v0.15 Kanban Swarm (1 mode) | ⚠️ Basic spawn (linear only) | ⚠️ Basic spawn | ❌ Single agent | ⚠️ L-W-V | ❌ |
 | **Security** | ✅ 6-layer defense | ⚠️ v0.15 Promptware 3 chokepoints | 1 layer | ⚠️ Unknown | ⚠️ Basic sandbox | ⚠️ Closed | ❌ |
 | **Credential Vault** | ✅ Label inject + TOTP (browser + desktop) | ❌ Plaintext in tool args | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **WebUI Access Security** | ✅ Zero-Trust WebSocket + Secure Cookie | ⚠️ HTTP only, WS vulnerable | ⚠️ Basic JWT | ⚠️ Unknown | ⚠️ HTTP only | ⚠️ Closed SaaS | ❌ Open on LAN |
 | **Goal Mode** | ✅ 7 states + 4D budget | /goal | ❌ | ❌ | ❌ | ⚠️ Plan-approve | ❌ |
 | **Context Management** | ✅ 6-layer Prompt Cache + 22+ middleware pipeline | ⚠️ system_and_3 (4 breakpoints) + 8-layer fixed stack | LCM | LCM | ⚠️ Idle compress + dual cache | ⚠️ Worker isolation | ⚠️ 4-layer stack |
 | **Smart Concurrency Router** | ✅ O(1) path lock, zero read-write race | ⚠️ Coarse write lock only | ❌ Unsafe | ⚠️ Unknown | ❌ | ⚠️ Unknown | ❌ |
@@ -121,6 +122,19 @@ While competitors often force users to manage dozens of API keys or rely on rigi
 
 *   **Zero Key Management**: Stop juggling API keys for OpenAI, Firecrawl, FAL, etc.
 *   **Peace of Mind**: The elastic fallback means you get the convenience of a managed gateway with the reliability of your own backup keys.
+
+## WebUI Security & Local/Remote Separation
+
+Most competitor web interfaces are either dangerously exposed when bridged to the public internet (LAN/Tunnel naked exposure) or overly burdensome for single-user local development (forcing DBs and logins for `localhost`).
+
+Myrm solves the "last mile" of local-first deployment with an Ockham's Razor approach to WebUI security.
+
+### Where Myrm Leads
+
+*   **Zero-Friction Local vs. Ironclad Remote**: Myrm's WebUI auto-detects `localhost` loopbacks to bypass login seamlessly. The moment you expose it via a tunnel or LAN, it enforces strict password protection.
+*   **Zero-Trust WebSocket Gateway**: Competitors often secure their HTTP routes but leave WebSockets (used for realtime logs or voice) unauthenticated. Myrm's `WsAuthMiddleware` physically drops the WebSocket handshake (HTTP 403) if the session cookie is missing or invalid.
+*   **Instant Session Eviction**: When a password is changed or protection is toggled, Myrm automatically rotates the global HMAC Session Signing Key. This instantly invalidates all existing sessions globally (like a kill switch for stolen devices), whereas competitors often leave old JWTs valid.
+*   **Single-Tenant "Vault" vs. Heavy DBs**: Instead of a bloated Postgres/MySQL user table with RBAC rules designed for SaaS, the local mode uses a single highly-encrypted `admin.json` vault file. Secure, portable, and zero-dependency.
 
 ## Smart Concurrency Router — Eliminating Read-Write Races (vs Hermes / OpenClaw)
 
