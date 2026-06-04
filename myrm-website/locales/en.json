@@ -577,10 +577,10 @@
             "myrmAgent": "4-in-1 Gateway with Elastic BYOK Fallback"
           },
         "computerUse": {
-          "feature": "Desktop automation · cross-platform control + guardrails",
+          "feature": "Desktop automation · cross-platform + BBox approval overlay",
           "hermes": "_no",
           "openclaw": "_no",
-          "myrmAgent": "Cross-platform+Keep-awake"
+          "myrmAgent": "Cross-platform+TOCTOU revalidation"
         },
         "browserEngine": {
           "feature": "Browser engine · auto browse + visual QA",
@@ -817,11 +817,11 @@
         },
         "enterpriseTesting": {
           "badge": "Enterprise Verified",
-          "title": "100% Concurrency & E2E Validation, Zero Ghost Bugs",
-          "desc": "Going beyond the Happy Path, Myrm Agent guarantees data safety under massive concurrency, avoiding multi-tenant deadlocks and dependence failures.",
-          "point1": "Extreme concurrency safety: atomic locks guarantee zero crosstalk during heavy multi-agent kanban updates",
-          "point2": "Elastic dependency fallback: gracefully degrades on hosts lacking OCR or vector libs—never crashes, truly plug-and-play",
-          "point3": "Elegant telemetry safeguard: EventBus cleanly processes massive payloads, and OTEL telemetry survives even on hard system shutdowns"
+          "title": "Regression net on critical paths — not “ship when demo runs once”",
+          "desc": "Atomic locks, EventBus truncation, dependency fallback, workspace-boundary approval, and desktop TOCTOU — covered by targeted pytest + real E2E on the paths that matter.",
+          "point1": "Extreme concurrency: atomic locks keep multi-agent / kanban updates from crosstalk",
+          "point2": "Elastic fallback: missing OCR/vector libs degrade gracefully instead of killing the process",
+          "point3": "Approval TOCTOU: out-of-sandbox writes queue for approval; desktop actions re-snapshot after delay (automated tests lock this in)"
         }
       }
     },
@@ -861,7 +861,8 @@
           "desc": "Operate desktop apps like a human — free locally on macOS, Windows, and Linux with five guardrails.",
           "point1": "Screenshots, mouse/keyboard, and accessible window text",
           "point2": "Hi-DPI coordinates + region zoom + post-action screenshots",
-          "point3": "Risky shortcuts/commands blocked + sensitive actions need your approval"
+          "point3": "Risky shortcuts/commands blocked + sensitive actions need your approval",
+          "point4": "Approval dialog overlays screenshot BBox; stale coordinates hard-blocked after re-snapshot"
         },
         "codexParity": {
           "badge": "Design loop · auto QA",
