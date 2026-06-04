@@ -75,7 +75,7 @@ Hero → WorkspacePreview → HowItWorks（路径 Tab）→ QuickStart → Marqu
 ## i18n
 
 - `locales/zh.json` + `locales/en.json`：`marketing` 命名空间
-- **首屏 Bento**：`advantages.items` — 仅 `memory` / `webSearchFetch` / `security` / `orchestration` / `deployment` / `migration`，每卡 ≤3 个 `pointN`
+- **首屏 Bento**：`advantages.items` — 仅 `BENTO_KEYS`（`selfEvolution` / `security` / `reliability` / `costEfficiency` / `visualControl` / `taskModes`），每卡 ≤3 个 `pointN`
 - **工程深度**：`engineeringDepth.groups.*` + 复用 `highlights.items` / `extendedHighlights.items` / 部分 `advantages.items`；桌面端 `automation`+`knowledge` 默认展开，`<md` 全部折叠（`useMinWidth`）
 - **advantages.items 键**：`BENTO_KEYS` ∪ `depthAdvantageItemKeys()`（深度区专用四项，非首屏 Bento）
 - **Bento 证据链**：`BENTO_DOC_PATHS` 按主题映射 docs 竞品对比锚点
@@ -83,7 +83,7 @@ Hero → WorkspacePreview → HowItWorks（路径 Tab）→ QuickStart → Marqu
 - **定价页**：`/pricing` 使用 `pricingPage.plans.*`（`PRICING_PAGE_PLAN_KEYS`）；Landing 预览仍用 `pricingPreview.*`
 - **迁移 CTA**：主链 `/download`；次链 `getAppLoginRedirectUrl(APP_MIGRATION_WIZARD_PATH)`（Local 已部署用户）
 - **同步规则**：落地页 Bento / 对比表条款与 `getDocsUrl('/getting-started/competitor-comparison')` 保持一致；禁止脚本批量灌入 7+ bullet
-- **键校验**：`bun run validate:locales` + `bun run validate:docs-slugs`（含 orphan MDX）；`bun run build` 前自动执行
+- **键校验**：`bun run validate:locales`（含 pricingPreview ↔ pricingPage、locales legacy URL）+ `bun run validate:docs-slugs`（含 orphan MDX + docs legacy URL）；`bun run build` 前自动执行
 
 ## 与 App 的关系
 

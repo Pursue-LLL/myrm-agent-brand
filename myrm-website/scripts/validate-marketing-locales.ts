@@ -1,5 +1,13 @@
 /**
- * Ensures zh/en marketing locale keys referenced by marketing-keys.ts stay in sync.
+ * [INPUT]
+ * - src/components/marketing/landing/marketing-keys.ts (POS: 落地页 i18n 键清单)
+ * - locales/zh.json, locales/en.json marketing namespace
+ *
+ * [OUTPUT]
+ * - CI 校验：manifest 键存在、Bento/对比/深度/pricing 键完整、pricingPreview ↔ pricingPage 一致、locales 无 legacy URL
+ *
+ * [POS]
+ * 营销文案 locale 契约校验；`bun run build` 前自动执行。
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -13,7 +21,9 @@ import {
   depthAdvantageItemKeys,
   depthItemBasePath,
   PRICING_PAGE_PLAN_KEYS,
+  PRICING_PREVIEW_PLAN_KEYS,
 } from '../src/components/marketing/landing/marketing-keys';
+import { appendLegacyUrlViolations } from './brand-url-patterns';
 
 const ROOT = join(import.meta.dir, '..');
 const LOCALES = ['zh', 'en'] as const;
@@ -46,6 +56,52 @@ function assertKey(
   }
 }
 
+function normalizePreviewPrice(price: string): string {
+  return price.replace(/\/(mo|month|月)$/i, '').trim();
+}
+
+function extractWuAmount(wu: string): string {
+  const match = wu.match(/([\d,]+)\s*WU/i);
+  return match ? match[1].replace(/,/g, '') : wu.trim();
+}
+
+function assertPricingPreviewMatchesPage(
+  locale: string,
+  marketing: Record<string, unknown>,
+  errors: string[],
+): void {
+  for (const planKey of PRICING_PREVIEW_PLAN_KEYS) {
+    const previewName = getAt(marketing, `pricingPreview.${planKey}.name`);
+    const pageName = getAt(marketing, `pricingPage.plans.${planKey}.name`);
+    if (typeof previewName === 'string' && typeof pageName === 'string' && previewName !== pageName) {
+      errors.push(
+        `[${locale}] pricingPreview.${planKey}.name (${previewName}) !== pricingPage.plans.${planKey}.name (${pageName})`,
+      );
+    }
+
+    const previewPrice = getAt(marketing, `pricingPreview.${planKey}.price`);
+    const pagePrice = getAt(marketing, `pricingPage.plans.${planKey}.price`);
+    if (typeof previewPrice === 'string' && typeof pagePrice === 'string') {
+      const normalizedPreview = normalizePreviewPrice(previewPrice);
+      if (normalizedPreview !== pagePrice) {
+        errors.push(
+          `[${locale}] pricingPreview.${planKey}.price (${previewPrice}) !== pricingPage.plans.${planKey}.price (${pagePrice})`,
+        );
+      }
+    }
+
+    const previewWu = getAt(marketing, `pricingPreview.${planKey}.wu`);
+    const pageWu = getAt(marketing, `pricingPage.plans.${planKey}.wu`);
+    if (typeof previewWu === 'string' && typeof pageWu === 'string') {
+      if (extractWuAmount(previewWu) !== extractWuAmount(pageWu)) {
+        errors.push(
+          `[${locale}] pricingPreview.${planKey}.wu (${previewWu}) WU amount !== pricingPage.plans.${planKey}.wu (${pageWu})`,
+        );
+      }
+    }
+  }
+}
+
 const errors: string[] = [];
 
 const tabRowSet = new Set<string>();
@@ -68,6 +124,10 @@ if (COMPARE_TAB_ROWS.all.length !== COMPARE_ROW_KEYS.length) {
 }
 
 for (const locale of LOCALES) {
+  const localePath = join(ROOT, 'locales', `${locale}.json`);
+  const localeRaw = readFileSync(localePath, 'utf8');
+  appendLegacyUrlViolations(localeRaw, `myrm-website/locales/${locale}.json`, errors);
+
   const marketing = loadMarketing(locale);
 
   const allowedAdvantageKeys = new Set<string>([
@@ -135,6 +195,8 @@ for (const locale of LOCALES) {
       errors.push(`[${locale}] marketing.${base}.features must be an array`);
     }
   }
+
+  assertPricingPreviewMatchesPage(locale, marketing, errors);
 }
 
 if (errors.length > 0) {

@@ -26,6 +26,7 @@
 | 文档 | 范围 |
 |------|------|
 | [`myrm-docs/_ARCH.md`](myrm-docs/_ARCH.md) | Mintlify 文档站 |
+| [`myrm-website/scripts/_ARCH.md`](myrm-website/scripts/_ARCH.md) | 构建/校验脚本 |
 | [`myrm-website/src/lib/_ARCH.md`](myrm-website/src/lib/_ARCH.md) | 外链、release、docs 契约 |
 | [`myrm-website/src/components/marketing/_ARCH.md`](myrm-website/src/components/marketing/_ARCH.md) | 营销站页面与 Landing |
 | [`myrm-website/src/components/download/_ARCH.md`](myrm-website/src/components/download/_ARCH.md) | 桌面下载 UX |
@@ -34,7 +35,7 @@
 ## 模块依赖
 
 - 官网桌面下载元数据：`myrm-website/src/lib/desktop-release.ts` → GitHub Releases `Pursue-LLL/myrm-agent`
-- 营销 ↔ 文档 slug 契约：`myrm-website/scripts/validate-docs-slugs.ts`（含 orphan MDX 检测）
+- 营销 ↔ 文档 slug 契约：`myrm-website/scripts/validate-docs-slugs.ts`（orphan MDX + legacy URL grep：`myrm.ai`、`app.myrm.ai`、`github.com/myrm-ai`）
 - `public/desktop-release.json`：CI `bake:release` 产物，静态 export 首屏用，勿手改
 
 ## 约束

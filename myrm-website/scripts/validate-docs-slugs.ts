@@ -4,7 +4,7 @@
  * - myrm-docs/docs.json, myrm-docs/docs 下全部 .mdx
  *
  * [OUTPUT]
- * - CI 校验：营销外链 slug 存在、MDX 文件存在、磁盘 MDX 无 orphan
+ * - CI 校验：营销外链 slug 存在、MDX 文件存在、磁盘 MDX 无 orphan、禁止 legacy 域名
  *
  * [POS]
  * 营销站与 Mintlify 文档导航一致性校验脚本；`bun run build` 前自动执行。
@@ -13,12 +13,15 @@ import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MARKETING_DOC_PATHS } from '../src/lib/docs-contract';
+import { appendLegacyUrlViolations } from './brand-url-patterns';
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const WEBSITE_ROOT = join(SCRIPT_DIR, '..');
 const BRAND_ROOT = join(WEBSITE_ROOT, '..');
 const DOCS_ROOT = join(BRAND_ROOT, 'myrm-docs');
 const DOCS_JSON = join(DOCS_ROOT, 'docs.json');
+
+const DOCS_SCAN_EXTENSIONS = new Set(['.json', '.mdx', '.md']);
 
 type DocsJson = {
   navigation?: {
@@ -71,6 +74,42 @@ function collectMdxPageIds(docsRoot: string): Set<string> {
   return pageIds;
 }
 
+function collectDocsTextFiles(docsRoot: string): string[] {
+  const files: string[] = [];
+
+  function walk(dir: string): void {
+    for (const entry of readdirSync(dir)) {
+      const fullPath = join(dir, entry);
+      if (statSync(fullPath).isDirectory()) {
+        walk(fullPath);
+        continue;
+      }
+      const ext = entry.includes('.') ? entry.slice(entry.lastIndexOf('.')) : '';
+      if (DOCS_SCAN_EXTENSIONS.has(ext)) {
+        files.push(fullPath);
+      }
+    }
+  }
+
+  walk(docsRoot);
+  return files;
+}
+
+function scanLegacyUrls(docsRoot: string, errors: string[]): void {
+  const files = [
+    join(docsRoot, 'docs.json'),
+    ...collectDocsTextFiles(join(docsRoot, 'docs')),
+  ];
+  for (const filePath of files) {
+    if (!existsSync(filePath)) {
+      continue;
+    }
+    const rel = relative(docsRoot, filePath).replace(/\\/g, '/');
+    const content = readFileSync(filePath, 'utf8');
+    appendLegacyUrlViolations(content, `myrm-docs/${rel}`, errors);
+  }
+}
+
 function main(): void {
   const doc = JSON.parse(readFileSync(DOCS_JSON, 'utf8')) as DocsJson;
   const mintlifyPages = collectMintlifyPages(doc);
@@ -99,6 +138,8 @@ function main(): void {
       errors.push(`Orphan MDX (on disk but not in docs.json navigation): ${pageId}`);
     }
   }
+
+  scanLegacyUrls(DOCS_ROOT, errors);
 
   if (errors.length > 0) {
     console.error('Docs slug contract validation failed:\n' + errors.map((e) => `  - ${e}`).join('\n'));

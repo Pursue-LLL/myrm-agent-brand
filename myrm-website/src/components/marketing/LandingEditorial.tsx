@@ -36,6 +36,7 @@ import EasterEggField from './EasterEgg';
 import MouseGlowLayer from './MouseGlowLayer';
 import SmartDownloadButton from '@/components/download/SmartDownloadButton';
 import { DesktopReleaseProvider } from '@/components/download/DesktopReleaseProvider';
+import { PRICING_PREVIEW_PLAN_KEYS } from './landing/marketing-keys';
 
 function GitHubIcon({ className }: { className?: string }) {
   return (
@@ -60,11 +61,12 @@ export default function LandingEditorial() {
   type NavLink = { href: string; label: string; external?: true; icon?: 'github' };
   const navLinks: NavLink[] = buildMarketingNavLinks(t);
 
-  const pricingPreview = [
-    { name: t('pricingPreview.free.name'), price: t('pricingPreview.free.price'), wu: t('pricingPreview.free.wu') },
-    { name: t('pricingPreview.companion.name'), price: t('pricingPreview.companion.price'), wu: t('pricingPreview.companion.wu'), highlight: true },
-    { name: t('pricingPreview.pro.name'), price: t('pricingPreview.pro.price'), wu: t('pricingPreview.pro.wu') },
-  ];
+  const pricingPreview = PRICING_PREVIEW_PLAN_KEYS.map((planKey) => ({
+    name: t(`pricingPreview.${planKey}.name`),
+    price: t(`pricingPreview.${planKey}.price`),
+    wu: t(`pricingPreview.${planKey}.wu`),
+    highlight: planKey === 'companion',
+  }));
 
   return (
     <>
