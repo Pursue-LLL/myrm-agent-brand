@@ -16,6 +16,7 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **GUI Interface** | ✅ Web-native | ❌ CLI (v0.15 TUI multi-session) | CLI | ✅ Web/App | ⚠️ Basic WebUI | ⚠️ Lark-embedded | ❌ CLI only |
 | **Desktop App** | ✅ Tauri | Electron | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Deployment** | ✅ Web/Tauri/SaaS | Self-hosted | Self-hosted | ❌ SaaS only | Local + WebUI | ❌ Closed SaaS | Local only |
+| **SaaS sign-in** | ✅ Google OAuth + one-time exchange (JWT never in URL); enterprise OIDC ready | ❌ | ❌ (OAuth for LLM keys only) | ⚠️ Vendor account | ❌ | ❌ Closed SaaS | ❌ |
 | **Model Support** | ✅ 100+ models | 20+ | Fixed | ⚠️ Fixed 3-tier | BYOK multi-model | ❌ MiniMax only | N/A |
 | **Channels** | ✅ 25+ messaging (25 built-in) | ~23 (19 with platform hints) | ~7 | ⚠️ Feishu/DingTalk | ⚠️ IM bots | ❌ Lark only | ❌ |
 | **Sub-Agent** | ✅ 6 orchestration modes | ⚠️ v0.15 Kanban Swarm (1 mode) | ⚠️ Basic spawn (linear only) | ⚠️ Basic spawn | ❌ Single agent | ⚠️ L-W-V | ❌ |
@@ -425,8 +426,11 @@ Based on user feedback from Claude Code's Dynamic Workflows feature (2026-05 dat
 | "Had to babysit for 5 hours" | No completion guard or auto-recovery | **CompletionGuard** + 429/503 auto-backoff + 7×24 unattended operation |
 | "Accidentally triggered workflow by keyword" | Keyword-based trigger (mention "parallel" or "research") | **PlannerMiddleware** — intelligent complexity detection, not keyword matching |
 | "max 16 concurrency, max 1000 total agents" | Fixed runtime limits | **Configurable ConcurrencyLimiter** + TokenBucket — no hard ceiling |
+| "Cost is a black box until the end" | No real-time cost tracking | **SubagentDashboard** — Real-time `$0.001` precision cost visualization per node |
+| "Approval requests get lost in long terminal logs" | CLI-only, no visual anchors | **Visual HITL Approval** — One-click jump from Dashboard to Approval Card |
+| "Hard to review what the agent is doing" | Raw JSON arguments in terminal | **Polymorphic Views** — Syntax-highlighted diffs for code, terminal UI for shell |
 
-**Key architectural difference**: Claude Code DW generates JavaScript orchestration scripts at runtime (non-deterministic, can fail or diverge). Myrm uses declarative DAG plans (deterministic, verifiable before execution).
+**Key architectural difference**: Claude Code DW generates JavaScript orchestration scripts at runtime (non-deterministic, can fail or diverge). Myrm uses declarative DAG plans (deterministic, verifiable before execution) with a **First-class Human-in-the-Loop (HITL) GUI**.
 
 ## vs Scrapling & BrowserUse — Fully Autonomous Hybrid Browser Engine
 
