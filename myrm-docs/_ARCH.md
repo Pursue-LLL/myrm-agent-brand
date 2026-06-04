@@ -13,4 +13,6 @@ Mintlify 文档站源码；导航与主题由 `docs.json` 定义。对外域名 
 
 ## 依赖
 
-- 官网外链：`myrm-agent-brand/myrm-website/src/lib/deploy-mode.ts` (POS: 营销站外部链接统一入口)
+- 官网外链：`myrm-agent-brand/myrm-website/src/lib/deploy-mode.ts`（`myrmagent.ai` / `app.myrmagent.ai` / `docs.myrmagent.ai`）
+- GitHub：`Pursue-LLL/myrm-agent`（与 desktop-release、development-setup 一致）
+- orphan MDX 检测：`myrm-website/scripts/validate-docs-slugs.ts`

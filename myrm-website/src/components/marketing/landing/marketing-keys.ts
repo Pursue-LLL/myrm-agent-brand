@@ -4,6 +4,7 @@
  *
  * [OUTPUT]
  * - BENTO_KEYS, COMPARE_ROW_KEYS, DEPTH_GROUPS, depthItemBasePath
+ * - PRICING_PAGE_PLAN_KEYS, HIGHLIGHT_PRICING_PLAN
  *
  * [POS]
  * 落地页 i18n 键清单唯一来源；组件与 validate-marketing-locales.ts 均引用此处。
@@ -186,6 +187,7 @@ export const DEPTH_GROUPS: readonly DepthGroupDef[] = [
       { source: 'highlights', itemKey: 'webSearchFetch' },
       { source: 'extendedHighlights', itemKey: 'enterpriseScenarios' },
       { source: 'extendedHighlights', itemKey: 'artifactDeploy' },
+      { source: 'extendedHighlights', itemKey: 'multiAgentOrchestration' },
       { source: 'extendedHighlights', itemKey: 'longReportToc' },
       { source: 'highlights', itemKey: 'ptc' },
       { source: 'highlights', itemKey: 'codexParity' },

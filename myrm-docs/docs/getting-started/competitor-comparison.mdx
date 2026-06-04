@@ -137,6 +137,21 @@ Myrm solves the "last mile" of local-first deployment with an Ockham's Razor app
 *   **Instant Session Eviction**: When a password is changed or protection is toggled, Myrm automatically rotates the global HMAC Session Signing Key. This instantly invalidates all existing sessions globally (like a kill switch for stolen devices), whereas competitors often leave old JWTs valid.
 *   **Single-Tenant "Vault" vs. Heavy DBs**: Instead of a bloated Postgres/MySQL user table with RBAC rules designed for SaaS, the local mode uses a single highly-encrypted `admin.json` vault file. Secure, portable, and zero-dependency.
 
+## Multi-Agent Orchestration: Deterministic Scheduling (vs Hermes / OpenClaw)
+
+While competitors rely on single-mode orchestration (e.g., Hermes' Kanban Swarm or OpenClaw's basic linear spawn), Myrm introduces a **6-Mode Deterministic Orchestration Engine** backed by a **5-Layer Tool Security Fence** and **4-Dimension Budget Control**.
+
+### Where Myrm Goes Further
+
+| Area | Hermes / OpenClaw | Myrm | User Benefit |
+|------|-------------------|------|-------------|
+| **Orchestration Modes** | ⚠️ 1-2 modes (Kanban or Spawn) | **6 Modes** (DAG, Swarm, Chain, Batch, Verified, Spawn) | Right tool for the right job; DAG guarantees execution order without relying on LLM improvisation. |
+| **Tool Isolation** | ⚠️ Basic global scope | **5-Layer Fence** (Type, Blocklist, Config, Intersection, Role) | Complete prevention of child agents escalating privileges or executing unauthorized tools. |
+| **Budget Control** | ⚠️ Token limit only | **4D Budget** (Tokens, USD, Time, Descendants) | Perfect predictability for cost and execution depth. Zero bill shock. |
+| **Execution Verification** | ❌ None | **CompletionGuard** (Evidence-based) | Children must prove task completion with actual STDOUT/STDERR, not just say "I'm done". |
+
+**Result: Myrm replaces the "prompt and pray" multi-agent paradigm with deterministic software engineering patterns. Your multi-agent pipelines execute reliably, securely, and within budget every single time.**
+
 ## Smart Concurrency Router — Eliminating Read-Write Races (vs Hermes / OpenClaw)
 
 In a highly concurrent Agent sandbox, an LLM often hallucinates operations that can corrupt data, such as trying to "read file X and write to file X simultaneously" in a single parallel tool call batch. In competitor architectures, this causes dirty reads and catastrophic write overwrites.

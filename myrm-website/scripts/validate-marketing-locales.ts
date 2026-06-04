@@ -122,6 +122,8 @@ for (const locale of LOCALES) {
   }
 
   assertKey(locale, marketing, 'pricingPage.period', errors);
+  assertKey(locale, marketing, 'pricingPage.billingNote', errors);
+  assertKey(locale, marketing, 'pricingPage.billingLink', errors);
   for (const planKey of PRICING_PAGE_PLAN_KEYS) {
     const base = `pricingPage.plans.${planKey}`;
     assertKey(locale, marketing, `${base}.name`, errors);

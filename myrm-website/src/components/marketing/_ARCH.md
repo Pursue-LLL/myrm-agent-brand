@@ -10,7 +10,7 @@
 |------|------|
 | `/` | Landing Page（LandingEditorial） |
 | `/download` | 桌面端下载（embedded JSON + 平台矩阵 + release notes + 安装步骤 + SHA256） |
-| `/pricing` | 轻量定价展示（CTA 跳转 App） |
+| `/pricing` | 定价展示（`pricingPage.plans` i18n；CTA 跳转 App 账单） |
 | `/terms` | 服务条款 |
 | `/privacy` | 隐私政策 |
 | `/refund` | 退款政策 |
@@ -80,9 +80,10 @@ Hero → WorkspacePreview → HowItWorks（路径 Tab）→ QuickStart → Marqu
 - **advantages.items 键**：`BENTO_KEYS` ∪ `depthAdvantageItemKeys()`（深度区专用四项，非首屏 Bento）
 - **Bento 证据链**：`BENTO_DOC_PATHS` 按主题映射 docs 竞品对比锚点
 - **对比表**：`whyMyrmAgent.rows.*` + `whyMyrmAgent.tabs.*`（`COMPARE_TAB_ROWS` 映射）
+- **定价页**：`/pricing` 使用 `pricingPage.plans.*`（`PRICING_PAGE_PLAN_KEYS`）；Landing 预览仍用 `pricingPreview.*`
 - **迁移 CTA**：主链 `/download`；次链 `getAppLoginRedirectUrl(APP_MIGRATION_WIZARD_PATH)`（Local 已部署用户）
-- **同步规则**：落地页 Bento / 对比表条款与 [`docs/getting-started/competitor-comparison`](/docs/getting-started/competitor-comparison) 保持一致；禁止脚本批量灌入 7+ bullet
-- **键校验**：`bun run validate:locales`（`scripts/validate-marketing-locales.ts` + `landing/marketing-keys.ts`）；`bun run build` 前自动执行
+- **同步规则**：落地页 Bento / 对比表条款与 `getDocsUrl('/getting-started/competitor-comparison')` 保持一致；禁止脚本批量灌入 7+ bullet
+- **键校验**：`bun run validate:locales` + `bun run validate:docs-slugs`（含 orphan MDX）；`bun run build` 前自动执行
 
 ## 与 App 的关系
 

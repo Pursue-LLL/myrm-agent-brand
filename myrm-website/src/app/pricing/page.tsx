@@ -9,8 +9,16 @@ import MarketingShell from '@/components/marketing/MarketingShell';
 import {
   HIGHLIGHT_PRICING_PLAN,
   PRICING_PAGE_PLAN_KEYS,
-  type PricingPagePlanKey,
 } from '@/components/marketing/landing/marketing-keys';
+
+function readPlanFeatures(
+  raw: unknown,
+): string[] {
+  if (!Array.isArray(raw)) {
+    return [];
+  }
+  return raw.filter((item): item is string => typeof item === 'string');
+}
 
 export default function PricingPage() {
   const t = useTranslations('marketing');
@@ -36,7 +44,7 @@ export default function PricingPage() {
           <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4 items-start">
             {PRICING_PAGE_PLAN_KEYS.map((planKey) => {
               const highlight = planKey === HIGHLIGHT_PRICING_PLAN;
-              const features = t.raw(`pricingPage.plans.${planKey}.features`) as string[];
+              const features = readPlanFeatures(t.raw(`pricingPage.plans.${planKey}.features`));
 
               return (
                 <div
@@ -134,9 +142,9 @@ export default function PricingPage() {
 
           <div className="mt-12 text-center">
             <p className="text-sm text-muted-foreground">
-              {t('pricingPreview.viewAll')}{' '}
+              {t('pricingPage.billingNote')}{' '}
               <a href={getAppUrl('/pricing')} className="text-primary hover:underline font-medium">
-                {t('nav.getStarted')} →
+                {t('pricingPage.billingLink')} →
               </a>
             </p>
           </div>

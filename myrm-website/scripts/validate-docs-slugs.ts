@@ -1,6 +1,13 @@
 /**
- * Ensures marketing doc links match Mintlify pages and on-disk MDX files.
- * Also fails when an MDX file exists but is not listed in docs.json navigation.
+ * [INPUT]
+ * - src/lib/docs-contract.ts::MARKETING_DOC_PATHS (POS: 营销站 → Mintlify slug 契约)
+ * - myrm-docs/docs.json, myrm-docs/docs 下全部 .mdx
+ *
+ * [OUTPUT]
+ * - CI 校验：营销外链 slug 存在、MDX 文件存在、磁盘 MDX 无 orphan
+ *
+ * [POS]
+ * 营销站与 Mintlify 文档导航一致性校验脚本；`bun run build` 前自动执行。
  */
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { join, dirname, relative } from 'node:path';
