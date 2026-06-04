@@ -282,6 +282,11 @@ export function detectUserPlatform(): PlatformDetection {
   }
 
   if (ua.includes('mac') || platform.includes('mac')) {
+    // Prevent iPadOS from spoofing as Mac (iPadOS requests Desktop Website by default)
+    if (navigator.maxTouchPoints > 0) {
+      return { platform: 'unknown', macArchConfirmed: true };
+    }
+
     // Safari on Apple Silicon still reports "Intel Mac OS X" for compatibility.
     const renderer = getWebGLRenderer()?.toLowerCase() ?? '';
     if (renderer.includes('apple')) {
