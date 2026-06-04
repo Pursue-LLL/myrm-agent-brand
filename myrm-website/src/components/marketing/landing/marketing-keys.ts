@@ -211,7 +211,7 @@ export const DEPTH_GROUPS: readonly DepthGroupDef[] = [
     defaultOpen: false,
     items: [
       { source: 'highlights', itemKey: 'cjkMigration' },
-      { source: 'extendedHighlights', itemKey: 'smartDesktopDistribution' }
+      { source: 'highlights', itemKey: 'smartDesktopDistribution' }
     ],
   },
 ] as const;
