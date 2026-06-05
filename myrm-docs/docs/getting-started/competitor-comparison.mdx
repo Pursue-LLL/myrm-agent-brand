@@ -284,12 +284,16 @@ Myrm's Skill Evolution System (42 modules, native built-in) implements all engin
 | Evidence aggregation | ❌ | ✅ Success/failure case grouping with common error pattern extraction |
 | Description optimization | ❌ | ✅ Auto-refine trigger conditions for better skill matching |
 | GUI approval workflow | ❌ Auto-execute | ✅ Review, modify, approve or reject before applying |
+| **Per-agent Insights Inbox** (background distill → approve in Agent settings) | ❌ Global auto-apply | ✅ **Insights tab** — nothing applies until you approve; dismiss writes negative exemplar |
+| Per-agent skill isolation (no cross-agent habit pollution) | ⚠️ Shared pool | ✅ **agent_id scoping + CoW fork** on cross-agent mounts |
 | Growth dashboard | ❌ | ✅ KPI + heatmap + radar chart + evolution timeline |
 | Environment fingerprint | ❌ | ✅ Cross-device safe skill sharing |
 | Batch confirmation | ❌ | ✅ 90% cost reduction for multi-skill evolution |
 | Evolution constraints | ❌ | ✅ Historical error memory prevents repeated mistakes |
 | Prebuilt skill upgrade protection | ❌ Silent overwrite | ✅ **Three-way hash** — user edits preserved, "Update Available" badge |
 | Daily work journal | ❌ | ✅ 6-source aggregated daily timeline with date navigation |
+
+**vs ECC (Everything Claude Code) `continuous-learning-v2`:** ECC distills atomic "instinct" YAML habits in the background — powerful for power users, but habits tend to apply globally without a per-agent GUI gate. Myrm ships the same *idea* (idle distillation → skill proposals) with an **Insights Inbox** in Agent settings: proposals stay drafts until you approve; dismiss persists a negative exemplar so the agent stops re-proposing; built-in agents are read-only in the inbox. We do **not** yet match ECC's AgentShield static MCP scan, `/aside` fork chats, or `/context-budget` tree-map — see product roadmap.
 
 ### Skill Module Architecture — 8-Dimension Advantage
 
@@ -806,6 +810,30 @@ Myrm 在架构和体验设计上实现了降维打击：
 | **交互 UX 细节** | 命令行打字感 | **长文自动目录 (TOC) + IME 候选词保护 + Quick/Reasoning 模型秒切** | 极具质感的现代聊天界面。报告自动生成目录并跟随滚动，聊天流畅度比肩原生 App。|
 
 **一句话总结**：从 OpenClaw 迁移到 Myrm，你将告别"修一天跑一小时"的极客折腾期，获得一个拥有全天候健壮队列、极致 UI/UX 细节以及跨端原生体验的企业级 AI 工作站。
+
+## vs DeerFlow — 彻底告别大模型崩溃死循环
+
+DeerFlow 作为一个优秀的开源智能体框架，在健壮性处理上遇到了典型的业界难题：大模型极易因为长日志和异常输出引发死循环崩溃。Myrm 将 DeerFlow 暴露出的核心痛点转化为**原生中间件级别的降维打击解决方案**。
+
+### 工具调用安全网（Tool Calling Safety Net）
+
+无论是使用 LangChain 还是原生 API，执行长线任务时极易遭遇致命的崩溃死循环。Myrm 实现了免人工干预的 **100% 自动容错**：
+
+| 能力 | Myrm Agent | DeerFlow / 普通 LangChain Agent | 优势 |
+|------|-----------|------------------------------|------|
+| **工具输出预算控制** | ✅ **自动截断与落盘 (Spillover)** | ❌ 仅配置最大字符数，超长直接丢失 | **永远不会 OOM，且数据不丢** |
+| **超长数据处理** | ✅ **预览摘要 + 本地持久化引用** | ❌ 粗暴截断，无法查阅全文 | **大模型既知道结果超长，又知道去哪里读完整日志** |
+| **悬空工具调用自愈** | ✅ **Dangling Tool Call Healer 中间件** | ❌ 报错崩溃死循环 | **自动补齐合成的错误回执，使得消息序列合法，让模型自行修复残缺调用** |
+
+**用户感知收益**：当别的 Agent 跑到一半因为“日志太长”或“JSON 残缺”而崩溃挂起时，Myrm 会自动截取超长日志存入本地文件，并用一段礼貌的提示语告诉大模型：“输出过长已落盘，请使用读文件工具查看某某路径”。它永远能优雅地处理各种边界崩溃。
+
+### 智能记忆检索（Context-Aware TF-IDF Memory Retrieval）
+
+在注入长期记忆时，普通框架会盲目按时间或事实置信度排序，导致上下文被大量“高置信度但与当前任务完全无关”的噪音记忆占满，反而忘记了核心指令。
+
+Myrm 引入了 **TF-IDF 与置信度双重加权检索**：在注水前，先利用 `tiktoken` 提取当前对话最近几轮作为 `current_context`，计算所有记忆与该上下文的余弦相似度，并结合事实的置信度进行双端加权评分（`similarity*0.6 + confidence*0.4`）。
+
+**用户感知收益**：如果你积累了数百条记忆，迁移到 Myrm 后绝不会体验到因为“记得太多而变笨”的痛点。我们在极低的 Token 预算内提供“最精准”的记忆召回。
 
 ## Long Report Reading (Auto TOC)
 
