@@ -704,10 +704,10 @@
           "myrmAgent": "自动验对齐"
         },
         "toolSecurity": {
-          "feature": "工具安全 · 插件先扫描再运行",
-          "hermes": "_no",
-          "openclaw": "_no",
-          "myrmAgent": "安装前扫描"
+          "feature": "MCP+工具安全 · 启用前预检",
+          "hermes": "仅 log",
+          "openclaw": "env 过滤",
+          "myrmAgent": "GUI预检+扫描"
         },
         "credentialVault": {
           "feature": "表单凭证金库 · 密码不进对话",
@@ -732,6 +732,12 @@
           "hermes": "API 直通原文",
           "openclaw": "DDG 网页抓取",
           "myrmAgent": "7 引擎+智能筛选"
+        },
+        "antiBlockingTitle": {
+          "feature": "标题生成 · O(1) 防阻塞与脱敏",
+          "hermes": "易卡死/泄露",
+          "openclaw": "易卡死/泄露",
+          "myrmAgent": "O(1) 截断+脱敏"
         }
       },
       "scrollHint": "左右滑动查看完整对比"
@@ -868,6 +874,14 @@
           "point1": "极限并发：原子锁保证多 Agent/看板并发更新不串扰",
           "point2": "弹性降级：缺 OCR/向量库等依赖时自适应 fallback，不整进程崩溃",
           "point3": "审批 TOCTOU：沙箱外写文件必进审批队列；桌面操作审批延迟后重拍快照（有自动化测试锁定）"
+        },
+        "antiBlockingTitle": {
+          "badge": "vs DeerFlow",
+          "title": "智能防泄漏与零卡顿标题生成",
+          "desc": "O(1) 早期截断防阻塞与军工级脱敏管线，超大日志零卡顿，自动剥离敏感凭证与废话前缀。",
+          "point1": "O(1) 早期截断防阻塞：彻底消除长文本在异步事件循环中执行正则和香农熵计算导致的 CPU Blocking DoS 隐患",
+          "point2": "军工级脱敏与深度降噪：抹除 API Key，正则剥离代码块、URL 链接、HTML 标签",
+          "point3": "智能降级与 Prompt 隔离：空文本 0 Token 拦截，使用 <user_input> XML 标签强制 LLM 语种自适应"
         },
         "precisionMultimodal": {
           "badge": "防欺诈判定",
@@ -1032,15 +1046,14 @@
           "desc": "8 类记忆 + Wiki 知识库 + 技能进化闭环 —— 记住偏好与项目上下文，拒绝机械复读。",
           "point1": "8 类跨会话记忆：画像、事实、流程与偏好自动召回，越聊越懂你",
           "point2": "Wiki 混合检索 + 辩证隐性画像，答得更贴你",
-          "point3": "多智能体技能 CoW 隔离进化，跨 Agent 共享零污染",
-          "point4": "洞察 Inbox：后台提炼习惯，你在 Agent 设置里逐条批准才生效，拒绝后不再重复打扰"
+          "point3": "技能 CoW 隔离进化 + 洞察 Inbox：习惯提炼须你批准才生效，拒绝后不再打扰"
         },
         "security": {
           "title": "六层运行时防护，审批与审计可配置",
-          "desc": "能力围栏 + 多层注入/边界防护 + 表单凭证金库（密码/TOTP 不进 LLM）+ PII 脱敏 + HITL 审批 + Merkle 审计 —— 敏感操作可审批，全程可回溯。",
+          "desc": "能力围栏 + MCP 启用前预检 + Shell 命令段级风险着色 + 表单凭证金库（密码/TOTP 不进 LLM）+ PII 脱敏 + HITL 审批 + Merkle 审计 —— 看得懂再允许，全程可回溯。",
           "point1": "L1–L5.5 运行时洋葱栈：预算、12 维权限、限流、循环检测、PII 脱敏与行为轨迹分类",
-          "point2": "表单凭证金库：Settings 配 label，浏览器/桌面注入；密码框明文 type 强拦截 + 40+ 泄漏检测",
-          "point3": "单机凭证金库 + WebSocket 零信任网关，即使局域网穿透也无法被绕过"
+          "point2": "MCP 安全门禁 + Shell 段级审批：设置页预检投毒工具；`curl | bash` 分段标红，密钥脱敏后再展示",
+          "point3": "表单凭证金库 + WebSocket 零信任网关：密码不进 LLM；局域网穿透也无法绕过鉴权"
         },
         "reliability": {
           "title": "长任务跑得稳，断了也能续",

@@ -494,6 +494,47 @@ FSB pioneered the vault-boundary pattern for browser automation (label reference
 - **From FSB**: Same mental model (labels), plus desktop apps and TOTP in one workspace.
 - **For enterprise**: Combine vault with 12-dimension permissions, Merkle audit (calls logged, not secrets), and incognito sessions for sensitive runs.
 
+## MCP Security Gate — Know Risk Before You Enable
+
+Third-party MCP servers are a growing attack surface: poisoned tool descriptions, sensitive path access, and runtime tool injection can compromise an agent mid-conversation.
+
+Myrm gates MCP **before** it reaches your workspace:
+
+| Stage | What Myrm does | What you see | Typical competitors |
+|-------|----------------|--------------|---------------------|
+| **Edit** | Debounced static scan (~0.03ms) | Amber risk list (EN/ZH) | No GUI pre-check |
+| **Save / enable** | High-risk requires ack + 4-step verify (static → OSV → connect → runtime) | Clear block or confirmed enable | Hermes: log only |
+| **Runtime** | Harness fail-closed disconnect | Poisoned MCP never joins the chat | OpenClaw: env filter only |
+
+**Honest scope**: Full 102-hook static rule packs are roadmap — this gate covers the real user path (Settings → enable → chat). Regression: harness + server API tests (21+ cases).
+
+### Migration wins
+
+- **From Hermes**: Stop discovering bad MCP only in logs — block or confirm in Settings first.
+- **From OpenClaw**: Env filtering is not enough; get pre-enable scan + runtime disconnect.
+
+## Shell Command Visual Approval — See Every Pipe Before You Allow
+
+When an agent runs `curl … | bash`, a single monospace line hides which segment downloads code and which executes it.
+
+Myrm's **Shell Command Display** splits pipelines into spans with per-segment risk coloring — the same mental model OpenClaw users expect, enabled by default and wired into our 6-layer security stack.
+
+| Area | OpenClaw | Hermes | Myrm | User benefit |
+|------|----------|--------|------|--------------|
+| **Pipe breakdown** | tree-sitter explainer (not on by default) | Whole-line allow/deny | **On by default**, same source as redacted display | Know which segment is dangerous |
+| **Risk coloring** | ❌ | ❌ | ✅ Per-span levels | Red/yellow/green at a glance |
+| **Secrets in UI** | Basic | Basic | **Redact first, then spans** | API keys never in approval text |
+| **Edit escalation** | ❌ | ❌ | **Block edits that change UNKNOWN-risk commands** | Can't "tweak wording" into a worse command |
+| **Sub-agent cards** | ❌ | ❌ | ✅ Spans flow to delegate approvals | Same clarity for spawned workers |
+| **Workspace context** | ❌ | ❌ | ✅ Shows workspace root (EN/ZH) | Know where the shell runs |
+
+**Honest limits**: Commands over 128KB truncate parsing (shown in UI). Production PyPI installs need a harness release; local `./myrm dev` uses editable harness (45 harness + 33 frontend approval tests).
+
+### Migration wins
+
+- **From OpenClaw**: Familiar segmented shell view — plus 12-dimension permissions, leak detection, and Merkle audit.
+- **From Hermes / Claude Code**: Stop approving blind one-liners — see pipe segments and risk before one click.
+
 ## vs MemPalace — AI Memory System (14.9K+ Stars)
 
 MemPalace is a standalone AI memory system using architectural metaphors (Wing/Room/Closet/Drawer) with a "store everything verbatim" philosophy, achieving 96.6% R@5 on LongMemEval. It operates as an MCP tool that external AI assistants can call.

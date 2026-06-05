@@ -94,6 +94,7 @@ export const COMPARE_ROW_KEYS = [
   'codeGraph',
   'searchIntelligence',
   'smartDesktopDistribution',
+  'antiBlockingTitle',
 ] as const;
 
 export type CompareRowKey = (typeof COMPARE_ROW_KEYS)[number];
@@ -144,6 +145,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'ptcEngine',
     'cacheObservability',
     'shellCompression',
+    'antiBlockingTitle',
   ],
   platform: ['gui', 'desktopApp', 'smartDesktopDistribution', 'configRuntime', 'codeGraph'],
 };
@@ -207,6 +209,7 @@ export const DEPTH_GROUPS: readonly DepthGroupDef[] = [
       { source: 'extendedHighlights', itemKey: 'productionEngineIntegrity' },
       { source: 'extendedHighlights', itemKey: 'unifiedToolGateway' },
       { source: 'extendedHighlights', itemKey: 'enterpriseTesting' },
+      { source: 'extendedHighlights', itemKey: 'antiBlockingTitle' },
     ],
   },
   {

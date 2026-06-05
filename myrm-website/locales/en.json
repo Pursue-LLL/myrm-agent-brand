@@ -704,10 +704,10 @@
           "myrmAgent": "Auto align"
         },
         "toolSecurity": {
-          "feature": "Tool security · scan before run",
-          "hermes": "_no",
-          "openclaw": "_no",
-          "myrmAgent": "Pre-install scan"
+          "feature": "MCP + tool security · pre-enable scan",
+          "hermes": "Log only",
+          "openclaw": "Env filter",
+          "myrmAgent": "GUI scan + block"
         },
         "credentialVault": {
           "feature": "Credential Vault · passwords stay out of chat",
@@ -732,6 +732,12 @@
           "hermes": "Raw API passthrough",
           "openclaw": "DDG HTML scrape",
           "myrmAgent": "7 engines + smart filter"
+        },
+        "antiBlockingTitle": {
+          "feature": "Title Generation · O(1) Anti-Block & Redact",
+          "hermes": "Prone to freeze/leak",
+          "openclaw": "Prone to freeze/leak",
+          "myrmAgent": "O(1) trunc+redact"
         }
       },
       "scrollHint": "Swipe to see full comparison"
@@ -868,6 +874,14 @@
           "point1": "Extreme concurrency: atomic locks keep multi-agent / kanban updates from crosstalk",
           "point2": "Elastic fallback: missing OCR/vector libs degrade gracefully instead of killing the process",
           "point3": "Approval TOCTOU: out-of-sandbox writes queue for approval; desktop actions re-snapshot after delay (automated tests lock this in)"
+        },
+        "antiBlockingTitle": {
+          "badge": "vs DeerFlow",
+          "title": "Anti-Leak & Zero-Lag Title Generation",
+          "desc": "O(1) early truncation and military-grade redaction pipeline. Zero lag for massive logs, auto-strips sensitive credentials and chatty prefixes.",
+          "point1": "O(1) Early Truncation: Eliminates CPU blocking DoS risks from running regex and Shannon entropy on massive texts in the async event loop",
+          "point2": "Military-grade redaction & deep denoising: Erases API Keys, strips code blocks, URLs, and HTML tags",
+          "point3": "Smart fallback & Prompt isolation: 0-token intercept for empty text, uses <user_input> XML tags to force LLM language adaptation"
         },
         "precisionMultimodal": {
           "badge": "Anti-fraud vision",
@@ -1032,15 +1046,14 @@
           "desc": "8 memory types + Wiki knowledge base + skill evolution loop — keeps your preferences and project context, not generic replies.",
           "point1": "8 cross-session memory types: persona, facts, workflows & prefs auto-recalled — smarter every chat",
           "point2": "Wiki hybrid search + dialectic persona profile — answers fit you better",
-          "point3": "Skills evolve with your approval — capabilities grow, you stay in control",
-          "point4": "Insights Inbox: habits distilled in the background — you approve or dismiss in Agent settings; dismiss teaches the AI not to ask again"
+          "point3": "Skills evolve with your approval + Insights Inbox — habits need your OK; dismiss teaches the AI not to nag"
         },
         "security": {
           "title": "Six-layer runtime guard, approvals & audit you control",
-          "desc": "Capability fence + multi-layer injection defense + Credential Vault (passwords/TOTP never enter the LLM) + PII redaction + HITL approvals + Merkle audit — approve sensitive actions, trace everything.",
+          "desc": "Capability fence + MCP pre-enable scan + shell per-segment risk coloring + Credential Vault (passwords/TOTP never enter the LLM) + PII redaction + HITL approvals + Merkle audit — see risk before you allow, trace everything.",
           "point1": "L1–L5.5 runtime onion stack: budget, 12-dim permissions, rate limits, loop detection, PII redaction & trajectory classification",
-          "point2": "Credential Vault: configure labels in Settings; browser/desktop injection; password-field plaintext blocked + 40+ leak patterns",
-          "point3": "Local Credential Vault + WebSocket Zero-Trust Gateway — API remains secure even if exposed to LAN or Tunnel"
+          "point2": "MCP security gate + shell span approval: scan poisoned tools in Settings; `curl | bash` split and color-coded after redaction",
+          "point3": "Credential Vault + WebSocket Zero-Trust Gateway — passwords stay out of the LLM; LAN/tunnel exposure cannot bypass auth"
         },
         "reliability": {
           "title": "Long jobs stay steady — resume where you left off",
