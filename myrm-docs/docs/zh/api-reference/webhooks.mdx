@@ -1,0 +1,39 @@
+---
+title: Webhooks
+description: 配置 Webhook 实现事件驱动集成。
+---
+
+# Webhooks
+
+在 Myrm 工作空间中发生事件时接收实时通知。
+
+## 配置
+
+1. 进入 **设置 > Webhooks**
+2. 添加 Webhook URL
+3. 选择要订阅的事件
+4. 保存并验证
+
+## 事件
+
+| 事件 | 说明 |
+|-------|-------------|
+| `agent.message.created` | Agent 新消息 |
+| `agent.task.completed` | 定时任务完成 |
+| `agent.task.failed` | 定时任务失败 |
+| `memory.created` | 新记忆条目 |
+| `skill.evolved` | 技能进化完成 |
+
+## 载荷格式
+
+```json
+{
+  "event": "agent.message.created",
+  "timestamp": "2026-05-30T00:00:00Z",
+  "data": { ... }
+}
+```
+
+## 安全
+
+Webhook 载荷在 `X-Myrm-Signature` 头中包含 HMAC 签名供校验。

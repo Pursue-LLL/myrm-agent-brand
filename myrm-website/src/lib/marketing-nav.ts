@@ -10,6 +10,7 @@
  * [POS]
  * DRY nav definition — prevents LandingEditorial / MarketingShell drift.
  */
+import type { DocsLocale } from '@/lib/docs-contract';
 import { getDesktopDownloadPath, getDocsUrl } from '@/lib/deploy-mode';
 import { getDeployPathLoginHref, getDeployPathRegisterHref } from '@/lib/deploy-paths';
 
@@ -24,14 +25,15 @@ type NavTranslate = (key: string) => string;
 
 export function buildMarketingNavLinks(
   t: NavTranslate,
-  options?: { homePrefix?: string },
+  options?: { homePrefix?: string; docsLocale?: DocsLocale },
 ): MarketingNavLink[] {
   const prefix = options?.homePrefix ?? '';
+  const docsLocale = options?.docsLocale ?? 'en';
 
   return [
     { href: `${prefix}#features`, label: t('nav.features') },
     { href: `${prefix}#deploy`, label: t('nav.deploy') },
-    { href: getDocsUrl(), label: t('nav.docs'), external: true },
+    { href: getDocsUrl('/', docsLocale), label: t('nav.docs'), external: true },
     { href: getDesktopDownloadPath(), label: t('nav.desktopDownload') },
     {
       href: 'https://github.com/Pursue-LLL/myrm-agent',

@@ -1,0 +1,38 @@
+---
+title: 环境变量
+description: 自托管 Myrm 环境变量完整参考。
+---
+
+# 环境变量
+
+通过环境变量配置 Myrm 实例。复制 `.env.example` 为 `.env` 并按需修改。
+
+## 必填
+
+| 变量 | 说明 | 示例 |
+|----------|-------------|---------|
+| `OPENAI_API_KEY` | OpenAI API Key（或任意一个 LLM Key） | `sk-...` |
+
+## LLM 提供商
+
+| 变量 | 说明 |
+|----------|-------------|
+| `OPENAI_API_KEY` | OpenAI |
+| `ANTHROPIC_API_KEY` | Anthropic Claude |
+| `DEEPSEEK_API_KEY` | DeepSeek |
+| `GOOGLE_API_KEY` | Google Gemini |
+
+## 应用
+
+| 变量 | 默认值 | 说明 |
+|----------|---------|-------------|
+| `PORT` | `3000` | HTTP 服务端口 |
+| `DATABASE_URL` | `sqlite:./data/myrm.db` | 数据库连接 |
+| `QDRANT_URL` | `http://localhost:6333` | 向量库 URL |
+
+## 安全
+
+| 变量 | 默认值 | 说明 |
+|----------|---------|-------------|
+| `JWT_SECRET` | （自动生成） | JWT 签名密钥 |
+| `ENCRYPTION_KEY` | （自动生成） | AES-256 加密密钥 |

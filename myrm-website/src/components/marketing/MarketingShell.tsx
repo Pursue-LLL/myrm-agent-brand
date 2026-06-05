@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { useDocsLocale } from '@/hooks/useDocsLocale';
 import { ArrowRight02Icon, Menu01Icon, Cancel01Icon } from 'hugeicons-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -26,11 +27,12 @@ interface MarketingShellProps {
 
 export default function MarketingShell({ children, className }: MarketingShellProps) {
   const t = useTranslations('marketing');
+  const docsLocale = useDocsLocale();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   type NavLink = { href: string; label: string; external?: true; icon?: React.ComponentType<{ className?: string }> };
 
-  const navLinks: NavLink[] = buildMarketingNavLinks(t, { homePrefix: '/' }).map((link) => {
+  const navLinks: NavLink[] = buildMarketingNavLinks(t, { homePrefix: '/', docsLocale }).map((link) => {
     if (link.icon === 'github') {
       return { href: link.href, label: link.label, external: link.external, icon: GitHubIcon };
     }

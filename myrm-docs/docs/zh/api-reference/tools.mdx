@@ -1,0 +1,59 @@
+---
+title: Tools API
+description: 以编程方式管理与执行工具。
+---
+
+# Tools API
+
+## 列出可用工具
+
+```bash
+GET /api/tools
+```
+
+## 执行工具
+
+```bash
+POST /api/tools/:name/execute
+```
+
+```json
+{
+  "parameters": {
+    "url": "https://example.com"
+  }
+}
+```
+
+## 内置工具
+
+| 工具 | 说明 |
+|------|-------------|
+| `browser` | 网页浏览与抓取 |
+| `file_system` | 文件读写 |
+| `terminal` | Shell 命令执行 |
+| `code_execute` | 沙箱内代码执行 |
+| `web_search` | 多引擎搜索 + BM25/Reranker 过滤 — 返回清洗、去重片段 |
+| `web_fetch` | 3 级本地抓取（HTTP/Browser/Stealth）+ DOM 剪枝与 Markdown 提取 |
+| `github` | GitHub API 集成 |
+
+## MCP 工具
+
+通过 [MCP](/zh/guides/mcp-integration) 连接的外部工具与内置工具一并注册。MCP 工具名内部前缀为 `mcp__{server}__{tool}` 以隔离命名空间 — API 接受前缀名与原始名。
+
+```bash
+POST /api/tools/mcp__github__search_repos/execute
+```
+
+### 过滤
+
+可在 MCP 服务配置中用 `tool_include` / `tool_exclude` 按 Agent 过滤：
+
+```json
+{
+  "tool_include": ["search_repos", "get_issue"],
+  "tool_exclude": ["delete_repo"]
+}
+```
+
+详见 [MCP 集成 > 工具过滤](/zh/guides/mcp-integration#tool-filtering)。

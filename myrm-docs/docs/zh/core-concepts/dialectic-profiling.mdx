@@ -1,0 +1,45 @@
+---
+title: 辩证画像
+description: 异步认知推导器提取沟通风格、决策习惯与隐性目标——非正则猜测。
+---
+
+# 辩证画像（认知推导器）
+
+Myrm 用**异步认知推导器**替代脆弱的正则偏好提取：对话结束后，后台 LLM 对交流进行辩证推理，将结构化画像写入记忆。
+
+## 推断维度
+
+| 维度 | 以 profile 记忆存储的示例 |
+|-----------|-----------------------------------|
+| **沟通风格** | 简洁 vs 详尽、正式 vs 随意、语言混用 |
+| **决策逻辑** | 风险承受度、偏好多选项 vs 直接建议 |
+| **隐性目标** | 进行中的项目、从上下文浮现的未言明优先级 |
+
+仅证据支撑：模型无法引用明确信号时字段留空（防幻觉）。
+
+## 运行时流程
+
+1. **提取** — `MemoryExtractor` 提示含辩证章节；有依据时以 `memory_type="profile"` 高置信写入。
+2. **推导循环** — `cognitive/deriver.py` 对近期消息异步辩证推理，更新向量与图谱证据。
+   - **Token 感知滑动窗口**：送入 LLM 前将输入消息限制在约 16,000 字符内，防 OOM 并省预算。
+   - **双写降级**：安全双写 GraphStore 与 SemanticMemory；图谱后端失败或禁用时优雅降级到 SemanticMemory，不丢数据。
+3. **品味摘要** — `compile_taste_summary` 将活跃 semantic/profile 行 consolidated 为系统提示词快速可读摘要。
+4. **注入** — `MemoryContextMiddleware` 每轮前注入品味摘要（相对 Honcho 式每轮 `honcho_context` 工具调用无额外往返）。
+5. **SSE 降噪** — UI 仅在**颠覆性**变更（矛盾/取代）时通知；常规偏好完全静默后台提取。
+6. **GUI** — `TasteSummaryCard` 展示标签；用户可在记忆指挥中心编辑或删除推断特质。
+
+## vs Honcho / Mem0 类 SaaS
+
+| 方面 | 典型记忆 SaaS | Myrm |
+|--------|---------------------|------|
+| 偏好提取 | 观察→表征流水线 | 对话后 **认知推导器** LLM 辩证 |
+| 上下文组装 | 每轮 Agent 调记忆工具 | **中间件自动**注入 |
+| 管理 | 常仅 CLI | **GUI** 浏览、审批、审计、回滚 |
+| 「梦境」长程目标 | 独立昂贵流水线 | **零额外流水线** — 目标并入品味摘要维护 |
+
+## 相关文档
+
+- [记忆系统](/zh/core-concepts/memory-system) — 8 种记忆类型、检索、遗忘
+- [产品架构](/zh/getting-started/product-architecture) — harness / server / UI 分层
+
+竞品定位细节见内部材料 `MEMORY_ADVANTAGE.md`（§ vs Honcho / Mem0）。

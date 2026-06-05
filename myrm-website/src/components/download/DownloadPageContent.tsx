@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { ArrowRight02Icon } from 'hugeicons-react';
+import { useDocsLocale } from '@/hooks/useDocsLocale';
 import { Button } from '@/components/ui/button';
 import ChecksumSection from '@/components/download/ChecksumSection';
 import InstallStepsSection from '@/components/download/InstallStepsSection';
@@ -14,6 +15,7 @@ import { getDeployPathHref } from '@/lib/deploy-paths';
 
 export default function DownloadPageContent() {
   const t = useTranslations('marketing');
+  const docsLocale = useDocsLocale();
   const { release, refreshing, macArchConfirmed, detectedPlatform } = useDesktopRelease();
   const showCompactSmartDownload =
     macArchConfirmed || !detectedPlatform.startsWith('macos-');
@@ -80,7 +82,7 @@ export default function DownloadPageContent() {
             {t('download.alternatives.local.description')}
           </p>
           <Button asChild variant="outline" className="mt-4 rounded-full">
-            <a href={getDeployPathHref('localWebui')} target="_blank" rel="noopener noreferrer">
+            <a href={getDeployPathHref('localWebui', docsLocale)} target="_blank" rel="noopener noreferrer">
               {t('download.alternatives.local.cta')}
               <ArrowRight02Icon className="ml-2 h-4 w-4" />
             </a>
@@ -92,7 +94,7 @@ export default function DownloadPageContent() {
             {t('download.alternatives.saas.description')}
           </p>
           <Button asChild className="mt-4 rounded-full">
-            <a href={getDeployPathHref('saas')}>
+            <a href={getDeployPathHref('saas', docsLocale)}>
               {t('download.alternatives.saas.cta')}
               <ArrowRight02Icon className="ml-2 h-4 w-4" />
             </a>

@@ -11,6 +11,7 @@
  * [POS]
  * 营销站外部链接统一入口。默认文档域名为 docs.myrmagent.ai（Mintlify 子域，非 Next 同构部署）。
  */
+import type { DocsLocale } from '@/lib/docs-contract';
 import {
   DESKTOP_RELEASE_REPO,
   getDesktopManifestUrl,
@@ -27,8 +28,13 @@ export function getAppUrl(path: string = '/'): string {
   return `${APP_BASE_URL}${path}`;
 }
 
-export function getDocsUrl(path: string = '/'): string {
-  return `${DOCS_BASE_URL}${path}`;
+export function getDocsUrl(path: string = '/', locale: DocsLocale = 'en'): string {
+  const normalized = path.startsWith('/') ? path : `/${path}`;
+  const localized =
+    locale === 'zh' && !normalized.startsWith('/zh/')
+      ? `/zh${normalized}`
+      : normalized;
+  return `${DOCS_BASE_URL}${localized}`;
 }
 
 export function getDesktopDownloadPath(): string {

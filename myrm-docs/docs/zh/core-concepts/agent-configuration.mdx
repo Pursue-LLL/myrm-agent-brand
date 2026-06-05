@@ -1,0 +1,161 @@
+---
+title: Agent 配置
+description: 用模型、工具、技能与行为参数配置定制 AI Agent。
+---
+
+# Agent 配置
+
+Agent 是 Myrm 的核心工作单元。每个 Agent 可独立配置模型、自定义系统提示词、工具、技能、记忆与行为参数。
+
+## 创建 Agent
+
+1. 进入 **Agents > 新建 Agent**
+2. 填写名称与描述
+3. 选择模型（或交给智能路由）
+4. 配置工具、技能与权限
+5. 保存即可使用
+
+首次启动会自动创建默认通用 Agent。
+
+## 模型选择
+
+Myrm 通过 LiteLLM 支持 100+ 模型：
+
+| 提供商 | 模型 |
+|----------|--------|
+| **OpenAI** | GPT-4o、GPT-4.1、o4-mini |
+| **Anthropic** | Claude Sonnet 4、Claude 3.5 |
+| **Google** | Gemini 2.5、Gemini 2.0 |
+| **DeepSeek** | DeepSeek V3、R1、V4 Flash、V4 Pro |
+| **本地模型** | Ollama、LM Studio、vLLM |
+| **自定义** | 任意 OpenAI 兼容 API |
+
+### 智能路由
+
+复杂度路由器自动选择最优模型档位：
+
+| 档位 | 使用场景 | 成本 |
+|------|-----------|------|
+| **SIMPLE** | 快问、简单查询 | 最低 |
+| **STANDARD** | 一般任务、中等复杂度 | 中等 |
+| **REASONING** | 复杂分析、多步规划 | 最高 |
+
+两阶段评估（规则 + LLM 裁判）+ 会话动量 — 短跟进消息继承会话已建立档位。
+
+### 思考强度
+
+6 档推理深度，可按对话调节：
+
+`off` → `low` → `medium` → `high` → `xhigh` → `max`
+
+各模型通过 localStorage 记住偏好思考级别。
+
+## 提示词模式
+
+三种模式控制系统提示词构建：
+
+| 模式 | 说明 | Token 成本 |
+|------|-------------|------------|
+| **Minimal** | 仅必要指令 | ~1,765 tokens |
+| **Standard** | 完整能力与工具 | ~2,200 tokens |
+| **Extended** | 全功能 + 上下文注入 | 可变 |
+
+Minimal 模式下优化系统提示词约 1,765 tokens — 比同类平台少 **86%**（Hermes ~15,520，OpenClaw ~18,000）。
+
+## 自定义系统提示词
+
+每个 Agent 可有自定义系统提示词定义人格、专长与行为规则，运行时与 Myrm 核心规则（安全、工具使用等）合并。
+
+## 工具配置
+
+Agent 可使用：
+
+- **内置工具**：文件、终端、浏览器、搜索、代码执行
+- **MCP 工具**：通过 MCP 服务连接的外部工具
+- **技能**：可复用任务能力
+
+可按 Agent 启用/禁用工具，单独配置审批策略。
+
+## 记忆
+
+每个 Agent 拥有：
+
+- **Agent 专属记忆**：仅该 Agent 的知识
+- **全局共享记忆**：所有 Agent 可访问
+
+记忆跨会话持久化，Agent 可持续学习适应。详见[记忆系统](/zh/core-concepts/memory-system)。
+
+## 人格
+
+16 种内置人格预设（8 专业 + 8 创意）：
+
+- 中英文双语
+- Emoji + 语气定制
+- GUI 分类画廊
+- 自定义人格创建
+
+## 子 Agent 编排
+
+复杂任务可用 5 种编排模式分解：
+
+| 模式 | 说明 |
+|---------|-------------|
+| **Chain** | 顺序执行 A → B → C |
+| **DAG** | 有向无环图与依赖 |
+| **Batch** | 并行独立任务 |
+| **Verified** | Worker + 独立 Verifier 交叉验证 |
+| **Swarm** | 自主多 Agent 分裂合并 |
+
+详见[看板与编排](/zh/core-concepts/kanban-orchestration)。
+
+## Agent Profile：精确无串扰
+
+每个 Agent Profile 是全维度配置单元 — 远非简单技能分组。
+
+| 维度 | 可配置 |
+|-----------|:---:|
+| **Skills** | `skill_ids[]` — 该 Agent 可用技能集 |
+| **Model** | 按 Agent 选模型 |
+| **Built-in Tools** | `enabled_builtin_tools[]` — 工具白名单 |
+| **MCP Tools** | `mcp_tool_selections{}` — 按服务选工具 |
+| **Security** | `security_overrides{}` — 独立安全策略 |
+| **Sub-Agents** | `subagent_ids[]` — 多层协作 |
+| **Notifications** | `notify_targets[]` — 主动推送到渠道 |
+| **System Prompt** | 自定义人格与行为规则 |
+| **Memory** | 独立记忆 + 全局共享 |
+
+### 如何防止技能串扰
+
+技能过多时 LLM 可能调用无关技能（「串扰」）。Myrm 五层解决：
+
+1. **Agent Profile** — 各 Agent 仅通过 `skill_ids[]` 加载指定技能
+2. **Tool Condition Activation** — `requires_tools` / `fallback_for_tools` 按可用工具显隐技能
+3. **Progressive Disclosure（L0–L3）** — 仅展开相关技能详情
+4. **Noise Gauge** — 超噪声阈值技能自动衰减
+5. **Hybrid Retrieval** — Qdrant 向量检索为每查询选最相关技能
+
+### 对比竞品方案
+
+部分平台用「Skill Bundles」— YAML 下 slash 命令分组。Myrm Agent Profile 是超集：
+
+| 能力 | Skill Bundles | Agent Profile |
+|------------|:---:|:---:|
+| 多技能分组 | YAML `skills[]` | GUI `skill_ids[]` |
+| 模型选择 | 无 | 按 Agent |
+| 工具级控制 | 无 | 按 Agent 白名单 |
+| 安全策略 | 无 | 按 Agent 覆盖 |
+| 防串扰 | 单层（少技能） | 5 层防御 |
+| 配置方式 | CLI + YAML | 可视化 GUI |
+
+## Agent 绑定
+
+Agent 可绑定到不同上下文：
+
+| 上下文 | 说明 |
+|---------|-------------|
+| **Web 会话** | 新对话默认 Agent |
+| **定时任务** | Cron 执行用 Agent |
+| **渠道** | 指定消息渠道 Agent |
+| **IM 话题** | `/bind` 将 Agent 绑到话题 |
+
+未绑定上下文使用默认通用 Agent。可随时在 GUI 或消息渠道 `/bind` / `/unbind` 切换。

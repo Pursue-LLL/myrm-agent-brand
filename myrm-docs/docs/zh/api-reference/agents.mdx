@@ -1,0 +1,45 @@
+---
+title: Agents API
+description: 以编程方式创建、配置并与 Agent 交互。
+---
+
+# Agents API
+
+## 列出 Agent
+
+```bash
+GET /api/agents
+```
+
+## 创建 Agent
+
+```bash
+POST /api/agents
+```
+
+```json
+{
+  "name": "Research Assistant",
+  "model": "gpt-4o",
+  "tools": ["browser", "file_system"],
+  "system_prompt": "You are a research assistant..."
+}
+```
+
+## 发送消息
+
+```bash
+POST /api/agents/:id/messages
+```
+
+```json
+{
+  "content": "Research the AI agent market in 2026"
+}
+```
+
+## 获取对话历史
+
+```bash
+GET /api/agents/:id/messages
+```

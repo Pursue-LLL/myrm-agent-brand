@@ -85,20 +85,21 @@ Myrm supports an intuitive, Coze-like dynamic discovery and delegation mechanism
 | **Verified** | Worker + independent Verifier | Critical tasks requiring cross-validation |
 | **Swarm Fission** | Autonomous fission/merge | Exploratory tasks that may spawn sub-tasks dynamically |
 
-### Verified Pattern (Adversarial Verification)
+### Verified Pattern (Adversarial Verification & Zero-Trust)
 
-The Verified pattern prevents agents from "self-grading":
+The Verified pattern prevents agents from "self-grading" or hallucinating success:
 
 1. **Worker** agent executes the task
-2. **Verifier** agent independently reviews the result in a read-only sandbox
-3. If verification fails, the Worker retries with the Verifier's feedback
-4. Maximum retry count is configurable
+2. **Physical Evidence Required**: The worker must return structural `verifiable_credentials` (e.g., file paths, CLI exit codes) instead of just a natural language summary. Claiming PASS without physical evidence is forced to FAIL.
+3. **Verifier** agent independently reviews the result and the physical evidence in a read-only sandbox
+4. If verification fails, the Worker retries with the Verifier's feedback
+5. Maximum retry count is configurable
 
-This ensures high-quality output for critical tasks.
+This ensures high-quality output for critical tasks and completely eradicates "hallucinated success".
 
-### Budget Control
+### Budget Control & Circuit Breakers
 
-Sub-agents operate under strict budget limits:
+Sub-agents operate under strict budget and logic limits:
 
 | Dimension | Description |
 |-----------|-------------|
@@ -107,17 +108,24 @@ Sub-agents operate under strict budget limits:
 | `max_spawn_depth` | Maximum nesting depth |
 | `context_budget` | Independent token budget per sub-agent |
 | `budget_tokens` / `max_cost_usd` | Hard spending limits |
+| `max_agent_iterations` | **Circuit Breaker:** Physical iteration steps limit to prevent infinite loops |
 
-Budget exhaustion produces structured errors with clear reasons, not silent failures.
+**Smart Model Downgrade**: When budgets are near exhaustion or certain limits are triggered, Myrm can automatically downgrade the sub-agent from an expensive reasoning model to a cheaper, faster model, preventing budget burn while still attempting to complete the task. Budget exhaustion produces structured errors with clear reasons, not silent failures.
 
-### Workspace Isolation
+### Workspace Isolation & UI Blacklisting
 
-Each sub-agent runs in an isolated workspace:
+Each sub-agent runs in an isolated workspace and system sandbox:
 
 - **CoW cloning** — Copy-on-Write workspace duplication
 - **Precise sync** — Only modified files are synced back
 - **.git protection** — Git directory is excluded from operations
 - **Automatic cleanup** — Workspaces are cleaned up on completion
+- **UI Interaction Blacklisting** — Sub-agents running in the background are completely physically blocked from using UI interaction interfaces (like `interactive_feedback` or `send_message`), ensuring they never pop up windows to interrupt the user unexpectedly.
+
+### Seamless Human-in-the-Loop (HITL)
+
+When an agent hits a checkpoint or needs approval (like `PENDING_APPROVAL`), the user gets a UI popup. 
+Beyond simple Accept/Reject, Myrm's HITL supports **Context Injection**: the user can provide explicit text instructions ("Wait, also change the color to red"), and the agent resumes with this injected context seamlessly.
 
 ---
 

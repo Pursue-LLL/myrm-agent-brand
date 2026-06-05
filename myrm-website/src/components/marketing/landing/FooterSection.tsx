@@ -1,12 +1,14 @@
 'use client';
 
 import Link from 'next/link';
+import { useDocsLocale } from '@/hooks/useDocsLocale';
 import { getDocsUrl, getDesktopDownloadPath } from '@/lib/deploy-mode';
 import { useTranslations } from 'next-intl';
 import BrandLogo from '../BrandLogo';
 
 export default function FooterSection() {
   const t = useTranslations('marketing');
+  const docsLocale = useDocsLocale();
 
   return (
     <footer style={{ borderTop: '1px solid var(--ed-border)', background: 'var(--ed-surface)' }}>
@@ -31,7 +33,7 @@ export default function FooterSection() {
           <div className="flex flex-col gap-3 text-[13px] font-light" style={{ color: 'var(--ed-dim)' }}>
             <p className="mb-2 text-[10px] uppercase tracking-[0.2em] font-medium ed-mono" style={{ color: 'var(--ed-muted)' }}>{t('footer.community')}</p>
             <a href="https://github.com/Pursue-LLL/myrm-agent" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-[var(--ed-accent)]">{t('footer.github')}</a>
-            <a href={getDocsUrl()} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-[var(--ed-accent)]">{t('footer.docs')}</a>
+            <a href={getDocsUrl('/', docsLocale)} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-[var(--ed-accent)]">{t('footer.docs')}</a>
             <a href="https://discord.gg/myrmagent" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-[var(--ed-accent)]">{t('footer.discord')}</a>
           </div>
         </div>

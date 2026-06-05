@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Copy01Icon, Download04Icon, Tick02Icon } from 'hugeicons-react';
+import { useDocsLocale } from '@/hooks/useDocsLocale';
 import { cn } from '@/lib/utils/classnameUtils';
 import SmartDownloadButton from '@/components/download/SmartDownloadButton';
 import {
@@ -175,6 +176,7 @@ function InstallStep({
 
 export default function QuickStartPanel({ activeTab, onTabClick }: QuickStartPanelProps) {
   const t = useTranslations('marketing');
+  const docsLocale = useDocsLocale();
   const [copiedLine, setCopiedLine] = useState<string | null>(null);
 
   const handleCopy = (lineId: string, text: string): void => {
@@ -212,7 +214,7 @@ export default function QuickStartPanel({ activeTab, onTabClick }: QuickStartPan
         <div key="saas" className="ed-code-content ed-code-app-content ed-quickstart-panel-fade">
           <span className="ed-code-app-tagline">{t('quickStart.saas.step1')}</span>
           <span className="ed-code-app-subtitle">{t('quickStart.saas.step2')}</span>
-          <a href={getDeployPathHref('saas')} className="ed-code-cta-btn ed-mono">
+          <a href={getDeployPathHref('saas', docsLocale)} className="ed-code-cta-btn ed-mono">
             {t('quickStart.saas.cta')}
           </a>
           <span className="ed-code-app-meta ed-mono">{t('quickStart.saas.url')}</span>
@@ -251,7 +253,7 @@ export default function QuickStartPanel({ activeTab, onTabClick }: QuickStartPan
               →
             </span>
             <a
-              href={getDeployPathHref('localWebui')}
+              href={getDeployPathHref('localWebui', docsLocale)}
               target="_blank"
               rel="noopener noreferrer"
               className="ed-code-link ed-mono"

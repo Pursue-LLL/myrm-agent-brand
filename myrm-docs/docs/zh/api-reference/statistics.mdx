@@ -1,0 +1,108 @@
+---
+title: 统计
+description: 分析、成长指标与日活动日志端点。
+---
+
+# Statistics API
+
+查询 Agent 活动分析、成长指标与日工作日志的端点。
+
+## 日报（Daily Journal）
+
+获取指定日所有 Agent 活动的 consolidated 视图。
+
+```
+GET /api/v1/statistics/daily-journal?date=YYYY-MM-DD&agent_id=optional
+```
+
+### 参数
+
+| 参数 | 类型 | 必填 | 说明 |
+|-----------|------|----------|-------------|
+| `date` | string | 是 | `YYYY-MM-DD` 格式日期 |
+| `agent_id` | string | 否 | 按 Agent ID 过滤 |
+
+### 响应
+
+```json
+{
+  "code": 0,
+  "data": {
+    "date": "2026-05-31",
+    "overview": {
+      "total_sessions": 5,
+      "total_tokens": 42000,
+      "total_cost": 0.35,
+      "tool_call_count": 28,
+      "approval_count": 2,
+      "cron_run_count": 1,
+      "kanban_event_count": 3,
+      "sessions_by_source": {
+        "web": 3,
+        "telegram": 1,
+        "api": 1
+      }
+    },
+    "sessions": [
+      {
+        "id": "abc-123",
+        "title": "Code review session",
+        "source": "web",
+        "started_at": "2026-05-31T09:15:00Z",
+        "total_tokens": 12000,
+        "total_cost": 0.10
+      }
+    ],
+    "approvals": [],
+    "cron_runs": [],
+    "kanban_events": [],
+    "timeline": [
+      {
+        "type": "session",
+        "time": "2026-05-31T09:15:00Z",
+        "title": "Code review session",
+        "detail": { "source": "web", "tokens": 12000 }
+      }
+    ]
+  }
+}
+```
+
+### 数据来源
+
+日报聚合 6 个现有来源，无额外存储：
+
+| 来源 | 数据 |
+|--------|------|
+| Chat | 会话元数据（标题、来源、时间戳） |
+| Message | 每会话 Token 与成本 |
+| ApprovalRecord | 人工审批事件 |
+| CronRunModel | 定时任务执行 |
+| KanbanTaskEventModel | 看板事件 |
+| EventLog | 工具调用次数（文件） |
+
+### 错误响应
+
+| 代码 | 说明 |
+|------|-------------|
+| 400 | 日期格式无效（须 `YYYY-MM-DD`） |
+| 400 | 缺少 `date` 参数 |
+
+## 成长统计
+
+成长看板指标经 GUI 提供：
+
+- 技能 KPI 摘要（总数、成功率、进化次数）
+- 使用热力图与能力雷达图
+- 周趋势分析
+- 进化时间线
+
+## Harness 可观测指标（Prometheus）
+
+Myrm Engine 在 `/metrics` 暴露 Prometheus 遥测，零运维开销，供 DevOps/SRE 深度监控。
+
+### 高级 Agent 指标
+
+- `myrm_time_to_first_action_seconds`（Histogram）：精确 TTFA，从收到用户指令到首次调用工具的时间。
+- `myrm_policy_denial_total`（Counter）：被安全护栏与路径策略阻断、脱敏或拒绝的次数。
+- `myrm_tool_execution_total` & `myrm_tool_execution_failed_total`（Counter）：各技能执行结果，用于 Grafana 计算「工具有效率」。

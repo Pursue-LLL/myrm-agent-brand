@@ -14,6 +14,7 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
+import { useDocsLocale } from '@/hooks/useDocsLocale';
 import { cn } from '@/lib/utils/classnameUtils';
 import {
   DEPLOY_PATH_IDS,
@@ -29,10 +30,11 @@ interface PathChipProps {
 }
 
 function PathChip({ pathId, quickStartSectionId, children }: PathChipProps) {
+  const docsLocale = useDocsLocale();
   const href =
     pathId === 'localWebui'
       ? getDeployPathSectionLink(quickStartSectionId, pathId)
-      : getDeployPathHref(pathId);
+      : getDeployPathHref(pathId, docsLocale);
 
   const chipClass = cn(
     'inline-flex items-center rounded-full px-3 py-1.5 text-[11px] sm:text-[12px] ed-mono transition-opacity hover:opacity-80',

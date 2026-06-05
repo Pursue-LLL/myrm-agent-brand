@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { useDocsLocale } from '@/hooks/useDocsLocale';
 import { useState } from 'react';
 import {
   ArrowRight02Icon,
@@ -52,6 +53,7 @@ const FAQ_ITEMS = ['what', 'pricing', 'local', 'data', 'cancel'] as const;
 
 export default function LandingEditorial() {
   const t = useTranslations('marketing');
+  const docsLocale = useDocsLocale();
   const startHref = getMarketingRegisterHref();
   const containerRef = useRevealOnScroll();
   const scrollProgress = useScrollProgress();
@@ -59,7 +61,7 @@ export default function LandingEditorial() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   type NavLink = { href: string; label: string; external?: true; icon?: 'github' };
-  const navLinks: NavLink[] = buildMarketingNavLinks(t);
+  const navLinks: NavLink[] = buildMarketingNavLinks(t, { docsLocale });
 
   const pricingPreview = PRICING_PREVIEW_PLAN_KEYS.map((planKey) => ({
     name: t(`pricingPreview.${planKey}.name`),

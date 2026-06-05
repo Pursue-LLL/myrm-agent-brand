@@ -8,8 +8,11 @@ Mintlify 文档站源码；导航与主题由 `docs.json` 定义。对外域名 
 
 | 文件 | 地位 | 职责 |
 |------|------|------|
-| `docs.json` | 核心 | 站点配置、侧栏、主题色 |
-| `docs/**/*.mdx` | 核心 | 用户文档正文 |
+| `docs.json` | 核心 | 站点配置、侧栏、主题色；`navigation.languages[en,zh]` |
+| `docs/**/*.mdx` | 核心 | 英文文档正文 |
+| `docs/zh/**/*.mdx` | 核心 | 中文文档（URL 前缀 `/zh/`） |
+| `scripts/apply-i18n-docs-json.ts` | 辅助 | 一次性生成双语 `docs.json`（含 zh footer） |
+| `scripts/build-zh-navigation.ts` | 辅助 | 从 EN 导航生成 zh 页面路径 |
 
 ## 依赖
 

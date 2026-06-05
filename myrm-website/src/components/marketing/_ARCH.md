@@ -63,8 +63,9 @@ Hero → WorkspacePreview → HowItWorks（路径 Tab）→ QuickStart → Marqu
 | 函数 | 环境变量 | 默认 |
 |------|----------|------|
 | `getAppUrl()` | `NEXT_PUBLIC_APP_URL` | `https://app.myrmagent.ai` |
-| `getDocsUrl()` | `NEXT_PUBLIC_DOCS_URL` | `https://docs.myrmagent.ai` |
-| 文档路径契约 | `lib/docs-contract.ts` | Mintlify slug 与营销外链一致；CI `validate:docs-slugs` |
+| `getDocsUrl(path, locale?)` | `NEXT_PUBLIC_DOCS_URL` | `https://docs.myrmagent.ai`；zh 前缀 `/zh/` |
+| 文档路径契约 | `lib/docs-contract.ts` | `localizedDocsPath()`；双 locale CI `validate:docs-slugs` |
+| 文档 locale | `hooks/useDocsLocale.ts` | 营销组件按站点 locale 生成 docs 链接 |
 | `getDesktopDownloadPath()` | — | `/download` |
 | `getDeployPathHref()` / `getDeployPathSectionLink()` | — | 见 `lib/deploy-paths.ts` |
 | `buildMarketingNavLinks()` | — | 见 `lib/marketing-nav.ts` |
@@ -90,6 +91,17 @@ Hero → WorkspacePreview → HowItWorks（路径 Tab）→ QuickStart → Marqu
 - CTA 经 `getAppUrl()` 跳转 App
 - 文档经 `getDocsUrl()` 跳转文档站
 - Pricing 为静态展示，订阅在 App 完成
+
+## 品牌静态资源（`public/brand/`）
+
+仅保留代码引用的格式；`BrandLogo.tsx` 与 `layout.tsx` 为唯一消费方。
+
+| 文件 | 用途 |
+|------|------|
+| `logo-icon-32.png` / `logo-icon-192.png` | Favicon / Apple touch（`layout.tsx`） |
+| `logo-icon-80.webp` / `logo-icon-128.webp` / `logo-icon.webp` | `BrandLogo` icon 尺寸阶梯 |
+| `logo-wordmark.webp` / `logo-wordmark-light-text.webp` | `BrandLogo` wordmark（深/浅底） |
+| `logo-full.jpg` | `BrandLogo` full 变体 |
 
 ## 部署
 

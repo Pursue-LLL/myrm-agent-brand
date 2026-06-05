@@ -41,6 +41,7 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **Web Image Search** | ✅ built-in image_search | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Long Report TOC** | ✅ Auto TOC + scroll sync in chat | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Precision Multimodal** | ✅ Intent-aware vision (No UI ops = 0 vision token) | ⚠️ Always-on (wastes tokens) | ⚠️ Blind (no screenshots) | ⚠️ Unknown | ⚠️ Blind | ⚠️ Blind | ❌ |
+| **Title Generation** | ✅ O(1) Anti-Blocking + Redaction | ⚠️ Prone to freeze/leak | ⚠️ Prone to freeze/leak | ⚠️ Unknown | ⚠️ Unknown | ⚠️ Unknown | ❌ |
 | **Token Efficiency** | ✅ ~2,167 tokens total (86% less) | ~15,520 | ~18,000 | ⚠️ Manual 3-mode | ⚠️ 16 tools (LLM compression cost) | ⚠️ High cost | ⚠️ ~900 wake-up |
 
 ## vs 360 Security OpenClaw (Enterprise Wrapper)
@@ -876,6 +877,22 @@ Myrm 引入了 **TF-IDF 与置信度双重加权检索**：在注水前，先利
 
 **用户感知收益**：如果你积累了数百条记忆，迁移到 Myrm 后绝不会体验到因为“记得太多而变笨”的痛点。我们在极低的 Token 预算内提供“最精准”的记忆召回。
 
+### 智能防泄漏与零卡顿的标题生成 (O(1) Anti-Blocking Title Generation)
+
+当用户粘贴超大日志或代码块时，后台生成标题的正则清洗往往会卡死整个服务器（Event Loop Blocking）；此外，廉价模型生成的标题经常带有 `Title:` 等废话前缀，且容易暴露 API Key 等敏感信息。
+
+Myrm 在底层实现了 **O(1) 早期截断**与军工级脱敏管线：
+
+| 能力 | Myrm Agent | DeerFlow / 传统框架 | 优势 |
+|------|-----------|------------------|------|
+| **防阻塞性能** | ✅ **O(1) 早期截断** | ❌ O(N) 全文正则，易卡死 | **无论粘贴多大文件，前端 UI 永远丝滑零卡顿** |
+| **凭证脱敏** | ✅ **调用 `redact_leaks` 抹除 API Key** | ❌ 原样发送给 LLM | **彻底封堵隐式 Token 泄漏与提示词注入漏洞** |
+| **深度降噪** | ✅ **正则剥离代码块、URL、HTML** | ❌ 原始文本直接生成 | **避免大模型被无关代码迷惑，标题更精准** |
+| **智能容错** | ✅ **空文本 0 Token 拦截，统一英文兜底** | ❌ 仍调用 LLM 或报错 | **极端输入下不浪费 Token，UI 保持整洁** |
+| **多语言自适应** | ✅ **`<user_input>` XML 隔离强制语种跟随** | ❌ 易出现中英混杂 | **全球化体验更佳** |
+
+**用户感知收益**：哪怕你粘贴了 1MB 的错误日志，Myrm 也能瞬间为你生成一个安全、精准、无废话前缀的标题，且整个过程对服务器性能零冲击。细节体验 100% 碾压竞品。
+
 ## Long Report Reading (Auto TOC)
 
 When an Agent reply contains multiple headings, Myrm **automatically builds a table of contents** beside the message — click any chapter to jump, and the highlight follows as you scroll. ChatGPT, Hermes, and OpenClaw do not offer equivalent in-chat navigation for multi-section reports; users typically copy content into Notion or Word to get an outline.
@@ -885,6 +902,27 @@ When an Agent reply contains multiple headings, Myrm **automatically builds a ta
 | Auto TOC | ✅ ≥2 headings | ❌ scroll only |
 | Scroll sync | ✅ | ❌ |
 | Works while streaming | ✅ (debounced) | N/A |
+
+## Multi-Agent Orchestration & Zero-Trust Verification (vs Hermes Agent / Claude Code)
+
+In the realm of Multi-Agent architectures, most frameworks rely on blind trust and non-deterministic LLM improvisation. Myrm breaks the serial bottleneck and completely eliminates the pain points of "hallucinated success" and "budget burnout" found in competitors like Hermes and Claude Code.
+
+### Where Myrm Goes Further
+
+| Area | Hermes / Claude Code | Myrm | User Benefit |
+|------|----------------------|------|-------------|
+| **Verification** | Blind trust in LLM summaries | **Zero-Trust Verification** | Enforces physical verifiable credentials (e.g., file paths, exit codes). Sub-agents cannot fake success, effectively ending task hallucination. |
+| **Sandbox Security** | Background agents can trigger UI | **UI Interaction Blacklisting** | `LEAF` node sub-agents are physically restricted from accessing UI/Chat interfaces, preventing them from unexpectedly interrupting the user. |
+| **Language Context** | Sub-agents default to English | **Dynamic Spec Injection** | The parent orchestrator dynamically injects the user's active language and style guidelines, ensuring the final report is completely cohesive (no more "Chinglish"). |
+| **Budget Control** | Timeouts only (burns tokens) | **Iteration Circuit Breaker & Downgrade** | Introduces a hard limit on iteration steps to stop deadlocks instantly. Automatically downgrades non-core tasks to cheaper models when budgets run low. |
+| **Human-in-the-Loop** | Simple "Yes/No" approval | **Seamless Context Injection** | During a UI breakpoint approval, users can inject corrective text directly into the agent's state machine, steering wandering agents back on track with a single click. |
+
+### Migration Wins
+
+If you migrate from Hermes or Claude Code's Dynamic Workflows, you gain:
+- **Absolute Cost Predictability**: Never wake up to a massive API bill because an agent got stuck in a loop.
+- **Genuine Execution Evidence**: When Myrm says a task is complete, it's backed by OS-level execution logs, not an LLM's imagination.
+- **Flawless UI Experience**: Background agents remain strictly in the background, and human intervention is rich and corrective rather than binary.
 
 ## Ready to Start?
 

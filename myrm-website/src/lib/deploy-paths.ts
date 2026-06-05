@@ -9,7 +9,7 @@
  * [POS]
  * Single source of truth for SaaS / Local WebUI / Tauri deployment paths on the marketing site.
  */
-import { LOCAL_DEPLOY_DOCS_PATH } from '@/lib/docs-contract';
+import { LOCAL_DEPLOY_DOCS_PATH, type DocsLocale } from '@/lib/docs-contract';
 import {
   getAppUrl,
   getDesktopDownloadPath,
@@ -108,12 +108,12 @@ export function readDeployPathFromLocation(): DeployPathId | null {
   return parseDeployPathFromQuery(new URLSearchParams(hash.slice(queryIndex + 1)).get('path'));
 }
 
-export function getDeployPathHref(pathId: DeployPathId): string {
+export function getDeployPathHref(pathId: DeployPathId, docsLocale: DocsLocale = 'en'): string {
   switch (pathId) {
     case 'saas':
       return withUtm(getAppUrl('/auth/login'), pathId, 'deploy_path');
     case 'localWebui':
-      return withUtm(getDocsUrl(LOCAL_DEPLOY_DOCS_PATH), pathId, 'deploy_path');
+      return withUtm(getDocsUrl(LOCAL_DEPLOY_DOCS_PATH, docsLocale), pathId, 'deploy_path');
     case 'tauri':
       return getDesktopDownloadPath();
   }

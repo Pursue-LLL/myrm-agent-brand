@@ -15,6 +15,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ArrowRight02Icon } from 'hugeicons-react';
 import { COMPETITOR_COMPARISON_DOC_PATH } from '@/lib/docs-contract';
+import { useDocsLocale } from '@/hooks/useDocsLocale';
 import { getDocsUrl } from '@/lib/deploy-mode';
 import { useMinWidth } from './hooks';
 import { marketingHas } from './marketing-i18n';
@@ -152,8 +153,9 @@ function DepthGroupPanel({
 
 export default function EngineeringDepthSection() {
   const t = useTranslations('marketing');
+  const docsLocale = useDocsLocale();
   const isDesktop = useMinWidth(768);
-  const compareHref = getDocsUrl(COMPETITOR_COMPARISON_DOC_PATH);
+  const compareHref = getDocsUrl(COMPETITOR_COMPARISON_DOC_PATH, docsLocale);
   const [activeId, setActiveId] = useState(DEFAULT_ACTIVE_ID);
 
   const activeGroup = DEPTH_GROUPS.find((g) => g.id === activeId) ?? DEPTH_GROUPS[0];

@@ -1,0 +1,173 @@
+---
+title: Web 搜索与抓取
+description: 内置 web_search 与 web_fetch — 多引擎搜索、3 级抓取、进 Agent 上下文前过滤垃圾内容。
+---
+
+# Web 搜索与抓取
+
+Myrm 内置 **web_search** 与 **web_fetch**，协同工作：搜索找来源，抓取读页面 — 均在进入 LLM **之前**过滤内容。
+
+## 为何重要
+
+多数 Agent 把原始搜索片段或整页 HTML 塞进模型，浪费 Token 且降低质量。Myrm 本地过滤流水线：
+
+```
+查询 → 多引擎搜索 → BM25/Reranker → 相关片段
+URL  → 3 级抓取 → DOM 剪枝 →（可选）BM25+向量+Reranker → 干净文本
+```
+
+**结果：** Web 密集任务约少 40–50% Token，本地运行 **$0/月**。
+
+:::note 客观对比
+Hermes、OpenClaw、OpenCode、Claude Code 都有基础 web 搜索/抓取。Myrm 优势是**完整本地过滤流水线** — 不仅是「有工具」，而是在进 LLM 前清洗内容。
+:::
+
+## Web 搜索
+
+### 引擎
+
+支持 **7 个提供商**（在 **设置 → 搜索** 配置）：
+
+| 提供商 | 适合 |
+|----------|----------|
+| SearxNG（自托管） | 隐私，聚合 70+ 引擎含百度 |
+| Tavily | 通用研究 |
+| Exa | 语义/神经搜索 |
+| Perplexity | 问答风格 |
+| Google PSE | 站内搜索 |
+| DataForSEO | SEO/数据任务 |
+| Firecrawl | 搜索即服务回退 |
+
+### 意图检测（零 LLM 成本）
+
+自动识别 **7 种意图**并调整引擎参数：
+
+- Code、News、Academic、Finance、Security、Social、General
+
+说 *「最新 AI 安全 CVE」* — 无需选手动模式。
+
+### 检索模式
+
+| 模式 | 何时 | 流水线 |
+|------|------|----------|
+| **Basic**（默认） | 多数查询 | BM25 + RRF 多查询融合 → 智能截断 |
+| **Precision** | 长文档 | 分块 → BM25 top-50 → Reranker top-20 → 合并相邻 |
+
+Precision 用语义重排（阈值 **0.6**）— 低相关块丢弃。
+
+### 图片搜索
+
+内置 `image_search_tool`（DuckDuckGo），15 分钟缓存 — 视觉研究无需额外 Skill。
+
+### 韧性
+
+- **引擎回退** — 主引擎失败自动切换
+- **15 分钟结果缓存** — 重复查询零成本
+- **30s 健康探测** — 提前发现不可用引擎
+
+## Web 抓取
+
+### 3 级架构
+
+| 级 | 速度 | 场景 |
+|------|-------|----------|
+| L1 HTTP | ~100ms | 静态页、API |
+| L2 Browser | ~1–3s | JS 渲染页 |
+| L3 Stealth | ~3–5s | Cloudflare、反爬站 |
+
+**AdaptiveRouter** 学习每域成本并自动选最优级。
+
+### fetch_and_extract（智能提取）
+
+配置 Reranker + embedding 后，`web_fetch` 支持 **fetch_and_extract**：
+
+1. 3 级爬取（HTTP → Browser → Stealth）
+2. 页面分块
+3. **BM25 + 向量混合检索**（Qdrant）
+4. Reranker 重排 → 仅 top 相关段落
+
+用**零 LLM 本地过滤**替代云端 LLM 摘要（如 Hermes `web_extract` + Gemini）。
+
+### 内容清洗
+
+文本进 Agent 上下文前：
+
+1. **DOM 剪枝** — 去导航、广告、页脚、侧栏
+2. **HTML → Markdown** — 结构化、LLM 友好
+3. **智能截断** — `max_chars` + `was_truncated` 标志
+4. **二进制路由** — PDF 单独解析（无乱码 HTML）
+
+### 缓存
+
+- 请求合并（并发同 URL 只抓一次）
+- Stale-While-Revalidate
+- ETag / Last-Modified 条件请求
+- 剥离 35+ 跟踪 URL 参数
+
+## 对比竞品
+
+| | Myrm | Hermes | OpenClaw | OpenCode |
+|---|:---:|:------:|:--------:|:--------:|
+| 内置搜索 | ✅ | ✅ | ✅ | ✅ |
+| 结果过滤 | ✅ BM25/Reranker | ❌ API 直通 | ❌ 原始片段 | ❌ API 直通 |
+| 内置抓取 | ✅ 3 级本地 | ⚠️ Firecrawl+LLM | ⚠️ HTTP/Firecrawl | ⚠️ 仅 HTTP |
+| 向量提取模式 | ✅ fetch_and_extract | ❌（LLM 摘要） | ❌ | ❌ |
+| DOM 剪枝 | ✅ | ❌ | ❌ 正则/文本 | ❌ Turndown 整页 |
+| 中文搜索 | ✅ SearxNG+百度 | ⚠️ 依赖后端 | ❌ DDG 差 | ⚠️ 云端 API |
+| 图片搜索 | ✅ 内置 | ❌ | ❌ | ❌ |
+| 本地月成本 | **$0** | API 费 | Firecrawl 回退费 | Exa/Parallel 费 |
+
+### Hermes 差异（非更强）
+
+- 插件后端（Exa/Tavily/Firecrawl）— 更多云厂商，均需 API Key
+- `web_extract` 用 **LLM 摘要**跳过本地 embedding — 配置简单，**每页耗 Token**
+- SSRF + URL 秘密阻断 — 成熟，与 Myrm 同级（非差异化）
+
+### 自动去广告与冗余
+
+| 清洗 | Myrm | OpenClacky | OpenCode | Hermes |
+|---------|:----:|:----------:|:--------:|:------:|
+| 去 nav/侧栏/页脚 | ✅ DOM 树剪枝 | ❌ 全页正则 | ❌ Turndown 全页 | ⚠️ API/LLM |
+| 去广告（link_density） | ✅ | ❌ | ❌ | ❌ |
+| 清洗搜索片段 | ✅ | ❌ | ❌ | ❌ |
+| 多查询去重 | ✅ URL+内容 hash | ❌ | ❌ | ❌ |
+| 丢弃低相关段落 | ✅ Reranker 0.6 | ❌ | ❌ | ❌ |
+
+**通俗说：** 我们不把整页丢给 AI — 提取正文、去广告导航、去重，只保留与问题相关的段落。
+
+### 零配置对比
+
+| | Myrm | Hermes |
+|---|------|--------|
+| 开箱 web_fetch | ✅ **本地 3 级 + DOM 剪枝**，无需 API Key | ❌ 需 Firecrawl/Exa Key |
+| 开箱 web_search | ✅ GUI 一键 SearxNG/DuckDuckGo | ⚠️ `hermes tools` + 后端 Key |
+| 长页智能提取 | ✅ fetch_and_extract | ⚠️ LLM 摘要（耗 Token） |
+
+**Myrm 在抓取上更零配置** — 本地清洗无需云 API。
+
+## PTC 集成
+
+在 Programmatic Tool Calling 脚本中：
+
+```python
+results = await tools.web_search("competitor pricing 2026", max_results=5)
+page = await tools.web_fetch("https://example.com/pricing")
+```
+
+无额外 API 往返 — 搜索与抓取在沙箱内执行。
+
+## 配置
+
+1. **设置 → 搜索** — 选引擎、API Key、SearxNG URL
+2. 检索设置启用 **Reranker** — 长文档 Precision 模式
+3. **Web Fetch** 开箱可用（浏览器级用 Patchright 若已安装）
+
+## 迁移提示
+
+| 来自 | 操作 |
+|------|--------|
+| Hermes | 导入配置；停用仅 Firecrawl 的 web_extract；用本地 web_fetch |
+| OpenClaw | 导入配置；移除手工 Tavily/百度 Skill |
+| Claude Code | 启用 SearxNG 自托管搜索；经 LiteLLM 配相同模型 |
+
+完整迁移收益见[竞品对比](/zh/getting-started/competitor-comparison#web-search--web-fetch--dual-engine-vs-hermes--openclaw--claude-code)。

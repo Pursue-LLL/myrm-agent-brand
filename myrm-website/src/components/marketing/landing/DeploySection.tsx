@@ -14,6 +14,7 @@
 import Link from 'next/link';
 import { ArrowRight02Icon } from 'hugeicons-react';
 import { useTranslations } from 'next-intl';
+import { useDocsLocale } from '@/hooks/useDocsLocale';
 import { cn } from '@/lib/utils/classnameUtils';
 import {
   DEPLOY_PATH_IDS,
@@ -36,7 +37,8 @@ function DeployPathLink({
   className?: string;
   style?: React.CSSProperties;
 }) {
-  const href = getDeployPathHref(pathId);
+  const docsLocale = useDocsLocale();
+  const href = getDeployPathHref(pathId, docsLocale);
   const cardKey = deployPathToCardKey(pathId);
 
   if (pathId === 'tauri') {

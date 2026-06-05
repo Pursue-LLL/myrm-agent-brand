@@ -1,0 +1,95 @@
+---
+title: 本地部署
+description: 使用 Docker 或手动方式自托管 Myrm。
+---
+
+# 本地部署
+
+在你自己的机器上运行 Myrm，完全掌控数据。
+
+## 一行命令安装（最快）
+
+**macOS / Linux / Git Bash**
+
+```bash
+curl -fsSL https://myrmagent.ai/install.sh | bash
+myrm start
+```
+
+**Windows（PowerShell）**
+
+```powershell
+irm https://myrmagent.ai/install.ps1 | iex
+myrm start
+```
+
+打开 **http://localhost:3000**，在设置中添加 LLM API Key。Harness 来自 PyPI；自托管无需单独的 harness 仓库。
+
+## 克隆并开发（开源仓库）
+
+```bash
+git clone https://github.com/Pursue-LLL/myrm-agent.git
+cd myrm-agent
+myrm setup          # uv sync + bun install
+myrm start          # 后端（终端 1）
+cd myrm-agent-frontend && bun run dev   # 前端（终端 2）
+```
+
+开发脚本位于开源仓库的 `scripts/` 下，贡献者克隆一次即可本地运行。
+
+## 前置条件（Docker 路径）
+
+- Docker 24+ 与 Docker Compose v2
+- 至少 4GB 内存（推荐 8GB）
+- 10GB 磁盘空间
+
+## Docker Compose
+
+```bash
+git clone https://github.com/Pursue-LLL/myrm-agent.git
+cd myrm-agent/myrm-agent-server
+cp .env.example .env   # 若存在
+docker compose up -d
+```
+
+## 配置
+
+编辑 `.env` 设置 API Key：
+
+```env
+# LLM 提供商（至少需要一个）
+OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-ant-...
+
+# 可选：其他提供商
+DEEPSEEK_API_KEY=...
+GOOGLE_API_KEY=...
+```
+
+完整参考见[环境变量](/zh/self-hosting/environment-variables)。
+
+## 验证安装
+
+```bash
+curl http://localhost:3000/api/health
+```
+
+预期响应：
+
+```json
+{ "status": "ok" }
+```
+
+## 生产 Docker 构建（开源服务端镜像）
+
+从预构建 harness wheel 构建开源服务端镜像时，构建器通过 BuildKit `TARGETPLATFORM` 选择正确的平台核心 wheel，并在镜像就绪前运行 `verify-harness-distribution`。不匹配或不完整的安装会在构建/启动时失败——而非对话中途。
+
+详见 monorepo 中的 harness 分发指南：`myrm-agent-harness/harness_packaging/DISTRIBUTION_SYSTEM.md`。
+
+## 更新
+
+```bash
+git pull
+docker compose pull
+docker compose up -d
+```

@@ -54,6 +54,12 @@ describe('getDeployPathHref', () => {
   test('uses desktop download path for tauri', () => {
     expect(getDeployPathHref('tauri')).toBe('/download');
   });
+
+  test('prefixes zh locale for local docs links', () => {
+    const localZh = getDeployPathHref('localWebui', 'zh');
+    expect(localZh).toContain('/zh/getting-started/quickstart');
+    expect(localZh).toContain('utm_campaign=localWebui');
+  });
 });
 
 describe('readDeployPathFromLocation', () => {

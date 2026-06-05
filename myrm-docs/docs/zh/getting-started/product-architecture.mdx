@@ -1,0 +1,71 @@
+---
+title: 产品架构
+description: 开源前端 + 服务端与 Harness 运行时如何协同。
+---
+
+# 产品架构
+
+Myrm 由**两层产品**加可选云端控制平面组成。理解这一划分有助于部署、排错，以及从其他 Agent 迁移。
+
+## 分层
+
+| 层级 | 仓库 / 包 | 许可 | 你运行什么 |
+|-------|----------------|---------|--------------|
+| **产品 UI 与 API** | `myrm-agent-frontend` + `myrm-agent-server` | 开源 | 浏览器 WebUI、REST/SSE API、认证、计费钩子 |
+| **Agent Harness** | `myrm-agent-harness` | 专有运行时（捆绑分发） | 工具执行、记忆、浏览器、子 Agent、压缩 |
+| **控制平面**（可选） | `myrm-control-plane` | SaaS / 自托管 | LLM 中继、Work Units、统一工具网关 |
+| **桌面壳**（可选） | `myrm-agent-desktop` | 开源（Tauri） | 封装 WebUI + 本地后端的原生应用 |
+
+**通俗说法：** 前端是你点击的界面；服务端是进入工作空间的门；Harness 是沙箱内的「大脑与双手」。
+
+## 请求流（典型对话）
+
+1. 用户在**前端**（或经服务端接入的 IM 渠道）发送消息。
+2. **服务端**认证、加载 Agent 配置，向 UI 流式推送事件。
+3. **Harness** 运行 Agent 循环：工具、记忆召回、子 Agent、上下文压缩。
+4. 结果经服务端 → UI 回传（并可选择推送渠道通知）。
+
+## 在哪里配置什么
+
+| 任务 | 位置 |
+|------|--------|
+| 模型、API Key、Agent 人格 | 前端**设置**，由服务端持久化 |
+| 技能、MCP、定时任务、目标 | 前端 UI + 服务端 API |
+| 记忆浏览 / 审批 / 删除 | 前端**记忆**面板 |
+| 沙箱文件与代码执行 | Harness 在 per-user 沙箱内（非原始 SSH） |
+| SaaS 计费与网关工具 | 控制平面（`DEPLOY_MODE` 为 SaaS 时） |
+
+## 部署模式（同一功能，不同打包）
+
+| 模式 | 适合 | 你得到什么 |
+|------|----------|---------|
+| **本地 WebUI** | 开发者、BYOK | `localhost` 完整 GUI，数据留在本机 |
+| **Tauri 桌面端** | Mac/Win/Linux 日常使用 | Dock 图标、深链、无浏览器标签杂乱 |
+| **SaaS** | 不想运维的团队 | 托管沙箱、Work Units、可选工具网关 |
+| **PWA** | 手机添加到主屏 | 构建 `myrm-agent-frontend` 后从浏览器安装（见[开发环境](/zh/contributing/development-setup)） |
+
+## 从其他 Agent 迁移
+
+- **配置：** Hermes / OpenClaw 风格导出的导入路径（见**快速开始**）。
+- **记忆：** Myrm 使用结构化 DB 记忆 + GUI——不是单个 `MEMORY.md` 文件。
+- **技能：** 预置 + 社区发现；进化需审批。
+- **渠道：** 25+ 内置提供商——在设置中重新绑定 OAuth/Token。
+
+与 OpenClaw、Hermes、Claude Code 等的客观功能对比见[竞品对比](/zh/getting-started/competitor-comparison)。
+
+## 下一步
+
+<CardGroup cols={2}>
+  <Card title="快速开始" icon="rocket" href="/zh/getting-started/quickstart">
+    几分钟内本地运行。
+  </Card>
+  <Card title="记忆系统" icon="brain" href="/zh/core-concepts/memory-system">
+    跨会话记忆如何工作。
+  </Card>
+  <Card title="沙箱运行时" icon="server" href="/zh/core-concepts/sandbox-runtime">
+    工具实际执行的位置。
+  </Card>
+  <Card title="桌面应用" icon="desktop" href="/zh/getting-started/desktop-app">
+    Tauri 打包与更新。
+  </Card>
+</CardGroup>

@@ -12,7 +12,11 @@
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { MARKETING_DOC_PATHS } from '../src/lib/docs-contract';
+import {
+  localizedDocsPath,
+  MARKETING_DOC_PATHS,
+  type DocsLocale,
+} from '../src/lib/docs-contract';
 import { appendLegacyUrlViolations } from './brand-url-patterns';
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
@@ -23,23 +27,33 @@ const DOCS_JSON = join(DOCS_ROOT, 'docs.json');
 
 const DOCS_SCAN_EXTENSIONS = new Set(['.json', '.mdx', '.md']);
 
+type NavTab = { groups?: Array<{ pages?: string[] }> };
 type DocsJson = {
   navigation?: {
-    tabs?: Array<{
-      groups?: Array<{ pages?: string[] }>;
-    }>;
+    tabs?: NavTab[];
+    languages?: Array<{ language?: string; tabs?: NavTab[] }>;
   };
 };
 
-function collectMintlifyPages(doc: DocsJson): Set<string> {
-  const pages = new Set<string>();
-  for (const tab of doc.navigation?.tabs ?? []) {
+function collectPagesFromTabs(tabs: NavTab[] | undefined, pages: Set<string>): void {
+  for (const tab of tabs ?? []) {
     for (const group of tab.groups ?? []) {
       for (const page of group.pages ?? []) {
         pages.add(page);
       }
     }
   }
+}
+
+function collectMintlifyPages(doc: DocsJson): Set<string> {
+  const pages = new Set<string>();
+  if (doc.navigation?.languages?.length) {
+    for (const lang of doc.navigation.languages) {
+      collectPagesFromTabs(lang.tabs, pages);
+    }
+    return pages;
+  }
+  collectPagesFromTabs(doc.navigation?.tabs, pages);
   return pages;
 }
 
@@ -120,15 +134,21 @@ function main(): void {
 
   const errors: string[] = [];
 
-  for (const marketingPath of MARKETING_DOC_PATHS) {
-    const pageId = urlPathToPageId.get(marketingPath);
-    if (!pageId) {
-      errors.push(`Marketing path ${marketingPath} is not listed in myrm-docs/docs.json`);
-      continue;
-    }
-    const mdxPath = join(DOCS_ROOT, `${pageId}.mdx`);
-    if (!existsSync(mdxPath)) {
-      errors.push(`Missing MDX file for ${pageId}: ${mdxPath}`);
+  const marketingLocales: DocsLocale[] = ['en', 'zh'];
+  for (const locale of marketingLocales) {
+    for (const marketingPath of MARKETING_DOC_PATHS) {
+      const urlPath = localizedDocsPath(marketingPath, locale);
+      const pageId = urlPathToPageId.get(urlPath);
+      if (!pageId) {
+        errors.push(
+          `Marketing path ${urlPath} (${locale}) is not listed in myrm-docs/docs.json`,
+        );
+        continue;
+      }
+      const mdxPath = join(DOCS_ROOT, `${pageId}.mdx`);
+      if (!existsSync(mdxPath)) {
+        errors.push(`Missing MDX file for ${pageId}: ${mdxPath}`);
+      }
     }
   }
 
@@ -146,8 +166,9 @@ function main(): void {
     process.exit(1);
   }
 
+  const langCount = doc.navigation?.languages?.length ?? 1;
   console.log(
-    `Docs slug contract OK (${MARKETING_DOC_PATHS.length} marketing paths, ${mintlifyPages.size} Mintlify pages, ${diskPageIds.size} MDX files)`,
+    `Docs slug contract OK (${MARKETING_DOC_PATHS.length} marketing paths × ${langCount} locales, ${mintlifyPages.size} Mintlify pages, ${diskPageIds.size} MDX files)`,
   );
 }
 

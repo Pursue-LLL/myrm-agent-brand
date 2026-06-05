@@ -4,6 +4,8 @@
 
 闭源品牌仓：营销官网与产品文档分目录维护、分托管发布。官网跳转 SaaS（`app.myrmagent.ai`）与文档站（`docs.myrmagent.ai`）经 `deploy-mode.ts` 统一 URL。
 
+文档约定（分形自文档）：仓根 `ARCHITECTURE.md`（整体架构）；各模块文件夹 `_ARCH.md`（模块文件清单与职责）；核心源码文件头部 `INPUT` / `OUTPUT` / `POS` 注释（文件定位）。
+
 ## 目录清单
 
 | 目录 | 地位 | 职责 | 部署 |
@@ -21,6 +23,8 @@
 
 二者互斥，按 Vercel 项目 Root Directory 选其一，勿同时改两处 build 路径。
 
+`myrm-website/next.config.ts` 使用 `output: 'export'`，`next build` 静态产物在 `myrm-website/out/`。线上 Vercel 由 Next.js 预设接管输出；若改用手动静态托管，应部署 `out/` 目录，勿依 `vercel.json` 中 `outputDirectory: ".next"` 字面路径。
+
 ## 模块架构文档索引
 
 | 文档 | 范围 |
@@ -37,6 +41,17 @@
 - 官网桌面下载元数据：`myrm-website/src/lib/desktop-release.ts` → GitHub Releases `Pursue-LLL/myrm-agent`
 - 营销 ↔ 文档 slug 契约：`myrm-website/scripts/validate-docs-slugs.ts`（orphan MDX + legacy URL grep：`myrm.ai`、`app.myrm.ai`、`github.com/myrm-ai`）
 - `public/desktop-release.json`：CI `bake:release` 产物，静态 export 首屏用，勿手改
+
+## 文档 i18n（en + zh）
+
+| 项 | 约定 |
+|----|------|
+| Mintlify | `docs.json` → `navigation.languages[en, zh]` |
+| URL | EN：`/getting-started/...`；ZH：`/zh/getting-started/...` |
+| 官网跳转 | `getDocsUrl(path, locale)`、`localizedDocsPath()`、`useDocsLocale` |
+| 营销契约 | `MARKETING_DOC_PATHS` + `validate-docs-slugs` 双 locale CI |
+| zh MDX 内链 | `/zh/...`（非 `/docs/...`） |
+| 脚本 | `apply-i18n-docs-json.ts`（导航 + zh footer）、`build-zh-navigation.ts` |
 
 ## 约束
 

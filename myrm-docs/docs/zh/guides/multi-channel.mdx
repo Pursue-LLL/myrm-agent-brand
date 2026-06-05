@@ -1,0 +1,113 @@
+---
+title: 多渠道
+description: 将 Agent 连接到 35+ 消息平台，输出自动适配渠道。
+---
+
+# 多渠道集成
+
+从任意消息平台访问 Agent — 35+ 渠道，自动格式适配。
+
+## 支持的渠道
+
+| 类别 | 渠道 | 数量 |
+|----------|----------|-------|
+| 即时通讯 | Discord、Slack、Telegram、WhatsApp、Signal、Line、Matrix、Mattermost、IRC | 9 |
+| 中国生态 | 微信、企业微信、企微 AI Bot、钉钉、飞书、QQ、OneBot、微信公众号 | 8 |
+| 企业 | Microsoft Teams、Google Chat | 2 |
+| 语音 | Discord Voice（含 DAVE E2E 加密） | 1 |
+| 其他 | Email、SMS、iMessage、Webhook、Zalo | 5 |
+
+## 设置
+
+在 GUI **设置 > 渠道** 连接平台。各渠道独立配置面板与连接状态指示。
+
+## 消息类型
+
+所有渠道支持：
+
+- 文本（平台适配格式）
+- 图片 / 文档 / 音频 / 视频附件（`MediaType`）
+- 文件上传与自动类型检测
+
+## 渠道感知输出适配
+
+Myrm **双保险**架构确保各平台正确渲染：
+
+### 事前引导（channel_output_hints）
+
+Agent 初始化时向系统提示词注入渠道格式提示，生成前告知 LLM 平台能力：
+
+- **Telegram**：「禁用表格语法 — 用列表或 key: value」
+- **WhatsApp**：「Markdown 不渲染 — 仅纯文本」
+- **Discord**：「超 2000 字符自动拆分」
+- **Voice**：「像与人对话一样说话」
+
+24 条渠道提示预配置，KV-Cache 安全（初始化注入一次）。
+
+### 事后格式降级（renderer）
+
+即使 LLM 忽略提示，渲染流水线仍降级：
+
+- `supports_tables=false` → 表格转列表
+- `supports_latex=false` → LaTeX 剥为纯文本
+- IM 渠道 HTML/SVG 代码块换短占位
+- 无来源时自动清理孤立引用标记
+
+### 智能消息拆分
+
+长消息在自然边界自动拆分：
+
+- 代码围栏状态机保证跨块正确闭合重开
+- 在空白与标点处智能分行
+- 可配置溢出容差保语义
+- 按渠道长度限制（如 Discord 2000、Telegram 4096）
+
+## 群聊特性
+
+### AllowPolicy
+
+三档预设控制群聊何时响应：
+
+| 策略 | 私聊 | 群聊 |
+|--------|-----|-------|
+| OPEN | 全部允许 | 全部允许（无需 @） |
+| SELECTIVE | 全部允许 | 需 @ |
+| STRICT | 需 @ | 需 @ |
+
+### GroupContextBuffer
+
+群聊非触发消息累积于 per-group 环形缓冲。@Agent 等触发时排空缓冲注入上下文 — Agent 感知群讨论脉络。
+
+### SessionGate
+
+同会话连发消息防抖（默认 300ms）合并为单次请求，防重复处理。
+
+## Agent 主动通知
+
+Agent 可主动向配置渠道推送 — 无需轮询。
+
+### 流程
+
+1. 在 Agent 设置配置通知目标（渠道 + 收件人白名单）
+2. Agent 在需告警时调用 `channel_notify_tool`（任务完成、异常、定时报告就绪）
+3. 经 ChannelGateway 投递，含重试与死信队列
+
+### 安全
+
+| 层 | 防护 |
+|-------|-----------|
+| 白名单 | 仅用户配置目标可达 |
+| 限流 | 每会话上限防刷屏（默认 10） |
+| 内容上限 | 超 `max_body_length`（4000 字符）自动截断 |
+| 审计 | 每次通知目标记入会话状态 |
+| 优先级 | Agent 通知恒为 NORMAL（系统级消息分离） |
+
+### 场景示例
+
+- 凌晨 3 点定时任务完成 → 摘要发 Telegram
+- 长跑代码分析结束 → 结果推 Slack
+- 监控数据异常 → 告警发配置目标
+
+## 跨平台交接
+
+在不丢上下文下将对话从一端转到另一端。任意 IM 用 `/handoff` 或 Web UI「Transfer to...」。交接即时（单次 DB 更新，毫秒级），完整保留 Prompt 缓存。

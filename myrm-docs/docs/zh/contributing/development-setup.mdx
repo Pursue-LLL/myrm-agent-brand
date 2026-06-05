@@ -1,0 +1,52 @@
+---
+title: 开发环境
+description: 配置 Myrm 开发环境（开源产品 + harness monorepo）。
+---
+
+# 开发环境
+
+## 开源产品（`myrm-agent`）
+
+仅前端 + 服务端。Harness 通过 `uv sync` 从 PyPI 安装。
+
+**前置条件：** Git、[uv](https://docs.astral.sh/uv/)、[Bun](https://bun.sh)、Python 3.13（uv 会自动安装）。
+
+```bash
+git clone https://github.com/Pursue-LLL/myrm-agent.git
+cd myrm-agent
+myrm setup
+```
+
+| 终端 | 命令 |
+|----------|---------|
+| 后端 | `myrm start` 或 `./scripts/dev/run_server.sh --webui` |
+| 前端 | `cd myrm-agent-frontend && bun run dev` |
+
+在 monorepo 中以 editable 方式安装 harness 后，请使用 `.venv/bin/python run.py`（或 `myrm start`），不要用 `uv run run.py` — macOS 上锁文件含 Windows-only wheel 时 `uv run` 可能重新解析锁并失败。
+
+## 完整 monorepo（harness + agent）
+
+进行 harness 框架开发时，克隆 **vortexai** 私有 monorepo（`myrm-agent` 与 `myrm-agent-harness` 同级），然后：
+
+```bash
+./myrm setup            # 将 harness editable 装入 server venv（vortexai 根目录）
+./myrm start            # 后端 + 前端
+```
+
+## 运行测试
+
+```bash
+# 前端（myrm-agent-frontend）
+bun test
+
+# 服务端（myrm-agent-server）
+cd myrm-agent-server
+.venv/bin/python -m pytest
+```
+
+检出 `myrm-agent-harness` 仓库后，在其内运行 harness 单元测试。
+
+## 代码质量
+
+- 前端：ESLint + Prettier
+- 后端：Ruff + server/harness 包严格类型

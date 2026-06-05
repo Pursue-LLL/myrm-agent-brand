@@ -1,0 +1,217 @@
+---
+title: MCP 集成
+description: 使用 Model Context Protocol 连接外部工具与服务。
+---
+
+# MCP 集成
+
+Myrm 支持 [Model Context Protocol (MCP)](https://modelcontextprotocol.io/)，将外部工具与服务接入 Agent。
+
+## 什么是 MCP？
+
+MCP 是开放标准，让 AI Agent 通过统一协议连接外部数据源与工具。无需为每个服务写定制集成，可连接任意 MCP 兼容服务。
+
+## 添加 MCP 服务
+
+### 从 GUI
+
+1. 进入 **设置 > 工具 > MCP**
+2. 点 **Add Server**
+3. 填写配置：
+   - **Name**：显示名
+   - **Command**：启动命令（如 `npx @mcp/server-github`）
+   - **Arguments**：命令行参数
+   - **Environment Variables**：所需环境变量（如 API Key）
+4. 保存 — 服务自动启动，工具对 Agent 可用
+
+### 从配置文件
+
+在 `mcp_servers.json` 添加：
+
+```json
+{
+  "servers": [
+    {
+      "name": "github",
+      "command": "npx",
+      "args": ["@mcp/server-github"],
+      "env": {
+        "GITHUB_TOKEN": "ghp_..."
+      }
+    }
+  ]
+}
+```
+
+## Schema 处理
+
+Myrm 自动优化 MCP 工具 Schema 以兼容 LLM：
+
+| 特性 | 说明 |
+|---------|-------------|
+| **Schema 扁平化** | 深度 >2 或叶子 >10 的嵌套 Schema 自动扁平化 |
+| **类型修正** | 5 种常见 Schema 问题自动修复 |
+| **点路径检测** | 检测模型是否用点号表示嵌套参数 |
+| **$ref 解析** | 完整递归 JSON Schema `$ref` 解析 |
+| **循环引用防护** | 最大深度 + 访问追踪防无限递归 |
+
+## 连接管理
+
+### 持久会话
+
+每个 MCP 服务在 Agent 生命周期内维持单一会话。工具调用经内部队列串行化 — 每次调用不启子进程，调用间无需重新握手。
+
+### 自愈重连
+
+传输中断（子进程崩溃、SSE/HTTP 断开、空闲超时）时，会话 Actor 原地重连：
+
+- **有界退避** — 最多 5 次，指数退避（0.5s 至 8s 上限）
+- **预算刷新** — 稳定运行 60s+ 后获得新重试预算
+- **进行中调用显式失败** — 命中中断的调用失败（非幂等工具不静默重试），后续调用在新会话成功
+- **代理稳定** — Agent 持有的工具对象重连后不变，保留 Prompt 前缀缓存命中
+
+### 传输感知保活
+
+远程传输（SSE、streamable HTTP）经负载均衡/NAT 会静默丢空闲 TCP。会话 Actor 每 180s 发送轻量 `list_tools` 保活。本地 stdio 不空闲断开，不探测。
+
+### 连接池
+
+- **每服务单例** — 每 config-hash 一热连接防泄漏
+- **循环感知** — 事件循环变更自动重建
+- **TTL 回收** — 长期空闲连接关闭，按需重建
+- **最后手段重建** — 仅当 Actor 内部重连预算耗尽时池才重建
+
+### CancelledError 防护
+
+防止 Python `CancelledError` 穿透 MCP 通道导致服务进程崩溃。
+
+### 指标
+
+连接指标（成功率、延迟、错误率）可经诊断 API 查看。
+
+## 安全
+
+### SSRF 防护
+
+MCP 工具 URL 实施 DNS 固定：
+
+- 解析 IP 检查私有段（10.x、172.16-31.x、192.168.x）
+- 默认阻断 localhost 与 link-local
+- URL 校验防基于重定向的 SSRF
+
+### 恶意包检测
+
+MCP 工具安装依赖时实时查询 OSV API 检测已知恶意包。
+
+### 工具审批
+
+MCP 工具与内置工具相同审批流：
+
+- 只读工具自动执行
+- 写/破坏性工具需用户审批（YOLO 模式除外）
+- 可按 MCP 服务配置自定义审批策略
+
+## 多模态工具结果
+
+MCP 可返回截图、图片与结构化数据，原生处理。
+
+### 图片内容
+
+`ImageContent`（如 Playwright 截图）直接在聊天渲染：
+
+- Base64 经流式管道在 **Tool Image Gallery** 显示
+- 单结果多图（网格 + 灯箱）
+- 不支持视觉的模型由媒体过滤器自动剥离图片
+
+### 结构化内容
+
+`structuredContent`（JSON 元数据）提取为 LLM 补充上下文。
+
+### 工具过滤
+
+按 MCP 服务、**按 Agent** 控制暴露工具：
+
+- **Include 列表** — 白名单
+- **Exclude 列表** — 黑名单
+- **按 Agent 粒度** — 同服务不同 Agent 可见不同工具
+- 在 **Agent 配置面板 > MCP > Tool Selection** 配置
+
+### 安全注解
+
+MCP 工具 [annotation hints](https://spec.modelcontextprotocol.io/specification/2025-03-26/server/tools/#annotations) 用于自动风险管理：
+
+| 注解 | 效果 |
+|------------|--------|
+| `readOnlyHint` | 只读；沙箱（PTC）路径可自动审批 |
+| `destructiveHint` | 危险；**默认禁用**于安全集，GUI 警告徽章 |
+| `idempotentHint` | 可安全重试 |
+| `openWorldHint` | 可能与 MCP 服务外系统交互 |
+
+### 默认安全集
+
+首次为 Agent 启用 MCP 服务时，根据注解自动构建**安全默认选择**：
+
+- 所有 `readOnlyHint` 工具启用
+- `destructiveHint` 禁用并横幅提示
+- 可在 Tool Selection GUI 覆盖
+
+### 工具名隔离
+
+多 MCP 服务时工具名可能冲突。Myrm 对每工具加**服务前缀**：
+
+```
+mcp__{server}__{tool}
+```
+
+- **双下划线分隔** — 可无歧义解析回 `(server, tool)`
+- **权限安全** — 不与内置工具名冲突
+- **审计可追溯** — 日志标明来源 MCP 服务
+- **对用户透明** — GUI 显示友好原名
+
+## 动态工具发现
+
+MCP 服务运行时增删改工具时，经 `notifications/tools/list_changed` 自动检测：
+
+- **零停机刷新** — 重新拉取工具列表，不中断进行中调用
+- **Prompt 缓存稳定** — 面向 Prompt 的代理工具冻结，仅更新内部执行映射
+- **超时保护** — 刷新拉取有界超时
+- **变更日志** — 增删记 WARNING；无变更记 INFO
+- **对 Agent 透明** — 新工具立即可用，移除工具下次调用显式失败
+
+适用于按用户状态动态注册工具的服务（如新建看板时增加工具）。
+
+## 延迟加载
+
+防工具 Schema 撑爆系统提示词，支持**延迟加载**：
+
+- 工具已注册但不进初始 Prompt
+- Agent 需要时按需加载
+- 保持系统提示词紧凑、利于缓存
+
+## 内置 MCP 服务能力
+
+Myrm 也可作为 **MCP 服务**，向其他 MCP 客户端暴露能力：
+
+| 资源 | 说明 |
+|----------|-------------|
+| Memory | 访问 Agent 记忆 |
+| Tools | 经 MCP 执行 Myrm 工具 |
+| Sessions | 管理聊天会话 |
+
+## 故障排除
+
+### 服务无法启动
+
+1. 检查命令路径可访问
+2. 验证环境变量
+3. 查看 **设置 > 工具 > MCP > Logs**
+
+### 工具未出现
+
+1. 启动后等待 5-10 秒发现
+2. MCP 设置面板点 **Refresh**
+3. 检查服务工具列表 JSON Schema 有效
+
+### 连接断开
+
+自愈重连通常透明处理。若因传输中断失败，重试消息即可；持续失败（5 次重连后）检查网络、进程健康、资源限制。

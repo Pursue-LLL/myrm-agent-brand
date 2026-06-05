@@ -1,0 +1,38 @@
+---
+title: 数据库配置
+description: 配置 SQLite 与 Qdrant 数据存储。
+---
+
+# 数据库配置
+
+## SQLite（主库）
+
+Myrm 使用 SQLite 作为主数据库。基础用法无需额外安装。
+
+数据默认存储在 `./data/myrm.db`，可通过 `DATABASE_URL` 配置。
+
+## Qdrant（向量库）
+
+Qdrant 为记忆系统提供向量检索能力。
+
+### Docker Compose（默认）
+
+默认 Docker Compose 已包含 Qdrant，会自动启动。
+
+### 外部 Qdrant
+
+使用已有 Qdrant 实例：
+
+```env
+QDRANT_URL=http://your-qdrant-host:6333
+```
+
+## 备份
+
+```bash
+# SQLite 备份
+cp ./data/myrm.db ./backups/myrm-$(date +%Y%m%d).db
+
+# Qdrant 快照
+curl -X POST http://localhost:6333/collections/myrm/snapshots
+```

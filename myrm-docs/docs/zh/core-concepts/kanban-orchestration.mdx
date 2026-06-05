@@ -1,0 +1,172 @@
+---
+title: 看板与子 Agent 编排
+description: 可视化任务看板、DAG 依赖与 6 种多 Agent 编排模式。
+---
+
+# 看板与子 Agent 编排
+
+Myrm 提供可视化看板跟踪复杂多步任务，以及强大的子 Agent 系统（6 种编排模式）。
+
+## 看板任务板
+
+看板提供拖放界面，在 7 列间管理 Agent 任务。
+
+### 任务状态
+
+| 状态 | 说明 |
+|-------|-------------|
+| **Backlog** | 等待调度 |
+| **Ready** | 依赖已满足，可领取 |
+| **Running** | Agent 正在执行 |
+| **Completed** | 成功完成并验证 |
+| **Failed** | 执行失败（自动重试或人工复核） |
+| **Blocked** | 等待外部输入或依赖 |
+| **Archived** | 已完成移出活跃板 |
+
+### 关键特性
+
+<CardGroup cols={2}>
+  <Card title="DAG 依赖" icon="diagram-project">
+    任务依赖为有向无环图。上游完成后自动启动。环检测防死锁。
+  </Card>
+  <Card title="优先级调度" icon="arrow-up-1-9">
+    4 级优先级（紧急/高/普通/低），自动分派给可用 worker。
+  </Card>
+  <Card title="僵尸检测" icon="ghost">
+    心跳监控停滞任务，自动回收重派。
+  </Card>
+  <Card title="瞬态错误恢复" icon="rotate">
+    429/503 限流智能退避 — 任务暂停 15 分钟后自动重试。
+  </Card>
+</CardGroup>
+
+### 流水线向导
+
+复杂工作流用 **Pipeline Wizard** 从模板生成任务 DAG：
+
+1. **看板 > New Pipeline**
+2. 选择模板（或自建）
+3. 向导生成带依赖的任务图
+4. 审阅并启动 — 按依赖顺序执行
+
+自定义模板在 Skill 文件 YAML frontmatter 中定义，可复用、可版本控制。
+
+### Git Worktree 隔离
+
+每个看板任务可选在隔离 Git worktree 运行：
+
+- 并行 worker 同库无冲突编辑
+- 每任务独立分支
+- 完成可合并为 per-task PR
+
+---
+
+## 子 Agent 编排
+
+单 Agent 不足时，子 Agent 系统支持多 Agent 协作（6 种模式 + 动态发现）。
+
+### 动态发现与 @ 提及
+
+类 Coze 的动态发现与委派：
+
+- **动态名册**：`allow_discovery` 的 Agent 自动注册；主 Agent（Planner/Leader）经系统指令了解队友能力。
+- **显式 @ 提及**：聊天输入 `@` 弹出 ReferenceMentionPopover，自动补全并显式标记。
+- **强制关注**：被标记时后端注入 Forced Attention Directive，保证委派而非幻觉忽略。
+- **说话者身份**：`memory_context_middleware` 为 AI 消息加 `[Agent: {Name}]` 前缀，消除「分裂脑」幻觉。
+
+### 编排模式
+
+| 模式 | 说明 | 场景 |
+|---------|-------------|----------|
+| **Spawn** | 单子 Agent 委派 | 旁路任务不阻塞父 Agent |
+| **Chain** | 顺序 A → B → C | 顺序敏感的流水线 |
+| **Batch** | 并行独立任务 | 多主题同时研究 |
+| **DAG** | 有向图与依赖 | 复杂前置条件工作流 |
+| **Verified** | Worker + 独立 Verifier | 需交叉验证的关键任务 |
+| **Swarm Fission** | 自主分裂/合并 | 可动态_spawn 的探索任务 |
+
+### Verified 模式（对抗验证与零信任）
+
+防 Agent「自评」或幻觉成功：
+
+1. **Worker** 执行任务
+2. **物理证据**：须返回结构化 `verifiable_credentials`（文件路径、CLI 退出码等），仅自然语言宣称 PASS 会被判 FAIL
+3. **Verifier** 在只读沙箱独立审查结果与证据
+4. 验证失败则 Worker 按 Verifier 反馈重试
+5. 最大重试可配置
+
+根除「幻觉式成功」。
+
+### 预算控制与熔断
+
+| 维度 | 说明 |
+|-----------|-------------|
+| `max_descendants` | 最大子 Agent 总数（默认 20） |
+| `max_children_per_agent` | 每 Agent 最大直接子节点（默认 5） |
+| `max_spawn_depth` | 最大嵌套深度 |
+| `context_budget` | 每子 Agent 独立 Token 预算 |
+| `budget_tokens` / `max_cost_usd` | 硬性花费上限 |
+| `max_agent_iterations` | **熔断**：物理限制迭代步数防无限循环 |
+
+**智能模型降级**：预算将尽时可自动从昂贵推理模型降到更便宜模型，仍尝试完成任务。预算耗尽产生结构化错误，非静默失败。
+
+### 工作区隔离与 UI 黑名单
+
+每个子 Agent 在隔离工作区与系统沙箱运行：
+
+- **CoW 克隆** — 写时复制工作区
+- **精确同步** — 仅修改文件回传
+- **.git 保护** — Git 目录排除操作
+- **自动清理** — 完成后清理工作区
+- **UI 交互黑名单** — 后台子 Agent 物理屏蔽 `interactive_feedback`、`send_message`，不会弹窗打断用户
+
+### 无缝人工介入（HITL）
+
+检查点或需审批时 UI 弹窗。除接受/拒绝外支持**上下文注入**：用户可附加文字（「等等，颜色改成红色」），Agent 无缝续跑。
+
+---
+
+## 完成验证
+
+看板或对话任务完成前可验证。
+
+### CompletionVerifier 协议
+
+验证结果含 `passed`、`reason`、`error_logs`。
+
+### 目标级验证
+
+目标支持双引擎验证（Shell + 语义），均通过才标完成。
+
+---
+
+## 任务诊断
+
+内置诊断引擎主动发现不健康任务并给出建议。
+
+### 6 条诊断规则
+
+| 规则 | 检测 | 动作 |
+|------|---------|--------|
+| **Stranded in Ready** | READY 过久未领取 | 归档或查调度器 |
+| **Repeated Failures** | 连续失败过多 | 复核描述或归档 |
+| **Stuck in Blocked** | BLOCKED 过久 | 评论、解阻或归档 |
+| **Dead Dependency** | 父任务全终态失败/归档 | 归档孤儿任务 |
+| **Stranded in Triage** | TRIAGE 粗略想法久未细化 | Specify 或归档 |
+| **Block→Unblock Cycling** | 反复阻塞解阻根因未解决 | 复核阻塞原因 |
+
+### 严重度自动升级
+
+Warning（1–2× 阈值）→ Error（2–7×）→ Critical（≥7×），看板卡片显示徽章，点击查看详情与一键操作。
+
+---
+
+## 上手
+
+1. 侧栏打开看板
+2. **New Task** 描述待办
+3. 拖线定义依赖
+4. 启动 — 按优先级与依赖自动执行
+5. 心跳实时监控
+
+描述复杂任务给任意 Agent，它会自动分解并按合适模式委派。
