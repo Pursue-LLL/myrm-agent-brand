@@ -1,3 +1,15 @@
+/**
+ * [INPUT]
+ * - marketing-nav::buildMarketingNavLinks (POS: DRY nav definition — prevents LandingEditorial / MarketingShell drift)
+ * - deploy-mode::getDesktopDownloadPath (POS: 营销站外部链接统一入口)
+ * - hooks/useDocsLocale (POS: 站点 locale → Mintlify docs locale)
+ *
+ * [OUTPUT]
+ * - MarketingShell: 定价/法务等内页的顶栏 + 主内容槽位
+ *
+ * [POS]
+ * 非 Landing 营销页的共享壳层（导航、locale 切换、移动端抽屉菜单）。
+ */
 'use client';
 
 import Link from 'next/link';

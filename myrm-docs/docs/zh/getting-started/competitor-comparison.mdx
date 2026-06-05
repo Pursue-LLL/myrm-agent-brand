@@ -7,6 +7,10 @@ description: Myrm 与主流 AI Agent 平台的对比，以及迁移你能获得�
 
 Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 Agent 不同，Myrm 提供 GUI 优先的体验、持久化沙箱、跨会话记忆与企业级安全——同时保留完整编程能力。
 
+<Note>
+**迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。文档提供**中英双语**；官网会按你的语言自动打开对应版本。
+</Note>
+
 ## 一览
 
 | 能力 | Myrm | Hermes Agent (v0.15) | OpenClaw | 360 Security OpenClaw | OpenClacky | MiniMax Mavis | MemPalace |
@@ -42,6 +46,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **长文目录** | ✅ 聊天内自动 TOC + 滚动同步 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **精准多模态** | ✅ 意图感知视觉（无 UI 操作 = 0 vision token） | ⚠️ 常开（浪费 token） | ⚠️ 盲（无截图） | ⚠️ 未知 | ⚠️ 盲 | ⚠️ 盲 | ❌ |
 | **标题生成** | ✅ O(1) 防阻塞 + 脱敏 | ⚠️ 易卡死/泄漏 | ⚠️ 易卡死/泄漏 | ⚠️ 未知 | ⚠️ 未知 | ⚠️ 未知 | ❌ |
+| **全局截屏 AI** | ✅ 快捷键截屏 + OCR + FlowPad | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Token 效率** | ✅ 总计 ~2,167 tokens（少 86%） | ~15,520 | ~18,000 | ⚠️ 手动三档 | ⚠️ 16 工具（LLM 压缩成本） | ⚠️ 高成本 | ⚠️ ~900 唤醒 |
 
 ## vs 360 Security OpenClaw（企业封装版）
@@ -81,13 +86,13 @@ OpenClacky 主打低成本本地 AI Agent，宣称 Token 约为 Hermes 的 1/6�
 
 ### 关键架构差异
 
-**Compression cost**: OpenClacky calls LLM to generate compression summaries — every compression incurs API cost. Myrm uses a deterministic rule engine (Dedup → Truncate → Remove) with zero LLM overhead.
+**压缩成本**：OpenClacky 调用 LLM 生成压缩摘要 — 每次压缩都产生 API 成本。Myrm 使用确定性规则引擎（Dedup → Truncate → Remove），零 LLM 开销。
 
-**Cache intelligence**: OpenClacky's dual cache marking is a static pattern (always mark last 2 messages). Myrm's ExplicitCacheProcessor dynamically calculates breakpoints based on content blocks, token distances, and compression boundaries, with full validation pipeline.
+**缓存智能**：OpenClacky 双缓存标记是静态模式（始终标记最后 2 条消息）。Myrm 的 ExplicitCacheProcessor 根据内容块、token 距离与压缩边界动态计算断点，并带完整校验流水线。
 
-**Idle utilization**: OpenClacky's idle timer only compresses messages. Myrm's idle pipeline runs 3 tasks: cognitive memory consolidation, session evidence extraction (learning from failures), and prefix cache preheating — all coordinated by a capacity-aware scheduler with circuit breaker protection.
+**空闲利用**：OpenClacky 空闲定时器仅压缩消息。Myrm 空闲流水线并行 3 项：认知记忆整合、会话证据挖掘（从失败中学习）、前缀缓存预热 — 由容量感知调度器协调，带熔断保护。
 
-### Migration from OpenClacky to Myrm
+### 从 OpenClacky 迁移到 Myrm
 
 | OpenClacky 功能 | Myrm 对应 | 体验 |
 |--------------------|-----------------|------------|
@@ -100,7 +105,7 @@ OpenClacky 主打低成本本地 AI Agent，宣称 Token 约为 Hermes 的 1/6�
 | WebUI | Full workspace GUI (Tauri + Web + SaaS) | ⬆️ Upgrade |
 | Skill system | 42-module skill evolution with safety | ⬆️ Upgrade |
 
-**结论： 8 upgrades, 0 equivalent, 0 downgrades. OpenClacky users gain zero-cost compression, intelligent cache protection, persistent cross-session memory, and a complete GUI workspace while maintaining all token efficiency benefits.**
+**结论：8 项升级、0 项持平、0 项降级。OpenClacky 用户获得零成本压缩、智能缓存保护、跨会话持久记忆与完整 GUI 工作区，同时保留全部 Token 效率优势。**
 
 ## 统一工具网关与弹性 BYOK（vs Hermes / OpenClaw）
 
@@ -108,23 +113,23 @@ OpenClacky 主打低成本本地 AI Agent，宣称 Token 约为 Hermes 的 1/6�
 
 ### Myrm 的领先之处
 
-*   **4-in-1 Gateway**: One subscription unlocks LLM, Web Search, Image Gen, and TTS capabilities. Zero configuration required out of the box.
-*   **Elastic Try-Catch Fallback**: If the official gateway is unavailable or your Work Units (WU) run out, Myrm automatically and seamlessly degrades to your locally configured API keys. Your business never stops.
-*   **Quota Rollover**: Unlike traditional SaaS where unused quotas expire, Myrm allows unused Work Units to roll over to the next month.
-*   **Visual Gateway Status**: A dedicated GUI dashboard shows the status of all tools (Gateway Managed, Custom Key, or Unconfigured), with smart prompts for Pro users to enable gateway features.
-*   **Financial-Grade Security**: PAT tokens are transmitted via secure POST bodies and validated with strict regex rules, preventing SSRF attacks and guaranteeing tokens never leak into URL logs.
-*   **Extreme Network Resilience**: Built with imperative on-demand polling and an 8-second hard timeout using `AbortController`, eliminating the UI freezes and API quota drain common in competitors' auto-polling dashboards.
+*   **四合一网关**：一次订阅解锁 LLM、网页搜索、图像生成与 TTS，开箱零配置。
+*   **弹性 Try-Catch 回退**：官方网关不可用或 Work Units (WU) 用尽时，Myrm 自动无缝降级到你本地配置的 API Key，业务不中断。
+*   **配额结转**：与传统 SaaS 未用配额作废不同，Myrm 允许未用 WU 结转至下月。
+*   **可视化网关状态**：专用 GUI 仪表盘展示各工具状态（网关托管 / 自定义 Key / 未配置），Pro 用户有智能提示启用网关能力。
+*   **金融级安全**：PAT 经安全 POST 体传输，严格正则校验，防 SSRF，保证 token 不进 URL 日志。
+*   **极端网络韧性**：命令式按需轮询 + `AbortController` 8 秒硬超时，消除竞品自动轮询仪表盘导致的 UI 卡死与 API 配额空耗。
 
 ### 竞品痛点
 
-*   **Hermes**: Uses a "black and white" hard switch for its gateway. If the gateway fails or runs out of credits, the agent simply crashes and stops working.
-*   **OpenClaw**: Relies entirely on user-provided keys via extensions, offering no unified gateway or billing.
-*   **Cloud Browser Dependency**: Hermes relies on third-party cloud browsers (like Browser Use) for web tasks, introducing high latency and privacy risks. Myrm insists on local/self-hosted sandboxes for browser automation, ensuring zero latency and total data privacy.
+*   **Hermes**：网关「非黑即白」硬切换；网关失败或额度用尽则 Agent 直接崩溃停工。
+*   **OpenClaw**：完全依赖用户通过扩展提供的 Key，无统一网关与计费。
+*   **云浏览器依赖**：Hermes 网页任务依赖第三方云浏览器（如 Browser Use），高延迟与隐私风险。Myrm 坚持本地/自托管沙箱做浏览器自动化，零延迟、数据完全私有。
 
 ### 迁移收益
 
-*   **Zero Key Management**: Stop juggling API keys for OpenAI, Firecrawl, FAL, etc.
-*   **Peace of Mind**: The elastic fallback means you get the convenience of a managed gateway with the reliability of your own backup keys.
+*   **零 Key 管理**：不再为 OpenAI、Firecrawl、FAL 等疲于切换 API Key。
+*   **安心**：弹性回退 = 托管网关便利 + 自有备份 Key 可靠性。
 
 ## WebUI 安全与本地/远程分离
 
@@ -134,10 +139,10 @@ Myrm 以奥卡姆剃刀式 WebUI 安全方案，解决本地优先部署的「�
 
 ### Myrm 的领先之处
 
-*   **Zero-Friction Local vs. Ironclad Remote**: Myrm's WebUI auto-detects `localhost` loopbacks to bypass login seamlessly. The moment you expose it via a tunnel or LAN, it enforces strict password protection.
-*   **Zero-Trust WebSocket Gateway**: Competitors often secure their HTTP routes but leave WebSockets (used for realtime logs or voice) unauthenticated. Myrm's `WsAuthMiddleware` physically drops the WebSocket handshake (HTTP 403) if the session cookie is missing or invalid.
-*   **Instant Session Eviction**: When a password is changed or protection is toggled, Myrm automatically rotates the global HMAC Session Signing Key. This instantly invalidates all existing sessions globally (like a kill switch for stolen devices), whereas competitors often leave old JWTs valid.
-*   **Single-Tenant "Vault" vs. Heavy DBs**: Instead of a bloated Postgres/MySQL user table with RBAC rules designed for SaaS, the local mode uses a single highly-encrypted `admin.json` vault file. Secure, portable, and zero-dependency.
+*   **本地零摩擦 vs 远程铁壁**：WebUI 自动识别 `localhost` 回环免登录；一经隧道或 LAN 暴露即强制密码保护。
+*   **零信任 WebSocket 网关**：竞品常只保护 HTTP，WebSocket（实时日志/语音）裸奔。Myrm `WsAuthMiddleware` 在 session cookie 缺失或无效时物理拒绝握手（HTTP 403）。
+*   **即时会话驱逐**：改密码或切换保护时自动轮换全局 HMAC Session Signing Key，瞬间作废所有会话（类似失窃设备一键熔断）；竞品旧 JWT 常仍有效。
+*   **单租户 Vault vs 重型 DB**：本地模式用单一高加密 `admin.json`，非 SaaS 式 Postgres/MySQL + RBAC 膨胀；安全、可移植、零依赖。
 
 ## 多 Agent 编排：确定性调度（vs Hermes / OpenClaw）
 
@@ -152,13 +157,13 @@ Myrm 以奥卡姆剃刀式 WebUI 安全方案，解决本地优先部署的「�
 | **Budget Control** | ⚠️ Token limit only | **4D Budget** (Tokens, USD, Time, Descendants) | Perfect predictability for cost and execution depth. Zero bill shock. |
 | **Execution Verification** | ❌ None | **CompletionGuard** (Evidence-based) | Children must prove task completion with actual STDOUT/STDERR, not just say "I'm done". |
 
-**结论： Myrm replaces the "prompt and pray" multi-agent paradigm with deterministic software engineering patterns. Your multi-agent pipelines execute reliably, securely, and within budget every single time.**
+**结论：Myrm 用确定性软件工程模式取代「提示并祈祷」式多 Agent。流水线每次可靠、安全、在预算内执行。**
 
 ## 智能并发路由 — 消除读写竞态（vs Hermes / OpenClaw）
 
-In a highly concurrent Agent sandbox, an LLM often hallucinates operations that can corrupt data, such as trying to "read file X and write to file X simultaneously" in a single parallel tool call batch. In competitor architectures, this causes dirty reads and catastrophic write overwrites.
+高并发 Agent 沙箱中，LLM 常幻觉出破坏数据的操作，例如在同一并行工具批次中「同时读文件 X 又写文件 X」。竞品架构会导致脏读与灾难性写覆盖。
 
-Myrm introduces the **Smart Concurrency Router**, which actively intercepts and re-routes conflicting operations at the middleware layer.
+Myrm 引入 **智能并发路由**，在中间件层主动拦截并重路由冲突操作。
 
 ### Myrm 的领先之处
 
@@ -169,13 +174,13 @@ Myrm introduces the **Smart Concurrency Router**, which actively intercepts and 
 | **Lock Granularity** | ⚠️ Coarse path | ❌ None | **Deep directory & block-level fingerprinting** | Unrelated parallel tasks keep running at max speed |
 | **Performance Overhead** | O(N) linear scan | N/A | **O(1) path lock resolution** | Zero latency penalty for the engine |
 
-**结论： Myrm completely eliminates file-level race conditions caused by LLM hallucination. Conflicting batches are gracefully unrolled into a sequential queue with zero performance penalty on unrelated parallel tasks.**
+**结论：Myrm 彻底消除 LLM 幻觉导致的文件级竞态。冲突批次优雅展开为顺序队列，无关并行任务零性能损失。**
 
 ## 无头 Agent：零死锁后台任务（vs Hermes / OpenClaw）
 
-In headless environments like SaaS scheduled jobs (Cron), batch processing, or background automation, an Agent runs without human supervision. If the LLM hallucinates and decides to call a human-in-the-loop (HITL) tool (like asking a question or rendering a UI form), competitors' architectures will hang indefinitely waiting for user input that will never arrive. This causes catastrophic deadlocks and burns massive compute resources.
+SaaS 定时任务（Cron）、批处理或后台自动化等无头环境中，Agent 无人监督运行。若 LLM 幻觉调用人工介入（HITL）工具（如提问或渲染 UI 表单），竞品会无限等待永不到来的用户输入，灾难性死锁并烧穿算力。
 
-Myrm introduces a robust **Tag-Based Environment Degradation** architecture at the lowest framework layer.
+Myrm 在框架最底层提供 **基于标签的环境降级** 架构。
 
 ### Myrm 的领先之处
 
@@ -186,13 +191,13 @@ Myrm introduces a robust **Tag-Based Environment Degradation** architecture at t
 | **Ecosystem Compatibility**| ❌ Needs manual wrapper for each tool | ❌ None | **Works with any MCP Tool natively** | Any third-party MCP tool tagged `interactive` is automatically isolated. |
 | **Architectural Layer** | ⚠️ Server-level hack | ❌ None | **Core Harness / Agent engine layer** | The protection travels with the engine, whether deployed locally, Desktop, or SaaS. |
 
-**结论： Myrm ensures bullet-proof reliability for unattended workflows. By physically stripping interactive tools from the LLM's context during background tasks, it eliminates the root cause of Cron job deadlocks before the LLM can even attempt to make a mistake.**
+**结论：Myrm 保证无人值守工作流防弹可靠。后台任务物理剥离交互工具，在 LLM 犯错前根除 Cron 死锁根因。**
 
 ## 极端场景防爆（vs Hermes / OpenClaw）
 
-In autonomous multimodal scenarios (e.g., Computer Use) or very long sessions, agents inevitably hit the limits of context windows, causing frequent OOM crashes, dropped API connections, or total memory loss in competitors. 
+自主多模态场景（如 Computer Use）或超长会话中，Agent 必然撞上下文窗口上限；竞品频繁 OOM、断连或记忆全丢。
 
-Myrm implements a **4-layer Extreme Anti-Explosion Moat**, ensuring that your agent never crashes and never loses the conversation context.
+Myrm 实现 **四层极端防爆护城河**，确保 Agent 不崩溃、对话上下文不丢。
 
 ### Myrm 的领先之处
 
@@ -203,7 +208,7 @@ Myrm implements a **4-layer Extreme Anti-Explosion Moat**, ensuring that your ag
 | **Media Stripping** | Treats all images equally; long-tail screenshots from past turns quickly bloat the context window. | **Sliding Visual Evidence Window** | Retains only the last 2 turns of images for reasoning, stripping large Base64 encodings from all older history. Drastically saves tokens and prolongs context life. |
 | **Tail Budget Protection** | Hardcoded turn truncation (e.g., keep last N messages) often chops off critical working memory. | **Token Budget Reservation** | Strict reservation (e.g., 20% of max context tokens) exclusively for the most recent tail, guaranteeing active tasks are never squeezed out. |
 
-**结论： Myrm ensures a silky-smooth experience even under extreme loads. You save massive amounts of tokens by stripping historical images, and you never have to worry about the agent suddenly dying and wiping your hard work.**
+**结论：极端负载下仍丝滑。剥离历史图片大幅省 Token，不必担心 Agent 突然崩溃抹掉劳动成果。**
 
 ## 网页搜索 + 网页抓取 — 双引擎（vs Hermes / OpenClaw / Claude Code）
 
@@ -231,8 +236,8 @@ Myrm 将 **web_search** 与 **web_fetch** 作为一等内置工具。竞品要�
 | **OpenCode** | Exa/Parallel cloud only | Single HTTP + Turndown (full page) | Requires API keys; no local filter pipeline |
 | **Claude Code** | Hosted web_search | Hosted web_fetch | No self-host, no engine choice, opaque filtering |
 
-:::note Honest boundary
-Hermes `web_extract` appears "zero-config" because it uses LLM summarization instead of local embedding — but that costs tokens per page. Myrm's web_fetch works locally with DOM pruning out of the box; fetch_and_extract adds vector+Reranker when configured. SSRF protections are comparable — Myrm's edge is the **filter pipeline**, not basic security.
+:::note 诚实边界
+Hermes `web_extract` 看似「零配置」因用 LLM 摘要而非本地 embedding — 但每页消耗 token。Myrm `web_fetch` 开箱本地 DOM 修剪；配置后可 `fetch_and_extract` 向量+Reranker。SSRF 防护相当 — Myrm 优势在 **过滤流水线**，非基础安全。
 :::
 
 ### 迁移收益
@@ -247,30 +252,30 @@ Hermes `web_extract` appears "zero-config" because it uses LLM summarization ins
 
 ## vs Hermes Agent (v0.15 Velocity) — 多 Agent 平台
 
-Hermes v0.15 (Velocity Release, 2026-05-28) refactored its core loop from 16k to 3.8k lines across 14 modules, added Kanban Swarm orchestration (104 PRs), rewrote session_search to be LLM-free (~20ms, from ~30s), and introduced Promptware defense (3 chokepoints with ~15 Brainworm/C2 patterns). A significant "pay down tech debt" release.
+Hermes v0.15（Velocity，2026-05-28）将核心循环从 16k 行重构为 14 模块共 3.8k 行，新增 Kanban Swarm 编排（104 PR），`session_search` 重写为无 LLM（~20ms，原 ~30s），引入 Promptware 防御（3 卡口、~15 Brainworm/C2 模式）。显著「还技术债」版本。
 
 ### Myrm 的领先之处
 
-- **Event-driven Kanban** vs Hermes' polling — instant task dispatch with heartbeat + zombie detection
-- **6-rule diagnostic engine** with severity auto-escalation (warning→error→critical) — detects stranded tasks, repeated failures, stuck blocked, dead dependencies, triage stalls, and block→unblock cycling (O(1) per-card evaluation vs Hermes' O(N) event scan)
-- **6 orchestration modes** (Spawn/Chain/DAG/Batch/Verified/Swarm Fission) vs v0.15's single Swarm pattern
-- **CompletionGuard** with physical evidence verification — Hermes has no completion verifier
-- **Pipeline template wizard** with discovery questions + role auto-matching — Hermes' `hermes kanban swarm` is a fixed CLI command
-- **35+ messaging channels** (25 with output hints) vs ~23 channels (19 with platform hints) — Myrm covers DingTalk, Teams, GoogleChat, LINE, IRC, iMessage, Voice, Webhook, Zalo that Hermes lacks
-- **8 memory types** with knowledge graph vs 2,200-character flat memory (MEMORY.md + USER.md with § delimiter)
-- **Web Search + Web Fetch dual engine** — 7 search engines with BM25/Reranker filtering + 3-tier local fetch with DOM pruning ($0/month) vs Hermes' cloud API passthrough + Firecrawl/LLM web_extract
-- **FTS5 + Qdrant hybrid search** with scope/lineage filtering — Hermes v0.15 rewrote to local-only text search (~20ms, but no semantic retrieval)
-- **108-pattern security scanning** vs Hermes threat_patterns.py (~20 patterns in 3 scopes)
-- **22+ middleware pipeline** vs 8-layer fixed stack — Myrm's middleware architecture is independently configurable per component
-- **4-layer model discipline** (CORE→ENFORCEMENT→FAMILY→ESCALATION) vs Hermes' model-gated text blocks — Myrm includes ESCALATION_CONTRACT for automatic model self-upgrade
-- **GUI-first** with Tauri desktop vs CLI-only (v0.15 added TUI multi-session, still terminal-bound)
-- **4D budget control** (Token + USD + time + max descendants) — Hermes v0.15 added per-task timeout only (1 dimension)
-- **3-level intelligent model routing** — Hermes v0.15 allows manual per-task model selection (no auto-routing)
-- **6-layer Prompt Cache** vs Hermes' `system_and_3` strategy (4 breakpoints, Anthropic-only) — Myrm supports 5+ providers with cache break detection and anti-thrashing
+- **事件驱动看板** vs Hermes 轮询 — 即时分派 + 心跳 + 僵尸检测
+- **6 条诊断规则** + 严重度自动升级（warning→error→critical）— 检测滞留 Ready、重复失败、长期 Blocked、死依赖、Triage 停滞、Block↔Unblock 循环（每卡 O(1) vs Hermes O(N) 事件扫描）
+- **6 种编排模式**（Spawn/Chain/DAG/Batch/Verified/Swarm Fission）vs v0.15 单一 Swarm
+- **CompletionGuard** 物理证据验证 — Hermes 无完成验证器
+- **流水线模板向导**（发现问题 + 角色自动匹配）— Hermes `hermes kanban swarm` 为固定 CLI
+- **35+ 消息渠道**（25 带输出提示）vs ~23（19 带平台提示）— Myrm 覆盖钉钉、Teams、Google Chat、LINE、IRC、iMessage、Voice、Webhook、Zalo 等 Hermes 缺失项
+- **8 类记忆** + 知识图谱 vs 2,200 字符扁平记忆（MEMORY.md + USER.md § 分隔）
+- **网页搜索 + 抓取双引擎** — 7 引擎 BM25/Reranker + 三层本地抓取 DOM 修剪（$0/月）vs Hermes 云 API 透传 + Firecrawl/LLM web_extract
+- **FTS5 + Qdrant 混合搜索** + 作用域/谱系过滤 — Hermes v0.15 仅本地文本（~20ms，无语义检索）
+- **108 模式安全扫描** vs Hermes threat_patterns.py（3 作用域 ~20 模式）
+- **22+ 中间件流水线** vs 8 层固定栈 — Myrm 各组件可独立配置
+- **四层模型纪律**（CORE→ENFORCEMENT→FAMILY→ESCALATION）vs Hermes 模型门控文本块 — Myrm 含 ESCALATION_CONTRACT 自动模型自升级
+- **GUI 优先** + Tauri 桌面 vs 仅 CLI（v0.15 加 TUI 多会话，仍终端绑定）
+- **4D 预算**（Token + USD + 时间 + 最大子代）— Hermes v0.15 仅每任务超时（1 维）
+- **三级智能模型路由** — Hermes v0.15 仅手动每任务选模型（无自动路由）
+- **6 层 Prompt Cache** vs Hermes `system_and_3`（4 断点、仅 Anthropic）— Myrm 支持 5+ 提供商 + 缓存断裂检测 + 防抖动
 
-### Skill Evolution — True Self-Improving Agent
+### 技能进化 — 真·自进化 Agent
 
-Myrm's Skill Evolution System (42 modules, native built-in) implements all engineerable concepts from Self-Improving Agent research. Hermes' "self-evolution" is an external CLI wrapper around a third-party AGPL-3.0 tool (`darwinian_evolver`), not a native capability.
+Myrm 技能进化（42 模块、原生内置）实现 Self-Improving Agent 研究可工程化概念。Hermes「自进化」是第三方 AGPL `darwinian_evolver` 的外部 CLI 包装，非原生能力。
 
 | 能力 | Hermes | Myrm |
 |------------|:------:|:----:|
@@ -294,11 +299,11 @@ Myrm's Skill Evolution System (42 modules, native built-in) implements all engin
 | Prebuilt skill upgrade protection | ❌ Silent overwrite | ✅ **Three-way hash** — user edits preserved, "Update Available" badge |
 | Daily work journal | ❌ | ✅ 6-source aggregated daily timeline with date navigation |
 
-**vs ECC (Everything Claude Code) `continuous-learning-v2`:** ECC distills atomic "instinct" YAML habits in the background — powerful for power users, but habits tend to apply globally without a per-agent GUI gate. Myrm ships the same *idea* (idle distillation → skill proposals) with an **Insights Inbox** in Agent settings: proposals stay drafts until you approve; dismiss persists a negative exemplar so the agent stops re-proposing; built-in agents are read-only in the inbox. For MCP, Myrm now ships **GUI pre-enable scan + verify + runtime fail-closed** (see MCP Security Gate below) — ahead of Hermes log-only flows; we still do **not** ship ECC's `/aside` fork chats, `/context-budget` tree-map, or 102-hook full static packs (roadmap #6).
+**vs ECC (Everything Claude Code) `continuous-learning-v2`：** ECC 在后台蒸馏原子化「本能」YAML 习惯 — 对高级用户强大，但习惯易全局生效且无 per-agent GUI 门控。Myrm 提供相同 *思路*（空闲蒸馏 → 技能提案）+ Agent 设置中的 **Insights Inbox**：提案保持草稿直至你批准；驳回写入负例以防重复提案；内置 Agent 在 inbox 只读。MCP 方面 Myrm 已提供 **GUI 启用前扫描 + 验证 + 运行时 fail-closed**（见下文 MCP 安全门）— 领先 Hermes 仅日志流；我们**尚未**提供 ECC 的 `/aside` 分叉聊天、`/context-budget` 树图或 102-hook 全量静态包（roadmap #6）。
 
-### Skill Module Architecture — 8-Dimension Advantage
+### 技能模块架构 — 八维优势
 
-Beyond evolution, Myrm's skill system architecture is fundamentally more sophisticated across all dimensions:
+除进化外，Myrm 技能系统架构在各维度上更成熟：
 
 | 领域 | Hermes | Myrm | 用户收益 |
 |------|--------|------|-------------|
@@ -310,7 +315,7 @@ Beyond evolution, Myrm's skill system architecture is fundamentally more sophist
 | Curator Governance | Coarse-grained skip (foreground skills never managed → list bloat) | **Non-destructive archive** (always recoverable) + pinned + evolution_locked | Skills stay organized, important ones stay protected |
 | Missing Dependency Handling | Load full doc then append setup note | **XML summary shows reason at L0/L1** (save tokens) + 3-level fallback degraded docs | Know instantly what's missing, fix it fast |
 
-### Migration from Hermes (Skill System)
+### 从 Hermes 迁移（技能系统）
 
 | Hermes Skill Feature | Myrm Equivalent | 体验 |
 |----------------------|-----------------|------------|
@@ -323,18 +328,18 @@ Beyond evolution, Myrm's skill system architecture is fundamentally more sophist
 | `skill_provenance` ContextVar | pinned + evolution_locked + non-destructive archive | ⬆️ Upgrade |
 | 176 skills (quantity) | 28 precision skills (quality + structured contracts) | ↔️ Tradeoff (quality vs quantity) |
 
-**结论： 7 upgrades, 1 tradeoff, 0 downgrades. Users gain intelligent security, secure config management, and organized skill lifecycle with zero capability loss.**
+**结论：7 项升级、1 项权衡、0 项降级。用户获得智能安全、安全配置管理与有序技能生命周期，零能力损失。**
 
 ## vs MiniMax Mavis — 多 Agent 团队平台
 
-MiniMax Mavis is a closed-source SaaS multi-agent system with Leader-Worker-Verifier architecture, available exclusively through Lark (Feishu) integration.
+MiniMax Mavis 是闭源 SaaS 多 Agent 系统，采用 Leader-Worker-Verifier 架构，仅通过飞书（Lark）集成提供。
 
-### What Mavis Does Well
+### Mavis 做得好的地方
 
-- **Leader-Worker-Verifier pattern** — clear separation of planning, execution, and verification roles
-- **IM-native experience** — multi-agent collaboration directly within Lark chat
-- **"Instant reply" with background execution** — acknowledges the user immediately while tasks run asynchronously
-- **Context isolation** between workers — each worker operates independently
+- **Leader-Worker-Verifier 模式** — 规划、执行、验证角色清晰分离
+- **IM 原生体验** — 飞书聊天内直接多 Agent 协作
+- **「即时回复」+ 后台执行** — 立即确认用户，任务异步运行
+- **Worker 间上下文隔离** — 各 Worker 独立运行
 
 ### Myrm 的领先之处
 
@@ -353,7 +358,7 @@ MiniMax Mavis is a closed-source SaaS multi-agent system with Leader-Worker-Veri
 | Cost Efficiency | Users report "tokens are burning" | DelegationBudget + intelligent routing saves 60-80% | Zero cost anxiety |
 | Auditability | Closed-source, not auditable | MIT open source + 14 EventKind audit trail | Enterprise compliance |
 
-### Migration from Mavis to Myrm
+### 从 Mavis 迁移到 Myrm
 
 | Mavis Feature | Myrm Equivalent | 体验 |
 |---------------|-----------------|------------|
@@ -366,11 +371,11 @@ MiniMax Mavis is a closed-source SaaS multi-agent system with Leader-Worker-Veri
 | Worker context isolation | CoW workspace_isolation + ArtifactVault | ⬆️ Upgrade (engineering-grade) |
 | Token display | 4D budget + real-time tracking + alerts | ⬆️ Upgrade |
 
-**结论： 7 upgrades, 1 equivalent, 0 downgrades. Users gain open-source data sovereignty, model freedom, and multi-platform access with zero capability loss.**
+**结论：7 项升级、1 项持平、0 项降级。用户获得开源数据主权、模型自由与多平台接入，零能力损失。**
 
 ## vs Claude Code — Fork 子 Agent 与 Prompt Cache
 
-Claude Code uses a "Fork Subagent" design with byte-level prompt prefix alignment to reuse KV Cache, reducing sub-agent costs by up to 90%.
+Claude Code 采用「Fork 子 Agent」设计，字节级 prompt 前缀对齐以复用 KV Cache，子 Agent 成本最高可降 90%。
 
 ### Myrm 的领先之处
 
@@ -387,7 +392,7 @@ Claude Code uses a "Fork Subagent" design with byte-level prompt prefix alignmen
 | Cost Budget | None | **4-dimension** (Token + USD + time + descendants) | Precise cost management |
 | Observability | CLI text | **NDJSON metrics + Cache Metrics Collector + 5-level monitoring** | Full-stack cache visibility |
 
-### Migration from Claude Code to Myrm
+### 从 Claude Code 迁移到 Myrm
 
 | Claude Code Feature | Myrm Equivalent | 体验 |
 |---------------------|-----------------|------------|
@@ -398,11 +403,11 @@ Claude Code uses a "Fork Subagent" design with byte-level prompt prefix alignmen
 | CLI interface | Web GUI + Tauri Desktop + SaaS | ⬆️ Upgrade |
 | Anthropic-only models | 100+ models with intelligent routing | ⬆️ Upgrade |
 
-**结论： 6 upgrades, 0 equivalent, 0 downgrades. Myrm delivers superior cache economics with 3 unique capabilities (Break Detection, Anti-Thrashing, Resume-Aware) that Claude Code completely lacks.**
+**结论：6 项升级、0 项持平、0 项降级。Myrm 缓存经济性更强，具备 Claude Code 完全缺失的三项能力（断裂检测、防抖动、Resume 感知）。**
 
-### Claude Code 2.1.154~2.1.157 Harness Upgrade
+### Claude Code 2.1.154~2.1.157 Harness 升级
 
-With Opus 4.8, Claude Code introduced `/effort` (6-level reasoning budget), Dynamic Workflows, lean system prompt, and enhanced `--resume`. Here's how Myrm compares:
+随 Opus 4.8，Claude Code 推出 `/effort`（6 级推理预算）、Dynamic Workflows、精简 system prompt 与增强 `--resume`。Myrm 对比如下：
 
 | Feature | Claude Code | Myrm | 结果 |
 |---------|------------|------|--------|
@@ -417,11 +422,11 @@ With Opus 4.8, Claude Code introduced `/effort` (6-level reasoning budget), Dyna
 | Cost control | Manual effort selection | Auto-routing + GoalBudget + DelegationBudget + token_economics | ⬆️ Automated |
 | Model support | Claude-only | 100+ models with intelligent routing | ⬆️ Model freedom |
 
-**结论： 10 upgrades, 0 equivalent, 0 downgrades.**
+**结论：10 项升级、0 项持平、0 项降级。**
 
-### Dynamic Workflows — Real-World Pain Points
+### 动态工作流 — 真实痛点
 
-Based on user feedback from Claude Code's Dynamic Workflows feature (2026-05 data):
+基于 Claude Code Dynamic Workflows 用户反馈（2026-05 数据）：
 
 | User-Reported Issue | Root Cause | Myrm Solution |
 |---------------------|-----------|---------------|
@@ -435,13 +440,13 @@ Based on user feedback from Claude Code's Dynamic Workflows feature (2026-05 dat
 | "Approval requests get lost in long terminal logs" | CLI-only, no visual anchors | **Visual HITL Approval** — One-click jump from Dashboard to Approval Card |
 | "Hard to review what the agent is doing" | Raw JSON arguments in terminal | **Polymorphic Views** — Syntax-highlighted diffs for code, terminal UI for shell |
 
-**Key architectural difference**: Claude Code DW generates JavaScript orchestration scripts at runtime with keyword triggers (non-deterministic, can fail or diverge). Myrm offers a **dual-path** strategy: declarative DAG plans (deterministic, verifiable before execution) for production workloads, plus an optional **Dynamic Workflow** mode (manual toggle, Python PTC sandbox, deterministic `workflow_id`, SQLite event sourcing for idempotent sub-agent replay) for ad-hoc parallel scripting — all with a **first-class Human-in-the-Loop (HITL) GUI**.
+**关键架构差异**：Claude Code DW 运行时生成带关键词触发的 JavaScript 编排脚本（非确定性，可失败或偏离）。Myrm **双路径**：生产负载用声明式 DAG（确定性、执行前可验证）；可选 **Dynamic Workflow**（手动开关、Python PTC 沙箱、确定性 `workflow_id`、SQLite 事件溯源实现子 Agent 幂等重放）用于临时并行脚本 — 均配 **一等 HITL GUI**。
 
 ## vs Scrapling & BrowserUse — 全自主混合浏览器引擎
 
-While typical AI agents use standard Playwright/Selenium wrappers (like BrowserUse) that crash constantly on dynamic pages, and traditional scraper frameworks (like Scrapling) require developers to manually write code to bypass anti-bot measures, Myrm Agent introduces a **Fully Autonomous Hybrid Browser Engine**.
+典型 AI Agent 用 Playwright/Selenium 包装（如 BrowserUse）在动态页频繁崩溃；传统抓取框架（如 Scrapling）需开发者手写反爬代码。Myrm Agent 提供 **全自主混合浏览器引擎**。
 
-### What Scrapling & BrowserUse Do Well
+### Scrapling & BrowserUse 做得好的地方
 
 - **BrowserUse**: Wraps Playwright for LLMs to click elements, but relies on slow LLM reasoning every time a locator fails.
 - **Scrapling**: Provides powerful stealth tools (`camoufox` / `curl_cffi` HTTP fetching) but requires developers to manually wire them into a crawler script.
@@ -459,16 +464,16 @@ While typical AI agents use standard Playwright/Selenium wrappers (like BrowserU
 
 ### 迁移收益
 
-Users migrating from raw Playwright automation or other Agent frameworks gain:
+从原生 Playwright 或其他 Agent 框架迁移的用户获得：
 - **Zero-Crash UI Navigation**: End the frustration of "Element not found" errors ruining a 20-minute agent task.
 - **Blazing Fast Data Retrieval**: Don't burn memory on full Chromium instances for simple text extraction; Myrm degrades to HTTP seamlessly.
 - **Production Grade Reliability**: Handles CAPTCHAs and Cloudflare invisibly.
 
 ## 凭证库 — 密码与 2FA 永不进入 LLM
 
-When agents automate login flows, the default pattern in most frameworks is catastrophic: the model generates the password string and passes it through `type` or `fill` tool arguments. That value persists in chat history, MCP logs, and retry buffers.
+多数框架在自动化登录时的默认模式是灾难性的：模型生成密码字符串并通过 `type`/`fill` 工具参数传递，该值残留在聊天历史、MCP 日志与重试缓冲区。
 
-Myrm's **Form Credential Vault** separates *knowing* a credential from *using* it:
+Myrm **表单凭证库** 将「知道凭证」与「使用凭证」分离：
 
 | Layer | What happens |
 |-------|--------------|
@@ -485,21 +490,21 @@ Myrm's **Form Credential Vault** separates *knowing* a credential from *using* i
 | **Management UI** | ❌ Env vars / chat | Extension popup | ✅ WebUI Settings panel | One place for all automation credentials |
 | **Security stack integration** | ⚠️ Post-hoc patches | Standalone extension | ✅ 6-layer defense + leak detection + audit | Vault is part of enterprise security, not a bolt-on |
 
-### Honest Comparison with FSB
+### 与 FSB 的诚实对比
 
-FSB pioneered the vault-boundary pattern for browser automation (label reference → extension decrypts → DOM fill). Myrm adopts the **same security principle** and extends it to **desktop Computer Use**, **native TOTP**, and **unified product GUI** — without requiring a separate Chrome extension. FSB still leads on payment-card-specific APIs (`use_payment_method`); Myrm covers password fields and 2FA today.
+FSB 首创浏览器自动化的库边界模式（标签引用 → 扩展解密 → DOM 填充）。Myrm 采用 **相同安全原则**，并扩展到 **桌面 Computer Use**、**原生 TOTP** 与 **统一产品 GUI** — 无需独立 Chrome 扩展。FSB 在支付卡 API（`use_payment_method`）仍领先；Myrm 今日覆盖密码字段与 2FA。
 
 ### 迁移收益
 
-- **From Hermes / OpenClaw**: Stop pasting passwords into prompts; configure once in Settings.
-- **From FSB**: Same mental model (labels), plus desktop apps and TOTP in one workspace.
-- **For enterprise**: Combine vault with 12-dimension permissions, Merkle audit (calls logged, not secrets), and incognito sessions for sensitive runs.
+- **从 Hermes / OpenClaw**：别再往提示词里贴密码；在设置中配置一次即可。
+- **从 FSB**：相同心智模型（标签），外加桌面应用与 TOTP，同一工作区。
+- **企业场景**：凭证库 + 12 维权限 + Merkle 审计（记录调用、不记密钥）+ 无痕会话跑敏感任务。
 
 ## MCP 安全门 — 启用前先知风险
 
-Third-party MCP servers are a growing attack surface: poisoned tool descriptions, sensitive path access, and runtime tool injection can compromise an agent mid-conversation.
+第三方 MCP 服务器攻击面日益扩大：投毒工具描述、敏感路径访问、运行时工具注入可在对话中途危及 Agent。
 
-Myrm gates MCP **before** it reaches your workspace:
+Myrm 在 MCP **进入工作区之前** 设门：
 
 | Stage | What Myrm does | What you see | Typical competitors |
 |-------|----------------|--------------|---------------------|
@@ -507,18 +512,18 @@ Myrm gates MCP **before** it reaches your workspace:
 | **Save / enable** | High-risk requires ack + 4-step verify (static → OSV → connect → runtime) | Clear block or confirmed enable | Hermes: log only |
 | **Runtime** | Harness fail-closed disconnect | Poisoned MCP never joins the chat | OpenClaw: env filter only |
 
-**Honest scope**: Full 102-hook static rule packs are roadmap — this gate covers the real user path (Settings → enable → chat). Regression: harness + server API tests (21+ cases).
+**诚实范围**：完整 102-hook 静态规则包在 roadmap — 本门控覆盖真实用户路径（设置 → 启用 → 聊天）。回归：harness + server API 测试（21+ 用例）。
 
 ### 迁移收益
 
-- **From Hermes**: Stop discovering bad MCP only in logs — block or confirm in Settings first.
-- **From OpenClaw**: Env filtering is not enough; get pre-enable scan + runtime disconnect.
+- **从 Hermes**：别只在日志里发现坏 MCP — 先在设置中拦截或确认。
+- **从 OpenClaw**：环境过滤不够；要启用前扫描 + 运行时断开。
 
 ## Shell 命令可视化审批 — 允许前看清每条管道
 
-When an agent runs `curl … | bash`, a single monospace line hides which segment downloads code and which executes it.
+Agent 执行 `curl … | bash` 时，单行等宽字体隐藏了哪段下载、哪段执行。
 
-Myrm's **Shell Command Display** splits pipelines into spans with per-segment risk coloring — the same mental model OpenClaw users expect, enabled by default and wired into our 6-layer security stack.
+Myrm **Shell 命令展示** 将管道拆为带逐段风险着色的 span — 与 OpenClaw 用户心智模型一致，默认开启并接入六层安全栈。
 
 | 领域 | OpenClaw | Hermes | Myrm | User benefit |
 |------|----------|--------|------|--------------|
@@ -529,18 +534,18 @@ Myrm's **Shell Command Display** splits pipelines into spans with per-segment ri
 | **Sub-agent cards** | ❌ | ❌ | ✅ Spans flow to delegate approvals | Same clarity for spawned workers |
 | **Workspace context** | ❌ | ❌ | ✅ Shows workspace root (EN/ZH) | Know where the shell runs |
 
-**Honest limits**: Commands over 128KB truncate parsing (shown in UI). Production PyPI installs need a harness release; local `./myrm dev` uses editable harness (45 harness + 33 frontend approval tests).
+**诚实限制**：超过 128KB 的命令截断解析（UI 提示）。生产 PyPI 安装需 harness 发版；本地 `./myrm dev` 用 editable harness（45 harness + 33 前端审批测试）。
 
 ### 迁移收益
 
-- **From OpenClaw**: Familiar segmented shell view — plus 12-dimension permissions, leak detection, and Merkle audit.
-- **From Hermes / Claude Code**: Stop approving blind one-liners — see pipe segments and risk before one click.
+- **从 OpenClaw**：熟悉的分段 shell 视图 — 外加 12 维权限、泄漏检测与 Merkle 审计。
+- **从 Hermes / Claude Code**：别盲批单行命令 — 一键前看清管道段与风险。
 
 ## vs MemPalace — AI 记忆系统（14.9K+ Stars）
 
-MemPalace is a standalone AI memory system using architectural metaphors (Wing/Room/Closet/Drawer) with a "store everything verbatim" philosophy, achieving 96.6% R@5 on LongMemEval. It operates as an MCP tool that external AI assistants can call.
+MemPalace 是独立 AI 记忆系统，用 Wing/Room/Closet/Drawer 建筑隐喻，奉行「逐字存储一切」，LongMemEval 达 96.6% R@5。作为 MCP 工具供外部 AI 助手调用。
 
-### What MemPalace Does Well
+### MemPalace 做得好的地方
 
 - **Verbatim storage** — stores raw conversations without lossy summarization
 - **Architectural organization** — Wing/Room/Closet/Drawer hierarchy gives AI a "navigation map"
@@ -567,7 +572,7 @@ MemPalace is a standalone AI memory system using architectural metaphors (Wing/R
 | Platform | Memory library only | **Complete AI Agent platform** (100+ tools, 35+ channels, Sub-Agent, Goals) | Memory is part of a full workspace |
 | Data Storage | ChromaDB (known HNSW corruption issues) | **Qdrant + SQLite** (production-grade) | No manual HNSW repair needed |
 
-### Migration from MemPalace to Myrm
+### 从 MemPalace 迁移到 Myrm
 
 | MemPalace Feature | Myrm Equivalent | 体验 |
 |--------------------|-----------------|------------|
@@ -582,13 +587,13 @@ MemPalace is a standalone AI memory system using architectural metaphors (Wing/R
 | `mempalace search` | Agent-integrated memory recall with source citations | ⬆️ Upgrade |
 | Hallway connections | Knowledge graph with CTE traversal | ⬆️ Upgrade |
 
-**结论： 10 upgrades, 0 equivalent, 0 downgrades. MemPalace users gain a complete AI agent platform where memory is natively integrated — not an external add-on — with 12 capabilities MemPalace doesn't offer (intelligent forgetting, GUI management, safety scanning, preference tracking, health diagnostics, and more).**
+**结论：10 项升级、0 项持平、0 项降级。MemPalace 用户获得记忆原生集成的完整 Agent 平台（非外挂），并多出 12 项 MemPalace 不具备的能力（智能遗忘、GUI 管理、安全扫描、偏好追踪、健康诊断等）。**
 
 ## vs Claude Office Visualizer — CLI 状态仪表盘
 
-Claude Office Visualizer renders Claude Code CLI status as a pixel-art office animation, showing agent state, context usage, and task progress through a standalone Next.js + PixiJS application. It addresses a real pain point: CLI users can't see what the agent is doing without staring at terminal output.
+Claude Office Visualizer 用像素风办公室动画渲染 Claude Code CLI 状态，通过独立 Next.js + PixiJS 应用展示 Agent 状态、上下文用量与任务进度。解决 CLI 用户不盯终端就看不见 Agent 在干啥的痛点。
 
-### What Claude Office Does Well
+### Claude Office 做得好的地方
 
 - **Visual agent metaphor** — pixel characters that walk, think, and interact based on real CLI state
 - **12 whiteboard modes** — multiple visualization layouts for different data views
@@ -596,9 +601,9 @@ Claude Office Visualizer renders Claude Code CLI status as a pixel-art office an
 - **Attention system** — screen flash notifications when the agent needs user input
 - **Docker deployment** — easy self-hosted setup
 
-### Why Myrm Doesn't Need This
+### 为何 Myrm 不需要这个
 
-Myrm is a **GUI-first** application. The problems Claude Office Visualizer solves — "I can't see agent state" and "CLI output is boring" — **don't exist** in Myrm's architecture.
+Myrm 是 **GUI 优先** 应用。Claude Office Visualizer 要解决的「看不见 Agent 状态」「CLI 输出无聊」— 在 Myrm 架构中 **不存在**。
 
 | 领域 | Claude Office Visualizer | Myrm | 用户收益 |
 |------|--------------------------|------|-------------|
@@ -612,7 +617,7 @@ Myrm is a **GUI-first** application. The problems Claude Office Visualizer solve
 | Mobile | ❌ Desktop-only (PixiJS) | ✅ PWA + 35+ messaging channels | Monitor from anywhere |
 | Bundle Cost | +~200KB (PixiJS engine) | **0KB** extra (SVG vector rendering) | No performance penalty |
 
-### Migration from Claude Office Visualizer
+### 从 Claude Office Visualizer 迁移
 
 | Claude Office Feature | Myrm Equivalent | 体验 |
 |-----------------------|-----------------|------------|
@@ -623,11 +628,11 @@ Myrm is a **GUI-first** application. The problems Claude Office Visualizer solve
 | Tour guide | EmptyChat + SamplePrompts | ↔️ Equivalent (different product UX) |
 | Docker deployment | Tauri/Web/SaaS (3 deployment modes) | ⬆️ Upgrade |
 
-**结论： 5 upgrades, 1 equivalent, 0 downgrades. Users move from a separate observation window to a fully integrated GUI with precise data, interactive controls, and a complete agent platform.**
+**结论：5 项升级、1 项持平、0 项降级。用户从独立观察窗口进入数据精准、可交互、完整 Agent 平台的一体化 GUI。**
 
 ## vs Coze 3.0 / Lobster / Vercel v0 — 产物部署与只读链接（Sites 2.0）
 
-Coze keeps projects inside its ecosystem; Lobster excels at public static links but not Vercel deploy from an agent workspace; v0 targets developers building with AI. Myrm targets **GUI users who want a shareable result from chat artifacts**, not a separate site builder.
+Coze 将项目锁在生态内；Lobster 擅长公开静态链但非从 Agent 工作区部署 Vercel；v0 面向用 AI 开发的开发者。Myrm 面向 **希望从聊天产物获得可分享结果的 GUI 用户**，非独立建站工具。
 
 | 维度 | Coze 3.0 | Lobster | Vercel v0 | Myrm |
 |-----------|----------|---------|-----------|------|
@@ -637,15 +642,15 @@ Coze keeps projects inside its ecosystem; Lobster excels at public static links 
 | Multi-file HTML | Varies | Strong directory share | Often single-page | **Same bundle as deploy**; trailing-slash for css/js |
 | Lock-in | Closed hosting | Subscription walls on some tiers | Vercel account | **Open** — Local BYOK or sandbox platform token |
 
-**What you get**: Landing page, report, or mini-app from chat → **~30s Deploy URL** or **instant read-only Link** for reviewers.
+**你将获得**：聊天产物 → 落地页/报告/迷你应用 → **~30s 部署 URL** 或 **即时只读 Link** 供审阅。
 
-**Honest limits**: No share revoke/share-code UI yet; long-term public sites should use Deploy + your domain; pure `code` artifacts must be exported as `html` first (preflight + UI gates align).
+**诚实限制**：尚无分享撤销/分享码 UI；长期公开站点应用 Deploy + 自有域名；纯 `code` 产物须先导出为 `html`（预检 + UI 门控一致）。
 
 ## vs Codex (OpenAI) — Appshots 与 /goal GA
 
-Codex recently shipped two flagship features: **Appshots** (window capture + text extraction via ⌘⌘) and **/goal mode GA** (long-running autonomous task execution). Here's how Myrm compares:
+Codex 近期发布两大旗舰功能：**Appshots**（⌘⌘ 窗口捕获 + 文本提取）与 **/goal mode GA**（长时间自主任务）。Myrm 对比如下：
 
-### Appshots (Window Capture + Text Extraction)
+### Appshots（窗口捕获 + 文本提取）
 
 | 维度 | Codex | Myrm |
 |-----------|-------|------|
@@ -656,11 +661,11 @@ Codex recently shipped two flagship features: **Appshots** (window capture + tex
 | Safety | Computer Use permission | 5 blocked key combos + dangerous-text regex + **TOCTOU revalidation after approval delay** + GUI BBox approval card |
 | Visual approval | Text-only or iPhone push | **Inline BBox + AttentionBar + Tauri OS red frame** on the target monitor (screen-absolute coords, multi-monitor match) |
 
-**What you get**: When the agent wants to click your desktop, you see **where** — not just "Approve?" in text. On Tauri, a **system-level red box** stays visible even if the chat window is covered.
+**你将获得**：Agent 要点桌面时，你能看到 **位置** — 不仅是文字「批准？」。Tauri 上 **系统级红框** 在聊天窗口被挡时仍可见。
 
-**Honest limit**: OS overlay smoke requires the Tauri desktop app; browser-only WebUI gets inline + AttentionBar but not the OS frame.
+**诚实限制**：OS 叠加层冒烟需 Tauri 桌面端；仅浏览器 WebUI 有内联 + AttentionBar，无 OS 框。
 
-### /goal Mode
+### /goal 模式
 
 | 维度 | Codex /goal | Myrm Goal System |
 |-----------|------------|-----------------|
@@ -675,14 +680,14 @@ Codex recently shipped two flagship features: **Appshots** (window capture + tex
 | Frontend | Check progress | GoalControlPlane real-time panel + Execution Summary card |
 | Notification | Built-in | `channel_notify_tool` — Telegram/Slack/any channel |
 
-### Lock Screen & Remote
+### 锁屏与远程
 
 | 维度 | Codex | Myrm |
 |-----------|-------|------|
 | Background run | Mac lock screen (not lid close) | SaaS: naturally unaffected; Local: GracefulShutdownManager + checkpoint |
 | Mobile access | ChatGPT App | Web frontend reconnects anytime + SSE real-time push |
 
-### User Pain Points (from comments) Myrm Already Solves
+### 用户痛点（评论反馈）Myrm 已解决
 
 | Pain Point | Codex Status | Myrm Solution |
 |------------|-------------|---------------|
@@ -692,13 +697,13 @@ Codex recently shipped two flagship features: **Appshots** (window capture + tex
 | Ran 30h nonstop, no auto-stop | No limit | max_time / max_turns auto-pause |
 | Linux partial support | ⚠️ dmg-based | ✅ LinuxBackend native implementation |
 
-**结论： Codex's Appshots and /goal are simplified subsets of Myrm's existing capabilities. Myrm covers 3 platforms (vs Mac-only), offers DAG execution (vs linear), and provides enterprise-grade budget control and completion verification that Codex lacks entirely.**
+**结论：Codex 的 Appshots 与 /goal 是 Myrm 现有能力的简化子集。Myrm 覆盖 3 平台（vs 仅 Mac）、DAG 执行（vs 线性），并提供 Codex 完全缺失的企业级预算控制与完成验证。**
 
 ## vs 360 LobsterAI — 消费级 Agent 平台
 
-360 LobsterAI is a consumer-oriented agent product (backed by Zhou Hongyi) featuring manual model-tier selection, 100+ preset "expert lobsters," and a "coaching" onboarding flow.
+360 LobsterAI 是消费级 Agent 产品（周鸿祎背书），主打手动模型档位、100+ 预设「专家龙虾」与「教练式」上手流程。
 
-### Cost Intelligence
+### 成本智能
 
 | 维度 | 360 LobsterAI | Myrm | 用户收益 |
 |-----------|--------------|------|-------------|
@@ -710,7 +715,7 @@ Codex recently shipped two flagship features: **Appshots** (window capture + tex
 | Budget control | None | **3D×3-level auto budgeting + SSE alerts** | Never overspend |
 | Cost visibility | Basic stats | **15+ dimension dashboard + cache economics** | Full cost transparency per message |
 
-### Agent Templates
+### Agent 模板
 
 | 维度 | 360 LobsterAI | Myrm |
 |-----------|--------------|------|
@@ -720,16 +725,16 @@ Codex recently shipped two flagship features: **Appshots** (window capture + tex
 | Onboarding | Q&A "coaching" wizard | PresetAgent Gallery + conversational creation + per-agent suggestion prompts |
 | Anti-confusion | None | 5-layer anti-interference (Profile → Conditional Activation → Progressive Disclosure → Noise Gauge → Hybrid Retrieval) |
 
-### Multi-Channel Access
+### 多渠道接入
 
 | 维度 | 360 LobsterAI | Myrm |
 |-----------|--------------|------|
 | Channels | 3-4 (Feishu, DingTalk, App) | **35+ providers** (Telegram, Slack, Discord, WeChat, WhatsApp, email, and more) |
 | Per-channel binding | Not mentioned | Each channel/topic can bind a different agent |
 
-### Migration from 360 LobsterAI to Myrm
+### 从 360 LobsterAI 迁移到 Myrm
 
-Users migrating from 360 LobsterAI gain:
+从 360 LobsterAI 迁移的用户获得：
 - **Automatic cost optimization** — no need to manually select "lite" vs "full" mode
 - **Smarter routing** — system learns preferences and improves over time
 - **35+ channels** vs 3-4, with per-channel agent binding
@@ -739,9 +744,9 @@ Users migrating from 360 LobsterAI gain:
 
 ## 智能多平台分发与 OTA（vs Hermes / Cursor）
 
-When distributing desktop agents, traditional competitors force users to figure out their CPU architecture (Apple Silicon vs. Intel) or suffer from silent auto-update failures when CI/CD workflows overwrite release manifests.
+分发桌面 Agent 时，传统竞品迫使用户分辨 CPU 架构（Apple Silicon vs Intel），或 CI/CD 覆盖 release manifest 导致静默更新失败。
 
-Myrm introduces **Zero-Friction Distribution & Map-Reduce OTA Updates**:
+Myrm 提供 **零摩擦分发与 Map-Reduce OTA 更新**：
 
 | 领域 | Hermes / Cursor (Early) | Myrm | 用户收益 |
 |------|-------------------------|------|-------------|
@@ -750,13 +755,13 @@ Myrm introduces **Zero-Friction Distribution & Map-Reduce OTA Updates**:
 | **OTA Auto-Updates (CI/CD)**| Multi-platform CI jobs race to overwrite `latest.json`, breaking auto-updates for users on the slower-building OS. | **Map-Reduce CI Architecture** | Platforms build in isolation, artifact their manifests, and a final cloud job **merges all `latest.json` objects** securely. No race conditions. |
 | **Release Confidence** | "Upload and hope" | Automated sanity checks on the merged manifest before GitHub Release | Users never get stranded on broken auto-update channels. |
 
-**结论： Migrating users get a flawless day-one install experience and rock-solid background updates that just work.**
+**结论：迁移用户获得首日零摩擦安装体验与坚如磐石的后台更新。**
 
 ## 本地迁移向导（v1.4）
 
-Myrm provides a **GUI-first competitor migration wizard** on Local and Tauri deployments. It is honest about scope: five filesystem discovery sources, four preview lanes, and manual follow-up for integrations Hermes CLI might auto-wire.
+Myrm 在 Local 与 Tauri 部署提供 **GUI 优先竞品迁移向导**，范围诚实：五个文件系统发现源、四条预览通道，以及 Hermes CLI 可能自动接线但需手动的集成项。
 
-### Five discovery sources (Local / Tauri)
+### 五个发现源（Local / Tauri）
 
 | Source | What imports automatically | What you configure manually |
 |--------|---------------------------|----------------------------|
@@ -766,22 +771,22 @@ Myrm provides a **GUI-first competitor migration wizard** on Local and Tauri dep
 | **Cursor** | Rules, skills, memory fragments | IDE-specific paths vary by OS |
 | **Codex** | Config and memory exports where present | Plus subscription not migrated |
 
-### Four preview lanes
+### 四条预览通道
 
 1. **Persona → Agent** — SOUL-style instructions attach to a target agent profile.
-2. **Facts → Global memory** — structured memory rows with batch **rollback**.
+2. **事实 → 全局记忆** — 结构化记忆行，支持批量 **回滚**。
 3. **Skills → Review queue** — imported skills require approval before activation; optional **Agent binding**.
 4. **API keys → Opt-in** — never silently copied; user confirms each secret.
 
-### Workflow
+### 工作流
 
 `Scan → Preview (dry-run) → Confirm → Result` in Settings → Migration. Server-side `resolve_competitor_import_source()` forces the correct adapter (fixes OpenClaw `source=auto` mis-routing to Hermes).
 
-### GUI-First Seamless Skill Migration & Atomic Persistence
+### GUI 优先无缝技能迁移与原子持久化
 
-When users import third-party ecosystem skill bundles (like Hermes ZIP exports), competitor architectures often rely on basic file overrides (`os.replace`) and sequential database writes. Under SaaS high-concurrency conditions, this leads to catastrophic "split-brain" scenarios (database records inserted but files missing) or API freezes.
+用户导入第三方生态技能包（如 Hermes ZIP）时，竞品常依赖基础文件覆盖（`os.replace`）与顺序数据库写入。SaaS 高并发下会导致灾难性「分裂脑」（DB 有记录但文件缺失）或 API 冻结。
 
-Myrm introduces a **Zero-Cost Hot Migration & Atomic Persistence Engine**:
+Myrm 提供 **零成本热迁移与原子持久化引擎**：
 
 | 领域 | Hermes (Competitor) | Myrm | 用户收益 |
 |------|---------------------|------|-------------|
@@ -791,7 +796,7 @@ Myrm introduces a **Zero-Cost Hot Migration & Atomic Persistence Engine**:
 | **Directory Split-Brain** | In-place file replacement | **Blue-Green Swap + Atomic Rename** | Skills update atomically via `.tmp` → `.old` swapping, ensuring directories are never half-written. |
 | **UI Freezing** | Synchronous GC blocks main loop | **FastAPI BackgroundTasks Asynchronous GC** | Deletes expired staging files and old directories in the background, keeping API latency at 0ms. |
 
-**结论： Competitor servers will crash or leak threads when 50 users upload skill ZIPs simultaneously. Myrm processes massive concurrent imports with 0ms thread-blocking and zero dirty-write risks.**
+**结论：50 用户同时上传技能 ZIP 时竞品服务易崩溃或泄漏线程。Myrm 大规模并发导入 0ms 阻塞主线程、零脏写风险。**
 
 ### vs Hermes `claw migrate`
 
@@ -802,17 +807,17 @@ Myrm introduces a **Zero-Cost Hot Migration & Atomic Persistence Engine**:
 | Skill governance | Copy folders | Review queue + Agent binding |
 | Breadth | Broader MCP auto hints | Narrower but explicit manual lanes for MCP/channels |
 
-**Honest score**: **9.7/10** for local five-source GUI migration — not “perfect for every competitor artifact.” **Not available on SaaS cloud sandboxes** (no access to the user’s host filesystem); use Local WebUI or Tauri desktop only.
+**诚实评分**：本地五源 GUI 迁移 **9.7/10** — 非「覆盖每个竞品工件」。**SaaS 云沙箱不可用**（无法访问用户主机文件系统）；请用 Local WebUI 或 Tauri 桌面端。
 
-### What you get after migrating (user-facing)
+### 迁移后你将获得（面向用户）
 
-- **Keep your persona and habits** — SOUL-style instructions land on an Agent profile you pick, not a one-size-fits-all default.
-- **Keep structured memory** — facts and episodic sessions import with batch rollback if you change your mind.
-- **Keep skills under control** — imported skills sit in a review queue; you approve and bind them to the right Agent.
-- **No silent key theft** — API keys import only when you opt in lane-by-lane.
-- **Honest follow-up** — MCP servers and messaging channels are guided in Settings (we do not claim one-click channel parity with Hermes CLI hints).
+- **保留人格与习惯** — SOUL 式指令落在你选的 Agent 配置，非一刀切默认。
+- **保留结构化记忆** — 事实与会话导入支持批量回滚。
+- **技能可控** — 导入技能进审核队列，你批准并绑定到正确 Agent。
+- **无静默偷 Key** — API Key 仅在你逐通道 opt-in 时导入。
+- **诚实后续** — MCP 与消息渠道在设置中引导（不宣称与 Hermes CLI 提示一键渠道对等）。
 
-**Product layers**: Open **myrm-agent-frontend** (wizard UI) + **myrm-agent-server** (discover/dry-run/confirm APIs) on Local/Tauri; the closed **harness** layer supplies import type contracts only — no separate migration UI there.
+**产品分层**：Local/Tauri 上开源 **myrm-agent-frontend**（向导 UI）+ **myrm-agent-server**（发现/预演/确认 API）；闭源 **harness** 仅提供导入类型契约 — 无独立迁移 UI。
 
 ## 选择 Myrm 你将获得
 
@@ -919,10 +924,10 @@ Myrm 在底层实现了 **O(1) 早期截断**与军工级脱敏管线：
 
 ### 迁移收益
 
-If you migrate from Hermes or Claude Code's Dynamic Workflows, you gain:
-- **Absolute Cost Predictability**: Never wake up to a massive API bill because an agent got stuck in a loop.
-- **Genuine Execution Evidence**: When Myrm says a task is complete, it's backed by OS-level execution logs, not an LLM's imagination.
-- **Flawless UI Experience**: Background agents remain strictly in the background, and human intervention is rich and corrective rather than binary.
+从 Hermes 或 Claude Code Dynamic Workflows 迁移，你将获得：
+- **绝对成本可预测**：Agent 死循环不会让你醒来面对巨额 API 账单。
+- **真实执行证据**：Myrm 称任务完成时，有 OS 级执行日志支撑，非 LLM 想象。
+- **无瑕 UI 体验**：后台 Agent 严格留后台；人工介入可注入纠正语境，非二元是/否。
 
 ## 准备开始？
 

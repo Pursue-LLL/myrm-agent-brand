@@ -16,7 +16,7 @@
 | `ReleaseNotesSection.tsx` | 辅助 | Release notes 折叠展示 | ✅ |
 | `InstallStepsSection.tsx` | 辅助 | 三平台安装引导 | ✅ |
 | `ChecksumSection.tsx` | 辅助 | SHA256 内联展示 + 复制 | ✅ |
-| `DownloadPageContent.tsx` | 核心 | `/download` 页面内容 | ✅ |
+| `DownloadPageContent.tsx` | 核心 | `/download` 页面内容；`useDocsLocale` 生成 zh/en 部署文档链 | ✅ |
 
 ## 路由与触达
 

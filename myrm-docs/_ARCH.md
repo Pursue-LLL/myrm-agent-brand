@@ -18,4 +18,4 @@ Mintlify 文档站源码；导航与主题由 `docs.json` 定义。对外域名 
 
 - 官网外链：`myrm-agent-brand/myrm-website/src/lib/deploy-mode.ts`（`myrmagent.ai` / `app.myrmagent.ai` / `docs.myrmagent.ai`）
 - GitHub：`Pursue-LLL/myrm-agent`（与 desktop-release、development-setup 一致）
-- orphan MDX 检测 + legacy URL grep：`myrm-website/scripts/validate-docs-slugs.ts`（禁止 `myrm.ai`、`app.myrm.ai`、`github.com/myrm-ai`）
+- orphan MDX 检测 + legacy URL grep + zh 关键页英文句门禁：`myrm-website/scripts/validate-docs-slugs.ts`（禁止 `myrm.ai`、`app.myrm.ai`、`github.com/myrm-ai`；`competitor-comparison` zh 零容忍）

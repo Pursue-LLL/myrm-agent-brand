@@ -26,7 +26,7 @@
 
 | 文件 | 地位 | 职责 | I/O |
 |------|------|------|-----|
-| `LandingEditorial.tsx` | 核心 | 主 Landing 编排 | — |
+| `LandingEditorial.tsx` | 核心 | 主 Landing 编排 | ✅ |
 | `download/SmartDownloadButton.tsx` | 核心 | OS 智能下载 CTA | ✅ |
 | `download/DownloadPageContent.tsx` | 核心 | `/download` 页编排 | ✅ |
 | `download/PlatformDownloadGrid.tsx` | 核心 | 平台矩阵 + Recommended + size | ✅ |
@@ -39,7 +39,7 @@
 | `landing/HowItWorksSection.tsx` | 核心 | 路径 Tab 化三步上手 | ✅ |
 | `landing/deploy-path-context.tsx` | 核心 | HowItWorks + QuickStart 共享路径 Tab 状态 | — |
 | `../../lib/deploy-paths.ts` | 核心 | 部署路径 registry（href/UTM/hash） | — |
-| `MarketingShell.tsx` | 核心 | 法务页布局 | — |
+| `MarketingShell.tsx` | 核心 | 法务/定价页顶栏壳层 | ✅ |
 | `LegalPage.tsx` | 辅助 | 法务页模板 | — |
 | `landing/marketing-keys.ts` | 核心 | Bento/对比表/折叠区 i18n 键清单（`validate:locales`） | — |
 | `../../lib/marketing-nav.ts` | 核心 | 共享 Nav 链接 DRY（`buildMarketingNavLinks`） | — |
@@ -51,12 +51,12 @@
 | `landing/WorkspacePreview.tsx` | 核心 | Hero 产品预览（浏览器框 + WebP；有 `hero-demo.webm` 时播录屏/生成动效） | — |
 | `landing/colony/` | 辅助 | Hero 蚁群 Canvas | 见 `colony/_ARCH.md` |
 | `landing/TestimonialsSection.tsx` | 辅助 | 用户评价 | — |
-| `landing/FooterSection.tsx` | 辅助 | 页脚 | — |
+| `landing/FooterSection.tsx` | 辅助 | 页脚（docs locale 深链） | ✅ |
 | `landing/QuickStartSection.tsx` | 核心 | 快速开始（路径 Tab + 深链） | ✅ |
 
 ## Landing 区块顺序（LandingEditorial.tsx）
 
-Hero → WorkspacePreview → HowItWorks（路径 Tab）→ QuickStart → Marquee → **Advantages（6 Bento）** → Benchmark → **EngineeringDepth（折叠 4 组）** → UseCases → Deploy（矩阵）→ Integrations → Testimonials → WhyMyrmAgent → Pricing → FAQ → Final CTA（PathStrip 收口，无单独 SaaS 按钮）
+Hero → WorkspacePreview → HowItWorks（路径 Tab）→ QuickStart → Marquee → **Advantages（6 Bento）** → Benchmark → **EngineeringDepth（5 组：compounding / remote / capability / reliability / migration）** → UseCases → Deploy（矩阵）→ Integrations → Testimonials → WhyMyrmAgent → Pricing → FAQ → Final CTA（PathStrip 收口，无单独 SaaS 按钮）
 
 ## 外部链接
 
@@ -71,19 +71,19 @@ Hero → WorkspacePreview → HowItWorks（路径 Tab）→ QuickStart → Marqu
 | `buildMarketingNavLinks()` | — | 见 `lib/marketing-nav.ts` |
 | `getGitHubReleasesPageUrl()` | `NEXT_PUBLIC_GITHUB_RELEASE_REPO` | GitHub latest release |
 
-工程深度区竞品全文对比：`getDocsUrl('/getting-started/competitor-comparison')`
+工程深度区竞品全文对比：`getDocsUrl(COMPETITOR_COMPARISON_DOC_PATH, docsLocale)`
 
 ## i18n
 
 - `locales/zh.json` + `locales/en.json`：`marketing` 命名空间
 - **首屏 Bento**：`advantages.items` — 仅 `BENTO_KEYS`（`selfEvolution` / `security` / `reliability` / `costEfficiency` / `visualControl` / `taskModes`），每卡 ≤3 个 `pointN`
-- **工程深度**：`engineeringDepth.groups.*` + 复用 `highlights.items` / `extendedHighlights.items` / 部分 `advantages.items`；桌面端 `automation`+`knowledge` 默认展开，`<md` 全部折叠（`useMinWidth`）
+- **工程深度**：`engineeringDepth.groups.*` + 复用 `highlights.items` / `extendedHighlights.items` / 部分 `advantages.items`；桌面端侧栏默认选中 `compounding`（`marketing-keys.ts` 唯一 `defaultOpen: true`）；`<md` 手风琴默认全折叠（`useMinWidth`）
 - **advantages.items 键**：`BENTO_KEYS` ∪ `depthAdvantageItemKeys()`（深度区专用四项，非首屏 Bento）
-- **Bento 证据链**：`BENTO_DOC_PATHS` 按主题映射 docs 竞品对比锚点
+- **Bento 细节**：首屏六项仅展示要点；完整竞品对比链见 `EngineeringDepthSection` → `getDocsUrl(COMPETITOR_COMPARISON_DOC_PATH, docsLocale)`
 - **对比表**：`whyMyrmAgent.rows.*` + `whyMyrmAgent.tabs.*`（`COMPARE_TAB_ROWS` 映射）
 - **定价页**：`/pricing` 使用 `pricingPage.plans.*`（`PRICING_PAGE_PLAN_KEYS`）；Landing 预览仍用 `pricingPreview.*`
 - **迁移 CTA**：主链 `/download`；次链 `getAppLoginRedirectUrl(APP_MIGRATION_WIZARD_PATH)`（Local 已部署用户）
-- **同步规则**：落地页 Bento / 对比表条款与 `getDocsUrl('/getting-started/competitor-comparison')` 保持一致；禁止脚本批量灌入 7+ bullet
+- **同步规则**：落地页 Bento / 对比表条款与 `getDocsUrl(COMPETITOR_COMPARISON_DOC_PATH, docsLocale)` 保持一致；禁止脚本批量灌入 7+ bullet
 - **键校验**：`bun run validate:locales`（含 pricingPreview ↔ pricingPage、locales legacy URL）+ `bun run validate:docs-slugs`（含 orphan MDX + docs legacy URL）；`bun run build` 前自动执行
 
 ## 与 App 的关系
@@ -105,7 +105,8 @@ Hero → WorkspacePreview → HowItWorks（路径 Tab）→ QuickStart → Marqu
 
 ## 部署
 
-- CI/CD：GitHub Actions + Vercel
+- CI/CD：GitHub Actions `website-ci.yml`（校验 + build）；`deploy-website-cf.yml` 仅手动部署 CF Pages（`out/`）；生产自动发布=Vercel
+- 生产托管：**Vercel**（`vercel.json` install 重定向）或 **Cloudflare Pages**（`public/_redirects` 同等重定向）；二者互斥择一，勿双写不同规则
 - 域名：`myrmagent.ai`
 - 本地开发：`bun run dev:3002`（端口 3002，与 App 3000 分离）
 - 桌面 release bake：`bun run bake:release`（写入 `public/desktop-release.json`；CI 使用 `GITHUB_TOKEN`）

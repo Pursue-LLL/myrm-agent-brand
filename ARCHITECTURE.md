@@ -12,7 +12,7 @@
 |------|------|------|------|
 | `myrm-website/` | 核心 | Next.js 营销站、下载页、法务页 | Vercel（见下方 vercel 配置说明） |
 | `myrm-docs/` | 核心 | Mintlify 文档（MDX + `docs.json`） | Mintlify → `docs.myrmagent.ai` |
-| `.github/workflows/` | 辅助 | `website-ci.yml` 构建 `myrm-website` | GitHub Actions |
+| `.github/workflows/` | 辅助 | `website-ci.yml` 校验/构建；`deploy-website-cf.yml` 仅手动部署 CF | GitHub Actions |
 
 ## Vercel 配置
 
@@ -24,6 +24,16 @@
 二者互斥，按 Vercel 项目 Root Directory 选其一，勿同时改两处 build 路径。
 
 `myrm-website/next.config.ts` 使用 `output: 'export'`，`next build` 静态产物在 `myrm-website/out/`。线上 Vercel 由 Next.js 预设接管输出；若改用手动静态托管，应部署 `out/` 目录，勿依 `vercel.json` 中 `outputDirectory: ".next"` 字面路径。
+
+## Cloudflare Pages（可选第二托管）
+
+| 文件 | 职责 |
+|------|------|
+| `myrm-website/wrangler.toml` | `pages_build_output_dir = "out"` + `account_id`；`deploy-website-cf.yml` 不再重复 accountId |
+| `myrm-website/public/_redirects` | `/install.sh`、`/install.ps1` → `Pursue-LLL/myrm-agent` 安装脚本（CF 静态托管用） |
+| `.github/workflows/deploy-website-cf.yml` | 仅 `workflow_dispatch` 手动部署 CF Pages（生产自动发布走 Vercel） |
+
+与 Vercel 的 install 重定向**语义相同**（Vercel 用 `myrm-website/vercel.json` redirects）。生产环境只应启用一种托管，避免双管道争抢同一域名。
 
 ## 模块架构文档索引
 

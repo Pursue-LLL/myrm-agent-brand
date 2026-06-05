@@ -1,3 +1,14 @@
+/**
+ * [INPUT]
+ * - deploy-mode::getDocsUrl, getDesktopDownloadPath (POS: 营销站外部链接统一入口)
+ * - hooks/useDocsLocale (POS: 站点 locale → Mintlify docs locale)
+ *
+ * [OUTPUT]
+ * - FooterSection: 落地页页脚（法务链、社区链、docs locale 深链）
+ *
+ * [POS]
+ * 落地页底部收口；docs 链接随站点语言跳转 EN/ZH Mintlify。
+ */
 'use client';
 
 import Link from 'next/link';

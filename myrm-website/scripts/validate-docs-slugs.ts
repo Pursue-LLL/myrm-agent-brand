@@ -4,7 +4,7 @@
  * - myrm-docs/docs.json, myrm-docs/docs 下全部 .mdx
  *
  * [OUTPUT]
- * - CI 校验：营销外链 slug 存在、MDX 文件存在、磁盘 MDX 无 orphan、禁止 legacy 域名
+ * - CI 校验：营销外链 slug 存在、MDX 文件存在、磁盘 MDX 无 orphan、禁止 legacy 域名、zh 关键页英文句门禁
  *
  * [POS]
  * 营销站与 Mintlify 文档导航一致性校验脚本；`bun run build` 前自动执行。
@@ -109,6 +109,64 @@ function collectDocsTextFiles(docsRoot: string): string[] {
   return files;
 }
 
+/** Zero-tolerance English prose gate for critical zh marketing MDX. */
+const ZH_ENGLISH_SENTENCE =
+  /\b(the|is|are|was|were|with|for|and|users|when|while|if you|this |that |from |offers|provides|implements|beyond |based on|myrm's|hermes'|don't|doesn't|can't|won't|honest scope|honest limits|what you get|key architectural|leader-worker|instant reply|visual agent|what mavis|migration wins)\b/i;
+
+const ZH_CONTENT_ZERO_TOLERANCE = new Set([
+  'docs/zh/getting-started/competitor-comparison.mdx',
+]);
+
+function scanZhEnglishProse(docsRoot: string, errors: string[]): void {
+  const zhDir = join(docsRoot, 'docs', 'zh');
+  if (!existsSync(zhDir)) {
+    return;
+  }
+
+  function walk(dir: string): void {
+    for (const entry of readdirSync(dir)) {
+      const fullPath = join(dir, entry);
+      if (statSync(fullPath).isDirectory()) {
+        walk(fullPath);
+        continue;
+      }
+      if (!entry.endsWith('.mdx')) {
+        continue;
+      }
+      const rel = relative(join(docsRoot, 'docs'), fullPath).replace(/\\/g, '/');
+      if (!ZH_CONTENT_ZERO_TOLERANCE.has(rel)) {
+        continue;
+      }
+      const lines = readFileSync(fullPath, 'utf8').split('\n');
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i] ?? '';
+        const trimmed = line.trim();
+        if (
+          !trimmed ||
+          trimmed.startsWith('|') ||
+          trimmed.startsWith('---') ||
+          trimmed.startsWith(':::') ||
+          trimmed.startsWith('title:') ||
+          trimmed.startsWith('description:') ||
+          trimmed.startsWith('#') ||
+          trimmed.startsWith('```')
+        ) {
+          continue;
+        }
+        const alpha = [...line].filter((c) => /[A-Za-z]/.test(c)).length;
+        if (alpha < 12) {
+          continue;
+        }
+        if (ZH_ENGLISH_SENTENCE.test(line)) {
+          errors.push(`Zh English prose in ${rel}:${i + 1}: ${trimmed.slice(0, 80)}`);
+        }
+      }
+    }
+  }
+
+  walk(zhDir);
+}
+
 function scanLegacyUrls(docsRoot: string, errors: string[]): void {
   const files = [
     join(docsRoot, 'docs.json'),
@@ -160,6 +218,7 @@ function main(): void {
   }
 
   scanLegacyUrls(DOCS_ROOT, errors);
+  scanZhEnglishProse(DOCS_ROOT, errors);
 
   if (errors.length > 0) {
     console.error('Docs slug contract validation failed:\n' + errors.map((e) => `  - ${e}`).join('\n'));

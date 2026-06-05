@@ -21,20 +21,6 @@ export const BENTO_KEYS = [
 
 export type BentoKey = (typeof BENTO_KEYS)[number];
 
-import { COMPETITOR_COMPARISON_DOC_PATH } from '@/lib/docs-contract';
-
-const COMPARE_PAGE = COMPETITOR_COMPARISON_DOC_PATH;
-
-/** Per-theme anchors on the docs competitor comparison page (Mintlify slugs). */
-export const BENTO_DOC_PATHS: Record<BentoKey, string> = {
-  selfEvolution: `${COMPARE_PAGE}#vs-mempalace--ai-memory-system-149k-stars`,
-  security: `${COMPARE_PAGE}#extreme-scenario-anti-explosion-vs-hermes--openclaw`,
-  reliability: `${COMPARE_PAGE}#vs-hermes-agent-v015-velocity--multi-agent-platform`,
-  costEfficiency: `${COMPARE_PAGE}#token-efficiency--context-pipeline-vs-hermes--openclaw`,
-  visualControl: `${COMPARE_PAGE}#vs-360-lobsterai--consumer-agent-platform`,
-  taskModes: `${COMPARE_PAGE}#web-search--web-fetch--dual-engine-vs-hermes--openclaw--claude-code`,
-};
-
 /** advantages.items keys referenced by engineering depth (not shown on 6 Bento cards). */
 export function depthAdvantageItemKeys(): string[] {
   const keys = new Set<string>();
@@ -95,6 +81,7 @@ export const COMPARE_ROW_KEYS = [
   'searchIntelligence',
   'smartDesktopDistribution',
   'antiBlockingTitle',
+  'appshotFlowPad',
 ] as const;
 
 export type CompareRowKey = (typeof COMPARE_ROW_KEYS)[number];
@@ -147,7 +134,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'shellCompression',
     'antiBlockingTitle',
   ],
-  platform: ['gui', 'desktopApp', 'smartDesktopDistribution', 'configRuntime', 'codeGraph'],
+  platform: ['gui', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'codeGraph'],
 };
 
 export type DepthItemSource = 'advantages' | 'highlights' | 'extendedHighlights';
@@ -217,7 +204,8 @@ export const DEPTH_GROUPS: readonly DepthGroupDef[] = [
     defaultOpen: false,
     items: [
       { source: 'highlights', itemKey: 'cjkMigration' },
-      { source: 'highlights', itemKey: 'smartDesktopDistribution' }
+      { source: 'highlights', itemKey: 'smartDesktopDistribution' },
+      { source: 'highlights', itemKey: 'appshotFlowPad' },
     ],
   },
 ] as const;

@@ -23,7 +23,19 @@ bun run test              # deploy-paths + desktop-release 单测
 
 ## CI
 
-`.github/workflows/website-ci.yml`：在 `myrm-website/` 内执行 `validate:docs-slugs` → `bake:release` → `build`（含 `validate:locales`）。变更 `myrm-docs/**` 也会触发（docs slug 契约在 website 脚本中校验）。
+| Workflow | 触发 | 作用 |
+| --- | --- | --- |
+| `website-ci.yml` | `myrm-website/**`、`myrm-docs/**` | `validate:docs-slugs` → `bake:release` → `build`（含 `validate:locales`） |
+| `deploy-website-cf.yml` | 仅手动 `workflow_dispatch` | 构建 `out/` 并部署 **Cloudflare Pages**（灾备/迁移用；生产自动发布=Vercel） |
+
+## 静态托管（Vercel 或 Cloudflare Pages）
+
+**install 脚本短链**（`/install.sh`、`/install.ps1` → `myrm-agent` 仓库 raw 脚本）：
+
+| 托管 | 配置位置 |
+| --- | --- |
+| Vercel | `myrm-website/vercel.json` → `redirects` |
+| Cloudflare Pages | `myrm-website/public/_redirects`（随 `out/` 一并发布） |
 
 ## Vercel 部署
 
@@ -34,6 +46,15 @@ bun run test              # deploy-paths + desktop-release 单测
 | 仓根 | `vercel.json`（`cd myrm-website` 安装/构建） |
 | `myrm-website` | `myrm-website/vercel.json`（含 `/install.sh`、`/install.ps1` 重定向） |
 
+## Cloudflare Pages（可选）
+
+```bash
+cd myrm-website && bun run build   # 产物在 out/
+# wrangler pages deploy out  或在 GitHub Actions 手动运行 deploy-website-cf.yml
+```
+
+见 [ARCHITECTURE.md](ARCHITECTURE.md)「Cloudflare Pages」节。
+
 ## 架构文档
 
-分形自文档约定：仓级 [ARCHITECTURE.md](ARCHITECTURE.md)（整体架构）；各模块子目录 `_ARCH.md`（模块文件清单与职责）；核心源码文件头部 `INPUT` / `OUTPUT` / `POS` 注释（文件定位）。
+分形自文档约定：仓级 [ARCHITECTURE.md](ARCHITECTURE.md)（整体架构）；各模块子目录 `_ARCH.md`（模块文件清单与职责）；核心源码文件头部 `INPUT` / `OUTPUT` / `POS` 注释（文件定位）。本 README 仅为 clone 入口，细节以 ARCHITECTURE 为准。

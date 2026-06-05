@@ -1,3 +1,15 @@
+/**
+ * [INPUT]
+ * - download/DesktopReleaseProvider (POS: 桌面 release 元数据 React 上下文)
+ * - deploy-paths::getDeployPathHref (POS: Single source of truth for SaaS / Local WebUI / Tauri deployment paths)
+ * - hooks/useDocsLocale (POS: 站点 locale → Mintlify docs locale)
+ *
+ * [OUTPUT]
+ * - DownloadPageContent: `/download` 页编排（平台矩阵、release notes、安装步骤）
+ *
+ * [POS]
+ * 桌面端下载转化页主体；部署文档外链随 locale 生成 `/zh/...` 路径。
+ */
 'use client';
 
 import { useEffect } from 'react';

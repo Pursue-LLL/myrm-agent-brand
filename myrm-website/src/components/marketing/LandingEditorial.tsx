@@ -1,3 +1,15 @@
+/**
+ * [INPUT]
+ * - landing/*Section 各区块组件 (POS: 落地页分区展示)
+ * - marketing-nav::buildMarketingNavLinks (POS: DRY nav definition — prevents LandingEditorial / MarketingShell drift)
+ * - hooks/useDocsLocale (POS: 站点 locale → Mintlify docs locale)
+ *
+ * [OUTPUT]
+ * - LandingEditorial: 首页 `/` 完整区块编排与 Hero 交互
+ *
+ * [POS]
+ * 落地页唯一编排入口；顺序见 `marketing/_ARCH.md`「Landing 区块顺序」。
+ */
 'use client';
 
 import Link from 'next/link';
