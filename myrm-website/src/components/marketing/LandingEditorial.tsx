@@ -29,7 +29,6 @@ import { buildMarketingNavLinks, getMarketingLoginHref, getMarketingRegisterHref
 import { useRevealOnScroll, useScrollProgress, useCursorTrail } from './landing/hooks';
 import { MagneticButton, TiltCard } from './landing/interactive';
 import ColonyLayer from './landing/colony/ColonyLayer';
-import WorkspacePreview from './landing/WorkspacePreview';
 import BenchmarkSection from './landing/BenchmarkSection';
 import EngineeringDepthSection from './landing/EngineeringDepthSection';
 import AdvantagesSection from './landing/AdvantagesSection';
@@ -252,14 +251,6 @@ export default function LandingEditorial() {
               <span className="sr-only">{t('hero.colonyA11y')}</span>
             </div>
             <PathStrip className="mt-8" />
-          </div>
-        </section>
-
-        {/* Product Preview */}
-        <section className="mx-auto max-w-[1080px] px-6 pb-20 sm:pb-32">
-          <div className="ed-reveal" data-colony-anchor="preview">
-            <WorkspacePreview />
-            <p className="mt-7 text-center text-[11px] ed-mono" style={{ color: 'var(--ed-muted)' }}>{t('demo.caption')}</p>
           </div>
         </section>
 

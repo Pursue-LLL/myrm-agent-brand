@@ -4,7 +4,7 @@
  * - hooks/useDocsLocale (POS: 站点 locale → Mintlify docs locale)
  *
  * [OUTPUT]
- * - FooterSection: 落地页页脚（法务链、社区链、docs locale 深链）
+ * - FooterSection: 落地页页脚（VortexAI 主体、法务链、社区链、docs locale 深链）
  *
  * [POS]
  * 落地页底部收口；docs 链接随站点语言跳转 EN/ZH Mintlify。
@@ -31,6 +31,7 @@ export default function FooterSection() {
               <span className="text-sm font-semibold tracking-tight">{t('brand')}</span>
             </div>
             <p className="mt-4 text-[14px] leading-[1.8] font-light" style={{ color: 'var(--ed-dim)' }}>{t('footer.tagline')}</p>
+            <p className="mt-3 text-[12px] leading-[1.7] font-light" style={{ color: 'var(--ed-dim)' }}>{t('footer.operator')}</p>
             <p className="mt-5 text-[11px] ed-mono" style={{ color: 'var(--ed-muted)' }}>{t('footer.contact')}</p>
           </div>
           <div className="flex flex-col gap-3 text-[13px] font-light" style={{ color: 'var(--ed-dim)' }}>
@@ -45,7 +46,6 @@ export default function FooterSection() {
             <p className="mb-2 text-[10px] uppercase tracking-[0.2em] font-medium ed-mono" style={{ color: 'var(--ed-muted)' }}>{t('footer.community')}</p>
             <a href="https://github.com/Pursue-LLL/myrm-agent" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-[var(--ed-accent)]">{t('footer.github')}</a>
             <a href={getDocsUrl('/', docsLocale)} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-[var(--ed-accent)]">{t('footer.docs')}</a>
-            <a href="https://discord.gg/myrmagent" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-[var(--ed-accent)]">{t('footer.discord')}</a>
           </div>
         </div>
       </div>

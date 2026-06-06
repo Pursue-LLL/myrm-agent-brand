@@ -26,32 +26,18 @@ bun run test              # deploy-paths + desktop-release 单测
 | Workflow | 触发 | 作用 |
 | --- | --- | --- |
 | `website-ci.yml` | `myrm-website/**`、`myrm-docs/**` | `validate:docs-slugs` → `bake:release` → `build`（含 `validate:locales`） |
-| `deploy-website-cf.yml` | 仅手动 `workflow_dispatch` | 构建 `out/` 并部署 **Cloudflare Pages**（灾备/迁移用；生产自动发布=Vercel） |
+| `deploy-website-cf.yml` | push tag `website-v*` 或手动 `workflow_dispatch` | 构建 `out/` 并部署 **Cloudflare Pages**（`myrm-agent-brand` 项目 → `myrmagent.ai`） |
 
-## 静态托管（Vercel 或 Cloudflare Pages）
-
-**install 脚本短链**（`/install.sh`、`/install.ps1` → `myrm-agent` 仓库 raw 脚本）：
-
-| 托管 | 配置位置 |
-| --- | --- |
-| Vercel | `myrm-website/vercel.json` → `redirects` |
-| Cloudflare Pages | `myrm-website/public/_redirects`（随 `out/` 一并发布） |
-
-## Vercel 部署
-
-仓内有两份 `vercel.json`，**互斥**——按 Vercel 项目 Root Directory 选其一，勿同时改两处 build 路径：
-
-| Root Directory | 配置文件 |
-| --- | --- |
-| 仓根 | `vercel.json`（`cd myrm-website` 安装/构建） |
-| `myrm-website` | `myrm-website/vercel.json`（含 `/install.sh`、`/install.ps1` 重定向） |
-
-## Cloudflare Pages（可选）
+## 生产发布（Cloudflare Pages）
 
 ```bash
-cd myrm-website && bun run build   # 产物在 out/
-# wrangler pages deploy out  或在 GitHub Actions 手动运行 deploy-website-cf.yml
+git tag website-v0.1.0
+git push origin website-v0.1.0   # 触发 deploy-website-cf.yml
 ```
+
+push `main` 仅跑 CI 校验，**不**更新线上站。
+
+**install 脚本短链**（`/install.sh`、`/install.ps1`）：`myrm-website/public/_redirects`（随 `out/` 发布）。
 
 见 [ARCHITECTURE.md](ARCHITECTURE.md)「Cloudflare Pages」节。
 

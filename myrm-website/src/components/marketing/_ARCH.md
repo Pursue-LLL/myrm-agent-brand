@@ -2,7 +2,7 @@
 
 ## 概述
 
-`myrm-website` 是 `myrm-agent-brand` 仓内的 Next.js 营销站（Vercel 部署）。纯展示页；App CTA 经 `getAppUrl(path, docsLocale)` 跳转 `app.myrmagent.ai`；文档经 `getDocsUrl()` 跳转 `docs.myrmagent.ai`。
+`myrm-website` 是 `myrm-agent-brand` 仓内的 Next.js 营销站（Cloudflare Pages → `myrmagent.ai`）。纯展示页；App CTA 经 `getAppUrl(path, docsLocale)` 跳转 `app.myrmagent.ai`；文档经 `getDocsUrl()` 跳转 `docs.myrmagent.ai`。
 
 ## 页面路由
 
@@ -48,7 +48,7 @@
 | `landing/EngineeringDepthSection.tsx` | 核心 | 折叠工程深度 + docs 对比链 | ✅ |
 | `landing/BenchmarkSection.tsx` | 核心 | Token 实测数字条 | — |
 | `landing/WhyMyrmAgentSection.tsx` | 核心 | 竞品对比表（分类 Tab + 行过滤） | — |
-| `landing/WorkspacePreview.tsx` | 核心 | Hero 产品预览（浏览器框 + WebP；有 `hero-demo.webm` 时播录屏/生成动效） | — |
+| `landing/WorkspacePreview.tsx` | 备用 | 产品预览组件（录屏就绪后在 LandingEditorial 挂载） | — |
 | `landing/colony/` | 辅助 | Hero 蚁群 Canvas | 见 `colony/_ARCH.md` |
 | `landing/TestimonialsSection.tsx` | 辅助 | 用户评价 | — |
 | `landing/FooterSection.tsx` | 辅助 | 页脚（docs locale 深链） | ✅ |
@@ -56,7 +56,7 @@
 
 ## Landing 区块顺序（LandingEditorial.tsx）
 
-Hero → WorkspacePreview → HowItWorks（路径 Tab）→ QuickStart → Marquee → **Advantages（6 Bento）** → Benchmark → **EngineeringDepth（5 组：compounding / remote / capability / reliability / migration）** → UseCases → Deploy（矩阵）→ Integrations → Testimonials → WhyMyrmAgent → Pricing → FAQ → Final CTA（PathStrip 收口，无单独 SaaS 按钮）
+Hero → HowItWorks（路径 Tab）→ QuickStart → Marquee → **Advantages（6 Bento）** → Benchmark → **EngineeringDepth（5 组）** → UseCases → Deploy（矩阵）→ Integrations → Testimonials → WhyMyrmAgent → Pricing → FAQ → Final CTA（PathStrip 收口）
 
 ## 外部链接
 
@@ -105,8 +105,8 @@ Hero → WorkspacePreview → HowItWorks（路径 Tab）→ QuickStart → Marqu
 
 ## 部署
 
-- CI/CD：GitHub Actions `website-ci.yml`（校验 + build）；`deploy-website-cf.yml` 仅手动部署 CF Pages（`out/`）；生产自动发布=Vercel
-- 生产托管：**Vercel**（`vercel.json` install 重定向）或 **Cloudflare Pages**（`public/_redirects` 同等重定向）；二者互斥择一，勿双写不同规则
+- CI/CD：`website-ci.yml`（push/PR 校验 + build）；`deploy-website-cf.yml`（tag `website-v*` → CF Pages `myrm-agent-brand`）
+- 生产托管：**Cloudflare Pages**（`public/_redirects` install 短链）；push `main` 不部署
 - 域名：`myrmagent.ai`
 - 本地开发：`bun run dev:3002`（端口 3002，与 App 3000 分离）
 - 桌面 release bake：`bun run bake:release`（写入 `public/desktop-release.json`；CI 使用 `GITHUB_TOKEN`）

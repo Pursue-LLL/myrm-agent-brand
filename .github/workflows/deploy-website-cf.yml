@@ -1,7 +1,11 @@
 name: Deploy Website (Cloudflare Pages)
 
-# Manual only — production auto-deploy is Vercel (website-ci). Avoid dual publish on main.
+# Production: push tag `website-v*` → build + deploy CF Pages (myrmagent.ai).
+# Push to main does NOT deploy. Manual fallback: workflow_dispatch.
 on:
+  push:
+    tags:
+      - 'website-v*'
   workflow_dispatch:
 
 concurrency:
@@ -37,4 +41,4 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          command: pages deploy out --project-name=myrm-website
+          command: pages deploy out --project-name=myrm-agent-brand

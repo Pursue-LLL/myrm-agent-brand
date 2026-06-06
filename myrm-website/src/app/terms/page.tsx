@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import LegalPage from '@/components/marketing/LegalPage';
 
-const SECTION_KEYS = ['acceptance', 'service', 'accounts', 'billing', 'acceptableUse', 'liability', 'contact'] as const;
+const SECTION_KEYS = ['acceptance', 'service', 'accounts', 'billing', 'disputes', 'acceptableUse', 'liability', 'contact'] as const;
 
 export default function TermsPage() {
   const t = useTranslations('marketing.legal.terms');

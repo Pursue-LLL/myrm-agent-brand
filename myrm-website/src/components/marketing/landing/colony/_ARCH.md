@@ -15,8 +15,8 @@ Hero 区统一 Canvas 场景：交互 Grid 点阵 + 蚂蚁 Agent 模拟（信息
 | `ColonyLayer.tsx` | React 挂载层 | ✅ |
 
 ## 锚点协议
-- 根容器：`data-colony-root`（LandingEditorial Hero + Preview 包裹层）
-- 工作锚点：`data-colony-anchor="cta|preview"`
+- 根容器：`data-colony-root`（LandingEditorial Hero 包裹层）
+- 工作锚点：`data-colony-anchor="cta"`（`preview` 锚点在产品预览区块挂载时启用）
 - 同步：200ms 节流 + resize 即时刷新
 
 ## 性能与无障碍
