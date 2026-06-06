@@ -67,6 +67,18 @@ Unlike competitors that evolve from single failure signals, Myrm aggregates evid
 
 Skills that degrade are automatically isolated via **1-Strike** (critical failure) or **3-Strikes** (gradual degradation) policies.
 
+## Stop-Loss: Versions, Shadow A/B, and Batch Snapshots
+
+**Plain language:** If an evolved skill makes your agent worse, you can roll back in Settings — no CLI. You can also approve changes in **Shadow mode** first (production behavior stays on the old version while we compare in the background), then promote when metrics look good. Batch-optimizing many skills saves a snapshot before it starts; you can **cancel and roll back** mid-run if results go sideways.
+
+| Capability | What you get |
+|------------|--------------|
+| **Versions panel** | One-click rollback to any saved snapshot (GUI) |
+| **Approve + Shadow** | Growth inbox → shadow test → Guardian promote/stop |
+| **Batch optimization** | Auto snapshot on submit; cancel with optional full rollback |
+
+**vs competitors:** Hermes/OpenClaw offer CLI or file-based rollback; none ship a full GUI loop for shadow validation plus batch mid-flight rollback.
+
 ## Curator: Lifecycle Governance
 
 Automated skill lifecycle management through the Curator system:
