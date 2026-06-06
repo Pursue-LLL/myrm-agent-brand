@@ -26,16 +26,11 @@ bun run test              # deploy-paths + desktop-release 单测
 | Workflow | 触发 | 作用 |
 | --- | --- | --- |
 | `website-ci.yml` | `myrm-website/**`、`myrm-docs/**` | `validate:docs-slugs` → `bake:release` → `build`（含 `validate:locales`） |
-| `deploy-website-cf.yml` | push tag `website-v*` 或手动 `workflow_dispatch` | 构建 `out/` 并部署 **Cloudflare Pages**（`myrm-agent-brand` 项目 → `myrmagent.ai`） |
+| `deploy-website-cf.yml` | 仅手动 `workflow_dispatch` | wrangler 应急上传 CF Pages（生产走 CF Git 集成） |
 
-## 生产发布（Cloudflare Pages）
+## 生产发布（Cloudflare Pages Git）
 
-```bash
-git tag website-v0.1.0
-git push origin website-v0.1.0   # 触发 deploy-website-cf.yml
-```
-
-push `main` 仅跑 CI 校验，**不**更新线上站。
+push `main` → Cloudflare Pages 项目 `myrm-agent-brand` 自动构建部署 → `myrmagent.ai`。
 
 **install 脚本短链**（`/install.sh`、`/install.ps1`）：`myrm-website/public/_redirects`（随 `out/` 发布）。
 

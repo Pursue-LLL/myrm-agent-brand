@@ -1,11 +1,8 @@
 name: Deploy Website (Cloudflare Pages)
 
-# Production: push tag `website-v*` → build + deploy CF Pages (myrmagent.ai).
-# Push to main does NOT deploy. Manual fallback: workflow_dispatch.
+# Production: Cloudflare Pages Git integration deploys on push to main.
+# This workflow is manual fallback only (wrangler upload when CF Git is unavailable).
 on:
-  push:
-    tags:
-      - 'website-v*'
   workflow_dispatch:
 
 concurrency:

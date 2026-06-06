@@ -20,9 +20,10 @@
 |------|------|
 | `myrm-website/wrangler.toml` | `name = "myrm-agent-brand"`；`pages_build_output_dir = "out"` |
 | `myrm-website/public/_redirects` | `/install.sh`、`/install.ps1` → `Pursue-LLL/myrm-agent` 安装脚本 |
-| `.github/workflows/deploy-website-cf.yml` | push tag `website-v*` → build `out/` → `pages deploy --project-name=myrm-agent-brand`；`workflow_dispatch` 应急 |
+| CF Pages Git 集成 | 生产发布：push `main` → CF 构建并部署 `myrm-agent-brand` |
+| `.github/workflows/deploy-website-cf.yml` | 仅 `workflow_dispatch` 手动 wrangler 上传（CF Git 不可用时的应急） |
 
-`myrm-website/next.config.ts` 使用 `output: 'export'`，`next build` 静态产物在 `myrm-website/out/`。push `main` **不**触发线上部署。
+`myrm-website/next.config.ts` 使用 `output: 'export'`，`next build` 静态产物在 `myrm-website/out/`。
 
 ## 遗留 Vercel 配置（未用于生产）
 
