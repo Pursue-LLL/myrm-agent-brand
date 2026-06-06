@@ -67,7 +67,7 @@ Agent 通过 **42 模块原生进化引擎**自主学习、测试、部署新技
 
 **通俗说：** 进化改坏了可以在设置里一键回到上一版，不用敲命令。也可以先选「Shadow 验证」——对话仍用旧版，后台对比满意再上线。批量优化多个技能时会先自动存快照，跑一半发现不行可以「取消并回滚」。
 
-**实测（2026-06-06）：** 32 项自动化测试覆盖批量取消/回滚（含多技能与 partial HTTP 真写盘）、部分回滚失败处理，以及 `restore_skill_snapshot` 双分支真写盘；取消并回滚与详情页批量回滚返回相同的 `rolled_back`/`failed`/`total_skills`/`error_message` 统计；Web UI 按结果显示成功、部分恢复（`cancelRollbackPartial` / `rollbackPartial`）或失败提示；harness 另有 1 项 in-flight cancel 屏障测试。完整 GUI 点按 E2E 需后端联调。
+**实测（2026-06-06）：** 34 项自动化测试覆盖批量取消/回滚（含多技能、partial HTTP 真写盘、await 超时跳过 rollback）、`OptimizationScheduler.cancel_batch_optimization` + `await_batch_optimization` 接线，以及 `restore_skill_snapshot` 双分支真写盘；取消时 harness 先设 cancellation token 停止后续优化，await 完成后再回滚快照；await 超时则跳过 rollback 并提示用户前往详情页手动回滚；取消并回滚与详情页批量回滚返回相同的 `rolled_back`/`failed`/`total_skills`/`error_message` 统计；Web UI 按结果显示成功、部分恢复（`cancelRollbackPartial` / `rollbackPartial`）或失败提示。完整 GUI 点按 E2E 需后端联调。
 
 | 能力 | 你能得到什么 |
 |------|--------------|
