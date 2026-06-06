@@ -71,6 +71,8 @@ Skills that degrade are automatically isolated via **1-Strike** (critical failur
 
 **Plain language:** If an evolved skill makes your agent worse, you can roll back in Settings — no CLI. You can also approve changes in **Shadow mode** first (production behavior stays on the old version while we compare in the background), then promote when metrics look good. Batch-optimizing many skills saves a snapshot before it starts; you can **cancel and roll back** mid-run if results go sideways.
 
+**Verified (2026-06-06):** 31 automated tests cover batch cancel/rollback (including multi-skill HTTP disk restore), partial rollback failure handling, and real disk restore for `restore_skill_snapshot` (both DB branches). The Web UI shows an explicit error toast when cancel-with-rollback succeeds at the task level but skill restore fails (`cancelRollbackFailed`). Full GUI click-through E2E requires a running backend.
+
 | Capability | What you get |
 |------------|--------------|
 | **Versions panel** | One-click rollback to any saved snapshot (GUI) |
