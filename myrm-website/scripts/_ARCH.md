@@ -17,4 +17,4 @@
 
 `bun run build` → `validate:locales` → `validate:docs-slugs` → `bake:release` → `next build`
 
-CI（`website-ci.yml`）单独先跑 `validate:docs-slugs`，再 `bake:release`，再 `build`（内含 `validate:locales`）。
+CF Pages / 本地 `bun run build` 按序执行 `validate:locales` → `validate:docs-slugs` → `bake:release` → `next build`。

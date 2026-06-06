@@ -21,16 +21,13 @@ bun run test              # deploy-paths + desktop-release 单测
 
 `bun run build` 前会自动执行 locale 与 docs slug 校验，并 `bake:release` 写入 `public/desktop-release.json`（GitHub Releases 元数据；**CI 生成，勿手改**，用于静态 export 首屏）。
 
-## CI
-
-| Workflow | 触发 | 作用 |
-| --- | --- | --- |
-| `website-ci.yml` | `myrm-website/**`、`myrm-docs/**` | `validate:docs-slugs` → `bake:release` → `build`（含 `validate:locales`） |
-| `deploy-website-cf.yml` | 仅手动 `workflow_dispatch` | wrangler 应急上传 CF Pages（生产走 CF Git 集成） |
-
 ## 生产发布（Cloudflare Pages Git）
 
-push `main` → Cloudflare Pages 项目 `myrm-agent-brand` 自动构建部署 → `myrmagent.ai`。
+push `main` → Cloudflare Pages 项目 `myrm-agent-brand` 自动执行 `bun run build`（含 locale/docs 校验 + `bake:release`）并部署 → `myrmagent.ai`。
+
+合并前本地校验：`cd myrm-website && bun run build`。
+
+应急部署（CF Git 不可用时）：本地 build 后 `wrangler pages deploy out --project-name=myrm-agent-brand`。
 
 **install 脚本短链**（`/install.sh`、`/install.ps1`）：`myrm-website/public/_redirects`（随 `out/` 发布）。
 

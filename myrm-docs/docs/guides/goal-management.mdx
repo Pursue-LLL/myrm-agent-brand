@@ -104,6 +104,38 @@ When you create multiple goals, they're automatically queued:
 
 Set `auto_approve: true` to skip the approval step for queued goals, enabling fully unattended execution of goal chains.
 
+## Adaptive Convergence & Loop-on-Pause
+
+Goals can automatically detect when the agent has finished its work and handle continuous execution without human intervention.
+
+### Convergence Detection
+
+When the agent goes `convergence_window` consecutive turns without making any tool calls, the goal is automatically marked as converged (completed). This prevents the agent from idling and wasting tokens when it has nothing left to do.
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `convergence_window` | Turns of no progress before auto-convergence | (disabled) |
+
+### Loop-on-Pause
+
+When enabled, a goal that pauses due to convergence will automatically restart with a fresh context, up to a configurable maximum number of restarts. This is ideal for long-running monitoring or iterative refinement tasks.
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `loop_on_pause` | Automatically restart after convergence pause | `false` |
+| `max_loop_restarts` | Maximum number of automatic restarts | 0 |
+
+### Resume Safety
+
+When you manually resume a paused goal, the convergence counters (`no_progress_streak` and `loop_restarts`) are automatically reset to zero. This ensures the agent gets a fresh opportunity without triggering immediate re-convergence.
+
+### Frontend Status
+
+The Goal Status Card displays differentiated states:
+
+- **Converged** — Goal completed via convergence detection
+- **Restarting (#N)** — Goal is restarting via loop-on-pause (showing restart count)
+
 ## Dynamic Subgoals
 
 During execution, you can add new objectives without interrupting the agent:

@@ -105,11 +105,11 @@ Hero → HowItWorks（路径 Tab）→ QuickStart → Marquee → **Advantages�
 
 ## 部署
 
-- CI/CD：`website-ci.yml`（push/PR 校验 + build）；生产发布由 **CF Pages Git**（push `main`）接管
-- 应急：`deploy-website-cf.yml` 仅手动 wrangler 上传；`public/_redirects` install 短链
+- 生产：**CF Pages Git**（push `main` → `bun run build` → 部署）；合并前本地 `bun run build` 校验
+- 应急：本地 build + `wrangler pages deploy out --project-name=myrm-agent-brand`；`public/_redirects` install 短链
 - 域名：`myrmagent.ai`
 - 本地开发：`bun run dev:3002`（端口 3002，与 App 3000 分离）
-- 桌面 release bake：`bun run bake:release`（写入 `public/desktop-release.json`；CI 使用 `GITHUB_TOKEN`）
+- 桌面 release bake：`bun run bake:release`（写入 `public/desktop-release.json`；可选 `GITHUB_TOKEN` 提高 API 限额）
 - Hero 动效：`public/marketing/hero-demo.webm`；从预览图生成：`bun run generate:hero-webm`（可用真实 App 录屏覆盖）
 
 桌面下载模块详情见 [`download/_ARCH.md`](../download/_ARCH.md)。
