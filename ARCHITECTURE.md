@@ -59,6 +59,7 @@
 | Mintlify | `docs.json` → `navigation.languages[en, zh]` |
 | URL | EN：`/getting-started/...`；ZH：`/zh/getting-started/...` |
 | 官网跳转 | `getDocsUrl(path, locale)`、`localizedDocsPath()`、`useDocsLocale` |
+| App locale 接力 | `getAppUrl(path, locale)` → `middleware.ts` 写 cookie → 登录后 `locale-personal-sync` 写 `personalSettings` |
 | 营销契约 | `MARKETING_DOC_PATHS` + `validate-docs-slugs` 双 locale CI |
 | zh MDX 内链 | `/zh/...`（非 `/docs/...`） |
 | 脚本 | `apply-i18n-docs-json.ts`（导航 + zh footer）、`build-zh-navigation.ts` |

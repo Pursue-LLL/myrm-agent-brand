@@ -66,7 +66,7 @@ const FAQ_ITEMS = ['what', 'pricing', 'local', 'data', 'cancel'] as const;
 export default function LandingEditorial() {
   const t = useTranslations('marketing');
   const docsLocale = useDocsLocale();
-  const startHref = getMarketingRegisterHref();
+  const startHref = getMarketingRegisterHref(docsLocale);
   const containerRef = useRevealOnScroll();
   const scrollProgress = useScrollProgress();
   const trailRef = useCursorTrail();
@@ -139,7 +139,7 @@ export default function LandingEditorial() {
               <LocaleSwitcher />
             </div>
             <a
-              href={getMarketingLoginHref()}
+              href={getMarketingLoginHref(docsLocale)}
               className="rounded-2xl px-4 py-3.5 text-center text-[15px] font-medium transition-colors"
               style={{ color: 'var(--ed-dim)', border: '1px solid var(--ed-border)' }}
               onClick={() => setMobileOpen(false)}
@@ -188,7 +188,7 @@ export default function LandingEditorial() {
             </nav>
             <div className="hidden items-center gap-4 md:flex">
               <LocaleSwitcher />
-              <a href={getMarketingLoginHref()} className="text-[13px] font-light" style={{ color: 'var(--ed-dim)' }}>{t('nav.login')}</a>
+              <a href={getMarketingLoginHref(docsLocale)} className="text-[13px] font-light" style={{ color: 'var(--ed-dim)' }}>{t('nav.login')}</a>
               <Button asChild size="sm" className="ed-cta rounded-full border-0 px-5 text-xs font-medium text-white" style={{ background: 'var(--ed-accent)' }}>
                 <a href={startHref}>{t('nav.getStarted')}</a>
               </Button>

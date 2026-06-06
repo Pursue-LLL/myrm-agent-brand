@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { ArrowRight02Icon } from 'hugeicons-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils/classnameUtils';
+import { useDocsLocale } from '@/hooks/useDocsLocale';
 import { getAppUrl } from '@/lib/deploy-mode';
 import MarketingShell from '@/components/marketing/MarketingShell';
 import {
@@ -22,6 +23,7 @@ function readPlanFeatures(
 
 export default function PricingPage() {
   const t = useTranslations('marketing');
+  const docsLocale = useDocsLocale();
 
   return (
     <MarketingShell>
@@ -129,7 +131,7 @@ export default function PricingPage() {
                       )}
                       variant={highlight ? 'default' : 'outline'}
                     >
-                      <a href={getAppUrl('/auth/login')}>
+                      <a href={getAppUrl('/auth/login', docsLocale)}>
                         {t('nav.getStarted')}
                         <ArrowRight02Icon className="ml-1 h-4 w-4" />
                       </a>
@@ -143,7 +145,7 @@ export default function PricingPage() {
           <div className="mt-12 text-center">
             <p className="text-sm text-muted-foreground">
               {t('pricingPage.billingNote')}{' '}
-              <a href={getAppUrl('/pricing')} className="text-primary hover:underline font-medium">
+              <a href={getAppUrl('/pricing', docsLocale)} className="text-primary hover:underline font-medium">
                 {t('pricingPage.billingLink')} →
               </a>
             </p>

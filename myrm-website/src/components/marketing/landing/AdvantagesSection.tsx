@@ -11,6 +11,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { useDocsLocale } from '@/hooks/useDocsLocale';
 import {
   Brain02Icon,
   SecurityIcon,
@@ -141,8 +142,9 @@ function BentoCard({ item, index }: { item: BentoItem; index: number }) {
 
 export default function AdvantagesSection() {
   const t = useTranslations('marketing');
+  const docsLocale = useDocsLocale();
   const migrationDownloadHref = getDesktopDownloadPath();
-  const migrationAppHref = getAppLoginRedirectUrl(APP_MIGRATION_WIZARD_PATH);
+  const migrationAppHref = getAppLoginRedirectUrl(APP_MIGRATION_WIZARD_PATH, docsLocale);
 
   return (
     <section className="ed-section-alt py-20 sm:py-40">

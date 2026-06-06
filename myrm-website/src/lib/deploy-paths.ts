@@ -111,7 +111,7 @@ export function readDeployPathFromLocation(): DeployPathId | null {
 export function getDeployPathHref(pathId: DeployPathId, docsLocale: DocsLocale = 'en'): string {
   switch (pathId) {
     case 'saas':
-      return withUtm(getAppUrl('/auth/login'), pathId, 'deploy_path');
+      return withUtm(getAppUrl('/auth/login', docsLocale), pathId, 'deploy_path');
     case 'localWebui':
       return withUtm(getDocsUrl(LOCAL_DEPLOY_DOCS_PATH, docsLocale), pathId, 'deploy_path');
     case 'tauri':
@@ -119,12 +119,12 @@ export function getDeployPathHref(pathId: DeployPathId, docsLocale: DocsLocale =
   }
 }
 
-export function getDeployPathLoginHref(): string {
-  return withUtm(getAppUrl('/auth/login'), 'saas', 'nav');
+export function getDeployPathLoginHref(appLocale: DocsLocale = 'en'): string {
+  return withUtm(getAppUrl('/auth/login', appLocale), 'saas', 'nav');
 }
 
-export function getDeployPathRegisterHref(): string {
-  return withUtm(getAppUrl('/auth/login'), 'saas', 'nav');
+export function getDeployPathRegisterHref(appLocale: DocsLocale = 'en'): string {
+  return withUtm(getAppUrl('/auth/login', appLocale), 'saas', 'nav');
 }
 
 /** In-page section link: `?path=local#quickstart` — hash id scrolls; search param selects tab. */

@@ -4,7 +4,7 @@
 
 | 文件 | 职责 |
 |------|------|
-| `deploy-mode.ts` | 外链域名：`app.myrmagent.ai`、`docs.myrmagent.ai` |
+| `deploy-mode.ts` | 外链域名；`getAppUrl(path, locale?)` 营销→App locale 接力 |
 | `docs-contract.ts` | 营销站 → Mintlify 路径契约；`localizedDocsPath()`、`DOCS_ZH_URL_PREFIX`（CI 双 locale） |
 | `deploy-paths.ts` | 部署路径 registry；`getLocalInstallOneliner` / `getLocalInstallOnelinerWindows` |
 | `desktop-release.ts` | GitHub Releases `Pursue-LLL/myrm-agent` |

@@ -4,7 +4,7 @@
  * - lib/desktop-release.ts (POS: 桌面端安装包元数据单一入口)
  *
  * [OUTPUT]
- * - getAppUrl, getDocsUrl, getAppLoginRedirectUrl, getDesktopDownloadPath
+ * - getAppUrl(path, appLocale?), getDocsUrl, getAppLoginRedirectUrl, getDesktopDownloadPath
  * - re-export: DESKTOP_RELEASE_REPO, getDesktopManifestUrl, getGitHubLatestReleaseApiUrl, getGitHubReleasesPageUrl
  * - deploy-paths.ts (POS: 部署路径 registry) builds on getAppUrl/getDocsUrl/getDesktopDownloadPath
  *
@@ -24,8 +24,12 @@ const DOCS_BASE_URL = process.env.NEXT_PUBLIC_DOCS_URL ?? 'https://docs.myrmagen
 
 export const DESKTOP_DOWNLOAD_PATH = '/download';
 
-export function getAppUrl(path: string = '/'): string {
-  return `${APP_BASE_URL}${path}`;
+/** Append `?locale=` so App login can seed NEXT_LOCALE from marketing site language. */
+export function getAppUrl(path: string = '/', appLocale?: DocsLocale): string {
+  const base = `${APP_BASE_URL}${path}`;
+  if (!appLocale) return base;
+  const separator = base.includes('?') ? '&' : '?';
+  return `${base}${separator}locale=${appLocale}`;
 }
 
 export function getDocsUrl(path: string = '/', locale: DocsLocale = 'en'): string {
@@ -52,10 +56,10 @@ export {
 export const APP_MIGRATION_WIZARD_PATH = '/settings/memory?sub=migration';
 
 /** Login URL that returns to an internal path after authentication. */
-export function getAppLoginRedirectUrl(returnPath: string): string {
+export function getAppLoginRedirectUrl(returnPath: string, appLocale?: DocsLocale): string {
   const normalized = returnPath.startsWith('/') ? returnPath : `/${returnPath}`;
   if (normalized.startsWith('//') || normalized.includes('://')) {
-    return getAppUrl('/auth/login');
+    return getAppUrl('/auth/login', appLocale);
   }
-  return getAppUrl(`/auth/login?redirect=${encodeURIComponent(normalized)}`);
+  return getAppUrl(`/auth/login?redirect=${encodeURIComponent(normalized)}`, appLocale);
 }

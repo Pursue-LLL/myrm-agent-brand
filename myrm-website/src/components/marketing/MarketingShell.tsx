@@ -98,10 +98,10 @@ export default function MarketingShell({ children, className }: MarketingShellPr
           <div className="hidden items-center gap-3 md:flex">
             <LocaleSwitcher variant="shell" />
             <Button asChild variant="outline" size="sm">
-              <a href={getMarketingLoginHref()}>{t('nav.login')}</a>
+              <a href={getMarketingLoginHref(docsLocale)}>{t('nav.login')}</a>
             </Button>
             <Button asChild size="sm">
-              <a href={getMarketingRegisterHref()}>
+              <a href={getMarketingRegisterHref(docsLocale)}>
                 {t('nav.getStarted')}
                 <ArrowRight02Icon className="ml-1 h-4 w-4" />
               </a>
@@ -169,10 +169,10 @@ export default function MarketingShell({ children, className }: MarketingShellPr
               <LocaleSwitcher variant="shell" />
             </div>
             <Button asChild variant="outline" size="lg" className="w-full rounded-2xl">
-              <a href={getMarketingLoginHref()} onClick={() => setMobileOpen(false)}>{t('nav.login')}</a>
+              <a href={getMarketingLoginHref(docsLocale)} onClick={() => setMobileOpen(false)}>{t('nav.login')}</a>
             </Button>
             <Button asChild size="lg" className="w-full rounded-2xl">
-              <a href={getMarketingRegisterHref()} onClick={() => setMobileOpen(false)}>
+              <a href={getMarketingRegisterHref(docsLocale)} onClick={() => setMobileOpen(false)}>
                 {t('nav.getStarted')}
                 <ArrowRight02Icon className="ml-2 h-4 w-4" />
               </a>

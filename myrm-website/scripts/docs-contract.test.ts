@@ -5,7 +5,7 @@ import {
   localizedDocsPath,
   appLocaleToDocsLocale,
 } from '../src/lib/docs-contract';
-import { getDocsUrl } from '../src/lib/deploy-mode';
+import { getAppUrl, getDocsUrl } from '../src/lib/deploy-mode';
 
 describe('localizedDocsPath', () => {
   test('keeps en paths unchanged', () => {
@@ -47,5 +47,18 @@ describe('getDocsUrl locale', () => {
     const url = getDocsUrl('/zh/getting-started/quickstart', 'zh');
     expect(url).toContain('/zh/getting-started/quickstart');
     expect(url).not.toContain('/zh/zh/');
+  });
+});
+
+describe('getAppUrl locale relay', () => {
+  test('appends locale query for marketing → app handoff', () => {
+    expect(getAppUrl('/auth/login', 'en')).toContain('locale=en');
+    expect(getAppUrl('/auth/login', 'zh')).toContain('locale=zh');
+  });
+
+  test('merges locale with existing query params', () => {
+    const url = getAppUrl('/auth/login?redirect=%2Fsettings', 'zh');
+    expect(url).toContain('redirect=%2Fsettings');
+    expect(url).toContain('locale=zh');
   });
 });

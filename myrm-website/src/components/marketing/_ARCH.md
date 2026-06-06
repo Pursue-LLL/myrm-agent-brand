@@ -2,7 +2,7 @@
 
 ## 概述
 
-`myrm-website` 是 `myrm-agent-brand` 仓内的 Next.js 营销站（Vercel 部署）。纯展示页；登录经 `getAppUrl()` 跳转 `app.myrmagent.ai`；文档经 `getDocsUrl()` 跳转 `docs.myrmagent.ai`。
+`myrm-website` 是 `myrm-agent-brand` 仓内的 Next.js 营销站（Vercel 部署）。纯展示页；App CTA 经 `getAppUrl(path, docsLocale)` 跳转 `app.myrmagent.ai`；文档经 `getDocsUrl()` 跳转 `docs.myrmagent.ai`。
 
 ## 页面路由
 
@@ -62,7 +62,7 @@ Hero → WorkspacePreview → HowItWorks（路径 Tab）→ QuickStart → Marqu
 
 | 函数 | 环境变量 | 默认 |
 |------|----------|------|
-| `getAppUrl()` | `NEXT_PUBLIC_APP_URL` | `https://app.myrmagent.ai` |
+| `getAppUrl(path, locale?)` | `NEXT_PUBLIC_APP_URL` | `https://app.myrmagent.ai`；CTA 附 `?locale=en\|zh` 接力 App `NEXT_LOCALE` |
 | `getDocsUrl(path, locale?)` | `NEXT_PUBLIC_DOCS_URL` | `https://docs.myrmagent.ai`；zh 前缀 `/zh/` |
 | 文档路径契约 | `lib/docs-contract.ts` | `localizedDocsPath()`；双 locale CI `validate:docs-slugs` |
 | 文档 locale | `hooks/useDocsLocale.ts` | 营销组件按站点 locale 生成 docs 链接 |
@@ -88,7 +88,7 @@ Hero → WorkspacePreview → HowItWorks（路径 Tab）→ QuickStart → Marqu
 
 ## 与 App 的关系
 
-- CTA 经 `getAppUrl()` 跳转 App
+- CTA 经 `getAppUrl(path, docsLocale)` 跳转 App；App `middleware.ts` 写 cookie；登录后 `locale-personal-sync` 写 `personalSettings`
 - 文档经 `getDocsUrl()` 跳转文档站
 - Pricing 为静态展示，订阅在 App 完成
 

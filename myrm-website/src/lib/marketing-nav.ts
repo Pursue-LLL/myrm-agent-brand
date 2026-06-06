@@ -46,10 +46,10 @@ export function buildMarketingNavLinks(
   ];
 }
 
-export function getMarketingRegisterHref(): string {
-  return getDeployPathRegisterHref();
+export function getMarketingRegisterHref(appLocale: DocsLocale = 'en'): string {
+  return getDeployPathRegisterHref(appLocale);
 }
 
-export function getMarketingLoginHref(): string {
-  return getDeployPathLoginHref();
+export function getMarketingLoginHref(appLocale: DocsLocale = 'en'): string {
+  return getDeployPathLoginHref(appLocale);
 }

@@ -45,10 +45,17 @@ describe('getDeployPathHref', () => {
     const saasHref = getDeployPathHref('saas');
     expect(saasHref).toContain('utm_source=website');
     expect(saasHref).toContain('utm_campaign=saas');
+    expect(saasHref).toContain('locale=en');
 
     const localHref = getDeployPathHref('localWebui');
     expect(localHref).toContain('utm_campaign=localWebui');
     expect(localHref).toContain('/getting-started/quickstart');
+  });
+
+  test('appends zh locale for SaaS deploy path', () => {
+    const saasZh = getDeployPathHref('saas', 'zh');
+    expect(saasZh).toContain('locale=zh');
+    expect(saasZh).toContain('utm_campaign=saas');
   });
 
   test('uses desktop download path for tauri', () => {
