@@ -442,6 +442,8 @@ Claude Code 采用「Fork 子 Agent」设计，字节级 prompt 前缀对齐以�
 
 **关键架构差异**：Claude Code DW 运行时生成带关键词触发的 JavaScript 编排脚本（非确定性，可失败或偏离）。Myrm **双路径**：生产负载用声明式 DAG（确定性、执行前可验证）；可选 **Dynamic Workflow**（手动开关、Python PTC 沙箱、确定性 `workflow_id`、SQLite 事件溯源实现子 Agent 幂等重放）用于临时并行脚本 — 均配 **一等 HITL GUI**。
 
+**置信度分级摘要**：DW 汇总结果自动标注 4 级置信度 — ✅ 已验证（有执行证据）、⚠️ 未验证（仅 LLM 推理）、❌ 已反驳（被证据否定）、💥 失败（任务出错）。用户一眼区分可靠结论与 LLM 猜测。零竞品提供此能力。
+
 ## vs Scrapling & BrowserUse — 全自主混合浏览器引擎
 
 典型 AI Agent 用 Playwright/Selenium 包装（如 BrowserUse）在动态页频繁崩溃；传统抓取框架（如 Scrapling）需开发者手写反爬代码。Myrm Agent 提供 **全自主混合浏览器引擎**。

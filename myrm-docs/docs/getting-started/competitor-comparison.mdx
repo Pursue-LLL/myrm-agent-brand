@@ -442,6 +442,8 @@ Based on user feedback from Claude Code's Dynamic Workflows feature (2026-05 dat
 
 **Key architectural difference**: Claude Code DW generates JavaScript orchestration scripts at runtime with keyword triggers (non-deterministic, can fail or diverge). Myrm offers a **dual-path** strategy: declarative DAG plans (deterministic, verifiable before execution) for production workloads, plus an optional **Dynamic Workflow** mode (manual toggle, Python PTC sandbox, deterministic `workflow_id`, SQLite event sourcing for idempotent sub-agent replay) for ad-hoc parallel scripting — all with a **first-class Human-in-the-Loop (HITL) GUI**.
 
+**Confidence-graded results**: Myrm's DW summarization automatically classifies each finding with a 4-tier confidence badge — ✅ Verified (backed by execution evidence), ⚠️ Unverified (LLM reasoning only), ❌ Refuted (contradicted by evidence), 💥 Failed (task errored). Users instantly distinguish reliable conclusions from LLM speculation. No competitor offers this capability.
+
 ## vs Scrapling & BrowserUse — Fully Autonomous Hybrid Browser Engine
 
 While typical AI agents use standard Playwright/Selenium wrappers (like BrowserUse) that crash constantly on dynamic pages, and traditional scraper frameworks (like Scrapling) require developers to manually write code to bypass anti-bot measures, Myrm Agent introduces a **Fully Autonomous Hybrid Browser Engine**.
