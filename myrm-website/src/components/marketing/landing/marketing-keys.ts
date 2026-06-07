@@ -204,6 +204,7 @@ export const DEPTH_GROUPS: readonly DepthGroupDef[] = [
     defaultOpen: false,
     items: [
       { source: 'highlights', itemKey: 'cjkMigration' },
+      { source: 'extendedHighlights', itemKey: 'weSightMigration' },
       { source: 'highlights', itemKey: 'smartDesktopDistribution' },
       { source: 'highlights', itemKey: 'appshotFlowPad' },
     ],
