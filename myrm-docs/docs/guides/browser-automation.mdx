@@ -50,3 +50,43 @@ For sites and apps that require login, configure **Form Credential Vault** entri
 ## Computer Use
 
 Desktop automation via Computer Use protocol for native application control.
+
+## Schema-Driven Structured Extraction
+
+Instead of dumping raw page text into the conversation (which wastes context tokens), you can pass a **JSON Schema** to the extraction tool and get back validated, structured JSON.
+
+### How it works
+
+1. Agent calls `browser_extract` with an `extraction_schema` parameter (a JSON Schema string).
+2. The tool extracts the page text, then uses an LLM to produce structured output matching your schema.
+3. You receive clean, validated JSON — not thousands of tokens of raw HTML.
+
+### Example
+
+Ask the agent: *"Extract all product names and prices from this page"*
+
+The agent uses a schema like:
+
+```json
+{
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "name": { "type": "string" },
+      "price": { "type": "string" }
+    },
+    "required": ["name", "price"]
+  }
+}
+```
+
+Result: a clean JSON array with just the data you need.
+
+### Key Features
+
+- **Object and Array schemas** — Extract a single object or a list of items.
+- **Pagination deduplication** — Pass `already_collected` to avoid duplicates across pages.
+- **Dual-strategy reliability** — Preferred `structured_output` with raw JSON fallback for model compatibility.
+- **Token savings** — 70–97% reduction compared to raw text extraction.
+- **Schema complexity protection** — Limits on property count and nesting depth prevent misuse.

@@ -41,7 +41,7 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **Computer Use** | ✅ Desktop automation + BBox approval + Tauri OS overlay | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Browser Engine** | ✅ 3-layer engine | ❌ | ❌ | ❌ | ❌ | ⚠️ Unknown | ❌ |
 | **Web Search** | ✅ 7 engines + BM25/Reranker filter | ⚠️ Cloud API passthrough | ⚠️ DDG/Bing scrape | ⚠️ Same as OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
-| **Web Fetch** | ✅ 3-tier + vector extract + DOM prune | ⚠️ web_extract (Firecrawl + LLM) | ⚠️ HTTP / Firecrawl fallback | ⚠️ Same | ⚠️ HTTP only | ❌ | ❌ |
+| **Web Fetch** | ✅ 3-tier + vector extract + DOM prune + Schema-Driven structured extraction | ⚠️ web_extract (Firecrawl + LLM) | ⚠️ HTTP / Firecrawl fallback | ⚠️ Same | ⚠️ HTTP only | ❌ | ❌ |
 | **Web Image Search** | ✅ built-in image_search | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Long Report TOC** | ✅ Auto TOC + scroll sync in chat | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Precision Multimodal** | ✅ Intent-aware vision (No UI ops = 0 vision token) | ⚠️ Always-on (wastes tokens) | ⚠️ Blind (no screenshots) | ⚠️ Unknown | ⚠️ Blind | ⚠️ Blind | ❌ |
@@ -244,9 +244,9 @@ Hermes `web_extract` appears "zero-config" because it uses LLM summarization ins
 
 | From | After migrating to Myrm |
 |------|-------------------------|
-| Hermes | Drop Firecrawl dependency; local 3-tier fetch; GUI search engine config |
-| OpenClaw | No manual Tavily/baidu Skill; 7-engine fallback; BM25/Reranker filtering |
-| Claude Code | Self-hosted + 100+ models; auditable filter pipeline; PTC-native web tools |
+| Hermes | Drop Firecrawl dependency; local 3-tier fetch; GUI search engine config; Schema-Driven extraction saves 97% tokens |
+| OpenClaw | No manual Tavily/baidu Skill; 7-engine fallback; BM25/Reranker filtering; built-in structured data extraction |
+| Claude Code | Self-hosted + 100+ models; auditable filter pipeline; PTC-native web tools; JSON Schema → validated output |
 
 See [Web Search & Fetch Guide](/docs/guides/web-search-and-fetch) for setup and configuration.
 

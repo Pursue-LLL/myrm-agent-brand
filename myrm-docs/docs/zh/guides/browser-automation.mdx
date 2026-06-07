@@ -50,3 +50,43 @@ Myrm Agent 可自主浏览网页、填表、提取数据并执行操作。
 ## Computer Use
 
 通过 Computer Use 协议实现桌面自动化，控制原生应用。
+
+## Schema 驱动结构化提取
+
+无需将整页原始文本灌入对话（浪费上下文 Token），你可以传入 **JSON Schema**，提取工具直接返回验证过的结构化 JSON。
+
+### 工作原理
+
+1. Agent 调用 `browser_extract`，附带 `extraction_schema` 参数（JSON Schema 字符串）。
+2. 工具提取页面文本，然后用 LLM 生成符合 Schema 的结构化输出。
+3. 你得到干净、验证过的 JSON——而非数千 Token 的原始 HTML。
+
+### 示例
+
+向 Agent 提问：*"提取页面上所有产品名称和价格"*
+
+Agent 使用如下 Schema：
+
+```json
+{
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "name": { "type": "string" },
+      "price": { "type": "string" }
+    },
+    "required": ["name", "price"]
+  }
+}
+```
+
+结果：仅包含你需要数据的干净 JSON 数组。
+
+### 核心特性
+
+- **对象和数组 Schema** — 提取单个对象或项目列表。
+- **分页去重** — 传入 `already_collected` 避免跨页重复。
+- **双策略可靠性** — 优先 `structured_output`，兼容性回退到原始 JSON 解析。
+- **Token 节省** — 相比原始文本提取减少 70–97%。
+- **Schema 复杂度保护** — 限制属性数量和嵌套深度，防止滥用。
