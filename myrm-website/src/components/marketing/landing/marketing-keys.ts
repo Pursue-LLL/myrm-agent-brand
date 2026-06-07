@@ -181,6 +181,7 @@ export const DEPTH_GROUPS: readonly DepthGroupDef[] = [
       { source: 'highlights', itemKey: 'ptc' },
       { source: 'highlights', itemKey: 'codexParity' },
       { source: 'highlights', itemKey: 'kanbanCollaboration' },
+      { source: 'extendedHighlights', itemKey: 'globalReviewer' },
     ],
   },
   {
@@ -197,6 +198,8 @@ export const DEPTH_GROUPS: readonly DepthGroupDef[] = [
       { source: 'extendedHighlights', itemKey: 'unifiedToolGateway' },
       { source: 'extendedHighlights', itemKey: 'enterpriseTesting' },
       { source: 'extendedHighlights', itemKey: 'antiBlockingTitle' },
+      { source: 'extendedHighlights', itemKey: 'resourceThrottling' },
+      { source: 'extendedHighlights', itemKey: 'airGappedMode' },
     ],
   },
   {
@@ -207,6 +210,8 @@ export const DEPTH_GROUPS: readonly DepthGroupDef[] = [
       { source: 'extendedHighlights', itemKey: 'weSightMigration' },
       { source: 'highlights', itemKey: 'smartDesktopDistribution' },
       { source: 'highlights', itemKey: 'appshotFlowPad' },
+      { source: 'extendedHighlights', itemKey: 'multiAgentWorkspace' },
+      { source: 'extendedHighlights', itemKey: 'remoteGateway' },
     ],
   },
 ] as const;

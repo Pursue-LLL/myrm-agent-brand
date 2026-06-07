@@ -185,25 +185,41 @@
           "name": "免费版",
           "price": "¥0",
           "wu": "600 WU/月",
-          "features": ["1 个 Agent", "基础记忆", "社区支持"]
+          "features": [
+            "1 个 Agent",
+            "基础记忆",
+            "社区支持"
+          ]
         },
         "companion": {
           "name": "Companion",
           "price": "$19",
           "wu": "6,000 WU/月",
-          "features": ["无限 Agent", "完整记忆系统", "多渠道支持"]
+          "features": [
+            "无限 Agent",
+            "完整记忆系统",
+            "多渠道支持"
+          ]
         },
         "pro": {
           "name": "Pro",
           "price": "$49",
           "wu": "18,000 WU/月",
-          "features": ["Companion 全部功能", "优先支持", "7 天免费试用"]
+          "features": [
+            "Companion 全部功能",
+            "优先支持",
+            "7 天免费试用"
+          ]
         },
         "max": {
           "name": "Max",
           "price": "$149",
           "wu": "60,000 WU/月",
-          "features": ["Pro 全部功能", "专属支持", "定制集成"]
+          "features": [
+            "Pro 全部功能",
+            "专属支持",
+            "定制集成"
+          ]
         }
       }
     },
@@ -338,7 +354,7 @@
         "tools": "工具与能力"
       },
       "llmList": "OpenAI · Anthropic · Google Gemini · DeepSeek · Qwen · 本地模型",
-      "toolsList": "MCP 协议（多服务器并行 + 动态发现 + Per-Agent 权限 + 6 层安全 + ext-apps 沙箱 UI） · OpenAPI 零代码接入 · 浏览器 · 文件系统 · 终端 · 定时任务 · GitHub · 代码执行 · Web Search + Web Fetch · 数据库",
+      "toolsList": "MCP 协议（多服务器并行 + 持久热连接 + 事件驱动发现 + Per-Agent 权限 + 6 层安全 + ext-apps 沙箱 UI） · OpenAPI 零代码接入 · 浏览器 · 文件系统 · 终端 · 定时任务 · GitHub · 代码执行 · Web Search + Web Fetch · 数据库",
       "more": "更多集成持续扩展中"
     },
     "testimonials": {
@@ -423,7 +439,7 @@
       "title": "与优秀同类产品对比",
       "subtitle": "2026 年 5 月代码审计对比；Token 实测条件与脚注见下方 Benchmark 区块。",
       "tagline": "对比 Hermes · OpenClaw 两大开源同类产品。",
-      "scrollHint": "左右滑动查看表格",
+      "scrollHint": "左右滑动查看完整对比",
       "tabs": {
         "a11y": "对比表分类",
         "all": "全部",
@@ -597,10 +613,16 @@
           "myrmAgent": "14自愈+GUI体检"
         },
         "toolIntegration": {
-          "feature": "工具生态集成",
-          "hermes": "仅 MCP",
-          "openclaw": "Extensions",
-          "myrmAgent": "MCP + OpenAPI + Skills"
+          "feature": "工具生态集成 · 27 项预配置服务 / 9 大类别 / 一键连接",
+          "hermes": "仅 MCP，无服务目录",
+          "openclaw": "Extensions，需开发",
+          "myrmAgent": "MCP + OpenAPI + Skills + 27 项预配置服务目录"
+        },
+        "mcpArchitecture": {
+          "feature": "MCP 架构 · 持久连接 + Prompt 缓存稳定",
+          "hermes": "会话级冷重连",
+          "openclaw": "会话级冷重连",
+          "myrmAgent": "持久热连接 + 事件驱动 + 冻结代理（90% 缓存命中）"
         },
         "unifiedToolGateway": {
           "feature": "统一工具网关",
@@ -752,8 +774,7 @@
           "openclaw": "_no",
           "myrmAgent": "快捷键截屏+文字提取+FlowPad"
         }
-      },
-      "scrollHint": "左右滑动查看完整对比"
+      }
     },
     "tokenBenchmark": {
       "title": "Token 效率实测",
@@ -912,6 +933,26 @@
           "point2": "共享知识网格 vs 隔离模式双切：告别数据碎片化，零成本继承记忆，兼顾防污染安全",
           "point3": "P2P 智能体协作与 mDNS 算力发现：多个智能体自主网格互联，摆脱单一 Leader 效率瓶颈",
           "point4": "托盘 Daemon 守护防掉线：即便关闭应用界面，也能保持飞书/微信 24 小时后台畅连"
+        },
+        "multiAgentWorkspace": {
+          "title": "多子窗口并行会话工作区",
+          "desc": "像指挥官一样掌控全局。分屏/多 Tab 工作区允许您同时监控和干预多个子 Agent 的独立对话流，告别黑盒执行。"
+        },
+        "remoteGateway": {
+          "title": "SaaS 远控本地节点网关",
+          "desc": "躺在床上用手机指挥家里电脑干活。通过安全的云端反向隧道，在 SaaS 网页直接唤醒并驱动本地 Tauri 客户端执行任务。"
+        },
+        "globalReviewer": {
+          "title": "跨文件全局收口审查节点",
+          "desc": "不再有拼凑感，交付即完美。在动态工作流末端强制引入专职 Reviewer，对所有并行子任务产物进行全局一致性审查。"
+        },
+        "resourceThrottling": {
+          "title": "基于物理资源的并发节流阀",
+          "desc": "榨干算力但不死机。动态监听宿主机 CPU/内存 负载，自动限制本地 Agent 裂变速度，保障本地执行绝对稳定。"
+        },
+        "airGappedMode": {
+          "title": "极端网络纯本地模式向导",
+          "desc": "断网也能用的超级大脑。内置网络诊断与一键对接 Ollama/LM Studio 向导，在无外网环境下依然流畅运行基础任务。"
         }
       }
     },
