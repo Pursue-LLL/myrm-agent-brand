@@ -129,6 +129,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'promptMode',
     'contextPipeline',
     'extremeAntiExplosion',
+    'outputSanitization',
     'errorRecovery',
     'multimodel',
     'multiModelConsensus',
