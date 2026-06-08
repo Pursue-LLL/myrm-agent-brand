@@ -64,12 +64,34 @@ Built-in periodic self-check (`__heartbeat__`) with **Situation Report** injecti
 | 9 | No-content Skip | Heartbeat skips LLM call when all sections empty |
 | 10 | Failure Alert Cooldown | Even failure alerts have cooldown periods |
 
+## Event-Driven Triggers
+
+Beyond time-based scheduling, tasks can be triggered by external events:
+
+| Trigger Type | How It Works |
+|-------------|-------------|
+| **Event Regex** | Incoming channel messages matching a regex pattern trigger the task |
+| **System Event** | Structured events (source + event_type + filters) trigger automatically |
+| **Webhook** | External services send HTTP POST with HMAC-SHA256 signature verification |
+
+Trigger context (the matched message, event payload, or webhook body) is injected into the Agent's prompt so it knows *why* it was triggered.
+
+## Crash Recovery
+
+Myrm's scheduler auto-recovers after unexpected restarts with a 3-phase startup recovery:
+
+1. **Stale-Run Recovery** — detects tasks marked "running" that never completed (process crash) and reschedules
+2. **Missed-Slot Replay** — identifies cron slots that were missed during downtime and replays them
+3. **Grace Window** — tasks within the misfire grace window execute immediately; expired ones skip to next cycle
+
 ## Security
 
-- **Prompt injection scanning** before every execution
+- **Prompt injection scanning** (12 patterns) before every execution
 - **ContextVar self-scheduling guard** prevents infinite task chains (cron job cannot create new cron jobs)
 - **Budget enforcement** blocks execution when daily budget is exceeded
 - **YOLO mode auto-enable** for unattended execution (no HITL blocking)
+- **ReDoS protection** on event trigger regex patterns
+- **SSRF protection** on webhook delivery URLs
 
 ## Desktop Power Management
 

@@ -832,6 +832,19 @@ Myrm 提供 **零成本热迁移与原子持久化引擎**：
 
 **诚实评分**：本地五源 GUI 迁移 **9.7/10** — 非「覆盖每个竞品工件」。**SaaS 云沙箱不可用**（无法访问用户主机文件系统）；请用 Local WebUI 或 Tauri 桌面端。
 
+### 实跑验证（2026-06-08）
+
+开发机最小批量回归（合计约 7 秒）：
+
+| 套件 | 结果 |
+|------|------|
+| 竞品发现 + 迁移 API pytest | **31 通过** |
+| 架构 `_ARCH.md` 占位门禁 | **277 通过** |
+| OSS 脚本架构测试 | **5 通过** |
+| `check_fractal_docs --no-stub` + 行数预算 CI | **OK** |
+
+测试目录 scoped 扫描 [server `competitor_discovery.py`] 仅影响自动化测试；生产 `/migration/discover` 仍扫描真实用户主目录。竞品（OpenClaw、Hermes、DeerFlow、CodePilot、LobsterAI、CoPaw、jiuwenclaw）：**无 GUI 五源向导**；Hermes 仅有 CLI `claw migrate`。
+
 ### 迁移后你将获得（面向用户）
 
 - **保留人格与习惯** — SOUL 式指令落在你选的 Agent 配置，非一刀切默认。

@@ -832,6 +832,19 @@ Myrm introduces a **Zero-Cost Hot Migration & Atomic Persistence Engine**:
 
 **Honest score**: **9.7/10** for local five-source GUI migration — not “perfect for every competitor artifact.” **Not available on SaaS cloud sandboxes** (no access to the user’s host filesystem); use Local WebUI or Tauri desktop only.
 
+### Verified (2026-06-08)
+
+Automated regression on a developer machine (minimal batch, ~7s total):
+
+| Suite | Result |
+|-------|--------|
+| Competitor discovery + migration API pytest | **31 passed** |
+| Architecture `_ARCH.md` placeholder gate | **277 passed** |
+| OSS scripts architecture tests | **5 passed** |
+| `check_fractal_docs --no-stub` + line budget CI scripts | **OK** |
+
+Discovery scoped to explicit test home dirs [server `competitor_discovery.py`] — production `/migration/discover` still scans the real user home unchanged. Competitors checked (OpenClaw, Hermes, DeerFlow, CodePilot, LobsterAI, CoPaw, jiuwenclaw): **no GUI five-source wizard**; Hermes offers CLI `claw migrate` only.
+
 ### What you get after migrating (user-facing)
 
 - **Keep your persona and habits** — SOUL-style instructions land on an Agent profile you pick, not a one-size-fits-all default.
