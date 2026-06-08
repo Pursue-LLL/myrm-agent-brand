@@ -58,6 +58,7 @@ export const COMPARE_ROW_KEYS = [
   'promptMode',
   'contextPipeline',
   'extremeAntiExplosion',
+  'outputSanitization',
   'errorRecovery',
   'toolIntegration',
   'unifiedToolGateway',
