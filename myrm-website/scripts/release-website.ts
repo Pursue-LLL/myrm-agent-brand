@@ -4,7 +4,7 @@
  * - git origin/main (POS: 发布源分支)
  *
  * [OUTPUT]
- * - release-website CLI: git tag + push tag + POST CF Deploy Hook
+ * - release-website CLI: preflight → git tag + push tag + POST CF Deploy Hook
  *
  * [POS]
  * 营销站 tag 触发生产部署；Dashboard automatic deployments 关闭后唯一上线入口。
@@ -55,48 +55,91 @@ export function normalizeWebsiteTag(raw: string): string {
   return tag;
 }
 
+export type TagReleaseAction = 'create' | 'redeploy';
+
+export function resolveTagReleaseAction(
+  tagCommit: string | null,
+  headCommit: string,
+  tag: string,
+): TagReleaseAction {
+  if (tagCommit === null) {
+    return 'create';
+  }
+  if (tagCommit !== headCommit) {
+    throw new Error(
+      `Tag ${tag} points to ${shortSha(tagCommit)} but HEAD is ${shortSha(headCommit)}. Use a new tag version.`,
+    );
+  }
+  return 'redeploy';
+}
+
+function shortSha(commit: string): string {
+  return commit.slice(0, 7);
+}
+
 function usage(): never {
   console.error(
     [
       'Usage: bun run release:website -- website-v1.2.0',
       '',
-      'Creates git tag, pushes main (if needed) + tag, then POSTs CF Deploy Hook.',
+      'Preflight (clean tree, sync main, build, test) → git tag → push tag → POST CF Deploy Hook.',
       'Set CF_PAGES_DEPLOY_HOOK in myrm-website/.env.local or env.',
     ].join('\n'),
   );
   process.exit(1);
 }
 
-function run(command: string): string {
+function runInherit(command: string): void {
+  execSync(command, { stdio: 'inherit', cwd: rootDir });
+}
+
+function gitRun(command: string): string {
   return execSync(command, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] }).trim();
 }
 
-function runInherit(command: string): void {
-  execSync(command, { stdio: 'inherit' });
+function ensureCleanWorkingTree(): void {
+  try {
+    execSync('git diff --quiet', { stdio: 'ignore' });
+    execSync('git diff --cached --quiet', { stdio: 'ignore' });
+  } catch {
+    throw new Error('Working tree has uncommitted changes. Commit or stash before release.');
+  }
 }
 
-function tagExists(tag: string): boolean {
+function resolveTagCommit(tag: string): string | null {
   try {
-    execSync(`git rev-parse "refs/tags/${tag}^{tag}"`, { stdio: 'ignore' });
-    return true;
+    return gitRun(`git rev-parse "refs/tags/${tag}^{commit}"`);
   } catch {
-    return false;
+    return null;
   }
 }
 
 function ensureMainSyncedWithOrigin(): void {
-  const branch = run('git branch --show-current');
+  const branch = gitRun('git branch --show-current');
   if (branch !== 'main') {
     throw new Error(`Release must run on main (current: ${branch})`);
   }
 
   runInherit('git fetch origin main');
 
-  const ahead = run('git rev-list --count origin/main..HEAD');
+  const behind = gitRun('git rev-list --count HEAD..origin/main');
+  if (behind !== '0') {
+    throw new Error(
+      `Local main is ${behind} commit(s) behind origin/main. Run: git pull --ff-only origin main`,
+    );
+  }
+
+  const ahead = gitRun('git rev-list --count origin/main..HEAD');
   if (ahead !== '0') {
     console.info(`[release-website] Pushing ${ahead} local commit(s) on main to origin…`);
-    runInherit('git push origin main');
+    execSync('git push origin main', { stdio: 'inherit' });
   }
+}
+
+function runReleasePreflight(): void {
+  console.info('[release-website] Running build + test preflight…');
+  runInherit('bun run build');
+  runInherit('bun run test');
 }
 
 async function triggerDeployHook(url: string): Promise<void> {
@@ -120,17 +163,23 @@ async function main(): Promise<void> {
 
   const tag = normalizeWebsiteTag(tagArg);
 
+  ensureCleanWorkingTree();
   ensureMainSyncedWithOrigin();
+  runReleasePreflight();
 
-  if (tagExists(tag)) {
-    console.info(`[release-website] Tag ${tag} already exists; skipping git tag create.`);
+  const headCommit = gitRun('git rev-parse HEAD');
+  const tagCommit = resolveTagCommit(tag);
+  const action = resolveTagReleaseAction(tagCommit, headCommit, tag);
+
+  if (action === 'redeploy') {
+    console.info(`[release-website] Tag ${tag} already at HEAD; redeploy only.`);
   } else {
     console.info(`[release-website] Creating tag ${tag} on HEAD…`);
-    runInherit(`git tag -a "${tag}" -m "Release myrm-agent-brand ${tag}"`);
+    execSync(`git tag -a "${tag}" -m "Release myrm-agent-brand ${tag}"`, { stdio: 'inherit' });
   }
 
   console.info(`[release-website] Pushing tag ${tag}…`);
-  runInherit(`git push origin "${tag}"`);
+  execSync(`git push origin "${tag}"`, { stdio: 'inherit' });
 
   console.info('[release-website] Triggering Cloudflare Pages deploy hook…');
   await triggerDeployHook(hookUrl);

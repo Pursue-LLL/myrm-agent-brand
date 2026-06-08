@@ -39,9 +39,8 @@ CF Dashboard 已配置：
 
 ### 正式发布（打 tag + Deploy Hook）
 
-1. 确保 `main` 已包含待发布 commit
-2. 本地合并前校验：`cd myrm-website && bun run build && bun run test`
-3. 从 CF Dashboard → Settings → Deploy Hooks 复制 hook URL，写入本地环境变量（**不入库**）：
+1. 确保 `main` 工作区干净、已与 `origin/main` 同步（无未提交改动、无落后远程）
+2. 从 CF Dashboard → Settings → Deploy Hooks 复制 hook URL，写入本地环境变量（**不入库**）：
 
 ```bash
 export CF_PAGES_DEPLOY_HOOK='https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/…'
@@ -49,9 +48,9 @@ cd myrm-website
 bun run release:website -- website-v1.2.0
 ```
 
-脚本会：同步 `origin/main`（如有未 push commit）→ 创建 git tag → `git push --tags` → POST Deploy Hook → CF 从 `main` 最新 commit 构建部署。
+脚本会：**preflight**（干净工作区 → fetch/sync `origin/main` → `bun run build` → `bun run test`）→ 创建 git tag（或 tag 已在 HEAD 时仅 redeploy）→ `git push` tag → POST Deploy Hook → CF 从 `main` 最新 commit 构建部署。
 
-合并前本地校验：`cd myrm-website && bun run build`。
+若 tag 已指向其他 commit，脚本会中止；请使用新版本号（如 `website-v1.2.1`）。
 
 应急部署（Deploy Hook 不可用时）：本地 build 后 `wrangler pages deploy out --project-name=myrm-agent-brand`。
 

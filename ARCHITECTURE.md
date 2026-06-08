@@ -32,8 +32,7 @@
 ### 发布流程
 
 1. 日常：`git push origin main` → 仅更新代码，不上线（CF 可能显示 skipped 记录，可忽略）
-2. 发布前：`bun run build && bun run test`
-3. 发布：`bun run release:website -- website-v1.2.0` → 同步 origin/main + tag + Deploy Hook → CF 构建部署
+2. 发布：`bun run release:website -- website-v1.2.0` → preflight（干净工作区、同步 origin/main、`build`+`test`）→ tag + Deploy Hook → CF 构建部署
 
 Deploy Hook URL 存本地环境变量，不入库。见 [`myrm-website/scripts/release-website.ts`](myrm-website/scripts/release-website.ts)。
 
@@ -45,7 +44,7 @@ Deploy Hook URL 存本地环境变量，不入库。见 [`myrm-website/scripts/r
 
 `myrm-website/next.config.ts` 使用 `output: 'export'`，`next build` 静态产物在 `myrm-website/out/`。
 
-合并前本地执行 `cd myrm-website && bun run build`；应急 wrangler 上传见仓根 README。
+`release-website.ts` 内置 `build`+`test` preflight；应急 wrangler 上传见仓根 README。
 
 ## 模块架构文档索引
 

@@ -1,5 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { normalizeWebsiteTag, WEBSITE_TAG_PATTERN } from './release-website';
+import {
+  normalizeWebsiteTag,
+  resolveTagReleaseAction,
+  WEBSITE_TAG_PATTERN,
+} from './release-website';
 
 describe('WEBSITE_TAG_PATTERN', () => {
   test('accepts semver website tags', () => {
@@ -24,5 +28,24 @@ describe('normalizeWebsiteTag', () => {
 
   test('throws on invalid format', () => {
     expect(() => normalizeWebsiteTag('bad-tag')).toThrow('Invalid tag');
+  });
+});
+
+describe('resolveTagReleaseAction', () => {
+  const head = 'abc1234567890abcdef1234567890abcdef123456';
+  const other = 'def1234567890abcdef1234567890abcdef123456';
+
+  test('returns create when tag is absent', () => {
+    expect(resolveTagReleaseAction(null, head, 'website-v1.0.0')).toBe('create');
+  });
+
+  test('returns redeploy when tag matches HEAD', () => {
+    expect(resolveTagReleaseAction(head, head, 'website-v1.0.0')).toBe('redeploy');
+  });
+
+  test('throws when tag points to a different commit', () => {
+    expect(() => resolveTagReleaseAction(other, head, 'website-v1.0.0')).toThrow(
+      'Tag website-v1.0.0 points to def1234 but HEAD is abc1234',
+    );
   });
 });
