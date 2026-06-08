@@ -5,7 +5,7 @@
  *
  * [OUTPUT]
  * - release-website CLI: preflight → git tag + push tag + POST CF Deploy Hook
- * - normalizeWebsiteTag, resolveTagReleaseAction, assertWorkingTreeClean
+ * - normalizeWebsiteTag, resolveTagReleaseAction, assertWorkingTreeClean, mapTagRevParseExitCode
  *
  * [POS]
  * 营销站 tag 触发生产部署；Dashboard automatic deployments 关闭后唯一上线入口。
@@ -96,12 +96,19 @@ function shortSha(commit: string): string {
   return commit.slice(0, 7);
 }
 
+export function mapTagRevParseExitCode(exitCode: number | undefined): 'missing' | 'rethrow' {
+  if (exitCode === 128) {
+    return 'missing';
+  }
+  return 'rethrow';
+}
+
 function usage(): never {
   console.error(
     [
       'Usage: bun run release:website -- website-v1.2.0',
       '',
-      'Preflight (clean tree, sync main, build, test) → git tag → push tag → POST CF Deploy Hook.',
+      'Preflight (clean tree, sync main, tag check, build, test) → git tag → push tag → POST CF Deploy Hook.',
       'Set CF_PAGES_DEPLOY_HOOK in myrm-website/.env.local or env.',
     ].join('\n'),
   );
@@ -130,9 +137,21 @@ function ensureCleanWorkingTree(): void {
 
 function resolveTagCommit(tag: string): string | null {
   try {
-    return gitRun(`git rev-parse "refs/tags/${tag}^{commit}"`);
-  } catch {
-    return null;
+    return execSync(`git rev-parse --verify "refs/tags/${tag}^{commit}"`, {
+      encoding: 'utf8',
+      cwd: repoRoot,
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+  } catch (error: unknown) {
+    const exitCode =
+      typeof error === 'object' && error !== null && 'status' in error
+        ? (error as { status: number }).status
+        : undefined;
+    if (mapTagRevParseExitCode(exitCode) === 'missing') {
+      return null;
+    }
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`git rev-parse failed for tag ${tag}: ${message}`);
   }
 }
 
@@ -187,16 +206,19 @@ async function main(): Promise<void> {
 
   ensureCleanWorkingTree();
   ensureMainSyncedWithOrigin();
-  runReleasePreflight();
 
   const headCommit = gitRun('git rev-parse HEAD');
   const tagCommit = resolveTagCommit(tag);
   const action = resolveTagReleaseAction(tagCommit, headCommit, tag);
 
   if (action === 'redeploy') {
-    console.info(`[release-website] Tag ${tag} already at HEAD; redeploy only.`);
-  } else {
-    console.info(`[release-website] Creating tag ${tag} on HEAD…`);
+    console.info(`[release-website] Tag ${tag} already at HEAD (${shortSha(headCommit)}); redeploy only.`);
+  }
+
+  runReleasePreflight();
+
+  if (action === 'create') {
+    console.info(`[release-website] Creating tag ${tag} on HEAD (${shortSha(headCommit)})…`);
     gitRunInherit(`git tag -a "${tag}" -m "Release myrm-agent-brand ${tag}"`);
   }
 
@@ -206,7 +228,9 @@ async function main(): Promise<void> {
   console.info('[release-website] Triggering Cloudflare Pages deploy hook…');
   await triggerDeployHook(hookUrl);
 
-  console.info(`[release-website] Done. Tagged ${tag} → myrmagent.ai (after CF build completes).`);
+  console.info(
+    `[release-website] Done. ${tag} @ ${shortSha(headCommit)} → myrmagent.ai (after CF build completes).`,
+  );
 }
 
 if (import.meta.main) {

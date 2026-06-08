@@ -12,8 +12,8 @@
 | `desktop-release.test.ts` | 辅助 | desktop-release 解析单测 |
 | `deploy-paths.test.ts` | 辅助 | deploy-paths 单测 |
 | `generate-hero-demo-webm.ts` | 辅助 | 从 workspace 预览图生成 hero-demo.webm（可选） |
-| `release-website.ts` | 核心 | tag + CF Deploy Hook；preflight：干净工作区、sync origin/main、build+test、tag≠HEAD 校验 | ✅ |
-| `release-website.test.ts` | 辅助 | website tag 格式 + tag/HEAD 冲突 + 工作区洁净单测 | — |
+| `release-website.ts` | 核心 | tag + CF Deploy Hook；preflight：干净工作区、sync origin/main、tag/HEAD 检查、build+test | ✅ |
+| `release-website.test.ts` | 辅助 | website tag 格式 + tag/HEAD 冲突 + 工作区洁净 + rev-parse exit 单测 | — |
 
 ## 构建链
 

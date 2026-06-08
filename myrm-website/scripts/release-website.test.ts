@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import {
   assertWorkingTreeClean,
+  mapTagRevParseExitCode,
   normalizeWebsiteTag,
   resolveTagReleaseAction,
   WEBSITE_TAG_PATTERN,
@@ -60,5 +61,16 @@ describe('assertWorkingTreeClean', () => {
   test('throws when porcelain has changes', () => {
     expect(() => assertWorkingTreeClean(' M README.md')).toThrow('Working tree is not clean');
     expect(() => assertWorkingTreeClean('?? temp.txt')).toThrow('Working tree is not clean');
+  });
+});
+
+describe('mapTagRevParseExitCode', () => {
+  test('returns missing for git unknown revision', () => {
+    expect(mapTagRevParseExitCode(128)).toBe('missing');
+  });
+
+  test('returns rethrow for other exit codes', () => {
+    expect(mapTagRevParseExitCode(1)).toBe('rethrow');
+    expect(mapTagRevParseExitCode(undefined)).toBe('rethrow');
   });
 });

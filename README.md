@@ -48,7 +48,7 @@ cd myrm-website
 bun run release:website -- website-v1.2.0
 ```
 
-脚本会：**preflight**（干净工作区 → fetch/sync `origin/main` → `bun run build` → `bun run test`）→ 创建 git tag（或 tag 已在 HEAD 时仅 redeploy）→ `git push` tag → POST Deploy Hook → CF 从 `main` 最新 commit 构建部署。
+脚本会：**preflight**（干净工作区 → fetch/sync `origin/main` → tag/HEAD 检查 → `bun run build` → `bun run test`）→ 创建 git tag（或 tag 已在 HEAD 时仅 redeploy）→ `git push` tag → POST Deploy Hook → CF 从 `main` 最新 commit 构建部署。成功时输出 tag + commit SHA。
 
 若 tag 已指向其他 commit，脚本会中止；请使用新版本号（如 `website-v1.2.1`）。
 
