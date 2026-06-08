@@ -120,13 +120,20 @@ KPI、热力图、雷达图、周趋势、进化时间线。
 
 ## 对比替代方案
 
-| 能力 | Myrm | Hermes darwinian-evolver | 通用 LLM Agent |
-|-----------|:----:|:---:|:---:|
-| 集成 | 原生（42 模块） | 外部 CLI（AGPL） | 无 |
-| 安全层 | 5 | 0 | 0 |
-| GUI 审批 | 有 | 无 | 无 |
-| 进化成本 | 3 变体/次 | 50–500 LLM/次 | N/A |
-| 持久化 | SQLite + Qdrant | Pickle | N/A |
-| 挫败检测 | 38 双语模式 | 无 | 无 |
+| 能力 | Myrm | OpenClaw | Hermes | 通用 LLM Agent |
+|-----------|:----:|:--------:|:------:|:---:|
+| 集成 | 原生（42 模块） | 配置式（4 字段） | 外部 CLI（AGPL） | 无 |
+| 进化策略 | 4 级（balanced/innovate/harden/repair-only） | 布尔开关 | 无 | 无 |
+| 审批机制 | 两阶段筛选器 + GUI 审核面板 | pending/auto 二选一 | 自动执行 | 无 |
+| 单技能锁 | 有（frontmatter + API） | 无（仅全局） | 无 | 无 |
+| 安全层 | 5 | 0 | 0 | 0 |
+| 隔离机制 | 1-Strike/3-Strikes 自动隔离 | 无 | 无 | 无 |
+| 拒绝学习 | 永久约束 | 无 | 无 | 无 |
+| 影子审批 | 先测试再上线 | 无 | 无 | 无 |
+| GUI 审批 | 完整看板 + Diff 预览 | 无 | 无 | 无 |
+| 进化成本 | 3 变体/次 | N/A | 50–500 LLM/次 | N/A |
+| 持久化 | SQLite + Qdrant | 文件系统 | Pickle | N/A |
+| 挫败检测 | 38 双语模式 | 无 | 无 | 无 |
+| 审计看板 | 待审 + 拒绝双看板 | 无 | 无 | 无 |
 
-Hermes 需 **5 个第三方插件** 才近似 Myrm 原生能力；Myrm 单一产品、更深集成、GUI 优先、5 层进化安全 + 6 层平台安全。
+Hermes 需 **5 个第三方插件** 才近似 Myrm 原生能力；OpenClaw 仅提供 4 个配置字段（autonomous.enabled/approvalPolicy/maxPending/maxSkillBytes）；Myrm 单一产品、更深集成、GUI 优先、5 层进化安全 + 6 层平台安全。

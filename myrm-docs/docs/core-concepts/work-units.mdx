@@ -1,13 +1,17 @@
 ---
-title: Work Units
-description: Unified billing model for SaaS usage.
+title: Work Units & Cost Management
+description: Unified billing, budget controls, and full-chain cost analytics.
 ---
 
-# Work Units (WU)
+# Work Units & Cost Management
+
+Myrm provides a comprehensive cost management system across all deployment modes — from SaaS Work Unit billing to local BYOK budget controls and a full-chain analytics dashboard.
+
+## Work Units (SaaS)
 
 Work Units are the unified currency for all SaaS platform usage.
 
-## What Consumes WU
+### What Consumes WU
 
 | Activity | Rate |
 |----------|------|
@@ -17,7 +21,7 @@ Work Units are the unified currency for all SaaS platform usage.
 | Sandbox active time | Per minute |
 | File storage | Per GB/month |
 
-## Plans
+### Plans
 
 | Plan | WU/month | Price | Extras |
 |------|----------|-------|--------|
@@ -33,3 +37,51 @@ Myrm's optimized system prompt uses only ~1,765 tokens, compared to 15,000+ for 
 ## Local/Desktop
 
 Local WebUI and Tauri Desktop modes do not consume WU. You pay your LLM provider directly with BYOK (Bring Your Own Key).
+
+## Budget Controls
+
+Myrm includes a three-dimensional budget system that protects you from unexpected costs.
+
+### Three Dimensions
+
+| Dimension | What it limits | Example |
+|-----------|---------------|---------|
+| Per-session | Single conversation cost | $2.00 per chat |
+| Daily | Total daily spend | $10.00/day across all chats |
+| Per-call | Individual LLM call cost | $0.50 per API call |
+
+### Four Progressive Levels
+
+1. **OK** — normal operation
+2. **WARNING** — approaching limit, toast notification shown
+3. **FINALIZATION** — agent wraps up current task, tool calls restricted
+4. **EXCEEDED** — hard stop, new messages blocked until reset
+
+Configure all budgets in **Settings > System > Budget Policy**. The system respects prompt cache — budget enforcement uses prompt injection that preserves cache prefix stability.
+
+## Cost Analytics Dashboard
+
+Access via **Settings > System > Usage Statistics** to see comprehensive cost analytics.
+
+### What You Can See
+
+- **Global overview** — total calls, tokens (7 types), cost, and cache hit rate
+- **Daily trends** — 7-day or 30-day time series of token usage and cost
+- **Per-model breakdown** — calls, tokens, and cost for each model used
+- **Routing analysis** — how smart routing distributes work across tiers (simple/standard/reasoning)
+- **Estimated savings** — what you would have paid without smart routing vs actual cost
+- **Cache savings** — dollar amount saved by prompt caching, plus cache break diagnostics
+- **Activity heatmap** — when you're most active across the week
+- **Top sessions** — your most expensive conversations ranked
+- **Per-session drill-down** — click any session for detailed token/tool/timeline analytics
+
+### Per-Message Cost
+
+Every assistant message shows a **WaterDrop** icon displaying the real-time cost of that specific response, including cache savings percentage. Enable it in **Settings > Personal > Show cost estimation**.
+
+### Context Usage Ring
+
+A circular indicator next to the message input shows how much of the model's context window is currently used. It changes color as usage increases:
+- **Green** — healthy (<75%)
+- **Amber** — approaching limit (75-90%)
+- **Red** — critical (>90%)
