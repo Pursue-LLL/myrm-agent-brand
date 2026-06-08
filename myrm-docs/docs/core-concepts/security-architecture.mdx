@@ -268,7 +268,14 @@ Every security decision is recorded in a structured audit log with Prometheus re
 
 ## Workspace Rules Security
 
-When loading project configuration files (`.myrm.md`, `AGENTS.md`, etc.), Myrm scans for injection attacks:
+Myrm automatically discovers and loads project-level rule files from **17 discovery points** (13 root-level filenames + 4 subdirectory patterns), covering all major AI tool ecosystems:
+
+- **Root files**: `.myrm.md`, `AGENTS.md`, `CLAUDE.md`, `SOUL.md`, `.cursorrules`, `.clinerules`, `.windsurfrules`, and their case variants
+- **Subdirectories**: `.myrm/rules/*.md`, `.cursor/rules/*.mdc`, `.claude/CLAUDE.md`, `.github/copilot-instructions.md`
+- **First-Match-Wins**: Only the highest-priority file loads per directory, preventing conflicts
+- **Zero-config migration**: Users from Hermes (`SOUL.md`), Cline (`.clinerules`), Cursor (`.cursorrules`), Claude Code (`CLAUDE.md`), Windsurf (`.windsurfrules`) can bring their rule files unchanged
+
+All discovered files are security-scanned before injection:
 
 - **108 detection patterns** across 7+ threat categories
 - **Anti-obfuscation**: Leet speak, invisible Unicode, whitespace folding, Base64 decoding

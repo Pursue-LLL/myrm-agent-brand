@@ -183,7 +183,14 @@ BLOCKED / REDACTED / WARN / CLEAN 四级。
 
 ## 工作区规则安全
 
-加载 `.myrm.md`、`AGENTS.md` 等时 108 模式扫描注入（含中文）。
+Myrm 自动从 **17 个发现点**（13 个根级文件名 + 4 个子目录模式）发现并加载项目级规则文件，覆盖所有主流 AI 工具生态：
+
+- **根级文件**：`.myrm.md`、`AGENTS.md`、`CLAUDE.md`、`SOUL.md`、`.cursorrules`、`.clinerules`、`.windsurfrules` 及大小写变体
+- **子目录**：`.myrm/rules/*.md`、`.cursor/rules/*.mdc`、`.claude/CLAUDE.md`、`.github/copilot-instructions.md`
+- **首匹配优先**：每个目录仅加载最高优先级文件，防止冲突
+- **零配置迁移**：Hermes（`SOUL.md`）、Cline（`.clinerules`）、Cursor（`.cursorrules`）、Claude Code（`CLAUDE.md`）、Windsurf（`.windsurfrules`）用户可直接使用现有规则文件
+
+所有发现的文件在注入前进行安全扫描：108 模式 7+ 类威胁检测（含中文注入）。被拦截内容替换为结构化 `[BLOCKED]` 占位符。
 
 ## 紧急控制
 
