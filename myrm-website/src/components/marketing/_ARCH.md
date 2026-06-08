@@ -105,7 +105,7 @@ Hero → **WorkspacePreview** → HowItWorks（路径 Tab）→ QuickStart → M
 
 ## 部署
 
-- 生产：**CF Pages Git**（push `main` → `bun run build` → 部署）；合并前本地 `bun run build` 校验
+- 生产：**CF Pages Deploy Hook**（`bun run release:website -- website-vX.Y.Z`）；Dashboard automatic deployments 已关闭，push `main` 不上线
 - 应急：本地 build + `wrangler pages deploy out --project-name=myrm-agent-brand`；`public/_redirects` install 短链
 - 域名：`myrmagent.ai`
 - 本地开发：`bun run dev:3002`（端口 3002，与 App 3000 分离）

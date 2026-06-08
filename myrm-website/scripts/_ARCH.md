@@ -12,7 +12,8 @@
 | `desktop-release.test.ts` | 辅助 | desktop-release 解析单测 |
 | `deploy-paths.test.ts` | 辅助 | deploy-paths 单测 |
 | `generate-hero-demo-webm.ts` | 辅助 | 从 workspace 预览图生成 hero-demo.webm（可选） |
-| `release-website.ts` | 核心 | tag + CF Deploy Hook 触发 production 构建（push 不自动部署） |
+| `release-website.ts` | 核心 | tag + CF Deploy Hook 触发 production 构建；preflight 同步 origin/main | ✅ |
+| `release-website.test.ts` | 辅助 | website tag 格式单测 | — |
 
 ## 构建链
 

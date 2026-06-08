@@ -1,17 +1,24 @@
 /**
- * Tag-triggered production deploy for myrm-agent-brand via Cloudflare Pages Deploy Hook.
+ * [INPUT]
+ * - .env.local CF_PAGES_DEPLOY_HOOK (POS: 本地 Deploy Hook secret，gitignored)
+ * - git origin/main (POS: 发布源分支)
  *
- * Prerequisites (CF Dashboard, one-time):
+ * [OUTPUT]
+ * - release-website CLI: git tag + push tag + POST CF Deploy Hook
+ *
+ * [POS]
+ * 营销站 tag 触发生产部署；Dashboard automatic deployments 关闭后唯一上线入口。
+ *
+ * Prerequisites (CF Dashboard):
  * - Branch control: automatic production + preview deployments disabled
  * - Deploy hook `website-release` on branch `main`
- *
- * Usage:
- *   CF_PAGES_DEPLOY_HOOK=https://api.cloudflare.com/... bun run release:website -- website-v1.2.0
  */
 import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+export const WEBSITE_TAG_PATTERN = /^website-v[\d]+(?:\.[\d]+)*(?:[-+][\w.-]+)?$/;
 
 const rootDir = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 
@@ -37,41 +44,58 @@ function loadEnvLocal(): void {
 
 loadEnvLocal();
 
-const TAG_PREFIX = 'website-v';
-const hookUrl = process.env.CF_PAGES_DEPLOY_HOOK?.trim();
+export function normalizeWebsiteTag(raw: string): string {
+  const tag = raw.trim();
+  if (!tag) {
+    throw new Error('Missing tag argument. Expected: website-v1.2.0');
+  }
+  if (!WEBSITE_TAG_PATTERN.test(tag)) {
+    throw new Error(`Invalid tag "${tag}". Expected format: website-v1.2.0`);
+  }
+  return tag;
+}
 
 function usage(): never {
   console.error(
     [
-      'Usage: CF_PAGES_DEPLOY_HOOK=<hook-url> bun run release:website -- website-v1.2.0',
+      'Usage: bun run release:website -- website-v1.2.0',
       '',
-      'Creates git tag, pushes it, then POSTs to Cloudflare Pages deploy hook.',
-      'Set CF_PAGES_DEPLOY_HOOK from CF Dashboard → myrm-agent-brand → Settings → Deploy Hooks.',
+      'Creates git tag, pushes main (if needed) + tag, then POSTs CF Deploy Hook.',
+      'Set CF_PAGES_DEPLOY_HOOK in myrm-website/.env.local or env.',
     ].join('\n'),
   );
   process.exit(1);
 }
 
-function normalizeTag(raw: string): string {
-  const tag = raw.trim();
-  if (!tag) usage();
-  if (!/^website-v[\d]+(?:\.[\d]+)*(?:[-+][\w.-]+)?$/.test(tag)) {
-    console.error(`Invalid tag "${tag}". Expected format: ${TAG_PREFIX}1.2.0`);
-    process.exit(1);
-  }
-  return tag;
+function run(command: string): string {
+  return execSync(command, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] }).trim();
 }
 
-function run(command: string): void {
+function runInherit(command: string): void {
   execSync(command, { stdio: 'inherit' });
 }
 
 function tagExists(tag: string): boolean {
   try {
-    execSync(`git rev-parse "refs/tags/${tag}"`, { stdio: 'ignore' });
+    execSync(`git rev-parse "refs/tags/${tag}^{tag}"`, { stdio: 'ignore' });
     return true;
   } catch {
     return false;
+  }
+}
+
+function ensureMainSyncedWithOrigin(): void {
+  const branch = run('git branch --show-current');
+  if (branch !== 'main') {
+    throw new Error(`Release must run on main (current: ${branch})`);
+  }
+
+  runInherit('git fetch origin main');
+
+  const ahead = run('git rev-list --count origin/main..HEAD');
+  if (ahead !== '0') {
+    console.info(`[release-website] Pushing ${ahead} local commit(s) on main to origin…`);
+    runInherit('git push origin main');
   }
 }
 
@@ -87,22 +111,26 @@ async function triggerDeployHook(url: string): Promise<void> {
 async function main(): Promise<void> {
   const tagArg = process.argv[2];
   if (!tagArg) usage();
+
+  const hookUrl = process.env.CF_PAGES_DEPLOY_HOOK?.trim();
   if (!hookUrl) {
-    console.error('Missing CF_PAGES_DEPLOY_HOOK environment variable.');
+    console.error('Missing CF_PAGES_DEPLOY_HOOK (.env.local or env).');
     usage();
   }
 
-  const tag = normalizeTag(tagArg);
+  const tag = normalizeWebsiteTag(tagArg);
+
+  ensureMainSyncedWithOrigin();
 
   if (tagExists(tag)) {
     console.info(`[release-website] Tag ${tag} already exists; skipping git tag create.`);
   } else {
     console.info(`[release-website] Creating tag ${tag} on HEAD…`);
-    run(`git tag -a "${tag}" -m "Release myrm-agent-brand ${tag}"`);
+    runInherit(`git tag -a "${tag}" -m "Release myrm-agent-brand ${tag}"`);
   }
 
   console.info(`[release-website] Pushing tag ${tag}…`);
-  run(`git push origin "${tag}"`);
+  runInherit(`git push origin "${tag}"`);
 
   console.info('[release-website] Triggering Cloudflare Pages deploy hook…');
   await triggerDeployHook(hookUrl);
@@ -110,8 +138,10 @@ async function main(): Promise<void> {
   console.info(`[release-website] Done. Tagged ${tag} → myrmagent.ai (after CF build completes).`);
 }
 
-void main().catch((error: unknown) => {
-  const message = error instanceof Error ? error.message : String(error);
-  console.error(`[release-website] Failed: ${message}`);
-  process.exit(1);
-});
+if (import.meta.main) {
+  void main().catch((error: unknown) => {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`[release-website] Failed: ${message}`);
+    process.exit(1);
+  });
+}

@@ -31,8 +31,9 @@
 
 ### 发布流程
 
-1. 日常：`git push origin main` → 仅更新代码，不上线
-2. 发布：`CF_PAGES_DEPLOY_HOOK=… bun run release:website -- website-v1.2.0` → tag + Deploy Hook → CF 构建部署
+1. 日常：`git push origin main` → 仅更新代码，不上线（CF 可能显示 skipped 记录，可忽略）
+2. 发布前：`bun run build && bun run test`
+3. 发布：`bun run release:website -- website-v1.2.0` → 同步 origin/main + tag + Deploy Hook → CF 构建部署
 
 Deploy Hook URL 存本地环境变量，不入库。见 [`myrm-website/scripts/release-website.ts`](myrm-website/scripts/release-website.ts)。
 

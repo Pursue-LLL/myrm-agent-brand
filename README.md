@@ -49,7 +49,7 @@ cd myrm-website
 bun run release:website -- website-v1.2.0
 ```
 
-脚本会：创建 git tag → `git push --tags` → POST Deploy Hook → CF 从 `main` 最新 commit 构建部署。
+脚本会：同步 `origin/main`（如有未 push commit）→ 创建 git tag → `git push --tags` → POST Deploy Hook → CF 从 `main` 最新 commit 构建部署。
 
 合并前本地校验：`cd myrm-website && bun run build`。
 
