@@ -35,6 +35,26 @@ For sites and apps that require login, configure **Form Credential Vault** entri
 
 **Why it matters:** Tool arguments and chat history are durable. Passing `"hunter2"` through `type` or `fill` copies the password across logs, retries, and context. Label-based injection keeps secrets in the vault boundary — the same principle used by research-grade browser vault designs, extended here to desktop Computer Use and product GUI.
 
+## Visual Verification (Auto QA)
+
+Every browser action can be automatically verified — no manual inspection needed.
+
+Pass a `verify_goal` parameter when clicking or navigating, and Myrm's **3-layer verification funnel** kicks in:
+
+1. **dHash Check** (~2ms) — Perceptual hash detects if the screen changed at all. Skips the LLM call if nothing changed, saving tokens.
+2. **Pixel-Level Diff** — Canvas API comparison with YIQ color space and anti-aliasing detection for precise change localization.
+3. **Vision LLM Scoring** — Multimodal AI scores the result 1–5 with reasoning, confirming if your goal was met.
+
+### Example
+
+Ask the agent: *"Click 'Add to Cart' and verify the cart count shows 2"*
+
+The agent uses `verify_goal="Cart count shows 2"`. After clicking, the system automatically takes a screenshot and verifies the result. If the score is below 4, the agent gets feedback to retry.
+
+### Privacy
+
+Password fields are **automatically masked** in screenshots — the Vision LLM never sees sensitive credentials.
+
 ## Search Integration
 
 7-intent search system understands different search needs:
