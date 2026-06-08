@@ -115,6 +115,34 @@ Agent 使用如下 Schema：
 
 每个浏览器上下文**默认为临时模式**——通过 `browser.new_context()` 创建，不使用持久化配置。会话结束时 Cookie、localStorage 和缓存自动销毁。Agent 永远无法访问你的真实浏览器配置，从根源杜绝会话泄露风险。
 
+## 加密 Session 库（跨会话保持登录）
+
+会话默认临时，但你可以为每个 Agent 配置 **auto_restore_domains**，在对话之间保持登录状态。
+
+### 工作原理
+
+1. **配置域名** — 在 Agent 设置 WebUI 中，将 `twitter.com`、`github.com` 等域名添加到 Agent 的 `auto_restore_domains` 列表。
+2. **加密存储** — Cookie 和存储数据通过 AES-256-GCM 加密保存在 Session Vault 中。
+3. **启动时自动恢复** — 每次 Agent 启动新浏览器会话时，已配置域名的登录态自动恢复。
+4. **Agent 可显式管理** — Agent 也可通过 `browser_manage(action="save_session")` / `restore_session` / `list_sessions` / `delete_session` 进行精细控制。
+
+### 架构亮点
+
+- **AES-256-GCM 加密** — Session 数据落盘加密，绝不以明文存储。
+- **O(1) LRU 内存缓存** — 热点 Session 直接从内存读取，无磁盘 I/O。
+- **Singleflight 去重** — 并发请求同一域名时合并为一次解密操作。
+- **TTL 自动过期** — 过期 Session 被自动垃圾回收。
+- **全场景覆盖** — Web 对话、Channel 渠道、Cron 定时任务、Eval 评测均支持。
+
+### 使用场景
+
+| 场景 | 建议 |
+|------|------|
+| 一次性浏览 | 默认（临时模式）——无需配置 |
+| 频繁访问需认证的网站 | 添加到 `auto_restore_domains` |
+| Agent 工作流中途需要登录 | Agent 调用 `save_session` / `restore_session` |
+| 多 Agent 共享凭证 | 每个 Agent 独立配置域名列表 |
+
 ## CAPTCHA 检测 & 人类接管
 
 Agent 在浏览网页时遇到验证码或需要人工介入的场景，系统自动处理：

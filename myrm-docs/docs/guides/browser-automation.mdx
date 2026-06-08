@@ -115,6 +115,34 @@ Result: a clean JSON array with just the data you need.
 
 Every browser context is **ephemeral by default** — created via `browser.new_context()` with no persistent profile. Cookies, localStorage, and cache are automatically destroyed when the session ends. The agent never has access to your real browser profile, eliminating session leakage risk entirely.
 
+## Persistent Session Vault (Cross-Session Login)
+
+While sessions are ephemeral by default, you can configure **auto-restore domains** for each agent to preserve login state across conversations.
+
+### How It Works
+
+1. **Configure domains** — In the agent settings WebUI, add domains like `twitter.com`, `github.com` to the agent's `auto_restore_domains` list.
+2. **Sessions are encrypted** — Cookie and storage data saved via AES-256-GCM encryption in the Session Vault.
+3. **Auto-restore on startup** — Every time the agent launches a new browser session, configured domains have their login state automatically restored.
+4. **Agent can manage explicitly** — The agent can also call `browser_manage(action="save_session")` / `restore_session` / `list_sessions` / `delete_session` for fine-grained control.
+
+### Architecture
+
+- **AES-256-GCM encryption** — Session data is encrypted at rest, never stored in plaintext.
+- **O(1) LRU memory cache** — Hot sessions served from memory; no disk I/O on repeated access.
+- **Singleflight dedup** — Concurrent requests for the same domain are coalesced into one decrypt operation.
+- **TTL auto-expiry** — Stale sessions are garbage-collected automatically.
+- **Full execution coverage** — Works across Web, Channel, Cron, and Eval execution contexts.
+
+### When to Use
+
+| Scenario | Recommendation |
+|----------|----------------|
+| One-off browsing | Default (ephemeral) — no config needed |
+| Repeated access to authenticated sites | Add to `auto_restore_domains` |
+| Agent workflow needs login mid-task | Agent calls `save_session` / `restore_session` |
+| Shared credentials across agents | Each agent configures its own domain list independently |
+
 ## CAPTCHA Detection & Human Takeover
 
 When the agent encounters a CAPTCHA or situation requiring human intervention, it handles it seamlessly:
