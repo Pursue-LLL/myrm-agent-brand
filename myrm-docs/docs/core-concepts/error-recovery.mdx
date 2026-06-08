@@ -119,6 +119,20 @@ Before any destructive file operation, `AutoSnapshotInterceptor` automatically t
 - Per-turn deduplication prevents redundant snapshots
 - Snapshots enable single-click rollback in the GUI
 
+## Database Safety
+
+A 5-layer protection system ensures your data (conversations, scheduled tasks, memories) survives any failure:
+
+| Layer | Protection | When |
+|-------|-----------|------|
+| **Pre-migration snapshot** | Automatic backup before every schema migration | App startup |
+| **3-tier disaster recovery** | Rescue (`.dump`) → restore from backup → in-memory degradation | DB init failure |
+| **Periodic hot backup** | SQLite backup API every 6 hours + shutdown snapshot | Runtime |
+| **Framework BackupManager** | SHA-256 verification, manifest, retention, quarantine | Harness layer |
+| **Health checker** | Dual-layer probes with auto-repair | Continuous |
+
+Multi-step table rebuild migrations (e.g. `CREATE TABLE AS SELECT → DROP → RENAME`) are fully protected: if the process is interrupted mid-migration, the pre-migration backup provides a clean restore point.
+
 ## What Users Experience
 
 All recovery happens transparently:
@@ -128,3 +142,4 @@ All recovery happens transparently:
 - **Rate limited?** — Key rotation or backoff, then retry
 - **Agent loops?** — Detected early, before wasting budget
 - **Response truncated?** — Local JSON repair first, then auto-retry with larger output budget
+- **Upgrade interrupted?** — Pre-migration snapshot restores your data automatically
