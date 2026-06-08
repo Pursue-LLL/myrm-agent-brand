@@ -5,7 +5,7 @@
  *
  * [OUTPUT]
  * - release-website CLI: preflight → git tag + push tag + POST CF Deploy Hook
- * - normalizeWebsiteTag, resolveTagReleaseAction, assertWorkingTreeClean, mapTagRevParseExitCode
+ * - normalizeWebsiteTag, resolveTagReleaseAction, assertWorkingTreeClean, mapTagRevParseExitCode, parseCliArgs
  *
  * [POS]
  * 营销站 tag 触发生产部署；Dashboard automatic deployments 关闭后唯一上线入口。
@@ -53,7 +53,17 @@ function loadEnvLocal(): void {
   }
 }
 
-loadEnvLocal();
+if (process.env.RELEASE_WEBSITE_SKIP_ENV_LOCAL !== '1') {
+  loadEnvLocal();
+}
+
+export function parseCliArgs(argv: string[]): { tag: string | undefined; dryRun: boolean } {
+  const positional = argv.filter((arg) => !arg.startsWith('--'));
+  return {
+    tag: positional[0],
+    dryRun: argv.includes('--dry-run') || process.env.RELEASE_WEBSITE_DRY_RUN === '1',
+  };
+}
 
 export function normalizeWebsiteTag(raw: string): string {
   const tag = raw.trim();
@@ -106,9 +116,10 @@ export function mapTagRevParseExitCode(exitCode: number | undefined): 'missing' 
 function usage(): never {
   console.error(
     [
-      'Usage: bun run release:website -- website-v1.2.0',
+      'Usage: bun run release:website -- website-v1.2.0 [--dry-run]',
       '',
       'Preflight (clean tree, sync main, tag check, build, test) → git tag → push tag → POST CF Deploy Hook.',
+      'Use --dry-run to validate preflight without tag push or deploy hook.',
       'Set CF_PAGES_DEPLOY_HOOK in myrm-website/.env.local or env.',
     ].join('\n'),
   );
@@ -193,11 +204,11 @@ async function triggerDeployHook(url: string): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  const tagArg = process.argv[2];
+  const { tag: tagArg, dryRun } = parseCliArgs(process.argv.slice(2));
   if (!tagArg) usage();
 
   const hookUrl = process.env.CF_PAGES_DEPLOY_HOOK?.trim();
-  if (!hookUrl) {
+  if (!hookUrl && !dryRun) {
     console.error('Missing CF_PAGES_DEPLOY_HOOK (.env.local or env).');
     usage();
   }
@@ -217,6 +228,13 @@ async function main(): Promise<void> {
 
   runReleasePreflight();
 
+  if (dryRun) {
+    console.info(
+      `[release-website] Dry run OK. ${tag} @ ${shortSha(headCommit)} (action=${action}). Skipping tag push and deploy hook.`,
+    );
+    return;
+  }
+
   if (action === 'create') {
     console.info(`[release-website] Creating tag ${tag} on HEAD (${shortSha(headCommit)})…`);
     gitRunInherit(`git tag -a "${tag}" -m "Release myrm-agent-brand ${tag}"`);
@@ -226,7 +244,7 @@ async function main(): Promise<void> {
   gitRunInherit(`git push origin "${tag}"`);
 
   console.info('[release-website] Triggering Cloudflare Pages deploy hook…');
-  await triggerDeployHook(hookUrl);
+  await triggerDeployHook(hookUrl!);
 
   console.info(
     `[release-website] Done. ${tag} @ ${shortSha(headCommit)} → myrmagent.ai (after CF build completes).`,

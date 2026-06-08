@@ -3,6 +3,7 @@ import {
   assertWorkingTreeClean,
   mapTagRevParseExitCode,
   normalizeWebsiteTag,
+  parseCliArgs,
   resolveTagReleaseAction,
   WEBSITE_TAG_PATTERN,
 } from './release-website';
@@ -72,5 +73,19 @@ describe('mapTagRevParseExitCode', () => {
   test('returns rethrow for other exit codes', () => {
     expect(mapTagRevParseExitCode(1)).toBe('rethrow');
     expect(mapTagRevParseExitCode(undefined)).toBe('rethrow');
+  });
+});
+
+describe('parseCliArgs', () => {
+  test('parses tag and dry-run flag in any order', () => {
+    expect(parseCliArgs(['website-v1.0.0', '--dry-run'])).toEqual({
+      tag: 'website-v1.0.0',
+      dryRun: true,
+    });
+    expect(parseCliArgs(['--dry-run', 'website-v1.0.0'])).toEqual({
+      tag: 'website-v1.0.0',
+      dryRun: true,
+    });
+    expect(parseCliArgs(['website-v1.0.0'])).toEqual({ tag: 'website-v1.0.0', dryRun: false });
   });
 });
