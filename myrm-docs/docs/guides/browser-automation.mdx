@@ -186,6 +186,19 @@ While sessions are ephemeral by default, you can configure **auto-restore domain
 | Agent workflow needs login mid-task | Agent calls `save_session` / `restore_session` |
 | Shared credentials across agents | Each agent configures its own domain list independently |
 
+### Session–Memory Bridge (Zero-Cost Awareness)
+
+When the memory system is enabled, saved browser sessions are **automatically visible** in the agent's context — no extra tool call needed.
+
+- **How it works:** Every time a session is saved or deleted, a `SessionMemoryBridge` updates the agent's `active_browser_sessions` profile attribute. This attribute is injected into every LLM turn via the memory context middleware.
+- **Result:** When a user says "post a tweet", the agent already knows `twitter.com` is available — it calls `restore_session("twitter.com")` directly, **skipping the `list_sessions` step** and saving one LLM inference round.
+- **Prompt cache safe:** The profile attribute only changes on save/delete (very infrequent), so prompt prefix caching is unaffected.
+
+| Without Bridge | With Bridge |
+|---------------|-------------|
+| User: "Post a tweet" → Agent calls `list_sessions` → sees twitter.com → calls `restore_session` | User: "Post a tweet" → Agent sees twitter.com in context → calls `restore_session` directly |
+| 2 tool calls + 2 LLM inferences | 1 tool call + 1 LLM inference |
+
 ## CAPTCHA Detection & Human Takeover
 
 When the agent encounters a CAPTCHA or situation requiring human intervention, it handles it seamlessly:

@@ -186,6 +186,19 @@ Agent 使用如下 Schema：
 | Agent 工作流中途需要登录 | Agent 调用 `save_session` / `restore_session` |
 | 多 Agent 共享凭证 | 每个 Agent 独立配置域名列表 |
 
+### Session–Memory Bridge（零成本会话感知）
+
+当记忆系统启用时，已保存的浏览器会话**自动出现在 Agent 上下文中**——无需额外工具调用。
+
+- **工作原理：** 每次保存或删除 session 时，`SessionMemoryBridge` 自动更新 Agent 的 `active_browser_sessions` Profile 属性。该属性通过 memory context middleware 注入到每轮 LLM 上下文中。
+- **效果：** 当用户说"帮我发推文"时，Agent 已知道 `twitter.com` 可用——直接调用 `restore_session("twitter.com")`，**跳过 `list_sessions` 步骤，节省 1 次 LLM 推理**。
+- **Prompt Cache 安全：** Profile 属性仅在 save/delete 时变更（极低频），不影响缓存命中率。
+
+| 无 Bridge | 有 Bridge |
+|-----------|----------|
+| 用户："帮我发推文" → Agent 调用 `list_sessions` → 发现 twitter.com → 调用 `restore_session` | 用户："帮我发推文" → Agent 上下文已有 twitter.com → 直接调用 `restore_session` |
+| 2 次工具调用 + 2 次 LLM 推理 | 1 次工具调用 + 1 次 LLM 推理 |
+
 ## CAPTCHA 检测 & 人类接管
 
 Agent 在浏览网页时遇到验证码或需要人工介入的场景，系统自动处理：
