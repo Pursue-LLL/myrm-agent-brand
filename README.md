@@ -19,9 +19,13 @@ bun run validate:docs-slugs  # 营销 slug ↔ Mintlify nav ↔ MDX orphan
 bun run test              # deploy-paths + desktop-release 单测
 ```
 
-`bun run build` 前会自动执行 locale 与 docs slug 校验，并 `bake:release` 写入 `public/desktop-release.json`（GitHub Releases 元数据；**CI 生成，勿手改**，用于静态 export 首屏）。
+`bun run build` 前会自动执行 locale 与 docs slug 校验，并 `bake:release` 写入 `public/desktop-release.json`（GitHub Releases 元数据，用于静态 export 首屏；**不入库**，见 `myrm-website/.gitignore`）。
+
+本地开发可选 `bun run bake:release` 预热下载元数据；未 bake 时下载页会 fallback 到 live GitHub API。
 
 ## 生产发布（Cloudflare Pages Git）
+
+**唯一 CI/CD 路径：Cloudflare Pages Git 集成。** 本仓**不使用** GitHub Actions、Vercel 或其他第二套构建流水线；勿添加 `.github/workflows/` 或 `vercel.json`（历史 `vercel.json` 已移除）。
 
 push `main` → Cloudflare Pages 项目 `myrm-agent-brand` 自动执行 `bun run build`（含 locale/docs 校验 + `bake:release`）并部署 → `myrmagent.ai`。
 

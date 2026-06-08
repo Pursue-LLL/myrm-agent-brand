@@ -48,7 +48,7 @@
 | `landing/EngineeringDepthSection.tsx` | 核心 | 折叠工程深度 + docs 对比链 | ✅ |
 | `landing/BenchmarkSection.tsx` | 核心 | Token 实测数字条 | — |
 | `landing/WhyMyrmAgentSection.tsx` | 核心 | 竞品对比表（分类 Tab + 行过滤） | — |
-| `landing/WorkspacePreview.tsx` | 备用 | 产品预览组件（录屏就绪后在 LandingEditorial 挂载） | — |
+| `landing/WorkspacePreview.tsx` | 核心 | Hero 下方产品预览（WebM + WebP 回退） | ✅ |
 | `landing/colony/` | 辅助 | Hero 蚁群 Canvas | 见 `colony/_ARCH.md` |
 | `landing/TestimonialsSection.tsx` | 辅助 | 用户评价 | — |
 | `landing/FooterSection.tsx` | 辅助 | 页脚（docs locale 深链） | ✅ |
@@ -56,7 +56,7 @@
 
 ## Landing 区块顺序（LandingEditorial.tsx）
 
-Hero → HowItWorks（路径 Tab）→ QuickStart → Marquee → **Advantages（6 Bento）** → Benchmark → **EngineeringDepth（5 组）** → UseCases → Deploy（矩阵）→ Integrations → Testimonials → WhyMyrmAgent → Pricing → FAQ → Final CTA（PathStrip 收口）
+Hero → **WorkspacePreview** → HowItWorks（路径 Tab）→ QuickStart → Marquee → **Advantages（6 Bento）** → Benchmark → **EngineeringDepth（5 组）** → UseCases → Deploy（矩阵）→ Integrations → Testimonials → WhyMyrmAgent → Pricing → FAQ → Final CTA（PathStrip 收口）
 
 ## 外部链接
 
@@ -109,7 +109,7 @@ Hero → HowItWorks（路径 Tab）→ QuickStart → Marquee → **Advantages�
 - 应急：本地 build + `wrangler pages deploy out --project-name=myrm-agent-brand`；`public/_redirects` install 短链
 - 域名：`myrmagent.ai`
 - 本地开发：`bun run dev:3002`（端口 3002，与 App 3000 分离）
-- 桌面 release bake：`bun run bake:release`（写入 `public/desktop-release.json`；可选 `GITHUB_TOKEN` 提高 API 限额）
+- 桌面 release bake：`bun run bake:release`（写入 `public/desktop-release.json`，gitignored；可选 `GITHUB_TOKEN` 提高 API 限额）
 - Hero 动效：`public/marketing/hero-demo.webm`；从预览图生成：`bun run generate:hero-webm`（可用真实 App 录屏覆盖）
 
 桌面下载模块详情见 [`download/_ARCH.md`](../download/_ARCH.md)。

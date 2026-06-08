@@ -18,3 +18,5 @@
 `bun run build` → `validate:locales` → `validate:docs-slugs` → `bake:release` → `next build`
 
 CF Pages / 本地 `bun run build` 按序执行 `validate:locales` → `validate:docs-slugs` → `bake:release` → `next build`。
+
+**部署仅走 Cloudflare Pages Git 集成**（见仓根 `ARCHITECTURE.md`）；勿添加 GitHub Actions 或 Vercel 配置。

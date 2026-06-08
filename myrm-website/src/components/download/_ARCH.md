@@ -34,7 +34,7 @@
 
 ## 构建
 
-- `bun run bake:release` — CI/本地构建前写入 `public/desktop-release.json`（GitHub API + inline SHA256）
+- `bun run bake:release` — CI/本地构建前写入 `public/desktop-release.json`（GitHub API + inline SHA256；**gitignored，不入库**）
 - `bun run build` — validate locales → bake → next export
 
 ## 测试
@@ -43,7 +43,7 @@
 
 ## 发布数据策略
 
-- **首屏**：同域 `public/desktop-release.json`（CI bake）
+- **首屏**：同域 `public/desktop-release.json`（`bun run build` 前 bake 生成；未 bake 时 fallback live GitHub API）
 - **后台刷新**：GitHub Releases API → Tauri `latest.json` 兜底
 - **Mac 架构不确定**：Landing/QuickStart → `/download`；download 页展示双 Mac 按钮
 - **sessionStorage**：5 分钟 live fetch 缓存

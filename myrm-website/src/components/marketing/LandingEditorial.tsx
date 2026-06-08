@@ -49,6 +49,7 @@ import MouseGlowLayer from './MouseGlowLayer';
 import SmartDownloadButton from '@/components/download/SmartDownloadButton';
 import { DesktopReleaseProvider } from '@/components/download/DesktopReleaseProvider';
 import { PRICING_PREVIEW_PLAN_KEYS } from './landing/marketing-keys';
+import WorkspacePreview from './landing/WorkspacePreview';
 
 function GitHubIcon({ className }: { className?: string }) {
   return (
@@ -251,6 +252,15 @@ export default function LandingEditorial() {
               <span className="sr-only">{t('hero.colonyA11y')}</span>
             </div>
             <PathStrip className="mt-8" />
+          </div>
+        </section>
+
+        <section className="relative mx-auto max-w-[1080px] px-6 pb-20 sm:pb-32" aria-label={t('demo.preview.alt')}>
+          <div className="ed-reveal mx-auto max-w-[900px]">
+            <WorkspacePreview />
+            <p className="mt-4 text-center text-[12px] font-light leading-relaxed" style={{ color: 'var(--ed-muted)' }}>
+              {t('demo.caption')}
+            </p>
           </div>
         </section>
 

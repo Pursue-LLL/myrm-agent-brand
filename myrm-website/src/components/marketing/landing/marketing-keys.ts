@@ -42,6 +42,7 @@ export const COMPARE_ROW_KEYS = [
   'incognitoMode',
   'sandbox',
   'subAgent',
+  'dynamicWorkflow',
   'dynamicDiscovery',
   'multiChannel',
   'voiceInteraction',
@@ -107,6 +108,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
   security: ['sandbox', 'securityLayers', 'toolSecurity', 'credentialVault', 'fileEditSafety', 'toolIntegration', 'unifiedToolGateway'],
   automation: [
     'subAgent',
+    'dynamicWorkflow',
     'dynamicDiscovery',
     'multiChannel',
     'voiceInteraction',
@@ -177,6 +179,7 @@ export const DEPTH_GROUPS: readonly DepthGroupDef[] = [
       { source: 'extendedHighlights', itemKey: 'enterpriseScenarios' },
       { source: 'extendedHighlights', itemKey: 'artifactDeploy' },
       { source: 'extendedHighlights', itemKey: 'multiAgentOrchestration' },
+      { source: 'extendedHighlights', itemKey: 'dynamicWorkflow' },
       { source: 'extendedHighlights', itemKey: 'longReportToc' },
       { source: 'highlights', itemKey: 'ptc' },
       { source: 'highlights', itemKey: 'codexParity' },
