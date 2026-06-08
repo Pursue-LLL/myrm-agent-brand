@@ -17,11 +17,30 @@
 
 **本仓仅通过 Cloudflare Pages 部署营销站，不使用 GitHub Actions / Vercel。** PR 合并前在本地跑 `bun run build` + `bun test` 即可；勿引入 `.github/workflows/` 或 `vercel.json`。
 
+### Dashboard 配置（已生效）
+
+| 项 | 值 |
+|----|-----|
+| Production branch | `main` |
+| Automatic deployments | **Disabled**（push 不触发构建） |
+| Preview deployments | **None** |
+| Deploy hook | `website-release` → branch `main` |
+| Build command | `bun install && bun run build` |
+| Root directory | `myrm-website` |
+| Output directory | `out` |
+
+### 发布流程
+
+1. 日常：`git push origin main` → 仅更新代码，不上线
+2. 发布：`CF_PAGES_DEPLOY_HOOK=… bun run release:website -- website-v1.2.0` → tag + Deploy Hook → CF 构建部署
+
+Deploy Hook URL 存本地环境变量，不入库。见 [`myrm-website/scripts/release-website.ts`](myrm-website/scripts/release-website.ts)。
+
 | 文件 | 职责 |
 |------|------|
 | `myrm-website/wrangler.toml` | `name = "myrm-agent-brand"`；`pages_build_output_dir = "out"` |
 | `myrm-website/public/_redirects` | `/install.sh`、`/install.ps1` → `Pursue-LLL/myrm-agent` 安装脚本 |
-| CF Pages Git 集成 | 生产发布：push `main` → `bun run build`（校验 + bake + export）→ 部署 `myrm-agent-brand` |
+| `myrm-website/scripts/release-website.ts` | tag + Deploy Hook 触发 CF 构建 |
 
 `myrm-website/next.config.ts` 使用 `output: 'export'`，`next build` 静态产物在 `myrm-website/out/`。
 
@@ -59,6 +78,6 @@
 ## 约束
 
 - 仓根不得再放置第二套 Next 应用（`package.json` / `src/` 等于废弃副本）。
-- **营销站 CI/CD 仅 Cloudflare Pages Git 集成**；禁止添加 GitHub Actions（`.github/workflows/`）、Vercel（`vercel.json`）等并行发布链。
+- **营销站 CI/CD 仅 Cloudflare Pages**；禁止 GitHub Actions、Vercel；push `main` 不自动部署，仅 Deploy Hook / wrangler 应急可上线
 - 勿对子目录执行 rsync 覆盖（会破坏 submodule `.git`）。
 - 对外域名统一 `myrmagent.ai` / `app.myrmagent.ai` / `docs.myrmagent.ai`；GitHub 统一 `Pursue-LLL/myrm-agent`。

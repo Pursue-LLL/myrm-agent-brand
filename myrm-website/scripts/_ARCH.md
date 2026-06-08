@@ -12,6 +12,7 @@
 | `desktop-release.test.ts` | 辅助 | desktop-release 解析单测 |
 | `deploy-paths.test.ts` | 辅助 | deploy-paths 单测 |
 | `generate-hero-demo-webm.ts` | 辅助 | 从 workspace 预览图生成 hero-demo.webm（可选） |
+| `release-website.ts` | 核心 | tag + CF Deploy Hook 触发 production 构建（push 不自动部署） |
 
 ## 构建链
 
@@ -19,4 +20,6 @@
 
 CF Pages / 本地 `bun run build` 按序执行 `validate:locales` → `validate:docs-slugs` → `bake:release` → `next build`。
 
-**部署仅走 Cloudflare Pages Git 集成**（见仓根 `ARCHITECTURE.md`）；勿添加 GitHub Actions 或 Vercel 配置。
+**部署仅走 Cloudflare Pages Deploy Hook**（见仓根 `ARCHITECTURE.md`）；Dashboard 已关闭 automatic deployments；勿添加 GitHub Actions 或 Vercel 配置。
+
+发布：`CF_PAGES_DEPLOY_HOOK=… bun run release:website -- website-v1.2.0`

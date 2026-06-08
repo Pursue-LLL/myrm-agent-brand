@@ -23,15 +23,37 @@ bun run test              # deploy-paths + desktop-release 单测
 
 本地开发可选 `bun run bake:release` 预热下载元数据；未 bake 时下载页会 fallback 到 live GitHub API。
 
-## 生产发布（Cloudflare Pages Git）
+## 生产发布（Cloudflare Pages）
 
-**唯一 CI/CD 路径：Cloudflare Pages Git 集成。** 本仓**不使用** GitHub Actions、Vercel 或其他第二套构建流水线；勿添加 `.github/workflows/` 或 `vercel.json`（历史 `vercel.json` 已移除）。
+**唯一 CI/CD 路径：Cloudflare Pages。** 本仓**不使用** GitHub Actions、Vercel 或其他第二套构建流水线；勿添加 `.github/workflows/` 或 `vercel.json`。
 
-push `main` → Cloudflare Pages 项目 `myrm-agent-brand` 自动执行 `bun run build`（含 locale/docs 校验 + `bake:release`）并部署 → `myrmagent.ai`。
+### 日常开发（push 不自动上线）
+
+CF Dashboard 已配置：
+
+- **Automatic deployments: Disabled**（push `main` 不会触发构建）
+- **Preview deployments: None**
+- **Deploy hook:** `website-release`（branch `main`）
+
+合并代码后 `git push origin main` 仅更新仓库，**不会**部署到 `myrmagent.ai`。
+
+### 正式发布（打 tag + Deploy Hook）
+
+1. 确保 `main` 已包含待发布 commit
+2. 本地合并前校验：`cd myrm-website && bun run build && bun run test`
+3. 从 CF Dashboard → Settings → Deploy Hooks 复制 hook URL，写入本地环境变量（**不入库**）：
+
+```bash
+export CF_PAGES_DEPLOY_HOOK='https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/…'
+cd myrm-website
+bun run release:website -- website-v1.2.0
+```
+
+脚本会：创建 git tag → `git push --tags` → POST Deploy Hook → CF 从 `main` 最新 commit 构建部署。
 
 合并前本地校验：`cd myrm-website && bun run build`。
 
-应急部署（CF Git 不可用时）：本地 build 后 `wrangler pages deploy out --project-name=myrm-agent-brand`。
+应急部署（Deploy Hook 不可用时）：本地 build 后 `wrangler pages deploy out --project-name=myrm-agent-brand`。
 
 **install 脚本短链**（`/install.sh`、`/install.ps1`）：`myrm-website/public/_redirects`（随 `out/` 发布）。
 

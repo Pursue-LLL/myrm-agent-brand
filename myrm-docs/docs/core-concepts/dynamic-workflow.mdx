@@ -1,0 +1,23 @@
+---
+title: "Dynamic Workflow"
+description: "Break the context limits of single-agent execution with Code-as-Orchestrator."
+---
+
+MyRM Agent's Dynamic Workflow engine is the third-generation orchestration layer, designed to solve large-scale, cross-domain complex tasks (e.g., full-repo bug scanning, large-scale code migration, multi-angle deep research) by "dispatching hundreds of sub-agents with a single sentence."
+
+## Core Advantages
+
+### 1. Orchestration Flexibility: Code-as-Orchestrator
+We pioneered the **Code-as-Orchestrator** pattern. The LLM dynamically generates a Python orchestration script based on the task and executes it in the PTC (Programmatic Tool Calling) secure sandbox. The LLM can freely use `for` loops, `if` conditional branches, and concurrent thread pools, offering flexibility far beyond static DAG (Directed Acyclic Graph) workflows.
+
+### 2. Fault Tolerance & Persistence: SQLite Durable Execution
+When executing large tasks that take hours, traditional workflows crash if the network disconnects or the computer sleeps. We combined `WorkflowEventStore` to implement **SQLite-level Durable Execution**. The execution result of every sub-agent is cached in a local database. Even if the network disconnects or the server restarts, the workflow can instantly recover from the breakpoint, automatically skipping completed sub-tasks.
+
+### 3. Cost Control & Visibility: No More Hidden Bills
+Dozens of sub-agents concurrently burning tokens in the background can easily generate "hidden bills." We provide **5 layers of hard budget constraints** (Token/USD/Time/Descendants/Concurrency), and offer a **Subagent Dashboard real-time topology tree** and **Live Token odometer** on the frontend. You can clearly see the progress, time spent, and cost of every concurrent sub-task.
+
+### 4. Heterogeneous Model Ensemble: Intelligent Routing
+Within the same workflow, the system automatically dispatches simple "data collection" sub-tasks to cheap and extremely fast models (like DeepSeek V3), while assigning core "logical summarization" tasks to the strongest reasoning models (like Opus/GPT-4o). While ensuring output quality, it helps you reduce running costs by 10x to 60x.
+
+### 5. Closed-Loop Verification: Physical Sandbox Evidence
+When a sub-agent says "code modification complete," the system forces a "read-only verifier" to be spawned, truly running `npm test` or compilation commands in the sandbox. Only when real physical execution success evidence is obtained is the task considered truly complete. We reject LLM hallucinations and deliver absolutely reliable results.
