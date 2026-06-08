@@ -123,6 +123,40 @@ Cross-cycle behavioral pattern analysis (runs weekly) surfaces insights users ma
 
 Discoveries include actionable suggestions that the agent proactively surfaces via Heartbeat injection.
 
+## Shared Context — Cross-Agent Knowledge Sharing
+
+Shared Context lets you create curated knowledge spaces that multiple agents, channels, or conversations can access. Unlike file-based project context (PilotDeck's `MEMORY.md` approach), Myrm's Shared Context is a governed, multi-tier system:
+
+**6 binding target types** — attach context to agents, channels, cron jobs, conversations, tasks, or entire projects.
+
+**5-level namespace hierarchy** — memories are scoped from global down to task-level, ensuring the right information reaches the right agent at the right time:
+
+| Level | Scope | Example |
+|-------|-------|---------|
+| Global | All agents | "Company uses TypeScript + React" |
+| Agent | Single agent | "This agent specializes in backend" |
+| Channel | Per-channel | "Slack channel project preferences" |
+| Conversation | Per-conversation | "Current discussion context" |
+| Task | Per-task | "This deployment task constraints" |
+
+**Write governance** — proposals require explicit approval before entering a shared context. Auto-approve policies can be configured for corrections and goal completions.
+
+**Health monitoring** — the system actively monitors embedding availability, alerting before you encounter write failures.
+
+**Evidence retrieval** — browse conversation history, find relevant evidence, and generate approvable proposals directly from past dialogues.
+
+Manage everything from the GUI: create contexts, bind them to targets, review write proposals, and browse history — all from the Memory Center's Shared Context tab.
+
+## Memory GUI Management
+
+Every aspect of the memory system is manageable through the GUI:
+
+- **MemoryEditDialog** — directly edit content, reasoning, application, and importance of any memory
+- **MemoryCreateDialog** — manually create memories when the AI should know something immediately
+- **MemoryTrashPanel** — soft-delete and restore with full undo history
+- **MemoryCommandCenter** — monitor health scores, view operation timelines, and run diagnostics
+- **Export/Import** — full memory export with dry-run preview before import (supports 10+ formats including Claude Code, Cursor, Hermes, and Codex)
+
 ## Memory Health
 
 The diagnostic system monitors memory quality with quantified health scores and provides actionable repair recommendations. Includes memory import/export for 10 formats, archive management, and recall benchmarking with IR metrics (NDCG, MRR, precision).
