@@ -27,19 +27,20 @@ Expired cached content is automatically cleared. This prevents stale data from c
 
 ### Layer 3: Priority-Aware Compression
 
-Messages are classified into three priority tiers:
+Messages are classified into four priority tiers:
 
 | Priority | Treatment |
 |----------|-----------|
-| **Critical** | Never compressed (user instructions, active errors) |
-| **Important** | Compressed last (recent tool results, key decisions) |
-| **Standard** | Compressed first (older conversation turns) |
+| **System Critical** | Never compressed (system prompt, user instructions) |
+| **Active Task** | Compressed last (current tool results, active errors) |
+| **Older Context** | Compressed earlier (previous conversation turns) |
+| **Background** | Compressed first (stale outputs, resolved errors) |
 
 Three strategies are applied in order: **Dedup** (remove exact duplicates) → **Truncate** (shorten verbose outputs) → **Remove** (discard low-value turns).
 
 ### Layer 4: Structured Summarization
 
-When compression alone isn't sufficient, an LLM generates a structured summary with 11 fields (user goal, active tasks, errors, decisions, etc.) to replace the compressed history.
+When compression alone isn't sufficient, an LLM generates a structured summary with 12 fields (user goal, active tasks, completed actions, errors, decisions, artifacts, etc.) to replace the compressed history. A SummaryAuditor validates quality, and incremental merge ensures new information is folded into existing summaries without loss.
 
 ### Layer 5: Cache Optimization
 
