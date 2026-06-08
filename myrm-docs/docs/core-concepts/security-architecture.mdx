@@ -126,6 +126,47 @@ When MCP tools install dependencies, the OSV (Open Source Vulnerability) API is 
 
 Different agents can enable different MCP tools from the same server — a "Code Reviewer" agent sees only read-only tools, while a "DevOps" agent sees all. Tools with `destructiveHint` annotations are disabled by default in the safe set.
 
+## Operation-Level Semantic Risk Detection
+
+Instead of labeling entire websites as "high risk" (a brittle, high-maintenance approach), Myrm detects risk at the **individual operation level** — every click, form submit, and command is analyzed in real-time.
+
+### 7-Category Semantic DOM Risk Detection
+
+When the agent clicks a button or link on any webpage, the element's text is analyzed against 7 risk categories in both English and Chinese:
+
+| Category | Trigger Keywords (EN/ZH) | What Happens |
+|----------|-------------------------|--------------|
+| **Destructive** | delete, remove / 删除, 移除 | HITL approval required |
+| **Financial** | pay, purchase, checkout / 付款, 购买 | HITL approval required |
+| **Account** | deactivate, close account / 注销, 关闭账号 | HITL approval required |
+| **Admin** | admin settings, permissions / 管理, 权限 | HITL approval required |
+| **Publish** | publish, post, submit / 发布, 发表 | HITL approval required |
+| **Share** | share, send, transfer / 分享, 发送 | HITL approval required |
+| **Sensitive** | password, credit card / 密码, 信用卡 | HITL approval required |
+
+This approach is superior to domain-level risk tags because:
+- **Zero maintenance**: No need to maintain a list of "high-risk websites"
+- **Universal coverage**: Works on any website, including new ones
+- **Granular**: "View cart" on Amazon passes automatically, but "Place order" requires approval
+- **No legal risk**: No discrimination against specific platforms
+
+### Smart Intent Guard
+
+An AI classifier (`TranscriptClassifier`) reviews tool calls to verify they align with the user's original intent:
+
+- **Reasoning-Blind**: Only sees user messages + tool call sequences (not agent reasoning), preventing self-justification attacks
+- **Deterministic**: `temperature=0` ensures identical inputs always produce identical verdicts
+- **Structured output**: Pydantic-enforced JSON with a `reason` field for audit traceability
+- **Fail-safe**: Errors or ambiguity fall back to HITL rather than auto-approving
+
+### Risk Rules (User-Configurable)
+
+Users can define custom rules in the WebUI to detect sensitive data patterns. Matches trigger automatic interception with audit logging.
+
+### Test Coverage
+
+781 tests verify the full risk management pipeline: semantic DOM risk (75) + shell classification (379) + security engine (163) + credential scanning (35) + tool guards (9) + permission engine (117) + webhook routes (2).
+
 ## Shell Command Security
 
 Commands are analyzed through a 4-layer quote-aware pipeline before execution:
