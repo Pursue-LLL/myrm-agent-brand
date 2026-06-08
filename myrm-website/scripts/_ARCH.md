@@ -23,4 +23,6 @@ CF Pages / 本地 `bun run build` 按序执行 `validate:locales` → `validate:
 
 **部署仅走 Cloudflare Pages Deploy Hook**（见仓根 `ARCHITECTURE.md`）；Dashboard 已关闭 automatic deployments；勿添加 GitHub Actions 或 Vercel 配置。
 
-发布：`CF_PAGES_DEPLOY_HOOK=… bun run release:website -- website-v1.2.0`（`--dry-run` 仅跑 preflight，不 push tag / hook；测试时用 `RELEASE_WEBSITE_SKIP_ENV_LOCAL=1` 跳过 `.env.local`）
+发布：`CF_PAGES_DEPLOY_HOOK=… bun run release:website -- website-v1.2.0`
+
+安全校验（不 push tag / hook）：`bun run release:website:dry-run -- website-v1.2.0 --dry-run`（`bun --no-env-file` 隔离 `.env.local`；测试禁止不带 `--dry-run` 跑 release）
