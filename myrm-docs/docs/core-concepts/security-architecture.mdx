@@ -206,12 +206,12 @@ When static analysis returns ASK (uncertain), an AI classifier provides semantic
 
 ### Form Credential Vault
 
-Passwords and TOTP seeds **never enter the LLM context**. You configure labeled credentials in **Settings → Credentials**; the agent only sees label names (e.g. `github-personal`) and calls `fill_credential` (browser) or `type_credential` (desktop). The Harness resolves the label in memory and injects at the DOM or OS input layer — plaintext never flows back into chat, tool args, or logs.
+Passwords and TOTP seeds **never enter the LLM context**. You configure labeled credentials in **Settings → Credentials**; the agent only sees label names (e.g. `github-personal`) and calls `fill_credential` (browser and desktop use the same action). The Harness resolves the label in memory and injects at the DOM or OS input layer — plaintext never flows back into chat, tool args, or logs.
 
 | What you get | Technical basis | Plain-language benefit |
 |--------------|-----------------|------------------------|
 | **Label-only agent view** | Tool schema exposes labels, not values | Safe to let the agent log in — it cannot "see" or repeat your password |
-| **Browser + desktop coverage** | `fill_credential` + password-field block + `type_credential` on macOS/Windows/Linux | Same vault works for web apps and native desktop login |
+| **Browser + desktop coverage** | `fill_credential` (unified action) + password-field block on macOS/Windows/Linux | Same vault works for web apps and native desktop login |
 | **Built-in TOTP** | RFC 6238 generation inside the vault | 2FA flows without you reading codes aloud or pasting into chat |
 | **Encrypted storage** | AES-256-GCM in Server DB, synced to Harness memory vault on startup | Credentials at rest are encrypted; master key stays out of sandbox env |
 
