@@ -17,6 +17,24 @@ Three-layer interaction stack:
 2. **DOM Parser** — Structured content extraction (self-healing locators, Shadow DOM)
 3. **Vision** — Screenshot-based interaction for complex UIs
 
+### 12-Layer Anti-Detection Stealth
+
+Myrm injects a comprehensive anti-detection system that makes automated browsing indistinguishable from real users. Verified against 5 major anti-bot systems (BrowserScan, Fingerprint.com, CreepJS, Cloudflare, DataDome) and production-tested on 10+ high-risk platforms including WeChat, Weibo, Zhihu, Xiaohongshu, Douyin, Twitter/X, Instagram, and Facebook.
+
+- **CDP leak patches** — Patchright eliminates `Runtime.enable`, `Console.enable`, and `--enable-automation` detection vectors at the protocol level
+- **13 JS stealth scripts** — `navigator.webdriver`, `window.chrome` stub, plugin/language emulation, automation artifact cleanup, `toString()` disguise via WeakMap, anti-debugger neutralization, Performance API cleanup, and more
+- **Humanized interaction** — Random typing delay (30–100ms/char) and click delay (50–150ms) with dynamic timeout adaptation
+- **Proxy rotation & self-healing** — Automatic bad-proxy isolation, context hot-swap for fresh IPs, and stateful session migration (Cookie + localStorage preserved across engine switches)
+
+### Why This Matters for Users
+
+| Without anti-detection | With Myrm's Stealth |
+|----------------------|---------------------|
+| Blocked on first page load | Passes Cloudflare and DataDome |
+| Login sessions revoked by platform | Stays logged in across sessions |
+| Must use expensive residential proxies | Works with standard proxies |
+| Manual browser profile management | Automatic fingerprint management |
+
 ## Capabilities
 
 - Navigate to URLs

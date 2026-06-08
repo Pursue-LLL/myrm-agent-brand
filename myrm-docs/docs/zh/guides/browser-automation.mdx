@@ -17,6 +17,24 @@ Myrm Agent 可自主浏览网页、填表、提取数据并执行操作。
 2. **DOM 解析器** — 结构化内容提取（自愈定位器、Shadow DOM）
 3. **视觉** — 复杂 UI 的截图交互
 
+### 12 层反检测隐身体系
+
+Myrm 注入全方位反检测系统，让自动化浏览与真实用户无法区分。已通过 5 大主流反 bot 系统（BrowserScan、Fingerprint.com、CreepJS、Cloudflare、DataDome）验证，并在 10+ 高风控平台（微信公众号、微博、知乎、小红书、抖音、Twitter/X、Instagram、Facebook）生产环境中验证通过。
+
+- **CDP 泄露修补** — Patchright 从协议层消除 `Runtime.enable`、`Console.enable`、`--enable-automation` 等检测向量
+- **13 项 JS 隐身脚本** — `navigator.webdriver` 隐藏、`window.chrome` 伪造、插件/语言模拟、自动化工件清理、WeakMap `toString()` 伪装、反调试中和、Performance API 清理等
+- **拟人化交互** — 随机打字延迟（30-100ms/字符）+ 随机点击延迟（50-150ms）+ 动态超时自适应
+- **代理智能轮换与自愈** — 坏代理自动隔离、上下文热替换获取新 IP、跨引擎状态无缝迁移（Cookie + localStorage 在引擎切换时完整保留）
+
+### 用户收益
+
+| 无反检测 | Myrm 隐身体系 |
+|---------|--------------|
+| 首页加载即被拦截 | 通过 Cloudflare 和 DataDome |
+| 登录会话被平台撤销 | 跨会话保持登录状态 |
+| 必须使用昂贵的住宅代理 | 标准代理即可工作 |
+| 手动管理浏览器配置 | 自动指纹管理 |
+
 ## 能力
 
 - 导航到 URL
