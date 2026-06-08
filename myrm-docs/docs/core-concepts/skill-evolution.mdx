@@ -130,15 +130,31 @@ Under the hood, `origin_hash` (SHA-256 of the bundled source at last sync) is co
 
 This solves a common problem with prebuilt/template systems: users who tweak defaults lose their changes on every update.
 
+## 6 Concurrent Self-Evolution Mechanisms
+
+Myrm doesn't wait for you to notice problems — six independent background mechanisms keep your agent learning 24/7:
+
+| Mechanism | What It Does | Trigger |
+|-----------|-------------|---------|
+| **MetricMonitor** | Scans for high-error-rate skills | Every 5 seconds |
+| **Sliding Window** | Extracts experience from tool call traces | Every 15 calls |
+| **SkillImmune** | Auto-quarantines failing skills, triggers repair | Runtime failure |
+| **Session-End** | Analyzes completed conversations for learnings | After each session |
+| **FrustrationDetector** | Detects user dissatisfaction in 38 bilingual patterns | Real-time |
+| **EvidenceEvolution** | Cross-session evidence aggregation | Every hour |
+
+All proposals flow through the approval pipeline before taking effect — your agent learns constantly but never changes without your consent.
+
 ## Growth Dashboard
 
-Track your agent's learning progress visually:
+Track your agent's learning progress with a full governance visualization:
 
-- KPI summary (total skills, success rate, evolution count)
-- Heat map of skill usage patterns
-- Radar chart of capability coverage
-- Weekly statistics and trend analysis
-- Skill evolution timeline
+- **4 KPI cards** — total memories, skills learned (with evolution count), active days (with streak), memory health score
+- **84-day activity heatmap** — GitHub-style visualization of usage patterns
+- **Multi-dimensional health radar** — instant view of memory system health
+- **Weekly summary** — conversations, messages, cron executions, tool calls with week-over-week delta arrows
+- **Skill evolution timeline** — recent proposals with status and change summary
+- **Pending evolution inbox** — 4 summary cards (total/pending/auto-applied/blocked) + 5 filter tabs + full review workflow
 
 ### Daily Work Journal
 

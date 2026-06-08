@@ -80,11 +80,39 @@ Myrm 六层纵深防御，确保 Agent 在广泛自主权下仍安全运行。
 
 ## MCP 工具安全
 
-工具名 `mcp__{server}__{tool}` 隔离；SSRF DNS 固定；OSV 恶意包检测；按 Agent 工具过滤；`destructiveHint` 默认禁用。
+工具名 `mcp__{server}__{tool}` 隔离；OSV 恶意包检测；按 Agent 工具过滤；`destructiveHint` 默认禁用。
+
+### SSRF 防护
+
+- **手动重定向循环**：`follow_redirects=False`，逐跳重新验证目标地址，消除 DNS 重绑定 TOCTOU 攻击
+- **DNS Pinning**：解析后的 IP 直接替换域名，绕过 DNS TTL 刷新窗口
+- **全面 IP 黑名单**：RFC1918 私网、CGNAT、链路本地、多播、云元数据端点（AWS/GCP/阿里云/腾讯云）+ IPv4-mapped IPv6 检测
+- **三路覆盖**：web_fetch、HTTP 请求工具、浏览器 Navigator 共享同一 SSRF 校验层
 
 ## Shell 命令安全
 
-L1 二进制/Unicode → L1.5 ANSI-C/区域引号 → L2 注入向量 → L3 可疑行为模式。
+4 层引号感知流水线：
+
+| 层 | 检测 | 响应 |
+|-------|-----------|----------|
+| **L1** | 二进制字符、12 类不可见 Unicode（零宽、方向覆盖等） | BLOCK |
+| **L1.5** | ANSI-C 引号 `$'...'`、区域引号 `$"..."` | BLOCK |
+| **L2** | 6 种注入向量（`$()`、反引号、`${}`、`;`、进程替换）+ 70+ 危险命令模式 | BLOCK → DENY |
+| **L3** | 可疑模式（`curl\|sh`、`eval`、`base64 -d`、kill/pkill） | ESCALATE → ASK |
+
+**引号感知预处理**：字符级状态机 `_strip_quoted_content` 在 L2/L3 扫描前将单引号内容替换为占位符，避免 `echo 'rm -rf /'` 误报，同时保留双引号中命令替换的检测能力。
+
+**安全执行路径**：无 Shell 元字符的简单命令通过 `create_subprocess_exec` 直接执行（不经 shell 解释器），从结构上消除 `$IFS`、通配符展开、命令替换等注入类型。
+
+### AI 轨迹分类器（Layer 5.5）
+
+静态分析返回 ASK（不确定）时，AI 分类器提供语义级判断：
+
+- **推理盲设计**：仅看到用户消息和工具调用序列，永远不接触助手推理或工具输出，防止 Agent 通过合理化推理欺骗分类器
+- **结构化输出**：Pydantic Schema 强制 JSON 格式（非自由文本），缩小注入面
+- **确定性**：`temperature=0`、`max_tokens=200`，确保可复现
+- **失败安全**：任何错误、超时或解析失败均返回 UNCERTAIN → 回退到人工审批
+- **上下文感知**：接收污点标签（EXTERNAL_NETWORK、SECRET）和可信域名列表，支持细粒度判断
 
 ## 加密与无痕模式
 

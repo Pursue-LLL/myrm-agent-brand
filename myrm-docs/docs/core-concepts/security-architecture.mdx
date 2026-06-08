@@ -111,7 +111,12 @@ mcp__{server}__{tool}
 
 ### SSRF Prevention
 
-DNS pinning for MCP tool URLs blocks access to private network ranges (10.x, 172.16-31.x, 192.168.x), localhost, and link-local addresses by default.
+DNS Pinning prevents agents from being tricked into accessing internal networks via HTTP redirects:
+
+- **Manual redirect loop**: `follow_redirects=False` with per-hop re-validation — every redirect target is fully checked before following
+- **DNS Pinning**: Resolved IPs replace hostnames in HTTP connections, eliminating DNS rebinding TOCTOU attacks
+- **Comprehensive IP blocklist**: RFC1918 private, CGNAT, link-local, multicast, reserved, cloud metadata endpoints (AWS/GCP/Alibaba/Tencent), plus IPv4-mapped IPv6 detection
+- **Three-path coverage**: web_fetch tool, HTTP request tool, and browser Navigator all use the same SSRF validation
 
 ### Malicious Package Detection
 
@@ -123,16 +128,28 @@ Different agents can enable different MCP tools from the same server — a "Code
 
 ## Shell Command Security
 
-Commands are analyzed through a multi-layer pipeline before execution:
+Commands are analyzed through a 4-layer quote-aware pipeline before execution:
 
-| Layer | Detection |
-|-------|-----------|
-| **L1** | Binary and Unicode encoding detection |
-| **L1.5** | ANSI-C and locale quote disguise blocking |
-| **L2** | Injection vector and dangerous command detection |
-| **L3** | Suspicious behavioral pattern analysis |
+| Layer | Detection | Response |
+|-------|-----------|----------|
+| **L1** | Binary characters, 12 invisible Unicode categories (zero-width, direction overrides) | BLOCK |
+| **L1.5** | ANSI-C quoting `$'...'` and locale quoting `$"..."` | BLOCK |
+| **L2** | 6 injection vectors (`$()`, backtick, `${}`, `;`, process substitution) + 70+ dangerous command patterns | BLOCK → DENY |
+| **L3** | Suspicious patterns (`curl\|sh`, `eval`, `base64 -d`, kill/pkill) | ESCALATE → ASK |
 
-This catches sophisticated attacks like Unicode homoglyph injection and base64-encoded payloads that simple regex patterns miss.
+**Quote-aware preprocessing**: A character-level state machine (`_strip_quoted_content`) replaces single-quoted content with placeholders before L2/L3 scanning, preventing false positives on `echo 'rm -rf /'` while still catching real threats in double-quoted or unquoted contexts.
+
+**Safe Exec path**: Simple commands without shell metacharacters are executed via `create_subprocess_exec` (no shell interpreter), structurally eliminating `$IFS`, glob expansion, and command substitution injection classes.
+
+### AI Trajectory Classifier (Layer 5.5)
+
+When static analysis returns ASK (uncertain), an AI classifier provides semantic-level judgment:
+
+- **Reasoning-Blind design**: Only sees user messages and tool call sequences — never assistant reasoning or tool outputs, preventing the agent from rationalizing dangerous actions past the classifier
+- **Structured output**: Pydantic schema forces JSON format (not free-text), reducing injection surface
+- **Deterministic**: `temperature=0`, `max_tokens=200` for reproducible decisions
+- **Fail-safe**: Any error, timeout, or parse failure returns UNCERTAIN → falls back to HITL approval
+- **Context-aware**: Receives taint labels (EXTERNAL_NETWORK, SECRET) and trusted domains for nuanced judgment
 
 ## Encryption & Incognito Mode
 
