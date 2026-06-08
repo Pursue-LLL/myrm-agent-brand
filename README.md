@@ -16,7 +16,7 @@ bun run dev:3002          # 本地营销站（端口 3002，与 App :3000 分离
 bun run build             # validate → bake release → next export
 bun run validate:locales  # i18n 键契约 + legacy URL 扫描
 bun run validate:docs-slugs  # 营销 slug ↔ Mintlify nav ↔ MDX orphan
-bun run test              # deploy-paths + desktop-release 单测
+bun run test              # scripts 契约单测（docs/deploy/release/desktop-release）
 ```
 
 `bun run build` 前会自动执行 locale 与 docs slug 校验，并 `bake:release` 写入 `public/desktop-release.json`（GitHub Releases 元数据，用于静态 export 首屏；**不入库**，见 `myrm-website/.gitignore`）。

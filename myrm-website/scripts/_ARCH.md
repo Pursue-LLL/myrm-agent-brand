@@ -13,7 +13,7 @@
 | `deploy-paths.test.ts` | 辅助 | deploy-paths 单测 |
 | `generate-hero-demo-webm.ts` | 辅助 | 从 workspace 预览图生成 hero-demo.webm（可选） |
 | `release-website.ts` | 核心 | tag + CF Deploy Hook；preflight：干净工作区、sync origin/main、build+test、tag≠HEAD 校验 | ✅ |
-| `release-website.test.ts` | 辅助 | website tag 格式单测 | — |
+| `release-website.test.ts` | 辅助 | website tag 格式 + tag/HEAD 冲突 + 工作区洁净单测 | — |
 
 ## 构建链
 

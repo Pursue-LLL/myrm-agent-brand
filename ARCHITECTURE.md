@@ -15,7 +15,7 @@
 
 ## Cloudflare Pages（生产）
 
-**本仓仅通过 Cloudflare Pages 部署营销站，不使用 GitHub Actions / Vercel。** PR 合并前在本地跑 `bun run build` + `bun test` 即可；勿引入 `.github/workflows/` 或 `vercel.json`。
+**本仓仅通过 Cloudflare Pages 部署营销站，不使用 GitHub Actions / Vercel。** 正式发布时 `release-website.ts` 内置 preflight 强制 `build`+`test`；日常合并前亦建议本地跑同样命令。勿引入 `.github/workflows/` 或 `vercel.json`。
 
 ### Dashboard 配置（已生效）
 
@@ -40,7 +40,7 @@ Deploy Hook URL 存本地环境变量，不入库。见 [`myrm-website/scripts/r
 |------|------|
 | `myrm-website/wrangler.toml` | `name = "myrm-agent-brand"`；`pages_build_output_dir = "out"` |
 | `myrm-website/public/_redirects` | `/install.sh`、`/install.ps1` → `Pursue-LLL/myrm-agent` 安装脚本 |
-| `myrm-website/scripts/release-website.ts` | tag + Deploy Hook 触发 CF 构建 |
+| `myrm-website/scripts/release-website.ts` | preflight + tag + Deploy Hook 触发 CF 构建 |
 
 `myrm-website/next.config.ts` 使用 `output: 'export'`，`next build` 静态产物在 `myrm-website/out/`。
 

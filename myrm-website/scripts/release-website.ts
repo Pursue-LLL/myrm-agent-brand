@@ -5,6 +5,7 @@
  *
  * [OUTPUT]
  * - release-website CLI: preflight → git tag + push tag + POST CF Deploy Hook
+ * - normalizeWebsiteTag, resolveTagReleaseAction, assertWorkingTreeClean
  *
  * [POS]
  * 营销站 tag 触发生产部署；Dashboard automatic deployments 关闭后唯一上线入口。
@@ -20,10 +21,20 @@ import { fileURLToPath } from 'node:url';
 
 export const WEBSITE_TAG_PATTERN = /^website-v[\d]+(?:\.[\d]+)*(?:[-+][\w.-]+)?$/;
 
-const rootDir = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+const websiteDir = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+
+function resolveRepoRoot(): string {
+  return execSync('git rev-parse --show-toplevel', {
+    encoding: 'utf8',
+    cwd: websiteDir,
+    stdio: ['ignore', 'pipe', 'ignore'],
+  }).trim();
+}
+
+const repoRoot = resolveRepoRoot();
 
 function loadEnvLocal(): void {
-  const envPath = path.join(rootDir, '.env.local');
+  const envPath = path.join(websiteDir, '.env.local');
   try {
     const raw = readFileSync(envPath, 'utf8');
     for (const line of raw.split('\n')) {
@@ -73,6 +84,14 @@ export function resolveTagReleaseAction(
   return 'redeploy';
 }
 
+export function assertWorkingTreeClean(porcelain: string): void {
+  if (porcelain.trim()) {
+    throw new Error(
+      'Working tree is not clean (uncommitted or untracked changes). Commit or stash before release.',
+    );
+  }
+}
+
 function shortSha(commit: string): string {
   return commit.slice(0, 7);
 }
@@ -89,29 +108,29 @@ function usage(): never {
   process.exit(1);
 }
 
-function runInherit(command: string): void {
-  execSync(command, { stdio: 'inherit', cwd: rootDir });
+function runInWebsite(command: string): void {
+  execSync(command, { stdio: 'inherit', cwd: websiteDir });
 }
 
 function gitRun(command: string): string {
-  return execSync(command, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] }).trim();
+  return execSync(command, {
+    encoding: 'utf8',
+    cwd: repoRoot,
+    stdio: ['ignore', 'pipe', 'ignore'],
+  }).trim();
+}
+
+function gitRunInherit(command: string): void {
+  execSync(command, { stdio: 'inherit', cwd: repoRoot });
 }
 
 function ensureCleanWorkingTree(): void {
-  try {
-    execSync('git diff --quiet', { stdio: 'ignore' });
-    execSync('git diff --cached --quiet', { stdio: 'ignore' });
-  } catch {
-    throw new Error('Working tree has uncommitted changes. Commit or stash before release.');
-  }
+  assertWorkingTreeClean(gitRun('git status --porcelain'));
 }
 
 function resolveTagCommit(tag: string): string | null {
   try {
-    return execSync(`git rev-parse "refs/tags/${tag}^{commit}"`, {
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'ignore'],
-    }).trim();
+    return gitRun(`git rev-parse "refs/tags/${tag}^{commit}"`);
   } catch {
     return null;
   }
@@ -123,7 +142,7 @@ function ensureMainSyncedWithOrigin(): void {
     throw new Error(`Release must run on main (current: ${branch})`);
   }
 
-  runInherit('git fetch origin main');
+  gitRunInherit('git fetch origin main');
 
   const behind = gitRun('git rev-list --count HEAD..origin/main');
   if (behind !== '0') {
@@ -135,14 +154,14 @@ function ensureMainSyncedWithOrigin(): void {
   const ahead = gitRun('git rev-list --count origin/main..HEAD');
   if (ahead !== '0') {
     console.info(`[release-website] Pushing ${ahead} local commit(s) on main to origin…`);
-    execSync('git push origin main', { stdio: 'inherit' });
+    gitRunInherit('git push origin main');
   }
 }
 
 function runReleasePreflight(): void {
   console.info('[release-website] Running build + test preflight…');
-  runInherit('bun run build');
-  runInherit('bun run test');
+  runInWebsite('bun run build');
+  runInWebsite('bun run test');
 }
 
 async function triggerDeployHook(url: string): Promise<void> {
@@ -178,11 +197,11 @@ async function main(): Promise<void> {
     console.info(`[release-website] Tag ${tag} already at HEAD; redeploy only.`);
   } else {
     console.info(`[release-website] Creating tag ${tag} on HEAD…`);
-    execSync(`git tag -a "${tag}" -m "Release myrm-agent-brand ${tag}"`, { stdio: 'inherit' });
+    gitRunInherit(`git tag -a "${tag}" -m "Release myrm-agent-brand ${tag}"`);
   }
 
   console.info(`[release-website] Pushing tag ${tag}…`);
-  execSync(`git push origin "${tag}"`, { stdio: 'inherit' });
+  gitRunInherit(`git push origin "${tag}"`);
 
   console.info('[release-website] Triggering Cloudflare Pages deploy hook…');
   await triggerDeployHook(hookUrl);

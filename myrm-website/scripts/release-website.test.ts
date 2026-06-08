@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import {
+  assertWorkingTreeClean,
   normalizeWebsiteTag,
   resolveTagReleaseAction,
   WEBSITE_TAG_PATTERN,
@@ -47,5 +48,17 @@ describe('resolveTagReleaseAction', () => {
     expect(() => resolveTagReleaseAction(other, head, 'website-v1.0.0')).toThrow(
       'Tag website-v1.0.0 points to def1234 but HEAD is abc1234',
     );
+  });
+});
+
+describe('assertWorkingTreeClean', () => {
+  test('accepts empty porcelain output', () => {
+    expect(() => assertWorkingTreeClean('')).not.toThrow();
+    expect(() => assertWorkingTreeClean('  \n  ')).not.toThrow();
+  });
+
+  test('throws when porcelain has changes', () => {
+    expect(() => assertWorkingTreeClean(' M README.md')).toThrow('Working tree is not clean');
+    expect(() => assertWorkingTreeClean('?? temp.txt')).toThrow('Working tree is not clean');
   });
 });
