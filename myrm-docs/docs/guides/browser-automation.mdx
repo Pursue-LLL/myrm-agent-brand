@@ -110,3 +110,36 @@ Result: a clean JSON array with just the data you need.
 - **Dual-strategy reliability** — Preferred `structured_output` with raw JSON fallback for model compatibility.
 - **Token savings** — 70–97% reduction compared to raw text extraction.
 - **Schema complexity protection** — Limits on property count and nesting depth prevent misuse.
+
+## CAPTCHA Detection & Human Takeover
+
+When the agent encounters a CAPTCHA or situation requiring human intervention, it handles it seamlessly:
+
+### Automatic CAPTCHA Detection
+
+10 CAPTCHA types are detected automatically (Cloudflare Turnstile, reCAPTCHA, hCaptcha, etc.). When detected:
+
+1. Agent pauses execution via LangGraph `interrupt()`
+2. The VNC panel auto-opens showing the browser
+3. A notification appears with the reason for the pause
+4. You solve the CAPTCHA manually
+5. Agent resumes automatically and continues the task
+
+### Agent-Triggered Human Takeover
+
+For scenarios beyond CAPTCHAs — 2FA prompts, payment gateways, proprietary forms — the agent can proactively request your help:
+
+1. Agent recognizes it cannot proceed (e.g., "this requires SMS verification")
+2. Calls `browser_ask_human` with a clear explanation
+3. VNC panel opens with the reason displayed
+4. You complete the action directly in the browser
+5. Click "Done" — agent captures the new page state and continues
+
+### Why This Matters
+
+| Without Myrm | With Myrm |
+|--------------|-----------|
+| Agent loops forever on CAPTCHA | Auto-detects, pauses, notifies |
+| Agent fails silently on 2FA | Proactively asks for help |
+| User must monitor constantly | Only interrupts when truly needed |
+| Lost context after intervention | Captures post-human page state and adapts |
