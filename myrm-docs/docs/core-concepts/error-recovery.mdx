@@ -73,6 +73,18 @@ When errors occur, the system provides structured, actionable feedback:
 
 Each error includes a structured context with `error_hint`, `error_category`, and suggested `RecoveryAction` — displayed as clickable buttons in the GUI.
 
+### Interactive Recovery Buttons
+
+For common LLM errors, the error card includes one-click fix buttons that take you directly to the right settings page:
+
+| Error | Button | Action |
+|-------|--------|--------|
+| API key invalid/expired | "Update API Key" | Opens Settings page |
+| Billing quota exceeded | "Top Up Balance" | Opens Settings page |
+| Model not found | "Change Model" | Opens Settings page |
+
+Button labels are localized into 5 languages (English, Chinese, Japanese, Korean, German) and automatically match your interface language. If the diagnostic engine encounters an unexpected error, it degrades gracefully — the base error message still displays without recovery buttons.
+
 ## Model Self-Escalation
 
 When a lightweight model detects it lacks the capability to complete a task:
@@ -140,6 +152,7 @@ All recovery happens transparently:
 - **Model goes down?** — Automatic switch to backup in milliseconds
 - **Network drops?** — Stream resumes from the exact token where it stopped
 - **Rate limited?** — Key rotation or backoff, then retry
+- **API key expired?** — One-click button to update it, right in the error card
 - **Agent loops?** — Detected early, before wasting budget
 - **Response truncated?** — Local JSON repair first, then auto-retry with larger output budget
 - **Upgrade interrupted?** — Pre-migration snapshot restores your data automatically
