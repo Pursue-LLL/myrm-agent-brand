@@ -87,7 +87,32 @@ Password fields are **automatically masked** in screenshots — the Vision LLM n
 
 ## Computer Use
 
-Desktop automation via Computer Use protocol for native application control.
+Desktop automation via Computer Use protocol for native application control across macOS, Windows, and Linux.
+
+## 8-Layer Visual Tracing System
+
+When Agent operates browsers or desktop apps, you never have to guess what it's doing — an 8-layer visual system shows you everything in real time.
+
+### What You See
+
+| Layer | What It Does | What You Get |
+|-------|-------------|--------------|
+| **BrowserLiveView** | Draggable side panel with live screenshots | See exactly what the browser page looks like, with 14-role BBox element overlay you can click to select |
+| **DesktopLiveView** | Mirror panel for desktop apps | Same real-time preview for native application operations |
+| **ElementOverlay** | Interactive BBox highlights | Buttons, links, inputs, checkboxes, dropdowns — all highlighted and selectable with role+name labels |
+| **OS Overlay** | System-level red highlight frame (Tauri desktop) | A red border appears on your **real display** — visible even when the chat window is covered |
+| **ProgressSteps** | Tree-shaped step tracker | Tool icons, Agent badges, duration, progress bar, error diagnostics, recovery buttons, and live terminal output |
+| **HITL Approval** | Approve/Deny with payload editing | Review operations before they execute, edit parameters, compare code diffs in Monaco Editor |
+| **VNC Takeover** | Remote browser control | When Agent gets stuck, VNC opens automatically so you can take over and fix the issue |
+| **SSE Events** | 10+ real-time event types | browser_view_update, desktop_view_update, locator_self_healed, captcha states, tool lifecycle — all streamed live |
+
+### How It Compares
+
+No competing product (OpenClaw, CoPaw, PilotDeck, Hermes, Claude Computer Use, Codex App) offers any of these visual tracing capabilities. Most competitors provide text-only logs or simple progress bars.
+
+### Test Coverage
+
+196 tests across Rust (Tauri OS overlay), Python (harness events, takeover, CAPTCHA), and TypeScript (frontend ProgressSteps, SSE handlers) — all passing.
 
 ## Schema-Driven Structured Extraction
 

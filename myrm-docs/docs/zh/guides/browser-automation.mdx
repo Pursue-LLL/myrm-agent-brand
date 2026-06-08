@@ -87,7 +87,32 @@ Agent 使用 `verify_goal="购物车数量显示为 2"`。点击后，系统自�
 
 ## Computer Use
 
-通过 Computer Use 协议实现桌面自动化，控制原生应用。
+通过 Computer Use 协议实现桌面自动化，跨 macOS/Windows/Linux 控制原生应用。
+
+## 8 层全链路可视化排障系统
+
+当 Agent 操作浏览器或桌面应用时，你不需要猜它在做什么——8 层可视化系统让你实时看到一切。
+
+### 你能看到什么
+
+| 层级 | 功能 | 你获得什么 |
+|------|------|-----------|
+| **BrowserLiveView** | 可拖拽侧面板 + 实时截图 | 实时看到浏览器页面，14 种元素角色 BBox 高亮可点击选择 |
+| **DesktopLiveView** | 桌面应用镜像面板 | 桌面原生应用操作的实时截图预览 |
+| **ElementOverlay** | 交互式 BBox 高亮 | 按钮/链接/输入框/复选框/下拉框全部高亮可选，悬浮显示角色和名称 |
+| **OS 叠加层** | 系统级红色高亮框 (Tauri 桌面端) | **真实显示器上的红色边框**，即使聊天窗口被遮挡也能看到 |
+| **ProgressSteps 树状进度** | 树状步骤追踪器 | 工具图标 + Agent 标识 + 耗时 + 进度条 + 错误诊断 + 恢复按钮 + 终端输出 |
+| **HITL 审批** | Approve/Deny + 编辑 payload | 执行前审阅操作，编辑参数，Monaco Editor 代码 Diff 对比 |
+| **VNC 接管** | 远程浏览器控制 | Agent 卡住时 VNC 自动弹出，你可以远程操作解决问题 |
+| **SSE 事件** | 10+ 实时事件类型 | browser_view_update / desktop_view_update / locator_self_healed / captcha / tool lifecycle 全链路推送 |
+
+### 竞品对比
+
+所有竞品（OpenClaw、CoPaw、PilotDeck、Hermes、Claude Computer Use、Codex App）均不提供上述任何可视化追踪能力。竞品通常只有文字日志或简单进度条。
+
+### 测试覆盖
+
+196 项测试横跨 Rust（Tauri OS overlay）、Python（harness 事件、接管、CAPTCHA）、TypeScript（前端 ProgressSteps、SSE 处理）三层——全部通过。
 
 ## Schema 驱动结构化提取
 
