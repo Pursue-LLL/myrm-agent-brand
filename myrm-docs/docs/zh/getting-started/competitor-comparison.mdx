@@ -37,7 +37,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **文件编辑安全** | ✅ 6 层保护 | ❌ | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
 | **定时任务** | ✅ GUI 配置 Cron | ⚠️ CLI 仅限特定模型 | ✅ | ✅ | ❌ | ❌ | ❌ |
 | **统一工具网关** | ✅ 四合一网关 + 弹性 BYOK 回退 | ⚠️ 硬切换（易出错） | ❌ N/A | ⚠️ 未知 | ❌ | ⚠️ 未知 | ❌ |
-| **语音** | ✅ STT + TTS + 实时 | ❌ | WebRTC | ⚠️ 基础 | ❌ | ❌ | ❌ |
+| **语音** | ✅ STT + TTS + 实时 | ⚠️ Discord 语音 | WebRTC | ⚠️ 基础 | ❌ | ❌ | ❌ |
 | **Computer Use** | ✅ 桌面自动化 + BBox 审批 + Tauri OS 叠加层 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **浏览器引擎** | ✅ 三层引擎 + Shadow DOM 穿透 + API-First 网络智能（CDP 懒加载响应体 + 请求重放）+ 同源智能Tab路由 | ⚠️ 第三方云浏览器 | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
 | **网页搜索** | ✅ 7 引擎 + BM25/Reranker 过滤 | ⚠️ 云 API 透传 | ⚠️ DDG/Bing 抓取 | ⚠️ 同 OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
@@ -284,7 +284,7 @@ Myrm 技能进化（42 模块、原生内置）实现 Self-Improving Agent 研�
 | Auto-fix failed skills | ❌ | ✅ FIX + Retrieve-Before-Generate + evidence-driven |
 | Multi-variant competition | ❌ | ✅ 3 parallel variants + LLM-Judge scoring |
 | Evolution cost per run | 50-500 LLM calls | **3 variants** (1% of competitor cost) |
-| Safety boundary | 1-layer scan | ✅ 5-layer (anti-loop + sandbox + GUI approval + validator + evolution lock) |
+| Safety boundary | 1-layer scan | ✅ 6-layer (LoopGuard 6-detector graduated WARN→BREAK + sandbox + GUI approval + validator + evolution lock + frequency guard) |
 | Quality monitoring | ❌ | ✅ 3-dimension degradation detection (success rate + P95 latency + 5xx error rate) |
 | User frustration detection | ❌ | ✅ 5 categories, 38 patterns (Chinese + English) |
 | Evidence aggregation | ❌ | ✅ Success/failure case grouping with common error pattern extraction |
