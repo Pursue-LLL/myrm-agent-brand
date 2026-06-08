@@ -45,10 +45,10 @@ const CARD_KEY_BY_PATH: Record<DeployPathId, DeployCardKey> = {
   tauri: 'tauri',
 };
 
-/** Public installer URL (Vercel redirect → myrm-agent install-remote.sh on GitHub). */
+/** Public installer URL (Cloudflare Pages `_redirects` 307 → myrm-agent install-remote.sh on GitHub). */
 export const LOCAL_INSTALL_SCRIPT_URL = 'https://myrmagent.ai/install.sh';
 
-/** Windows installer (Vercel redirect → install-remote.ps1). */
+/** Windows installer (Cloudflare Pages `_redirects` 307 → install-remote.ps1). */
 export const LOCAL_INSTALL_SCRIPT_PS1_URL = 'https://myrmagent.ai/install.ps1';
 
 /** Raw GitHub fallback (same script as LOCAL_INSTALL_SCRIPT_URL). */
