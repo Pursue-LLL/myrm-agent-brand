@@ -205,17 +205,18 @@ Multi-tier PII handling:
 
 ## Audit Trail
 
-### Merkle-Based Logging
+### Structured Audit Trail
 
-Every agent action is recorded in a cryptographically verifiable audit log:
+Every security decision is recorded in a structured audit log with Prometheus real-time metrics:
 
-- Each event is hashed with the previous event's hash (Merkle chain)
-- Tampering with any event invalidates the entire subsequent chain
-- Events include: tool calls, approvals, model switches, errors, completions
+- 37 typed security decisions (ALLOW, DENY, ASK, SSRF_BLOCKED, PII_REDACTED, TAINT_ESCALATE, etc.)
+- Prometheus `policy_denial_total` counter for real-time anomaly detection
+- Session-scoped accumulator with `TaintTracker` cross-tool information-flow tracking
+- Cron job metadata automatically embeds the full security audit for post-run analysis
 
 ### Event Types
 
-47 structured event types cover the complete agent lifecycle, including:
+37+ structured decision types cover the complete security lifecycle, including:
 
 - `TOOL_CALL_START` / `TOOL_CALL_END`
 - `APPROVAL_REQUESTED` / `APPROVAL_GRANTED` / `APPROVAL_DENIED`

@@ -501,7 +501,7 @@ FSB 首创浏览器自动化的库边界模式（标签引用 → 扩展解密 �
 
 - **从 Hermes / OpenClaw**：别再往提示词里贴密码；在设置中配置一次即可。
 - **从 FSB**：相同心智模型（标签），外加桌面应用与 TOTP，同一工作区。
-- **企业场景**：凭证库 + 12 维权限 + Merkle 审计（记录调用、不记密钥）+ 无痕会话跑敏感任务。
+- **企业场景**：凭证库 + 12 维权限 + 结构化审计（37 种决策类型 + Prometheus 指标）+ 无痕会话跑敏感任务。
 
 ## MCP 安全门 — 启用前先知风险
 
@@ -561,7 +561,7 @@ Myrm **Shell 命令展示** 将管道拆为带逐段风险着色的 span — 与
 
 ### 迁移收益
 
-- **从 OpenClaw**：熟悉的分段 shell 视图 — 外加 12 维权限、泄漏检测与 Merkle 审计。
+- **从 OpenClaw**：熟悉的分段 shell 视图 — 外加 12 维权限、泄漏检测与结构化审计追踪。
 - **从 Hermes / Claude Code**：别盲批单行命令 — 一键前看清管道段与风险。
 
 ## vs MemPalace — AI 记忆系统（14.9K+ Stars）
@@ -838,12 +838,14 @@ Myrm 提供 **零成本热迁移与原子持久化引擎**：
 
 | 套件 | 结果 |
 |------|------|
-| 竞品发现 + 迁移 API pytest | **31 通过** |
+| 迁移服务（4 车道 + 回滚 + 绑定）pytest | **34 通过** |
+| 竞品发现 + 迁移 API pytest | **37 通过** |
+| Dry-run + 迁移前备份 pytest | **11 通过** |
 | 架构 `_ARCH.md` 占位门禁 | **277 通过** |
 | OSS 脚本架构测试 | **5 通过** |
 | `check_fractal_docs --no-stub` + 行数预算 CI | **OK** |
 
-测试目录 scoped 扫描 [server `competitor_discovery.py`] 仅影响自动化测试；生产 `/migration/discover` 仍扫描真实用户主目录。竞品（OpenClaw、Hermes、DeerFlow、CodePilot、LobsterAI、CoPaw、jiuwenclaw）：**无 GUI 五源向导**；Hermes 仅有 CLI `claw migrate`。
+**迁移系统专项测试合计：82 通过**（2026-06）。测试目录 scoped 扫描 [server `competitor_discovery.py`] 仅影响自动化测试；生产 `/migration/discover` 仍扫描真实用户主目录。竞品（OpenClaw、Hermes、DeerFlow、CodePilot、LobsterAI、CoPaw、jiuwenclaw、PilotDeck）：**无 GUI 五源四车道向导**；Hermes 仅有 CLI `claw migrate`；PilotDeck 仅有技能文件复制（361 行，无记忆/指令/凭证迁移）。
 
 ### 迁移后你将获得（面向用户）
 

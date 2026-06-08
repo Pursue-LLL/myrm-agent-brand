@@ -501,7 +501,7 @@ FSB pioneered the vault-boundary pattern for browser automation (label reference
 
 - **From Hermes / OpenClaw**: Stop pasting passwords into prompts; configure once in Settings.
 - **From FSB**: Same mental model (labels), plus desktop apps and TOTP in one workspace.
-- **For enterprise**: Combine vault with 12-dimension permissions, Merkle audit (calls logged, not secrets), and incognito sessions for sensitive runs.
+- **For enterprise**: Combine vault with 12-dimension permissions, structured audit trail (37 decision types + Prometheus metrics), and incognito sessions for sensitive runs.
 
 ## MCP Security Gate — Know Risk Before You Enable
 
@@ -561,7 +561,7 @@ Myrm's **Shell Command Display** splits pipelines into spans with per-segment ri
 
 ### Migration wins
 
-- **From OpenClaw**: Familiar segmented shell view — plus 12-dimension permissions, leak detection, and Merkle audit.
+- **From OpenClaw**: Familiar segmented shell view — plus 12-dimension permissions, leak detection, and structured audit trail.
 - **From Hermes / Claude Code**: Stop approving blind one-liners — see pipe segments and risk before one click.
 
 ## vs MemPalace — AI Memory System (14.9K+ Stars)
@@ -838,12 +838,14 @@ Automated regression on a developer machine (minimal batch, ~7s total):
 
 | Suite | Result |
 |-------|--------|
-| Competitor discovery + migration API pytest | **31 passed** |
+| Migration service (4-lane + rollback + binding) pytest | **34 passed** |
+| Competitor discovery + migration API pytest | **37 passed** |
+| Dry-run + pre-migration backup pytest | **11 passed** |
 | Architecture `_ARCH.md` placeholder gate | **277 passed** |
 | OSS scripts architecture tests | **5 passed** |
 | `check_fractal_docs --no-stub` + line budget CI scripts | **OK** |
 
-Discovery scoped to explicit test home dirs [server `competitor_discovery.py`] — production `/migration/discover` still scans the real user home unchanged. Competitors checked (OpenClaw, Hermes, DeerFlow, CodePilot, LobsterAI, CoPaw, jiuwenclaw): **no GUI five-source wizard**; Hermes offers CLI `claw migrate` only.
+**Total migration-specific tests: 82 passed** (Jun 2026). Discovery scoped to explicit test home dirs [server `competitor_discovery.py`] — production `/migration/discover` still scans the real user home unchanged. Competitors checked (OpenClaw, Hermes, DeerFlow, CodePilot, LobsterAI, CoPaw, jiuwenclaw, PilotDeck): **no GUI five-source four-lane wizard**; Hermes offers CLI `claw migrate` only; PilotDeck has skill-only file copy (361 lines, no memory/instruction/credential migration).
 
 ### What you get after migrating (user-facing)
 
