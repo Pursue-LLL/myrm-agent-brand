@@ -231,3 +231,30 @@ For scenarios beyond CAPTCHAs — 2FA prompts, payment gateways, proprietary for
 | Agent fails silently on 2FA | Proactively asks for help |
 | User must monitor constantly | Only interrupts when truly needed |
 | Lost context after intervention | Captures post-human page state and adapts |
+
+## Zero-Config Browser Setup
+
+When you first use browser tools on a fresh Myrm desktop install, the browser engine (Chromium) is automatically downloaded and installed — **no terminal commands required**.
+
+### How It Works
+
+1. Agent requests a browser page for a task
+2. If Chromium is not installed, Myrm detects the missing executable
+3. Automatic download and installation runs in the background
+4. The browser task continues seamlessly after installation
+
+If automatic installation fails (no network, insufficient disk space, etc.), Myrm provides clear diagnostic messages with specific fix instructions.
+
+### Smart Failure Handling
+
+- **Cooldown protection** — After a failed install, Myrm waits 30 minutes before retrying to avoid blocking your workflow
+- **Diagnostic messages** — Shows exactly what went wrong (disk space, network, permissions) and how to fix it
+- **Doctor auto-fix** — Run `myrm doctor` with auto-fix to diagnose and repair browser issues
+
+### Why This Matters
+
+| Other Agent tools | Myrm |
+|-------------------|------|
+| Must run `playwright install chromium` in terminal | Automatic — just use the app |
+| Windows dependency errors confuse non-dev users | Clear diagnostics with fix instructions |
+| Browser features broken until manual setup | Works on first use |
