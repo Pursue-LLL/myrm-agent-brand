@@ -36,7 +36,9 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **MCP Tool Safety** | ✅ Dual-layer: upstream exception catch + downstream block coercion (file/audio/unknown→text) | ⚠️ Single-layer coercion (no upstream fault tolerance) | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Error Recovery** | ✅ 14 self-healing types | try/catch | Basic | Basic | ⚠️ Context overflow recovery | ⚠️ Unknown | ❌ |
 | **Enterprise Reliability** | ✅ xdist locks, EventBus truncate, OTEL safe, path-boundary + TOCTOU approval tests; chat SSE state machine regression tests (errors, approvals, file diff) | ⚠️ Happy-path tested only | ⚠️ Race conditions likely | ⚠️ Unknown | ⚠️ Unknown | ⚠️ Unknown | ❌ |
-| **File Edit Safety** | ✅ 6-layer protection | ❌ | ❌ | ❌ | ❌ | ⚠️ Unknown | ❌ |
+| **File Edit Safety** | ✅ 6-layer protection (snapshot undo, auto-format, syntax check, conflict detection, config guard, sensitive guard) | ❌ | ❌ | ❌ | ❌ | ⚠️ Unknown | ❌ |
+| **File System Intelligence** | ✅ 19 native ops + 6 parsers + 5 observers (717 tests) | ⚠️ 4 basic ops | ⚠️ bash only | ⚠️ bash only | ❌ | ⚠️ Basic | ❌ |
+| **Local File "Data Stays Local"** | ✅ Native — Agent runs locally, all files processed in-place | ❌ Cloud-only | ⚠️ Docker | ⚠️ Docker | ❌ Cloud | ❌ | ❌ |
 | **Scheduled Tasks** | ✅ GUI-configured Cron | ⚠️ CLI limited | ✅ | ✅ | ❌ | ❌ | ❌ |
 | **Unified Tool Gateway** | ✅ 4-in-1 Gateway + Elastic BYOK Fallback | ⚠️ Hard Switch (Error Prone) | ❌ N/A | ⚠️ Unknown | ❌ | ⚠️ Unknown | ❌ |
 | **Voice** | ✅ STT + TTS + Real-time | ⚠️ Discord Voice | WebRTC | ⚠️ Basic | ❌ | ❌ | ❌ |
