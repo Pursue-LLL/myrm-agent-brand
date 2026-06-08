@@ -99,17 +99,33 @@ Mem0's 2026 benchmark identified "memory staleness" as the hardest open problem 
 | 6 | Subsumption cognitive consolidation | New knowledge subsumes old memories |
 | 7 | User explicit correction action | Correction chains + penalty scoring |
 
-## Cross-Session Consolidation
+## Cross-Session Consolidation & Autonomous Maintenance
 
-Periodic consolidation analyzes accumulated memories via LLM to detect contradictions, redundancies, and generate insights:
+Myrm's memory maintenance engine runs 10 specialized modules (4,128 lines of code) that keep memory organized without user intervention:
 
-- **Merge** — Combine duplicate or overlapping memories
-- **Correct** — Fix outdated or contradictory information
-- **Update** — Enrich existing memories with new context
-- **Archive** — Move low-value memories to cold storage
-- **Split** — Break compound memories into atomic facts
+### Consolidation (5 operations)
 
-One-click rollback with zero extra storage — uses existing metadata mechanisms to reverse consolidation operations.
+- **Merge** — Combine duplicate or overlapping memories into a single, richer entry
+- **Correct** — Fix outdated or contradictory information with quality Rubric scoring (≥0.7 gate)
+- **Update** — Enrich existing memories with new context from recent conversations
+- **Archive** — Move low-value memories to cold storage (recoverable)
+- **Split** — Break compound memories into atomic facts for better retrieval
+
+### Three-Layer Deduplication
+
+Hash matching (0.18ms, saves 98% embedding cost) → Vector similarity → LLM semantic judgment. Four outcomes: SKIP, UPDATE_REPLACE, UPDATE_MERGE, or KEEP_BOTH.
+
+### Recurrence Detection
+
+Embedding-based buffer detects when the same topic recurs ≥4 times across sessions, automatically triggering consolidation — inspired by RecMem's academic approach but with production-grade implementation.
+
+### Subsumption
+
+When new knowledge fully encompasses an older memory, the system safely soft-deletes the subsumed entry while preserving audit trails.
+
+### One-Click Rollback
+
+Every consolidation operation is reversible with zero extra storage — the system uses existing `previous_content` metadata and soft-deletion flags. The GUI shows a dedicated Consolidation Rollback card with conflict warnings for memories modified by the user after consolidation.
 
 ## Pattern Discovery
 

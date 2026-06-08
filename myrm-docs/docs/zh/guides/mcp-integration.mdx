@@ -212,15 +212,47 @@ MCP 服务运行时增删改工具时，经 `notifications/tools/list_changed` �
 - Agent 需要时按需加载
 - 保持系统提示词紧凑、利于缓存
 
-## 内置 MCP 服务能力
+## 反向 MCP 服务（Connect）
 
-Myrm 也可作为 **MCP 服务**，向其他 MCP 客户端暴露能力：
+Myrm 也可作为 **MCP 服务**，将记忆系统暴露给外部 AI Agent（Claude Code、Cursor、Codex、Windsurf、Gemini CLI）。这意味着你的知识在所有 AI 工具间共享。
 
-| 资源 | 说明 |
-|----------|-------------|
-| Memory | 访问 Agent 记忆 |
-| Tools | 经 MCP 执行 Myrm 工具 |
-| Sessions | 管理聊天会话 |
+### 使用方法
+
+导航至 **设置 > 记忆 > Connect** 启动连接向导：
+
+1. **选择 IDE** — 从 5 种 MCP 客户端中选择
+2. **生成配置** — 一键生成 Bearer Token 和即粘即用的配置片段
+3. **粘贴到 IDE** — 将片段复制到 IDE 的 MCP 设置文件
+4. **完成** — 外部 Agent 立即可访问 Myrm 记忆
+
+### 暴露的工具
+
+| 工具 | 说明 |
+|------|------|
+| `memory_recall` | 按查询、类别或 profile key 搜索记忆，支持相似度搜索和过滤 |
+| `memory_store` | 存储新知识、偏好、规则、事件或指令 |
+| `memory_manage` | 评分、更新、纠正或删除已有记忆 |
+
+### 安全
+
+- **Bearer Token 认证** — 每个连接器获得唯一 `myrm_mcp_*` Token
+- **一键撤销** — 立即失效某连接器的访问权，不影响其他连接器
+- **HTTP 传输** — 支持远程网络访问（不限于本地 stdio）
+- **Doctor 健康检查** — 在 GUI 中随时验证连接状态
+
+### 支持的客户端
+
+| 客户端 | 配置格式 | 配置文件路径 |
+|--------|---------|------------|
+| Claude Code | JSON | `~/.claude/claude_code_config.json` |
+| Cursor | JSON | `.cursor/mcp.json` |
+| Codex | TOML | `codex.toml` |
+| Windsurf | JSON | `~/.windsurf/mcp_config.json` |
+| Gemini CLI | JSON | `~/.gemini/settings.json` |
+
+### 价值
+
+在 Cursor 中写代码时存储的项目知识，切换到 Myrm WebUI 做研究时立即可用，反之亦然。无需手动同步上下文。
 
 ## 故障排除
 

@@ -212,15 +212,47 @@ To prevent tool schema bloat in the system prompt, MCP tools support **deferred 
 - When the agent needs a specific capability, the tool is loaded on demand
 - This keeps the system prompt compact and cache-friendly
 
-## Built-in MCP Support
+## Reverse MCP Server (Connect)
 
-Myrm can also act as an **MCP server**, exposing its own capabilities to other MCP clients:
+Myrm can also act as an **MCP server**, exposing its memory system to external AI agents (Claude Code, Cursor, Codex, Windsurf, Gemini CLI). This means your knowledge persists across all your AI tools.
 
-| Resource | Description |
-|----------|-------------|
-| Memory | Access agent memory entries |
-| Tools | Execute Myrm tools via MCP |
-| Sessions | Manage chat sessions |
+### How It Works
+
+Navigate to **Settings > Memory > Connect** to launch the Connect Wizard:
+
+1. **Choose your IDE** — Select from 5 supported MCP clients
+2. **Generate config** — One click generates a Bearer token and a ready-to-paste config snippet
+3. **Paste into your IDE** — Copy the snippet into your IDE's MCP settings file
+4. **Done** — Your external agent now has access to Myrm's memory
+
+### Exposed Tools
+
+| Tool | Description |
+|------|-------------|
+| `memory_recall` | Search memories by query, category, or profile key. Supports similarity search with filters. |
+| `memory_store` | Store new knowledge, preferences, rules, events, or instructions |
+| `memory_manage` | Rate, update, correct, or delete existing memories |
+
+### Security
+
+- **Bearer Token authentication** — Each connector gets a unique `myrm_mcp_*` token
+- **One-click revoke** — Instantly invalidate a connector's access without affecting others
+- **HTTP transport** — Works over the network (not limited to local stdio)
+- **Doctor health check** — Verify connectivity from the GUI at any time
+
+### Supported Clients
+
+| Client | Config Format | Config File Path |
+|--------|--------------|------------------|
+| Claude Code | JSON | `~/.claude/claude_code_config.json` |
+| Cursor | JSON | `.cursor/mcp.json` |
+| Codex | TOML | `codex.toml` |
+| Windsurf | JSON | `~/.windsurf/mcp_config.json` |
+| Gemini CLI | JSON | `~/.gemini/settings.json` |
+
+### Why This Matters
+
+When you work in Cursor on code and then switch to Myrm's WebUI for research, both agents share the same memory. Project decisions stored by one agent are instantly available to the other — no manual context transfer needed.
 
 ## Troubleshooting
 

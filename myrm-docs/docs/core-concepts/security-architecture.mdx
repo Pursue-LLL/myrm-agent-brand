@@ -27,8 +27,26 @@ Control how much autonomy agents have:
 | **Auto** | Read-only operations auto-approved, writes require confirmation |
 | **YOLO** | All operations auto-approved (for trusted environments) |
 | **HITL** | Human-in-the-loop approval for every action |
-| **Always-Allow** | Per-tool permanent approval |
+| **Always-Allow** | Per-tool permanent approval with 3-level granularity |
 | **Domain-HITL** | Approval based on domain/resource classification |
+
+### Multi-Platform Approval UX
+
+Every approval surfaces the same four actions across all channels:
+
+| Action | WebUI | Telegram/Slack/Feishu |
+|--------|-------|----------------------|
+| **Approve** (once) | Button | `/approve`, `1`, `y`, 👍 emoji |
+| **Edit & Approve** | Inline editor with re-validation | N/A (edit in WebUI) |
+| **Reject** (with feedback) | Button + feedback textarea | `/deny`, `2`, `n`, 👎 emoji |
+| **Allow Always** | Button → confirmation dialog | `/approve-always`, `!y`, ♾️ emoji |
+
+**Allow Always** offers three granularity levels:
+- **Permission**: Allow all tools with this permission type (e.g., all file writes)
+- **Tool**: Allow this specific tool regardless of arguments
+- **Exact**: Allow this tool only with these exact arguments
+
+Batch operations are supported via `/batch a,d,aa` (approve, deny, always) and UI bulk buttons.
 
 ## Error Self-Healing
 
