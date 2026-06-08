@@ -1,27 +1,57 @@
 ---
 title: 桌面应用
-description: 安装 Myrm Tauri 桌面客户端。
+description: 安装 Myrm Tauri 桌面客户端 — 一个拥有 23+ 项原生系统能力的真正 Agent OS。
 ---
 
 # 桌面应用（Tauri）
 
-Tauri 桌面客户端在本地运行后端与原生 UI，所有数据留在你的机器上。
+Tauri 桌面客户端不仅仅是一个 GUI 壳 — 它是一个拥有 **23+ 项原生系统能力**的真正 **Agent OS**。所有数据留在你的机器上，三个内置 Sidecar（Python 后端、Next.js 前端、Agent Runner）均打包为独立二进制，零外部依赖。
 
 ## 下载与安装
 
 Myrm Desktop 具备智能跨平台分发能力：
 
-1. **智能硬件匹配**：下载页使用 WebGL 探测绕过浏览器限制（如 Safari 在 M 系列芯片上伪装 Intel），确保一键获取针对你设备的最优二进制（Apple Silicon vs Intel）。
+1. **智能硬件匹配**：WebGL 探测绕过浏览器限制（如 Safari 在 M 系列芯片上伪装 Intel），确保一键获取针对你设备的最优二进制。
 2. **无竞态自动更新**：Map-Reduce CI/CD 流水线保证各平台可靠、静默的后台更新，无 manifest 冲突。
 
 从 [Myrm 官网](https://myrmagent.ai) 或 [GitHub Releases](https://github.com/Pursue-LLL/myrm-agent/releases) 获取最新版本。
+
+## 原生 OS 能力
+
+桌面应用提供深度系统集成，远超任何浏览器端 AI 工具：
+
+### 屏幕与输入
+- **全局快捷键** — 动态注册系统级快捷键，切换窗口或触发 Appshot
+- **Appshot 截屏** — 全局快捷键截取当前窗口 + 通过无障碍 API 提取文字，一键完成
+- **剪贴板集成** — Agent 可写入你的真实 OS 剪贴板（而非沙箱剪贴板）
+- **Deep Link 协议** — 通过 `myrm://` URL 打开对话或触发操作
+
+### 电源与安全
+- **智能防休眠** — Agent 执行任务时自动阻止系统休眠（macOS IOKit、Linux systemd-inhibit、Windows SetThreadExecutionState）
+- **屏幕锁定管理** — 检测锁定状态、为 Computer Use 会话解锁、在系统 Keychain 中安全存储凭证
+- **原生提权** — 必要时请求管理员权限（如 macOS 隔离属性修复）
+- **OTA 自动更新** — Tauri 更新器 + 公钥安全校验，防止供应链攻击
+
+### 视觉与交互
+- **系统托盘** — 动态 tooltip 状态（空闲/忙碌/错误）+ 快捷菜单（新对话、设置、工作区）
+- **视觉审批 Overlay** — OS 级透明红框覆盖在目标显示器上，即使聊天窗口被遮挡也可见
+- **桌面宠物精灵** — 透明置顶窗口 + Canvas 2D 渲染的伙伴宠物系统
+- **最小化到托盘** — 关闭窗口时最小化到系统托盘而非退出
+
+### 基础设施
+- **Python Sidecar** — 受管的 FastAPI 后端进程，含健康检查
+- **Next.js Sidecar** — 受管的 Standalone 前端服务器（WebUI 模式）
+- **Agent Runner Sidecar** — Bun 编译的独立二进制，CLI 智能体集成
+- **端口冲突检测** — 启动前检查端口占用
+- **Cloudflare Tunnel** — 内置 cloudflared 二进制，一键远程访问
+- **macOS 隔离修复** — 检测并自动修复 `com.apple.quarantine` 属性
 
 ## 全局截屏 AI（Appshot + FlowPad）
 
 桌面端独有的 Appshot 功能让你无需离开当前应用即可与 AI 交互：
 
 1. **全局快捷键截屏**：在任意应用中按下快捷键，系统级监听截取当前活动窗口
-2. **自动文字提取**：截屏后自动通过 OCR 提取窗口中的文字内容
+2. **自动文字提取**：通过无障碍 API 自动提取窗口中的文字内容
 3. **FlowPad 浮窗**：截屏后自动弹出 AI 提问面板，直接输入问题并发送至对话
 4. **多次截屏叠加**：支持连续截取多个窗口（上限 10 张），统一发送给 AI 分析
 5. **图片预览与管理**：在 FlowPad 中预览已截取的图片，可单独删除或点击放大查看
@@ -33,6 +63,16 @@ Myrm Desktop 具备智能跨平台分发能力：
 1. 为你的平台安装应用
 2. 从应用程序菜单启动 Myrm
 3. 在设置中配置至少一个 LLM API Key
+
+## 权限系统
+
+桌面应用为 Agent 操作提供三级权限模型：
+
+| 模式 | 行为 |
+|------|------|
+| **Explore（探索）** | Agent 只能读取文件和浏览 — 不能修改 |
+| **Ask（询问）** | Agent 在执行写入或系统操作前请求你的批准 |
+| **Auto（自动）** | Agent 自动执行所有已批准的工具类别，无需提示 |
 
 ## 远程访问
 

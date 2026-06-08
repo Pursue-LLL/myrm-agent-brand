@@ -1,38 +1,78 @@
 ---
 title: Desktop App
-description: Install the Myrm Tauri desktop client.
+description: Install the Myrm Tauri desktop client — a true Agent OS with 23+ native capabilities.
 ---
 
 # Desktop App (Tauri)
 
-The Tauri desktop client runs a local backend with a native UI. All data stays on your machine.
+The Tauri desktop client is more than a GUI shell — it's a true **Agent OS** with 23+ native system capabilities. All data stays on your machine, and three bundled sidecars (Python backend, Next.js frontend, Agent Runner) are packaged as standalone binaries with zero external dependencies.
 
 ## Download & Installation
 
 The Myrm Desktop app features an intelligent cross-platform distribution system:
 
-1. **Smart Hardware Matching**: Our download page uses WebGL sniffing to bypass browser limitations (like Safari spoofing Intel on M-series chips), ensuring you always get the most optimized binary for your device (Apple Silicon vs. Intel) with a single click.
-2. **Race-Free Auto-Updates**: Our Map-Reduce CI/CD pipeline ensures reliable, silent background updates across all platforms without manifest conflicts.
+1. **Smart Hardware Matching**: WebGL sniffing bypasses browser limitations (like Safari spoofing Intel on M-series chips), ensuring the correct binary for your device with a single click.
+2. **Race-Free Auto-Updates**: Map-Reduce CI/CD pipeline ensures reliable, silent background updates across all platforms without manifest conflicts.
 
 Get the latest release from the [Myrm Website](https://myrmagent.ai) or [GitHub Releases](https://github.com/Pursue-LLL/myrm-agent/releases).
+
+## Native OS Capabilities
+
+The desktop app provides deep system integration that no browser-based AI tool can match:
+
+### Screen & Input
+- **Global Hotkeys** — Dynamically register system-wide shortcuts to toggle the window or trigger Appshot
+- **Appshot** — Capture the active window screenshot + extract text via Accessibility API, all from a single hotkey
+- **Clipboard Integration** — Agent can write to your real OS clipboard (not a sandbox clipboard)
+- **Deep Link Protocol** — Open conversations or trigger actions via `myrm://` URLs
+
+### Power & Security
+- **Smart Power Lock** — Automatically prevents system sleep while agent tasks are executing (macOS IOKit, Linux systemd-inhibit, Windows SetThreadExecutionState)
+- **Screen Lock Management** — Detect lock state, unlock for Computer Use sessions, and store credentials securely in the system Keychain
+- **Native Elevation** — Request admin privileges when needed (e.g., quarantine removal on macOS)
+- **OTA Auto-Update** — Tauri updater with public-key safety validation to prevent supply-chain attacks
+
+### Visual & Interaction
+- **System Tray** — Dynamic tooltip status (idle/busy/error) + quick-access menu (New Chat, Settings, Workspace)
+- **Visual Approval Overlay** — OS-level transparent red frame overlay on the target monitor for tool approval, visible even when chat is covered
+- **Desktop Pet Sprite** — Transparent topmost window with Canvas 2D rendering for the companion pet system
+- **Close-to-Tray** — Minimize to system tray instead of quitting, with macOS ActivationPolicy management
+
+### Infrastructure
+- **Python Sidecar** — Managed FastAPI backend process with health checks
+- **Next.js Sidecar** — Managed standalone frontend server for WebUI mode
+- **Agent Runner Sidecar** — Bun-compiled standalone binary for CLI agent integration
+- **Port Conflict Detection** — Pre-launch checks to prevent port collisions
+- **Cloudflare Tunnel** — Bundled cloudflared binary for one-click remote access
+- **macOS Quarantine Fix** — Detect and auto-heal `com.apple.quarantine` attributes
 
 ## Global Screen AI (Appshot + FlowPad)
 
 The desktop-exclusive Appshot feature lets you interact with AI without leaving your current application:
 
 1. **Global Hotkey Capture**: Press a hotkey in any app — the system-level listener captures the active window
-2. **Auto Text Extraction**: OCR automatically extracts text content from the captured screenshot
+2. **Auto Text Extraction**: Accessibility API automatically extracts text content from the captured window
 3. **FlowPad Floating Panel**: An AI query panel appears after capture — type your question and send it to the conversation
 4. **Multi-Capture Stacking**: Capture up to 10 windows in sequence and send them all to AI for analysis
 5. **Image Preview & Management**: Preview captured images in FlowPad, delete individual captures, or click to enlarge
 
-Typical use cases: ask questions about a PDF you're reading, capture error messages from a browser for AI diagnosis, screenshot code snippets in your IDE for explanation.
+Typical use cases: ask questions about a PDF, capture error messages for AI diagnosis, screenshot code for explanation.
 
 ## Setup
 
 1. Install the application for your platform
 2. Launch Myrm from your applications menu
 3. Configure at least one LLM API key in Settings
+
+## Permission System
+
+The desktop app enforces a three-tier permission model for agent actions:
+
+| Mode | Behavior |
+|------|----------|
+| **Explore** | Agent can only read files and browse — no modifications |
+| **Ask** | Agent requests approval before any write or system operation |
+| **Auto** | Agent executes all approved tool categories without prompting |
 
 ## Remote Access
 

@@ -17,9 +17,14 @@ User Message → Filter → Cache TTL Prune → Compress → Summarize → Cache
 
 ## Compression Pipeline
 
-### Layer 1: Instant Filtering
+### Layer 1: Instant Filtering (ContextBudgetGuard)
 
-Large tool outputs (e.g., file contents, search results) are immediately truncated to preserve only the most relevant portions. Zero API cost.
+Large tool outputs (e.g., file contents, search results) are processed by an intelligent budget guard. Unlike competitors that set a fixed per-tool truncation threshold, Myrm uses holistic budget management:
+
+- **Smart exemptions**: File read/write tools bypass truncation to avoid "read→truncate→re-read" loops
+- **Structure-aware**: JSON/XML/CSV outputs use structural trimming (preserving schema) instead of brute character cutting
+- **Disk persistence**: Oversized outputs are automatically saved to disk with a summary + path returned to the Agent
+- **Predictive overflow protection**: Truncation intensity adapts dynamically based on remaining token budget
 
 ### Layer 2: Cache TTL Pruning
 
