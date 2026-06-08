@@ -145,6 +145,49 @@ Before text enters the Agent context:
 
 **Myrm is more zero-config on fetch** — cleaning works locally without cloud APIs.
 
+## Retrieval Sufficiency Guard (RSG)
+
+In **deep search** mode, Myrm automatically verifies whether retrieved content is sufficient to answer the user's question — before the main LLM starts composing a response.
+
+### How It Works
+
+After each `web_search` or `web_fetch` call (when `search_depth == "deep"`):
+
+1. A **lightweight LLM** (your configured `lite_model`) evaluates the retrieved snippets against the original query
+2. Returns a structured verdict: sufficient / insufficient + missing aspects + suggested follow-up queries
+3. Detects **negative constraint violations** (e.g. "exclude React" but results contain React content)
+4. Result is appended to tool output for the main Agent to act on
+
+### Key Design Choices
+
+| Aspect | Decision | Why |
+|--------|----------|-----|
+| Activation | `deep` mode only | Normal search stays fast; deep search gets quality assurance |
+| Model | `lite_model_cfg` (Flash/Haiku) | Keeps cost < $0.001/evaluation |
+| Output | JSON Schema enforced | Reliable structured output even from local models |
+| Failure | Fail-open (`is_sufficient=True`) | Never blocks the main workflow |
+| Threshold | `confidence >= 0.7` to pass | Below threshold → treated as insufficient |
+
+### Negative Constraints (Unique Capability)
+
+Vector search and BM25 cannot handle exclusion criteria like *"recommend frameworks except React"*. RSG explicitly extracts these constraints and checks results against them:
+
+```
+Query: "Compare backend frameworks, exclude Node.js"
+Retrieved: Article mentioning Express.js (Node.js)
+RSG verdict: negative_constraint_violations = ["contains Node.js/Express content"]
+```
+
+The Agent sees this violation and knows to search again with better filtering.
+
+### vs Competitors
+
+No competitor (Hermes, OpenClaw, Claude Code, Perplexity) has an equivalent post-retrieval sufficiency check. They rely entirely on the main LLM to judge whether it has enough information — which is unreliable because:
+
+1. LLMs tend to answer confidently even with insufficient data (hallucination)
+2. No explicit negative constraint checking is possible without a dedicated evaluator
+3. No structured guidance for what to search next
+
 ## PTC Integration
 
 In Programmatic Tool Calling scripts:

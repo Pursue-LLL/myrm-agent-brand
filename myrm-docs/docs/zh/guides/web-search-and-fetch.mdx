@@ -145,6 +145,49 @@ Precision 用语义重排（阈值 **0.6**）— 低相关块丢弃。
 
 **Myrm 在抓取上更零配置** — 本地清洗无需云 API。
 
+## 检索充分性守卫 (RSG)
+
+在 **deep search** 模式下，Myrm 会自动验证检索内容是否足够回答用户问题 — 在主 LLM 开始生成回答之前。
+
+### 工作原理
+
+每次 `web_search` 或 `web_fetch` 调用后（当 `search_depth == "deep"` 时）：
+
+1. **轻量级 LLM**（你配置的 `lite_model`）评估检索结果与原始查询的匹配度
+2. 返回结构化评估：充分/不充分 + 缺失信息 + 建议的后续查询
+3. 检测 **负面约束违规**（如"排除 React"但结果包含 React 内容）
+4. 结果附加到工具输出，供主 Agent 决策
+
+### 核心设计
+
+| 方面 | 决策 | 原因 |
+|------|------|------|
+| 激活条件 | 仅 `deep` 模式 | 普通搜索保持快速；深度搜索获得质量保障 |
+| 模型 | `lite_model_cfg` (Flash/Haiku) | 成本 < $0.001/次评估 |
+| 输出 | JSON Schema 强制 | 本地模型也能可靠输出结构化结果 |
+| 容错 | fail-open（`is_sufficient=True`） | 永不阻塞主流程 |
+| 阈值 | `confidence >= 0.7` 通过 | 低于阈值视为不充分 |
+
+### 负面约束检测（独有能力）
+
+向量搜索和 BM25 无法处理"排除X"这类条件。RSG 显式提取这些约束并逐一校验：
+
+```
+查询："推荐后端框架，排除 Node.js"
+检索结果：包含 Express.js（Node.js）的文章
+RSG 评估：negative_constraint_violations = ["包含 Node.js/Express 内容"]
+```
+
+Agent 看到违规后会自动补搜以获取更精准结果。
+
+### vs 竞品
+
+没有竞品（Hermes、OpenClaw、Claude Code、Perplexity）有等价的后检索充分性校验。它们完全依赖主 LLM 判断信息是否充足 — 这是不可靠的，因为：
+
+1. LLM 倾向于即使数据不足也自信作答（幻觉）
+2. 没有专用评估器就无法做显式负面约束检测
+3. 没有结构化指导告诉 Agent 接下来该搜什么
+
 ## PTC 集成
 
 在 Programmatic Tool Calling 脚本中：
