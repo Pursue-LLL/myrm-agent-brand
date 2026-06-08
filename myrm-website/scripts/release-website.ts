@@ -108,7 +108,10 @@ function ensureCleanWorkingTree(): void {
 
 function resolveTagCommit(tag: string): string | null {
   try {
-    return gitRun(`git rev-parse "refs/tags/${tag}^{commit}"`);
+    return execSync(`git rev-parse "refs/tags/${tag}^{commit}"`, {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
   } catch {
     return null;
   }
