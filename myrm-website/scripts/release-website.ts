@@ -9,6 +9,33 @@
  *   CF_PAGES_DEPLOY_HOOK=https://api.cloudflare.com/... bun run release:website -- website-v1.2.0
  */
 import { execSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const rootDir = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+
+function loadEnvLocal(): void {
+  const envPath = path.join(rootDir, '.env.local');
+  try {
+    const raw = readFileSync(envPath, 'utf8');
+    for (const line of raw.split('\n')) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const eq = trimmed.indexOf('=');
+      if (eq <= 0) continue;
+      const key = trimmed.slice(0, eq).trim();
+      const value = trimmed.slice(eq + 1).trim();
+      if (key && process.env[key] === undefined) {
+        process.env[key] = value;
+      }
+    }
+  } catch {
+    // .env.local is optional
+  }
+}
+
+loadEnvLocal();
 
 const TAG_PREFIX = 'website-v';
 const hookUrl = process.env.CF_PAGES_DEPLOY_HOOK?.trim();
