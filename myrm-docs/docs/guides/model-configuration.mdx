@@ -20,11 +20,15 @@ GOOGLE_API_KEY=...
 
 ## Smart Routing
 
-The complexity router automatically selects the optimal model based on task requirements:
+The 3-dimensional complexity router automatically selects the optimal model based on task requirements, privacy sensitivity, and provider health:
 
-- Simple queries use lightweight models
-- Complex reasoning escalates to frontier models
-- Cost and latency are optimized per request
+**Phase 1 — Rule Engine (zero LLM cost):** Multi-dimensional scoring across 6 signal types — keywords (30+ bilingual), code blocks, math/LaTeX, URLs/file paths, images, and message length. 99% of requests resolve instantly.
+
+**Phase 2 — LLM Judge (ambiguous only):** For borderline cases, a lightweight judge model classifies the query. Results are SHA-256 cached (5-min TTL, 256-entry LRU) to avoid repeated calls.
+
+**Session Momentum:** Short follow-ups (e.g., "ok", "yes") inherit the session's complexity tier instead of being downgraded to SIMPLE. Message-length-based weight decay ensures long messages are classified independently.
+
+**PenaltyTracker — Self-Learning:** When you flag a routing decision as incorrect, the tier receives a penalty score (24-hour half-life). Future queries need stronger signals to activate penalized tiers, making routing accuracy improve over time.
 
 ## Key Rotation
 
