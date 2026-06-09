@@ -76,6 +76,21 @@ Agents can access:
 
 Tools can be enabled/disabled per agent, with approval policies configured individually.
 
+### Deferred Tool Loading
+
+Not all tools need to occupy the LLM prompt at all times. Myrm splits tools into two tiers:
+
+| Tier | Behavior | Examples |
+|------|----------|---------|
+| **Immediate** | Always available in the prompt | File ops, terminal, search, browser |
+| **Deferred** | Loaded on demand when intent is detected | UI rendering, image/video generation, TTS, cron management, computer use |
+
+This saves approximately 4,000 tokens per turn for agents with many tools configured, without reducing capability — the agent can still use any tool when needed.
+
+### Skill Hot-Reload
+
+When you modify a skill's configuration (via GUI or API), the running agent detects the change and reinitializes in-session. No restart, no reconnect — the updated skill is live immediately.
+
 ## Memory
 
 Each agent has:

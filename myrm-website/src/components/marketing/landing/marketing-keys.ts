@@ -206,6 +206,7 @@ export const DEPTH_GROUPS: readonly DepthGroupDef[] = [
       { source: 'extendedHighlights', itemKey: 'enterpriseTesting' },
       { source: 'extendedHighlights', itemKey: 'antiBlockingTitle' },
       { source: 'extendedHighlights', itemKey: 'resourceThrottling' },
+      { source: 'extendedHighlights', itemKey: 'skillLifecycle' },
       { source: 'extendedHighlights', itemKey: 'airGappedMode' },
     ],
   },

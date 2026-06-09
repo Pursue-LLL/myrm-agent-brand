@@ -36,14 +36,14 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **MCP Tool Safety** | ✅ Dual-layer: upstream exception catch + downstream block coercion (file/audio/unknown→text) | ⚠️ Single-layer coercion (no upstream fault tolerance) | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Error Recovery** | ✅ 14 self-healing types | try/catch | Basic | Basic | ⚠️ Context overflow recovery | ⚠️ Unknown | ❌ |
 | **Enterprise Reliability** | ✅ xdist locks, EventBus truncate, OTEL safe, path-boundary + TOCTOU approval tests; chat SSE state machine regression tests (errors, approvals, file diff) | ⚠️ Happy-path tested only | ⚠️ Race conditions likely | ⚠️ Unknown | ⚠️ Unknown | ⚠️ Unknown | ❌ |
-| **File Edit Safety** | ✅ 6-layer protection (snapshot undo, auto-format, syntax check, conflict detection, config guard, sensitive guard) | ❌ | ❌ | ❌ | ❌ | ⚠️ Unknown | ❌ |
-| **File System Intelligence** | ✅ 19 native ops + 6 parsers + 5 observers (717 tests) | ⚠️ 4 basic ops | ⚠️ bash only | ⚠️ bash only | ❌ | ⚠️ Basic | ❌ |
+| **File Edit Safety** | ✅ 6-layer protection (message-level snapshot undo with single-file/batch revert, auto-format, syntax check, conflict detection, config guard, sensitive guard) + real-time diff SSE (788 tests) | ❌ | ❌ | ❌ | ❌ | ⚠️ Unknown | ❌ |
+| **File System Intelligence** | ✅ 19 native ops + 6 parsers + 5 observers (788 tests) | ⚠️ 4 basic ops | ⚠️ bash only | ⚠️ bash only | ❌ | ⚠️ Basic | ❌ |
 | **Local File "Data Stays Local"** | ✅ Native — Agent runs locally, all files processed in-place | ❌ Cloud-only | ⚠️ Docker | ⚠️ Docker | ❌ Cloud | ❌ | ❌ |
 | **Scheduled Tasks** | ✅ GUI-configured Cron | ⚠️ CLI limited | ✅ | ✅ | ❌ | ❌ | ❌ |
 | **Unified Tool Gateway** | ✅ 4-in-1 Gateway + Elastic BYOK Fallback | ⚠️ Hard Switch (Error Prone) | ❌ N/A | ⚠️ Unknown | ❌ | ⚠️ Unknown | ❌ |
 | **Voice** | ✅ STT + TTS + Real-time | ⚠️ Discord Voice | WebRTC | ⚠️ Basic | ❌ | ❌ | ❌ |
 | **Computer Use** | ✅ Desktop automation + BBox approval + Tauri OS overlay | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Browser Engine** | ✅ 3-layer engine + Shadow DOM penetration + API-First network intelligence (CDP lazy body + replay) + origin-based smart tab routing | ⚠️ Cloud Browser Use | ❌ | ❌ | ❌ | ⚠️ Unknown | ❌ |
+| **Browser Engine** | ✅ 3-layer engine + GlobalBrowserPool (zero cold-start, 3-layer crash recovery) + Shadow DOM penetration + API-First network intelligence (CDP lazy body + replay) + origin-based smart tab routing | ⚠️ Cloud Browser Use | ❌ | ❌ | ❌ | ⚠️ Unknown | ❌ |
 | **Web Search** | ✅ 7 engines + BM25/Reranker filter | ⚠️ Cloud API passthrough | ⚠️ DDG/Bing scrape | ⚠️ Same as OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
 | **Web Fetch** | ✅ 3-tier + vector extract + DOM prune + Schema-Driven structured extraction | ⚠️ web_extract (Firecrawl + LLM) | ⚠️ HTTP / Firecrawl fallback | ⚠️ Same | ⚠️ HTTP only | ❌ | ❌ |
 | **Web Image Search** | ✅ built-in image_search | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -295,6 +295,8 @@ Myrm's Skill Evolution System (42 modules, native built-in) implements all engin
 | Description optimization | ❌ | ✅ Auto-refine trigger conditions for better skill matching |
 | GUI approval workflow | ❌ Auto-execute | ✅ Review, modify, approve or reject before applying |
 | **Per-agent Insights Inbox** (background distill → approve in Agent settings) | ❌ Global auto-apply | ✅ **Insights tab** — nothing applies until you approve; dismiss writes negative exemplar |
+| **Real-time growth notification** | ❌ CLI text | ✅ **SSE push → Toast** (info/success/error/warning) with action button — works across all pages |
+| **Growth policy engine** | Simple apply/reject | ✅ **6-path decision matrix**: auto-apply safe skills, security pre-scan, BM25+Embedding semantic dedup (75%), evolution lock, fallback to manual review |
 | Per-agent skill isolation (no cross-agent habit pollution) | ⚠️ Shared pool | ✅ **agent_id scoping + CoW fork** on cross-agent mounts |
 | Growth dashboard | ❌ | ✅ KPI + heatmap + radar chart + evolution timeline |
 | Environment fingerprint | ❌ | ✅ Cross-device safe skill sharing |
@@ -319,6 +321,142 @@ Beyond evolution, Myrm's skill system architecture is fundamentally more sophist
 | Curator Governance | Coarse-grained skip (foreground skills never managed → list bloat) | **Non-destructive archive** (always recoverable) + pinned + evolution_locked | Skills stay organized, important ones stay protected |
 | Missing Dependency Handling | Load full doc then append setup note | **XML summary shows reason at L0/L1** (save tokens) + 3-level fallback degraded docs | Know instantly what's missing, fix it fast |
 
+### Skill Ecosystem Discovery & Import — 5-Source Aggregation vs Single Source
+
+While competitors scan a single local directory (`.claude/skills/`, `.agents/skills/`), Myrm aggregates skills from **5 parallel discovery sources** with a full GUI import pipeline:
+
+| Capability | Hermes / OpenClaw | Myrm | User Benefit |
+|-----------|:-----------------:|:----:|-------------|
+| Discovery sources | 1 (local directory scan) | **5 parallel** (ClawHub + GitHub + LobeHub + skills.sh + Prebuilt) | One search, all ecosystems |
+| Search UI | CLI / none | **GUI SkillDiscoverTab** with filter, sort, category | Visual browsing like an app store |
+| URL import | ❌ | **URL → auto-analyze → batch install** with conflict detection | Paste a link, get a skill |
+| ZIP batch import | ❌ | **Drag & drop → security scan → conflict detection → atomic install** | Bulk migration in seconds |
+| Hot-reload | Restart required | **Zero-downtime**: `bump_skill_config_version()` → agent detects staleness → re-init | Install and use immediately |
+| Security scanning | None / hardcoded | **Pre-install quarantine** + `SkillSecurityValidator` + safe ZIP extraction (anti-Zip Bomb + path traversal) | Safe by default |
+| Atomic installation | `os.replace` file swap | **Blue-green directory swap** + transactional DB write + rollback | Never a broken state |
+| Auto-update | ❌ | **`SkillAutoUpdateChecker`** with "Update Available" badge | Always current |
+| Format compatibility | Own format only | **SKILL.md** with YAML frontmatter (shared with Hermes/OpenClaw) + any Markdown skill | Zero-friction ecosystem import |
+
+**Result: 9 upgrades, 0 equivalent, 0 downgrades. Myrm treats skill discovery as a first-class GUI experience with enterprise-grade safety, while competitors remain limited to local directory scanning.**
+
+### Evolution Validation Pipeline — 5-Layer vs Zero Validation
+
+Competitor proposals suggest users write manual `validator/*.md` test cases for skills — a fundamentally flawed concept for SOP prompt skills that adds high friction. Myrm's **5-layer automatic validation pipeline** provides comprehensive protection with zero user effort:
+
+| Layer | What It Does | Type | Competitor |
+|-------|-------------|------|-----------|
+| L1: SkillValidator | Dangerous pattern regex + Python AST syntax + metadata integrity | Deterministic | None |
+| L2: SandboxValidator | AST static analysis (eval/exec interception) + subprocess dry-run + secure verification steps | Deterministic | None |
+| L3: BatchEvaluator | 3-dimension rubric scoring (accuracy 50% + anti-fragmentation 30% + redundancy 20%) + length penalty + hard threshold circuit-break (score &lt; 0.6 = reject) + hallucinated import detection | AI Quality Gate | None |
+| L4: GUI Approval | Full approval lifecycle (approve/reject/revise/rollback) with Simple/Detailed dual-view + inline Diff editor | User Control | CLI only |
+| L5: A/B Testing | Shadow testing (sampling + worker pool + retry) + Auto-Promote at 95% threshold + latency ratio cap | Empirical Evidence | None |
+
+**Key insight**: Most skills are Markdown SOP prompts (e.g., "When reviewing code, follow these steps..."). You cannot write deterministic test cases for prompt guidance — our 5-layer pipeline solves this elegantly through complementary validation types. **921 tests verified.**
+
+### Evolution Transparency — 6 GUI Panels vs Flat File
+
+Competitor proposals suggest syncing DB records to a `HISTORY.md` file in each skill directory for "transparency." Myrm provides **6 dedicated GUI panels** with rich interactivity that makes flat text files obsolete:
+
+| Panel | What It Shows | Competitor |
+|-------|--------------|-----------|
+| SkillHistoryPanel | Evolution records + Monaco DiffEditor + status badges (approved/rejected/rolled_back) + one-click rollback | HISTORY.md file |
+| EvolutionRejectionDashboard | 7 status categories + stats cards + time range filter (7/30/90/180 days) + SSE real-time updates + force retry | None |
+| PendingEvolutionsDashboard | Simple/Detailed dual-view + approve/reject/revise lifecycle + localStorage persistence | None |
+| SkillGrowthCaseCard | Individual proposal card with Monaco DiffEditor inline editing + rejection reason input | None |
+| SkillVersionsPanel | Version list + cross-version compare (any v1 vs v2) + rollback with confirmation | None |
+| SkillQualityGuardian | A/B test status + shadow samples + quality metrics | None |
+
+**Negative memory**: 3 DB tables (`evolution_constraints` + `evolution_rejections` + `execution_analyses`) automatically learn from failures. The engine injects past constraints into variant generation prompts via `get_evolution_constraints()`, preventing repeat mistakes — a closed-loop system that requires zero user maintenance. **332 additional tests verified.**
+
+### Bounded Edit Control — 6-Layer Soft Constraints vs Hard Circuit-Break
+
+Competitor proposals enforce a rigid "max 1 change point" rule with AST/Diff circuit-breaking. This is fundamentally flawed: a single bug fix often legitimately touches 2-3 related sections, and Markdown has no reliable AST for counting "change points." Myrm uses **6 layers of soft constraints** that maintain fix quality without artificial limits:
+
+| Layer | Mechanism | Effect |
+|-------|-----------|--------|
+| L1: `_CONSERVATIVE_EDITING` | 4 editing rules in LLM prompt | Preserve headings, leave working sections alone, prefer tightening over adding |
+| L2: `_HARD_CONSTRAINTS` | 6 prohibitions in LLM prompt | No full rewrites, no API contract changes, no generic advice injection |
+| L3: `_FAILURE_ATTRIBUTION` | 3-way root cause classification | Only edit for skill problems; agent/environment problems don't bloat the skill |
+| L4: `length_penalty` | Score penalty starting at 120% growth, max 40% at 200% | Quantitative bloat control without blocking legitimate additions |
+| L5: `anti_fragmentation_score` | 30% weight in AI rubric | Prevents scope creep and hardcoding |
+| L6: `redundancy_score` | 20% weight in AI rubric | Prevents unnecessary bloat and duplicate logic |
+
+Combined with hard threshold rejection (score < 0.6 or accuracy < 0.7 = auto-reject), this system achieves bounded editing without sacrificing fix completeness. Monaco DiffEditor provides line-level red/green change highlighting — more precise than the competitor's "highlight a single section." **1783 tests verified.**
+
+### Framework-Driven Engine — Python Framework + 5-Layer Customization vs Pure-Prompt Files
+
+Some competitors drive skill evolution entirely through editable Markdown prompt files (e.g., `reflect.skill.md`, `edit.skill.md`). While this appears flexible, it's fundamentally fragile — one wrong edit crashes the entire pipeline, it doesn't work in SaaS deployments, and creates dual-source-of-truth conflicts.
+
+Myrm uses a **Python framework engine** with 7 modular prompt components hardcoded for safety, combined with a **5-layer structured customization system**:
+
+| Layer | Mechanism | What it controls |
+|-------|-----------|-----------------|
+| L1: Strategy | `evolution_strategy` (4 modes) | Which evolution types run — one-click switch in UI |
+| L2: Per-skill lock | `evolution_lock` | Protect specific skills from auto-evolution |
+| L3: Trap injection | `traps` per skill | Domain-specific warnings injected into LLM prompts |
+| L4: Constraint learning | `evolution_constraints` | System accumulates rejection reasons — gets smarter over time |
+| L5: Preference embedding | `_PREFERENCE_EMBEDDING` | User style/format preferences auto-learned from frustration signals |
+
+This gives users **structured, safe customization** without the risks of raw prompt file editing. Works identically across Local, Tauri, and SaaS — no filesystem dependency. **1923 tests verified.**
+
+### Evolution Visualization — 9-Panel Full Lifecycle vs Command-Line Only
+
+Some competitors rely entirely on Cron jobs and command-line output for skill evolution monitoring. Myrm provides **9 dedicated visualization surfaces** covering the full evolution lifecycle:
+
+| Panel | What you see |
+|-------|-------------|
+| Pending Reviews Dashboard | All proposals awaiting your approval — Simple or Detailed view |
+| Growth Case Cards | Each proposal with Monaco DiffEditor — review, edit, approve in place |
+| Rejection Audit Dashboard | Why proposals were rejected, what the system learned |
+| History Panel | Processed evolution records with one-click rollback |
+| Versions Panel | Full version history with side-by-side diff comparison |
+| Quality Guardian | Shadow A/B testing — test new skills before going live |
+| Growth Dashboard | KPI cards + GitHub-style activity heatmap + health radar + weekly stats |
+| Daily Journal | Day-by-day timeline of sessions, approvals, cron runs, and more |
+| WebSocket Real-time | Instant push notifications when new proposals arrive |
+
+No command-line output to parse, no log files to tail. Everything is visual, interactive, and actionable. **2900 tests verified.**
+
+### Cross-Skill Global Rules — 3-Layer Organic Learning vs Auto-Writing AGENTS.md
+
+Some competitors propose auto-injecting rules into `AGENTS.md` or system prompts when common failure patterns appear across skills. This approach is **architecturally dangerous**: it modifies user-managed workspace files, creates dual source-of-truth conflicts, and breaks Prompt Cache efficiency.
+
+Myrm uses a **3-layer organic learning system** that achieves the same goal safely:
+
+| Layer | Mechanism | How it helps |
+|-------|-----------|-------------|
+| Per-Skill Constraints | `evolution_constraints` + `traps` | Each skill accumulates its own lessons learned, auto-injected into evolution prompts |
+| Memory Learned Rules | `ProceduralMemory` (trigger → action) | Global rules emerge organically from conversations, with CRITICAL/HIGH/NORMAL priority levels |
+| Workspace Rules | Read-only scan of AGENTS.md + 14 other rule file formats | Respects user-authored rules without modifying them |
+
+Key advantages over auto-write approaches:
+- **Safe**: Never modifies user files or system prompts — learned rules flow through MemoryContextMiddleware
+- **Cache-friendly**: Learned rules go into HumanMessage position, not System Prompt, preserving KV Cache
+- **Scoped**: Rules can be global or tool-specific (`tool_name` field), not just blanket global injection
+- **Secure**: All learned data passes through `sanitize()` + `wrap_untrusted()` boundary markers
+- **Three-platform**: Works identically on Local, Tauri, and SaaS — no filesystem dependency
+
+**324 tests verified** across evidence aggregation, workspace rules, memory middleware, and server integration.
+
+### Multi-Agent Skill Binding — DB-Level 3-Layer Isolation vs Config File Management
+
+Some competitors use CLI config files to bind skills to agents. Myrm's approach is fundamentally stronger with a 3-layer binding architecture:
+
+| Layer | Mechanism | What It Does |
+|-------|-----------|-------------|
+| L1: DB Scope Isolation | `scope_agent_id` in environment JSON | Skills can be global or agent-exclusive, with all 3 query functions supporting scope filtering |
+| L2: Cross-Agent Mount + CoW | `mounted_skill_ids` + Copy-on-Write | Agent A can mount Agent B's skills; evolution auto-forks to protect originals |
+| L3: Runtime Dynamic Binding | `task.extra_skill_ids` | Kanban tasks can append extra skills at runtime without changing agent config |
+
+Additional advantages:
+- **5 orchestration patterns** (DAG / Chain / Batch / Verified / Swarm) vs competitor's single pattern
+- **GUI-first management**: AgentEditPanel with 12 config tabs vs CLI-only
+- **ProfileTimeMachine**: Config snapshot versioning with GUI rollback vs migration scripts
+- **5-competitor import**: One-click migration from OpenClaw, Hermes, Cursor, Codex, Claude
+- **Channel skill triggers**: Slash command bindings via `ChannelSkillCommandHandler`
+
+**514 tests verified** across DB store queries, evolution integration, Kanban toolkit, and team protocol.
+
 ### Migration from Hermes (Skill System)
 
 | Hermes Skill Feature | Myrm Equivalent | Experience |
@@ -333,6 +471,70 @@ Beyond evolution, Myrm's skill system architecture is fundamentally more sophist
 | 176 skills (quantity) | 28 precision skills (quality + structured contracts) | ↔️ Tradeoff (quality vs quantity) |
 
 **Result: 7 upgrades, 1 tradeoff, 0 downgrades. Users gain intelligent security, secure config management, and organized skill lifecycle with zero capability loss.**
+
+### Smart Context Archive References — Content-Addressed Storage vs Simple Reference IDs
+
+Some competitors (like AgenticX) propose assigning simple "Reference IDs" to large tool outputs, immediately replacing content with an ID. This has a fundamental flaw: the LLM must process the content at least once, so immediate replacement forces repeated full restores.
+
+Myrm's ContextArchiveReference system takes a smarter approach:
+
+| Capability | Competitor Reference ID | Myrm ContextArchiveReference |
+|-----------|------------------------|------------------------------|
+| Identification | Simple ref ID | Content-addressed sha256 hash |
+| Content Index | None | 6-type structural index (Markdown headings, code blocks, tables, lists, JSON keys, chunks) |
+| Selective Restore | None | Chunk-based range reads (200 lines/chunk) |
+| Session Isolation | None | Session-scoped guards prevent cross-session reads |
+| Budget Controls | None | Per-task restore budgets + anti-thrashing |
+| Trigger | Immediate replacement (LLM can't process first) | After cache TTL expiry (LLM processes fully, cache reuses) |
+| Integrity | None | content_sha256 verification |
+
+**298 tests verified** across archive reference, cache TTL prune, compactor offload, compress pipeline, cache metrics, and context budget.
+
+### Streaming Resilience & LLM Infrastructure — Enterprise-Grade vs Basic Retry
+
+Some competitors propose simple "retry on truncation" or basic multi-key rotation. Myrm's infrastructure goes far deeper:
+
+**Streaming Truncation Recovery** — `StreamTruncationRecoveryMixin` handles output interruptions transparently:
+
+| Capability | Competitors | Myrm |
+|-----------|------------|------|
+| Text continuation | Simple retry | 3× progressive retry with escalating output budget (2x→3x→4x) |
+| Tool-call repair | Retry once | Auto-detect truncated JSON tool calls + targeted retry |
+| Diagnostics | None | i18n SSE diagnostic events visible to users |
+| Reasoning budget | None | Auto-detect reasoning token budget exhaustion |
+| Concurrency safety | Instance attributes (race-prone) | ContextVar coroutine-safe state |
+
+**End-to-End Event Propagation** — 48+ structured SSE event types vs competitors' 2–3 basic signals:
+
+| Event Category | Competitors | Myrm |
+|---------------|------------|------|
+| Budget/cost signals | budget_exceeded, terminate | budget_exceeded + context_pruned + archive_restore_blocked |
+| Recovery events | None | truncation_recovery + truncation_failed |
+| Loop protection | None | loop_guard_warning + loop_guard_break |
+| Approval flow | None | approval_requested + granted + denied + timeout |
+| Skill evolution | None | skill_evolved + evolution_rejected + pending |
+| Frontend integration | CLI text output | All events → Toast / Dialog / ProgressSteps / Ring chart |
+
+**Multi-Key Hot Failover** — `KeyPoolLLM` + `CredentialPool`:
+
+| Capability | Competitors | Myrm |
+|-----------|------------|------|
+| Rotation strategies | Single round-robin | 4 strategies (Round Robin / Fill First / Least Used / Random) |
+| Error classification | Generic error handling | 3-class (Rate Limit / Auth / Billing) with tailored backoff |
+| Backoff | None | Exponential + ±15% jitter + 24h auth cooldown |
+| Model-level failover | None | ManagedLLM + CircuitBreaker + HealthCheck (13-file system) |
+
+**OpenAPI Bridge** — direct tool generation vs MCP intermediary:
+
+| Capability | Competitors (Hosted MCP) | Myrm OpenAPI Bridge |
+|-----------|------------------------|---------------------|
+| Integration path | OpenAPI → MCP → Agent (extra hop) | OpenAPI → StructuredTool (direct) |
+| Spec support | OpenAPI 3.x only | OpenAPI 3.x + Swagger 2.0 |
+| Auth methods | Unclear | 4 types (API Key / Bearer / Basic / OAuth2) |
+| Namespace isolation | None | Auto-prefixed to prevent conflicts |
+| Token overhead | MCP bridge descriptions add tokens | Zero extra overhead |
+
+**978 tests verified**: Auth middleware 54 + Streaming recovery 481 + Key pool 21 + OpenAPI bridge 84 + Core events 25 + LLM infra (fallback/routing/consensus) 313.
 
 ## vs MiniMax Mavis — Multi-Agent Team Platform
 
@@ -616,6 +818,27 @@ MemPalace is a standalone AI memory system using architectural metaphors (Wing/R
 
 **Result: 10 upgrades, 0 equivalent, 0 downgrades. MemPalace users gain a complete AI agent platform where memory is natively integrated — not an external add-on — with 12 capabilities MemPalace doesn't offer (intelligent forgetting, GUI management, safety scanning, preference tracking, health diagnostics, and more).**
 
+## Dual-Path Data Visualization — No-Code Charts & Interactive Tables
+
+Competitors like Codex and Claude Code output plain Markdown tables when working with data. Myrm provides a **dual-path architecture** that covers everything from simple data display to complex interactive dashboards:
+
+| Capability | Myrm | Codex / Claude Code |
+|-----------|------|---------------------|
+| Built-in chart types | 4 (bar/line/pie/donut) via UIChart + unlimited via React Artifact | None |
+| Interactive data tables | UITable with dynamic columns + React Artifact for sorting/filtering | Markdown only |
+| No-code UI components | 21 types (charts, tables, forms, layouts) | None |
+| React live preview | Sandpack with hot-reload + code editor + console | None |
+| Data export formats | Markdown / JSON / HTML / DOCX / PNG | None |
+| Diagram rendering | Mermaid (30+ diagram types) with zoom/pan/legend | None |
+| Artifact version management | SHA-256 integrity verification + version history | None |
+| Cross-session data analysis | pandas + SQLite persistence in sandbox | No persistence |
+
+**Path 1 — Generative UI (zero-code)**: The agent renders 21 built-in component types (UIChart, UITable, UIProgress, UIBadge, UICard, UIGrid, UITabs, and more) via SSE events. Users see rich data visualizations without writing a single line of code.
+
+**Path 2 — React Artifact (full-feature)**: For complex visualizations, the agent generates custom React components using Recharts, Echarts, D3, or Chart.js. These render in a Sandpack-powered live preview with code editing, console output, and Tailwind CSS support.
+
+**Verified by 191 tests**: Interactive UI 59 ✅ | Artifact system 22 ✅ | Mermaid 18 ✅ | SSE stream + approval + export 92 ✅
+
 ## vs Claude Office Visualizer — CLI Status Dashboard
 
 Claude Office Visualizer renders Claude Code CLI status as a pixel-art office animation, showing agent state, context usage, and task progress through a standalone Next.js + PixiJS application. It addresses a real pain point: CLI users can't see what the agent is doing without staring at terminal output.
@@ -671,7 +894,29 @@ Coze keeps projects inside its ecosystem; Lobster excels at public static links 
 
 **What you get**: Landing page, report, or mini-app from chat → **~30s Deploy URL** or **instant read-only Link** for reviewers.
 
+**Beyond deploy — the full artifact editing lifecycle**: Myrm's Artifact Portal isn't just a viewer. Code artifacts open in a **Monaco Editor** (VS Code core) where you can edit directly. The **SelectionToolbar** lets you highlight code and invoke Modify / Explain / Optimize / Comment actions — surgical AI edits without leaving the preview. Your edits are silently tracked and auto-injected into your next message so the Agent continues from your version. React artifacts render live via **Sandpack** with hot-reload. Version diffs, SHA-256 integrity checks, and snapshot rollback round out the lifecycle. Competing tools like WorkBuddy rely on external document integrations (e.g. Tencent Docs) rather than a self-built editing system.
+
 **Honest limits**: No share revoke/share-code UI yet; long-term public sites should use Deploy + your domain; pure `code` artifacts must be exported as `html` first (preflight + UI gates align).
+
+## vs Codex — MCP Ecosystem, Agent Templates & Multi-Channel Automation
+
+Codex recently showcased Linear MCP integration and automated PM workflows. Myrm's architecture already provides vastly superior capabilities in every dimension — verified by **543 tests**.
+
+| Capability | Codex | Myrm |
+|-----------|-------|------|
+| MCP config | CLI only | GUI dialog + JSON batch import + security scan |
+| MCP security | None | SSRF defense + DNS Pinning + OSV malware detection + safety annotations |
+| Service catalog | None | 27 prebuilt services / 9 categories / search & filter / one-click connect |
+| Per-Agent MCP | Shared globally | Each Agent has independent mcp_ids + tool_selections |
+| MCP status | None | Real-time connection status + health checks |
+| Reverse MCP | None | Expose memory system for external IDEs (Claude Code / Cursor / Gemini CLI) |
+| Agent templates | None | TemplateMarket + PresetAgentGallery + 5 YAML seeds (4 team + 1 individual) |
+| Team agents | None | Atomic creation with rollback — one-click deploy multi-agent teams |
+| Channels | Terminal only | 20+ providers (Slack / Discord / Telegram / Email / Feishu / WeChat / DingTalk / WhatsApp / iMessage / Google Chat / MS Teams / LINE / QQ / Matrix / Mattermost / IRC / Signal / Webhook / Voice) |
+| Kanban | None (depends on external Linear) | Built-in Kanban + Pipeline templates + SSE events |
+| Deployment | CLI only | WebUI + Tauri desktop + SaaS |
+
+**Key takeaway**: Codex's "Linear MCP" is simply connecting an external MCP server — something Myrm already supports with a full GUI, security scanning, and 27 prebuilt service integrations. The "PM Agent" workflow requires no new platform features; Myrm's existing template system + channel monitoring + Kanban pipeline already enables this with one-click setup.
 
 ## vs Codex (OpenAI) — Appshots & /goal GA
 
@@ -970,6 +1215,75 @@ If you migrate from Hermes or Claude Code's Dynamic Workflows, you gain:
 - **Absolute Cost Predictability**: Never wake up to a massive API bill because an agent got stuck in a loop.
 - **Genuine Execution Evidence**: When Myrm says a task is complete, it's backed by OS-level execution logs, not an LLM's imagination.
 - **Flawless UI Experience**: Background agents remain strictly in the background, and human intervention is rich and corrective rather than binary.
+
+## Visual Approval, Artifact Lifecycle & Intelligent Template Reuse (vs Codex)
+
+Codex offers basic screenshot approval and no artifact management. Myrm delivers a **complete visual approval system across Web, Desktop, and Mobile** with a full artifact lifecycle from generation to deployment — verified by **305 tests**.
+
+### Where Myrm Goes Further
+
+| Area | Codex | Myrm | User Benefit |
+|------|-------|------|-------------|
+| **Visual Approval** | Basic screenshot | **17 dedicated files**: Highlight + AttentionBar + OS Overlay + RequestRenderer + PendingCard + InlineSection + UnavailableCard | See exactly what the Agent wants to do, approve/reject/edit with full context across all platforms |
+| **Desktop Native Overlay** | ❌ No desktop app | **Tauri Rust-native** `visual_approval_overlay.rs` — transparent red frame on main screen | Never miss a pending approval even when the app is minimized |
+| **Mobile Adaptation** | ❌ None | **MobileStatusBoard** + swipe gestures + responsive layout | Full agent control from your phone |
+| **Graceful Degradation** | ❌ None | **VisualApprovalUnavailableCard** falls back to text-based approval | Works even when screenshots fail |
+| **Artifact Renderers** | Basic | **7 types**: Document / McpApp / Code / Mermaid / Media / PDF / NoPreview | Preview any file type without leaving the chat |
+| **Live Code Editing** | ❌ None | **Sandpack ReactPreview**: preview/code/split views + ConsolePanel + Tailwind | Edit Agent-generated React components in real-time with hot-reload |
+| **Precision Code Editing** | ❌ None | **SelectionToolbar**: select code → modify/explain/optimize/comment/copy | Collaborate with Agent at the code-selection level |
+| **One-Click Deploy** | ❌ None | **DeployModal**: Vercel + WebSocket status + preflight checks | Ship Agent-generated apps to production in seconds |
+| **Version Management** | ❌ None | **ArtifactsCenter**: immutable timeline + SHA256 integrity + rollback | Enterprise-grade artifact audit trail |
+| **Skill Detection** | ❌ None | **SkillDetectionCard**: auto-detect SKILL.md → one-click package & register | Turn any Agent-generated tool into a reusable skill |
+| **Memory System** | ❌ None | **14 DB models**: Profile / Procedural / Pending / SharedContext + import/archive/rollback/audit | Agent remembers your preferences, coding style, and report formats |
+| **Skill Evolution** | ❌ None | **SkillEvolutionEngine** + ConfidenceApprovalFlow + A/B testing | Agent automatically learns and improves from every interaction |
+| **Template Reuse** | ❌ None | **Procedural Memory** "remember this format" + automatic pattern extraction | Smarter than static templates — adapts to new data automatically |
+
+### Migration Wins
+
+If you switch from Codex, you gain:
+- **Multi-platform visual approval**: From basic screenshots to Web inline highlights, Tauri OS overlay, and mobile swipe gestures
+- **Artifacts become permanent assets**: Complete version management with SHA256 tamper-proof verification and one-click Vercel deployment
+- **Agent learns your style**: No manual template saving needed — Agent automatically learns your preferred report formats and coding patterns
+- **Precision collaboration**: Select any code in the Artifact Portal and trigger modify/explain/optimize/comment directly with the Agent
+
+### AI Companion & Desktop Pet Status Visualization (vs Codex)
+
+While Codex offers a basic floating pet showing ~4 states, Myrm provides a full AI companion system verified by **170 tests across 9 files**:
+
+| Capability | Codex | Myrm | User Benefit |
+|------------|-------|------|-------------|
+| **Animation States** | ~4 | **9 states** (Idle/Running/Sleeping/Coding/Thinking/Celebrating/Failed/Reviewing/Waving) | See exactly what the Agent is doing at a glance |
+| **Platform Support** | App only | **Web + SaaS + Tauri Desktop** | Your companion follows you everywhere |
+| **Tauri Native Pet** | ❌ | **Rust-native** transparent always-on-top window | Lightweight desktop mascot, always visible |
+| **SSE Event Mapping** | Basic | **21+ step_keys** with transient/sticky/release modes | Smooth, context-aware transitions |
+| **Customization** | ❌ | Name / 15 species / 9 hats / spritesheet / 5 sizes | Make the companion yours |
+| **Evolution System** | ❌ | 5 rarity tiers + XP + tool unlocks | Grow your companion over time |
+| **AI-Powered Reactions** | ❌ | LiteLLM personality-driven reactions | Companion feels alive |
+| **Interaction System** | ❌ | Snack feeding + XP + birthday detection | Delightful micro-interactions |
+
+**Migration win**: From a simple 4-state icon to a 9-state animated companion with AI-powered personality, evolution, and cross-platform consistency.
+
+### Voice Input & Full-Duplex Voice Sessions (vs Codex / Claude / ChatGPT)
+
+Myrm provides the most comprehensive voice integration among AI agents — **4,200+ lines** of full-stack voice code across 3 session modes:
+
+| Capability | Codex | Claude Desktop | ChatGPT | Myrm |
+|------------|-------|----------------|---------|------|
+| **Chat Mic Button** | ✅ | ✅ | ✅ | ✅ |
+| **Real-Time Streaming STT** | ❓ | ❌ | ✅ | ✅ Deepgram Nova-3 + batch fallback |
+| **Push-to-Talk** | ❌ | ❌ | ❌ | ✅ Hold-to-talk + click-to-toggle |
+| **Full-Duplex Voice Session** | ❌ | ❌ | ✅ (native only) | ✅ 3 modes |
+| **Agent Bridge Mode** | ❌ | ❌ | ❌ | ✅ Server-side STT→Agent→TTS |
+| **OpenAI Realtime WebRTC** | ❌ | ❌ | ✅ | ✅ Sub-300ms latency |
+| **Barge-In Detection** | ❌ | ❌ | ✅ | ✅ Adaptive threshold |
+| **3-Tier STT Fallback** | ❌ | ❌ | ❌ | ✅ WebSocket → REST → Browser native |
+| **Multi STT Provider** | ❓ | 1 | 1 | ✅ 3+ providers |
+| **6 TTS Providers** | ❌ | 1 | 1 | ✅ Browser/OpenAI/ElevenLabs/Fish/MiniMax/Edge |
+| **Camera Vision Fusion** | ❌ | ❌ | ✅ | ✅ Auto vision intent detection |
+| **Discord Voice Channel** | ❌ | ❌ | ❌ | ✅ Full implementation |
+| **Feature Gate** | ❌ | ❌ | ❌ | ✅ Enable/disable per deployment |
+
+**Migration win**: From basic mic input to full-duplex voice conversations with 3 modes, adaptive barge-in, Agent Bridge for server-side execution, and zero-config browser fallback.
 
 ## Ready to Start?
 

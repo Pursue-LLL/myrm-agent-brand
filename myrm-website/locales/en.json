@@ -487,10 +487,10 @@
           "myrmAgent": "Read after burn"
         },
         "sandbox": {
-          "feature": "Sandbox · Safe to experiment",
+          "feature": "Sandbox · Hardware-level isolation",
           "hermes": "External Codex Server",
           "openclaw": "_no",
-          "myrmAgent": "Full isolation"
+          "myrmAgent": "Firecracker VM + 6-layer hardening + persistent Volume"
         },
         "subAgent": {
           "feature": "Multi-agent · split big jobs, verified delivery",
@@ -658,7 +658,7 @@
           "feature": "Browser engine · 12-layer anti-detect + humanized interaction + visual QA + API intelligence",
           "hermes": "Cloud Browser Use",
           "openclaw": "_no",
-          "myrmAgent": "12-layer Stealth+humanized typing/click · passes DataDome/Cloudflare · 10+ high-risk platforms · dual-engine auto-fallback · 3-layer visual QA · zero-config auto-install on desktop"
+          "myrmAgent": "12-layer Stealth+humanized typing/click · passes DataDome/Cloudflare · 10+ high-risk platforms · dual-engine auto-fallback · 3-layer visual QA · encrypted SessionVault auto-restores login across sessions · zero-config auto-install on desktop"
         },
         "webFetch": {
           "feature": "Web Fetch · body text + deep crawl + sufficiency check",
@@ -685,10 +685,10 @@
           "myrmAgent": "19+ presets"
         },
         "companion": {
-          "feature": "AI companion · 15 species + gamified growth + emotion",
+          "feature": "AI companion · 15 species + 9-state desktop pet + gamified evolution",
           "hermes": "_no",
           "openclaw": "_no",
-          "myrmAgent": "15 personas"
+          "myrmAgent": "15 species + Tauri native pet"
         },
         "multiModelConsensus": {
           "feature": "Multi-model consensus · More reliable",
@@ -700,7 +700,7 @@
           "feature": "File system intelligence · 19 native ops, 6 parsers, 5 auto-observers",
           "hermes": "_no",
           "openclaw": "_no",
-          "myrmAgent": "6-layer edit guard + snapshot undo + auto-format + syntax lint + conflict detection (717 tests)"
+          "myrmAgent": "6-layer edit guard + message-level snapshot undo (single file/batch) + auto-format + syntax lint + conflict detection + real-time diff stream (788 tests)"
         },
         "ptcEngine": {
           "feature": "PTC engine · complex tasks use fewer tokens",
@@ -847,10 +847,10 @@
         "voiceFusion": {
           "badge": "Tri-mode voice",
           "title": "Sub-second voice + camera",
-          "desc": "Three voice modes with low latency; command from 25+ channels.",
-          "point1": "Realtime sub-second; bridge mode; standard mode at no extra voice fee",
-          "point2": "Camera on during voice chat — Agent sees and answers",
-          "point3": "Streaming speech + wake word; Web, desktop, and PWA"
+          "desc": "Three voice modes (Standard / Agent Bridge / OpenAI Realtime WebRTC) with full-duplex barge-in; 3-tier STT fallback ensures zero-config usability.",
+          "point1": "Realtime WebRTC sub-300ms; Agent Bridge server-side STT→Agent→TTS pipeline (exclusive); standard mode at no extra cost",
+          "point2": "Full-duplex barge-in with adaptive noise calibration; camera vision fusion — Agent sees and answers during calls",
+          "point3": "3-tier STT fallback (WebSocket→REST→Browser native); 6 TTS providers; Web, Tauri desktop, Discord voice channels"
         },
         "enterpriseScenarios": {
           "badge": "4 enterprise scenarios",
@@ -862,12 +862,13 @@
         },
         "artifactDeploy": {
           "badge": "vs Coze / Lobster / v0",
-          "title": "Publish or read-only share — multi-file sites stay styled",
-          "desc": "From artifact preview: Vercel Deploy for a lasting URL, or a 7-day read-only Link — bundled css/js, no Git required.",
-          "point1": "Deploy preflight explains blockers before you wait on a failed build",
-          "point2": "Read-only Link for html/pdf/docs; multi-file HTML uses trailing-slash routing so relative assets load",
-          "point3": "Deploy keeps a persistent public URL; Local BYOK or sandbox platform Vercel token",
-          "point4": "Bilingual GUI actions — shareable outcomes, not trapped in a closed low-code sandbox"
+          "title": "Edit, preview, deploy — full artifact lifecycle in one panel",
+          "desc": "Monaco Editor (VS Code core) for live code editing, Sandpack for real-time React preview, and one-click Vercel Deploy — all in a split-pane portal alongside your chat.",
+          "point1": "SelectionToolbar: highlight code → Modify / Explain / Optimize / Comment — surgical AI edits without leaving the preview",
+          "point2": "Auto-sync edits to Agent: your changes are silently attached to the next message so the Agent continues from your version",
+          "point3": "15+ previewable formats (code/HTML/SVG/Mermaid/PDF/image/video/audio/React) · Diff decorations · SHA-256 version integrity",
+          "point4": "Deploy preflight + Vercel one-click publish; Read-only Link for html/pdf/docs; bilingual GUI actions",
+          "point5": "Generative UI: 21 built-in components (charts/tables/forms/layouts) — Agent auto-renders zero-code data visualizations inline, no Artifact needed"
         },
         "multiAgentOrchestration": {
           "badge": "vs Hermes / Claude Code",
@@ -907,7 +908,7 @@
           "desc": "Unified tool entry; plugins and APIs scanned before use.",
           "point1": "Clear plugin scopes; descriptions capped to save context",
           "point2": "External API docs become callable tools; multiple auth modes",
-          "point3": "Skill market search, one-click install, version updates"
+          "point3": "Skill marketplace: 5-source parallel discovery (ClawHub + GitHub + LobeHub + skills.sh + Prebuilt), one-click install, auto-updates"
         },
         "unifiedToolGateway": {
           "badge": "Unified Gateway",
@@ -929,11 +930,11 @@
         },
         "enterpriseTesting": {
           "badge": "Enterprise Verified",
-          "title": "Regression net on critical paths — not “ship when demo runs once”",
-          "desc": "Atomic locks, EventBus truncation, dependency fallback, workspace-boundary approval, and desktop TOCTOU — covered by targeted pytest + real E2E on the paths that matter.",
-          "point1": "Extreme concurrency: atomic locks keep multi-agent / kanban updates from crosstalk",
-          "point2": "Elastic fallback: missing OCR/vector libs degrade gracefully instead of killing the process",
-          "point3": "Approval TOCTOU: out-of-sandbox writes queue for approval; desktop actions re-snapshot after delay (automated tests lock this in)"
+          "title": "Regression net + hybrid eval engine — not “ship when demo runs once”",
+          "desc": "Atomic locks, dependency fallback, TOCTOU protection — all covered by targeted pytest + E2E. 17-layer tool interception (7 pre + 10 post) with 1,022 guard tests verified. Built-in hybrid eval engine costs up to 6× less LLM spend than competitors.",
+          "point1": "Hybrid eval: deterministic assertions (tool/state/sandbox) cost zero LLM calls; semantic judge only when subjective scoring is needed — 6× cheaper than CrewAI’s 6-call-per-case approach",
+          "point2": "Custom LLM Judge: per-assertion rubric prompt + model override + auto-retry. Full binary + 0.0–1.0 scoring. 122 tests verified",
+          "point3": "17-layer tool safety net: every tool call passes through LoopGuard, PII detection, Circuit Breaker, MutationVerifier, Content Validation, TaintTracker & more — 1,022 tests verified. Industry best is 2 layers."
         },
         "antiBlockingTitle": {
           "badge": "vs DeerFlow",
@@ -986,7 +987,7 @@
           "desc": "6-layer context compression with intent analysis protects your working files; deferred loading keeps rarely-used tools out of the prompt until needed.",
           "point1": "Layer 0 intent analysis: active files and modules are shielded before any compression runs",
           "point2": "Deferred tools: 20+ low-frequency tools load on demand, saving ~4K tokens per turn",
-          "point3": "Skill hot-reload: edit skill configs live — agent reinitializes in-session, zero restarts needed"
+          "point3": "Skill hot-reload + 14-dimension observability: per-invocation tracking, quality trends, A/B testing, activity heatmap, and Growth Dashboard — all automatic"
         }
       }
     },
@@ -1085,10 +1086,10 @@
         "cjkMigration": {
           "badge": "CJK + Migration",
           "title": "Precise CJK search + One-click seamless migration",
-          "desc": "Easily drag and drop third-party skill bundles (e.g. Hermes) to import. Settings and info are 100% preserved. The process is extremely fast, smooth, and guarantees no data loss or UI freezes.",
+          "desc": "Easily drag and drop third-party skill bundles (e.g. Hermes) to import. Atomic blue-green directory swap + transactional DB write ensures zero broken states. Settings and info are 100% preserved.",
           "point1": "Lightning-fast search optimized for CJK languages (~20ms latency)",
-          "point2": "Drag & drop third-party ZIP skills, retaining all original configurations perfectly",
-          "point3": "Enterprise-grade background processing ensures instant imports, even with massive files"
+          "point2": "Drag & drop ZIP skills with pre-install security quarantine scan (anti-Zip Bomb + path traversal protection)",
+          "point3": "Atomic install with rollback: blue-green swap + DB transaction ensures no data loss, even on crash"
         },
         "localModelCookbook": {
           "badge": "Hardware Cookbook",
@@ -1125,11 +1126,11 @@
         },
         "companion": {
           "badge": "AI Companion",
-          "title": "15 Species Gamified Growth",
-          "desc": "In-GUI gamified companion — mood-aware + rarity evolution; no equivalent in Hermes/OpenClaw.",
-          "point1": "15 species + 4 rarity tiers + XP growth and evolution",
-          "point2": "Independent observer speech bubble + mood mascot state sync",
-          "point3": "Frustration detection linkage — not iOS-only voice/desktop"
+          "title": "15 Species Gamified Growth + 9-State Desktop Pet",
+          "desc": "In-GUI gamified companion — mood-aware + 5-tier rarity evolution + Tauri-native floating pet overlay with 9 animation states; no equivalent in Hermes/OpenClaw/Codex.",
+          "point1": "15 species + 5 rarity tiers (Common→Legendary) + XP growth + tool unlocks + AI-powered personality reactions",
+          "point2": "9 animation states (Idle/Running/Sleeping/Coding/Thinking/Celebrating/Failed/Reviewing/Waving) — SSE-driven, 21+ event mappings, heartbeat timeout auto-fallback",
+          "point3": "Tauri Rust-native transparent always-on-top pet window + Web/SaaS in-browser Canvas overlay — your companion follows you across all 3 deployment modes"
         },
         "configTruth": {
           "badge": "Config = runtime",
@@ -1163,14 +1164,16 @@
           "desc": "8 memory types + Wiki knowledge base + skill evolution loop — keeps your preferences and project context, not generic replies.",
           "point1": "8 cross-session memory types: persona, facts, workflows & prefs auto-recalled — smarter every chat",
           "point2": "Wiki hybrid search + dialectic persona profile — answers fit you better",
-          "point3": "Skills evolve with your OK + Insights Inbox; Simple/Detailed dual-view review — summary-first or full diff; inline Diff editor to revise proposals; Shadow A/B before go-live; full evolution history + one-click rollback"
+          "point3": "5-layer evolution validation (AST safety + sandbox dry-run + AI rubric scoring + GUI approval + Shadow A/B testing); 6 GUI panels for full transparency (History + Rejection Audit + Pending Reviews + Version Compare + Quality Guardian + Growth Dashboard); auto negative-memory learns from rejections to prevent repeat mistakes; 6-layer bounded edit control (conservative editing + hard constraints + failure attribution + length penalty + anti-fragmentation + redundancy scoring) ensures complete fixes without bloat; Python framework engine + 5-layer customization (strategy switch + per-skill lock + trap injection + constraint learning + preference embedding) — safe, flexible, works across Local/Tauri/SaaS; 9 visualization panels covering the full evolution lifecycle (Pending Reviews + Growth Case Cards + Rejection Audit + History + Versions + Quality Guardian + Growth Dashboard + Daily Journal + WebSocket real-time); 3-layer organic cross-skill learning (per-skill constraints + Memory Learned Rules with CRITICAL/HIGH/NORMAL priority + Workspace Rules read-only scan) — global rules accumulate naturally through conversations, no dangerous auto-write to AGENTS.md; Monaco DiffEditor line-level highlighting + one-click rollback; 3-layer multi-agent skill binding (DB scope isolation + mounted_skill_ids with CoW + runtime task.extra_skill_ids) — each agent evolves independently, cross-agent skill sharing with automatic fork protection, GUI-first management with 12 config tabs — 2900 tests verified",
+          "point4": "Hybrid instruction layering & 3-tier memory separation: core rules injected into System prompt, unreliable experience into Human, AI auto-senses Token brain capacity limits; always loads index, pulls details on-demand, no context overflow anxiety"
         },
         "security": {
           "title": "Six-layer runtime guard, approvals & audit you control",
           "desc": "7-category semantic DOM risk detection (bilingual) + MCP pre-enable scan + shell per-segment risk coloring + Credential Vault (passwords/TOTP never enter the LLM) + PII redaction + Smart Intent Guard (LLM intent review) + multi-platform HITL approvals with 3-level Allow Always + structured audit trail (37 decision types + Prometheus metrics) — auto-approval prompt on Pay/Delete/Publish clicks, see risk before you allow, trace everything · 781 tests verified.",
           "point1": "7-layer operation-level risk management: semantic DOM risk detection (auto-intercept 7 categories: pay/delete/publish/account/admin/share/sensitive) + 4-layer quote-aware shell analysis + Smart Intent Guard + user-configurable Risk Rules + MCP/Skill security scanning + HITL approval middleware",
           "point2": "MCP security gate + SSRF DNS Pinning (manual redirect loop eliminates rebinding) + shell span approval: `curl | bash` split and color-coded after redaction + auto re-verification after editing",
-          "point3": "Credential Vault + 4-action approval (Approve · Edit · Reject · Always) with 3-level granularity — passwords stay out of the LLM; ♾️ emoji or `/always` in any channel; no competitor has operation-level risk detection"
+          "point3": "Credential Vault + 4-action approval (Approve · Edit · Reject · Always) with 3-level granularity — passwords stay out of the LLM; ♾️ emoji or `/always` in any channel; no competitor has operation-level risk detection",
+          "point4": "Early Handoff & Visual Verification: smart interrupt and popup help for unrecoverable errors to prevent money burning; CompletionGuard enforces visual and code checks, eliminating half-baked submissions"
         },
         "reliability": {
           "title": "Long jobs stay steady — resume where you left off",
@@ -1178,7 +1181,9 @@
           "point1": "Goal mode: DAG dependencies + 4D budget — progress and hard caps on long runs",
           "point2": "Checkpoint resume + kanban zombie recovery — pick up after interrupts",
           "point3": "Smart read/write isolation + loop-detection circuit breaker — no hangs, no spin",
-          "point4": "Vision-to-Plan: upload whiteboard photos, design mockups, or diagrams — the planner 'sees' and generates a structured task plan"
+          "point4": "Vision-to-Plan: upload whiteboard photos, design mockups, or diagrams — the planner 'sees' and generates a structured task plan",
+          "point5": "Streaming resilience — auto-recover from truncated outputs (3× progressive retry + tool-call repair), multi-key hot failover (4 rotation strategies + 3-class error handling), 48+ structured SSE event types for full-chain observability, 978 tests verified",
+          "point6": "Concurrent Git Worktree physical isolation: ISOLATED_COPY sandbox + orphan recovery, massive parallel seamless merge, rejecting forced branch switching that messes up local code"
         },
         "costEfficiency": {
           "title": "~7× task volume on the same budget",
@@ -1186,7 +1191,9 @@
           "point1": "Six-layer prompt cache — up to ~97% savings on cache hits, ~7× tasks per dollar",
           "point2": "PTC runs long tool chains in sandbox — stays out of chat context",
           "point3": "4D budget hard cap (tokens/cost/time/sub-agents) — no bill shock",
-          "point4": "Full cost analytics dashboard: per-message WaterDrop cost, daily trends, model/routing breakdown, cache savings tracking, activity heatmap"
+          "point4": "Full cost analytics dashboard: per-message WaterDrop cost, daily trends, model/routing breakdown, cache savings tracking, activity heatmap",
+          "point5": "Smart archive references — large tool outputs auto-archived with 6-type structural index + chunk-based selective restore + session isolation + anti-thrashing budget guards, 298 tests verified",
+          "point6": "Extreme lazy-loading tool stack: 0% System Prompt redundancy, dynamic discovery and on-demand tool mounting; Global Observation Masking instantly evicts long text, completely eliminating capability degradation caused by context bloat"
         },
         "visualControl": {
           "title": "Minimalist deployment & cloud-grade GUI, full-chain observability",

@@ -487,10 +487,10 @@
           "myrmAgent": "阅后即焚"
         },
         "sandbox": {
-          "feature": "沙箱隔离 · 操作不怕出错",
+          "feature": "沙箱隔离 · 硬件级安全防护",
           "hermes": "外部 Codex Server",
           "openclaw": "_no",
-          "myrmAgent": "完整隔离"
+          "myrmAgent": "Firecracker 虚拟机 + 6 层加固 + 持久化存储"
         },
         "subAgent": {
           "feature": "多 Agent 协作 · 大任务拆分、完工有人验",
@@ -658,7 +658,7 @@
           "feature": "浏览器引擎 · 12层反检测 + 拟人化交互 + 视觉验收 + API透视",
           "hermes": "第三方云浏览器",
           "openclaw": "_no",
-          "myrmAgent": "12层Stealth+拟人化打字/点击 · 通过DataDome/Cloudflare · 10+高风控平台 · 双引擎自动降级 · 三层视觉验证 · 桌面端零配置自动安装"
+          "myrmAgent": "12层Stealth+拟人化打字/点击 · 通过DataDome/Cloudflare · 10+高风控平台 · 双引擎自动降级 · 三层视觉验证 · 加密SessionVault跨会话自动恢复登录态 · 桌面端零配置自动安装"
         },
         "webFetch": {
           "feature": "Web Fetch · 抓正文+全站爬取+充分性校验",
@@ -685,10 +685,10 @@
           "myrmAgent": "19+模板"
         },
         "companion": {
-          "feature": "AI 伴侣 · 15 物种游戏化成长 + 情绪感知",
+          "feature": "AI 伴侣 · 15 物种 + 9 态桌面桌宠 + 游戏化进化",
           "hermes": "_no",
           "openclaw": "_no",
-          "myrmAgent": "15种人格"
+          "myrmAgent": "15 物种 + Tauri 原生桌宠"
         },
         "multiModelConsensus": {
           "feature": "多模型共识 · 答案更可靠",
@@ -700,7 +700,7 @@
           "feature": "文件系统智能 · 19 种原生操作、6 类解析器、5 层自动观察者",
           "hermes": "_no",
           "openclaw": "_no",
-          "myrmAgent": "6 层编辑防护 + 快照撤销 + 自动格式化 + 语法检查 + 冲突检测（717 项测试）"
+          "myrmAgent": "6 层编辑防护 + 消息级快照撤销（单文件/批量）+ 自动格式化 + 语法检查 + 冲突检测 + 实时 diff 推送（788 项测试）"
         },
         "ptcEngine": {
           "feature": "PTC 引擎 · 复杂任务更省 Token",
@@ -847,10 +847,10 @@
         "voiceFusion": {
           "badge": "三模式语音",
           "title": "亚秒级语音 + 摄像头联动",
-          "desc": "三档语音模式，实时对话延迟低；25+ 渠道可远程指挥。",
-          "point1": "实时模式亚秒级；桥接模式兼容多模型；标准模式零额外语音成本",
-          "point2": "语音对话中可开摄像头，Agent 能看能答",
-          "point3": "流式播报 + 语音频道唤醒，Web/桌面/PWA 一致体验"
+          "desc": "三档语音模式（标准/Agent Bridge/OpenAI Realtime WebRTC），全双工打断检测；三层 STT 降级确保零配置可用。",
+          "point1": "实时 WebRTC 亚秒级延迟；Agent Bridge 独创服务端 STT→Agent→TTS 全链路（无需前端往返）；标准模式零额外成本",
+          "point2": "全双工 barge-in + 自适应噪音校准；语音对话中开摄像头，Agent 看图即答",
+          "point3": "三层 STT 降级（WebSocket流式→REST批量→浏览器原生）；6种 TTS 提供商；Web/Tauri桌面/Discord 语音频道全覆盖"
         },
         "enterpriseScenarios": {
           "badge": "企业四场景",
@@ -862,12 +862,13 @@
         },
         "artifactDeploy": {
           "badge": "vs 扣子 / Lobster / v0",
-          "title": "工件一键上线或只读分享，外链样式不丢",
-          "desc": "Agent 生成的网页/报告在预览里即可操作：正式 Deploy 到 Vercel，或 7 天只读 Link —— 多文件站点自动打包 css/js，无需 Git。",
-          "point1": "Deploy 前预检：不能上线时先说明原因，避免白等构建失败",
-          "point2": "Link 只读短链：html/pdf/文档均可分享；多文件 HTML 自动尾斜杠，相对路径样式正常",
-          "point3": "Deploy 得持久公网地址；Local 可自带 Vercel Token，Sandbox 可用平台 Token",
-          "point4": "GUI 双语一键操作：要可分享的结果，不锁在封闭低代码平台里"
+          "title": "编辑、预览、部署 — 全生命周期一屏搞定",
+          "desc": "Monaco Editor（VS Code 内核）实时编辑代码，Sandpack 实时渲染 React，一键 Vercel 部署 — 全在对话旁边的分屏面板里完成。",
+          "point1": "选中即编辑：高亮代码 → 修改 / 解释 / 优化 / 加注释，精准 AI 编辑无需离开预览面板",
+          "point2": "编辑自动同步：你的修改静默附加到下条消息，Agent 从你的版本继续工作",
+          "point3": "15+ 可预览格式（代码/HTML/SVG/Mermaid/PDF/图片/视频/音频/React）· Diff 对比 · SHA-256 版本完整性",
+          "point4": "部署前预检 + Vercel 一键发布；html/pdf/文档只读分享链接；GUI 双语一键操作",
+          "point5": "Generative UI：21 种内置组件（图表/表格/表单/布局），Agent 自动渲染零代码数据可视化，无需生成 Artifact"
         },
         "multiAgentOrchestration": {
           "badge": "vs Claude Code / OpenClaw",
@@ -907,7 +908,7 @@
           "desc": "统一工具入口，插件与外部 API 接入前即做安全扫描。",
           "point1": "插件权限标注清晰，描述自动截断防撑爆上下文",
           "point2": "外部 API 文档自动转成可调用工具，多种登录方式",
-          "point3": "技能市场多源搜索，一键安装与版本更新"
+          "point3": "技能市场：5 源并行发现（ClawHub + GitHub + LobeHub + skills.sh + 预置），一键安装，自动更新"
         },
         "unifiedToolGateway": {
           "badge": "统一网关",
@@ -929,11 +930,11 @@
         },
         "enterpriseTesting": {
           "badge": "企业级验证",
-          "title": "关键路径有回归网，不靠“跑通一次就发版”",
-          "desc": "并发锁、EventBus 截断、依赖降级、工作区越界审批与桌面 TOCTOU——核心模块有定向 pytest + 真实链路 E2E，减少线上幽灵 Bug。",
-          "point1": "极限并发：原子锁保证多 Agent/看板并发更新不串扰",
-          "point2": "弹性降级：缺 OCR/向量库等依赖时自适应 fallback，不整进程崩溃",
-          "point3": "审批 TOCTOU：沙箱外写文件必进审批队列；桌面操作审批延迟后重拍快照（有自动化测试锁定）"
+          "title": "回归网 + 混合评测引擎——不靠“跑通一次就发版”",
+          "desc": "原子锁、依赖降级、TOCTOU 保护 —— 全部由定向 pytest + E2E 覆盖。工具调用前后 17 层拦截（7 层 pre + 10 层 post），1,022 项守卫测试全部通过。内置混合评测引擎，LLM 成本比竞品低 6 倍。",
+          "point1": "混合评测：确定性断言（tool/state/sandbox）零 LLM 调用，仅在需要主观评分时才调用语义判官——比 CrewAI 每 case 6 次 LLM 调用便宜 6 倍",
+          "point2": "自定义 LLM 判官：支持 per-assertion 评分模板 + 模型覆盖 + 自动重试。完整 binary + 0.0–1.0 连续评分。122 项测试已验证",
+          "point3": "17 层工具安全网：每次工具调用经过 LoopGuard、PII 检测、熔断器、MutationVerifier、内容验证、TaintTracker 等 17 道安全检查 —— 1,022 项测试全部通过。行业最佳仅 2 层。"
         },
         "antiBlockingTitle": {
           "badge": "vs DeerFlow",
@@ -986,7 +987,7 @@
           "desc": "6 层上下文压缩在裁剪前先分析意图，保护你正在操作的文件；低频工具按需加载，不浪费 Prompt 空间。",
           "point1": "第 0 层意图分析：当前活跃文件和模块在压缩前被自动标记保护",
           "point2": "延迟工具：20+ 低频工具按需加载，每轮节省约 4K Token",
-          "point3": "技能热重载：在线编辑技能配置，Agent 会话内自动重新初始化，无需重启"
+          "point3": "技能热重载 + 14 维可观测性：逐次调用跟踪、质量趋势、A/B 测试、活动热力图、Growth Dashboard — 全自动"
         }
       }
     },
@@ -1085,10 +1086,10 @@
         "cjkMigration": {
           "badge": "中文 + 迁移",
           "title": "中文搜索精准 + 竞品无缝一键迁移",
-          "desc": "轻松将第三方生态（如 Hermes 等）的技能包拖拽导入，配置、信息 100% 完美保留，过程极速顺滑，不会卡顿更不丢数据。",
+          "desc": "轻松将第三方生态（如 Hermes 等）的技能包拖拽导入。原子化蓝绿目录切换 + 事务化 DB 写入确保零损坏状态，配置信息 100% 完美保留。",
           "point1": "专为中文优化的毫秒级搜索，内容一秒直达",
-          "point2": "支持拖拽导入第三方 ZIP 技能，别人写好的高级配置也能原汁原味带过来",
-          "point3": "企业级后台处理机制，再多文件同时导入也能秒级完成，页面不卡死"
+          "point2": "拖拽 ZIP 技能导入，预安装安全隔离扫描（防 Zip Bomb + 路径穿越保护）",
+          "point3": "原子安装 + 回滚：蓝绿切换 + DB 事务确保不丢数据，崩溃也不怕"
         },
         "localModelCookbook": {
           "badge": "硬件管家",
@@ -1125,11 +1126,11 @@
         },
         "companion": {
           "badge": "AI 伴侣",
-          "title": "15 物种游戏化成长",
-          "desc": "15 物种游戏化伴侣 + 情绪感知 —— GUI 内成长体系，OpenClaw/Hermes 无等价。",
-          "point1": "15 物种 + 4 级稀有度 + XP 成长与进化体系",
-          "point2": "独立 speech bubble 观察者 + 情绪 mascot 状态联动",
-          "point3": "挫折感检测联动优化，非 iOS 独占语音/桌面能力"
+          "title": "15 物种游戏化成长 + 9 态桌面桌宠",
+          "desc": "GUI 内游戏化伴侣 + 情绪感知 + 5 级稀有度进化 + Tauri 原生浮动桌宠 9 种动画状态 —— OpenClaw/Hermes/Codex 均无等价。",
+          "point1": "15 物种 + 5 级稀有度（Common→Legendary）+ XP 成长 + 工具解锁 + AI 驱动个性化反应",
+          "point2": "9 种动画状态（空闲/运行/睡眠/编码/思考/庆祝/失败/审查/招手）—— SSE 驱动，21+ 事件映射，心跳超时自动回落",
+          "point3": "Tauri Rust 原生透明置顶桌宠窗口 + Web/SaaS 浏览器内 Canvas 覆盖层 —— 三种部署模式下伙伴始终相伴"
         },
         "configTruth": {
           "badge": "配置即生效",
@@ -1163,14 +1164,16 @@
           "desc": "8 类记忆 + Wiki 知识库 + 技能进化闭环 —— 记住偏好与项目上下文，拒绝机械复读。",
           "point1": "8 类跨会话记忆：画像、事实、流程与偏好自动召回，越聊越懂你",
           "point2": "Wiki 混合检索 + 辩证隐性画像，答得更贴你",
-          "point3": "技能进化须你审批 + 洞察 Inbox；Simple/Detailed 双视图审查——优先看摘要或展开完整 Diff；内置 Diff 编辑器就地修订提案；Shadow 先试跑再上线；完整进化历史 + 一键回滚"
+          "point3": "5 层进化验证管线（AST 安全检查 + 沙箱干跑 + AI 评分卡控 + GUI 审批 + Shadow A/B 测试）；6 个 GUI 面板全方位透明化（历史面板 + 拒绝审计 + 待审提案 + 版本对比 + 质量守卫 + 成长仪表盘）；负例记忆自动学习防止重复犯错；6 层有界编辑控制（保守编辑 + 硬约束 + 归因分析 + 长度罚分 + 反碎片评分 + 冗余评分）确保完整修复不膨胀；Python 框架引擎 + 5 层结构化定制（策略切换 + 技能级锁 + 陷阱注入 + 约束学习 + 偏好嵌入）— 安全灵活，Local/Tauri/SaaS 三端通用；9 个可视化面板覆盖进化全生命周期（待审提案 + 成长案例卡 + 拒绝审计 + 历史 + 版本 + 质量守卫 + 成长仪表盘 + 每日日志 + WebSocket 实时推送）；三层有机跨 Skill 学习体系（Per-Skill 约束 + Memory Learned Rules 三级优先级 + Workspace Rules 只读扫描）— 全局规则通过对话自然积累，不会像竞品一样危险地自动写入 AGENTS.md；Monaco Diff 行级高亮 + 一键回滚；三层多 Agent 技能绑定架构（DB 级 scope 隔离 + mounted_skill_ids 写时复制 + 运行时 task.extra_skill_ids 动态绑定）— 每个 Agent 独立进化互不干扰，跨 Agent 技能共享自动 Fork 保护原件，12 个配置 Tab 的 GUI 全站管理 — 2900 项测试验证",
+          "point4": "混合指令分层注入与记忆三层剥离：核心规则进入 System 提示，不可靠经验进入 Human，AI 自动感知 Token 脑容量上限；始终加载索引，按需拉取详情，告别上下文溢出焦虑"
         },
         "security": {
           "title": "六层运行时防护，审批与审计可配置",
           "desc": "7 类语义 DOM 风险检测（中英双语）+ MCP 启用前预检 + Shell 段级风险着色 + 凭证金库（密码/TOTP 不进 LLM）+ PII 脱敏 + Smart Intent Guard（LLM 意图审查）+ 多平台审批（3 级 Allow Always）+ 结构化审计（37 种决策类型 + Prometheus 实时指标）—— 点击「付款」「发布」「删除」时自动弹出审批，看得懂再允许，全程可回溯 · 781 项测试验证。",
           "point1": "7 层操作级风险管理：语义 DOM 风险检测（付款/删除/发布等 7 类自动拦截）+ 4 层引号感知 Shell 分析 + Smart Intent Guard + 用户自定义 Risk Rules + MCP/Skill 安全扫描 + HITL 审批中间件",
           "point2": "MCP 安全门禁 + SSRF DNS 钉扎（手动重定向循环消除 DNS 重绑定）+ Shell 段级审批：`curl | bash` 分段标红，密钥脱敏后再展示 + 编辑后自动重新安全校验",
-          "point3": "凭证金库 + 4 种审批动作（同意 · 编辑 · 拒绝 · 永久允许）含 3 级粒度 —— 密码不进 LLM；任意渠道 ♾️ emoji 或 /always 即可快捷审批；竞品无操作级风险检测能力"
+          "point3": "凭证金库 + 4 种审批动作（同意 · 编辑 · 拒绝 · 永久允许）含 3 级粒度 —— 密码不进 LLM；任意渠道 ♾️ emoji 或 /always 即可快捷审批；竞品无操作级风险检测能力",
+          "point4": "早期拦截（Early Handoff）与视觉验证：不可恢复错误智能中断并弹窗求助，防空转烧钱；CompletionGuard 强制视觉与代码检查，杜绝半成品提交"
         },
         "reliability": {
           "title": "长任务跑得稳，断了也能续",
@@ -1178,7 +1181,9 @@
           "point1": "Goal 模式：DAG 依赖 + 四维预算，长任务有进度、有上限",
           "point2": "检查点恢复 + 看板僵尸自愈，中断后可接着干",
           "point3": "并发读写智能隔离 + 循环检测熔断，防卡死、防空转",
-          "point4": "Vision-to-Plan：上传白板照片、设计稿或架构图，规划器「看图」生成结构化任务计划"
+          "point4": "Vision-to-Plan：上传白板照片、设计稿或架构图，规划器「看图」生成结构化任务计划",
+          "point5": "并发 Git Worktree 物理隔离：ISOLATED_COPY 沙箱加孤儿恢复，大规模块并行无缝合并，拒绝强切分支搞乱本地代码",
+          "point6": "流式韧性 — 截断输出自动恢复（3 次渐进重试 + 工具调用修复），多 Key 热备（4 种轮询策略 + 3 类错误精细处理），48+ 结构化 SSE 事件类型全链路可观测，978 项测试验证"
         },
         "costEfficiency": {
           "title": "极致省钱，帮你处理好一切浪费",
@@ -1186,7 +1191,9 @@
           "point1": "六层 Prompt 缓存，命中率拉到极限，同样预算约 7 倍任务量",
           "point2": "PTC 长链在沙箱内程序化执行，不进聊天上下文",
           "point3": "四维预算硬顶（Token/费用/时间/子 Agent），防额度烧穿",
-          "point4": "全链路成本分析：每消息水滴实时成本、日趋势图、模型/路由分布、缓存节省追踪、活动热力图"
+          "point4": "全链路成本分析：每消息水滴实时成本、日趋势图、模型/路由分布、缓存节省追踪、活动热力图",
+          "point5": "智能归档引用 — 大型工具输出自动归档为 6 类结构索引 + chunk 级精确恢复 + 会话隔离 + 防震荡预算守卫，298 项测试验证",
+          "point6": "极致懒加载工具栈：0% 的系统 Prompt 冗余，动态发现并按需挂载工具；全局输出掩蔽（Observation Masking）即时驱逐长文本，彻底消除上下文膨胀导致的能力退化"
         },
         "visualControl": {
           "title": "极简部署与云端级 GUI，全链路可观测",

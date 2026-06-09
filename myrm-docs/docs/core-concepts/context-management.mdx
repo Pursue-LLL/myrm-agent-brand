@@ -1,6 +1,6 @@
 ---
 title: Context Management
-description: 5-layer context pipeline with reversible compression and Prompt Cache optimization.
+description: 6-layer context pipeline with reversible compression, intent-guided pruning, and Prompt Cache optimization.
 ---
 
 # Context Management
@@ -12,10 +12,20 @@ Myrm's context management system ensures agents can sustain 200+ turn conversati
 Every message passes through a multi-stage pipeline before reaching the LLM:
 
 ```
-User Message → Filter → Cache TTL Prune → Compress → Summarize → Cache Optimize → LLM
+User Message → Intent Analysis → Filter → Cache TTL Prune → Compress → Summarize → Cache Optimize → LLM
 ```
 
 ## Compression Pipeline
+
+### Layer 0: Intent-Guided Compression (CompressionIntent)
+
+Before any data is removed, the pipeline analyzes the current user query and recent history to build a **compression intent** — a map of what must be preserved:
+
+- **Focus files**: File paths actively referenced in the current query are flagged as protected
+- **Focus modules**: Code modules under active discussion are shielded from aggressive compression
+- **Failed tool recovery**: IDs of recently failed tool calls are retained so the agent can retry or explain failures
+
+This intent flows through all subsequent layers, ensuring that compression never destroys context the user is actively working with. Competitors lack this step — their compression is topic-blind and frequently discards critical working context.
 
 ### Layer 1: Instant Filtering (ContextBudgetGuard)
 

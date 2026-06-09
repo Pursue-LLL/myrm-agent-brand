@@ -36,14 +36,14 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **MCP 工具安全** | ✅ 双层防护：上游异常捕获+下游 block 类型强制转换（file/audio/未知→text） | ⚠️ 单层转换（无上游容错） | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **错误恢复** | ✅ 14 类自愈 | try/catch | 基础 | 基础 | ⚠️ 上下文溢出恢复 | ⚠️ 未知 | ❌ |
 | **企业可靠性** | ✅ xdist 锁、EventBus 截断、OTEL 安全、路径边界 + TOCTOU 审批测试；聊天 SSE 状态机回归（错误/审批/文件 diff） | ⚠️ 仅快乐路径测试 | ⚠️ 易竞态 | ⚠️ 未知 | ⚠️ 未知 | ⚠️ 未知 | ❌ |
-| **文件编辑安全** | ✅ 6 层保护（快照撤销/自动格式化/语法检查/冲突检测/配置保护/敏感文件保护） | ❌ | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
-| **文件系统智能** | ✅ 19 种原生操作 + 6 类解析器 + 5 层观察者（717 项测试） | ⚠️ 4 种基础操作 | ⚠️ 仅 bash | ⚠️ 仅 bash | ❌ | ⚠️ 基础 | ❌ |
+| **文件编辑安全** | ✅ 6 层保护（消息级快照撤销支持单文件/批量回退、自动格式化、语法检查、冲突检测、配置保护、敏感文件保护）+ 实时 diff SSE（788 项测试） | ❌ | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
+| **文件系统智能** | ✅ 19 种原生操作 + 6 类解析器 + 5 层观察者（788 项测试） | ⚠️ 4 种基础操作 | ⚠️ 仅 bash | ⚠️ 仅 bash | ❌ | ⚠️ 基础 | ❌ |
 | **本地文件"数据不出域"** | ✅ 天然支持 — Agent 在本地运行，所有文件原地处理 | ❌ 仅云端 | ⚠️ Docker | ⚠️ Docker | ❌ 云端 | ❌ | ❌ |
 | **定时任务** | ✅ GUI 配置 Cron | ⚠️ CLI 仅限特定模型 | ✅ | ✅ | ❌ | ❌ | ❌ |
 | **统一工具网关** | ✅ 四合一网关 + 弹性 BYOK 回退 | ⚠️ 硬切换（易出错） | ❌ N/A | ⚠️ 未知 | ❌ | ⚠️ 未知 | ❌ |
 | **语音** | ✅ STT + TTS + 实时 | ⚠️ Discord 语音 | WebRTC | ⚠️ 基础 | ❌ | ❌ | ❌ |
 | **Computer Use** | ✅ 桌面自动化 + BBox 审批 + Tauri OS 叠加层 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **浏览器引擎** | ✅ 三层引擎 + Shadow DOM 穿透 + API-First 网络智能（CDP 懒加载响应体 + 请求重放）+ 同源智能Tab路由 | ⚠️ 第三方云浏览器 | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
+| **浏览器引擎** | ✅ 三层引擎 + GlobalBrowserPool（零冷启动、三层崩溃恢复）+ Shadow DOM 穿透 + API-First 网络智能（CDP 懒加载响应体 + 请求重放）+ 同源智能Tab路由 | ⚠️ 第三方云浏览器 | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
 | **网页搜索** | ✅ 7 引擎 + BM25/Reranker 过滤 | ⚠️ 云 API 透传 | ⚠️ DDG/Bing 抓取 | ⚠️ 同 OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
 | **网页抓取** | ✅ 三层 + 向量提取 + DOM 修剪 | ⚠️ web_extract（Firecrawl + LLM） | ⚠️ HTTP / Firecrawl 回退 | ⚠️ 同上 | ⚠️ 仅 HTTP | ❌ | ❌ |
 | **图片搜索** | ✅ 内置 image_search | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -295,6 +295,8 @@ Myrm 技能进化（42 模块、原生内置）实现 Self-Improving Agent 研�
 | Description optimization | ❌ | ✅ Auto-refine trigger conditions for better skill matching |
 | GUI approval workflow | ❌ Auto-execute | ✅ Review, modify, approve or reject before applying |
 | **Per-agent Insights Inbox** (background distill → approve in Agent settings) | ❌ Global auto-apply | ✅ **Insights tab** — nothing applies until you approve; dismiss writes negative exemplar |
+| **Real-time growth notification** | ❌ CLI text | ✅ **SSE push → Toast** (info/success/error/warning) with action button — works across all pages |
+| **Growth policy engine** | Simple apply/reject | ✅ **6-path decision matrix**: auto-apply safe skills, security pre-scan, BM25+Embedding semantic dedup (75%), evolution lock, fallback to manual review |
 | Per-agent skill isolation (no cross-agent habit pollution) | ⚠️ Shared pool | ✅ **agent_id scoping + CoW fork** on cross-agent mounts |
 | Growth dashboard | ❌ | ✅ KPI + heatmap + radar chart + evolution timeline |
 | Environment fingerprint | ❌ | ✅ Cross-device safe skill sharing |
@@ -318,6 +320,123 @@ Myrm 技能进化（42 模块、原生内置）实现 Self-Improving Agent 研�
 | Installation Security | Hardcoded 4×3 policy matrix | **Dynamic trust recommendation** (26 categories/108 patterns + AST + LLM audit) with 83 security tests | Intelligent security that adapts, not static rules |
 | Curator Governance | Coarse-grained skip (foreground skills never managed → list bloat) | **Non-destructive archive** (always recoverable) + pinned + evolution_locked | Skills stay organized, important ones stay protected |
 | Missing Dependency Handling | Load full doc then append setup note | **XML summary shows reason at L0/L1** (save tokens) + 3-level fallback degraded docs | Know instantly what's missing, fix it fast |
+
+### 技能生态发现与导入 — 5 源并行聚合 vs 单一来源
+
+竞品仅扫描单一本地目录（`.claude/skills/`、`.agents/skills/`），Myrm 从 **5 个并行发现源**聚合技能，配备完整 GUI 导入管线：
+
+| 能力 | Hermes / OpenClaw | Myrm | 用户收益 |
+|------|:-----------------:|:----:|---------|
+| 发现来源 | 1 个（本地目录扫描） | **5 个并行**（ClawHub + GitHub + LobeHub + skills.sh + 预置） | 一次搜索覆盖全生态 |
+| 搜索界面 | CLI / 无 | **GUI SkillDiscoverTab** 支持筛选、排序、分类 | 像应用商店一样浏览 |
+| URL 导入 | ❌ | **URL → 自动分析 → 批量安装**（含冲突检测） | 粘贴链接即装技能 |
+| ZIP 批量导入 | ❌ | **拖拽 → 安全扫描 → 冲突检测 → 原子安装** | 秒级批量迁移 |
+| 热重载 | 需重启 | **零停机**：`bump_skill_config_version()` → Agent 检测过期 → 自动重初始化 | 安装即用 |
+| 安全扫描 | 无 / 硬编码 | **安装前隔离** + `SkillSecurityValidator` + 安全 ZIP 解压（防 Zip Bomb + 路径穿越） | 默认安全 |
+| 原子安装 | `os.replace` 文件替换 | **蓝绿目录切换** + 事务化 DB 写入 + 回滚 | 永不出现损坏状态 |
+| 自动更新 | ❌ | **`SkillAutoUpdateChecker`** + "有更新"徽章 | 始终保持最新 |
+| 格式兼容 | 仅自有格式 | **SKILL.md** + YAML frontmatter（与 Hermes/OpenClaw 共享）+ 任意 Markdown 技能 | 零摩擦生态导入 |
+
+**结论：9 项升级、0 项持平、0 项降级。Myrm 将技能发现打造为一流 GUI 体验，配备企业级安全保障；竞品仍局限于本地目录扫描。**
+
+### 进化验证管线 — 5 层纵深 vs 零验证
+
+竞品提案建议用户手写 `validator/*.md` 测试用例——这对 SOP 提示词类型的技能来说是根本性的设计缺陷，且大幅增加使用摩擦。Myrm 的 **5 层自动验证管线** 提供全方位保护，用户零摩擦：
+
+| 层级 | 功能 | 类型 | 竞品 |
+|------|------|------|------|
+| L1: SkillValidator | 危险模式正则 + Python AST 语法 + 元数据完整性 | 确定性 | 无 |
+| L2: SandboxValidator | AST 静态分析(eval/exec 拦截) + 子进程干跑 + 安全验证步骤执行 | 确定性 | 无 |
+| L3: BatchEvaluator | 3 维评分(accuracy 50% + anti-fragmentation 30% + redundancy 20%) + 长度惩罚 + 硬阈值熔断(score &lt; 0.6 拒绝) + 幻觉 import 检测 | AI 质量关 | 无 |
+| L4: GUI 审批 | 完整审批生命周期(approve/reject/revise/rollback) + 简洁/详细双视图 + 内置 Diff 编辑器 | 用户控制 | 仅 CLI |
+| L5: A/B 测试 | 影子测试(采样+worker pool+重试) + 95%阈值自动晋升 + 延迟比率限制 | 实证验证 | 无 |
+
+**核心洞察**：绝大多数技能是 Markdown SOP 提示词（如"审查代码时按以下步骤..."），无法为提示词编写确定性测试用例——我方 5 层管线通过互补验证类型优雅解决了这一问题。**921 项测试验证。**
+
+### 进化透明化 — 6 个 GUI 面板 vs 平文本文件
+
+竞品提案建议将 DB 记录同步到技能目录下的 `HISTORY.md` 文件以实现"透明化"。Myrm 提供 **6 个专用 GUI 面板**，其丰富交互性让平文本文件显得过时：
+
+| 面板 | 展示内容 | 竞品 |
+|------|---------|------|
+| SkillHistoryPanel | 进化记录 + Monaco DiffEditor + 状态徽章(approved/rejected/rolled_back) + 一键回滚 | HISTORY.md 文件 |
+| EvolutionRejectionDashboard | 7 种状态分类 + 统计卡片 + 时间范围筛选(7/30/90/180天) + SSE 实时推送 + 强制重试 | 无 |
+| PendingEvolutionsDashboard | 简洁/详细双视图 + approve/reject/revise 生命周期 + localStorage 持久化 | 无 |
+| SkillGrowthCaseCard | 单个提案卡片 + Monaco DiffEditor 就地编辑 + 拒绝理由输入 | 无 |
+| SkillVersionsPanel | 版本列表 + 跨版本对比(任意 v1 vs v2) + 回滚确认 | 无 |
+| SkillQualityGuardian | A/B 测试状态 + 影子样本 + 质量指标 | 无 |
+
+**负例记忆**：3 张 DB 表（`evolution_constraints` + `evolution_rejections` + `execution_analyses`）自动从失败中学习。引擎通过 `get_evolution_constraints()` 将历史约束注入变体生成提示词，防止重复犯错——完全自动的闭环系统，用户零维护。**新增 332 项测试验证。**
+
+### 有界编辑控制 — 6 层软约束 vs 硬熔断
+
+竞品提案强制实施"最多 1 个变更点"的硬熔断规则。这在根本上是有缺陷的：一个 bug 修复通常合理地涉及 2-3 个相关节，且 Markdown 没有可靠的 AST 来计数"变更点"。Myrm 使用 **6 层软约束** 在不设人为限制的情况下保证修复质量：
+
+| 层级 | 机制 | 效果 |
+|------|------|------|
+| L1: `_CONSERVATIVE_EDITING` | LLM 提示词中的 4 条编辑规则 | 保留标题、成功部分不动、优先收紧而非新增 |
+| L2: `_HARD_CONSTRAINTS` | LLM 提示词中的 6 条禁令 | 禁止重写、禁改 API 契约、禁加通用建议 |
+| L3: `_FAILURE_ATTRIBUTION` | 3 分类根因分析 | 仅针对技能问题编辑，Agent/环境问题不膨胀技能 |
+| L4: `length_penalty` | 超 120% 起罚分，200% 达 40% 最大罚分 | 量化膨胀控制，不阻止合理添加 |
+| L5: `anti_fragmentation_score` | AI 评分 30% 权重 | 防范围蜘宛和硬编码 |
+| L6: `redundancy_score` | AI 评分 20% 权重 | 防冗余逻辑和废话 |
+
+配合硬阈值拒绝（score < 0.6 或 accuracy < 0.7 自动拒绝），实现有界编辑同时不牺牲修复完整性。Monaco DiffEditor 提供行级红/绿变更高亮——比竞品的"高亮单个节"更精确。**1783 项测试验证。**
+
+### 框架驱动引擎 — Python 框架 + 5 层定制 vs 纯 Prompt 文件
+
+部分竞品完全通过可编辑的 Markdown 提示文件（如 `reflect.skill.md`、`edit.skill.md`）驱动技能进化。表面灵活，实则脆弱——改错一行整条管线崩溃，SaaS 部署不可用，且存在双源真相冲突。
+
+Myrm 使用 **Python 框架引擎** 搭配 7 个硬编码安全提示模块，结合 **5 层结构化定制体系**：
+
+| 层级 | 机制 | 控制范围 |
+|------|------|----------|
+| L1: 策略级 | `evolution_strategy`（4 种模式）| 控制允许哪些进化类型——UI 一键切换 |
+| L2: 技能级锁 | `evolution_lock` | 保护指定技能不被自动进化覆盖 |
+| L3: 陷阱注入 | 每技能 `traps` | 领域特定警告注入到 LLM 提示中 |
+| L4: 约束学习 | `evolution_constraints` | 系统自动积累拒绝原因——越用越聪明 |
+| L5: 偏好嵌入 | `_PREFERENCE_EMBEDDING` | 用户风格/格式偏好从挫败信号中自动学习 |
+
+为用户提供**结构化、安全的定制**，无需冒险编辑原始提示文件。Local、Tauri、SaaS 三端体验完全一致——无文件系统依赖。**1923 项测试验证。**
+
+### 进化可视化 — 9 面板全生命周期 vs 仅命令行
+
+部分竞品完全依赖 Cron 和命令行输出监控技能进化。Myrm 提供 **9 个独立可视化面板** 覆盖进化全生命周期：
+
+| 面板 | 展示内容 |
+|------|----------|
+| 待审提案仪表盘 | 所有等待审批的提案——简洁或详细视图 |
+| 成长案例卡 | 每个提案配 Monaco DiffEditor——就地审查、编辑、审批 |
+| 拒绝审计仪表盘 | 提案被拒原因、系统学到了什么 |
+| 历史面板 | 已处理进化记录 + 一键回滚 |
+| 版本面板 | 完整版本历史 + 并排 Diff 对比 |
+| 质量守卫 | Shadow A/B 测试——新技能先影子测试再上线 |
+| 成长仪表盘 | KPI 卡片 + GitHub 风格活跃度热力图 + 健康雷达图 + 周统计 |
+| 每日日志 | 逐日时间线：会话、审批、Cron、看板等 |
+| WebSocket 实时流 | 新提案即时推送通知 |
+
+无需解析命令行输出，无需翻看日志文件。一切可视化、可交互、可操作。**2062 项测试验证。**
+
+### 跨 Skill 全局规则 — 三层有机学习体系 vs 自动写入 AGENTS.md
+
+部分竞品提案在检测到跨 Skill 共性失败模式时，自动向 `AGENTS.md` 或系统 Prompt 注入全局规则。这种做法**在架构层面十分危险**：修改用户手动维护的工作区文件、制造双源冲突、破坏 Prompt Cache 效率。
+
+Myrm 采用**三层有机学习体系**安全地实现同一目标：
+
+| 层级 | 机制 | 功能 |
+|------|------|------|
+| Per-Skill 约束 | `evolution_constraints` + `traps` | 每个技能独立积累历史教训，自动注入进化提示词 |
+| Memory Learned Rules | `ProceduralMemory`（trigger → action） | 全局规则通过对话自然沉淀，支持 CRITICAL/HIGH/NORMAL 三级优先级 |
+| Workspace Rules | 只读扫描 AGENTS.md + 14 种规则文件格式 | 尊重用户编写的规则，绝不修改 |
+
+相比自动写入方案的关键优势：
+- **安全**：不修改用户文件或系统 Prompt——Learned Rules 通过 MemoryContextMiddleware 流动
+- **缓存友好**：Learned Rules 放在 HumanMessage 位置，不破坏 System Prompt 的 KV Cache
+- **精确作用域**：规则可设为全局或工具级（`tool_name` 字段），不是一刀切的全局注入
+- **安全防护**：所有学习数据经过 `sanitize()` + `wrap_untrusted()` 安全边界标记
+- **三端通用**：Local、Tauri、SaaS 体验完全一致——无文件系统依赖
+
+**324 项测试验证**，覆盖证据聚合、工作区规则、记忆中间件和 Server 集成。
 
 ### 从 Hermes 迁移（技能系统）
 
@@ -616,6 +735,27 @@ MemPalace 是独立 AI 记忆系统，用 Wing/Room/Closet/Drawer 建筑隐喻�
 
 **结论：10 项升级、0 项持平、0 项降级。MemPalace 用户获得记忆原生集成的完整 Agent 平台（非外挂），并多出 12 项 MemPalace 不具备的能力（智能遗忘、GUI 管理、安全扫描、偏好追踪、健康诊断等）。**
 
+## 双路径数据可视化 — 零代码图表 & 交互式表格
+
+竞品（Codex、Claude Code）处理数据时只能输出纯 Markdown 表格。Myrm 提供 **双路径架构**，从简单数据展示到复杂交互仪表盘全覆盖：
+
+| 能力 | Myrm | Codex / Claude Code |
+|------|------|---------------------|
+| 内置图表类型 | 4 种（柱状/折线/饼/环形）+ React Artifact 无限制 | 无 |
+| 交互式数据表格 | UITable 动态列 + React Artifact 排序/过滤 | 仅 Markdown |
+| 零代码 UI 组件 | 21 种（图表、表格、表单、布局） | 无 |
+| React 实时预览 | Sandpack 热重载 + 代码编辑 + 控制台 | 无 |
+| 数据导出格式 | Markdown / JSON / HTML / DOCX / PNG | 无 |
+| 图表渲染 | Mermaid（30+ 种图表）+ 缩放/平移/图例 | 无 |
+| Artifact 版本管理 | SHA-256 完整性验证 + 版本历史 | 无 |
+| 跨会话数据分析 | pandas + SQLite 沙箱持久化 | 无持久化 |
+
+**路径 1 — Generative UI（零代码）**：Agent 通过 SSE 事件渲染 21 种内置组件（UIChart、UITable、UIProgress、UIBadge、UICard、UIGrid、UITabs 等），用户无需写代码即可看到丰富的数据可视化。
+
+**路径 2 — React Artifact（全功能）**：复杂可视化场景，Agent 生成自定义 React 组件，使用 Recharts/Echarts/D3/Chart.js，在 Sandpack 实时预览中支持代码编辑、控制台输出和 Tailwind CSS。
+
+**191 项测试验证**: Interactive UI 59 ✅ | Artifact 系统 22 ✅ | Mermaid 18 ✅ | SSE 流+审批+导出 92 ✅
+
 ## vs Claude Office Visualizer — CLI 状态仪表盘
 
 Claude Office Visualizer 用像素风办公室动画渲染 Claude Code CLI 状态，通过独立 Next.js + PixiJS 应用展示 Agent 状态、上下文用量与任务进度。解决 CLI 用户不盯终端就看不见 Agent 在干啥的痛点。
@@ -671,7 +811,29 @@ Coze 将项目锁在生态内；Lobster 擅长公开静态链但非从 Agent 工
 
 **你将获得**：聊天产物 → 落地页/报告/迷你应用 → **~30s 部署 URL** 或 **即时只读 Link** 供审阅。
 
+**不止部署——完整的产物编辑生命周期**：Myrm 的 Artifact Portal 不只是查看器。代码产物在 **Monaco Editor**（VS Code 内核）中直接编辑。**SelectionToolbar** 支持选中代码后一键 修改 / 解释 / 优化 / 加注释——精准 AI 编辑无需离开预览面板。你的编辑会静默跟踪并自动注入到下条消息，Agent 从你修改后的版本继续工作。React 产物通过 **Sandpack** 实时渲染并热重载。版本 Diff 对比、SHA-256 完整性校验和快照回滚完善了整个生命周期。竞品如 WorkBuddy 依赖外部文档集成（如腾讯文档）而非自建编辑系统。
+
 **诚实限制**：尚无分享撤销/分享码 UI；长期公开站点应用 Deploy + 自有域名；纯 `code` 产物须先导出为 `html`（预检 + UI 门控一致）。
+
+## vs Codex — MCP 生态、Agent 模板与多渠道自动化
+
+Codex 近期展示了 Linear MCP 连接与自动化 PM 工作流。MyrmAgent 的架构在每个维度均已全面碾压——经 **543 项测试**验证。
+
+| 能力 | Codex | Myrm |
+|------|-------|------|
+| MCP 配置方式 | 仅 CLI | GUI 引导式对话框 + JSON 批量导入 + 安全扫描 |
+| MCP 安全 | 无 | SSRF 防护 + DNS Pinning + OSV 恶意包检测 + 安全注解 |
+| 服务目录 | 无 | 27 个预配置服务 / 9 大类别 / 搜索过滤 / 一键连接 |
+| Per-Agent MCP | 全局共享 | 每个 Agent 独立 mcp_ids + tool_selections |
+| MCP 状态监控 | 无 | 实时连接状态 + 健康检查 |
+| 反向 MCP | 无 | 暴露记忆系统供外部 IDE 连接（Claude Code / Cursor / Gemini CLI） |
+| Agent 模板 | 无 | TemplateMarket + PresetAgentGallery + 5 个 YAML 种子（4 团队 + 1 个体） |
+| 团队 Agent | 无 | 原子创建 + 失败回滚——一键部署多 Agent 团队 |
+| 渠道 | 仅终端 | 20+ Provider（Slack / Discord / Telegram / Email / 飞书 / 微信 / 钉钉 / WhatsApp / iMessage / Google Chat / MS Teams / LINE / QQ / Matrix / Mattermost / IRC / Signal / Webhook / Voice） |
+| 看板 | 无（依赖外部 Linear） | 内置看板 + Pipeline 模板 + SSE 实时事件 |
+| 部署模式 | 仅 CLI | WebUI + Tauri 桌面端 + SaaS |
+
+**关键结论**：Codex 的 "Linear MCP" 只是连接了一个外部 MCP 服务器——MyrmAgent 早已支持且有完整 GUI、安全扫描和 27 个预置服务集成。"PM Agent" 工作流无需新的平台功能；MyrmAgent 现有的模板系统 + 渠道监听 + Kanban 管道已可一键实现。
 
 ## vs Codex (OpenAI) — Appshots 与 /goal GA
 
@@ -990,6 +1152,36 @@ Myrm 在底层实现了 **O(1) 早期截断**与军工级脱敏管线：
 - **绝对成本可预测**：Agent 死循环不会让你醒来面对巨额 API 账单。
 - **真实执行证据**：Myrm 称任务完成时，有 OS 级执行日志支撑，非 LLM 想象。
 - **无瑕 UI 体验**：后台 Agent 严格留后台；人工介入可注入纠正语境，非二元是/否。
+
+## 视觉审批、Artifact 全链路与智能模板复用（vs Codex）
+
+Codex 仅提供基础截图审批，无 Artifact 管理。Myrm 提供**跨 Web、桌面、移动端的完整视觉审批系统**，以及从生成到部署的完整 Artifact 生命周期管理——经 **305 项测试验证**。
+
+### Myrm 更强在哪
+
+| 能力维度 | Codex | Myrm | 用户收益 |
+|---------|-------|------|---------|
+| **视觉审批** | 基础截图 | **17 个专用文件**：高亮 + 注意力条 + OS 覆盖层 + 请求渲染器 + 待审批卡片 + 内联区域 + 不可用降级 | 在所有平台上精准看到 Agent 想做什么，一键批准/拒绝/编辑 |
+| **桌面端原生覆盖层** | ❌ 无桌面端 | **Tauri Rust 原生** `visual_approval_overlay.rs` — 主屏幕透明红框 | 即使应用最小化也不会错过待审批操作 |
+| **移动端适配** | ❌ 无 | **MobileStatusBoard** + 手势关闭 + 响应式布局 | 手机上完整控制 Agent |
+| **优雅降级** | ❌ 无 | **VisualApprovalUnavailableCard** 自动降级为文本审批 | 截图失败时仍可正常审批 |
+| **Artifact 渲染器** | 基础 | **7 种**：文档/McpApp/代码/Mermaid/媒体/PDF/无预览 | 不离开聊天窗口即可预览任何文件类型 |
+| **实时代码编辑** | ❌ 无 | **Sandpack ReactPreview**：预览/代码/分屏三视图 + 控制台 + Tailwind | 实时编辑 Agent 生成的 React 组件，热重载预览 |
+| **代码选中精准编辑** | ❌ 无 | **SelectionToolbar**：选中代码 → 修改/解释/优化/注释/复制 | 在代码选择级别与 Agent 精准协作 |
+| **一键部署** | ❌ 无 | **DeployModal**：Vercel + WebSocket 状态推送 + preflight 检查 | 秒级将 Agent 生成的应用部署到生产环境 |
+| **版本管理** | ❌ 无 | **ArtifactsCenter**：不可变时间线 + SHA256 完整性验证 + 回滚 | 企业级 Artifact 审计追踪 |
+| **技能检测** | ❌ 无 | **SkillDetectionCard**：自动检测 SKILL.md → 一键打包注册 | 将 Agent 生成的任何工具转化为可复用技能 |
+| **记忆系统** | ❌ 无 | **14 种 DB 模型**：画像/程序性/待审批/共享上下文 + 导入/归档/回滚/审计 | Agent 记住你的偏好、编码风格和报表格式 |
+| **技能进化引擎** | ❌ 无 | **SkillEvolutionEngine** + 信心度审批流 + A/B 测试 | Agent 自动从每次交互中学习和改进 |
+| **模板复用** | ❌ 无 | **Procedural Memory** "记住这个格式" + 自动模式提取 | 比静态模板更智能——自动适应新数据 |
+
+### 迁移收益
+
+从 Codex 切换到 Myrm Agent 后：
+- **多端视觉审批**：从基础截图升级为 Web 内联高亮、Tauri OS 覆盖层和移动端手势交互
+- **Artifact 成为永久资产**：完整版本管理 + SHA256 防篡改验证 + 一键 Vercel 部署
+- **Agent 学习你的风格**：无需手动保存模板，Agent 自动学习你偏好的报表格式和编码模式
+- **精准协作**：在 Artifact Portal 中选中任意代码，直接触发修改/解释/优化/注释与 Agent 协作
 
 ## 准备开始？
 
