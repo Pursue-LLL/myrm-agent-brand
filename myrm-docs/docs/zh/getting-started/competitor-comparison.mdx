@@ -34,6 +34,8 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **极端防爆** | ✅ 4 层护城河（卫生/护盾/剥离/预算） | ⚠️ 大负载崩溃/丢失 | ⚠️ 单点失败 | ⚠️ 未知 | ⚠️ 基础限制 | ⚠️ 未知 | ❌ |
 | **输出净化** | ✅ 双层防护（流式+投递前），覆盖全角管道符和 DeepSeek token | ⚠️ 单层，仅 ASCII 管道符（近期修复） | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **MCP 工具安全** | ✅ 双层防护：上游异常捕获+下游 block 类型强制转换（file/audio/未知→text） | ⚠️ 单层转换（无上游容错） | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **智能路由与模型自动升级** | ✅ 五层体系: ComplexityRouter 三档路由 + 隐私感知路由 + ESCALATION_CONTRACT (模型自主升级合约) + EscalationScrubber (流式无缝体验) + 双 Fallback 保险 (362 项测试) | ⚠️ 仅 Sonnet→Opus 单维度 | ❌ | ⚠️ 手动三档 | ❌ | ⚠️ 未知 | ❌ |
+| **后台任务托盘** | ✅ Kanban 持久化 + SteeringToken 运行时转向 + Zombie 检测 + 自动重试 + /btw /bg 快捷命令 + 智能轮询（189 项测试） | ⚠️ 仅运行+取消 | ❌ | ❌ | ⚠️ Background Agent（无转向） | ⚠️ 未知 | ❌ |
 | **错误恢复** | ✅ 14 类自愈 | try/catch | 基础 | 基础 | ⚠️ 上下文溢出恢复 | ⚠️ 未知 | ❌ |
 | **企业可靠性** | ✅ xdist 锁、EventBus 截断、OTEL 安全、路径边界 + TOCTOU 审批测试；聊天 SSE 状态机回归；**521 份分形 `_ARCH` 模块文档 + 296 项架构 CI 门禁**（2026-06-09 实测） | ⚠️ 仅快乐路径测试 | ⚠️ 易竞态 | ⚠️ 未知 | ⚠️ 未知 | ⚠️ 未知 | ❌ |
 | **模块文档地图** | ✅ **521** 份 `_ARCH.md` + CI 防漂移（`check_fractal_docs`） | ❌ 仅集中式 docs | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -307,7 +309,7 @@ Myrm 技能进化（42 模块、原生内置）实现 Self-Improving Agent 研�
 | Prebuilt skill upgrade protection | ❌ Silent overwrite | ✅ **Three-way hash** — user edits preserved, "Update Available" badge |
 | Daily work journal | ❌ | ✅ 6-source aggregated daily timeline with date navigation |
 
-**vs ECC (Everything Claude Code) `continuous-learning-v2`：** ECC 在后台蒸馏原子化「本能」YAML 习惯 — 对高级用户强大，但习惯易全局生效且无 per-agent GUI 门控。Myrm 提供相同 *思路*（空闲蒸馏 → 技能提案）+ Agent 设置中的 **Insights Inbox**：提案保持草稿直至你批准；驳回写入负例以防重复提案；内置 Agent 在 inbox 只读。MCP 方面 Myrm 已提供 **GUI 启用前扫描 + 验证 + 运行时 fail-closed**（见下文 MCP 安全门）— 领先 Hermes 仅日志流；我们**尚未**提供 ECC 的 `/aside` 分叉聊天、`/context-budget` 树图或 102-hook 全量静态包（roadmap #6）。
+**vs ECC (Everything Claude Code) `continuous-learning-v2`：** ECC 在后台蒸馏原子化「本能」YAML 习惯 — 对高级用户强大，但其 v2.1 项目隔离仅有 2 级（git remote hash → 项目/全局），且 "2+ 项目出现自动晋升全局" 存在误报风险。Myrm 提供相同 *思路*（空闲蒸馏 → 技能提案）+ 架构级更强隔离：**5 级作用域层级**（GLOBAL > AGENT > CHANNEL > CONVERSATION > TASK）+ 命名空间 + 每 Agent CoW 进化。Agent 设置中的 **Insights Inbox** 确保提案保持草稿直至你批准；驳回写入负例以防重复提案；内置 Agent 在 inbox 只读。**1022 项测试验证**（harness 668 + server 354）覆盖连续学习全链路。MCP 方面 Myrm 已提供 **GUI 启用前扫描 + 验证 + 运行时 fail-closed**（见下文 MCP 安全门）— 领先 Hermes 仅日志流；我们**尚未**提供 ECC 的 `/aside` 分叉聊天、`/context-budget` 树图或 102-hook 全量静态包（roadmap #6）。
 
 ### 技能模块架构 — 八维优势
 
