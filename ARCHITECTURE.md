@@ -50,6 +50,7 @@ Deploy Hook URL 存本地环境变量，不入库。见 [`myrm-website/scripts/r
 
 | 文档 | 范围 |
 |------|------|
+| [`myrm-website/_ARCH.md`](myrm-website/_ARCH.md) | Next.js 营销站模块 |
 | [`myrm-docs/_ARCH.md`](myrm-docs/_ARCH.md) | Mintlify 文档站 |
 | [`myrm-website/scripts/_ARCH.md`](myrm-website/scripts/_ARCH.md) | 构建/校验脚本 |
 | [`myrm-website/src/lib/_ARCH.md`](myrm-website/src/lib/_ARCH.md) | 外链、release、docs 契约 |
