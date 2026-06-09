@@ -1285,6 +1285,45 @@ Myrm provides the most comprehensive voice integration among AI agents — **4,2
 
 **Migration win**: From basic mic input to full-duplex voice conversations with 3 modes, adaptive barge-in, Agent Bridge for server-side execution, and zero-config browser fallback.
 
+### Workspace Organization & Project Management (vs Codex / Claude / ChatGPT)
+
+| Capability | Codex | Claude | ChatGPT | Myrm |
+|------------|-------|--------|---------|------|
+| **Project Organization** | Tree folders | ❌ | ❌ | ✅ Chip filter (zero vertical space) |
+| **Project Colors** | ❌ | ❌ | ❌ | ✅ 10-color presets + right-click change |
+| **Filter Dimensions** | 1 (project) | 0 | 0 | ✅ 3 (project + date + channel source) |
+| **Date Grouping** | ❌ | Basic | Basic | ✅ 5 tiers, collapsible |
+| **Pin & Drag Sort** | ❌ | ❌ | Pin only | ✅ Pin + Dnd-kit drag reorder |
+| **Batch Operations** | ❌ | ❌ | ❌ | ✅ Multi-select + batch delete + batch move |
+| **Export Formats** | ❌ | PDF | ❌ | ✅ HTML/MD/JSON/Copy |
+| **Cron Scheduling** | ❌ | ❌ | ❌ | ✅ Create from chat context menu |
+| **Channel Handoff** | ❌ | ❌ | ❌ | ✅ Cross-channel handoff dialog |
+| **Multi-Pane Workspace** | Single | Single | Single | ✅ Multi-pane OS Context Switching |
+| **Mobile Responsive** | Desktop only | Partial | ✅ | ✅ Full responsive + 44px touch targets |
+| **Backend API** | Basic | None | None | ✅ CRUD + move + batch-move + filter (23 tests) |
+
+**Migration win**: From single-dimension tree folders to 3D filtering (project + date + source), batch operations, multi-pane parallel workspace, and full mobile responsiveness — all verified by 115 automated tests.
+
+## Top Agent Architecture Teardown ("Agent Harness Parsing")
+
+In a recent industry deep dive, the "Agent Harness" (the complete software infrastructure wrapping the LLM) was confirmed as the decisive factor in Agent performance. Compared with theoretical ideals and competitor implementations, Myrm's architecture demonstrates crushing advantages in these key areas:
+
+### How Myrm Leads
+
+| Architecture Ideal | Competitor / Traditional Frameworks | Myrm Implementation | User Benefit |
+|--------------------|-------------------------------------|---------------------|--------------|
+| **3-Tier Memory Separation & Lightweight Verification** | Full load causing OOM, or basic read/write split. | **Hybrid Instruction Layering & Auto Search Cues** | Core rules go into the System prompt, unreliable experience into Human; the AI automatically senses its "brain capacity" token limits. Memory gets more accurate over time without context overflow anxiety. |
+| **Global Observation Masking & Eviction** | Direct truncation or letting useless logs fill the context window. | **Extreme Lazy Loading + Turn-Level Filter Processor** | 0% System Prompt redundancy with dynamic tool mounting. Long texts (like Bash/Fetch) are automatically persisted to disk and replaced with smart previews, completely eliminating capability degradation from context bloat. |
+| **Visual Verification & LLM as Judge** | Basic tests or blind LLM scoring. | **Early Handoff + CompletionGuard** | Smart interrupts and popup help for unrecoverable errors prevent money burning. Cross-platform visual warnings and code execution verification eliminate half-baked AI submissions. |
+| **Git Worktree Sandbox Isolation** | Requires forced branch switching, easily messing up local code. | **Concurrent Isolation (ISOLATED_COPY) + Orphan Recovery** | Automatically creates lightweight physical clones in parallel mode; seamless large-scale merging. When interrupted or disconnected, OrphanRecovery reconnects in seconds. |
+
+### Migration Wins
+
+Moving away from competitors relying on simple ReAct loops and basic memory, you gain:
+- **Never getting lost in long documents**: Smart previews and on-demand loading ensure the model always focuses on high-signal Tokens.
+- **Stop paying for empty loops**: If the AI gets stuck, it immediately suspends execution and prompts you for instructions/parameters, rather than spinning in a costly loop.
+- **Engineering-grade reliable delivery**: Code that hasn't passed linting cannot "claim to be done." Say goodbye to hallucinatory success.
+
 ## Ready to Start?
 
 <CardGroup cols={2}>
