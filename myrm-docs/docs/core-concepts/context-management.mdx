@@ -121,6 +121,20 @@ For vision models operating autonomously (e.g., Computer Use), screenshots are h
 
 Instead of arbitrarily truncating messages, Myrm calculates a dedicated token budget (e.g., 20% of max context) exclusively reserved for the most recent conversation tail. This ensures that the agent's current working memory and active tool results are never compressed or squeezed out, guaranteeing task continuity.
 
+## Subagent Result Distillation
+
+When sub-agents execute tasks (e.g., running test suites, researching codebases), their raw output can be thousands of lines. Myrm applies 3-tier progressive protection to ensure the parent agent's context stays clean:
+
+| Tier | Mechanism | Effect |
+|------|-----------|--------|
+| **Tier 1** | `truncate_result` | Hard limit by `max_result_tokens` (last line of defense) |
+| **Tier 2** | `_auto_vault_or_truncate` | Outputs exceeding 8,000 chars are stored in ArtifactVault; parent receives a compact summary (head + tail) plus a `vault://` pointer for on-demand retrieval |
+| **Tier 3** | `AgentHandoverState` | Structured handover (completed tasks, pending todos, risks, relevant files) is extracted and separated from the raw result |
+
+Additionally, sub-agents **inherit the full context pipeline** via `enable_context_compression`, so their internal execution already benefits from the same compression, pruning, and summarization layers — preventing bloated results from forming in the first place.
+
+**Why this matters**: Competitors describe "letting sub-agents handle long logs so the main agent only sees results" as a goal — Myrm already implements this with zero information loss (vault:// retrieval) and structured handover state.
+
 ## Session Notes
 
 Agents can create structured notes during a session — these persist in the context at zero API cost (no LLM call needed) and serve as a lightweight alternative to full compression.
