@@ -42,6 +42,30 @@ Myrm injects a comprehensive anti-detection system that makes automated browsing
 - Extract text and structured data
 - Take screenshots
 - Handle authentication flows
+- Handle browser dialogs intelligently
+
+## Dialog Policy (Handling Popups Automatically)
+
+JavaScript dialogs (`alert`, `confirm`, `prompt`, `beforeunload`) can block all page interaction if not handled. Myrm provides **four configurable policies** per agent:
+
+| Policy | Behavior | Best for |
+|--------|----------|----------|
+| **Smart** (default) | Accept alerts/confirms, dismiss prompts | General browsing |
+| **Auto Accept** | Accept all dialogs | Bulk automation, scraping |
+| **Auto Dismiss** | Dismiss all dialogs | Data extraction, read-only |
+| **Wait for Agent** | Pause and let AI decide (with timeout fallback) | Critical confirmations |
+
+### Configuration
+
+Set the dialog policy per agent in **Settings → Agents → Capability Config → Dialog Handling**.
+
+The agent can also switch policy at runtime using the `dialog_policy` action in `browser_manage`.
+
+### How It Works
+
+- In **Smart** mode (default), your agent never gets stuck on cookie banners or info alerts.
+- In **Wait for Agent** mode, the dialog content appears in the next browser snapshot, giving the AI full context to decide. If the agent doesn't respond within the timeout, a safe fallback fires automatically.
+- Dialog history is always visible to the agent — it knows what popups were handled and how.
 
 ## Credential Vault (Login Without Leaking Passwords)
 

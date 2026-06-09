@@ -84,6 +84,21 @@ All I/O operations use `asyncio` coroutines. This provides better resource utili
 
 The harness engine contains zero business logic. It provides generic agent capabilities (tool execution, memory, security, streaming) that any business application can use. The server layer adds user management, session handling, and API contracts on top.
 
+### Fractal Self-Documentation (Open Product Layer)
+
+The open-source `myrm-agent` tree uses a **four-layer doc stack** so contributors and LLMs can navigate code without guessing module boundaries:
+
+| Layer | Artifact | Role |
+|-------|----------|------|
+| L1 | `ARCHITECTURE.md` | Whole-system map |
+| L2 | `*_SYSTEM.md` | Cross-module designs (memory, skills, etc.) |
+| L3 | `_ARCH.md` per folder | Module duty + file table |
+| L4 | File header `INPUT` / `OUTPUT` / `POS` | Single-file placement |
+
+**Scale (verified 2026-06-09):** **521** `_ARCH.md` files across server, frontend, desktop, and shared packages. CI runs `check_fractal_docs.py` (directory coverage, strict headers, no stubs on `api/` and `channels/providers/`) plus **296** architecture pytest gates. Typical agent competitors ship centralized `docs/` only — **zero** per-module `_ARCH` maps.
+
+**What you get:** faster onboarding for self-hosters and integrators; doc drift blocked before merge, not discovered in production.
+
 ## Security Model
 
 6-layer defense-in-depth. See [Security Architecture](/docs/core-concepts/security-architecture) for the complete model.

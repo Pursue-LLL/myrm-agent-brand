@@ -67,6 +67,30 @@ Add MCP servers to `mcp_servers.json`:
 }
 ```
 
+## Building Custom MCP Servers (AI-Guided)
+
+Don't want to write an MCP server from scratch? Activate the **mcp-builder** skill and ask the agent to build one for you.
+
+### How to Use
+
+1. Go to **Settings > Agent > Skills** and enable the `mcp-builder` skill
+2. Start a conversation and describe what you need: *"Build an MCP server that connects to Jira for project management"*
+3. The agent follows a structured 4-phase workflow:
+
+| Phase | What Happens |
+|-------|-------------|
+| **Research** | Investigates the target API (auth, endpoints, rate limits) |
+| **Implementation** | Writes the server in Python (FastMCP) or TypeScript (MCP SDK) with proper annotations |
+| **Verify** | Runs a verification script to confirm the server starts and passes security scanning |
+| **Register** | Generates the configuration for Settings > MCP and tests the tools in conversation |
+
+### Built-in Quality Guarantees
+
+- **Security annotations** — Read-only operations get `readOnlyHint: true` (auto-approve), destructive operations get `destructiveHint: true` (warning badge)
+- **Error handling** — All HTTP calls have timeouts, retries, and actionable error messages
+- **Pagination** — Large result sets are paginated to prevent token explosion
+- **Environment variables** — Secrets are never hardcoded
+
 ## Schema Handling
 
 Myrm automatically optimizes MCP tool schemas for LLM compatibility:

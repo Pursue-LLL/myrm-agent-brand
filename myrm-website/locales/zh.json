@@ -354,7 +354,7 @@
         "tools": "工具与能力"
       },
       "llmList": "OpenAI · Anthropic · Google Gemini · DeepSeek · Qwen · 本地模型",
-      "toolsList": "MCP 协议（多服务器并行 + 持久热连接 + 事件驱动发现 + Per-Agent 权限 + 6 层安全 + ext-apps 沙箱 UI） · 反向 MCP Server（与 Claude Code / Cursor / Gemini CLI 共享记忆） · OpenAPI 零代码接入 · 浏览器 · 文件系统 · 终端 · 定时任务 · GitHub · 代码执行 · Web Search + Web Fetch · 数据库",
+      "toolsList": "MCP 协议（多服务器并行 + 持久热连接 + 事件驱动发现 + Per-Agent 权限 + 6 层安全 + ext-apps 沙箱 UI + AI 引导式 MCP Server 构建） · 反向 MCP Server（与 Claude Code / Cursor / Gemini CLI 共享记忆） · OpenAPI 零代码接入 · 浏览器 · 文件系统 · 终端 · 定时任务 · GitHub · 代码执行 · Web Search + Web Fetch · 数据库",
       "more": "更多集成持续扩展中"
     },
     "testimonials": {
@@ -931,10 +931,10 @@
         "enterpriseTesting": {
           "badge": "企业级验证",
           "title": "回归网 + 混合评测引擎——不靠“跑通一次就发版”",
-          "desc": "原子锁、依赖降级、TOCTOU 保护 —— 全部由定向 pytest + E2E 覆盖。工具调用前后 17 层拦截（7 层 pre + 10 层 post），1,022 项守卫测试全部通过。内置混合评测引擎，LLM 成本比竞品低 6 倍。",
+          "desc": "原子锁、依赖降级、TOCTOU 保护 —— 全部由定向 pytest + E2E 覆盖。开源产品层 521 份分形模块文档 + 296 项架构门禁实测全绿（2026-06-09），文档与代码漂移会被 CI 拦住。工具调用前后 17 层拦截，内置混合评测引擎，LLM 成本比竞品低 6 倍。",
           "point1": "混合评测：确定性断言（tool/state/sandbox）零 LLM 调用，仅在需要主观评分时才调用语义判官——比 CrewAI 每 case 6 次 LLM 调用便宜 6 倍",
-          "point2": "自定义 LLM 判官：支持 per-assertion 评分模板 + 模型覆盖 + 自动重试。完整 binary + 0.0–1.0 连续评分。122 项测试已验证",
-          "point3": "17 层工具安全网：每次工具调用经过 LoopGuard、PII 检测、熔断器、MutationVerifier、内容验证、TaintTracker 等 17 道安全检查 —— 1,022 项测试全部通过。行业最佳仅 2 层。"
+          "point2": "分形模块地图：每个代码目录都有 _ARCH 说明职责，改 API/服务必须同步文档——竞品多为零散长文，我们 521 份可检索模块文档 + CI 禁占位符",
+          "point3": "17 层工具安全网：每次工具调用经过 LoopGuard、PII 检测、熔断器、MutationVerifier 等 17 道安全检查——1,022 项守卫测试通过。行业常见仅 2 层。"
         },
         "antiBlockingTitle": {
           "badge": "vs DeerFlow",
@@ -1049,7 +1049,8 @@
           "point3": "Patchright & Camoufox 双引擎无损热切换，AES-256 加密 Session Vault 保存登录态，per-Agent 域名配置跨会话自动恢复身份——从容应对 Cloudflare 等高难度反爬",
           "point4": "Schema 驱动结构化提取：传入 JSON Schema 即返回验证后的干净 JSON 数据——上下文 Token 节省 97%，无需额外管道",
           "point5": "验证码自动检测 + 人类接管：自动识别 10 种验证码类型（Cloudflare/Turnstile/reCAPTCHA 等），Agent 暂停并通知你操作，完成后无缝恢复——1571 项浏览器测试验证",
-          "point6": "浏览器扩展桥接 + Per-Agent 配置：每个智能体独立选择浏览器来源（通过 MV3 扩展操作用户真实浏览器，或使用干净的无头实例）。池隔离确保不同智能体的会话绝不交叉污染"
+          "point6": "浏览器扩展桥接 + Per-Agent 配置：每个智能体独立选择浏览器来源（通过 MV3 扩展操作用户真实浏览器，或使用干净的无头实例）。池隔离确保不同智能体的会话绝不交叉污染",
+          "point7": "智能弹窗策略：4 种可配置模式（智能/全部接受/全部关闭/等待 Agent 决策）按智能体独立配置——不再因静默关闭弹窗丢失关键数据；AI 智能判断重要确认操作，超时自动回退"
         },
         "ptc": {
           "badge": "长链工具",

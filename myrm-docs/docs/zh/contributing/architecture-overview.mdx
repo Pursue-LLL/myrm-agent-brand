@@ -84,6 +84,21 @@ Myrm 用中间件链架构，各关注点（安全、审批、循环检测、完
 
 Harness 引擎零业务逻辑，提供通用 Agent 能力（工具、记忆、安全、流式）；Server 层在其上叠加用户管理、会话与 API 契约。
 
+### 分形自文档（开源产品层）
+
+开源 `myrm-agent` 采用 **四层文档栈**，让贡献者与 LLM 按目录定位职责，而不是通读源码猜边界：
+
+| 层级 | 文档 | 作用 |
+|------|------|------|
+| L1 | `ARCHITECTURE.md` | 系统总览 |
+| L2 | `*_SYSTEM.md` | 跨模块方案（记忆、技能等） |
+| L3 | 各目录 `_ARCH.md` | 模块职责 + 文件表 |
+| L4 | 文件头 `INPUT` / `OUTPUT` / `POS` | 单文件定位 |
+
+**规模（2026-06-09 实测）**：server、frontend、desktop、shared 合计 **521** 份 `_ARCH.md`。CI 运行 `check_fractal_docs.py`（目录覆盖、严格文件头、`api/` 与 `channels/providers/` 禁 stub）及 **296** 项架构 pytest。典型 Agent 竞品仅有集中式 `docs/`，**无**模块级 `_ARCH` 地图。
+
+**你能得到什么**：自托管与二开 onboarding 更快；文档与代码脱节在合并前被 CI 拦住，而不是线上才发现。
+
 ## 安全模型
 
 6 层纵深防御。完整模型见[安全架构](/zh/core-concepts/security-architecture)。
