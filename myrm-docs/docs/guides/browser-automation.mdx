@@ -232,6 +232,51 @@ For scenarios beyond CAPTCHAs — 2FA prompts, payment gateways, proprietary for
 | User must monitor constantly | Only interrupts when truly needed |
 | Lost context after intervention | Captures post-human page state and adapts |
 
+## Browser Extension Bridge
+
+For scenarios where you need the agent to operate within your **real browser** — with your existing login sessions, extensions, and browsing context intact — Myrm supports a Chrome Extension bridge.
+
+### When to Use
+
+| Scenario | Best Approach |
+|----------|--------------|
+| Fresh automated browsing | Default (ephemeral engine) |
+| Re-use specific login sessions | SessionVault `auto_restore_domains` |
+| Need full browser fingerprint consistency | **Extension Bridge** |
+| Agent must see your real tabs/bookmarks/extensions | **Extension Bridge** |
+| SaaS mode controlling a remote user's browser | **Extension Bridge** |
+
+### How It Works
+
+1. **Install the Myrm Extension** — A lightweight Chrome MV3 extension that maintains a WebSocket connection to the Myrm server.
+2. **Authorize domains** — In Settings → Integration → Extension Bridge, add domains you want the agent to control (e.g., `github.com`, `*.google.com`). Wildcard patterns are supported.
+3. **Agent connects** — When a task requires browser access to an authorized domain, the agent connects to your real browser via CDP (Chrome DevTools Protocol) proxy.
+
+### Security Model
+
+- **Domain-level authorization** — Only explicitly authorized domains can be controlled. The agent cannot access any tab outside your allow-list.
+- **Token authentication** — The extension authenticates to the server with a secret token, preventing unauthorized connections.
+- **Service Worker keepalive** — The MV3 extension uses `chrome.alarms` for persistent connection with exponential backoff reconnection.
+- **Domain sync on reconnect** — When the extension reconnects, it immediately synchronizes authorized domains with the server.
+
+### Frontend Management
+
+The Extension Bridge settings panel shows:
+
+- Real-time connection status (connected/disconnected, extension version, browser name)
+- Domain authorization management (add, remove, wildcard support)
+- Available tabs list (filtered by authorized domains)
+
+### Architecture
+
+The Extension Bridge spans 5 layers:
+
+1. **Harness Protocol** (`ExtensionBridge`) — Defines the contract at the framework level
+2. **Server Service** (`ExtensionBridgeService`) — Manages WebSocket lifecycle, heartbeat, and CDP proxy
+3. **API Router** — WebSocket + REST endpoints for extension and frontend
+4. **Chrome Extension** — MV3 Service Worker with CDP attachment capability
+5. **Frontend Panel** — React settings component for status and domain management
+
 ## Zero-Config Browser Setup
 
 When you first use browser tools on a fresh Myrm desktop install, the browser engine (Chromium) is automatically downloaded and installed — **no terminal commands required**.
