@@ -1337,6 +1337,51 @@ Moving away from competitors relying on simple ReAct loops and basic memory, you
 - **Stop paying for empty loops**: If the AI gets stuck, it immediately suspends execution and prompts you for instructions/parameters, rather than spinning in a costly loop.
 - **Engineering-grade reliable delivery**: Code that hasn't passed linting cannot "claim to be done." Say goodbye to hallucinatory success.
 
+### Automation & Hooks Configuration (vs Codex / Claude Code)
+
+| Capability | Codex | Claude Code | ChatGPT | Myrm |
+|------------|:-----:|:-----------:|:-------:|:----:|
+| Hook definition method | CLI/config files ("not easy to use") | ❌ | ❌ | ✅ Full GUI panels |
+| Security policy hooks | ⚠️ Basic permissions | ⚠️ 3 tiers | ❌ | ✅ Permissions + path + PII + NL generator |
+| Risk rule engine | ❌ | ❌ | ❌ | ✅ Custom rules + test panel (18K lines) |
+| Event triggers | ⚠️ Basic events | ❌ | ❌ | ✅ Cron / webhook / event pattern / system event |
+| Per-agent behavior customization | ❌ | ⚠️ Projects | ❌ | ✅ 5 tabs + 10+ dimensions |
+| Agent middleware pipeline | ❌ | ❌ | ❌ | ✅ 6 middleware + KV Cache optimization |
+| Runtime extensions | ❌ | ❌ | ❌ | ✅ 6 extensions (security / subagent / memory) |
+| Natural language policy | ❌ | ❌ | ❌ | ✅ NLPolicyGenerator |
+
+**Migration win**: From CLI-only hooks that users report as "not easy to use" to full GUI automation panels — security policies, risk rules, event triggers, and per-agent behavior all configurable through professional visual editors. 211 automated tests verify the entire configuration pipeline.
+
+### Execution Safety & Error Prevention (vs Codex)
+
+| Capability | Codex | Claude Code | ChatGPT | Myrm |
+|------------|:-----:|:-----------:|:-------:|:----:|
+| Pre-execution check | Prompt-level "run git status" | ❌ | ❌ | ✅ 5-layer onion engine per tool call |
+| Destructive action protection | ❌ No auto-snapshot | ❌ | ❌ | ✅ Auto-snapshot before every file mutation |
+| Loop detection | ❌ | ❌ | ❌ | ✅ 7 algorithms + 7 tool-specific suggestions |
+| Frequency protection | ❌ | ❌ | ❌ | ✅ FrequencyGuard (DoS + cost overrun) |
+| Emergency stop | ❌ | ❌ | ❌ | ✅ EStop global guard (highest priority) |
+| Shell command analysis | ❌ | ❌ | ❌ | ✅ 3-layer analyzer (70+ patterns, Unicode, quote-aware) |
+| Audit trail | ❌ | ❌ | ❌ | ✅ 20 DecisionKind types recorded |
+| Context recovery | Prompt-level "restate goal" | ❌ | ❌ | ✅ 3-layer memory extensions (auto-preserve semantics) |
+
+**Migration win**: From "the model should check git status before editing" (prompt-level advice) to automatic 5-layer security evaluation + auto-snapshot on every file mutation + 7-algorithm loop detection — all transparent, zero user intervention. 203 automated tests verify the entire safety pipeline.
+
+### Error Prevention UX (vs Codex)
+
+| Capability | Codex Proposal | Myrm |
+|------------|:--------------:|:----:|
+| Code/command copy | "Copy to local terminal" fallback button | ✅ 4-component system (CodeBlock + EnhancedSyntaxHighlighter + clipboardUtils + QuoteToolbar) |
+| Destructive op approval | "Pre-calculate affected files" warning card | ✅ Harness-level `rm -rf` BLOCK + auto-snapshot + 5-mode SingleApprovalCard + ShellCommandDisplay risk coloring + VisualApprovalHighlight + HandoverModeView |
+| Confidence badges | Parse `[VERIFIED]` tags into UI badges | ✅ A2UI system: 21 structured UI components via JSON Schema — more robust than fragile text parsing |
+| Context compression UI | "Show compression hint" | ✅ CompactedSummaryView: editable summary + archive history + Markdown rendering + i18n + persistence |
+| Shell risk visualization | ❌ | ✅ Segment-level risk coloring (safe=blue, unknown=red) + SpanRiskReason tooltips |
+| Visual approval overlay | ❌ | ✅ Screenshot annotation + attention bar + Tauri native OS overlay |
+| Approval card editing | ❌ | ✅ Edit command content in approval card before re-submit |
+| Unrecoverable error handover | ❌ | ✅ HandoverModeView — early handoff to user on unrecoverable errors |
+
+**Migration win**: Every "Error Prevention UX" enhancement proposed for Codex is already implemented in Myrm with deeper, architecture-level protection. Shell risk visualization, visual approval overlays, and approval card editing are exclusive to Myrm. 742 automated tests (163 frontend + 579 Harness) verify the entire error prevention pipeline.
+
 ## Ready to Start?
 
 <CardGroup cols={2}>

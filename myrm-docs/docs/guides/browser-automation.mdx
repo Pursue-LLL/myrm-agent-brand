@@ -277,6 +277,30 @@ The Extension Bridge spans 5 layers:
 4. **Chrome Extension** — MV3 Service Worker with CDP attachment capability
 5. **Frontend Panel** — React settings component for status and domain management
 
+## Per-Agent Browser Source Configuration
+
+Each agent can independently choose how it accesses the browser. This is configured in the agent settings (both during agent creation and in the per-chat configuration panel).
+
+### Available Modes
+
+| Mode | Behavior | Best For |
+|------|----------|----------|
+| **Auto** (default) | System decides based on availability | General use — no manual setup needed |
+| **Extension** | Uses your real browser via the Extension Bridge | Shopping, social media, any task needing login state |
+| **Launch** | Spins up a fresh managed browser instance | Research, data extraction, testing |
+
+### How to Configure
+
+1. **Agent Creation**: Settings → Agents → Create/Edit → Browser Source
+2. **Per-Chat Override**: Click the agent config icon in the chat window → Browser Source
+
+### Pool Isolation
+
+When agents use different browser sources, the browser pool maintains strict isolation:
+- Extension-sourced browsers (unmanaged) are never shared with launch-mode agents
+- Launch-sourced browsers (managed) are never shared with extension-mode agents
+- This prevents session cross-contamination between agents with different trust levels
+
 ## Zero-Config Browser Setup
 
 When you first use browser tools on a fresh Myrm desktop install, the browser engine (Chromium) is automatically downloaded and installed — **no terminal commands required**.

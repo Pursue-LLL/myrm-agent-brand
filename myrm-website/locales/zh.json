@@ -1048,7 +1048,8 @@
           "point2": "基于 BBox 的 O(1) 毫秒级自愈与 Shadow DOM 递归穿透，无视前端组件封装，结合原生极速空间定位引擎，告别定位崩溃",
           "point3": "Patchright & Camoufox 双引擎无损热切换，AES-256 加密 Session Vault 保存登录态，per-Agent 域名配置跨会话自动恢复身份——从容应对 Cloudflare 等高难度反爬",
           "point4": "Schema 驱动结构化提取：传入 JSON Schema 即返回验证后的干净 JSON 数据——上下文 Token 节省 97%，无需额外管道",
-          "point5": "验证码自动检测 + 人类接管：自动识别 10 种验证码类型（Cloudflare/Turnstile/reCAPTCHA 等），Agent 暂停并通知你操作，完成后无缝恢复——1571 项浏览器测试验证"
+          "point5": "验证码自动检测 + 人类接管：自动识别 10 种验证码类型（Cloudflare/Turnstile/reCAPTCHA 等），Agent 暂停并通知你操作，完成后无缝恢复——1571 项浏览器测试验证",
+          "point6": "浏览器扩展桥接 + Per-Agent 配置：每个智能体独立选择浏览器来源（通过 MV3 扩展操作用户真实浏览器，或使用干净的无头实例）。池隔离确保不同智能体的会话绝不交叉污染"
         },
         "ptc": {
           "badge": "长链工具",
@@ -1173,8 +1174,11 @@
           "desc": "7 类语义 DOM 风险检测（中英双语）+ MCP 启用前预检 + Shell 段级风险着色 + 凭证金库（密码/TOTP 不进 LLM）+ PII 脱敏 + Smart Intent Guard（LLM 意图审查）+ 多平台审批（3 级 Allow Always）+ 结构化审计（37 种决策类型 + Prometheus 实时指标）—— 点击「付款」「发布」「删除」时自动弹出审批，看得懂再允许，全程可回溯 · 781 项测试验证。",
           "point1": "7 层操作级风险管理：语义 DOM 风险检测（付款/删除/发布等 7 类自动拦截）+ 4 层引号感知 Shell 分析 + Smart Intent Guard + 用户自定义 Risk Rules + MCP/Skill 安全扫描 + HITL 审批中间件",
           "point2": "MCP 安全门禁 + SSRF DNS 钉扎（手动重定向循环消除 DNS 重绑定）+ Shell 段级审批：`curl | bash` 分段标红，密钥脱敏后再展示 + 编辑后自动重新安全校验",
-          "point3": "凭证金库 + 4 种审批动作（同意 · 编辑 · 拒绝 · 永久允许）含 3 级粒度 —— 密码不进 LLM；任意渠道 ♾️ emoji 或 /always 即可快捷审批；竞品无操作级风险检测能力",
-          "point4": "早期拦截（Early Handoff）与视觉验证：不可恢复错误智能中断并弹窗求助，防空转烧钱；CompletionGuard 强制视觉与代码检查，杜绝半成品提交"
+          "point3": "凭证金库 + 4 种审批动作（同意 · 编辑 · 拒绝 · 永久允许）含 3 级粒度 + 审批引导注入（批准时附加指令如「用生产环境」，Agent 100% 读到）—— 密码不进 LLM；任意渠道 ♾️ emoji 或 /always 即可快捷审批；竞品无操作级风险检测能力",
+          "point4": "早期拦截（Early Handoff）与视觉验证：不可恢复错误智能中断并弹窗求助，防空转烧钱；CompletionGuard 强制视觉与代码检查，杜绝半成品提交",
+          "point5": "全 GUI 自动化钩子 — SecurityPolicySection（权限规则+路径策略+PII+自然语言策略生成器）+ RiskRulesSection（自定义规则+测试面板+匹配分析）+ CronTriggerEditor（4种触发方式: 定时/webhook/事件模式/系统事件）+ per-Agent 10+维度行为定制 + 6种 Agent 中间件 KV Cache 优化注入顺序 — 全部可视化操作，零 CLI 配置；竞品仅提供「不好用」的命令行 hooks（211 项测试验证）",
+          "point6": "执行安全 — 每次文件变更前自动快照（竞品依赖手动 git status）；LoopGuard 7 种循环检测算法 + 工具专用恢复建议（重复/乒乓/无进展/输出递减/发散/连续失败/错误签名）；FrequencyGuard 反 DoS + 成本超支保护；EStop 紧急停止；TerminalErrorRegistry 持久化错误追踪 — 零用户干预，纯基础设施级防护（203 项测试验证）",
+          "point7": "防错交互体验 — 4 组件代码/命令复制体系（CodeBlock + EnhancedSyntaxHighlighter + clipboardUtils + QuoteToolbar）；Shell 命令段级风险着色（安全=蓝色，未知=红色）+ SpanRiskReason 悬浮提示让用户看懂再批准；CompactedSummaryView 可编辑上下文摘要 + 归档历史浏览 + Markdown 渲染 + i18n；审批卡片支持内联编辑命令后重新提交 — 架构级防护，不靠脆弱的文本标签解析（742 项测试验证）"
         },
         "reliability": {
           "title": "长任务跑得稳，断了也能续",
@@ -1194,7 +1198,8 @@
           "point3": "四维预算硬顶（Token/费用/时间/子 Agent），防额度烧穿",
           "point4": "全链路成本分析：每消息水滴实时成本、日趋势图、模型/路由分布、缓存节省追踪、活动热力图",
           "point5": "智能归档引用 — 大型工具输出自动归档为 6 类结构索引 + chunk 级精确恢复 + 会话隔离 + 防震荡预算守卫，298 项测试验证",
-          "point6": "极致懒加载工具栈：0% 的系统 Prompt 冗余，动态发现并按需挂载工具；全局输出掩蔽（Observation Masking）即时驱逐长文本，彻底消除上下文膨胀导致的能力退化"
+          "point6": "极致懒加载工具栈：0% 的系统 Prompt 冗余，动态发现并按需挂载工具；全局输出掩蔽（Observation Masking）即时驱逐长文本，彻底消除上下文膨胀导致的能力退化",
+          "point7": "6 级思考强度控制（off→low→medium→high→xhigh→max）+ 自定义推理力度 —— 按模型持久化偏好，自动检测模型推理能力，解析 5 种思考标签格式，实时推理计时器 + 自动折叠，3 格式导出含思考过程开关（75 项测试验证）"
         },
         "visualControl": {
           "title": "极简部署与云端级 GUI，全链路可观测",
