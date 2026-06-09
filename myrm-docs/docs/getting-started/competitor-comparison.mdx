@@ -261,7 +261,7 @@ Hermes v0.15 (Velocity Release, 2026-05-28) refactored its core loop from 16k to
 
 ### Where Myrm Leads
 
-- **Event-driven Kanban** vs Hermes' polling — instant task dispatch with heartbeat + zombie detection
+- **Event-driven Kanban** vs Hermes' polling — instant task dispatch with heartbeat + zombie detection + 3-layer anti-conflict (atomic claim + ownership enforcement + assignment audit trail, 763 tests)
 - **6-rule diagnostic engine** with severity auto-escalation (warning→error→critical) — detects stranded tasks, repeated failures, stuck blocked, dead dependencies, triage stalls, and block→unblock cycling (O(1) per-card evaluation vs Hermes' O(N) event scan)
 - **6 orchestration modes** (Spawn/Chain/DAG/Batch/Verified/Swarm Fission) vs v0.15's single Swarm pattern
 - **CompletionGuard** with physical evidence verification — Hermes has no completion verifier

@@ -35,6 +35,15 @@ Agents can execute code directly in the sandbox:
 - File read/write operations
 - Network access (configurable)
 
+## Uploaded File Access
+
+Files you attach to a message (drag-and-drop or click-to-upload) are automatically available in the sandbox workspace:
+
+- **Small files** (under 100 KB): content is injected directly into the LLM context for immediate analysis
+- **Large files** (over 100 KB): automatically copied to the workspace `_uploaded/` directory so the agent can read them with `file_read_tool` or process them with code (e.g., `pandas.read_csv()`)
+
+This means you can upload a 5 MB CSV and ask "analyze quarterly trends with Python" — the agent accesses the full file without any manual file transfer or path configuration.
+
 ## Sleep & Wake
 
 Sandboxes automatically sleep after inactivity and wake on demand, preserving all state.
