@@ -49,11 +49,11 @@ The Kanban board gives you a drag-and-drop interface to manage agent tasks acros
 For complex workflows, use the **Pipeline Wizard** to create a task DAG from a template:
 
 1. Navigate to **Kanban > New Pipeline**
-2. Select a template (or create your own)
-3. The wizard generates a connected task graph with dependencies
-4. Review and launch — tasks execute in dependency order
+2. Select a template (7 built-in: code review, data analysis, research paper, video production, multi-topic research, content distribution, competitive analysis)
+3. Answer discovery questions — multi-select answers automatically generate parallel tasks via **repeat_for fan-out** (0 LLM calls, deterministic)
+4. Review and launch — tasks execute in dependency order with a safety cap of 20 parallel tasks
 
-Custom templates are defined as YAML frontmatter in Skill files, making them reusable and version-controlled.
+Custom templates are defined as YAML frontmatter in Skill files, making them reusable and version-controlled. The `repeat_for` field on any task seed turns a single template node into N parallel tasks based on user multi-select input.
 
 ### Git Worktree Isolation
 
