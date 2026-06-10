@@ -26,7 +26,7 @@
 | Preview deployments | **None** |
 | Deploy hook | `website-release` → branch `main` |
 | Build command | `bun install && bun run build && bun run test` |
-| Build env（可选） | `GITHUB_TOKEN` — 提高 bake 时 GitHub API 限额；缺则公开 API（失败时 build 会 fail 而非静默空 manifest） |
+| Build env（可选） | `GITHUB_TOKEN` — 提高 bake 时 GitHub API 限额；`REQUIRE_BAKED_RELEASE=1`（GHA preflight 已设）— 空 manifest 时 bake exit 1 |
 | Root directory | `myrm-website` |
 | Output directory | `out` |
 

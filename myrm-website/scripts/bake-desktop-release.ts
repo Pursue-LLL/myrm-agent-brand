@@ -23,6 +23,24 @@ const EMPTY_RELEASE: DesktopReleaseInfo = {
   source: 'embedded',
 };
 
+function isBakeableRelease(release: DesktopReleaseInfo): boolean {
+  return release.version.trim() !== '' && release.targets.length > 0;
+}
+
+function requireNonEmptyBake(): boolean {
+  return process.env.REQUIRE_BAKED_RELEASE === '1';
+}
+
+function assertBakeableOrExit(release: DesktopReleaseInfo): void {
+  if (isBakeableRelease(release) || !requireNonEmptyBake()) {
+    return;
+  }
+  console.error(
+    '[bake-desktop-release] REQUIRE_BAKED_RELEASE=1 but no bakeable GitHub release (empty version or targets).',
+  );
+  process.exit(1);
+}
+
 async function fetchReleaseFromGitHub(token?: string): Promise<DesktopReleaseInfo | null> {
   const headers: Record<string, string> = { Accept: 'application/vnd.github+json' };
   if (token) headers.Authorization = `Bearer ${token}`;
@@ -61,6 +79,8 @@ async function main(): Promise<void> {
     console.error(`[bake-desktop-release] Failed: ${message}`);
     process.exit(1);
   }
+
+  assertBakeableOrExit(release);
 
   mkdirSync(path.dirname(outputPath), { recursive: true });
   writeFileSync(outputPath, `${JSON.stringify(release, null, 2)}\n`, 'utf8');
