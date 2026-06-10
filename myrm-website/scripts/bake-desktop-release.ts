@@ -53,12 +53,13 @@ async function main(): Promise<void> {
       console.info(
         `[bake-desktop-release] Baked v${release.version} with ${release.targets.length} targets.`,
       );
+    } else {
+      console.warn('[bake-desktop-release] No bakeable release yet; writing empty manifest.');
     }
   } catch (error) {
-    console.warn(
-      '[bake-desktop-release] Fetch failed; writing empty manifest.',
-      error instanceof Error ? error.message : error,
-    );
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`[bake-desktop-release] Failed: ${message}`);
+    process.exit(1);
   }
 
   mkdirSync(path.dirname(outputPath), { recursive: true });
