@@ -487,16 +487,16 @@
           "myrmAgent": "Read after burn"
         },
         "sandbox": {
-          "feature": "Sandbox · Hardware-level isolation",
+          "feature": "Sandbox · Risky work stays isolated",
           "hermes": "External Codex Server",
           "openclaw": "_no",
-          "myrmAgent": "Firecracker VM + 6-layer hardening + persistent Volume + one-click workspace sandbox toggle"
+          "myrmAgent": "Firecracker VM isolation · one-click workspace sandbox · persistent data"
         },
         "subAgent": {
           "feature": "Multi-agent · split big jobs, verified delivery",
           "hermes": "Kanban + Batch Tasks",
           "openclaw": "Read-only Board",
-          "myrmAgent": "6 modes+Race Execution+Tournament Judge+DAG orchestration+Budget guard+Non-fatal Timeout"
+          "myrmAgent": "6 collaboration modes · race / tournament / DAG · sub-task budgets need your OK"
         },
         "dynamicWorkflow": {
           "feature": "Dynamic workflow · runtime DAG without redeploy",
@@ -538,7 +538,7 @@
           "feature": "Skill evolution · gets smarter, you approve changes",
           "hermes": "Basic (2-level scope, CLI, silent write)",
           "openclaw": "On/off toggle only",
-          "myrmAgent": "5-level scope isolation+Approval Inbox+4-level strategy+Shadow+dual-view GUI audit (1022 tests)"
+          "myrmAgent": "5-level scope isolation · approval inbox · diff review + one-click rollback"
         },
         "cron": {
           "feature": "Scheduled tasks · GUI config, self-healing, token-smart",
@@ -551,6 +551,12 @@
           "hermes": "Community UI",
           "openclaw": "CLI+Web mix",
           "myrmAgent": "Native-grade UX"
+        },
+        "chatHistoryManagement": {
+          "feature": "Chat History · Sidebar search + date groups + export + trash + drag pin",
+          "hermes": "Separate page, no search/export/date group",
+          "openclaw": "Basic list",
+          "myrmAgent": "Cmd+K full-text search+time filter+4 export formats+trash+DnD pin+project folders+batch ops (420 tests)"
         },
         "deployment": {
           "feature": "Deploy anywhere · Full data ownership",
@@ -601,10 +607,10 @@
           "myrmAgent": "O(1) Smart fallback"
         },
         "headlessZeroDeadlock": {
-          "feature": "Unattended · Zero deadlocks in background tasks",
+          "feature": "Unattended · Background jobs don't hang",
           "hermes": "Prone to freeze",
           "openclaw": "Unsupported",
-          "myrmAgent": "Tag-based fallback isolation"
+          "myrmAgent": "Skips click-wait deadlocks · background tasks never freeze silently"
         },
         "extremeAntiExplosion": {
           "feature": "Extreme Anti-Explosion · Never crashes on massive chats",
@@ -649,22 +655,22 @@
           "myrmAgent": "4-in-1 Gateway with Elastic BYOK Fallback"
         },
         "computerUse": {
-          "feature": "Desktop automation · Native API routing + 8-layer visual tracing + cross-platform",
+          "feature": "Desktop control · See exactly what it clicks",
           "hermes": "_no",
           "openclaw": "_no",
-          "myrmAgent": "Dual LiveView+OS overlay+tree progress+HITL approval+VNC takeover+permission auto-guide · 300+ cross-layer tests"
+          "myrmAgent": "Dual live views + approval cards + human takeover · native macOS/Windows APIs"
         },
         "browserEngine": {
-          "feature": "Browser engine · 12-layer anti-detect + humanized interaction + visual QA + API intelligence",
+          "feature": "Browser automation · Browse, log in, and verify like a person",
           "hermes": "Cloud Browser Use",
           "openclaw": "_no",
-          "myrmAgent": "12-layer Stealth+humanized typing/click · passes DataDome/Cloudflare · 10+ high-risk platforms · dual-engine auto-fallback · 3-layer visual QA · encrypted SessionVault auto-restores login · Extension Bridge reuses real browser sessions via MV3 extension · zero-config auto-install · per-agent 4-axis browser config (engine/source/dialog policy/recording) with full-stack persistence · smart infinite scroll (one call loads entire lazy-loading pages, saves 90% LLM cost) · on-demand media extraction (images/videos/audio direct URLs with lazy-load detection, one call replaces complex JS)"
+          "myrmAgent": "Built-in stealth browser + extension reuses your logged-in Chrome · passes Cloudflare · screenshot QA · login persists across sessions"
         },
         "webFetch": {
-          "feature": "Web Fetch · body text + deep crawl + sufficiency check",
+          "feature": "Web fetch · Body text, full-site crawl, video captions in one go",
           "hermes": "LLM sum costs tokens",
           "openclaw": "Single HTTP",
-          "myrmAgent": "3-tier (L1 ~100ms HTTP→L2 Browser→L3 Stealth) · self-learning adaptive router · YouTube subtitle fast-path with HTML fallback · deep_crawl full-site · RSG verify · HTTP/3 QUIC · request coalescing+SWR · proxy DoH privacy · 3500+ ad domain blocking"
+          "myrmAgent": "HTTP→browser→stealth auto-switch · full-site crawl + sufficiency check · 3500+ ad domains blocked"
         },
         "desktopApp": {
           "feature": "Desktop app · 23+ native OS capabilities",
@@ -775,10 +781,10 @@
           "myrmAgent": "Call-chain viz"
         },
         "searchIntelligence": {
-          "feature": "Web Search · find & filter clean & verify sufficient",
+          "feature": "Web search · find accurately, answer with evidence",
           "hermes": "Raw API passthrough",
           "openclaw": "DDG HTML scrape",
-          "myrmAgent": "8 engines + 5-layer intent routing + smart filter + RSG quality guard"
+          "myrmAgent": "8 engines + intent routing · smart filtering · sufficiency check before answering"
         },
         "antiBlockingTitle": {
           "feature": "Title Generation · O(1) Anti-Block & Redact",
@@ -834,387 +840,55 @@
         }
       }
     },
-    "extendedHighlights": {
-      "items": {
-        "codexEngineering": {
-          "badge": "vs Hermes / OpenClaw",
-          "title": "Cron · Goals · Remote control",
-          "desc": "Enterprise-grade scheduling with 5 trigger types, smart silence, and crash recovery — in a full GUI.",
-          "point1": "Cron + Interval + Event Regex + Webhook triggers; 3-phase startup recovery after crash",
-          "point2": "Smart [SILENT] filtering + output hash dedup — no spam, zero wasted tokens",
-          "point3": "25+ channels to push goals remotely; failure alerts with 3-tier priority"
-        },
-        "voiceFusion": {
-          "badge": "Tri-mode voice",
-          "title": "Sub-second voice + camera",
-          "desc": "Three voice modes (Standard / Agent Bridge / OpenAI Realtime WebRTC) with full-duplex barge-in; 3-tier STT fallback ensures zero-config usability.",
-          "point1": "Realtime WebRTC sub-300ms; Agent Bridge server-side STT→Agent→TTS pipeline (exclusive); standard mode at no extra cost",
-          "point2": "Full-duplex barge-in with adaptive noise calibration; camera vision fusion — Agent sees and answers during calls",
-          "point3": "3-tier STT fallback (WebSocket→REST→Browser native); 6 TTS providers; Web, Tauri desktop, Discord voice channels"
-        },
-        "enterpriseScenarios": {
-          "badge": "4 enterprise scenarios",
-          "title": "Web · Scheduled · Docs · Data",
-          "desc": "Web automation, schedules, documents, and structured extraction in one chain.",
-          "point1": "Browser automation with anti-bot and login; Credential Vault keeps passwords/TOTP out of chat",
-          "point2": "Schedule engine + 25+ channel alerts + auto recovery",
-          "point3": "Files and spreadsheets; office deps on demand"
-        },
-        "artifactDeploy": {
-          "badge": "vs Coze / Lobster / v0",
-          "title": "Edit, preview, deploy — full artifact lifecycle in one panel",
-          "desc": "Monaco Editor (VS Code core) for live code editing, Sandpack for real-time React preview, and one-click Vercel Deploy — all in a split-pane portal alongside your chat.",
-          "point1": "SelectionToolbar: highlight code → Modify / Explain / Optimize / Comment — surgical AI edits without leaving the preview",
-          "point2": "Auto-sync edits to Agent: your changes are silently attached to the next message so the Agent continues from your version",
-          "point3": "16+ previewable formats (code/HTML/SVG/Mermaid/PDF/image/video/audio/React/CSV/XLSX) · Interactive spreadsheet viewer with sort, search, export · Diff decorations · SHA-256 version integrity",
-          "point4": "Deploy preflight + Vercel one-click publish + Agent conversational deploy with HITL approval; Read-only Link with version pinning for html/pdf/docs; bilingual GUI actions",
-          "point5": "Generative UI: 21 built-in components (charts/tables/forms/layouts) — Agent auto-renders zero-code data visualizations inline, no Artifact needed"
-        },
-        "multiAgentOrchestration": {
-          "badge": "vs Hermes / Claude Code",
-          "title": "Multi-Agent Orchestration & Zero-Trust Verification",
-          "desc": "Break the serial bottleneck! Six deterministic modes plus forward-looking zero-trust verification and budget-aware downgrade, eradicating 'hallucinated success' and 'budget burn' pain points.",
-          "point1": "Zero-trust physical isolation: reject blind LLM summaries with enforced physical verifiable credentials; background sandboxes block UI interfaces to protect user chat",
-          "point2": "Smart circuit breaker & budget downgrade: 4D budget controls plus iteration-step hard breakers, auto-downgrading to cheaper models when limits hit; pre-flight cost approval for batch tasks (GUI card shows estimated cost before execution)",
-          "point3": "Seamless Human-in-the-loop (HITL): UI breakpoint approval isn't just accept/reject — approve with inline guidance injection (e.g. 'use production API') that becomes part of agent context; one-click context steering keeps wandering agents on track",
-          "point4": "Non-fatal timeout: sub-agents that exceed their deadline keep running in the background instead of being killed — when they finish, an event-driven callback wakes the parent agent automatically. No lost work, no wasted compute, no manual polling"
-        },
-        "dynamicWorkflow": {
-          "badge": "Workflow",
-          "title": "Dynamic Workflow Engine",
-          "desc": "Compose multi-step agent pipelines at runtime — toggle parallel branches without redeploying scripts.",
-          "point1": "SQLite event sourcing: resume after disconnect without re-running completed steps",
-          "point2": "Deterministic DAG for production; dynamic workflow for ad-hoc parallel fan-out",
-          "point3": "GUI-first authoring — YAML skills and visual control in one workspace"
-        },
-        "longReportToc": {
-          "badge": "Long reports",
-          "title": "Auto table of contents — jump to any section",
-          "desc": "Long Agent markdown replies get a live chapter index with scroll sync — no copy-paste into Notion for an outline.",
-          "point1": "TOC appears when there are 2+ headings; H1–H6 hierarchy preserved",
-          "point2": "Click to smooth-scroll; current section highlighted as you read",
-          "point3": "No in-chat equivalent in ChatGPT or CLI agents — built into Myrm"
-        },
-        "webuiSecurity": {
-          "badge": "Security Hardened",
-          "title": "Cloud-Grade Local WebUI Access Control",
-          "desc": "Rejects 'naked' exposure on public networks or tunnels, providing bank-level session control.",
-          "point1": "Underlying WebSocket handshake strong interception, completely eliminating rogue control flows",
-          "point2": "Mandatory password rotation via HMAC signature, instantly kicking out all old sessions upon change",
-          "point3": "Auto-appends Secure flags in HTTPS environments, enterprise security out of the box"
-        },
-        "toolSecurity": {
-          "badge": "Tool security",
-          "title": "Plugins & API guards",
-          "desc": "Unified tool entry; plugins and APIs scanned before use.",
-          "point1": "Clear plugin scopes; descriptions capped to save context",
-          "point2": "External API docs become callable tools; multiple auth modes",
-          "point3": "Skill marketplace: 5-source parallel discovery (ClawHub + GitHub + LobeHub + skills.sh + Prebuilt), one-click install, auto-updates"
-        },
-        "unifiedToolGateway": {
-          "badge": "Unified Gateway",
-          "title": "4-in-1 Gateway & Elastic BYOK Fallback",
-          "desc": "One subscription unlocks all top AI tools. Automatically degrades to your own Key if the gateway is unavailable. Strictly protects tokens and prevents UI freezes.",
-          "point1": "Built-in LLM, Web Search, Image Gen, and TTS. Zero config out of the box",
-          "point2": "True Try-Catch elastic fallback. Auto-switches to local Key on gateway failure, zero business interruption",
-          "point3": "Quota Rollover mechanism. Unused quota carries over to the next month",
-          "point4": "Financial-grade transmission security. Strict regex validation for PAT tokens with hidden transmission, rejecting log leaks",
-          "point5": "Imperative on-demand health checks with 8-second hard timeout, completely preventing frontend blocking and quota waste"
-        },
-        "productionEngineIntegrity": {
-          "badge": "Production integrity",
-          "title": "Right engine, right platform — or we refuse to start",
-          "desc": "Proprietary core ships as native modules; every release build auto-verifies before start — you won't discover a missing engine mid-conversation.",
-          "point1": "Dual-package distribution: auditable open product layer, core algorithms not shipped as plain source in images",
-          "point2": "Version and CPU arch must match — fail-fast at startup so ops can fix immediately",
-          "point3": "All release channels share the same verify gate before the agent runs"
-        },
-        "enterpriseTesting": {
-          "badge": "Enterprise Verified",
-          "title": "Regression net + hybrid eval engine — not “ship when demo runs once”",
-          "desc": "Atomic locks, dependency fallback, and TOCTOU protection are covered by targeted pytest + E2E. The open product layer ships 521 fractal module docs (_ARCH) plus 296 architecture gates — all green on 2026-06-09 — so doc drift is caught in CI. 17-layer tool interception and a hybrid eval engine that costs up to 6× less LLM spend than competitors.",
-          "point1": "Hybrid eval: deterministic assertions (tool/state/sandbox) cost zero LLM calls; semantic judge only when subjective scoring is needed — 6× cheaper than CrewAI’s 6-call-per-case approach",
-          "point2": "Fractal module map: every code directory has an _ARCH duty sheet; API/service changes must update docs — 521 searchable module docs vs competitors’ scattered manuals, with CI banning placeholder stubs",
-          "point3": "17-layer tool safety net: every tool call passes LoopGuard, PII detection, Circuit Breaker, MutationVerifier, and more — 1,022 guard tests verified. Industry norm is ~2 layers."
-        },
-        "antiBlockingTitle": {
-          "badge": "vs DeerFlow",
-          "title": "Anti-Leak & Zero-Lag Title Generation",
-          "desc": "O(1) early truncation and military-grade redaction pipeline. Zero lag for massive logs, auto-strips sensitive credentials and chatty prefixes.",
-          "point1": "O(1) Early Truncation: Eliminates CPU blocking DoS risks from running regex and Shannon entropy on massive texts in the async event loop",
-          "point2": "Military-grade redaction & deep denoising: Erases API Keys, strips code blocks, URLs, and HTML tags",
-          "point3": "Smart fallback & Prompt isolation: 0-token intercept for empty text, uses `user_input` XML tags to force LLM language adaptation"
-        },
-        "precisionMultimodal": {
-          "badge": "Anti-fraud vision",
-          "title": "Intent-aware multimodal: vision only when UI actually changed",
-          "desc": "No blind screenshot spam — the pipeline traces real UI actions and invokes vision only for verification; text-only tasks stay text-only.",
-          "point1": "Intent-level trigger: filters execution flow so “page open” alone never burns vision tokens",
-          "point2": "Sandbox-linked capture: framework pulls physical screenshots without flaky HTTP bridges",
-          "point3": "Up to ~99% fewer vision calls vs always-on screenshot judges — anti-cheat without waste"
-        },
-        "weSightMigration": {
-          "badge": "vs WeSight",
-          "title": "Cross-platform native + seamless knowledge mesh",
-          "desc": "Not a Mac-only desktop console — deploy on Windows/Linux with a shared knowledge mesh and real multi-agent collaboration.",
-          "point1": "Cross-platform + WSL probe: detect local external agents and load in one click — no fragile env setup",
-          "point2": "Shared knowledge mesh vs isolated mode: inherit memory without fragmentation, with pollution-safe isolation when needed",
-          "point3": "P2P agent mesh + mDNS compute discovery: agents interconnect without a single-leader bottleneck",
-          "point4": "Tray daemon keeps channels alive: Feishu/WeChat stay connected 24/7 even when the main UI is closed"
-        },
-        "multiAgentWorkspace": {
-          "title": "Split-Pane Multi-Threaded Workspace",
-          "desc": "Command like a general. Monitor and intervene in multiple sub-agents' independent dialog flows simultaneously via a split-pane/multi-tab workspace."
-        },
-        "remoteGateway": {
-          "title": "SaaS-to-Local Remote Execution Gateway",
-          "desc": "Control your home PC from your phone. Securely wake up and drive your local Tauri client directly from the SaaS web interface."
-        },
-        "globalReviewer": {
-          "title": "Global Consolidation & Review Node",
-          "desc": "Perfect delivery, no patchwork. A dedicated Reviewer node at the end of workflows ensures cross-file consistency of all parallel sub-tasks."
-        },
-        "resourceThrottling": {
-          "title": "Resource-Aware Concurrency Throttling",
-          "desc": "Max out performance without crashing. Dynamically limits local agent spawn rates based on host CPU/RAM load to ensure absolute stability."
-        },
-        "airGappedMode": {
-          "title": "Air-Gapped Local Mode Wizard",
-          "desc": "A superbrain that works offline. Built-in network diagnostics and 1-click pairing with Ollama/LM Studio for seamless operation without internet."
-        },
-        "skillLifecycle": {
-          "badge": "vs OpenClaw",
-          "title": "Intent-Guided Context + Deferred Tool Loading",
-          "desc": "6-layer context compression with intent analysis protects your working files; deferred loading keeps rarely-used tools out of the prompt until needed. Install 100+ skills — AI never gets dumber.",
-          "point1": "Layer 0 intent analysis: active files and modules are shielded before any compression runs",
-          "point2": "Deferred tools: 20+ low-frequency tools load on demand, saving ~4K tokens per turn; Semantic Skill Router (BM25 + Embedding hybrid search) finds any skill by meaning — unlimited skills with zero degradation",
-          "point3": "Skill hot-reload + 14-dimension observability: per-invocation tracking, quality trends, A/B testing, activity heatmap, and Growth Dashboard — all automatic"
-        },
-        "desktopZeroConfig": {
-          "badge": "vs OpenClaw / Hermes",
-          "title": "Download the desktop app like any normal software",
-          "desc": "No hunting through GitHub Releases. One-click Mac chip detection, SHA256 checksums, and honest unsigned-install guidance.",
-          "point1": "Hero “Download Desktop” links straight to the dmg (v0.1.14+ macOS Apple Silicon live); SaaS still instant, no terminal",
-          "point2": "Cost Control: ComplexityRouter + GUI Token Dashboard saves 86% of your LLM budget",
-          "point3": "Ironclad Security: Hardware sandbox + Visual Shell Approval makes delegation 100% safe"
-        }
-      }
-    },
-    "highlights": {
-      "items": {
-        "smartConcurrency": {
-          "badge": "Safe Routing",
-          "stat": "Zero Race Conditions",
-          "title": "Smart Concurrency: Eliminate Race Conditions",
-          "desc": "Intercepts LLM hallucinated parallel file operations, rolling overlapping ops back to a safe serial queue with zero overhead.",
-          "point1": "O(1) path lock resolution without impacting unrelated parallel tool efficiency",
-          "point2": "Granular resource fingerprinting handling deep directories and overlapping read/write",
-          "point3": "Automatically prevents dirty reads, ensuring project-level consistency"
-        },
-        "headlessZeroDeadlock": {
-          "badge": "Smart Fallback",
-          "stat": "Zero Deadlock",
-          "title": "Headless Agent: Zero-Deadlock Background Tasks",
-          "desc": "Cron jobs fear interactive hallucination freezes. Myrm isolates interactive tools at the framework layer, eradicating background deadlocks.",
-          "point1": "Tags logic strips Human-in-the-loop tools instantly during unattended execution environments",
-          "point2": "LLM operates without knowing the existence of stripped tools, avoiding hallucination errors",
-          "point3": "Native support for all external MCPs, saving millions of compute costs on cloud-hosted environments"
-        },
-        "extremeAntiExplosion": {
-          "badge": "vs Hermes / OpenClaw",
-          "stat": "4-Layer Anti-Crash",
-          "title": "Long-context shield: chats stay stable",
-          "desc": "Multi-layer recovery, payload guards, and hard budgets — ultra-long multimodal chats without crashes or lost work.",
-          "point1": "Layered recovery: resume, model fallback, image auto-shrink",
-          "point2": "Per-tool loop detection plus token and spend caps",
-          "point3": "Trims redundant images in long chats while keeping what matters"
-        },
-        "computerUse": {
-          "badge": "vs Hermes / OpenClaw",
-          "stat": "3 platforms · 8-layer visual",
-          "title": "Production Desktop Automation + Native API Routing + Full Visual Tracing",
-          "desc": "Operate desktop apps like a human with intelligent native API routing — Agent auto-detects scriptable apps (AppleScript/COM/D-Bus) and chooses the fastest execution path. 8-layer visual system lets you see what Agent does, where it clicks, and verify results in real time.",
-          "point1": "BrowserLiveView + DesktopLiveView dual panels with real-time screenshots + 14-role BBox element overlay",
-          "point2": "Tauri OS overlay · red highlight frame on real display · multi-monitor auto-match",
-          "point3": "Tree ProgressSteps · Agent badge + duration + progress bar + diagnostics + recovery + LiveTerminal",
-          "point4": "HITL approval · Approve/Deny + edit payload + Monaco Diff review + expiry countdown",
-          "point5": "VNC takeover on stuck + CAPTCHA auto-detect (10 types) · 196 cross-layer tests verified"
-        },
-        "codexParity": {
-          "badge": "Design loop · auto QA",
-          "stat": "Design auto-check",
-          "title": "Build pages from mockups, auto-verify alignment",
-          "desc": "Upload design → generate code → auto screenshot compare — mismatches highlighted in red, no human or AI guesswork.",
-          "point1": "Screenshot-to-code with 100+ models to choose from",
-          "point2": "Built-in browser engine — no separate Playwright install",
-          "point3": "Millisecond auto-compare page vs design — see exactly what drifted (algorithmic QA, not AI eyeballing)"
-        },
-        "webSearchFetch": {
-          "badge": "Adaptive Browser",
-          "title": "Fully Autonomous Hybrid Browser",
-          "desc": "Ditch heavy headless browsers. HTTP short-circuit rendering for static pages, dual stealth engine fallback when blocked, and schema-driven structured extraction.",
-          "point1": "HTTP injection saves 90% memory/latency on static pages",
-          "point2": "Dual-Path ARIA Snapshot (5-10ms native accessibility tree, zero JS injection) + O(1) Self-Healing Locators (5D scoring) + Shadow DOM recursive piercing — 60-80% fewer tokens than DOM-based competitors, never crashes on dynamic pages",
-          "point3": "Patchright & Camoufox hot-swap with AES-256 encrypted Session Vault — handles Cloudflare-class blocks; per-agent auto-restore keeps you logged in across sessions",
-          "point4": "Schema-Driven Extraction: pass a JSON Schema, get validated structured data back — 97% token savings, no post-processing pipelines needed",
-          "point5": "5-Layer Anti-Block Shield: proxy rotation with exponential-backoff quarantine, per-domain circuit breaker + token-bucket rate limiting, 10 CAPTCHA types auto-detected with human takeover, blocked IP auto-replaced with lossless session migration — crawl 10k+ pages without a single failure",
-          "point6": "Extension Bridge + Per-Agent Hard Isolation: each agent picks its own browser source (real browser via MV3 extension, or clean headless). Chromium BrowserContext-level hard isolation — physically impossible for agents to see each other's cookies/tabs/storage (stronger than software ownership contracts)",
-          "point7": "Smart Dialog Policy: 4 configurable modes (Smart/Accept/Dismiss/Wait-for-Agent) per agent — no more silent data loss from dismissed popups; AI decides on critical confirmations with timeout fallback",
-          "point8": "7-Phase Cookie Consent Auto-Dismiss: 75+ CMP selectors, 14-language text matching, Shadow DOM + CMP JS API + container force-removal — zero LLM cost, ~50ms per page, saves 1 LLM call per EU/CCPA site visit"
-        },
-        "ptc": {
-          "badge": "Long chains",
-          "title": "Long tool chains run in sandbox",
-          "desc": "Parallel tools in sandbox; intermediate results skip chat (~half tokens on long chains).",
-          "point1": "Multi-step jobs run once in sandbox with parallel tool calls",
-          "point2": "Live progress on long flows; results reused without re-asking",
-          "point3": "Uses your project's Python env — matches local dev"
-        },
-        "modelConsensus": {
-          "badge": "MoA consensus",
-          "title": "Multi-Model Consultation Reasoning",
-          "desc": "Rare among 95+ scanned competitors; streaming aggregation with persona fidelity for complex decisions.",
-          "point1": "Parallel independent answers + aggregator synthesizes the best outcome",
-          "point2": "SSE streaming — see tokens appear within ~15 seconds",
-          "point3": "Persona injected into reference + aggregator — answers stay in your language and tone"
-        },
-        "memorySystem": {
-          "badge": "8 memory types",
-          "title": "8 memory types that learn you",
-          "desc": "Multiple memory types, knowledge graph, 7-strategy anti-fragmentation, dialectic profile, and cross-agent Shared Context — all editable in GUI with write governance.",
-          "point1": "Strict Precision Gate (No-Op Default): Rejects useless chatter, extracts only high-leverage business value. Say goodbye to memory bloat and hallucinations.",
-          "point2": "Dual-Track Storage (Verbatim): 100% lossless retention of original dialogue and code snippets. Not just summaries, but exact details.",
-          "point3": "Asynchronous Persona Projection (Cognitive Deriver): Silently analyzes implicit preferences in the background and projects them in real-time. Zero-delay understanding.",
-          "point4": "Physical-Level Incognito Mode: Burn-after-reading. The underlying memory engine is completely unloaded, ensuring absolute zero leakage for sensitive projects.",
-          "point5": "7-Strategy Anti-Fragmentation (253 tests verified): 5D forgetting + 3-layer dedup (Hash→Vector→LLM) + cross-session consolidation + cognitive subsumption + recurrence-triggered refinement + pattern discovery + preference stability — keeps your memory index pure, fast, and always relevant."
-        },
-        "wiki": {
-          "badge": "Knowledge base",
-          "title": "Compiled knowledge base, not hand-written skills",
-          "desc": "Dedicated wiki engine with incremental compile, hybrid search, and human review—plus Settings tree UI, one-click ingest from chat or artifacts, and batch document ingestion (PDF/Office/images via OCR).",
-          "point1": "Settings tree: folder CRUD, drag-and-drop, delete confirms path + child count",
-          "point2": "Ingest to Wiki from chat or artifact cards: one click saves content with YAML provenance, one click adds generated code/docs to your knowledge base",
-          "point3": "Hybrid search + 3D graph + pending edits (engine auto-compiles and maintains)"
-        },
-        "cjkMigration": {
-          "badge": "CJK + Migration",
-          "title": "Precise CJK search + One-click seamless migration",
-          "desc": "Easily drag and drop third-party skill bundles (e.g. Hermes) to import. Atomic blue-green directory swap + transactional DB write ensures zero broken states. Settings and info are 100% preserved.",
-          "point1": "Lightning-fast search optimized for CJK languages (~20ms latency)",
-          "point2": "Drag & drop ZIP skills with pre-install security quarantine scan (anti-Zip Bomb + path traversal protection)",
-          "point3": "Atomic install with rollback: blue-green swap + DB transaction ensures no data loss, even on crash"
-        },
-        "localModelCookbook": {
-          "badge": "Hardware Cookbook",
-          "title": "Local Model Cookbook: No more hardware blind boxes",
-          "desc": "Cross-platform ultra-fast detection of CPU/RAM/VRAM and disk space. Intelligently recommends the best-fit local LLM for your machine, fundamentally preventing disk overflow and OOM crashes.",
-          "point1": "Sub-millisecond cross-platform hardware probe calculates a Fit Score, making model selection foolproof",
-          "point2": "Cloud-driven precise model size with physical disk pre-check; blocks downloads if space is insufficient to prevent system hangs",
-          "point3": "Model download, uninstallation, and UI disk space sync in real-time for a true seamless SPA experience",
-          "point4": "PII Privacy Routing: automatically routes sensitive data to local models — your confidential data never leaves your machine"
-        },
-        "smartDesktopDistribution": {
-          "badge": "Smart Distribution",
-          "title": "One-Click Download & Race-Free Auto-Update",
-          "desc": "WebGL-based chip detection eliminates manual choices; Map-Reduce CI isolates concurrency to eradicate update manifest overwrite failures.",
-          "point1": "Hardware WebGL Sniffing: Ignores Safari and iPadOS spoofing, delivering the correct architecture DMG with 100% accuracy",
-          "point2": "CI/CD Architecture: Map-Reduce merging of Updater JSONs guarantees stable over-the-air updates for all multi-platform users",
-          "point3": "Zero-friction platforms: Local, Tauri Desktop, and Cloud Hosted — deploy seamlessly anywhere"
-        },
-        "appshotFlowPad": {
-          "badge": "Exclusive",
-          "title": "Global Screen AI: Ask Without Leaving Your App",
-          "desc": "System-level hotkey captures the active window instantly, auto-extracts text via OCR, and opens FlowPad for direct AI interaction — no copy-paste or window switching needed.",
-          "point1": "Global Appshot Hotkey: System-level listener captures the active window from any app, auto-extracting text content and screenshot",
-          "point2": "FlowPad Floating Panel: Auto-opens an AI query panel after capture, supports stacking multiple screenshots, image preview, and one-click send to chat",
-          "point3": "Competitor Whitespace: Hermes Desktop / Claude Desktop / OpenClaw lack this capability — Myrm is the only product delivering seamless desktop AI interaction"
-        },
-        "kanbanCollaboration": {
-          "badge": "vs Hermes Kanban",
-          "title": "Kanban work orders: split, run, track",
-          "desc": "Break long work into cards; the system schedules them with optional dependencies. Cancel anytime — LLM stops immediately, zero wasted tokens. Pipeline Wizard + DAG topology graph + AI auto-decomposition — competitors only offer text guides.",
-          "point1": "Full state machine + 3-layer anti-conflict (atomic claim + ownership enforcement + assignment audit) + dependency checks + workspace isolation + zombie recovery (1808 tests)",
-          "point2": "Acceptance criteria + auto check before done — fewer false completions",
-          "point3": "Instant cancel: running or queued tasks stop within milliseconds, saving $0.05-$2.00 per cancelled task",
-          "point4": "PipelineWizard 7 templates + repeat_for fan-out (multi-select → N parallel tasks, 0 LLM calls) + ReactFlow DAG graph + AI one-click decomposition, touch and keyboard accessible",
-          "point5": "IM slash command /kanban: manage tasks directly from Telegram/Discord/Slack — create, edit, complete, block/unblock, 0 LLM cost, i18n ready"
-        },
-        "companion": {
-          "badge": "AI Companion",
-          "title": "15 Species Gamified Growth + 9-State Desktop Pet",
-          "desc": "In-GUI gamified companion — mood-aware + 5-tier rarity evolution + Tauri-native floating pet overlay with 9 animation states; no equivalent in Hermes/OpenClaw/Codex.",
-          "point1": "15 species + 5 rarity tiers (Common→Legendary) + XP growth + tool unlocks + AI-powered personality reactions",
-          "point2": "9 animation states (Idle/Running/Sleeping/Coding/Thinking/Celebrating/Failed/Reviewing/Waving) — SSE-driven, 21+ event mappings, heartbeat timeout auto-fallback",
-          "point3": "Tauri Rust-native transparent always-on-top pet window + Web/SaaS in-browser Canvas overlay — your companion follows you across all 3 deployment modes"
-        },
-        "configTruth": {
-          "badge": "Config = runtime",
-          "title": "What you set in GUI is what runs",
-          "desc": "GUI settings match runtime; six settings areas unified; rollback supported.",
-          "point1": "Model, tools, skills, plugins, channels, security — one loop",
-          "point2": "Per-agent tool scope; opt-in only — less wasted context",
-          "point3": "Cross-device sync + one-click config rollback"
-        },
-        "harnessObservability": {
-          "badge": "19+ dimensions",
-          "title": "Full-stack observability · cost tracking & routing transparency",
-          "desc": "19+ analytics dimensions with per-Agent cost attribution, routing decision tracing, 7-day sparkline trends, and session-level tracking — know where every dollar goes and why.",
-          "point1": "Per-Agent cost attribution with 7-day sparkline trends at a glance",
-          "point2": "Routing Analytics: see which tier each message was routed to and how accuracy improves over time",
-          "point3": "Session tracing + tool stability + growth dashboard — competitors offer at most 3 dimensions"
-        }
-      }
-    },
     "advantages": {
       "title": "Six core capabilities",
-      "subtitle": "Six capabilities you care about most; tech specs and comparison evidence in Engineering Depth below.",
+      "subtitle": "Six capabilities that matter — at a glance.",
       "cta": "Local WebUI / Tauri desktop: competitor migration wizard",
       "ctaDesc": "Five local sources auto-discovered · four-lane preview (persona/memory/skills/keys) · dry-run before import · memory batch rollback. Verified Jun 2026: 82 migration pytest passed. Local/Tauri only; cloud-hosted has no host scan. Settings → Memory → Migration",
       "migrationCta": "Download desktop to migrate",
       "migrationCtaOpenApp": "Already on Local · Open migration wizard",
-      "evidenceLink": "See comparison evidence",
       "items": {
         "selfEvolution": {
           "title": "An AI assistant with soul — learns you over time",
-          "desc": "8 memory types + Wiki knowledge base + skill evolution loop — keeps your preferences and project context, not generic replies.",
-          "point1": "8 cross-session memory types: persona, facts, workflows & prefs auto-recalled — smarter every chat",
-          "point2": "Wiki hybrid search + dialectic persona profile — answers fit you better",
-          "point3": "5-layer evolution validation (AST safety + sandbox dry-run + AI rubric scoring + GUI approval + Shadow A/B testing); 6 GUI panels for full transparency (History + Rejection Audit + Pending Reviews + Version Compare + Quality Guardian + Growth Dashboard); auto negative-memory learns from rejections to prevent repeat mistakes; 6-layer bounded edit control (conservative editing + hard constraints + failure attribution + length penalty + anti-fragmentation + redundancy scoring) ensures complete fixes without bloat; Python framework engine + 5-layer customization (strategy switch + per-skill lock + trap injection + constraint learning + preference embedding) — safe, flexible, works across Local/Tauri/SaaS; 9 visualization panels covering the full evolution lifecycle (Pending Reviews + Growth Case Cards + Rejection Audit + History + Versions + Quality Guardian + Growth Dashboard + Daily Journal + WebSocket real-time); 3-layer organic cross-skill learning (per-skill constraints + Memory Learned Rules with CRITICAL/HIGH/NORMAL priority + Workspace Rules read-only scan) — global rules accumulate naturally through conversations, no dangerous auto-write to AGENTS.md; Monaco DiffEditor line-level highlighting + one-click rollback; 3-layer multi-agent skill binding (DB scope isolation + mounted_skill_ids with CoW + runtime task.extra_skill_ids) — each agent evolves independently, cross-agent skill sharing with automatic fork protection, GUI-first management with 12 config tabs — 2900 tests verified"
+          "desc": "Eight memory types, personal knowledge base, and evolving skills — remembers precious preferences and experience from your conversations for a long-term partner that learns you.",
+          "point1": "Cross-session memory: persona, facts, workflows, and preferences recalled automatically",
+          "point2": "Smart knowledge-base retrieval + implicit preference profile — answers aligned with your habits",
+          "point3": "Skills evolve after your approval — version compare and one-click rollback"
         },
         "security": {
-          "title": "Six-layer runtime guard, approvals & audit you control",
-          "desc": "7-category semantic DOM risk detection (bilingual) + MCP pre-enable scan + shell per-segment risk coloring with plain-language command explanation (bilingual, parameter-aware, dangerous-pipe detection) + Credential Vault (passwords/TOTP never enter the LLM) + PII redaction + Smart Intent Guard (LLM intent review) + multi-platform HITL approvals with 3-level Allow Always + structured audit trail (37 decision types + Prometheus metrics) — auto-approval prompt on Pay/Delete/Publish clicks, see risk before you allow, trace everything · 1120 tests verified.",
-          "point1": "7-layer operation-level risk management: semantic DOM risk detection (auto-intercept 7 categories: pay/delete/publish/account/admin/share/sensitive) + 4-layer quote-aware shell analysis + Smart Intent Guard + user-configurable Risk Rules + MCP/Skill security scanning + HITL approval middleware",
-          "point2": "MCP security gate + SSRF DNS Pinning (manual redirect loop eliminates rebinding) + shell span approval: `curl | bash` split and color-coded after redaction + auto re-verification after editing",
-          "point3": "Credential Vault + 4-action approval (Approve · Edit · Reject · Always) with 3-level granularity + Approval Guidance Injection (attach instructions like 'use production API' when approving — agent reads it 100%) — passwords stay out of the LLM; ♾️ emoji or `/always` in any channel; no competitor has operation-level risk detection"
+          "title": "Six layers of protection — you confirm sensitive actions",
+          "desc": "Sensitive actions require your confirmation — runtime risks visible, credentials kept out of chat, new capabilities pre-scanned, fully auditable.",
+          "point1": "Auto-detect risky pages and terminal commands with clear explanation before approval",
+          "point2": "Credential vault stores passwords and one-time codes (TOTP) outside model context; risky commands color-coded per segment",
+          "point3": "New MCP connections and imported skills are scanned first — risks blocked with a clear confirmation prompt"
         },
         "reliability": {
           "title": "Long jobs stay steady — resume where you left off",
-          "desc": "Goal breakdown + kanban multi-agent orchestration + checkpoints — complex work finishes without luck.",
-          "point1": "Goal mode: DAG dependencies + 4D budget — progress and hard caps on long runs",
-          "point2": "Checkpoint resume + kanban zombie recovery + auto GC (stale events/runs/workspaces) — pick up after interrupts, disk stays lean",
-          "point3": "Smart read/write isolation + loop-detection circuit breaker — no hangs, no spin"
+          "desc": "Big goals auto-breakdown + kanban collaboration + checkpoint resume — complex projects progress steadily to completion.",
+          "point1": "Goal mode: task dependencies with cost and time caps — progress and spend under control on long runs",
+          "point2": "Checkpoint resume + abnormal-task recovery + stale-data cleanup — continue after interruptions",
+          "point3": "Concurrent edits to the same file auto-queued across assistants; loop detection circuit breaker prevents long idle spins"
         },
         "costEfficiency": {
-          "title": "~7× task volume on the same budget",
-          "desc": "Multi-layer prompt cache, PTC sandbox execution, search/bash cleanup, progressive loading — 4D budget hard cap plus a full-chain cost analytics dashboard, extreme token savings with total transparency.",
-          "point1": "Six-layer prompt cache — up to ~97% savings on cache hits, ~7× tasks per dollar",
-          "point2": "PTC runs long tool chains in sandbox — stays out of chat context",
-          "point3": "4D budget hard cap (tokens/cost/time/sub-agents) — no bill shock"
+          "title": "~7× more tasks on the same budget",
+          "desc": "Multi-layer chat cache + isolated execution for heavy ops + auto-trim of bloated output — hard caps on usage, cost, and time with transparent spend visibility.",
+          "point1": "Six-layer chat cache — roughly 7× more tasks on the same budget",
+          "point2": "Long tool chains run in an isolated sandbox, then summarized — keeps chat context lean",
+          "point3": "Hard caps on usage, cost, time, and sub-tasks — prevents unexpected overruns"
         },
         "visualControl": {
-          "title": "Minimalist deployment & cloud-grade GUI, full-chain observability",
-          "desc": "Single-tenant architecture paired with Dimensional Layering cloud aesthetics — seamless transition between password-free local dev and strict remote authentication.",
-          "point1": "Unified WebUI/Desktop: Password-free local access, ironclad remote auth",
+          "title": "GUI + remote control, full-chain observability",
+          "desc": "Advanced visual GUI — latency, tool approvals, cache hits, and sub-agent status visible end to end — fine-grained configuration and observability put you in control.",
+          "point1": "Unified WebUI + desktop — seamless between phone and computer",
           "point2": "25+ messaging and voice channels — dispatch tasks remotely",
-          "point3": "One-click Quick Tunnel in Settings; channel webhooks auto-sync public URL"
+          "point3": "Feishu/DingTalk/WeCom outbound via long connection — no public IP; for webhook channels and cron triggers, configure Ingress or Quick Tunnel in Settings"
         },
         "taskModes": {
           "title": "Every task mode, one workspace",
-          "desc": "Quick search, general Agent, kanban collaboration, scheduled jobs — switch modes in the same workspace, no toolchain swap. Color-coded project chips + 3D filtering (project × date × channel) + batch operations make organizing hundreds of conversations effortless.",
+          "desc": "Quick search, all-round assistant, kanban teamwork, scheduled jobs — one workspace for every scenario; what others offer, we cover — built to be the only tool you need.",
           "point1": "Quick search with traceable citations — fewer unsupported claims",
-          "point2": "Kanban cards run in background; multi-agent handoff by role",
-          "point3": "Cron schedules + Webhook triggers for unattended execution"
+          "point2": "Kanban task cards run in the background; multiple assistants collaborate by role",
+          "point3": "Scheduled jobs and external event triggers for unattended execution"
         }
       }
     },
@@ -1447,35 +1121,168 @@
       }
     },
     "engineeringDepth": {
-      "eyebrow": "Deep spec",
-      "title": "Engineering depth",
-      "subtitle": "Technical proof lives here; the six tiles above cover conversion essentials. Docs mirror your site language (EN/ZH).",
+      "eyebrow": "Product depth",
+      "title": "Every layer, backed by design",
+      "subtitle": "Six themes, three verifiable details each. Full competitor comparison in the table and docs below.",
       "compareCta": "Full competitor comparison (bilingual)",
+      "items": {
+        "memoryRecall": {
+          "title": "Eight memory types that learn you",
+          "desc": "Preferences, workflows, and key facts carry across sessions — no more repeating yourself.",
+          "point1": "Profiles and recurring facts auto-recall into every chat",
+          "point2": "Small talk stays out of memory; incognito for sensitive work — gone when done",
+          "point3": "15-species desktop pet companion — gamified evolution that makes collaboration feel alive"
+        },
+        "knowledgeWiki": {
+          "title": "A personal knowledge base that compiles",
+          "desc": "Docs, chats, and deliverables archive in one place — answers grounded in your material, not guesses.",
+          "point1": "Tree folders with drag sort; bulk import PDF and Office files",
+          "point2": "One-click archive from chats and deliverable cards with traceable sources",
+          "point3": "Hybrid search plus human review edits to reduce hallucinations"
+        },
+        "skillEvolution": {
+          "title": "Skills that grow with use",
+          "desc": "Agents can learn new skills from your work — nothing goes live until you approve, with diff and rollback.",
+          "point1": "GUI shows every evolution step with line-level diff",
+          "point2": "Approve and trial before production — no surprise behavior changes",
+          "point3": "One-click rollback to any prior skill version"
+        },
+        "operationConfirm": {
+          "title": "Risky actions need your OK",
+          "desc": "Pay, delete, publish — the agent explains the risk in plain language and waits for you.",
+          "point1": "Web and shell risks detected automatically before execution",
+          "point2": "Approve, deny, or edit-then-run — your choice every time",
+          "point3": "One-time or permanent allow rules plus full audit trail"
+        },
+        "credentialSafe": {
+          "title": "Passwords never enter the chat",
+          "desc": "Logins and one-time codes live in a secure vault — the model never sees your secrets.",
+          "point1": "Form credentials and TOTP stay out of LLM context",
+          "point2": "Dangerous shell segments highlighted, piped commands scrutinized",
+          "point3": "Cloud-grade session control when WebUI is exposed on public networks"
+        },
+        "pluginPrecheck": {
+          "title": "New tools scanned before connect",
+          "desc": "Imported skills and external tool hooks are scanned first — risks block with a clear prompt.",
+          "point1": "Plugin permissions labeled; descriptions trimmed so context stays lean",
+          "point2": "Multi-source skill marketplace with one-click install and updates",
+          "point3": "OpenAPI docs auto-convert to callable tools with flexible auth"
+        },
+        "kanbanTasks": {
+          "title": "Kanban cards for long projects",
+          "desc": "Break big goals into cards that run in the background — dependencies and acceptance criteria visible.",
+          "point1": "Parallel cards with explicit dependency chains",
+          "point2": "Acceptance criteria checked before marking done",
+          "point3": "Cancel running or queued tasks instantly — no token burn"
+        },
+        "resilientRuns": {
+          "title": "Resume after interrupts",
+          "desc": "Long chats and multimodal runs self-heal with hard budget caps — pick up where you left off.",
+          "point1": "Checkpoint resume, model fallback, automatic image compression",
+          "point2": "Tool-loop detection plus token and spend hard limits",
+          "point3": "Concurrent edits to the same file queue safely — no clobbering"
+        },
+        "unattendedSafe": {
+          "title": "Unattended runs without deadlock",
+          "desc": "Scheduled and background jobs skip interactive dead-ends — no hanging forever waiting for a click.",
+          "point1": "Interactive tools stripped automatically in unattended environments",
+          "point2": "Models never error on missing tools — workflows stay stable",
+          "point3": "Cron plus auto-recovery — built for 24/7 checks"
+        },
+        "sandboxChains": {
+          "title": "Long tool chains in one sandbox run",
+          "desc": "Multi-step work runs isolated, then returns a summary — middle results never bloat the chat.",
+          "point1": "Finish multi-step jobs in one pass with parallel tool calls",
+          "point2": "Progress indicators and reusable intermediate results",
+          "point3": "About half the tokens on long chains in practice"
+        },
+        "leanContext": {
+          "title": "100+ skills without context bloat",
+          "desc": "Rare tools load on demand; active files protected before compression — prompt stays lean.",
+          "point1": "Intent-matched skills only — irrelevant tools stay unloaded",
+          "point2": "Files you are editing are protected before any compression pass",
+          "point3": "Roughly 7× more work on the same API budget"
+        },
+        "costDashboard": {
+          "title": "See where every dollar goes",
+          "desc": "Per-message cost, routing, and cache hits visible — team spend transparent, no billing surprises.",
+          "point1": "Per-agent cost attribution with 7-day trend sparklines",
+          "point2": "Routing decisions traceable — know why each path was chosen",
+          "point3": "Cache hits and token usage visible in real time"
+        },
+        "desktopBrowser": {
+          "title": "Desktop and browser you can watch",
+          "desc": "Operate apps and sites like a person — live screenshots, progress trees, approval cards.",
+          "point1": "Dual browser and desktop live panels with highlighted targets",
+          "point2": "Fastest path wins; human takeover when stuck, CAPTCHA surfaced early",
+          "point3": "Appshot + FlowPad: ask AI from any app without switching windows"
+        },
+        "multiAgentView": {
+          "title": "Multi-agent command view",
+          "desc": "Subtasks run in parallel while the parent sees the full picture — cost cards before batch runs.",
+          "point1": "Concurrent agent scheduling; completed steps survive disconnects",
+          "point2": "Batch jobs show cost approval cards — approve or deny in one click",
+          "point3": "Rich views for files, shell, and JSON — not raw log dumps"
+        },
+        "deliverablePreview": {
+          "title": "Deliverables preview beside chat",
+          "desc": "Code, pages, spreadsheets, and mockups preview inline — edits sync back to the agent.",
+          "point1": "16+ inline preview formats including React and spreadsheets",
+          "point2": "Select to edit; changes attach silently to your next message",
+          "point3": "Design mockup alignment checks — drift visible at a glance"
+        },
+        "webResearch": {
+          "title": "Search, read, and extract from the web",
+          "desc": "Agents search, read, and extract structured data — fast on static sites, auto fallback when blocked.",
+          "point1": "Static pages via fast path — ~90% less time and memory than classic browsing",
+          "point2": "Auto engine switch on tough anti-bot sites; login state preserved across runs",
+          "point3": "Clean structured data back — ~97% fewer tokens than raw page content"
+        },
+        "omniReach": {
+          "title": "Search, chat, schedule — 25+ channels",
+          "desc": "Voice, messaging, and scheduled jobs in one workspace — push work from your phone.",
+          "point1": "25+ messaging platforms for DMs and group chats",
+          "point2": "Voice modes: standard chat, full-duplex interrupt, real-time calls",
+          "point3": "Cron, interval, and webhook triggers with auto-recovery"
+        },
+        "easyMigration": {
+          "title": "One-click migration from peers",
+          "desc": "Import from Hermes, OpenClaw, and more — preview persona, memory, skills, and keys before commit.",
+          "point1": "Five local sources auto-discovered; four-lane preview before import",
+          "point2": "Bulk memory rollback if anything looks wrong",
+          "point3": "Chinese search tuned for CJK workflows"
+        }
+      },
       "groups": {
-        "compounding": {
-          "label": "Gets Smarter",
-          "title": "Memory · Wiki · Self-Evolving Skills",
-          "summary": "Eight memory types, knowledge base, and skill loop that compound over time"
+        "selfEvolution": {
+          "label": "Gets smarter",
+          "title": "Memory · Wiki · Evolving skills",
+          "summary": "Stop repeating yourself — it remembers."
         },
-        "remote": {
-          "label": "Remote Control",
-          "title": "Reach & Remote Push",
-          "summary": "25+ channels & voice reach; tunneling and goal mode on separate tracks"
-        },
-        "capability": {
-          "label": "Full Capability",
-          "title": "Browser · Desktop · Every Task",
-          "summary": "Computer Use, hybrid browser, Kanban multi-agent, and built-in tools for any scenario"
+        "security": {
+          "label": "Safe control",
+          "title": "Sensitive actions need you",
+          "summary": "Delegate freely — never run naked."
         },
         "reliability": {
-          "label": "Reliability & Cost",
-          "title": "Production-Grade Stability",
-          "summary": "Six-layer security, anti-runaway, MoA consensus, safe concurrency; streaming chat events guarded by regression tests; full observability"
+          "label": "Runs steady",
+          "title": "Long jobs you can trust",
+          "summary": "Resume after breaks; unattended without deadlock."
         },
-        "migration": {
-          "label": "Migration & Ecosystem",
-          "title": "5 Local Sources, GUI Migration Wizard",
-          "summary": "Scan Hermes, OpenClaw, Claude Code, Cursor, Cline, Codex; native SOUL.md + .clinerules + 17 rule-file discovery points; GUI four-lane import with rollback; Jun 2026: 87 workspace-rules tests passed"
+        "costEfficiency": {
+          "label": "Token smart",
+          "title": "More work, same budget",
+          "summary": "Spend visible before the invoice arrives."
+        },
+        "visualControl": {
+          "label": "Visible",
+          "title": "See what it is doing",
+          "summary": "Desktop, browser, and deliverables on screen."
+        },
+        "taskModes": {
+          "label": "Every scenario",
+          "title": "Search · Chat · Schedule · Switch",
+          "summary": "One workspace for every mode."
         }
       }
     }

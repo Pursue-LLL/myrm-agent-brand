@@ -18,7 +18,7 @@ import {
   COMPARE_TAB_KEYS,
   COMPARE_TAB_ROWS,
   DEPTH_GROUPS,
-  depthAdvantageItemKeys,
+  DEPTH_ITEM_KEYS,
   depthItemBasePath,
   PRICING_PAGE_PLAN_KEYS,
   PRICING_PREVIEW_PLAN_KEYS,
@@ -27,6 +27,8 @@ import { appendLegacyUrlViolations } from './brand-url-patterns';
 
 const ROOT = join(import.meta.dir, '..');
 const LOCALES = ['zh', 'en'] as const;
+const DEPTH_POINT_COUNT = 3;
+const DEPTH_DESC_MAX_CHARS = 120;
 
 function loadMarketing(locale: (typeof LOCALES)[number]): Record<string, unknown> {
   const raw = readFileSync(join(ROOT, 'locales', `${locale}.json`), 'utf8');
@@ -123,6 +125,18 @@ if (COMPARE_TAB_ROWS.all.length !== COMPARE_ROW_KEYS.length) {
   errors.push('[manifest] COMPARE_TAB_ROWS.all must list every COMPARE_ROW_KEYS entry');
 }
 
+const referencedDepthItems = new Set<string>();
+for (const group of DEPTH_GROUPS) {
+  for (const itemKey of group.items) {
+    referencedDepthItems.add(itemKey);
+  }
+}
+for (const itemKey of DEPTH_ITEM_KEYS) {
+  if (!referencedDepthItems.has(itemKey)) {
+    errors.push(`[manifest] DEPTH_ITEM_KEYS entry "${itemKey}" not assigned to any DEPTH_GROUPS`);
+  }
+}
+
 for (const locale of LOCALES) {
   const localePath = join(ROOT, 'locales', `${locale}.json`);
   const localeRaw = readFileSync(localePath, 'utf8');
@@ -130,15 +144,11 @@ for (const locale of LOCALES) {
 
   const marketing = loadMarketing(locale);
 
-  const allowedAdvantageKeys = new Set<string>([
-    ...BENTO_KEYS,
-    ...depthAdvantageItemKeys(),
-  ]);
   const advantageItems = getAt(marketing, 'advantages.items');
   if (advantageItems !== null && typeof advantageItems === 'object') {
     for (const key of Object.keys(advantageItems as Record<string, unknown>)) {
-      if (!allowedAdvantageKeys.has(key)) {
-        errors.push(`[${locale}] unexpected marketing.advantages.items.${key} (not in BENTO or depth refs)`);
+      if (!BENTO_KEYS.includes(key as (typeof BENTO_KEYS)[number])) {
+        errors.push(`[${locale}] unexpected marketing.advantages.items.${key} (not in BENTO_KEYS)`);
       }
     }
   }
@@ -154,11 +164,6 @@ for (const locale of LOCALES) {
     }
   }
 
-  for (const depthKey of depthAdvantageItemKeys()) {
-    assertKey(locale, marketing, `advantages.items.${depthKey}.title`, errors);
-    assertKey(locale, marketing, `advantages.items.${depthKey}.desc`, errors);
-  }
-
   assertKey(locale, marketing, 'whyMyrmAgent.scrollHint', errors);
 
   for (const tabKey of COMPARE_TAB_KEYS) {
@@ -172,13 +177,43 @@ for (const locale of LOCALES) {
   }
 
   for (const group of DEPTH_GROUPS) {
+    assertKey(locale, marketing, `engineeringDepth.groups.${group.id}.label`, errors);
     assertKey(locale, marketing, `engineeringDepth.groups.${group.id}.title`, errors);
     assertKey(locale, marketing, `engineeringDepth.groups.${group.id}.summary`, errors);
-    for (const ref of group.items) {
-      const base = depthItemBasePath(ref.source, ref.itemKey);
+    for (const itemKey of group.items) {
+      const base = depthItemBasePath(itemKey);
       assertKey(locale, marketing, `${base}.title`, errors);
       assertKey(locale, marketing, `${base}.desc`, errors);
+      for (let n = 1; n <= DEPTH_POINT_COUNT; n++) {
+        assertKey(locale, marketing, `${base}.point${n}`, errors);
+      }
+      for (let n = DEPTH_POINT_COUNT + 1; n <= 12; n++) {
+        const path = `${base}.point${n}`;
+        if (getAt(marketing, path) !== undefined) {
+          errors.push(`[${locale}] ${path} exceeds max ${DEPTH_POINT_COUNT} bullets for engineering depth`);
+        }
+      }
+      const desc = getAt(marketing, `${base}.desc`);
+      if (typeof desc === 'string' && desc.length > DEPTH_DESC_MAX_CHARS) {
+        errors.push(`[${locale}] ${base}.desc exceeds ${DEPTH_DESC_MAX_CHARS} chars (${desc.length})`);
+      }
     }
+  }
+
+  const depthItems = getAt(marketing, 'engineeringDepth.items');
+  if (depthItems !== null && typeof depthItems === 'object') {
+    for (const key of Object.keys(depthItems as Record<string, unknown>)) {
+      if (!referencedDepthItems.has(key)) {
+        errors.push(`[${locale}] orphan marketing.engineeringDepth.items.${key} (not in DEPTH_GROUPS)`);
+      }
+    }
+  }
+
+  if (getAt(marketing, 'highlights') !== undefined) {
+    errors.push(`[${locale}] legacy marketing.highlights must be removed (use engineeringDepth.items)`);
+  }
+  if (getAt(marketing, 'extendedHighlights') !== undefined) {
+    errors.push(`[${locale}] legacy marketing.extendedHighlights must be removed (use engineeringDepth.items)`);
   }
 
   assertKey(locale, marketing, 'pricingPage.period', errors);

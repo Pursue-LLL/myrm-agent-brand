@@ -1,0 +1,100 @@
+---
+title: "Chat History & Session Management"
+description: "Search, organize, export, and manage your conversation history with powerful sidebar tools."
+---
+
+## Overview
+
+MyrmAgent provides a comprehensive chat history management system integrated directly into the sidebar — no separate page needed. Every conversation is organized, searchable, and exportable from one place.
+
+## Full-Text Search (Cmd+K)
+
+Press **⌘+K** (macOS) or **Ctrl+K** (Windows/Linux) anywhere in the app to open the global search dialog.
+
+- **Instant results**: Debounced search queries the backend `/chats/search` API
+- **Time range filtering**: Narrow results to Today, This Week, This Month, or This Quarter
+- **Snippet highlighting**: Matching text is highlighted in search results
+- **Click to jump**: Select a result to navigate directly to the chat and highlight the matching message
+
+## Date-Grouped History
+
+Conversations are automatically grouped into time-based sections:
+
+| Group | Description |
+|-------|-------------|
+| **Today** | Sessions from the current day |
+| **Yesterday** | Sessions from the previous day |
+| **Previous 7 Days** | Sessions within the past week |
+| **Previous 30 Days** | Sessions within the past month |
+| **Older** | Everything before 30 days |
+
+Each group can be collapsed/expanded, and the collapsed state persists across sessions via `localStorage`.
+
+## Pinning & Drag-and-Drop Reordering
+
+- **Pin conversations** to the top of the sidebar for quick access
+- **Drag-and-drop** pinned items to reorder them using DnD-Kit SortableContext
+- Use **keyboard shortcuts** (number keys) to quickly jump to pinned conversations
+
+## Batch Operations
+
+Enter batch mode to select multiple conversations at once:
+
+1. Toggle batch mode from the sidebar header
+2. Select/deselect individual chats or use "Select All"
+3. Perform bulk delete on selected conversations
+4. Deleted items go to the **Trash** (soft delete with recovery)
+
+## Export Conversations
+
+Right-click any conversation to export in four formats:
+
+- **Markdown** — Clean `.md` file with message formatting
+- **HTML** — Styled HTML page ready to share
+- **JSON** — Structured data for programmatic use
+- **Copy to clipboard** — Quick paste anywhere
+
+## Project Folders
+
+Organize conversations into named projects with color labels:
+
+- Move conversations between projects via the context menu
+- Filter the sidebar to show only a specific project's conversations
+- Project assignments persist across sessions
+
+## Trash & Recovery
+
+Accidentally deleted a conversation? The **Session Trash Panel** provides:
+
+- Soft-deleted conversations are kept for recovery
+- One-click restore to bring back any deleted session
+- Permanent delete when you're sure
+
+## Source Filtering
+
+Filter conversations by their origin channel — Web UI, Telegram, Discord, WeChat, and 25+ other platforms.
+
+## Infinite Scrolling
+
+The sidebar uses `IntersectionObserver`-based infinite scrolling — no pagination buttons. Conversations load automatically as you scroll down.
+
+## Additional Features
+
+| Feature | Description |
+|---------|-------------|
+| **Inline rename** | Click the title to rename any conversation |
+| **Handoff** | Transfer a conversation to another agent or channel via HandoffDialog |
+| **Create automation** | Turn a conversation pattern into a scheduled task with CronJobCreateDialog |
+| **Compacted badge** | Visual indicator when a conversation has been context-compressed |
+| **Generation status** | Pulse animation shows when the agent is actively generating |
+| **PWA Install** | One-click PWA installation from the sidebar |
+| **Catchup Inbox** | Aggregated unread messages across all channels |
+| **Workspace file browser** | Browse CLI and Web workspace files directly from the sidebar |
+
+## vs Competitor Approaches
+
+Most competitors (e.g., Hermes Agent) use a separate `/history` page that duplicates sidebar functionality. MyrmAgent follows the same pattern as ChatGPT, Claude, and Gemini — **sidebar-integrated history** — while providing 16 additional capabilities that the separate-page approach lacks.
+
+<Tip>
+The sidebar approach keeps your workflow uninterrupted. You never leave your current conversation to search, export, or manage history.
+</Tip>

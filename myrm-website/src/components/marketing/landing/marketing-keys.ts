@@ -3,7 +3,7 @@
  * - locales/zh.json, locales/en.json marketing namespace（由 validate 脚本校验）
  *
  * [OUTPUT]
- * - BENTO_KEYS, COMPARE_ROW_KEYS, DEPTH_GROUPS, depthItemBasePath
+ * - BENTO_KEYS, COMPARE_ROW_KEYS, DEPTH_GROUPS, DEPTH_ITEM_KEYS, depthItemBasePath
  * - PRICING_PAGE_PLAN_KEYS, PRICING_PREVIEW_PLAN_KEYS, HIGHLIGHT_PRICING_PLAN
  *
  * [POS]
@@ -21,18 +21,29 @@ export const BENTO_KEYS = [
 
 export type BentoKey = (typeof BENTO_KEYS)[number];
 
-/** advantages.items keys referenced by engineering depth (not shown on 6 Bento cards). */
-export function depthAdvantageItemKeys(): string[] {
-  const keys = new Set<string>();
-  for (const group of DEPTH_GROUPS) {
-    for (const ref of group.items) {
-      if (ref.source === 'advantages') {
-        keys.add(ref.itemKey);
-      }
-    }
-  }
-  return [...keys];
-}
+/** Engineering depth cards — 6 Bento-aligned groups × 3 proof cards each. */
+export const DEPTH_ITEM_KEYS = [
+  'memoryRecall',
+  'knowledgeWiki',
+  'skillEvolution',
+  'operationConfirm',
+  'credentialSafe',
+  'pluginPrecheck',
+  'kanbanTasks',
+  'resilientRuns',
+  'unattendedSafe',
+  'sandboxChains',
+  'leanContext',
+  'costDashboard',
+  'desktopBrowser',
+  'multiAgentView',
+  'deliverablePreview',
+  'webResearch',
+  'omniReach',
+  'easyMigration',
+] as const;
+
+export type DepthItemKey = (typeof DEPTH_ITEM_KEYS)[number];
 
 export const COMPARE_ROW_KEYS = [
   'memory',
@@ -51,6 +62,7 @@ export const COMPARE_ROW_KEYS = [
   'skillEvolution',
   'cron',
   'gui',
+  'chatHistoryManagement',
   'desktopApp',
   'multimodel',
   'tokenEfficiency',
@@ -140,98 +152,53 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'shellCompression',
     'antiBlockingTitle',
   ],
-  platform: ['gui', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'codeGraph'],
+  platform: ['gui', 'chatHistoryManagement', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'codeGraph'],
 };
 
-export type DepthItemSource = 'advantages' | 'highlights' | 'extendedHighlights';
-
-export interface DepthItemRef {
-  source: DepthItemSource;
-  itemKey: string;
-}
-
 export interface DepthGroupDef {
-  id: string;
+  id: BentoKey;
   defaultOpen: boolean;
-  items: readonly DepthItemRef[];
+  items: readonly DepthItemKey[];
 }
 
 export const DEPTH_GROUPS: readonly DepthGroupDef[] = [
   {
-    id: 'compounding',
+    id: 'selfEvolution',
     defaultOpen: true,
-    items: [
-      { source: 'highlights', itemKey: 'memorySystem' },
-      { source: 'highlights', itemKey: 'wiki' },
-      { source: 'highlights', itemKey: 'companion' },
-    ],
+    items: ['memoryRecall', 'knowledgeWiki', 'skillEvolution'],
   },
   {
-    id: 'remote',
+    id: 'security',
     defaultOpen: false,
-    items: [
-      { source: 'extendedHighlights', itemKey: 'voiceFusion' },
-      { source: 'extendedHighlights', itemKey: 'codexEngineering' },
-    ],
-  },
-  {
-    id: 'capability',
-    defaultOpen: false,
-    items: [
-      { source: 'highlights', itemKey: 'computerUse' },
-      { source: 'highlights', itemKey: 'webSearchFetch' },
-      { source: 'extendedHighlights', itemKey: 'enterpriseScenarios' },
-      { source: 'extendedHighlights', itemKey: 'artifactDeploy' },
-      { source: 'extendedHighlights', itemKey: 'multiAgentOrchestration' },
-      { source: 'extendedHighlights', itemKey: 'dynamicWorkflow' },
-      { source: 'extendedHighlights', itemKey: 'longReportToc' },
-      { source: 'highlights', itemKey: 'ptc' },
-      { source: 'highlights', itemKey: 'codexParity' },
-      { source: 'highlights', itemKey: 'kanbanCollaboration' },
-      { source: 'extendedHighlights', itemKey: 'globalReviewer' },
-    ],
+    items: ['operationConfirm', 'credentialSafe', 'pluginPrecheck'],
   },
   {
     id: 'reliability',
     defaultOpen: false,
-    items: [
-      { source: 'highlights', itemKey: 'extremeAntiExplosion' },
-      { source: 'highlights', itemKey: 'modelConsensus' },
-      { source: 'highlights', itemKey: 'smartConcurrency' },
-      { source: 'highlights', itemKey: 'harnessObservability' },
-      { source: 'extendedHighlights', itemKey: 'toolSecurity' },
-      { source: 'extendedHighlights', itemKey: 'precisionMultimodal' },
-      { source: 'extendedHighlights', itemKey: 'productionEngineIntegrity' },
-      { source: 'extendedHighlights', itemKey: 'unifiedToolGateway' },
-      { source: 'extendedHighlights', itemKey: 'enterpriseTesting' },
-      { source: 'extendedHighlights', itemKey: 'antiBlockingTitle' },
-      { source: 'extendedHighlights', itemKey: 'resourceThrottling' },
-      { source: 'extendedHighlights', itemKey: 'skillLifecycle' },
-      { source: 'extendedHighlights', itemKey: 'airGappedMode' },
-    ],
+    items: ['kanbanTasks', 'resilientRuns', 'unattendedSafe'],
   },
   {
-    id: 'migration',
+    id: 'costEfficiency',
     defaultOpen: false,
-    items: [
-      { source: 'highlights', itemKey: 'cjkMigration' },
-      { source: 'extendedHighlights', itemKey: 'weSightMigration' },
-      { source: 'highlights', itemKey: 'smartDesktopDistribution' },
-      { source: 'highlights', itemKey: 'appshotFlowPad' },
-      { source: 'extendedHighlights', itemKey: 'multiAgentWorkspace' },
-      { source: 'extendedHighlights', itemKey: 'remoteGateway' },
-      { source: 'extendedHighlights', itemKey: 'desktopZeroConfig' },
-    ],
+    items: ['sandboxChains', 'leanContext', 'costDashboard'],
+  },
+  {
+    id: 'visualControl',
+    defaultOpen: false,
+    items: ['desktopBrowser', 'multiAgentView', 'deliverablePreview'],
+  },
+  {
+    id: 'taskModes',
+    defaultOpen: false,
+    items: ['webResearch', 'omniReach', 'easyMigration'],
   },
 ] as const;
 
 /** Compare table row fields required in both locales. */
 export const COMPARE_ROW_FIELDS = ['feature', 'hermes', 'openclaw', 'myrmAgent'] as const;
 
-export function depthItemBasePath(source: DepthItemSource, itemKey: string): string {
-  if (source === 'advantages') return `advantages.items.${itemKey}`;
-  if (source === 'highlights') return `highlights.items.${itemKey}`;
-  return `extendedHighlights.items.${itemKey}`;
+export function depthItemBasePath(itemKey: DepthItemKey): string {
+  return `engineeringDepth.items.${itemKey}`;
 }
 
 /** /pricing page plan cards (full feature list). */

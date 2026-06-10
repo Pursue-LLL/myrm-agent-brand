@@ -1,57 +1,56 @@
 /**
  * [INPUT]
- * - next-intl marketing namespace (advantages / highlights / extendedHighlights item keys)
+ * - next-intl marketing.engineeringDepth namespace
+ * - depth-evidence::readDepthGroupFromLocation (share URL ?group=)
  * - deploy-mode::getDocsUrl (POS: 营销站外部链接统一入口)
  *
  * [OUTPUT]
- * - EngineeringDepthSection: 工程深度区（桌面：规格手册分栏；移动：折叠面板）
+ * - EngineeringDepthSection: 产品深度区（桌面 rail；移动 accordion）；分享直链 ?group=
  *
  * [POS]
- * 落地页第二层证据区。美学方向：工业规格手册 + 编辑不对称，与 Bento 玻璃语言同系。
+ * 落地页产品深度区块。六组 × 三卡细节；与 Bento 独立，自然滚动衔接。
  */
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ArrowRight02Icon } from 'hugeicons-react';
 import { COMPETITOR_COMPARISON_DOC_PATH } from '@/lib/docs-contract';
 import { useDocsLocale } from '@/hooks/useDocsLocale';
 import { getDocsUrl } from '@/lib/deploy-mode';
+import { scrollToSection } from '@/lib/deploy-paths';
 import { useMinWidth } from './hooks';
-import { marketingHas } from './marketing-i18n';
+import {
+  ENGINEERING_DEPTH_SECTION_ID,
+  readDepthGroupFromLocation,
+  writeDepthEvidenceLink,
+} from './depth-evidence';
 import {
   DEPTH_GROUPS,
   depthItemBasePath,
+  type BentoKey,
   type DepthGroupDef,
-  type DepthItemRef,
+  type DepthItemKey,
 } from './marketing-keys';
 
-const MAX_POINTS = 3;
+const DEPTH_POINTS = [1, 2, 3] as const;
 
-const GROUP_INDEX: Record<string, string> = {
-  compounding: '01',
-  remote: '02',
-  capability: '03',
-  reliability: '04',
-  migration: '05',
+const GROUP_INDEX: Record<BentoKey, string> = {
+  selfEvolution: '01',
+  security: '02',
+  reliability: '03',
+  costEfficiency: '04',
+  visualControl: '05',
+  taskModes: '06',
 };
 
 const DEFAULT_ACTIVE_ID = DEPTH_GROUPS.find((g) => g.defaultOpen)?.id ?? DEPTH_GROUPS[0].id;
 
-function DepthFeatureCard({ source, itemKey, cardIndex }: DepthItemRef & { cardIndex: number }) {
+function DepthFeatureCard({ itemKey, cardIndex }: { itemKey: DepthItemKey; cardIndex: number }) {
   const t = useTranslations('marketing');
-  const base = depthItemBasePath(source, itemKey);
-  const points: number[] = [];
-  for (let n = 1; n <= 6; n++) {
-    if (marketingHas(t, `${base}.point${n}`)) {
-      points.push(n);
-    } else {
-      break;
-    }
-  }
-  const visible = points.slice(0, MAX_POINTS);
+  const base = depthItemBasePath(itemKey);
   const badgeKey = `${base}.badge` as Parameters<typeof t.has>[0];
-  const hasBadge = source !== 'advantages' && t.has(badgeKey);
+  const hasBadge = t.has(badgeKey);
 
   return (
     <article className={`ed-depth-card ed-stagger-${(cardIndex % 3) + 1}`}>
@@ -66,15 +65,13 @@ function DepthFeatureCard({ source, itemKey, cardIndex }: DepthItemRef & { cardI
         </div>
       </header>
       <p className="ed-depth-card-desc">{t(`${base}.desc` as Parameters<typeof t>[0])}</p>
-      {visible.length > 0 && (
-        <ul className="ed-depth-points">
-          {visible.map((n) => (
-            <li key={n} className="ed-depth-point">
-              <span>{t(`${base}.point${n}` as Parameters<typeof t>[0])}</span>
-            </li>
-          ))}
-        </ul>
-      )}
+      <ul className="ed-depth-points">
+        {DEPTH_POINTS.map((n) => (
+          <li key={n} className="ed-depth-point">
+            <span>{t(`${base}.point${n}` as Parameters<typeof t>[0])}</span>
+          </li>
+        ))}
+      </ul>
     </article>
   );
 }
@@ -82,8 +79,8 @@ function DepthFeatureCard({ source, itemKey, cardIndex }: DepthItemRef & { cardI
 function DepthCardGrid({ group }: { group: DepthGroupDef }) {
   return (
     <div className="ed-depth-grid">
-      {group.items.map((ref, cardIndex) => (
-        <DepthFeatureCard key={`${ref.source}-${ref.itemKey}`} {...ref} cardIndex={cardIndex} />
+      {group.items.map((itemKey, cardIndex) => (
+        <DepthFeatureCard key={itemKey} itemKey={itemKey} cardIndex={cardIndex} />
       ))}
     </div>
   );
@@ -92,11 +89,13 @@ function DepthCardGrid({ group }: { group: DepthGroupDef }) {
 function DepthGroupPanel({
   group,
   layout,
-  defaultOpen,
+  open,
+  onSelect,
 }: {
   group: DepthGroupDef;
   layout: 'accordion' | 'stage';
-  defaultOpen?: boolean;
+  open?: boolean;
+  onSelect?: () => void;
 }) {
   const t = useTranslations('marketing');
   const index = GROUP_INDEX[group.id] ?? '00';
@@ -139,8 +138,15 @@ function DepthGroupPanel({
   }
 
   return (
-    <details className="ed-depth-panel group/depth" data-depth-id={group.id} open={defaultOpen}>
-      <summary className="ed-depth-summary">
+    <details className="ed-depth-panel group/depth" data-depth-id={group.id} open={open}>
+      <summary
+        className="ed-depth-summary"
+        onClick={(event) => {
+          if (!onSelect) return;
+          event.preventDefault();
+          onSelect();
+        }}
+      >
         {header}
         <span className="ed-depth-chevron" aria-hidden />
       </summary>
@@ -156,19 +162,54 @@ export default function EngineeringDepthSection() {
   const docsLocale = useDocsLocale();
   const isDesktop = useMinWidth(768);
   const compareHref = getDocsUrl(COMPETITOR_COMPARISON_DOC_PATH, docsLocale);
-  const [activeId, setActiveId] = useState(DEFAULT_ACTIVE_ID);
+  const [activeId, setActiveId] = useState<BentoKey>(DEFAULT_ACTIVE_ID);
+  const scrollPanelRef = useRef(false);
 
   const activeGroup = DEPTH_GROUPS.find((g) => g.id === activeId) ?? DEPTH_GROUPS[0];
 
-  const selectGroup = useCallback((id: string) => {
+  const selectGroup = useCallback((id: BentoKey) => {
     setActiveId(id);
+    writeDepthEvidenceLink(id);
   }, []);
 
   useEffect(() => {
-    if (!isDesktop) return;
-    const stillValid = DEPTH_GROUPS.some((g) => g.id === activeId);
-    if (!stillValid) setActiveId(DEFAULT_ACTIVE_ID);
-  }, [isDesktop, activeId]);
+    const fromLocation = readDepthGroupFromLocation();
+    if (fromLocation) {
+      scrollPanelRef.current = true;
+      setActiveId(fromLocation);
+    }
+  }, []);
+
+  useEffect(() => {
+    const onLocationGroup = () => {
+      const fromLocation = readDepthGroupFromLocation();
+      if (!fromLocation) return;
+      scrollPanelRef.current = true;
+      setActiveId(fromLocation);
+    };
+
+    window.addEventListener('hashchange', onLocationGroup);
+    window.addEventListener('popstate', onLocationGroup);
+    return () => {
+      window.removeEventListener('hashchange', onLocationGroup);
+      window.removeEventListener('popstate', onLocationGroup);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isDesktop || !scrollPanelRef.current) return;
+    scrollPanelRef.current = false;
+    const panel = document.querySelector<HTMLElement>(`[data-depth-id="${activeId}"]`);
+    panel?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [activeId, isDesktop]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const hashRoot = window.location.hash.slice(1).split('?')[0];
+    if (hashRoot !== ENGINEERING_DEPTH_SECTION_ID) return;
+    scrollPanelRef.current = Boolean(readDepthGroupFromLocation());
+    requestAnimationFrame(() => scrollToSection(ENGINEERING_DEPTH_SECTION_ID));
+  }, []);
 
   return (
     <section id="engineering-depth" className="ed-section-main ed-depth-section py-20 sm:py-32">
@@ -189,12 +230,6 @@ export default function EngineeringDepthSection() {
               {t('engineeringDepth.compareCta')}
               <ArrowRight02Icon className="h-3.5 w-3.5" />
             </a>
-          </div>
-          <div className="ed-depth-hero-mark ed-mono" aria-hidden>
-            <span className="ed-depth-hero-mark-line">SYS</span>
-            <span className="ed-depth-hero-mark-line">SPEC</span>
-            <span className="ed-depth-hero-mark-accent">{DEPTH_GROUPS.length}</span>
-            <span className="ed-depth-hero-mark-line">CH</span>
           </div>
         </div>
 
@@ -234,7 +269,8 @@ export default function EngineeringDepthSection() {
                 key={group.id}
                 group={group}
                 layout="accordion"
-                defaultOpen={false}
+                open={group.id === activeId}
+                onSelect={() => selectGroup(group.id)}
               />
             ))}
           </div>

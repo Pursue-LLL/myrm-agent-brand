@@ -44,6 +44,15 @@ The Kanban board gives you a drag-and-drop interface to manage agent tasks acros
   </Card>
 </CardGroup>
 
+### Task Result Editing
+
+Completed, failed, or cancelled tasks can have their `result` and `metadata` fields edited directly from the task drawer in the frontend.
+
+- Click a task card → open the drawer → edit the result inline
+- Only available for terminal-state tasks (completed/failed/cancelled) to prevent interference with running tasks
+- Each edit emits an `EDITED` event with a payload listing changed fields, providing a full audit trail in the activity feed
+- Metadata merges additively — existing keys are preserved unless explicitly overwritten
+
 ### Pipeline Wizard
 
 For complex workflows, use the **Pipeline Wizard** to create a task DAG from a template:

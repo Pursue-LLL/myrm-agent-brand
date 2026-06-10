@@ -57,6 +57,20 @@ Unlike competitors that evolve from single failure signals, Myrm aggregates evid
 - **Failure cases** — analyzed for root cause patterns
 - **Minimum evidence threshold** — requires at least 3 executions and 1 failure before triggering evolution
 
+## Smallest Appropriate Form
+
+When the agent captures a behavior pattern, it doesn't blindly create a skill. Instead, it classifies the **smallest appropriate execution form** in the same LLM call — zero extra cost:
+
+| Classification | What Happens | Example |
+|----------------|--------------|---------|
+| **skill** | Normal skill approval flow | "Deploy with zero-downtime rolling update" |
+| **cron_job** | Purple card with schedule suggestion | "Check server load every Monday at 9am" |
+| **skip** | Silently discarded — too trivial to capture | "Rename a file" |
+
+This means fewer noisy proposals in your inbox, and clear guidance when something is better suited as a scheduled task rather than an on-demand skill.
+
+**vs competitors:** No competitor (Hermes, OpenClaw, Codex) offers automatic form classification. All produce only skills, leaving users to manually create cron jobs.
+
 ## Quality Monitoring
 
 **3-dimensional degradation detection** with sliding window statistics:

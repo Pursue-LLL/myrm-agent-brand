@@ -1,58 +1,79 @@
 ---
-title: 隧道（NAT 穿透）
-description: 从任意位置访问本地 Agent。
+title: 公网访问与穿透选型
+description: 自选内网穿透工具，将 HTTPS 地址粘贴到 Myrm。
 ---
 
-# 隧道
+# 公网访问与穿透选型
 
-通过内置隧道，从任意位置访问本地托管的 Myrm 实例。
+Myrm **不内置**任何穿透服务商。请根据你的网络环境选择工具，获得 HTTPS 公网地址后，粘贴到 **设置 → 系统 → 公网 Ingress**。
 
-## 原理
+## 什么时候需要公网地址
 
-Myrm 集成 Cloudflare Tunnel，通过安全加密隧道暴露本地实例。
+| 场景 | 需要公网 Ingress？ |
+| --- | --- |
+| 同一 WiFi / 公司内网（手机或同事访问） | 否 — 用系统设置里的 **内网访问** |
+| 出站渠道（飞书 WebSocket、钉钉、电报 WS 等） | 否 — 服务端主动连出去 |
+| 入站渠道（LINE、Teams、Webhook、QQ 机器人等） | **是** |
+| Cron Webhook 触发 | **是** |
+| 外出用手机/4G 访问 WebUI | **是**（粘贴穿透 URL） |
+| 云托管 Myrm | 否 — 平台自动注入 |
 
-## 设置
+渠道卡片上的 **出站/入站徽章** 与系统页的 `ingress-requirement` 会提示你是否必须配置公网地址。
 
-1. 打开 **设置 > 系统**
-2. 启用**密码保护**（Tauri 必填；浏览器本地模式默认开启）
-3. 在 **Quick Tunnel** 下点击 **启动隧道**
-4. 复制生成的公网 URL（Webhook 自动同步到 **公网入口**）
+## 推荐工具（任选其一）
 
-## 使用场景
+### 国内 / 企业内网
 
-- 用手机访问家中 Agent
-- 临时与团队成员共享 Agent
-- 将消息渠道连接到本地实例
+| 工具 | 说明 |
+| --- | --- |
+| [cpolar](https://www.cpolar.com/docs) | 有免费版、国内节点，`cpolar http 3000` |
+| [NATAPP](https://natapp.cn/) | 国内节点，类似 ngrok（可能需实名） |
+| [花生壳](https://hsk.oray.com/) | 家用场景常见 |
+| **frp 自建** | 最可控；需有公网 IP 的 VPS |
 
-## 稳定自定义域名
+### 海外
 
-Quick Tunnel 使用随机 `trycloudflare.com` 主机名。生产 **固定域名**（Webhook）：
+| 工具 | 说明 |
+| --- | --- |
+| **frp** / **nps** | 自建在 VPS |
+| **ngrok** | 试用方便；免费版 URL 可能变化 |
+| **Cloudflare Named Tunnel** | 可绑固定域名；部分地区到 edge 不稳定 |
+| **反代** | 云服务器 nginx/Caddy 反代到 WebUI 端口 |
 
-1. 创建 [Cloudflare Named Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)（或其他反向代理）指向 WebUI 端口（默认 `3000`）。
-2. 在 **设置 > 系统** 将 **公网入口** 设为 `https://your.domain`（勿启动 Quick Tunnel）。
-3. 运行 **连通性测试**，再配置消息渠道。
+## 配置流程
+
+1. 开启 **WebUI 访问密码**（系统设置）。
+2. 用穿透工具映射 WebUI 端口（默认 `3000`）。
+3. 复制 **HTTPS** 公网地址（不要末尾 `/`）。
+4. 粘贴到 **设置 → 系统 → 公网 Ingress**。
+5. 点击 **测试连通性**。
+6. 配置入站渠道或 Cron Webhook；重新打开渠道页以刷新 Webhook 地址。
+
+### 示例：cpolar（国内）
+
+```bash
+curl -L https://www.cpolar.com/static/downloads/install-release-cpolar.sh | sudo bash
+cpolar authtoken <你的token>
+cpolar http 3000
+```
+
+将输出的 `https://….cpolar….` 地址粘贴到 Myrm 公网 Ingress。
 
 ## 安全
 
-- 全程端到端加密
-- 启动 Quick Tunnel 前启用**密码保护**
-- Quick Tunnel URL 每会话变化；长期 Webhook 请用稳定域名
+- 暴露到公网前务必开启访问密码。
+- 生产 Webhook 请用 **稳定域名**，免费随机地址重启后会变。
+- 云托管用户无需在家做穿透。
 
 ## 故障排除
 
-### `cloudflared binary not found`
+### 连通性测试失败
 
-- **Tauri 桌面端**：应用捆绑 `cloudflared`；若 sidecar 缺失请重装或更新桌面版。
-- **WebUI / 开发**：安装 [cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/) 并确保在 `PATH`，或启动服务前设置 `CLOUDFLARED_PATH` 为完整二进制路径。
+1. 确认穿透进程仍在运行。
+2. 确认 URL 端口与 WebUI 一致。
+3. 企业网关可能拦截部分穿透域名 — 换工具或改用内网访问。
 
-### 隧道启动超时或立即失败
+### 渠道 Webhook 仍显示 localhost
 
-1. 确认 **设置 > 系统** 中的 WebUI 端口与 Myrm 实际监听端口一致（默认 `3000`）。
-2. 查看服务端日志 `Quick Tunnel failed` — 含 **cloudflared stderr** 末行以显示真实错误（防火墙、DNS 或 Cloudflare 故障）。
-3. 一分钟后重试；未绑定 Cloudflare 账号时 Quick Tunnel 为尽力而为。
-
-### 渠道页 Webhook 仍显示 `localhost`
-
-1. 先在 **设置 > 系统** 启动 **Quick Tunnel**（或设置 **公网入口**）。
-2. 重新打开渠道页，使 Webhook URL 从公网入口解析器刷新。
-3. 生产 Webhook 请用**稳定自定义域名**，勿用随机 `trycloudflare.com` URL。
+1. 先配置 **公网 Ingress**。
+2. 重新打开渠道设置页以刷新 Webhook URL。

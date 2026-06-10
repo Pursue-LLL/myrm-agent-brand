@@ -3,16 +3,17 @@
  * - next-intl marketing.advantages.items (六项 Bento 文案)
  *
  * [OUTPUT]
- * - AdvantagesSection: 首屏六项核心能力 Bento 网格（每卡最多 3 个 tag）
+ * - AdvantagesSection: 首屏六项 Bento 网格（每卡最多 3 个 tag）
  *
  * [POS]
- * 落地页主转化能力区。仅展示高优先级主题，细节见 EngineeringDepthSection。
+ * 落地页主转化能力区。与 EngineeringDepthSection 独立成块，由 subtitle 自然衔接。
  */
 'use client';
 
 import { useTranslations } from 'next-intl';
 import { useDocsLocale } from '@/hooks/useDocsLocale';
 import {
+  ArrowRight02Icon,
   Brain02Icon,
   SecurityIcon,
   HierarchyIcon,
@@ -28,7 +29,6 @@ import {
   getAppLoginRedirectUrl,
   getDesktopDownloadPath,
 } from '@/lib/deploy-mode';
-import { ArrowRight02Icon } from 'hugeicons-react';
 import { BENTO_KEYS, type BentoKey } from './marketing-keys';
 
 type IconProps = { className?: string; style?: React.CSSProperties };

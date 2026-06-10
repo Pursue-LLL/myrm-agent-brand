@@ -1,58 +1,81 @@
 ---
-title: Tunnel (NAT Traversal)
-description: Access your local agent from anywhere.
+title: Public Access & Tunnel Options
+description: Choose your own NAT traversal tool and paste the URL into Myrm.
 ---
 
-# Tunnel
+# Public Access & Tunnel Options
 
-Access your locally-hosted Myrm instance from anywhere using built-in tunnel support.
+Myrm does **not** bundle a tunnel provider. You pick a tool that works in your region and network, obtain an HTTPS public URL, then paste it into **Settings → System → Public Ingress**.
 
-## How It Works
+## When you need a public URL
 
-Myrm integrates with Cloudflare Tunnel to expose your local instance through a secure, encrypted tunnel.
+| Scenario | Need public Ingress? |
+| --- | --- |
+| Same Wi‑Fi / office LAN (phone or colleague) | No — use **LAN access** in System settings |
+| Outbound channels (Feishu WebSocket, DingTalk, Telegram WS, etc.) | No — server connects outbound |
+| Inbound channels (LINE, Teams, webhooks, QQ Bot, etc.) | **Yes** |
+| Cron webhook triggers | **Yes** |
+| Remote WebUI from cellular / another network | **Yes** (paste tunnel URL) |
+| Cloud-hosted Myrm (SaaS) | No — platform injects the URL |
 
-## Setup
+Myrm shows **outbound / inbound badges** on channel cards and `ingress-requirement` in System settings so you know when a public URL is required.
 
-1. Open **Settings > System**
-2. Enable **password protection** (required for Tauri; enabled by default in browser local mode)
-3. Under **Quick Tunnel**, click **Start tunnel**
-4. Copy the generated public URL (webhooks sync to **Public Ingress** automatically)
+## Recommended tools (pick one)
 
-## Use Cases
+### China / corporate LAN
 
-- Access your home agent from your phone
-- Share your agent with team members temporarily
-- Connect messaging channels to a local instance
+| Tool | Notes |
+| --- | --- |
+| [cpolar](https://www.cpolar.com/docs) | Free tier, China nodes, `cpolar http 3000` |
+| [NATAPP](https://natapp.cn/) | Ngrok-style, domestic nodes (real-name may be required) |
+| [花生壳](https://hsk.oray.com/) | Common for home users |
+| **frp** (self-hosted) | Best control; needs a VPS with public IP |
 
-## Stable custom domain
+### International
 
-Quick Tunnel uses a random `trycloudflare.com` hostname. For a **fixed domain** (webhooks in production):
+| Tool | Notes |
+| --- | --- |
+| **frp** / **nps** | Self-hosted on your VPS |
+| **ngrok** | Quick trials; URL may change on free tier |
+| **Cloudflare Named Tunnel** | Stable domain; edge connectivity varies by region |
+| **Reverse proxy** | nginx/Caddy on a cloud VM pointing to your WebUI port |
 
-1. Create a [Cloudflare Named Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) (or another reverse proxy) to your WebUI port (default `3000`).
-2. In **Settings > System**, set **Public Ingress** to `https://your.domain` (do not start Quick Tunnel).
-3. Run **Test connectivity**, then configure messaging channels.
+## Setup workflow
+
+1. Enable **WebUI password protection** (System settings).
+2. Run your tunnel tool against the WebUI port (default `3000`).
+3. Copy the **HTTPS** public URL (no trailing slash).
+4. Paste into **Settings → System → Public Ingress**.
+5. Click **Test connectivity**.
+6. Configure inbound channels or cron webhooks; refresh channel pages so webhook URLs update.
+
+### Example: cpolar (China)
+
+```bash
+# Install (see cpolar docs)
+curl -L https://www.cpolar.com/static/downloads/install-release-cpolar.sh | sudo bash
+cpolar authtoken <your-token>
+cpolar http 3000
+```
+
+Copy the `https://….cpolar….` URL into Myrm Public Ingress.
 
 ## Security
 
-- All traffic is encrypted end-to-end
-- Enable **password protection** before starting Quick Tunnel
-- Quick Tunnel URLs change each session; use a stable domain for long-lived webhooks
+- Always enable password protection before exposing WebUI.
+- Prefer HTTPS endpoints; Myrm normalizes trailing slashes.
+- Use a **stable domain** for production webhooks (free random URLs change on restart).
+- Cloud-hosted deployments avoid home tunneling entirely.
 
 ## Troubleshooting
 
-### `cloudflared binary not found`
+### Connectivity test fails
 
-- **Tauri desktop**: the app bundles `cloudflared`; reinstall or update the desktop build if the sidecar is missing.
-- **WebUI / dev**: install [cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/) and ensure it is on `PATH`, or set `CLOUDFLARED_PATH` to the full binary path before starting the server.
+1. Confirm the tunnel process is still running.
+2. Confirm the URL matches the WebUI port.
+3. On corporate networks, some tunnel domains are blocked — try another provider or LAN access.
 
-### Tunnel start times out or fails immediately
+### Channel webhook still shows `localhost`
 
-1. Confirm the WebUI port in **Settings > System** matches the port Myrm is actually listening on (default `3000`).
-2. Check server logs for `Quick Tunnel failed` — the last lines of **cloudflared stderr** are included to show the real error (firewall, DNS, or Cloudflare outage).
-3. Retry after a minute; Quick Tunnels are best-effort when not using a Cloudflare account.
-
-### Webhook still shows `localhost` on a channel page
-
-1. Start **Quick Tunnel** (or set **Public Ingress**) under **Settings > System** first.
-2. Re-open the channel page so the webhook URL refreshes from the public ingress resolver.
-3. For production webhooks, use a **stable custom domain** instead of a random `trycloudflare.com` URL.
+1. Set **Public Ingress** first.
+2. Re-open the channel settings page to refresh the resolved webhook URL.

@@ -45,8 +45,9 @@
 | `landing/marketing-keys.ts` | 核心 | Bento/对比表/折叠区 i18n 键清单（`validate:locales`） | — |
 | `../../lib/marketing-nav.ts` | 核心 | 共享 Nav 链接 DRY（`buildMarketingNavLinks`） | — |
 | `landing/marketing-i18n.ts` | 辅助 | 类型安全的 `marketingHas` | — |
-| `landing/AdvantagesSection.tsx` | 核心 | 六项 Bento 核心能力 | ✅ |
-| `landing/EngineeringDepthSection.tsx` | 核心 | 折叠工程深度 + docs 对比链 | ✅ |
+| `landing/depth-evidence.ts` | 核心 | 分享直链 `?group=#engineering-depth`（无 Bento UI 入口） | — |
+| `landing/AdvantagesSection.tsx` | 核心 | 六项 Bento 核心能力（独立区块，subtitle 衔接证据区） | ✅ |
+| `landing/EngineeringDepthSection.tsx` | 核心 | 产品深度 18 卡；桌面 rail / 移动 accordion；分享直链 ?group= | ✅ |
 | `landing/BenchmarkSection.tsx` | 核心 | Token 实测数字条 | — |
 | `landing/WhyMyrmAgentSection.tsx` | 核心 | 竞品对比表（分类 Tab + 行过滤） | — |
 | `landing/WorkspacePreview.tsx` | 核心 | Hero 下方产品预览（WebM + WebP 回退） | ✅ |
@@ -57,7 +58,7 @@
 
 ## Landing 区块顺序（LandingEditorial.tsx）
 
-Hero → **WorkspacePreview** → HowItWorks（路径 Tab）→ QuickStart → Marquee → **Advantages（6 Bento）** → Benchmark → **EngineeringDepth（5 组）** → UseCases → Deploy（矩阵）→ Integrations → Testimonials → WhyMyrmAgent → Pricing → FAQ → Final CTA（PathStrip 收口）
+Hero → **WorkspacePreview** → HowItWorks（路径 Tab）→ QuickStart → Marquee → **Advantages（6 Bento）** → Benchmark → **EngineeringDepth（6 组 × 3 卡）** → UseCases → Deploy（矩阵）→ Integrations → Testimonials → WhyMyrmAgent → Pricing → FAQ → Final CTA（PathStrip 收口）
 
 ## 外部链接
 
@@ -69,6 +70,7 @@ Hero → **WorkspacePreview** → HowItWorks（路径 Tab）→ QuickStart → M
 | 文档 locale | `hooks/useDocsLocale.ts` | 营销组件按站点 locale 生成 docs 链接 |
 | `getDesktopDownloadPath()` | — | `/download` |
 | `getDeployPathHref()` / `getDeployPathSectionLink()` | — | 见 `lib/deploy-paths.ts` |
+| `writeDepthEvidenceLink()` / `readDepthGroupFromLocation()` | — | 见 `landing/depth-evidence.ts`（分享直链 + rail 联动） |
 | `buildMarketingNavLinks()` | — | 见 `lib/marketing-nav.ts` |
 | `getGitHubReleasesPageUrl()` | `NEXT_PUBLIC_GITHUB_RELEASE_REPO` | 构建期 release 拉取；**不向终端用户 CTA 暴露** |
 
@@ -77,15 +79,15 @@ Hero → **WorkspacePreview** → HowItWorks（路径 Tab）→ QuickStart → M
 ## i18n
 
 - `locales/zh.json` + `locales/en.json`：`marketing` 命名空间
-- **首屏 Bento**：`advantages.items` — 仅 `BENTO_KEYS`（`selfEvolution` / `security` / `reliability` / `costEfficiency` / `visualControl` / `taskModes`），每卡 ≤3 个 `pointN`
-- **工程深度**：`engineeringDepth.groups.*` + 复用 `highlights.items` / `extendedHighlights.items` / 部分 `advantages.items`；桌面端侧栏默认选中 `compounding`（`marketing-keys.ts` 唯一 `defaultOpen: true`）；`<md` 手风琴默认全折叠（`useMinWidth`）
-- **advantages.items 键**：`BENTO_KEYS` ∪ `depthAdvantageItemKeys()`（深度区专用四项，非首屏 Bento）
+- **首屏 Bento**：`advantages.items` — 仅 `BENTO_KEYS`，每卡 ≤3 个 `pointN`；与证据区独立，由 `advantages.subtitle` / `engineeringDepth.subtitle` 呼应
+- **工程深度**：`engineeringDepth.groups.*` + `engineeringDepth.items.*`（6 Bento 对齐组 × 3 卡 = 18 proof cards）；桌面 rail 默认 `selfEvolution`；`<md` 受控 accordion 与 `?group=` URL 联动
+- **advantages.items 键**：仅 `BENTO_KEYS`（六格首屏）
 - **Bento 细节**：首屏六项仅展示要点；完整竞品对比链见 `EngineeringDepthSection` → `getDocsUrl(COMPETITOR_COMPARISON_DOC_PATH, docsLocale)`
 - **对比表**：`whyMyrmAgent.rows.*` + `whyMyrmAgent.tabs.*`（`COMPARE_TAB_ROWS` 映射）
 - **定价页**：`/pricing` 使用 `pricingPage.plans.*`（`PRICING_PAGE_PLAN_KEYS`）；Landing 预览仍用 `pricingPreview.*`
 - **迁移 CTA**：主链 `/download`；次链 `getAppLoginRedirectUrl(APP_MIGRATION_WIZARD_PATH)`（Local 已部署用户）
 - **同步规则**：落地页 Bento / 对比表条款与 `getDocsUrl(COMPETITOR_COMPARISON_DOC_PATH, docsLocale)` 保持一致；禁止脚本批量灌入 7+ bullet
-- **键校验**：`bun run validate:locales`（含 pricingPreview ↔ pricingPage、locales legacy URL）+ `bun run validate:docs-slugs`（含 orphan MDX + docs legacy URL）；`bun run build` 前自动执行
+- **键校验**：`bun run validate:locales`（含 engineeringDepth 18 卡 schema、pricingPreview ↔ pricingPage、locales legacy URL）+ `bun run validate:docs-slugs`；`bun run build` 前自动执行
 
 ## 与 App 的关系
 
