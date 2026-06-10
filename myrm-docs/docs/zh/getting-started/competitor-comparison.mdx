@@ -17,6 +17,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 |------------|:----:|:------------:|:--------:|:---------:|:---------:|:-----:|:---------:|
 | **记忆系统** | ✅ 8 类 + 知识图谱 + 30+ UI 组件 + 8 种竞品导入 + 15 种诊断（806 项测试） | ⚠️ 2,200 字符 | ⚠️ 3 类 | ⚠️ 3 类 | ❌ 仅会话 | ⚠️ 基础更新 | ⚠️ 扁平抽屉 |
 | **对话搜索** | ✅ FTS5 + Qdrant 混合 | ⚠️ v0.15 仅本地文本 | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **代码搜索** | ✅ FTS5 + Vector + RRF 融合 · `@codebase` · 15+ 语言 · CJK | ❌ 仅 grep | ⚠️ tree-sitter 精确匹配 | ❌ | ❌ 仅 grep | ❌ | ❌ |
 | **GUI 界面** | ✅ Web 原生 | ❌ CLI（v0.15 TUI 多会话） | CLI | ✅ Web/App | ⚠️ 基础 WebUI | ⚠️ 飞书嵌入 | ❌ 仅 CLI |
 | **桌面应用** | ✅ Tauri | Electron | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **部署** | ✅ Web/Tauri/SaaS | 自托管 | 自托管 | ❌ 仅 SaaS | 本地 + WebUI | ❌ 闭源 SaaS | 仅本地 |
@@ -48,7 +49,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **语音** | ✅ STT + TTS + 实时 | ⚠️ Discord 语音 | WebRTC | ⚠️ 基础 | ❌ | ❌ | ❌ |
 | **Computer Use** | ✅ 桌面自动化 + BBox 审批 + Tauri OS 叠加层 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **浏览器引擎** | ✅ 三层引擎 + GlobalBrowserPool（零冷启动、三层崩溃恢复）+ Shadow DOM 穿透 + API-First 网络智能（CDP 懒加载响应体 + 请求重放）+ 同源智能Tab路由 | ⚠️ 第三方云浏览器 | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
-| **网页搜索** | ✅ 7 引擎 + BM25/Reranker 过滤 | ⚠️ 云 API 透传 | ⚠️ DDG/Bing 抓取 | ⚠️ 同 OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
+| **网页搜索** | ✅ 8 引擎 + BM25/Reranker 过滤 | ⚠️ 云 API 透传 | ⚠️ DDG/Bing 抓取 | ⚠️ 同 OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
 | **网页抓取** | ✅ 三层 + 向量提取 + DOM 修剪 | ⚠️ web_extract（Firecrawl + LLM） | ⚠️ HTTP / Firecrawl 回退 | ⚠️ 同上 | ⚠️ 仅 HTTP | ❌ | ❌ |
 | **工作区 RAG** | ✅ **四层管线**：BM25 + 向量 + RRF融合 + Reranker；7类18种格式解析（PDF/Word/Excel/PPT/OCR）；双后端知识图谱；Karpathy Wiki；RSG质量守卫（503项测试） | ⚠️ 仅代码AST索引 | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **图片搜索** | ✅ 内置 image_search | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -227,7 +228,7 @@ Myrm 将 **web_search** 与 **web_fetch** 作为一等内置工具。竞品要�
 
 | 能力 | Technical | 用户收益 |
 |------------|-----------|--------------|
-| **Web Search** | 7 engines + 7 intent types (zero LLM) + BM25/RRF + optional Reranker | Relevant snippets only — no duplicate junk in context |
+| **Web Search** | 8 engines + 7 intent types (zero LLM) + BM25/RRF + optional Reranker | Relevant snippets only — no duplicate junk in context |
 | **Web Fetch** | HTTP → Browser → Stealth + DOM pruning + Markdown + Schema-Driven structured extraction | Article body, not nav/ads HTML — **~40–50% fewer tokens**; Schema extraction saves **97%** |
 | **Logged-in fetch** | SessionVault: CookieJar (HTTP) + `storage_state` (browser) | One login works across fetch tiers — competitors often lose cookies on engine switch |
 | **fetch_and_extract** | Crawl → BM25 + vector hybrid → Reranker | Long pages → only relevant passages (zero LLM cost vs Hermes Gemini summary) |
@@ -272,7 +273,7 @@ Hermes v0.15（Velocity，2026-05-28）将核心循环从 16k 行重构为 14 �
 - **流水线模板向导**（发现问题 + 角色自动匹配）— Hermes `hermes kanban swarm` 为固定 CLI
 - **35+ 消息渠道**（25 带输出提示）vs ~23（19 带平台提示）— Myrm 覆盖钉钉、Teams、Google Chat、LINE、IRC、iMessage、Voice、Webhook、Zalo 等 Hermes 缺失项
 - **8 类记忆** + 知识图谱 vs 2,200 字符扁平记忆（MEMORY.md + USER.md § 分隔）
-- **网页搜索 + 抓取双引擎** — 7 引擎 BM25/Reranker + 三层本地抓取 DOM 修剪（$0/月）vs Hermes 云 API 透传 + Firecrawl/LLM web_extract
+- **网页搜索 + 抓取双引擎** — 8 引擎 BM25/Reranker + 三层本地抓取 DOM 修剪（$0/月）vs Hermes 云 API 透传 + Firecrawl/LLM web_extract
 - **FTS5 + Qdrant 混合搜索** + 作用域/谱系过滤 — Hermes v0.15 仅本地文本（~20ms，无语义检索）
 - **108 模式安全扫描** vs Hermes threat_patterns.py（3 作用域 ~20 模式）
 - **22+ 中间件流水线** vs 8 层固定栈 — Myrm 各组件可独立配置

@@ -17,6 +17,7 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 |------------|:----:|:------------:|:--------:|:---------:|:---------:|:-----:|:---------:|
 | **Memory System** | ✅ 8 types + knowledge graph + 30+ UI + 8 import adapters + 15 diagnostics (806 tests) | ⚠️ 2,200 chars | ⚠️ 3 types | ⚠️ 3 types | ❌ Session-only | ⚠️ Basic update | ⚠️ Flat drawers |
 | **Conversation Search** | ✅ FTS5 + Qdrant hybrid | ⚠️ v0.15 local text only | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Code Search** | ✅ FTS5 + Vector + RRF fusion · `@codebase` · 15+ langs · CJK | ❌ grep only | ⚠️ tree-sitter exact match | ❌ | ❌ grep only | ❌ | ❌ |
 | **GUI Interface** | ✅ Web-native | ❌ CLI (v0.15 TUI multi-session) | CLI | ✅ Web/App | ⚠️ Basic WebUI | ⚠️ Lark-embedded | ❌ CLI only |
 | **Desktop App** | ✅ Tauri | Electron | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Deployment** | ✅ Web/Tauri/SaaS | Self-hosted | Self-hosted | ❌ SaaS only | Local + WebUI | ❌ Closed SaaS | Local only |
@@ -48,7 +49,7 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **Voice** | ✅ STT + TTS + Real-time | ⚠️ Discord Voice | WebRTC | ⚠️ Basic | ❌ | ❌ | ❌ |
 | **Computer Use** | ✅ Desktop automation + BBox approval + Tauri OS overlay | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Browser Engine** | ✅ 3-layer engine + GlobalBrowserPool (zero cold-start, 3-layer crash recovery) + Shadow DOM penetration + API-First network intelligence (CDP lazy body + replay) + origin-based smart tab routing | ⚠️ Cloud Browser Use | ❌ | ❌ | ❌ | ⚠️ Unknown | ❌ |
-| **Web Search** | ✅ 7 engines + BM25/Reranker filter | ⚠️ Cloud API passthrough | ⚠️ DDG/Bing scrape | ⚠️ Same as OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
+| **Web Search** | ✅ 8 engines + BM25/Reranker filter | ⚠️ Cloud API passthrough | ⚠️ DDG/Bing scrape | ⚠️ Same as OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
 | **Web Fetch** | ✅ 3-tier + vector extract + DOM prune + Schema-Driven structured extraction | ⚠️ web_extract (Firecrawl + LLM) | ⚠️ HTTP / Firecrawl fallback | ⚠️ Same | ⚠️ HTTP only | ❌ | ❌ |
 | **Workspace RAG** | ✅ **4-layer pipeline**: BM25 + Vector + RRF + Reranker; 7-type 18-format parser (PDF/Word/Excel/PPT/OCR); dual-backend knowledge graph; Karpathy Wiki; RSG quality guard (503 tests) | ⚠️ Code-only AST index | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Web Image Search** | ✅ built-in image_search | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -227,7 +228,7 @@ Myrm ships **web_search** and **web_fetch** as first-class built-in tools. Compe
 
 | Capability | Technical | User Benefit |
 |------------|-----------|--------------|
-| **Web Search** | 7 engines + 7 intent types (zero LLM) + BM25/RRF + optional Reranker | Relevant snippets only — no duplicate junk in context |
+| **Web Search** | 8 engines + 7 intent types (zero LLM) + BM25/RRF + optional Reranker | Relevant snippets only — no duplicate junk in context |
 | **Web Fetch** | HTTP → Browser → Stealth + DOM pruning + Markdown | Article body, not nav/ads HTML — **~40–50% fewer tokens** |
 | **Logged-in fetch** | SessionVault: CookieJar (HTTP) + `storage_state` (browser) | One login works across fetch tiers — competitors often lose cookies on engine switch |
 | **fetch_and_extract** | Crawl → BM25 + vector hybrid → Reranker | Long pages → only relevant passages (zero LLM cost vs Hermes Gemini summary) |
@@ -272,7 +273,7 @@ Hermes v0.15 (Velocity Release, 2026-05-28) refactored its core loop from 16k to
 - **Pipeline template wizard** with discovery questions + role auto-matching — Hermes' `hermes kanban swarm` is a fixed CLI command
 - **35+ messaging channels** (25 with output hints) vs ~23 channels (19 with platform hints) — Myrm covers DingTalk, Teams, GoogleChat, LINE, IRC, iMessage, Voice, Webhook, Zalo that Hermes lacks
 - **8 memory types** with knowledge graph vs 2,200-character flat memory (MEMORY.md + USER.md with § delimiter)
-- **Web Search + Web Fetch dual engine** — 7 search engines with BM25/Reranker filtering + 3-tier local fetch with DOM pruning ($0/month) vs Hermes' cloud API passthrough + Firecrawl/LLM web_extract
+- **Web Search + Web Fetch dual engine** — 8 search engines with BM25/Reranker filtering + 3-tier local fetch with DOM pruning ($0/month) vs Hermes' cloud API passthrough + Firecrawl/LLM web_extract
 - **FTS5 + Qdrant hybrid search** with scope/lineage filtering — Hermes v0.15 rewrote to local-only text search (~20ms, but no semantic retrieval)
 - **108-pattern security scanning** vs Hermes threat_patterns.py (~20 patterns in 3 scopes)
 - **22+ middleware pipeline** vs 8-layer fixed stack — Myrm's middleware architecture is independently configurable per component
