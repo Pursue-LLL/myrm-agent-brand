@@ -37,6 +37,11 @@
 
 Deploy Hook URL 存本地环境变量，不入库。见 [`myrm-website/scripts/release-website.ts`](myrm-website/scripts/release-website.ts)。
 
+| `myrm-agent` Secret | 用途 |
+|---------------------|------|
+| `BRAND_RELEASE_PAT` | finalize 后在 brand `main` 打 `website-v{semver}` tag |
+| `CF_PAGES_DEPLOY_HOOK` | 与本地 `release:website` 相同的 CF Pages hook URL |
+
 | 文件 | 职责 |
 |------|------|
 | `myrm-website/wrangler.toml` | `name = "myrm-agent-brand"`；`pages_build_output_dir = "out"` |
