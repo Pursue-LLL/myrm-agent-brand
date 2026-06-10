@@ -8,7 +8,7 @@
  * - normalizeWebsiteTag, resolveTagReleaseAction, assertWorkingTreeClean, mapTagRevParseExitCode, parseCliArgs
  *
  * [POS]
- * 营销站 tag 触发生产部署；Dashboard automatic deployments 关闭后唯一上线入口。
+ * 营销站本地应急发布：preflight 后 POST CF Deploy Hook（CF 构建 main 最新 commit）。常规路径为 push website-v* tag 触发 GHA website-release.yml。
  *
  * Prerequisites (CF Dashboard):
  * - Branch control: automatic production + preview deployments disabled

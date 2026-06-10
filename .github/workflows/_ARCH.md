@@ -4,6 +4,6 @@
 |------|------|
 | `website-release.yml` | `website-v*` tag push → preflight（build+test）→ POST `CF_PAGES_DEPLOY_HOOK` |
 
-Secret：`CF_PAGES_DEPLOY_HOOK`（brand 仓库 Settings → Secrets）。
+Secrets：`CF_PAGES_DEPLOY_HOOK`（必填）；`GITHUB_TOKEN`（内置，供 bake GitHub API 限额）。
 
 本地应急：`bun run release:website`（`myrm-website/scripts/release-website.ts`）。
