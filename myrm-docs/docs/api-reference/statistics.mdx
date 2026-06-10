@@ -88,6 +88,58 @@ The journal aggregates data from 6 existing sources without any additional stora
 | 400 | Invalid date format (must be `YYYY-MM-DD`) |
 | 400 | Missing `date` parameter |
 
+## Per-Agent Usage Analytics
+
+Break down token consumption and cost by individual agent — see which agents consume the most resources, with 7-day trend sparklines.
+
+```
+GET /api/v1/statistics/usage/by-agent?days=7
+```
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `days` | integer | No | Number of days for sparkline data (default: 7, max: 30) |
+
+### Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "agents": [
+      {
+        "agentId": "builtin-general",
+        "name": "General Assistant",
+        "avatar": "icon:general",
+        "totalTokens": 125000,
+        "totalUsd": 1.25,
+        "totalCalls": 42,
+        "sessions": 15,
+        "percentTokens": 65,
+        "percentUsd": 72,
+        "sparkline": [
+          { "date": "2026-06-03", "tokens": 18000, "usd": 0.18 },
+          { "date": "2026-06-04", "tokens": 22000, "usd": 0.22 }
+        ]
+      }
+    ],
+    "total_agents": 3,
+    "grand_total_tokens": 192000,
+    "grand_total_usd": 1.74
+  }
+}
+```
+
+### Key Features
+
+- Results sorted by total USD cost (highest first)
+- Percentage breakdown shows each agent's share of total consumption
+- Sparkline data enables 7-day SVG trend visualization in the UI
+- Automatically resolves agent names and avatars from the Agent registry
+- The `AgentUsageCard` component auto-hides when there is only 1 agent (no comparison value)
+
 ## Growth Statistics
 
 Growth dashboard metrics are available through the GUI and provide:

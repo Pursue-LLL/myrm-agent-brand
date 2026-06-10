@@ -88,6 +88,58 @@ GET /api/v1/statistics/daily-journal?date=YYYY-MM-DD&agent_id=optional
 | 400 | 日期格式无效（须 `YYYY-MM-DD`） |
 | 400 | 缺少 `date` 参数 |
 
+## Per-Agent 用量分析
+
+按智能体维度拆解 Token 消耗与成本 —— 直观看到哪个 Agent 消耗最多，附带 7 天趋势 Sparkline。
+
+```
+GET /api/v1/statistics/usage/by-agent?days=7
+```
+
+### 参数
+
+| 参数 | 类型 | 必填 | 说明 |
+|-----------|------|----------|-------------|
+| `days` | integer | 否 | Sparkline 天数（默认 7，最大 30） |
+
+### 响应
+
+```json
+{
+  "success": true,
+  "data": {
+    "agents": [
+      {
+        "agentId": "builtin-general",
+        "name": "通用助手",
+        "avatar": "icon:general",
+        "totalTokens": 125000,
+        "totalUsd": 1.25,
+        "totalCalls": 42,
+        "sessions": 15,
+        "percentTokens": 65,
+        "percentUsd": 72,
+        "sparkline": [
+          { "date": "2026-06-03", "tokens": 18000, "usd": 0.18 },
+          { "date": "2026-06-04", "tokens": 22000, "usd": 0.22 }
+        ]
+      }
+    ],
+    "total_agents": 3,
+    "grand_total_tokens": 192000,
+    "grand_total_usd": 1.74
+  }
+}
+```
+
+### 核心特性
+
+- 结果按总 USD 降序排列（最高消耗在前）
+- 百分比拆解显示每个 Agent 占总消耗的份额
+- Sparkline 数据支持前端 7 天 SVG 趋势可视化
+- 自动关联 Agent 注册表中的名称和头像
+- 当仅有 1 个 Agent 时 `AgentUsageCard` 组件自动隐藏（无对比价值）
+
 ## 成长统计
 
 成长看板指标经 GUI 提供：
