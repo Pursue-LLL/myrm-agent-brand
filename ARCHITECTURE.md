@@ -33,7 +33,7 @@
 ### 发布流程
 
 1. 日常：`git push origin main` → 仅更新代码，不上线（CF 可能显示 skipped 记录，可忽略）
-2. **推荐（GitHub 自动）**：`git tag website-v1.2.0 && git push origin website-v1.2.0` → Actions `website-release.yml` preflight → POST Deploy Hook → CF 构建部署
+2. **推荐（GitHub 自动）**：`git tag website-v1.2.0 && git push origin website-v1.2.0` → Actions `website-release.yml` preflight（`REQUIRE_BAKED_RELEASE=1` 门禁非空 manifest）→ POST Deploy Hook → CF 构建部署
 3. 本地应急：`bun run release:website -- website-v1.2.0` → 同 preflight + tag push + Hook（见 [`release-website.ts`](myrm-website/scripts/release-website.ts)）
 4. **桌面发版联动（可选）**：`myrm-agent` finalize 的 `trigger-website-release.sh` 可代打 `website-v{semver}` tag（tag push 即触发步骤 2）；需 `BRAND_RELEASE_PAT`。`REQUIRE_WEBSITE_DEPLOY=false` 可跳过 finalize 自动 trigger。
 
