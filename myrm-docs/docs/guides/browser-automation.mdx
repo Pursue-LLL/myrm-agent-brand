@@ -221,6 +221,39 @@ Result: a clean JSON array with just the data you need.
 - **Token savings** — 70–97% reduction compared to raw text extraction.
 - **Schema complexity protection** — Limits on property count and nesting depth prevent misuse.
 
+## Vision Auto-Fallback (DOM → LLM)
+
+When a page renders content via Canvas (charts, graphs) or complex SVG (infographics, diagrams), traditional DOM text extraction returns empty or meaningless data. Myrm automatically detects this situation and falls back to Vision LLM-based extraction — transparently, without any agent intervention.
+
+### How it works
+
+1. Agent requests page text extraction (same `browser_extract` tool as always).
+2. If DOM text is insufficient (<50 chars) AND the page contains significant visual elements (large Canvas/SVG), the tool automatically takes a screenshot.
+3. A Vision LLM analyzes the screenshot and extracts all visible text, data, labels, and values.
+4. The result is returned to the agent — identical interface, richer data.
+
+### When it triggers
+
+- **Charts/dashboards** (rendered via Chart.js, D3, ECharts in Canvas)
+- **Infographics** (complex SVG with embedded text/data)
+- **Canvas-rendered applications** (Google Maps data, game UIs)
+- **Image-heavy content pages** (where meaningful text exists only in visuals)
+
+### Key features
+
+- **Fully transparent** — The agent doesn't need to know about the fallback; same tool, same schema.
+- **Smart detection** — Only activates when Canvas/SVG elements exceed 200×100 pixels (avoids false triggers on small icons).
+- **SVG text extraction** — Even without Vision LLM, SVG `<text>` and `<tspan>` elements are now extracted directly from DOM.
+- **Structured output** — Works with schema-driven extraction too — Vision LLM produces JSON conforming to your schema.
+- **Zero extra cost when not needed** — If DOM text is sufficient, no screenshot or LLM call is made.
+
+### Competitor comparison
+
+No competitor offers automatic DOM-to-Vision fallback:
+- **Hermes**: Requires manual `browser_vision` tool call (agent must decide when to use it).
+- **Crawl4AI**: DOM-only extraction, no vision capability.
+- **OpenClaw**: No built-in browser extraction at all.
+
 ## Ephemeral Session Isolation
 
 Every browser context is **ephemeral by default** — created via `browser.new_context()` with no persistent profile. Cookies, localStorage, and cache are automatically destroyed when the session ends. The agent never has access to your real browser profile, eliminating session leakage risk entirely.
