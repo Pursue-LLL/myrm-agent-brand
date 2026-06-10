@@ -269,6 +269,35 @@ No competitor offers automatic DOM-to-Vision fallback:
 - **Crawl4AI**: DOM-only extraction, no vision capability.
 - **OpenClaw**: No built-in browser extraction at all.
 
+## On-Demand Media Extraction
+
+Extract all images, videos, and audio URLs from any page with a single tool call — no JavaScript writing required.
+
+### How it works
+
+1. Agent calls `browser_extract(mode='media')` — one tool call.
+2. The tool traverses all frames and collects:
+   - **Images**: `<img>` tags with lazy-load resolution (`data-src`, `data-lazy-src`, `data-original`, `srcset`, `<picture>/<source>`)
+   - **Videos**: `<video>/<source>` elements + iframe embeds (YouTube, Vimeo, Dailymotion, Wistia)
+   - **Audio**: `<audio>/<source>` elements
+   - **Meta images**: OpenGraph and Twitter Card image tags
+3. Decorative elements (icons, logos, favicons, tiny images <50px) are automatically filtered out.
+4. Results include dimensions, alt text, and poster URLs where available.
+
+### Key advantages
+
+- **On-demand** — Only extracted when needed, unlike competitors that dump media in every response.
+- **Selector scoping** — Use the `selector` parameter to extract media from a specific page region.
+- **Cross-frame** — Automatically traverses all iframes on the page.
+- **Lazy-load aware** — Resolves 5 common lazy-loading attribute patterns.
+- **Structured output** — Grouped by type (Images/Videos/Audio/Meta) with counts and metadata.
+
+### Example
+
+Ask the agent: *"Extract all product images from this e-commerce page"*
+
+The agent uses `browser_extract(mode='media', selector='.product-gallery')` and gets a clean list of image URLs with dimensions — no JavaScript needed.
+
 ## Ephemeral Session Isolation
 
 Every browser context is **ephemeral by default** — created via `browser.new_context()` with no persistent profile. Cookies, localStorage, and cache are automatically destroyed when the session ends. The agent never has access to your real browser profile, eliminating session leakage risk entirely.
