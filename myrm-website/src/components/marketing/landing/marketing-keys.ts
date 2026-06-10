@@ -220,6 +220,7 @@ export const DEPTH_GROUPS: readonly DepthGroupDef[] = [
       { source: 'highlights', itemKey: 'appshotFlowPad' },
       { source: 'extendedHighlights', itemKey: 'multiAgentWorkspace' },
       { source: 'extendedHighlights', itemKey: 'remoteGateway' },
+      { source: 'extendedHighlights', itemKey: 'desktopZeroConfig' },
     ],
   },
 ] as const;

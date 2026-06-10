@@ -78,6 +78,21 @@ Some tools (like OpenCLI) scan every element with `elementFromPoint` to prune oc
 
 Net result: 5-10ms snapshots that are 60-80% smaller than DOM-based approaches, with zero accuracy trade-offs.
 
+## Smart Infinite Scroll
+
+Pages with lazy-loading content (social feeds, e-commerce catalogs, news sites) normally require 10-20+ scroll-and-check loops. Each loop costs one LLM call.
+
+Myrm's `scroll_to_bottom` action handles this in **one call**:
+
+1. Agent calls `browser_interact(action="scroll_to_bottom")`
+2. The engine automatically scrolls one viewport at a time, waiting for new content to load
+3. When the page height stops growing for 3 consecutive checks, it stops
+4. Returns a summary: steps taken, time elapsed, height change, and completion status
+
+**Result**: One tool call replaces 10-20 LLM roundtrips — saving ~90% token cost per infinite scroll page.
+
+Configurable via parameters: `max_steps` (how far to scroll), `delay_ms` (wait time between scrolls), `stable_count` (how many stable checks before stopping).
+
 ## Capabilities
 
 - Navigate to URLs

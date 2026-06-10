@@ -44,6 +44,22 @@ Files you attach to a message (drag-and-drop or click-to-upload) are automatical
 
 This means you can upload a 5 MB CSV and ask "analyze quarterly trends with Python" — the agent accesses the full file without any manual file transfer or path configuration.
 
+## Workspace Sandbox (Git Worktree Isolation)
+
+For project-level isolation, enable **Sandbox Mode** in any chat session:
+
+- **One-click toggle**: Click the "Sandbox" button in the message input toolbar
+- **Git worktree**: Creates an isolated branch where all changes are confined
+- **Merge or discard**: When done, merge good changes back or discard the experiment
+- **Zero risk**: Your main codebase is never modified until you explicitly merge
+
+This is ideal for:
+- Refactoring experiments ("try this approach without risk")
+- Letting the agent explore multiple solutions in parallel
+- Code reviews where you want to test changes before accepting
+
+Unlike Claude Code's CLI-only `--worktree` flag, Myrm's workspace sandbox is available via a GUI toggle, can be enabled/disabled mid-session, and includes a complete merge/discard workflow with pre-approval integration.
+
 ## Sleep & Wake
 
 Sandboxes automatically sleep after inactivity and wake on demand, preserving all state.
