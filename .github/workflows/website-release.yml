@@ -1,0 +1,71 @@
+name: Release Website
+
+on:
+  push:
+    tags:
+      - 'website-v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing website-v* tag to redeploy'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: website-release-${{ github.ref_name || inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Preflight and deploy (${{ github.ref_name || inputs.tag }})
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve release tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ inputs.tag }}"
+          else
+            TAG="${{ github.ref_name }}"
+          fi
+          if ! echo "$TAG" | grep -Eq '^website-v[0-9]+(\.[0-9]+)*([-+][[:alnum:].-]+)?$'; then
+            echo "Invalid tag: $TAG" >&2
+            exit 1
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Release tag: $TAG"
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.tag.outputs.tag }}
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Preflight build and test
+        working-directory: myrm-website
+        run: |
+          bun install
+          bun run build
+          bun run test
+
+      - name: Trigger Cloudflare Pages deploy hook
+        env:
+          CF_PAGES_DEPLOY_HOOK: ${{ secrets.CF_PAGES_DEPLOY_HOOK }}
+        run: |
+          if [ -z "${CF_PAGES_DEPLOY_HOOK:-}" ]; then
+            echo "Missing CF_PAGES_DEPLOY_HOOK repository secret." >&2
+            exit 1
+          fi
+          http_code="$(curl -sS -o /tmp/hook-response -w '%{http_code}' -X POST "$CF_PAGES_DEPLOY_HOOK")"
+          if [ "$http_code" != "200" ] && [ "$http_code" != "201" ] && [ "$http_code" != "202" ]; then
+            echo "Deploy hook failed: HTTP ${http_code}" >&2
+            cat /tmp/hook-response >&2 || true
+            exit 1
+          fi
+          echo "Deploy hook accepted (${{ steps.tag.outputs.tag }} → myrmagent.ai). Check CF Pages → Deployments."

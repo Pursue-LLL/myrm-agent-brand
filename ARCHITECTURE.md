@@ -15,7 +15,7 @@
 
 ## Cloudflare Pages（生产）
 
-**本仓仅通过 Cloudflare Pages 部署营销站，不使用 GitHub Actions / Vercel。** 正式发布时 `release-website.ts` 内置 preflight 强制 `build`+`test`；日常合并前亦建议本地跑同样命令。勿引入 `.github/workflows/` 或 `vercel.json`。
+**本仓营销站仅通过 Cloudflare Pages 部署（不用 Vercel）。** 正式发布：`push` `website-v*` tag → GitHub Actions `website-release.yml`（preflight `build`+`test` → POST Deploy Hook）；本地应急用 `release-website.ts`。日常合并前亦建议本地跑 `build`+`test`。除营销站发布 workflow 外勿引入其他 GHA 或 `vercel.json`。
 
 ### Dashboard 配置（已生效）
 
@@ -32,15 +32,15 @@
 ### 发布流程
 
 1. 日常：`git push origin main` → 仅更新代码，不上线（CF 可能显示 skipped 记录，可忽略）
-2. 发布：`bun run release:website -- website-v1.2.0` → preflight（干净工作区、同步 origin/main、tag/HEAD 检查、`build`+`test`）→ tag + Deploy Hook → CF 构建部署
-3. **桌面发版联动（自动）**：`myrm-agent` `desktop-release` workflow 的 `finalize-release` job 在 manifest 上传后执行 `trigger-website-release.sh`——在 brand `main` HEAD 打 `website-v{semver}` tag 并 POST 同一 Deploy Hook（需 `myrm-agent` 仓库 Secrets：`BRAND_RELEASE_PAT`、`CF_PAGES_DEPLOY_HOOK`）。`REQUIRE_WEBSITE_DEPLOY=true`（CI 默认）时缺 Secret **exit 1**，故意阻断 finalize，防止 silently 漏 deploy；本地 dry run 可设 `REQUIRE_WEBSITE_DEPLOY=false`。
+2. **推荐（GitHub 自动）**：`git tag website-v1.2.0 && git push origin website-v1.2.0` → Actions `website-release.yml` preflight → POST Deploy Hook → CF 构建部署
+3. 本地应急：`bun run release:website -- website-v1.2.0` → 同 preflight + tag push + Hook（见 [`release-website.ts`](myrm-website/scripts/release-website.ts)）
+4. **桌面发版联动（可选）**：`myrm-agent` finalize 的 `trigger-website-release.sh` 可代打 `website-v{semver}` tag（tag push 即触发步骤 2）；需 `BRAND_RELEASE_PAT`。`REQUIRE_WEBSITE_DEPLOY=false` 可跳过 finalize 自动 trigger。
 
-Deploy Hook URL 存本地环境变量，不入库。见 [`myrm-website/scripts/release-website.ts`](myrm-website/scripts/release-website.ts)。
-
-| `myrm-agent` Secret | 用途 |
-|---------------------|------|
-| `BRAND_RELEASE_PAT` | finalize 后在 brand `main` 打 `website-v{semver}` tag |
-| `CF_PAGES_DEPLOY_HOOK` | 与本地 `release:website` 相同的 CF Pages hook URL |
+| Secret | 仓库 | 用途 |
+|--------|------|------|
+| `CF_PAGES_DEPLOY_HOOK` | **myrm-agent-brand** | GHA / 本地 `release:website` POST Hook |
+| `BRAND_RELEASE_PAT` | myrm-agent（可选） | finalize 代打 `website-v*` tag |
+| `CF_PAGES_DEPLOY_HOOK` | myrm-agent（可选） | finalize 直接 POST Hook（无 tag 时） |
 
 | 文件 | 职责 |
 |------|------|

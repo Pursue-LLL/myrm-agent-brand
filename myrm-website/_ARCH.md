@@ -20,8 +20,9 @@ Next.js 静态导出营销站（Cloudflare Pages → `myrmagent.ai`）。下载�
 ## 发布
 
 - 日常：`git push origin main` 不自动上线（CF Automatic deployments Disabled）
-- 发布：`bun run release:website -- website-vX.Y.Z`（preflight + tag + Deploy Hook）
-- 桌面联动：`myrm-agent` finalize 后 `trigger-website-release.sh` 自动打同名 `website-v*` tag 并 POST 同一 Hook（需 `BRAND_RELEASE_PAT` + `CF_PAGES_DEPLOY_HOOK`）
+- 发布：`git push origin website-vX.Y.Z` → GHA preflight + Deploy Hook（Secret `CF_PAGES_DEPLOY_HOOK`）
+- 本地应急：`bun run release:website -- website-vX.Y.Z`
+- 桌面联动（可选）：`myrm-agent` finalize 代打 `website-v*` tag → 触发 GHA
 - 应急：wrangler 上传（见仓根 README）
 
 ## 模块依赖

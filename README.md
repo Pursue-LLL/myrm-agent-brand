@@ -37,10 +37,19 @@ CF Dashboard 已配置：
 
 合并代码后 `git push origin main` 仅更新仓库，**不会**部署到 `myrmagent.ai`。
 
-### 正式发布（打 tag + Deploy Hook）
+### 正式发布（推荐：GitHub tag 触发）
 
-1. 确保 `main` 工作区干净、已与 `origin/main` 同步（无未提交改动、无落后远程）
-2. 从 CF Dashboard → Settings → Deploy Hooks 复制 hook URL，写入本地环境变量（**不入库**）：
+1. 在 **myrm-agent-brand** 仓库 Secrets 配置 `CF_PAGES_DEPLOY_HOOK`（CF Dashboard → Deploy Hooks）
+2. 在干净 `main` HEAD 打 tag 并推送：
+
+```bash
+git tag website-v1.2.0
+git push origin website-v1.2.0
+```
+
+GitHub Actions `website-release.yml` 会 preflight（`build`+`test`）→ POST Deploy Hook → CF 从 `main` 最新 commit 构建部署。
+
+### 本地应急（`release-website` CLI）
 
 ```bash
 export CF_PAGES_DEPLOY_HOOK='https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/…'
@@ -48,7 +57,7 @@ cd myrm-website
 bun run release:website -- website-v1.2.0
 ```
 
-脚本会：**preflight**（干净工作区 → fetch/sync `origin/main` → tag/HEAD 检查 → `bun run build` → `bun run test`）→ 创建 git tag（或 tag 已在 HEAD 时仅 redeploy）→ `git push` tag → POST Deploy Hook → CF 从 `main` 最新 commit 构建部署。成功时输出 tag + commit SHA。
+脚本会：**preflight**（干净工作区 → sync `origin/main` → tag/HEAD 检查 → `build`+`test`）→ 创建/推送 tag → POST Deploy Hook。
 
 若 tag 已指向其他 commit，脚本会中止；请使用新版本号（如 `website-v1.2.1`）。
 
