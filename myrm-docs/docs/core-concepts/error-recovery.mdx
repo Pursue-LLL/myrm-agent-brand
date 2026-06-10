@@ -145,6 +145,20 @@ A 5-layer protection system ensures your data (conversations, scheduled tasks, m
 
 Multi-step table rebuild migrations (e.g. `CREATE TABLE AS SELECT → DROP → RENAME`) are fully protected: if the process is interrupted mid-migration, the pre-migration backup provides a clean restore point.
 
+## Subagent Error Compaction
+
+When a child agent crashes with a long traceback, the error message is automatically compacted before reaching the parent agent's context — preventing pollution that would degrade the parent's reasoning quality.
+
+| Aspect | Implementation |
+|--------|---------------|
+| **Strategy** | Head + truncation marker + tail (preserves error type at head, recent stack frames at tail) |
+| **Default limit** | 2000 characters (~500 tokens) — configurable via `SubagentConfig.max_error_chars` |
+| **Defense-in-depth** | Dual-layer: executor error path + notifications formatting layer |
+| **Savings** | Typical 8000-char traceback → 2000 chars (75% reduction, ~1500 tokens saved per failure) |
+| **Disable** | Set `max_error_chars=0` to pass raw errors through |
+
+This prevents a common multi-agent failure pattern: a child agent's verbose crash output consuming the parent's context window, causing cascading reasoning degradation across the agent hierarchy.
+
 ## What Users Experience
 
 All recovery happens transparently:
@@ -156,3 +170,4 @@ All recovery happens transparently:
 - **Agent loops?** — Detected early, before wasting budget
 - **Response truncated?** — Local JSON repair first, then auto-retry with larger output budget
 - **Upgrade interrupted?** — Pre-migration snapshot restores your data automatically
+- **Child agent crashes?** — Error auto-compacted, parent receives a clean summary, reasoning stays unpolluted
