@@ -25,7 +25,7 @@
 | Automatic deployments | **Disabled**（push 不触发构建） |
 | Preview deployments | **None** |
 | Deploy hook | `website-release` → branch `main` |
-| Build command | `bun install && bun run build` |
+| Build command | `bun install && bun run build && bun run test` |
 | Root directory | `myrm-website` |
 | Output directory | `out` |
 
