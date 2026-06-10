@@ -42,6 +42,23 @@ The complexity router automatically selects the optimal model tier:
 
 The router uses a two-stage assessment (rule-based + LLM judge) with session momentum — short follow-up messages inherit the session's established tier.
 
+### Multi-Slot Model Architecture
+
+Each agent can be configured with 11+ independent model slots for different task types:
+
+| Slot | Purpose | Example |
+|------|---------|---------|
+| **Main** | Primary conversation model | Claude Sonnet 4 |
+| **Lite** | Title generation, quick summaries | GPT-4o-mini |
+| **Light** | Lightweight auxiliary tasks | DeepSeek V4 Flash |
+| **Reasoning** | Complex analysis, planning | o4-mini |
+| **Vision** | Image understanding, visual QA | GPT-4o |
+| **Research** | Deep research, web browsing | Gemini 2.5 Pro |
+| **Safety** | Content moderation, risk assessment | Claude Haiku |
+| **Fallbacks** | Auto-switches on failure per slot | Configurable |
+
+Each slot supports per-agent override (inherit or customize), with automatic fallback to the main model when unset. The model discipline system detects weak models and injects behavioral constraints to ensure quality output regardless of model tier.
+
 ### Thinking Intensity
 
 6 levels of reasoning depth, adjustable per conversation:
