@@ -1,3 +1,14 @@
+/**
+ * [INPUT]
+ * - deploy-mode::getDesktopDownloadPath (POS: 营销站外部链接统一入口)
+ * - download/DesktopReleaseProvider (POS: 桌面 release 元数据 React 上下文)
+ *
+ * [OUTPUT]
+ * - SmartDownloadButton: OS 智能下载 CTA（直链 / 下载页 / 无 release 时仍显示「下载桌面版」）
+ *
+ * [POS]
+ * Landing Hero、QuickStart、Download 页共用的桌面下载主按钮。
+ */
 'use client';
 
 import Link from 'next/link';
@@ -6,7 +17,7 @@ import { Download04Icon } from 'hugeicons-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils/classnameUtils';
-import { getDesktopDownloadPath, getGitHubReleasesPageUrl } from '@/lib/deploy-mode';
+import { getDesktopDownloadPath } from '@/lib/deploy-mode';
 import { useDesktopRelease } from '@/components/download/DesktopReleaseProvider';
 import type { DesktopPlatformId } from '@/lib/desktop-release';
 
@@ -88,23 +99,18 @@ export default function SmartDownloadButton({
   }
 
   if (error || (!primaryTarget && !shouldLinkToDownloadPage)) {
+    if (onDownloadPage) {
+      return null;
+    }
+
     return (
       <div className={cn('flex flex-col items-center gap-2', className)}>
         <Button asChild variant="outline" size={isHero ? 'lg' : 'default'} className={buttonClass} style={buttonStyle}>
-          <a href={getGitHubReleasesPageUrl()} target="_blank" rel="noopener noreferrer">
-            {t('download.fallbackCta')}
+          <Link href={getDesktopDownloadPath()}>
+            {stableLabel}
             <Download04Icon className="ml-2 h-4 w-4" />
-          </a>
-        </Button>
-        {showAllPlatformsLink && !onDownloadPage && (
-          <Link
-            href={getDesktopDownloadPath()}
-            className="text-[12px] ed-mono transition-opacity hover:opacity-80"
-            style={{ color: 'var(--ed-dim)' }}
-          >
-            {t('download.viewAllPlatforms')}
           </Link>
-        )}
+        </Button>
       </div>
     );
   }

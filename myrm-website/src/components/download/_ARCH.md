@@ -11,16 +11,17 @@
 | `../../lib/desktop-release.ts` | 核心 | Release 元数据解析、平台检测、embedded/live fetch | — |
 | `../../hooks/useDesktopReleaseState.ts` | 核心 | embedded 优先 + SWR 刷新 + 状态 | — |
 | `DesktopReleaseProvider.tsx` | 核心 | 单页共享 release 状态 | ✅ |
-| `SmartDownloadButton.tsx` | 核心 | OS 智能下载 CTA | ✅ |
-| `PlatformDownloadGrid.tsx` | 核心 | 全平台安装包矩阵 + Recommended + size | ✅ |
+| `SmartDownloadButton.tsx` | 核心 | OS 智能下载 CTA；无 release 时固定「下载桌面版」→ `/download` | ✅ |
+| `CliInstallFallback.tsx` | 核心 | 无桌面包：筹备说明 + localWebui 终端引导（非桌面 App） | ✅ |
+| `PlatformDownloadGrid.tsx` | 核心 | 全平台安装包矩阵 + Recommended + size；无包时 CliInstallFallback | ✅ |
 | `ReleaseNotesSection.tsx` | 辅助 | Release notes 折叠展示 | ✅ |
 | `InstallStepsSection.tsx` | 辅助 | 三平台安装引导 | ✅ |
 | `ChecksumSection.tsx` | 辅助 | SHA256 内联展示 + 复制 | ✅ |
-| `DownloadPageContent.tsx` | 核心 | `/download` 页面内容；`useDocsLocale` 生成 zh/en 部署文档链 | ✅ |
+| `DownloadPageContent.tsx` | 核心 | `/download` 编排；无包时 SaaS 优先 + localWebui 次之 | ✅ |
 
 ## 路由与触达
 
-- `/download` — 功能页（矩阵 + notes + 安装步骤 + SHA256 + 系统要求 + 替代路径）
+- `/download` — 功能页（矩阵或 CLI 兜底 + notes + 安装步骤 + SHA256 + 系统要求 + 替代路径）
 - Landing Hero — `SmartDownloadButton` 次 CTA（`DesktopReleaseProvider` 包裹 Landing）
 - Nav / Footer — `getDesktopDownloadPath()`
 - `DeploySection` — Desktop 卡 → `/download`
@@ -46,4 +47,5 @@
 - **首屏**：同域 `public/desktop-release.json`（`bun run build` 前 bake 生成；未 bake 时 fallback live GitHub API）
 - **后台刷新**：GitHub Releases API → Tauri `latest.json` 兜底
 - **Mac 架构不确定**：Landing/QuickStart → `/download`；download 页展示双 Mac 按钮
+- **无 release**：Hero → `/download`；页内 SaaS 优先、筹备说明 + localWebui 终端引导（诚实标注非桌面 App），不暴露 GitHub Releases
 - **sessionStorage**：5 分钟 live fetch 缓存

@@ -60,7 +60,7 @@ Deploy Hook URL 存本地环境变量，不入库。见 [`myrm-website/scripts/r
 
 ## 模块依赖
 
-- 官网桌面下载元数据：`myrm-website/src/lib/desktop-release.ts` → GitHub Releases `Pursue-LLL/myrm-agent`
+- 官网桌面下载元数据：`myrm-website/src/lib/desktop-release.ts` → GitHub Releases `Pursue-LLL/myrm-agent`；无 release 时 `/download` SaaS 优先、`CliInstallFallback` 诚实标注 localWebui 终端路径（非桌面 App），主 CTA 不暴露 GitHub Releases
 - 营销 ↔ 文档 slug 契约：`myrm-website/scripts/validate-docs-slugs.ts`（orphan MDX + legacy URL grep：`myrm.ai`、`app.myrm.ai`、`github.com/myrm-ai`）
 - `public/desktop-release.json`：构建链 `bake:release` 产物（CF Pages / 本地 build），静态 export 首屏用；**不入库**（见 `myrm-website/.gitignore`），本地 dev 可选 `bun run bake:release` 或依赖 live GitHub fetch
 

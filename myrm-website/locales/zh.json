@@ -577,10 +577,10 @@
           "myrmAgent": "2,167 省86%"
         },
         "costRouting": {
-          "feature": "三维智能路由 · 复杂度+隐私+容错，自学习 PenaltyTracker 越用越准",
-          "hermes": "单一模型",
+          "feature": "三维智能路由 · 复杂度+隐私+容错，自学习 PenaltyTracker + 11+ 任务专属模型槽位",
+          "hermes": "单一辅助模型",
           "openclaw": "LLM judge 单阶段",
-          "myrmAgent": "规则+Judge+隐私路由+13文件降级体系"
+          "myrmAgent": "规则+Judge+隐私路由+13文件降级体系+Agent级GUI槽位"
         },
         "promptMode": {
           "feature": "Prompt 可控 · 精确调教 AI",
@@ -778,7 +778,7 @@
           "feature": "联网搜索 · 搜得准、筛得净、验充分",
           "hermes": "API 直通原文",
           "openclaw": "DDG 网页抓取",
-          "myrmAgent": "7 引擎+5 层意图路由+智能筛选+RSG 充分性验证"
+          "myrmAgent": "8 引擎+5 层意图路由+智能筛选+RSG 充分性验证"
         },
         "antiBlockingTitle": {
           "feature": "标题生成 · O(1) 防阻塞与脱敏",
@@ -1045,7 +1045,7 @@
           "title": "全自主混合态浏览器引擎",
           "desc": "抛弃笨重的 Headless 浏览器。根据网页静态程度自动触发 HTTP 短路注入极速渲染，遭遇封杀自动切换 Camoufox 双引擎隐身，内置 Schema 驱动结构化提取。",
           "point1": "静态网页 HTTP 拦截注入，节省 90% 渲染时间和内存",
-          "point2": "基于 BBox 的 O(1) 毫秒级自愈与 Shadow DOM 递归穿透，无视前端组件封装，结合原生极速空间定位引擎，告别定位崩溃",
+          "point2": "双路径 ARIA 快照（5-10ms 原生无障碍树，零 JS 注入）+ O(1) 自愈定位器（5维空间评分）+ Shadow DOM 递归穿透——比 DOM 方案省 60-80% Token，动态页面永不崩溃",
           "point3": "Patchright & Camoufox 双引擎无损热切换，AES-256 加密 Session Vault 保存登录态，per-Agent 域名配置跨会话自动恢复身份——从容应对 Cloudflare 等高难度反爬",
           "point4": "Schema 驱动结构化提取：传入 JSON Schema 即返回验证后的干净 JSON 数据——上下文 Token 节省 97%，无需额外管道",
           "point5": "验证码自动检测 + 人类接管：自动识别 10 种验证码类型（Cloudflare/Turnstile/reCAPTCHA 等），Agent 暂停并通知你操作，完成后无缝恢复——1571 项浏览器测试验证",
@@ -1172,7 +1172,7 @@
         },
         "security": {
           "title": "六层运行时防护，审批与审计可配置",
-          "desc": "7 类语义 DOM 风险检测（中英双语）+ MCP 启用前预检 + Shell 段级风险着色 + 凭证金库（密码/TOTP 不进 LLM）+ PII 脱敏 + Smart Intent Guard（LLM 意图审查）+ 多平台审批（3 级 Allow Always）+ 结构化审计（37 种决策类型 + Prometheus 实时指标）—— 点击「付款」「发布」「删除」时自动弹出审批，看得懂再允许，全程可回溯 · 781 项测试验证。",
+          "desc": "7 类语义 DOM 风险检测（中英双语）+ MCP 启用前预检 + Shell 段级风险着色 + 凭证金库（密码/TOTP 不进 LLM）+ PII 脱敏 + Smart Intent Guard（LLM 意图审查）+ 多平台审批（3 级 Allow Always）+ 结构化审计（37 种决策类型 + Prometheus 实时指标）—— 点击「付款」「发布」「删除」时自动弹出审批，看得懂再允许，全程可回溯 · 1059 项测试验证。",
           "point1": "7 层操作级风险管理：语义 DOM 风险检测（付款/删除/发布等 7 类自动拦截）+ 4 层引号感知 Shell 分析 + Smart Intent Guard + 用户自定义 Risk Rules + MCP/Skill 安全扫描 + HITL 审批中间件",
           "point2": "MCP 安全门禁 + SSRF DNS 钉扎（手动重定向循环消除 DNS 重绑定）+ Shell 段级审批：`curl | bash` 分段标红，密钥脱敏后再展示 + 编辑后自动重新安全校验",
           "point3": "凭证金库 + 4 种审批动作（同意 · 编辑 · 拒绝 · 永久允许）含 3 级粒度 + 审批引导注入（批准时附加指令如「用生产环境」，Agent 100% 读到）—— 密码不进 LLM；任意渠道 ♾️ emoji 或 /always 即可快捷审批；竞品无操作级风险检测能力",
@@ -1228,8 +1228,20 @@
       "subtitle": "原生客户端内嵌本地后端，永久免费 BYOK，数据留在你的设备上。",
       "latestVersion": "最新版本：v{version}",
       "loading": "正在加载发布信息…",
-      "emptyState": "桌面安装包尚未发布，请关注 GitHub Releases 获取首个版本。",
-      "fallbackCta": "查看 GitHub Releases",
+      "pendingDesktop": {
+        "title": "原生桌面安装包 · 筹备中",
+        "description": "Tauri 安装包发布后将在此一键下载，并自动识别你的系统。现在可先使用页面上方推荐的云端或本地 WebUI 路径。"
+      },
+      "cliInstall": {
+        "title": "进阶 · 本地 WebUI 终端引导",
+        "description": "这是 localWebui 自托管路径，不是桌面 App。复制命令在终端运行后，在浏览器打开 WebUI 使用。",
+        "unixLabel": "macOS / Linux / Git Bash",
+        "windowsLabel": "Windows PowerShell",
+        "startLabel": "安装完成后启动",
+        "copy": "复制",
+        "copied": "已复制",
+        "note": "启动后在浏览器打开 http://localhost:3000。对话与配置均在 WebUI 完成，无需产品级 CLI。"
+      },
       "loadError": "加载发布信息失败",
       "refreshing": "正在检查更新",
       "recommended": "推荐",
@@ -1316,9 +1328,9 @@
       },
       "desktop": {
         "chromeTitle": "MyrmAgent 桌面版",
-        "step1": "下载 Tauri 桌面客户端，数据留在本地",
-        "step2": "点击下方智能下载按钮，自动匹配你的系统",
-        "step3": "需要其他平台？前往完整下载页 →"
+        "step1": "下载桌面客户端，数据留在本地",
+        "step2": "点击下方按钮前往下载页，获取安装包或一行命令安装",
+        "step3": "需要其他平台或安装方式？前往完整下载页 →"
       },
       "terminalTitle": "myrm — quick start",
       "copyHint": "复制",

@@ -5,10 +5,11 @@
  * - hooks/useDocsLocale (POS: 站点 locale → Mintlify docs locale)
  *
  * [OUTPUT]
- * - DownloadPageContent: `/download` 页编排（平台矩阵、release notes、安装步骤）
+ * - download/CliInstallFallback (POS: 无桌面安装包时的 localWebui 终端引导面板)
+ * - DownloadPageContent: `/download` 页编排（直链矩阵 / 诚实空态分流、release notes、安装步骤）
  *
  * [POS]
- * 桌面端下载转化页主体；部署文档外链随 locale 生成 `/zh/...` 路径。
+ * 桌面端下载转化页主体；无 release 时 SaaS 优先、localWebui 终端引导次之；有 release 时直链矩阵。
  */
 'use client';
 
@@ -25,12 +26,71 @@ import SmartDownloadButton from '@/components/download/SmartDownloadButton';
 import { useDesktopRelease } from '@/components/download/DesktopReleaseProvider';
 import { getDeployPathHref } from '@/lib/deploy-paths';
 
+function DownloadAlternatives({
+  docsLocale,
+  saasFirst,
+}: {
+  docsLocale: ReturnType<typeof useDocsLocale>;
+  saasFirst: boolean;
+}) {
+  const t = useTranslations('marketing');
+
+  const saasCard = (
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <h2 className="text-[15px] font-semibold text-foreground">{t('download.alternatives.saas.title')}</h2>
+      <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+        {t('download.alternatives.saas.description')}
+      </p>
+      <Button asChild className="mt-4 rounded-full">
+        <a href={getDeployPathHref('saas', docsLocale)}>
+          {t('download.alternatives.saas.cta')}
+          <ArrowRight02Icon className="ml-2 h-4 w-4" />
+        </a>
+      </Button>
+    </div>
+  );
+
+  const localCard = (
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <h2 className="text-[15px] font-semibold text-foreground">{t('download.alternatives.local.title')}</h2>
+      <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+        {t('download.alternatives.local.description')}
+      </p>
+      <Button asChild variant="outline" className="mt-4 rounded-full">
+        <a href={getDeployPathHref('localWebui', docsLocale)} target="_blank" rel="noopener noreferrer">
+          {t('download.alternatives.local.cta')}
+          <ArrowRight02Icon className="ml-2 h-4 w-4" />
+        </a>
+      </Button>
+    </div>
+  );
+
+  return (
+    <div className="grid gap-4 sm:grid-cols-2">
+      {saasFirst ? (
+        <>
+          {saasCard}
+          {localCard}
+        </>
+      ) : (
+        <>
+          {localCard}
+          {saasCard}
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function DownloadPageContent() {
   const t = useTranslations('marketing');
   const docsLocale = useDocsLocale();
   const { release, refreshing, macArchConfirmed, detectedPlatform } = useDesktopRelease();
+  const hasInstallers = Boolean(release && release.targets.length > 0);
   const showCompactSmartDownload =
-    macArchConfirmed || !detectedPlatform.startsWith('macos-');
+    hasInstallers && (macArchConfirmed || !detectedPlatform.startsWith('macos-'));
+  const showMacArchHint =
+    hasInstallers && !macArchConfirmed && detectedPlatform.startsWith('macos-');
 
   useEffect(() => {
     document.title = `${t('download.metaTitle')} | MyrmAgent`;
@@ -60,59 +120,48 @@ export default function DownloadPageContent() {
         )}
       </div>
 
-      <div className="mt-10 flex flex-col items-center gap-3">
-        {showCompactSmartDownload ? (
-          <SmartDownloadButton variant="compact" showMeta showAllPlatformsLink={false} />
-        ) : (
-          <p className="text-[13px] text-muted-foreground">{t('download.macChooseArch')}</p>
-        )}
-      </div>
+      {hasInstallers && (
+        <div className="mt-10 flex flex-col items-center gap-3">
+          {showCompactSmartDownload ? (
+            <SmartDownloadButton variant="compact" showMeta showAllPlatformsLink={false} />
+          ) : showMacArchHint ? (
+            <p className="text-[13px] text-muted-foreground">{t('download.macChooseArch')}</p>
+          ) : null}
+        </div>
+      )}
 
-      <div className="mt-14">
+      {!hasInstallers && (
+        <div className="mt-10">
+          <DownloadAlternatives docsLocale={docsLocale} saasFirst />
+        </div>
+      )}
+
+      <div className={hasInstallers ? 'mt-14' : 'mt-10'}>
         <PlatformDownloadGrid />
       </div>
 
       <ReleaseNotesSection />
-      <InstallStepsSection />
+      {hasInstallers && <InstallStepsSection />}
       <ChecksumSection />
 
-      <div className="mt-10 rounded-2xl border border-border bg-muted/20 p-5 sm:p-6">
-        <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground font-mono">
-          {t('download.requirements.title')}
-        </p>
-        <ul className="mt-4 space-y-2 text-[14px] leading-relaxed text-muted-foreground">
-          <li>{t('download.requirements.macos')}</li>
-          <li>{t('download.requirements.windows')}</li>
-          <li>{t('download.requirements.linux')}</li>
-        </ul>
-      </div>
+      {hasInstallers && (
+        <div className="mt-10 rounded-2xl border border-border bg-muted/20 p-5 sm:p-6">
+          <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground font-mono">
+            {t('download.requirements.title')}
+          </p>
+          <ul className="mt-4 space-y-2 text-[14px] leading-relaxed text-muted-foreground">
+            <li>{t('download.requirements.macos')}</li>
+            <li>{t('download.requirements.windows')}</li>
+            <li>{t('download.requirements.linux')}</li>
+          </ul>
+        </div>
+      )}
 
-      <div className="mt-10 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-2xl border border-border bg-card p-5">
-          <h2 className="text-[15px] font-semibold text-foreground">{t('download.alternatives.local.title')}</h2>
-          <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
-            {t('download.alternatives.local.description')}
-          </p>
-          <Button asChild variant="outline" className="mt-4 rounded-full">
-            <a href={getDeployPathHref('localWebui', docsLocale)} target="_blank" rel="noopener noreferrer">
-              {t('download.alternatives.local.cta')}
-              <ArrowRight02Icon className="ml-2 h-4 w-4" />
-            </a>
-          </Button>
+      {hasInstallers && (
+        <div className="mt-10">
+          <DownloadAlternatives docsLocale={docsLocale} saasFirst={false} />
         </div>
-        <div className="rounded-2xl border border-border bg-card p-5">
-          <h2 className="text-[15px] font-semibold text-foreground">{t('download.alternatives.saas.title')}</h2>
-          <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
-            {t('download.alternatives.saas.description')}
-          </p>
-          <Button asChild className="mt-4 rounded-full">
-            <a href={getDeployPathHref('saas', docsLocale)}>
-              {t('download.alternatives.saas.cta')}
-              <ArrowRight02Icon className="ml-2 h-4 w-4" />
-            </a>
-          </Button>
-        </div>
-      </div>
+      )}
     </div>
   );
 }

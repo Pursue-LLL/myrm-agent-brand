@@ -1,10 +1,22 @@
+/**
+ * [INPUT]
+ * - download/CliInstallFallback (POS: 无桌面安装包时的一行命令安装面板)
+ * - download/DesktopReleaseProvider (POS: 桌面 release 元数据 React 上下文)
+ * - lib/desktop-release.ts (POS: 桌面端安装包元数据单一入口)
+ *
+ * [OUTPUT]
+ * - PlatformDownloadGrid: 全平台安装包矩阵；无 release 时降级为 CliInstallFallback
+ *
+ * [POS]
+ * `/download` 页平台选择区；有包时按 OS 分组展示 Recommended 与文件大小。
+ */
 'use client';
 
 import { Download04Icon } from 'hugeicons-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils/classnameUtils';
-import { getGitHubReleasesPageUrl } from '@/lib/deploy-mode';
+import CliInstallFallback from '@/components/download/CliInstallFallback';
 import { useDesktopRelease } from '@/components/download/DesktopReleaseProvider';
 import { formatFileSize, type DesktopPlatformId } from '@/lib/desktop-release';
 
@@ -45,16 +57,7 @@ export default function PlatformDownloadGrid({ editorial = false, className }: P
 
   if (error || !release || release.targets.length === 0) {
     return (
-      <div className={cn('space-y-4', className)}>
-        <p className={cn('text-sm', editorial ? 'ed-mono' : 'text-muted-foreground')}>
-          {t('download.emptyState')}
-        </p>
-        <Button asChild variant={editorial ? 'outline' : 'default'} className="rounded-full">
-          <a href={getGitHubReleasesPageUrl()} target="_blank" rel="noopener noreferrer">
-            {t('download.fallbackCta')}
-          </a>
-        </Button>
-      </div>
+      <CliInstallFallback editorial={editorial} className={className} />
     );
   }
 

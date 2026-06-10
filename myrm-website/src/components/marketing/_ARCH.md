@@ -27,9 +27,10 @@
 | 文件 | 地位 | 职责 | I/O |
 |------|------|------|-----|
 | `LandingEditorial.tsx` | 核心 | 主 Landing 编排 | ✅ |
-| `download/SmartDownloadButton.tsx` | 核心 | OS 智能下载 CTA | ✅ |
-| `download/DownloadPageContent.tsx` | 核心 | `/download` 页编排 | ✅ |
-| `download/PlatformDownloadGrid.tsx` | 核心 | 平台矩阵 + Recommended + size | ✅ |
+| `download/SmartDownloadButton.tsx` | 核心 | OS 智能下载 CTA；无 release 时固定「下载桌面版」→ `/download` | ✅ |
+| `download/CliInstallFallback.tsx` | 核心 | 无桌面包：筹备说明 + localWebui 终端引导 | ✅ |
+| `download/DownloadPageContent.tsx` | 核心 | `/download` 编排；无包时 SaaS 优先 | ✅ |
+| `download/PlatformDownloadGrid.tsx` | 核心 | 平台矩阵 + Recommended + size；无包时 CliInstallFallback | ✅ |
 | `download/ReleaseNotesSection.tsx` | 辅助 | Release notes | ✅ |
 | `download/InstallStepsSection.tsx` | 辅助 | 三平台安装引导 | ✅ |
 | `download/ChecksumSection.tsx` | 辅助 | SHA256 内联 + 复制 | ✅ |
@@ -69,7 +70,7 @@ Hero → **WorkspacePreview** → HowItWorks（路径 Tab）→ QuickStart → M
 | `getDesktopDownloadPath()` | — | `/download` |
 | `getDeployPathHref()` / `getDeployPathSectionLink()` | — | 见 `lib/deploy-paths.ts` |
 | `buildMarketingNavLinks()` | — | 见 `lib/marketing-nav.ts` |
-| `getGitHubReleasesPageUrl()` | `NEXT_PUBLIC_GITHUB_RELEASE_REPO` | GitHub latest release |
+| `getGitHubReleasesPageUrl()` | `NEXT_PUBLIC_GITHUB_RELEASE_REPO` | 构建期 release 拉取；**不向终端用户 CTA 暴露** |
 
 工程深度区竞品全文对比：`getDocsUrl(COMPETITOR_COMPARISON_DOC_PATH, docsLocale)`
 
