@@ -120,6 +120,17 @@ When you start a background task via `/btw` in any IM channel, the result is aut
 
 Start a task in Discord, switch to something else, and come back to find the result waiting in your thread.
 
+## Cross-Device Task Sync
+
+All background tasks are stored server-side and accessible from any connected client — Desktop app, Web UI, or mobile browser:
+
+- **Single source of truth** — task state lives in the server's Kanban system, not on any single device
+- **Real-time updates everywhere** — SSE events push status changes (completion, failure, progress) to every connected client simultaneously
+- **Consistent UI** — Desktop (Tauri) embeds the same Web UI frontend, so the experience is identical across surfaces
+- **IM channel integration** — BtwTaskNotifier pushes results to IM channels in parallel with the UI updates
+
+Start a task on your desktop, check progress from your phone, and receive the completion notification on Slack — all without any configuration.
+
 ## Cross-Platform Handoff
 
 Transfer a conversation from one platform to another without losing context. Use the `/handoff` command in any IM channel or the "Transfer to..." menu in Web UI. The handoff is instant (single DB update, millisecond latency) and preserves the full prompt cache.
