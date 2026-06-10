@@ -64,6 +64,27 @@ Built-in periodic self-check (`__heartbeat__`) with **Situation Report** injecti
 | 9 | No-content Skip | Heartbeat skips LLM call when all sections empty |
 | 10 | Failure Alert Cooldown | Even failure alerts have cooldown periods |
 
+## Incremental Monitoring
+
+Enable intelligent delta detection so tasks only report genuinely new content:
+
+| Setting | Purpose |
+|---------|---------|
+| `monitor_config.enabled` | Activates incremental monitoring |
+| `monitor_config.ttl_days` | Baseline auto-resets after this TTL |
+
+When enabled, the system computes a delta between current output and the stored baseline. If no new content is detected, delivery is silently skipped (exit_code=0). Only genuinely new information triggers notifications (exit_code=1), with just the delta delivered to channels.
+
+Baseline auto-resets after TTL expiration, ensuring long-running monitors don't accumulate stale state.
+
+## Integrity Verification (Merkle Chain)
+
+Every execution is hash-chained to its predecessor using SHA-256, creating a tamper-evident audit trail:
+
+- Verify chain integrity via `POST /api/v1/cron/{job_id}/verify-integrity`
+- Detects gaps (missing runs), tampering (modified outputs), or reordering
+- Enterprise compliance: cryptographic proof that scheduled tasks ran as expected
+
 ## Event-Driven Triggers
 
 Beyond time-based scheduling, tasks can be triggered by external events:
