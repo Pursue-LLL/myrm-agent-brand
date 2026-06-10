@@ -381,11 +381,18 @@ The Extension Bridge spans 5 layers:
 4. **Chrome Extension** — MV3 Service Worker with CDP attachment capability
 5. **Frontend Panel** — React settings component for status and domain management
 
-## Per-Agent Browser Source Configuration
+## Per-Agent Browser Configuration (4-Axis Control)
 
-Each agent can independently choose how it accesses the browser. This is configured in the agent settings (both during agent creation and in the per-chat configuration panel).
+Each agent has four independent browser configuration axes, all configurable in the WebUI Settings → Agents → Capability Config:
 
-### Available Modes
+| Axis | Options | Default | What It Controls |
+|------|---------|---------|------------------|
+| **Browser Engine** | Chromium (Patchright) / Firefox (Camoufox) | Chromium | Which stealth engine is used for launched browsers |
+| **Browser Source** | Auto / Extension / Launch | Auto | How the agent accesses a browser instance |
+| **Dialog Policy** | Smart / Auto Accept / Auto Dismiss / Wait for Agent | Smart | How JavaScript dialogs are handled |
+| **Session Recording** | Off / On Failure / Always | Off | Whether browser sessions are recorded for debugging |
+
+### Browser Source Modes
 
 | Mode | Behavior | Best For |
 |------|----------|----------|
@@ -395,8 +402,10 @@ Each agent can independently choose how it accesses the browser. This is configu
 
 ### How to Configure
 
-1. **Agent Creation**: Settings → Agents → Create/Edit → Browser Source
-2. **Per-Chat Override**: Click the agent config icon in the chat window → Browser Source
+1. **Agent Creation**: Settings → Agents → Create/Edit → Capability Config
+2. **Per-Chat Override**: Click the agent config icon in the chat window → Browser settings
+
+All four settings persist across agent clone, export/import, and API operations. Invalid values are rejected at the API layer before reaching the database.
 
 ### Pool Isolation
 
