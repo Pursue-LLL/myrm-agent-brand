@@ -35,6 +35,49 @@ Myrm injects a comprehensive anti-detection system that makes automated browsing
 | Must use expensive residential proxies | Works with standard proxies |
 | Manual browser profile management | Automatic fingerprint management |
 
+## Page Understanding — Dual-Path ARIA Snapshot
+
+Myrm uses a **semantic accessibility tree** instead of raw DOM for page understanding. This means your agent sees the page the way a screen reader does — structured, noise-free, and focused on interactive elements.
+
+### How It Works
+
+| Path | When Used | Speed | Method |
+|------|-----------|-------|--------|
+| **Fast Path** | 90% of pages | 5-10ms | Playwright native `ariaSnapshot()` — zero JS injection |
+| **Custom Path** | Complex edge cases | 20-50ms | JavaScript traversal with depth control |
+
+### What the Agent Sees
+
+Instead of thousands of DOM nodes, the agent gets a clean semantic tree:
+
+```yaml
+- heading "Sign In" [level=1]
+- textbox "Email" [ref=1]
+- textbox "Password" [ref=2]
+- button "Log In" [ref=3]
+- link "Forgot password?" [ref=4]
+```
+
+Every interactive element gets a stable **ref ID** that the agent uses for precise targeting — no fragile CSS selectors.
+
+### Built-in Resilience
+
+- **Shadow DOM traversal** — Sees through Web Components automatically
+- **iframe extraction** — Cross-origin iframes included in the tree
+- **Scope filtering** — `full`, `interactive`, or `focused` views for token efficiency
+- **Incremental diff** — Only shows what changed between snapshots
+
+### Why Not Occlusion Detection?
+
+Some tools (like OpenCLI) scan every element with `elementFromPoint` to prune occluded elements. We deliberately don't do this because:
+
+1. It adds 100-500ms per snapshot (reflow for every element)
+2. It can accidentally prune valid elements (dropdown menus, tooltips)
+3. Playwright's `click()` already refuses to click covered elements
+4. If a click fails, our **Self-Healing Locator** fixes it in O(1) time
+
+Net result: 5-10ms snapshots that are 60-80% smaller than DOM-based approaches, with zero accuracy trade-offs.
+
 ## Capabilities
 
 - Navigate to URLs
@@ -289,6 +332,7 @@ The Extension Bridge settings panel (Settings → Integration) provides:
 
 - **One-click copyable WebSocket URL** — The correct connection URL for your deployment mode, with a Copy button and toast confirmation
 - **Auth token status** — Shows whether `EXTENSION_AUTH_TOKEN` is configured on the server (without exposing the token itself)
+- **Copyable extension path** — Shows `~/.myrm/myrm-agent/myrm-agent-extension` with one-click copy for Chrome's "Load unpacked" dialog
 - **Step-by-step setup guide** — Appears when extension is not connected: Load unpacked extension → Copy URL → Connect
 - **Real-time connection status** — Connected/disconnected indicator with extension version and browser name
 - **Domain authorization management** — Add, remove, and wildcard pattern support
