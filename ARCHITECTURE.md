@@ -33,6 +33,7 @@
 
 1. 日常：`git push origin main` → 仅更新代码，不上线（CF 可能显示 skipped 记录，可忽略）
 2. 发布：`bun run release:website -- website-v1.2.0` → preflight（干净工作区、同步 origin/main、tag/HEAD 检查、`build`+`test`）→ tag + Deploy Hook → CF 构建部署
+3. **桌面发版联动（自动）**：`myrm-agent` `desktop-release` workflow 的 `finalize-release` job 在 manifest 上传后执行 `trigger-website-release.sh`——在 brand `main` HEAD 打 `website-v{semver}` tag 并 POST 同一 Deploy Hook（需 `myrm-agent` 仓库 Secrets：`BRAND_RELEASE_PAT`、`CF_PAGES_DEPLOY_HOOK`）。未配置 secret 时跳过，不阻断桌面 Release。
 
 Deploy Hook URL 存本地环境变量，不入库。见 [`myrm-website/scripts/release-website.ts`](myrm-website/scripts/release-website.ts)。
 
