@@ -376,6 +376,40 @@ For scenarios beyond CAPTCHAs — 2FA prompts, payment gateways, proprietary for
 | User must monitor constantly | Only interrupts when truly needed |
 | Lost context after intervention | Captures post-human page state and adapts |
 
+## 5-Layer Anti-Crawl Protection
+
+When crawling at scale, IP blocks, rate limits, and CAPTCHAs are inevitable. Myrm's 5-layer defense system handles all of this automatically so your tasks never die.
+
+### Protection Layers
+
+| Layer | What It Does | User Benefit |
+|:------|:-------------|:-------------|
+| **Detection** | Recognizes HTTP 403/429 status codes + Cloudflare/DataDome/CAPTCHA body signatures + 13 network error patterns | Catches blocks that simple status-code checks miss |
+| **Proxy Quarantine** | Blocked proxy is quarantined with exponential backoff (60s → 5min → 1hr). Automatically skipped in rotation | Bad proxies stop wasting your requests |
+| **Session Recovery** | On block: quarantine proxy → restart session with a new proxy → resume from where you left off, zero state loss | No need to restart crawls from scratch |
+| **Circuit Breaker** | Per-domain circuit breaker trips after consecutive failures, auto-recovers after timeout | One bad domain doesn't bring down your entire task |
+| **Rate Limiting** | Per-domain Token Bucket algorithm prevents over-requesting that triggers anti-bot systems | Stays under the radar by design |
+
+Plus: 10 CAPTCHA types auto-detected with human takeover (see above), and the Adaptive Router learns which sites need stealth browsing and remembers across sessions.
+
+### Real-World Impact
+
+- Crawl 10,000+ pages without manual intervention
+- Blocked IPs are replaced automatically with lossless session migration
+- The system gets smarter over time — persistent rules remember that site X needs L3 Stealth
+- Zero configuration required — all protections are enabled by default
+
+### How It Compares
+
+| Feature | Myrm | Crawl4AI | Others |
+|:--------|:----:|:--------:|:------:|
+| Proxy exponential backoff quarantine | Yes | No | No |
+| Per-domain circuit breaker | Yes | No | No |
+| Per-domain token bucket rate limiting | Yes | No | No |
+| Lossless session migration on block | Yes | No | No |
+| 10-provider CAPTCHA detection + HITL | Yes | No | No |
+| Self-learning tier escalation (L1→L2→L3) | Yes | No | No |
+
 ## Browser Extension Bridge
 
 For scenarios where you need the agent to operate within your **real browser** — with your existing login sessions, extensions, and browsing context intact — Myrm supports a Chrome Extension bridge.
