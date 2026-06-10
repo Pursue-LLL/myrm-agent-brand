@@ -54,6 +54,23 @@ describe('parseGitHubRelease', () => {
     expect(release.targets[0]?.sha256Url).toContain('.sha256');
     expect(release.targets[0]?.sizeBytes).toBe(120_000_000);
   });
+
+  test('classifies Tauri Linux AppImage.tar.gz without linux in filename', () => {
+    const release = parseGitHubRelease({
+      tag_name: 'v0.2.2',
+      published_at: '2026-06-03T00:00:00Z',
+      body: null,
+      assets: [
+        {
+          name: 'MyrmAgent_0.2.2_amd64.AppImage.tar.gz',
+          browser_download_url: 'https://github.com/example/app/releases/download/v0.2.2/MyrmAgent_0.2.2_amd64.AppImage.tar.gz',
+        },
+      ],
+    });
+
+    expect(release.targets).toHaveLength(1);
+    expect(release.targets[0]?.id).toBe('linux-x86_64');
+  });
 });
 
 describe('resolveTargetForPlatform', () => {

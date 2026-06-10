@@ -189,7 +189,12 @@ function classifyGitHubAsset(name: string): DesktopPlatformId | null {
     return 'windows-x86_64';
   }
 
-  if (lower.endsWith('.appimage') || lower.endsWith('.deb') || lower.endsWith('.rpm')) {
+  if (
+    lower.endsWith('.appimage') ||
+    lower.endsWith('.appimage.tar.gz') ||
+    lower.endsWith('.deb') ||
+    lower.endsWith('.rpm')
+  ) {
     if (lower.includes('aarch64') || lower.includes('arm64')) {
       return 'linux-aarch64';
     }
