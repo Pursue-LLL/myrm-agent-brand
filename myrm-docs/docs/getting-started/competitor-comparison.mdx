@@ -154,9 +154,9 @@ Myrm solves the "last mile" of local-first deployment with an Ockham's Razor app
 *   **Instant Session Eviction**: When a password is changed or protection is toggled, Myrm automatically rotates the global HMAC Session Signing Key. This instantly invalidates all existing sessions globally (like a kill switch for stolen devices), whereas competitors often leave old JWTs valid.
 *   **Single-Tenant "Vault" vs. Heavy DBs**: Instead of a bloated Postgres/MySQL user table with RBAC rules designed for SaaS, the local mode uses a single highly-encrypted `admin.json` vault file. Secure, portable, and zero-dependency.
 
-## Multi-Agent Orchestration: Deterministic Scheduling (vs Hermes / OpenClaw)
+## Multi-Agent Orchestration: Deterministic Scheduling (vs Hermes / OpenClaw / JiuwenSwarm)
 
-While competitors rely on single-mode orchestration (e.g., Hermes' Kanban Swarm or OpenClaw's basic linear spawn), Myrm introduces a **6-Mode Deterministic Orchestration Engine** backed by a **5-Layer Tool Security Fence** and **4-Dimension Budget Control**.
+While competitors rely on single-mode orchestration (e.g., Hermes' Kanban Swarm, OpenClaw's basic linear spawn, or JiuwenSwarm's static DAG workflow scripts), Myrm introduces a **6-Mode Deterministic Orchestration Engine** backed by a **5-Layer Tool Security Fence** and **4-Dimension Budget Control**. Unlike JiuwenSwarm's CLI-only `workflow.py` approach (which requires users to write Python scripts to define execution order), Myrm's Leader Agent dynamically schedules sub-agents through natural language — with runtime steer/cancel capabilities that static DAGs cannot provide.
 
 ### Where Myrm Goes Further
 

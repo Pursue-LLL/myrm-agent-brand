@@ -154,9 +154,9 @@ Myrm 以奥卡姆剃刀式 WebUI 安全方案，解决本地优先部署的「�
 *   **即时会话驱逐**：改密码或切换保护时自动轮换全局 HMAC Session Signing Key，瞬间作废所有会话（类似失窃设备一键熔断）；竞品旧 JWT 常仍有效。
 *   **单租户 Vault vs 重型 DB**：本地模式用单一高加密 `admin.json`，非 SaaS 式 Postgres/MySQL + RBAC 膨胀；安全、可移植、零依赖。
 
-## 多 Agent 编排：确定性调度（vs Hermes / OpenClaw）
+## 多 Agent 编排：确定性调度（vs Hermes / OpenClaw / JiuwenSwarm）
 
-竞品多依赖单一编排模式（如 Hermes Kanban Swarm 或 OpenClaw 基础线性 spawn）。Myrm 提供 **6 模式确定性编排引擎**，辅以 **5 层工具安全围栏** 与 **4 维预算控制**。
+竞品多依赖单一编排模式（如 Hermes Kanban Swarm、OpenClaw 基础线性 spawn、或 JiuwenSwarm 的静态 DAG 工作流脚本）。Myrm 提供 **6 模式确定性编排引擎**，辅以 **5 层工具安全围栏** 与 **4 维预算控制**。与 JiuwenSwarm 需要用户编写 Python `workflow.py` 脚本来定义执行顺序不同，Myrm 的 Leader Agent 通过自然语言动态调度子 Agent，并支持运行时转向/取消 —— 这是静态 DAG 无法提供的能力。
 
 ### Myrm 的领先之处
 
