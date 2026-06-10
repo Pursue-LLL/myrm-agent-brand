@@ -10,6 +10,7 @@
 | `docs-contract.test.ts` | 辅助 | `localizedDocsPath` / `getDocsUrl` / `getAppUrl` locale 单测 |
 | `bake-desktop-release.ts` | 核心 | 构建前写入 `public/desktop-release.json`；GitHub API 失败 exit 1（可选 `GITHUB_TOKEN`） |
 | `desktop-release.test.ts` | 辅助 | desktop-release 解析单测 |
+| `baked-manifest-smoke.test.ts` | 辅助 | bake 后 manifest 非空冒烟（CI `REQUIRE_BAKED_RELEASE=1`） |
 | `deploy-paths.test.ts` | 辅助 | deploy-paths 单测 |
 | `generate-hero-demo-webm.ts` | 辅助 | 从 workspace 预览图生成 hero-demo.webm（可选） |
 | `release-website.ts` | 核心 | tag + CF Deploy Hook；preflight：干净工作区、sync origin/main、tag/HEAD 检查、build+test | ✅ |
