@@ -513,10 +513,14 @@ All four settings persist across agent clone, export/import, and API operations.
 
 ### Pool Isolation
 
-When agents use different browser sources, the browser pool maintains strict isolation:
-- Extension-sourced browsers (unmanaged) are never shared with launch-mode agents
-- Launch-sourced browsers (managed) are never shared with extension-mode agents
-- This prevents session cross-contamination between agents with different trust levels
+Every agent session operates in its own **Chromium BrowserContext** — a browser-level security boundary equivalent to running separate browser profiles. This means:
+
+- **Cookie/Storage hard isolation** — Agent A's login sessions, cookies, and localStorage are physically invisible to Agent B. No software check needed; the browser itself enforces the boundary.
+- **Tab isolation** — Each agent's TabController manages only its own tabs. Agents cannot switch to, close, or even enumerate tabs belonging to other sessions.
+- **Extension-source separation** — Extension-sourced browsers (unmanaged, your real sessions) are never shared with launch-mode agents (managed headless instances).
+- **Automatic scaling** — New agents get new contexts without any registration or coordination. Tab limits are enforced per-context with LRU eviction.
+
+This architecture is fundamentally stronger than software-based "tab ownership contracts" used by browser extension agents — those can be bypassed by bugs, while BrowserContext isolation is enforced by Chromium itself.
 
 ## Zero-Config Browser Setup
 

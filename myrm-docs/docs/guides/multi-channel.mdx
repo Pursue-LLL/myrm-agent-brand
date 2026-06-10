@@ -108,6 +108,18 @@ Your agent can proactively push notifications to configured channels — no manu
 - Long-running code analysis finishes → results pushed to Slack channel
 - Anomaly detected in monitored data → alert sent to configured notification target
 
+## Background Task Auto-Reply
+
+When you start a background task via `/btw` in any IM channel, the result is automatically pushed back to your original conversation when the task finishes:
+
+- **Thread-precise delivery** — replies land in the exact thread where you started the task
+- **Localized notifications** — messages respect your language preference (English, Chinese, and more)
+- **Failure alerts** — if a task fails, you get an error summary instead of silence
+- **Reliable delivery** — uses the same retry infrastructure as all channel messages
+- **Non-disruptive** — runs independently of your notification settings; this is a direct reply, not a broadcast
+
+Start a task in Discord, switch to something else, and come back to find the result waiting in your thread.
+
 ## Cross-Platform Handoff
 
 Transfer a conversation from one platform to another without losing context. Use the `/handoff` command in any IM channel or the "Transfer to..." menu in Web UI. The handoff is instant (single DB update, millisecond latency) and preserves the full prompt cache.
