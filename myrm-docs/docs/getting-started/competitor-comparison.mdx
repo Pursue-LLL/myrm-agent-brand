@@ -1022,20 +1022,23 @@ Users migrating from 360 LobsterAI gain:
 - **Unlimited extensibility** — Skill Marketplace + custom agents vs fixed presets
 - **Full data ownership** — self-hosted option, no vendor lock-in
 
-## Smart Multi-Platform Distribution & OTA (vs Hermes / Cursor)
+## Smart desktop download & release (vs Hermes / OpenClaw / Cursor)
 
-When distributing desktop agents, traditional competitors force users to figure out their CPU architecture (Apple Silicon vs. Intel) or suffer from silent auto-update failures when CI/CD workflows overwrite release manifests.
+When shipping desktop agents, competitors often send users to **GitHub Releases** or force manual CPU architecture picks; CI races can corrupt update manifests.
 
-Myrm introduces **Zero-Friction Distribution & Map-Reduce OTA Updates**:
+Myrm (**verified v0.1.14**) offers **consumer-grade download + an honest release contract**:
 
-| Area | Hermes / Cursor (Early) | Myrm | User Benefit |
-|------|-------------------------|------|-------------|
-| **Mac M-Series Downloads** | Requires manual user selection (ARM vs Intel) or accidentally delivers Rosetta-bound Intel binaries on Safari due to UA spoofing. | **Hardware WebGL Sniffing** | Pierces Safari's "Intel Mac OS X" UA mask by reading the unmasked GPU renderer. **100% accurate, zero-click correct DMG delivery.** |
-| **iPadOS Spoofing** | Serves useless `.dmg` installers to iPads because Safari claims to be macOS. | **Physical Touchpoint Interception** | Uses `maxTouchPoints` to detect iPad hardware, gracefully redirecting users to the SaaS Cloud WebUI. |
-| **OTA Auto-Updates (CI/CD)**| Multi-platform CI jobs race to overwrite `latest.json`, breaking auto-updates for users on the slower-building OS. | **Map-Reduce CI Architecture** | Platforms build in isolation, artifact their manifests, and a final cloud job **merges all `latest.json` objects** securely. No race conditions. |
-| **Release Confidence** | "Upload and hope" | Automated sanity checks on the merged manifest before GitHub Release | Users never get stranded on broken auto-update channels. |
+| Area | Typical competitors | Myrm | User benefit |
+|------|---------------------|------|--------------|
+| **Landing CTA** | Links to GitHub / source — confusing for non-devs | Hero **“Download Desktop”** → `/download` or direct dmg | Install like normal software |
+| **Mac M-series Safari** | Manual ARM/Intel pick or wrong Intel dmg | **WebGL GPU sniffing** + download-page fallback | Most Mac users get native ARM64 with zero choices |
+| **iPad posing as Mac** | Useless `.dmg` downloads | **Touch-point detection** → SaaS WebUI | No wasted download |
+| **Version & integrity** | Mismatched filenames, no checksums | Tag-synced version; per-asset **`.sha256`** + **`latest.json`** | Verify what you installed |
+| **Release cadence** | Wait for all platforms | **macOS ships first** (~10 min), Win/Linux follow async | Don’t wait for the slowest job |
+| **Unsigned OSS macOS** | Users think the app is “broken” | Download page **right-click → Open** guidance | Gatekeeper expectations set clearly |
+| **In-app auto-update** | Often no GUI OTA or git pull only | 8-phase client UI ready; **signing keys not configured** yet — manual download recommended today | Honest path: Release page now; silent OTA after signing |
 
-**Result: Migrating users get a flawless day-one install experience and rock-solid background updates that just work.**
+**Result: Day-one install goes from “understand GitHub” to “click Download” — the gate for mainstream users.**
 
 ## Local Migration Wizard (v1.4)
 
