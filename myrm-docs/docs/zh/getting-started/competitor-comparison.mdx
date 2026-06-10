@@ -511,7 +511,7 @@ Claude Code 采用「Fork 子 Agent」设计，字节级 prompt 前缀对齐以�
 | 领域 | Claude Code | Myrm | 用户收益 |
 |------|------------|------|-------------|
 | Prompt Cache Architecture | 1 strategy (prefix alignment) | **6-layer system** (tool layering → system freeze → explicit breakpoints → cache-friendly compression → pipeline → LLM layer) | Comprehensive caching, not just alignment |
-| Fork Context Reuse | Empty system prompt (loses cache prefix) | **Full prefix reuse** (`context_mode="fork"`) → 100% Prefix Cache Hit | Higher cache hit rate, lower cost |
+| Fork Context Reuse | Empty system prompt (loses cache prefix) | **Full prefix reuse** (`context_mode="fork"`) → 100% Prefix Cache Hit + **结论性过滤**（fork Token 降低 60-80%） | 更高缓存命中率，成本大幅降低 |
 | Cache Breakpoints | None | **4 strategies** (after system / every 15 blocks / after compression / last message) | Anthropic best-practice coverage |
 | Cache Break Detection | ❌ None | **2-phase attribution** with 5 root causes (system/tools/model/TTL/eviction) | Quickly diagnose why cache dropped |
 | Anti-Thrashing | ❌ None | ✅ Prevents compression from repeatedly invalidating cache | Stable caching in long sessions |
