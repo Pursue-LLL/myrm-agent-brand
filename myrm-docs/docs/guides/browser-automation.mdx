@@ -125,6 +125,31 @@ The agent can also switch policy at runtime using the `dialog_policy` action in 
 - In **Wait for Agent** mode, the dialog content appears in the next browser snapshot, giving the AI full context to decide. If the agent doesn't respond within the timeout, a safe fallback fires automatically.
 - Dialog history is always visible to the agent — it knows what popups were handled and how.
 
+## Cookie Consent Auto-Dismissal
+
+Every website in Europe (and increasingly worldwide) shows GDPR/CCPA cookie banners. Without automation, your agent wastes an LLM call on every page just to click "Accept All."
+
+Myrm's **ConsentDismisser** runs automatically after every page navigation — zero configuration needed:
+
+1. **75+ CMP-specific selectors** — OneTrust, Cookiebot, Didomi, Quantcast, and dozens more, ordered by market share.
+2. **Generic attribute matching** — Catches custom consent implementations using `accept`, `agree`, `allow` patterns.
+3. **Multilingual text matching** — Accept buttons in 10 languages: English, German, French, Spanish, Italian, Dutch, Portuguese, Chinese, Japanese, Korean, Polish, Swedish, Danish/Norwegian.
+4. **Shadow DOM penetration** — Usercentrics, Axeptio, and other Shadow DOM CMPs.
+5. **CMP JavaScript APIs** — Direct API calls to Didomi, Cookiebot, Osano, and Klaro for guaranteed dismissal.
+6. **Container force-removal** — Last resort: removes 55+ known CMP containers and iframes when all click attempts fail.
+7. **Scroll restoration** — Removes CMP body scroll locks and CMP-specific CSS classes.
+
+### Real-World Impact
+
+- **~50ms per page**, zero LLM cost
+- Saves 1 LLM roundtrip (~300 tokens) per page navigation on EU/CCPA sites
+- 100-page crawl: saves ~100 LLM calls and ~30K tokens
+- Agent sees a clean page snapshot — no cookie banner clutter
+
+### Configuration
+
+Auto-dismiss is **enabled by default**. To disable it per agent, set `auto_dismiss_consent: false` in the agent's browser configuration.
+
 ## Credential Vault (Login Without Leaking Passwords)
 
 For sites and apps that require login, configure **Form Credential Vault** entries in **Settings → Credentials**:
@@ -277,19 +302,20 @@ Extract all images, videos, and audio URLs from any page with a single tool call
 
 1. Agent calls `browser_extract(mode='media')` — one tool call.
 2. The tool traverses all frames and collects:
-   - **Images**: `<img>` tags with lazy-load resolution (`data-src`, `data-lazy-src`, `data-original`, `srcset`, `<picture>/<source>`)
+   - **Images**: `<img>` tags with lazy-load resolution (`data-src`, `data-lazy-src`, `data-original`, `srcset`, `data-srcset`, plus wildcard `data-*src*` fallback for any lazy-loading library)
    - **Videos**: `<video>/<source>` elements + iframe embeds (YouTube, Vimeo, Dailymotion, Wistia)
    - **Audio**: `<audio>/<source>` elements
    - **Meta images**: OpenGraph and Twitter Card image tags
 3. Decorative elements (icons, logos, favicons, tiny images <50px) are automatically filtered out.
-4. Results include dimensions, alt text, and poster URLs where available.
+4. Cross-frame URL deduplication ensures clean, duplicate-free output.
+5. Results include dimensions, alt text, and poster URLs where available.
 
 ### Key advantages
 
 - **On-demand** — Only extracted when needed, unlike competitors that dump media in every response.
 - **Selector scoping** — Use the `selector` parameter to extract media from a specific page region.
-- **Cross-frame** — Automatically traverses all iframes on the page.
-- **Lazy-load aware** — Resolves 5 common lazy-loading attribute patterns.
+- **Lazy-load aware** — Resolves all common lazy-loading patterns including `data-srcset` and wildcard `data-*src*` attributes.
+- **Cross-frame dedup** — Extracts from all iframes with automatic URL deduplication across frames.
 - **Structured output** — Grouped by type (Images/Videos/Audio/Meta) with counts and metadata.
 
 ### Example

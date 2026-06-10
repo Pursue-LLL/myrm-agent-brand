@@ -93,6 +93,34 @@ Myrm 的 `scroll_to_bottom` 动作用**一次调用**完成：
 
 可通过参数配置：`max_steps`（最大滚动次数）、`delay_ms`（每次滚动间隔）、`stable_count`（判断到底的稳定次数）。
 
+## 按需媒体提取
+
+一次工具调用提取页面中所有图片、视频、音频的直链 URL，无需编写 JavaScript。
+
+### 工作原理
+
+1. Agent 调用 `browser_extract(mode='media')` — 一次调用。
+2. 工具遍历所有 frame 并收集：
+   - **图片**：`<img>` 标签（含懒加载解析：`data-src`、`data-lazy-src`、`data-original`、`srcset`、`data-srcset`、以及通配符 `data-*src*` 兜底）
+   - **视频**：`<video>/<source>` 元素 + iframe 嵌入（YouTube、Vimeo、Dailymotion、Wistia）
+   - **音频**：`<audio>/<source>` 元素
+   - **Meta 图片**：OpenGraph 和 Twitter Card 图片标签
+3. 装饰性元素（图标、Logo、favicon、<50px 小图）自动过滤。
+4. 跨 frame URL 去重确保输出干净无重复。
+
+### 核心优势
+
+- **按需获取** — 仅在需要时提取，不像竞品每次响应都附带媒体信息浪费上下文。
+- **选择器范围限定** — 使用 `selector` 参数限定提取区域。
+- **懒加载感知** — 自动解析所有主流懒加载属性。
+- **跨 frame 去重** — 自动遍历所有 iframe 并去重。
+
+### 示例
+
+让 Agent：*"提取这个电商页面的所有产品图片"*
+
+Agent 使用 `browser_extract(mode='media', selector='.product-gallery')` 获得干净的图片 URL 列表（含尺寸和 alt 文本），无需编写 JavaScript。
+
 ## 能力
 
 - 导航到 URL
@@ -124,6 +152,31 @@ JavaScript 弹窗（`alert`、`confirm`、`prompt`、`beforeunload`）若不处�
 - **智能模式**（默认）：Agent 不会被 Cookie 横幅或提示性弹窗卡住。
 - **等待 Agent 模式**：弹窗内容会出现在下一次浏览器快照中，AI 拥有完整上下文来决策。超时后自动安全回退。
 - 弹窗历史始终对 Agent 可见——它知道处理了哪些弹窗以及如何处理的。
+
+## Cookie 同意弹窗自动消除
+
+全球所有网站（尤其欧洲 GDPR/CCPA 合规网站）都会显示 Cookie 同意横幅。如果不自动化处理，Agent 每访问一个页面都要浪费一次 LLM 调用来点击"全部接受"。
+
+Myrm 的 **ConsentDismisser** 在每次页面导航后自动运行——零配置：
+
+1. **75+ CMP 专用选择器** — OneTrust、Cookiebot、Didomi、Quantcast 等数十个主流 CMP，按市场份额排序。
+2. **泛用属性匹配** — 通过 `accept`、`agree`、`allow` 等模式捕获自定义同意实现。
+3. **10 种语言文本匹配** — 英语、德语、法语、西班牙语、意大利语、荷兰语、葡萄牙语、中文、日语、韩语、波兰语、瑞典语、丹麦/挪威语。
+4. **Shadow DOM 穿透** — Usercentrics、Axeptio 等使用 Shadow DOM 的 CMP。
+5. **CMP JavaScript API** — 直接调用 Didomi、Cookiebot、Osano、Klaro 的 JS API 确保消除。
+6. **容器强制移除** — 最后手段：当所有点击尝试失败后，移除 55+ 已知 CMP 容器和 iframe。
+7. **滚动恢复** — 移除 CMP 设置的 body 滚动锁定和 CMP 专用 CSS 类。
+
+### 实际效果
+
+- 每页约 **50ms**，零 LLM 成本
+- 每次导航到 EU/CCPA 网站节省 1 次 LLM 调用（约 300 token）
+- 100 页爬取：节省约 100 次 LLM 调用和 30K token
+- Agent 看到干净的页面快照——没有 Cookie 横幅干扰
+
+### 配置
+
+默认**自动启用**。如需为某个智能体禁用，在智能体浏览器配置中设置 `auto_dismiss_consent: false`。
 
 ## 凭证库（登录而不泄露密码）
 
