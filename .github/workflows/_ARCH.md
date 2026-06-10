@@ -2,7 +2,7 @@
 
 | 文件 | 职责 |
 |------|------|
-| `website-release.yml` | `website-v*` tag push → preflight（build+test）→ POST `CF_PAGES_DEPLOY_HOOK` |
+| `website-release.yml` | `website-v*` tag push → preflight（`REQUIRE_BAKED_RELEASE=1` + build+test）→ POST `CF_PAGES_DEPLOY_HOOK` |
 
 Secrets：`CF_PAGES_DEPLOY_HOOK`（必填）；`GITHUB_TOKEN`（内置，供 bake GitHub API 限额）。
 
