@@ -33,7 +33,7 @@ export default function LandingCloud() {
   return (
     <CloudShell>
       {/* Hero */}
-      <section className="relative mx-auto max-w-4xl px-4 pt-20 pb-16 sm:px-6 sm:pt-28 sm:pb-24 text-center">
+      <section className="relative mx-auto max-w-4xl px-4 pt-20 pb-8 sm:px-6 sm:pt-28 sm:pb-10 text-center">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
         <p className="inline-flex rounded-full border border-primary/25 bg-primary/[0.06] px-4 py-1 text-[11px] uppercase tracking-[0.28em] font-medium text-primary font-mono">
           {t('hero.badge')}
@@ -58,7 +58,7 @@ export default function LandingCloud() {
       </section>
 
       <section
-        className="relative mx-auto max-w-[900px] px-4 pb-4 sm:px-6 sm:pb-8"
+        className="relative mx-auto max-w-[900px] px-4 pb-10 sm:px-6 sm:pb-14"
         aria-label={t('demo.preview.alt')}
       >
         <WorkspacePreview messagesNamespace="cloud" shell="shell" />

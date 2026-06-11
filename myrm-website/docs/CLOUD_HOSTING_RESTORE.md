@@ -22,11 +22,18 @@
 ### Cloud SaaS page `/cloud`
 
 - **Component:** `cloud/LandingCloud.tsx` + `cloud/CloudShell.tsx`
+- **Preview:** `landing/WorkspacePreview.tsx` with `messagesNamespace="cloud"` and `shell="shell"`
 - **i18n:** `cloud.*` namespace (separate from `marketing`)
 - **URLs:** `lib/cloud-paths.ts` (login/register/billing → `app.myrmagent.ai` with `utm_campaign=cloud`)
 - **Tone:** zero ops, sandbox, Work Units, Stripe billing
+- **Block order:** Hero → WorkspacePreview → How it works → Pricing → FAQ → Final CTA
 - **SEO:** `robots: noindex` until public launch
 - **Footer:** link back to `/` for self-host
+
+### Legal pages (`/privacy`, `/terms`, `/refund`)
+
+- **i18n:** `marketing.legal.*` — covers website, self-hosted local/desktop, and MyrmAgent Cloud
+- Cloud page footer links to the same legal routes as the OSS site
 
 ### Redirects
 
@@ -56,6 +63,8 @@ src/components/marketing/cloud/
   LandingCloud.tsx
   CloudShell.tsx
   cloud-marketing-keys.ts
+src/components/marketing/landing/
+  WorkspacePreview.tsx   → OSS `/` (editorial) + `/cloud` (shell)
 locales/*.json
   marketing.*   → OSS page
   cloud.*       → SaaS page

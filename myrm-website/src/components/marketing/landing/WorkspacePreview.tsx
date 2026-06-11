@@ -7,15 +7,15 @@
  * - next-intl `{namespace}.demo.preview.alt` (marketing | cloud)
  *
  * [OUTPUT]
- * - WorkspacePreview: Hero 产品预览（浏览器框 + 可选 WebM + 静态 WebP 回退）
+ * - WorkspacePreview: 产品预览（浏览器框 + 可选 WebM + 静态 WebP 回退）
  *
  * [POS]
- * Landing Hero 下方「Show, don't tell」区；动效遵循 prefers-reduced-motion。
+ * OSS `/` 与 SaaS `/cloud` Hero 下方产品预览；`shell="editorial"` 依赖 landing-editorial.css。
  */
 
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const PREVIEW_WIDTH = 1080;
 const PREVIEW_HEIGHT = 520;
@@ -29,8 +29,54 @@ type WorkspacePreviewShell = 'editorial' | 'shell';
 interface WorkspacePreviewProps {
   /** Root i18n namespace — keys under `{namespace}.demo.preview.alt`. */
   messagesNamespace?: WorkspacePreviewMessagesNamespace;
-  /** `editorial` uses OSS landing chrome; `shell` uses theme tokens for `/cloud` and shell pages. */
+  /** `editorial` matches OSS landing; `shell` uses theme tokens (e.g. `/cloud`). */
   shell?: WorkspacePreviewShell;
+}
+
+interface PreviewChromeStyles {
+  frame: string;
+  chrome: string;
+  dots: readonly [string, string, string];
+  title: string;
+  screen: string;
+  videoHidden: string;
+  videoVisible: string;
+  poster: string;
+  posterHidden: string;
+}
+
+const SHELL_DOT_CLASSES: readonly [string, string, string] = [
+  'h-2.5 w-2.5 rounded-full bg-destructive/65',
+  'h-2.5 w-2.5 rounded-full bg-amber-500/70',
+  'h-2.5 w-2.5 rounded-full bg-emerald-500/65',
+];
+
+function resolvePreviewChrome(shell: WorkspacePreviewShell): PreviewChromeStyles {
+  if (shell === 'editorial') {
+    return {
+      frame: 'ed-device-frame ed-device-float',
+      chrome: 'ed-device-chrome',
+      dots: ['ed-device-dot', 'ed-device-dot', 'ed-device-dot'],
+      title: 'ed-device-chrome-title ed-mono',
+      screen: 'ed-device-screen',
+      videoHidden: 'ed-device-video',
+      videoVisible: 'ed-device-video ed-device-video-visible',
+      poster: 'ed-device-poster h-auto w-full',
+      posterHidden: 'ed-device-poster ed-device-poster-hidden',
+    };
+  }
+
+  return {
+    frame: 'overflow-hidden rounded-2xl border border-border/70 bg-card shadow-xl shadow-primary/5',
+    chrome: 'flex items-center gap-2 border-b border-border/60 bg-muted/30 px-4 py-2.5',
+    dots: SHELL_DOT_CLASSES,
+    title: 'ml-auto font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground',
+    screen: 'relative leading-none',
+    videoHidden: 'block h-auto w-full opacity-0 pointer-events-none',
+    videoVisible: 'block h-auto w-full opacity-100 transition-opacity duration-300',
+    poster: 'h-auto w-full',
+    posterHidden: 'absolute inset-0 h-full w-full opacity-0 pointer-events-none',
+  };
 }
 
 export default function WorkspacePreview({
@@ -38,6 +84,7 @@ export default function WorkspacePreview({
   shell = 'editorial',
 }: WorkspacePreviewProps) {
   const t = useTranslations(messagesNamespace);
+  const chrome = useMemo(() => resolvePreviewChrome(shell), [shell]);
   const [videoSourceOk, setVideoSourceOk] = useState(HERO_VIDEO_BUILD_FLAG);
   const [videoReady, setVideoReady] = useState(false);
 
@@ -68,33 +115,18 @@ export default function WorkspacePreview({
     setVideoSourceOk(false);
   }, []);
 
-  const frameClass =
-    shell === 'editorial'
-      ? 'ed-device-frame ed-device-float'
-      : 'overflow-hidden rounded-2xl border border-border/70 bg-card shadow-xl shadow-primary/5';
-  const chromeClass =
-    shell === 'editorial'
-      ? 'ed-device-chrome'
-      : 'flex items-center gap-2 border-b border-border/60 bg-muted/30 px-4 py-2.5';
-  const dotClass = shell === 'editorial' ? 'ed-device-dot' : 'h-2.5 w-2.5 rounded-full bg-muted-foreground/30';
-  const titleClass =
-    shell === 'editorial'
-      ? 'ed-device-chrome-title ed-mono'
-      : 'ml-auto font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground';
-  const screenClass = shell === 'editorial' ? 'ed-device-screen' : 'relative leading-none';
-
   return (
-    <div className={frameClass}>
-      <div className={chromeClass} aria-hidden>
-        <span className={dotClass} />
-        <span className={dotClass} />
-        <span className={dotClass} />
-        <span className={titleClass}>MyrmAgent</span>
+    <div className={chrome.frame}>
+      <div className={chrome.chrome} aria-hidden>
+        <span className={chrome.dots[0]} />
+        <span className={chrome.dots[1]} />
+        <span className={chrome.dots[2]} />
+        <span className={chrome.title}>MyrmAgent</span>
       </div>
-      <div className={screenClass}>
+      <div className={chrome.screen}>
         {videoSourceOk && (
           <video
-            className={videoReady ? 'ed-device-video ed-device-video-visible' : 'ed-device-video'}
+            className={videoReady ? chrome.videoVisible : chrome.videoHidden}
             autoPlay
             muted
             loop
@@ -116,7 +148,7 @@ export default function WorkspacePreview({
           height={PREVIEW_HEIGHT}
           priority
           sizes="(max-width: 1080px) 100vw, 1080px"
-          className={videoReady ? 'ed-device-poster ed-device-poster-hidden' : 'ed-device-poster h-auto w-full'}
+          className={videoReady ? chrome.posterHidden : chrome.poster}
         />
       </div>
     </div>
