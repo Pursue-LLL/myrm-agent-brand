@@ -5,7 +5,7 @@
 | 文件 | 地位 | 职责 |
 |------|------|------|
 | `brand-url-patterns.ts` | 核心 | 禁止 legacy 域名/org 的正则；validate 脚本共用 |
-| `validate-marketing-locales.ts` | 核心 | locales 键契约 + Bento≤3 bullets + engineeringDepth 18 卡 + cloud 定价/FAQ/步骤/demo + legacy URL |
+| `validate-marketing-locales.ts` | 核心 | locales 键契约 + Bento≤3 bullets + engineeringDepth 18 卡 + legal 法务键 + cloud 定价/FAQ/步骤/demo + legacy URL |
 | `validate-docs-slugs.ts` | 核心 | 营销 slug ↔ Mintlify nav ↔ MDX；orphan MDX；docs legacy URL；zh `competitor-comparison` 英文句零容忍（`ZH_CONTENT_ZERO_TOLERANCE` 单页集合） |
 | `docs-contract.test.ts` | 辅助 | `localizedDocsPath` / `getDocsUrl` / `getAppUrl` locale 单测 |
 | `bake-desktop-release.ts` | 核心 | 构建前写入 `public/desktop-release.json`；API 失败 exit 1；`REQUIRE_BAKED_RELEASE=1` 时空 manifest exit 1（可选 `GITHUB_TOKEN`） |

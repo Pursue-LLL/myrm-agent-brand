@@ -33,6 +33,22 @@ const LOCALES = ['zh', 'en'] as const;
 const DEPTH_POINT_COUNT = 3;
 const DEPTH_DESC_MAX_CHARS = 120;
 
+/** Keys referenced by legal pages and cloud footer links — must stay in sync across locales. */
+const LEGAL_REQUIRED_PATHS = [
+  'legal.privacy.title',
+  'legal.privacy.updatedAt',
+  'legal.privacy.intro',
+  'legal.privacy.sections.storage.body',
+  'legal.terms.title',
+  'legal.terms.updatedAt',
+  'legal.terms.intro',
+  'legal.terms.sections.service.body',
+  'legal.terms.sections.billing.body',
+  'legal.refund.title',
+  'legal.refund.updatedAt',
+  'legal.refund.intro',
+] as const;
+
 function loadMarketing(locale: (typeof LOCALES)[number]): Record<string, unknown> {
   const raw = readFileSync(join(ROOT, 'locales', `${locale}.json`), 'utf8');
   const json = JSON.parse(raw) as { marketing: Record<string, unknown> };
@@ -178,6 +194,10 @@ for (const locale of LOCALES) {
   }
   if (getAt(marketing, 'extendedHighlights') !== undefined) {
     errors.push(`[${locale}] legacy marketing.extendedHighlights must be removed (use engineeringDepth.items)`);
+  }
+
+  for (const path of LEGAL_REQUIRED_PATHS) {
+    assertKey(locale, marketing, 'marketing', path, errors);
   }
 
   const cloud = loadCloud(locale);

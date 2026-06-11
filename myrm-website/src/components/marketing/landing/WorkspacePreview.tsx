@@ -10,7 +10,7 @@
  * - WorkspacePreview: 产品预览（浏览器框 + 可选 WebM + 静态 WebP 回退）
  *
  * [POS]
- * OSS `/` 与 SaaS `/cloud` Hero 下方产品预览；`shell="editorial"` 依赖 landing-editorial.css。
+ * OSS `/` 与 SaaS `/cloud` Hero 下方产品预览；`shell="editorial"` 依赖 landing-editorial.css；遵循 prefers-reduced-motion。
  */
 
 import Image from 'next/image';
@@ -85,12 +85,22 @@ export default function WorkspacePreview({
 }: WorkspacePreviewProps) {
   const t = useTranslations(messagesNamespace);
   const chrome = useMemo(() => resolvePreviewChrome(shell), [shell]);
-  const [videoSourceOk, setVideoSourceOk] = useState(HERO_VIDEO_BUILD_FLAG);
+  const [allowMotionVideo, setAllowMotionVideo] = useState(false);
+  const [videoSourceOk, setVideoSourceOk] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
 
   useEffect(() => {
-    if (!HERO_VIDEO_BUILD_FLAG) {
+    const motionMq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const syncMotion = () => setAllowMotionVideo(!motionMq.matches);
+    syncMotion();
+    motionMq.addEventListener('change', syncMotion);
+    return () => motionMq.removeEventListener('change', syncMotion);
+  }, []);
+
+  useEffect(() => {
+    if (!HERO_VIDEO_BUILD_FLAG || !allowMotionVideo) {
       setVideoSourceOk(false);
+      setVideoReady(false);
       return;
     }
     let cancelled = false;
@@ -104,7 +114,7 @@ export default function WorkspacePreview({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [allowMotionVideo]);
 
   const onVideoReady = useCallback(() => {
     setVideoReady(true);
