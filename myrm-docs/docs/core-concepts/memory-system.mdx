@@ -73,15 +73,15 @@ Relationships between memory entries are modeled as a knowledge graph with 4 sem
 
 ## Intelligent Forgetting & Incognito Mode
 
-Five-dimension forgetting strategy prevents memory bloat while preserving what matters:
+Five-dimension forgetting strategy prevents memory bloat while preserving what matters — covering **all memory types** including Semantic, Episodic, and Procedural:
 
 1. **Recency** — Older memories decay with configurable half-life (90 days default)
-2. **Frequency** — Rarely accessed memories are deprioritized
+2. **Frequency** — Rarely accessed memories are deprioritized (access_count persisted across sessions for all types)
 3. **Importance** — Explicitly flagged or high-importance memories are preserved
-4. **Relevance** — Context-mismatched memories are archived
-5. **Composite** — Weighted combination of all dimensions
+4. **Relations** — Well-connected memories in the knowledge graph receive higher retention scores
+5. **User Rating** — User feedback (thumbs up/down) directly influences retention priority
 
-Three forgetting modes: **soft** (demote in ranking), **hard** (permanent delete), **archive** (move to cold storage).
+Three forgetting modes: **DELETE** (permanent remove), **ARCHIVE** (deactivate with metadata), **MARK** (log only, no mutation). Pinned memories, CRITICAL-priority procedural rules, and recently accessed items are automatically exempt.
 
 **Incognito Mode (阅后即焚)**: For sensitive conversations, Myrm offers a true Incognito Mode. When enabled, the AI's memory tools are physically disabled for that session. The conversation is marked as incognito in the database, hidden from the frontend sidebar, excluded from global search, and physically deleted from the database by a background cron job after 60 minutes. This guarantees zero persistence and complete isolation.
 

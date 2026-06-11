@@ -79,7 +79,7 @@ export default function DeploySection() {
           </p>
         </div>
 
-        <div className="mt-12 sm:mt-16 grid gap-6 md:grid-cols-3">
+        <div className="mt-12 sm:mt-16 grid gap-6 md:grid-cols-2">
           {DEPLOY_PATH_IDS.map((pathId, index) => {
             const cardKey = deployPathToCardKey(pathId);
             const inner = (

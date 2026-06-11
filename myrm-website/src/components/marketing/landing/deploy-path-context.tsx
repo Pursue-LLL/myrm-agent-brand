@@ -21,6 +21,8 @@ import {
   type ReactNode,
 } from 'react';
 import {
+  DEFAULT_DEPLOY_PATH_ID,
+  DEPLOY_PATH_IDS,
   deployPathToQuickStartTab,
   readDeployPathFromLocation,
   scrollToSection,
@@ -38,12 +40,12 @@ type DeployPathContextValue = {
 const DeployPathContext = createContext<DeployPathContextValue | null>(null);
 
 export function DeployPathProvider({ children }: { children: ReactNode }) {
-  const [activePath, setActivePath] = useState<DeployPathId>('saas');
+  const [activePath, setActivePath] = useState<DeployPathId>(DEFAULT_DEPLOY_PATH_ID);
 
   useEffect(() => {
     const syncFromLocation = (): void => {
       const parsed = readDeployPathFromLocation();
-      setActivePath(parsed ?? 'saas');
+      setActivePath(parsed ?? DEFAULT_DEPLOY_PATH_ID);
     };
 
     syncFromLocation();

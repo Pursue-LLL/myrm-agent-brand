@@ -127,6 +127,36 @@ L2 和 L3 在网络层自动拦截 **3500+ 已知广告和追踪域名**（Peter
 - ETag / Last-Modified 条件请求
 - 剥离 35+ 跟踪 URL 参数
 
+## Deep Research：四阶段生命周期
+
+Myrm 的 Deep Research 采用结构化的 **CLARIFY → PLAN → RESEARCH → REPORT** 管线 — 不是简单的"搜一下再总结"：
+
+| 阶段 | 做什么 | 为什么重要 |
+|------|--------|-----------|
+| **CLARIFY** | 结构化表单向用户确认意图 | 100% 准确理解，不靠 AI 猜测 |
+| **PLAN** | 生成 ≤6 步研究计划 | 系统覆盖，不盲目浏览 |
+| **RESEARCH** | 并行子 Agent 搜索 + `think` 工具自省 | 更快且每轮有质量检查 |
+| **REPORT** | 生成带 inline 引用和来源列表的报告 | 可溯源验证，不是凭空杜撰 |
+
+### 研究中途控制
+
+- **HITL 回调** — 每轮结束可暂停调整方向
+- **预算守卫** — `max_budget_usd` + 阈值告警
+- **取消保留** — 随时停止，已完成结果保留
+- **ReplanMiddleware** — 自动检测偏离并纠正
+
+### vs MiroFlow（GAIA/BrowseComp 基准测试领先者）
+
+| | Myrm | MiroFlow |
+|---|:---:|:---:|
+| 任务理解 | ✅ 用户通过 CLARIFY 确认 | ⚠️ AI 猜测"陷阱"（$0.5–2/次） |
+| 研究规划 | ✅ 结构化计划 | ❌ 无 |
+| 自我反思 | ✅ `think` 工具 | ❌ 无 |
+| 中途控制 | ✅ HITL + 取消 + 预算 | ❌ 无 |
+| 并行子 Agent | ✅ 信号量控制 | ❌ 单线串行 |
+| 源去重 | ✅ SourceTracker | ❌ 无 |
+| 额外成本 | $0 | $0.5–2/次 o3 hint 调用 |
+
 ## 对比竞品
 
 | | Myrm | Hermes | OpenClaw | OpenCode |

@@ -2,7 +2,7 @@
  * [INPUT]
  * - next-intl marketing.nav keys
  * - deploy-mode URL helpers (POS: 营销站外部链接统一入口)
- * - deploy-paths::getDeployPathLoginHref, getDeployPathRegisterHref (POS: 部署路径 registry)
+ * - deploy-paths::getDeployPathHref, getDeployPathSectionLink (POS: 部署路径 registry)
  *
  * [OUTPUT]
  * - buildMarketingNavLinks(): shared header navigation for landing + shell pages
@@ -12,7 +12,7 @@
  */
 import type { DocsLocale } from '@/lib/docs-contract';
 import { getDesktopDownloadPath, getDocsUrl } from '@/lib/deploy-mode';
-import { getDeployPathLoginHref, getDeployPathRegisterHref } from '@/lib/deploy-paths';
+import { getDeployPathHref, getDeployPathSectionLink } from '@/lib/deploy-paths';
 
 export type MarketingNavLink = {
   href: string;
@@ -41,15 +41,14 @@ export function buildMarketingNavLinks(
       external: true,
       icon: 'github',
     },
-    { href: '/pricing', label: t('nav.pricing') },
     { href: `${prefix}#faq`, label: t('nav.faq') },
   ];
 }
 
-export function getMarketingRegisterHref(appLocale: DocsLocale = 'en'): string {
-  return getDeployPathRegisterHref(appLocale);
+export function getMarketingRegisterHref(_appLocale: DocsLocale = 'en'): string {
+  return getDeployPathSectionLink('quickstart', 'localWebui');
 }
 
 export function getMarketingLoginHref(appLocale: DocsLocale = 'en'): string {
-  return getDeployPathLoginHref(appLocale);
+  return getDeployPathHref('localWebui', appLocale);
 }

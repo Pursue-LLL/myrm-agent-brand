@@ -23,14 +23,14 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **Deployment** | ✅ Web/Tauri/SaaS | Self-hosted | Self-hosted | ❌ SaaS only | Local + WebUI | ❌ Closed SaaS | Local only |
 | **SaaS sign-in** | ✅ Google OAuth + one-time exchange (JWT never in URL); enterprise OIDC ready | ❌ | ❌ (OAuth for LLM keys only) | ⚠️ Vendor account | ❌ | ❌ Closed SaaS | ❌ |
 | **Model Support** | ✅ 100+ models | 20+ | Fixed | ⚠️ Fixed 3-tier | BYOK multi-model | ❌ MiniMax only | N/A |
-| **Channels** | ✅ 30+ messaging (26 registered, 8 China ecosystem) | ~23 (19 with platform hints) | ~7 | ⚠️ Feishu/DingTalk | ⚠️ IM bots | ❌ Lark only | ❌ |
+| **Channels** | ✅ 26 channels + IM Goal management (10 commands) + approval push to IM (5,709 tests) | ~23 (no channel Goal mgmt) | ~7 | ⚠️ Feishu/DingTalk | ⚠️ IM bots | ❌ Lark only | ❌ |
 | **Public Ingress guidance** | ✅ SSOT API + inbound/outbound badges + guided tunnel docs (cpolar/NATAPP/frp) | ❌ manual docs | Tailscale docs | ⚠️ bundled cloudflared docs | ❌ | ❌ | ❌ |
 | **Sub-Agent** | ✅ 6 modes + Dynamic Workflow | ⚠️ v0.15 Kanban Swarm (1 mode) | ⚠️ Basic spawn (linear only) | ⚠️ Basic spawn | ❌ Single agent | ⚠️ L-W-V | ❌ |
 | **Security** | ✅ 6-layer defense | ⚠️ v0.15 Promptware 3 chokepoints | 1 layer | ⚠️ Unknown | ⚠️ Basic sandbox | ⚠️ Closed | ❌ |
 | **Credential Vault** | ✅ Label inject + TOTP (browser + desktop) | ❌ Plaintext in tool args | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **WebUI Access Security** | ✅ Zero-Trust WebSocket + Secure Cookie | ⚠️ HTTP only, WS vulnerable | ⚠️ Basic JWT | ⚠️ Unknown | ⚠️ HTTP only | ⚠️ Closed SaaS | ❌ Open on LAN |
 | **Goal Mode** | ✅ 7 states + 4D budget | /goal | ❌ | ❌ | ❌ | ⚠️ Plan-approve | ❌ |
-| **Context Management** | ✅ 6-layer Prompt Cache + 22+ middleware pipeline | ⚠️ system_and_3 (4 breakpoints) + 8-layer fixed stack | LCM | LCM | ⚠️ Idle compress + dual cache | ⚠️ Worker isolation | ⚠️ 4-layer stack |
+| **Context Management** | ✅ 6-layer Prompt Cache + 22+ middleware + in-session real-time notes (dual-threshold trigger · 8 structured sections · circuit breaker · 960 tests) | ⚠️ system_and_3 (4 breakpoints) + 8-layer fixed stack | LCM | LCM | ⚠️ Idle compress + dual cache | ⚠️ Worker isolation | ⚠️ 4-layer stack |
 | **Smart Concurrency Router** | ✅ O(1) path lock, zero read-write race | ⚠️ Coarse write lock only | ❌ Unsafe | ⚠️ Unknown | ❌ | ⚠️ Unknown | ❌ |
 | **Headless Unattended** | ✅ Tag-based tool isolation (Zero Deadlock) | ⚠️ Prone to interactive deadlocks | ❌ Unsupported | ❌ | ❌ | ❌ | ❌ |
 | **Extreme Anti-Explosion** | ✅ 4-layer moat (Hygiene, Shield, Strip, Budget) | ⚠️ Crash/Loss on massive payloads | ⚠️ Single point failure | ⚠️ Unknown | ⚠️ Basic limit | ⚠️ Unknown | ❌ |
@@ -38,7 +38,7 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **MCP Tool Safety** | ✅ Dual-layer: upstream exception catch + downstream block coercion (file/audio/unknown→text) | ⚠️ Single-layer coercion (no upstream fault tolerance) | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Smart Routing & Auto-Upgrade** | ✅ 5-layer: ComplexityRouter 3-Tier + PrivacyRouter + ESCALATION_CONTRACT (model self-upgrade) + EscalationScrubber (seamless UX) + Dual Fallback (362 tests) | ⚠️ Single-dimension Sonnet→Opus | ❌ | ⚠️ Manual 3-tier | ❌ | ⚠️ Unknown | ❌ |
 | **Background Tasks** | ✅ Kanban-persisted, SteeringToken runtime redirect, Zombie detection, auto-retry, /btw /bg commands, smart polling (189 tests) | ⚠️ Basic run + cancel only | ❌ | ❌ | ⚠️ Background Agent (no steer) | ⚠️ Unknown | ❌ |
-| **Error Recovery** | ✅ 14 self-healing types | try/catch | Basic | Basic | ⚠️ Context overflow recovery | ⚠️ Unknown | ❌ |
+| **Error Recovery** | ✅ 14 self-healing types + 3-layer LLM streaming timeout (300s force_timeout + TIMEOUT auto-retry + model failover) + Anthropic thinking recovery (168 tests) | try/catch | Basic | Basic | ⚠️ Context overflow recovery | ⚠️ Unknown | ❌ |
 | **Enterprise Reliability** | ✅ xdist locks, EventBus truncate, OTEL safe, path-boundary + TOCTOU approval tests; chat SSE state machine regression tests; **521 fractal `_ARCH` module docs + 296 architecture CI gates** (2026-06-09 verified) | ⚠️ Happy-path tested only | ⚠️ Race conditions likely | ⚠️ Unknown | ⚠️ Unknown | ⚠️ Unknown | ❌ |
 | **Module Documentation Map** | ✅ **521** `_ARCH.md` + CI anti-drift (`check_fractal_docs`) | ❌ Central docs only | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **File Edit Safety** | ✅ 6-layer protection (message-level snapshot undo with single-file/batch revert, auto-format, syntax check, conflict detection, config guard, sensitive guard) + real-time diff SSE (788 tests) | ❌ | ❌ | ❌ | ❌ | ⚠️ Unknown | ❌ |
@@ -796,7 +796,7 @@ MemPalace is a standalone AI memory system using architectural metaphors (Wing/R
 | Memory Types | 1 flat type (drawer) | **8 structured types** (Profile/Semantic/Episodic/Procedural/Conversation/Claim/TaskDigest/Integration) | AI understands "this is a fact" vs "this is a preference" vs "this is a rule" |
 | Verbatim Storage | ChromaDB single vector | **Dual-track** (raw_exchange + summary) with **dual embedding** | Both precise recall and fast overview |
 | Deduplication | Single-layer vector similarity | **3-layer smart dedup** (Hash → Vector → LLM) with UPDATE_REPLACE/UPDATE_MERGE/NEW | No duplicate memories, intelligent merging |
-| Forgetting | None (memories only grow) | **5-dimension intelligent forgetting** (time decay + access frequency + importance + relations + user rating) | Memory stays lean and relevant |
+| Forgetting | None (memories only grow) | **5-dimension intelligent forgetting** covering all memory types (time decay + access frequency + importance + relations + user rating) with triple protection (pinned/CRITICAL/recently-active) | Memory stays lean and relevant without losing critical knowledge |
 | Knowledge Graph | Basic halls/tunnels co-occurrence | **GraphStore + CTE** with visual exploration | Rich relationship mapping |
 | Contradiction Detection | Rule-based name/relationship check | **LLM-powered ClaimGraph** + cognitive subsumption | Catches subtle contradictions |
 | Search | BM25 + Vector hybrid | **FTS5 + Qdrant** hybrid (FTS5 has built-in BM25) | Production-grade search infrastructure |

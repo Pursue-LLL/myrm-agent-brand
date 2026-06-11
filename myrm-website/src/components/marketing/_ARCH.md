@@ -4,13 +4,21 @@
 
 `myrm-website` 是 `myrm-agent-brand` 仓内的 Next.js 营销站（Cloudflare Pages → `myrmagent.ai`）。纯展示页；App CTA 经 `getAppUrl(path, docsLocale)` 跳转 `app.myrmagent.ai`；文档经 `getDocsUrl()` 跳转 `docs.myrmagent.ai`。
 
+**双页面架构：**
+
+| 路由 | 定位 | 首页链入 |
+|------|------|----------|
+| `/` | 开源 / 自托管（`LandingEditorial`） | 是 |
+| `/cloud` | 云端 SaaS（`cloud/LandingCloud`） | 否（`noindex`，约一个月后推广） |
+
 ## 页面路由
 
 | 路由 | 说明 |
 |------|------|
-| `/` | Landing Page（LandingEditorial） |
-| `/download` | 桌面端下载（embedded JSON + 平台矩阵 + release notes + 安装步骤 + SHA256） |
-| `/pricing` | 定价展示（`pricingPage.plans` i18n；CTA 跳转 App 账单） |
+| `/` | 开源 Landing（Local WebUI + 桌面客户端） |
+| `/cloud` | 云端 SaaS Landing（WU 定价、登录 App） |
+| `/download` | 桌面端下载 |
+| `/pricing` | 302 → `/cloud`（`public/_redirects`） |
 | `/terms` | 服务条款 |
 | `/privacy` | 隐私政策 |
 | `/refund` | 退款政策 |
@@ -18,101 +26,70 @@
 
 ## SEO
 
-- `sitemap.ts`：`/sitemap.xml`
+- `sitemap.ts`：`/`、`/download`、法务页（不含 `/cloud`，因 noindex）
 - `robots.ts`：`/robots.txt`
 - `layout.tsx`：Open Graph + Twitter Card + robots metadata
+- `/cloud`：`generateMetadata` 设 `robots: { index: false }`
 
 ## 组件结构
 
-| 文件 | 地位 | 职责 | I/O |
-|------|------|------|-----|
-| `LandingEditorial.tsx` | 核心 | 主 Landing 编排 | ✅ |
-| `download/SmartDownloadButton.tsx` | 核心 | OS 智能下载 CTA；无 release 时固定「下载桌面版」→ `/download` | ✅ |
-| `download/CliInstallFallback.tsx` | 核心 | 无桌面包：筹备说明 + localWebui 终端引导 | ✅ |
-| `download/DownloadPageContent.tsx` | 核心 | `/download` 编排；无包时 SaaS 优先 | ✅ |
-| `download/PlatformDownloadGrid.tsx` | 核心 | 平台矩阵 + Recommended + size；无包时 CliInstallFallback | ✅ |
-| `download/ReleaseNotesSection.tsx` | 辅助 | Release notes | ✅ |
-| `download/InstallStepsSection.tsx` | 辅助 | 三平台安装引导 | ✅ |
-| `download/ChecksumSection.tsx` | 辅助 | SHA256 内联 + 复制 | ✅ |
-| `landing/DeploySection.tsx` | 核心 | 三部署模式卡片 + 决策对比矩阵 | ✅ |
-| `landing/HeroTypography.tsx` | 辅助 | Hero 多行标题 + differentiator flex 条 | — |
-| `landing/PathStrip.tsx` | 核心 | Hero / Final CTA 三路径 chip 条 | ✅ |
-| `landing/HowItWorksSection.tsx` | 核心 | 路径 Tab 化三步上手 | ✅ |
-| `landing/deploy-path-context.tsx` | 核心 | HowItWorks + QuickStart 共享路径 Tab 状态 | — |
-| `../../lib/deploy-paths.ts` | 核心 | 部署路径 registry（href/UTM/hash） | — |
-| `MarketingShell.tsx` | 核心 | 法务/定价页顶栏壳层 | ✅ |
-| `LegalPage.tsx` | 辅助 | 法务页模板 | — |
-| `landing/marketing-keys.ts` | 核心 | Bento/对比表/折叠区 i18n 键清单（`validate:locales`） | — |
-| `../../lib/marketing-nav.ts` | 核心 | 共享 Nav 链接 DRY（`buildMarketingNavLinks`） | — |
-| `landing/marketing-i18n.ts` | 辅助 | 类型安全的 `marketingHas` | — |
-| `landing/depth-evidence.ts` | 核心 | 分享直链 `?group=#engineering-depth`（无 Bento UI 入口） | — |
-| `landing/AdvantagesSection.tsx` | 核心 | 六项 Bento 核心能力（独立区块，subtitle 衔接证据区） | ✅ |
-| `landing/EngineeringDepthSection.tsx` | 核心 | 产品深度 18 卡；桌面 rail / 移动 accordion；分享直链 ?group= | ✅ |
-| `landing/BenchmarkSection.tsx` | 核心 | Token 实测数字条 | — |
-| `landing/WhyMyrmAgentSection.tsx` | 核心 | 竞品对比表（分类 Tab + 行过滤） | — |
-| `landing/WorkspacePreview.tsx` | 核心 | Hero 下方产品预览（WebM + WebP 回退） | ✅ |
-| `landing/colony/` | 辅助 | Hero 蚁群 Canvas | 见 `colony/_ARCH.md` |
-| `landing/TestimonialsSection.tsx` | 辅助 | 用户评价 | — |
-| `landing/FooterSection.tsx` | 辅助 | 页脚（docs locale 深链） | ✅ |
-| `landing/QuickStartSection.tsx` | 核心 | 快速开始（路径 Tab + 深链） | ✅ |
+| 文件 | 地位 | 职责 |
+|------|------|------|
+| `LandingEditorial.tsx` | 核心 | 开源首页编排 |
+| `cloud/LandingCloud.tsx` | 核心 | SaaS 页编排 |
+| `cloud/CloudShell.tsx` | 核心 | SaaS 页顶栏/页脚 |
+| `download/*` | 核心 | 桌面下载转化 |
+| `landing/DeploySection.tsx` | 核心 | 两部署模式卡片 + 对比矩阵（localWebui + tauri） |
+| `landing/PathStrip.tsx` | 核心 | Hero 双路径 chip |
+| `landing/HowItWorksSection.tsx` | 核心 | 路径 Tab 三步上手 |
+| `landing/deploy-path-context.tsx` | 核心 | HowItWorks + QuickStart 共享路径状态 |
+| `../../lib/deploy-paths.ts` | 核心 | 本地/桌面部署路径 registry |
+| `../../lib/cloud-paths.ts` | 核心 | SaaS App URL + UTM |
+| `../../lib/marketing-nav.ts` | 核心 | 开源页 Nav DRY |
+| `../../lib/cloud-marketing-nav.ts` | 核心 | SaaS 页 Nav |
+| `MarketingShell.tsx` | 核心 | 法务页壳层 |
+| `landing/marketing-keys.ts` | 核心 | Bento/对比/深度 i18n 键清单 |
+| `cloud/cloud-marketing-keys.ts` | 核心 | SaaS 定价/FAQ/步骤键清单 |
 
-## Landing 区块顺序（LandingEditorial.tsx）
+云页详情见 [`cloud/_ARCH.md`](cloud/_ARCH.md)。
 
-Hero → **WorkspacePreview** → HowItWorks（路径 Tab）→ QuickStart → Marquee → **Advantages（6 Bento）** → Benchmark → **EngineeringDepth（6 组 × 3 卡）** → UseCases → Deploy（矩阵）→ Integrations → Testimonials → WhyMyrmAgent → Pricing → FAQ → Final CTA（PathStrip 收口）
+## Landing 区块顺序（`/` LandingEditorial）
+
+Hero → WorkspacePreview → HowItWorks → QuickStart → Marquee → Advantages → Benchmark → EngineeringDepth → UseCases → Deploy → Integrations → Testimonials → WhyMyrmAgent → FAQ → Final CTA
+
+（无 Pricing 区块；无 SaaS 路径。）
+
+## SaaS 页区块顺序（`/cloud` LandingCloud）
+
+Hero → How it works → Pricing → FAQ → Final CTA
 
 ## 外部链接
 
-| 函数 | 环境变量 | 默认 |
-|------|----------|------|
-| `getAppUrl(path, locale?)` | `NEXT_PUBLIC_APP_URL` | `https://app.myrmagent.ai`；CTA 附 `?locale=en\|zh` 接力 App `NEXT_LOCALE` |
-| `getDocsUrl(path, locale?)` | `NEXT_PUBLIC_DOCS_URL` | `https://docs.myrmagent.ai`；zh 前缀 `/zh/` |
-| 文档路径契约 | `lib/docs-contract.ts` | `localizedDocsPath()`；双 locale CI `validate:docs-slugs` |
-| 文档 locale | `hooks/useDocsLocale.ts` | 营销组件按站点 locale 生成 docs 链接 |
-| `getDesktopDownloadPath()` | — | `/download` |
-| `getDeployPathHref()` / `getDeployPathSectionLink()` | — | 见 `lib/deploy-paths.ts` |
-| `writeDepthEvidenceLink()` / `readDepthGroupFromLocation()` | — | 见 `landing/depth-evidence.ts`（分享直链 + rail 联动） |
-| `buildMarketingNavLinks()` | — | 见 `lib/marketing-nav.ts` |
-| `getGitHubReleasesPageUrl()` | `NEXT_PUBLIC_GITHUB_RELEASE_REPO` | 构建期 release 拉取；**不向终端用户 CTA 暴露** |
-
-工程深度区竞品全文对比：`getDocsUrl(COMPETITOR_COMPARISON_DOC_PATH, docsLocale)`
+| 函数 | 用途 |
+|------|------|
+| `getAppUrl(path, locale?)` | App CTA |
+| `getDocsUrl(path, locale?)` | 文档站 |
+| `getDeployPathHref()` / `getDeployPathSectionLink()` | 本地/桌面路径 |
+| `getCloudLoginHref()` / `getCloudRegisterHref()` | SaaS 登录/注册 |
+| `buildMarketingNavLinks()` | 开源页 Nav |
+| `buildCloudNavLinks()` | SaaS 页 Nav |
 
 ## i18n
 
-- `locales/zh.json` + `locales/en.json`：`marketing` 命名空间
-- **首屏 Bento**：`advantages.items` — 仅 `BENTO_KEYS`，每卡 ≤3 个 `pointN`；与证据区独立，由 `advantages.subtitle` / `engineeringDepth.subtitle` 呼应
-- **工程深度**：`engineeringDepth.groups.*` + `engineeringDepth.items.*`（6 Bento 对齐组 × 3 卡 = 18 proof cards）；桌面 rail 默认 `selfEvolution`；`<md` 受控 accordion 与 `?group=` URL 联动
-- **advantages.items 键**：仅 `BENTO_KEYS`（六格首屏）
-- **Bento 细节**：首屏六项仅展示要点；完整竞品对比链见 `EngineeringDepthSection` → `getDocsUrl(COMPETITOR_COMPARISON_DOC_PATH, docsLocale)`
-- **对比表**：`whyMyrmAgent.rows.*` + `whyMyrmAgent.tabs.*`（`COMPARE_TAB_ROWS` 映射）
-- **定价页**：`/pricing` 使用 `pricingPage.plans.*`（`PRICING_PAGE_PLAN_KEYS`）；Landing 预览仍用 `pricingPreview.*`
-- **迁移 CTA**：主链 `/download`；次链 `getAppLoginRedirectUrl(APP_MIGRATION_WIZARD_PATH)`（Local 已部署用户）
-- **同步规则**：落地页 Bento / 对比表条款与 `getDocsUrl(COMPETITOR_COMPARISON_DOC_PATH, docsLocale)` 保持一致；禁止脚本批量灌入 7+ bullet
-- **键校验**：`bun run validate:locales`（含 engineeringDepth 18 卡 schema、pricingPreview ↔ pricingPage、locales legacy URL）+ `bun run validate:docs-slugs`；`bun run build` 前自动执行
+- `marketing.*` — 开源首页 `/`
+- `cloud.*` — SaaS 页 `/cloud`
+- **键校验**：`bun run validate:locales`（marketing 深度卡 + cloud 定价/FAQ/步骤）+ `validate:docs-slugs`
 
 ## 与 App 的关系
 
-- CTA 经 `getAppUrl(path, docsLocale)` 跳转 App；App `middleware.ts` 写 cookie；登录后 `locale-personal-sync` 写 `personalSettings`
-- 文档经 `getDocsUrl()` 跳转文档站
-- Pricing 为静态展示，订阅在 App 完成
-
-## 品牌静态资源（`public/brand/`）
-
-仅保留代码引用的格式；`BrandLogo.tsx` 与 `layout.tsx` 为唯一消费方。
-
-| 文件 | 用途 |
-|------|------|
-| `logo-icon-32.png` / `logo-icon-192.png` | Favicon / Apple touch（`layout.tsx`） |
-| `logo-icon-80.webp` / `logo-icon-128.webp` / `logo-icon.webp` | `BrandLogo` icon 尺寸阶梯 |
-| `logo-wordmark.webp` / `logo-wordmark-light-text.webp` | `BrandLogo` wordmark（深/浅底） |
-| `logo-full.jpg` | `BrandLogo` full 变体 |
+- 开源页 CTA → 本地 Quick Start 或 `/download`
+- SaaS 页 CTA → `app.myrmagent.ai/auth/login`（UTM `campaign=cloud`）
+- 订阅在 App 内完成
 
 ## 部署
 
-- 生产：**CF Pages Deploy Hook**（`bun run release:website -- website-vX.Y.Z`）；Dashboard automatic deployments 已关闭，push `main` 不上线
-- 应急：本地 build + `wrangler pages deploy out --project-name=myrm-agent-brand`；`public/_redirects` install 短链
-- 域名：`myrmagent.ai`
-- 本地开发：`bun run dev:3002`（端口 3002，与 App 3000 分离）
-- 桌面 release bake：`bun run bake:release`（写入 `public/desktop-release.json`，gitignored；可选 `GITHUB_TOKEN` 提高 API 限额）
-- Hero 动效：`public/marketing/hero-demo.webm`；从预览图生成：`bun run generate:hero-webm`（可用真实 App 录屏覆盖）
+- 生产：CF Pages Deploy Hook（`bun run release:website`）
+- 本地：`bun run dev:3002`
+- 双页说明：`docs/CLOUD_HOSTING_RESTORE.md`
 
-桌面下载模块详情见 [`download/_ARCH.md`](../download/_ARCH.md)。
+桌面下载模块见 [`download/_ARCH.md`](download/_ARCH.md)。

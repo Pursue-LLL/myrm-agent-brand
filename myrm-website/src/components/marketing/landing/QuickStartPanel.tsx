@@ -24,11 +24,10 @@ import {
   getLocalInstallOneliner,
   getLocalInstallOnelinerWindows,
   LOCAL_START_COMMAND,
+  QUICK_START_TABS,
 } from '@/lib/deploy-paths';
 import { getDesktopDownloadPath } from '@/lib/deploy-mode';
 import type { QuickStartTabKey } from '@/lib/deploy-paths';
-
-const QUICK_START_TABS: QuickStartTabKey[] = ['saas', 'local', 'desktop'];
 
 type QuickStartPanelProps = {
   activeTab: QuickStartTabKey;
@@ -209,17 +208,6 @@ export default function QuickStartPanel({ activeTab, onTabClick }: QuickStartPan
           ))}
         </div>
       </div>
-
-      {activeTab === 'saas' && (
-        <div key="saas" className="ed-code-content ed-code-app-content ed-quickstart-panel-fade">
-          <span className="ed-code-app-tagline">{t('quickStart.saas.step1')}</span>
-          <span className="ed-code-app-subtitle">{t('quickStart.saas.step2')}</span>
-          <a href={getDeployPathHref('saas', docsLocale)} className="ed-code-cta-btn ed-mono">
-            {t('quickStart.saas.cta')}
-          </a>
-          <span className="ed-code-app-meta ed-mono">{t('quickStart.saas.url')}</span>
-        </div>
-      )}
 
       {activeTab === 'local' && (
         <div key="local" className="ed-code-content ed-quickstart-panel-fade">

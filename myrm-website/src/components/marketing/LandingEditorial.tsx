@@ -48,7 +48,6 @@ import EasterEggField from './EasterEgg';
 import MouseGlowLayer from './MouseGlowLayer';
 import SmartDownloadButton from '@/components/download/SmartDownloadButton';
 import { DesktopReleaseProvider } from '@/components/download/DesktopReleaseProvider';
-import { PRICING_PREVIEW_PLAN_KEYS } from './landing/marketing-keys';
 import WorkspacePreview from './landing/WorkspacePreview';
 
 function GitHubIcon({ className }: { className?: string }) {
@@ -61,7 +60,7 @@ function GitHubIcon({ className }: { className?: string }) {
 
 const USE_CASE_ICONS = { research: Search01Icon, coding: SourceCodeIcon, automation: RepeatIcon, content: PencilEdit01Icon };
 const USE_CASE_KEYS = ['research', 'coding', 'automation', 'content'] as const;
-const FAQ_ITEMS = ['what', 'pricing', 'local', 'data', 'cancel'] as const;
+const FAQ_ITEMS = ['what', 'local', 'data'] as const;
 
 export default function LandingEditorial() {
   const t = useTranslations('marketing');
@@ -74,13 +73,6 @@ export default function LandingEditorial() {
 
   type NavLink = { href: string; label: string; external?: true; icon?: 'github' };
   const navLinks: NavLink[] = buildMarketingNavLinks(t, { docsLocale });
-
-  const pricingPreview = PRICING_PREVIEW_PLAN_KEYS.map((planKey) => ({
-    name: t(`pricingPreview.${planKey}.name`),
-    price: t(`pricingPreview.${planKey}.price`),
-    wu: t(`pricingPreview.${planKey}.wu`),
-    highlight: planKey === 'companion',
-  }));
 
   return (
     <>
@@ -144,7 +136,7 @@ export default function LandingEditorial() {
               style={{ color: 'var(--ed-dim)', border: '1px solid var(--ed-border)' }}
               onClick={() => setMobileOpen(false)}
             >
-              {t('nav.login')}
+              {t('nav.localSetup')}
             </a>
             <Button asChild size="lg" className="ed-cta w-full rounded-2xl border-0 py-4 text-[15px] font-semibold text-white" style={{ background: 'var(--ed-accent)' }}>
               <a href={startHref} onClick={() => setMobileOpen(false)}>
@@ -188,7 +180,9 @@ export default function LandingEditorial() {
             </nav>
             <div className="hidden items-center gap-4 md:flex">
               <LocaleSwitcher />
-              <a href={getMarketingLoginHref(docsLocale)} className="text-[13px] font-light" style={{ color: 'var(--ed-dim)' }}>{t('nav.login')}</a>
+              <a href={getMarketingLoginHref(docsLocale)} className="text-[13px] font-light" style={{ color: 'var(--ed-dim)' }}>
+                {t('nav.localSetup')}
+              </a>
               <Button asChild size="sm" className="ed-cta rounded-full border-0 px-5 text-xs font-medium text-white" style={{ background: 'var(--ed-accent)' }}>
                 <a href={startHref}>{t('nav.getStarted')}</a>
               </Button>
@@ -245,6 +239,11 @@ export default function LandingEditorial() {
                 </MagneticButton>
                 </div>
                 <SmartDownloadButton variant="hero" />
+                <Button asChild variant="outline" size="lg" className="rounded-full border-[var(--ed-border)] font-light" style={{ color: 'var(--ed-dim)' }}>
+                  <a href="https://github.com/Pursue-LLL/myrm-agent" target="_blank" rel="noopener noreferrer">
+                    {t('hero.ctaSecondary')}
+                  </a>
+                </Button>
               </div>
               <p className="mt-1 text-center text-[12px] sm:text-[13px] ed-mono leading-relaxed tracking-wide" style={{ color: 'var(--ed-dim)' }}>
                 {t('hero.colonyTagline')}
@@ -368,41 +367,6 @@ export default function LandingEditorial() {
         <div className="ed-divider" />
 
         <WhyMyrmAgentSection />
-
-        <div className="ed-divider" />
-
-        {/* Pricing */}
-        <section className="ed-section-main py-20 sm:py-40">
-          <div className="mx-auto max-w-[1080px] px-6">
-            <div className="ed-reveal flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
-              <div>
-                <h2 className="text-[clamp(1.8rem,4vw,2.6rem)] font-semibold tracking-[-0.02em]">{t('pricingPreview.title')}</h2>
-                <p className="mt-3 text-[15px] font-light" style={{ color: 'var(--ed-dim)' }}>{t('pricingPreview.subtitle')}</p>
-              </div>
-              <Button asChild variant="outline" className="rounded-full font-light" style={{ borderColor: 'var(--ed-border)' }}>
-                <Link href="/pricing">{t('pricingPreview.viewAll')}</Link>
-              </Button>
-            </div>
-            <div className="mt-14 grid gap-5 md:grid-cols-3">
-              {pricingPreview.map((plan, i) => (
-                <TiltCard
-                  key={plan.name}
-                  className={cn('ed-reveal ed-card rounded-2xl p-7', `ed-stagger-${i + 1}`)}
-                  style={{
-                    border: plan.highlight ? '2px solid var(--ed-accent)' : '1px solid var(--ed-border)',
-                    background: plan.highlight ? 'var(--ed-accent-soft)' : 'var(--ed-surface)',
-                  }}
-                >
-                  <p className="text-[13px] font-medium" style={{ color: 'var(--ed-dim)' }}>{plan.name}</p>
-                  <p className="mt-4 overflow-hidden">
-                    <span className={`ed-counter ed-counter-${i + 1} text-[2.2rem] font-semibold tracking-tight`} style={{ fontFamily: 'var(--ed-serif)' }}>{plan.price}</span>
-                  </p>
-                  <p className="mt-2 text-[12px] ed-mono" style={{ color: 'var(--ed-muted)' }}>{plan.wu}</p>
-                </TiltCard>
-              ))}
-            </div>
-          </div>
-        </section>
 
         <div className="ed-divider" />
 

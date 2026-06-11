@@ -13,15 +13,15 @@ describe('parseDeployPathFromQuery', () => {
   test('maps quick-start tab aliases to deploy path ids', () => {
     expect(parseDeployPathFromQuery('local')).toBe('localWebui');
     expect(parseDeployPathFromQuery('desktop')).toBe('tauri');
-    expect(parseDeployPathFromQuery('saas')).toBe('saas');
     expect(parseDeployPathFromQuery('localWebui')).toBe('localWebui');
     expect(parseDeployPathFromQuery('tauri')).toBe('tauri');
   });
 
-  test('returns null for unknown values', () => {
+  test('returns null for unknown or legacy saas values', () => {
     expect(parseDeployPathFromQuery(null)).toBeNull();
     expect(parseDeployPathFromQuery('')).toBeNull();
     expect(parseDeployPathFromQuery('cli')).toBeNull();
+    expect(parseDeployPathFromQuery('saas')).toBeNull();
   });
 });
 
@@ -36,26 +36,16 @@ describe('deploy path tab mapping', () => {
 describe('getDeployPathSectionLink', () => {
   test('uses search param before hash for in-page deep links', () => {
     expect(getDeployPathSectionLink('quickstart', 'localWebui')).toBe('?path=local#quickstart');
-    expect(getDeployPathSectionLink('how-it-works', 'saas')).toBe('?path=saas#how-it-works');
+    expect(getDeployPathSectionLink('how-it-works', 'tauri')).toBe('?path=desktop#how-it-works');
   });
 });
 
 describe('getDeployPathHref', () => {
-  test('includes UTM params for SaaS and local docs links', () => {
-    const saasHref = getDeployPathHref('saas');
-    expect(saasHref).toContain('utm_source=website');
-    expect(saasHref).toContain('utm_campaign=saas');
-    expect(saasHref).toContain('locale=en');
-
+  test('includes UTM params for local docs links', () => {
     const localHref = getDeployPathHref('localWebui');
+    expect(localHref).toContain('utm_source=website');
     expect(localHref).toContain('utm_campaign=localWebui');
     expect(localHref).toContain('/getting-started/quickstart');
-  });
-
-  test('appends zh locale for SaaS deploy path', () => {
-    const saasZh = getDeployPathHref('saas', 'zh');
-    expect(saasZh).toContain('locale=zh');
-    expect(saasZh).toContain('utm_campaign=saas');
   });
 
   test('uses desktop download path for tauri', () => {

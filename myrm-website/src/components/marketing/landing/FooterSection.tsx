@@ -39,7 +39,6 @@ export default function FooterSection() {
             <Link href="/privacy" className="transition-colors hover:text-[var(--ed-accent)]">{t('footer.privacy')}</Link>
             <Link href="/terms" className="transition-colors hover:text-[var(--ed-accent)]">{t('footer.terms')}</Link>
             <Link href="/refund" className="transition-colors hover:text-[var(--ed-accent)]">{t('footer.refund')}</Link>
-            <Link href="/pricing" className="transition-colors hover:text-[var(--ed-accent)]">{t('footer.pricing')}</Link>
             <Link href={getDesktopDownloadPath()} className="transition-colors hover:text-[var(--ed-accent)]">{t('footer.download')}</Link>
           </div>
           <div className="flex flex-col gap-3 text-[13px] font-light" style={{ color: 'var(--ed-dim)' }}>

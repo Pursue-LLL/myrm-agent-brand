@@ -7,40 +7,38 @@
  * - getLocalInstallOneliner / getLocalInstallOnelinerWindows (curl|bash / irm|iex)
  *
  * [POS]
- * Single source of truth for SaaS / Local WebUI / Tauri deployment paths on the marketing site.
+ * Single source of truth for Local WebUI / Tauri deployment paths on the marketing site.
+ * Cloud-hosted (SaaS) paths removed until launch — see docs/CLOUD_HOSTING_RESTORE.md.
  */
 import { LOCAL_DEPLOY_DOCS_PATH, type DocsLocale } from '@/lib/docs-contract';
-import {
-  getAppUrl,
-  getDesktopDownloadPath,
-  getDocsUrl,
-} from '@/lib/deploy-mode';
+import { getDesktopDownloadPath, getDocsUrl } from '@/lib/deploy-mode';
 
 export { LOCAL_DEPLOY_DOCS_PATH };
 
-export const DEPLOY_PATH_IDS = ['saas', 'localWebui', 'tauri'] as const;
+export const DEPLOY_PATH_IDS = ['localWebui', 'tauri'] as const;
 
 export type DeployPathId = (typeof DEPLOY_PATH_IDS)[number];
 
-/** i18n card keys under `marketing.deploy.{key}`. */
-export type DeployCardKey = 'saas' | 'local' | 'tauri';
+export const DEFAULT_DEPLOY_PATH_ID: DeployPathId = 'localWebui';
 
-export type QuickStartTabKey = 'saas' | 'local' | 'desktop';
+/** i18n card keys under `marketing.deploy.{key}`. */
+export type DeployCardKey = 'local' | 'tauri';
+
+export type QuickStartTabKey = 'local' | 'desktop';
+
+export const QUICK_START_TABS: readonly QuickStartTabKey[] = ['local', 'desktop'];
 
 const QUICK_START_TAB_BY_PATH: Record<DeployPathId, QuickStartTabKey> = {
-  saas: 'saas',
   localWebui: 'local',
   tauri: 'desktop',
 };
 
 const PATH_BY_QUICK_START_TAB: Record<QuickStartTabKey, DeployPathId> = {
-  saas: 'saas',
   local: 'localWebui',
   desktop: 'tauri',
 };
 
 const CARD_KEY_BY_PATH: Record<DeployPathId, DeployCardKey> = {
-  saas: 'saas',
   localWebui: 'local',
   tauri: 'tauri',
 };
@@ -89,8 +87,8 @@ export function parseDeployPathFromQuery(value: string | null): DeployPathId | n
   if (!value) return null;
   if (value === 'local') return 'localWebui';
   if (value === 'desktop') return 'tauri';
-  if ((DEPLOY_PATH_IDS as readonly string[]).includes(value)) {
-    return value as DeployPathId;
+  if (value === 'localWebui' || value === 'tauri') {
+    return value;
   }
   return null;
 }
@@ -110,21 +108,11 @@ export function readDeployPathFromLocation(): DeployPathId | null {
 
 export function getDeployPathHref(pathId: DeployPathId, docsLocale: DocsLocale = 'en'): string {
   switch (pathId) {
-    case 'saas':
-      return withUtm(getAppUrl('/auth/login', docsLocale), pathId, 'deploy_path');
     case 'localWebui':
       return withUtm(getDocsUrl(LOCAL_DEPLOY_DOCS_PATH, docsLocale), pathId, 'deploy_path');
     case 'tauri':
       return getDesktopDownloadPath();
   }
-}
-
-export function getDeployPathLoginHref(appLocale: DocsLocale = 'en'): string {
-  return withUtm(getAppUrl('/auth/login', appLocale), 'saas', 'nav');
-}
-
-export function getDeployPathRegisterHref(appLocale: DocsLocale = 'en'): string {
-  return withUtm(getAppUrl('/auth/login', appLocale), 'saas', 'nav');
 }
 
 /** In-page section link: `?path=local#quickstart` — hash id scrolls; search param selects tab. */

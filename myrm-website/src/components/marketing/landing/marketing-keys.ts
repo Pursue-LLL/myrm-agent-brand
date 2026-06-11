@@ -4,7 +4,6 @@
  *
  * [OUTPUT]
  * - BENTO_KEYS, COMPARE_ROW_KEYS, DEPTH_GROUPS, DEPTH_ITEM_KEYS, depthItemBasePath
- * - PRICING_PAGE_PLAN_KEYS, PRICING_PREVIEW_PLAN_KEYS, HIGHLIGHT_PRICING_PLAN
  *
  * [POS]
  * 落地页 i18n 键清单唯一来源；组件与 validate-marketing-locales.ts 均引用此处。
@@ -203,15 +202,3 @@ export const COMPARE_ROW_FIELDS = ['feature', 'hermes', 'openclaw', 'myrmAgent']
 export function depthItemBasePath(itemKey: DepthItemKey): string {
   return `engineeringDepth.items.${itemKey}`;
 }
-
-/** /pricing page plan cards (full feature list). */
-export const PRICING_PAGE_PLAN_KEYS = ['free', 'companion', 'pro', 'max'] as const;
-
-export type PricingPagePlanKey = (typeof PRICING_PAGE_PLAN_KEYS)[number];
-
-/** Landing preview cards — subset of pricingPage plans (excludes Max). */
-export const PRICING_PREVIEW_PLAN_KEYS = ['free', 'companion', 'pro'] as const;
-
-export type PricingPreviewPlanKey = (typeof PRICING_PREVIEW_PLAN_KEYS)[number];
-
-export const HIGHLIGHT_PRICING_PLAN: PricingPagePlanKey = 'pro';

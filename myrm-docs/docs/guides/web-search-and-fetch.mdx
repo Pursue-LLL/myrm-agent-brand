@@ -127,6 +127,36 @@ Before text enters the Agent context:
 - ETag / Last-Modified conditional requests
 - 35+ tracking params stripped from URLs
 
+## Deep Research: 4-Phase Lifecycle
+
+Myrm's Deep Research runs a structured **CLARIFY → PLAN → RESEARCH → REPORT** pipeline — not a single-shot "search and summarize":
+
+| Phase | What happens | Why it matters |
+|-------|-------------|---------------|
+| **CLARIFY** | Structured form asks the user to confirm intent | 100% accurate understanding vs AI guessing |
+| **PLAN** | Generates ≤6-step research plan | Ensures systematic coverage, no aimless browsing |
+| **RESEARCH** | Parallel sub-agents search + self-reflect via `think` tool | Faster with quality checkpoints at each cycle |
+| **REPORT** | Generates report with inline citations and source list | Verifiable, not hallucinated |
+
+### Mid-Research Controls
+
+- **HITL callback** — pause after any cycle to adjust direction
+- **Budget guard** — `max_budget_usd` + threshold warnings
+- **Cancel + keep** — stop anytime, partial results preserved
+- **ReplanMiddleware** — auto-detects drift and self-corrects
+
+### vs MiroFlow (GAIA/BrowseComp benchmark leader)
+
+| | Myrm | MiroFlow |
+|---|:---:|:---:|
+| Task understanding | ✅ User confirms via CLARIFY | ⚠️ AI guesses "traps" ($0.5–2/call) |
+| Research planning | ✅ Structured plan | ❌ None |
+| Self-reflection | ✅ `think` tool | ❌ None |
+| Mid-research control | ✅ HITL + cancel + budget | ❌ None |
+| Parallel sub-agents | ✅ Semaphore-controlled | ❌ Single serial agent |
+| Source dedup | ✅ SourceTracker | ❌ None |
+| Extra cost | $0 | $0.5–2 per o3 hint call |
+
 ## vs Competitors
 
 | | Myrm | Hermes | OpenClaw | OpenCode |

@@ -1,15 +1,14 @@
 /**
  * [INPUT]
  * - download/DesktopReleaseProvider (POS: 桌面 release 元数据 React 上下文)
- * - deploy-paths::getDeployPathHref (POS: Single source of truth for SaaS / Local WebUI / Tauri deployment paths)
+ * - deploy-paths::getDeployPathHref (POS: Local WebUI / Tauri deployment paths)
  * - hooks/useDocsLocale (POS: 站点 locale → Mintlify docs locale)
  *
  * [OUTPUT]
- * - download/CliInstallFallback (POS: 无桌面安装包时的 localWebui 终端引导面板)
- * - DownloadPageContent: `/download` 页编排（直链矩阵 / 诚实空态分流、release notes、安装步骤）
+ * - DownloadPageContent: `/download` 页编排（直链矩阵 / localWebui 终端引导、release notes、安装步骤）
  *
  * [POS]
- * 桌面端下载转化页主体；无 release 时 SaaS 优先、localWebui 终端引导次之；有 release 时直链矩阵。
+ * 桌面端下载转化页主体；无 release 时 localWebui 终端引导；有 release 时直链矩阵。
  */
 'use client';
 
@@ -26,32 +25,15 @@ import SmartDownloadButton from '@/components/download/SmartDownloadButton';
 import { useDesktopRelease } from '@/components/download/DesktopReleaseProvider';
 import { getDeployPathHref } from '@/lib/deploy-paths';
 
-function DownloadAlternatives({
+function LocalWebuiAlternative({
   docsLocale,
-  saasFirst,
 }: {
   docsLocale: ReturnType<typeof useDocsLocale>;
-  saasFirst: boolean;
 }) {
   const t = useTranslations('marketing');
 
-  const saasCard = (
-    <div className="rounded-2xl border border-border bg-card p-5">
-      <h2 className="text-[15px] font-semibold text-foreground">{t('download.alternatives.saas.title')}</h2>
-      <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
-        {t('download.alternatives.saas.description')}
-      </p>
-      <Button asChild className="mt-4 rounded-full">
-        <a href={getDeployPathHref('saas', docsLocale)}>
-          {t('download.alternatives.saas.cta')}
-          <ArrowRight02Icon className="ml-2 h-4 w-4" />
-        </a>
-      </Button>
-    </div>
-  );
-
-  const localCard = (
-    <div className="rounded-2xl border border-border bg-card p-5">
+  return (
+    <div className="max-w-md mx-auto rounded-2xl border border-border bg-card p-5">
       <h2 className="text-[15px] font-semibold text-foreground">{t('download.alternatives.local.title')}</h2>
       <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
         {t('download.alternatives.local.description')}
@@ -62,22 +44,6 @@ function DownloadAlternatives({
           <ArrowRight02Icon className="ml-2 h-4 w-4" />
         </a>
       </Button>
-    </div>
-  );
-
-  return (
-    <div className="grid gap-4 sm:grid-cols-2">
-      {saasFirst ? (
-        <>
-          {saasCard}
-          {localCard}
-        </>
-      ) : (
-        <>
-          {localCard}
-          {saasCard}
-        </>
-      )}
     </div>
   );
 }
@@ -132,7 +98,7 @@ export default function DownloadPageContent() {
 
       {!hasInstallers && (
         <div className="mt-10">
-          <DownloadAlternatives docsLocale={docsLocale} saasFirst />
+          <LocalWebuiAlternative docsLocale={docsLocale} />
         </div>
       )}
 
@@ -159,7 +125,7 @@ export default function DownloadPageContent() {
 
       {hasInstallers && (
         <div className="mt-10">
-          <DownloadAlternatives docsLocale={docsLocale} saasFirst={false} />
+          <LocalWebuiAlternative docsLocale={docsLocale} />
         </div>
       )}
     </div>

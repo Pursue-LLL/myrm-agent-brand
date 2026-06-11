@@ -1,10 +1,10 @@
 /**
  * [INPUT]
  * - src/components/marketing/landing/marketing-keys.ts (POS: 落地页 i18n 键清单)
- * - locales/zh.json, locales/en.json marketing namespace
+ * - locales/zh.json, locales/en.json：`marketing` + `cloud` 命名空间
  *
  * [OUTPUT]
- * - CI 校验：manifest 键存在、Bento/对比/深度/pricing 键完整、pricingPreview ↔ pricingPage 一致、locales 无 legacy URL
+ * - CI 校验：manifest 键存在、Bento/对比/深度键完整、locales 无 legacy URL
  *
  * [POS]
  * 营销文案 locale 契约校验；`bun run build` 前自动执行。
@@ -20,9 +20,12 @@ import {
   DEPTH_GROUPS,
   DEPTH_ITEM_KEYS,
   depthItemBasePath,
-  PRICING_PAGE_PLAN_KEYS,
-  PRICING_PREVIEW_PLAN_KEYS,
 } from '../src/components/marketing/landing/marketing-keys';
+import {
+  CLOUD_FAQ_KEYS,
+  CLOUD_PLAN_KEYS,
+  CLOUD_STEP_KEYS,
+} from '../src/components/marketing/cloud/cloud-marketing-keys';
 import { appendLegacyUrlViolations } from './brand-url-patterns';
 
 const ROOT = join(import.meta.dir, '..');
@@ -34,6 +37,12 @@ function loadMarketing(locale: (typeof LOCALES)[number]): Record<string, unknown
   const raw = readFileSync(join(ROOT, 'locales', `${locale}.json`), 'utf8');
   const json = JSON.parse(raw) as { marketing: Record<string, unknown> };
   return json.marketing;
+}
+
+function loadCloud(locale: (typeof LOCALES)[number]): Record<string, unknown> {
+  const raw = readFileSync(join(ROOT, 'locales', `${locale}.json`), 'utf8');
+  const json = JSON.parse(raw) as { cloud: Record<string, unknown> };
+  return json.cloud;
 }
 
 function getAt(obj: Record<string, unknown>, path: string): unknown {
@@ -49,58 +58,13 @@ function getAt(obj: Record<string, unknown>, path: string): unknown {
 
 function assertKey(
   locale: string,
-  marketing: Record<string, unknown>,
+  root: Record<string, unknown>,
+  namespace: string,
   path: string,
   errors: string[],
 ): void {
-  if (getAt(marketing, path) === undefined) {
-    errors.push(`[${locale}] missing marketing.${path}`);
-  }
-}
-
-function normalizePreviewPrice(price: string): string {
-  return price.replace(/\/(mo|month|月)$/i, '').trim();
-}
-
-function extractWuAmount(wu: string): string {
-  const match = wu.match(/([\d,]+)\s*WU/i);
-  return match ? match[1].replace(/,/g, '') : wu.trim();
-}
-
-function assertPricingPreviewMatchesPage(
-  locale: string,
-  marketing: Record<string, unknown>,
-  errors: string[],
-): void {
-  for (const planKey of PRICING_PREVIEW_PLAN_KEYS) {
-    const previewName = getAt(marketing, `pricingPreview.${planKey}.name`);
-    const pageName = getAt(marketing, `pricingPage.plans.${planKey}.name`);
-    if (typeof previewName === 'string' && typeof pageName === 'string' && previewName !== pageName) {
-      errors.push(
-        `[${locale}] pricingPreview.${planKey}.name (${previewName}) !== pricingPage.plans.${planKey}.name (${pageName})`,
-      );
-    }
-
-    const previewPrice = getAt(marketing, `pricingPreview.${planKey}.price`);
-    const pagePrice = getAt(marketing, `pricingPage.plans.${planKey}.price`);
-    if (typeof previewPrice === 'string' && typeof pagePrice === 'string') {
-      const normalizedPreview = normalizePreviewPrice(previewPrice);
-      if (normalizedPreview !== pagePrice) {
-        errors.push(
-          `[${locale}] pricingPreview.${planKey}.price (${previewPrice}) !== pricingPage.plans.${planKey}.price (${pagePrice})`,
-        );
-      }
-    }
-
-    const previewWu = getAt(marketing, `pricingPreview.${planKey}.wu`);
-    const pageWu = getAt(marketing, `pricingPage.plans.${planKey}.wu`);
-    if (typeof previewWu === 'string' && typeof pageWu === 'string') {
-      if (extractWuAmount(previewWu) !== extractWuAmount(pageWu)) {
-        errors.push(
-          `[${locale}] pricingPreview.${planKey}.wu (${previewWu}) WU amount !== pricingPage.plans.${planKey}.wu (${pageWu})`,
-        );
-      }
-    }
+  if (getAt(root, path) === undefined) {
+    errors.push(`[${locale}] missing ${namespace}.${path}`);
   }
 }
 
@@ -154,8 +118,8 @@ for (const locale of LOCALES) {
   }
 
   for (const key of BENTO_KEYS) {
-    assertKey(locale, marketing, `advantages.items.${key}.title`, errors);
-    assertKey(locale, marketing, `advantages.items.${key}.desc`, errors);
+    assertKey(locale, marketing, 'marketing', `advantages.items.${key}.title`, errors);
+    assertKey(locale, marketing, 'marketing', `advantages.items.${key}.desc`, errors);
     for (let n = 4; n <= 12; n++) {
       const path = `advantages.items.${key}.point${n}`;
       if (getAt(marketing, path) !== undefined) {
@@ -164,28 +128,28 @@ for (const locale of LOCALES) {
     }
   }
 
-  assertKey(locale, marketing, 'whyMyrmAgent.scrollHint', errors);
+  assertKey(locale, marketing, 'marketing', 'whyMyrmAgent.scrollHint', errors);
 
   for (const tabKey of COMPARE_TAB_KEYS) {
-    assertKey(locale, marketing, `whyMyrmAgent.tabs.${tabKey}`, errors);
+    assertKey(locale, marketing, 'marketing', `whyMyrmAgent.tabs.${tabKey}`, errors);
   }
 
   for (const rowKey of COMPARE_ROW_KEYS) {
     for (const field of COMPARE_ROW_FIELDS) {
-      assertKey(locale, marketing, `whyMyrmAgent.rows.${rowKey}.${field}`, errors);
+      assertKey(locale, marketing, 'marketing', `whyMyrmAgent.rows.${rowKey}.${field}`, errors);
     }
   }
 
   for (const group of DEPTH_GROUPS) {
-    assertKey(locale, marketing, `engineeringDepth.groups.${group.id}.label`, errors);
-    assertKey(locale, marketing, `engineeringDepth.groups.${group.id}.title`, errors);
-    assertKey(locale, marketing, `engineeringDepth.groups.${group.id}.summary`, errors);
+    assertKey(locale, marketing, 'marketing', `engineeringDepth.groups.${group.id}.label`, errors);
+    assertKey(locale, marketing, 'marketing', `engineeringDepth.groups.${group.id}.title`, errors);
+    assertKey(locale, marketing, 'marketing', `engineeringDepth.groups.${group.id}.summary`, errors);
     for (const itemKey of group.items) {
       const base = depthItemBasePath(itemKey);
-      assertKey(locale, marketing, `${base}.title`, errors);
-      assertKey(locale, marketing, `${base}.desc`, errors);
+      assertKey(locale, marketing, 'marketing', `${base}.title`, errors);
+      assertKey(locale, marketing, 'marketing', `${base}.desc`, errors);
       for (let n = 1; n <= DEPTH_POINT_COUNT; n++) {
-        assertKey(locale, marketing, `${base}.point${n}`, errors);
+        assertKey(locale, marketing, 'marketing', `${base}.point${n}`, errors);
       }
       for (let n = DEPTH_POINT_COUNT + 1; n <= 12; n++) {
         const path = `${base}.point${n}`;
@@ -216,22 +180,22 @@ for (const locale of LOCALES) {
     errors.push(`[${locale}] legacy marketing.extendedHighlights must be removed (use engineeringDepth.items)`);
   }
 
-  assertKey(locale, marketing, 'pricingPage.period', errors);
-  assertKey(locale, marketing, 'pricingPage.billingNote', errors);
-  assertKey(locale, marketing, 'pricingPage.billingLink', errors);
-  for (const planKey of PRICING_PAGE_PLAN_KEYS) {
-    const base = `pricingPage.plans.${planKey}`;
-    assertKey(locale, marketing, `${base}.name`, errors);
-    assertKey(locale, marketing, `${base}.price`, errors);
-    assertKey(locale, marketing, `${base}.wu`, errors);
-    assertKey(locale, marketing, `${base}.features`, errors);
-    const features = getAt(marketing, `${base}.features`);
-    if (features !== undefined && !Array.isArray(features)) {
-      errors.push(`[${locale}] marketing.${base}.features must be an array`);
-    }
+  const cloud = loadCloud(locale);
+  for (const planKey of CLOUD_PLAN_KEYS) {
+    const base = `pricingPreview.plans.${planKey}`;
+    assertKey(locale, cloud, 'cloud', `${base}.name`, errors);
+    assertKey(locale, cloud, 'cloud', `${base}.price`, errors);
+    assertKey(locale, cloud, 'cloud', `${base}.wu`, errors);
+    assertKey(locale, cloud, 'cloud', `${base}.features`, errors);
   }
-
-  assertPricingPreviewMatchesPage(locale, marketing, errors);
+  for (const stepKey of CLOUD_STEP_KEYS) {
+    assertKey(locale, cloud, 'cloud', `howItWorks.steps.${stepKey}.title`, errors);
+    assertKey(locale, cloud, 'cloud', `howItWorks.steps.${stepKey}.description`, errors);
+  }
+  for (const faqKey of CLOUD_FAQ_KEYS) {
+    assertKey(locale, cloud, 'cloud', `faq.items.${faqKey}.question`, errors);
+    assertKey(locale, cloud, 'cloud', `faq.items.${faqKey}.answer`, errors);
+  }
 }
 
 if (errors.length > 0) {
