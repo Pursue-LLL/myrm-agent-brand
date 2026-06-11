@@ -159,9 +159,26 @@ An AI classifier (`TranscriptClassifier`) reviews tool calls to verify they alig
 - **Structured output**: Pydantic-enforced JSON with a `reason` field for audit traceability
 - **Fail-safe**: Errors or ambiguity fall back to HITL rather than auto-approving
 
-### Risk Rules (User-Configurable)
+### Risk Governance System
 
-Users can define custom rules in the WebUI to detect sensitive data patterns. Matches trigger automatic interception with audit logging.
+A complete input-side risk detection and governance framework with built-in rules, custom rule management, and full-stack event handling.
+
+**31 Built-in Rules** across 6 categories detect sensitive data before it reaches the LLM:
+
+| Category | Examples | Count |
+|----------|---------|-------|
+| **Personal** | Email, phone, Chinese ID number, passport, address | 8 |
+| **Security** | API keys (OpenAI, AWS, GCP, Azure), SSH private keys, JWT tokens | 7 |
+| **Company** | Internal IPs, employee IDs, project codenames, internal URLs | 5 |
+| **Customer** | Customer IDs, order numbers, support ticket numbers | 4 |
+| **Finance & Legal** | Bank accounts, credit cards, tax IDs, contract numbers | 4 |
+| **Political** | Politically sensitive content patterns | 3 |
+
+**GUI Rule Management**: Full CRUD via WebUI settings panel — create custom rules with regex patterns, toggle rules on/off, batch operations, and rule testing before deployment. No code required.
+
+**Audit Trail**: Every risk hit records `trace_id`, `session_id`, matched rule, and severity level for compliance auditing.
+
+**Full-Stack Event Loop**: When input risk is detected, the server emits a `risk_blocked` SSE event. The frontend `riskEvents` handler intercepts this event and displays a user-friendly Toast notification explaining which rules were triggered — no silent failures.
 
 ### Test Coverage
 
