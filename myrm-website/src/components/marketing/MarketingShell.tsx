@@ -201,9 +201,6 @@ export default function MarketingShell({ children, className }: MarketingShellPr
             <Link href="/terms" className="hover:text-foreground transition-colors">
               {t('footer.terms')}
             </Link>
-            <Link href="/refund" className="hover:text-foreground transition-colors">
-              {t('footer.refund')}
-            </Link>
             <Link href={getDesktopDownloadPath()} className="hover:text-foreground transition-colors">
               {t('footer.download')}
             </Link>

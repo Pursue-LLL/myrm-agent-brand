@@ -4,10 +4,10 @@
  * - deploy-paths::getDeployPathHref, getDeployPathSectionLink (POS: 部署路径 registry)
  *
  * [OUTPUT]
- * - PathStrip: Hero / Final CTA 三路径 chip 导航条
+ * - PathStrip: Final CTA 双路径 chip 导航条（Hero 已用主按钮，不再重复）
  *
  * [POS]
- * Landing 部署路径分叉入口，链到 registry 定义的 SaaS / QuickStart / Download。
+ * Landing 部署路径分叉入口；桌面（tauri）优先，链到 registry 定义的 QuickStart / Download。
  */
 'use client';
 

@@ -7,26 +7,26 @@
  * - getLocalInstallOneliner / getLocalInstallOnelinerWindows (curl|bash / irm|iex)
  *
  * [POS]
- * Single source of truth for Local WebUI / Tauri deployment paths on the marketing site.
- * Cloud-hosted (SaaS) paths removed until launch — see docs/CLOUD_HOSTING_RESTORE.md.
+ * Single source of truth for Tauri / Local WebUI deployment paths on the marketing site.
+ * Default path: `tauri` (desktop-first). Cloud-hosted (SaaS) paths omitted — see docs/CLOUD_HOSTING_RESTORE.md.
  */
 import { LOCAL_DEPLOY_DOCS_PATH, type DocsLocale } from '@/lib/docs-contract';
 import { getDesktopDownloadPath, getDocsUrl } from '@/lib/deploy-mode';
 
 export { LOCAL_DEPLOY_DOCS_PATH };
 
-export const DEPLOY_PATH_IDS = ['localWebui', 'tauri'] as const;
+export const DEPLOY_PATH_IDS = ['tauri', 'localWebui'] as const;
 
 export type DeployPathId = (typeof DEPLOY_PATH_IDS)[number];
 
-export const DEFAULT_DEPLOY_PATH_ID: DeployPathId = 'localWebui';
+export const DEFAULT_DEPLOY_PATH_ID: DeployPathId = 'tauri';
 
 /** i18n card keys under `marketing.deploy.{key}`. */
 export type DeployCardKey = 'local' | 'tauri';
 
 export type QuickStartTabKey = 'local' | 'desktop';
 
-export const QUICK_START_TABS: readonly QuickStartTabKey[] = ['local', 'desktop'];
+export const QUICK_START_TABS: readonly QuickStartTabKey[] = ['desktop', 'local'];
 
 const QUICK_START_TAB_BY_PATH: Record<DeployPathId, QuickStartTabKey> = {
   localWebui: 'local',

@@ -35,13 +35,13 @@
 
 | 文件 | 地位 | 职责 |
 |------|------|------|
-| `LandingEditorial.tsx` | 核心 | 开源首页编排 |
+| `LandingEditorial.tsx` | 核心 | 开源首页编排；Hero 桌面下载主 CTA + 本地 Quick Start 次 CTA |
 | `cloud/LandingCloud.tsx` | 核心 | SaaS 页编排 |
 | `cloud/CloudShell.tsx` | 核心 | SaaS 页顶栏/页脚 |
 | `download/*` | 核心 | 桌面下载转化 |
 | `landing/WorkspacePreview.tsx` | 核心 | 产品预览（OSS editorial / cloud shell 双 chrome） |
 | `landing/DeploySection.tsx` | 核心 | 两部署模式卡片 + 对比矩阵（localWebui + tauri） |
-| `landing/PathStrip.tsx` | 核心 | Hero 双路径 chip |
+| `landing/PathStrip.tsx` | 核心 | Final CTA 双路径 chip（Hero 用主按钮，不重复） |
 | `landing/HowItWorksSection.tsx` | 核心 | 路径 Tab 三步上手 |
 | `landing/deploy-path-context.tsx` | 核心 | HowItWorks + QuickStart 共享路径状态 |
 | `../../lib/deploy-paths.ts` | 核心 | 本地/桌面部署路径 registry |
@@ -83,7 +83,7 @@ Hero → WorkspacePreview → How it works → Pricing → FAQ → Final CTA
 
 ## 与 App 的关系
 
-- 开源页 CTA → 本地 Quick Start 或 `/download`
+- 开源页 CTA → Hero 桌面下载（主）或本地 Quick Start（次）；Final CTA PathStrip 桌面 chip 优先
 - SaaS 页 CTA → `app.myrmagent.ai/auth/login`（UTM `campaign=cloud`）
 - 订阅在 App 内完成
 

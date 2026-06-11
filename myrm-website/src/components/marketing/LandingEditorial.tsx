@@ -5,7 +5,7 @@
  * - hooks/useDocsLocale (POS: 站点 locale → Mintlify docs locale)
  *
  * [OUTPUT]
- * - LandingEditorial: 首页 `/` 完整区块编排与 Hero 交互
+ * - LandingEditorial: 首页 `/` 完整区块编排；Hero 桌面下载主 CTA + 本地 Quick Start 次 CTA
  *
  * [POS]
  * 落地页唯一编排入口；顺序见 `marketing/_ARCH.md`「Landing 区块顺序」。
@@ -47,6 +47,7 @@ import { DifferentiatorStripFromLocale, MultilineHeading } from './landing/HeroT
 import EasterEggField from './EasterEgg';
 import MouseGlowLayer from './MouseGlowLayer';
 import SmartDownloadButton from '@/components/download/SmartDownloadButton';
+import HeroDownloadFootnote from '@/components/download/HeroDownloadFootnote';
 import { DesktopReleaseProvider } from '@/components/download/DesktopReleaseProvider';
 import WorkspacePreview from './landing/WorkspacePreview';
 
@@ -226,31 +227,52 @@ export default function LandingEditorial() {
           </div>
           <DifferentiatorStripFromLocale />
           <div className="relative mx-auto max-w-[620px] text-center">
-            <div className="ed-hero-cta mt-14 flex flex-col items-center justify-center gap-3">
-              <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <div data-colony-anchor="cta" className="inline-flex">
-                <MagneticButton>
-                  <Button asChild size="lg" className="ed-cta rounded-full border-0 px-9 font-medium text-white" style={{ background: 'var(--ed-accent)' }}>
+            <div className="ed-hero-cta mt-14 flex flex-col items-center gap-4">
+              <div className="flex w-full max-w-md flex-col items-stretch gap-3 sm:max-w-none sm:flex-row sm:items-center sm:justify-center">
+                <div data-colony-anchor="cta" className="sm:flex-1 sm:flex sm:justify-end">
+                  <MagneticButton>
+                    <SmartDownloadButton
+                      variant="hero"
+                      showMeta={false}
+                      showAllPlatformsLink={false}
+                      className="w-full sm:w-auto"
+                    />
+                  </MagneticButton>
+                </div>
+                <div className="w-full sm:w-auto sm:flex-1 sm:flex sm:justify-start">
+                  <Button
+                    asChild
+                    size="lg"
+                    variant="outline"
+                    className="ed-secondary-cta w-full rounded-full px-9 font-medium sm:w-auto"
+                  >
                     <a href={startHref}>
                       {t('hero.ctaPrimary')}
                       <ArrowRight02Icon className="ml-2 h-4 w-4" />
                     </a>
                   </Button>
-                </MagneticButton>
                 </div>
-                <SmartDownloadButton variant="hero" />
-                <Button asChild variant="outline" size="lg" className="rounded-full border-[var(--ed-border)] font-light" style={{ color: 'var(--ed-dim)' }}>
-                  <a href="https://github.com/Pursue-LLL/myrm-agent" target="_blank" rel="noopener noreferrer">
-                    {t('hero.ctaSecondary')}
-                  </a>
-                </Button>
               </div>
-              <p className="mt-1 text-center text-[12px] sm:text-[13px] ed-mono leading-relaxed tracking-wide" style={{ color: 'var(--ed-dim)' }}>
+              <HeroDownloadFootnote />
+              <p className="text-center text-[11px] sm:text-[12px] ed-mono tracking-wide px-4" style={{ color: 'var(--ed-muted)' }}>
+                {t('hero.pathHint')}
+              </p>
+              <a
+                href="https://github.com/Pursue-LLL/myrm-agent"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-[13px] ed-mono tracking-wide transition-opacity hover:opacity-80"
+                style={{ color: 'var(--ed-muted)' }}
+              >
+                <GitHubIcon className="h-4 w-4" />
+                {t('hero.ctaSecondary')}
+                <ArrowRight02Icon className="h-3.5 w-3.5" />
+              </a>
+              <p className="text-center text-[12px] sm:text-[13px] ed-mono leading-relaxed tracking-wide" style={{ color: 'var(--ed-dim)' }}>
                 {t('hero.colonyTagline')}
               </p>
               <span className="sr-only">{t('hero.colonyA11y')}</span>
             </div>
-            <PathStrip className="mt-8" />
           </div>
         </section>
 

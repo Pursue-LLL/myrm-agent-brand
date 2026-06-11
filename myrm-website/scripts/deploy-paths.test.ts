@@ -1,5 +1,7 @@
 import { describe, expect, test, beforeEach, afterEach } from 'bun:test';
 import {
+  DEFAULT_DEPLOY_PATH_ID,
+  DEPLOY_PATH_IDS,
   deployPathToCardKey,
   deployPathToQuickStartTab,
   getDeployPathHref,
@@ -22,6 +24,13 @@ describe('parseDeployPathFromQuery', () => {
     expect(parseDeployPathFromQuery('')).toBeNull();
     expect(parseDeployPathFromQuery('cli')).toBeNull();
     expect(parseDeployPathFromQuery('saas')).toBeNull();
+  });
+});
+
+describe('deploy path registry', () => {
+  test('prioritizes desktop (tauri) before local webui', () => {
+    expect(DEPLOY_PATH_IDS).toEqual(['tauri', 'localWebui']);
+    expect(DEFAULT_DEPLOY_PATH_ID).toBe('tauri');
   });
 });
 

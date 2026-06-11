@@ -2,7 +2,7 @@
  * [INPUT]
  * - next-intl marketing.nav keys
  * - deploy-mode URL helpers (POS: 营销站外部链接统一入口)
- * - deploy-paths::getDeployPathHref, getDeployPathSectionLink (POS: 部署路径 registry)
+ * - deploy-paths::getDeployPathHref (POS: 部署路径 registry)
  *
  * [OUTPUT]
  * - buildMarketingNavLinks(): shared header navigation for landing + shell pages
@@ -12,7 +12,7 @@
  */
 import type { DocsLocale } from '@/lib/docs-contract';
 import { getDesktopDownloadPath, getDocsUrl } from '@/lib/deploy-mode';
-import { getDeployPathHref, getDeployPathSectionLink } from '@/lib/deploy-paths';
+import { getDeployPathHref } from '@/lib/deploy-paths';
 
 export type MarketingNavLink = {
   href: string;
@@ -46,7 +46,7 @@ export function buildMarketingNavLinks(
 }
 
 export function getMarketingRegisterHref(_appLocale: DocsLocale = 'en'): string {
-  return getDeployPathSectionLink('quickstart', 'localWebui');
+  return getDeployPathHref('tauri');
 }
 
 export function getMarketingLoginHref(appLocale: DocsLocale = 'en'): string {

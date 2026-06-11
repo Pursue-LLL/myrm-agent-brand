@@ -28,7 +28,7 @@
 - **Tone:** zero ops, sandbox, Work Units, Stripe billing
 - **Block order:** Hero → WorkspacePreview → How it works → Pricing → FAQ → Final CTA
 - **SEO:** `robots: noindex` until public launch
-- **Footer:** link back to `/` for self-host
+- **Footer:** link back to `/` for self-host; Privacy · Terms · Refund (cloud only — OSS `/` footer omits Refund)
 
 ### Legal pages (`/privacy`, `/terms`, `/refund`)
 

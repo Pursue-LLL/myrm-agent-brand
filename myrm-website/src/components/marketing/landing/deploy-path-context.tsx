@@ -3,7 +3,7 @@
  * - deploy-paths (POS: 部署路径 registry)
  *
  * [OUTPUT]
- * - DeployPathProvider: 三路径 Tab 单源状态
+ * - DeployPathProvider: 双路径 Tab 单源状态
  * - useDeployPath(): 消费路径状态与 selectPath
  *
  * [POS]
