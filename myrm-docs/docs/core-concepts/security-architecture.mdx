@@ -261,6 +261,21 @@ Multi-tier PII handling:
 
 `TaintTracker` follows the information flow of sensitive data through the agent's execution, ensuring PII doesn't leak through indirect channels (e.g., a tool reading a file containing credentials, then using that data in a web request).
 
+### Agent Export Security
+
+When you export an agent configuration (for sharing or backup), credentials are automatically stripped:
+
+| What's stripped | Where | Why |
+|----------------|-------|-----|
+| `api_key`, `bearer_token`, `client_secret`, `password`, `username` | `openapi_services[].auth` | Prevent API credential leaks in shared configs |
+| `auth_token` | `tool_gateway_config` | Prevent gateway token leaks |
+
+Team agents export recursively — all member configs are included with credentials stripped. On import, team members are created atomically (all-or-nothing rollback).
+
+<Note>
+The `auth.type` field is preserved so the importer knows which authentication method to configure (e.g. "api_key", "bearer", "oauth2").
+</Note>
+
 ## Audit Trail
 
 ### Structured Audit Trail

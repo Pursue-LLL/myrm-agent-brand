@@ -194,6 +194,21 @@ BLOCKED / REDACTED / WARN / CLEAN 四级。
 
 跟踪敏感数据流经工具执行的间接泄漏路径。
 
+### 智能体导出安全
+
+导出智能体配置时自动剔除所有凭据：
+
+| 剔除字段 | 来源 | 目的 |
+|---------|------|------|
+| `api_key`、`bearer_token`、`client_secret`、`password`、`username` | `openapi_services[].auth` | 防止共享配置中的 API 凭据泄漏 |
+| `auth_token` | `tool_gateway_config` | 防止网关令牌泄漏 |
+
+团队智能体支持递归导出（自动包含所有成员配置），导入时原子性创建（全部成功或全部回滚）。
+
+<Note>
+导出保留 `auth.type` 字段（如 "api_key"、"bearer"、"oauth2"），方便导入方知道需要配置哪种认证方式。
+</Note>
+
 ## 审计追踪
 
 结构化审计日志：37 种安全决策类型 + Prometheus 实时指标 + TaintTracker 信息流追踪。
