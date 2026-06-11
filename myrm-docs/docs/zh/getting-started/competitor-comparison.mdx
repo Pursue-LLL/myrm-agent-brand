@@ -324,7 +324,7 @@ Myrm 技能进化（42 模块、原生内置）实现 Self-Improving Agent 研�
 | Skill Injection | Manual `@skill-name` selection | **Zero-roundtrip** auto-injection via slash commands + template variables (`${SKILL_DIR}`, `!`cmd``) | Say one word, skill activates instantly |
 | Config Management | Plain text KV injection (`[Skill config: key=value]`) — secrets visible to LLM | **JSON Schema** standard with auto-generated forms + multi-instance + env_overrides (secrets never reach LLM) | Secure API key management + same skill, multiple configs |
 | Prebuilt Skill Protection | No migration path (pre-hash users lose protection) | **Three-way hash** with GUI "Update Available" badge + accept/reject workflow | Customize freely, never lose your changes |
-| Installation Security | Hardcoded 4×3 policy matrix | **Dynamic trust recommendation** (26 categories/108 patterns + AST + LLM audit) with 83 security tests | Intelligent security that adapts, not static rules |
+| Installation Security | Hardcoded 4×3 policy matrix | **6-layer install defense** (quarantine → 26 categories/113 patterns + AST → LLM semantic audit → REJECT block → trust attenuation → GUI approval) with 532 security tests | Intelligent, layered security that adapts at every stage |
 | Curator Governance | Coarse-grained skip (foreground skills never managed → list bloat) | **Non-destructive archive** (always recoverable) + pinned + evolution_locked | Skills stay organized, important ones stay protected |
 | Missing Dependency Handling | Load full doc then append setup note | **XML summary shows reason at L0/L1** (save tokens) + 3-level fallback degraded docs | Know instantly what's missing, fix it fast |
 
@@ -451,8 +451,8 @@ Myrm 采用**三层有机学习体系**安全地实现同一目标：
 |----------------------|-----------------|------------|
 | `/skill-name` manual activation | Slash command auto-injection | ⬆️ Upgrade |
 | `[Skill config: key=value]` config | JSON Schema form + env_overrides | ⬆️ Upgrade (secrets safe) |
-| `skills_guard` security scan | 4-level trust + 26-category scan + AST + LLM audit | ⬆️ Upgrade |
-| `INSTALL_POLICY` matrix | Dynamic SkillTrustRecommendation | ⬆️ Upgrade |
+| `skills_guard` security scan | 6-layer defense: quarantine + 26-category/113-pattern scan + AST + LLM audit + trust attenuation + GUI approval | ⬆️ Upgrade |
+| `INSTALL_POLICY` matrix | Dynamic SkillTrustRecommendation (532 tests) | ⬆️ Upgrade |
 | `lock.json` provenance | origin.json + DB-backed trust + version history | ⬆️ Upgrade |
 | `curator --dry-run` CLI | GUI Curator panel with preview | ⬆️ Upgrade |
 | `skill_provenance` ContextVar | pinned + evolution_locked + non-destructive archive | ⬆️ Upgrade |
