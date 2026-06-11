@@ -39,6 +39,7 @@
 | `cloud/LandingCloud.tsx` | 核心 | SaaS 页编排 |
 | `cloud/CloudShell.tsx` | 核心 | SaaS 页顶栏/页脚 |
 | `download/*` | 核心 | 桌面下载转化 |
+| `landing/WorkspacePreview.tsx` | 核心 | 产品预览（OSS editorial / cloud shell 双 chrome） |
 | `landing/DeploySection.tsx` | 核心 | 两部署模式卡片 + 对比矩阵（localWebui + tauri） |
 | `landing/PathStrip.tsx` | 核心 | Hero 双路径 chip |
 | `landing/HowItWorksSection.tsx` | 核心 | 路径 Tab 三步上手 |

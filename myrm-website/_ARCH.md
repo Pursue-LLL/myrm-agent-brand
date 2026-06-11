@@ -2,7 +2,7 @@
 
 ## 架构概述
 
-Next.js 静态导出营销站（Cloudflare Pages → `myrmagent.ai`）。下载页、法务页、Landing；桌面 release 元数据与文档站 slug 契约。部署与发布流程见 [../ARCHITECTURE.md](../ARCHITECTURE.md)。
+Next.js 静态导出营销站（Cloudflare Pages → `myrmagent.ai`）。双页面：`/` 开源自托管 + `/cloud` SaaS（noindex，首页不链入）。下载页、法务页、Landing。桌面 release 元数据与文档站 slug 契约。部署与发布流程见 [../ARCHITECTURE.md](../ARCHITECTURE.md)。云页上线清单见 [docs/CLOUD_HOSTING_RESTORE.md](docs/CLOUD_HOSTING_RESTORE.md)。
 
 ## 目录清单
 
