@@ -5,7 +5,7 @@
 | 路由 | 组件 | i18n |
 |------|------|------|
 | `/cloud` | `LandingCloud.tsx` | `cloud.*` |
-| `/pricing` | 302 → `/cloud` | — |
+| `/pricing` | 302 → `/download`（云上线前） |
 
 ## 定位
 

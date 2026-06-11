@@ -18,7 +18,7 @@
 | `/` | 开源 Landing（Local WebUI + 桌面客户端） |
 | `/cloud` | 云端 SaaS Landing（WU 定价、登录 App） |
 | `/download` | 桌面端下载 |
-| `/pricing` | 302 → `/cloud`（`public/_redirects`） |
+| `/pricing` | 302 → `/download`（云上线前）；上线后改回 `/cloud` |
 | `/terms` | 服务条款 |
 | `/privacy` | 隐私政策 |
 | `/refund` | 退款政策 |
@@ -49,16 +49,16 @@
 | `../../lib/marketing-nav.ts` | 核心 | Nav DRY；Header → `/download`；Hero 次 CTA → local QuickStart |
 | `../../lib/cloud-marketing-nav.ts` | 核心 | SaaS 页 Nav |
 | `MarketingShell.tsx` | 核心 | 法务页壳层 |
-| `landing/EngineeringDepthSection.tsx` | 核心 | 六组 pill tabs + spotlight 三卡；Aurora/beam；稳定 tabpanel + `?group=` 深链 |
-| `landing/depth-evidence.ts` | 辅助 | Engineering depth 区块 URL `?group=` 读写 |
-| `landing/marketing-keys.ts` | 核心 | Bento/对比/深度 i18n 键清单 |
+| `landing/HighlightsCarouselSection.tsx` | 核心 | 8 张亮点轮播（Embla 垂直 + 左栏导览）；IO 离屏停播 |
+| `ui/carousel.tsx` | 核心 | Embla Carousel 封装（shadcn 同款） |
+| `landing/marketing-keys.ts` | 核心 | Bento/对比/轮播 i18n 键清单 |
 | `cloud/cloud-marketing-keys.ts` | 核心 | SaaS 定价/FAQ/步骤键清单 |
 
 云页详情见 [`cloud/_ARCH.md`](cloud/_ARCH.md)。
 
 ## Landing 区块顺序（`/` LandingEditorial）
 
-Hero → WorkspacePreview → HowItWorks → QuickStart → Marquee → Advantages → Benchmark → EngineeringDepth → UseCases → Deploy → Integrations → Testimonials → WhyMyrmAgent → FAQ → Final CTA
+Hero → WorkspacePreview → HowItWorks → QuickStart → Marquee → Advantages → Benchmark → HighlightsCarousel → UseCases → Deploy → Integrations → Testimonials → WhyMyrmAgent → FAQ → Final CTA
 
 （无 Pricing 区块；无 SaaS 路径。）
 

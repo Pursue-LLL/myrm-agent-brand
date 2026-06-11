@@ -4,7 +4,7 @@
  * - locales/zh.json, locales/en.json：`marketing` + `cloud` 命名空间
  *
  * [OUTPUT]
- * - CI 校验：manifest 键存在、Bento/对比/深度键完整、legal 法务键、cloud 键、locales 无 legacy URL
+ * - CI 校验：manifest 键存在、Bento/对比/轮播键完整、legal 法务键、cloud 键、locales 无 legacy URL
  *
  * [POS]
  * 营销文案 locale 契约校验；`bun run build` 前自动执行。
@@ -17,9 +17,8 @@ import {
   COMPARE_ROW_KEYS,
   COMPARE_TAB_KEYS,
   COMPARE_TAB_ROWS,
-  DEPTH_GROUPS,
-  DEPTH_ITEM_KEYS,
-  depthItemBasePath,
+  HIGHLIGHT_SLIDE_KEYS,
+  highlightSlideBasePath,
 } from '../src/components/marketing/landing/marketing-keys';
 import {
   CLOUD_FAQ_KEYS,
@@ -30,8 +29,8 @@ import { appendLegacyUrlViolations } from './brand-url-patterns';
 
 const ROOT = join(import.meta.dir, '..');
 const LOCALES = ['zh', 'en'] as const;
-const DEPTH_POINT_COUNT = 3;
-const DEPTH_DESC_MAX_CHARS = 120;
+const HIGHLIGHT_TAG_COUNT = 3;
+const HIGHLIGHT_DESC_MAX_CHARS = 140;
 
 /** Keys referenced by legal pages and cloud footer links — must stay in sync across locales. */
 const LEGAL_REQUIRED_PATHS = [
@@ -105,18 +104,6 @@ if (COMPARE_TAB_ROWS.all.length !== COMPARE_ROW_KEYS.length) {
   errors.push('[manifest] COMPARE_TAB_ROWS.all must list every COMPARE_ROW_KEYS entry');
 }
 
-const referencedDepthItems = new Set<string>();
-for (const group of DEPTH_GROUPS) {
-  for (const itemKey of group.items) {
-    referencedDepthItems.add(itemKey);
-  }
-}
-for (const itemKey of DEPTH_ITEM_KEYS) {
-  if (!referencedDepthItems.has(itemKey)) {
-    errors.push(`[manifest] DEPTH_ITEM_KEYS entry "${itemKey}" not assigned to any DEPTH_GROUPS`);
-  }
-}
-
 for (const locale of LOCALES) {
   const localePath = join(ROOT, 'locales', `${locale}.json`);
   const localeRaw = readFileSync(localePath, 'utf8');
@@ -156,44 +143,53 @@ for (const locale of LOCALES) {
     }
   }
 
-  for (const group of DEPTH_GROUPS) {
-    assertKey(locale, marketing, 'marketing', `engineeringDepth.groups.${group.id}.label`, errors);
-    assertKey(locale, marketing, 'marketing', `engineeringDepth.groups.${group.id}.title`, errors);
-    assertKey(locale, marketing, 'marketing', `engineeringDepth.groups.${group.id}.summary`, errors);
-    for (const itemKey of group.items) {
-      const base = depthItemBasePath(itemKey);
-      assertKey(locale, marketing, 'marketing', `${base}.title`, errors);
-      assertKey(locale, marketing, 'marketing', `${base}.desc`, errors);
-      for (let n = 1; n <= DEPTH_POINT_COUNT; n++) {
-        assertKey(locale, marketing, 'marketing', `${base}.point${n}`, errors);
+  assertKey(locale, marketing, 'marketing', 'highlightsCarousel.eyebrow', errors);
+  assertKey(locale, marketing, 'marketing', 'highlightsCarousel.title', errors);
+  assertKey(locale, marketing, 'marketing', 'highlightsCarousel.subtitle', errors);
+  assertKey(locale, marketing, 'marketing', 'highlightsCarousel.compareCta', errors);
+  assertKey(locale, marketing, 'marketing', 'highlightsCarousel.prevAria', errors);
+  assertKey(locale, marketing, 'marketing', 'highlightsCarousel.nextAria', errors);
+  assertKey(locale, marketing, 'marketing', 'highlightsCarousel.gotoSlideAria', errors);
+
+  for (const slideKey of HIGHLIGHT_SLIDE_KEYS) {
+    const base = highlightSlideBasePath(slideKey);
+    assertKey(locale, marketing, 'marketing', `${base}.label`, errors);
+    assertKey(locale, marketing, 'marketing', `${base}.title`, errors);
+    assertKey(locale, marketing, 'marketing', `${base}.desc`, errors);
+    assertKey(locale, marketing, 'marketing', `${base}.stat`, errors);
+    assertKey(locale, marketing, 'marketing', `${base}.statLabel`, errors);
+    for (let n = 1; n <= HIGHLIGHT_TAG_COUNT; n++) {
+      assertKey(locale, marketing, 'marketing', `${base}.tag${n}`, errors);
+    }
+    for (let n = HIGHLIGHT_TAG_COUNT + 1; n <= 12; n++) {
+      const path = `${base}.tag${n}`;
+      if (getAt(marketing, path) !== undefined) {
+        errors.push(`[${locale}] ${path} exceeds max ${HIGHLIGHT_TAG_COUNT} tags for highlights carousel`);
       }
-      for (let n = DEPTH_POINT_COUNT + 1; n <= 12; n++) {
-        const path = `${base}.point${n}`;
-        if (getAt(marketing, path) !== undefined) {
-          errors.push(`[${locale}] ${path} exceeds max ${DEPTH_POINT_COUNT} bullets for engineering depth`);
-        }
-      }
-      const desc = getAt(marketing, `${base}.desc`);
-      if (typeof desc === 'string' && desc.length > DEPTH_DESC_MAX_CHARS) {
-        errors.push(`[${locale}] ${base}.desc exceeds ${DEPTH_DESC_MAX_CHARS} chars (${desc.length})`);
+    }
+    const desc = getAt(marketing, `${base}.desc`);
+    if (typeof desc === 'string' && desc.length > HIGHLIGHT_DESC_MAX_CHARS) {
+      errors.push(`[${locale}] ${base}.desc exceeds ${HIGHLIGHT_DESC_MAX_CHARS} chars (${desc.length})`);
+    }
+  }
+
+  const carouselSlides = getAt(marketing, 'highlightsCarousel.slides');
+  if (carouselSlides !== null && typeof carouselSlides === 'object') {
+    for (const key of Object.keys(carouselSlides as Record<string, unknown>)) {
+      if (!HIGHLIGHT_SLIDE_KEYS.includes(key as (typeof HIGHLIGHT_SLIDE_KEYS)[number])) {
+        errors.push(`[${locale}] unexpected marketing.highlightsCarousel.slides.${key} (not in HIGHLIGHT_SLIDE_KEYS)`);
       }
     }
   }
 
-  const depthItems = getAt(marketing, 'engineeringDepth.items');
-  if (depthItems !== null && typeof depthItems === 'object') {
-    for (const key of Object.keys(depthItems as Record<string, unknown>)) {
-      if (!referencedDepthItems.has(key)) {
-        errors.push(`[${locale}] orphan marketing.engineeringDepth.items.${key} (not in DEPTH_GROUPS)`);
-      }
-    }
+  if (getAt(marketing, 'engineeringDepth') !== undefined) {
+    errors.push(`[${locale}] legacy marketing.engineeringDepth must be removed (use highlightsCarousel)`);
   }
-
   if (getAt(marketing, 'highlights') !== undefined) {
-    errors.push(`[${locale}] legacy marketing.highlights must be removed (use engineeringDepth.items)`);
+    errors.push(`[${locale}] legacy marketing.highlights must be removed (use highlightsCarousel.slides)`);
   }
   if (getAt(marketing, 'extendedHighlights') !== undefined) {
-    errors.push(`[${locale}] legacy marketing.extendedHighlights must be removed (use engineeringDepth.items)`);
+    errors.push(`[${locale}] legacy marketing.extendedHighlights must be removed (use highlightsCarousel.slides)`);
   }
 
   for (const path of LEGAL_REQUIRED_PATHS) {

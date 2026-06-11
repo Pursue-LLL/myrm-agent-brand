@@ -6,7 +6,7 @@
  * - AdvantagesSection: 首屏六项 Bento 网格（每卡最多 3 个 tag）
  *
  * [POS]
- * 落地页主转化能力区。与 EngineeringDepthSection 独立成块，由 subtitle 自然衔接。
+ * 落地页主转化能力区。与 HighlightsCarouselSection 独立成块，由 subtitle 自然衔接。
  */
 'use client';
 
@@ -57,7 +57,7 @@ const BENTO_STATS: Record<BentoKey, string> = {
   taskModes: '4+',
 };
 
-/** Six conversion-focused themes — details live in EngineeringDepthSection. */
+/** Six conversion-focused themes — narrative highlights live in HighlightsCarouselSection. */
 const BENTO_ITEMS: BentoItem[] = BENTO_KEYS.map((key) => ({
   key,
   icon: BENTO_ICONS[key],

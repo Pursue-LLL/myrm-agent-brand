@@ -3,7 +3,7 @@
  * - locales/zh.json, locales/en.json marketing namespace（由 validate 脚本校验）
  *
  * [OUTPUT]
- * - BENTO_KEYS, COMPARE_ROW_KEYS, DEPTH_GROUPS, DEPTH_ITEM_KEYS, depthItemBasePath
+ * - BENTO_KEYS, COMPARE_ROW_KEYS, HIGHLIGHT_SLIDE_KEYS, highlightSlideBasePath
  *
  * [POS]
  * 落地页 i18n 键清单唯一来源；组件与 validate-marketing-locales.ts 均引用此处。
@@ -20,29 +20,19 @@ export const BENTO_KEYS = [
 
 export type BentoKey = (typeof BENTO_KEYS)[number];
 
-/** Engineering depth cards — 6 Bento-aligned groups × 3 proof cards each. */
-export const DEPTH_ITEM_KEYS = [
-  'memoryRecall',
-  'knowledgeWiki',
-  'skillEvolution',
-  'operationConfirm',
-  'credentialSafe',
-  'pluginPrecheck',
-  'kanbanTasks',
-  'resilientRuns',
-  'unattendedSafe',
-  'sandboxChains',
-  'leanContext',
-  'costDashboard',
-  'desktopBrowser',
-  'multiAgentView',
-  'deliverablePreview',
-  'webResearch',
-  'omniReach',
-  'easyMigration',
+/** Marketing carousel slides — narrative highlights (not Bento taxonomy). */
+export const HIGHLIGHT_SLIDE_KEYS = [
+  'aiWorkstation',
+  'agentSandbox',
+  'memoryKnowsYou',
+  'deepResearch',
+  'desktopComputerUse',
+  'multiAgent',
+  'omniChannel',
+  'tokenSmart',
 ] as const;
 
-export type DepthItemKey = (typeof DEPTH_ITEM_KEYS)[number];
+export type HighlightSlideKey = (typeof HIGHLIGHT_SLIDE_KEYS)[number];
 
 export const COMPARE_ROW_KEYS = [
   'memory',
@@ -157,48 +147,9 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
   platform: ['gui', 'chatHistoryManagement', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'codeGraph', 'crossPlatformHandoff', 'configSync', 'taskResilience'],
 };
 
-export interface DepthGroupDef {
-  id: BentoKey;
-  defaultOpen: boolean;
-  items: readonly DepthItemKey[];
+export function highlightSlideBasePath(slideKey: HighlightSlideKey): string {
+  return `highlightsCarousel.slides.${slideKey}`;
 }
-
-export const DEPTH_GROUPS: readonly DepthGroupDef[] = [
-  {
-    id: 'selfEvolution',
-    defaultOpen: true,
-    items: ['memoryRecall', 'knowledgeWiki', 'skillEvolution'],
-  },
-  {
-    id: 'security',
-    defaultOpen: false,
-    items: ['operationConfirm', 'credentialSafe', 'pluginPrecheck'],
-  },
-  {
-    id: 'reliability',
-    defaultOpen: false,
-    items: ['kanbanTasks', 'resilientRuns', 'unattendedSafe'],
-  },
-  {
-    id: 'costEfficiency',
-    defaultOpen: false,
-    items: ['sandboxChains', 'leanContext', 'costDashboard'],
-  },
-  {
-    id: 'visualControl',
-    defaultOpen: false,
-    items: ['desktopBrowser', 'multiAgentView', 'deliverablePreview'],
-  },
-  {
-    id: 'taskModes',
-    defaultOpen: false,
-    items: ['webResearch', 'omniReach', 'easyMigration'],
-  },
-] as const;
 
 /** Compare table row fields required in both locales. */
 export const COMPARE_ROW_FIELDS = ['feature', 'hermes', 'openclaw', 'myrmAgent'] as const;
-
-export function depthItemBasePath(itemKey: DepthItemKey): string {
-  return `engineeringDepth.items.${itemKey}`;
-}

@@ -16,7 +16,7 @@
 - **Component:** `LandingEditorial.tsx`
 - **i18n:** `marketing.*` in `locales/en.json`, `locales/zh.json`
 - **Deploy paths:** `localWebui` + `tauri` only (`lib/deploy-paths.ts`)
-- **Tone:** GitHub, BYOK, Docker, desktop download, engineering depth
+- **Tone:** GitHub, BYOK, Docker, desktop download, highlights carousel
 - **No:** cloud login, WU pricing, SaaS CTAs
 
 ### Cloud SaaS page `/cloud`
@@ -37,7 +37,7 @@
 
 ### Redirects
 
-- `/pricing` → `/cloud` (302 via `public/_redirects`)
+- `/pricing` → `/download` (302 via `public/_redirects`) until cloud launch; restore to `/cloud` when promoting SaaS
 
 ---
 

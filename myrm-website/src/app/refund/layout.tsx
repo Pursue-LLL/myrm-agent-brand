@@ -6,6 +6,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: t('refundPageTitle'),
     description: t('refundPageDescription'),
+    robots: { index: false, follow: false },
   };
 }
 

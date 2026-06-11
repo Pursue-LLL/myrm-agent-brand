@@ -30,7 +30,7 @@ import { useRevealOnScroll, useScrollProgress, useCursorTrail } from './landing/
 import { MagneticButton, TiltCard } from './landing/interactive';
 import ColonyLayer from './landing/colony/ColonyLayer';
 import BenchmarkSection from './landing/BenchmarkSection';
-import EngineeringDepthSection from './landing/EngineeringDepthSection';
+import HighlightsCarouselSection from './landing/HighlightsCarouselSection';
 import AdvantagesSection from './landing/AdvantagesSection';
 import QuickStartSection from './landing/QuickStartSection';
 import HowItWorksSection from './landing/HowItWorksSection';
@@ -308,7 +308,7 @@ export default function LandingEditorial() {
 
         <div className="ed-divider" />
 
-        <EngineeringDepthSection />
+        <HighlightsCarouselSection />
 
         {/* Use Cases */}
         <section className="ed-section-alt py-20 sm:py-40">
