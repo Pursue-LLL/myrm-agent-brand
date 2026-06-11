@@ -73,6 +73,29 @@ describe('parseGitHubRelease', () => {
     expect(release.targets[0]?.sizeBytes).toBe(120_000_000);
   });
 
+  test('classifies stable Windows OTA installer name MyrmAgent_x64-setup.exe', () => {
+    const release = parseGitHubRelease({
+      tag_name: 'v0.1.39',
+      published_at: '2026-06-11T00:00:00Z',
+      body: null,
+      assets: [
+        {
+          name: 'MyrmAgent_x64-setup.exe',
+          browser_download_url: 'https://github.com/example/app/releases/download/v0.1.39/MyrmAgent_x64-setup.exe',
+        },
+        {
+          name: 'MyrmAgent_x64-setup.exe.sha256',
+          browser_download_url: 'https://github.com/example/app/releases/download/v0.1.39/MyrmAgent_x64-setup.exe.sha256',
+        },
+      ],
+    });
+
+    expect(release.targets).toHaveLength(1);
+    expect(release.targets[0]?.id).toBe('windows-x86_64');
+    expect(release.targets[0]?.fileName).toBe('MyrmAgent_x64-setup.exe');
+    expect(release.targets[0]?.sha256Url).toContain('.sha256');
+  });
+
   test('classifies Tauri Linux AppImage.tar.gz without linux in filename', () => {
     const release = parseGitHubRelease({
       tag_name: 'v0.2.2',
