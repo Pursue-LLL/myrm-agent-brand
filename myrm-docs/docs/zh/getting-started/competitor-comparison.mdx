@@ -49,7 +49,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **统一工具网关** | ✅ 四合一网关 + 弹性 BYOK 回退 | ⚠️ 硬切换（易出错） | ❌ N/A | ⚠️ 未知 | ❌ | ⚠️ 未知 | ❌ |
 | **语音** | ✅ STT + TTS + 实时 | ⚠️ Discord 语音 | WebRTC | ⚠️ 基础 | ❌ | ❌ | ❌ |
 | **Computer Use** | ✅ 桌面自动化 + BBox 审批 + Tauri OS 叠加层 + 原生 API 智能路由（AppleScript/COM/D-Bus 自动检测） | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **浏览器引擎** | ✅ 三层引擎 + GlobalBrowserPool（零冷启动、三层崩溃恢复）+ Shadow DOM 穿透 + API-First 网络智能（CDP 懒加载响应体 + 请求重放）+ 同源智能Tab路由 | ⚠️ 第三方云浏览器 | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
+| **浏览器引擎** | ✅ 三层引擎 + GlobalBrowserPool（零冷启动、三层崩溃恢复）+ Shadow DOM 穿透 + API-First 网络智能（CDP 懒加载响应体 + 请求重放）+ 域名引擎亲和记忆 + 同源智能Tab路由 | ⚠️ 第三方云浏览器 | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
 | **网页搜索** | ✅ 8 引擎 + BM25/Reranker 过滤 | ⚠️ 云 API 透传 | ⚠️ DDG/Bing 抓取 | ⚠️ 同 OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
 | **网页抓取** | ✅ 三层 + 向量提取 + DOM 修剪 | ⚠️ web_extract（Firecrawl + LLM） | ⚠️ HTTP / Firecrawl 回退 | ⚠️ 同上 | ⚠️ 仅 HTTP | ❌ | ❌ |
 | **工作区 RAG** | ✅ **四层管线**：BM25 + 向量 + RRF融合 + Reranker；7类18种格式解析（PDF/Word/Excel/PPT/OCR）；双后端知识图谱；Karpathy Wiki；RSG质量守卫（503项测试） | ⚠️ 仅代码AST索引 | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -590,7 +590,7 @@ Claude Code 采用「Fork 子 Agent」设计，字节级 prompt 前缀对齐以�
 | **Self-Healing Locators & Shadow DOM Piercing** | Wait 30s for LLM to rethink after DOM changes, completely blind to Shadow DOM | **O(1) Millisecond Healing Engine** | Agent instantly recovers from dynamic DOM/React changes using absolute BBox + ARIA implicit mapping + Semantic Veto. Fully pierces Shadow DOM and uses strict W3C CSS whitelists for zero data-pollution. Zero LLM delay. |
 | **Native Spatial Engine** | Fails on dynamic layouts, slow Python-level bounding box calculations | **Direct C++ Layout Selectors** | Zero-latency, highly accurate element targeting based on visual layout (e.g. "right-of", "below") seamlessly native to the rendering engine, with 0 LLM hallucination risk. |
 | **Render Engine Degradation** | Heavy Chromium renders everything | **Autonomous Hybrid Engine** | Detects static pages and injects HTTP pre-fetch via `page.route` — skipping JS/CSS load. **90% faster and lighter.** |
-| **Anti-Bot Evasion** | Fails at Cloudflare (BrowserUse) / Manual config (Scrapling) | **Dual Stealth Hot-Swap** | Seamlessly escalates from HTTP → Patchright → Camoufox stealth engine automatically when challenged. |
+| **Anti-Bot Evasion** | Fails at Cloudflare (BrowserUse) / Manual config (Scrapling) | **Dual Stealth Hot-Swap + Domain Memory** | Seamlessly escalates HTTP → Patchright → Camoufox when challenged, and remembers which domains need stealth — repeat visits skip the probe cycle and load 5–8 s faster. |
 | **Proxy Pool Rotation** | Global network hooks cause cross-task pollution & lost login state | **Zero-Network V8 Injection** | Swaps IPs instantly while injecting local storage via V8 initialization. Perfect state inheritance with exponential backoff. |
 | **Element Safety** | Blindly clicks overlapping elements | **Semantic Veto** | Prevents mis-clicks using strict contextual checking (even in Chinese/English i18n). |
 | **API-First 网络智能** | 无网络可见性（BrowserUse 离线写 HAR）/ 仅 CLI dump（bb-browser） | **CDP 懒加载响应体 + 页面内重放** | Agent 实时看到所有 XHR/Fetch API，按需获取响应体（O(1)内存），带登录态重放请求——可提取 GraphQL/Canvas/SPA 中 DOM 看不到的数据。 |
