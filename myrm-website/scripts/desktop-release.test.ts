@@ -2,11 +2,29 @@ import { describe, expect, test, afterEach } from 'bun:test';
 import {
   detectUserPlatform,
   formatFileSize,
+  getGitHubReleaseByTagApiUrl,
+  normalizeDesktopReleaseTag,
+  parseDesktopVersionFromWebsiteTag,
   parseGitHubRelease,
   parseSha256FileContent,
   parseTauriManifest,
   resolveTargetForPlatform,
 } from '../src/lib/desktop-release';
+
+describe('desktop release tag helpers', () => {
+  test('normalizes semver to v-prefixed tag', () => {
+    expect(normalizeDesktopReleaseTag('0.1.27')).toBe('v0.1.27');
+    expect(normalizeDesktopReleaseTag('v0.1.27')).toBe('v0.1.27');
+  });
+
+  test('parses desktop version from website tag', () => {
+    expect(parseDesktopVersionFromWebsiteTag('website-v0.1.27')).toBe('0.1.27');
+  });
+
+  test('builds GitHub release-by-tag API URL', () => {
+    expect(getGitHubReleaseByTagApiUrl('0.1.27')).toContain('/releases/tags/v0.1.27');
+  });
+});
 
 describe('parseTauriManifest', () => {
   test('maps tauri platform keys to desktop targets', () => {

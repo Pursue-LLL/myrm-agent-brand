@@ -94,6 +94,29 @@ export function getGitHubLatestReleaseApiUrl(): string {
   return `https://api.github.com/repos/${DESKTOP_RELEASE_REPO}/releases/latest`;
 }
 
+/** Normalize semver or tag to a GitHub release tag (e.g. `0.1.27` → `v0.1.27`). */
+export function normalizeDesktopReleaseTag(versionOrTag: string): string {
+  const trimmed = versionOrTag.trim();
+  if (trimmed.startsWith('v')) {
+    return trimmed;
+  }
+  return `v${trimmed}`;
+}
+
+/** Parse desktop semver from a marketing `website-v*` tag (e.g. `website-v0.1.27` → `0.1.27`). */
+export function parseDesktopVersionFromWebsiteTag(websiteTag: string): string {
+  const match = /^website-v(.+)$/.exec(websiteTag.trim());
+  if (!match?.[1]) {
+    throw new Error(`Invalid website release tag: ${websiteTag}`);
+  }
+  return match[1];
+}
+
+export function getGitHubReleaseByTagApiUrl(versionOrTag: string): string {
+  const tag = normalizeDesktopReleaseTag(versionOrTag);
+  return `https://api.github.com/repos/${DESKTOP_RELEASE_REPO}/releases/tags/${tag}`;
+}
+
 export function formatFileSize(bytes: number | null): string {
   if (bytes === null || bytes <= 0) return '';
   const units = ['B', 'KB', 'MB', 'GB'] as const;

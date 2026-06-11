@@ -35,8 +35,10 @@ jobs:
             echo "Invalid tag: $TAG" >&2
             exit 1
           fi
+          DESKTOP_VERSION="${TAG#website-v}"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          echo "Release tag: $TAG"
+          echo "desktop_version=$DESKTOP_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Release tag: $TAG (desktop v${DESKTOP_VERSION})"
 
       - uses: actions/checkout@v4
         with:
@@ -52,6 +54,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REQUIRE_BAKED_RELEASE: '1'
+          DESKTOP_VERSION: ${{ steps.tag.outputs.desktop_version }}
+          WEBSITE_RELEASE_TAG: ${{ steps.tag.outputs.tag }}
         run: |
           bun install
           bun run build

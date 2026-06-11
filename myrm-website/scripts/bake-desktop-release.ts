@@ -8,6 +8,9 @@ import { fileURLToPath } from 'node:url';
 import {
   enrichReleaseWithInlineSha256,
   getGitHubLatestReleaseApiUrl,
+  getGitHubReleaseByTagApiUrl,
+  normalizeDesktopReleaseTag,
+  parseDesktopVersionFromWebsiteTag,
   parseGitHubRelease,
   type DesktopReleaseInfo,
 } from '../src/lib/desktop-release';
@@ -41,11 +44,38 @@ function assertBakeableOrExit(release: DesktopReleaseInfo): void {
   process.exit(1);
 }
 
+function resolvePinnedDesktopReleaseTag(): string | null {
+  const explicitTag = process.env.DESKTOP_RELEASE_TAG?.trim();
+  if (explicitTag) {
+    return normalizeDesktopReleaseTag(explicitTag);
+  }
+
+  const desktopVersion = process.env.DESKTOP_VERSION?.trim();
+  if (desktopVersion) {
+    return normalizeDesktopReleaseTag(desktopVersion);
+  }
+
+  const websiteTag = process.env.WEBSITE_RELEASE_TAG?.trim();
+  if (websiteTag) {
+    return normalizeDesktopReleaseTag(parseDesktopVersionFromWebsiteTag(websiteTag));
+  }
+
+  return null;
+}
+
 async function fetchReleaseFromGitHub(token?: string): Promise<DesktopReleaseInfo | null> {
   const headers: Record<string, string> = { Accept: 'application/vnd.github+json' };
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  const response = await fetch(getGitHubLatestReleaseApiUrl(), { headers });
+  const pinnedTag = resolvePinnedDesktopReleaseTag();
+  const apiUrl = pinnedTag
+    ? getGitHubReleaseByTagApiUrl(pinnedTag)
+    : getGitHubLatestReleaseApiUrl();
+  if (pinnedTag) {
+    console.info(`[bake-desktop-release] Pinning GitHub release tag: ${pinnedTag}`);
+  }
+
+  const response = await fetch(apiUrl, { headers });
   if (response.status === 404) {
     console.warn('[bake-desktop-release] No published GitHub release yet; writing empty manifest.');
     return null;
