@@ -5,14 +5,15 @@
  * - deploy-paths::getDeployPathHref (POS: 部署路径 registry)
  *
  * [OUTPUT]
- * - buildMarketingNavLinks(): shared header navigation for landing + shell pages
+ * - buildMarketingNavLinks: shared header navigation（桌面入口仅 ed-cta，无重复文字链）
+ * - getMarketingRegisterHref / getMarketingQuickStartHref: Header vs Hero 次 CTA 深链
  *
  * [POS]
  * DRY nav definition — prevents LandingEditorial / MarketingShell drift.
  */
 import type { DocsLocale } from '@/lib/docs-contract';
-import { getDesktopDownloadPath, getDocsUrl } from '@/lib/deploy-mode';
-import { getDeployPathHref } from '@/lib/deploy-paths';
+import { getDocsUrl } from '@/lib/deploy-mode';
+import { getDeployPathHref, getDeployPathSectionLink } from '@/lib/deploy-paths';
 
 export type MarketingNavLink = {
   href: string;
@@ -34,7 +35,6 @@ export function buildMarketingNavLinks(
     { href: `${prefix}#features`, label: t('nav.features') },
     { href: `${prefix}#deploy`, label: t('nav.deploy') },
     { href: getDocsUrl('/', docsLocale), label: t('nav.docs'), external: true },
-    { href: getDesktopDownloadPath(), label: t('nav.desktopDownload') },
     {
       href: 'https://github.com/Pursue-LLL/myrm-agent',
       label: t('nav.openSource'),
@@ -47,6 +47,10 @@ export function buildMarketingNavLinks(
 
 export function getMarketingRegisterHref(_appLocale: DocsLocale = 'en'): string {
   return getDeployPathHref('tauri');
+}
+
+export function getMarketingQuickStartHref(_appLocale: DocsLocale = 'en'): string {
+  return getDeployPathSectionLink('quickstart', 'localWebui');
 }
 
 export function getMarketingLoginHref(appLocale: DocsLocale = 'en'): string {

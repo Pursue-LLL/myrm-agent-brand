@@ -152,7 +152,6 @@ export default function AdvantagesSection() {
       <div className="ed-advantages-beam" aria-hidden />
       <div className="relative mx-auto max-w-[1080px] px-6">
         <div className="ed-reveal mx-auto max-w-lg text-center">
-          <p className="ed-advantages-eyebrow ed-mono" aria-hidden>06</p>
           <h2 className="ed-heading-accent text-[clamp(1.8rem,4vw,2.6rem)] font-semibold tracking-[-0.02em]">
             {t('advantages.title')}
           </h2>

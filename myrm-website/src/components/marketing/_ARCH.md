@@ -46,9 +46,11 @@
 | `landing/deploy-path-context.tsx` | 核心 | HowItWorks + QuickStart 共享路径状态 |
 | `../../lib/deploy-paths.ts` | 核心 | 本地/桌面部署路径 registry |
 | `../../lib/cloud-paths.ts` | 核心 | SaaS App URL + UTM |
-| `../../lib/marketing-nav.ts` | 核心 | 开源页 Nav DRY |
+| `../../lib/marketing-nav.ts` | 核心 | Nav DRY；Header → `/download`；Hero 次 CTA → local QuickStart |
 | `../../lib/cloud-marketing-nav.ts` | 核心 | SaaS 页 Nav |
 | `MarketingShell.tsx` | 核心 | 法务页壳层 |
+| `landing/EngineeringDepthSection.tsx` | 核心 | 六组 pill tabs + spotlight 三卡；Aurora/beam；稳定 tabpanel + `?group=` 深链 |
+| `landing/depth-evidence.ts` | 辅助 | Engineering depth 区块 URL `?group=` 读写 |
 | `landing/marketing-keys.ts` | 核心 | Bento/对比/深度 i18n 键清单 |
 | `cloud/cloud-marketing-keys.ts` | 核心 | SaaS 定价/FAQ/步骤键清单 |
 
@@ -70,7 +72,9 @@ Hero → WorkspacePreview → How it works → Pricing → FAQ → Final CTA
 |------|------|
 | `getAppUrl(path, locale?)` | App CTA |
 | `getDocsUrl(path, locale?)` | 文档站 |
-| `getDeployPathHref()` / `getDeployPathSectionLink()` | 本地/桌面路径 |
+| `getMarketingRegisterHref()` | Header ed-cta → `/download` |
+| `getMarketingQuickStartHref()` | Hero 次 CTA → `?path=local#quickstart` |
+| `getMarketingLoginHref()` | Nav「本地部署文档」→ localWebui docs |
 | `getCloudLoginHref()` / `getCloudRegisterHref()` | SaaS 登录/注册 |
 | `buildMarketingNavLinks()` | 开源页 Nav |
 | `buildCloudNavLinks()` | SaaS 页 Nav |

@@ -6,7 +6,7 @@
  * - QuickStartPanel (POS: OpenClaw 风格 code-block)
  *
  * [OUTPUT]
- * - QuickStartSection: 标题 + 统一 code-block 快速开始区
+ * - QuickStartSection: 标题 + code-block；Tab 分 footnote（local / desktop）
  *
  * [POS]
  * Landing 快速开始区块；深链格式 `?path=local#quickstart`。
@@ -14,12 +14,14 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { quickStartTabToDeployPath, type QuickStartTabKey } from '@/lib/deploy-paths';
+import { useDocsLocale } from '@/hooks/useDocsLocale';
+import { getDeployPathHref, quickStartTabToDeployPath, type QuickStartTabKey } from '@/lib/deploy-paths';
 import { useDeployPath } from '@/components/marketing/landing/deploy-path-context';
 import QuickStartPanel from '@/components/marketing/landing/QuickStartPanel';
 
 export default function QuickStartSection() {
   const t = useTranslations('marketing');
+  const docsLocale = useDocsLocale();
   const { activeTab, selectPath } = useDeployPath();
 
   const handleTabClick = (tab: QuickStartTabKey): void => {
@@ -42,9 +44,25 @@ export default function QuickStartSection() {
         </div>
         <div className="ed-reveal mt-8">
           <QuickStartPanel activeTab={activeTab} onTabClick={handleTabClick} />
-          <p className="ed-quickstart-note mt-4 text-center text-[13px] leading-relaxed font-light" style={{ color: 'var(--ed-dim)' }}>
-            {t('quickStart.note')}
-          </p>
+          {activeTab === 'local' ? (
+            <p className="ed-quickstart-note mt-4 text-center text-[13px] leading-relaxed font-light" style={{ color: 'var(--ed-dim)' }}>
+              {t('quickStart.noteLocal')}
+              {' · '}
+              <a
+                href={getDeployPathHref('localWebui', docsLocale)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline-offset-2 transition-opacity hover:opacity-80 hover:underline"
+                style={{ color: 'var(--ed-muted)' }}
+              >
+                {t('quickStart.noteLocalDocsLink')}
+              </a>
+            </p>
+          ) : (
+            <p className="ed-quickstart-note mt-4 text-center text-[13px] leading-relaxed font-light" style={{ color: 'var(--ed-dim)' }}>
+              {t('quickStart.noteDesktop')}
+            </p>
+          )}
         </div>
       </div>
     </section>

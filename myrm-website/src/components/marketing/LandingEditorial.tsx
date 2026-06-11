@@ -25,7 +25,7 @@ import {
 } from 'hugeicons-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils/classnameUtils';
-import { buildMarketingNavLinks, getMarketingLoginHref, getMarketingRegisterHref } from '@/lib/marketing-nav';
+import { buildMarketingNavLinks, getMarketingLoginHref, getMarketingQuickStartHref, getMarketingRegisterHref } from '@/lib/marketing-nav';
 import { useRevealOnScroll, useScrollProgress, useCursorTrail } from './landing/hooks';
 import { MagneticButton, TiltCard } from './landing/interactive';
 import ColonyLayer from './landing/colony/ColonyLayer';
@@ -66,7 +66,8 @@ const FAQ_ITEMS = ['what', 'local', 'data'] as const;
 export default function LandingEditorial() {
   const t = useTranslations('marketing');
   const docsLocale = useDocsLocale();
-  const startHref = getMarketingRegisterHref(docsLocale);
+  const downloadHref = getMarketingRegisterHref(docsLocale);
+  const quickStartHref = getMarketingQuickStartHref(docsLocale);
   const containerRef = useRevealOnScroll();
   const scrollProgress = useScrollProgress();
   const trailRef = useCursorTrail();
@@ -140,7 +141,7 @@ export default function LandingEditorial() {
               {t('nav.localSetup')}
             </a>
             <Button asChild size="lg" className="ed-cta w-full rounded-2xl border-0 py-4 text-[15px] font-semibold text-white" style={{ background: 'var(--ed-accent)' }}>
-              <a href={startHref} onClick={() => setMobileOpen(false)}>
+              <a href={downloadHref} onClick={() => setMobileOpen(false)}>
                 {t('nav.getStarted')}
                 <ArrowRight02Icon className="ml-2 h-4 w-4" />
               </a>
@@ -185,7 +186,7 @@ export default function LandingEditorial() {
                 {t('nav.localSetup')}
               </a>
               <Button asChild size="sm" className="ed-cta rounded-full border-0 px-5 text-xs font-medium text-white" style={{ background: 'var(--ed-accent)' }}>
-                <a href={startHref}>{t('nav.getStarted')}</a>
+                <a href={downloadHref}>{t('nav.getStarted')}</a>
               </Button>
             </div>
             <div className="flex items-center gap-2 md:hidden">
@@ -246,7 +247,7 @@ export default function LandingEditorial() {
                     variant="outline"
                     className="ed-secondary-cta w-full rounded-full px-9 font-medium sm:w-auto"
                   >
-                    <a href={startHref}>
+                    <a href={quickStartHref}>
                       {t('hero.ctaPrimary')}
                       <ArrowRight02Icon className="ml-2 h-4 w-4" />
                     </a>

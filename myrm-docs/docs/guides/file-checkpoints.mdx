@@ -1,0 +1,67 @@
+---
+title: File Checkpoints & Rollback
+description: Automatic file snapshots with selective rollback, external effect detection, and Agent-aware recovery.
+---
+
+# File Checkpoints & Rollback
+
+Every time your Agent runs a destructive command (file edits, shell commands), Myrm automatically captures a **Shadow Git snapshot** of your workspace. You can view changes, selectively restore files, and the Agent automatically adapts to your rollbacks.
+
+## How It Works
+
+<Steps>
+  <Step title="Automatic Snapshot">
+    Before any destructive action (file writes, bash commands), the system transparently snapshots all tracked files using an isolated Shadow Git repository — completely separate from your project's `.git`.
+  </Step>
+  <Step title="Visual Timeline">
+    Open the History panel to see a chronological timeline of all snapshots. Each card shows which files changed, with line-level statistics (+X/-Y lines).
+  </Step>
+  <Step title="Selective Restore">
+    Choose specific files to roll back while keeping other changes. Or restore everything at once with a confirmation dialog.
+  </Step>
+  <Step title="Agent Auto-Awareness">
+    After you restore files, the Agent automatically detects the rollback on its next turn and re-reads the affected files — no manual intervention needed.
+  </Step>
+</Steps>
+
+## External Effect Warnings
+
+When a command involves irreversible side effects beyond the file system, Myrm flags it:
+
+| Category | Examples | Warning |
+|----------|----------|---------|
+| **Database** | `psql`, `mysql`, `redis-cli`, `mongo` | DB mutations cannot be undone by file rollback |
+| **Network** | `curl -d`, `http POST`, `wget --post` | HTTP writes already sent to remote servers |
+| **Container/Cloud** | `docker rm`, `kubectl delete`, `terraform apply` | Infrastructure changes persist externally |
+
+When restoring a snapshot that included these operations, the UI shows a clear warning:
+
+> "Files will be restored, but database/network/container changes made during this command cannot be reversed."
+
+## Zero Configuration
+
+File checkpoints work out of the box:
+
+- **No setup required** — enabled by default on all deployment modes
+- **No git pollution** — Shadow Git is completely isolated from your project
+- **No performance impact** — async snapshots with 3-second timeout
+- **Auto storage management** — 50 snapshots per project, 2GB global cap, automatic cleanup
+
+## Storage Architecture
+
+The Shadow Git system uses a shared bare repository with per-project refs:
+
+- **Content deduplication** — identical files across projects stored only once
+- **Orphan cleanup** — deleted projects automatically pruned
+- **Corruption repair** — automatic `git fsck` + repack on detection
+- **Global gc** — periodic garbage collection keeps disk usage minimal
+
+## Crash Recovery
+
+If the server crashes mid-task:
+
+1. LangGraph's persistent SQLite checkpointer saves full state at every graph transition
+2. On restart, `OfflineDurableTask` detects interrupted tasks
+3. Tasks resume from the exact interruption point — no user action needed
+
+This is architecturally superior to manual checkpoint callbacks (as used by some competitors) because state is captured at every graph node transition automatically, not just at manually-instrumented points.
