@@ -15,7 +15,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 | 能力 | Myrm | Hermes Agent (v0.15) | OpenClaw | 360 Security OpenClaw | OpenClacky | MiniMax Mavis | MemPalace |
 |------------|:----:|:------------:|:--------:|:---------:|:---------:|:-----:|:---------:|
-| **记忆系统** | ✅ 8 类 + 知识图谱 + 30+ UI 组件 + 8 种竞品导入 + 15 种诊断（806 项测试） | ⚠️ 2,200 字符 | ⚠️ 3 类 | ⚠️ 3 类 | ❌ 仅会话 | ⚠️ 基础更新 | ⚠️ 扁平抽屉 |
+| **记忆系统** | ✅ 8 类 + 知识图谱 + 30+ UI 组件 + 10 种竞品导入 + 15 种诊断（806 项测试） | ⚠️ 2,200 字符 | ⚠️ 3 类 | ⚠️ 3 类 | ❌ 仅会话 | ⚠️ 基础更新 | ⚠️ 扁平抽屉 |
 | **对话搜索** | ✅ FTS5 + Qdrant 混合 | ⚠️ v0.15 仅本地文本 | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **代码搜索** | ✅ FTS5 + Vector + RRF 融合 · `@codebase` · 15+ 语言 · CJK | ❌ 仅 grep | ⚠️ tree-sitter 精确匹配 | ❌ | ❌ 仅 grep | ❌ | ❌ |
 | **GUI 界面** | ✅ Web 原生 | ❌ CLI（v0.15 TUI 多会话） | CLI | ✅ Web/App | ⚠️ 基础 WebUI | ⚠️ 飞书嵌入 | ❌ 仅 CLI |
@@ -38,7 +38,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **MCP 工具安全** | ✅ 双层防护：上游异常捕获+下游 block 类型强制转换（file/audio/未知→text） | ⚠️ 单层转换（无上游容错） | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **智能路由与模型自动升级** | ✅ 五层体系: ComplexityRouter 三档路由 + 隐私感知路由 + ESCALATION_CONTRACT (模型自主升级合约) + EscalationScrubber (流式无缝体验) + 双 Fallback 保险 (362 项测试) | ⚠️ 仅 Sonnet→Opus 单维度 | ❌ | ⚠️ 手动三档 | ❌ | ⚠️ 未知 | ❌ |
 | **后台任务托盘** | ✅ Kanban 持久化 + SteeringToken 运行时转向 + Zombie 检测 + 自动重试 + /btw /bg 快捷命令 + 智能轮询（189 项测试） | ⚠️ 仅运行+取消 | ❌ | ❌ | ⚠️ Background Agent（无转向） | ⚠️ 未知 | ❌ |
-| **错误恢复** | ✅ 14 类自愈 + 3 层 LLM 流式超时保护（300s force_timeout + TIMEOUT 自动重试 + 模型故障转移）+ Anthropic thinking 恢复（168 项测试） | try/catch | 基础 | 基础 | ⚠️ 上下文溢出恢复 | ⚠️ 未知 | ❌ |
+| **错误恢复** | ✅ 14 类自愈 + 9 层纵深降级（多模型 Fallback·三层错误分类·指数退避·SSE 通知·零 LLM 正则备份）+ 3 层流式超时保护（2,039 项测试） | try/catch | 基础 | 基础 | ⚠️ 上下文溢出恢复 | ⚠️ 未知 | ❌ |
 | **企业可靠性** | ✅ xdist 锁、EventBus 截断、OTEL 安全、路径边界 + TOCTOU 审批测试；聊天 SSE 状态机回归；**521 份分形 `_ARCH` 模块文档 + 296 项架构 CI 门禁**（2026-06-09 实测） | ⚠️ 仅快乐路径测试 | ⚠️ 易竞态 | ⚠️ 未知 | ⚠️ 未知 | ⚠️ 未知 | ❌ |
 | **模块文档地图** | ✅ **521** 份 `_ARCH.md` + CI 防漂移（`check_fractal_docs`） | ❌ 仅集中式 docs | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **文件编辑安全** | ✅ 6 层保护 + Shadow Git 快照**选择性文件恢复**（checkbox 多选）+ 行级变更统计 (+X/−Y) + 回退后 Agent 自动感知 + 自动格式化 + 语法检查 + 冲突检测 + 配置保护 + 敏感文件保护 + 实时 diff SSE（1,154 项测试） | ❌ | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
@@ -785,7 +785,7 @@ Myrm 是 **GUI 优先** 应用。Claude Office Visualizer 要解决的「看不�
 | Context Usage | TrashCanSprite (filling trash can metaphor) | **ContextUsageIndicator** — exact percentage + multi-level color warnings | Numbers > metaphors |
 | Task Management | 12 PixiJS read-only whiteboard modes | **KanbanBoardView** — interactive drag/drop/filter/edit | Actionable, not just viewable |
 | Notifications | Screen flash (attentionStore) | **NotificationBell** — 4 severity levels + unread count + persistence | Structured alerts, not screen flashing |
-| Onboarding | TourOverlay 7步引导 | **4步动态向导** + 自动探测 Ollama/LM Studio + **HardwareCookbook**（fit_score + 流式下载）+ SearXNG 一键 Docker + 8种竞品迁移适配器（19项测试） | 零配置启动：探测→激活→开始工作 |
+| Onboarding | TourOverlay 7步引导 | **4步动态向导** + 自动探测 Ollama/LM Studio + **HardwareCookbook**（fit_score + 流式下载）+ SearXNG 一键 Docker + 7种竞品迁移适配器（含 Windsurf/Trae） | 零配置启动：探测→激活→开始工作 |
 | Companion | Fixed pixel character | **15 species + 9 hats + 5D attributes + evolution + shiny variants** | Full RPG companion system |
 | Deployment | Docker front+back separate deployment | **Built into the app** — zero extra infrastructure | Zero additional setup |
 | Mobile | ❌ Desktop-only (PixiJS) | ✅ PWA + 35+ messaging channels | Monitor from anywhere |
