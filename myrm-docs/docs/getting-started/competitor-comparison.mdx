@@ -45,7 +45,7 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **File System Intelligence** | ✅ 19 native ops + 6 parsers + 5 observers (788 tests) | ⚠️ 4 basic ops | ⚠️ bash only | ⚠️ bash only | ❌ | ⚠️ Basic | ❌ |
 | **Workspace Context** | ✅ 7-type @ references (file/folder/staged/diff/url/upload/line-range) + tool-layer full filesystem + Dynamic Workflow multi-project parallel (259 tests) | ⚠️ @file only (sandbox) | ❌ Single dir | ❌ | ❌ | ⚠️ Unknown | ❌ |
 | **Local File "Data Stays Local"** | ✅ Native — Agent runs locally, all files processed in-place | ❌ Cloud-only | ⚠️ Docker | ⚠️ Docker | ❌ Cloud | ❌ | ❌ |
-| **Scheduled Tasks** | ✅ GUI Cron + 6 trigger types + 3-phase self-healing + token-saving filters (587 tests) | ⚠️ CLI limited | ✅ | ✅ | ❌ | ❌ | ❌ |
+| **Scheduled Tasks** | ✅ 20+ GUI components + 27 config options + 4 trigger types + exponential retry + misfire recovery + agent binding + delivery (573 tests) | ⚠️ CLI limited (no GUI/retry/recovery) | ✅ | ✅ | ❌ | ❌ | ❌ |
 | **Unified Tool Gateway** | ✅ 4-in-1 Gateway + Elastic BYOK Fallback | ⚠️ Hard Switch (Error Prone) | ❌ N/A | ⚠️ Unknown | ❌ | ⚠️ Unknown | ❌ |
 | **Voice** | ✅ STT + TTS + Real-time | ⚠️ Discord Voice | WebRTC | ⚠️ Basic | ❌ | ❌ | ❌ |
 | **Computer Use** | ✅ Desktop automation + BBox approval + Tauri OS overlay + Native API routing (AppleScript/COM/D-Bus auto-detection) | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -1353,8 +1353,8 @@ Moving away from competitors relying on simple ReAct loops and basic memory, you
 
 | Capability | Codex | Claude Code | ChatGPT | Myrm |
 |------------|:-----:|:-----------:|:-------:|:----:|
-| Hook definition method | CLI/config files ("not easy to use") | ❌ | ❌ | ✅ Full GUI panels |
-| Security policy hooks | ⚠️ Basic permissions | ⚠️ 3 tiers | ❌ | ✅ Permissions + path + PII + NL generator |
+| Hook definition method | CLI/config files ("not easy to use") | ⚠️ plugins/ JSON (5 events, command only) | ❌ | ✅ GUI panels + JSON hot-reload + SKILL.md frontmatter (16 events, 4 executor types) |
+| Security policy hooks | ⚠️ Basic permissions | ⚠️ 3 tiers + asyncRewake | ❌ | ✅ Permissions + path + PII + NL generator + LLM validation hook + SSRF-safe HTTP hooks |
 | Risk rule engine | ❌ | ❌ | ❌ | ✅ Custom rules + test panel (18K lines) |
 | Event triggers | ⚠️ Basic events | ❌ | ❌ | ✅ Cron / webhook / event pattern / system event |
 | Per-agent behavior customization | ❌ | ⚠️ Projects | ❌ | ✅ 5 tabs + 10+ dimensions |

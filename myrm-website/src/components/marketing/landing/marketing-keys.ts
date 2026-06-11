@@ -97,6 +97,9 @@ export const COMPARE_ROW_KEYS = [
   'smartDesktopDistribution',
   'antiBlockingTitle',
   'appshotFlowPad',
+  'crossPlatformHandoff',
+  'configSync',
+  'taskResilience',
 ] as const;
 
 export type CompareRowKey = (typeof COMPARE_ROW_KEYS)[number];
@@ -152,7 +155,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'shellCompression',
     'antiBlockingTitle',
   ],
-  platform: ['gui', 'chatHistoryManagement', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'codeGraph'],
+  platform: ['gui', 'chatHistoryManagement', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'codeGraph', 'crossPlatformHandoff', 'configSync', 'taskResilience'],
 };
 
 export interface DepthGroupDef {
