@@ -196,6 +196,8 @@ for (const locale of LOCALES) {
     assertKey(locale, cloud, 'cloud', `faq.items.${faqKey}.question`, errors);
     assertKey(locale, cloud, 'cloud', `faq.items.${faqKey}.answer`, errors);
   }
+  assertKey(locale, cloud, 'cloud', 'demo.preview.alt', errors);
+  assertKey(locale, cloud, 'cloud', 'demo.caption', errors);
 }
 
 if (errors.length > 0) {

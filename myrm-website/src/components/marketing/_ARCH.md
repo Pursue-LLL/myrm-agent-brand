@@ -61,7 +61,7 @@ Hero → WorkspacePreview → HowItWorks → QuickStart → Marquee → Advantag
 
 ## SaaS 页区块顺序（`/cloud` LandingCloud）
 
-Hero → How it works → Pricing → FAQ → Final CTA
+Hero → WorkspacePreview → How it works → Pricing → FAQ → Final CTA
 
 ## 外部链接
 

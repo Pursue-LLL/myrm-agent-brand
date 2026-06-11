@@ -4,7 +4,7 @@
  * [INPUT]
  * - /marketing/workspace-preview.webp (POS: Playwright 生成的产品预览静态图)
  * - /marketing/hero-demo.webm（可选，存在时优先展示录屏）
- * - next-intl marketing.demo.preview.alt
+ * - next-intl `{namespace}.demo.preview.alt` (marketing | cloud)
  *
  * [OUTPUT]
  * - WorkspacePreview: Hero 产品预览（浏览器框 + 可选 WebM + 静态 WebP 回退）
@@ -22,8 +22,22 @@ const PREVIEW_HEIGHT = 520;
 const HERO_VIDEO_SRC = '/marketing/hero-demo.webm';
 const HERO_VIDEO_BUILD_FLAG = process.env.NEXT_PUBLIC_HAS_HERO_DEMO_WEBM === 'true';
 
-export default function WorkspacePreview() {
-  const t = useTranslations('marketing');
+type WorkspacePreviewMessagesNamespace = 'marketing' | 'cloud';
+
+type WorkspacePreviewShell = 'editorial' | 'shell';
+
+interface WorkspacePreviewProps {
+  /** Root i18n namespace — keys under `{namespace}.demo.preview.alt`. */
+  messagesNamespace?: WorkspacePreviewMessagesNamespace;
+  /** `editorial` uses OSS landing chrome; `shell` uses theme tokens for `/cloud` and shell pages. */
+  shell?: WorkspacePreviewShell;
+}
+
+export default function WorkspacePreview({
+  messagesNamespace = 'marketing',
+  shell = 'editorial',
+}: WorkspacePreviewProps) {
+  const t = useTranslations(messagesNamespace);
   const [videoSourceOk, setVideoSourceOk] = useState(HERO_VIDEO_BUILD_FLAG);
   const [videoReady, setVideoReady] = useState(false);
 
@@ -54,15 +68,30 @@ export default function WorkspacePreview() {
     setVideoSourceOk(false);
   }, []);
 
+  const frameClass =
+    shell === 'editorial'
+      ? 'ed-device-frame ed-device-float'
+      : 'overflow-hidden rounded-2xl border border-border/70 bg-card shadow-xl shadow-primary/5';
+  const chromeClass =
+    shell === 'editorial'
+      ? 'ed-device-chrome'
+      : 'flex items-center gap-2 border-b border-border/60 bg-muted/30 px-4 py-2.5';
+  const dotClass = shell === 'editorial' ? 'ed-device-dot' : 'h-2.5 w-2.5 rounded-full bg-muted-foreground/30';
+  const titleClass =
+    shell === 'editorial'
+      ? 'ed-device-chrome-title ed-mono'
+      : 'ml-auto font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground';
+  const screenClass = shell === 'editorial' ? 'ed-device-screen' : 'relative leading-none';
+
   return (
-    <div className="ed-device-frame ed-device-float">
-      <div className="ed-device-chrome" aria-hidden>
-        <span className="ed-device-dot" />
-        <span className="ed-device-dot" />
-        <span className="ed-device-dot" />
-        <span className="ed-device-chrome-title ed-mono">MyrmAgent</span>
+    <div className={frameClass}>
+      <div className={chromeClass} aria-hidden>
+        <span className={dotClass} />
+        <span className={dotClass} />
+        <span className={dotClass} />
+        <span className={titleClass}>MyrmAgent</span>
       </div>
-      <div className="ed-device-screen">
+      <div className={screenClass}>
         {videoSourceOk && (
           <video
             className={videoReady ? 'ed-device-video ed-device-video-visible' : 'ed-device-video'}

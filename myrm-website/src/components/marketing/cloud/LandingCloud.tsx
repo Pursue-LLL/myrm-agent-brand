@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils/classnameUtils';
 import { useDocsLocale } from '@/hooks/useDocsLocale';
 import { getCloudBillingHref, getCloudRegisterHref } from '@/lib/cloud-paths';
 import { MultilineHeading } from '../landing/HeroTypography';
+import WorkspacePreview from '../landing/WorkspacePreview';
 import CloudShell from './CloudShell';
 import {
   CLOUD_FAQ_KEYS,
@@ -54,6 +55,14 @@ export default function LandingCloud() {
             <a href="#pricing">{t('hero.ctaSecondary')}</a>
           </Button>
         </div>
+      </section>
+
+      <section
+        className="relative mx-auto max-w-[900px] px-4 pb-4 sm:px-6 sm:pb-8"
+        aria-label={t('demo.preview.alt')}
+      >
+        <WorkspacePreview messagesNamespace="cloud" shell="shell" />
+        <p className="mt-4 text-center text-sm leading-relaxed text-muted-foreground">{t('demo.caption')}</p>
       </section>
 
       {/* How it works */}
