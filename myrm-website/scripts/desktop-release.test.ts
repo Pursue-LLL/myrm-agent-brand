@@ -3,6 +3,7 @@ import {
   detectUserPlatform,
   formatFileSize,
   getGitHubReleaseByTagApiUrl,
+  isOtaOnlyAsset,
   normalizeDesktopReleaseTag,
   parseDesktopVersionFromWebsiteTag,
   parseGitHubRelease,
@@ -68,12 +69,36 @@ describe('parseGitHubRelease', () => {
     });
 
     expect(release.version).toBe('0.2.1');
-    expect(release.targets).toHaveLength(2);
+    expect(release.targets).toHaveLength(1);
+    expect(release.targets[0]?.id).toBe('macos-aarch64');
     expect(release.targets[0]?.sha256Url).toContain('.sha256');
     expect(release.targets[0]?.sizeBytes).toBe(120_000_000);
   });
 
-  test('classifies stable Windows OTA installer name MyrmAgent_x64-setup.exe', () => {
+  test('prefers msi over OTA setup.exe regardless of asset order', () => {
+    const assets = [
+      {
+        name: 'MyrmAgent_x64-setup.exe',
+        browser_download_url: 'https://github.com/example/app/releases/download/v0.1.40/MyrmAgent_x64-setup.exe',
+      },
+      {
+        name: 'MyrmAgent_0.1.40_x64_en-US.msi',
+        browser_download_url: 'https://github.com/example/app/releases/download/v0.1.40/MyrmAgent_0.1.40_x64_en-US.msi',
+      },
+    ];
+    const release = parseGitHubRelease({
+      tag_name: 'v0.1.40',
+      published_at: '2026-06-11T00:00:00Z',
+      body: null,
+      assets,
+    });
+
+    expect(release.targets).toHaveLength(1);
+    expect(release.targets[0]?.id).toBe('windows-x86_64');
+    expect(release.targets[0]?.fileName).toBe('MyrmAgent_0.1.40_x64_en-US.msi');
+  });
+
+  test('excludes OTA-only setup.exe when no msi is published', () => {
     const release = parseGitHubRelease({
       tag_name: 'v0.1.39',
       published_at: '2026-06-11T00:00:00Z',
@@ -90,13 +115,10 @@ describe('parseGitHubRelease', () => {
       ],
     });
 
-    expect(release.targets).toHaveLength(1);
-    expect(release.targets[0]?.id).toBe('windows-x86_64');
-    expect(release.targets[0]?.fileName).toBe('MyrmAgent_x64-setup.exe');
-    expect(release.targets[0]?.sha256Url).toContain('.sha256');
+    expect(release.targets).toHaveLength(0);
   });
 
-  test('classifies Tauri Linux AppImage.tar.gz without linux in filename', () => {
+  test('prefers bare AppImage over OTA AppImage.tar.gz', () => {
     const release = parseGitHubRelease({
       tag_name: 'v0.2.2',
       published_at: '2026-06-03T00:00:00Z',
@@ -106,11 +128,26 @@ describe('parseGitHubRelease', () => {
           name: 'MyrmAgent_0.2.2_amd64.AppImage.tar.gz',
           browser_download_url: 'https://github.com/example/app/releases/download/v0.2.2/MyrmAgent_0.2.2_amd64.AppImage.tar.gz',
         },
+        {
+          name: 'MyrmAgent_0.2.2_amd64.AppImage',
+          browser_download_url: 'https://github.com/example/app/releases/download/v0.2.2/MyrmAgent_0.2.2_amd64.AppImage',
+        },
       ],
     });
 
     expect(release.targets).toHaveLength(1);
     expect(release.targets[0]?.id).toBe('linux-x86_64');
+    expect(release.targets[0]?.fileName).toBe('MyrmAgent_0.2.2_amd64.AppImage');
+  });
+});
+
+describe('isOtaOnlyAsset', () => {
+  test('flags Tauri updater bundles', () => {
+    expect(isOtaOnlyAsset('MyrmAgent_x64-setup.exe')).toBe(true);
+    expect(isOtaOnlyAsset('MyrmAgent.app.tar.gz')).toBe(true);
+    expect(isOtaOnlyAsset('MyrmAgent_0.2.2_amd64.AppImage.tar.gz')).toBe(true);
+    expect(isOtaOnlyAsset('MyrmAgent_0.1.40_x64_en-US.msi')).toBe(false);
+    expect(isOtaOnlyAsset('MyrmAgent_0.2.2_amd64.AppImage')).toBe(false);
   });
 });
 

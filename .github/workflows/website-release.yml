@@ -52,6 +52,9 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
       - name: Preflight build and test
         working-directory: myrm-website
         env:
@@ -79,3 +82,31 @@ jobs:
             exit 1
           fi
           echo "Deploy hook accepted (${{ steps.tag.outputs.tag }} → myrmagent.ai). Check CF Pages → Deployments."
+
+      - name: Post-deploy desktop-release smoke
+        env:
+          DESKTOP_VERSION: ${{ steps.tag.outputs.desktop_version }}
+        run: |
+          set -euo pipefail
+          echo "[post-deploy] Waiting 90s for Cloudflare Pages build…"
+          sleep 90
+          payload="$(curl -fsSL 'https://myrmagent.ai/desktop-release.json')"
+          version="$(jq -r '.version // empty' <<<"$payload")"
+          target_count="$(jq '.targets | length' <<<"$payload")"
+          if [[ "$version" != "$DESKTOP_VERSION" ]]; then
+            echo "[post-deploy] version mismatch: expected ${DESKTOP_VERSION}, got ${version:-<empty>}" >&2
+            exit 1
+          fi
+          if [[ "$target_count" -lt 4 ]]; then
+            echo "[post-deploy] expected >= 4 install targets, got ${target_count}" >&2
+            exit 1
+          fi
+          win_file="$(jq -r '.targets[] | select(.id == "windows-x86_64") | .fileName // empty' <<<"$payload" | head -1)"
+          case "$win_file" in
+            *.msi) ;;
+            *)
+              echo "[post-deploy] windows target must be .msi installer, got: ${win_file:-<empty>}" >&2
+              exit 1
+              ;;
+          esac
+          echo "[post-deploy] OK (version=${version}, targets=${target_count}, windows=${win_file})"

@@ -43,13 +43,13 @@
 
 ## 测试
 
-- `bun test scripts/desktop-release.test.ts` — 解析、平台回退、sha256、file size、Linux `AppImage.tar.gz` 分类
+- `bun test scripts/desktop-release.test.ts` — 解析、OTA 排除、msi 优先级、平台回退、sha256、file size
 
 ## 发布数据策略
 
 - **首屏**：同域 `public/desktop-release.json`（`bun run build` 前 bake 生成；未 bake 时 fallback live GitHub API）
-- **安装包 vs OTA**：bake/`parseGitHubRelease` 暴露 `.dmg`/`.exe`/`.AppImage*` 给用户安装；`latest.json` 仅服务 Tauri OTA（macOS `.app.tar.gz`、Windows `*-setup.exe`、Linux `.AppImage.tar.gz`）
-- **后台刷新**：GitHub Releases API → Tauri `latest.json` 兜底
+- **安装包 vs OTA**：`parseGitHubRelease` 经 `isOtaOnlyAsset` 排除 OTA 资产，按平台优先级选 `.dmg`/`.msi`/裸 `.AppImage`；`latest.json` 仅服务 Tauri OTA（macOS `.app.tar.gz`、Windows `*-setup.exe`、Linux `.AppImage.tar.gz`）
+- **后台刷新**：GitHub Releases API only（不读 Tauri `latest.json`，避免 OTA URL 误作安装包）
 - **Mac 架构不确定**：Landing/QuickStart → `/download`；download 页展示双 Mac 按钮
 - **无 release**：Hero → `/download`；页内 localWebui 终端引导（诚实标注非桌面 App），不暴露 GitHub Releases
 - **sessionStorage**：5 分钟 live fetch 缓存

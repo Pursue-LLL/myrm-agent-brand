@@ -6,7 +6,7 @@
  * - Desktop release manifest parsing, platform detection, embedded/live fetch, file size formatting
  *
  * [POS]
- * 桌面端安装包元数据单一入口；与 Tauri updater latest.json 共用同一数据源。
+ * 桌面端安装包元数据单一入口；官网仅暴露用户安装包（dmg/msi/AppImage），OTA 资产由 Tauri updater 独立消费。
  */
 
 export const DESKTOP_RELEASE_REPO =
@@ -142,15 +142,55 @@ function sortTargets(targets: DesktopDownloadTarget[]): DesktopDownloadTarget[] 
   );
 }
 
-function dedupeTargets(targets: DesktopDownloadTarget[]): DesktopDownloadTarget[] {
-  const seen = new Set<DesktopPlatformId>();
-  const result: DesktopDownloadTarget[] = [];
-  for (const target of targets) {
-    if (seen.has(target.id)) continue;
-    seen.add(target.id);
-    result.push(target);
+/** OTA-only artifacts on GitHub Release; must not appear on the marketing download page. */
+export function isOtaOnlyAsset(name: string): boolean {
+  const lower = name.toLowerCase();
+  if (lower.endsWith('.sig') || lower === 'latest.json') return true;
+  if (lower.endsWith('-setup.exe')) return true;
+  if (lower.endsWith('.app.tar.gz')) return true;
+  if (lower.endsWith('.appimage.tar.gz')) return true;
+  if (lower.endsWith('.nsis.zip') || lower.endsWith('.msi.zip')) return true;
+  return false;
+}
+
+function installerPreferenceRank(fileName: string, platformId: DesktopPlatformId): number {
+  const lower = fileName.toLowerCase();
+  switch (platformId) {
+    case 'macos-aarch64':
+    case 'macos-x86_64':
+      return lower.endsWith('.dmg') ? 10 : 0;
+    case 'windows-x86_64':
+    case 'windows-aarch64':
+      if (lower.endsWith('.msi')) return 10;
+      if (lower.endsWith('.exe')) return 5;
+      return 0;
+    case 'linux-x86_64':
+    case 'linux-aarch64':
+      if (lower.endsWith('.appimage') && !lower.endsWith('.appimage.tar.gz')) return 10;
+      if (lower.endsWith('.deb')) return 8;
+      if (lower.endsWith('.rpm')) return 8;
+      return 0;
+    default:
+      return 0;
   }
-  return sortTargets(result);
+}
+
+function pickBestInstallersPerPlatform(candidates: DesktopDownloadTarget[]): DesktopDownloadTarget[] {
+  const best = new Map<DesktopPlatformId, DesktopDownloadTarget>();
+  for (const candidate of candidates) {
+    const rank = installerPreferenceRank(candidate.fileName, candidate.id);
+    if (rank === 0) continue;
+    const current = best.get(candidate.id);
+    const currentRank = current ? installerPreferenceRank(current.fileName, candidate.id) : -1;
+    if (!current || rank > currentRank) {
+      best.set(candidate.id, candidate);
+    }
+  }
+  return sortTargets([...best.values()]);
+}
+
+function dedupeTargets(targets: DesktopDownloadTarget[]): DesktopDownloadTarget[] {
+  return pickBestInstallersPerPlatform(targets);
 }
 
 function findSha256AssetUrl(assets: GitHubReleaseAsset[], fileName: string): string | null {
@@ -240,6 +280,7 @@ export function parseGitHubRelease(raw: GitHubLatestRelease): DesktopReleaseInfo
 
   for (const asset of raw.assets) {
     if (asset.name.endsWith('.sha256')) continue;
+    if (isOtaOnlyAsset(asset.name)) continue;
     const id = classifyGitHubAsset(asset.name);
     if (!id) continue;
     targets.push({
@@ -376,24 +417,6 @@ async function fetchGitHubApiRelease(): Promise<DesktopReleaseInfo | null> {
   return parseGitHubRelease(release);
 }
 
-async function fetchTauriManifestRelease(): Promise<DesktopReleaseInfo | null> {
-  try {
-    const manifestResponse = await fetch(getDesktopManifestUrl(), {
-      headers: { Accept: 'application/json' },
-      cache: 'no-store',
-    });
-    if (!manifestResponse.ok) return null;
-
-    const manifest = (await manifestResponse.json()) as TauriLatestManifest;
-    if (!manifest.version || !manifest.platforms || Object.keys(manifest.platforms).length === 0) {
-      return null;
-    }
-    return parseTauriManifest(manifest);
-  } catch {
-    return null;
-  }
-}
-
 export async function fetchEmbeddedDesktopRelease(
   basePath: string = EMBEDDED_RELEASE_PATH,
 ): Promise<DesktopReleaseInfo | null> {
@@ -411,9 +434,6 @@ export async function fetchEmbeddedDesktopRelease(
 export async function fetchDesktopRelease(): Promise<DesktopReleaseInfo> {
   const apiRelease = await fetchGitHubApiRelease();
   if (apiRelease) return apiRelease;
-
-  const manifestRelease = await fetchTauriManifestRelease();
-  if (manifestRelease) return manifestRelease;
 
   throw new Error('Failed to load desktop release');
 }

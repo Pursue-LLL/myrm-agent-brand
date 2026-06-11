@@ -15,7 +15,7 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 
 | Capability | Myrm | Hermes Agent (v0.15) | OpenClaw | 360 Security OpenClaw | OpenClacky | MiniMax Mavis | MemPalace |
 |------------|:----:|:------------:|:--------:|:---------:|:---------:|:-----:|:---------:|
-| **Memory System** | ✅ 8 types + knowledge graph + 30+ UI + 10 import adapters + 15 diagnostics (806 tests) | ⚠️ 2,200 chars | ⚠️ 3 types | ⚠️ 3 types | ❌ Session-only | ⚠️ Basic update | ⚠️ Flat drawers |
+| **Memory System** | ✅ 8 types + knowledge graph + 30+ UI + 12 import adapters + 15 diagnostics (806 tests) | ⚠️ 2,200 chars | ⚠️ 3 types | ⚠️ 3 types | ❌ Session-only | ⚠️ Basic update | ⚠️ Flat drawers |
 | **Conversation Search** | ✅ FTS5 + Qdrant hybrid | ⚠️ v0.15 local text only | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Code Search** | ✅ FTS5 + Vector + RRF fusion · `@codebase` · 15+ langs · CJK | ❌ grep only | ⚠️ tree-sitter exact match | ❌ | ❌ grep only | ❌ | ❌ |
 | **GUI Interface** | ✅ Web-native | ❌ CLI (v0.15 TUI multi-session) | CLI | ✅ Web/App | ⚠️ Basic WebUI | ⚠️ Lark-embedded | ❌ CLI only |
@@ -868,7 +868,7 @@ Myrm is a **GUI-first** application. The problems Claude Office Visualizer solve
 | Context Usage | TrashCanSprite (filling trash can metaphor) | **ContextUsageIndicator** — exact percentage + multi-level color warnings | Numbers > metaphors |
 | Task Management | 12 PixiJS read-only whiteboard modes | **KanbanBoardView** — interactive drag/drop/filter/edit | Actionable, not just viewable |
 | Notifications | Screen flash (attentionStore) | **NotificationBell** — 4 severity levels + unread count + persistence | Structured alerts, not screen flashing |
-| Onboarding | TourOverlay 7-step walkthrough | **4-step dynamic wizard** + auto-detect Ollama/LM Studio + **HardwareCookbook** (fit_score + MoE-aware ~tok/s speed + smart Best Fit recommendation + streaming download) + SearXNG 1-click Docker + 7-source competitor migration (77 tests) | Zero-config start: detect → activate → work |
+| Onboarding | TourOverlay 7-step walkthrough | **4-step dynamic wizard** + auto-detect Ollama/LM Studio + **HardwareCookbook** (fit_score + MoE-aware ~tok/s speed + smart Best Fit recommendation + streaming download) + SearXNG 1-click Docker + 7-source competitor migration (149 tests) | Zero-config start: detect → activate → work |
 | Companion | Fixed pixel character | **15 species + 9 hats + 5D attributes + evolution + shiny variants** | Full RPG companion system |
 | Deployment | Docker front+back separate deployment | **Built into the app** — zero extra infrastructure | Zero additional setup |
 | Mobile | ❌ Desktop-only (PixiJS) | ✅ PWA + 35+ messaging channels | Monitor from anywhere |
@@ -913,7 +913,7 @@ Codex recently showcased Linear MCP integration and automated PM workflows. Myrm
 
 | Capability | Codex | Myrm |
 |-----------|-------|------|
-| MCP config | CLI only | GUI dialog + JSON batch import + security scan |
+| MCP config | CLI only | GUI dialog + JSON batch import/export + security scan |
 | MCP security | None | SSRF defense + DNS Pinning + OSV malware detection + safety annotations |
 | Service catalog | None | 27 prebuilt services / 9 categories / search & filter / one-click connect |
 | Per-Agent MCP | Shared globally | Each Agent has independent mcp_ids + tool_selections |
@@ -1099,14 +1099,13 @@ Automated regression on a developer machine (minimal batch, ~7s total):
 
 | Suite | Result |
 |-------|--------|
-| Migration service (4-lane + rollback + binding) pytest | **34 passed** |
-| Competitor discovery + migration API pytest | **37 passed** |
-| Dry-run + pre-migration backup pytest | **11 passed** |
+| Memory import adapters pytest (12 sources + dry-run + rollback) | **115 passed** |
+| Migration service (4-lane + discovery + binding) pytest | **34 passed** |
 | Architecture `_ARCH.md` placeholder gate | **277 passed** |
 | OSS scripts architecture tests | **5 passed** |
 | `check_fractal_docs --no-stub` + line budget CI scripts | **OK** |
 
-**Total migration-specific tests: 82 passed** (Jun 2026). Discovery scoped to explicit test home dirs [server `competitor_discovery.py`] — production `/migration/discover` still scans the real user home unchanged. Competitors checked (OpenClaw, Hermes, DeerFlow, CodePilot, LobsterAI, CoPaw, jiuwenclaw, PilotDeck): **no GUI five-source four-lane wizard**; Hermes offers CLI `claw migrate` only; PilotDeck has skill-only file copy (361 lines, no memory/instruction/credential migration).
+**Total migration-specific tests: 149 passed** (Jun 2026). Discovery scoped to explicit test home dirs [server `competitor_discovery.py`] — production `/migration/discover` still scans the real user home unchanged. Competitors checked (OpenClaw, Hermes, DeerFlow, CodePilot, LobsterAI, CoPaw, jiuwenclaw, PilotDeck): **no GUI five-source four-lane wizard**; Hermes offers CLI `claw migrate` only; PilotDeck has skill-only file copy (361 lines, no memory/instruction/credential migration).
 
 ### What you get after migrating (user-facing)
 
