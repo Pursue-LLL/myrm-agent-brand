@@ -136,7 +136,7 @@ Myrm 的 Deep Research 采用结构化的 **CLARIFY → PLAN → RESEARCH → RE
 | **CLARIFY** | 结构化表单向用户确认意图 | 100% 准确理解，不靠 AI 猜测 |
 | **PLAN** | 生成 ≤6 步研究计划 | 系统覆盖，不盲目浏览 |
 | **RESEARCH** | 并行子 Agent 搜索 + `think` 工具自省 | 更快且每轮有质量检查 |
-| **REPORT** | 生成带 inline 引用和来源列表的报告 | 可溯源验证，不是凭空杜撰 |
+| **REPORT** | 多页结构化报告：内联引用【1】【2】+ 信息完整性规则 + Limitations/Gaps 声明，零额外 LLM 调用 | 可溯源验证，坦诚信息不足，不凭空杜撰 |
 
 ### 研究中途控制
 
@@ -156,6 +156,8 @@ Myrm 的 Deep Research 采用结构化的 **CLARIFY → PLAN → RESEARCH → RE
 | 并行子 Agent | ✅ 信号量控制 | ❌ 单线串行 |
 | 源去重 | ✅ SourceTracker | ❌ 无 |
 | 额外成本 | $0 | $0.5–2/次 o3 hint 调用 |
+| 报告输出 | ✅ 多页结构化报告 + 内联引用 + 信息缺口声明 | ⚠️ `\boxed{42}` 短答案（仅 benchmark 评分用） |
+| 报告可信度 | ✅ 严格基于来源，未验证信息标注 | ❌ 无 |
 
 ## 对比竞品
 

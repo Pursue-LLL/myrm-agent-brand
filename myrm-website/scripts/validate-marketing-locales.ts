@@ -4,7 +4,7 @@
  * - locales/zh.json, locales/en.json：`marketing` + `cloud` 命名空间
  *
  * [OUTPUT]
- * - CI 校验：manifest 键存在、Bento/对比/深度键完整、locales 无 legacy URL
+ * - CI 校验：manifest 键存在、Bento/对比/深度键完整、legal 法务键、cloud 键、locales 无 legacy URL
  *
  * [POS]
  * 营销文案 locale 契约校验；`bun run build` 前自动执行。

@@ -79,7 +79,7 @@ Hero → WorkspacePreview → How it works → Pricing → FAQ → Final CTA
 
 - `marketing.*` — 开源首页 `/`
 - `cloud.*` — SaaS 页 `/cloud`
-- **键校验**：`bun run validate:locales`（marketing 深度卡 + cloud 定价/FAQ/步骤）+ `validate:docs-slugs`
+- **键校验**：`bun run validate:locales`（marketing 深度卡 + legal 法务键 + cloud 定价/FAQ/步骤/demo）+ `validate:docs-slugs`
 
 ## 与 App 的关系
 
