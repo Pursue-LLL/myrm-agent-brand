@@ -93,21 +93,21 @@ function BentoCard({ item, index }: { item: BentoItem; index: number }) {
 
   return (
     <TiltCard
-      className={`ed-reveal rounded-2xl overflow-hidden ed-stagger-${(index % 3) + 1}`}
+      className={`ed-reveal ed-shimmer ed-card rounded-2xl overflow-hidden ed-stagger-${(index % 3) + 1}`}
       style={GLASS}
     >
-      <div className="p-6 sm:p-7 flex flex-col h-full min-h-[220px]">
+      <div className="p-6 sm:p-7 flex flex-col h-full min-h-[220px] relative">
+        <span className="ed-bento-idx ed-mono" aria-hidden>
+          {String(index + 1).padStart(2, '0')}
+        </span>
         <div className="flex items-start justify-between gap-3">
           <div
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+            className="ed-icon inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
             style={{ background: 'var(--ed-accent-soft)', color: 'var(--ed-accent)' }}
           >
             <Icon className="h-5 w-5" />
           </div>
-          <p
-            className="text-[clamp(1.75rem,4vw,2.5rem)] font-black tracking-tighter ed-mono leading-none"
-            style={{ color: 'var(--ed-accent)' }}
-          >
+          <p className="ed-bento-stat ed-mono text-[clamp(1.75rem,4vw,2.5rem)] font-black tracking-tighter leading-none">
             {stat}
           </p>
         </div>
@@ -147,12 +147,16 @@ export default function AdvantagesSection() {
   const migrationAppHref = getAppLoginRedirectUrl(APP_MIGRATION_WIZARD_PATH, docsLocale);
 
   return (
-    <section className="ed-section-alt py-20 sm:py-40">
-      <div className="mx-auto max-w-[1080px] px-6">
+    <section className="ed-advantages-section ed-section-alt py-20 sm:py-40">
+      <div className="ed-advantages-ambient" aria-hidden />
+      <div className="ed-advantages-beam" aria-hidden />
+      <div className="relative mx-auto max-w-[1080px] px-6">
         <div className="ed-reveal mx-auto max-w-lg text-center">
-          <h2 className="text-[clamp(1.8rem,4vw,2.6rem)] font-semibold tracking-[-0.02em]">
+          <p className="ed-advantages-eyebrow ed-mono" aria-hidden>06</p>
+          <h2 className="ed-heading-accent text-[clamp(1.8rem,4vw,2.6rem)] font-semibold tracking-[-0.02em]">
             {t('advantages.title')}
           </h2>
+          <div className="ed-advantages-title-rule" aria-hidden />
           <p className="mt-5 text-[15px] leading-relaxed font-light" style={{ color: 'var(--ed-dim)' }}>
             {t('advantages.subtitle')}
           </p>

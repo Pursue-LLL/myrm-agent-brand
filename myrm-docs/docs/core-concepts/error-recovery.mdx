@@ -98,30 +98,31 @@ This enables cost-efficient routing: simple tasks use cheap models, complex task
 
 ## Loop Detection
 
-5 independent detectors identify different types of agent loops:
+7 independent detectors identify different types of agent loops:
 
 | Detector | Pattern | Action |
 |----------|---------|--------|
 | **Repetition** | Same tool called with identical parameters | Warning → Break |
 | **Ping-Pong** | Alternating A→B→A→B pattern | Warning → Break |
 | **No Progress** | Output content unchanged across turns | Warning → Break |
-| **Divergence** | Tool calls increasingly off-topic | Warning → Break |
+| **Divergence** | Tool calls increasingly off-topic (adaptive threshold: Exploration 60% / Execution 30% / Recovery 15%) | Warning → Break |
 | **Output Diminishing** | Response quality declining | Warning → Break |
+| **Consecutive Failures** | Multiple tool calls failing in a row | Warning → Break |
+| **Cross-tool Error Signature** | Same error pattern repeated across different tools (line/path normalized) | ToolStuckException |
 
-Detection follows a graduated response: first a warning is injected into the agent's context, then a forced break if the pattern persists.
+Detection follows a graduated response: first a warning with context-aware suggestions is injected into the agent's context, then a forced break if the pattern persists (severity: WARNING 3-5x → ERROR 6-9x → CRITICAL 10+x).
 
 ## Iteration Budget
 
-Agents have configurable iteration limits with graduated warnings:
+Agents have configurable iteration limits (default: 50) with dynamically computed thresholds based on the graph recursion limit:
 
 | Threshold | Action |
 |-----------|--------|
-| 35 turns | First warning: "Getting close to limit" |
-| 45 turns | Second warning: "Almost at limit, wrap up" |
-| 48 turns | Final warning: "Last 2 turns" |
-| 50 turns | Hard stop with grace summary |
+| ~70% budget | First warning: "Review your original goal and prioritize" |
+| ~90% budget | Critical warning: "Finalize your work immediately" |
+| 100% budget | ToolStuckException → Hard stop with grace summary |
 
-The grace summary provides a structured wrap-up of completed work, remaining tasks, and suggestions for continuation.
+The thresholds are automatically derived from `graph_recursion_limit` and converted to tool-call counts, ensuring the budget scales correctly regardless of configuration. The grace summary provides a structured wrap-up of completed work, remaining tasks, and suggestions for continuation.
 
 ## File Checkpoint
 

@@ -53,7 +53,7 @@ function DepthFeatureCard({ itemKey, cardIndex }: { itemKey: DepthItemKey; cardI
   const hasBadge = t.has(badgeKey);
 
   return (
-    <article className={`ed-depth-card ed-stagger-${(cardIndex % 3) + 1}`}>
+    <article className={`ed-depth-card ed-depth-card-glow ed-stagger-${(cardIndex % 3) + 1}`}>
       <div className="ed-depth-card-rail" aria-hidden />
       <header className="ed-depth-card-head">
         <span className="ed-depth-card-idx ed-mono" aria-hidden>
@@ -215,11 +215,12 @@ export default function EngineeringDepthSection() {
     <section id="engineering-depth" className="ed-section-main ed-depth-section py-20 sm:py-32">
       <div className="ed-depth-grain" aria-hidden />
       <div className="ed-depth-ambient" aria-hidden />
+      <div className="ed-depth-beams" aria-hidden />
       <div className="relative mx-auto max-w-[1120px] px-6">
         <div className="ed-depth-hero">
           <div className="ed-depth-hero-copy">
             <p className="ed-depth-eyebrow ed-mono">{t('engineeringDepth.eyebrow')}</p>
-            <h2 className="ed-depth-hero-title">{t('engineeringDepth.title')}</h2>
+            <h2 className="ed-depth-hero-title ed-heading-accent">{t('engineeringDepth.title')}</h2>
             <p className="ed-depth-hero-sub">{t('engineeringDepth.subtitle')}</p>
             <a
               href={compareHref}
@@ -258,7 +259,7 @@ export default function EngineeringDepthSection() {
                 );
               })}
             </nav>
-            <div className="ed-depth-stage" data-depth-active={activeId}>
+            <div className="ed-depth-stage" data-depth-active={activeId} key={activeId}>
               <DepthGroupPanel group={activeGroup} layout="stage" />
             </div>
           </div>
