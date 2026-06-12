@@ -30,7 +30,7 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **Credential Vault** | ✅ Label inject + TOTP (browser + desktop) | ❌ Plaintext in tool args | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **WebUI Access Security** | ✅ Zero-Trust WebSocket + Secure Cookie | ⚠️ HTTP only, WS vulnerable | ⚠️ Basic JWT | ⚠️ Unknown | ⚠️ HTTP only | ⚠️ Closed SaaS | ❌ Open on LAN |
 | **Goal Mode** | ✅ 7 states + 4D budget | /goal | ❌ | ❌ | ❌ | ⚠️ Plan-approve | ❌ |
-| **Context Management** | ✅ 6-layer Prompt Cache + 22+ middleware + in-session real-time notes (dual-threshold trigger · 8 structured sections · circuit breaker · 960 tests) | ⚠️ system_and_3 (4 breakpoints) + 8-layer fixed stack | LCM | LCM | ⚠️ Idle compress + dual cache | ⚠️ Worker isolation | ⚠️ 4-layer stack |
+| **Context Management** | ✅ 6-layer Prompt Cache + 22+ middleware + 8-layer compression pipeline + DB-level session compaction (CAS MVCC + backup + 5-dim archive export) + deterministic fallback + circuit breaker (960 tests) | ⚠️ system_and_3 (4 breakpoints) + 8-layer fixed stack + single-layer ContextCompressor (in-memory, no DB persist) | LCM | LCM | ⚠️ Idle compress + dual cache | ⚠️ Worker isolation | ⚠️ 4-layer stack |
 | **Smart Concurrency Router** | ✅ O(1) path lock, zero read-write race | ⚠️ Coarse write lock only | ❌ Unsafe | ⚠️ Unknown | ❌ | ⚠️ Unknown | ❌ |
 | **Headless Unattended** | ✅ Tag-based tool isolation (Zero Deadlock) | ⚠️ Prone to interactive deadlocks | ❌ Unsupported | ❌ | ❌ | ❌ | ❌ |
 | **Extreme Anti-Explosion** | ✅ 4-layer moat (Hygiene, Shield, Strip, Budget) | ⚠️ Crash/Loss on massive payloads | ⚠️ Single point failure | ⚠️ Unknown | ⚠️ Basic limit | ⚠️ Unknown | ❌ |
@@ -1027,17 +1027,19 @@ Users migrating from 360 LobsterAI gain:
 
 When shipping desktop agents, competitors often send users to **GitHub Releases** or force manual CPU architecture picks; CI races can corrupt update manifests.
 
-Myrm (**verified v0.1.14**) offers **consumer-grade download + an honest release contract**:
+Myrm (**verified v0.1.39**) offers **consumer-grade download + production OTA + an honest release contract**:
 
 | Area | Typical competitors | Myrm | User benefit |
 |------|---------------------|------|--------------|
-| **Landing CTA** | Links to GitHub / source — confusing for non-devs | Hero **“Download Desktop”** → `/download` or direct dmg | Install like normal software |
+| **Landing CTA** | Links to GitHub / source — confusing for non-devs | Hero **“Download Desktop”** → `/download` or direct installer | Install like normal software |
+| **Windows installer pick** | Release mixes `.msi` + OTA `setup.exe` — order-dependent | **Installer SSOT** always picks `.msi` for the website | New Windows users never download the OTA-only package |
 | **Mac M-series Safari** | Manual ARM/Intel pick or wrong Intel dmg | **WebGL GPU sniffing** + download-page fallback | Most Mac users get native ARM64 with zero choices |
 | **iPad posing as Mac** | Useless `.dmg` downloads | **Touch-point detection** → SaaS WebUI | No wasted download |
-| **Version & integrity** | Mismatched filenames, no checksums | Tag-synced version; per-asset **`.sha256`** + **`latest.json`** | Verify what you installed |
+| **Version & integrity** | Mismatched filenames, no checksums | Tag-synced version; **SHA256** + OTA **minisign `.sig`** + `latest.json` | Verify what you installed |
 | **Release cadence** | Wait for all platforms | **macOS ships first** (~10 min), Win/Linux follow async | Don’t wait for the slowest job |
+| **Website sync** | Manual site edits after release | **`website-v*` tag** bake + deploy + **post-deploy curl smoke** | Download page matches release automatically |
 | **Unsigned OSS macOS** | Users think the app is “broken” | Download page **right-click → Open** guidance | Gatekeeper expectations set clearly |
-| **In-app auto-update** | Often no GUI OTA or git pull only | **Production OTA** (minisign + 4-platform `latest.json`) + 8-phase in-app UI; pubkey safety check at startup | Silent in-app updates; myrmagent.ai/download for first install |
+| **In-app auto-update** | Often no GUI OTA or git pull only | **Production OTA** (minisign + 4-platform `latest.json`) + 8-phase in-app UI; pubkey safety check at startup | Silent in-app updates after first install |
 
 **Result: Day-one install goes from “understand GitHub” to “click Download” — the gate for mainstream users.**
 
