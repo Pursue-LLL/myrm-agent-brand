@@ -316,7 +316,7 @@ Myrm 技能进化（42 模块、原生内置）实现 Self-Improving Agent 研�
 | Prebuilt skill upgrade protection | ❌ Silent overwrite | ✅ **Three-way hash** — user edits preserved, "Update Available" badge |
 | Daily work journal | ❌ | ✅ 6-source aggregated daily timeline with date navigation |
 
-**vs ECC (Everything Claude Code) `continuous-learning-v2`：** ECC 在后台蒸馏原子化「本能」YAML 习惯 — 对高级用户强大，但其 v2.1 项目隔离仅有 2 级（git remote hash → 项目/全局），且 "2+ 项目出现自动晋升全局" 存在误报风险。Myrm 提供相同 *思路*（空闲蒸馏 → 技能提案）+ 架构级更强隔离：**5 级作用域层级**（GLOBAL > AGENT > CHANNEL > CONVERSATION > TASK）+ 命名空间 + 每 Agent CoW 进化。Agent 设置中的 **Insights Inbox** 确保提案保持草稿直至你批准；驳回写入负例以防重复提案；内置 Agent 在 inbox 只读。**2,214 项测试验证**（harness 1,872 + server 342）覆盖连续学习全链路。MCP 方面 Myrm 已提供 **GUI 启用前扫描 + 验证 + 运行时 fail-closed**（见下文 MCP 安全门）— 领先 Hermes 仅日志流；我们**尚未**提供 ECC 的 `/aside` 分叉聊天、`/context-budget` 树图或 102-hook 全量静态包（roadmap #6）。
+**vs ECC (Everything Claude Code) `continuous-learning-v2`：** ECC 在后台蒸馏原子化「本能」YAML 习惯 — 对高级用户强大，但其 v2.1 项目隔离仅有 2 级（git remote hash → 项目/全局），且 "2+ 项目出现自动晋升全局" 存在误报风险。Myrm 提供相同 *思路*（空闲蒸馏 → 技能提案）+ 架构级更强隔离：**5 级作用域层级**（GLOBAL > AGENT > CHANNEL > CONVERSATION > TASK）+ 命名空间 + 每 Agent CoW 进化。Agent 设置中的 **Insights Inbox** 确保提案保持草稿直至你批准；驳回写入负例以防重复提案；内置 Agent 在 inbox 只读。**3,519 项测试验证**覆盖技能注入、模型纪律、进化、搜索、安全全链路。MCP 方面 Myrm 已提供 **GUI 启用前扫描 + 验证 + 运行时 fail-closed**（见下文 MCP 安全门）— 领先 Hermes 仅日志流；我们**尚未**提供 ECC 的 `/aside` 分叉聊天、`/context-budget` 树图或 102-hook 全量静态包（roadmap #6）。
 
 ### 技能模块架构 — 八维优势
 
@@ -362,7 +362,7 @@ Myrm 技能进化（42 模块、原生内置）实现 Self-Improving Agent 研�
 | L4: GUI 审批 | 完整审批生命周期(approve/reject/revise/rollback) + 简洁/详细双视图 + 内置 Diff 编辑器 | 用户控制 | 仅 CLI |
 | L5: A/B 测试 | 影子测试(采样+worker pool+重试) + 95%阈值自动晋升 + 延迟比率限制 | 实证验证 | 无 |
 
-**核心洞察**：绝大多数技能是 Markdown SOP 提示词（如"审查代码时按以下步骤..."），无法为提示词编写确定性测试用例——我方 5 层管线通过互补验证类型优雅解决了这一问题。**2,214 项测试验证。**
+**核心洞察**：绝大多数技能是 Markdown SOP 提示词（如"审查代码时按以下步骤..."），无法为提示词编写确定性测试用例——我方 5 层管线通过互补验证类型优雅解决了这一问题。**3,519 项测试验证。**
 
 ### 进化透明化 — 6 个 GUI 面板 vs 平文本文件
 
