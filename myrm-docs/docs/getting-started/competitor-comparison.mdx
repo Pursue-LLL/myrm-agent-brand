@@ -15,7 +15,7 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 
 | Capability | Myrm | Hermes Agent (v0.15) | OpenClaw | 360 Security OpenClaw | OpenClacky | MiniMax Mavis | MemPalace |
 |------------|:----:|:------------:|:--------:|:---------:|:---------:|:-----:|:---------:|
-| **Memory System** | ✅ 8 types + knowledge graph + 30+ integrations + 12 import adapters + 15 diagnostics + Protocol-first SDK (1,850 tests) | ⚠️ 2,200 chars | ⚠️ 3 types | ⚠️ 3 types | ❌ Session-only | ⚠️ Basic update | ⚠️ Flat drawers |
+| **Memory System** | ✅ 8 types + knowledge graph + 30+ integrations + 12 import adapters + 15 diagnostics + Protocol-first SDK (2,492 tests) | ⚠️ 2,200 chars | ⚠️ 3 types | ⚠️ 3 types | ❌ Session-only | ⚠️ Basic update | ⚠️ Flat drawers |
 | **Conversation Search** | ✅ FTS5 + Qdrant hybrid | ⚠️ v0.15 local text only | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Code Search** | ✅ FTS5 + Vector + RRF fusion · `@codebase` · 15+ langs · CJK | ❌ grep only | ⚠️ tree-sitter exact match | ❌ | ❌ grep only | ❌ | ❌ |
 | **GUI Interface** | ✅ Web-native | ❌ CLI (v0.15 TUI multi-session) | CLI | ✅ Web/App | ⚠️ Basic WebUI | ⚠️ Lark-embedded | ❌ CLI only |
@@ -26,6 +26,7 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **Channels** | ✅ 26 channels + 3-tier Agent binding (Thread/Chat/Channel) + 6-dim identity isolation + IM Goal management (5,709 tests) | ~23 (no per-topic binding) | ~7 | ⚠️ Feishu/DingTalk | ⚠️ IM bots | ❌ Lark only | ❌ |
 | **Public Ingress guidance** | ✅ SSOT API + inbound/outbound badges + guided tunnel docs (cpolar/NATAPP/frp) | ❌ manual docs | Tailscale docs | ⚠️ bundled cloudflared docs | ❌ | ❌ | ❌ |
 | **Sub-Agent** | ✅ 6 modes + Dynamic Workflow | ⚠️ v0.15 Kanban Swarm (1 mode) | ⚠️ Basic spawn (linear only) | ⚠️ Basic spawn | ❌ Single agent | ⚠️ L-W-V | ❌ |
+| **External Agent (ACP)** | ✅ Dual-sided ACP: Server (IDE→Myrm) + Client (Myrm→Claude Code/Codex/Gemini) + 3 runtimes + pool + GUI config (386 tests) | ⚠️ Single-file Copilot adapter (686 lines, CLI only) | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Security** | ✅ 6-layer defense | ⚠️ v0.15 Promptware 3 chokepoints | 1 layer | ⚠️ Unknown | ⚠️ Basic sandbox | ⚠️ Closed | ❌ |
 | **Credential Vault** | ✅ Label inject + TOTP (browser + desktop) | ❌ Plaintext in tool args | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **WebUI Access Security** | ✅ Zero-Trust WebSocket + Secure Cookie | ⚠️ HTTP only, WS vulnerable | ⚠️ Basic JWT | ⚠️ Unknown | ⚠️ HTTP only | ⚠️ Closed SaaS | ❌ Open on LAN |
@@ -47,7 +48,9 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **Local File "Data Stays Local"** | ✅ Native — Agent runs locally, all files processed in-place | ❌ Cloud-only | ⚠️ Docker | ⚠️ Docker | ❌ Cloud | ❌ | ❌ |
 | **Scheduled Tasks** | ✅ 20+ GUI components + 27 config options + 4 trigger types + exponential retry + misfire recovery + agent binding + delivery (573 tests) | ⚠️ CLI limited (no GUI/retry/recovery) | ✅ | ✅ | ❌ | ❌ | ❌ |
 | **Unified Tool Gateway** | ✅ 4-in-1 Gateway + Elastic BYOK Fallback | ⚠️ Hard Switch (Error Prone) | ❌ N/A | ⚠️ Unknown | ❌ | ⚠️ Unknown | ❌ |
+| **OpenAI Compatible Proxy** | ✅ Dual-mode (Agent+LLM) `/v1` endpoint + `/v1/models` auto-discovery + 4-strategy key rotation + GUI config templates for Aider/Cline/Continue (74 tests) | ⚠️ `/v1/chat/completions` (Agent only, no LLM passthrough, no model discovery) | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Voice** | ✅ STT + TTS + Real-time | ⚠️ Discord Voice | WebRTC | ⚠️ Basic | ❌ | ❌ | ❌ |
+| **Multimodal Generation** | ✅ Image (20+ models + Failover + Edit) + Video (4 engines: Sora/Veo/Qwen/MiniMax + T2V/I2V/V2V + idempotent task mgmt) + TTS (5 providers incl. free Edge + streaming + long-text auto-summary) — 553 tests | ⚠️ FAL.ai images + 2 video plugins + 10 TTS (5 niche local) | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Computer Use** | ✅ Desktop automation + background input (no focus-steal) + BBox approval + Tauri OS overlay + Native API routing (AppleScript/COM/D-Bus auto-detection) | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Browser Engine** | ✅ 3-layer engine + GlobalBrowserPool (zero cold-start, 3-layer crash recovery) + Shadow DOM penetration + API-First network intelligence (CDP lazy body + replay) + domain engine affinity memory + origin-based smart tab routing | ⚠️ Cloud Browser Use | ❌ | ❌ | ❌ | ⚠️ Unknown | ❌ |
 | **Web Search** | ✅ 8 engines + BM25/Reranker filter | ⚠️ Cloud API passthrough | ⚠️ DDG/Bing scrape | ⚠️ Same as OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
@@ -167,6 +170,7 @@ While competitors rely on single-mode orchestration (e.g., Hermes' Kanban Swarm,
 | **Tool Isolation** | ⚠️ Basic global scope | **5-Layer Fence** (Type, Blocklist, Config, Intersection, Role) | Complete prevention of child agents escalating privileges or executing unauthorized tools. |
 | **Budget Control** | ⚠️ Token limit only | **4D Budget** (Tokens, USD, Time, Descendants) | Perfect predictability for cost and execution depth. Zero bill shock. |
 | **Execution Verification** | ❌ None | **CompletionGuard** (Evidence-based) | Children must prove task completion with actual STDOUT/STDERR, not just say "I'm done". |
+| **Handoffs (Control Transfer)** | ❌ None (OpenAI Swarm: demo-only `transfer_to_agent`) | **run_chain** (A→B→C relay) + **delegate_task_tool** (dynamic routing) + **handoff_chat** (cross-platform session transfer) + **context_mode:"fork"** (controlled context inheritance) | Full relay-race semantics without compromising security boundaries. 733 tests verified. |
 
 **Result: Myrm replaces the "prompt and pray" multi-agent paradigm with deterministic software engineering patterns. Your multi-agent pipelines execute reliably, securely, and within budget every single time.**
 
@@ -312,7 +316,7 @@ Myrm's Skill Evolution System (42 modules, native built-in) implements all engin
 | Prebuilt skill upgrade protection | ❌ Silent overwrite | ✅ **Three-way hash** — user edits preserved, "Update Available" badge |
 | Daily work journal | ❌ | ✅ 6-source aggregated daily timeline with date navigation |
 
-**vs ECC (Everything Claude Code) `continuous-learning-v2`:** ECC distills atomic "instinct" YAML habits in the background — powerful for power users, but their v2.1 project scoping relies on a simple 2-level system (git remote hash → project vs global), with auto-promotion when an instinct appears in 2+ projects (false-positive risk). Myrm ships the same *idea* (idle distillation → skill proposals) with architecturally superior isolation: **5-level scope hierarchy** (GLOBAL > AGENT > CHANNEL > CONVERSATION > TASK) + namespace system + per-agent CoW evolution. The **Insights Inbox** in Agent settings ensures proposals stay drafts until you approve; dismiss persists a negative exemplar so the agent stops re-proposing; built-in agents are read-only in the inbox. Verified with **1022 tests** (668 harness + 354 server) covering the full continuous learning pipeline. For MCP, Myrm now ships **GUI pre-enable scan + verify + runtime fail-closed** (see MCP Security Gate below) — ahead of Hermes log-only flows; we still do **not** ship ECC's `/aside` fork chats, `/context-budget` tree-map, or 102-hook full static packs (roadmap #6).
+**vs ECC (Everything Claude Code) `continuous-learning-v2`:** ECC distills atomic "instinct" YAML habits in the background — powerful for power users, but their v2.1 project scoping relies on a simple 2-level system (git remote hash → project vs global), with auto-promotion when an instinct appears in 2+ projects (false-positive risk). Myrm ships the same *idea* (idle distillation → skill proposals) with architecturally superior isolation: **5-level scope hierarchy** (GLOBAL > AGENT > CHANNEL > CONVERSATION > TASK) + namespace system + per-agent CoW evolution. The **Insights Inbox** in Agent settings ensures proposals stay drafts until you approve; dismiss persists a negative exemplar so the agent stops re-proposing; built-in agents are read-only in the inbox. Verified with **2,214 tests** (1,872 harness + 342 server) covering the full continuous learning pipeline. For MCP, Myrm now ships **GUI pre-enable scan + verify + runtime fail-closed** (see MCP Security Gate below) — ahead of Hermes log-only flows; we still do **not** ship ECC's `/aside` fork chats, `/context-budget` tree-map, or 102-hook full static packs (roadmap #6).
 
 ### Skill Module Architecture — 8-Dimension Advantage
 
@@ -358,7 +362,7 @@ Competitor proposals suggest users write manual `validator/*.md` test cases for 
 | L4: GUI Approval | Full approval lifecycle (approve/reject/revise/rollback) with Simple/Detailed dual-view + inline Diff editor | User Control | CLI only |
 | L5: A/B Testing | Shadow testing (sampling + worker pool + retry) + Auto-Promote at 95% threshold + latency ratio cap | Empirical Evidence | None |
 
-**Key insight**: Most skills are Markdown SOP prompts (e.g., "When reviewing code, follow these steps..."). You cannot write deterministic test cases for prompt guidance — our 5-layer pipeline solves this elegantly through complementary validation types. **921 tests verified.**
+**Key insight**: Most skills are Markdown SOP prompts (e.g., "When reviewing code, follow these steps..."). You cannot write deterministic test cases for prompt guidance — our 5-layer pipeline solves this elegantly through complementary validation types. **2,214 tests verified.**
 
 ### Evolution Transparency — 6 GUI Panels vs Flat File
 
@@ -840,7 +844,7 @@ Competitors like Codex and Claude Code output plain Markdown tables when working
 | Artifact version management | SHA-256 integrity verification + version history | None |
 | Cross-session data analysis | pandas + SQLite persistence in sandbox | No persistence |
 
-**Path 1 — Generative UI (zero-code)**: The agent renders 21 built-in component types (UIChart, UITable, UIProgress, UIBadge, UICard, UIGrid, UITabs, and more) via SSE events. Users see rich data visualizations without writing a single line of code.
+**Path 1 — Generative UI (zero-code)**: The agent renders 24 built-in component types (UIChart, UITable, UIProgress, UIBadge, UICard, UIGrid, UITabs, and more) via SSE events — secured by front-end + back-end dual whitelist, with 8 validation rules, i18n support, and conditional rendering. Users see rich interactive data visualizations without writing a single line of code.
 
 **Path 2 — React Artifact (full-feature)**: For complex visualizations, the agent generates custom React components using Recharts, Echarts, D3, or Chart.js. These render in a Sandpack-powered live preview with code editing, console output, and Tailwind CSS support.
 

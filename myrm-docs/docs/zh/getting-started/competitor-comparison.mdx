@@ -15,7 +15,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 | 能力 | Myrm | Hermes Agent (v0.15) | OpenClaw | 360 Security OpenClaw | OpenClacky | MiniMax Mavis | MemPalace |
 |------------|:----:|:------------:|:--------:|:---------:|:---------:|:-----:|:---------:|
-| **记忆系统** | ✅ 8 类 + 知识图谱 + 30+ 源集成 + 12 种竞品导入 + 15 种诊断 + Protocol-first SDK（1,850 项测试） | ⚠️ 2,200 字符 | ⚠️ 3 类 | ⚠️ 3 类 | ❌ 仅会话 | ⚠️ 基础更新 | ⚠️ 扁平抽屉 |
+| **记忆系统** | ✅ 8 类 + 知识图谱 + 30+ 源集成 + 12 种竞品导入 + 15 种诊断 + Protocol-first SDK（2,492 项测试） | ⚠️ 2,200 字符 | ⚠️ 3 类 | ⚠️ 3 类 | ❌ 仅会话 | ⚠️ 基础更新 | ⚠️ 扁平抽屉 |
 | **对话搜索** | ✅ FTS5 + Qdrant 混合 | ⚠️ v0.15 仅本地文本 | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **代码搜索** | ✅ FTS5 + Vector + RRF 融合 · `@codebase` · 15+ 语言 · CJK | ❌ 仅 grep | ⚠️ tree-sitter 精确匹配 | ❌ | ❌ 仅 grep | ❌ | ❌ |
 | **GUI 界面** | ✅ Web 原生 | ❌ CLI（v0.15 TUI 多会话） | CLI | ✅ Web/App | ⚠️ 基础 WebUI | ⚠️ 飞书嵌入 | ❌ 仅 CLI |
@@ -26,11 +26,12 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **渠道** | ✅ 26 渠道 + 三级 Agent 绑定（Thread/Chat/Channel）+ 六维身份隔离 + IM Goal 管理（5,709 测试） | ~23（无 Topic 级绑定） | ~7 | ⚠️ 飞书/钉钉 | ⚠️ IM 机器人 | ❌ 仅飞书 | ❌ |
 | **公网 Ingress 引导** | ✅ SSOT API + 入站/出站徽章 + 自选穿透文档（cpolar/NATAPP/frp） | ❌ 纯文档 | Tailscale 文档 | ⚠️ 文档教 cloudflared | ❌ | ❌ | ❌ |
 | **子 Agent** | ✅ 6 模式 + 动态工作流 | ⚠️ v0.15 Kanban Swarm（1 模式） | ⚠️ 基础 spawn（仅线性） | ⚠️ 基础 spawn | ❌ 单 Agent | ⚠️ L-W-V | ❌ |
+| **外部 Agent (ACP)** | ✅ 双边 ACP：Server（IDE→Myrm）+ Client（Myrm→Claude Code/Codex/Gemini）+ 3 种 Runtime + 池化 + GUI 配置（386 项测试） | ⚠️ 单文件 Copilot 适配器（686 行，仅 CLI） | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **安全** | ✅ 6 层防御 | ⚠️ v0.15 Promptware 3 卡口 | 1 层 | ⚠️ 未知 | ⚠️ 基础沙箱 | ⚠️ 闭源 | ❌ |
 | **凭证库** | ✅ 标签注入 + TOTP（浏览器 + 桌面） | ❌ 工具参数明文 | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **WebUI 访问安全** | ✅ 零信任 WebSocket + 安全 Cookie | ⚠️ 仅 HTTP，WS 脆弱 | ⚠️ 基础 JWT | ⚠️ 未知 | ⚠️ 仅 HTTP | ⚠️ 闭源 SaaS | ❌ LAN 裸奔 |
 | **目标模式** | ✅ 7 状态 + 4D 预算 | /goal | ❌ | ❌ | ❌ | ⚠️ 计划审批 | ❌ |
-| **上下文管理** | ✅ 6 层 Prompt Cache + 22+ 中间件 + 8 层压缩流水线 + 数据库级会话压缩持久化（CAS MVCC + 备份 + 五维归档导出）+ 确定性回退 + 熔断降级（960 项测试） | ⚠️ system_and_3（4 断点）+ 8 层固定栈 + 单层 ContextCompressor（内存态，无 DB 持久化） | LCM | LCM | ⚠️ 空闲压缩 + 双缓存 | ⚠️ Worker 隔离 | ⚠️ 4 层栈 |
+| **上下文管理** | ✅ 6 层 Prompt Cache + 22+ 中间件 + 8 层压缩流水线 + 数据库级会话压缩持久化（CAS MVCC + 备份 + 五维归档导出）+ 确定性回退 + 熔断降级（972 项测试） | ⚠️ system_and_3（4 断点）+ 8 层固定栈 + 单层 ContextCompressor（内存态，无 DB 持久化） | LCM | LCM | ⚠️ 空闲压缩 + 双缓存 | ⚠️ Worker 隔离 | ⚠️ 4 层栈 |
 | **智能并发路由** | ✅ O(1) 路径锁，零读写竞态 | ⚠️ 仅粗粒度写锁 | ❌ 不安全 | ⚠️ 未知 | ❌ | ⚠️ 未知 | ❌ |
 | **无头无人值守** | ✅ 标签工具隔离（零死锁） | ⚠️ 易交互死锁 | ❌ 不支持 | ❌ | ❌ | ❌ | ❌ |
 | **极端防爆** | ✅ 4 层护城河（卫生/护盾/剥离/预算） | ⚠️ 大负载崩溃/丢失 | ⚠️ 单点失败 | ⚠️ 未知 | ⚠️ 基础限制 | ⚠️ 未知 | ❌ |
@@ -47,7 +48,9 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **本地文件"数据不出域"** | ✅ 天然支持 — Agent 在本地运行，所有文件原地处理 | ❌ 仅云端 | ⚠️ Docker | ⚠️ Docker | ❌ 云端 | ❌ | ❌ |
 | **定时任务** | ✅ 20+ GUI 组件 + 27 项配置能力 + 4 种触发器 + 指数退避重试 + 误火恢复 + Agent 绑定 + 结果投递（573 项测试） | ⚠️ CLI 基础 cron（无GUI/无重试/无恢复） | ✅ | ✅ | ❌ | ❌ | ❌ |
 | **统一工具网关** | ✅ 四合一网关 + 弹性 BYOK 回退 | ⚠️ 硬切换（易出错） | ❌ N/A | ⚠️ 未知 | ❌ | ⚠️ 未知 | ❌ |
+| **OpenAI 兼容代理** | ✅ 双模（Agent+LLM）`/v1` 端点 + `/v1/models` 自动发现 + 4 策略密钥轮转 + Aider/Cline/Continue GUI 配置模板（74 项测试） | ⚠️ `/v1/chat/completions`（仅 Agent，无 LLM 直通，无模型发现） | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **语音** | ✅ STT + TTS + 实时 | ⚠️ Discord 语音 | WebRTC | ⚠️ 基础 | ❌ | ❌ | ❌ |
+| **多模态生成** | ✅ 图片（20+ 模型 + Failover + 编辑）+ 视频（4 引擎：Sora/Veo/Qwen/MiniMax + T2V/I2V/V2V + 幂等任务管理）+ TTS（5 Provider 含免费 Edge + 流式 + 长文本自动摘要）— 553 项测试 | ⚠️ FAL.ai 图片 + 2 视频插件 + 10 TTS（含 5 个 niche 本地方案） | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Computer Use** | ✅ 桌面自动化 + 后台静默输入（不抢焦点）+ BBox 审批 + Tauri OS 叠加层 + 原生 API 智能路由（AppleScript/COM/D-Bus 自动检测） | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **浏览器引擎** | ✅ 三层引擎 + GlobalBrowserPool（零冷启动、三层崩溃恢复）+ Shadow DOM 穿透 + API-First 网络智能（CDP 懒加载响应体 + 请求重放）+ 域名引擎亲和记忆 + 同源智能Tab路由 | ⚠️ 第三方云浏览器 | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
 | **网页搜索** | ✅ 8 引擎 + BM25/Reranker 过滤 | ⚠️ 云 API 透传 | ⚠️ DDG/Bing 抓取 | ⚠️ 同 OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
@@ -167,6 +170,7 @@ Myrm 以奥卡姆剃刀式 WebUI 安全方案，解决本地优先部署的「�
 | **Tool Isolation** | ⚠️ Basic global scope | **5-Layer Fence** (Type, Blocklist, Config, Intersection, Role) | Complete prevention of child agents escalating privileges or executing unauthorized tools. |
 | **Budget Control** | ⚠️ Token limit only | **4D Budget** (Tokens, USD, Time, Descendants) | Perfect predictability for cost and execution depth. Zero bill shock. |
 | **Execution Verification** | ❌ None | **CompletionGuard** (Evidence-based) | Children must prove task completion with actual STDOUT/STDERR, not just say "I'm done". |
+| **Handoffs（控制权转移）** | ❌ 无（OpenAI Swarm 仅 Demo 级 `transfer_to_agent`） | **run_chain**（A→B→C 接力赛）+ **delegate_task_tool**（动态路由）+ **handoff_chat**（跨平台会话交接）+ **context_mode:"fork"**（可控上下文继承） | 完整的接力赛语义，不牺牲安全边界。733 项测试验证。 |
 
 **结论：Myrm 用确定性软件工程模式取代「提示并祈祷」式多 Agent。流水线每次可靠、安全、在预算内执行。**
 
@@ -312,7 +316,7 @@ Myrm 技能进化（42 模块、原生内置）实现 Self-Improving Agent 研�
 | Prebuilt skill upgrade protection | ❌ Silent overwrite | ✅ **Three-way hash** — user edits preserved, "Update Available" badge |
 | Daily work journal | ❌ | ✅ 6-source aggregated daily timeline with date navigation |
 
-**vs ECC (Everything Claude Code) `continuous-learning-v2`：** ECC 在后台蒸馏原子化「本能」YAML 习惯 — 对高级用户强大，但其 v2.1 项目隔离仅有 2 级（git remote hash → 项目/全局），且 "2+ 项目出现自动晋升全局" 存在误报风险。Myrm 提供相同 *思路*（空闲蒸馏 → 技能提案）+ 架构级更强隔离：**5 级作用域层级**（GLOBAL > AGENT > CHANNEL > CONVERSATION > TASK）+ 命名空间 + 每 Agent CoW 进化。Agent 设置中的 **Insights Inbox** 确保提案保持草稿直至你批准；驳回写入负例以防重复提案；内置 Agent 在 inbox 只读。**1022 项测试验证**（harness 668 + server 354）覆盖连续学习全链路。MCP 方面 Myrm 已提供 **GUI 启用前扫描 + 验证 + 运行时 fail-closed**（见下文 MCP 安全门）— 领先 Hermes 仅日志流；我们**尚未**提供 ECC 的 `/aside` 分叉聊天、`/context-budget` 树图或 102-hook 全量静态包（roadmap #6）。
+**vs ECC (Everything Claude Code) `continuous-learning-v2`：** ECC 在后台蒸馏原子化「本能」YAML 习惯 — 对高级用户强大，但其 v2.1 项目隔离仅有 2 级（git remote hash → 项目/全局），且 "2+ 项目出现自动晋升全局" 存在误报风险。Myrm 提供相同 *思路*（空闲蒸馏 → 技能提案）+ 架构级更强隔离：**5 级作用域层级**（GLOBAL > AGENT > CHANNEL > CONVERSATION > TASK）+ 命名空间 + 每 Agent CoW 进化。Agent 设置中的 **Insights Inbox** 确保提案保持草稿直至你批准；驳回写入负例以防重复提案；内置 Agent 在 inbox 只读。**2,214 项测试验证**（harness 1,872 + server 342）覆盖连续学习全链路。MCP 方面 Myrm 已提供 **GUI 启用前扫描 + 验证 + 运行时 fail-closed**（见下文 MCP 安全门）— 领先 Hermes 仅日志流；我们**尚未**提供 ECC 的 `/aside` 分叉聊天、`/context-budget` 树图或 102-hook 全量静态包（roadmap #6）。
 
 ### 技能模块架构 — 八维优势
 
@@ -358,7 +362,7 @@ Myrm 技能进化（42 模块、原生内置）实现 Self-Improving Agent 研�
 | L4: GUI 审批 | 完整审批生命周期(approve/reject/revise/rollback) + 简洁/详细双视图 + 内置 Diff 编辑器 | 用户控制 | 仅 CLI |
 | L5: A/B 测试 | 影子测试(采样+worker pool+重试) + 95%阈值自动晋升 + 延迟比率限制 | 实证验证 | 无 |
 
-**核心洞察**：绝大多数技能是 Markdown SOP 提示词（如"审查代码时按以下步骤..."），无法为提示词编写确定性测试用例——我方 5 层管线通过互补验证类型优雅解决了这一问题。**921 项测试验证。**
+**核心洞察**：绝大多数技能是 Markdown SOP 提示词（如"审查代码时按以下步骤..."），无法为提示词编写确定性测试用例——我方 5 层管线通过互补验证类型优雅解决了这一问题。**2,214 项测试验证。**
 
 ### 进化透明化 — 6 个 GUI 面板 vs 平文本文件
 
@@ -757,7 +761,7 @@ MemPalace 是独立 AI 记忆系统，用 Wing/Room/Closet/Drawer 建筑隐喻�
 | Artifact 版本管理 | SHA-256 完整性验证 + 版本历史 | 无 |
 | 跨会话数据分析 | pandas + SQLite 沙箱持久化 | 无持久化 |
 
-**路径 1 — Generative UI（零代码）**：Agent 通过 SSE 事件渲染 21 种内置组件（UIChart、UITable、UIProgress、UIBadge、UICard、UIGrid、UITabs 等），用户无需写代码即可看到丰富的数据可视化。
+**路径 1 — Generative UI（零代码）**：Agent 通过 SSE 事件渲染 24 种内置组件（UIChart、UITable、UIProgress、UIBadge、UICard、UIGrid、UITabs 等），前后端双重白名单安全保障 + 8 种验证规则 + i18n 国际化 + 条件渲染，用户无需写代码即可看到丰富的交互式数据可视化。
 
 **路径 2 — React Artifact（全功能）**：复杂可视化场景，Agent 生成自定义 React 组件，使用 Recharts/Echarts/D3/Chart.js，在 Sandpack 实时预览中支持代码编辑、控制台输出和 Tailwind CSS。
 
@@ -1067,7 +1071,7 @@ Myrm 从底层架构上彻底碾压了这些痛点，让用户能毫无顾虑地
 | 维度 | WeSight | Myrm | 用户收益 |
 |------|---------|------|-------------|
 | **跨平台原生部署** | 仅支持 Mac，Win/Linux 缺失 | **Tauri 原生编译 + SaaS/Local 三端** | 告别“不支持 Windows”的烦恼，全平台一致体验。 |
-| **外部 Agent 检测** | 需配置繁琐的环境 | **BackendDetector + WSL 穿透探针** | 在 Windows 也能智能探测并一键加载 WSL 中的 CLI 代理。 |
+| **外部 Agent 集成** | 需配置繁琐的环境变量 | **ACP 双边架构 + Claude Code SDK 深度集成 + GUI 配置** | 内置 Agent 覆盖 95%+ 场景；Claude Code 通过 SDK 直连获得类型安全的深度集成体验，无需手动配置。 |
 | **团队协作上下文** | 智能体间上下文强制隔离 | **Global Context Mesh + 隔离双切** | 共享底层向量库，不仅能无缝继承历史记录省 Token，还提供严格防污染模式开关。 |
 | **多 Agent 通信** | 依赖系统作为中心化指挥器 | **P2P 对等智能体通信协议** | Agent 间可直接“@”互相交流，效率与协同度成倍提升。 |
 | **全息工作流监控** | “桌面宠物”等非工作流强相关的展示 | **Swarm DAG (多节点动态连线图) + 差异大盘** | 剔除低幼向功能，以极客级的可视化图表直观展示算力去向、实时 TPS 与文件 Diff。 |
