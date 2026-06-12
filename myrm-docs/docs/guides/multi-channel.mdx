@@ -135,3 +135,35 @@ Start a task on your desktop, check progress from your phone, manage tasks via `
 ## Cross-Platform Handoff
 
 Transfer a conversation from one platform to another without losing context. Use the `/handoff` command in any IM channel or the "Transfer to..." menu in Web UI. The handoff is instant (single DB update, millisecond latency) and preserves the full prompt cache.
+
+## Channel Self-Healing & Reliability
+
+Every channel runs under a **ChannelGateway** that continuously monitors health and automatically recovers from failures — no human intervention required.
+
+### Health Loop
+
+The gateway runs a periodic health check cycle (60s interval). If a channel fails two consecutive checks, it enters **DEGRADED** status and triggers the self-healing pipeline:
+
+1. **Exponential backoff** — restart delay grows from 5s to 300s max, preventing resource thrashing
+2. **Jitter** — 25% random variation prevents thundering herd when multiple channels fail simultaneously
+3. **Full restart** — executes `stop()` (releases all handles) then `start()` (fresh initialization)
+4. **Status broadcast** — frontend `ConnectionBadge` updates in real-time via EventEmitter
+
+### Message Recovery (InboundJournal)
+
+Messages received during a crash window are **never lost**. The `InboundJournal` persists incoming messages before processing. On restart, unprocessed entries are automatically replayed through the routing pipeline — the user never knows a crash happened.
+
+### Dead Letter Queue
+
+Messages that fail delivery after multiple retries are moved to a DLQ with full metadata. They can be inspected, retried, or archived — nothing disappears silently.
+
+### Generic Reconnect Loop
+
+WebSocket-based channels (Discord, Slack, Feishu, etc.) share a common `reconnect_loop` utility with exponential backoff and jitter. This provides consistent, battle-tested reconnection behavior across all long-lived connections.
+
+### What This Means for Users
+
+- **Zero-downtime experience** — temporary network issues or platform outages resolve themselves
+- **No lost messages** — even if the server crashes, pending messages are recovered on restart
+- **Visible status** — channel health is always visible in Settings > Channels via color-coded badges
+- **No manual restarts** — channels heal themselves; you only see the result, not the recovery process
