@@ -504,6 +504,17 @@ Each agent has four independent browser configuration axes, all configurable in 
 | **Extension** | Uses your real browser via the Extension Bridge | Shopping, social media, any task needing login state |
 | **Launch** | Spins up a fresh managed browser instance | Research, data extraction, testing |
 
+### Hybrid URL Routing (Cloud/SaaS)
+
+When running in cloud mode, agents cannot directly access your private network (localhost, 192.168.x.x, internal services). Myrm automatically detects private URLs and routes them through the Extension Bridge:
+
+- **Public URLs** (google.com, github.com) → handled by the cloud sandbox browser (normal, fast)
+- **Private URLs** (localhost:3000, jira.internal, 192.168.1.1) → transparently routed through your Extension Bridge
+
+This means your cloud-hosted agent can interact with local development servers, internal dashboards, and corporate tools — all through your already-logged-in browser. No VPN tunnels, no ngrok, no public exposure of internal services.
+
+If the Extension Bridge is not connected when a private URL is encountered, the agent will inform you and suggest installing the extension.
+
 ### How to Configure
 
 1. **Agent Creation**: Settings → Agents → Create/Edit → Capability Config
