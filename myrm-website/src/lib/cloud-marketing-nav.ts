@@ -1,5 +1,12 @@
 /**
- * Cloud page navigation links.
+ * [INPUT]
+ * - next-intl cloud.nav keys
+ *
+ * [OUTPUT]
+ * - buildCloudNavLinks: SaaS 页 Nav 链接列表
+ *
+ * [POS]
+ * 云页 Nav DRY 定义，防止 LandingCloud / CloudShell 漂移。
  */
 export type CloudNavLink = {
   href: string;

@@ -1,3 +1,15 @@
+/**
+ * [INPUT]
+ * - components/i18n/LocaleRootProvider.tsx (POS: 客户端 locale 切换与消息注入)
+ * - i18n/config.ts (POS: locale 常量 SSOT)
+ * - lib/landing-fonts.ts (POS: Landing 字体 className)
+ *
+ * [OUTPUT]
+ * - RootLayout: 全局 HTML 壳层、ThemeProvider、站点级 metadata
+ *
+ * [POS]
+ * App Router 根布局。
+ */
 import type { Metadata } from 'next';
 import { ThemeProvider } from 'next-themes';
 

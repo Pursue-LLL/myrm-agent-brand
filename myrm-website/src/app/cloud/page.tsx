@@ -1,3 +1,14 @@
+/**
+ * [INPUT]
+ * - components/marketing/cloud/LandingCloud.tsx (POS: SaaS 页编排)
+ * - next-intl metadata keys
+ *
+ * [OUTPUT]
+ * - CloudPage: `/cloud` SaaS Landing（上线前 noindex）
+ *
+ * [POS]
+ * SaaS 营销页路由入口。详见 DUAL_PAGE_SYSTEM.md。
+ */
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import LandingCloud from '@/components/marketing/cloud/LandingCloud';

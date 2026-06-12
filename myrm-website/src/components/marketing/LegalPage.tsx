@@ -1,3 +1,13 @@
+/**
+ * [INPUT]
+ * - components/marketing/MarketingShell.tsx (POS: 非 Landing 营销页的共享壳层)
+ *
+ * [OUTPUT]
+ * - LegalPage: 法务页 section 排版（标题、更新日期、intro、多段正文）
+ *
+ * [POS]
+ * 法务页通用排版。Privacy / Terms / Refund 共用。
+ */
 'use client';
 
 import MarketingShell from '@/components/marketing/MarketingShell';

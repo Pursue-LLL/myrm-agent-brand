@@ -1,7 +1,7 @@
 /**
  * [INPUT]
  * - download/CliInstallFallback (POS: 无桌面安装包时的一行命令安装面板)
- * - download/DesktopReleaseProvider (POS: 桌面 release 元数据 React 上下文)
+ * - download/DesktopReleaseProvider (POS: 桌面 release React 上下文边界)
  * - lib/desktop-release.ts (POS: 桌面端安装包元数据单一入口)
  *
  * [OUTPUT]

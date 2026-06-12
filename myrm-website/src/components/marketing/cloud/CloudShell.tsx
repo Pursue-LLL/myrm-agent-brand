@@ -1,5 +1,14 @@
 /**
- * Cloud SaaS landing page shell (header + footer).
+ * [INPUT]
+ * - lib/cloud-marketing-nav.ts (POS: 云页 Nav DRY 定义)
+ * - lib/cloud-paths.ts (POS: 云页 App 跳转助手)
+ * - hooks/useDocsLocale.ts (POS: App locale → docs locale)
+ *
+ * [OUTPUT]
+ * - CloudShell: SaaS 页顶栏 + 页脚壳层
+ *
+ * [POS]
+ * `/cloud` 页面 chrome，与 OSS MarketingShell 分离。
  */
 'use client';
 

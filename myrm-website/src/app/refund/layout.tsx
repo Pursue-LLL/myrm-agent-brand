@@ -1,3 +1,13 @@
+/**
+ * [INPUT]
+ * - next-intl metadata keys
+ *
+ * [OUTPUT]
+ * - RefundLayout: 退款页 metadata 包装（noindex）
+ *
+ * [POS]
+ * `/refund` 路由布局（透传 children）。
+ */
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 

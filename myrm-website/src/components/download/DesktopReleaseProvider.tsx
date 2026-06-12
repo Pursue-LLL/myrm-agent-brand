@@ -7,7 +7,7 @@
  * - DesktopReleaseProvider, useDesktopRelease: 单页共享 release 状态，避免重复 fetch
  *
  * [POS]
- * 桌面下载 UI 的 React Context 边界。
+ * 桌面 release React 上下文边界。单页共享 fetch 状态。
  */
 'use client';
 

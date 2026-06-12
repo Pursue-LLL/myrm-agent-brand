@@ -1,5 +1,15 @@
 /**
- * Cloud SaaS landing page — conversion-focused, distinct from open-source `/`.
+ * [INPUT]
+ * - cloud/CloudShell.tsx (POS: SaaS 页顶栏与页脚)
+ * - landing/WorkspacePreview.tsx (POS: 双页共用产品预览)
+ * - lib/cloud-paths.ts (POS: 云页 App 跳转助手)
+ * - cloud/cloud-marketing-keys.ts (POS: 云页 i18n 键契约)
+ *
+ * [OUTPUT]
+ * - LandingCloud: `/cloud` SaaS 页区块编排
+ *
+ * [POS]
+ * SaaS 营销页主编排组件。详见 DUAL_PAGE_SYSTEM.md。
  */
 'use client';
 

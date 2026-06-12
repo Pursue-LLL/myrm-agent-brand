@@ -1,5 +1,12 @@
 /**
- * Cloud marketing site URL helpers (SaaS page only).
+ * [INPUT]
+ * - lib/deploy-mode.ts::getAppUrl (POS: 营销站外部链接统一入口)
+ *
+ * [OUTPUT]
+ * - getCloudLoginHref / getCloudRegisterHref / getCloudBillingHref: SaaS App URL + UTM
+ *
+ * [POS]
+ * 云页 App 跳转助手。仅 `/cloud` 使用，与 deploy-paths 隔离。
  */
 import type { DocsLocale } from '@/lib/docs-contract';
 import { getAppUrl } from '@/lib/deploy-mode';

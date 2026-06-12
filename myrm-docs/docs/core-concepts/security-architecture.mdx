@@ -276,6 +276,16 @@ Team agents export recursively — all member configs are included with credenti
 The `auth.type` field is preserved so the importer knows which authentication method to configure (e.g. "api_key", "bearer", "oauth2").
 </Note>
 
+### Privacy-safe Rule Sharing
+
+When sharing procedural memory rules (e.g., with teammates or the community), additional privacy layers are applied automatically:
+
+- **Path anonymization** — user home directory paths are replaced with `<USER>` placeholders
+- **Credential redaction** — API keys and secrets are truncated to safe prefixes (e.g., `sk-pro...f456`)
+- **Metadata stripping** — timestamps, update counts, and internal IDs are removed from exported rules
+
+This ensures no personally identifiable file paths or credentials can leak through shared rules. See [Memory System → Privacy-safe Rule Sharing](/core-concepts/memory-system#privacy-safe-rule-sharing) for full details.
+
 ## Audit Trail
 
 ### Structured Audit Trail

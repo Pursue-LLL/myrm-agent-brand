@@ -1,6 +1,13 @@
 /**
- * CI build step: fetch latest GitHub release and write public/desktop-release.json
- * for instant same-origin load on the static marketing site.
+ * [INPUT]
+ * - lib/desktop-release.ts (POS: 桌面端安装包元数据单一入口)
+ * - GITHUB_TOKEN / DESKTOP_VERSION / WEBSITE_RELEASE_TAG 环境变量
+ *
+ * [OUTPUT]
+ * - public/desktop-release.json: 构建时 baked manifest，供静态 export 首屏加载
+ *
+ * [POS]
+ * 构建链 bake 步骤。CI 与本地 build 前拉取 GitHub Releases 并写入同域 manifest。
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';

@@ -1,3 +1,13 @@
+/**
+ * [INPUT]
+ * - NEXT_PUBLIC_SITE_URL 环境变量
+ *
+ * [OUTPUT]
+ * - sitemap(): `/sitemap.xml` 静态路由（不含 `/cloud` 直至上线）
+ *
+ * [POS]
+ * SEO sitemap 生成器。云页上线时加入 `/cloud`，见 DUAL_PAGE_SYSTEM.md。
+ */
 import type { MetadataRoute } from 'next';
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://myrmagent.ai';

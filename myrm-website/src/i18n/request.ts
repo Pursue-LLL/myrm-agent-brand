@@ -1,3 +1,14 @@
+/**
+ * [INPUT]
+ * - i18n/config.ts (POS: locale 配置单一入口)
+ * - locales/en.json、locales/zh.json
+ *
+ * [OUTPUT]
+ * - getRequestConfig: next-intl 服务端消息加载（静态 export 固定 defaultLocale）
+ *
+ * [POS]
+ * next-intl 构建时请求配置。运行时切换由 LocaleRootProvider 负责。
+ */
 import { getRequestConfig } from 'next-intl/server';
 
 import enMessages from '#locales/en.json';

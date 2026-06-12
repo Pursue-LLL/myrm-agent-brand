@@ -1,3 +1,13 @@
+/**
+ * [INPUT]
+ * - next/font/google
+ *
+ * [OUTPUT]
+ * - landingFontClassName: Landing 字体 CSS 变量 className
+ *
+ * [POS]
+ * Landing 字体加载。根 layout 挂载 Newsreader / Outfit / JetBrains Mono。
+ */
 import { JetBrains_Mono, Newsreader, Outfit } from 'next/font/google';
 
 export const landingSerif = Newsreader({

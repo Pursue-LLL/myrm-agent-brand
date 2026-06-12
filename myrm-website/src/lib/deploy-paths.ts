@@ -8,7 +8,7 @@
  *
  * [POS]
  * Single source of truth for Tauri / Local WebUI deployment paths on the marketing site.
- * Default path: `tauri` (desktop-first). Cloud-hosted (SaaS) paths omitted — see docs/CLOUD_HOSTING_RESTORE.md.
+ * Default path: `tauri` (desktop-first). Cloud-hosted (SaaS) paths omitted — see DUAL_PAGE_SYSTEM.md.
  */
 import { LOCAL_DEPLOY_DOCS_PATH, type DocsLocale } from '@/lib/docs-contract';
 import { getDesktopDownloadPath, getDocsUrl } from '@/lib/deploy-mode';

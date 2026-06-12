@@ -1,3 +1,14 @@
+/**
+ * [INPUT]
+ * - components/marketing/LandingEditorial.tsx (POS: 开源首页编排)
+ * - next-intl metadata keys
+ *
+ * [OUTPUT]
+ * - HomePage: `/` 开源 Landing 路由
+ *
+ * [POS]
+ * App Router 首页入口。
+ */
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import LandingEditorial from '@/components/marketing/LandingEditorial';

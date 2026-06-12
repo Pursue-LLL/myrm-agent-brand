@@ -65,3 +65,18 @@ If the server crashes mid-task:
 3. Tasks resume from the exact interruption point — no user action needed
 
 This is architecturally superior to manual checkpoint callbacks (as used by some competitors) because state is captured at every graph node transition automatically, not just at manually-instrumented points.
+
+## 6-Layer Resilience System
+
+File checkpoints are just one layer of Myrm's comprehensive interruption recovery system:
+
+| Layer | What It Protects | Recovery Mechanism |
+|-------|-----------------|-------------------|
+| **Graph State** | Entire agent execution state | LangGraph SQLite checkpointer with incremental dill serialization |
+| **Subagent Tasks** | Child agent work during shutdowns | Automatic SIGTERM checkpoint save + seamless resume |
+| **Conversation Fork** | Conversation exploration branches | Fork from any checkpoint with full parent lineage tracking |
+| **Goal Management** | Long-running goals paused by budget/user | Resume with counter reset, preserving all prior progress |
+| **File Snapshots** | Workspace file modifications | Shadow Git with selective restore + Agent auto-awareness |
+| **Stream Recovery** | Network interruptions during LLM streaming | 4 strategies: oneshot, continuation, truncation, overflow failover |
+
+No matter the interruption — process crash, network drop, user pause, or budget exhaustion — Myrm recovers from the exact point of interruption with zero data loss.

@@ -1,3 +1,15 @@
+/**
+ * [INPUT]
+ * - i18n/config.ts (POS: locale 配置单一入口)
+ * - locales/en.json、locales/zh.json
+ *
+ * [OUTPUT]
+ * - LocaleRootProvider: 客户端 locale 切换与 NextIntlClientProvider 注入
+ * - useAppLocale: 子组件切换 locale
+ *
+ * [POS]
+ * 静态 export 下的运行时 i18n 根。持久化 NEXT_LOCALE 至 localStorage。
+ */
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';

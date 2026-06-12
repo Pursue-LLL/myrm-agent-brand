@@ -124,6 +124,27 @@ Agents have configurable iteration limits (default: 50) with dynamically compute
 
 The thresholds are automatically derived from `graph_recursion_limit` and converted to tool-call counts, ensuring the budget scales correctly regardless of configuration. The grace summary provides a structured wrap-up of completed work, remaining tasks, and suggestions for continuation.
 
+## Silent Tool Retry
+
+When a tool call fails due to transient errors (network timeouts, rate limits, temporary unavailability), the system retries automatically — the user only sees a heartbeat timer ticking, never the failure.
+
+### 6-Layer Retry Architecture
+
+| Layer | Mechanism | User Experience |
+|-------|-----------|-----------------|
+| **Tool Executor** | 2 automatic retries + exponential backoff + `Retry-After` header respect + circuit breaker | TOOL_HEARTBEAT updates elapsed time in real-time |
+| **Planner 3-Strike** | Per-error retry counting + structured attempt history + auto-escalation | Silent for 3 attempts, then escalates to user approval |
+| **Goal Verification** | Automatic verification retries with counter reset on success | Invisible to user |
+| **Stream Recovery** | 10+ recovery strategies (overflow/failover/escalation/transient retry) | Brief pause, then seamless continuation |
+| **File Snapshot** | Shadow Git + per-operation snapshots for sandbox state recovery | One-click rollback in GUI |
+| **Frontend Heartbeat** | SSE TOOL_HEARTBEAT events with real-time elapsed_ms updates | User sees "Tool running... 15s" instead of a frozen screen |
+
+### How It Differs from Competitors
+
+- **Not prompt-based**: Retry logic is deterministic code (Pydantic schemas + counters), not LLM instructions that may be ignored
+- **Not developer-only**: Unlike framework-level retry configs (e.g. LangGraph's `RetryPolicy`), the heartbeat UI provides end-user visibility
+- **Not noisy**: Retries are silent — no error popups, no user decisions required for transient failures
+
 ## File Checkpoint
 
 Before any destructive file operation, `AutoSnapshotInterceptor` automatically takes a snapshot:
@@ -172,3 +193,6 @@ All recovery happens transparently:
 - **Response truncated?** — Local JSON repair first, then auto-retry with larger output budget
 - **Upgrade interrupted?** — Pre-migration snapshot restores your data automatically
 - **Child agent crashes?** — Error auto-compacted, parent receives a clean summary, reasoning stays unpolluted
+- **Tool call fails?** — Silent retry with heartbeat timer; you see "running... 15s" instead of an error
+- **Repeated failures?** — 3-Strike protocol auto-escalates to ask for your help — no infinite loops
+- **Environment broken?** — Doctor Dashboard shows health status at a glance with one-click fix buttons

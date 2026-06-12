@@ -203,3 +203,16 @@ Export your conversation traces as industry-standard fine-tuning datasets — di
 - **Content deduplication**: SHA-256 hashing eliminates duplicate samples automatically
 - **Incremental export**: state tracking skips already-exported sessions on subsequent runs
 - **Zero runtime cost**: pure local file processing, no LLM calls, no performance impact
+
+## Privacy-safe Rule Sharing
+
+Share your procedural memory rules with teammates or the community without exposing sensitive information. Myrm automatically sanitizes exported content:
+
+- **Path anonymization**: home directory paths (`/Users/alice/project`) become `<USER>/project`
+- **Credential redaction**: API keys and secrets are truncated to safe prefixes (`sk-pro...f456`)
+- **Metadata stripping**: timestamps, update counts, and internal IDs are removed
+- **Scoped export**: filter by agent ID or select individual rules — share only what's relevant
+- **Format options**: Markdown (human-readable) or JSON (machine-importable), downloadable as ZIP
+- **Live preview**: inspect sanitized output before sharing — what you see is what gets exported
+
+Access from Settings → Memory → Share Rules (Privacy-safe), or via API: `GET /api/v1/memory/operations/export/rules-safe`.

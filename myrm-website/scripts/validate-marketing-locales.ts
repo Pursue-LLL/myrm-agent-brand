@@ -4,7 +4,7 @@
  * - locales/zh.json, locales/en.json：`marketing` + `cloud` 命名空间
  *
  * [OUTPUT]
- * - CI 校验：manifest 键存在、Bento/对比/轮播键完整、legal 法务键、cloud 键、locales 无 legacy URL
+ * - CI 校验：manifest 键存在、Bento/对比/轮播键完整、legal 法务键、cloud 键、notFound 键、locales 无 legacy URL
  *
  * [POS]
  * 营销文案 locale 契约校验；`bun run build` 前自动执行。
@@ -33,6 +33,8 @@ const HIGHLIGHT_TAG_COUNT = 3;
 const HIGHLIGHT_DESC_MAX_CHARS = 140;
 
 /** Keys referenced by legal pages and cloud footer links — must stay in sync across locales. */
+const NOT_FOUND_PATHS = ['title', 'description', 'backHome'] as const;
+
 const LEGAL_REQUIRED_PATHS = [
   'legal.privacy.title',
   'legal.privacy.updatedAt',
@@ -58,6 +60,12 @@ function loadCloud(locale: (typeof LOCALES)[number]): Record<string, unknown> {
   const raw = readFileSync(join(ROOT, 'locales', `${locale}.json`), 'utf8');
   const json = JSON.parse(raw) as { cloud: Record<string, unknown> };
   return json.cloud;
+}
+
+function loadNotFound(locale: (typeof LOCALES)[number]): Record<string, unknown> {
+  const raw = readFileSync(join(ROOT, 'locales', `${locale}.json`), 'utf8');
+  const json = JSON.parse(raw) as { notFound: Record<string, unknown> };
+  return json.notFound;
 }
 
 function getAt(obj: Record<string, unknown>, path: string): unknown {
@@ -214,6 +222,11 @@ for (const locale of LOCALES) {
   }
   assertKey(locale, cloud, 'cloud', 'demo.preview.alt', errors);
   assertKey(locale, cloud, 'cloud', 'demo.caption', errors);
+
+  const notFound = loadNotFound(locale);
+  for (const path of NOT_FOUND_PATHS) {
+    assertKey(locale, notFound, 'notFound', path, errors);
+  }
 }
 
 if (errors.length > 0) {

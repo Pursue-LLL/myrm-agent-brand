@@ -1,7 +1,7 @@
 /**
  * [INPUT]
  * - deploy-mode::getDesktopDownloadPath (POS: 营销站外部链接统一入口)
- * - download/DesktopReleaseProvider (POS: 桌面 release 元数据 React 上下文)
+ * - download/DesktopReleaseProvider (POS: 桌面 release React 上下文边界)
  * - download/platform-display (POS: 平台分组与 i18n 键映射)
  *
  * [OUTPUT]

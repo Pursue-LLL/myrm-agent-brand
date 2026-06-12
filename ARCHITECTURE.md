@@ -4,7 +4,7 @@
 
 开源品牌仓：营销官网与产品文档分目录维护、分托管发布。官网跳转 SaaS（`app.myrmagent.ai`）与文档站（`docs.myrmagent.ai`）经 `deploy-mode.ts` 统一 URL。
 
-文档约定（分形自文档）：仓根 `ARCHITECTURE.md`（整体架构）；各模块文件夹 `_ARCH.md`（模块文件清单与职责）；核心源码文件头部 `INPUT` / `OUTPUT` / `POS` 注释（文件定位）。
+文档约定（分形自文档）：仓根 `ARCHITECTURE.md`（整体架构）；跨模块方案 `xxx_SYSTEM.md`（如 `myrm-website/DUAL_PAGE_SYSTEM.md`）；各模块文件夹 `_ARCH.md`（模块文件清单与职责）；核心源码文件头部 `INPUT` / `OUTPUT` / `POS` 注释（文件定位）。**仅仓根允许 `README.md` 作 clone 入口**，子模块不用 README。
 
 ## 目录清单
 
@@ -63,12 +63,21 @@
 | [`myrm-website/src/lib/_ARCH.md`](myrm-website/src/lib/_ARCH.md) | 外链、release、docs 契约 |
 | [`myrm-website/src/components/marketing/_ARCH.md`](myrm-website/src/components/marketing/_ARCH.md) | 营销站页面与 Landing |
 | [`myrm-website/src/components/download/_ARCH.md`](myrm-website/src/components/download/_ARCH.md) | 桌面下载 UX |
+| [`myrm-website/DUAL_PAGE_SYSTEM.md`](myrm-website/DUAL_PAGE_SYSTEM.md) | OSS `/` vs SaaS `/cloud` 双页方案 |
+| [`myrm-website/src/app/_ARCH.md`](myrm-website/src/app/_ARCH.md) | App Router 路由 |
+| [`myrm-website/src/hooks/_ARCH.md`](myrm-website/src/hooks/_ARCH.md) | 客户端 hooks |
+| [`myrm-website/src/i18n/_ARCH.md`](myrm-website/src/i18n/_ARCH.md) | i18n 配置 |
+| [`myrm-website/src/components/marketing/landing/_ARCH.md`](myrm-website/src/components/marketing/landing/_ARCH.md) | Landing sections |
+| [`myrm-docs/scripts/_ARCH.md`](myrm-docs/scripts/_ARCH.md) | 文档导航维护脚本 |
+| [`myrm-website/src/components/i18n/_ARCH.md`](myrm-website/src/components/i18n/_ARCH.md) | 客户端 locale 根 |
+| [`myrm-website/src/components/ui/_ARCH.md`](myrm-website/src/components/ui/_ARCH.md) | shadcn primitives |
 | [`myrm-website/src/components/marketing/landing/colony/_ARCH.md`](myrm-website/src/components/marketing/landing/colony/_ARCH.md) | Hero Canvas 蚁群场景 |
 
 ## 模块依赖
 
 - 官网桌面下载元数据：`myrm-website/src/lib/desktop-release.ts` → GitHub Releases `Pursue-LLL/myrm-agent`；无 release 时 `/download` SaaS 优先、`CliInstallFallback` 诚实标注 localWebui 终端路径（非桌面 App），主 CTA 不暴露 GitHub Releases
 - 营销 ↔ 文档 slug 契约：`myrm-website/scripts/validate-docs-slugs.ts`（orphan MDX + legacy URL grep：`myrm.ai`、`app.myrm.ai`、`github.com/myrm-ai`）
+- 分形文档门禁：`myrm-website/scripts/check-fractal-docs.ts`（`bun run test` / `validate:fractal-docs`；对齐主产品 `check_fractal_docs.py` 理念）
 - `public/desktop-release.json`：构建链 `bake:release` 产物（CF Pages / 本地 build），静态 export 首屏用；**不入库**（见 `myrm-website/.gitignore`），本地 dev 可选 `bun run bake:release` 或依赖 live GitHub fetch
 
 ## 文档 i18n（en + zh）
@@ -86,6 +95,6 @@
 ## 约束
 
 - 仓根不得再放置第二套 Next 应用（`package.json` / `src/` 等于废弃副本）。
-- **营销站 CI/CD 仅 Cloudflare Pages**；禁止 GitHub Actions、Vercel；push `main` 不自动部署，仅 Deploy Hook / wrangler 应急可上线
+- **营销站 CI/CD 仅 Cloudflare Pages**；GHA 仅保留 `website-release.yml`（tag preflight + Deploy Hook）；禁止 Vercel 与额外 workflow；push `main` 不自动部署
 - 勿对子目录执行 rsync 覆盖（会破坏 submodule `.git`）。
 - 对外域名统一 `myrmagent.ai` / `app.myrmagent.ai` / `docs.myrmagent.ai`；GitHub 统一 `Pursue-LLL/myrm-agent`。

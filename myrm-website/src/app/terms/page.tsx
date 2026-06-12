@@ -1,3 +1,14 @@
+/**
+ * [INPUT]
+ * - components/marketing/LegalPage.tsx (POS: 法务页通用排版)
+ * - locales marketing.legal.terms keys
+ *
+ * [OUTPUT]
+ * - TermsPage: `/terms` 服务条款
+ *
+ * [POS]
+ * 服务条款路由页面。
+ */
 'use client';
 
 import { useTranslations } from 'next-intl';

@@ -16,7 +16,8 @@ bun run dev:3002          # 本地营销站（端口 3002，与 App :3000 分离
 bun run build             # validate → bake release → next export
 bun run validate:locales  # i18n 键契约 + legacy URL 扫描
 bun run validate:docs-slugs  # 营销 slug ↔ Mintlify nav ↔ MDX orphan
-bun run test              # scripts 契约单测（docs/deploy/release/desktop-release）
+bun run test              # scripts 契约单测（docs/deploy/release/desktop-release/fractal-docs）
+bun run validate:fractal-docs  # 分形 _ARCH + 核心 IOP 门禁
 ```
 
 `bun run build` 前会自动执行 locale 与 docs slug 校验，并 `bake:release` 写入 `public/desktop-release.json`（GitHub Releases 元数据，用于静态 export 首屏；**不入库**，见 `myrm-website/.gitignore`）。
@@ -25,7 +26,7 @@ bun run test              # scripts 契约单测（docs/deploy/release/desktop-r
 
 ## 生产发布（Cloudflare Pages）
 
-**唯一 CI/CD 路径：Cloudflare Pages。** 本仓**不使用** GitHub Actions、Vercel 或其他第二套构建流水线；勿添加 `.github/workflows/` 或 `vercel.json`。
+**唯一 CI/CD 路径：Cloudflare Pages。** 构建与部署在 CF Pages 完成；GHA 仅保留 `website-release.yml`（tag preflight + Deploy Hook 触发器），勿新增其他 workflow、Vercel 或 `vercel.json`。
 
 ### 日常开发（push 不自动上线）
 

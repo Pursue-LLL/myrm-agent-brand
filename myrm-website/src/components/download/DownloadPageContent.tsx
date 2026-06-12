@@ -1,6 +1,6 @@
 /**
  * [INPUT]
- * - download/DesktopReleaseProvider (POS: 桌面 release 元数据 React 上下文)
+ * - download/DesktopReleaseProvider (POS: 桌面 release React 上下文边界)
  * - deploy-paths::getDeployPathHref (POS: Local WebUI / Tauri deployment paths)
  * - hooks/useDocsLocale (POS: 站点 locale → Mintlify docs locale)
  *

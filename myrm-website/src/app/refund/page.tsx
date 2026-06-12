@@ -1,3 +1,14 @@
+/**
+ * [INPUT]
+ * - components/marketing/LegalPage.tsx (POS: 法务页通用排版)
+ * - locales marketing.legal.refund keys
+ *
+ * [OUTPUT]
+ * - RefundPage: `/refund` 退款政策
+ *
+ * [POS]
+ * 退款政策路由页面（云页页脚链入）。
+ */
 'use client';
 
 import { useTranslations } from 'next-intl';

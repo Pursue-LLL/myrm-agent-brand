@@ -2,19 +2,21 @@
 
 ## 文件清单
 
-| 文件 | 地位 | 职责 |
-|------|------|------|
-| `brand-url-patterns.ts` | 核心 | 禁止 legacy 域名/org 的正则；validate 脚本共用 |
-| `validate-marketing-locales.ts` | 核心 | locales 键契约 + Bento≤3 bullets + highlightsCarousel 8 卡 + legal 法务键 + cloud 定价/FAQ/步骤/demo + legacy URL |
-| `validate-docs-slugs.ts` | 核心 | 营销 slug ↔ Mintlify nav ↔ MDX；orphan MDX；docs legacy URL；zh `competitor-comparison` 英文句零容忍（`ZH_CONTENT_ZERO_TOLERANCE` 单页集合） |
-| `docs-contract.test.ts` | 辅助 | `localizedDocsPath` / `getDocsUrl` / `getAppUrl` locale 单测 |
-| `bake-desktop-release.ts` | 核心 | 构建前写入 `public/desktop-release.json`；API 失败 exit 1；`REQUIRE_BAKED_RELEASE=1` 时空 manifest exit 1（可选 `GITHUB_TOKEN`） |
-| `desktop-release.test.ts` | 辅助 | desktop-release 解析单测 |
-| `baked-manifest-smoke.test.ts` | 辅助 | bake 后 manifest 非空冒烟（CI `REQUIRE_BAKED_RELEASE=1`） |
-| `deploy-paths.test.ts` | 辅助 | deploy-paths 单测 |
-| `generate-hero-demo-webm.ts` | 辅助 | 从 workspace 预览图生成 hero-demo.webm（可选） |
-| `release-website.ts` | 核心 | tag + CF Deploy Hook；preflight：干净工作区、sync origin/main、tag/HEAD 检查、build+test | ✅ |
-| `release-website.test.ts` | 辅助 | website tag 格式 + tag/HEAD 冲突 + 工作区洁净 + rev-parse exit 单测 | — |
+| 文件 | 地位 | 职责 | I/O/P |
+|------|------|------|-------|
+| `brand-url-patterns.ts` | 核心 | 禁止 legacy 域名/org 的正则；validate 脚本共用 | ✅ |
+| `validate-marketing-locales.ts` | 核心 | locales 键契约 + legacy URL 扫描 | ✅ |
+| `validate-docs-slugs.ts` | 核心 | 营销 slug ↔ Mintlify nav ↔ MDX orphan | ✅ |
+| `bake-desktop-release.ts` | 核心 | 构建前写入 `public/desktop-release.json` | ✅ |
+| `release-website.ts` | 核心 | tag + CF Deploy Hook preflight | ✅ |
+| `check-fractal-docs.ts` | 核心 | 品牌仓 _ARCH 存在 + 核心文件 IOP 门禁 | ✅ |
+| `docs-contract.test.ts` | 辅助 | docs-contract locale 单测 | — |
+| `desktop-release.test.ts` | 辅助 | desktop-release 解析单测 | — |
+| `baked-manifest-smoke.test.ts` | 辅助 | bake 后 manifest 冒烟 | — |
+| `deploy-paths.test.ts` | 辅助 | deploy-paths 单测 | — |
+| `generate-hero-demo-webm.ts` | 辅助 | 生成 hero-demo.webm（可选） | — |
+| `release-website.test.ts` | 辅助 | release-website 单测 | — |
+| `check-fractal-docs.test.ts` | 辅助 | fractal 门禁单测 | — |
 
 ## 构建链
 
@@ -22,7 +24,7 @@
 
 CF Pages / 本地 `bun run build` 按序执行 `validate:locales` → `validate:docs-slugs` → `bake:release` → `next build`。
 
-**部署仅走 Cloudflare Pages Deploy Hook**（见仓根 `ARCHITECTURE.md`）；Dashboard 已关闭 automatic deployments；勿添加 GitHub Actions 或 Vercel 配置。
+**部署仅走 Cloudflare Pages Deploy Hook**（见仓根 `ARCHITECTURE.md`）；GHA 仅 `website-release.yml` 作 preflight 触发器；勿新增 workflow 或 Vercel 配置。
 
 发布（推荐）：`git push origin website-v1.2.0` → GHA `website-release.yml`（Secret `CF_PAGES_DEPLOY_HOOK`）
 
