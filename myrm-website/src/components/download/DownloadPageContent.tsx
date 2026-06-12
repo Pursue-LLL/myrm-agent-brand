@@ -108,6 +108,11 @@ export default function DownloadPageContent() {
 
       <ReleaseNotesSection />
       {hasInstallers && <InstallStepsSection />}
+      {hasInstallers && (
+        <p className="mt-8 text-center text-[13px] leading-relaxed text-muted-foreground sm:text-[14px]">
+          {t('download.otaHint')}
+        </p>
+      )}
       <ChecksumSection />
 
       {hasInstallers && (
