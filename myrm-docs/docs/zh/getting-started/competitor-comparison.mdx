@@ -572,7 +572,7 @@ Claude Code 采用「Fork 子 Agent」设计，字节级 prompt 前缀对齐以�
 | "max 16 concurrency, max 1000 total agents" | Fixed runtime limits | **Configurable ConcurrencyLimiter** + TokenBucket — no hard ceiling |
 | "Cost is a black box until the end" | No real-time cost tracking | **SubagentDashboard** — Real-time `$0.001` precision cost visualization per node |
 | "Approval requests get lost in long terminal logs" | CLI-only, no visual anchors | **Visual HITL Approval** — One-click jump from Dashboard to Approval Card |
-| "Hard to review what the agent is doing" | Raw JSON arguments in terminal | **Polymorphic Views** — Syntax-highlighted diffs for code, terminal UI for shell |
+| "Hard to review what the agent is doing" | Raw JSON arguments in terminal | **Polymorphic Views** — Prism syntax-highlighted diffs with Unified/Split dual-view for code, terminal UI for shell |
 
 **关键架构差异**：Claude Code DW 运行时生成带关键词触发的 JavaScript 编排脚本（非确定性，可失败或偏离）。Myrm **双路径**：生产负载用声明式 DAG（确定性、执行前可验证）；可选 **Dynamic Workflow**（手动开关、Python PTC 沙箱、确定性 `workflow_id`、SQLite 事件溯源实现子 Agent 幂等重放）用于临时并行脚本 — 均配 **一等 HITL GUI**。
 

@@ -655,7 +655,7 @@ Based on user feedback from Claude Code's Dynamic Workflows feature (2026-05 dat
 | "max 16 concurrency, max 1000 total agents" | Fixed runtime limits | **Configurable ConcurrencyLimiter** + TokenBucket — no hard ceiling |
 | "Cost is a black box until the end" | No real-time cost tracking | **SubagentDashboard** — Real-time `$0.001` precision cost visualization per node |
 | "Approval requests get lost in long terminal logs" | CLI-only, no visual anchors | **Visual HITL Approval** — One-click jump from Dashboard to Approval Card |
-| "Hard to review what the agent is doing" | Raw JSON arguments in terminal | **Polymorphic Views** — Syntax-highlighted diffs for code, terminal UI for shell |
+| "Hard to review what the agent is doing" | Raw JSON arguments in terminal | **Polymorphic Views** — Prism syntax-highlighted diffs with Unified/Split dual-view for code, terminal UI for shell |
 
 **Key architectural difference**: Claude Code DW generates JavaScript orchestration scripts at runtime with keyword triggers (non-deterministic, can fail or diverge). Myrm offers a **dual-path** strategy: declarative DAG plans (deterministic, verifiable before execution) for production workloads, plus an optional **Dynamic Workflow** mode (manual toggle, Python PTC sandbox, deterministic `workflow_id`, SQLite event sourcing for idempotent sub-agent replay) for ad-hoc parallel scripting — all with a **first-class Human-in-the-Loop (HITL) GUI**.
 
