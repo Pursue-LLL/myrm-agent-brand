@@ -46,7 +46,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **文件系统智能** | ✅ 19 种原生操作 + 6 类解析器 + 5 层观察者（788 项测试） | ⚠️ 4 种基础操作 | ⚠️ 仅 bash | ⚠️ 仅 bash | ❌ | ⚠️ 基础 | ❌ |
 | **工作区上下文** | ✅ 7 种 @ 引用（文件/文件夹/staged/diff/URL/上传/行范围）+ 工具层全文件系统访问 + Dynamic Workflow 多项目并行（259 项测试） | ⚠️ 仅 @file（沙箱限制） | ❌ 单目录 | ❌ | ❌ | ⚠️ 未知 | ❌ |
 | **本地文件"数据不出域"** | ✅ 天然支持 — Agent 在本地运行，所有文件原地处理 | ❌ 仅云端 | ⚠️ Docker | ⚠️ Docker | ❌ 云端 | ❌ | ❌ |
-| **定时任务** | ✅ 20+ GUI 组件 + 27 项配置能力 + 6 种触发器 + 指数退避重试 + 误火恢复 + Agent 绑定 + 结果投递 + Merkle 审计链 + 智能噪音过滤（920 项测试） | ⚠️ CLI 基础 cron（无GUI/无重试/无恢复） | ✅ | ✅ | ❌ | ❌ | ❌ |
+| **定时任务** | ✅ 20+ GUI 组件 + 27 项配置能力 + 6 种触发器 + 指数退避重试 + 误火恢复 + Agent 绑定 + 结果投递 + Merkle 审计链 + 智能噪音过滤（958 项测试） | ⚠️ CLI 基础 cron（无GUI/无重试/无恢复） | ✅ | ✅ | ❌ | ❌ | ❌ |
 | **统一工具网关** | ✅ 四合一网关 + 弹性 BYOK 回退 | ⚠️ 硬切换（易出错） | ❌ N/A | ⚠️ 未知 | ❌ | ⚠️ 未知 | ❌ |
 | **OpenAI 兼容代理** | ✅ 双模（Agent+LLM）`/v1` 端点 + `/v1/models` 自动发现 + 4 策略密钥轮转 + Aider/Cline/Continue GUI 配置模板（74 项测试） | ⚠️ `/v1/chat/completions`（仅 Agent，无 LLM 直通，无模型发现） | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **语音** | ✅ STT + TTS + 实时 | ⚠️ Discord 语音 | WebRTC | ⚠️ 基础 | ❌ | ❌ | ❌ |
@@ -754,7 +754,7 @@ MemPalace 是独立 AI 记忆系统，用 Wing/Room/Closet/Drawer 建筑隐喻�
 |------|------|---------------------|
 | 内置图表类型 | 4 种（柱状/折线/饼/环形）+ React Artifact 无限制 | 无 |
 | 交互式数据表格 | UITable 动态列 + React Artifact 排序/过滤 | 仅 Markdown |
-| 零代码 UI 组件 | 21 种（图表、表格、表单、布局） | 无 |
+| 零代码 UI 组件 | 22 种（图表、表格、表单、布局） | 无 |
 | React 实时预览 | Sandpack 热重载 + 代码编辑 + 控制台 | 无 |
 | 数据导出格式 | Markdown / JSON / HTML / DOCX / PNG | 无 |
 | 图表渲染 | Mermaid（30+ 种图表）+ 缩放/平移/图例 | 无 |
@@ -766,7 +766,7 @@ MemPalace 是独立 AI 记忆系统，用 Wing/Room/Closet/Drawer 建筑隐喻�
 
 **路径 2 — React Artifact（全功能）**：复杂可视化场景，Agent 生成自定义 React 组件，使用 Recharts/Echarts/D3/Chart.js，在 Sandpack 实时预览中支持代码编辑、控制台输出和 Tailwind CSS。
 
-**191 项测试验证**: Interactive UI 59 ✅ | Artifact 系统 22 ✅ | Mermaid 18 ✅ | SSE 流+审批+导出 92 ✅
+**231 项测试验证**: Interactive UI 59 ✅ | Artifact 渲染器 47 ✅ | ArtifactPortalStore + SSE 15 ✅ | Chat 导出+Schema 39 ✅ | 后端 Artifact 系统 39 ✅ | 后端 API（Artifact + Share + UI Stream）32 ✅
 
 ## vs Claude Office Visualizer — CLI 状态仪表盘
 
@@ -1029,7 +1029,7 @@ Myrm 提供 **零成本热迁移与原子持久化引擎**：
 | OSS 脚本架构测试 | **5 通过** |
 | `check_fractal_docs --no-stub` + 行数预算 CI | **OK** |
 
-**迁移系统专项测试合计：149 通过**（2026-06）。测试目录 scoped 扫描 [server `competitor_discovery.py`] 仅影响自动化测试；生产 `/migration/discover` 仍扫描真实用户主目录。竞品（OpenClaw、Hermes、DeerFlow、CodePilot、LobsterAI、CoPaw、jiuwenclaw、PilotDeck）：**无 GUI 五源四车道向导**；Hermes 仅有 CLI `claw migrate`；PilotDeck 仅有技能文件复制（361 行，无记忆/指令/凭证迁移）。
+**迁移系统专项测试合计：210 通过**（2026-06，6 批分组执行）。测试目录 scoped 扫描 [server `competitor_discovery.py`] 仅影响自动化测试；生产 `/migration/discover` 仍扫描真实用户主目录。竞品（OpenClaw、Hermes、DeerFlow、CodePilot、LobsterAI、CoPaw、jiuwenclaw、PilotDeck）：**无 GUI 五源四车道向导**；Hermes 仅有 CLI `claw migrate`；PilotDeck 仅有技能文件复制（361 行，无记忆/指令/凭证迁移）。
 
 ### 迁移后你将获得（面向用户）
 
