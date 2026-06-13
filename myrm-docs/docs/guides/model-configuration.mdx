@@ -69,6 +69,8 @@ This means you know whether a model will feel snappy or sluggish *before* commit
 
 **MoE-Aware Speed Estimation:** Mixture-of-Experts models like DeepSeek R1 32B activate only a fraction of their total parameters per token (e.g. 7B out of 32B). Myrm uses the active parameter count for speed estimation, so MoE models show their true inference speed rather than a misleadingly slow estimate based on total parameters.
 
+**100% Offline — Zero Network Dependency:** The entire recommendation flow works without any internet connection. Model specifications are bundled as a static asset shipped with the application — no external API calls, no cache expiration, no "first launch needs internet" requirement. Hardware detection is a local system call, and Ollama probing targets localhost only. This means the Hardware Cookbook works identically in air-gapped environments, on planes, in offline server rooms, or anywhere without connectivity.
+
 **Curated & Fraud-Proof Model List:** Unlike tools that dynamically scrape model repositories and must defend against inflated benchmark scores, Myrm's Hardware Cookbook uses a team-curated model list. Every data point (parameter count, VRAM requirement, disk size, active parameters) is an objective, verifiable fact — not a subjective benchmark score. This eliminates the risk of manipulated leaderboard rankings influencing your recommendations.
 
 **One-Click Install & Remove:** Download models directly from the UI with SSE streaming progress and cancel support. After install, models appear instantly in the selector. Uninstall reclaims disk space immediately.

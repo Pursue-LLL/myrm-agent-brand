@@ -154,6 +154,26 @@ Myrm 不等你发现问题 — 六种独立后台机制让 Agent 24/7 持续学�
 - **一键回滚**：CoW 分叉上撤销进化可恢复跨 Agent 挂载映射
 - **垃圾回收**：删 Agent 级联删专属技能（DB + 物理 `rmtree`，路径边界保护）
 
+## 跨设备技能同步与隐私保护
+
+Myrm 是唯一同时提供**双向技能同步**和**导出时 PII 自动脱敏**的 AI Agent 平台——没有任何竞品实现这两项能力。
+
+**同步架构**（协议驱动，后端无关）：
+- **Pull-first 策略**：先拉取远端变更再推送本地，避免意外覆盖
+- **SHA-256 增量追踪**：仅传输变更的技能，无全量扫描开销
+- **质量门控**：技能需满足最低阈值（如 ≥3 次执行、≥70% 成功率）才可共享
+- **后台自动同步**：空闲时通过 IdleTask 系统自动执行，零打扰
+- **即插即用**：支持 iCloud Drive、Dropbox 或任何 NAS 作为同步介质
+
+**导出时 PII 自动脱敏** —— 10 类敏感信息检测并遮蔽：
+- API 密钥（GitHub、Stripe、AWS、SendGrid、HuggingFace、Slack、Replicate 等）
+- 环境变量、JSON 密钥字段、数据库连接串
+- CLI 标志、URL 参数、Telegram Bot Token、HTTP Authorization 头
+- PEM 私钥、绝对文件路径（智能排除系统路径）
+- 结构化 Diff 预览，支持逐项查看和选择性恢复
+
+**导入安全**：每个导入的技能均由 `SandboxValidator` 安全扫描后才激活——恶意代码无法进入工作区。
+
 ## 对比替代方案
 
 | 能力 | Myrm | OpenClaw | Hermes | 通用 LLM Agent |

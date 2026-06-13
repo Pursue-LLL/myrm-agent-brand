@@ -192,6 +192,26 @@ In a multi-agent sandbox, skills are perfectly isolated yet securely shareable.
 - **1-Click Rollback**: Undo an evolution on a CoW fork, and the system intelligently restores the cross-agent mount mapping, retaining complete semantic history.
 - **Robust Garbage Collection**: Deleting an agent cascade-deletes its exclusive skills (both database records and physical `rmtree` wipe with path boundary protection), leaving zero orphan data or "ghost" skills.
 
+## Cross-Device Skill Sync & Privacy
+
+Myrm is the only AI agent platform offering **bidirectional skill synchronization** with **export-time PII redaction** — no competitor implements either capability.
+
+**Sync architecture** (Protocol-driven, backend-agnostic):
+- **Pull-first strategy**: Remote changes apply before local pushes, preventing accidental overwrites
+- **SHA-256 incremental tracking**: Only changed skills transfer — no full-scan overhead
+- **Quality gate**: Skills must meet minimum thresholds (e.g., ≥3 executions, ≥70% success rate) before being shared
+- **Background auto-sync**: Runs during idle time via the IdleTask system — zero disruption to active work
+- **Plug-and-play backends**: Use iCloud Drive, Dropbox, or any NAS as the sync medium
+
+**PII auto-redaction on export** — 10 categories detected and masked:
+- API keys (GitHub, Stripe, AWS, SendGrid, HuggingFace, Slack, Replicate, and more)
+- Environment variables, JSON secret fields, database connection strings
+- CLI flags, URL parameters, Telegram bot tokens, HTTP Authorization headers
+- PEM private keys, absolute file paths (with smart system-path exclusion)
+- Structured diff preview lets users review and selectively override each redaction
+
+**Import security**: Every imported skill is scanned by `SandboxValidator` before activation — malicious code never reaches your workspace.
+
 ## Compared to Alternatives
 
 | Capability | Myrm | OpenClaw | Hermes | Generic LLM agents |
