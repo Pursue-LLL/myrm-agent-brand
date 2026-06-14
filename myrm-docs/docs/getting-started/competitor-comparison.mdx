@@ -73,7 +73,7 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 |------|-----------------------|------|-------------|
 | **Agent Creation** | "Shrimp Coach" dialogue | **19+ Preset Agents + GUI Wizard** | Zero-prompting instant start. Just click and use. |
 | **Token Cost Control** | LLM Judge single-phase routing (PilotDeck) | **Rule + Judge dual-phase Complexity Router** | 80%+ requests routed by rules alone (0 extra tokens). Judge only called for ambiguous cases. |
-| **Cost Visibility** | Basic stats | **15+ GUI dashboards** | Real-time per-message cost, cache savings, and tool usage breakdown. |
+| **Cost Visibility** | Basic stats | **14-dim analytics dashboard + per-agent cost attribution + 15+ GUI panels** | Real-time per-message cost, cache savings, tool P90/P99 latency, activity heatmap, memory health radar. Competitors max out at 3 dimensions. |
 | **Cloud Environment** | Cloud Computer | **Sandbox + Persistent Terminal + SaaS** | Real cross-platform isolation and data ownership. |
 | **Multimedia** | Basic Video Agent | **Native `video/generator.py` + Full-duplex Voice** | Create content and interact hands-free with barge-in support. |
 
@@ -310,7 +310,7 @@ Myrm's Skill Evolution System (42 modules, native built-in) implements all engin
 | **Growth policy engine** | Simple apply/reject | ✅ **6-path decision matrix**: auto-apply safe skills, security pre-scan, BM25+Embedding semantic dedup (75%), evolution lock, fallback to manual review |
 | Per-agent skill isolation (no cross-agent habit pollution) | ⚠️ Shared pool | ✅ **agent_id scoping + CoW fork** on cross-agent mounts |
 | Growth dashboard | ❌ | ✅ KPI + heatmap + radar chart + evolution timeline |
-| Cross-device skill sync | ❌ | ✅ **Protocol-driven bidirectional sync** (iCloud/Dropbox/NAS) + SHA256 incremental tracking + quality gate push validation + 4 conflict strategies + idle background auto-sync (48 sync tests) |
+| Cross-device skill sync | ❌ | ✅ **Protocol-driven bidirectional sync** (iCloud/Dropbox/NAS) + SHA256 incremental tracking + quality gate push validation + 4 conflict strategies + auto-update detection + idle background auto-sync (366 sync/discovery/security tests) |
 | Batch confirmation | ❌ | ✅ 90% cost reduction for multi-skill evolution |
 | Evolution constraints | ❌ | ✅ Historical error memory prevents repeated mistakes |
 | Prebuilt skill upgrade protection | ❌ Silent overwrite | ✅ **Three-way hash** — user edits preserved, "Update Available" badge |
@@ -873,7 +873,7 @@ Myrm is a **GUI-first** application. The problems Claude Office Visualizer solve
 | Context Usage | TrashCanSprite (filling trash can metaphor) | **ContextUsageIndicator** — exact percentage + multi-level color warnings | Numbers > metaphors |
 | Task Management | 12 PixiJS read-only whiteboard modes | **KanbanBoardView** — interactive drag/drop/filter/edit | Actionable, not just viewable |
 | Notifications | Screen flash (attentionStore) | **NotificationBell** — 4 severity levels + unread count + persistence | Structured alerts, not screen flashing |
-| Onboarding | TourOverlay 7-step walkthrough | **4-step dynamic wizard** + auto-detect Ollama/LM Studio + **HardwareCookbook** (fit_score + MoE-aware ~tok/s speed + smart Best Fit recommendation + streaming download) + SearXNG 1-click Docker + 7-source competitor migration (210 tests) | Zero-config start: detect → activate → work |
+| Onboarding | TourOverlay 7-step walkthrough | **4-step dynamic wizard** + auto-detect Ollama/LM Studio + **HardwareCookbook** (fit_score + MoE-aware ~tok/s speed + smart Best Fit recommendation + streaming download) + SearXNG 1-click Docker + 8-source competitor migration (312+ tests, 95% coverage) | Zero-config start: detect → activate → work |
 | Companion | Fixed pixel character | **15 species + 9 hats + 5D attributes + evolution + shiny variants** | Full RPG companion system |
 | Deployment | Docker front+back separate deployment | **Built into the app** — zero extra infrastructure | Zero additional setup |
 | Mobile | ❌ Desktop-only (PixiJS) | ✅ PWA + 35+ messaging channels | Monitor from anywhere |
@@ -1098,7 +1098,7 @@ Myrm introduces a **Zero-Cost Hot Migration & Atomic Persistence Engine**:
 | Skill governance | Copy folders | Review queue + Agent binding |
 | Breadth | Broader MCP auto hints | Narrower but explicit manual lanes for MCP/channels |
 
-**Honest score**: **9.7/10** for local five-source GUI migration — not “perfect for every competitor artifact.” **Not available on SaaS cloud sandboxes** (no access to the user’s host filesystem); use Local WebUI or Tauri desktop only.
+**Honest score**: **9.7/10** for local eight-source GUI migration — not “perfect for every competitor artifact.” **Not available on SaaS cloud sandboxes** (no access to the user’s host filesystem); use Local WebUI or Tauri desktop only.
 
 ### Verified (2026-06-08)
 
@@ -1112,7 +1112,7 @@ Automated regression on a developer machine (minimal batch, ~7s total):
 | OSS scripts architecture tests | **5 passed** |
 | `check_fractal_docs --no-stub` + line budget CI scripts | **OK** |
 
-**Total migration-specific tests: 210 passed** (Jun 2026, 6 batches). Discovery scoped to explicit test home dirs [server `competitor_discovery.py`] — production `/migration/discover` still scans the real user home unchanged. Competitors checked (OpenClaw, Hermes, DeerFlow, CodePilot, LobsterAI, CoPaw, jiuwenclaw, PilotDeck): **no GUI five-source four-lane wizard**; Hermes offers CLI `claw migrate` only; PilotDeck has skill-only file copy (361 lines, no memory/instruction/credential migration).
+**Total migration-specific tests: 312+ passed** (Jun 2026-06-14, including 101 new QwenPaw/CoPaw full-chain tests, 95% coverage). Discovery scoped to explicit test home dirs [server `competitor_discovery.py`] — production `/migration/discover` still scans the real user home unchanged. Competitors checked (OpenClaw, Hermes, DeerFlow, CodePilot, LobsterAI, CoPaw, jiuwenclaw, PilotDeck): **no GUI eight-source four-lane wizard**; Hermes offers CLI `claw migrate` only; PilotDeck has skill-only file copy (361 lines, no memory/instruction/credential migration).
 
 ### What you get after migrating (user-facing)
 

@@ -155,4 +155,4 @@ export function highlightSlideBasePath(slideKey: HighlightSlideKey): string {
 }
 
 /** Compare table row fields required in both locales. */
-export const COMPARE_ROW_FIELDS = ['feature', 'hermes', 'openclaw', 'myrmAgent'] as const;
+export const COMPARE_ROW_FIELDS = ['feature', 'hermes', 'openclaw', 'ryan', 'myrmAgent'] as const;

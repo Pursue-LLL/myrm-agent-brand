@@ -12,9 +12,9 @@ import {
 } from './marketing-keys';
 
 type CellValue = boolean | string;
-type CompetitorCol = 'hermes' | 'openclaw';
+type CompetitorCol = 'hermes' | 'openclaw' | 'ryan';
 
-const COMPETITOR_KEYS: CompetitorCol[] = ['hermes', 'openclaw'];
+const COMPETITOR_KEYS: CompetitorCol[] = ['hermes', 'openclaw', 'ryan'];
 
 function parseCompareCell(raw: string): CellValue {
   if (raw === '_no') return false;

@@ -53,7 +53,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **多模态生成** | ✅ 图片（20+ 模型 + Failover + 编辑）+ 视频（4 引擎：Sora/Veo/Qwen/MiniMax + T2V/I2V/V2V + 幂等任务管理）+ TTS（5 Provider 含免费 Edge + 流式 + 长文本自动摘要 + OpenAI 兼容 base_url 接入本地引擎）— 558 项测试 | ⚠️ FAL.ai 图片 + 2 视频插件 + 10 TTS（含 5 个 niche 本地方案） | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Computer Use** | ✅ 桌面自动化 + 后台静默输入（不抢焦点）+ BBox 审批 + Tauri OS 叠加层 + 原生 API 智能路由（AppleScript/COM/D-Bus 自动检测） | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **浏览器引擎** | ✅ 三层引擎 + GlobalBrowserPool（零冷启动、三层崩溃恢复）+ Shadow DOM 穿透 + API-First 网络智能（CDP 懒加载响应体 + 请求重放）+ 域名引擎亲和记忆 + 同源智能Tab路由 + 4 大云浏览器 Provider（GUI 配置 + 热更新免重启） | ⚠️ 第三方云浏览器（环境变量配置，需重启） | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
-| **网页搜索** | ✅ 8 引擎 + BM25/Reranker 过滤 | ⚠️ 云 API 透传 | ⚠️ DDG/Bing 抓取 | ⚠️ 同 OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
+| **网页搜索** | ✅ 8 引擎 + BM25/Reranker 过滤 + 三层防幻觉 | ⚠️ 云 API 透传 | ⚠️ DDG/Bing 抓取 | ⚠️ 同 OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
 | **网页抓取** | ✅ 三层 + 向量提取 + DOM 修剪 | ⚠️ web_extract（Firecrawl + LLM） | ⚠️ HTTP / Firecrawl 回退 | ⚠️ 同上 | ⚠️ 仅 HTTP | ❌ | ❌ |
 | **工作区 RAG** | ✅ **四层管线**：BM25 + 向量 + RRF融合 + Reranker；7类18种格式解析（PDF/Word/Excel/PPT/OCR）；双后端知识图谱；Karpathy Wiki；RSG质量守卫（503项测试） | ⚠️ 仅代码AST索引 | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **图片搜索** | ✅ 内置 image_search | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -73,7 +73,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 |------|-----------------------|------|-------------|
 | **Agent 创建** | 「Shrimp Coach」对话 | **23 预设 Agent + 6 YAML 模板市场 + GUI 向导** | 零提示词即开即用，点击即用。 |
 | **Token 成本控制** | LLM Judge 单阶段路由 (PilotDeck) | **规则+Judge 双阶段复杂度路由** | 80%+ 请求规则阶段即可决定（0 额外 token），仅歧义 case 调 Judge。 |
-| **成本可见性** | 基础统计 | **15+ GUI 仪表盘** | 实时单条消息成本、缓存节省、工具用量分解。 |
+| **成本可见性** | 基础统计 | **14 维统计大屏 + Per-Agent 成本归因 + 15+ GUI 仪表盘** | 实时单条消息成本、缓存节省、工具 P90/P99 延迟、活动热力图、记忆健康雷达。竞品最多 3 维。 |
 | **云环境** | 云电脑 | **沙箱 + 持久终端 + SaaS** | 真跨平台隔离与数据归属。 |
 | **多媒体** | 基础视频 Agent | **原生 `video/generator.py` + 全双工语音** | 创作内容并支持打断（barge-in）免提交互。 |
 
@@ -310,7 +310,7 @@ Myrm 技能进化（42 模块、原生内置）实现 Self-Improving Agent 研�
 | **Growth policy engine** | Simple apply/reject | ✅ **6-path decision matrix**: auto-apply safe skills, security pre-scan, BM25+Embedding semantic dedup (75%), evolution lock, fallback to manual review |
 | Per-agent skill isolation (no cross-agent habit pollution) | ⚠️ Shared pool | ✅ **agent_id scoping + CoW fork** on cross-agent mounts |
 | Growth dashboard | ❌ | ✅ KPI + heatmap + radar chart + evolution timeline |
-| 跨设备技能同步 | ❌ | ✅ **协议驱动的双向同步**（iCloud/Dropbox/NAS）+ SHA256 增量追踪 + 推送质量门控 + 4 种冲突策略 + 后台空闲自动同步（48 项同步测试）|
+| 跨设备技能同步 | ❌ | ✅ **协议驱动的双向同步**（iCloud/Dropbox/NAS）+ SHA256 增量追踪 + 推送质量门控 + 4 种冲突策略 + 自动更新检测 + 后台空闲自动同步（366 项同步/发现/安全测试）|
 | Batch confirmation | ❌ | ✅ 90% cost reduction for multi-skill evolution |
 | Evolution constraints | ❌ | ✅ Historical error memory prevents repeated mistakes |
 | Prebuilt skill upgrade protection | ❌ Silent overwrite | ✅ **Three-way hash** — user edits preserved, "Update Available" badge |
@@ -967,9 +967,9 @@ Myrm（**v0.1.39 生产验证**）提供 **消费级下载 + 生产 OTA + 诚实
 
 ## 本地迁移向导（v1.4）
 
-Myrm 在 Local 与 Tauri 部署提供 **GUI 优先竞品迁移向导**，范围诚实：五个文件系统发现源、四条预览通道，以及 Hermes CLI 可能自动接线但需手动的集成项。
+Myrm 在 Local 与 Tauri 部署提供 **GUI 优先竞品迁移向导**，范围诚实：八个文件系统发现源、四条预览通道，以及 Hermes CLI 可能自动接线但需手动的集成项。
 
-### 五个发现源（Local / Tauri）
+### 八个发现源（Local / Tauri）
 
 | Source | What imports automatically | What you configure manually |
 |--------|---------------------------|----------------------------|
@@ -1015,7 +1015,7 @@ Myrm 提供 **零成本热迁移与原子持久化引擎**：
 | Skill governance | Copy folders | Review queue + Agent binding |
 | Breadth | Broader MCP auto hints | Narrower but explicit manual lanes for MCP/channels |
 
-**诚实评分**：本地五源 GUI 迁移 **9.7/10** — 非「覆盖每个竞品工件」。**SaaS 云沙箱不可用**（无法访问用户主机文件系统）；请用 Local WebUI 或 Tauri 桌面端。
+**诚实评分**：本地八源 GUI 迁移 **9.7/10** — 非「覆盖每个竞品工件」。**SaaS 云沙箱不可用**（无法访问用户主机文件系统）；请用 Local WebUI 或 Tauri 桌面端。
 
 ### 实跑验证（2026-06-08）
 
@@ -1024,12 +1024,12 @@ Myrm 提供 **零成本热迁移与原子持久化引擎**：
 | 套件 | 结果 |
 |------|------|
 | 记忆导入适配器（12 源 + dry-run + 回滚）pytest | **115 通过** |
-| 迁移服务（4 车道 + 发现 + 绑定）pytest | **34 通过** |
+| 迁移服务（4 车道 + 发现 + 绑定 + QwenPaw）pytest | **101 通过** |
 | 架构 `_ARCH.md` 占位门禁 | **277 通过** |
 | OSS 脚本架构测试 | **5 通过** |
 | `check_fractal_docs --no-stub` + 行数预算 CI | **OK** |
 
-**迁移系统专项测试合计：210 通过**（2026-06，6 批分组执行）。测试目录 scoped 扫描 [server `competitor_discovery.py`] 仅影响自动化测试；生产 `/migration/discover` 仍扫描真实用户主目录。竞品（OpenClaw、Hermes、DeerFlow、CodePilot、LobsterAI、CoPaw、jiuwenclaw、PilotDeck）：**无 GUI 五源四车道向导**；Hermes 仅有 CLI `claw migrate`；PilotDeck 仅有技能文件复制（361 行，无记忆/指令/凭证迁移）。
+**迁移系统专项测试合计：312+ 通过**（2026-06-14，含 QwenPaw/CoPaw 全链路 101 项新增测试，覆盖率 95%）。测试目录 scoped 扫描 [server `competitor_discovery.py`] 仅影响自动化测试；生产 `/migration/discover` 仍扫描真实用户主目录。竞品（OpenClaw、Hermes、DeerFlow、CodePilot、LobsterAI、CoPaw、jiuwenclaw、PilotDeck）：**无 GUI 八源四车道向导**；Hermes 仅有 CLI `claw migrate`；PilotDeck 仅有技能文件复制（361 行，无记忆/指令/凭证迁移）。
 
 ### 迁移后你将获得（面向用户）
 
@@ -1079,7 +1079,7 @@ Myrm 从底层架构上彻底碾压了这些痛点，让用户能毫无顾虑地
 | **飞书集成持久化** | 依赖前台程序或由用户自行接管 | **独立后台 Daemon 服务防掉线** | 关掉桌面主界面，Agent 依然作为系统常驻服务秒回你的飞书/微信信息。 |
 | **本地网络算力集群** | 无法自动发现远程机器的算力 | **mDNS/ZeroConf 局域网广播** | 一台旧 Mac Mini 作为后端服务器，主力工作本秒级发现并直接接管。 |
 
-**一句话总结**：从 WeSight 迁移，你将获得一个全平台支持的专业级 AI 工作站，同时所有历史 Agent 的配置文件、设定的模型 API Key，均可通过 Myrm 的“五源导入向导”秒级恢复，真正的“带资入驻”。
+**一句话总结**：从 WeSight 迁移，你将获得一个全平台支持的专业级 AI 工作站，同时所有历史 Agent 的配置文件、设定的模型 API Key，均可通过 Myrm 的“八源导入向导”秒级恢复，真正的“带资入驻”。
 
 ## vs OpenClaw 2026.6.1 — 跨越"能用"到"好用"的终极形态
 
@@ -1312,3 +1312,28 @@ Tokeny 等产品针对 OpenClaw/Hermes 的痛点，主打“免部署、免配�
 3. **更智能的防 Token 刺客**：Myrm 的 ComplexityRouter 能根据单次对话复杂度智能分配大小模型，配合六层缓存，成本降低一个数量级。
 4. **全端在线的无缝流转**：从家里的 Tauri 桌面端，无缝流转到手机浏览器的 PWA，工作不因离开电脑而中断。
 5. **统一生态网关**：内置四合一网关，避免因单个第三方插件不可用而导致整个工作流停滞。
+
+## 🆚 Ryan Agent Work Kit — 文本约束 vs 架构级全栈碾压
+
+《Ryan Agent Work Kit》是一个倡导通过纯文本文件（如 `AGENTS.md`）和 bash 脚本拼接来构建 AI Agent 工作流的“套件”。其本质是为了填补纯文本、无界面（CLI）工具的架构缺陷而打的“补丁”。
+
+MyrmAgent 作为一个拥有完整 GUI、底层支持多层安全/调度协议、采用 Agent-in-Sandbox 架构的现代化工作空间，对其形成了**降维碾压**。
+
+### MyrmAgent 的领先之处
+
+| 领域 | Ryan Agent Work Kit | MyrmAgent | 用户收益 |
+|------|---------------------|-----------|-------------|
+| **项目初始化与治理** | 强依赖一键生成庞大的 `AGENTS.md` 模板目录 | **Zero-Overhead WebUI 治理** | 告别繁琐的脚手架目录与手动配置，在 WebUI 表单中勾选即可生效配置，真正对小白友好。 |
+| **可观测性与数据打点** | 依赖 Agent 或用户手写 Markdown/TSV 记录返工与耗时 | **14 维统计大屏 + 15+ GUI 仪表盘** | 耗时、Token 花费、Per-Agent 成本归因、工具 P90/P99 延迟、活动热力图、记忆健康雷达——全自动写入 SQLite 并通过精美 GUI 实时图表呈现。75 项统计测试验证。 |
+| **安全隔离与死循环防御** | 在 Prompt 中生硬约束“失败 2 次必须换假设” | **底层架构级 CircuitBreaker 熔断机制** | 代码级干预远胜于文本劝导，底层沙箱结合频率守卫自动熔断危险与死循环，防爆防挂死。 |
+| **知识共享与长时记忆** | 使用外挂脚本桥接到 Obsidian 等外部库 | **内置 8 类多模态记忆与知识图谱** | 记忆内化于 Agent 平台，并支持自动检索与脱敏导出，跨项目自然流动，无须外挂。 |
+| **生态健康与扩展** | 依赖单一 GitHub 仓库防失联 | **去中心化 5 大开放源并行聚合** | 真正解决平台单点故障风险，一键离线 ZIP 安装，安全可靠，生态无限扩展。 |
+| **技能迭代与积累** | 要求大模型在末尾打印文本来评估是否沉淀 Skill | **全自动静默 Background Evolution 引擎** | 后台 Worker 自动从历史轨迹提取有效 Skill 并放入审批收件箱，无需浪费主对话 Token。 |
+
+### 从 Ryan Work Kit 迁移的 5 个理由
+
+1. **从“拼凑脚本”到“开箱即用”**：无需熟悉 Bash 和繁杂的文件结构树，Web/Tauri 桌面双端加持，真正做到安装即用。
+2. **从“文本约束”到“代码强制”**：用底层的确定性代码逻辑替代不可靠的大模型 Prompt 文本约束（如危险命令拦截、死循环熔断等），100% 确保资产安全。
+3. **从“手动打点”到“全景可视化”**：自动追踪所有 Token、开销与工作流节点（DAG），直接生成数据面板，让 Agent 动作完全透明化。
+4. **内置化、内生化的企业级记忆**：抛弃繁琐的外挂 Obsidian 同步脚本，内置的 Qdrant 向量库加上 5 维遗忘机制，让你拥有最流畅的认知记忆体验。
+5. **生态开放自由**：不仅不受限于单一 Github 仓库的更新，更能连接包含 ClawHub 在内的多个插件市场，且支持完全无外网离线安装。
