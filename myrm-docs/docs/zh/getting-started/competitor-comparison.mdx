@@ -332,9 +332,9 @@ Myrm 技能进化（42 模块、原生内置）实现 Self-Improving Agent 研�
 | Curator Governance | Coarse-grained skip (foreground skills never managed → list bloat) | **Non-destructive archive** (always recoverable) + pinned + evolution_locked | Skills stay organized, important ones stay protected |
 | Missing Dependency Handling | Load full doc then append setup note | **XML summary shows reason at L0/L1** (save tokens) + 3-level fallback degraded docs | Know instantly what's missing, fix it fast |
 
-### 技能生态发现与导入 — 5 源并行聚合 vs 单一来源
+### 技能生态发现与导入 — 7 源并行聚合 vs 单一来源
 
-竞品仅扫描单一本地目录（`.claude/skills/`、`.agents/skills/`），Myrm 从 **5 个并行发现源**聚合技能，配备完整 GUI 导入管线：
+竞品仅扫描单一本地目录（`.claude/skills/`、`.agents/skills/`），Myrm 从 **7 个并行发现源**（含 ModelScope 80K+ / Aliyun AgentExplorer）聚合技能，配备完整 GUI 导入管线：
 
 | 能力 | Hermes / OpenClaw | Myrm | 用户收益 |
 |------|:-----------------:|:----:|---------|
@@ -1327,7 +1327,7 @@ MyrmAgent 作为一个拥有完整 GUI、底层支持多层安全/调度协议�
 | **可观测性与数据打点** | 依赖 Agent 或用户手写 Markdown/TSV 记录返工与耗时 | **14 维统计大屏 + 15+ GUI 仪表盘** | 耗时、Token 花费、Per-Agent 成本归因、工具 P90/P99 延迟、活动热力图、记忆健康雷达——全自动写入 SQLite 并通过精美 GUI 实时图表呈现。75 项统计测试验证。 |
 | **安全隔离与死循环防御** | 在 Prompt 中生硬约束“失败 2 次必须换假设” | **底层架构级 CircuitBreaker 熔断机制** | 代码级干预远胜于文本劝导，底层沙箱结合频率守卫自动熔断危险与死循环，防爆防挂死。 |
 | **知识共享与长时记忆** | 使用外挂脚本桥接到 Obsidian 等外部库 | **内置 8 类多模态记忆与知识图谱** | 记忆内化于 Agent 平台，并支持自动检索与脱敏导出，跨项目自然流动，无须外挂。 |
-| **生态健康与扩展** | 依赖单一 GitHub 仓库防失联 | **去中心化 5 大开放源并行聚合** | 真正解决平台单点故障风险，一键离线 ZIP 安装，安全可靠，生态无限扩展。 |
+| **生态健康与扩展** | 依赖单一 GitHub 仓库防失联 | **去中心化 7 大开放源并行聚合（含 ModelScope/Aliyun）** | 真正解决平台单点故障风险，一键离线 ZIP 安装，安全可靠，国内外生态全覆盖。 |
 | **技能迭代与积累** | 要求大模型在末尾打印文本来评估是否沉淀 Skill | **全自动静默 Background Evolution 引擎** | 后台 Worker 自动从历史轨迹提取有效 Skill 并放入审批收件箱，无需浪费主对话 Token。 |
 
 ### 从 Ryan Work Kit 迁移的 5 个理由
