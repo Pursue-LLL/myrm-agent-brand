@@ -90,6 +90,7 @@ export const COMPARE_ROW_KEYS = [
   'crossPlatformHandoff',
   'configSync',
   'taskResilience',
+  'longTaskOrchestration',
 ] as const;
 
 export type CompareRowKey = (typeof COMPARE_ROW_KEYS)[number];
@@ -128,6 +129,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'skillEvolution',
     'pixelDiff',
     'visionFusion',
+    'longTaskOrchestration',
   ],
   reliability: [
     'tokenEfficiency',
