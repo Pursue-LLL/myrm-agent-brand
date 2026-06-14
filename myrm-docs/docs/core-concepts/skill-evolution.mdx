@@ -71,6 +71,17 @@ This means fewer noisy proposals in your inbox, and clear guidance when somethin
 
 **vs competitors:** No competitor (Hermes, OpenClaw, Codex) offers automatic form classification. All produce only skills, leaving users to manually create cron jobs.
 
+## Proactive Skill Recommendation
+
+When the agent encounters a request it cannot fulfill with current tools, it **automatically searches** the Skill Hub before declining. This "search before saying no" behavior is enforced at two levels:
+
+1. **System Rules** — A global behavior rule instructs all models to check for discovery tools before declining
+2. **Tool Description** — The discovery tool itself uses MUST-level instructions
+
+**What this means for you:** Your AI assistant never simply says "I can't do that." Instead, it searches available skills and suggests ones you can install with one click.
+
+**vs competitors:** Verified across 8 competitor codebases (Hermes, OpenClaw, CoPaw, LobsterAI, CodePilot, jiuwenclaw, deer-flow) — none implement proactive skill recommendation. Hermes's `tool_search` (735 lines) is Progressive Tool Disclosure for already-registered tools, not capability discovery.
+
 ## Quality Monitoring
 
 **3-dimensional degradation detection** with sliding window statistics:
