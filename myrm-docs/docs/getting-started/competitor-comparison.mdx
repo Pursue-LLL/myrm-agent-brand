@@ -1430,6 +1430,23 @@ Moving away from competitors relying on simple ReAct loops and basic memory, you
 
 **Migration win**: Every "Error Prevention UX" enhancement proposed for Codex is already implemented in Myrm with deeper, architecture-level protection. Shell risk visualization, visual approval overlays, and approval card editing are exclusive to Myrm. 742 automated tests (163 frontend + 579 Harness) verify the entire error prevention pipeline.
 
+## Long-Task Automated Orchestration (vs Codex Manual Workflows)
+
+When handling long-running, multi-file refactoring tasks spanning days, many developers rely on "manual constraint workflows" popularized by tools like Codex—manually splitting subtasks, creating `.codex-work/tasks/*.md` folders, and even writing handoff documents like `handoff.md` by hand.
+
+While this semi-manual mode prevents LLM context pollution, it should **never** be a burden for the end user. Myrm upgrades this "geek's workshop" into automated infrastructure:
+
+### Myrm's Lead
+
+| Domain | Traditional Semi-Manual Workflow (e.g., Codex) | Myrm Agent | User Benefit |
+|------|---------------------------------------------|------------|--------------|
+| **Task Breakdown & Isolation** | Manually creating Markdown files as isolation barriers | **PlannerAgent auto-generates DAG task trees** | Internal state transitions have zero pollution on the main session, **automatic and absolutely clean**. |
+| **Parallel Execution Isolation** | User must manually switch between Git branches or worktrees | **Native automated Git Worktree isolation** | Backend natively supports parallel isolation across multiple worktrees without interference. |
+| **Stage Execution Verification** | Requires a human to monitor and manually approve | **Built-in 3-Strike Protocol** | Continuous execution failures trigger automatic escalation, forcing verification commands. |
+| **Cross-Task Handoff & Recovery** | Manually maintaining `handoff.md` and state summaries | **ArchiveCheckpoint + SessionNotes** | Memory system achieves zero-token-cost lossless multi-layer archiving. Resume with one click after a crash. |
+
+**Conclusion: Migrating to Myrm frees your hands completely. Say goodbye to the artificial workflows you imposed on yourself just to "keep the model from acting dumb." Let the machine do the orchestration it was meant to do.**
+
 ## Ready to Start?
 
 <CardGroup cols={2}>
