@@ -74,6 +74,26 @@ Three preset policies control when the agent responds in group chats:
 | SELECTIVE | Allow all | Mention required |
 | STRICT | Mention required | Mention required |
 
+### GroupTriggerMode
+
+Fine-grained control over when the agent activates in group chats:
+
+| Mode | Behavior |
+|------|----------|
+| ALL | Every message in the group triggers the agent |
+| MENTION_ONLY | Only responds when @mentioned |
+| PREFIX | Responds when message starts with a configured prefix (prefix is auto-stripped) |
+
+### Topic Binding
+
+Three-tier granularity binds different agents to different conversation scopes:
+
+- **Thread level**: Bound to a specific topic/thread
+- **Chat level**: Bound to a specific group/conversation
+- **Channel level**: Bound to the entire channel
+
+Lookup order is Thread→Chat→Channel with graceful fallback to the default agent.
+
 ### GroupContextBuffer
 
 Non-trigger messages in group chats are accumulated in a per-group ring buffer. When a trigger message arrives (e.g., @agent), the buffer is drained and injected as context — giving the agent conversational awareness of the group discussion.

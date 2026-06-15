@@ -74,6 +74,26 @@ Agent 初始化时向系统提示词注入渠道格式提示，生成前告知 L
 | SELECTIVE | 全部允许 | 需 @ |
 | STRICT | 需 @ | 需 @ |
 
+### GroupTriggerMode
+
+精细控制群聊中 Agent 何时被激活：
+
+| 模式 | 行为 |
+|------|------|
+| ALL | 群内所有消息都触发 Agent |
+| MENTION_ONLY | 仅 @Agent 时响应 |
+| PREFIX | 消息以指定前缀开头时响应（前缀自动剥离） |
+
+### Topic Binding
+
+三级粒度将不同 Agent 绑定到不同对话范围：
+
+- **Thread 级**：绑定到某个话题/线程
+- **Chat 级**：绑定到某个群/会话
+- **Channel 级**：绑定到整个渠道
+
+查找顺序 Thread→Chat→Channel 逐级降级，未绑定时使用默认 Agent。
+
 ### GroupContextBuffer
 
 群聊非触发消息累积于 per-group 环形缓冲。@Agent 等触发时排空缓冲注入上下文 — Agent 感知群讨论脉络。
