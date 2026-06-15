@@ -19,7 +19,24 @@ The agent will parse intent, create the schedule, and confirm before activation.
 
 ### Via GUI
 
-Navigate to **Tasks > Scheduled** and click **Create Task** to use the visual configuration dialog with schedule picker, model selector, and delivery options.
+Navigate to **Settings > Scheduled Tasks** and click **Create** to use the visual configuration dialog with schedule picker, model selector, and delivery options.
+
+## Task Types
+
+| Type | Description | LLM Cost |
+|------|-------------|----------|
+| **Agent** | Full AI agent execution with prompt, model, and memory | Token-based |
+| **Shell** | Direct shell command (local/desktop only, hidden in cloud) | Free |
+| **Script (Python)** | Sandboxed Python script with 60s timeout (works everywhere including cloud) | Free |
+
+### Script Mode (Zero LLM Cost)
+
+Select **Script (Python)** when creating a task to run Python code without any LLM invocation. The script executes in an isolated subprocess with a 60-second timeout.
+
+- **stdout becomes the output** — non-empty output is delivered to configured channels, empty output is silently skipped
+- **Skip signals**: Print `[SKIP]` or `{"action": "skip"}` to abort the task gracefully
+- **Cloud-safe**: Unlike shell commands, Python scripts are available in all deployment modes (local, desktop, cloud sandbox)
+- **Use cases**: API health checks, data monitoring, RSS filtering, database audits
 
 ## Three Scheduling Modes
 
@@ -134,3 +151,5 @@ The lock is RAII-guarded and auto-released when the task completes, even on fail
 | One-time reminder | `2026-06-01T10:00:00` | Once + chat delivery |
 | Data pipeline | `0 8 * * *` | Cron + context_from chaining |
 | Heartbeat self-check | Configurable | Heartbeat + Situation Report |
+| API uptime monitor | `*/5 * * * *` | Script mode + [SKIP] on success |
+| Database audit | `0 6 * * *` | Script mode + multi-line output |
