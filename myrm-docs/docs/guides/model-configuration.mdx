@@ -77,6 +77,17 @@ This means you know whether a model will feel snappy or sluggish *before* commit
 
 **Deploy Mode Awareness:** In SaaS mode, local model features are automatically hidden — no clutter for cloud-only users. In Local WebUI or Desktop modes, the full Hardware Cookbook is available.
 
+## Config Auto-Healing
+
+All model configuration values are automatically sanitized on save, preventing common copy-paste errors from causing connection failures:
+
+- **API URL** — trailing slashes and whitespace removed (prevents 404 errors)
+- **API Key** — leading/trailing spaces and newlines stripped (prevents auth failures)
+- **Model name** — extra whitespace removed (prevents model-not-found errors)
+- **Empty values** — converted to unset state gracefully (prevents crashes)
+
+This means when pasting from docs or terminal, even if your input has extra spaces, slashes, or newlines, the system works correctly. You never need to worry about formatting.
+
 ## Fault Tolerance
 
 The 14-layer error recovery system handles failures automatically:

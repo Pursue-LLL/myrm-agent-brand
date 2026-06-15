@@ -71,6 +71,43 @@ Unlike competitors that permanently discard compressed content, Myrm's compressi
 
 This means agents can "look back" at earlier details even after compression.
 
+## System Prompt Architecture
+
+### Four Prompt Modes
+
+Myrm supports four prompt modes that control the density and scope of system instructions injected into each LLM call:
+
+| Mode | Content | Use Case |
+|------|---------|----------|
+| **full** | Identity + obedience rules + response rules + security + task integrity + memory rules | Default for all conversations |
+| **lean** | Identity + security + task integrity | Advanced users who want less AI intervention |
+| **naked** | Security rules + tool guidance only | Full user control, minimal system overhead |
+| **search** | Dedicated search prompt | Lightweight fast-search interactions |
+
+Each mode is pre-built as a static string at startup, ensuring the same parameter combination always returns the identical string object — maximizing KV Cache hit rates across users.
+
+### XML-Tagged Rule Isolation
+
+All system prompt rules are wrapped in semantic XML tags, enabling LLMs to parse rule boundaries precisely and avoid attention drift during long sessions:
+
+- **Framework layer** (`model_discipline.py`): `<agent_behavior_rules>`, `<tool_use_enforcement>`, `<execution_discipline>` (per-model), `<escalation_contract>`
+- **Business layer** (`shared_rules.py`): `<security_rules>`, `<memory_rules>`, `<task_integrity>`, `<response_rules>`, `<desktop_control_rules>`, `<absolute_obedience_override>`
+- **Identity layer** (`general_agent_prompt.py`): `<identity>`, `<ruleset>`, `<tool_guidance>`
+- **Middleware layer**: `<user_instructions>`, `<workspace_context>`, `<cli_tools>`
+
+### Per-Model Execution Discipline
+
+Different LLM families have known failure modes. Myrm corrects these automatically with model-specific discipline prompts:
+
+| Model Family | Corrections Applied |
+|-------------|-------------------|
+| GPT / Codex / Grok | Tool persistence, mandatory tool use, act-don't-ask |
+| Gemini / Gemma | Absolute paths, parallel calls, non-interactive |
+| Claude | Execute-when-instructed, reduce disclaimers |
+| DeepSeek / Qwen / GLM | Reduce over-explanation, enforce tool calls |
+
+These corrections are determined at initialization and never change during a session — fully KV Cache safe.
+
 ## Prompt Cache Optimization
 
 Prompt caching reduces input token costs by up to 90% when cache hits occur.

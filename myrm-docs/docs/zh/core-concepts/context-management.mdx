@@ -70,6 +70,43 @@ Myrm 上下文管理确保 Agent 在 200+ 轮对话中不丢信息，并通过�
 
 Agent 压缩后仍可「回看」早期细节。
 
+## 系统提示词架构
+
+### 四档 Prompt 模式
+
+Myrm 支持四档提示词模式，按场景控制注入 LLM 的系统指令密度和范围：
+
+| 模式 | 内容 | 适用场景 |
+|------|---------|----------|
+| **full** | 身份 + 服从规则 + 回复规则 + 安全 + 任务完整性 + 记忆规则 | 所有对话的默认模式 |
+| **lean** | 身份 + 安全 + 任务完整性 | 高级用户减少 AI 干预 |
+| **naked** | 仅安全规则 + 工具调用指引 | 用户完全控制，最小系统开销 |
+| **search** | 专用搜索提示词 | 轻量快速搜索交互 |
+
+每种模式在启动时预构建为静态字符串，确保同一参数组合始终返回相同字符串对象——最大化跨用户 KV Cache 命中率。
+
+### XML 标签结构化规则隔离
+
+所有系统提示词规则均用语义化 XML 标签包裹，让 LLM 能精确解析规则边界，避免长会话中的注意力漂移：
+
+- **框架层**（`model_discipline.py`）：`<agent_behavior_rules>`、`<tool_use_enforcement>`、`<execution_discipline>`（per-model）、`<escalation_contract>`
+- **业务层**（`shared_rules.py`）：`<security_rules>`、`<memory_rules>`、`<task_integrity>`、`<response_rules>`、`<desktop_control_rules>`、`<absolute_obedience_override>`
+- **身份层**（`general_agent_prompt.py`）：`<identity>`、`<ruleset>`、`<tool_guidance>`
+- **中间件层**：`<user_instructions>`、`<workspace_context>`、`<cli_tools>`
+
+### Per-Model 执行纪律
+
+不同 LLM 家族有已知的失败模式。Myrm 使用模型特定的纪律提示自动修正：
+
+| 模型家族 | 修正内容 |
+|-------------|-------------------|
+| GPT / Codex / Grok | 工具持久调用、强制工具使用、行动而非询问 |
+| Gemini / Gemma | 绝对路径、并行调用、非交互 |
+| Claude | 被指示时执行、减少免责声明 |
+| DeepSeek / Qwen / GLM | 减少过度解释、强制工具调用 |
+
+这些修正在初始化时确定且会话期间不变——完全 KV Cache 安全。
+
 ## Prompt Cache 优化
 
 Prompt 缓存命中时输入 Token 成本最高可降 90%。
