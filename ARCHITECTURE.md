@@ -2,16 +2,19 @@
 
 ## 架构概述
 
-开源品牌仓：营销官网与产品文档分目录维护、分托管发布。官网跳转 SaaS（`app.myrmagent.ai`）与文档站（`docs.myrmagent.ai`）经 `deploy-mode.ts` 统一 URL。
+闭源品牌与文档仓：营销官网与产品文档分目录维护、分托管发布。MIT 开源产品在 [Pursue-LLL/myrm-agent](https://github.com/Pursue-LLL/myrm-agent)；本仓负责 `myrmagent.ai` 与 `docs.myrmagent.ai`。官网跳转 SaaS（`app.myrmagent.ai`）与文档站经 `deploy-mode.ts` 统一 URL。
 
 文档约定（分形自文档）：仓根 `ARCHITECTURE.md`（整体架构）；跨模块方案 `xxx_SYSTEM.md`（如 `myrm-website/DUAL_PAGE_SYSTEM.md`）；各模块文件夹 `_ARCH.md`（模块文件清单与职责）；核心源码文件头部 `INPUT` / `OUTPUT` / `POS` 注释（文件定位）。**仅仓根允许 `README.md` 作 clone 入口**，子模块不用 README。
 
 ## 目录清单
 
-| 目录 | 地位 | 职责 | 部署 |
+| 路径 | 地位 | 职责 | 部署 |
 |------|------|------|------|
+| `README.md` | 入口 | Clone 与常用命令 | — |
+| `CONTRIBUTING.md` | 辅助 | 贡献指南（链至 docs 详细说明） | — |
+| `ARCHITECTURE.md` | 核心 | 仓级架构 SSOT | — |
 | `myrm-website/` | 核心 | Next.js 营销站、下载页、法务页 | Cloudflare Pages → `myrmagent.ai` |
-| `myrm-docs/` | 核心 | Mintlify 文档（MDX + `docs.json`） | Mintlify → `docs.myrmagent.ai` |
+| `myrm-docs/` | 核心 | Mintlify 文档（MDX + `docs.json` + `package.json`） | Mintlify → `docs.myrmagent.ai` |
 
 ## Cloudflare Pages（生产）
 
@@ -87,10 +90,10 @@
 | Mintlify | `docs.json` → `navigation.languages[en, zh]` |
 | URL | EN：`/getting-started/...`；ZH：`/zh/getting-started/...` |
 | 官网跳转 | `getDocsUrl(path, locale)`、`localizedDocsPath()`、`useDocsLocale` |
-| App locale 接力 | `getAppUrl(path, locale)` → `middleware.ts` 写 cookie → 登录后 `locale-personal-sync` 写 `personalSettings` |
+| App locale 接力 | `getAppUrl(path, locale)` → **主产品** `myrm-agent/myrm-agent-frontend` 的 `middleware.ts` 写 cookie → 登录后 `locale-personal-sync` 写 `personalSettings` |
 | 营销契约 | `MARKETING_DOC_PATHS` + `validate-docs-slugs` 双 locale（`bun run build` 门禁） |
 | zh MDX 内链 | `/zh/...`（非 `/docs/...`） |
-| 脚本 | `apply-i18n-docs-json.ts`（导航 + zh footer）、`build-zh-navigation.ts` |
+| 脚本 | `myrm-docs/package.json`：`apply-i18n` / `build-zh-nav`；`apply-i18n-docs-json.ts`（导航 + zh footer）、`build-zh-navigation.ts` |
 
 ## 约束
 

@@ -51,8 +51,12 @@
 | `MarketingShell.tsx` | 核心 | 非 Landing 页共享壳层（下载/法务） | ✅ |
 | `LegalPage.tsx` | 核心 | 法务页 section 排版 | ✅ |
 | `landing/HighlightsCarouselSection.tsx` | 核心 | 8 张亮点轮播（Embla 垂直 + 左栏导览）；IO 离屏停播 |
+| `landing/UseCasesSection.tsx` | 核心 | 四场景用例卡片 |
+| `landing/IntegrationsSection.tsx` | 辅助 | LLM / 工具 chip 列表（locale ` · ` 短标签，≤48 字/chip） | ✅ |
+| `landing/FaqSection.tsx` | 核心 | OSS FAQ（`#faq`） | ✅ |
+| `landing/FinalCtaSection.tsx` | 核心 | 页尾 Final CTA + PathStrip | ✅ |
 | `ui/carousel.tsx` | 核心 | Embla Carousel 封装（shadcn 同款） |
-| `landing/marketing-keys.ts` | 核心 | Bento/对比/轮播 i18n 键清单 |
+| `landing/marketing-keys.ts` | 核心 | Bento/对比/轮播/用例/FAQ i18n 键清单 |
 | `cloud/cloud-marketing-keys.ts` | 核心 | SaaS 定价/FAQ/步骤键清单 |
 
 云页详情见 [`cloud/_ARCH.md`](cloud/_ARCH.md)。

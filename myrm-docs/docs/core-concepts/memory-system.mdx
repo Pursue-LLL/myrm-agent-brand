@@ -65,11 +65,29 @@ Retrieving outdated information (like a file path from a month ago) causes naive
 
 Myrm's memory retriever injects `[Created: YYYY-MM-DD]` timestamps into every loaded episodic/semantic memory. Furthermore, if the system detects sensitive time-decaying assets (like code paths), it dynamically prepends a `[CRITICAL WARNING]` instructing the LLM: *"This path may be outdated. You MUST use Read/Grep tools to verify its existence before making code assumptions."* This effectively immunizes the Agent against RAG-induced code hallucinations.
 
-Additional enhancements: 5 result boosters (keyword overlap, temporal proximity, person name, quoted phrase, preference), MMR diversity reranking, correction-chain suppression, and adaptive dual-channel selection saving ~35% query cost.
+Additional enhancements: 6 result boosters (keyword overlap, temporal proximity, person name, quoted phrase, preference, pattern matching), MMR diversity reranking with source-session deduplication, correction-chain suppression (outdated corrected memories auto-demoted 90%), and adaptive dual-channel selection saving ~35% query cost.
+
+## Retrieval Configuration Engine
+
+Under the hood, Myrm's retrieval system exposes **33 tunable parameters** through `RetrievalConfig` — all with carefully optimized defaults so you never need to touch them. Key capabilities:
+
+- **3 Recall Modes** — HYBRID (context injection + memory tools), CONTEXT (injection only, ideal for API/headless), TOOLS (minimal token overhead)
+- **5 Independent Boost Systems** — keyword overlap, temporal proximity, person name matching, quoted phrase detection, preference strength — each with its own enable toggle and weight parameter
+- **Adaptive Dual-Channel Selection** — Automatically chooses between summary-only and dual-channel (summary + raw) retrieval based on query complexity, saving ~35% query cost without sacrificing recall quality
+- **Intent Recognition** — Automatically detects query intent (factual lookup vs preference recall vs temporal query) and adapts retrieval strategy accordingly
+- **5-Level Memory Scope Isolation** — Global → Agent → Channel → Conversation → Task, with configurable read/write policies per scope level
+- **6 Memory Type Weights** — Independent relevance weights for Profile, Semantic, Episodic, Conversation, Procedural, and Claim memories
+- **Frontend Settings** — 4 toggles (enable/confirmation/auto-extraction/pre-compact) + 1 slider (token budget 800–2000) + 6 tab views — the optimal UX balance between power and simplicity
+
+All parameters use frozen dataclasses for thread safety. Advanced users can override defaults via server configuration; most users never need to.
 
 ## Knowledge Graph
 
 Relationships between memory entries are modeled as a knowledge graph with 4 semantic relation types (SUPPORTED, CONTRADICTED, SUPERSEDED, CONSTRAINED) and multi-hop traversal. Supports both SQLite CTE and Apache AGE backends with 3D visualization in the GUI.
+
+## Wiki Knowledge Base
+
+Conversations automatically archive into a structured Wiki knowledge base — no manual setup needed. After 10+ turns of meaningful dialogue, the system extracts high-value concepts and compiles them into navigable wiki pages with claims, evidence, and provenance. The Brain page provides a full GUI for browsing concepts, editing content, searching with hybrid retrieval (semantic + keyword), reviewing pending edits, and exploring a 3D knowledge graph. Each user gets an isolated wiki directory for multi-tenant privacy.
 
 ## Intelligent Forgetting & Incognito Mode
 
@@ -181,13 +199,21 @@ Manage everything from the GUI: create contexts, bind them to targets, review wr
 
 ## Memory GUI Management
 
-Every aspect of the memory system is manageable through the GUI:
+A comprehensive 40-component interactive GUI replaces the traditional plain-text file approach (like MEMORY.md). Every aspect of the memory system is manageable through rich visual interfaces:
 
-- **MemoryEditDialog** — directly edit content, reasoning, application, and importance of any memory
-- **MemoryCreateDialog** — manually create memories when the AI should know something immediately
-- **MemoryTrashPanel** — soft-delete and restore with full undo history
-- **MemoryCommandCenter** — monitor health scores, view operation timelines, and run diagnostics
+- **6-Tab Classification** — pending, all, context, shared, recall, and trash views for instant navigation
+- **Rich Memory Cards** — each memory displays its type icon, timestamp, content preview, and action buttons (edit/delete/approve)
+- **MemoryCommandCenter** — full-dashboard management with health scores, operation timelines, governance panels, and diagnostics (DoctorPanel)
+- **Shared Context Manager** — create shared knowledge pools, bind them to specific agents or channels, review write proposals, and audit cross-agent knowledge sharing
+- **Approval Queue** — every AI-extracted memory goes through a review queue. Edit before approving, reject unwanted entries, or batch-approve. Each pending memory links back to the source conversation for full traceability
+- **3D Knowledge Graph** — interactive visualization of memory relationships and connections
+- **3-Way Rollback** — undo migration imports, consolidations, or archive restores with dry-run preview
+- **Session Replay** — replay past conversations to see exactly how memories were used
+- **Health Dashboard** — real-time monitoring of memory system health with quantified scores
+- **Preference Analytics** — PreferenceStabilityCard and TasteSummaryCard show how well the AI understands your preferences
+- **Injection Safety** — automatic content scanning detects prompt injection attacks (CLEAN/WARN/REDACTED/BLOCKED)
 - **Export/Import** — full memory export with dry-run preview before import (supports 12 formats including Claude Code, Cursor, Hermes, Codex, Windsurf, and Trae)
+- **New User Guide** — built-in MemoryGuide walks first-time users through the system
 
 ## Memory Health
 
@@ -216,3 +242,33 @@ Share your procedural memory rules with teammates or the community without expos
 - **Live preview**: inspect sanitized output before sharing — what you see is what gets exported
 
 Access from Settings → Memory → Share Rules (Privacy-safe), or via API: `GET /api/v1/memory/operations/export/rules-safe`.
+
+## Smart Follow-up Tracking (Commitments)
+
+Myrm automatically detects implicit follow-up obligations from conversations — interviews to schedule, deadlines to meet, health check-ins to make — and tracks them via a structured commitment pipeline:
+
+- **Async extraction**: After each session, an LLM pass identifies commitments without blocking your conversation (4 kinds: action, reminder, care, follow-up; 3 sensitivity levels: routine, delicate, confidential)
+- **Confidence gating**: Only high-confidence commitments pass (threshold ≥ 0.65, care items ≥ 0.86) — no spam
+- **Heartbeat delivery**: Due commitments are injected into the agent's Situation Report at each heartbeat tick, then automatically marked as sent (no duplicates)
+- **GUI management**: View, dismiss, or snooze commitments from the Follow-up Tracking panel in Settings
+- **72-hour auto-expiry**: Stale commitments are automatically cleaned up
+- **24-hour rolling window**: Maximum 3 commitment notifications per day to prevent notification fatigue
+
+Access from Settings → System → Follow-up Tracking.
+
+## Session Notes — Zero-Cost Task Continuity
+
+When conversations grow long enough to require compression, traditional approaches use an LLM to generate summaries — consuming tokens and potentially losing important details. Myrm maintains **Session Notes** — a structured, 8-section cognitive model that the AI builds incrementally in the background:
+
+| Section | What It Tracks |
+|---------|---------------|
+| Session Title | Short distinctive title for the conversation |
+| Current State | What's actively being worked on, pending tasks, next steps |
+| Task Specification | What the user asked to build, design decisions |
+| Files & Functions | Important files, paths, key functions, how they interact |
+| Workflow | Commands run, their order, how to interpret output |
+| Errors & Corrections | Errors encountered, fixes applied, failed approaches |
+| Key Findings | Important discoveries, conclusions, exact answers |
+| Worklog | Step-by-step record of what was attempted and done |
+
+When compression is needed, Session Notes replace old messages with **zero additional API calls** — no LLM summary generation required. Combined with 8 loop detection algorithms and 7 domain-specific suggestion generators, this ensures long tasks stay on track without goal drift.

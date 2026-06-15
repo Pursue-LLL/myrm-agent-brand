@@ -3,7 +3,7 @@
  * - locales/zh.json, locales/en.json marketing namespace（由 validate 脚本校验）
  *
  * [OUTPUT]
- * - BENTO_KEYS, COMPARE_ROW_KEYS, HIGHLIGHT_SLIDE_KEYS, highlightSlideBasePath
+ * - BENTO_KEYS, COMPARE_ROW_KEYS, HIGHLIGHT_SLIDE_KEYS, USE_CASE_KEYS, FAQ_ITEM_KEYS, highlightSlideBasePath
  *
  * [POS]
  * 落地页 i18n 键清单唯一来源；组件与 validate-marketing-locales.ts 均引用此处。
@@ -156,3 +156,11 @@ export function highlightSlideBasePath(slideKey: HighlightSlideKey): string {
 
 /** Compare table row fields required in both locales. */
 export const COMPARE_ROW_FIELDS = ['feature', 'hermes', 'openclaw', 'ryan', 'myrmAgent'] as const;
+
+export const USE_CASE_KEYS = ['research', 'coding', 'automation', 'content'] as const;
+
+export type UseCaseKey = (typeof USE_CASE_KEYS)[number];
+
+export const FAQ_ITEM_KEYS = ['what', 'local', 'data'] as const;
+
+export type FaqItemKey = (typeof FAQ_ITEM_KEYS)[number];

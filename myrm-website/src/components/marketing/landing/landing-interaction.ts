@@ -1,3 +1,13 @@
+/**
+ * [INPUT]
+ * - DOM `.ed-reveal` 元素（POS: Landing 滚动显现动画标记类）
+ *
+ * [OUTPUT]
+ * - useRevealOnScroll / useScrollProgress / useCursorTrail / useCountUp
+ *
+ * [POS]
+ * OSS Landing 页交互 hooks；与 `src/hooks/` 站点级 hooks 分离，避免命名冲突。
+ */
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -40,19 +50,6 @@ export function useRevealOnScroll() {
     };
   }, []);
   return ref;
-}
-
-/** True when viewport is at least `minWidth` (default md breakpoint). */
-export function useMinWidth(minWidth = 768): boolean {
-  const [matches, setMatches] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia(`(min-width: ${minWidth}px)`);
-    const update = () => setMatches(mq.matches);
-    update();
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
-  }, [minWidth]);
-  return matches;
 }
 
 export function useScrollProgress() {

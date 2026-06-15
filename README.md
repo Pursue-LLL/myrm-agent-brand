@@ -1,11 +1,13 @@
 # myrm-agent-brand
 
-品牌仓：Myrm 营销官网（Next.js）与产品文档（Mintlify），分目录维护、分托管发布。
+闭源品牌与文档仓：Myrm 营销官网（Next.js）与产品文档（Mintlify），分目录维护、分托管发布。
+
+**与主产品关系**：本仓闭源；MIT 开源 Agent 产品（server + WebUI + desktop）在 [Pursue-LLL/myrm-agent](https://github.com/Pursue-LLL/myrm-agent)。本仓仅含对外官网与文档。贡献指南见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 | 包 | 职责 | 本地开发 | 线上 |
 | --- | --- | --- | --- |
 | `myrm-website/` | 落地页、下载页、定价与法务页 | `cd myrm-website && bun install && bun run dev:3002` | [myrmagent.ai](https://myrmagent.ai) |
-| `myrm-docs/` | 用户文档（MDX + `docs.json`） | [Mintlify CLI](https://www.mintlify.com/docs/development)：`cd myrm-docs && mint dev` | [docs.myrmagent.ai](https://docs.myrmagent.ai) |
+| `myrm-docs/` | 用户文档（MDX + `docs.json`） | `cd myrm-docs && bun install && bun run dev`（Mintlify CLI） | [docs.myrmagent.ai](https://docs.myrmagent.ai) |
 
 官网 CTA 跳转 SaaS（`app.myrmagent.ai`）；文档外链经 `myrm-website/src/lib/deploy-mode.ts` 统一为 `docs.myrmagent.ai`。
 
@@ -70,4 +72,4 @@ bun run release:website -- website-v1.2.0
 
 ## 架构文档
 
-分形自文档约定：仓级 [ARCHITECTURE.md](ARCHITECTURE.md)（整体架构）；各模块子目录 `_ARCH.md`（模块文件清单与职责）；核心源码文件头部 `INPUT` / `OUTPUT` / `POS` 注释（文件定位）。本 README 仅为 clone 入口，细节以 ARCHITECTURE 为准。
+分形自文档约定：仓级 [ARCHITECTURE.md](ARCHITECTURE.md)（整体架构）；贡献流程 [CONTRIBUTING.md](CONTRIBUTING.md)；各模块子目录 `_ARCH.md`（模块文件清单与职责）；核心源码文件头部 `INPUT` / `OUTPUT` / `POS` 注释（文件定位）。本 README 仅为 clone 入口，细节以 ARCHITECTURE 为准。

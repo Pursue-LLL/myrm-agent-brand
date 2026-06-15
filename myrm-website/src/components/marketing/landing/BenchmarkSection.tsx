@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useCountUp } from './hooks';
+import { useCountUp } from './landing-interaction';
 
 const BREAKDOWN_ROWS = ['systemPrompt', 'toolDefs', 'context'] as const;
 const BREAKDOWN_COLS = [

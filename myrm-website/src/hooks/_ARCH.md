@@ -15,4 +15,5 @@
 
 - `src/lib/docs-contract.ts`（POS: 营销站 → Mintlify 路径契约）
 - `src/lib/desktop-release.ts`（POS: 桌面端安装包元数据单一入口）
+- `landing/landing-interaction.ts`（POS: Landing 页交互 hooks，非本目录）
 - `next-intl`（POS: 营销站应用 locale）

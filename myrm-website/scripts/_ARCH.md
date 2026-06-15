@@ -5,7 +5,7 @@
 | 文件 | 地位 | 职责 | I/O/P |
 |------|------|------|-------|
 | `brand-url-patterns.ts` | 核心 | 禁止 legacy 域名/org 的正则；validate 脚本共用 | ✅ |
-| `validate-marketing-locales.ts` | 核心 | locales 键契约 + legacy URL 扫描 | ✅ |
+| `validate-marketing-locales.ts` | 核心 | locales 键契约（Bento/对比/轮播/用例/FAQ/集成 chip 长度）+ legacy URL 扫描 | ✅ |
 | `validate-docs-slugs.ts` | 核心 | 营销 slug ↔ Mintlify nav ↔ MDX orphan | ✅ |
 | `bake-desktop-release.ts` | 核心 | 构建前写入 `public/desktop-release.json` | ✅ |
 | `release-website.ts` | 核心 | tag + CF Deploy Hook preflight | ✅ |

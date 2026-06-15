@@ -18,29 +18,28 @@ import { useDocsLocale } from '@/hooks/useDocsLocale';
 import { useState } from 'react';
 import {
   ArrowRight02Icon,
-  Search01Icon,
-  SourceCodeIcon,
-  RepeatIcon,
-  PencilEdit01Icon,
 } from 'hugeicons-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils/classnameUtils';
 import { buildMarketingNavLinks, getMarketingLoginHref, getMarketingQuickStartHref, getMarketingRegisterHref } from '@/lib/marketing-nav';
-import { useRevealOnScroll, useScrollProgress, useCursorTrail } from './landing/hooks';
-import { MagneticButton, TiltCard } from './landing/interactive';
+import { useRevealOnScroll, useScrollProgress, useCursorTrail } from './landing/landing-interaction';
+import { MagneticButton } from './landing/interactive';
 import ColonyLayer from './landing/colony/ColonyLayer';
 import BenchmarkSection from './landing/BenchmarkSection';
 import HighlightsCarouselSection from './landing/HighlightsCarouselSection';
 import AdvantagesSection from './landing/AdvantagesSection';
 import QuickStartSection from './landing/QuickStartSection';
 import HowItWorksSection from './landing/HowItWorksSection';
-import PathStrip from './landing/PathStrip';
 import { DeployPathProvider } from './landing/deploy-path-context';
 import DeploySection from './landing/DeploySection';
 import TestimonialsSection from './landing/TestimonialsSection';
 import WhyMyrmAgentSection from './landing/WhyMyrmAgentSection';
 import FooterSection from './landing/FooterSection';
 import IntegrationMarquee from './landing/IntegrationMarquee';
+import UseCasesSection from './landing/UseCasesSection';
+import IntegrationsSection from './landing/IntegrationsSection';
+import FaqSection from './landing/FaqSection';
+import FinalCtaSection from './landing/FinalCtaSection';
 import BrandLogo from './BrandLogo';
 import LocaleSwitcher from './LocaleSwitcher';
 import { DifferentiatorStripFromLocale, MultilineHeading } from './landing/HeroTypography';
@@ -58,10 +57,6 @@ function GitHubIcon({ className }: { className?: string }) {
     </svg>
   );
 }
-
-const USE_CASE_ICONS = { research: Search01Icon, coding: SourceCodeIcon, automation: RepeatIcon, content: PencilEdit01Icon };
-const USE_CASE_KEYS = ['research', 'coding', 'automation', 'content'] as const;
-const FAQ_ITEMS = ['what', 'local', 'data'] as const;
 
 export default function LandingEditorial() {
   const t = useTranslations('marketing');
@@ -310,39 +305,7 @@ export default function LandingEditorial() {
 
         <HighlightsCarouselSection />
 
-        {/* Use Cases */}
-        <section className="ed-section-alt py-20 sm:py-40">
-          <div className="mx-auto max-w-[1080px] px-6">
-            <div className="ed-reveal mx-auto max-w-md text-center">
-              <h2 className="text-[clamp(1.8rem,4vw,2.6rem)] font-semibold tracking-[-0.02em]">{t('useCases.title')}</h2>
-              <p className="mt-5 text-[15px] leading-relaxed font-light" style={{ color: 'var(--ed-dim)' }}>{t('useCases.subtitle')}</p>
-            </div>
-            <div className="mt-12 sm:mt-20 grid gap-6 sm:grid-cols-2">
-              {USE_CASE_KEYS.map((key, i) => {
-                const Icon = USE_CASE_ICONS[key];
-                return (
-                  <TiltCard key={key} className={cn('ed-reveal ed-card rounded-2xl p-7', `ed-stagger-${(i % 3) + 1}`)} style={{ border: '1px solid var(--ed-border)', background: 'var(--ed-surface)' }}>
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="ed-icon inline-flex h-9 w-9 items-center justify-center rounded-lg" style={{ background: 'var(--ed-accent-soft)' }}>
-                        <Icon className="h-[16px] w-[16px]" style={{ color: 'var(--ed-accent)' }} />
-                      </div>
-                      <span className="text-[10px] uppercase tracking-[0.2em] font-medium ed-mono" style={{ color: 'var(--ed-accent)' }}>
-                        {t(`useCases.items.${key}.tag`)}
-                      </span>
-                    </div>
-                    <h3 className="text-[15px] font-semibold">{t(`useCases.items.${key}.title`)}</h3>
-                    <p className="mt-2 text-[14px] leading-[1.75] font-light" style={{ color: 'var(--ed-dim)' }}>
-                      {t(`useCases.items.${key}.description`)}
-                    </p>
-                    <p className="mt-4 rounded-lg px-4 py-3 text-[12px] ed-mono leading-relaxed italic" style={{ background: 'var(--ed-bg)', color: 'var(--ed-muted)', border: '1px solid var(--ed-border)' }}>
-                      {t(`useCases.items.${key}.prompt`)}
-                    </p>
-                  </TiltCard>
-                );
-              })}
-            </div>
-          </div>
-        </section>
+        <UseCasesSection />
 
         <div className="ed-divider" />
 
@@ -350,38 +313,7 @@ export default function LandingEditorial() {
 
         <div className="ed-divider" />
 
-        {/* Integrations */}
-        <section className="ed-section-alt py-20 sm:py-40">
-          <div className="mx-auto max-w-[1080px] px-6">
-            <div className="ed-reveal mx-auto max-w-md text-center">
-              <h2 className="text-[clamp(1.8rem,4vw,2.6rem)] font-semibold tracking-[-0.02em]">{t('integrations.title')}</h2>
-              <p className="mt-5 text-[15px] leading-relaxed font-light" style={{ color: 'var(--ed-dim)' }}>{t('integrations.subtitle')}</p>
-            </div>
-            <div className="mt-16 space-y-10">
-              <div className="ed-reveal">
-                <p className="mb-4 text-[10px] uppercase tracking-[0.2em] font-medium ed-mono" style={{ color: 'var(--ed-accent)' }}>{t('integrations.categories.llm')}</p>
-                <div className="flex flex-wrap gap-3">
-                  {t('integrations.llmList').split(' · ').map((name) => (
-                    <span key={name} className="ed-shimmer inline-flex items-center rounded-full px-4 py-2 text-[13px] font-light" style={{ border: '1px solid var(--ed-border)', background: 'var(--ed-surface)', color: 'var(--ed-ink)' }}>
-                      {name}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div className="ed-reveal ed-stagger-2">
-                <p className="mb-4 text-[10px] uppercase tracking-[0.2em] font-medium ed-mono" style={{ color: 'var(--ed-accent)' }}>{t('integrations.categories.tools')}</p>
-                <div className="flex flex-wrap gap-3">
-                  {t('integrations.toolsList').split(' · ').map((name) => (
-                    <span key={name} className="ed-shimmer inline-flex items-center rounded-full px-4 py-2 text-[13px] font-light" style={{ border: '1px solid var(--ed-border)', background: 'var(--ed-surface)', color: 'var(--ed-ink)' }}>
-                      {name}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <p className="ed-reveal ed-stagger-3 text-center text-[12px] ed-mono" style={{ color: 'var(--ed-muted)' }}>{t('integrations.more')}</p>
-            </div>
-          </div>
-        </section>
+        <IntegrationsSection />
 
         <div className="ed-divider" />
 
@@ -393,42 +325,9 @@ export default function LandingEditorial() {
 
         <div className="ed-divider" />
 
-        {/* FAQ */}
-        <section id="faq" className="ed-section-alt py-20 sm:py-40">
-          <div className="mx-auto max-w-[620px] px-6">
-            <h2 className="ed-reveal text-center text-[clamp(1.8rem,4vw,2.6rem)] font-semibold tracking-[-0.02em]">{t('faq.title')}</h2>
-            <div className="mt-16 space-y-0">
-              {FAQ_ITEMS.map((key) => (
-                <details key={key} className="ed-reveal ed-faq py-5" style={{ borderBottom: '1px solid var(--ed-border)' }}>
-                  <summary className="text-[15px] font-medium">
-                    <span className="flex items-center justify-between gap-4">
-                      {t(`faq.items.${key}.question`)}
-                      <span className="shrink-0 text-lg leading-none transition-transform duration-300" style={{ color: 'var(--ed-muted)' }}>+</span>
-                    </span>
-                  </summary>
-                  <div className="ed-faq-body">
-                    <div className="ed-faq-inner">
-                      <p className="pt-4 pb-1 text-[14px] leading-[1.8] font-light" style={{ color: 'var(--ed-dim)' }}>{t(`faq.items.${key}.answer`)}</p>
-                    </div>
-                  </div>
-                </details>
-              ))}
-            </div>
-          </div>
-        </section>
+        <FaqSection />
 
-        {/* Final CTA */}
-        <section className="py-20 sm:py-36 text-center" style={{ borderTop: '1px solid var(--ed-border)' }}>
-          <div className="ed-reveal mx-auto max-w-[480px] px-6">
-            <h2 className="text-[clamp(1.8rem,4vw,2.8rem)] font-semibold tracking-[-0.02em]" style={{ fontFamily: 'var(--ed-serif)' }}>
-              <MultilineHeading text={t('hero.title')} />
-            </h2>
-            <p className="mt-5 text-[15px] font-light leading-relaxed" style={{ color: 'var(--ed-dim)' }}>
-              {t('hero.subtitle')}
-            </p>
-            <PathStrip className="mt-8" showHint={false} />
-          </div>
-        </section>
+        <FinalCtaSection />
 
         <FooterSection />
         </div>

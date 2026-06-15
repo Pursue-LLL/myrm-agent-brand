@@ -4,7 +4,7 @@
  * - locales/zh.json, locales/en.json：`marketing` + `cloud` 命名空间
  *
  * [OUTPUT]
- * - CI 校验：manifest 键存在、Bento/对比/轮播键完整、legal 法务键、cloud 键、notFound 键、locales 无 legacy URL
+ * - CI 校验：manifest 键存在、Bento/对比/轮播/用例/FAQ/集成键完整、integration chip 长度、legal 法务键、cloud 键、notFound 键、locales 无 legacy URL
  *
  * [POS]
  * 营销文案 locale 契约校验；`bun run build` 前自动执行。
@@ -17,7 +17,9 @@ import {
   COMPARE_ROW_KEYS,
   COMPARE_TAB_KEYS,
   COMPARE_TAB_ROWS,
+  FAQ_ITEM_KEYS,
   HIGHLIGHT_SLIDE_KEYS,
+  USE_CASE_KEYS,
   highlightSlideBasePath,
 } from '../src/components/marketing/landing/marketing-keys';
 import {
@@ -31,6 +33,9 @@ const ROOT = join(import.meta.dir, '..');
 const LOCALES = ['zh', 'en'] as const;
 const HIGHLIGHT_TAG_COUNT = 3;
 const HIGHLIGHT_DESC_MAX_CHARS = 140;
+/** Max chars per Integrations chip segment (` · ` split); keeps mobile pills scannable. */
+const INTEGRATION_CHIP_MAX_CHARS = 48;
+const INTEGRATION_LIST_DELIMITER = ' · ';
 
 /** Keys referenced by legal pages and cloud footer links — must stay in sync across locales. */
 const NOT_FOUND_PATHS = ['title', 'description', 'backHome'] as const;
@@ -91,7 +96,33 @@ function assertKey(
   }
 }
 
+function assertIntegrationChipList(
+  locale: string,
+  namespace: string,
+  path: string,
+  raw: unknown,
+  errors: string[],
+): void {
+  if (typeof raw !== 'string' || raw.trim().length === 0) {
+    errors.push(`[${locale}] ${namespace}.${path} must be a non-empty string`);
+    return;
+  }
+  const segments = raw.split(INTEGRATION_LIST_DELIMITER).map((s) => s.trim()).filter(Boolean);
+  if (segments.length === 0) {
+    errors.push(`[${locale}] ${namespace}.${path} must contain at least one chip segment`);
+    return;
+  }
+  for (const segment of segments) {
+    if (segment.length > INTEGRATION_CHIP_MAX_CHARS) {
+      errors.push(
+        `[${locale}] ${namespace}.${path} chip "${segment.slice(0, 24)}…" exceeds ${INTEGRATION_CHIP_MAX_CHARS} chars (${segment.length})`,
+      );
+    }
+  }
+}
+
 const errors: string[] = [];
+const integrationChipCounts: Partial<Record<(typeof LOCALES)[number], { llm: number; tools: number }>> = {};
 
 const tabRowSet = new Set<string>();
 for (const tabKey of COMPARE_TAB_KEYS) {
@@ -200,6 +231,55 @@ for (const locale of LOCALES) {
     errors.push(`[${locale}] legacy marketing.extendedHighlights must be removed (use highlightsCarousel.slides)`);
   }
 
+  assertKey(locale, marketing, 'marketing', 'useCases.title', errors);
+  assertKey(locale, marketing, 'marketing', 'useCases.subtitle', errors);
+  const useCaseItems = getAt(marketing, 'useCases.items');
+  if (useCaseItems !== null && typeof useCaseItems === 'object') {
+    for (const key of Object.keys(useCaseItems as Record<string, unknown>)) {
+      if (!USE_CASE_KEYS.includes(key as (typeof USE_CASE_KEYS)[number])) {
+        errors.push(`[${locale}] unexpected marketing.useCases.items.${key} (not in USE_CASE_KEYS)`);
+      }
+    }
+  }
+  for (const key of USE_CASE_KEYS) {
+    assertKey(locale, marketing, 'marketing', `useCases.items.${key}.tag`, errors);
+    assertKey(locale, marketing, 'marketing', `useCases.items.${key}.title`, errors);
+    assertKey(locale, marketing, 'marketing', `useCases.items.${key}.description`, errors);
+    assertKey(locale, marketing, 'marketing', `useCases.items.${key}.prompt`, errors);
+  }
+
+  assertKey(locale, marketing, 'marketing', 'integrations.title', errors);
+  assertKey(locale, marketing, 'marketing', 'integrations.subtitle', errors);
+  assertKey(locale, marketing, 'marketing', 'integrations.categories.llm', errors);
+  assertKey(locale, marketing, 'marketing', 'integrations.categories.tools', errors);
+  assertKey(locale, marketing, 'marketing', 'integrations.llmList', errors);
+  assertKey(locale, marketing, 'marketing', 'integrations.toolsList', errors);
+  assertKey(locale, marketing, 'marketing', 'integrations.more', errors);
+  assertIntegrationChipList(locale, 'marketing', 'integrations.llmList', getAt(marketing, 'integrations.llmList'), errors);
+  assertIntegrationChipList(locale, 'marketing', 'integrations.toolsList', getAt(marketing, 'integrations.toolsList'), errors);
+  const llmRaw = getAt(marketing, 'integrations.llmList');
+  const toolsRaw = getAt(marketing, 'integrations.toolsList');
+  if (typeof llmRaw === 'string' && typeof toolsRaw === 'string') {
+    integrationChipCounts[locale] = {
+      llm: llmRaw.split(INTEGRATION_LIST_DELIMITER).map((s) => s.trim()).filter(Boolean).length,
+      tools: toolsRaw.split(INTEGRATION_LIST_DELIMITER).map((s) => s.trim()).filter(Boolean).length,
+    };
+  }
+
+  assertKey(locale, marketing, 'marketing', 'faq.title', errors);
+  const faqItems = getAt(marketing, 'faq.items');
+  if (faqItems !== null && typeof faqItems === 'object') {
+    for (const key of Object.keys(faqItems as Record<string, unknown>)) {
+      if (!FAQ_ITEM_KEYS.includes(key as (typeof FAQ_ITEM_KEYS)[number])) {
+        errors.push(`[${locale}] unexpected marketing.faq.items.${key} (not in FAQ_ITEM_KEYS)`);
+      }
+    }
+  }
+  for (const key of FAQ_ITEM_KEYS) {
+    assertKey(locale, marketing, 'marketing', `faq.items.${key}.question`, errors);
+    assertKey(locale, marketing, 'marketing', `faq.items.${key}.answer`, errors);
+  }
+
   for (const path of LEGAL_REQUIRED_PATHS) {
     assertKey(locale, marketing, 'marketing', path, errors);
   }
@@ -226,6 +306,21 @@ for (const locale of LOCALES) {
   const notFound = loadNotFound(locale);
   for (const path of NOT_FOUND_PATHS) {
     assertKey(locale, notFound, 'notFound', path, errors);
+  }
+}
+
+const enIntegrationCounts = integrationChipCounts.en;
+const zhIntegrationCounts = integrationChipCounts.zh;
+if (enIntegrationCounts && zhIntegrationCounts) {
+  if (enIntegrationCounts.llm !== zhIntegrationCounts.llm) {
+    errors.push(
+      `[manifest] integrations.llmList chip count mismatch (en=${enIntegrationCounts.llm}, zh=${zhIntegrationCounts.llm})`,
+    );
+  }
+  if (enIntegrationCounts.tools !== zhIntegrationCounts.tools) {
+    errors.push(
+      `[manifest] integrations.toolsList chip count mismatch (en=${enIntegrationCounts.tools}, zh=${zhIntegrationCounts.tools})`,
+    );
   }
 }
 

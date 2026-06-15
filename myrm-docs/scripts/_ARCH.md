@@ -15,8 +15,9 @@ Mintlify 文档站维护脚本；非常规开发路径，仅在导航结构或�
 
 ```bash
 cd myrm-docs
-bun run scripts/apply-i18n-docs-json.ts    # 导航结构大改时
-bun run scripts/build-zh-navigation.ts     # 新增 EN 页面后同步 zh 路径
+bun run dev                  # mint dev
+bun run apply-i18n           # 导航结构大改时
+bun run build-zh-nav         # 新增 EN 页面后同步 zh 路径
 ```
 
 运行后须人工检查 `docs/zh/**/*.mdx` 是否已翻译，并执行 `myrm-website` 侧 `bun run validate:docs-slugs`。
