@@ -456,6 +456,18 @@ For scenarios where you need the agent to operate within your **real browser** �
 2. **Authorize domains** — In Settings → Integration → Extension Bridge, add domains you want the agent to control (e.g., `github.com`, `*.google.com`). Wildcard patterns are supported.
 3. **Agent connects** — When a task requires browser access to an authorized domain, the agent connects to your real browser via CDP (Chrome DevTools Protocol) proxy.
 
+### Background Window Isolation (Non-Perceptive Execution)
+
+When the agent operates via Extension Bridge, all automation runs in a **dedicated background window** — your active tabs are never touched:
+
+- The extension creates an invisible non-focused window (`focused: false`) for agent tasks
+- All tab operations happen in this isolated window — no focus stealing, no tab switching
+- The background window ID persists across Service Worker restarts via `chrome.storage.local`
+- If you manually close the background window, it's automatically recreated on next task
+- On disconnect, all background tabs are cleaned up to prevent resource accumulation
+
+**Result**: You continue browsing normally while the agent works in the background at full speed. No window flashing, no focus stealing, no disruption.
+
 ### Security Model
 
 - **Domain-level authorization** — Only explicitly authorized domains can be controlled. The agent cannot access any tab outside your allow-list.
