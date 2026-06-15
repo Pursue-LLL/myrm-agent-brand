@@ -120,6 +120,35 @@ When you start a background task via `/btw` in any IM channel, the result is aut
 
 Start a task in Discord, switch to something else, and come back to find the result waiting in your thread.
 
+## In-Chat Agent Switching
+
+Switch between configured agents directly inside any IM channel — no need to open the Web UI or edit configuration files.
+
+### Telegram (`/agent` command)
+
+1. Send `/agent` in any chat
+2. An InlineKeyboard appears listing all available agents — the currently bound agent shows a checkmark indicator
+3. Tap your desired agent — the picker message is replaced with a confirmation text ("Switched to: AgentName")
+4. All subsequent messages in this topic go to the new agent (independent system prompt, model, tools, memory)
+
+### Quick Switch Commands
+
+Agents that define `command_bindings` in their configuration register shortcut commands (e.g., `/claude`, `/gpt`). Sending the command with no arguments is equivalent to picking that agent from the `/agent` menu.
+
+### Topic Binding Granularity
+
+Agent bindings follow a **three-tier resolution** hierarchy:
+
+| Level | Scope | Example |
+|-------|-------|---------|
+| Thread | A single reply thread within a group | Different threads bound to different agents |
+| Chat | A DM conversation or entire group | Default for most use cases |
+| Channel | All conversations from one channel source | Fallback when no thread/chat binding exists |
+
+### i18n Support
+
+All picker and confirmation messages are fully internationalized. The agent resolves the user's language preference automatically (currently English and Chinese, extensible via `.ftl` translation files).
+
 ## Cross-Device Task Sync
 
 All background tasks are stored server-side and accessible from any connected client — Desktop app, Web UI, or mobile browser:
