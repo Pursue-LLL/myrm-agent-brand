@@ -63,8 +63,19 @@ Built-in periodic self-check (`__heartbeat__`) with **Situation Report** injecti
 | Feature | Description |
 |---------|-------------|
 | **Multi-channel** | Results delivered via chat, webhook, Feishu, Slack, or any of 35+ channels |
+| **Inline IM routing** | Script tasks show a channel selector at creation time — pick Telegram/Slack/Feishu/Discord directly, no extra steps |
 | **[SILENT] skip** | When there's nothing actionable, the agent responds `[SILENT]` to skip notification |
 | **Failure alerts** | Separate `failure_webhook_url` for ops alerting |
+
+### Script Delivery (Inline Channel Selection)
+
+When creating a **Script (Python)** task, the dialog shows an inline delivery target selector:
+
+1. **Chat** (default) — output stays in the task history
+2. **Connected IM channels** — auto-discovered from your configured integrations (only connected channels appear)
+3. **Target field** — specify chat ID, channel name, or webhook URL depending on the selected channel
+
+This eliminates the need to navigate to a separate delivery configuration page. The model selector is automatically hidden for script tasks since no LLM is involved.
 
 ## 10-Layer Anti-Noise Defense
 
