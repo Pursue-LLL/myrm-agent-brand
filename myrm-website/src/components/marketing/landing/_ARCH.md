@@ -23,7 +23,7 @@
 | `BenchmarkSection.tsx` | 辅助 | 竞品对比表 | — |
 | `HighlightsCarouselSection.tsx` | 核心 | 8 卡亮点轮播 | ✅ |
 | `DeploySection.tsx` | 核心 | 部署模式卡片 + 对比矩阵 | ✅ |
-| `TestimonialsSection.tsx` | 辅助 | 用户评价 | — |
+| `TestimonialsSection.tsx` | 辅助 | 用户评价（暂未挂载，待真实用户证言后恢复） | — |
 | `WhyMyrmAgentSection.tsx` | 辅助 | 差异化叙事 | — |
 | `UseCasesSection.tsx` | 核心 | 场景卡片网格 | ✅ |
 | `IntegrationsSection.tsx` | 辅助 | LLM / 工具集成 chip 列表（locale ` · ` 短标签） | ✅ |

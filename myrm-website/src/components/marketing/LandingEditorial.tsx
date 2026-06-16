@@ -32,7 +32,6 @@ import QuickStartSection from './landing/QuickStartSection';
 import HowItWorksSection from './landing/HowItWorksSection';
 import { DeployPathProvider } from './landing/deploy-path-context';
 import DeploySection from './landing/DeploySection';
-import TestimonialsSection from './landing/TestimonialsSection';
 import WhyMyrmAgentSection from './landing/WhyMyrmAgentSection';
 import FooterSection from './landing/FooterSection';
 import IntegrationMarquee from './landing/IntegrationMarquee';
@@ -314,10 +313,6 @@ export default function LandingEditorial() {
         <div className="ed-divider" />
 
         <IntegrationsSection />
-
-        <div className="ed-divider" />
-
-        <TestimonialsSection />
 
         <div className="ed-divider" />
 
