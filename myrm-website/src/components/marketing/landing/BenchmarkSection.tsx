@@ -108,7 +108,7 @@ export default function BenchmarkSection() {
             </div>
           </div>
 
-          <div className="mt-8 grid gap-3 sm:grid-cols-2">
+          <div className="mt-8 grid gap-3 sm:grid-cols-3">
             <div
               className="rounded-2xl p-4 sm:p-5"
               style={{ border: '1px solid var(--ed-border)', background: 'var(--ed-surface)' }}
@@ -125,6 +125,15 @@ export default function BenchmarkSection() {
               <p className="text-[12px] font-semibold">{t('tokenBenchmark.extras.cacheObservability.title')}</p>
               <p className="mt-2 text-[11px] sm:text-[12px] leading-relaxed font-light" style={{ color: 'var(--ed-dim)' }}>
                 {t('tokenBenchmark.extras.cacheObservability.desc')}
+              </p>
+            </div>
+            <div
+              className="rounded-2xl p-4 sm:p-5"
+              style={{ border: '1px solid var(--ed-border)', background: 'var(--ed-surface)' }}
+            >
+              <p className="text-[12px] font-semibold">{t('tokenBenchmark.extras.toolOutputIntelligence.title')}</p>
+              <p className="mt-2 text-[11px] sm:text-[12px] leading-relaxed font-light" style={{ color: 'var(--ed-dim)' }}>
+                {t('tokenBenchmark.extras.toolOutputIntelligence.desc')}
               </p>
             </div>
           </div>

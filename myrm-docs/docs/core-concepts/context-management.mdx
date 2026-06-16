@@ -36,6 +36,22 @@ Large tool outputs (e.g., file contents, search results) are processed by an int
 - **Disk persistence**: Oversized outputs are automatically saved to disk with a summary + path returned to the Agent
 - **Predictive overflow protection**: Truncation intensity adapts dynamically based on remaining token budget
 
+### Layer 1.5: Universal Tool Output Intelligence (FilterProcessor)
+
+Not just terminal commands — **every tool** (search, API, browser, MCP, etc.) output is protected by a three-layer defense:
+
+| Layer | Component | Trigger | Effect |
+|-------|-----------|---------|--------|
+| **L1** | 11 Bash command compressors + YAML declarative engine | Shell output | Smart compression for git/pytest/npm etc., preserving key information |
+| **L2** | `FilterProcessor` + `SemanticFilter` / `StructuralFilter` | Any tool output >5K tokens (single) or >15K tokens (turn aggregate) | Structural content: zero-LLM-cost extraction (9 formats); Unstructured: lightweight LLM semantic summary |
+| **L3** | `ContextBudgetGuard` | Single output >100K chars | Hard safety net: persist to disk + return summary reference |
+
+**Tool protection whitelist**: `file_read_tool`, `file_edit_tool` and other critical tools are automatically exempt from filtering to avoid "read→truncate→re-read" loops.
+
+**Prompt Cache aware**: Automatically skips filtering during session resume (Resume) or human-in-the-loop (HITL) scenarios to protect existing cache prefixes.
+
+**Full content recoverable**: All filtered large results are persisted to `.myrm/artifacts/tool_outputs/`. The Agent can retrieve original content at any time via file read tools.
+
 ### Layer 2: Cache TTL Pruning
 
 Expired cached content is automatically cleared. This prevents stale data from consuming valuable context window space.
