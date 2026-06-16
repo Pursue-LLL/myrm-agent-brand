@@ -12,9 +12,9 @@ import {
 } from './marketing-keys';
 
 type CellValue = boolean | string;
-type CompetitorCol = 'hermes' | 'openclaw' | 'ryan';
+type CompetitorCol = 'hermes' | 'openclaw';
 
-const COMPETITOR_KEYS: CompetitorCol[] = ['hermes', 'openclaw', 'ryan'];
+const COMPETITOR_KEYS: CompetitorCol[] = ['hermes', 'openclaw'];
 
 function parseCompareCell(raw: string): CellValue {
   if (raw === '_no') return false;
@@ -144,12 +144,7 @@ export default function WhyMyrmAgentSection() {
               </tr>
             </thead>
             <tbody>
-              {visibleRows.map((key, rowIdx) => {
-                const hermes = parseCompareCell(t(`whyMyrmAgent.rows.${key}.hermes`));
-                const openclaw = parseCompareCell(t(`whyMyrmAgent.rows.${key}.openclaw`));
-                const myrmAgent = parseCompareCell(t(`whyMyrmAgent.rows.${key}.myrmAgent`));
-
-                return (
+              {visibleRows.map((key, rowIdx) => (
                   <tr
                     key={key}
                     className={cn('ed-compare-row', highlightRow === rowIdx && 'ed-row-highlight')}
@@ -158,21 +153,26 @@ export default function WhyMyrmAgentSection() {
                     <td className="ed-compare-feature-col py-3 px-3 sm:px-5 md:px-2 font-light whitespace-nowrap md:whitespace-normal md:leading-snug">
                       {t(`whyMyrmAgent.rows.${key}.feature`)}
                     </td>
-                    {COMPETITOR_KEYS.map((col) => (
-                      <td key={col} className="ed-compare-data-col text-center py-3 px-2 sm:px-5 md:px-1.5">
-                        <CellContent value={col === 'hermes' ? hermes : openclaw} />
-                      </td>
-                    ))}
+                    {COMPETITOR_KEYS.map((col) => {
+                      const value = parseCompareCell(t(`whyMyrmAgent.rows.${key}.${col}`));
+                      return (
+                        <td key={col} className="ed-compare-data-col text-center py-3 px-2 sm:px-5 md:px-1.5">
+                          <CellContent value={value} />
+                        </td>
+                      );
+                    })}
                     <td className="ed-compare-highlight-col text-center py-3 px-2 sm:px-5 md:px-2">
-                      {typeof myrmAgent === 'string'
-                        ? <span className="block text-[12px] md:text-[11px] font-semibold ed-mono leading-snug break-words" style={{ color: 'var(--ed-accent)' }}>{myrmAgent}</span>
-                        : myrmAgent
-                          ? <CheckmarkCircle01Icon className="inline h-4 w-4" style={{ color: 'var(--ed-accent)' }} />
-                          : <Cancel01Icon className="inline h-4 w-4" style={{ color: 'var(--ed-muted)' }} />}
+                      {(() => {
+                        const myrmAgent = parseCompareCell(t(`whyMyrmAgent.rows.${key}.myrmAgent`));
+                        return typeof myrmAgent === 'string'
+                          ? <span className="block text-[12px] md:text-[11px] font-semibold ed-mono leading-snug break-words" style={{ color: 'var(--ed-accent)' }}>{myrmAgent}</span>
+                          : myrmAgent
+                            ? <CheckmarkCircle01Icon className="inline h-4 w-4" style={{ color: 'var(--ed-accent)' }} />
+                            : <Cancel01Icon className="inline h-4 w-4" style={{ color: 'var(--ed-muted)' }} />;
+                      })()}
                     </td>
                   </tr>
-                );
-              })}
+                ))}
             </tbody>
           </table>
         </div>
