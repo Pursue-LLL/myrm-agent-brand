@@ -22,6 +22,19 @@ Myrm 记忆系统是 Agentic Memory Operations（AMO）范式最完整的实现�
 | **Task Digest** | 任务执行摘要 | AI 记住完成了什么 |
 | **Integration** | 第三方服务数据 | 日历、Git 活动 |
 
+## 辩证偏好推理（Cognitive Deriver）
+
+对话结束后，**Cognitive Deriver** 在后台运行，对响应延迟零影响：
+
+1. 使用 LLM 辩证推理分析最近 10 条消息
+2. 提取无限维度的隐式偏好（沟通风格、认知深度、主动性、编码范式等）
+3. 0.8 置信度阈值 — 仅存储高确定性洞察
+4. 通过 change_kind 语义解决冲突（support/contradict/supersede/constrain）
+5. 双写向量库（SemanticMemory）和知识图谱（Claim 节点）
+6. 核心偏好（reply_style/cognitive_depth/proactivity）通过 ProfileEntry 自动注入 system prompt
+
+与 Honcho 依赖第三方云 API 不同，Myrm 完全本地运行、隐私安全、支持离线。仅在颠覆性变化（contradict/supersede）时通知用户 — 常规偏好积累完全静默。
+
 ## 零成本目标推导（Dream 机制）
 
 受 Honcho Dream 启发，但在常规「品味摘要」生成中**异步**提取用户**长期目标与进行中项目**，**零额外 LLM 成本**。为 AI 提供持久「长期记忆靶标」，避免传统自由文本 Dream 的高 Token 成本与数据污染风险。

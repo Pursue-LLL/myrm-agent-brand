@@ -22,6 +22,19 @@ The system supports **8 memory types** stored in SQLite + Qdrant (compared to Me
 | **Task Digest** | Task execution summaries | AI remembers what was accomplished |
 | **Integration** | Third-party service data | Calendar events, Git activity |
 
+## Dialectic Preference Reasoning (Cognitive Deriver)
+
+When a conversation ends, the **Cognitive Deriver** runs in the background with zero impact on response latency:
+
+1. Analyzes the last 10 messages using LLM-powered dialectic reasoning
+2. Extracts implicit preferences across unlimited dimensions (communication style, cognitive depth, proactivity, coding paradigm, etc.)
+3. Applies a 0.8 confidence threshold — only high-certainty insights are stored
+4. Resolves conflicts via change_kind semantics (support/contradict/supersede/constrain)
+5. Dual-writes to both vector store (SemanticMemory) and knowledge graph (Claim nodes)
+6. Core preferences (reply_style, cognitive_depth, proactivity) auto-inject into the system prompt via ProfileEntry
+
+Unlike Honcho's cloud-dependent approach requiring a third-party API key, Myrm's implementation is fully local, privacy-safe, and works offline. The system only notifies users on disruptive changes (contradict/supersede) — normal preference accumulation is completely silent.
+
 ## Zero-Cost Goal Deduction (Dream Mechanism)
 
 Inspired by Honcho's Dream mechanism but implemented with zero additional LLM cost, Myrm asynchronously extracts the user's **Long-term Goals and Ongoing Projects** during the routine "Taste Summary" generation. This provides the AI with a persistent "long-term memory target" without the high token costs and data corruption risks of traditional free-text Dream mechanisms.
