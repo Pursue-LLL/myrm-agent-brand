@@ -46,6 +46,7 @@ CF Dashboard 已配置：
 2. 在干净 `main` HEAD 打 tag 并推送：
 
 ```bash
+git push origin main
 git tag website-v1.2.0
 git push origin website-v1.2.0
 ```

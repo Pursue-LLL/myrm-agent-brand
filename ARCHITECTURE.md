@@ -36,7 +36,7 @@
 ### 发布流程（仅两条路径）
 
 1. 日常：`git push origin main` → 仅更新代码，不上线（CF 可能显示 skipped 记录，可忽略）
-2. **正式发布**：`git tag website-v1.2.0 && git push origin website-v1.2.0` → Actions `website-release.yml` preflight（`REQUIRE_BAKED_RELEASE=1` 门禁非空 manifest）→ POST Deploy Hook → CF 构建部署
+2. **正式发布**：`git tag website-v1.2.0 && git push origin main && git push origin website-v1.2.0` → Actions `website-release.yml` preflight → **assert origin/main == tag** → POST Deploy Hook → CF 构建部署
 3. **本地应急**：`bun run release:website -- website-v1.2.0` → 本地 preflight + push tag → GHA POST Hook（见 [`release-website.ts`](myrm-website/scripts/release-website.ts)）；tag 已在 HEAD 时删远程 tag 后重推以重新触发 GHA
 
 | Secret | 仓库 | 用途 |

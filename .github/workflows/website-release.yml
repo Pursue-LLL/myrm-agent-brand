@@ -57,6 +57,18 @@ jobs:
           bun run build
           bun run test
 
+      - name: Assert origin/main matches release tag
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          tag_commit="$(git rev-parse HEAD)"
+          main_commit="$(git rev-parse origin/main)"
+          if [ "$tag_commit" != "$main_commit" ]; then
+            echo "origin/main (${main_commit:0:7}) != tag commit (${tag_commit:0:7}). Push main before POST Deploy Hook." >&2
+            exit 1
+          fi
+          echo "origin/main matches tag commit (${tag_commit:0:7})"
+
       - name: Trigger Cloudflare Pages deploy hook
         env:
           CF_PAGES_DEPLOY_HOOK: ${{ secrets.CF_PAGES_DEPLOY_HOOK }}
