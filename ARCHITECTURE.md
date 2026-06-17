@@ -18,7 +18,7 @@
 
 ## Cloudflare Pages（生产）
 
-**本仓营销站仅通过 Cloudflare Pages 部署（不用 Vercel）。** 正式发布：`push` `website-v*` tag → GitHub Actions `website-release.yml`（preflight `build`+`test` → POST Deploy Hook）；本地应急用 `release-website.ts`。日常合并前亦建议本地跑 `build`+`test`。除营销站发布 workflow 外勿引入其他 GHA 或 `vercel.json`。
+**本仓营销站仅通过 Cloudflare Pages 部署（不用 Vercel）。** 正式发布：`push` `website-v*` tag → GitHub Actions `website-release.yml`（preflight `build`+`test` → POST Deploy Hook）；本地应急 `release-website.ts` 仅 preflight + push tag（Hook 由 GHA Secret 触发）。日常合并前亦建议本地跑 `build`+`test`。除营销站发布 workflow 外勿引入其他 GHA 或 `vercel.json`。
 
 ### Dashboard 配置（已生效）
 
@@ -33,28 +33,25 @@
 | Root directory | `myrm-website` |
 | Output directory | `out` |
 
-### 发布流程
+### 发布流程（仅两条路径）
 
 1. 日常：`git push origin main` → 仅更新代码，不上线（CF 可能显示 skipped 记录，可忽略）
-2. **推荐（GitHub 自动）**：`git tag website-v1.2.0 && git push origin website-v1.2.0` → Actions `website-release.yml` preflight（`REQUIRE_BAKED_RELEASE=1` 门禁非空 manifest）→ POST Deploy Hook → CF 构建部署
-3. 本地应急：`bun run release:website -- website-v1.2.0` → 同 preflight + tag push + Hook（见 [`release-website.ts`](myrm-website/scripts/release-website.ts)）
-4. **桌面发版联动（可选）**：`myrm-agent` finalize 的 `trigger-website-release.sh` 可代打 `website-v{semver}` tag（tag push 即触发步骤 2）；需 `BRAND_RELEASE_PAT`。`REQUIRE_WEBSITE_DEPLOY=false` 可跳过 finalize 自动 trigger。
+2. **正式发布**：`git tag website-v1.2.0 && git push origin website-v1.2.0` → Actions `website-release.yml` preflight（`REQUIRE_BAKED_RELEASE=1` 门禁非空 manifest）→ POST Deploy Hook → CF 构建部署
+3. **本地应急**：`bun run release:website -- website-v1.2.0` → 本地 preflight + push tag → GHA POST Hook（见 [`release-website.ts`](myrm-website/scripts/release-website.ts)）；tag 已在 HEAD 时删远程 tag 后重推以重新触发 GHA
 
 | Secret | 仓库 | 用途 |
 |--------|------|------|
-| `CF_PAGES_DEPLOY_HOOK` | **myrm-agent-brand** | GHA / 本地 `release:website` POST Hook |
-| `BRAND_RELEASE_PAT` | myrm-agent（可选） | finalize 代打 `website-v*` tag |
-| `CF_PAGES_DEPLOY_HOOK` | myrm-agent（可选） | finalize 直接 POST Hook（无 tag 时） |
+| `CF_PAGES_DEPLOY_HOOK` | **myrm-agent-brand**（仅 GHA） | `website-release.yml` POST Hook |
 
 | 文件 | 职责 |
 |------|------|
-| `myrm-website/wrangler.toml` | `name = "myrm-agent-brand"`；`pages_build_output_dir = "out"` |
+| `myrm-website/wrangler.toml` | CF Pages 项目元数据（`pages_build_output_dir = "out"`）；**非** CLI 上传入口 |
 | `myrm-website/public/_redirects` | `/install.sh`、`/install.ps1` → `Pursue-LLL/myrm-agent` 安装脚本 |
-| `myrm-website/scripts/release-website.ts` | preflight + tag + Deploy Hook 触发 CF 构建 |
+| `myrm-website/scripts/release-website.ts` | 本地应急：preflight + push tag（不 POST Hook） |
 
 `myrm-website/next.config.ts` 使用 `output: 'export'`，`next build` 静态产物在 `myrm-website/out/`。
 
-`release-website.ts` 内置 `build`+`test` preflight；应急 wrangler 上传见仓根 README。
+`release-website.ts` 内置 `build`+`test` preflight。禁止 `wrangler pages deploy`、Vercel、GHA `workflow_dispatch`、本地/跨仓直接 POST Hook。
 
 ## 模块架构文档索引
 

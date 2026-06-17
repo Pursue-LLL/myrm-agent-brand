@@ -29,7 +29,7 @@ bun run test
 - **Single README at repo root** — module details live in `_ARCH.md` files (see `ARCHITECTURE.md`).
 - **Bilingual copy** — website: `myrm-website/locales/en.json` + `zh.json`; docs: mirror under `docs/` and `docs/zh/`.
 - **No build artifacts in git** — `out/`, `.next/`, `public/desktop-release.json` are generated locally or in CI.
-- **Release** — production deploy is tag-driven (`website-v*`), not push-to-main. See [README.md](README.md).
+- **Release** — production deploy: push `website-v*` tag → GHA → CF Deploy Hook; local emergency: `bun run release:website`. See [README.md](README.md).
 
 ## Where to learn more
 

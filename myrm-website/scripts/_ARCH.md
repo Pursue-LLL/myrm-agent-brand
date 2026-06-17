@@ -9,7 +9,7 @@
 | `validate-marketing-locales.ts` | 核心 | locales 键契约 + cloud 定价与 CP `catalog.py`/`plans.py` 数值对齐（本地优先读 CP，否则读 contract）+ legacy URL 扫描 | ✅ |
 | `validate-docs-slugs.ts` | 核心 | 营销 slug ↔ Mintlify nav ↔ MDX orphan | ✅ |
 | `bake-desktop-release.ts` | 核心 | 构建前写入 `public/desktop-release.json` | ✅ |
-| `release-website.ts` | 核心 | tag + CF Deploy Hook preflight | ✅ |
+| `release-website.ts` | 核心 | 本地应急：preflight + push tag（GHA POST Hook） | ✅ |
 | `check-fractal-docs.ts` | 核心 | 品牌仓 _ARCH 存在 + 核心文件 IOP 门禁 | ✅ |
 | `docs-contract.test.ts` | 辅助 | docs-contract locale 单测 | — |
 | `desktop-release.test.ts` | 辅助 | desktop-release 解析单测 | — |
@@ -25,12 +25,11 @@
 
 CF Pages / 本地 `bun run build` 按序执行 `validate:locales` → `validate:docs-slugs` → `bake:release` → `next build`。
 
-**部署仅走 Cloudflare Pages Deploy Hook**（见仓根 `ARCHITECTURE.md`）；GHA 仅 `website-release.yml` 作 preflight 触发器；勿新增 workflow 或 Vercel 配置。
+**部署仅两条路径**（见仓根 `ARCHITECTURE.md`）：
 
-发布（推荐）：`git push origin website-v1.2.0` → GHA `website-release.yml`（Secret `CF_PAGES_DEPLOY_HOOK`）
+1. `git push origin website-v1.2.0` → GHA `website-release.yml`（`CF_PAGES_DEPLOY_HOOK` 仅 GHA Secret）
+2. 本地应急：`bun run release:website -- website-v1.2.0`（preflight + push tag，不 POST Hook）
 
-本地应急：`CF_PAGES_DEPLOY_HOOK=… bun run release:website -- website-v1.2.0`
+禁止：`wrangler pages deploy`、Vercel、GHA `workflow_dispatch`、本地/跨仓直接 POST Hook。
 
-桌面联动（可选）：`myrm-agent` `trigger-website-release.sh` 代打 `website-v*` tag → 同上 GHA 触发。
-
-安全校验（不 push tag / hook）：`RELEASE_WEBSITE_SKIP_ENV_LOCAL=1 bun run release:website:dry-run -- website-v1.2.0 --dry-run`（`SKIP_ENV_LOCAL` + `bun --no-env-file` 双重隔离 `.env.local`；**禁止**测试时不带 `--dry-run` 跑 release）
+安全校验（不 push tag）：`bun run release:website:dry-run -- website-v1.2.0 --dry-run`（**禁止**不带 `--dry-run` 跑 release）

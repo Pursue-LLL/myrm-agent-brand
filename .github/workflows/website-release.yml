@@ -4,12 +4,6 @@ on:
   push:
     tags:
       - 'website-v*'
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Existing website-v* tag to redeploy'
-        required: true
-        type: string
 
 permissions:
   contents: read
@@ -18,22 +12,18 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 concurrency:
-  group: website-release-${{ github.ref_name || inputs.tag }}
+  group: website-release-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:
   release:
-    name: Preflight and deploy (${{ github.ref_name || inputs.tag }})
+    name: Preflight and deploy (${{ github.ref_name }})
     runs-on: ubuntu-latest
     steps:
       - name: Resolve release tag
         id: tag
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            TAG="${{ inputs.tag }}"
-          else
-            TAG="${{ github.ref_name }}"
-          fi
+          TAG="${{ github.ref_name }}"
           if ! echo "$TAG" | grep -Eq '^website-v[0-9]+(\.[0-9]+)*([-+][[:alnum:].-]+)?$'; then
             echo "Invalid tag: $TAG" >&2
             exit 1

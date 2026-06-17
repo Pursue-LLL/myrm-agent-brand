@@ -47,7 +47,7 @@
 | `cloud/CloudFaqSection.tsx` | 核心 | SaaS FAQ（7 条） | ✅ |
 | `cloud/CloudFinalCtaSection.tsx` | 核心 | SaaS Final CTA | ✅ |
 | `download/*` | 核心 | 桌面下载转化 |
-| `landing/WorkspacePreview.tsx` | 核心 | 产品预览（OSS editorial / cloud shell 双 chrome） |
+| `landing/WorkspacePreview.tsx` | 辅助 | 产品预览组件（当前未挂载） |
 | `landing/DeploySection.tsx` | 核心 | 两部署模式卡片 + 对比矩阵（localWebui + tauri） |
 | `landing/PathStrip.tsx` | 核心 | Final CTA 双路径 chip（Hero 用主按钮，不重复） |
 | `landing/HowItWorksSection.tsx` | 核心 | 路径 Tab 三步上手 |
@@ -71,13 +71,13 @@
 
 ## Landing 区块顺序（`/` LandingEditorial）
 
-Hero → WorkspacePreview → HowItWorks → QuickStart → Marquee → Advantages → Benchmark → HighlightsCarousel → UseCases → Deploy → Integrations → WhyMyrmAgent → FAQ → Final CTA
+Hero → HowItWorks → QuickStart → Marquee → Advantages → Benchmark → HighlightsCarousel → UseCases → Deploy → Integrations → WhyMyrmAgent → FAQ → Final CTA
 
 （无 Pricing 区块；无 SaaS 路径。）
 
 ## SaaS 页区块顺序（`/cloud` LandingCloud）
 
-Hero → WorkspacePreview → Advantages → How it works → UseCases → Pricing → Trust → FAQ → Final CTA
+Hero → Advantages → How it works → UseCases → Pricing → Trust → FAQ → Final CTA
 
 ## 外部链接
 
@@ -104,10 +104,11 @@ Hero → WorkspacePreview → Advantages → How it works → UseCases → Prici
 - SaaS 页 CTA → `app.myrmagent.ai/auth/login`（UTM `campaign=cloud`）
 - 订阅在 App 内完成
 
-## 部署
+## 部署（仅两条路径）
 
-- 生产：CF Pages Deploy Hook（`bun run release:website`）
-- 本地：`bun run dev:3002`
+- 正式发布：`git push origin website-v*` → GHA → CF Deploy Hook（Secret 仅 GHA）
+- 本地应急：`bun run release:website -- website-v*`（preflight + push tag）
+- 本地开发：`bun run dev:3002`
 - 双页设计：[DUAL_PAGE_SYSTEM.md](../../DUAL_PAGE_SYSTEM.md)
 
 桌面下载模块见 [`download/_ARCH.md`](download/_ARCH.md)。

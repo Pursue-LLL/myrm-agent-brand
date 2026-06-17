@@ -22,13 +22,13 @@ Next.js 静态导出营销站（Cloudflare Pages → `myrmagent.ai`）。双页�
 | `next.config.ts` | 配置 | `output: 'export'` → `out/` | — |
 | `wrangler.toml` | 配置 | Cloudflare Pages 项目名与 output 目录 | — |
 
-## 发布
+## 发布（仅两条路径）
 
 - 日常：`git push origin main` 不自动上线（CF Automatic deployments Disabled）
-- 发布：`git push origin website-vX.Y.Z` → GHA preflight + Deploy Hook（Secret `CF_PAGES_DEPLOY_HOOK`）
-- 本地应急：`bun run release:website -- website-vX.Y.Z`
-- 桌面联动（可选）：`myrm-agent` finalize 代打 `website-v*` tag → 触发 GHA
-- 应急：wrangler 上传（见仓根 README）
+- 正式发布：`git push origin website-vX.Y.Z` → GHA preflight + Deploy Hook（Secret `CF_PAGES_DEPLOY_HOOK`，仅 GHA）
+- 本地应急：`bun run release:website -- website-vX.Y.Z`（preflight + push tag；tag 已在 HEAD 时重推触发 GHA）
+
+禁止：`wrangler pages deploy`、Vercel、GHA `workflow_dispatch`、本地/跨仓直接 POST Hook。
 
 ## 模块依赖
 

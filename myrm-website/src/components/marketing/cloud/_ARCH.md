@@ -13,7 +13,7 @@ SaaS 转化页，与开源首页 `/` 分离。复用 `landing-editorial.css` 视
 
 ## 区块顺序
 
-Hero → WorkspacePreview → Advantages → HowItWorks → UseCases → Pricing → Trust → FAQ → Final CTA
+Hero → Advantages → HowItWorks → UseCases → Pricing → Trust → FAQ → Final CTA
 
 ## 文件清单
 
@@ -30,7 +30,7 @@ Hero → WorkspacePreview → Advantages → HowItWorks → UseCases → Pricing
 | `CloudFaqSection.tsx` | 核心 | FAQ（ed-faq 样式，7 条） | ✅ |
 | `CloudFinalCtaSection.tsx` | 核心 | 页尾 Final CTA | ✅ |
 | `cloud-marketing-keys.ts` | 核心 | 定价/FAQ/步骤/优势/场景/信任 i18n 键 SSOT | ✅ |
-| `../landing/WorkspacePreview.tsx` | 核心 | 产品预览（`shell="shell"` + `cloud.demo.*`） | ✅ |
+| `../landing/WorkspacePreview.tsx` | 辅助 | 产品预览组件（当前未挂载） | — |
 | `../../lib/cloud-paths.ts` | 核心 | App 登录/注册/账单 URL + UTM | ✅ |
 | `../../lib/cloud-marketing-nav.ts` | 核心 | 云页 Nav | ✅ |
 

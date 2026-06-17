@@ -1,21 +1,20 @@
 /**
  * [INPUT]
- * - .env.local CF_PAGES_DEPLOY_HOOK (POS: 本地 Deploy Hook secret，gitignored)
  * - git origin/main (POS: 发布源分支)
  *
  * [OUTPUT]
- * - release-website CLI: preflight → git tag + push tag + POST CF Deploy Hook
+ * - release-website CLI: preflight → git tag + push tag（由 GHA POST Deploy Hook）
  * - normalizeWebsiteTag, resolveTagReleaseAction, assertWorkingTreeClean, mapTagRevParseExitCode, parseCliArgs
  *
  * [POS]
- * 营销站本地应急发布：preflight 后 POST CF Deploy Hook（CF 构建 main 最新 commit）。常规路径为 push website-v* tag 触发 GHA website-release.yml。
+ * 营销站本地应急发布：本地 preflight 后 push `website-v*` tag，由 GHA `website-release.yml` POST CF Deploy Hook。
+ * 禁止本地直接 POST Hook、wrangler CLI 上传、Vercel、GHA workflow_dispatch。
  *
  * Prerequisites (CF Dashboard):
  * - Branch control: automatic production + preview deployments disabled
- * - Deploy hook `website-release` on branch `main`
+ * - Deploy hook `website-release` on branch `main`（仅 GHA Secret `CF_PAGES_DEPLOY_HOOK` 使用）
  */
 import { execSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -32,30 +31,6 @@ function resolveRepoRoot(): string {
 }
 
 const repoRoot = resolveRepoRoot();
-
-function loadEnvLocal(): void {
-  const envPath = path.join(websiteDir, '.env.local');
-  try {
-    const raw = readFileSync(envPath, 'utf8');
-    for (const line of raw.split('\n')) {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith('#')) continue;
-      const eq = trimmed.indexOf('=');
-      if (eq <= 0) continue;
-      const key = trimmed.slice(0, eq).trim();
-      const value = trimmed.slice(eq + 1).trim();
-      if (key && process.env[key] === undefined) {
-        process.env[key] = value;
-      }
-    }
-  } catch {
-    // .env.local is optional
-  }
-}
-
-if (process.env.RELEASE_WEBSITE_SKIP_ENV_LOCAL !== '1') {
-  loadEnvLocal();
-}
 
 export function parseCliArgs(argv: string[]): { tag: string | undefined; dryRun: boolean } {
   const positional = argv.filter((arg) => !arg.startsWith('--'));
@@ -118,9 +93,9 @@ function usage(): never {
     [
       'Usage: bun run release:website -- website-v1.2.0 [--dry-run]',
       '',
-      'Preflight (clean tree, sync main, tag check, build, test) → git tag → push tag → POST CF Deploy Hook.',
-      'Use --dry-run to validate preflight without tag push or deploy hook.',
-      'Set CF_PAGES_DEPLOY_HOOK in myrm-website/.env.local or env.',
+      'Preflight (clean tree, sync main, tag check, build, test) → git tag → push tag.',
+      'Tag push triggers GHA website-release.yml → POST CF Deploy Hook (secret only in GitHub).',
+      'Use --dry-run to validate preflight without tag push.',
     ].join('\n'),
   );
   process.exit(1);
@@ -194,24 +169,35 @@ function runReleasePreflight(): void {
   runInWebsite('bun run test');
 }
 
-async function triggerDeployHook(url: string): Promise<void> {
-  const response = await fetch(url, { method: 'POST' });
-  if (!response.ok) {
-    const body = await response.text().catch(() => '');
-    throw new Error(`Deploy hook failed: ${response.status} ${response.statusText}${body ? `\n${body}` : ''}`);
+function deleteRemoteTagIfPresent(tag: string): void {
+  try {
+    execSync(`git rev-parse --verify "refs/remotes/origin/${tag}^{commit}"`, {
+      encoding: 'utf8',
+      cwd: repoRoot,
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    console.info(`[release-website] Deleting remote tag ${tag} to retrigger GHA…`);
+    gitRunInherit(`git push origin :refs/tags/${tag}`);
+  } catch {
+    // remote tag absent
   }
-  console.info('[release-website] Deploy hook accepted. Check CF Pages → Deployments for build status.');
 }
 
-async function main(): Promise<void> {
+function pushReleaseTag(tag: string, action: TagReleaseAction): void {
+  if (action === 'create') {
+    console.info(`[release-website] Creating tag ${tag}…`);
+    gitRunInherit(`git tag -a "${tag}" -m "Release myrm-agent-brand ${tag}"`);
+  } else {
+    deleteRemoteTagIfPresent(tag);
+  }
+
+  console.info(`[release-website] Pushing tag ${tag} (triggers GHA → CF Deploy Hook)…`);
+  gitRunInherit(`git push origin "${tag}"`);
+}
+
+function main(): void {
   const { tag: tagArg, dryRun } = parseCliArgs(process.argv.slice(2));
   if (!tagArg) usage();
-
-  const hookUrl = process.env.CF_PAGES_DEPLOY_HOOK?.trim();
-  if (!hookUrl && !dryRun) {
-    console.error('Missing CF_PAGES_DEPLOY_HOOK (.env.local or env).');
-    usage();
-  }
 
   const tag = normalizeWebsiteTag(tagArg);
 
@@ -223,38 +209,33 @@ async function main(): Promise<void> {
   const action = resolveTagReleaseAction(tagCommit, headCommit, tag);
 
   if (action === 'redeploy') {
-    console.info(`[release-website] Tag ${tag} already at HEAD (${shortSha(headCommit)}); redeploy only.`);
+    console.info(
+      `[release-website] Tag ${tag} already at HEAD (${shortSha(headCommit)}); will re-push tag to retrigger GHA.`,
+    );
   }
 
   runReleasePreflight();
 
   if (dryRun) {
     console.info(
-      `[release-website] Dry run OK. ${tag} @ ${shortSha(headCommit)} (action=${action}). Skipping tag push and deploy hook.`,
+      `[release-website] Dry run OK. ${tag} @ ${shortSha(headCommit)} (action=${action}). Skipping tag push.`,
     );
     return;
   }
 
-  if (action === 'create') {
-    console.info(`[release-website] Creating tag ${tag} on HEAD (${shortSha(headCommit)})…`);
-    gitRunInherit(`git tag -a "${tag}" -m "Release myrm-agent-brand ${tag}"`);
-  }
-
-  console.info(`[release-website] Pushing tag ${tag}…`);
-  gitRunInherit(`git push origin "${tag}"`);
-
-  console.info('[release-website] Triggering Cloudflare Pages deploy hook…');
-  await triggerDeployHook(hookUrl!);
+  pushReleaseTag(tag, action);
 
   console.info(
-    `[release-website] Done. ${tag} @ ${shortSha(headCommit)} → myrmagent.ai (after CF build completes).`,
+    `[release-website] Done. ${tag} @ ${shortSha(headCommit)} → GHA website-release.yml → myrmagent.ai (after CF build).`,
   );
 }
 
 if (import.meta.main) {
-  void main().catch((error: unknown) => {
+  try {
+    main();
+  } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     console.error(`[release-website] Failed: ${message}`);
     process.exit(1);
-  });
+  }
 }

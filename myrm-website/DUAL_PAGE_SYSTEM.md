@@ -39,7 +39,7 @@
 - **样式**：`landing/landing-editorial.css`（`ed-*` token）
 - **i18n**：`locales/*.json` → `marketing.*`
 - **部署路径**：`src/lib/deploy-paths.ts`（仅 `localWebui` + `tauri`）
-- **区块顺序**：Hero → WorkspacePreview → HowItWorks → QuickStart → Marquee → Advantages → Benchmark → HighlightsCarousel → UseCases → Deploy → Integrations → Testimonials → WhyMyrmAgent → FAQ → Final CTA
+- **区块顺序**：Hero → HowItWorks → QuickStart → Marquee → Advantages → Benchmark → HighlightsCarousel → UseCases → Deploy → Integrations → WhyMyrmAgent → FAQ → Final CTA
 - **Hero 云定价条**：`hero.cloudPricingStrip` → `/cloud#pricing`（OSS 页内 SaaS 获客入口，非主 CTA）
 - **禁止**：云登录主 CTA、WU 定价区块内嵌 OSS 页
 
@@ -47,13 +47,12 @@
 
 - **编排**：`src/components/marketing/cloud/LandingCloud.tsx` + `CloudShell.tsx`（含 `MouseGlowLayer` 光标光晕，无 Colony Canvas）
 - **样式**：同 `landing-editorial.css`（`src/app/cloud/page.tsx` 引入）；`ed-page` 作用于 `CloudShell` 根节点
-- **预览**：`landing/WorkspacePreview.tsx`（`messagesNamespace="cloud"`、`shell="shell"`）
 - **i18n**：`cloud.*`（与 `marketing.*` 隔离）
 - **URL**：`src/lib/cloud-paths.ts`（登录/注册/账单 → `app.myrmagent.ai`，`utm_campaign=cloud`）
 - **Nav**：`src/lib/cloud-marketing-nav.ts`
 - **键契约**：`cloud/cloud-marketing-keys.ts`（plan / step / faq / advantage / useCase / trust；`HIGHLIGHT_CLOUD_PLAN=companion`）
 - **定价 SSOT**：运行时 App 读 CP `GET /api/billing/catalog`；官网 `cloud.pricingPreview.*` 为静态 i18n，**build 前** `validate-marketing-locales.ts` 自动比对 CP `catalog.py` + `plans.py`
-- **区块顺序**：Hero → WorkspacePreview → Advantages → How it works → UseCases → Pricing → Trust → FAQ → Final CTA
+- **区块顺序**：Hero → Advantages → How it works → UseCases → Pricing → Trust → FAQ → Final CTA
 - **页脚**：链回 `/` 自托管；含 Privacy · Terms · Refund（OSS `/` 页脚无 Refund）
 
 ### 法务页
@@ -82,7 +81,7 @@
 | `src/components/marketing/cloud/CloudFaqSection.tsx` | FAQ |
 | `src/components/marketing/cloud/CloudFinalCtaSection.tsx` | Final CTA |
 | `src/components/marketing/cloud/cloud-marketing-keys.ts` | 云页 i18n 键 SSOT |
-| `src/components/marketing/landing/WorkspacePreview.tsx` | 双页共用产品预览 |
+| `src/components/marketing/landing/WorkspacePreview.tsx` | 产品预览组件（当前未挂载） |
 | `locales/en.json` / `zh.json` | `marketing.*` + `cloud.*` |
 
 ## 云页上线清单
@@ -93,7 +92,7 @@
 4. 更新 `cloud.*` 文案（若定价变动）
 5. `public/_redirects`：`/pricing` 302 → `/cloud`
 6. `bun run validate:locales && bun run build`
-7. CF Pages deploy（`bun run release:website`）
+7. 发布：`git push origin website-v*`（GHA → Deploy Hook）或本地应急 `bun run release:website -- website-v*`
 
 ## 不推荐：合并回单页
 

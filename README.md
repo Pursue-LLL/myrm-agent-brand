@@ -40,9 +40,9 @@ CF Dashboard 已配置：
 
 合并代码后 `git push origin main` 仅更新仓库，**不会**部署到 `myrmagent.ai`。
 
-### 正式发布（推荐：GitHub tag 触发）
+### 正式发布（`website-v*` tag → GHA → Deploy Hook）
 
-1. 在 **myrm-agent-brand** 仓库 Secrets 配置 `CF_PAGES_DEPLOY_HOOK`（CF Dashboard → Deploy Hooks）
+1. 在 **myrm-agent-brand** 仓库 Secrets 配置 `CF_PAGES_DEPLOY_HOOK`（仅 GHA 使用；CF Dashboard → Deploy Hooks）
 2. 在干净 `main` HEAD 打 tag 并推送：
 
 ```bash
@@ -54,17 +54,18 @@ GitHub Actions `website-release.yml` 会 preflight（`build`+`test`）→ POST D
 
 ### 本地应急（`release-website` CLI）
 
+无法手动打 tag、但需在本地跑 preflight 后触发 GHA 时使用：
+
 ```bash
-export CF_PAGES_DEPLOY_HOOK='https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/…'
 cd myrm-website
 bun run release:website -- website-v1.2.0
 ```
 
-脚本会：**preflight**（干净工作区 → sync `origin/main` → tag/HEAD 检查 → `build`+`test`）→ 创建/推送 tag → POST Deploy Hook。
+脚本会：**preflight**（干净工作区 → sync `origin/main` → tag/HEAD 检查 → `build`+`test`）→ 创建/重推 tag → **由 GHA POST Deploy Hook**（本地不需要、也不应配置 `CF_PAGES_DEPLOY_HOOK`）。tag 已在 HEAD 时会先删远程 tag 再重推以重新触发 GHA。
 
 若 tag 已指向其他 commit，脚本会中止；请使用新版本号（如 `website-v1.2.1`）。
 
-应急部署（Deploy Hook 不可用时）：本地 build 后 `wrangler pages deploy out --project-name=myrm-agent-brand`。
+**禁止**其他发布路径：`wrangler pages deploy`、Vercel、push `main` 自动部署、GHA `workflow_dispatch`、本地直接 POST Deploy Hook。
 
 **install 脚本短链**（`/install.sh`、`/install.ps1`）：`myrm-website/public/_redirects`（随 `out/` 发布）。
 
