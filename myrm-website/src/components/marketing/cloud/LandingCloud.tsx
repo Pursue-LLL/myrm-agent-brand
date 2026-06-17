@@ -2,7 +2,6 @@
  * [INPUT]
  * - cloud/CloudShell.tsx (POS: SaaS 页顶栏与页脚)
  * - cloud/*Section 各区块 (POS: SaaS 页分区展示)
- * - landing/WorkspacePreview.tsx (POS: 双页共用产品预览)
  * - landing/landing-interaction.ts (POS: 滚动显现 / 进度条)
  *
  * [OUTPUT]
@@ -13,8 +12,6 @@
  */
 'use client';
 
-import { useTranslations } from 'next-intl';
-import WorkspacePreview from '../landing/WorkspacePreview';
 import { useRevealOnScroll, useScrollProgress } from '../landing/landing-interaction';
 import MouseGlowLayer from '../MouseGlowLayer';
 import CloudAdvantagesSection from './CloudAdvantagesSection';
@@ -28,7 +25,6 @@ import CloudTrustSection from './CloudTrustSection';
 import CloudUseCasesSection from './CloudUseCasesSection';
 
 export default function LandingCloud() {
-  const t = useTranslations('cloud');
   const containerRef = useRevealOnScroll();
   const scrollProgress = useScrollProgress();
 
@@ -41,17 +37,19 @@ export default function LandingCloud() {
       >
         <CloudHeroSection />
 
-        <section
-          className="relative mx-auto max-w-[900px] px-6 pb-10 sm:pb-14"
-          aria-label={t('demo.preview.alt')}
-        >
-          <div className="ed-reveal">
-            <WorkspacePreview messagesNamespace="cloud" shell="shell" />
-          </div>
-          <p className="ed-reveal mt-4 text-center text-sm leading-relaxed" style={{ color: 'var(--ed-dim)' }}>
-            {t('demo.caption')}
-          </p>
-        </section>
+        {/* TODO: 正式产品截图就绪后恢复 WorkspacePreview 示意区块
+            import WorkspacePreview from '../landing/WorkspacePreview';
+            import { useTranslations } from 'next-intl';
+            const t = useTranslations('cloud');
+            <section className="relative mx-auto max-w-[900px] px-6 pb-10 sm:pb-14" aria-label={t('demo.preview.alt')}>
+              <div className="ed-reveal">
+                <WorkspacePreview messagesNamespace="cloud" shell="shell" />
+              </div>
+              <p className="ed-reveal mt-4 text-center text-sm leading-relaxed" style={{ color: 'var(--ed-dim)' }}>
+                {t('demo.caption')}
+              </p>
+            </section>
+        */}
 
         <CloudAdvantagesSection />
         <CloudHowItWorksSection />

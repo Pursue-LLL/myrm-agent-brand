@@ -47,8 +47,6 @@ import MouseGlowLayer from './MouseGlowLayer';
 import SmartDownloadButton from '@/components/download/SmartDownloadButton';
 import HeroDownloadFootnote from '@/components/download/HeroDownloadFootnote';
 import { DesktopReleaseProvider } from '@/components/download/DesktopReleaseProvider';
-import WorkspacePreview from './landing/WorkspacePreview';
-
 function GitHubIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
@@ -280,14 +278,17 @@ export default function LandingEditorial() {
           </div>
         </section>
 
-        <section className="relative mx-auto max-w-[1080px] px-6 pb-20 sm:pb-32" aria-label={t('demo.preview.alt')}>
-          <div className="ed-reveal mx-auto max-w-[900px]">
-            <WorkspacePreview />
-            <p className="mt-4 text-center text-[12px] font-light leading-relaxed" style={{ color: 'var(--ed-muted)' }}>
-              {t('demo.caption')}
-            </p>
-          </div>
-        </section>
+        {/* TODO: 正式产品截图就绪后恢复 WorkspacePreview 示意区块
+            import WorkspacePreview from './landing/WorkspacePreview';
+            <section className="relative mx-auto max-w-[1080px] px-6 pb-20 sm:pb-32" aria-label={t('demo.preview.alt')}>
+              <div className="ed-reveal mx-auto max-w-[900px]">
+                <WorkspacePreview />
+                <p className="mt-4 text-center text-[12px] font-light leading-relaxed" style={{ color: 'var(--ed-muted)' }}>
+                  {t('demo.caption')}
+                </p>
+              </div>
+            </section>
+        */}
 
         </div>
 
