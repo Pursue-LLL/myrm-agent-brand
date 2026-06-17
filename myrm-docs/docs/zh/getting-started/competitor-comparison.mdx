@@ -27,7 +27,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **纯本地直连** | ✅ Tauri 轻量级直连官方 API，满足企业绝对隐私合规，内存占用仅为 Electron 的 1/10 | ⚠️ 依赖 Electron 内存占用极大 | ⚠️ 云端中转 | ❌ 仅云端 | ⚠️ 依赖 Electron | ❌ 仅云端 | ⚠️ 依赖 Electron |
 | **零配置迁移 (OOBE)** | ✅ 首次启动自动扫描 Claude Code, Cursor, Codex 等 8 种凭证，一键导入 | ⚠️ 仅支持少数 CLI 工具的粗糙调用 | ❌ 无 | ❌ 无 | ❌ 无 | ❌ 无 | ❌ 无 |
 | **SaaS 登录** | ✅ Google OAuth + 一次性交换（JWT 不进 URL）；企业 OIDC 就绪 | ❌ | ❌（OAuth 仅 LLM Key） | ⚠️ 厂商账号 | ❌ | ❌ 闭源 SaaS | ❌ |
-| **模型支持** | ✅ 100+ 模型 + 小模型自动调优（7B-35B 自动适配提示词/工具/压缩策略） | 20+ | 固定 | ⚠️ 固定三档 | BYOK 多模型 | ❌ 仅 MiniMax | N/A |
+| **模型支持** | ✅ 100+ 模型 + 小模型自动调优 + API 方言自动转换（DeepSeek/Kimi/MiMo 零配置）+ 原生思考模型支持（6 级强度 + 思考面板 + 20+ 推理模型检测）— 310 项测试 | 20+ | 固定 | ⚠️ 固定三档 | BYOK 多模型 | ❌ 仅 MiniMax | N/A |
 | **渠道** | ✅ 26 渠道 + 三级 Agent 绑定（Thread/Chat/Channel）+ 六维身份隔离 + IM Goal 管理（5,709 测试） | ~23（无 Topic 级绑定） | ~7 | ⚠️ 飞书/钉钉 | ⚠️ IM 机器人 | ❌ 仅飞书 | ❌ |
 | **公网 Ingress 引导** | ✅ SSOT API + 入站/出站徽章 + 自选穿透文档（cpolar/NATAPP/frp） | ❌ 纯文档 | Tailscale 文档 | ⚠️ 文档教 cloudflared | ❌ | ❌ | ❌ |
 | **手机远程指挥台** | ✅ 配对令牌 Hub + 实时 Status Board（SSE attach · HITL 审批 · steer · 停止）· 会话级绑定 · 渠道深链 · **65 项测试**（2026-06） | ❌ 仅 CLI/TUI | ⚠️ 多为 IM 通知，无完整手机控制台 | ❌ | ❌ | ❌ | ❌ |
@@ -45,18 +45,19 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **MCP 工具安全** | ✅ 双层防护：上游异常捕获+下游 block 类型强制转换（file/audio/未知→text） | ⚠️ 单层转换（无上游容错） | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **智能路由与模型自动升级** | ✅ 五层体系: ComplexityRouter 三档路由（40+ 中英关键词 + 20 种异常正则 + 多维信号评分，100% 测试覆盖率）+ 隐私感知路由 + ESCALATION_CONTRACT (模型自主升级合约) + EscalationScrubber (流式无缝体验) + 双 Fallback 保险 (374 项测试) | ⚠️ 仅 Sonnet→Opus 单维度 | ❌ | ⚠️ 手动三档 | ❌ | ⚠️ 未知 | ❌ |
 | **后台任务托盘** | ✅ Kanban 持久化 + SteeringToken 运行时转向 + Zombie 检测 + 自动重试 + /btw /bg 快捷命令 + 智能轮询（189 项测试） | ⚠️ 仅运行+取消 | ❌ | ❌ | ⚠️ Background Agent（无转向） | ⚠️ 未知 | ❌ |
-| **错误恢复** | ✅ 14 类自愈 + 9 层纵深降级（多模型 Fallback·三层错误分类·指数退避·SSE 通知·零 LLM 正则备份）+ 3 层流式超时保护（2,039 项测试） | try/catch | 基础 | 基础 | ⚠️ 上下文溢出恢复 | ⚠️ 未知 | ❌ |
+| **错误恢复** | ✅ 8层纵深防护(LoopGuard 7种模式+ToolStuck→GraphInterrupt+FrequencyGuard+E-Stop+4层熔断器+Kanban僵尸120s自动回收+Gateway超时+内存压力熔断) + 14类自愈 + 9层纵深降级 — 2,934项测试 | try/catch | 基础 | 基础 | ⚠️ 上下文溢出恢复 | ⚠️ 未知 | ❌ |
 | **企业可靠性** | ✅ xdist 锁、EventBus 截断、OTEL 安全、路径边界 + TOCTOU 审批测试；聊天 SSE 状态机回归；**521 份分形 `_ARCH` 模块文档 + 296 项架构 CI 门禁**（2026-06-09 实测） | ⚠️ 仅快乐路径测试 | ⚠️ 易竞态 | ⚠️ 未知 | ⚠️ 未知 | ⚠️ 未知 | ❌ |
 | **模块文档地图** | ✅ **521** 份 `_ARCH.md` + CI 防漂移（`check_fractal_docs`） | ❌ 仅集中式 docs | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **文件编辑安全** | ✅ 6 层保护 + Shadow Git 快照**选择性文件恢复**（checkbox 多选）+ 行级变更统计 (+X/−Y) + 回退后 Agent 自动感知 + 自动格式化 + 语法检查 + 冲突检测 + 配置保护 + 敏感文件保护 + 实时 diff SSE（1,154 项测试） | ❌ | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
 | **文件系统智能** | ✅ 19 种原生操作 + 6 类解析器 + 5 层观察者（788 项测试） | ⚠️ 4 种基础操作 | ⚠️ 仅 bash | ⚠️ 仅 bash | ❌ | ⚠️ 基础 | ❌ |
+| **代码执行引擎** | ✅ 零进程开销 pathlib I/O + 原子写入 + 持久化 Shell 会话 + 环境自动探测 + seatbelt/bwrap 沙箱 + PTC 双向通道 + 输出压缩 + 虚拟环境管理 + 工具自动发现（**1,500 项测试**） | ⚠️ 仅 Shell 子进程 | ⚠️ 仅 bash | ⚠️ 仅 bash | ❌ | ⚠️ 基础 | ❌ |
 | **工作区上下文** | ✅ 7 种 @ 引用（文件/文件夹/staged/diff/URL/上传/行范围）+ 工具层全文件系统访问 + Dynamic Workflow 多项目并行（259 项测试） | ⚠️ 仅 @file（沙箱限制） | ❌ 单目录 | ❌ | ❌ | ⚠️ 未知 | ❌ |
 | **本地文件"数据不出域"** | ✅ 天然支持 — Agent 在本地运行，所有文件原地处理 | ❌ 仅云端 | ⚠️ Docker | ⚠️ Docker | ❌ 云端 | ❌ | ❌ |
 | **定时任务** | ✅ 20+ GUI 组件 + 27 项配置能力 + 6 种触发器 + 指数退避重试 + 误火恢复 + Agent 绑定 + 结果投递 + Merkle 审计链 + 智能噪音过滤（958 项测试） | ⚠️ CLI 基础 cron（无GUI/无重试/无恢复） | ✅ | ✅ | ❌ | ❌ | ❌ |
 | **统一工具网关** | ✅ 四合一网关 + 弹性 BYOK 回退 | ⚠️ 硬切换（易出错） | ❌ N/A | ⚠️ 未知 | ❌ | ⚠️ 未知 | ❌ |
 | **OpenAI 兼容代理** | ✅ 双模（Agent+LLM）`/v1` 端点 + `/v1/models` 自动发现 + 4 策略密钥轮转 + Aider/Cline/Continue GUI 配置模板（74 项测试） | ⚠️ `/v1/chat/completions`（仅 Agent，无 LLM 直通，无模型发现） | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **语音** | ✅ STT + TTS + 实时 | ⚠️ Discord 语音 | WebRTC | ⚠️ 基础 | ❌ | ❌ | ❌ |
-| **多模态生成** | ✅ 图片（20+ 模型 + Failover + 编辑）+ 视频（4 引擎：Sora/Veo/Qwen/MiniMax + T2V/I2V/V2V + 幂等任务管理）+ TTS（5 Provider 含免费 Edge + 流式 + 长文本自动摘要 + OpenAI 兼容 base_url 接入本地引擎）— 558 项测试 | ⚠️ FAL.ai 图片 + 2 视频插件 + 10 TTS（含 5 个 niche 本地方案） | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **多模态生成** | ✅ 图片（20+ 模型 + Failover + 编辑）+ 视频（4 引擎：Sora/Veo/Qwen/MiniMax + T2V/I2V/V2V + 幂等任务管理）+ TTS（5 Provider 含免费 Edge + 流式 + 长文本自动摘要 + OpenAI 兼容 base_url）+ 截图即操作管线（粘贴/拖放 → 标注编辑器 → OCR/Vision → 工具调用闭环）+ Vision 自动降级 — 1,293 项测试 | ⚠️ FAL.ai 图片 + 2 视频插件 + 10 TTS（含 5 个 niche 本地方案） | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Computer Use** | ✅ 桌面自动化 + 后台静默输入（不抢焦点）+ BBox 审批 + Tauri OS 叠加层 + 原生 API 智能路由（AppleScript/COM/D-Bus 自动检测） | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **浏览器引擎** | ✅ 三层引擎 + GlobalBrowserPool（零冷启动、三层崩溃恢复）+ Shadow DOM 穿透 + API-First 网络智能（CDP 懒加载响应体 + 请求重放）+ 域名引擎亲和记忆 + 后台无感执行（双层隔离）+ 同源智能Tab路由 + 4 大云浏览器 Provider（GUI 配置 + 热更新免重启） | ⚠️ 第三方云浏览器（环境变量配置，需重启） | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
 | **网页搜索** | ✅ 8 引擎 + BM25/Reranker 过滤 + 三层防幻觉 | ⚠️ 云 API 透传 | ⚠️ DDG/Bing 抓取 | ⚠️ 同 OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
@@ -490,7 +491,7 @@ MiniMax Mavis 是闭源 SaaS 多 Agent 系统，采用 Leader-Worker-Verifier �
 | Verification | Text-based review | **Physical evidence enforcement** — must provide STDOUT/STDERR execution logs; claiming PASS without evidence is forced to FAIL | No rubber-stamp reviews |
 | Tool Isolation | Not disclosed | **5-layer isolation** (type admission → global blocklist → per-config → parent-child intersection → role control) | Sub-agents cannot escalate privileges |
 | Budget Control | Token Plan (commercial tier) | **4-dimension control** (Token + USD + time + max descendants) | Precise cost management, not plan-tier anxiety |
-| Model Freedom | Locked to MiniMax models | **100+ models** with 3-level intelligent routing | Zero vendor lock-in |
+| Model Freedom | Locked to MiniMax models | **100+ models** with 3-level intelligent routing + API dialect auto-convert (DeepSeek/Kimi/MiMo zero-config) + native thinking model support (6-level intensity + reasoning panel + 20+ model detection) — 310 tests | Zero vendor lock-in, zero BaseURL hacks |
 | Channels | Lark only | **35+ channels** (WeChat/DingTalk/Slack/Telegram/Discord/Email...) | Not limited to one platform |
 | Deployment | Closed-source SaaS only | **Web + Tauri + SaaS** (MIT open source) | Full data sovereignty |
 | Skill Evolution | Basic "learned something" memory update | **42-module native system** with A/B testing + GUI approval + 5-layer safety | True self-improvement vs simple memory |
@@ -911,6 +912,31 @@ Codex 近期发布两大旗舰功能：**Appshots**（⌘⌘ 窗口捕获 + 文�
 | Linux partial support | ⚠️ dmg-based | ✅ LinuxBackend native implementation |
 
 **结论：Codex 的 Appshots 与 /goal 是 Myrm 现有能力的简化子集。Myrm 覆盖 3 平台（vs 仅 Mac）、DAG 执行（vs 线性），并提供 Codex 完全缺失的企业级预算控制与完成验证。**
+
+### Vibe Canvas — "指哪改哪"工件交互
+
+| 能力 | Codex @Browser | Myrm |
+|------|---------------|------|
+| 批注方式 | 截图坐标框选 | ✅ DOM 元素级拾取（精确 outerHTML） |
+| Token 效率 | ❌ Base64 截图消耗大量 vision token | ✅ 600 字符 HTML 片段，节省 10x+ token |
+| 支持内容类型 | 仅浏览器页面 | ✅ 10 种：HTML/SVG/Mermaid/React/代码/PDF/视频/音频/表格 |
+| 修改闭环 | 批注→Agent修改→刷新页面 | ✅ 拾取元素→输入指令→Agent修改→实时预览 |
+| 离线可用 | 需要 @Browser 沙箱 | ✅ 纯前端实现，离线可用 |
+
+**你将获得**：在工件预览中点击任意元素，Myrm 自动捕获精确 HTML 结构并附带你的指令发送给 Agent。无需截图、无需猜坐标——DOM 级精确"指哪改哪"。
+
+### 浏览器扩展桥接 — 带身份认证的会话接管
+
+| 能力 | Codex @Chrome | Myrm |
+|------|--------------|------|
+| 连接方式 | Chrome 扩展 | ✅ MV3 Chrome 扩展 + WebSocket + CDP 代理 |
+| 域名授权 | 全局访问 | ✅ 按域名白名单控制（支持通配符） |
+| 安全性 | 扩展权限 | ✅ Token 认证 + 域名级授权 + 每次操作审批卡片 |
+| 状态监控 | 无 | ✅ SSE 实时状态广播 + 前端连接指示器 |
+| GUI 管理 | 无 | ✅ 完整设置界面（域名/标签页/断开连接）+ 多语言 |
+| 标签页管理 | 基础 | ✅ 列表/筛选标签页 + 调试器附加/分离生命周期 |
+
+**你将获得**：让 Agent 使用你真实的 Chrome 会话（Gmail、SaaS 应用、内部工具），精细的域名级控制，每个操作需要你的审批。实时状态显示扩展正在做什么。
 
 ## vs 360 LobsterAI — 消费级 Agent 平台
 

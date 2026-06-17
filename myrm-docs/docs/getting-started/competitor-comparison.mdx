@@ -45,18 +45,19 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **MCP Tool Safety** | ✅ Dual-layer: upstream exception catch + downstream block coercion (file/audio/unknown→text) | ⚠️ Single-layer coercion (no upstream fault tolerance) | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Smart Routing & Auto-Upgrade** | ✅ 5-layer: ComplexityRouter 3-Tier (40+ keywords + 20 exception regex + multi-signal scoring, 100% coverage) + PrivacyRouter + ESCALATION_CONTRACT (model self-upgrade) + EscalationScrubber (seamless UX) + Dual Fallback (374 tests) | ⚠️ Single-dimension Sonnet→Opus | ❌ | ⚠️ Manual 3-tier | ❌ | ⚠️ Unknown | ❌ |
 | **Background Tasks** | ✅ Kanban-persisted, SteeringToken runtime redirect, Zombie detection, auto-retry, /btw /bg commands, smart polling (189 tests) | ⚠️ Basic run + cancel only | ❌ | ❌ | ⚠️ Background Agent (no steer) | ⚠️ Unknown | ❌ |
-| **Error Recovery** | ✅ 14 self-healing types + 9-layer deep degradation (multi-model fallback · 3-tier error classification · exponential backoff · SSE notifications · zero-LLM regex backup) + 3-layer streaming timeout (2,039 tests) | try/catch | Basic | Basic | ⚠️ Context overflow recovery | ⚠️ Unknown | ❌ |
+| **Error Recovery** | ✅ 8-layer defense (LoopGuard 7 patterns + ToolStuck→GraphInterrupt + FrequencyGuard + E-Stop + 4-layer CircuitBreaker + Kanban zombie 120s auto-reclaim + Gateway timeout + memory pressure fuse) + 14 self-healing types + 9-layer deep degradation — 2,934 tests | try/catch | Basic | Basic | ⚠️ Context overflow recovery | ⚠️ Unknown | ❌ |
 | **Enterprise Reliability** | ✅ xdist locks, EventBus truncate, OTEL safe, path-boundary + TOCTOU approval tests; chat SSE state machine regression tests; **521 fractal `_ARCH` module docs + 296 architecture CI gates** (2026-06-09 verified) | ⚠️ Happy-path tested only | ⚠️ Race conditions likely | ⚠️ Unknown | ⚠️ Unknown | ⚠️ Unknown | ❌ |
 | **Module Documentation Map** | ✅ **521** `_ARCH.md` + CI anti-drift (`check_fractal_docs`) | ❌ Central docs only | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **File Edit Safety** | ✅ 6-layer protection + Shadow Git snapshot with **selective file restore** (checkbox multi-pick) + line-level diff stats (+X/−Y) + Agent auto-aware after rollback + auto-format + syntax check + conflict detection + config guard + sensitive guard + real-time diff SSE (1,154 tests) | ❌ | ❌ | ❌ | ❌ | ⚠️ Unknown | ❌ |
 | **File System Intelligence** | ✅ 19 native ops + 6 parsers + 5 observers (788 tests) | ⚠️ 4 basic ops | ⚠️ bash only | ⚠️ bash only | ❌ | ⚠️ Basic | ❌ |
+| **Code Execution Engine** | ✅ Zero-subprocess pathlib I/O + atomic writes + persistent shell sessions + env auto-probe + seatbelt/bwrap sandbox + PTC channel + output compression + VenvManager + tool auto-discovery (**1,500 tests**) | ⚠️ Shell subprocess only | ⚠️ bash only | ⚠️ bash only | ❌ | ⚠️ Basic | ❌ |
 | **Workspace Context** | ✅ 7-type @ references (file/folder/staged/diff/url/upload/line-range) + tool-layer full filesystem + Dynamic Workflow multi-project parallel (259 tests) | ⚠️ @file only (sandbox) | ❌ Single dir | ❌ | ❌ | ⚠️ Unknown | ❌ |
 | **Local File "Data Stays Local"** | ✅ Native — Agent runs locally, all files processed in-place | ❌ Cloud-only | ⚠️ Docker | ⚠️ Docker | ❌ Cloud | ❌ | ❌ |
 | **Scheduled Tasks** | ✅ 20+ GUI components + 27 config options + 6 trigger types + exponential retry + misfire recovery + agent binding + delivery + Merkle audit chain + intelligent noise filtering (958 tests) | ⚠️ CLI limited (no GUI/retry/recovery) | ✅ | ✅ | ❌ | ❌ | ❌ |
 | **Unified Tool Gateway** | ✅ 4-in-1 Gateway + Elastic BYOK Fallback | ⚠️ Hard Switch (Error Prone) | ❌ N/A | ⚠️ Unknown | ❌ | ⚠️ Unknown | ❌ |
 | **OpenAI Compatible Proxy** | ✅ Dual-mode (Agent+LLM) `/v1` endpoint + `/v1/models` auto-discovery + 4-strategy key rotation + GUI config templates for Aider/Cline/Continue (74 tests) | ⚠️ `/v1/chat/completions` (Agent only, no LLM passthrough, no model discovery) | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Voice** | ✅ STT + TTS + Real-time | ⚠️ Discord Voice | WebRTC | ⚠️ Basic | ❌ | ❌ | ❌ |
-| **Multimodal Generation** | ✅ Image (20+ models + Failover + Edit) + Video (4 engines: Sora/Veo/Qwen/MiniMax + T2V/I2V/V2V + idempotent task mgmt) + TTS (5 providers incl. free Edge + streaming + long-text auto-summary + OpenAI-compat base_url for local engines) — 558 tests | ⚠️ FAL.ai images + 2 video plugins + 10 TTS (5 niche local) | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Multimodal Generation** | ✅ Image (20+ models + Failover + Edit) + Video (4 engines: Sora/Veo/Qwen/MiniMax + T2V/I2V/V2V + idempotent task mgmt) + TTS (5 providers incl. free Edge + streaming + long-text auto-summary + OpenAI-compat base_url) + Screenshot-to-Action pipeline (paste/drop → annotation editor → OCR/Vision → tool calling loop) + Vision Fallback auto-degrade — 1,293 tests | ⚠️ FAL.ai images + 2 video plugins + 10 TTS (5 niche local) | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Computer Use** | ✅ Desktop automation + background input (no focus-steal) + BBox approval + Tauri OS overlay + Native API routing (AppleScript/COM/D-Bus auto-detection) | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Browser Engine** | ✅ 3-layer engine + GlobalBrowserPool (zero cold-start, 3-layer crash recovery) + Shadow DOM penetration + API-First network intelligence (CDP lazy body + replay) + domain engine affinity memory + non-perceptive background execution (dual-layer isolation) + origin-based smart tab routing + 4 cloud browser providers (GUI config + hot-reload) | ⚠️ Cloud Browser Use (env var, restart required) | ❌ | ❌ | ❌ | ⚠️ Unknown | ❌ |
 | **Web Search** | ✅ 8 engines + BM25/Reranker filter | ⚠️ Cloud API passthrough | ⚠️ DDG/Bing scrape | ⚠️ Same as OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
@@ -573,7 +574,7 @@ MiniMax Mavis is a closed-source SaaS multi-agent system with Leader-Worker-Veri
 | Verification | Text-based review | **Physical evidence enforcement** — must provide STDOUT/STDERR execution logs; claiming PASS without evidence is forced to FAIL | No rubber-stamp reviews |
 | Tool Isolation | Not disclosed | **5-layer isolation** (type admission → global blocklist → per-config → parent-child intersection → role control) | Sub-agents cannot escalate privileges |
 | Budget Control | Token Plan (commercial tier) | **4-dimension control** (Token + USD + time + max descendants) | Precise cost management, not plan-tier anxiety |
-| Model Freedom | Locked to MiniMax models | **100+ models** with 3-level intelligent routing | Zero vendor lock-in |
+| Model Freedom | Locked to MiniMax models | **100+ models** with 3-level intelligent routing + API dialect auto-convert (DeepSeek/Kimi/MiMo zero-config) + native thinking model support (6-level intensity + reasoning panel + 20+ model detection) — 310 tests | Zero vendor lock-in, zero BaseURL hacks |
 | Channels | Lark only | **35+ channels** (WeChat/DingTalk/Slack/Telegram/Discord/Email...) | Not limited to one platform |
 | Deployment | Closed-source SaaS only | **Web + Tauri + SaaS** (MIT open source) | Full data sovereignty |
 | Skill Evolution | Basic "learned something" memory update | **42-module native system** with A/B testing + GUI approval + 5-layer safety | True self-improvement vs simple memory |
@@ -967,14 +968,17 @@ Codex recently shipped two flagship features: **Appshots** (window capture + tex
 |-----------|------------|-----------------|
 | Planning | Linear self-planning | PlannerAgent auto-generates DAG plans with dependencies |
 | Execution | Linear, sequential | DAG concurrent executor + Swarm Fission |
-| Budget | No budget control | 4D budget (tokens / USD / wall-clock / turns) |
+| Budget | token_budget only | 4D budget (tokens / USD / wall-clock / turns) |
 | Completion | User checks | CompletionGuard — evidence-based TDD-like verification |
 | Continuation | "Asks if stuck" | 7-step guard chain + Semantic Judge |
+| File protection | ❌ None | InvariantSnapshot SHA-256 + Protected paths physical block |
+| Convergence | ❌ LLM self-judges "blocked" | System-level: convergence_window + no_progress_streak auto-detect |
 | Multi-goal | Single goal | Priority Queue + auto_approve unattended serial |
 | Runtime adjust | Not mentioned | Dynamic Subgoals + Objective Hot-Edit |
 | Git awareness | Not mentioned | Branch-Aware Stash & Migrate |
 | Frontend | Check progress | GoalControlPlane real-time panel + Execution Summary card |
 | Notification | Built-in | `channel_notify_tool` — Telegram/Slack/any channel |
+| Tests | Unknown | **187 tests** (types/storage/manager/continuation/queue/stash/verification/metrics) |
 
 ### Lock Screen & Remote
 
@@ -994,6 +998,31 @@ Codex recently shipped two flagship features: **Appshots** (window capture + tex
 | Linux partial support | ⚠️ dmg-based | ✅ LinuxBackend native implementation |
 
 **Result: Codex's Appshots and /goal are simplified subsets of Myrm's existing capabilities. Myrm covers 3 platforms (vs Mac-only), offers DAG execution (vs linear), and provides enterprise-grade budget control and completion verification that Codex lacks entirely.**
+
+### Vibe Canvas — "Point-and-Fix" Artifact Interaction
+
+| Capability | Codex @Browser | Myrm |
+|------------|---------------|------|
+| Annotation method | Screenshot coordinates (area selection) | ✅ DOM element picking (precise outerHTML) |
+| Token efficiency | ❌ Base64 screenshot consumes vision tokens | ✅ 600-char HTML snippet, 10x fewer tokens |
+| Supported content types | Browser pages only | ✅ 10 types: HTML/SVG/Mermaid/React/code/PDF/video/audio/spreadsheet |
+| Modification loop | Annotate → Agent modifies → page refresh | ✅ Pick element → instruction → Agent modifies → live preview |
+| Offline support | Requires @Browser sandbox | ✅ Pure frontend, works offline |
+
+**What you get**: Click any element in an Artifact preview, Myrm captures the exact HTML structure and sends it to the Agent with your instruction. No screenshots, no coordinate guessing — precise DOM-level "point and fix."
+
+### Browser Extension Bridge — Authenticated Session Takeover
+
+| Capability | Codex @Chrome | Myrm |
+|------------|--------------|------|
+| Connection | Chrome extension | ✅ MV3 Chrome extension + WebSocket + CDP proxy |
+| Domain authorization | Global access | ✅ Per-domain allowlist with wildcard patterns |
+| Security | Extension permission | ✅ Token auth + domain-level authorization + Approval card for each action |
+| Status monitoring | None | ✅ Real-time SSE status broadcast + frontend connection indicator |
+| GUI management | None | ✅ Full settings UI (domains/tabs/disconnect) with i18n |
+| Tab management | Basic | ✅ List/filter tabs + debugger attach/detach lifecycle |
+
+**What you get**: Let your Agent use your real Chrome session (Gmail, SaaS apps, internal tools) with fine-grained domain control. Every action requires your approval. Real-time status shows exactly what the extension is doing.
 
 ## vs 360 LobsterAI — Consumer Agent Platform
 
