@@ -1469,3 +1469,13 @@ While this semi-manual mode prevents LLM context pollution, it should **never** 
 - **全景可视化与零配置**：提供豪华的记忆指挥中心 GUI，打破黑盒；且内置 SQLite+Qdrant，无需配置 Docker 或 API Key，断网 100% 可用。
 
 **用户迁移收益**：从竞品迁移过来，你将获得一个不会“越用越笨”、不会丢失关键细节、且完全保护隐私的超级大脑。
+
+## vs. DeerFlow 2.0: From Framework to Industrial Harness
+
+DeerFlow 2.0 introduced a 14-layer middleware chain and Docker sandboxing, but its architecture is heavily coupled with cloud-native microservices (requiring a standalone LangGraph Server).
+
+**Why migrate to MyrmAgent?**
+1. **17+ Layer Middleware Kernel**: We provide a more granular, strictly ordered middleware chain (17+ layers) with static DI Graph validation, completely eliminating implicit dependency bugs.
+2. **True Agent-in-Sandbox**: Unlike DeerFlow which creates sandboxes from within the agent, our architecture relies on the external deployment layer (Server/Tauri) to provide polymorphic sandboxing (Docker for cloud, lightweight process isolation for desktop). This ensures zero overhead on local machines.
+3. **Zero-Copy ArtifactVault**: For concurrent sub-agents, we use a `vault://` pointer protocol for large files, achieving zero-copy sharing and completely preventing LLM context explosion.
+4. **Security-in-Depth Skills**: While both support Markdown-based skills, we add a 3-layer defense system (Trust Decay + Security Scanning + Content Escaping) to ensure third-party skills never compromise your host.
