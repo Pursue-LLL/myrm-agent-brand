@@ -25,7 +25,7 @@ Hero → WorkspacePreview → Advantages → HowItWorks → UseCases → Pricing
 | `CloudAdvantagesSection.tsx` | 核心 | 4 项 Bento 优势卡 | ✅ |
 | `CloudHowItWorksSection.tsx` | 核心 | 3 步上手 TiltCard | ✅ |
 | `CloudUseCasesSection.tsx` | 核心 | 3 场景用例卡 | ✅ |
-| `CloudPricingSection.tsx` | 核心 | 定价预览（Companion 推荐标 + WU 说明条） | ✅ |
+| `CloudPricingSection.tsx` | 核心 | 定价预览（Companion 推荐标 + WU 说明条；Max 含 8C/200GB） | ✅ |
 | `CloudTrustSection.tsx` | 核心 | Creem MoR / 安全 / 支持 | ✅ |
 | `CloudFaqSection.tsx` | 核心 | FAQ（ed-faq 样式，7 条） | ✅ |
 | `CloudFinalCtaSection.tsx` | 核心 | 页尾 Final CTA | ✅ |
