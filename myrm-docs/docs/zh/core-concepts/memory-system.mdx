@@ -39,6 +39,20 @@ Myrm 记忆系统是 Agentic Memory Operations（AMO）范式最完整的实现�
 
 受 Honcho Dream 启发，但在常规「品味摘要」生成中**异步**提取用户**长期目标与进行中项目**，**零额外 LLM 成本**。为 AI 提供持久「长期记忆靶标」，避免传统自由文本 Dream 的高 Token 成本与数据污染风险。
 
+## Working Memory（跨会话任务延续）
+
+长周期任务（多日重构、迭代研究）在会话间丢失上下文。其他工具需要手动 recap 或昂贵的全量历史搜索。
+
+Myrm 的 **Working Memory** 通过专用 `__working_state` Profile Memory 条目解决：
+
+- **Agent 自动写入** — `commit_stage_tool` 在每个里程碑自动持久化简短任务摘要（≤500字符）
+- **兜底提取** — 若 Agent 忘记提交，`TaskDigest` 提取器自动从对话摘要中捕获任务进度
+- **最高优先级注入** — Working State 以 `priority=0`（最高）注入 System Prompt，下次会话立即知道"做到哪了"
+- **7 天 TTL** — 超过 7 天自动过期，防止旧任务上下文污染新任务
+- **实时 UI** — Chat 头部 Badge 显示当前任务状态，对话完成后自动刷新；设置页卡片提供创建/编辑/清除/字符计数完整管理
+
+对比 ChatGPT Dreaming（被动、无任务聚焦）、CLAUDE.md（手动维护）、第三方 MCP 插件（配置开销），Working Memory 零配置、Agent 驱动、自动清理。
+
 ## AMO 操作 — 全覆盖
 
 AMO 范式（2025-2026）定义完整记忆系统须支持的四种核心操作。Anthropic Dreaming 覆盖 1-2；Mem0 覆盖 Store 与部分 Retrieve。Myrm 以生产级深度实现全部四种：
