@@ -90,11 +90,14 @@ The desktop app enforces a three-tier permission model for agent actions:
 
 ## Remote Access
 
-Enable remote access with your own tunnel tool:
+Enable remote access with your own tunnel tool, then control running agents from your phone:
 
-1. Go to **Settings → System**
+1. Go to **Settings → System → Access**
 2. Enable **WebUI mode** and **password protection**
-3. Run a tunnel (cpolar, NATAPP, frp, etc.) against port `3000`
+3. Start a tunnel (Cloudflare Tunnel, cpolar, NATAPP, frp, etc.) against port `3000`
 4. Paste the **HTTPS** URL into **Public Ingress** and run **Test connectivity**
+5. Scan the **Mobile Hub QR** on your phone — pick an active session to open the **Status Board** (live progress, approvals, steer, stop)
 
-See [Tunnel Guide](/docs/guides/tunnel) for detailed configuration.
+Pair tokens are scoped: the Hub list token cannot control chats until you open a session; control tokens bind to one `chat_id`. See [Tunnel Guide](/docs/guides/tunnel) for detailed configuration.
+
+**Honest note:** You bring the tunnel; Myrm does not host your traffic. End-to-end encrypted relay (G2) is on the roadmap — today, security relies on HTTPS + scoped pair tokens + session binding.
