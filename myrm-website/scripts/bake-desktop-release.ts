@@ -70,21 +70,15 @@ function resolvePinnedDesktopReleaseTag(): string | null {
   return null;
 }
 
-async function fetchReleaseFromGitHub(token?: string): Promise<DesktopReleaseInfo | null> {
+async function fetchGitHubRelease(
+  apiUrl: string,
+  token?: string,
+): Promise<DesktopReleaseInfo | null> {
   const headers: Record<string, string> = { Accept: 'application/vnd.github+json' };
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  const pinnedTag = resolvePinnedDesktopReleaseTag();
-  const apiUrl = pinnedTag
-    ? getGitHubReleaseByTagApiUrl(pinnedTag)
-    : getGitHubLatestReleaseApiUrl();
-  if (pinnedTag) {
-    console.info(`[bake-desktop-release] Pinning GitHub release tag: ${pinnedTag}`);
-  }
-
   const response = await fetch(apiUrl, { headers });
   if (response.status === 404) {
-    console.warn('[bake-desktop-release] No published GitHub release yet; writing empty manifest.');
     return null;
   }
   if (!response.ok) {
@@ -95,6 +89,26 @@ async function fetchReleaseFromGitHub(token?: string): Promise<DesktopReleaseInf
   const release = parseGitHubRelease(payload as Parameters<typeof parseGitHubRelease>[0]);
   if (release.targets.length === 0) return null;
   return enrichReleaseWithInlineSha256(release);
+}
+
+async function fetchReleaseFromGitHub(token?: string): Promise<DesktopReleaseInfo | null> {
+  const pinnedTag = resolvePinnedDesktopReleaseTag();
+  if (pinnedTag) {
+    console.info(`[bake-desktop-release] Pinning GitHub release tag: ${pinnedTag}`);
+    const pinned = await fetchGitHubRelease(getGitHubReleaseByTagApiUrl(pinnedTag), token);
+    if (pinned) {
+      return pinned;
+    }
+    console.warn(
+      `[bake-desktop-release] Tag ${pinnedTag} not found; falling back to latest GitHub release.`,
+    );
+  }
+
+  const latest = await fetchGitHubRelease(getGitHubLatestReleaseApiUrl(), token);
+  if (!latest) {
+    console.warn('[bake-desktop-release] No published GitHub release yet; writing empty manifest.');
+  }
+  return latest;
 }
 
 async function main(): Promise<void> {

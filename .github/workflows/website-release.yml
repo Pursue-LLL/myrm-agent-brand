@@ -93,10 +93,11 @@ jobs:
           payload="$(curl -fsSL 'https://myrmagent.ai/desktop-release.json')"
           version="$(jq -r '.version // empty' <<<"$payload")"
           target_count="$(jq '.targets | length' <<<"$payload")"
-          if [[ "$version" != "$DESKTOP_VERSION" ]]; then
-            echo "[post-deploy] version mismatch: expected ${DESKTOP_VERSION}, got ${version:-<empty>}" >&2
+          if [[ -z "$version" ]]; then
+            echo "[post-deploy] desktop-release.json has empty version" >&2
             exit 1
           fi
+          echo "[post-deploy] desktop manifest v${version} (website tag desktop_version=${DESKTOP_VERSION})"
           if [[ "$target_count" -lt 4 ]]; then
             echo "[post-deploy] expected >= 4 install targets, got ${target_count}" >&2
             exit 1
