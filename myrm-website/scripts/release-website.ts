@@ -4,7 +4,7 @@
  *
  * [OUTPUT]
  * - release-website CLI: preflight → git tag + push tag（由 GHA POST Deploy Hook）
- * - normalizeWebsiteTag, resolveTagReleaseAction, assertWorkingTreeClean, mapTagRevParseExitCode, parseCliArgs
+ * - normalizeWebsiteTag, resolveTagReleaseAction, assertWorkingTreeClean, mapTagRevParseExitCode, parseCliArgs, remoteTagExistsOnOrigin
  *
  * [POS]
  * 营销站本地应急发布：本地 preflight 后 push `website-v*` tag，由 GHA `website-release.yml` POST CF Deploy Hook。
@@ -147,7 +147,7 @@ function ensureMainSyncedWithOrigin(): void {
     throw new Error(`Release must run on main (current: ${branch})`);
   }
 
-  gitRunInherit('git fetch origin main');
+  gitRunInherit('git fetch origin main --tags');
 
   const behind = gitRun('git rev-list --count HEAD..origin/main');
   if (behind !== '0') {
@@ -169,18 +169,35 @@ function runReleasePreflight(): void {
   runInWebsite('bun run test');
 }
 
+export function remoteTagExistsOnOrigin(tag: string, lsRemoteOutput: string): boolean {
+  const ref = `refs/tags/${tag}`;
+  return lsRemoteOutput
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .some((line) => {
+      const parts = line.split(/\s+/);
+      const name = parts[1] ?? '';
+      return name === ref || name.startsWith(`${ref}^{`);
+    });
+}
+
 function deleteRemoteTagIfPresent(tag: string): void {
+  let lsRemote = '';
   try {
-    execSync(`git rev-parse --verify "refs/remotes/origin/${tag}^{commit}"`, {
+    lsRemote = execSync(`git ls-remote --tags origin "refs/tags/${tag}"`, {
       encoding: 'utf8',
       cwd: repoRoot,
       stdio: ['ignore', 'pipe', 'ignore'],
-    });
-    console.info(`[release-website] Deleting remote tag ${tag} to retrigger GHA…`);
-    gitRunInherit(`git push origin :refs/tags/${tag}`);
+    }).trim();
   } catch {
-    // remote tag absent
+    return;
   }
+  if (!remoteTagExistsOnOrigin(tag, lsRemote)) {
+    return;
+  }
+  console.info(`[release-website] Deleting remote tag ${tag} to retrigger GHA…`);
+  gitRunInherit(`git push origin :refs/tags/${tag}`);
 }
 
 function pushReleaseTag(tag: string, action: TagReleaseAction): void {

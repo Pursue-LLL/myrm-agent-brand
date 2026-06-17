@@ -4,6 +4,7 @@ import {
   mapTagRevParseExitCode,
   normalizeWebsiteTag,
   parseCliArgs,
+  remoteTagExistsOnOrigin,
   resolveTagReleaseAction,
   WEBSITE_TAG_PATTERN,
 } from './release-website';
@@ -73,6 +74,18 @@ describe('mapTagRevParseExitCode', () => {
   test('returns rethrow for other exit codes', () => {
     expect(mapTagRevParseExitCode(1)).toBe('rethrow');
     expect(mapTagRevParseExitCode(undefined)).toBe('rethrow');
+  });
+});
+
+describe('remoteTagExistsOnOrigin', () => {
+  test('detects matching tag ref from ls-remote output', () => {
+    const output = 'abc123\trefs/tags/website-v1.0.0\n';
+    expect(remoteTagExistsOnOrigin('website-v1.0.0', output)).toBe(true);
+    expect(remoteTagExistsOnOrigin('website-v1.0.1', output)).toBe(false);
+  });
+
+  test('returns false for empty ls-remote output', () => {
+    expect(remoteTagExistsOnOrigin('website-v1.0.0', '')).toBe(false);
   });
 });
 
