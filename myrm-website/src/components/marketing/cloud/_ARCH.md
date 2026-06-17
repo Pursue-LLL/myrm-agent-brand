@@ -17,7 +17,7 @@ SaaS 转化页，与开源首页 `/` 分离。当前 `robots: noindex`，首页�
 |------|------|------|-------|
 | `LandingCloud.tsx` | 核心 | Hero · WorkspacePreview · 三步 · 定价 · FAQ · Final CTA | ✅ |
 | `CloudShell.tsx` | 核心 | 顶栏 + 页脚（含链回 `/` 自托管） | ✅ |
-| `cloud-marketing-keys.ts` | 核心 | `CLOUD_PLAN_KEYS` / `CLOUD_FAQ_KEYS` / `CLOUD_STEP_KEYS` | ✅ |
+| `cloud-marketing-keys.ts` | 核心 | `CLOUD_PLAN_KEYS`（free/companion/plus/pro/max）/ `CLOUD_FAQ_KEYS` / `CLOUD_STEP_KEYS` | ✅ |
 | `../landing/WorkspacePreview.tsx` | 核心 | 产品预览（`shell="shell"` + `cloud.demo.*`） | ✅ |
 | `../../lib/cloud-paths.ts` | 核心 | App 登录/注册/账单 URL + UTM | ✅ |
 | `../../lib/cloud-marketing-nav.ts` | 核心 | 云页 Nav | ✅ |

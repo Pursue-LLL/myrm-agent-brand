@@ -4,7 +4,7 @@
  * - locales/zh.json, locales/en.json：`marketing` + `cloud` 命名空间
  *
  * [OUTPUT]
- * - CI 校验：manifest 键存在、Bento/对比/轮播/用例/FAQ/集成键完整、integration chip 长度、legal 法务键、cloud 键、notFound 键、locales 无 legacy URL
+ * - CI 校验：manifest 键存在、Bento/对比/轮播/用例/FAQ/集成键完整、integration chip 长度、legal 法务键、cloud 键、cloud 定价与 CP catalog/plans 对齐、notFound 键、locales 无 legacy URL
  *
  * [POS]
  * 营销文案 locale 契约校验；`bun run build` 前自动执行。
@@ -30,6 +30,7 @@ import {
 import { appendLegacyUrlViolations } from './brand-url-patterns';
 
 const ROOT = join(import.meta.dir, '..');
+const CP_BILLING_ROOT = join(ROOT, '../../myrm-control-plane/src/myrm_control_plane/billing');
 const LOCALES = ['zh', 'en'] as const;
 const HIGHLIGHT_TAG_COUNT = 3;
 const HIGHLIGHT_DESC_MAX_CHARS = 140;
@@ -82,6 +83,89 @@ function getAt(obj: Record<string, unknown>, path: string): unknown {
     cur = (cur as Record<string, unknown>)[part];
   }
   return cur;
+}
+
+type CloudPlanKey = (typeof CLOUD_PLAN_KEYS)[number];
+
+function billingPlanEnum(planKey: CloudPlanKey): string {
+  return planKey.toUpperCase();
+}
+
+function parseCpMonthlyUsd(planKey: CloudPlanKey): number {
+  const catalogText = readFileSync(join(CP_BILLING_ROOT, 'catalog.py'), 'utf8');
+  const pattern = new RegExp(
+    `BillingPlan\\.${billingPlanEnum(planKey)}:\\s*\\(\\s*(\\d+)\\s*,`,
+  );
+  const match = catalogText.match(pattern);
+  if (!match) {
+    throw new Error(`Could not parse PLAN_DISPLAY_USD for ${planKey} in catalog.py`);
+  }
+  return Number.parseInt(match[1] ?? '', 10);
+}
+
+function parseCpMonthlyWu(planKey: CloudPlanKey): number {
+  const plansText = readFileSync(join(CP_BILLING_ROOT, 'plans.py'), 'utf8');
+  const pattern = new RegExp(
+    `BillingPlan\\.${billingPlanEnum(planKey)}:[\\s\\S]*?monthly_wu=(\\d+)`,
+  );
+  const match = plansText.match(pattern);
+  if (!match) {
+    throw new Error(`Could not parse monthly_wu for ${planKey} in plans.py`);
+  }
+  return Number.parseInt(match[1] ?? '', 10);
+}
+
+function parseLocalePriceUsd(raw: unknown): number | null {
+  if (typeof raw !== 'string') return null;
+  const match = raw.match(/\$?\s*(\d+)/);
+  if (!match) return null;
+  return Number.parseInt(match[1] ?? '', 10);
+}
+
+function parseLocaleWu(raw: unknown): number | null {
+  if (typeof raw !== 'string') return null;
+  const normalized = raw.replace(/,/g, '');
+  const match = normalized.match(/(\d+)\s*WU/i);
+  if (!match) return null;
+  return Number.parseInt(match[1] ?? '', 10);
+}
+
+function validateCloudPricingAgainstCp(errors: string[]): void {
+  for (const planKey of CLOUD_PLAN_KEYS) {
+    let expectedUsd: number;
+    let expectedWu: number;
+    try {
+      expectedUsd = parseCpMonthlyUsd(planKey);
+      expectedWu = parseCpMonthlyWu(planKey);
+    } catch (error) {
+      errors.push(`[cp] ${error instanceof Error ? error.message : String(error)}`);
+      continue;
+    }
+
+    for (const locale of LOCALES) {
+      const cloud = loadCloud(locale);
+      const priceRaw = getAt(cloud, `pricingPreview.plans.${planKey}.price`);
+      const wuRaw = getAt(cloud, `pricingPreview.plans.${planKey}.wu`);
+      const localeUsd = parseLocalePriceUsd(priceRaw);
+      const localeWu = parseLocaleWu(wuRaw);
+
+      if (localeUsd === null) {
+        errors.push(`[${locale}] cloud.pricingPreview.plans.${planKey}.price is not parseable USD`);
+      } else if (localeUsd !== expectedUsd) {
+        errors.push(
+          `[${locale}] cloud.pricingPreview.plans.${planKey}.price=$${localeUsd} != CP catalog $${expectedUsd}`,
+        );
+      }
+
+      if (localeWu === null) {
+        errors.push(`[${locale}] cloud.pricingPreview.plans.${planKey}.wu is not parseable WU`);
+      } else if (localeWu !== expectedWu) {
+        errors.push(
+          `[${locale}] cloud.pricingPreview.plans.${planKey}.wu=${localeWu} != CP plans monthly_wu=${expectedWu}`,
+        );
+      }
+    }
+  }
 }
 
 function assertKey(
@@ -308,6 +392,8 @@ for (const locale of LOCALES) {
     assertKey(locale, notFound, 'notFound', path, errors);
   }
 }
+
+validateCloudPricingAgainstCp(errors);
 
 const enIntegrationCounts = integrationChipCounts.en;
 const zhIntegrationCounts = integrationChipCounts.zh;

@@ -7,8 +7,9 @@
  *
  * [POS]
  * 云页定价/FAQ/步骤 i18n 键 SSOT，供 LandingCloud 与 validate 脚本共用。
+ * 定价 USD/WU 须与 CP billing/catalog.py + plans.py 保持一致；`validate-marketing-locales.ts` 在 build 前自动校验。
  */
-export const CLOUD_PLAN_KEYS = ['free', 'companion', 'pro', 'max'] as const;
+export const CLOUD_PLAN_KEYS = ['free', 'companion', 'plus', 'pro', 'max'] as const;
 
 export type CloudPlanKey = (typeof CLOUD_PLAN_KEYS)[number];
 

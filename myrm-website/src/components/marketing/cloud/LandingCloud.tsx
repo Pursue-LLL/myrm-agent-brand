@@ -107,7 +107,7 @@ export default function LandingCloud() {
             <p className="mt-3 text-muted-foreground">{t('pricingPreview.subtitle')}</p>
           </div>
 
-          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {CLOUD_PLAN_KEYS.map((planKey) => {
               const highlight = planKey === HIGHLIGHT_CLOUD_PLAN;
               const features = readPlanFeatures(t.raw(`pricingPreview.plans.${planKey}.features`));

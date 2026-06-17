@@ -48,7 +48,8 @@
 - **i18n**：`cloud.*`（与 `marketing.*` 隔离）
 - **URL**：`src/lib/cloud-paths.ts`（登录/注册/账单 → `app.myrmagent.ai`，`utm_campaign=cloud`）
 - **Nav**：`src/lib/cloud-marketing-nav.ts`
-- **键契约**：`cloud/cloud-marketing-keys.ts`
+- **键契约**：`cloud/cloud-marketing-keys.ts`（`free|companion|plus|pro|max`）
+- **定价 SSOT**：运行时 App 读 CP `GET /api/billing/catalog`；官网 `cloud.pricingPreview.*` 为静态 i18n，**build 前** `validate-marketing-locales.ts` 自动比对 CP `catalog.py` + `plans.py`
 - **区块顺序**：Hero → WorkspacePreview → How it works → Pricing → FAQ → Final CTA
 - **页脚**：链回 `/` 自托管；含 Privacy · Terms · Refund（OSS `/` 页脚无 Refund）
 

@@ -955,12 +955,12 @@
     "legal": {
       "privacy": {
         "title": "Privacy Policy",
-        "updatedAt": "Last updated: June 11, 2026",
-        "intro": "This Privacy Policy describes how VortexAI (\"we\", \"us\") collects, uses, and protects information when you use the MyrmAgent website (myrmagent.ai) and self-hosted local or desktop deployments.",
+        "updatedAt": "Last updated: June 17, 2026",
+        "intro": "This Privacy Policy describes how VortexAI (\"we\", \"us\") collects, uses, and protects information when you use the MyrmAgent website (myrmagent.ai), MyrmAgent Cloud (app.myrmagent.ai), and self-hosted local or desktop deployments.",
         "sections": {
           "collection": {
             "title": "Information We Collect",
-            "body": "When you visit myrmagent.ai, we may collect basic access logs and support correspondence. Workspace data from Local WebUI and Tauri desktop deployments (memory, files, sessions) stays on your device or servers by default — we do not collect it."
+            "body": "When you visit myrmagent.ai, we may collect basic access logs and support correspondence. For MyrmAgent Cloud, we collect account information from OAuth sign-in (email, profile name, provider subject ID), subscription and Work Units billing records via Stripe, and workspace data stored in your dedicated cloud sandbox volume. Local WebUI and Tauri desktop deployments keep workspace data (memory, files, sessions) on your device or servers by default — we do not collect it unless you use cloud hosting."
           },
           "usage": {
             "title": "How We Use Information",
@@ -968,11 +968,11 @@
           },
           "storage": {
             "title": "Data Storage & Security",
-            "body": "Local WebUI and Tauri desktop deployments keep data on your device or your servers. API keys are stored in an encrypted secrets vault when configured in the app."
+            "body": "MyrmAgent Cloud stores workspace data in an isolated per-user sandbox volume with encryption at rest. It is not shared with other tenants. Local WebUI and Tauri desktop deployments keep data on your device or your servers. API keys are stored in an encrypted secrets vault when configured in the app. Payment data is processed by Stripe; we do not store full card numbers."
           },
           "sharing": {
             "title": "Third-Party Services",
-            "body": "When you configure API keys and call models, requests are sent to your chosen LLM providers. Each provider receives only the data necessary for inference."
+            "body": "When you configure API keys and call models, requests are sent to your chosen LLM providers. Cloud subscriptions and billing are processed by Stripe. OAuth sign-in may use Google or GitHub. Each provider receives only the data necessary for its service."
           },
           "rights": {
             "title": "Your Rights",
@@ -986,8 +986,8 @@
       },
       "terms": {
         "title": "Terms of Service",
-        "updatedAt": "Last updated: June 11, 2026",
-        "intro": "VortexAI operates the MyrmAgent platform. These Terms govern your use of MyrmAgent local and desktop deployments.",
+        "updatedAt": "Last updated: June 17, 2026",
+        "intro": "VortexAI operates the MyrmAgent platform. These Terms govern your use of MyrmAgent local and desktop deployments, and MyrmAgent Cloud hosted at app.myrmagent.ai.",
         "sections": {
           "acceptance": {
             "title": "Acceptance",
@@ -995,15 +995,15 @@
           },
           "service": {
             "title": "Service Description",
-            "body": "VortexAI operates MyrmAgent, an AI agent platform with free self-hosted local WebUI and desktop deployments (BYOK). Features and availability may change with reasonable notice."
+            "body": "VortexAI operates MyrmAgent, an AI agent platform with free self-hosted local WebUI and desktop deployments (BYOK), and optional MyrmAgent Cloud — a hosted SaaS with per-user isolated sandboxes, Work Units usage billing, and 24/7 uptime. Features and availability may change with reasonable notice."
           },
           "accounts": {
             "title": "Accounts",
-            "body": "If you create an account in a local or desktop deployment, you are responsible for account and API key security. Abuse, credential sharing, or automated account farming may result in suspension."
+            "body": "Cloud accounts are created via OAuth (Google or GitHub). You are responsible for account security. Abuse, credential sharing, automated account farming, or attempts to bypass Work Units limits may result in suspension. For local or desktop deployments, you are responsible for account and API key security."
           },
           "billing": {
             "title": "Billing",
-            "body": "Local WebUI and Tauri desktop are free to use with BYOK — you pay your LLM provider directly for API calls."
+            "body": "Local WebUI and Tauri desktop are free to use with BYOK — you pay your LLM provider directly for API calls. MyrmAgent Cloud offers subscription plans billed through Stripe with Work Units (WU) usage allowances. See our Refund Policy for cancellation and refund terms."
           },
           "disputes": {
             "title": "Support",
@@ -1025,7 +1025,7 @@
       },
       "refund": {
         "title": "Refund Policy",
-        "updatedAt": "Last updated: June 11, 2026",
+        "updatedAt": "Last updated: June 17, 2026",
         "intro": "VortexAI operates MyrmAgent. This Refund Policy applies to MyrmAgent paid subscription plans billed through Stripe.",
         "sections": {
           "overview": {
@@ -1187,7 +1187,7 @@
         "step1": {
           "num": "01",
           "title": "Create cloud account",
-          "description": "Sign in with Google. Your dedicated sandbox activates in seconds — no server to provision."
+          "description": "Sign in with Google or GitHub. Your dedicated sandbox activates in seconds — no server to provision."
         },
         "step2": {
           "num": "02",
@@ -1220,32 +1220,42 @@
         },
         "companion": {
           "name": "Companion",
-          "price": "$19",
-          "wu": "6,000 WU/mo",
+          "price": "$17",
+          "wu": "2,500 WU/mo",
           "features": [
-            "Unlimited agents",
+            "2C sandbox",
             "Full memory system",
             "Multi-channel support"
+          ]
+        },
+        "plus": {
+          "name": "Plus",
+          "price": "$42",
+          "wu": "5,000 WU/mo",
+          "features": [
+            "Same 2C sandbox as Companion",
+            "More monthly WU",
+            "Cron automation"
           ]
         },
         "pro": {
           "name": "Pro",
           "price": "$49",
-          "wu": "18,000 WU/mo",
+          "wu": "12,000 WU/mo",
           "features": [
-            "Everything in Companion",
+            "8C sandbox + VNC desktop",
             "Priority support",
             "7-day free trial"
           ]
         },
         "max": {
           "name": "Max",
-          "price": "$149",
-          "wu": "60,000 WU/mo",
+          "price": "$167",
+          "wu": "22,000 WU/mo",
           "features": [
-            "Everything in Pro",
+            "Maximum WU allowance",
             "Dedicated support",
-            "Custom integrations"
+            "Extended active time"
           ]
         }
       }
