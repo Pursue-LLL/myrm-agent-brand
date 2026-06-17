@@ -5,7 +5,7 @@
  * - hooks/useDocsLocale.ts (POS: App locale → docs locale)
  *
  * [OUTPUT]
- * - CloudShell: SaaS 页顶栏 + 页脚壳层
+ * - CloudShell: SaaS 页顶栏 + 页脚壳层（editorial 视觉）
  *
  * [POS]
  * `/cloud` 页面 chrome，与 OSS MarketingShell 分离。
@@ -18,9 +18,7 @@ import { useTranslations } from 'next-intl';
 import { ArrowRight02Icon, Cancel01Icon, Menu01Icon } from 'hugeicons-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils/classnameUtils';
-import {
-  buildCloudNavLinks,
-} from '@/lib/cloud-marketing-nav';
+import { buildCloudNavLinks } from '@/lib/cloud-marketing-nav';
 import { getCloudLoginHref, getCloudRegisterHref } from '@/lib/cloud-paths';
 import { useDocsLocale } from '@/hooks/useDocsLocale';
 import BrandLogo from '../BrandLogo';
@@ -28,29 +26,30 @@ import LocaleSwitcher from '../LocaleSwitcher';
 
 interface CloudShellProps {
   children: React.ReactNode;
+  scrollProgress: number;
 }
 
-export default function CloudShell({ children }: CloudShellProps) {
+export default function CloudShell({ children, scrollProgress }: CloudShellProps) {
   const t = useTranslations('cloud');
   const docsLocale = useDocsLocale();
   const [mobileOpen, setMobileOpen] = useState(false);
   const navLinks = buildCloudNavLinks(t);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute -top-24 left-1/2 h-[520px] w-[820px] -translate-x-1/2 rounded-full bg-primary/[0.12] blur-[100px]" />
-        <div className="absolute bottom-0 right-0 h-[360px] w-[520px] rounded-full bg-violet-500/[0.08] blur-[90px]" />
-      </div>
+    <div className="ed-page ed-grain min-h-screen" style={{ background: 'var(--ed-bg)', color: 'var(--ed-ink)' }}>
+      <div className="ed-progress" style={{ transform: `scaleX(${scrollProgress})` }} />
 
-      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-          <Link href="/cloud" className="flex items-center gap-2 font-semibold tracking-tight">
+      <header
+        className="sticky top-0 z-50 backdrop-blur-xl"
+        style={{ borderBottom: '1px solid var(--ed-border)', background: 'color-mix(in oklch, var(--ed-bg) 88%, transparent)' }}
+      >
+        <div className="mx-auto flex h-14 max-w-[1080px] items-center justify-between px-6">
+          <Link href="/cloud" className="flex items-center gap-2.5 font-semibold tracking-tight">
             <BrandLogo size={36} priority />
-            <span>{t('brand')}</span>
+            <span className="text-sm">{t('brand')}</span>
           </Link>
 
-          <nav className="hidden items-center gap-6 md:flex">
+          <nav className="hidden items-center gap-8 md:flex">
             {navLinks.map((link) =>
               link.external ? (
                 <a
@@ -58,7 +57,8 @@ export default function CloudShell({ children }: CloudShellProps) {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                  className="text-[13px] font-light transition-colors hover:text-[var(--ed-accent)]"
+                  style={{ color: 'var(--ed-dim)' }}
                 >
                   {link.label}
                 </a>
@@ -66,7 +66,8 @@ export default function CloudShell({ children }: CloudShellProps) {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                  className="text-[13px] font-light transition-colors hover:text-[var(--ed-accent)]"
+                  style={{ color: 'var(--ed-dim)' }}
                 >
                   {link.label}
                 </Link>
@@ -74,12 +75,12 @@ export default function CloudShell({ children }: CloudShellProps) {
             )}
           </nav>
 
-          <div className="hidden items-center gap-3 md:flex">
-            <LocaleSwitcher variant="shell" />
-            <Button asChild variant="outline" size="sm">
-              <a href={getCloudLoginHref(docsLocale)}>{t('nav.login')}</a>
-            </Button>
-            <Button asChild size="sm">
+          <div className="hidden items-center gap-4 md:flex">
+            <LocaleSwitcher />
+            <a href={getCloudLoginHref(docsLocale)} className="text-[13px] font-light" style={{ color: 'var(--ed-dim)' }}>
+              {t('nav.login')}
+            </a>
+            <Button asChild size="sm" className="ed-cta rounded-full border-0 px-5 text-xs font-medium text-white" style={{ background: 'var(--ed-accent)' }}>
               <a href={getCloudRegisterHref(docsLocale)}>
                 {t('nav.getStarted')}
                 <ArrowRight02Icon className="ml-1 h-4 w-4" />
@@ -99,11 +100,12 @@ export default function CloudShell({ children }: CloudShellProps) {
 
         <div
           className={cn(
-            'fixed inset-0 z-[100] md:hidden bg-background transition-all duration-300',
+            'fixed inset-0 z-[100] md:hidden transition-all duration-300',
             mobileOpen ? 'opacity-100 visible pointer-events-auto' : 'opacity-0 invisible pointer-events-none',
           )}
+          style={{ background: 'var(--ed-bg)' }}
         >
-          <div className="flex items-center justify-between px-4 h-16 border-b border-border/60">
+          <div className="flex h-14 items-center justify-between border-b px-4" style={{ borderColor: 'var(--ed-border)' }}>
             <Link href="/cloud" className="flex items-center gap-2 font-semibold" onClick={() => setMobileOpen(false)}>
               <BrandLogo size={36} priority />
               <span>{t('brand')}</span>
@@ -124,14 +126,14 @@ export default function CloudShell({ children }: CloudShellProps) {
               </Link>
             ))}
           </nav>
-          <div className="px-6 pb-10 flex flex-col gap-3">
+          <div className="flex flex-col gap-3 px-6 pb-10">
             <LocaleSwitcher variant="shell" />
-            <Button asChild variant="outline" size="lg" className="w-full rounded-2xl">
+            <Button asChild variant="outline" size="lg" className="ed-secondary-cta w-full rounded-2xl">
               <a href={getCloudLoginHref(docsLocale)} onClick={() => setMobileOpen(false)}>
                 {t('nav.login')}
               </a>
             </Button>
-            <Button asChild size="lg" className="w-full rounded-2xl">
+            <Button asChild size="lg" className="ed-cta w-full rounded-2xl border-0 text-white" style={{ background: 'var(--ed-accent)' }}>
               <a href={getCloudRegisterHref(docsLocale)} onClick={() => setMobileOpen(false)}>
                 {t('nav.getStarted')}
               </a>
@@ -142,24 +144,25 @@ export default function CloudShell({ children }: CloudShellProps) {
 
       <main>{children}</main>
 
-      <footer className="border-t border-border/60 bg-muted/20">
-        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+      <footer style={{ borderTop: '1px solid var(--ed-border)', background: 'color-mix(in oklch, var(--ed-bg) 92%, var(--ed-surface))' }}>
+        <div className="mx-auto max-w-[1080px] px-6 py-12">
           <div className="flex flex-col gap-8 md:flex-row md:justify-between">
             <div className="max-w-sm">
               <p className="font-semibold">{t('brand')}</p>
-              <p className="mt-2 text-sm text-muted-foreground">{t('footer.tagline')}</p>
-              <p className="mt-2 text-xs text-muted-foreground">{t('footer.operator')}</p>
-              <Link href="/" className="mt-4 inline-block text-sm font-medium text-primary hover:underline">
+              <p className="mt-2 text-sm font-light" style={{ color: 'var(--ed-dim)' }}>{t('footer.tagline')}</p>
+              <p className="mt-2 text-xs font-light" style={{ color: 'var(--ed-muted)' }}>{t('footer.operator')}</p>
+              <p className="mt-2 text-xs font-light" style={{ color: 'var(--ed-muted)' }}>{t('footer.contact')}</p>
+              <Link href="/" className="mt-4 inline-block text-sm font-medium transition-colors hover:text-[var(--ed-accent)]" style={{ color: 'var(--ed-accent)' }}>
                 {t('footer.selfHostLink')} →
               </Link>
             </div>
-            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-              <Link href="/privacy" className="hover:text-foreground transition-colors">{t('footer.privacy')}</Link>
-              <Link href="/terms" className="hover:text-foreground transition-colors">{t('footer.terms')}</Link>
-              <Link href="/refund" className="hover:text-foreground transition-colors">{t('footer.refund')}</Link>
+            <div className="flex flex-wrap gap-4 text-sm" style={{ color: 'var(--ed-dim)' }}>
+              <Link href="/privacy" className="transition-colors hover:text-[var(--ed-accent)]">{t('footer.privacy')}</Link>
+              <Link href="/terms" className="transition-colors hover:text-[var(--ed-accent)]">{t('footer.terms')}</Link>
+              <Link href="/refund" className="transition-colors hover:text-[var(--ed-accent)]">{t('footer.refund')}</Link>
             </div>
           </div>
-          <p className="mt-8 text-center text-xs text-muted-foreground">
+          <p className="mt-8 text-center text-xs" style={{ color: 'var(--ed-muted)' }}>
             {t('footer.copyright', { year: new Date().getFullYear() })}
           </p>
         </div>

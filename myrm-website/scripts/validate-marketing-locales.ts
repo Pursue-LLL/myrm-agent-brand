@@ -4,7 +4,7 @@
  * - locales/zh.json, locales/en.json：`marketing` + `cloud` 命名空间
  *
  * [OUTPUT]
- * - CI 校验：manifest 键存在、Bento/对比/轮播/用例/FAQ/集成键完整、integration chip 长度、legal 法务键、cloud 键、cloud 定价与 CP catalog/plans 对齐、notFound 键、locales 无 legacy URL
+ * - CI 校验：manifest 键存在、Bento/对比/轮播/用例/FAQ/集成键完整、integration chip 长度、legal 法务键、cloud 全键契约与 CP catalog/plans 对齐、notFound 键、locales 无 legacy URL
  *
  * [POS]
  * 营销文案 locale 契约校验；`bun run build` 前自动执行。
@@ -23,9 +23,12 @@ import {
   highlightSlideBasePath,
 } from '../src/components/marketing/landing/marketing-keys';
 import {
+  CLOUD_ADVANTAGE_KEYS,
   CLOUD_FAQ_KEYS,
   CLOUD_PLAN_KEYS,
   CLOUD_STEP_KEYS,
+  CLOUD_TRUST_KEYS,
+  CLOUD_USE_CASE_KEYS,
 } from '../src/components/marketing/cloud/cloud-marketing-keys';
 import { appendLegacyUrlViolations } from './brand-url-patterns';
 
@@ -256,6 +259,10 @@ for (const locale of LOCALES) {
 
   assertKey(locale, marketing, 'marketing', 'whyMyrmAgent.scrollHint', errors);
 
+  for (const col of ['feature', 'hermes', 'openclaw', 'deerflow', 'myrmAgent'] as const) {
+    assertKey(locale, marketing, 'marketing', `whyMyrmAgent.columns.${col}`, errors);
+  }
+
   for (const tabKey of COMPARE_TAB_KEYS) {
     assertKey(locale, marketing, 'marketing', `whyMyrmAgent.tabs.${tabKey}`, errors);
   }
@@ -377,6 +384,7 @@ for (const locale of LOCALES) {
     assertKey(locale, cloud, 'cloud', `${base}.features`, errors);
   }
   for (const stepKey of CLOUD_STEP_KEYS) {
+    assertKey(locale, cloud, 'cloud', `howItWorks.steps.${stepKey}.num`, errors);
     assertKey(locale, cloud, 'cloud', `howItWorks.steps.${stepKey}.title`, errors);
     assertKey(locale, cloud, 'cloud', `howItWorks.steps.${stepKey}.description`, errors);
   }
@@ -384,6 +392,28 @@ for (const locale of LOCALES) {
     assertKey(locale, cloud, 'cloud', `faq.items.${faqKey}.question`, errors);
     assertKey(locale, cloud, 'cloud', `faq.items.${faqKey}.answer`, errors);
   }
+  for (const advantageKey of CLOUD_ADVANTAGE_KEYS) {
+    assertKey(locale, cloud, 'cloud', `advantages.items.${advantageKey}.title`, errors);
+    assertKey(locale, cloud, 'cloud', `advantages.items.${advantageKey}.description`, errors);
+  }
+  for (const useCaseKey of CLOUD_USE_CASE_KEYS) {
+    assertKey(locale, cloud, 'cloud', `useCases.items.${useCaseKey}.tag`, errors);
+    assertKey(locale, cloud, 'cloud', `useCases.items.${useCaseKey}.title`, errors);
+    assertKey(locale, cloud, 'cloud', `useCases.items.${useCaseKey}.description`, errors);
+  }
+  for (const trustKey of CLOUD_TRUST_KEYS) {
+    assertKey(locale, cloud, 'cloud', `trust.items.${trustKey}.title`, errors);
+    assertKey(locale, cloud, 'cloud', `trust.items.${trustKey}.description`, errors);
+  }
+  assertKey(locale, cloud, 'cloud', 'hero.differentiator', errors);
+  assertKey(locale, cloud, 'cloud', 'advantages.title', errors);
+  assertKey(locale, cloud, 'cloud', 'advantages.subtitle', errors);
+  assertKey(locale, cloud, 'cloud', 'useCases.title', errors);
+  assertKey(locale, cloud, 'cloud', 'useCases.subtitle', errors);
+  assertKey(locale, cloud, 'cloud', 'trust.title', errors);
+  assertKey(locale, cloud, 'cloud', 'trust.subtitle', errors);
+  assertKey(locale, cloud, 'cloud', 'pricingPreview.wuExplainer', errors);
+  assertKey(locale, cloud, 'cloud', 'pricingPreview.recommended', errors);
   assertKey(locale, cloud, 'cloud', 'demo.preview.alt', errors);
   assertKey(locale, cloud, 'cloud', 'demo.caption', errors);
 

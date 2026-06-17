@@ -41,6 +41,7 @@ export function buildMarketingNavLinks(
       external: true,
       icon: 'github',
     },
+    { href: '/cloud#pricing', label: t('nav.cloudPricing') },
     { href: `${prefix}#faq`, label: t('nav.faq') },
   ];
 }

@@ -24,7 +24,7 @@
 | `HighlightsCarouselSection.tsx` | 核心 | 8 卡亮点轮播 | ✅ |
 | `DeploySection.tsx` | 核心 | 部署模式卡片 + 对比矩阵 | ✅ |
 | `TestimonialsSection.tsx` | 辅助 | 用户评价（暂未挂载，待真实用户证言后恢复） | — |
-| `WhyMyrmAgentSection.tsx` | 辅助 | 差异化叙事 | — |
+| `WhyMyrmAgentSection.tsx` | 辅助 | 竞品对比表（Hermes / OpenClaw / DeerFlow + MyrmAgent） | — |
 | `UseCasesSection.tsx` | 核心 | 场景卡片网格 | ✅ |
 | `IntegrationsSection.tsx` | 辅助 | LLM / 工具集成 chip 列表（locale ` · ` 短标签） | ✅ |
 | `FaqSection.tsx` | 核心 | OSS 首页 FAQ（`#faq`） | ✅ |
@@ -32,7 +32,7 @@
 | `FooterSection.tsx` | 核心 | 页脚 | ✅ |
 | `PathStrip.tsx` | 核心 | Final CTA 双路径 chip | ✅ |
 | `deploy-path-context.tsx` | 核心 | HowItWorks + QuickStart 共享路径状态 | ✅ |
-| `marketing-keys.ts` | 核心 | OSS i18n 键契约（含 USE_CASE / FAQ 键） | ✅ |
+| `marketing-keys.ts` | 核心 | OSS i18n 键契约（COMPARE_ROW_FIELDS 含 deerflow） | ✅ |
 | `marketing-i18n.ts` | 辅助 | section 文案读取工具 | ✅ |
 | `landing-interaction.ts` | 辅助 | Landing 滚动/光标/计数交互 hooks | ✅ |
 | `hero-viewport.ts` | 辅助 | Hero 视口计算 | — |

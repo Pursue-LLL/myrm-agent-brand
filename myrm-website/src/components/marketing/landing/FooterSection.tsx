@@ -38,7 +38,7 @@ export default function FooterSection() {
             <p className="mb-2 text-[10px] uppercase tracking-[0.2em] font-medium ed-mono" style={{ color: 'var(--ed-muted)' }}>Links</p>
             <Link href="/privacy" className="transition-colors hover:text-[var(--ed-accent)]">{t('footer.privacy')}</Link>
             <Link href="/terms" className="transition-colors hover:text-[var(--ed-accent)]">{t('footer.terms')}</Link>
-            <Link href="/cloud" className="transition-colors hover:text-[var(--ed-accent)]">{t('footer.cloud')}</Link>
+            <Link href="/cloud#pricing" className="transition-colors hover:text-[var(--ed-accent)]">{t('footer.cloud')}</Link>
             <Link href={getDesktopDownloadPath()} className="transition-colors hover:text-[var(--ed-accent)]">{t('footer.download')}</Link>
           </div>
           <div className="flex flex-col gap-3 text-[13px] font-light" style={{ color: 'var(--ed-dim)' }}>

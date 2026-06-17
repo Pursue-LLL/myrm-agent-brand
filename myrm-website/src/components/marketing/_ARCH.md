@@ -36,8 +36,16 @@
 | 文件 | 地位 | 职责 | I/O/P |
 |------|------|------|-------|
 | `LandingEditorial.tsx` | 核心 | 开源首页编排；Hero 桌面下载主 CTA + 本地 Quick Start 次 CTA | ✅ |
-| `cloud/LandingCloud.tsx` | 核心 | SaaS 页编排 | ✅ |
-| `cloud/CloudShell.tsx` | 核心 | SaaS 页顶栏/页脚 | ✅ |
+| `cloud/LandingCloud.tsx` | 核心 | SaaS 页主编排（scroll reveal 容器） | ✅ |
+| `cloud/CloudShell.tsx` | 核心 | SaaS 页顶栏/页脚（`ed-page` + scroll progress） | ✅ |
+| `cloud/CloudHeroSection.tsx` | 核心 | SaaS Hero | ✅ |
+| `cloud/CloudAdvantagesSection.tsx` | 核心 | SaaS 4 项优势 Bento | ✅ |
+| `cloud/CloudHowItWorksSection.tsx` | 核心 | SaaS 3 步上手 | ✅ |
+| `cloud/CloudUseCasesSection.tsx` | 核心 | SaaS 3 场景用例 | ✅ |
+| `cloud/CloudPricingSection.tsx` | 核心 | SaaS 定价预览（Companion 推荐标） | ✅ |
+| `cloud/CloudTrustSection.tsx` | 核心 | Creem MoR / 安全 / 支持 | ✅ |
+| `cloud/CloudFaqSection.tsx` | 核心 | SaaS FAQ（7 条） | ✅ |
+| `cloud/CloudFinalCtaSection.tsx` | 核心 | SaaS Final CTA | ✅ |
 | `download/*` | 核心 | 桌面下载转化 |
 | `landing/WorkspacePreview.tsx` | 核心 | 产品预览（OSS editorial / cloud shell 双 chrome） |
 | `landing/DeploySection.tsx` | 核心 | 两部署模式卡片 + 对比矩阵（localWebui + tauri） |
@@ -57,7 +65,7 @@
 | `landing/FinalCtaSection.tsx` | 核心 | 页尾 Final CTA + PathStrip | ✅ |
 | `ui/carousel.tsx` | 核心 | Embla Carousel 封装（shadcn 同款） |
 | `landing/marketing-keys.ts` | 核心 | Bento/对比/轮播/用例/FAQ i18n 键清单 |
-| `cloud/cloud-marketing-keys.ts` | 核心 | SaaS 定价/FAQ/步骤键清单 |
+| `cloud/cloud-marketing-keys.ts` | 核心 | SaaS plan/step/faq/advantage/useCase/trust i18n 键 SSOT | ✅ |
 
 云页详情见 [`cloud/_ARCH.md`](cloud/_ARCH.md)。
 
@@ -69,7 +77,7 @@ Hero → WorkspacePreview → HowItWorks → QuickStart → Marquee → Advantag
 
 ## SaaS 页区块顺序（`/cloud` LandingCloud）
 
-Hero → WorkspacePreview → How it works → Pricing → FAQ → Final CTA
+Hero → WorkspacePreview → Advantages → How it works → UseCases → Pricing → Trust → FAQ → Final CTA
 
 ## 外部链接
 
@@ -88,11 +96,11 @@ Hero → WorkspacePreview → How it works → Pricing → FAQ → Final CTA
 
 - `marketing.*` — 开源首页 `/`
 - `cloud.*` — SaaS 页 `/cloud`
-- **键校验**：`bun run validate:locales`（marketing 深度卡 + legal 法务键 + cloud 定价/FAQ/步骤/demo）+ `validate:docs-slugs`
+- **键校验**：`bun run validate:locales`（marketing 深度卡 + legal 法务键 + cloud 全键契约 + CP 定价对齐）+ `validate:docs-slugs`
 
 ## 与 App 的关系
 
-- 开源页 CTA → Hero 桌面下载（主）或本地 Quick Start（次）；Final CTA PathStrip 桌面 chip 优先
+- 开源页 CTA → Hero 桌面下载（主）或本地 Quick Start（次）；Hero `cloudPricingStrip` → `/cloud#pricing`；Final CTA PathStrip 桌面 chip 优先
 - SaaS 页 CTA → `app.myrmagent.ai/auth/login`（UTM `campaign=cloud`）
 - 订阅在 App 内完成
 

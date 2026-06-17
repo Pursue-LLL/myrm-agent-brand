@@ -252,6 +252,15 @@ export default function LandingEditorial() {
               <p className="text-center text-[11px] sm:text-[12px] ed-mono tracking-wide px-4" style={{ color: 'var(--ed-muted)' }}>
                 {t('hero.pathHint')}
               </p>
+              <Link
+                href="/cloud#pricing"
+                className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[12px] sm:text-[13px] ed-mono tracking-wide transition-opacity hover:opacity-85"
+                style={{ borderColor: 'var(--ed-border)', color: 'var(--ed-accent)' }}
+                aria-label={t('hero.cloudPricingStripA11y')}
+              >
+                {t('hero.cloudPricingStrip')}
+                <ArrowRight02Icon className="h-3.5 w-3.5" />
+              </Link>
               <a
                 href="https://github.com/Pursue-LLL/myrm-agent"
                 target="_blank"
