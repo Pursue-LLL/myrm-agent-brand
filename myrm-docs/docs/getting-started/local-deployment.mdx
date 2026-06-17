@@ -86,6 +86,15 @@ When building the open-source server image from pre-built harness wheels, the bu
 
 See the harness distribution guide in the monorepo: `myrm-agent-harness/harness_packaging/DISTRIBUTION_SYSTEM.md`.
 
+## Automatic Dependency Management
+
+Myrm handles dependencies automatically so you never need to manually install packages:
+
+- **Channel SDKs** — When you enable Matrix, Discord, or Feishu channels, the required Python packages are installed on-demand via an allowlist-secured mechanism. No restart needed.
+- **MCP Servers** — External tools run via `npx`/`uvx` which manage their own environments automatically. Just add a server in the GUI and it works.
+- **Doctor diagnostics** — Run `myrm doctor` to check system health: Python version, core dependencies, browser availability, and more. Each failure includes a fix suggestion.
+- **Security by default** — Only pre-approved packages can be auto-installed. MCP servers are scanned for malware (OSV) and prompt injection before activation.
+
 ## Updating
 
 ```bash
