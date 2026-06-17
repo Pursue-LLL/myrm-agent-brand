@@ -7,9 +7,9 @@
 | 路由 | 受众 | 首页链入 | SEO |
 |------|------|----------|-----|
 | `/` | 开源 / 自托管 | 是 | index |
-| `/cloud` | 云端 SaaS | 否（上线前） | `noindex` |
+| `/cloud` | 云端 SaaS | 是（页脚） | index |
 
-`/pricing` 经 `public/_redirects` 302 → `/download`（云上线前）；推广 SaaS 后改指 `/cloud`。
+`/pricing` 经 `public/_redirects` 302 → `/cloud`。
 
 ## 系统架构
 
@@ -64,7 +64,7 @@
 | 文件 | 职责 |
 |------|------|
 | `src/app/page.tsx` | OSS 首页路由 |
-| `src/app/cloud/page.tsx` | SaaS 页路由（`robots: noindex`） |
+| `src/app/cloud/page.tsx` | SaaS 页路由（indexable） |
 | `src/lib/deploy-paths.ts` | 本地/桌面部署 registry |
 | `src/lib/cloud-paths.ts` | SaaS App URL + UTM |
 | `src/lib/cloud-marketing-nav.ts` | 云页 Nav |

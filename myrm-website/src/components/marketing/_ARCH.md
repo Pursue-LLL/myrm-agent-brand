@@ -9,7 +9,7 @@
 | 路由 | 定位 | 首页链入 |
 |------|------|----------|
 | `/` | 开源 / 自托管（`LandingEditorial`） | 是 |
-| `/cloud` | 云端 SaaS（`cloud/LandingCloud`） | 否（`noindex`，约一个月后推广） |
+| `/cloud` | 云端 SaaS（`cloud/LandingCloud`） | 是（OSS 页脚链入） |
 
 ## 页面路由
 
@@ -18,7 +18,7 @@
 | `/` | 开源 Landing（Local WebUI + 桌面客户端） |
 | `/cloud` | 云端 SaaS Landing（WU 定价、登录 App） |
 | `/download` | 桌面端下载 |
-| `/pricing` | 302 → `/download`（云上线前）；上线后改回 `/cloud` |
+| `/pricing` | 302 → `/cloud`（营销站 `_redirects`） |
 | `/terms` | 服务条款 |
 | `/privacy` | 隐私政策 |
 | `/refund` | 退款政策 |
@@ -26,10 +26,10 @@
 
 ## SEO
 
-- `sitemap.ts`：`/`、`/download`、法务页（不含 `/cloud`，因 noindex）
+- `sitemap.ts`：`/`、`/cloud`、`/download`、法务页
 - `robots.ts`：`/robots.txt`
 - `layout.tsx`：Open Graph + Twitter Card + robots metadata
-- `/cloud`：`generateMetadata` 设 `robots: { index: false }`
+- `/cloud`：`generateMetadata` 设 `robots: { index: true }`
 
 ## 组件结构
 

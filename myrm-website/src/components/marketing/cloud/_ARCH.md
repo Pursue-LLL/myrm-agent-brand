@@ -5,11 +5,11 @@
 | 路由 | 组件 | i18n |
 |------|------|------|
 | `/cloud` | `LandingCloud.tsx` | `cloud.*` |
-| `/pricing` | 302 → `/download`（云上线前） |
+| `/pricing` | 302 → `/cloud` |
 
 ## 架构概述
 
-SaaS 转化页，与开源首页 `/` 分离。当前 `robots: noindex`，首页不链入。详细设计见 [DUAL_PAGE_SYSTEM.md](../../../../DUAL_PAGE_SYSTEM.md)。
+SaaS 转化页，与开源首页 `/` 分离。OSS 页脚链入 `/cloud`。详细设计见 [DUAL_PAGE_SYSTEM.md](../../../../DUAL_PAGE_SYSTEM.md)。
 
 ## 文件清单
 

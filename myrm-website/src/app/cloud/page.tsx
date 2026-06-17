@@ -4,7 +4,7 @@
  * - next-intl metadata keys
  *
  * [OUTPUT]
- * - CloudPage: `/cloud` SaaS Landing（上线前 noindex）
+ * - CloudPage: `/cloud` SaaS Landing（indexable）
  *
  * [POS]
  * SaaS 营销页路由入口。详见 DUAL_PAGE_SYSTEM.md。
@@ -18,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: t('cloudPageTitle'),
     description: t('cloudPageDescription'),
-    robots: { index: false, follow: false },
+    robots: { index: true, follow: true },
   };
 }
 
