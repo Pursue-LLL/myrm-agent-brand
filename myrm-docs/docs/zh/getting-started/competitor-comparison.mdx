@@ -66,7 +66,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **长文目录** | ✅ 聊天内自动 TOC + 滚动同步 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **精准多模态** | ✅ 意图感知视觉（无 UI 操作 = 0 vision token） | ⚠️ 常开（浪费 token） | ⚠️ 盲（无截图） | ⚠️ 未知 | ⚠️ 盲 | ⚠️ 盲 | ❌ |
 | **标题生成** | ✅ O(1) 防阻塞 + 脱敏 | ⚠️ 易卡死/泄漏 | ⚠️ 易卡死/泄漏 | ⚠️ 未知 | ⚠️ 未知 | ⚠️ 未知 | ❌ |
-| **全局闪念捕捉** | ✅ 快捷键截屏 + OCR + 语音输入 + FlowPad + Deep Link | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **全局闪念捕捉** | ✅ macOS+Windows 双平台截屏 + UI 文本提取 + 语音 + FlowPad + 隐私黑名单 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Token 效率** | ✅ 总计 ~2,167 tokens（少 86%） | ~15,520 | ~18,000 | ⚠️ 手动三档 | ⚠️ 16 工具（LLM 压缩成本） | ⚠️ 高成本 | ⚠️ ~900 唤醒 |
 
 ## vs 360 Security OpenClaw（企业封装版）
@@ -863,14 +863,18 @@ Codex 近期发布两大旗舰功能：**Appshots**（⌘⌘ 窗口捕获 + 文�
 
 | 维度 | Codex | Myrm |
 |-----------|-------|------|
-| Platform | ⚠️ macOS only | ✅ macOS + Windows + Linux |
-| Text extraction | Window text incl. off-screen | `window_text()` via AX API / uiautomation / xdotool |
-| DPI handling | Not mentioned | Binary-search downsampling prevents Retina coordinate drift |
-| Return format | Screenshot + text | `list[ContentBlock]` structured multimodal (text + image) |
-| Safety | Computer Use permission | 5 blocked key combos + dangerous-text regex + **TOCTOU revalidation after approval delay** + GUI BBox approval card |
-| Visual approval | Text-only or iPhone push | **Inline BBox + AttentionBar + Tauri OS red frame** on the target monitor (screen-absolute coords, multi-monitor match) |
+| 平台支持 | ⚠️ 仅 macOS | ✅ **macOS + Windows** 双平台完整实现 |
+| macOS 截屏 | screencapture + 文本 | screencapture + AX API 文本提取（最多 500 元素） |
+| Windows 截屏 | ❌ 不支持 | ✅ PrintWindow/BitBlt + .NET UI Automation 文本提取 |
+| 文本提取 | 窗口文本（含屏外） | macOS: AX API / Windows: UI Automation（Text、Edit、Document 控件） |
+| 隐私保护 | ❌ 无 | ✅ 应用级隐私黑名单 + 一键强制绕过（macOS + Windows） |
+| 截图大小控制 | ❌ 原始大小 | ✅ 1.5MB 阈值自动缩放，节省 LLM token |
+| DPI 处理 | 未提及 | 二分法降采样防止 Retina 坐标偏移 |
+| 返回格式 | 截图 + 文本 | `list[ContentBlock]` 结构化多模态（文本 + 图像） |
+| 安全性 | Computer Use 权限 | 5 类阻止键组合 + 危险文本正则 + **TOCTOU 审批延迟后重验** + GUI BBox 审批卡 |
+| 视觉审批 | 纯文本或 iPhone 推送 | **内联 BBox + AttentionBar + Tauri OS 红框**（目标显示器，屏幕绝对坐标，多显示器适配） |
 
-**你将获得**：Agent 要点桌面时，你能看到 **位置** — 不仅是文字「批准？」。Tauri 上 **系统级红框** 在聊天窗口被挡时仍可见。
+**你将获得**：Agent 要点桌面时，你能看到 **位置** — 不仅是文字「批准？」。Tauri 上 **系统级红框** 在聊天窗口被挡时仍可见。macOS 和 Windows 用户均获得完整 Appshot 能力——所有竞品均无 Windows 窗口截屏 + 文本提取实现。
 
 **诚实限制**：OS 叠加层冒烟需 Tauri 桌面端；仅浏览器 WebUI 有内联 + AttentionBar，无 OS 框。
 

@@ -66,7 +66,7 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **Long Report TOC** | ✅ Auto TOC + scroll sync in chat | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Precision Multimodal** | ✅ Intent-aware vision (No UI ops = 0 vision token) | ⚠️ Always-on (wastes tokens) | ⚠️ Blind (no screenshots) | ⚠️ Unknown | ⚠️ Blind | ⚠️ Blind | ❌ |
 | **Title Generation** | ✅ O(1) Anti-Blocking + Redaction | ⚠️ Prone to freeze/leak | ⚠️ Prone to freeze/leak | ⚠️ Unknown | ⚠️ Unknown | ⚠️ Unknown | ❌ |
-| **Global Quick Capture** | ✅ Hotkey capture + OCR + Voice input + FlowPad + Deep Link | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Global Quick Capture** | ✅ macOS+Windows dual capture + UI text extraction + Voice + FlowPad + Privacy blacklist | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Token Efficiency** | ✅ ~2,167 tokens total (86% less) | ~15,520 | ~18,000 | ⚠️ Manual 3-mode | ⚠️ 16 tools (LLM compression cost) | ⚠️ High cost | ⚠️ ~900 wake-up |
 
 ## vs 360 Security OpenClaw (Enterprise Wrapper)
@@ -946,14 +946,18 @@ Codex recently shipped two flagship features: **Appshots** (window capture + tex
 
 | Dimension | Codex | Myrm |
 |-----------|-------|------|
-| Platform | ⚠️ macOS only | ✅ macOS + Windows + Linux |
-| Text extraction | Window text incl. off-screen | `window_text()` via AX API / uiautomation / xdotool |
+| Platform | ⚠️ macOS only | ✅ **macOS + Windows** dual-platform full implementation |
+| macOS capture | screencapture + text | screencapture + AX API text extraction (up to 500 elements) |
+| Windows capture | ❌ Not available | ✅ PrintWindow/BitBlt + .NET UI Automation text extraction |
+| Text extraction | Window text incl. off-screen | macOS: AX API / Windows: UI Automation (Text, Edit, Document controls) |
+| Privacy protection | ❌ None | ✅ App-level privacy blacklist with force-bypass (macOS + Windows) |
+| Screenshot size control | ❌ Raw size | ✅ 1.5MB threshold auto-downscale, saves LLM tokens |
 | DPI handling | Not mentioned | Binary-search downsampling prevents Retina coordinate drift |
 | Return format | Screenshot + text | `list[ContentBlock]` structured multimodal (text + image) |
 | Safety | Computer Use permission | 5 blocked key combos + dangerous-text regex + **TOCTOU revalidation after approval delay** + GUI BBox approval card |
 | Visual approval | Text-only or iPhone push | **Inline BBox + AttentionBar + Tauri OS red frame** on the target monitor (screen-absolute coords, multi-monitor match) |
 
-**What you get**: When the agent wants to click your desktop, you see **where** — not just "Approve?" in text. On Tauri, a **system-level red box** stays visible even if the chat window is covered.
+**What you get**: When the agent wants to click your desktop, you see **where** — not just "Approve?" in text. On Tauri, a **system-level red box** stays visible even if the chat window is covered. Both macOS and Windows users get full Appshot capabilities — no competitor offers Windows window capture + text extraction.
 
 **Honest limit**: OS overlay smoke requires the Tauri desktop app; browser-only WebUI gets inline + AttentionBar but not the OS frame.
 
