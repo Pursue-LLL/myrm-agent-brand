@@ -1,7 +1,7 @@
 /**
  * [INPUT]
  * - src/components/marketing/landing/marketing-keys.ts (POS: 落地页 i18n 键清单)
- * - locales/zh.json, locales/en.json：`marketing` + `cloud` 命名空间
+ * - scripts/cp-billing-contract.json (POS: 独立仓 CI 定价回退契约)
  *
  * [OUTPUT]
  * - CI 校验：manifest 键存在、Bento/对比/轮播/用例/FAQ/集成键完整、integration chip 长度、legal 法务键、cloud 全键契约与 CP catalog/plans 对齐、notFound 键、locales 无 legacy URL
@@ -9,7 +9,7 @@
  * [POS]
  * 营销文案 locale 契约校验；`bun run build` 前自动执行。
  */
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   BENTO_KEYS,
@@ -34,6 +34,9 @@ import { appendLegacyUrlViolations } from './brand-url-patterns';
 
 const ROOT = join(import.meta.dir, '..');
 const CP_BILLING_ROOT = join(ROOT, '../../myrm-control-plane/src/myrm_control_plane/billing');
+const CP_BILLING_CONTRACT_PATH = join(import.meta.dir, 'cp-billing-contract.json');
+const CP_CATALOG_PATH = join(CP_BILLING_ROOT, 'catalog.py');
+const CP_PLANS_PATH = join(CP_BILLING_ROOT, 'plans.py');
 const LOCALES = ['zh', 'en'] as const;
 const HIGHLIGHT_TAG_COUNT = 3;
 const HIGHLIGHT_DESC_MAX_CHARS = 140;
@@ -94,28 +97,53 @@ function billingPlanEnum(planKey: CloudPlanKey): string {
   return planKey.toUpperCase();
 }
 
+type CpBillingContract = {
+  plans: Record<CloudPlanKey, { monthlyUsd: number; monthlyWu: number }>;
+};
+
+function loadCpBillingContract(): CpBillingContract {
+  const raw = readFileSync(CP_BILLING_CONTRACT_PATH, 'utf8');
+  return JSON.parse(raw) as CpBillingContract;
+}
+
 function parseCpMonthlyUsd(planKey: CloudPlanKey): number {
-  const catalogText = readFileSync(join(CP_BILLING_ROOT, 'catalog.py'), 'utf8');
-  const pattern = new RegExp(
-    `BillingPlan\\.${billingPlanEnum(planKey)}:\\s*\\(\\s*(\\d+)\\s*,`,
-  );
-  const match = catalogText.match(pattern);
-  if (!match) {
-    throw new Error(`Could not parse PLAN_DISPLAY_USD for ${planKey} in catalog.py`);
+  if (existsSync(CP_CATALOG_PATH)) {
+    const catalogText = readFileSync(CP_CATALOG_PATH, 'utf8');
+    const pattern = new RegExp(
+      `BillingPlan\\.${billingPlanEnum(planKey)}:\\s*\\(\\s*(\\d+)\\s*,`,
+    );
+    const match = catalogText.match(pattern);
+    if (!match) {
+      throw new Error(`Could not parse PLAN_DISPLAY_USD for ${planKey} in catalog.py`);
+    }
+    return Number.parseInt(match[1] ?? '', 10);
   }
-  return Number.parseInt(match[1] ?? '', 10);
+  const contract = loadCpBillingContract();
+  const entry = contract.plans[planKey];
+  if (!entry) {
+    throw new Error(`Missing ${planKey} in cp-billing-contract.json`);
+  }
+  return entry.monthlyUsd;
 }
 
 function parseCpMonthlyWu(planKey: CloudPlanKey): number {
-  const plansText = readFileSync(join(CP_BILLING_ROOT, 'plans.py'), 'utf8');
-  const pattern = new RegExp(
-    `BillingPlan\\.${billingPlanEnum(planKey)}:[\\s\\S]*?monthly_wu=(\\d+)`,
-  );
-  const match = plansText.match(pattern);
-  if (!match) {
-    throw new Error(`Could not parse monthly_wu for ${planKey} in plans.py`);
+  if (existsSync(CP_PLANS_PATH)) {
+    const plansText = readFileSync(CP_PLANS_PATH, 'utf8');
+    const pattern = new RegExp(
+      `BillingPlan\\.${billingPlanEnum(planKey)}:[\\s\\S]*?monthly_wu=(\\d+)`,
+    );
+    const match = plansText.match(pattern);
+    if (!match) {
+      throw new Error(`Could not parse monthly_wu for ${planKey} in plans.py`);
+    }
+    return Number.parseInt(match[1] ?? '', 10);
   }
-  return Number.parseInt(match[1] ?? '', 10);
+  const contract = loadCpBillingContract();
+  const entry = contract.plans[planKey];
+  if (!entry) {
+    throw new Error(`Missing ${planKey} in cp-billing-contract.json`);
+  }
+  return entry.monthlyWu;
 }
 
 function parseLocalePriceUsd(raw: unknown): number | null {
