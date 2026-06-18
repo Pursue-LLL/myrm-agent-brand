@@ -545,6 +545,36 @@ Every agent session operates in its own **Chromium BrowserContext** — a browse
 
 This architecture is fundamentally stronger than software-based "tab ownership contracts" used by browser extension agents — those can be bypassed by bugs, while BrowserContext isolation is enforced by Chromium itself.
 
+## Zero-Config Local Browser Discovery
+
+When your agent is configured in **Auto** browser source mode (the default), Myrm automatically detects and connects to your already-running Chrome — **no configuration, no CLI flags, no environment variables**.
+
+### How It Works
+
+1. **DevToolsActivePort scan** — Myrm scans known browser data directories for the `DevToolsActivePort` file that Chrome writes when remote debugging is enabled.
+2. **Multi-browser coverage** — Chrome, Edge, Chromium, Brave, and Chrome Canary are checked across macOS, Linux, and Windows.
+3. **4-phase validation** — File scan → HTTP probe (`/json/version`) → TCP fallback (Chrome M144+ compatibility) → fixed port 9222 fallback.
+4. **Graceful fallback** — If no running browser is found, Myrm launches a fresh managed instance instead.
+
+### What You Need to Do
+
+Just enable remote debugging in your browser once:
+
+1. Open Chrome and navigate to `chrome://inspect`
+2. Toggle **"Open dedicated DevTools for Node"** (this enables the debugging port)
+3. That's it — Myrm will auto-discover Chrome from now on
+
+### Why This Matters
+
+| Without auto-discovery | With Myrm |
+|----------------------|-----------|
+| Must set `CDP_PORT=9222` env var | Automatic — just use the app |
+| Must launch Chrome with `--remote-debugging-port` flag | Standard Chrome with inspect toggle |
+| Only connects to one browser | Scans 5 browsers in priority order |
+| No validation of stale ports | HTTP + TCP probes filter dead connections |
+
+All discovery runs in a background thread so it never slows down the agent's event loop.
+
 ## Zero-Config Browser Setup
 
 When you first use browser tools on a fresh Myrm desktop install, the browser engine (Chromium) is automatically downloaded and installed — **no terminal commands required**.
