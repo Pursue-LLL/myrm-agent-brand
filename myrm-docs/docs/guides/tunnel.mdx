@@ -60,12 +60,36 @@ cpolar http 3000
 
 Copy the `https://….cpolar….` URL into Myrm Public Ingress.
 
+## Built-in Quick Tunnel (One-click)
+
+Myrm also includes a built-in **Cloudflare Quick Tunnel** for instant remote access without installing external tools:
+
+1. Open **Settings → System → Remote Access**.
+2. Click **Start Tunnel** — a temporary HTTPS URL is generated in ~5–15 seconds.
+3. Scan the **QR code** with your phone to open the Mobile Hub.
+
+**Important**: Quick Tunnel generates a random URL each time. Use it for quick mobile access, not for permanent webhooks. For stable webhook URLs, use the self-hosted tools above.
+
+### Mobile Hub
+
+Once the tunnel is running, the **Mobile Session Hub** lets you:
+
+- View all active Agent sessions from your phone
+- Open and control a specific session with push-to-talk voice input
+- Receive real-time SSE progress updates
+- Approve HITL requests, steer, or **stop tasks remotely** (with success/failure toast — works even when re-attaching to an in-progress SSE stream)
+
+Access is secured by **HMAC pair tokens** with automatic TTL renewal. Remote connections are automatically assigned the `REMOTE_EXPOSED` trust zone, which disables dangerous tools (shell, file_write) for safety.
+
 ## Security
 
 - Always enable password protection before exposing WebUI.
 - Prefer HTTPS endpoints; Myrm normalizes trailing slashes.
 - Use a **stable domain** for production webhooks (free random URLs change on restart).
 - Cloud-hosted deployments avoid home tunneling entirely.
+- Remote connections are protected by **Trust Zone** security (dangerous tools auto-disabled).
+- **DNS rebinding protection**: Host allowlist middleware rejects spoofed Host headers.
+- **Pair token rotation**: Password changes automatically invalidate all outstanding tokens.
 
 ## Troubleshooting
 
