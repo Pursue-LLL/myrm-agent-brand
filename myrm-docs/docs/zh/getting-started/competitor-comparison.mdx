@@ -46,7 +46,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **智能路由与模型自动升级** | ✅ 五层体系: ComplexityRouter 三档路由（40+ 中英关键词 + 20 种异常正则 + 多维信号评分，100% 测试覆盖率）+ 隐私感知路由 + ESCALATION_CONTRACT (模型自主升级合约) + EscalationScrubber (流式无缝体验) + 双 Fallback 保险 (374 项测试) | ⚠️ 仅 Sonnet→Opus 单维度 | ❌ | ⚠️ 手动三档 | ❌ | ⚠️ 未知 | ❌ |
 | **后台任务托盘** | ✅ 14 子系统异步管线：BackgroundProcessRegistry（run_in_background + CRUD + since_cursor 增量轮询）+ 双层进度解析（显式 JSON 标记 + 启发式百分比/分数/阶段）+ NotificationManager（TTL deque + 每轮三级自动注入）+ AsyncWakeupHandler → ServerWakeupHandler（headless 续跑 + 3x 重试）+ IdleTaskRegistry（SQLite 持久化）+ ToolProgressSink（ContextVar SSE）+ BTW Notifier（多渠道多语言）+ 前端 Activity Card — **336 项测试** | ⚠️ 仅运行+取消 | ❌ | ❌ | ⚠️ Background Agent（无转向） | ⚠️ 未知 | ❌ |
 | **错误恢复** | ✅ 8层纵深防护(LoopGuard 7种模式+ToolStuck→GraphInterrupt+FrequencyGuard+E-Stop+4层熔断器+Kanban僵尸120s自动回收+Gateway超时+内存压力熔断) + 14类自愈 + 9层纵深降级 — 2,934项测试 | try/catch | 基础 | 基础 | ⚠️ 上下文溢出恢复 | ⚠️ 未知 | ❌ |
-| **企业可靠性** | ✅ xdist 锁、EventBus 截断、OTEL 安全、路径边界 + TOCTOU 审批测试；聊天 SSE 状态机回归；**521 份分形 `_ARCH` 模块文档 + 296 项架构 CI 门禁**（2026-06-09 实测） | ⚠️ 仅快乐路径测试 | ⚠️ 易竞态 | ⚠️ 未知 | ⚠️ 未知 | ⚠️ 未知 | ❌ |
+| **企业可靠性** | ✅ xdist 锁、EventBus 截断、OTEL 安全、路径边界 + TOCTOU 审批测试；聊天 SSE 状态机回归；**521 份分形 `_ARCH` 模块文档 + 296 项架构 CI 门禁**；**Eval 框架：5种断言 + 多轮 + Memory Retrieval Eval (NDCG/MRR) — 398 项测试验证**（2026-06-18） | ⚠️ 仅快乐路径测试 | ⚠️ 易竞态 | ⚠️ 未知 | ⚠️ 未知 | ⚠️ 未知 | ❌ |
 | **模块文档地图** | ✅ **521** 份 `_ARCH.md` + CI 防漂移（`check_fractal_docs`） | ❌ 仅集中式 docs | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **文件编辑安全** | ✅ 6 层保护 + Shadow Git 快照**选择性文件恢复**（checkbox 多选）+ 行级变更统计 (+X/−Y) + 回退后 Agent 自动感知 + 自动格式化 + 语法检查 + 冲突检测 + 配置保护 + 敏感文件保护 + 实时 diff SSE（1,154 项测试） | ❌ | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
 | **文件系统智能** | ✅ 19 种原生操作 + 6 类解析器 + 5 层观察者（788 项测试） | ⚠️ 4 种基础操作 | ⚠️ 仅 bash | ⚠️ 仅 bash | ❌ | ⚠️ 基础 | ❌ |
@@ -165,6 +165,24 @@ Myrm 以奥卡姆剃刀式 WebUI 安全方案，解决本地优先部署的「�
 *   **即时会话驱逐**：改密码或切换保护时自动轮换全局 HMAC Session Signing Key，瞬间作废所有会话（类似失窃设备一键熔断）；竞品旧 JWT 常仍有效。
 *   **单租户 Vault vs 重型 DB**：本地模式用单一高加密 `admin.json`，非 SaaS 式 Postgres/MySQL + RBAC 膨胀；安全、可移植、零依赖。
 
+## 数据防泄漏（DLP）与隐私感知路由
+
+Agent 对话可能涉及敏感个人信息。竞品（如 ClawVault）仅在对话消息级别做简单的"检测→占位符替换→还原"，遗漏了工具参数、工具结果、流式输出等多个泄漏通道。
+
+### Myrm 的领先之处
+
+| 领域 | ClawVault / 竞品 | Myrm | 用户收益 |
+|------|-----------------|------|---------|
+| **PII 检测** | 正则基础检测 | **正则 + LLM 语义双层**（可识别"我家住在XX小区"等隐含地址） | 无遗漏检测 |
+| **敏感度分级** | risk_score 数值（无分级） | **S1/S2/S3 三级**自动分类 + 不同级别不同处理策略 | 精准保护 |
+| **处理动作** | sanitize/restore（2 种） | **WARN/REDACT/PSEUDONYMIZE/BLOCK**（4 种） | 灵活应对 |
+| **隐私感知路由** | 无 | **S2→脱敏后云端或本地，S3→本地模型或阻断** | 敏感数据永不出沙箱 |
+| **拦截通道** | 1（对话消息） | **6 通道**（消息+工具参数+工具结果+SSE流+数据导出+标题生成） | 无死角防护 |
+| **前端可视化** | 无 | 每条消息旁显示 **S2/S3 色彩标签 + 脱敏状态 + 路由方式** | 透明可信 |
+| **用户自定义** | 无 | 自定义敏感关键词 + 自定义正则模式 + 自定义敏感工具标记 | 完全掌控 |
+
+**777 项 DLP/PII 测试全通过**，覆盖 PII 分类器（88）+ 隐私路由（219）+ 消息过滤与凭证检测（361）+ 安全审计（109）。
+
 ## 多 Agent 编排：确定性调度（vs Hermes / OpenClaw / JiuwenSwarm）
 
 竞品多依赖单一编排模式（如 Hermes Kanban Swarm、OpenClaw 基础线性 spawn、或 JiuwenSwarm 的静态 DAG 工作流脚本）。Myrm 提供 **6 模式确定性编排引擎**，辅以 **5 层工具安全围栏** 与 **4 维预算控制**。与 JiuwenSwarm 需要用户编写 Python `workflow.py` 脚本来定义执行顺序不同，Myrm 的 Leader Agent 通过自然语言动态调度子 Agent，并支持运行时转向/取消 —— 这是静态 DAG 无法提供的能力。
@@ -271,6 +289,32 @@ Hermes `web_extract` 看似「零配置」因用 LLM 摘要而非本地 embeddin
 | Claude Code | Self-hosted + 100+ models; auditable filter pipeline; PTC-native web tools |
 
 配置与用法见[网页搜索与抓取指南](/zh/guides/web-search-and-fetch)。
+
+### 引用溯源与来源展示
+
+每条 AI 回复中引用的信息均可追溯到原始来源。支持 4 种来源类型（网页搜索、MCP 工具调用、知识库文档、历史对话），通过 hover 预览查看完整摘要、域名和 favicon，触屏设备自动切换为点击模式。
+
+| 能力 | Myrm | 竞品 |
+|------|:----:|:----:|
+| 来源类型数 | **4 种**（web/MCP/KB/conversation） | 0–1 种 |
+| 触屏兼容 | ✅ 自动检测 | ❌ |
+| Hover 预览（域名+摘要+favicon） | ✅ | ❌ |
+| 跨消息来源累积去重 | ✅ | ❌ |
+| 后端 cache-safe 引用规则注入 | ✅ | ❌ |
+
+### 文档解析引擎
+
+Myrm 内置 10 模块专业文档解析引擎，提供从 PDF 到 Office 全格式的深度解析能力（128 项测试验证）：
+
+| 能力 | Myrm | 竞品 |
+|------|:----:|:----:|
+| PDF 智能编排（3策略：文本/嵌入图/全页渲染） | ✅ | ❌ 仅文本读取 |
+| 书签/目录注入 + 字体标题双模检测 | ✅ | ❌ |
+| 表格 L0/L2 两层封装 + RAG 反碎片 | ✅ | ❌ |
+| 图像 3 级噪点过滤（尺寸+纵横比+MD5去重） | ✅ | ❌ |
+| PaddleOCR（CJK 原生·懒加载·可选 GPU） | ✅ | ❌ |
+| Office 全格式（docx/xlsx/pptx） | ✅ | ⚠️ 部分 |
+| MediaResolver Lazy-Resolve（URL 引用→按需 base64） | ✅ | ❌ base64 内嵌 |
 
 ## vs Hermes Agent (v0.15 Velocity) — 多 Agent 平台
 
@@ -557,7 +601,7 @@ Claude Code 采用「Fork 子 Agent」设计，字节级 prompt 前缀对齐以�
 | System prompt optimization | lean system prompt | 6-layer Prompt Cache + TaskAdaptiveMiddleware | ⬆️ Complete cache engineering |
 | Autonomous execution | "Ask fewer questions" | Goal 7-state machine + auto_approve + continuation guard | ⬆️ Systematic |
 | Skill system | .claude/skills directory scan | 42-module Skill system + 6 discovery sources + evolution | ⬆️ Full evolution ecosystem |
-| Agent configuration | CLI-based agent config | 23 预设 + 6 YAML 模板 + 5-Tab GUI（Monaco SmartPromptEditor + AI 生成 + 16 种人格 + 含 fallback 的模型选择器 + 6 项引擎参数）+ DB 存储 + TimeMachine 回滚（122 项测试） | ⬆️ 全可视化构建器 |
+| Agent configuration | CLI-based agent config | 23 预设 + 6 YAML 模板 + 5-Tab GUI（Monaco SmartPromptEditor + AI 生成 + 16 种人格 + 含 fallback 的模型选择器 + 6 项引擎参数）+ DB 存储 + TimeMachine 回滚（435 项测试） | ⬆️ 全可视化构建器 |
 | Code isolation | EnterWorktree | WorkspacePolicy (INHERIT/ISOLATED_COPY/READ_ONLY_SANDBOX) + GUI 配置 | ⬆️ 3 策略 + 可视化 |
 | Task resumption | `--resume` CLI flag | 5 层上下文持久化 (SessionNotes + ContextSnapshot + GoalStorage + SubagentCheckpoint + ArchiveCheckpoint) + OrphanRecovery + StreamRecovery + workspace_isolation 3 策略 COW + batch_merge — 501 项测试验证 | ⬆️ Complete recovery |
 | Cost control | Manual effort selection | Auto-routing + GoalBudget + DelegationBudget + token_economics | ⬆️ Automated |

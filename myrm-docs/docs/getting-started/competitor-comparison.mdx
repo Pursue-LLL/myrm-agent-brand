@@ -46,7 +46,7 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **Smart Routing & Auto-Upgrade** | ✅ 5-layer: ComplexityRouter 3-Tier (40+ keywords + 20 exception regex + multi-signal scoring, 100% coverage) + PrivacyRouter + ESCALATION_CONTRACT (model self-upgrade) + EscalationScrubber (seamless UX) + Dual Fallback (374 tests) | ⚠️ Single-dimension Sonnet→Opus | ❌ | ⚠️ Manual 3-tier | ❌ | ⚠️ Unknown | ❌ |
 | **Background Tasks** | ✅ 14-subsystem async pipeline: BackgroundProcessRegistry (run_in_background + CRUD + since_cursor incremental polling) + dual-layer progress parsing (explicit JSON markers + heuristic %) + NotificationManager (TTL deque + 3-level auto-inject per turn) + AsyncWakeupHandler → ServerWakeupHandler (headless continuation + 3x retry) + IdleTaskRegistry (SQLite persisted) + ToolProgressSink (ContextVar SSE) + BTW Notifier (multi-channel i18n) + Frontend Activity Cards — **336 tests** | ⚠️ Basic run + cancel only | ❌ | ❌ | ⚠️ Background Agent (no steer) | ⚠️ Unknown | ❌ |
 | **Error Recovery** | ✅ 8-layer defense (LoopGuard 7 patterns + ToolStuck→GraphInterrupt + FrequencyGuard + E-Stop + 4-layer CircuitBreaker + Kanban zombie 120s auto-reclaim + Gateway timeout + memory pressure fuse) + 14 self-healing types + 9-layer deep degradation — 2,934 tests | try/catch | Basic | Basic | ⚠️ Context overflow recovery | ⚠️ Unknown | ❌ |
-| **Enterprise Reliability** | ✅ xdist locks, EventBus truncate, OTEL safe, path-boundary + TOCTOU approval tests; chat SSE state machine regression tests; **521 fractal `_ARCH` module docs + 296 architecture CI gates** (2026-06-09 verified) | ⚠️ Happy-path tested only | ⚠️ Race conditions likely | ⚠️ Unknown | ⚠️ Unknown | ⚠️ Unknown | ❌ |
+| **Enterprise Reliability** | ✅ xdist locks, EventBus truncate, OTEL safe, path-boundary + TOCTOU approval tests; chat SSE state machine regression tests; **521 fractal `_ARCH` module docs + 296 architecture CI gates**; **Eval framework: 5 assertion types + multi-turn + Memory Retrieval Eval (NDCG/MRR) — 398 tests verified** (2026-06-18) | ⚠️ Happy-path tested only | ⚠️ Race conditions likely | ⚠️ Unknown | ⚠️ Unknown | ⚠️ Unknown | ❌ |
 | **Module Documentation Map** | ✅ **521** `_ARCH.md` + CI anti-drift (`check_fractal_docs`) | ❌ Central docs only | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **File Edit Safety** | ✅ 6-layer protection + Shadow Git snapshot with **selective file restore** (checkbox multi-pick) + line-level diff stats (+X/−Y) + Agent auto-aware after rollback + auto-format + syntax check + conflict detection + config guard + sensitive guard + real-time diff SSE (1,154 tests) | ❌ | ❌ | ❌ | ❌ | ⚠️ Unknown | ❌ |
 | **File System Intelligence** | ✅ 19 native ops + 6 parsers + 5 observers (788 tests) | ⚠️ 4 basic ops | ⚠️ bash only | ⚠️ bash only | ❌ | ⚠️ Basic | ❌ |
@@ -165,6 +165,24 @@ Myrm solves the "last mile" of local-first deployment with an Ockham's Razor app
 *   **Instant Session Eviction**: When a password is changed or protection is toggled, Myrm automatically rotates the global HMAC Session Signing Key. This instantly invalidates all existing sessions globally (like a kill switch for stolen devices), whereas competitors often leave old JWTs valid.
 *   **Single-Tenant "Vault" vs. Heavy DBs**: Instead of a bloated Postgres/MySQL user table with RBAC rules designed for SaaS, the local mode uses a single highly-encrypted `admin.json` vault file. Secure, portable, and zero-dependency.
 
+## Data Loss Prevention (DLP) & Privacy-Aware Routing
+
+Agent conversations may contain sensitive personal information. Competitors (e.g., ClawVault) only perform simple "detect → placeholder → restore" at the chat message level, missing tool parameters, tool results, and streaming output as leakage channels.
+
+### How Myrm Leads
+
+| Area | ClawVault / Competitors | Myrm | User Benefit |
+|------|------------------------|------|-------------|
+| **PII Detection** | Regex-only basic detection | **Regex + LLM semantic dual-layer** (detects implicit addresses like "I live in XX Community") | Zero-miss detection |
+| **Sensitivity Grading** | risk_score number (no grading) | **S1/S2/S3 three-tier** auto-classification with different handling per tier | Precise protection |
+| **Handling Actions** | sanitize/restore (2 types) | **WARN/REDACT/PSEUDONYMIZE/BLOCK** (4 types) | Flexible response |
+| **Privacy-Aware Routing** | None | **S2 → redact-then-cloud or local, S3 → local model or block** | Sensitive data never leaves sandbox |
+| **Interception Channels** | 1 (chat messages) | **6 channels** (messages + tool params + tool results + SSE stream + dataset export + title gen) | Zero blind spots |
+| **Frontend Visualization** | None | **S2/S3 color badges + redaction status + routing indicator** per message | Transparent & trustworthy |
+| **User Customization** | None | Custom sensitive keywords + custom regex patterns + custom sensitive tool tags | Full control |
+
+**777 DLP/PII tests passed**, covering PII classifier (88) + privacy routing (219) + message filtering & credential detection (361) + security audit (109).
+
 ## Multi-Agent Orchestration: Deterministic Scheduling (vs Hermes / OpenClaw / JiuwenSwarm)
 
 While competitors rely on single-mode orchestration (e.g., Hermes' Kanban Swarm, OpenClaw's basic linear spawn, or JiuwenSwarm's static DAG workflow scripts), Myrm introduces a **6-Mode Deterministic Orchestration Engine** backed by a **5-Layer Tool Security Fence** and **4-Dimension Budget Control**. Unlike JiuwenSwarm's CLI-only `workflow.py` approach (which requires users to write Python scripts to define execution order), Myrm's Leader Agent dynamically schedules sub-agents through natural language — with runtime steer/cancel capabilities that static DAGs cannot provide.
@@ -271,6 +289,32 @@ Hermes `web_extract` appears "zero-config" because it uses LLM summarization ins
 | Claude Code | Self-hosted + 100+ models; auditable filter pipeline; PTC-native web tools; JSON Schema → validated output |
 
 See [Web Search & Fetch Guide](/docs/guides/web-search-and-fetch) for setup and configuration.
+
+### Citation Tracing & Source Display
+
+Every citation in AI responses is traceable to its original source. Supports 4 source types (web search, MCP tool calls, knowledge base documents, conversation history) with hover preview showing full snippet, domain, and favicon. Touch devices automatically switch to tap mode.
+
+| Capability | Myrm | Competitors |
+|------------|:----:|:-----------:|
+| Source types | **4** (web/MCP/KB/conversation) | 0–1 |
+| Touch-compatible | ✅ Auto-detect | ❌ |
+| Hover preview (domain+snippet+favicon) | ✅ | ❌ |
+| Cross-message source dedup | ✅ | ❌ |
+| Backend cache-safe citation injection | ✅ | ❌ |
+
+### Document Parsing Engine
+
+Myrm includes a 10-module professional document parsing engine with deep parsing capabilities from PDF to Office formats (128 tests verified):
+
+| Capability | Myrm | Competitors |
+|------------|:----:|:-----------:|
+| PDF smart pipeline (3 strategies: text/embedded-img/full-page render) | ✅ | ❌ Text-only |
+| Bookmark injection + font-based heading dual-mode detection | ✅ | ❌ |
+| Table L0/L2 dual encapsulation + RAG anti-fragmentation | ✅ | ❌ |
+| Image 3-tier noise filter (size+aspect+MD5 dedup) | ✅ | ❌ |
+| PaddleOCR (CJK native · lazy-load · optional GPU) | ✅ | ❌ |
+| Full Office support (docx/xlsx/pptx) | ✅ | ⚠️ Partial |
+| MediaResolver Lazy-Resolve (URL ref → on-demand base64) | ✅ | ❌ Base64 inline |
 
 ## vs Hermes Agent (v0.15 Velocity) — Multi-Agent Platform
 
@@ -640,7 +684,7 @@ With Opus 4.8, Claude Code introduced `/effort` (6-level reasoning budget), Dyna
 | System prompt optimization | lean system prompt | 6-layer Prompt Cache + TaskAdaptiveMiddleware | ⬆️ Complete cache engineering |
 | Autonomous execution | "Ask fewer questions" | Goal 7-state machine + auto_approve + continuation guard | ⬆️ Systematic |
 | Skill system | .claude/skills directory scan | 42-module Skill system + 6 discovery sources + evolution | ⬆️ Full evolution ecosystem |
-| Agent configuration | CLI-based agent config | 23 presets + 6 YAML templates + 5-tab GUI (Monaco SmartPromptEditor + AI gen + 16 personalities + model picker w/ fallback + 6 engine params) + DB storage + TimeMachine rollback (122 tests) | ⬆️ Full visual builder |
+| Agent configuration | CLI-based agent config | 23 presets + 6 YAML templates + 5-tab GUI (Monaco SmartPromptEditor + AI gen + 16 personalities + model picker w/ fallback + 6 engine params) + DB storage + TimeMachine rollback (435 tests) | ⬆️ Full visual builder |
 | Code isolation | EnterWorktree | WorkspacePolicy (INHERIT/ISOLATED_COPY/READ_ONLY_SANDBOX) + GUI config | ⬆️ 3 policies + visual |
 | Task resumption | `--resume` CLI flag | 5-layer context persistence (SessionNotes + ContextSnapshot + GoalStorage + SubagentCheckpoint + ArchiveCheckpoint) + OrphanRecovery + StreamRecovery + workspace_isolation 3-policy COW + batch_merge — 501 tests verified (213 persistence + 288 isolation) | ⬆️ Complete recovery |
 | Cost control | Manual effort selection | Auto-routing + GoalBudget + DelegationBudget + token_economics | ⬆️ Automated |
@@ -1400,9 +1444,9 @@ Myrm provides the most comprehensive voice integration among AI agents — **4,2
 | **Per-Model Persistence** | ❌ | ❌ | ❌ | ✅ localStorage per model |
 | **Model Capability Detection** | ❌ | ❌ | ❌ | ✅ Auto-hide if unsupported |
 | **Export with Reasoning** | ❌ | ✅ | ✅ | ✅ 3 formats + checkbox |
-| **Multi-Tag Parsing** | 1 | 1 | 2 | ✅ 5 thinking tags |
+| **Multi-Tag Parsing** | 1 | 1 | 2 | ✅ 6 thinking tags + 3-layer signature management |
 
-**Migration win**: From limited thinking display to full 6-level intensity control with per-model persistence, 5-tag parsing for all LLMs, and 3-format export — verified by 75 automated tests.
+**Migration win**: From limited thinking display to full 6-level intensity control with per-model persistence, 6-tag parsing for all LLMs (think/thinking/thought/antthinking/reasoning/REASONING_SCRATCHPAD), 3-layer Thinking Signature management (proactive cleaning → error recovery → stream scrubbing), and 3-format export — verified by 152 automated tests.
 
 ## Top Agent Architecture Teardown ("Agent Harness Parsing")
 
