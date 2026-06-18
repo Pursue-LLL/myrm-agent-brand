@@ -7,26 +7,46 @@ description: Use Myrm's managed cloud sandbox.
 
 The managed SaaS option provides isolated per-user sandboxes with zero DevOps.
 
-## Getting Started
+## Getting started
 
 1. Visit [app.myrmagent.ai](https://app.myrmagent.ai/auth/login)
-2. Create an account with email or OAuth
+2. Create an account with email, Google OAuth, or GitHub OAuth
 3. Your workspace is ready immediately
 
-## Work Units
+## Plans
 
-All SaaS usage is billed through a unified **Work Units (WU)** balance:
+All SaaS usage is billed through a unified **Work Units (WU)** balance. Each paid plan includes a dedicated sandbox with the listed CPU, RAM, and persistent storage.
 
-| Plan | WU/month | Price |
-|------|----------|-------|
-| Free | 600 + 50/day refresh | $0 |
-| Companion | 6,000 | $19/mo |
-| Pro | 18,000 | $49/mo |
-| Max | 60,000 | $149/mo |
+| Plan | Price | WU/month | Sandbox | Storage | Extras |
+|------|-------|----------|---------|---------|--------|
+| Free | $0 | 600 + 50/day refresh | Shared | 5 GB | — |
+| Companion | $17/mo | 6,000 | 1 vCPU / 2 GB RAM | 20 GB | Unlimited agents |
+| Plus | $42/mo | 5,000 | 2 vCPU / 4 GB RAM | 50 GB | Priority queue |
+| Pro | $79/mo | 12,000 | 4 vCPU / 8 GB RAM | 100 GB | 7-day free trial |
+| Max | $167/mo | 60,000 | 8 vCPU / 16 GB RAM | 200 GB | VNC desktop, dedicated support |
+
+<Note>
+Pro includes a **7-day free trial** — cancel any time during the trial at no cost.
+</Note>
 
 See [Work Units](/docs/core-concepts/work-units) for details on how WU are consumed.
 
-## Data & Privacy
+## Sandbox specifications
+
+Every paid plan provisions a persistent, isolated Linux sandbox sized for the workloads in that tier:
+
+- **Companion** — light scripting, single-agent tasks
+- **Plus** — multi-step agent workflows on a 2-core sandbox
+- **Pro** — heavier parallel agent runs with a 4-core sandbox
+- **Max** — the full 8-core sandbox with 200 GB storage and a built-in **VNC desktop** for browser automation, GUI tooling, and remote desktop access
+
+## Billing & payments
+
+- **Creem** is the merchant of record for all Myrm Cloud subscriptions and processes payments, invoices, and taxes on Myrm's behalf.
+- Subscriptions renew monthly; cancel anytime from **Settings > Billing**.
+- Invoices and receipts are issued by Creem and emailed after each successful charge.
+
+## Data & privacy
 
 - Each user gets an isolated persistent sandbox volume
 - API keys are stored in an encrypted secrets vault

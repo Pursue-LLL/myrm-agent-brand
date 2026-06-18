@@ -10,21 +10,41 @@ description: 使用 Myrm 托管云端沙箱。
 ## 上手
 
 1. 访问 [app.myrmagent.ai](https://app.myrmagent.ai/auth/login)
-2. 使用邮箱或 OAuth 创建账号
+2. 使用邮箱、Google OAuth 或 GitHub OAuth 创建账号
 3. 工作空间立即可用
 
-## Work Units
+## 套餐
 
-所有 SaaS 用量通过统一的 **Work Units（WU）** 余额计费：
+所有 SaaS 用量通过统一的 **Work Units（WU）** 余额计费。每个付费套餐都包含一个专属沙箱，配置如下：
 
-| 计划 | WU/月 | 价格 |
-|------|----------|-------|
-| Free | 600 + 每日刷新 50 | $0 |
-| Companion | 6,000 | $19/月 |
-| Pro | 18,000 | $49/月 |
-| Max | 60,000 | $149/月 |
+| 套餐 | 价格 | WU/月 | 沙箱 | 存储 | 附加 |
+|------|------|-------|------|------|------|
+| Free | $0 | 600 + 每日刷新 50 | 共享 | 5 GB | — |
+| Companion | $17/月 | 6,000 | 1 vCPU / 2 GB RAM | 20 GB | 无限 Agent |
+| Plus | $42/月 | 5,000 | 2 vCPU / 4 GB RAM | 50 GB | 优先队列 |
+| Pro | $79/月 | 12,000 | 4 vCPU / 8 GB RAM | 100 GB | 7 天免费试用 |
+| Max | $167/月 | 60,000 | 8 vCPU / 16 GB RAM | 200 GB | VNC 桌面、专属支持 |
+
+<Note>
+Pro 套餐包含 **7 天免费试用**，试用期内可随时取消，不收取任何费用。
+</Note>
 
 WU 消耗细则见 [Work Units](/zh/core-concepts/work-units)。
+
+## 沙箱规格
+
+每个付费套餐都会预置一个持久化、隔离的 Linux 沙箱，规格按层级递增：
+
+- **Companion** — 轻量脚本、单 Agent 任务
+- **Plus** — 2 核沙箱上的多步 Agent 工作流
+- **Pro** — 4 核沙箱上的高并发 Agent 任务
+- **Max** — 8 核沙箱 + 200 GB 存储，内置 **VNC 桌面**，可用于浏览器自动化、GUI 工具和远程桌面访问
+
+## 计费与支付
+
+- **Creem** 是 Myrm 云端订阅的商户记录（Merchant of Record），代为处理支付、发票与税务。
+- 订阅按月续费，可在 **设置 > 计费** 中随时取消。
+- 每次成功扣款后，Creem 会向你邮箱发送发票与收据。
 
 ## 数据与隐私
 
