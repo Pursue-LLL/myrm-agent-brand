@@ -23,6 +23,7 @@ Myrm injects a comprehensive anti-detection system that makes automated browsing
 
 - **CDP leak patches** — Patchright eliminates `Runtime.enable`, `Console.enable`, and `--enable-automation` detection vectors at the protocol level
 - **13 JS stealth scripts** — `navigator.webdriver`, `window.chrome` stub, plugin/language emulation, automation artifact cleanup, `toString()` disguise via WeakMap, anti-debugger neutralization, Performance API cleanup, and more
+- **Camoufox fingerprint persistence** — Full device fingerprint (canvas, audio, fonts, WebGL, plugins) is generated once and persisted to disk. Subsequent sessions reuse the same fingerprint, so sites see a consistent "returning device" instead of a suspicious new one every time. Dual-layer self-healing auto-recovers from any fingerprint file corruption
 - **Humanized interaction** — Random typing delay (30–100ms/char) and click delay (50–150ms) with dynamic timeout adaptation
 - **Proxy rotation & self-healing** — Automatic bad-proxy isolation, context hot-swap for fresh IPs, and stateful session migration (Cookie + localStorage preserved across engine switches)
 
@@ -32,8 +33,9 @@ Myrm injects a comprehensive anti-detection system that makes automated browsing
 |----------------------|---------------------|
 | Blocked on first page load | Passes Cloudflare and DataDome |
 | Login sessions revoked by platform | Stays logged in across sessions |
+| New fingerprint every session triggers "suspicious device" flags | Persistent fingerprint — sites see the same trusted device |
 | Must use expensive residential proxies | Works with standard proxies |
-| Manual browser profile management | Automatic fingerprint management |
+| Manual browser profile management | Automatic fingerprint management with self-healing |
 
 ## Page Understanding — Dual-Path ARIA Snapshot
 
