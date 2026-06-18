@@ -15,7 +15,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 | 能力 | Myrm | Hermes Agent (v0.15) | OpenClaw | 360 Security OpenClaw | OpenClacky | MiniMax Mavis | MemPalace |
 |------------|:----:|:------------:|:--------:|:---------:|:---------:|:-----:|:---------:|
-| **记忆系统** | ✅ 8 类 + 知识图谱 + 27 源集成（9 类别）+ 12 种竞品导入 + 跨任务 SharedContext + 归档自动恢复 + 15 种诊断 + Protocol-first SDK（2,771 项测试） | ⚠️ 2,200 字符 | ⚠️ 3 类 | ⚠️ 3 类 | ❌ 仅会话 | ⚠️ 基础更新 | ⚠️ 扁平抽屉 |
+| **记忆系统** | ✅ 8 类 + 知识图谱 + 27 源集成（9 类别）+ 12 种竞品导入 + 跨任务 SharedContext + 归档自动恢复 + 15 种诊断 + 9 层自动提取（ZeroCost + 反馈信号 + Deep PII）+ Protocol-first SDK（3,053+ 项测试） | ⚠️ 2,200 字符 | ⚠️ 3 类 | ⚠️ 3 类 | ❌ 仅会话 | ⚠️ 基础更新 | ⚠️ 扁平抽屉 |
 | **对话搜索** | ✅ FTS5 + Qdrant 混合 | ⚠️ v0.15 仅本地文本 | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **代码搜索** | ✅ FTS5 + Vector + RRF 融合 · `@codebase` · 15+ 语言 · CJK | ❌ 仅 grep | ⚠️ tree-sitter 精确匹配 | ❌ | ❌ 仅 grep | ❌ | ❌ |
 | **GUI 界面** | ✅ Web 原生 | ❌ CLI（v0.15 TUI 多会话） | CLI | ✅ Web/App | ⚠️ 基础 WebUI | ⚠️ 飞书嵌入 | ❌ 仅 CLI |
@@ -33,7 +33,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **手机远程指挥台** | ✅ 配对令牌 Hub + 实时 Status Board（SSE attach · HITL 审批 · steer · 停止）· 会话级绑定 · 渠道深链 · **65 项测试**（2026-06） | ❌ 仅 CLI/TUI | ⚠️ 多为 IM 通知，无完整手机控制台 | ❌ | ❌ | ❌ | ❌ |
 | **子 Agent** | ✅ 6 模式 + 动态工作流 | ⚠️ v0.15 Kanban Swarm（1 模式） | ⚠️ 基础 spawn（仅线性） | ⚠️ 基础 spawn | ❌ 单 Agent | ⚠️ L-W-V | ❌ |
 | **工具生态集成** | ✅ 自有 Agent 引擎 + MCP 行业标准（OAuth+安全扫描+Schema容错+动态发现+连接池自愈）+ 5层安全审批 + 技能自动进化 + 6种SubAgent编排（3,491 项测试） | ⚠️ 单文件 Copilot 适配器（686 行，仅 CLI） | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **安全** | ✅ 6 层防御 | ⚠️ v0.15 Promptware 3 卡口 | 1 层 | ⚠️ 未知 | ⚠️ 基础沙箱 | ⚠️ 闭源 | ❌ |
+| **安全** | ✅ 6 层防御 + DM Pairing（4 策略、GUI 审批、防刷冷却） | ⚠️ v0.15 Promptware 3 卡口 | 1 层 | ⚠️ 未知 | ⚠️ 基础沙箱 | ⚠️ 闭源 | ❌ |
 | **凭证库** | ✅ 标签注入 + TOTP（浏览器 + 桌面） | ❌ 工具参数明文 | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **WebUI 访问安全** | ✅ 零信任 WebSocket + 安全 Cookie | ⚠️ 仅 HTTP，WS 脆弱 | ⚠️ 基础 JWT | ⚠️ 未知 | ⚠️ 仅 HTTP | ⚠️ 闭源 SaaS | ❌ LAN 裸奔 |
 | **目标模式** | ✅ 7 状态 + 4D 预算 | /goal | ❌ | ❌ | ❌ | ⚠️ 计划审批 | ❌ |
@@ -44,7 +44,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **输出净化** | ✅ 双层防护（流式+投递前），覆盖全角管道符和 DeepSeek token | ⚠️ 单层，仅 ASCII 管道符（近期修复） | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **MCP 工具安全** | ✅ 双层防护：上游异常捕获+下游 block 类型强制转换（file/audio/未知→text） | ⚠️ 单层转换（无上游容错） | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **智能路由与模型自动升级** | ✅ 五层体系: ComplexityRouter 三档路由（40+ 中英关键词 + 20 种异常正则 + 多维信号评分，100% 测试覆盖率）+ 隐私感知路由 + ESCALATION_CONTRACT (模型自主升级合约) + EscalationScrubber (流式无缝体验) + 双 Fallback 保险 (374 项测试) | ⚠️ 仅 Sonnet→Opus 单维度 | ❌ | ⚠️ 手动三档 | ❌ | ⚠️ 未知 | ❌ |
-| **后台任务托盘** | ✅ Kanban 持久化 + SteeringToken 运行时转向 + Zombie 检测 + 自动重试 + /btw /bg 快捷命令 + 智能轮询（189 项测试） | ⚠️ 仅运行+取消 | ❌ | ❌ | ⚠️ Background Agent（无转向） | ⚠️ 未知 | ❌ |
+| **后台任务托盘** | ✅ 14 子系统异步管线：BackgroundProcessRegistry（run_in_background + CRUD + since_cursor 增量轮询）+ 双层进度解析（显式 JSON 标记 + 启发式百分比/分数/阶段）+ NotificationManager（TTL deque + 每轮三级自动注入）+ AsyncWakeupHandler → ServerWakeupHandler（headless 续跑 + 3x 重试）+ IdleTaskRegistry（SQLite 持久化）+ ToolProgressSink（ContextVar SSE）+ BTW Notifier（多渠道多语言）+ 前端 Activity Card — **336 项测试** | ⚠️ 仅运行+取消 | ❌ | ❌ | ⚠️ Background Agent（无转向） | ⚠️ 未知 | ❌ |
 | **错误恢复** | ✅ 8层纵深防护(LoopGuard 7种模式+ToolStuck→GraphInterrupt+FrequencyGuard+E-Stop+4层熔断器+Kanban僵尸120s自动回收+Gateway超时+内存压力熔断) + 14类自愈 + 9层纵深降级 — 2,934项测试 | try/catch | 基础 | 基础 | ⚠️ 上下文溢出恢复 | ⚠️ 未知 | ❌ |
 | **企业可靠性** | ✅ xdist 锁、EventBus 截断、OTEL 安全、路径边界 + TOCTOU 审批测试；聊天 SSE 状态机回归；**521 份分形 `_ARCH` 模块文档 + 296 项架构 CI 门禁**（2026-06-09 实测） | ⚠️ 仅快乐路径测试 | ⚠️ 易竞态 | ⚠️ 未知 | ⚠️ 未知 | ⚠️ 未知 | ❌ |
 | **模块文档地图** | ✅ **521** 份 `_ARCH.md` + CI 防漂移（`check_fractal_docs`） | ❌ 仅集中式 docs | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -56,9 +56,9 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **定时任务** | ✅ 20+ GUI 组件 + 27 项配置能力 + 6 种触发器 + 指数退避重试 + 误火恢复 + Agent 绑定 + 结果投递 + Merkle 审计链 + 智能噪音过滤（636 项测试） | ⚠️ CLI 基础 cron（无GUI/无重试/无恢复） | ✅ | ✅ | ❌ | ❌ | ❌ |
 | **统一工具网关** | ✅ 四合一网关 + 弹性 BYOK 回退 | ⚠️ 硬切换（易出错） | ❌ N/A | ⚠️ 未知 | ❌ | ⚠️ 未知 | ❌ |
 | **OpenAI 兼容代理** | ✅ 双模（Agent+LLM）`/v1` 端点 + `/v1/models` 自动发现 + 4 策略密钥轮转 + Aider/Cline/Continue GUI 配置模板（74 项测试） | ⚠️ `/v1/chat/completions`（仅 Agent，无 LLM 直通，无模型发现） | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **语音** | ✅ STT + TTS + 实时 | ⚠️ Discord 语音 | WebRTC | ⚠️ 基础 | ❌ | ❌ | ❌ |
+| **语音** | ✅ 3 种模式（标准/Bridge/Realtime）+ 10 提供商（5 TTS + 5 STT 含免费 Edge TTS 与 Local Whisper）+ Discord 唤醒词 + 打断检测 + Vision 融合 — **1,176 项测试** | ⚠️ Discord 语音 | WebRTC + iOS 原生唤醒 | ⚠️ 基础 | ❌ | ❌ | ❌ |
 | **多模态生成** | ✅ 图片（20+ 模型 + Failover + 编辑）+ 视频（4 引擎：Sora/Veo/Qwen/MiniMax + T2V/I2V/V2V + 幂等任务管理）+ TTS（5 Provider 含免费 Edge + 流式 + 长文本自动摘要 + OpenAI 兼容 base_url）+ 截图即操作管线（粘贴/拖放 → 标注编辑器 → OCR/Vision → 工具调用闭环）+ Vision 自动降级 — 1,293 项测试 | ⚠️ FAL.ai 图片 + 2 视频插件 + 10 TTS（含 5 个 niche 本地方案） | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Computer Use** | ✅ 桌面自动化 + 后台静默输入（不抢焦点）+ BBox 审批 + Tauri OS 叠加层 + 原生 API 智能路由（AppleScript/COM/D-Bus 自动检测） | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Computer Use** | ✅ 桌面自动化 + 后台静默输入（不抢焦点）+ BBox 审批 + Tauri OS 叠加层 + 敏感应用防火墙（银行/通信自动阻断）+ 原生 API 智能路由（AppleScript/COM/D-Bus 自动检测） | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **浏览器引擎** | ✅ 三层引擎 + GlobalBrowserPool（零冷启动、三层崩溃恢复）+ Shadow DOM 穿透 + API-First 网络智能（CDP 懒加载响应体 + 请求重放）+ 域名引擎亲和记忆 + 后台无感执行（双层隔离）+ 同源智能Tab路由 + 4 大云浏览器 Provider（GUI 配置 + 热更新免重启） | ⚠️ 第三方云浏览器（环境变量配置，需重启） | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
 | **网页搜索** | ✅ 8 引擎 + BM25/Reranker 过滤 + 三层防幻觉 | ⚠️ 云 API 透传 | ⚠️ DDG/Bing 抓取 | ⚠️ 同 OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
 | **网页抓取** | ✅ 三层 + 向量提取 + DOM 修剪 | ⚠️ web_extract（Firecrawl + LLM） | ⚠️ HTTP / Firecrawl 回退 | ⚠️ 同上 | ⚠️ 仅 HTTP | ❌ | ❌ |
@@ -559,7 +559,7 @@ Claude Code 采用「Fork 子 Agent」设计，字节级 prompt 前缀对齐以�
 | Skill system | .claude/skills directory scan | 42-module Skill system + 6 discovery sources + evolution | ⬆️ Full evolution ecosystem |
 | Agent configuration | CLI-based agent config | 23 预设 + 6 YAML 模板 + 5-Tab GUI（Monaco SmartPromptEditor + AI 生成 + 16 种人格 + 含 fallback 的模型选择器 + 6 项引擎参数）+ DB 存储 + TimeMachine 回滚（122 项测试） | ⬆️ 全可视化构建器 |
 | Code isolation | EnterWorktree | WorkspacePolicy (INHERIT/ISOLATED_COPY/READ_ONLY_SANDBOX) + GUI 配置 | ⬆️ 3 策略 + 可视化 |
-| Task resumption | `--resume` CLI flag | Full checkpoint system + OrphanRecovery + StreamRecovery | ⬆️ Complete recovery |
+| Task resumption | `--resume` CLI flag | 5 层上下文持久化 (SessionNotes + ContextSnapshot + GoalStorage + SubagentCheckpoint + ArchiveCheckpoint) + OrphanRecovery + StreamRecovery + workspace_isolation 3 策略 COW + batch_merge — 501 项测试验证 | ⬆️ Complete recovery |
 | Cost control | Manual effort selection | Auto-routing + GoalBudget + DelegationBudget + token_economics | ⬆️ Automated |
 | Model support | Claude-only | 100+ models with intelligent routing | ⬆️ Model freedom |
 
@@ -872,7 +872,7 @@ Codex 近期发布两大旗舰功能：**Appshots**（⌘⌘ 窗口捕获 + 文�
 | 截图大小控制 | ❌ 原始大小 | ✅ 1.5MB 阈值自动缩放，节省 LLM token |
 | DPI 处理 | 未提及 | 二分法降采样防止 Retina 坐标偏移 |
 | 返回格式 | 截图 + 文本 | `list[ContentBlock]` 结构化多模态（文本 + 图像） |
-| 安全性 | Computer Use 权限 | 5 类阻止键组合 + 危险文本正则 + **TOCTOU 审批延迟后重验** + GUI BBox 审批卡 |
+| 安全性 | Computer Use 权限 | 5 类阻止键组合 + 危险文本正则 + **敏感应用防火墙**（30+ 应用 × 3 检查点）+ **TOCTOU 审批延迟后重验** + GUI BBox 审批卡 |
 | 视觉审批 | 纯文本或 iPhone 推送 | **内联 BBox + AttentionBar + Tauri OS 红框**（目标显示器，屏幕绝对坐标，多显示器适配） |
 
 **你将获得**：Agent 要点桌面时，你能看到 **位置** — 不仅是文字「批准？」。Tauri 上 **系统级红框** 在聊天窗口被挡时仍可见。macOS 和 Windows 用户均获得完整 Appshot 能力——所有竞品均无 Windows 窗口截屏 + 文本提取实现。
@@ -1149,7 +1149,7 @@ OpenClaw 拥有成熟的语音架构（多传输层、插件化提供商、电�
 | **TTS 智能摘要** | 长文本原样播报 | **自动摘要后播报** | 避免 AI 朗读 3000 字论文，自动精炼后播报，节省用户时间。 |
 | **延迟观测** | 基础指标 | **三段延迟拆分（params/agent/tts）** | 精准定位语音响应慢在哪个环节，便于优化。 |
 
-**关键数据**：270 项语音相关测试全部通过（后端 252 + 前端 18），覆盖 Realtime API / TTS 5 提供商 / STT 4 提供商 / WebSocket 全双工 / Barge-in / Agent Bridge / Vision 融合。
+**关键数据**：**1,176 项**语音相关测试全部通过（语音核心 632 + Discord Voice 全栈 485 + Channel Security 59），覆盖 Realtime API / TTS 5 提供商 / STT 5 提供商 / WebSocket 全双工 / Barge-in / Agent Bridge / Vision 融合 / Discord Wake Word / VoiceReceiver DAVE 加密 / VoiceFollowManager 自动跟随。
 
 ## vs DeerFlow — 彻底告别大模型崩溃死循环
 

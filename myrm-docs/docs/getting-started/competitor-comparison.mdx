@@ -15,7 +15,7 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 
 | Capability | Myrm | Hermes Agent (v0.15) | OpenClaw | 360 Security OpenClaw | OpenClacky | MiniMax Mavis | MemPalace |
 |------------|:----:|:------------:|:--------:|:---------:|:---------:|:-----:|:---------:|
-| **Memory System** | ✅ 8 types + knowledge graph + 27 integrations (9 categories) + 12 import adapters + cross-task SharedContext + archive auto-restore + 15 diagnostics + Protocol-first SDK (2,771 tests) | ⚠️ 2,200 chars | ⚠️ 3 types | ⚠️ 3 types | ❌ Session-only | ⚠️ Basic update | ⚠️ Flat drawers |
+| **Memory System** | ✅ 8 types + knowledge graph + 27 integrations (9 categories) + 12 import adapters + cross-task SharedContext + archive auto-restore + 15 diagnostics + 9-layer auto-extraction (ZeroCost + feedback signals + Deep PII) + Protocol-first SDK (3,053+ tests) | ⚠️ 2,200 chars | ⚠️ 3 types | ⚠️ 3 types | ❌ Session-only | ⚠️ Basic update | ⚠️ Flat drawers |
 | **Conversation Search** | ✅ FTS5 + Qdrant hybrid | ⚠️ v0.15 local text only | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Code Search** | ✅ FTS5 + Vector + RRF fusion · `@codebase` · 15+ langs · CJK | ❌ grep only | ⚠️ tree-sitter exact match | ❌ | ❌ grep only | ❌ | ❌ |
 | **GUI Interface** | ✅ Web-native | ❌ CLI (v0.15 TUI multi-session) | CLI | ✅ Web/App | ⚠️ Basic WebUI | ⚠️ Lark-embedded | ❌ CLI only |
@@ -33,18 +33,18 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **Mobile remote command center** | ✅ Pair-token Hub + live Status Board (SSE attach · HITL approve · steer · stop) · scoped chat binding · channel deep links · **65 tests** (2026-06) | ❌ CLI/TUI only | ⚠️ IM notify, no full mobile console | ❌ | ❌ | ❌ | ❌ |
 | **Sub-Agent** | ✅ 6 modes + Dynamic Workflow | ⚠️ v0.15 Kanban Swarm (1 mode) | ⚠️ Basic spawn (linear only) | ⚠️ Basic spawn | ❌ Single agent | ⚠️ L-W-V | ❌ |
 | **Tool Ecosystem** | ✅ Built-in Agent engine + MCP industry standard (OAuth + security scan + schema tolerance + dynamic discovery + connection pool self-healing) + 5-layer approval + skill auto-evolution + 6 SubAgent orchestration modes (3,491 tests) | ⚠️ Single-file Copilot adapter (686 lines, CLI only) | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Security** | ✅ 6-layer defense | ⚠️ v0.15 Promptware 3 chokepoints | 1 layer | ⚠️ Unknown | ⚠️ Basic sandbox | ⚠️ Closed | ❌ |
+| **Security** | ✅ 6-layer defense + DM Pairing (4 policies, GUI approval, anti-spam cooldown) | ⚠️ v0.15 Promptware 3 chokepoints | 1 layer | ⚠️ Unknown | ⚠️ Basic sandbox | ⚠️ Closed | ❌ |
 | **Credential Vault** | ✅ Label inject + TOTP (browser + desktop) | ❌ Plaintext in tool args | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **WebUI Access Security** | ✅ Zero-Trust WebSocket + Secure Cookie | ⚠️ HTTP only, WS vulnerable | ⚠️ Basic JWT | ⚠️ Unknown | ⚠️ HTTP only | ⚠️ Closed SaaS | ❌ Open on LAN |
 | **Goal Mode** | ✅ 7 states + 4D budget | /goal | ❌ | ❌ | ❌ | ⚠️ Plan-approve | ❌ |
-| **Context Management** | ✅ 6-layer Prompt Cache + 22+ middleware + 8-layer compression pipeline + DB-level session compaction (CAS MVCC + backup + 5-dim archive export) + deterministic fallback + circuit breaker (960 tests) | ⚠️ system_and_3 (4 breakpoints) + 8-layer fixed stack + single-layer ContextCompressor (in-memory, no DB persist) | LCM | LCM | ⚠️ Idle compress + dual cache | ⚠️ Worker isolation | ⚠️ 4-layer stack |
+| **Context Management** | ✅ 6-layer Prompt Cache + 22+ middleware + 11-step compression pipeline + 7-layer anti-resurrection + DB-level session compaction (CAS MVCC + backup + 5-dim archive export) + ContextBudgetGuard 4-layer predictive overflow protection + Hot Cache Bypass + Anti-Thrashing + deterministic fallback + circuit breaker (973+ tests) | ⚠️ system_and_3 (4 breakpoints) + 8-layer fixed stack + single-layer ContextCompressor (in-memory, no DB persist) | LCM | LCM | ⚠️ Idle compress + dual cache | ⚠️ Worker isolation | ⚠️ 4-layer stack |
 | **Smart Concurrency Router** | ✅ O(1) path lock, zero read-write race | ⚠️ Coarse write lock only | ❌ Unsafe | ⚠️ Unknown | ❌ | ⚠️ Unknown | ❌ |
 | **Headless Unattended** | ✅ Tag-based tool isolation (Zero Deadlock) | ⚠️ Prone to interactive deadlocks | ❌ Unsupported | ❌ | ❌ | ❌ | ❌ |
 | **Extreme Anti-Explosion** | ✅ 4-layer moat (Hygiene, Shield, Strip, Budget) | ⚠️ Crash/Loss on massive payloads | ⚠️ Single point failure | ⚠️ Unknown | ⚠️ Basic limit | ⚠️ Unknown | ❌ |
 | **Output Sanitization** | ✅ Dual-layer (streaming + pre-delivery) with full-width pipe and DeepSeek token coverage | ⚠️ Single-layer, ASCII pipes only until recent fix | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **MCP Tool Safety** | ✅ Dual-layer: upstream exception catch + downstream block coercion (file/audio/unknown→text) | ⚠️ Single-layer coercion (no upstream fault tolerance) | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Smart Routing & Auto-Upgrade** | ✅ 5-layer: ComplexityRouter 3-Tier (40+ keywords + 20 exception regex + multi-signal scoring, 100% coverage) + PrivacyRouter + ESCALATION_CONTRACT (model self-upgrade) + EscalationScrubber (seamless UX) + Dual Fallback (374 tests) | ⚠️ Single-dimension Sonnet→Opus | ❌ | ⚠️ Manual 3-tier | ❌ | ⚠️ Unknown | ❌ |
-| **Background Tasks** | ✅ Kanban-persisted, SteeringToken runtime redirect, Zombie detection, auto-retry, /btw /bg commands, smart polling (189 tests) | ⚠️ Basic run + cancel only | ❌ | ❌ | ⚠️ Background Agent (no steer) | ⚠️ Unknown | ❌ |
+| **Background Tasks** | ✅ 14-subsystem async pipeline: BackgroundProcessRegistry (run_in_background + CRUD + since_cursor incremental polling) + dual-layer progress parsing (explicit JSON markers + heuristic %) + NotificationManager (TTL deque + 3-level auto-inject per turn) + AsyncWakeupHandler → ServerWakeupHandler (headless continuation + 3x retry) + IdleTaskRegistry (SQLite persisted) + ToolProgressSink (ContextVar SSE) + BTW Notifier (multi-channel i18n) + Frontend Activity Cards — **336 tests** | ⚠️ Basic run + cancel only | ❌ | ❌ | ⚠️ Background Agent (no steer) | ⚠️ Unknown | ❌ |
 | **Error Recovery** | ✅ 8-layer defense (LoopGuard 7 patterns + ToolStuck→GraphInterrupt + FrequencyGuard + E-Stop + 4-layer CircuitBreaker + Kanban zombie 120s auto-reclaim + Gateway timeout + memory pressure fuse) + 14 self-healing types + 9-layer deep degradation — 2,934 tests | try/catch | Basic | Basic | ⚠️ Context overflow recovery | ⚠️ Unknown | ❌ |
 | **Enterprise Reliability** | ✅ xdist locks, EventBus truncate, OTEL safe, path-boundary + TOCTOU approval tests; chat SSE state machine regression tests; **521 fractal `_ARCH` module docs + 296 architecture CI gates** (2026-06-09 verified) | ⚠️ Happy-path tested only | ⚠️ Race conditions likely | ⚠️ Unknown | ⚠️ Unknown | ⚠️ Unknown | ❌ |
 | **Module Documentation Map** | ✅ **521** `_ARCH.md` + CI anti-drift (`check_fractal_docs`) | ❌ Central docs only | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -56,9 +56,9 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **Scheduled Tasks** | ✅ 20+ GUI components + 27 config options + 6 trigger types + exponential retry + misfire recovery + agent binding + delivery + Merkle audit chain + intelligent noise filtering (636 tests) | ⚠️ CLI limited (no GUI/retry/recovery) | ✅ | ✅ | ❌ | ❌ | ❌ |
 | **Unified Tool Gateway** | ✅ 4-in-1 Gateway + Elastic BYOK Fallback | ⚠️ Hard Switch (Error Prone) | ❌ N/A | ⚠️ Unknown | ❌ | ⚠️ Unknown | ❌ |
 | **OpenAI Compatible Proxy** | ✅ Dual-mode (Agent+LLM) `/v1` endpoint + `/v1/models` auto-discovery + 4-strategy key rotation + GUI config templates for Aider/Cline/Continue (74 tests) | ⚠️ `/v1/chat/completions` (Agent only, no LLM passthrough, no model discovery) | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Voice** | ✅ STT + TTS + Real-time | ⚠️ Discord Voice | WebRTC | ⚠️ Basic | ❌ | ❌ | ❌ |
+| **Voice** | ✅ 3 modes (Standard/Bridge/Realtime) + 10 providers (5 TTS + 5 STT incl. free Edge TTS & Local Whisper) + Discord wake word + barge-in + Vision fusion — **1,176 tests** | ⚠️ Discord Voice | WebRTC + iOS native wake | ⚠️ Basic | ❌ | ❌ | ❌ |
 | **Multimodal Generation** | ✅ Image (20+ models + Failover + Edit) + Video (4 engines: Sora/Veo/Qwen/MiniMax + T2V/I2V/V2V + idempotent task mgmt) + TTS (5 providers incl. free Edge + streaming + long-text auto-summary + OpenAI-compat base_url) + Screenshot-to-Action pipeline (paste/drop → annotation editor → OCR/Vision → tool calling loop) + Vision Fallback auto-degrade — 1,293 tests | ⚠️ FAL.ai images + 2 video plugins + 10 TTS (5 niche local) | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Computer Use** | ✅ Desktop automation + background input (no focus-steal) + BBox approval + Tauri OS overlay + Native API routing (AppleScript/COM/D-Bus auto-detection) | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Computer Use** | ✅ Desktop automation + background input (no focus-steal) + BBox approval + Tauri OS overlay + sensitive app firewall (banking/messaging auto-blocked) + Native API routing (AppleScript/COM/D-Bus auto-detection) | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Browser Engine** | ✅ 3-layer engine + GlobalBrowserPool (zero cold-start, 3-layer crash recovery) + Shadow DOM penetration + API-First network intelligence (CDP lazy body + replay) + domain engine affinity memory + non-perceptive background execution (dual-layer isolation) + origin-based smart tab routing + 4 cloud browser providers (GUI config + hot-reload) | ⚠️ Cloud Browser Use (env var, restart required) | ❌ | ❌ | ❌ | ⚠️ Unknown | ❌ |
 | **Web Search** | ✅ 8 engines + BM25/Reranker filter | ⚠️ Cloud API passthrough | ⚠️ DDG/Bing scrape | ⚠️ Same as OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
 | **Web Fetch** | ✅ 3-tier + vector extract + DOM prune + Schema-Driven structured extraction | ⚠️ web_extract (Firecrawl + LLM) | ⚠️ HTTP / Firecrawl fallback | ⚠️ Same | ⚠️ HTTP only | ❌ | ❌ |
@@ -592,7 +592,7 @@ MiniMax Mavis is a closed-source SaaS multi-agent system with Leader-Worker-Veri
 | Plan → Approve → Execute | PlannerAgent + Goal approval workflow | ⬆️ Upgrade (7-state lifecycle) |
 | "Learned something" | 42-module Skill Evolution system | ⬆️ Upgrade (full evolution pipeline) |
 | Lark integration | 35+ channel support (including Lark) | ⬆️ Upgrade |
-| Worker context isolation | **4-layer write protection**: line-level conflict guard + CoW workspace_isolation + git worktree + serial batch merge (94 tests) | ⬆️ Upgrade (engineering-grade) |
+| Worker context isolation | **4-layer write protection**: line-level conflict guard + CoW workspace_isolation (INHERIT/ISOLATED_COPY/READ_ONLY_SANDBOX) + serial batch_merge + OrphanRecovery — 288 tests verified | ⬆️ Upgrade (engineering-grade) |
 | Token display | 4D budget + real-time tracking + alerts | ⬆️ Upgrade |
 
 **Result: 7 upgrades, 1 equivalent, 0 downgrades. Users gain open-source data sovereignty, model freedom, and multi-platform access with zero capability loss.**
@@ -642,7 +642,7 @@ With Opus 4.8, Claude Code introduced `/effort` (6-level reasoning budget), Dyna
 | Skill system | .claude/skills directory scan | 42-module Skill system + 6 discovery sources + evolution | ⬆️ Full evolution ecosystem |
 | Agent configuration | CLI-based agent config | 23 presets + 6 YAML templates + 5-tab GUI (Monaco SmartPromptEditor + AI gen + 16 personalities + model picker w/ fallback + 6 engine params) + DB storage + TimeMachine rollback (122 tests) | ⬆️ Full visual builder |
 | Code isolation | EnterWorktree | WorkspacePolicy (INHERIT/ISOLATED_COPY/READ_ONLY_SANDBOX) + GUI config | ⬆️ 3 policies + visual |
-| Task resumption | `--resume` CLI flag | Full checkpoint system + OrphanRecovery + StreamRecovery | ⬆️ Complete recovery |
+| Task resumption | `--resume` CLI flag | 5-layer context persistence (SessionNotes + ContextSnapshot + GoalStorage + SubagentCheckpoint + ArchiveCheckpoint) + OrphanRecovery + StreamRecovery + workspace_isolation 3-policy COW + batch_merge — 501 tests verified (213 persistence + 288 isolation) | ⬆️ Complete recovery |
 | Cost control | Manual effort selection | Auto-routing + GoalBudget + DelegationBudget + token_economics | ⬆️ Automated |
 | Model support | Claude-only | 100+ models with intelligent routing | ⬆️ Model freedom |
 
@@ -955,7 +955,7 @@ Codex recently shipped two flagship features: **Appshots** (window capture + tex
 | Screenshot size control | ❌ Raw size | ✅ 1.5MB threshold auto-downscale, saves LLM tokens |
 | DPI handling | Not mentioned | Binary-search downsampling prevents Retina coordinate drift |
 | Return format | Screenshot + text | `list[ContentBlock]` structured multimodal (text + image) |
-| Safety | Computer Use permission | 5 blocked key combos + dangerous-text regex + **TOCTOU revalidation after approval delay** + GUI BBox approval card |
+| Safety | Computer Use permission | 5 blocked key combos + dangerous-text regex + **sensitive app firewall** (30+ apps × 3 checkpoints) + **TOCTOU revalidation after approval delay** + GUI BBox approval card |
 | Visual approval | Text-only or iPhone push | **Inline BBox + AttentionBar + Tauri OS red frame** on the target monitor (screen-absolute coords, multi-monitor match) |
 
 **What you get**: When the agent wants to click your desktop, you see **where** — not just "Approve?" in text. On Tauri, a **system-level red box** stays visible even if the chat window is covered. Both macOS and Windows users get full Appshot capabilities — no competitor offers Windows window capture + text extraction.
@@ -1215,7 +1215,7 @@ OpenClaw 拥有成熟的语音架构（多传输层、插件化提供商、电�
 | **TTS 智能摘要** | 长文本原样播报 | **自动摘要后播报** | 避免 AI 朗读 3000 字论文，自动精炼后播报，节省用户时间。 |
 | **延迟观测** | 基础指标 | **三段延迟拆分（params/agent/tts）** | 精准定位语音响应慢在哪个环节，便于优化。 |
 
-**关键数据**：270 项语音相关测试全部通过（后端 252 + 前端 18），覆盖 Realtime API / TTS 5 提供商 / STT 4 提供商 / WebSocket 全双工 / Barge-in / Agent Bridge / Vision 融合。
+**关键数据**：**1,176 项**语音相关测试全部通过（语音核心 632 + Discord Voice 全栈 485 + Channel Security 59），覆盖 Realtime API / TTS 5 提供商 / STT 5 提供商 / WebSocket 全双工 / Barge-in / Agent Bridge / Vision 融合 / Discord Wake Word / VoiceReceiver DAVE 加密 / VoiceFollowManager 自动跟随。
 
 ## vs DeerFlow — 彻底告别大模型崩溃死循环
 
@@ -1437,7 +1437,7 @@ Moving away from competitors relying on simple ReAct loops and basic memory, you
 | Runtime extensions | ❌ | ❌ | ❌ | ✅ 6 extensions (security / subagent / memory) |
 | Natural language policy | ❌ | ❌ | ❌ | ✅ NLPolicyGenerator |
 
-**Migration win**: From CLI-only hooks that users report as "not easy to use" to full GUI automation panels — security policies, risk rules, event triggers, and per-agent behavior all configurable through professional visual editors. 211 automated tests verify the entire configuration pipeline.
+**Migration win**: From CLI-only hooks that users report as "not easy to use" to full GUI automation panels — security policies, risk rules, event triggers, and per-agent behavior all configurable through professional visual editors. **405 automated tests** (140 Hook core + 121 Planner + 49 Middleware + 95 CompletionGuard) verify the entire lifecycle pipeline.
 
 ### Execution Safety & Error Prevention (vs Codex)
 
