@@ -58,7 +58,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **OpenAI 兼容代理** | ✅ 双模（Agent+LLM）`/v1` 端点 + `/v1/models` 自动发现 + 4 策略密钥轮转 + Aider/Cline/Continue GUI 配置模板（74 项测试） | ⚠️ `/v1/chat/completions`（仅 Agent，无 LLM 直通，无模型发现） | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **语音** | ✅ 3 种模式（标准/Bridge/Realtime）+ 10 提供商（5 TTS + 5 STT 含免费 Edge TTS 与 Local Whisper）+ Discord 唤醒词 + 打断检测 + Vision 融合 — **1,176 项测试** | ⚠️ Discord 语音 | WebRTC + iOS 原生唤醒 | ⚠️ 基础 | ❌ | ❌ | ❌ |
 | **多模态生成** | ✅ 图片（20+ 模型 + Failover + 编辑）+ 视频（4 引擎：Sora/Veo/Qwen/MiniMax + T2V/I2V/V2V + 幂等任务管理）+ TTS（5 Provider 含免费 Edge + 流式 + 长文本自动摘要 + OpenAI 兼容 base_url）+ 截图即操作管线（粘贴/拖放 → 标注编辑器 → OCR/Vision → 工具调用闭环）+ Vision 自动降级 — 1,293 项测试 | ⚠️ FAL.ai 图片 + 2 视频插件 + 10 TTS（含 5 个 niche 本地方案） | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Computer Use** | ✅ 桌面自动化 + 三平台后台静默输入（不抢焦点）+ BBox 审批 + Tauri OS 叠加层 + 敏感应用防火墙（银行/通信自动阻断）+ 原生 API 智能路由（AppleScript/COM/D-Bus 自动检测）— 362 项测试 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Computer Use** | ✅ 桌面自动化 + 三平台后台静默输入（不抢焦点）+ BBox 审批 + Tauri OS 叠加层 + 敏感应用防火墙（银行/通信自动阻断）+ 原生 API 智能路由（AppleScript/COM/D-Bus 自动检测）+ 权限智能检测引导（一键跳转系统设置+重检闭环）— 367 项测试 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **浏览器引擎** | ✅ 双隐身引擎（Patchright + Camoufox）+ 跨会话指纹持久化 + 三层 GlobalBrowserPool（零冷启动、三层崩溃恢复）+ Shadow DOM 穿透 + API-First 网络智能（CDP 懒加载响应体 + 请求重放）+ 域名引擎亲和记忆 + 后台无感执行（双层隔离）+ 同源智能Tab路由 + 4 大云浏览器 Provider（GUI 配置 + 热更新免重启） | ⚠️ 第三方云浏览器（环境变量配置，需重启） | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
 | **网页搜索** | ✅ 8 引擎 + BM25/Reranker 过滤 + 三层防幻觉 | ⚠️ 云 API 透传 | ⚠️ DDG/Bing 抓取 | ⚠️ 同 OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
 | **网页抓取** | ✅ 三层 + 向量提取 + DOM 修剪 | ⚠️ web_extract（Firecrawl + LLM） | ⚠️ HTTP / Firecrawl 回退 | ⚠️ 同上 | ⚠️ 仅 HTTP | ❌ | ❌ |
@@ -69,6 +69,25 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **标题生成** | ✅ O(1) 防阻塞 + 脱敏 | ⚠️ 易卡死/泄漏 | ⚠️ 易卡死/泄漏 | ⚠️ 未知 | ⚠️ 未知 | ⚠️ 未知 | ❌ |
 | **全局闪念捕捉** | ✅ macOS+Windows 双平台截屏 + UI 文本提取 + 语音 + FlowPad + 隐私黑名单 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Token 效率** | ✅ 总计 ~2,167 tokens（少 86%） | ~15,520 | ~18,000 | ⚠️ 手动三档 | ⚠️ 16 工具（LLM 压缩成本） | ⚠️ 高成本 | ⚠️ ~900 唤醒 |
+
+## vs PilotDeck — 代理操作系统与多 Agent 协作平台
+
+PilotDeck（清华 THUNLP 等联合开源）主打“Agent 操作系统”概念，提供 WorkSpace 工作空间隔离、白盒化记忆（Dream Mode）、智能路由降本以及 Always-on 后台驻留执行功能。
+
+### Myrm 的领先之处
+
+| 领域 | PilotDeck | MyrmAgent | 用户收益 |
+|------|-----------|-----------|---------|
+| **项目工作区隔离** | 虚拟 WorkSpace 隔离与状态存储 | **物理级 Git Worktree 沙箱** | 真正的零冲突并行读写。分配子 Agent 重构代码时，主分支代码完全不受影响，结束后一键可视化合并/丢弃。 |
+| **持久化后台任务** | CLI Always-on 进程 | **跨生命周期队列守护 (Daemon)** | 随时关掉浏览器或 Tauri 桌面端，长任务状态安全落盘，醒来推送结果，绝不半途而废。 |
+| **多 Agent 监控** | 基础日志流或简单 Waterfall | **SubagentDashboard 全景大盘** | 对话不被子任务刷屏。子任务拥有独立折叠抽屉与状态灯，支持 Working/Review/Done 实时监控和断点可视化干预。 |
+| **记忆引擎与整合** | 定时 Dream Mode 汇总 | **GUI 指挥中心 + 10 模块专用机制** | 不仅支持“白盒化记忆”，更配备 GUI 仪表盘、知识图谱视图与健康评分。包含降维除重和“主动遗忘”算法。 |
+| **智能模型路由** | 简单的 Judge 模型判断 | **复杂度与隐私双重路由 + 账单系统** | 动态计算上下文延续，根据难度节省算力，前端精算大盘实时展示每条消息为你节省的美元金额。 |
+| **全平台一键部署** | 终端 3 分钟 `curl` 脚本 | **全流程可视化极速向导 (Wizard)** | 无需终端经验，GUI 点击即可完成模型配网、数据继承与 Agent 实例化，更有跨平台原生级 Tauri 安装包支持。 |
+
+### 从 PilotDeck 迁移到 Myrm
+
+从 PilotDeck 迁移过来，你将从一个“命令行偏向的操作系统”彻底升级为一个 **“面向图形化交互的现代智能体工作站”**。你不仅继承并超越了其引以为傲的多项目隔离、省钱路由、后台执行等高级能力，更将获得可视化、可拖拽、可回滚的安全体验，以及与主流 MCP 插件生态无缝打通的开放性。
 
 ## vs 360 Security OpenClaw（企业封装版）
 
@@ -714,10 +733,11 @@ Myrm 的 MCP 实现采用持久热连接与事件驱动的工具发现机制 —
 | 领域 | Hermes / OpenClaw | Myrm | 用户收益 |
 |------|-------------------|------|----------|
 | **连接模型** | 每次请求冷启动或会话级 | **持久热连接**（MCPSessionActor） | 零重连延迟；工具即时可用 |
+| **客户端身份** | 默认 "mcp" 笼统标识 | **产品级标识** `myrm-agent` + 版本号 | 服务端日志可精准定位连接来源 |
 | **工具发现** | 每次调用时轮询或固定列表 | **事件驱动**（`list_changed` 通知） | 无浪费；始终最新 |
 | **Prompt Cache 影响** | 工具列表每次重连变化 → 缓存失效 | **冻结代理工具**（稳定 Token 指纹） | 最高可保留 90% Prompt Cache 命中率 |
 | **自愈能力** | 断线需手动重启 | **自动重连 + 工具刷新** | 无人值守任务可承受网络抖动 |
-| **多模态结果** | 仅文本透传 | **结构化内容规范化**（图像、JSON、注解） | LLM 从任何 MCP 服务器获得丰富上下文 |
+| **多模态结果** | 仅文本透传 | **结构化内容规范化**（图像、JSON、注解）+ 8 种多态 UI 渲染器 + JSON 自动美化与语法高亮 | LLM 获得丰富上下文；用户看到精美可交互的输出 |
 | **状态处理** | 需自定义 Handle 中间件 | **原生 Handle 透传**（不透明 ID 自然流经工具结果） | 有状态 MCP 服务器开箱即用 |
 
 **成本影响**：每次竞品重连 MCP 服务器，工具列表在 Prompt 中的 Token 位置变化，导致 LLM Prompt Cache 失效。启用 10+ MCP 服务器时，这可能带来每小时 **$0.50–$2.00** 的额外缓存未命中开销。Myrm 的冻结代理方案使工具区段在各轮对话中字节稳定。
@@ -1103,13 +1123,12 @@ Myrm 提供 **零成本热迁移与原子持久化引擎**：
 
 | 套件 | 结果 |
 |------|------|
-| 记忆导入适配器（12 源 + dry-run + 回滚）pytest | **115 通过** |
-| 迁移服务（4 车道 + 发现 + 绑定 + QwenPaw）pytest | **101 通过** |
+| 迁移系统（架构守门 + 发现 + 加载器 + 拆分 + 预览 + E2E + API）pytest | **125 通过** |
 | 架构 `_ARCH.md` 占位门禁 | **277 通过** |
 | OSS 脚本架构测试 | **5 通过** |
 | `check_fractal_docs --no-stub` + 行数预算 CI | **OK** |
 
-**迁移系统专项测试合计：312+ 通过**（2026-06-14，含 QwenPaw/CoPaw 全链路 101 项新增测试，覆盖率 95%）。测试目录 scoped 扫描 [server `competitor_discovery.py`] 仅影响自动化测试；生产 `/migration/discover` 仍扫描真实用户主目录。竞品（OpenClaw、Hermes、DeerFlow、CodePilot、LobsterAI、CoPaw、jiuwenclaw、PilotDeck）：**无 GUI 八源四车道向导**；Hermes 仅有 CLI `claw migrate`；PilotDeck 仅有技能文件复制（361 行，无记忆/指令/凭证迁移）。
+**迁移系统专项测试合计：125 项全部通过**（2026-06-19，6 批分组执行，含架构守门/多竞品发现/四车道拆分/E2E/API/配置版本管理全链路验证）。测试目录 scoped 扫描 [server `competitor_discovery.py`] 仅影响自动化测试；生产 `/migration/discover` 仍扫描真实用户主目录。竞品（OpenClaw、Hermes、DeerFlow、CodePilot、LobsterAI、CoPaw、jiuwenclaw、PilotDeck）：**无 GUI 八源四车道向导**；Hermes 仅有 CLI `claw migrate`；PilotDeck 仅有技能文件复制（361 行，无记忆/指令/凭证迁移）。
 
 ### 迁移后你将获得（面向用户）
 

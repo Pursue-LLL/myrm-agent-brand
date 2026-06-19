@@ -38,6 +38,9 @@ Myrm 提供可视化看板跟踪复杂多步任务，以及强大的子 Agent �
   <Card title="瞬态错误恢复" icon="rotate">
     429/503 限流智能退避 — 任务暂停 15 分钟后自动重试。
   </Card>
+  <Card title="服务重启自动恢复" icon="power">
+    服务器重启时自动检测中断的任务，将 RUNNING 状态重置为 READY 并重新派发。配合 SQLAlchemy 持久化存储，确保长任务在意外宕机后零丢失恢复。
+  </Card>
 </CardGroup>
 
 ### 任务结果编辑
@@ -150,15 +153,20 @@ Myrm 采用截然不同的方案：**超时的子 Agent 继续在后台运行**�
 
 ## 完成验证
 
-看板或对话任务完成前可验证。
+看板或对话任务完成前，系统自动执行分层验证，防止 Agent 幻觉式「宣称成功」。
 
 ### CompletionVerifier 协议
 
-验证结果含 `passed`、`reason`、`error_logs`。
+验证结果含 `passed`（是否通过）、`reason`（判定理由）、`error_logs`（具体错误日志）。
 
-### 目标级验证
+### 分层验证策略
 
-目标支持双引擎验证（Shell + 语义），均通过才标完成。
+目标支持成本优化的分层验证：
+
+1. **Shell 硬指标验证（零 LLM 成本）** — 在沙箱内执行客观命令（如 `test -f /output.csv`、`curl -sf localhost:8080/health`）。失败立即拒绝，无需调用 LLM。
+2. **LLM 语义验证（仅在 Shell 全部通过后触发）** — 独立 LLM 评估结果是否满足验收标准，捕获主观质量问题。
+
+这种分层策略在客观可验证的场景下消除 LLM 成本，同时保留语义深度评估能力。
 
 ---
 
@@ -180,6 +188,33 @@ Myrm 采用截然不同的方案：**超时的子 Agent 继续在后台运行**�
 ### 严重度自动升级
 
 Warning（1–2× 阈值）→ Error（2–7×）→ Critical（≥7×），看板卡片显示徽章，点击查看详情与一键操作。
+
+---
+
+## 子代理 Dashboard GUI
+
+Myrm 提供专属的实时仪表盘，从单一面板监控和控制所有子代理。
+
+<CardGroup cols={3}>
+  <Card title="树状拓扑视图" icon="sitemap">
+    层级树状可视化所有子代理，8种状态类型（running/verifying/completed/failed/timed_out/cancelled/checkpoint/interrupted），可展开折叠聚焦特定执行链。
+  </Card>
+  <Card title="实时控制" icon="gamepad">
+    直接从仪表盘取消、转向或恢复任意运行中的子代理。通过 steer 输入框发送运行时指令，在执行中途调整 Agent 行为，无需重启。
+  </Card>
+  <Card title="超时智能检测" icon="clock">
+    基于双策略的智能超时告警：ETA 策略（超过预估时长2倍）和进度策略（>90秒且进度<30%）。可关闭的警告提示，信息充分不阻塞。
+  </Card>
+  <Card title="成本追踪" icon="dollar-sign">
+    逐代理成本展示，实时显示每个子代理的花费（cost_usd），精确监控整个 Agent 舰队的预算。
+  </Card>
+  <Card title="蜂群裂变进度" icon="chart-bar">
+    Swarm Fission 操作的批次进度指示器，显示已完成/失败/总数，支持部分失败检测。
+  </Card>
+  <Card title="审批导航" icon="shield-check">
+    一键从仪表盘跳转到聊天流中的相关审批卡片，带高亮动画便于视觉追踪。
+  </Card>
+</CardGroup>
 
 ---
 

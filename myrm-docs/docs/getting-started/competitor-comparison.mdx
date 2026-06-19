@@ -58,7 +58,7 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **OpenAI Compatible Proxy** | ✅ Dual-mode (Agent+LLM) `/v1` endpoint + `/v1/models` auto-discovery + 4-strategy key rotation + GUI config templates for Aider/Cline/Continue (74 tests) | ⚠️ `/v1/chat/completions` (Agent only, no LLM passthrough, no model discovery) | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Voice** | ✅ 3 modes (Standard/Bridge/Realtime) + 10 providers (5 TTS + 5 STT incl. free Edge TTS & Local Whisper) + Discord wake word + barge-in + Vision fusion — **1,176 tests** | ⚠️ Discord Voice | WebRTC + iOS native wake | ⚠️ Basic | ❌ | ❌ | ❌ |
 | **Multimodal Generation** | ✅ Image (20+ models + Failover + Edit) + Video (4 engines: Sora/Veo/Qwen/MiniMax + T2V/I2V/V2V + idempotent task mgmt) + TTS (5 providers incl. free Edge + streaming + long-text auto-summary + OpenAI-compat base_url) + Screenshot-to-Action pipeline (paste/drop → annotation editor → OCR/Vision → tool calling loop) + Vision Fallback auto-degrade — 1,293 tests | ⚠️ FAL.ai images + 2 video plugins + 10 TTS (5 niche local) | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Computer Use** | ✅ Desktop automation + background input on all 3 platforms (no focus-steal) + BBox approval + Tauri OS overlay + sensitive app firewall (banking/messaging auto-blocked) + Native API routing (AppleScript/COM/D-Bus auto-detection) — 362 tests | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Computer Use** | ✅ Desktop automation + background input on all 3 platforms (no focus-steal) + BBox approval + Tauri OS overlay + sensitive app firewall (banking/messaging auto-blocked) + Native API routing (AppleScript/COM/D-Bus auto-detection) + smart permission detection with one-click system settings & recheck — 367 tests | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Browser Engine** | ✅ Dual stealth engine (Patchright + Camoufox) with fingerprint persistence + 3-layer GlobalBrowserPool (zero cold-start, 3-layer crash recovery) + Shadow DOM penetration + API-First network intelligence (CDP lazy body + replay) + domain engine affinity memory + non-perceptive background execution (dual-layer isolation) + origin-based smart tab routing + 4 cloud browser providers (GUI config + hot-reload) | ⚠️ Cloud Browser Use (env var, restart required) | ❌ | ❌ | ❌ | ⚠️ Unknown | ❌ |
 | **Web Search** | ✅ 8 engines + BM25/Reranker filter | ⚠️ Cloud API passthrough | ⚠️ DDG/Bing scrape | ⚠️ Same as OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
 | **Web Fetch** | ✅ 3-tier + vector extract + DOM prune + Schema-Driven structured extraction | ⚠️ web_extract (Firecrawl + LLM) | ⚠️ HTTP / Firecrawl fallback | ⚠️ Same | ⚠️ HTTP only | ❌ | ❌ |
@@ -69,6 +69,25 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **Title Generation** | ✅ O(1) Anti-Blocking + Redaction | ⚠️ Prone to freeze/leak | ⚠️ Prone to freeze/leak | ⚠️ Unknown | ⚠️ Unknown | ⚠️ Unknown | ❌ |
 | **Global Quick Capture** | ✅ macOS+Windows dual capture + UI text extraction + Voice + FlowPad + Privacy blacklist | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Token Efficiency** | ✅ ~2,167 tokens total (86% less) | ~15,520 | ~18,000 | ⚠️ Manual 3-mode | ⚠️ 16 tools (LLM compression cost) | ⚠️ High cost | ⚠️ ~900 wake-up |
+
+## vs PilotDeck — Agent Operating System
+
+PilotDeck (open-sourced by Tsinghua THUNLP) positions itself as an "Agent OS", featuring WorkSpace isolation, white-box memory (Dream Mode), smart model routing for cost reduction, and Always-on background execution.
+
+### Where Myrm Goes Further
+
+| Area | PilotDeck | MyrmAgent | User Benefit |
+|------|-----------|-----------|-------------|
+| **Workspace Isolation** | Virtual isolation & state storage | **Physical Git Worktree Sandbox** | True zero-conflict parallel read/write. When sub-agents refactor code, your main branch remains completely untouched, with one-click visual merge/discard at the end. |
+| **Persistent Tasks** | CLI Always-on process | **Cross-lifecycle Daemon Queue** | Safely close your browser or Tauri desktop app. Long tasks are safely persisted, and results are pushed when you return—no more abandoned tasks. |
+| **Multi-Agent Monitoring** | Basic log streams | **SubagentDashboard Panorama** | Chats are no longer flooded by subtasks. Tasks are neatly folded into independent drawers with Working/Review/Done status indicators and visual breakpoints. |
+| **Memory Engine** | Periodic Dream Mode | **GUI Command Center + 10-module dedicated engine** | "White-box memory" with interactive GUI dashboards, knowledge graphs, and health scoring. Includes 5 dimension dedup algorithms and "active forgetting" to keep context pristine. |
+| **Smart Model Routing** | Basic Judge model switch | **Complexity & Privacy Dual-Routing + Billing** | Dynamically calculates Short Continuations to save compute based on difficulty. The frontend accurately displays how many dollars each message saved you in real-time. |
+| **Platform Deployment** | 3-minute terminal `curl` script | **Visual OnboardingWizard** | No terminal experience needed. Point-and-click GUI configures models, networks, data inheritance, and instantiates your first Agent. Plus, native Tauri installer for desktop. |
+
+### Migration from PilotDeck
+
+Migrating from PilotDeck upgrades you from a "CLI-centric operating system" to a **"GUI-first modern agent workstation"**. You retain and surpass all its advanced features like multi-project isolation, cost-effective routing, and background execution—but everything becomes visual, draggable, rollback-ready, and seamlessly integrated with the vast MCP plugin ecosystem.
 
 ## vs 360 Security OpenClaw (Enterprise Wrapper)
 
@@ -797,10 +816,11 @@ Myrm's MCP implementation uses persistent warm connections with event-driven too
 | Area | Hermes / OpenClaw | Myrm | User Benefit |
 |------|-------------------|------|--------------|
 | **Connection Model** | Cold start per request or session-scoped | **Persistent warm connections** (MCPSessionActor) | Zero reconnect latency; tools available instantly |
+| **Client Identity** | Generic "mcp" default | **Product-branded** `myrm-agent` + version | Server logs can identify connection source for debugging |
 | **Tool Discovery** | Poll on each invocation or fixed list | **Event-driven** (`list_changed` notification) | No wasted cycles; always current |
 | **Prompt Cache Impact** | Tool list changes on every reconnect → cache miss | **Frozen proxy tools** with stable token fingerprint | Up to 90% prompt cache hit rate preserved |
 | **Self-Healing** | Manual restart on disconnect | **Automatic reconnect + tool refresh** | Unattended tasks survive network blips |
-| **Multimodal Results** | Text-only passthrough | **Structured content normalization** (images, JSON, annotations) | LLM sees rich context from any MCP server |
+| **Multimodal Results** | Text-only passthrough | **Structured content normalization** (images, JSON, annotations) + 8 polymorphic UI renderers + auto JSON beautification with syntax highlighting | LLM sees rich context; users see beautiful, actionable output |
 | **State Handling** | Requires custom handle middleware | **Native handle passthrough** (opaque IDs flow naturally through tool results) | Stateful MCP servers work out-of-the-box |
 
 **Why this matters for cost**: Every time a competitor reconnects to an MCP server, the tool list changes token positions in the prompt, invalidating the LLM's prompt cache. With 10+ MCP servers enabled, this can cost **$0.50–$2.00 extra per hour** in wasted cache misses. Myrm's frozen proxy approach keeps the tool section byte-stable across turns.
@@ -924,7 +944,7 @@ Myrm is a **GUI-first** application. The problems Claude Office Visualizer solve
 | Context Usage | TrashCanSprite (filling trash can metaphor) | **ContextUsageIndicator** — exact percentage + multi-level color warnings | Numbers > metaphors |
 | Task Management | 12 PixiJS read-only whiteboard modes | **KanbanBoardView** — interactive drag/drop/filter/edit | Actionable, not just viewable |
 | Notifications | Screen flash (attentionStore) | **NotificationBell** — 4 severity levels + unread count + persistence | Structured alerts, not screen flashing |
-| Onboarding | TourOverlay 7-step walkthrough | **4-step dynamic wizard** + auto-detect Ollama/LM Studio + **HardwareCookbook** (fit_score + MoE-aware ~tok/s speed + smart Best Fit recommendation + streaming download) + SearXNG 1-click Docker + 8-source competitor migration (312+ tests, 95% coverage) | Zero-config start: detect → activate → work |
+| Onboarding | TourOverlay 7-step walkthrough | **4-step dynamic wizard** + auto-detect Ollama/LM Studio + **HardwareCookbook** (fit_score + MoE-aware ~tok/s speed + smart Best Fit recommendation + streaming download) + SearXNG 1-click Docker + 8-source competitor migration (125 dedicated tests, all passed) | Zero-config start: detect → activate → work |
 | Companion | Fixed pixel character | **15 species + 9 hats + 5D attributes + evolution + shiny variants** | Full RPG companion system |
 | Deployment | Docker front+back separate deployment | **Built into the app** — zero extra infrastructure | Zero additional setup |
 | Mobile | ❌ Desktop-only (PixiJS) | ✅ PWA + 35+ messaging channels | Monitor from anywhere |
@@ -1189,13 +1209,12 @@ Automated regression on a developer machine (minimal batch, ~7s total):
 
 | Suite | Result |
 |-------|--------|
-| Memory import adapters pytest (12 sources + dry-run + rollback) | **115 passed** |
-| Migration service (4-lane + discovery + binding) pytest | **34 passed** |
+| Migration system (architecture guard + discovery + loaders + split + preview + E2E + API) pytest | **125 passed** |
 | Architecture `_ARCH.md` placeholder gate | **277 passed** |
 | OSS scripts architecture tests | **5 passed** |
 | `check_fractal_docs --no-stub` + line budget CI scripts | **OK** |
 
-**Total migration-specific tests: 312+ passed** (Jun 2026-06-14, including 101 new QwenPaw/CoPaw full-chain tests, 95% coverage). Discovery scoped to explicit test home dirs [server `competitor_discovery.py`] — production `/migration/discover` still scans the real user home unchanged. Competitors checked (OpenClaw, Hermes, DeerFlow, CodePilot, LobsterAI, CoPaw, jiuwenclaw, PilotDeck): **no GUI eight-source four-lane wizard**; Hermes offers CLI `claw migrate` only; PilotDeck has skill-only file copy (361 lines, no memory/instruction/credential migration).
+**Total migration-specific tests: 125 all passed** (Jun 19, 2026 — 6 batches covering architecture guard / multi-competitor discovery / four-lane split / E2E / API / config version management). Discovery scoped to explicit test home dirs [server `competitor_discovery.py`] — production `/migration/discover` still scans the real user home unchanged. Competitors checked (OpenClaw, Hermes, DeerFlow, CodePilot, LobsterAI, CoPaw, jiuwenclaw, PilotDeck): **no GUI eight-source four-lane wizard**; Hermes offers CLI `claw migrate` only; PilotDeck has skill-only file copy (361 lines, no memory/instruction/credential migration).
 
 ### What you get after migrating (user-facing)
 

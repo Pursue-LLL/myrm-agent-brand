@@ -42,6 +42,9 @@ The Kanban board gives you a drag-and-drop interface to manage agent tasks acros
   <Card title="Immediate Cancellation" icon="circle-stop">
     Cancel a task and the LLM execution stops within milliseconds — no wasted tokens. Works for both running and queued tasks.
   </Card>
+  <Card title="Server Restart Recovery" icon="power">
+    On server restart, interrupted tasks are automatically detected and reset from RUNNING to READY for re-dispatch. Combined with SQLAlchemy persistence, long-running tasks survive crashes with zero data loss.
+  </Card>
 </CardGroup>
 
 ### Task Result Editing
@@ -173,12 +176,12 @@ Verification results include:
 
 ### Goal-Level Verification
 
-Goals support dual-engine verification:
+Goals support layered verification with cost-optimized execution order:
 
-1. **Shell verification** — Run test commands (e.g., `pytest`, `npm test`)
-2. **Semantic verification** — LLM-based assessment against acceptance criteria
+1. **Shell verification (zero LLM cost)** — Run objective commands in the sandbox (e.g., `test -f /output.csv`, `curl -sf localhost:8080/health`). Failures short-circuit immediately — no LLM call needed.
+2. **Semantic verification (LLM judge)** — Only triggered when all shell criteria pass. An independent LLM assesses the result against acceptance criteria to catch subjective quality issues.
 
-Both must pass for a goal to be marked complete.
+This layered approach eliminates unnecessary LLM costs for objectively verifiable criteria while maintaining semantic depth for quality assessment.
 
 ---
 
@@ -208,6 +211,33 @@ Each rule automatically escalates severity based on how far past the threshold t
 ### Card-Level Badges
 
 Diagnostic results are evaluated at O(1) cost per card and displayed as severity badges directly on Kanban cards. Click any badge to open the diagnostic drawer with detailed explanations and one-click action buttons (archive, unblock, add comment, etc.).
+
+---
+
+## Sub-Agent Dashboard GUI
+
+Myrm provides a dedicated real-time dashboard for monitoring and controlling all sub-agents from a single panel.
+
+<CardGroup cols={3}>
+  <Card title="Tree Topology View" icon="sitemap">
+    Hierarchical tree visualization of all spawned sub-agents with 8 status types (running/verifying/completed/failed/timed_out/cancelled/checkpoint/interrupted). Expand or collapse any branch to focus on specific execution chains.
+  </Card>
+  <Card title="Real-Time Control" icon="gamepad">
+    Cancel, steer, or resume any running sub-agent directly from the dashboard. Send runtime instructions via the steer input to adjust agent behavior mid-execution — no need to restart.
+  </Card>
+  <Card title="Overtime Detection" icon="clock">
+    Intelligent timeout alerts based on dual strategies: ETA-based (2× estimated duration) and progress-based (>90s with <30% progress). Dismissible warnings keep you informed without blocking.
+  </Card>
+  <Card title="Cost Tracking" icon="dollar-sign">
+    Per-agent cost display shows real-time spending (cost_usd) for each sub-agent, enabling precise budget monitoring across your entire agent fleet.
+  </Card>
+  <Card title="Swarm Fission Progress" icon="chart-bar">
+    Batch progress indicator for Swarm Fission operations showing completed/failed/total counts with partial failure detection.
+  </Card>
+  <Card title="Approval Navigation" icon="shield-check">
+    One-click jump from dashboard to the relevant approval card in the chat flow, with highlight animation for easy visual tracking.
+  </Card>
+</CardGroup>
 
 ---
 
