@@ -24,19 +24,20 @@ description: 定义长时目标，含预算控制、验收标准与自主执行�
 ## 目标生命周期
 
 ```
-PENDING_APPROVAL → ACTIVE → PAUSED → COMPLETED / FAILED / CANCELLED
-                              ↕
-                           QUEUED
+QUEUED → ACTIVE → PAUSED / BUDGET_LIMITED / NEEDS_HUMAN_REVIEW → COMPLETE / CANCELLED
+           ↑                        ↓
+    PENDING_APPROVAL ←──── (resume)
 ```
 
 | 状态 | 说明 |
 |-------|-------------|
-| `PENDING_APPROVAL` | 等待用户批准执行计划 |
+| `QUEUED` | 排队等待当前活跃目标结束 |
 | `ACTIVE` | Agent 积极向目标推进 |
-| `PAUSED` | 暂停（预算或用户） |
-| `QUEUED` | 等待当前活跃目标结束 |
-| `COMPLETED` | 目标达成并验证 |
-| `FAILED` | 预算内无法完成 |
+| `PENDING_APPROVAL` | 等待用户批准执行计划 |
+| `PAUSED` | 用户暂停或收敛检测暂停 |
+| `BUDGET_LIMITED` | 预算耗尽 — 需用户追加预算并恢复 |
+| `NEEDS_HUMAN_REVIEW` | 验证失败 — 需人工审核反馈 |
+| `COMPLETE` | 目标达成并验证 |
 | `CANCELLED` | 用户显式取消 |
 
 ## 预算控制
