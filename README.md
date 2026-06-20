@@ -28,7 +28,7 @@ bun run validate:fractal-docs  # 分形 _ARCH + 核心 IOP 门禁
 
 ## 生产发布（Cloudflare Pages）
 
-**唯一 CI/CD 路径：Cloudflare Pages。** 构建与部署在 CF Pages 完成；GHA 仅保留 `website-release.yml`（tag preflight + Deploy Hook 触发器），勿新增其他 workflow、Vercel 或 `vercel.json`。
+**唯一 CI/CD 部署路径：Cloudflare Pages。** 构建与部署在 CF Pages 完成；GHA 保留 `website-release.yml`（tag preflight + Deploy Hook）与 `pr-check.yml`（PR 校验，不部署）。禁止 Vercel、额外 deploy workflow 或 `vercel.json`。
 
 ### 日常开发（push 不自动上线）
 

@@ -1,0 +1,50 @@
+name: Brand PR Check
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'myrm-website/**'
+      - 'myrm-docs/**'
+      - '.github/workflows/**'
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  website-check:
+    name: Website lint, validate, and test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: myrm-website
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Typecheck
+        run: bun run lint
+
+      - name: Validate locales
+        run: bun run validate:locales
+
+      - name: Validate docs slugs
+        run: bun run validate:docs-slugs
+
+      - name: Run script tests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bun run test

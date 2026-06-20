@@ -32,6 +32,7 @@ import QuickStartSection from './landing/QuickStartSection';
 import HowItWorksSection from './landing/HowItWorksSection';
 import { DeployPathProvider } from './landing/deploy-path-context';
 import DeploySection from './landing/DeploySection';
+import TestimonialsSection from './landing/TestimonialsSection';
 import WhyMyrmAgentSection from './landing/WhyMyrmAgentSection';
 import FooterSection from './landing/FooterSection';
 import IntegrationMarquee from './landing/IntegrationMarquee';
@@ -41,7 +42,7 @@ import FaqSection from './landing/FaqSection';
 import FinalCtaSection from './landing/FinalCtaSection';
 import BrandLogo from './BrandLogo';
 import LocaleSwitcher from './LocaleSwitcher';
-import { DifferentiatorStripFromLocale, MultilineHeading } from './landing/HeroTypography';
+import { DifferentiatorStripFromLocale, HeroSubtitleCarousel, MultilineHeading } from './landing/HeroTypography';
 import EasterEggField from './EasterEgg';
 import MouseGlowLayer from './MouseGlowLayer';
 import SmartDownloadButton from '@/components/download/SmartDownloadButton';
@@ -214,9 +215,7 @@ export default function LandingEditorial() {
             <h1 className="ed-hero-title ed-text-gradient text-[clamp(2.6rem,6.5vw,4.5rem)] font-semibold leading-[1.14] tracking-[-0.03em]">
               <MultilineHeading text={t('hero.title')} />
             </h1>
-            <p className="ed-hero-sub mt-10 text-[18px] leading-[1.75] font-light" style={{ color: 'var(--ed-dim)' }}>
-              {t('hero.subtitle')}
-            </p>
+            <HeroSubtitleCarousel />
           </div>
           <DifferentiatorStripFromLocale />
           <div className="relative mx-auto max-w-[620px] text-center">
@@ -311,6 +310,10 @@ export default function LandingEditorial() {
         <div className="ed-divider" />
 
         <IntegrationsSection />
+
+        <div className="ed-divider" />
+
+        <TestimonialsSection />
 
         <div className="ed-divider" />
 

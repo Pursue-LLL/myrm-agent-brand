@@ -1,6 +1,6 @@
 /**
  * [INPUT]
- * - next-intl marketing.hero.title / hero.subtitle
+ * - next-intl marketing.hero.title / hero.subtitleLines
  * - landing/PathStrip (POS: Final CTA 双路径 chip 导航条)
  * - landing/HeroTypography::MultilineHeading (POS: Hero 多行标题排版)
  *
@@ -14,7 +14,7 @@
 
 import { useTranslations } from 'next-intl';
 import PathStrip from './PathStrip';
-import { MultilineHeading } from './HeroTypography';
+import { HeroSubtitleCarousel, MultilineHeading } from './HeroTypography';
 
 export default function FinalCtaSection() {
   const t = useTranslations('marketing');
@@ -28,9 +28,7 @@ export default function FinalCtaSection() {
         >
           <MultilineHeading text={t('hero.title')} />
         </h2>
-        <p className="mt-5 text-[15px] font-light leading-relaxed" style={{ color: 'var(--ed-dim)' }}>
-          {t('hero.subtitle')}
-        </p>
+        <HeroSubtitleCarousel size="compact" className="mt-5" />
         <PathStrip className="mt-8" showHint={false} />
       </div>
     </section>

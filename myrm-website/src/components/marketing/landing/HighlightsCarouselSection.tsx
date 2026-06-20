@@ -32,6 +32,20 @@ const SECTION_IO_THRESHOLD = 0.15;
 
 export const HIGHLIGHTS_SECTION_ID = 'highlights';
 
+/** Scroll only within the left rail — never call scrollIntoView (it scrolls the page). */
+function scrollRailItemIntoView(rail: HTMLElement, item: HTMLElement): void {
+  const itemTop = item.offsetTop;
+  const itemBottom = itemTop + item.offsetHeight;
+  const viewTop = rail.scrollTop;
+  const viewBottom = viewTop + rail.clientHeight;
+
+  if (itemTop < viewTop) {
+    rail.scrollTop = itemTop;
+  } else if (itemBottom > viewBottom) {
+    rail.scrollTop = itemBottom - rail.clientHeight;
+  }
+}
+
 type MarketingKey = Parameters<ReturnType<typeof useTranslations<'marketing'>>>[0];
 
 function HighlightTourCard({ slideKey }: { slideKey: HighlightSlideKey }) {
@@ -124,7 +138,8 @@ export default function HighlightsCarouselSection() {
     const rail = railRef.current;
     if (!rail) return;
     const activeButton = rail.querySelector<HTMLButtonElement>('.hl-tour-rail-item-active');
-    activeButton?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    if (!activeButton) return;
+    scrollRailItemIntoView(rail, activeButton);
   }, [activeIndex]);
 
   const handleKeyDown = (event: React.KeyboardEvent) => {

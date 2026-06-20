@@ -70,7 +70,7 @@
 
 ## Landing 区块顺序（`/` LandingEditorial）
 
-Hero → HowItWorks → QuickStart → Marquee → Advantages → Benchmark → HighlightsCarousel → UseCases → Deploy → Integrations → WhyMyrmAgent → FAQ → Final CTA
+Hero → HowItWorks → QuickStart → Marquee → Advantages → Benchmark → HighlightsCarousel → UseCases → Deploy → Integrations → Testimonials → WhyMyrmAgent → FAQ → Final CTA
 
 （无 Pricing 区块；无 SaaS 路径。）
 

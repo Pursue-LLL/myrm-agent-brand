@@ -24,6 +24,8 @@ bun run test
 
 4. For docs-only changes in `myrm-docs/`, run Mintlify locally: `cd myrm-docs && mint dev`.
 
+Pull requests that touch `myrm-website/` run `.github/workflows/pr-check.yml` (same checks as above).
+
 ## Conventions
 
 - **Single README at repo root** — module details live in `_ARCH.md` files (see `ARCHITECTURE.md`).

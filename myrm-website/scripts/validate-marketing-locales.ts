@@ -287,7 +287,7 @@ for (const locale of LOCALES) {
 
   assertKey(locale, marketing, 'marketing', 'whyMyrmAgent.scrollHint', errors);
 
-  for (const col of ['feature', 'hermes', 'openclaw', 'deerflow', 'myrmAgent'] as const) {
+  for (const col of ['feature', 'hermes', 'openclaw', 'myrmAgent'] as const) {
     assertKey(locale, marketing, 'marketing', `whyMyrmAgent.columns.${col}`, errors);
   }
 

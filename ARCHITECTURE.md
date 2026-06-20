@@ -18,7 +18,7 @@
 
 ## Cloudflare Pages（生产）
 
-**本仓营销站仅通过 Cloudflare Pages 部署（不用 Vercel）。** 正式发布：`push` `website-v*` tag → GitHub Actions `website-release.yml`（preflight `build`+`test` → POST Deploy Hook）；本地应急 `release-website.ts` 仅 preflight + push tag（Hook 由 GHA Secret 触发）。日常合并前亦建议本地跑 `build`+`test`。除营销站发布 workflow 外勿引入其他 GHA 或 `vercel.json`。
+**唯一部署路径：Cloudflare Pages。** 构建与部署在 CF Pages 完成；GHA 保留 **`website-release.yml`**（tag preflight + Deploy Hook）与 **`pr-check.yml`**（PR 校验，不部署）。禁止 Vercel、`workflow_dispatch` 或其他 deploy workflow。
 
 ### Dashboard 配置（已生效）
 
@@ -95,6 +95,6 @@
 ## 约束
 
 - 仓根不得再放置第二套 Next 应用（`package.json` / `src/` 等于废弃副本）。
-- **营销站 CI/CD 仅 Cloudflare Pages**；GHA 仅保留 `website-release.yml`（tag preflight + Deploy Hook）；禁止 Vercel 与额外 workflow；push `main` 不自动部署
+- **营销站 CI/CD 仅 Cloudflare Pages**；GHA 仅 **`website-release.yml`**（tag 发布）+ **`pr-check.yml`**（PR lint/validate/test）；禁止 Vercel 与其他 deploy workflow；push `main` 不自动部署
 - 勿对子目录执行 rsync 覆盖（会破坏 submodule `.git`）。
 - 对外域名统一 `myrmagent.ai` / `app.myrmagent.ai` / `docs.myrmagent.ai`；GitHub 统一 `Pursue-LLL/myrm-agent`。

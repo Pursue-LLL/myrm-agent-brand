@@ -12,9 +12,9 @@ import {
 } from './marketing-keys';
 
 type CellValue = boolean | string;
-type CompetitorCol = 'hermes' | 'openclaw' | 'deerflow';
+type CompetitorCol = 'hermes' | 'openclaw';
 
-const COMPETITOR_KEYS: CompetitorCol[] = ['hermes', 'openclaw', 'deerflow'];
+const COMPETITOR_KEYS: CompetitorCol[] = ['hermes', 'openclaw'];
 
 function parseCompareCell(raw: string): CellValue {
   if (raw === '_no') return false;
@@ -126,19 +126,20 @@ export default function WhyMyrmAgentSection() {
         <p className="ed-reveal mt-8 mb-2 text-center text-[11px] ed-mono sm:hidden" style={{ color: 'var(--ed-muted)' }}>
           ← {t('whyMyrmAgent.scrollHint')} →
         </p>
-        <div className="ed-reveal overflow-x-auto -mx-6 px-6 md:overflow-visible md:mx-0 md:px-0">
-          <table className="ed-compare-table w-full min-w-[480px] md:min-w-0 text-[12px] sm:text-[13px] md:text-[12px]">
+        <div className="ed-reveal mt-8 -mx-6 px-6 md:mx-0 md:px-0">
+          <div className="ed-compare-shell">
+          <table className="ed-compare-table w-full min-w-[520px] md:min-w-0 text-[12px] sm:text-[13px]">
             <thead>
               <tr>
-                <th className="ed-compare-feature-col text-left py-3 px-3 sm:px-5 md:px-2">
+                <th className="ed-compare-feature-col text-left py-4 px-4 sm:px-5">
                   {t('whyMyrmAgent.columns.feature')}
                 </th>
                 {COMPETITOR_KEYS.map((col) => (
-                  <th key={col} className="ed-compare-data-col text-center py-3 px-2 sm:px-5 md:px-1.5">
+                  <th key={col} className="ed-compare-data-col text-center py-4 px-3 sm:px-4">
                     {t(`whyMyrmAgent.columns.${col}`)}
                   </th>
                 ))}
-                <th className="ed-compare-highlight-col text-center py-3 px-2 sm:px-5 md:px-2">
+                <th className="ed-compare-highlight-col text-center py-4 px-4 sm:px-5">
                   {t('whyMyrmAgent.columns.myrmAgent')}
                 </th>
               </tr>
@@ -150,18 +151,18 @@ export default function WhyMyrmAgentSection() {
                     className={cn('ed-compare-row', highlightRow === rowIdx && 'ed-row-highlight')}
                     onMouseEnter={() => setHighlightRow(rowIdx)}
                   >
-                    <td className="ed-compare-feature-col py-3 px-3 sm:px-5 md:px-2 font-light whitespace-nowrap md:whitespace-normal md:leading-snug">
+                    <td className="ed-compare-feature-col py-4 px-4 sm:px-5 font-light whitespace-nowrap md:whitespace-normal md:leading-snug">
                       {t(`whyMyrmAgent.rows.${key}.feature`)}
                     </td>
                     {COMPETITOR_KEYS.map((col) => {
                       const value = parseCompareCell(t(`whyMyrmAgent.rows.${key}.${col}`));
                       return (
-                        <td key={col} className="ed-compare-data-col text-center py-3 px-2 sm:px-5 md:px-1.5">
+                        <td key={col} className="ed-compare-data-col text-center py-4 px-3 sm:px-4">
                           <CellContent value={value} />
                         </td>
                       );
                     })}
-                    <td className="ed-compare-highlight-col text-center py-3 px-2 sm:px-5 md:px-2">
+                    <td className="ed-compare-highlight-col text-center py-4 px-4 sm:px-5">
                       {(() => {
                         const myrmAgent = parseCompareCell(t(`whyMyrmAgent.rows.${key}.myrmAgent`));
                         return typeof myrmAgent === 'string'
@@ -175,6 +176,7 @@ export default function WhyMyrmAgentSection() {
                 ))}
             </tbody>
           </table>
+          </div>
         </div>
       </div>
     </section>
