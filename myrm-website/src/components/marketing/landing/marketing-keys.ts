@@ -120,6 +120,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
   security: ['sandbox', 'securityLayers', 'toolSecurity', 'credentialVault', 'fileEditSafety', 'privacySafeShare', 'toolIntegration', 'unifiedToolGateway'],
   automation: [
     'subAgent',
+    'kanbanUI',
     'dynamicWorkflow',
     'dynamicDiscovery',
     'multiChannel',
@@ -136,6 +137,9 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'pixelDiff',
     'visionFusion',
     'longTaskOrchestration',
+    'kanbanUI',
+    'dynamicArtifacts',
+    'localIotBridge',
   ],
   reliability: [
     'tokenEfficiency',
@@ -153,8 +157,9 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'shellCompression',
     'toolOutputIntelligence',
     'antiBlockingTitle',
+    'dynamicArtifacts',
   ],
-  platform: ['gui', 'chatHistoryManagement', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'codeGraph', 'crossPlatformHandoff', 'configSync', 'taskResilience'],
+  platform: ['gui', 'chatHistoryManagement', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'codeGraph', 'crossPlatformHandoff', 'configSync', 'taskResilience', 'localIotBridge'],
 };
 
 export function highlightSlideBasePath(slideKey: HighlightSlideKey): string {
