@@ -15,7 +15,6 @@
 | `desktop-release.test.ts` | 辅助 | desktop-release 解析单测 | — |
 | `baked-manifest-smoke.test.ts` | 辅助 | bake 后 manifest 冒烟 | — |
 | `deploy-paths.test.ts` | 辅助 | deploy-paths 单测 | — |
-| `generate-hero-demo-webm.ts` | 辅助 | 生成 hero-demo.webm（可选） | — |
 | `release-website.test.ts` | 辅助 | release-website 单测 | — |
 | `check-fractal-docs.test.ts` | 辅助 | fractal 门禁单测 | — |
 

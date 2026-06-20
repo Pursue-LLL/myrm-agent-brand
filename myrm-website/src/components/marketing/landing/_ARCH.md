@@ -13,7 +13,6 @@
 | 文件 | 地位 | 职责 | I/O/P |
 |------|------|------|-------|
 | `HeroTypography.tsx` | 核心 | Hero 多行标题排版 | ✅ |
-| `WorkspacePreview.tsx` | 辅助 | 产品预览组件（当前未挂载） | — |
 | `HowItWorksSection.tsx` | 核心 | 路径 Tab 三步上手 | ✅ |
 | `QuickStartSection.tsx` | 核心 | Quick Start 面板 | ✅ |
 | `QuickStartPanel.tsx` | 核心 | Quick Start 内容区 | ✅ |

@@ -81,7 +81,6 @@
 | `src/components/marketing/cloud/CloudFaqSection.tsx` | FAQ |
 | `src/components/marketing/cloud/CloudFinalCtaSection.tsx` | Final CTA |
 | `src/components/marketing/cloud/cloud-marketing-keys.ts` | 云页 i18n 键 SSOT |
-| `src/components/marketing/landing/WorkspacePreview.tsx` | 产品预览组件（当前未挂载） |
 | `locales/en.json` / `zh.json` | `marketing.*` + `cloud.*` |
 
 ## 云页上线清单

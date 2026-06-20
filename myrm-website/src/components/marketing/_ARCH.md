@@ -47,7 +47,6 @@
 | `cloud/CloudFaqSection.tsx` | 核心 | SaaS FAQ（7 条） | ✅ |
 | `cloud/CloudFinalCtaSection.tsx` | 核心 | SaaS Final CTA | ✅ |
 | `download/*` | 核心 | 桌面下载转化 |
-| `landing/WorkspacePreview.tsx` | 辅助 | 产品预览组件（当前未挂载） |
 | `landing/DeploySection.tsx` | 核心 | 两部署模式卡片 + 对比矩阵（localWebui + tauri） |
 | `landing/PathStrip.tsx` | 核心 | Final CTA 双路径 chip（Hero 用主按钮，不重复） |
 | `landing/HowItWorksSection.tsx` | 核心 | 路径 Tab 三步上手 |

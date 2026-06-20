@@ -13,7 +13,6 @@ Mintlify 文档站源码；导航与主题由 `docs.json` 定义。对外域名 
 | `docs/**/*.mdx` | 核心 | 英文文档正文 | — |
 | `docs/zh/**/*.mdx` | 核心 | 中文文档（URL 前缀 `/zh/`） | — |
 | `images/logo-icon.webp` | 辅助 | Mintlify nav logo（透明底，light/dark 共用，源自官网 brand） | — |
-| `images/logo-light.png` | 废弃 | 旧版带灰底 logo，勿再引用 | — |
 | `images/favicon.png` | 辅助 | 站点 favicon | — |
 | `scripts/` | 辅助 | 导航维护脚本 | [scripts/_ARCH.md](scripts/_ARCH.md) |
 

@@ -442,8 +442,6 @@ for (const locale of LOCALES) {
   assertKey(locale, cloud, 'cloud', 'trust.subtitle', errors);
   assertKey(locale, cloud, 'cloud', 'pricingPreview.wuExplainer', errors);
   assertKey(locale, cloud, 'cloud', 'pricingPreview.recommended', errors);
-  assertKey(locale, cloud, 'cloud', 'demo.preview.alt', errors);
-  assertKey(locale, cloud, 'cloud', 'demo.caption', errors);
 
   const notFound = loadNotFound(locale);
   for (const path of NOT_FOUND_PATHS) {

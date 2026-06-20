@@ -37,20 +37,6 @@ export default function LandingCloud() {
       >
         <CloudHeroSection />
 
-        {/* TODO: 正式产品截图就绪后恢复 WorkspacePreview 示意区块
-            import WorkspacePreview from '../landing/WorkspacePreview';
-            import { useTranslations } from 'next-intl';
-            const t = useTranslations('cloud');
-            <section className="relative mx-auto max-w-[900px] px-6 pb-10 sm:pb-14" aria-label={t('demo.preview.alt')}>
-              <div className="ed-reveal">
-                <WorkspacePreview messagesNamespace="cloud" shell="shell" />
-              </div>
-              <p className="ed-reveal mt-4 text-center text-sm leading-relaxed" style={{ color: 'var(--ed-dim)' }}>
-                {t('demo.caption')}
-              </p>
-            </section>
-        */}
-
         <CloudAdvantagesSection />
         <CloudHowItWorksSection />
         <CloudUseCasesSection />
