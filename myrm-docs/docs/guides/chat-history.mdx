@@ -91,6 +91,19 @@ The sidebar uses `IntersectionObserver`-based infinite scrolling — no paginati
 | **Catchup Inbox** | Aggregated unread messages across all channels |
 | **Workspace file browser** | Browse CLI and Web workspace files directly from the sidebar |
 
+## Message Edit & Resend
+
+Edit any previous message to retry with different wording. MyrmAgent ensures full front-end and back-end consistency when you edit and resend:
+
+1. **Atomic truncation** — Messages after the edited one are removed from the database _before_ the new message is sent, so the agent never sees stale context
+2. **Version preservation** — Regenerated responses are stored as sibling versions (`is_active` flag); switch between versions using the left/right arrows on any assistant message
+3. **Undo last turn** — One click removes the last user + assistant message pair and updates the conversation state
+4. **Conversation forking** — Fork from any message to explore an alternative path without losing the original thread
+
+<Tip>
+Unlike many competitors that only truncate locally, MyrmAgent's backend-first approach prevents "ghost messages" from polluting agent context — every edit is a clean slate.
+</Tip>
+
 ## vs Competitor Approaches
 
 Most competitors (e.g., Hermes Agent) use a separate `/history` page that duplicates sidebar functionality. MyrmAgent follows the same pattern as ChatGPT, Claude, and Gemini — **sidebar-integrated history** — while providing 16 additional capabilities that the separate-page approach lacks.
