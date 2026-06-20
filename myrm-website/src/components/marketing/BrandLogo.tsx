@@ -62,7 +62,7 @@ export default function BrandLogo({
       width={size}
       height={size}
       priority={priority}
-      className={cn('ed-logo shrink-0 object-contain rounded-[22%]', className)}
+      className={cn('ed-logo shrink-0 object-contain', className)}
     />
   );
 }
