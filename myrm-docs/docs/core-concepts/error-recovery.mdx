@@ -85,6 +85,23 @@ For common LLM errors, the error card includes one-click fix buttons that take y
 
 Button labels are localized into 5 languages (English, Chinese, Japanese, Korean, German) and automatically match your interface language. If the diagnostic engine encounters an unexpected error, it degrades gracefully — the base error message still displays without recovery buttons.
 
+### Code Execution Auto-Diagnosis
+
+When the agent runs Python code or Bash commands, the execution engine automatically classifies errors and generates actionable hints:
+
+| Category | Trigger | Auto-generated Hint |
+|----------|---------|---------------------|
+| `import` | `ModuleNotFoundError` | Smart install command with PyPI name mapping (e.g. `cv2` → `pip install opencv-python`) |
+| `not_found` | Command not found | Platform-specific install command via tool discovery |
+| `permission` | Permission denied | `chmod` suggestion with the exact path |
+| `timeout` | Execution timed out | Guidance to reduce input or split task |
+| `oom` | Out of memory | Guidance to process data in chunks |
+| `sandbox_ro` | Read-only filesystem | Redirect writes to `/workspace` |
+| `network_blocked` | Network access blocked | Tells agent to avoid retrying with different HTTP libraries |
+| `syntax` | Syntax error | No hint (agent should fix the code) |
+
+The engine includes a built-in import-to-PyPI mapping table (PIL → Pillow, sklearn → scikit-learn, yaml → PyYAML, and more) and auto-detects whether `uv pip` is available. All code runs in an isolated shared virtual environment managed by VenvManager, ensuring user-installed packages never pollute the system Python.
+
 ## Model Self-Escalation
 
 When a lightweight model detects it lacks the capability to complete a task:

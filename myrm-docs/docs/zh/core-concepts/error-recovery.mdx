@@ -85,6 +85,23 @@ CLOSED（正常）→ OPEN（检测到失败）→ HALF-OPEN（探测）→ CLOS
 
 按钮标签支持 5 种语言（英/中/日/韩/德），自动匹配用户界面语言。如果诊断引擎遇到意外错误，会优雅降级 — 基础错误信息正常显示，不影响使用。
 
+### 代码执行自动诊断
+
+当 Agent 运行 Python 代码或 Bash 命令时，执行引擎自动分类错误并生成可操作提示：
+
+| 分类 | 触发条件 | 自动生成的提示 |
+|------|---------|---------------|
+| `import` | `ModuleNotFoundError` | 智能安装命令+PyPI包名映射（如 `cv2` → `pip install opencv-python`） |
+| `not_found` | 命令不存在 | 通过工具发现引擎提供平台级安装命令 |
+| `permission` | 权限被拒 | 精准路径的 `chmod` 建议 |
+| `timeout` | 执行超时 | 减少输入规模或拆分任务 |
+| `oom` | 内存不足 | 分块处理数据 |
+| `sandbox_ro` | 只读文件系统 | 重定向写入到 `/workspace` 目录 |
+| `network_blocked` | 网络访问被阻止 | 告知 Agent 不要用其他 HTTP 库重试 |
+| `syntax` | 语法错误 | 无提示（Agent 应自行修复代码） |
+
+引擎内置 import-to-PyPI 映射表（PIL → Pillow, sklearn → scikit-learn, yaml → PyYAML 等），并自动检测是否可用 `uv pip`。所有代码在 VenvManager 管理的共享虚拟环境中运行，确保用户安装的包不会污染系统 Python。
+
 ## 模型自升级
 
 轻量模型发现无法完成任务时：
