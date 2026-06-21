@@ -112,6 +112,20 @@ All parameters use frozen dataclasses for thread safety. Advanced users can over
 
 Relationships between memory entries are modeled as a knowledge graph with 4 semantic relation types (SUPPORTED, CONTRADICTED, SUPERSEDED, CONSTRAINED) and multi-hop traversal. Supports both SQLite CTE and Apache AGE backends with 3D visualization in the GUI.
 
+## Integration Memory — Cross-Platform Knowledge Fusion
+
+Connect external services and automatically pull their data into your memory system. Any MCP-compatible server becomes a knowledge source with zero custom code:
+
+- **MCPBridgeProvider** auto-bridges any configured MCP Server (Notion, Feishu, DingTalk, GitHub, Slack, etc.) — no per-service adapter needed
+- **IntegrationSyncDaemon** discovers your MCP servers and syncs every 60 minutes automatically
+- **Auto Knowledge Extraction** — the system uses LLM to extract high-value profile traits from synced data and writes them directly to your user profile
+- **Hierarchical Tree Structure** — synced content is organized into navigable trees with LLM-generated summaries at each level
+- **Concurrent Fetch with Error Isolation** — multiple providers sync in parallel with semaphore limiting; one provider's failure never affects others
+- **5 prebuilt OAuth integrations** (Feishu, DingTalk, GitHub, Jira, Slack) with credential vault management
+- **Clean disconnect** — when you remove a provider, all its synced memories are automatically cleaned up
+
+The result: your AI assistant understands context from all your tools, not just what you tell it in conversation.
+
 ## Wiki Knowledge Base
 
 Conversations automatically archive into a structured Wiki knowledge base — no manual setup needed. After 10+ turns of meaningful dialogue, the system extracts high-value concepts and compiles them into navigable wiki pages with claims, evidence, and provenance. The Brain page provides a full GUI for browsing concepts, editing content, searching with hybrid retrieval (semantic + keyword), reviewing pending edits, and exploring a 3D knowledge graph. Each user gets an isolated wiki directory for multi-tenant privacy.
@@ -176,6 +190,8 @@ Myrm's memory maintenance engine runs 10 specialized modules (4,128 lines of cod
 
 Hash matching (0.18ms, saves 98% embedding cost) → Vector similarity → LLM semantic judgment. Four outcomes: SKIP, UPDATE_REPLACE, UPDATE_MERGE, or KEEP_BOTH.
 
+Entity matching uses exact `=` comparison (not substring matching), so distinct entities like "Sam" and "Samsung" or "Apple" and "Pineapple" are never confused — a known issue in competitors that rely on rule-based NER with substring deduplication.
+
 ### Recurrence Detection
 
 Embedding-based buffer detects when the same topic recurs ≥4 times across sessions, automatically triggering consolidation — inspired by RecMem's academic approach but with production-grade implementation.
@@ -226,7 +242,7 @@ Manage everything from the GUI: create contexts, bind them to targets, review wr
 
 ## Memory GUI Management
 
-A comprehensive 40-component interactive GUI replaces the traditional plain-text file approach (like MEMORY.md). Every aspect of the memory system is manageable through rich visual interfaces:
+A comprehensive 34-component interactive GUI replaces the traditional plain-text file approach (like MEMORY.md). Every aspect of the memory system is manageable through rich visual interfaces — while competitors like Hermes Agent have zero memory management UI in their dashboard:
 
 - **6-Tab Classification** — pending, all, context, shared, recall, and trash views for instant navigation
 - **Rich Memory Cards** — each memory displays its type icon, timestamp, content preview, and action buttons (edit/delete/approve)

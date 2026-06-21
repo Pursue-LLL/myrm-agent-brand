@@ -352,10 +352,10 @@
       },
       "rows": {
         "memory": {
-          "feature": "记忆系统 · 8 种类型、知识图谱、27 源集成（9 类别）、Obsidian 导出、数据集导出、健康诊断",
-          "hermes": "2200字符",
+          "feature": "记忆系统 · 8 种类型、知识图谱、34 个可视化管理组件、27 源集成（9 类别）、Obsidian 导出、数据集导出、健康诊断",
+          "hermes": "2200字符（无管理UI）",
           "openclaw": "3",
-          "myrmAgent": "8种+知识图谱+Working Memory(7天TTL自动续接任务)+辩证偏好推理(异步零延迟)+27源集成(9类别)+Obsidian导出+12种竞品导入+数据集导出(3格式)+跨任务SharedContext+归档自动恢复+隐私脱敏安全分享+"
+          "myrmAgent": "8种+知识图谱+34个可视化管理组件（指挥中心、审批流、3D图谱、健康仪表盘、偏好稳定性、会话回放、回收站/归档）+Working Memory(7天TTL自动续接任务)+辩证偏好推理(异步零延迟)+27源集成(9类别)+Obsidian导出+12种竞品导入+数据集导出(3格式)+跨任务SharedContext+归档自动恢复+隐私脱敏安全分享"
         },
         "knowledgeGraph": {
           "feature": "知识图谱 · 关联可视化",
@@ -373,7 +373,7 @@
           "feature": "防碎片化 · 7 大策略保持索引纯净与极速召回",
           "hermes": "_no",
           "openclaw": "_no",
-          "myrmAgent": "5维遗忘 + 3层去重 + 合并冶炼 + 认知擦除 + 循环检测 + 模式发现 + 偏好稳定"
+          "myrmAgent": "5维遗忘 + 3层去重(Hash→向量→LLM) + LLM原生实体提取(无NER子串误删bug) + 合并冶炼 + 认知擦除 + 循环检测 + 模式发现 + 偏好稳定"
         },
         "incognitoMode": {
           "feature": "无痕模式 · 敏感数据物理隔离",
@@ -397,7 +397,7 @@
           "feature": "多 Agent 协作 · P2P 通信 · DAG 编排 · 对抗式验证",
           "hermes": "Kanban + Batch Tasks",
           "openclaw": "展示型看板",
-          "myrmAgent": "6种编排（链式/批量/DAG/竞速/验证/蜂群）+ 意图识别自动路由（LLM理解→委派，无需手动切换） · 动态发现可用Agent · @提及即时注入 + P2P邮箱 + 三级记忆隔离 + 对抗验证 + 10+专属GUI组件(Dashboard/SummaryCard/LogDrawer/EventTimeline) + 实时cancel/steer/resume控制 + 检查点恢复"
+          "myrmAgent": "6种编排（链式/批量/DAG/竞速/验证/蜂群）+ 意图识别自动路由（LLM理解→委派，无需手动切换） · 动态发现可用Agent · @提及即时注入 + P2P邮箱 + 三级记忆隔离 + 对抗验证 + 行级冲突检测（并发写入安全）+ COW工作区隔离 + 10+专属GUI组件(Dashboard/SummaryCard/LogDrawer/EventTimeline) + 实时cancel/steer/resume控制 + 检查点恢复（296项冲突/隔离测试通过）"
         },
         "dynamicWorkflow": {
           "feature": "动态工作流 · 运行时 DAG，无需重新部署",
@@ -433,7 +433,7 @@
           "feature": "纵深安全 · 隐私不泄露",
           "hermes": "3处拦截",
           "openclaw": "1层",
-          "myrmAgent": "6层纵深+14层DLP · Per-Agent 安全策略(工具+凭证+路径独立隔离) · 3级PII敏感度分级+隐私感知模型路由(S3数据→本地模型) · 3档安全预设一键切换 · /freeze 全局急停 ·"
+          "myrmAgent": "6层纵深+14层DLP · 18000+安全测试全通过 · Per-Agent 安全策略(工具+凭证+路径独立隔离) · 3级PII敏感度分级+隐私感知模型路由(S3数据→本地模型) · 3档安全预设一键切换 · /freeze 全局急停 ·"
         },
         "goalMode": {
           "feature": "目标驱动 · 复杂项目全程管控",
@@ -535,7 +535,7 @@
           "feature": "上下文管理 · 长聊更稳、缓存更省",
           "hermes": "8层固定栈 + 内存态单层压缩",
           "openclaw": "LCM",
-          "myrmAgent": "11步上下文流水线（缓存TTL修剪 + 四级压缩 + 智能回退 + 防抖保护）+ 七层防鞭尸（Agent不会执行旧任务、不误判话题相似为旧任务、不忽略stop指令）+ 数据库级会话压缩持久化 + 五维归档导出 + 22+中间件 + 实时会话笔记 + 确定性回退 + 熔断降级"
+          "myrmAgent": "11步上下文流水线（缓存TTL修剪 + 四级压缩 + 智能回退 + 防抖保护 + 结构化/语义双过滤器）+ Prompt Cache 自动断点（Claude/Qwen 缓存命中省90%成本）+ 七层防鞭尸 + 数据库级会话压缩持久化 + 五维归档导出 + 22+中间件 + 实时会话笔记 + 熔断降级 + 16种生命周期Hooks（4种类型）+ 三层工具排序(CORE/COMMON/EXTENDED)"
         },
         "smartConcurrency": {
           "feature": "并发引擎 · 彻底消灭读写竞态",
@@ -577,7 +577,7 @@
           "feature": "工具生态集成 · 27 项预配置服务 / 9 大类别 / 一键连接",
           "hermes": "仅 MCP，无服务目录",
           "openclaw": "Extensions，需开发",
-          "myrmAgent": "MCP + OpenAPI + Skills + 27 项预配置服务目录"
+          "myrmAgent": "MCP + OpenAPI + Skills + 27项预配置服务目录 + MCPBridgeProvider 自动桥接任意 MCP Server 为知识源（自动发现+60分钟同步+LLM 知识提取）"
         },
         "mcpArchitecture": {
           "feature": "MCP 架构 · 持久连接 + Prompt 缓存稳定",
@@ -619,7 +619,7 @@
           "feature": "桌面客户端 · 25+项原生OS能力",
           "hermes": "Electron",
           "openclaw": "Win节点(无GUI)",
-          "myrmAgent": "Tauri+25项OS API+8080自动对齐 · 原生通知+Dock弹跳+截屏+防休眠+跨标签页零重复通知"
+          "myrmAgent": "Tauri+25项OS API+8080自动对齐 · 原生通知+Dock弹跳+截屏+防休眠+跨标签页零重复通知+流式完成/澄清自动OS弹窗"
         },
         "tunnel": {
           "feature": "公网连通 · 缺了会提醒",
@@ -775,7 +775,7 @@
           "feature": "长任务执行保障 · 断线托管+Catchup速览+IM通知+防休眠",
           "hermes": "_no",
           "openclaw": "_no",
-          "myrmAgent": "5层保障+Catchup Inbox+35+渠道通知+3平台防休眠+Kanban持久化+服务重启恢复"
+          "myrmAgent": "5层保障+Catchup Inbox+35+渠道通知+完成/澄清OS弹窗(切走自动提醒)+3平台防休眠+Kanban持久化+服务重启恢复"
         },
         "longTaskOrchestration": {
           "feature": "长程任务闭环 · 极简审阅+优雅挂起+静默自省",

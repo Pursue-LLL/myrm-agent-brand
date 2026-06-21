@@ -68,6 +68,22 @@ GOOGLE_API_KEY=...
 
 See [Environment Variables](/docs/self-hosting/environment-variables) for the full reference.
 
+## China Mainland Acceleration
+
+The install script automatically detects China mainland networks (via timezone + connectivity check) and switches to domestic mirrors:
+
+- **PyPI** → pypi.tuna.tsinghua.edu.cn
+- **npm** → registry.npmmirror.com
+- **Playwright** → cdn.npmmirror.com
+
+For Docker builds, pass `--build-arg USE_CN_MIRROR=1`:
+
+```bash
+docker build --build-arg USE_CN_MIRROR=1 -f myrm-agent-server/Dockerfile -t myrm-server .
+```
+
+Manual override: set `MYRM_USE_CN_MIRROR=1` to force domestic mirrors, or `MYRM_NO_CN_MIRROR=1` to disable auto-detection.
+
 ## Verify Installation
 
 ```bash

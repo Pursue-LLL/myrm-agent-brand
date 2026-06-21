@@ -13,6 +13,7 @@ Access your agent from any messaging platform — 35+ channels with automatic fo
 |----------|----------|-------|
 | Instant Messaging | Discord, Slack, Telegram, WhatsApp, Signal, Line, Matrix, Mattermost, IRC | 9 |
 | China Ecosystem | WeChat, WeCom, WeCom AIBot, DingTalk, Feishu, QQ, OneBot, WeChat Official | 8 |
+| Developer | GitHub (Webhook + PR Comment) | 1 |
 | Enterprise | Microsoft Teams, Google Chat | 2 |
 | Voice | Discord Voice (with DAVE E2E encryption) | 1 |
 | Other | Email, SMS, iMessage, Webhook, Zalo | 5 |
@@ -216,3 +217,69 @@ WebSocket-based channels (Discord, Slack, Feishu, etc.) share a common `reconnec
 - **No lost messages** — even if the server crashes, pending messages are recovered on restart
 - **Visible status** — channel health is always visible in Settings > Channels via color-coded badges
 - **No manual restarts** — channels heal themselves; you only see the result, not the recovery process
+
+## GitHub Channel & CI/CD Integration
+
+The **GitHub Channel** turns your agent into an automated code reviewer that listens for repository events and responds with PR comments.
+
+### Supported Events
+
+| Event | Trigger | Agent Action |
+|-------|---------|-------------|
+| `pull_request` | PR opened / updated | Automatic code review + comment |
+| `issues` | Issue created / updated | Triage, labeling, response |
+| `issue_comment` | New comment on Issue/PR | Contextual reply |
+| `push` | Commits pushed | Change analysis |
+| `pull_request_review` | Review submitted | Follow-up discussion |
+
+### Setup
+
+1. Navigate to **Settings > Channels > GitHub**
+2. Enter your **Personal Access Token** (with `repo` scope for posting comments)
+3. Enter your **Webhook Secret** (for signature verification)
+4. Add the webhook URL (`https://your-server/channels/github/webhook`) to your GitHub repo settings
+
+### Security
+
+All incoming webhooks are verified using **X-Hub-Signature-256** (HMAC-SHA256). Invalid signatures are rejected with a 401 response.
+
+### CI/CD Pipeline Integration
+
+Beyond GitHub, any CI/CD platform (Jenkins, GitLab CI, 云效, CodePipeline) can trigger your agent via the REST API:
+
+```bash
+curl -X POST https://your-server/api/chats/ \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Review the latest commit on branch feature/xyz"}'
+```
+
+The **Webhook Channel** can deliver results to any external system by POSTing structured JSON to a URL you specify.
+
+## Remote Approval (HITL)
+
+When controlling your agent remotely via IM channels, high-risk tool calls (file edits, shell commands) trigger an **in-channel approval prompt** — the industry's only IM-native HITL system.
+
+### How It Works
+
+1. Agent encounters a dangerous tool call
+2. A message with approve/deny buttons is sent to your IM channel
+3. You approve, reject, or use batch commands
+4. Agent resumes or halts based on your decision
+
+### Approval Methods
+
+| Method | Example |
+|--------|---------|
+| Slash commands | `/approve`, `/deny`, `/approve-always` |
+| Quick shortcuts | `1` (approve), `2` (deny), `y`, `n` |
+| Emoji reactions | 👍 (once), ♾️ (always), 👎 (deny) |
+| Batch | `/batch a,d,a` (approve, deny, approve) |
+| Chinese | `同意`, `拒绝`, `是`, `不` |
+
+### Security
+
+- **Group chat protection**: Only the original requester or configured co-approvers can approve
+- **Timeout guard**: Unanswered approvals auto-deny (configurable)
+- **Persistent allowlist**: "Always allow" decisions survive restarts
+- **Anti-retry**: After 3 denials, agent stops retrying
