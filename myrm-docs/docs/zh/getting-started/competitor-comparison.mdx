@@ -49,7 +49,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **企业可靠性** | ✅ xdist 锁、EventBus 截断、OTEL 安全、路径边界 + TOCTOU 审批测试；聊天 SSE 状态机回归；**521 份分形 `_ARCH` 模块文档 + 296 项架构 CI 门禁**；**Eval 框架：5种断言 + 多轮 + Memory Retrieval Eval (NDCG/MRR) — 398 项测试验证**（2026-06-18） | ⚠️ 仅快乐路径测试 | ⚠️ 易竞态 | ⚠️ 未知 | ⚠️ 未知 | ⚠️ 未知 | ❌ |
 | **模块文档地图** | ✅ **521** 份 `_ARCH.md` + CI 防漂移（`check_fractal_docs`） | ❌ 仅集中式 docs | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **文件编辑安全** | ✅ 6 层保护 + Shadow Git 快照**选择性文件恢复**（checkbox 多选）+ 行级变更统计 (+X/−Y) + 回退后 Agent 自动感知 + 自动格式化 + 语法检查 + 冲突检测 + 配置保护 + 敏感文件保护 + 实时 diff SSE（1,154 项测试） | ❌ | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
-| **文件系统智能** | ✅ 19 种原生操作 + 7 类解析器 + 5 层观察者（788 项测试） | ⚠️ 4 种基础操作 | ⚠️ 仅 bash | ⚠️ 仅 bash | ❌ | ⚠️ 基础 | ❌ |
+| **文件系统智能** | ✅ 19 种原生操作 + 11模块解析引擎（PDF 3策略 + Office全格式 + Jupyter Notebook含kernel语言检测+语法高亮+全栈拖拽入库 + 未知格式附件感知兜底）+ 5 层观察者（788 项测试） | ⚠️ 4 种基础操作 + 基础 ipynb/docx/xlsx（同步、无降级） | ⚠️ 仅 bash | ⚠️ 仅 bash | ❌ | ⚠️ 基础 | ❌ |
 | **代码执行引擎** | ✅ 零进程开销 pathlib I/O + 原子写入 + 持久化 Shell 会话 + 环境自动探测 + seatbelt/bwrap 沙箱 + PTC 双向通道 + 输出压缩 + 虚拟环境管理 + 工具自动发现（**1,500 项测试**） | ⚠️ 仅 Shell 子进程 | ⚠️ 仅 bash | ⚠️ 仅 bash | ❌ | ⚠️ 基础 | ❌ |
 | **工作区上下文** | ✅ 7 种 @ 引用（文件/文件夹/staged/diff/URL/上传/行范围）+ 工具层全文件系统访问 + Dynamic Workflow 多项目并行（259 项测试） | ⚠️ 仅 @file（沙箱限制） | ❌ 单目录 | ❌ | ❌ | ⚠️ 未知 | ❌ |
 | **本地文件"数据不出域"** | ✅ 天然支持 — Agent 在本地运行，所有文件原地处理 | ❌ 仅云端 | ⚠️ Docker | ⚠️ Docker | ❌ 云端 | ❌ | ❌ |
@@ -574,7 +574,7 @@ MiniMax Mavis 是闭源 SaaS 多 Agent 系统，采用 Leader-Worker-Verifier �
 | Plan → Approve → Execute | PlannerAgent + Goal approval workflow | ⬆️ Upgrade (7-state lifecycle) |
 | "Learned something" | 42-module Skill Evolution system | ⬆️ Upgrade (full evolution pipeline) |
 | Lark integration | 35+ channel support (including Lark) | ⬆️ Upgrade |
-| Worker 上下文隔离 | **四层写入防护**：行级冲突检测 + CoW 工作区隔离 + git worktree + 串行批量合并（296项测试） | ⬆️ 工业级升级 |
+| Worker 上下文隔离 | **四层写入防护**：行级冲突检测 + CoW 工作区隔离 + git worktree + 串行批量合并 + 三层沙箱（毫秒级启动，无需Docker）— 1,101 项子代理与沙箱专项测试 | ⬆️ 工业级升级 |
 | Token display | 4D budget + real-time tracking + alerts | ⬆️ Upgrade |
 
 **结论：7 项升级、1 项持平、0 项降级。用户获得开源数据主权、模型自由与多平台接入，零能力损失。**

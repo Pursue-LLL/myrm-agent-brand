@@ -397,7 +397,7 @@
           "feature": "Multi-agent · P2P messaging · DAG orchestration · adversarial verification",
           "hermes": "Kanban + Batch Tasks",
           "openclaw": "Read-only Board",
-          "myrmAgent": "6 orchestration modes (chain/batch/DAG/race/verify/swarm) + intent-based auto-routing (LLM understands → delegates, no manual switch) · dynamic agent discovery · @mention JIT injection + P2P mailbox + 3-tier memory isolation + adversarial verification + line-level conflict detection (concurrent writes safe) + COW workspace isolation + 10+ dedicated GUI components (Dashboard/SummaryCard/LogDrawer/EventTimeline) + real-time cancel/steer/resume control + checkpoint resume (296 conflict/isolation tests passed)"
+          "myrmAgent": "6 orchestration modes (chain/batch/DAG/race/verify/swarm) + intent-based auto-routing (LLM understands → delegates, no manual switch) · dynamic agent discovery · @mention JIT injection + P2P mailbox + 3-tier memory isolation + adversarial verification + line-level conflict detection (concurrent writes safe) + COW workspace isolation + 10+ dedicated GUI components (Dashboard/SummaryCard/LogDrawer/EventTimeline) + real-time cancel/steer/resume control + checkpoint resume + 3-tier sandbox (ms-level startup, no Docker needed) (1,101 dedicated tests passed)"
         },
         "dynamicWorkflow": {
           "feature": "Dynamic workflow · runtime DAG without redeploy",
@@ -652,10 +652,10 @@
           "myrmAgent": "Streaming MoA"
         },
         "fileEditSafety": {
-          "feature": "File system intelligence · 19 native ops, 11-module parsing engine, 5 auto-observers",
-          "hermes": "_no",
+          "feature": "File system intelligence · 19 native ops, 11-module parsing engine, 5 auto-observers, 3-tier post-write safety",
+          "hermes": "Basic doc extraction + py_compile-level post-write lint (no auto-format, no rollback)",
           "openclaw": "_no",
-          "myrmAgent": "11-module document parsing engine (PDF 3-strategy smart pipeline · 500pg default/2000pg max + parallel parsing + truncation transparency · bookmark+font dual heading detection · table L0/L2 RAG anti-fragmentation · OCR · noise filter · full Office + Jupyter Notebook) + 6-layer edit guard + Shadow Git snapshot restore + line-level diff + upload auto-sync to workspace"
+          "myrmAgent": "11-module document parsing engine (PDF 3-strategy smart pipeline · 500pg default/2000pg max + parallel parsing + truncation transparency · bookmark+font dual heading detection · table L0/L2 RAG anti-fragmentation · OCR · noise filter · full Office + Jupyter Notebook with kernel-aware syntax highlight + drag-and-drop full-stack) + otherFiles attachment awareness + 7-layer edit guard + 3-tier post-write safety (in-memory syntax check + CLI deep diagnostics + 12 auto-formatters) + syntax error auto-rollback + Shadow Git snapshot restore + line-level diff + upload auto-sync to workspace"
         },
         "ptcEngine": {
           "feature": "PTC engine · complex tasks use fewer tokens",
@@ -796,10 +796,10 @@
           "myrmAgent": "Tauri/Local only: Native mDNS/UPnP radar discovery · One-click smart home takeover"
         },
         "longTaskOrchestration": {
-          "feature": "Long-Task Automated Orchestration · Auto DAG+Worktree isolation+Zero-touch memory",
+          "feature": "Long-Task Closed Loop · Minimal review + graceful suspend + silent self-reflection",
           "hermes": "Manual Markdown Handoff",
-          "openclaw": "No worktree isolation",
-          "myrmAgent": "Native DAG planner+Git Worktree+Auto non-destructive archive, zero manual constraints"
+          "openclaw": "Log spam · no native physical isolation",
+          "myrmAgent": "Physical COW sandbox isolation + Report Card minimal review + Blocked graceful suspend (deadlock-proof) + Adversarial retry closed loop"
         },
         "observabilityBase": {
           "feature": "End-to-End Tracing & Observability Base",
@@ -1204,11 +1204,11 @@
         "multiAgent": {
           "label": "Multi-agent",
           "title": "A team of agents — with you as boss",
-          "desc": "Delegate, chain, or run parallel tasks with live progress, cost tracking, and cancel or resume from one dashboard.",
+          "desc": "6 orchestration modes (chain/batch/DAG/race/adversarial verify/swarm fission) auto-decompose complex tasks; COW physical workspace isolation ensures concurrency safety; 3-tier sandbox starts in milliseconds without Docker. Live progress, cost tracking, cancel or resume from one dashboard — 1,101 dedicated tests passed.",
           "stat": "6",
           "statLabel": "orchestration modes",
-          "tag1": "Live agent tree",
-          "tag2": "Kanban long jobs",
+          "tag1": "Adversarial verify · auto-correct",
+          "tag2": "COW isolation · concurrency safe",
           "tag3": "Cost per agent visible"
         },
         "omniChannel": {

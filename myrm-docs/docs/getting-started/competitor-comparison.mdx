@@ -48,8 +48,8 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **Error Recovery** | ✅ 8-layer defense (LoopGuard 7 patterns + ToolStuck→GraphInterrupt + FrequencyGuard + E-Stop + 4-layer CircuitBreaker + Kanban zombie 120s auto-reclaim + Gateway timeout + memory pressure fuse) + 14 self-healing types + 9-layer deep degradation — 2,934 tests | try/catch | Basic | Basic | ⚠️ Context overflow recovery | ⚠️ Unknown | ❌ |
 | **Enterprise Reliability** | ✅ xdist locks, EventBus truncate, OTEL safe, path-boundary + TOCTOU approval tests; chat SSE state machine regression tests; **521 fractal `_ARCH` module docs + 296 architecture CI gates**; **Eval framework: 5 assertion types + multi-turn + Memory Retrieval Eval (NDCG/MRR) — 398 tests verified** (2026-06-18) | ⚠️ Happy-path tested only | ⚠️ Race conditions likely | ⚠️ Unknown | ⚠️ Unknown | ⚠️ Unknown | ❌ |
 | **Module Documentation Map** | ✅ **521** `_ARCH.md` + CI anti-drift (`check_fractal_docs`) | ❌ Central docs only | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **File Edit Safety** | ✅ 6-layer protection + Shadow Git snapshot with **selective file restore** (checkbox multi-pick) + line-level diff stats (+X/−Y) + Agent auto-aware after rollback + auto-format + syntax check + conflict detection + config guard + sensitive guard + real-time diff SSE (1,154 tests) | ❌ | ❌ | ❌ | ❌ | ⚠️ Unknown | ❌ |
-| **File System Intelligence** | ✅ 19 native ops + 7 parsers + 5 observers (788 tests) | ⚠️ 4 basic ops | ⚠️ bash only | ⚠️ bash only | ❌ | ⚠️ Basic | ❌ |
+| **File Edit Safety** | ✅ 7-layer protection + 3-tier post-write safety (in-memory syntax check + CLI deep diagnostics + 12 auto-formatters) + syntax error auto-rollback + Shadow Git snapshot with **selective file restore** (checkbox multi-pick) + line-level diff stats (+X/−Y) + Agent auto-aware after rollback + conflict detection + config guard + sensitive guard + real-time diff SSE (1,190 tests) | ⚠️ py_compile-level post-write lint (no auto-format, no rollback) | ❌ | ❌ | ❌ | ⚠️ Unknown | ❌ |
+| **File System Intelligence** | ✅ 19 native ops + 11-module parsing engine (PDF 3-strategy + Office + Jupyter Notebook w/ kernel-aware syntax highlight + drag-and-drop full-stack + otherFiles attachment awareness) + 5 observers (788 tests) | ⚠️ 4 basic ops + basic ipynb/docx/xlsx (sync, no fallback) | ⚠️ bash only | ⚠️ bash only | ❌ | ⚠️ Basic | ❌ |
 | **Code Execution Engine** | ✅ Zero-subprocess pathlib I/O + atomic writes + persistent shell sessions + env auto-probe + seatbelt/bwrap sandbox + PTC channel + output compression + VenvManager + tool auto-discovery (**1,500 tests**) | ⚠️ Shell subprocess only | ⚠️ bash only | ⚠️ bash only | ❌ | ⚠️ Basic | ❌ |
 | **Workspace Context** | ✅ 7-type @ references (file/folder/staged/diff/url/upload/line-range) + tool-layer full filesystem + Dynamic Workflow multi-project parallel (259 tests) | ⚠️ @file only (sandbox) | ❌ Single dir | ❌ | ❌ | ⚠️ Unknown | ❌ |
 | **Local File "Data Stays Local"** | ✅ Native — Agent runs locally, all files processed in-place | ❌ Cloud-only | ⚠️ Docker | ⚠️ Docker | ❌ Cloud | ❌ | ❌ |
@@ -532,7 +532,7 @@ Some competitors use CLI config files to bind skills to agents. Myrm's approach 
 | L3: Runtime Dynamic Binding | `task.extra_skill_ids` | Kanban tasks can append extra skills at runtime without changing agent config |
 
 Additional advantages:
-- **5 orchestration patterns** (DAG / Chain / Batch / Verified / Swarm) vs competitor's single pattern
+- **6 orchestration patterns** (Spawn / DAG / Chain / Batch / Verified / Swarm Fission) vs competitor's single pattern
 - **GUI-first management**: AgentEditPanel with 12 config tabs vs CLI-only
 - **ProfileTimeMachine**: Config snapshot versioning with GUI rollback vs migration scripts
 - **7-competitor import**: One-click migration from OpenClaw, Hermes, Cursor, Codex, Claude Code, Windsurf, Trae
@@ -657,7 +657,7 @@ MiniMax Mavis is a closed-source SaaS multi-agent system with Leader-Worker-Veri
 | Plan → Approve → Execute | PlannerAgent + Goal approval workflow | ⬆️ Upgrade (7-state lifecycle) |
 | "Learned something" | 42-module Skill Evolution system | ⬆️ Upgrade (full evolution pipeline) |
 | Lark integration | 35+ channel support (including Lark) | ⬆️ Upgrade |
-| Worker context isolation | **4-layer write protection**: line-level conflict guard + CoW workspace_isolation (INHERIT/ISOLATED_COPY/READ_ONLY_SANDBOX) + serial batch_merge + OrphanRecovery — 296 tests verified | ⬆️ Upgrade (engineering-grade) |
+| Worker context isolation | **4-layer write protection**: line-level conflict guard + CoW workspace_isolation (INHERIT/ISOLATED_COPY/READ_ONLY_SANDBOX) + serial batch_merge + OrphanRecovery + 3-tier sandbox (ms-level startup, no Docker needed) — 1,101 sub-agent & sandbox tests verified | ⬆️ Upgrade (engineering-grade) |
 | Token display | 4D budget + real-time tracking + alerts | ⬆️ Upgrade |
 
 **Result: 7 upgrades, 1 equivalent, 0 downgrades. Users gain open-source data sovereignty, model freedom, and multi-platform access with zero capability loss.**

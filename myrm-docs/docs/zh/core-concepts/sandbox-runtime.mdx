@@ -84,7 +84,7 @@ matplotlib 生成的图表自动捕获并内联显示在对话中，无需手动
 
 **并行子 Agent 工作区隔离**：运行多 Agent 任务时，每个子 Agent 获得独立的写时复制（COW）工作区克隆（ISOLATED_COPY 策略），附带 1 GiB 安全守卫。并行执行结束后按串行顺序安全合并——零文件冲突、零数据丢失。
 
-5 种编排模式（Chain / Batch / DAG / Verified / Swarm Fission）、级联取消、委派预算确保安全且成本可控的并行执行。**206 项测试验证完整沙箱与并行隔离栈。**
+6 种编排模式（Spawn / Chain / Batch / DAG / Verified / Swarm Fission）、级联取消、委派预算确保安全且成本可控的并行执行。三层沙箱（OS namespace / Docker 容器 / Workspace COW）毫秒级启动，无需 Docker 依赖。**1,101 项测试验证完整子代理与沙箱栈。**
 
 与 Claude Code 仅 CLI 可用的 `--worktree` 参数不同，Myrm 的工作区沙箱通过 GUI 按钮一键切换，可在会话进行中随时启用/禁用，并提供完整的合并/丢弃工作流与预审批集成。
 
