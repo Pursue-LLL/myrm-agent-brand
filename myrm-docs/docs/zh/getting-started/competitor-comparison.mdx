@@ -49,7 +49,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **企业可靠性** | ✅ xdist 锁、EventBus 截断、OTEL 安全、路径边界 + TOCTOU 审批测试；聊天 SSE 状态机回归；**521 份分形 `_ARCH` 模块文档 + 296 项架构 CI 门禁**；**Eval 框架：5种断言 + 多轮 + Memory Retrieval Eval (NDCG/MRR) — 398 项测试验证**（2026-06-18） | ⚠️ 仅快乐路径测试 | ⚠️ 易竞态 | ⚠️ 未知 | ⚠️ 未知 | ⚠️ 未知 | ❌ |
 | **模块文档地图** | ✅ **521** 份 `_ARCH.md` + CI 防漂移（`check_fractal_docs`） | ❌ 仅集中式 docs | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **文件编辑安全** | ✅ 6 层保护 + Shadow Git 快照**选择性文件恢复**（checkbox 多选）+ 行级变更统计 (+X/−Y) + 回退后 Agent 自动感知 + 自动格式化 + 语法检查 + 冲突检测 + 配置保护 + 敏感文件保护 + 实时 diff SSE（1,154 项测试） | ❌ | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
-| **文件系统智能** | ✅ 19 种原生操作 + 6 类解析器 + 5 层观察者（788 项测试） | ⚠️ 4 种基础操作 | ⚠️ 仅 bash | ⚠️ 仅 bash | ❌ | ⚠️ 基础 | ❌ |
+| **文件系统智能** | ✅ 19 种原生操作 + 7 类解析器 + 5 层观察者（788 项测试） | ⚠️ 4 种基础操作 | ⚠️ 仅 bash | ⚠️ 仅 bash | ❌ | ⚠️ 基础 | ❌ |
 | **代码执行引擎** | ✅ 零进程开销 pathlib I/O + 原子写入 + 持久化 Shell 会话 + 环境自动探测 + seatbelt/bwrap 沙箱 + PTC 双向通道 + 输出压缩 + 虚拟环境管理 + 工具自动发现（**1,500 项测试**） | ⚠️ 仅 Shell 子进程 | ⚠️ 仅 bash | ⚠️ 仅 bash | ❌ | ⚠️ 基础 | ❌ |
 | **工作区上下文** | ✅ 7 种 @ 引用（文件/文件夹/staged/diff/URL/上传/行范围）+ 工具层全文件系统访问 + Dynamic Workflow 多项目并行（259 项测试） | ⚠️ 仅 @file（沙箱限制） | ❌ 单目录 | ❌ | ❌ | ⚠️ 未知 | ❌ |
 | **本地文件"数据不出域"** | ✅ 天然支持 — Agent 在本地运行，所有文件原地处理 | ❌ 仅云端 | ⚠️ Docker | ⚠️ Docker | ❌ 云端 | ❌ | ❌ |
@@ -62,7 +62,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **浏览器引擎** | ✅ 双隐身引擎（Patchright + Camoufox）+ 跨会话指纹持久化 + 三层 GlobalBrowserPool（零冷启动、三层崩溃恢复）+ Shadow DOM 穿透 + API-First 网络智能（CDP 懒加载响应体 + 请求重放）+ 域名引擎亲和记忆 + 后台无感执行（双层隔离）+ 同源智能Tab路由 + 4 大云浏览器 Provider（GUI 配置 + 热更新免重启） | ⚠️ 第三方云浏览器（环境变量配置，需重启） | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
 | **网页搜索** | ✅ 8 引擎 + BM25/Reranker 过滤 + 三层防幻觉 | ⚠️ 云 API 透传 | ⚠️ DDG/Bing 抓取 | ⚠️ 同 OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
 | **网页抓取** | ✅ 三层 + 向量提取 + DOM 修剪 | ⚠️ web_extract（Firecrawl + LLM） | ⚠️ HTTP / Firecrawl 回退 | ⚠️ 同上 | ⚠️ 仅 HTTP | ❌ | ❌ |
-| **工作区 RAG** | ✅ **四层管线**：BM25 + 向量 + RRF融合 + Reranker；7类18种格式解析（PDF/Word/Excel/PPT/OCR）；双后端知识图谱；Karpathy Wiki；RSG质量守卫（503项测试） | ⚠️ 仅代码AST索引 | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **工作区 RAG** | ✅ **四层管线**：BM25 + 向量 + RRF融合 + Reranker；7类19种格式解析（PDF/Word/Excel/PPT/ipynb/OCR）；双后端知识图谱；Karpathy Wiki；RSG质量守卫（503项测试） | ⚠️ 仅代码AST索引 | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **图片搜索** | ✅ 内置 image_search | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **长文目录** | ✅ 聊天内自动 TOC + 滚动同步 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **精准多模态** | ✅ 意图感知视觉（无 UI 操作 = 0 vision token） | ⚠️ 常开（浪费 token） | ⚠️ 盲（无截图） | ⚠️ 未知 | ⚠️ 盲 | ⚠️ 盲 | ❌ |
@@ -323,16 +323,18 @@ Hermes `web_extract` 看似「零配置」因用 LLM 摘要而非本地 embeddin
 
 ### 文档解析引擎
 
-Myrm 内置 10 模块专业文档解析引擎，提供从 PDF 到 Office 全格式的深度解析能力（128 项测试验证）：
+Myrm 内置 11 模块专业文档解析引擎，提供从 PDF 到 Office 到 Jupyter Notebook 全格式的深度解析能力（164 项测试验证）：
 
 | 能力 | Myrm | 竞品 |
 |------|:----:|:----:|
 | PDF 智能编排（3策略：文本/嵌入图/全页渲染） | ✅ | ❌ 仅文本读取 |
+| 超大文档支持（默认 500 页，上限 2000 页 + 并行解析 + 截断透明提示） | ✅ | ❌ OpenClaw 硬限 50 页 |
 | 书签/目录注入 + 字体标题双模检测 | ✅ | ❌ |
 | 表格 L0/L2 两层封装 + RAG 反碎片 | ✅ | ❌ |
 | 图像 3 级噪点过滤（尺寸+纵横比+MD5去重） | ✅ | ❌ |
 | PaddleOCR（CJK 原生·懒加载·可选 GPU） | ✅ | ❌ |
 | Office 全格式（docx/xlsx/pptx） | ✅ | ⚠️ 部分 |
+| Jupyter Notebook 解析（token 节省 84-99%） | ✅ | ❌ |
 | MediaResolver Lazy-Resolve（URL 引用→按需 base64） | ✅ | ❌ base64 内嵌 |
 
 ## vs Hermes Agent (v0.15 Velocity) — 多 Agent 平台

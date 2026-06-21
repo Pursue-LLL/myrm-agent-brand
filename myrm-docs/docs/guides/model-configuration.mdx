@@ -88,6 +88,20 @@ All model configuration values are automatically sanitized on save, preventing c
 
 This means when pasting from docs or terminal, even if your input has extra spaces, slashes, or newlines, the system works correctly. You never need to worry about formatting.
 
+## Network Proxy (For Restricted Networks)
+
+Myrm automatically respects your system's proxy settings — if you already have a VPN or proxy (e.g., ClashX, V2Ray) configured at the OS level, all LLM API calls will route through it with **zero additional configuration**.
+
+**How it works:**
+- The HTTP client (`httpx`) defaults to `trust_env=True`, automatically reading `HTTP_PROXY`/`HTTPS_PROXY`/`ALL_PROXY` environment variables
+- System-level proxy settings (macOS Network Preferences, Windows Internet Options) are automatically applied
+- No restart required — proxy changes take effect on the next API call
+
+**Alternative: Custom Base URL:**
+If you prefer a relay/forwarding service (e.g., one-api, new-api), simply set each provider's **Base URL** to your relay endpoint. Myrm supports this per-provider — you can mix direct connections and relays as needed.
+
+**Cloud users:** In SaaS mode, the control plane's LLM Relay handles all provider connections — no proxy configuration needed.
+
 ## Fault Tolerance
 
 The 14-layer error recovery system handles failures automatically:
