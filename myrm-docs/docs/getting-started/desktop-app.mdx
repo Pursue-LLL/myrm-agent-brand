@@ -45,6 +45,7 @@ The desktop app provides deep system integration that no browser-based AI tool c
 - **Port Conflict Detection** — Pre-launch checks to prevent port collisions
 - **Out-of-the-box API alignment** — In default Desktop mode the UI talks to backend on `127.0.0.1:8080` automatically (no manual port hunting). Enable **WebUI mode** when you need remote access; the UI then reads your configured port (e.g. `25808`) from system config
 - **Boot screen backend gate** — On cold start, the boot animation waits until the Python backend `/health` succeeds before entering the main UI, avoiding connection-error floods; Rust also polls health for up to 30s
+- **Local dev browser parity** — When developing with `bun run dev` on `:3000`, API rewrites authenticate correctly even when the proxy connects via IPv4-mapped loopback (`::ffff:127.0.0.1` on macOS); no ConfigSync 401 on first load
 - **Sidecar build CLI** — Maintainers run `./myrm desktop sidecar` to build release binaries; `./myrm desktop check-sidecar` fails on empty placeholders
 - **Public Ingress** — Paste your own HTTPS tunnel URL (cpolar, NATAPP, frp, etc.); see [Tunnel Guide](/docs/guides/tunnel)
 - **macOS Quarantine Fix** — Detect and auto-heal `com.apple.quarantine` attributes

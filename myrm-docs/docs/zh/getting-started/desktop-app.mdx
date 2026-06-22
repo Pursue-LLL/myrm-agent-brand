@@ -45,6 +45,7 @@ Myrm Desktop 具备智能跨平台分发能力：
 - **端口冲突检测** — 启动前检查端口占用
 - **开箱即用 API 对齐** — 默认桌面模式下 UI 自动连接 `127.0.0.1:8080` 后端，无需手动改端口。启用 **WebUI 模式** 进行远程访问时，UI 从系统配置读取你设定的端口（如 `25808`）
 - **Boot 屏后端门控** — 冷启动时 Boot 动画会等待 Python 后端 `/health` 就绪后再进入主界面，避免 `ECONNREFUSED` 报错；Rust 侧亦最多 30s 健康轮询
+- **本地浏览器开发一致** — 使用 `bun run dev` 在 `:3000` 联调时，即使 macOS 代理以 IPv4-mapped 回环（`::ffff:127.0.0.1`）连接后端，Settings/ConfigSync 也不会再出现首屏 401
 - **Sidecar 构建命令** — 维护者可用 `./myrm desktop sidecar` 构建 release 二进制；`./myrm desktop check-sidecar` 校验非空占位
 - **公网 Ingress** — 粘贴自选 HTTPS 穿透地址（cpolar、NATAPP、frp 等）；见[隧道指南](/zh/guides/tunnel)
 - **macOS 隔离修复** — 检测并自动修复 `com.apple.quarantine` 属性
