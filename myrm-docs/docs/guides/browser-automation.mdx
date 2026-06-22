@@ -499,6 +499,32 @@ The Extension Bridge spans 5 layers:
 4. **Chrome Extension** — MV3 Service Worker with CDP attachment capability
 5. **Frontend Panel** — React settings component for status and domain management
 
+### Side Panel Chat — AI Assistant Alongside Every Webpage
+
+The Chrome Extension includes a **Side Panel** that opens alongside any webpage, providing an immersive chat experience without leaving the current page.
+
+**Key capabilities**:
+
+- **Context-aware conversations** — Every message automatically includes the current page title and URL, so the agent understands what you're looking at
+- **Text selection forwarding** — Select text on any page, and it appears as a quoted reference in the chat input. Right-click → "Ask Myrm about this" sends it directly
+- **Full agent capabilities** — The Side Panel uses the same server APIs as the main WebUI. Code execution, web research, file operations, tool approval — everything works
+- **Real-time streaming** — SSE-based streaming with tool progress indicators (running/done/error), matching the same `AgentEventType` protocol as the main UI
+- **Tool approval inline** — When the agent needs permission for sensitive operations (file writes, shell commands), an approval dialog appears directly in the Side Panel
+- **Cancel anytime** — A cancel button aborts both the frontend stream and the backend agent execution
+- **Viewport glow** — A subtle glowing border appears on the webpage while the agent is working, providing non-intrusive visual feedback
+- **Keyboard shortcut** — `Ctrl+Shift+M` (or `Cmd+Shift+M` on macOS) toggles the Side Panel
+
+**How to use**:
+
+1. Install the Myrm Extension (same extension used for the Extension Bridge)
+2. Configure server URL and auth token in the extension popup
+3. Click the extension icon or press `Ctrl+Shift+M` to open the Side Panel
+4. Start chatting — the current page context is attached automatically
+
+<Note>
+The Side Panel and Extension Bridge share the same extension. You get both capabilities with a single install.
+</Note>
+
 ## Per-Agent Browser Configuration (4-Axis Control)
 
 Each agent has four independent browser configuration axes, all configurable in the WebUI Settings → Agents → Capability Config:
