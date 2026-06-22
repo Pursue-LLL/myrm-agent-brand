@@ -79,7 +79,15 @@ Once the tunnel is running, the **Mobile Session Hub** lets you:
 - Receive real-time SSE progress updates
 - Approve HITL requests, steer, or **stop tasks remotely** (with success/failure toast — works even when re-attaching to an in-progress SSE stream)
 
-Access is secured by **HMAC pair tokens** with automatic TTL renewal. Remote connections are automatically assigned the `REMOTE_EXPOSED` trust zone, which disables dangerous tools (shell, file_write) for safety.
+Access is protected by **7 layers of security**:
+
+1. **E2EE** — End-to-end encryption (NaCl Box: Curve25519 + XSalsa20-Poly1305) for all mobile traffic
+2. **HMAC pair tokens** — SHA-256 signed tokens with automatic TTL renewal and purpose-scoped authorization
+3. **Trust Zone** — 6 admission paths auto-classified into 3 trust levels; remote requests are `REMOTE_EXPOSED`
+4. **Tool restrictions** — Dangerous tools (shell, file_write, yolo_mode) automatically disabled for remote sessions
+5. **Chat-scoped binding** — Each pair token is bound to a specific chat session, preventing cross-session access
+6. **Key file protection** — Cryptographic keys stored with 0600 permissions, auto-rotated on password change
+7. **Session eviction** — LRU + TTL (256 max sessions, 1-hour expiry) prevents session accumulation
 
 ## Security
 

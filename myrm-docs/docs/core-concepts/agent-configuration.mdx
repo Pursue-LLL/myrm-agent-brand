@@ -192,3 +192,39 @@ Agents can be bound to different contexts:
 | **IM Topics** | `/bind` command assigns agent to a chat topic |
 
 Unbound contexts use the default general-purpose agent. Switch agents anytime via the GUI or the `/bind` / `/unbind` commands in messaging channels.
+
+## Slash Command Bindings
+
+Each agent can define custom slash commands that trigger one or more skills in a single turn.
+
+### Single Skill
+
+Map a command like `/deploy` to one skill:
+
+```yaml
+command_name: deploy
+skill_ids: [deploy_skill]
+description: Deploy to production
+```
+
+### Multi-Skill Bundle
+
+Combine multiple skills into a single command with optional guidance:
+
+```yaml
+command_name: daily-report
+skill_ids: [data_collector, report_generator, email_sender]
+instruction: Collect today's metrics, generate a summary, and email it to the team.
+```
+
+When triggered, all SOPs are merged and injected into a single LLM turn with automatic token budget protection (12K char soft cap).
+
+### How It Works
+
+1. **Configure** — In the Agent editor, select multiple skills from a dropdown, optionally add an instruction
+2. **Trigger** — Type `/daily-report` in the slash palette (WebUI), desktop app, or any IM channel
+3. **Execute** — The harness loads all SOPs, enforces the token budget, and runs them as one coordinated turn
+
+### Per-Agent Isolation
+
+Each agent has its own set of command bindings. A "Code Assistant" agent's `/review` is completely independent from an "Ops Assistant" agent's `/deploy` — no crosstalk, no conflicts.

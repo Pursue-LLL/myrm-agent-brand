@@ -192,3 +192,39 @@ Agent 可绑定到不同上下文：
 | **IM 话题** | `/bind` 将 Agent 绑到话题 |
 
 未绑定上下文使用默认通用 Agent。可随时在 GUI 或消息渠道 `/bind` / `/unbind` 切换。
+
+## Slash 命令绑定
+
+每个 Agent 可自定义 Slash 命令，一键触发一个或多个技能。
+
+### 单技能
+
+将 `/deploy` 映射到一个技能：
+
+```yaml
+command_name: deploy
+skill_ids: [deploy_skill]
+description: 部署到生产环境
+```
+
+### 多技能组合（Bundle）
+
+将多个技能合并为一个命令，附加可选引导词：
+
+```yaml
+command_name: daily-report
+skill_ids: [data_collector, report_generator, email_sender]
+instruction: 收集今日指标，生成汇总报告，发送邮件给团队。
+```
+
+触发时，所有技能 SOP 合并注入到一次 LLM 对话中，自动 Token 预算保护（12K 字符软上限）。
+
+### 工作流程
+
+1. **配置** — 在 Agent 编辑器中多选技能，可选填写引导词
+2. **触发** — 在 Slash 面板（WebUI）、桌面端或任意 IM 渠道输入 `/daily-report`
+3. **执行** — Harness 加载所有 SOP，强制 Token 预算，协同执行
+
+### Agent 级隔离
+
+每个 Agent 拥有独立的命令绑定。「代码助手」的 `/review` 与「运维助手」的 `/deploy` 完全独立。

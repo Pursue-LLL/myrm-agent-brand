@@ -186,6 +186,19 @@ Start a task on your desktop, check progress from your phone, manage tasks via `
 
 Transfer a conversation from one platform to another without losing context. Use the `/handoff` command in any IM channel or the "Transfer to..." menu in Web UI. The handoff is instant (single DB update, millisecond latency) and preserves the full prompt cache.
 
+## Session Continuity & Context Preservation
+
+Remote control through IM never loses context — four layers guarantee seamless continuity:
+
+| Layer | What it does |
+|-------|-------------|
+| **Session Strategy** | Choose Persistent (never reset), Daily (fresh each morning), or Idle (reset after N minutes of inactivity) |
+| **Auto-Reset Notification** | When a session resets, the agent is told "this is a fresh conversation" and the user sees a notice — no hallucinated references to prior context |
+| **History Backfill** | On cold start, the last 15 messages from the channel are automatically replayed into the session so the agent has immediate context |
+| **Shared Context** | Cross-agent and cross-channel memory sharing — work started on desktop continues seamlessly when you switch to mobile IM |
+
+Unlike message-forwarding architectures (e.g., Coze → Claude Code) that lose workspace context in transit, Myrm's agent runs directly on your workspace. It has full filesystem access, can run linters, check git status, and explore the project tree — no IDE state synchronization layer needed.
+
 ## Channel Self-Healing & Reliability
 
 Every channel runs under a **ChannelGateway** that continuously monitors health and automatically recovers from failures — no human intervention required.

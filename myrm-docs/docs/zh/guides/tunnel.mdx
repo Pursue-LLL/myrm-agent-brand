@@ -78,7 +78,15 @@ Myrm 还内置了 **Cloudflare Quick Tunnel**，无需安装外部工具即可�
 - 接收实时 SSE 进度推送
 - 远程审批 HITL 请求、调整指令、或**停止任务（带成功/失败 toast，attach 重连流同样有效）**
 
-访问安全由 **HMAC 配对令牌** 保障（自动续期 TTL）。远程连接自动分配 `REMOTE_EXPOSED` 信任区，危险工具（shell、file_write 等）会被自动禁用。
+访问受 **7 层安全体系** 保护：
+
+1. **E2EE 端到端加密** — NaCl Box（Curve25519 + XSalsa20-Poly1305）加密全部移动端通信
+2. **HMAC 配对令牌** — SHA-256 签名 + 自动续期 TTL + Purpose 范围授权
+3. **Trust Zone 信任分级** — 6 种入口路径自动分为 3 级信任；远程请求为 `REMOTE_EXPOSED`
+4. **工具权限收紧** — 远程会话自动禁用 shell、file_write、yolo_mode 等危险工具
+5. **会话绑定 chat_id** — 每个配对令牌绑定特定对话，防止跨会话越权
+6. **密钥文件保护** — 加密密钥以 0600 权限存储，修改密码时自动轮换
+7. **会话驱逐** — LRU + TTL（256 上限、1 小时过期）防止会话堆积
 
 ## 安全
 
