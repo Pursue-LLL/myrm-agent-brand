@@ -69,9 +69,9 @@ Hermes、OpenClaw、OpenCode、Claude Code 都有基础 web 搜索/抓取。Myrm
 
 Precision 用语义重排（阈值 **0.6**）— 低相关块丢弃。
 
-### 图片搜索
+### 视觉参考（无独立 image search 工具）
 
-内置 `image_search_tool`（DuckDuckGo），15 分钟缓存 — 视觉研究无需额外 Skill。
+需要找参考图时，Agent 使用 **web_search → web_fetch / browser** 从页面获取图片 URL，再配合 **image_tool** 生图。与 OpenClaw / Hermes 等通用助手一致，不维护单独的 DuckDuckGo 搜图依赖。
 
 ### 韧性
 
@@ -173,7 +173,7 @@ Myrm 的 Deep Research 采用结构化的 **CLARIFY → PLAN → RESEARCH → RE
 | 向量提取模式 | ✅ fetch_and_extract | ❌（LLM 摘要） | ❌ | ❌ |
 | DOM 剪枝 | ✅ | ❌ | ❌ 正则/文本 | ❌ Turndown 整页 |
 | 中文搜索 | ✅ SearxNG+百度 | ⚠️ 依赖后端 | ❌ DDG 差 | ⚠️ 云端 API |
-| 图片搜索 | ✅ 内置 | ❌ | ❌ | ❌ |
+| 图片搜索 | ❌（web_search + web_fetch / browser） | ❌ | ❌ | ❌ |
 | 本地月成本 | **$0** | API 费 | Firecrawl 回退费 | Exa/Parallel 费 |
 
 ### Hermes 差异（非更强）

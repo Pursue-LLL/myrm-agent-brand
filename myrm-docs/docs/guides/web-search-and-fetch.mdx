@@ -69,9 +69,9 @@ This means: no extra latency, no prompt cache break, and more flexible than a st
 
 Precision mode uses semantic reranking (score threshold **0.6**) — low-relevance chunks are dropped.
 
-### Image Search
+### Visual references (no dedicated image search tool)
 
-Built-in `image_search_tool` (DuckDuckGo-powered) with 15-minute cache — useful for visual research without extra Skills.
+When reference images are needed, the agent uses **web_search → web_fetch / browser** to obtain image URLs from pages, then **image_tool** for generation — same pattern as OpenClaw / Hermes; no separate DuckDuckGo image-search dependency.
 
 ### Resilience
 
@@ -173,7 +173,7 @@ Myrm's Deep Research runs a structured **CLARIFY → PLAN → RESEARCH → REPOR
 | Vector extract mode | ✅ fetch_and_extract | ❌ (LLM summary) | ❌ | ❌ |
 | DOM pruning | ✅ | ❌ | ❌ regex/text | ❌ Turndown full page |
 | Chinese search | ✅ SearxNG+Baidu | ⚠️ backend-dependent | ❌ DDG poor | ⚠️ cloud API |
-| Image search | ✅ built-in | ❌ | ❌ | ❌ |
+| Image search | ❌ (web_search + web_fetch / browser) | ❌ | ❌ | ❌ |
 | Monthly cost (local) | **$0** | API fees | Firecrawl fallback fees | Exa/Parallel fees |
 
 ### Where Hermes Differs (not stronger)

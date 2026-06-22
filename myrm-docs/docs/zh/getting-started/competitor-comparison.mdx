@@ -63,7 +63,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **网页搜索** | ✅ 8 引擎 + BM25/Reranker 过滤 + 三层防幻觉 | ⚠️ 云 API 透传 | ⚠️ DDG/Bing 抓取 | ⚠️ 同 OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
 | **网页抓取** | ✅ 三层 + 向量提取 + DOM 修剪 | ⚠️ web_extract（Firecrawl + LLM） | ⚠️ HTTP / Firecrawl 回退 | ⚠️ 同上 | ⚠️ 仅 HTTP | ❌ | ❌ |
 | **工作区 RAG** | ✅ **四层管线**：BM25 + 向量 + RRF融合 + Reranker；7类19种格式解析（PDF/Word/Excel/PPT/ipynb/OCR）；双后端知识图谱；Karpathy Wiki；RSG质量守卫（503项测试） | ⚠️ 仅代码AST索引 | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **图片搜索** | ✅ 内置 image_search | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **图片搜索** | ❌（web_search + web_fetch / browser 可找页面图） | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **长文目录** | ✅ 聊天内自动 TOC + 滚动同步 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **精准多模态** | ✅ 意图感知视觉（无 UI 操作 = 0 vision token） | ⚠️ 常开（浪费 token） | ⚠️ 盲（无截图） | ⚠️ 未知 | ⚠️ 盲 | ⚠️ 盲 | ❌ |
 | **标题生成** | ✅ O(1) 防阻塞 + 脱敏 | ⚠️ 易卡死/泄漏 | ⚠️ 易卡死/泄漏 | ⚠️ 未知 | ⚠️ 未知 | ⚠️ 未知 | ❌ |
@@ -281,7 +281,6 @@ Myrm 将 **web_search** 与 **web_fetch** 作为一等内置工具。竞品要�
 | **Web Fetch** | HTTP → Browser → Stealth + DOM pruning + Markdown + Schema-Driven structured extraction | Article body, not nav/ads HTML — **~40–50% fewer tokens**; Schema extraction saves **97%** |
 | **Logged-in fetch** | SessionVault: CookieJar (HTTP) + `storage_state` (browser) | One login works across fetch tiers — competitors often lose cookies on engine switch |
 | **fetch_and_extract** | Crawl → BM25 + vector hybrid → Reranker | Long pages → only relevant passages (zero LLM cost vs Hermes Gemini summary) |
-| **Image search** | Built-in `image_search_tool` | Visual research without extra Skills |
 | **Cost** | 100% local processing | **$0/month** vs Firecrawl/Jina/Exa subscriptions |
 | **Chinese search** | SearxNG + Baidu aggregation | Works out of the box — no Tavily/baidu Skill hacks |
 | **PTC inline** | `tools.web_search` / `tools.web_fetch` in sandbox | Complex flows without extra API round-trips |
