@@ -95,6 +95,33 @@ Multi-agent workflows introduce identity drift and privilege escalation risks. M
 | **Sink Policies** | Tainted sessions escalate to HITL approval for dangerous tool combinations (e.g., `EXTERNAL_NETWORK` taint + `bash_tool` = blocked without approval) |
 | **Budget Boundary** | 4-dimension `DelegationBudget` (token + USD + time + max descendants) prevents runaway sub-agent chains |
 
+## Skill Installation Security
+
+When installing skills from any source (GitHub, SkillHub, file upload), every skill passes through a **triple-layer security gate** before activation:
+
+| Layer | Mechanism | What It Catches |
+|-------|-----------|----------------|
+| **Regex Scanner** | 113 patterns across 26 threat categories | Shell injection, credential theft, data exfiltration, obfuscated payloads |
+| **AST Analyzer** | Python Abstract Syntax Tree structural analysis | Dangerous imports (`os.system`, `subprocess`), hidden function calls, suspicious code patterns |
+| **LLM Auditor** | Semantic threat assessment by language model | Socially-engineered attacks, multi-step exfiltration chains, intent-masked malicious logic |
+
+### Trust Levels
+
+Skills are assigned one of four trust levels that gate their runtime capabilities:
+
+| Level | Source | Capabilities |
+|-------|--------|-------------|
+| **TRUSTED** | Built-in / official | Full tool access |
+| **INSTALLED** | User-installed, scan passed | Scoped `allowed_tools` access |
+| **UNTRUSTED** | Scan flagged warnings | Read-only tools, no network/filesystem |
+| **REJECTED** | Scan critical findings | Quarantined, cannot execute |
+
+The `quarantine_aware` decorator automatically filters rejected skills at runtime — a quarantined skill simply disappears from the agent's available tools without error.
+
+### GUI Security Review
+
+The `ScanConfirmDialog` component shows scan results with finding counts and severity badges before installation. Users see exactly what was detected and can approve or reject with full context.
+
 ## MCP Tool Security
 
 ### Tool Name Isolation
