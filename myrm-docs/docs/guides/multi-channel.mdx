@@ -77,6 +77,25 @@ All channels support:
 - Image / document / audio / video attachments (`MediaType` enum)
 - File uploads with automatic type detection
 
+## Bi-directional File Transfer
+
+Agent-generated files are automatically pushed to IM channels — no manual download needed.
+
+### Inbound (User → Agent)
+
+When you send a document (PDF, Excel, Word, etc.) to the agent via IM, the content is automatically extracted and injected into the LLM context. The agent immediately understands the file without needing to call a file-reading tool.
+
+### Outbound (Agent → User)
+
+When the agent creates files (charts, reports, spreadsheets, compiled documents), they are automatically delivered as media attachments in the chat. Supported artifact types include all files generated through code execution, file writes, or document generation tools.
+
+| Feature | Details |
+|---------|---------|
+| Size limit | 5 MB per file (larger files gracefully skipped) |
+| Failure handling | Automatic retry with media-strip fallback — text never lost |
+| Supported types | IMAGE, DOCUMENT, AUDIO, VIDEO (auto-detected from filename) |
+| Multi-file | All generated files delivered as separate attachments |
+
 ## Channel-Aware Output Adaptation
 
 Myrm uses a **triple-layer** architecture to ensure output is both clean and correctly formatted on every platform:
