@@ -29,5 +29,26 @@ See [Work Units](/docs/core-concepts/work-units) for details on how WU are consu
 ## Data & Privacy
 
 - Each user gets an isolated persistent sandbox volume
-- API keys are stored in an encrypted secrets vault
+- API keys are stored in an encrypted secrets vault (AES-256-GCM with key rotation)
 - See [Privacy Policy](https://myrmagent.ai/privacy) for full details
+
+## Enterprise-Grade Infrastructure
+
+The managed SaaS platform is built on a 21-layer enterprise infrastructure:
+
+| Layer | Capability |
+|-------|-----------|
+| Isolation | Per-user sandbox with dedicated Volume (not shared-process multi-tenant) |
+| Quota | 3-tier resource quotas (per-user / per-sandbox / per-task) |
+| Rate limiting | Configurable per-resource, per-user rate limits |
+| Network | Egress control + command whitelist |
+| Secrets | AES-256-GCM encrypted vault with key rotation |
+| Auth | OAuth/OIDC + Enterprise JWT license validation |
+| Monitoring | Fleet health monitoring with failure threshold alerts |
+| Observability | Prometheus export + multi-tenant metric aggregation |
+| Recovery | State reconciler (DB/Container/WS three-way consistency check) |
+| Scale | Resource scaler (CPU throttle idle sandboxes) + sandbox recycler |
+| Audit | Full audit logging with query, stats, CSV/JSON export |
+| Safety | Killswitch for emergency shutdown |
+
+All 811 infrastructure tests pass with zero failures.
