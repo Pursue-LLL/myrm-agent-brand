@@ -135,7 +135,19 @@ Keep all changes backward compatible
 
 ### 恢复安全
 
-手动恢复暂停目标时，收敛计数器（`no_progress_streak` 和 `loop_restarts`）自动归零，确保 Agent 获得完整新机会，不会立即再次触发收敛。
+手动恢复暂停目标时，所有运行时计数器（`no_progress_streak`、`loop_restarts`、`consecutive_judge_parse_failures`）自动归零，确保 Agent 获得完整新机会，不会立即再次触发收敛或误暂停。
+
+### Judge 失败熔断
+
+如果语义 Judge 模型连续 **3 次**返回无法解析的输出（非有效 JSON），目标自动暂停以防止 token 浪费。此机制保护以下场景：
+
+- 使用了不支持 JSON 格式回复的弱模型
+- 模型暂时降级产生无效输出
+- 避免无限重试循环浪费预算
+
+暂停时，reason 字段明确说明原因并建议切换更强的 Judge 模型。恢复目标后计数器自动重置。
+
+API/网络错误**不**计入此阈值——仅内容级解析失败触发熔断。
 
 ### 前端状态
 

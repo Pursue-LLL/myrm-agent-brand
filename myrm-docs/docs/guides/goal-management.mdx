@@ -135,7 +135,19 @@ When enabled, a goal that pauses due to convergence will automatically restart w
 
 ### Resume Safety
 
-When you manually resume a paused goal, the convergence counters (`no_progress_streak` and `loop_restarts`) are automatically reset to zero. This ensures the agent gets a fresh opportunity without triggering immediate re-convergence.
+When you manually resume a paused goal, all runtime counters (`no_progress_streak`, `loop_restarts`, `consecutive_judge_parse_failures`) are automatically reset to zero. This ensures the agent gets a fresh opportunity without triggering immediate re-convergence or false auto-pauses.
+
+### Judge Failure Circuit Breaker
+
+If the semantic judge model returns unparseable output (not valid JSON) **3 consecutive times**, the goal is automatically paused to prevent burning tokens on a misconfigured judge. This protects against:
+
+- Using a weak model that can't follow the JSON reply contract
+- Temporary model degradation producing garbage output
+- Token budget waste from infinite retry loops
+
+When the goal pauses due to parse failures, the reason field clearly states what happened and suggests switching to a more capable judge model. Resuming the goal resets the failure counter, so you can try again after fixing the configuration.
+
+API/network errors do **not** count toward this threshold — only content-level parse failures trigger the circuit breaker.
 
 ### Frontend Status
 
