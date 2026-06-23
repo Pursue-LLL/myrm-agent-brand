@@ -177,6 +177,28 @@ API/网络错误**不**计入此阈值——仅内容级解析失败触发熔断
 
 子目标纳入语义裁判完成标准。
 
+## IM 斜杠命令
+
+在任意 IM 渠道（Slack、飞书、Telegram、WhatsApp 等）中完整管理目标：
+
+| 命令 | 说明 |
+|------|------|
+| `/goal set <目标>` | 创建目标 |
+| `/goal status` | 查看目标状态、约束和子目标 |
+| `/goal pause` | 暂停目标 |
+| `/goal resume` | 恢复目标 |
+| `/goal clear` | 取消并清除目标 |
+| `/goal budget <额度>` | 追加预算 |
+| `/goal constraint <文本>` | 添加硬约束 |
+| `/goal constraint` | 查看全部约束 |
+| `/goal constraint clear` | 清除全部约束 |
+| `/subgoal add <文本>` | 添加子目标 |
+| `/subgoal list` | 列出子目标 |
+| `/subgoal remove <序号>` | 按序号移除子目标 |
+| `/subgoal clear` | 清除全部子目标 |
+
+通过 IM 添加的约束以"CONSTRAINTS (MUST NOT VIOLATE)"注入 Agent 提示词，语义裁判在完成验证时强制执行，与 GUI 设置的约束行为完全一致。
+
 ## 目标热编辑
 
 执行中可改方向：

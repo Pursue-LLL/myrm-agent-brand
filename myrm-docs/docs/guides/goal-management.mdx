@@ -177,6 +177,28 @@ During execution, you can add new objectives without interrupting the agent:
 
 Subgoals are included in the semantic judge's completion criteria.
 
+## IM Slash Commands
+
+Manage goals entirely from any IM channel (Slack, Feishu, Telegram, WhatsApp, etc.):
+
+| Command | Description |
+|---------|-------------|
+| `/goal set <objective>` | Create a new goal |
+| `/goal status` | View active goal status, constraints, and subgoals |
+| `/goal pause` | Pause the active goal |
+| `/goal resume` | Resume a paused goal |
+| `/goal clear` | Cancel and clear the active goal |
+| `/goal budget <amount>` | Add budget to the active goal |
+| `/goal constraint <text>` | Add a hard constraint the agent must not violate |
+| `/goal constraint` | View all current constraints |
+| `/goal constraint clear` | Remove all constraints |
+| `/subgoal add <text>` | Add a dynamic subgoal |
+| `/subgoal list` | List all subgoals |
+| `/subgoal remove <index>` | Remove a subgoal by index |
+| `/subgoal clear` | Clear all subgoals |
+
+Constraints added via IM are injected into the agent's prompt as "CONSTRAINTS (MUST NOT VIOLATE)" and enforced by the semantic judge during completion verification — identical behavior to GUI-defined constraints.
+
 ## Objective Hot-Edit
 
 Change the goal's direction mid-execution:
