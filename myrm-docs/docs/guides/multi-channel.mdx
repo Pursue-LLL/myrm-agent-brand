@@ -18,6 +18,32 @@ Access your agent from any messaging platform — 35+ channels with automatic fo
 | Voice | Discord Voice (with DAVE E2E encryption) | 1 |
 | Other | Email, SMS, iMessage, Webhook, Zalo | 5 |
 
+## iMessage Deep Integration
+
+Connect to iMessage through [BlueBubbles](https://bluebubbles.app/) — a free, open-source macOS relay. Myrm implements the full BlueBubbles Private API for a native iMessage experience:
+
+| Feature | Description |
+|---------|-------------|
+| Quoted Replies | Agent responses reference the original message with a visible quote bubble |
+| Read Receipts | Incoming messages are marked as "Read" — users know the agent received their message |
+| Tapback Reactions | Agent can react with native iMessage tapbacks (heart, thumbs up/down, laugh, exclamation, question) |
+| Typing Indicator | "Typing..." bubble appears while the agent processes (55s auto-refresh keepalive) |
+| Webhook Auto-Registration | Configure once — webhook registers on start, unregisters on stop. No manual BlueBubbles setup |
+| Media Attachments | Full support for images, videos, audio, documents, and contact cards (vCard) |
+| Group Chat | Supports group conversations with per-group context and sender identification |
+
+### Setup
+
+1. Install [BlueBubbles](https://bluebubbles.app/) on a macOS machine with iMessage active
+2. Navigate to **Settings > Channels > iMessage** in the GUI
+3. Enter your BlueBubbles **API URL** and **password**
+4. Optionally provide a **Webhook URL** — the agent registers it automatically on connect
+5. Enable **Private API** in BlueBubbles for quoted replies, read receipts, and typing indicators
+
+### Graceful Degradation
+
+When the BlueBubbles Private API is unavailable, all features that require it (typing, read receipts, quoted replies) are silently skipped. Basic messaging continues to work without errors.
+
 ## Setup
 
 Navigate to **Settings > Channels** in the GUI to connect a platform. Each channel has its own configuration panel with connection status indicators.
@@ -32,7 +58,18 @@ All channels support:
 
 ## Channel-Aware Output Adaptation
 
-Myrm uses a **dual-insurance** architecture to ensure output renders correctly on every platform:
+Myrm uses a **triple-layer** architecture to ensure output is both clean and correctly formatted on every platform:
+
+### Outbound Noise Filtering
+
+Each channel has its own `RenderStyle` configuration controlling what content the user sees:
+
+| Control | Options | Default |
+|---------|---------|---------|
+| `reasoning_display` | OFF / COLLAPSED / INLINE | OFF (WeChat, WeCom, WhatsApp) or COLLAPSED (Telegram) |
+| `tool_summary_display` | OFF / COMPACT / DETAILED | OFF (WeChat, WeCom, WhatsApp) or COMPACT (Feishu, DingTalk) |
+
+With defaults, IM users only receive **progress labels, final results, and decision prompts** — no tool call parameters, reasoning tokens, or thinking tags. The `strip_thinking_tags()` function provides an additional safety net that removes any LLM thinking blocks that leak through.
 
 ### Pre-hoc Guidance (channel_output_hints)
 
@@ -140,6 +177,37 @@ When you start a background task via `/btw` in any IM channel, the result is aut
 - **Non-disruptive** — runs independently of your notification settings; this is a direct reply, not a broadcast
 
 Start a task in Discord, switch to something else, and come back to find the result waiting in your thread.
+
+## Long-Task Reassurance Messages
+
+When the agent works on a complex task for an extended period without sending any output, it automatically sends reassurance messages so you know it hasn't stalled.
+
+### How It Works
+
+1. A parallel background monitor tracks the time since the last activity (message sent, progress update, etc.)
+2. After 5 minutes of silence, a reassurance message is sent to the originating IM channel
+3. The message includes the number of completed steps and the current stage name (if available)
+4. Up to 3 reassurance messages are sent per task — enough to keep you informed without flooding the chat
+
+### Example Message
+
+> ⚓ Still working… (12 steps done, data analysis) — hang tight!
+
+### Smart Silence Detection
+
+Unlike simple interval timers, the monitor **resets whenever the agent produces output**. If the agent sends a progress update at minute 4, the 5-minute silence window restarts from that point. This avoids unnecessary reminders when the agent is actively communicating.
+
+### Details
+
+| Aspect | Behavior |
+|--------|----------|
+| Silence threshold | 300 seconds (configurable via `_SILENCE_REASSURANCE_THRESHOLD`) |
+| Max messages | 3 per task (configurable via `_MAX_REASSURANCE_COUNT`) |
+| Priority | SYSTEM — delivered even under rate limiting |
+| Language | Fully internationalized (English, Chinese, extensible via `.ftl` files) |
+| Typing indicator | Runs in parallel — "Typing..." keeps showing during the silence window |
+| Prompt cache | Zero impact — reassurance is outbound-only, never modifies the system prompt |
+| Error handling | Send failures are logged silently; the main task is never interrupted |
 
 ## In-Chat Agent Switching
 

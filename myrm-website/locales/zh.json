@@ -415,7 +415,7 @@
           "feature": "全渠道触达 · 26渠道+端内Agent切换+三级绑定+身份隔离",
           "hermes": "~19平台, 无Topic级Agent绑定",
           "openclaw": "易断连, 无审批通知",
-          "myrmAgent": "26渠道+InlineKeyboard Agent选择器(含实时绑定状态)+Thread/Chat/Channel三级绑定+六维隔离+富文本+智能表格降级"
+          "myrmAgent": "26渠道+InlineKeyboard Agent选择器(含实时绑定状态)+Thread/Chat/Channel三级绑定+六维隔离+富文本+智能表格降级+按渠道出站降噪(只推结果与决策,零工具调用刷屏)+长任务智能安抚(静默检测+i18n进度通知含步骤数与阶段名)+iMessage原生体验(引用回复/已读回执/输入指示/Tapback/Webhook自注册)"
         },
         "voiceInteraction": {
           "feature": "语音交互 · 说话即操作 + 视频自动转录",
@@ -582,8 +582,8 @@
         "mcpArchitecture": {
           "feature": "MCP 架构 · 持久连接 + Prompt 缓存稳定",
           "hermes": "会话级冷重连",
-          "openclaw": "会话级冷重连",
-          "myrmAgent": "持久热连接 + 事件驱动 + 冻结代理（90% 缓存命中）+ 客户端身份自动声明"
+          "openclaw": "会话级冷重连，无执行超时（工具卡死永久等待），基础错误透传（无分类、无熔断、无注入防护）",
+          "myrmAgent": "持久热连接 + 事件驱动 + 冻结代理（90% 缓存命中）+ 双层超时（SDK+wrapper）+ 3次自动重试 + 自愈重连 + 按服务器可配 + 客户端身份自动声明 + 多层错误架构（分类+熔断+脱敏+i18n诊断）"
         },
         "unifiedToolGateway": {
           "feature": "统一工具网关",
@@ -775,7 +775,7 @@
           "feature": "长任务执行保障 · 断线托管+Catchup速览+IM通知+防休眠",
           "hermes": "_no",
           "openclaw": "_no",
-          "myrmAgent": "5层保障+Catchup Inbox+35+渠道通知+完成/澄清OS弹窗(切走自动提醒)+3平台防休眠+Kanban持久化+服务重启恢复"
+          "myrmAgent": "5层保障+Catchup Inbox+35+渠道通知+完成/澄清OS弹窗(切走自动提醒)+3平台防休眠+Kanban持久化+服务重启恢复+智能静默安抚(长任务期间自动推送i18n进度通知含步骤数与阶段名)"
         },
         "longTaskOrchestration": {
           "feature": "长程任务闭环 · 极简审阅+优雅挂起+静默自省",
@@ -1154,7 +1154,7 @@
         "aiWorkstation": {
           "label": "你的 AI 工作站",
           "title": "不是聊天机器人，不是 IDE 插件——是你的 AI 工作站",
-          "desc": "记忆、技能、Agent、渠道与完整 GUI——下载后约两分钟即可开始第一项真实任务。冷启动时 Boot 屏会等本地后端就绪再进主界面，避免一打开就报错。macOS 本地浏览器开发（`:3000`）也已修复 ConfigSync 401，首屏不再白屏。硬件感知管家在下载前即展示预估推理速度（~tok/s），让你做出真正明智的模型选择。",
+          "desc": "记忆、技能、Agent、渠道与完整 GUI——两分钟开始第一项真实任务。Boot 屏等后端就绪再进主界面；硬件管家下载前展示推理速度。",
           "stat": "2 分钟",
           "statLabel": "安装到首次对话",
           "tag1": "桌面端 + 本地 WebUI",

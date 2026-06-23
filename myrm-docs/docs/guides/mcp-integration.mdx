@@ -109,6 +109,27 @@ Myrm automatically optimizes MCP tool schemas for LLM compatibility:
 
 Each MCP server runs on a single, persistent session that stays warm for the entire agent lifetime. Tool calls are serialized onto the session through an internal queue — no subprocess is spawned per call, and no re-initialization handshake is needed between calls.
 
+### Execution Timeout Protection
+
+Every MCP tool call is protected by a dual-layer timeout mechanism:
+
+- **SDK layer** — `read_timeout_seconds` is passed to the MCP SDK session, preventing hung responses at the transport level
+- **Wrapper layer** — An independent `asyncio.timeout` wraps the entire execution (including response normalization), catching tools that stall after transport confirms receipt
+- **Per-server configurable** — Each server can set its own `connect_timeout` (default 15s) and `execute_timeout` (default 120s, max 300s)
+- **Graceful degradation** — On timeout, a descriptive error string is returned to the LLM (not an exception), allowing the agent to decide next steps
+- **Auto-retry on enumeration** — Tool discovery retries up to 3 times with 300ms backoff on transient failures
+
+### Error Transparency
+
+When an MCP tool reports a failure (`isError: true`), the full error chain is handled without losing information:
+
+- **Server-side error pass-through** — The original error text from the MCP server is extracted and forwarded to the LLM exactly as reported
+- **Security sanitization** — Credentials are redacted (`redact_sensitive_text`) and structural framing tokens are stripped (`sanitize`) to prevent prompt injection via error messages
+- **Error classification** — Errors are categorized (network_blocked, timeout, sandbox_ro, etc.) enabling circuit-breaker patterns and targeted recovery
+- **Circuit breaker** — Terminal errors (e.g. network permanently blocked) are registered; subsequent calls to the same category fail fast without retrying
+- **Structured diagnostics** — Execution phase, tool name, output previews (head + tail truncation), and recovery hints are recorded for debugging
+- **Frontend display** — Errors surface in the UI as structured progress steps with i18n messages, resolution steps, and recovery actions — not just raw text
+
 ### Self-Healing Reconnection
 
 When a transport break occurs (subprocess crash, SSE/HTTP drop, idle timeout), the session actor reconnects in place:

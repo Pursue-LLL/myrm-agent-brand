@@ -415,7 +415,7 @@
           "feature": "Omni-channel · 26 channels + in-chat Agent switching + 3-tier binding + Goal management",
           "hermes": "~19 platforms, no per-topic Agent binding",
           "openclaw": "Prone to drop, no approval push",
-          "myrmAgent": "26 channels + InlineKeyboard Agent picker with live status + Thread/Chat/Channel 3-tier binding + 6-dim isolation + Rich Message with smart table fallback"
+          "myrmAgent": "26 channels + InlineKeyboard Agent picker with live status + Thread/Chat/Channel 3-tier binding + 6-dim isolation + Rich Message with smart table fallback + per-channel outbound noise filtering (only results & decisions, zero tool-call spam) + smart long-task reassurance (progress-aware silence detection + i18n + step count & stage name) + iMessage native (quoted reply, read receipts, typing, tapback, auto-webhook)"
         },
         "voiceInteraction": {
           "feature": "Voice · Speak to operate + Video transcription",
@@ -582,8 +582,8 @@
         "mcpArchitecture": {
           "feature": "MCP Architecture · persistent connection + prompt cache stable",
           "hermes": "Cold reconnect per session",
-          "openclaw": "Cold reconnect per session",
-          "myrmAgent": "Persistent warm + event-driven + frozen proxy (90% cache hit) + auto client identity"
+          "openclaw": "Cold reconnect per session, no execution timeout (tools can hang forever), basic error pass-through (no classification, no circuit breaker, no prompt injection protection)",
+          "myrmAgent": "Persistent warm + event-driven + frozen proxy (90% cache hit) + dual-layer timeout (SDK + wrapper) + 3x auto-retry + self-healing reconnect + per-server configurable + auto client identity + multi-layer error architecture (classify + circuit-break + sanitize + i18n diagnostics)"
         },
         "unifiedToolGateway": {
           "feature": "Unified Tool Gateway",
@@ -775,7 +775,7 @@
           "feature": "Task Execution Resilience · Offline guardian+Catchup Inbox+IM notify+sleep prevention",
           "hermes": "_no",
           "openclaw": "_no",
-          "myrmAgent": "5-layer protection+Catchup Inbox+35+ channel notify+Stream completion/clarification OS popup(auto-alert on tab switch)+3-platform sleep inhibitor+Kanban persistence+server restart recovery"
+          "myrmAgent": "5-layer protection+Catchup Inbox+35+ channel notify+Stream completion/clarification OS popup(auto-alert on tab switch)+3-platform sleep inhibitor+Kanban persistence+server restart recovery+smart silence reassurance (progress-aware i18n messages during long tasks)"
         },
         "kanbanUI": {
           "feature": "Kanban UI for SubAgents · Multi-agent progress at a glance",
@@ -1154,7 +1154,7 @@
         "aiWorkstation": {
           "label": "Your workstation",
           "title": "Not a chatbot. Not an IDE plugin. Your AI workstation.",
-          "desc": "Memory, skills, agents, channels, full GUI — two minutes to first real task. On cold start, the boot screen waits for the local backend before the main UI, so you do not land on connection errors. Local browser dev on `:3000` passes ConfigSync on macOS too — no mystery 401 on first load. Hardware cookbook shows ~tok/s speed before you download.",
+          "desc": "Memory, skills, agents, channels, full GUI — two minutes to first task. Boot screen waits for backend; hardware guide shows tok/s up front.",
           "stat": "2 min",
           "statLabel": "install to first chat",
           "tag1": "Desktop + local WebUI",
@@ -1204,7 +1204,7 @@
         "multiAgent": {
           "label": "Multi-agent",
           "title": "A team of agents — with you as boss",
-          "desc": "6 orchestration modes (chain/batch/DAG/race/adversarial verify/swarm fission) auto-decompose complex tasks; COW physical workspace isolation ensures concurrency safety; 3-tier sandbox starts in milliseconds without Docker. Live progress, cost tracking, cancel or resume from one dashboard — 1,101 dedicated tests passed.",
+          "desc": "6 orchestration modes auto-decompose tasks; COW isolation ensures concurrency safety; 3-tier sandbox starts without Docker. One dashboard.",
           "stat": "6",
           "statLabel": "orchestration modes",
           "tag1": "Adversarial verify · auto-correct",

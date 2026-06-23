@@ -395,6 +395,16 @@ For scenarios beyond CAPTCHAs — 2FA prompts, payment gateways, proprietary for
 4. You complete the action directly in the browser
 5. Click "Done" — agent captures the new page state and continues
 
+### Terminal Challenge Hard-Halt
+
+When a CAPTCHA remains unsolvable even after engine auto-upgrade (Chromium → Camoufox), the agent immediately stops wasting time:
+
+1. Agent raises a structured `ToolError` with `BROWSER_TERMINAL_CHALLENGE` error code
+2. The domain is remembered for 10 minutes — any subsequent navigation to that domain fails in **0ms** instead of retrying
+3. The Agent receives clear guidance: "Do NOT retry this domain. Inform the user and move on to alternative approaches."
+
+This prevents the common industry problem of agents burning tokens and time on insurmountable challenges.
+
 ### Why This Matters
 
 | Without Myrm | With Myrm |
@@ -403,6 +413,7 @@ For scenarios beyond CAPTCHAs — 2FA prompts, payment gateways, proprietary for
 | Agent fails silently on 2FA | Proactively asks for help |
 | User must monitor constantly | Only interrupts when truly needed |
 | Lost context after intervention | Captures post-human page state and adapts |
+| Agent retries blocked domain endlessly | 0ms fast-fail for remembered terminal challenges |
 
 ## 5-Layer Anti-Crawl Protection
 
