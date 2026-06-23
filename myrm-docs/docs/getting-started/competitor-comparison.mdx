@@ -1215,13 +1215,14 @@ Automated regression on a developer machine (minimal batch, ~7s total):
 | OSS scripts architecture tests | **5 passed** |
 | `check_fractal_docs --no-stub` + line budget CI scripts | **OK** |
 
-**Total migration-specific tests: 125 all passed** (Jun 19, 2026 — 6 batches covering architecture guard / multi-competitor discovery / four-lane split / E2E / API / config version management). Discovery scoped to explicit test home dirs [server `competitor_discovery.py`] — production `/migration/discover` still scans the real user home unchanged. Competitors checked (OpenClaw, Hermes, DeerFlow, CodePilot, LobsterAI, CoPaw, jiuwenclaw, PilotDeck): **no GUI eight-source four-lane wizard**; Hermes offers CLI `claw migrate` only; PilotDeck has skill-only file copy (361 lines, no memory/instruction/credential migration).
+**Total migration-specific tests: 144 all passed** (Jun 23, 2026 — covering architecture guard / multi-competitor discovery / four-lane split / E2E / API / config version management / usage sidecar import + Curator integration). Discovery scoped to explicit test home dirs [server `competitor_discovery.py`] — production `/migration/discover` still scans the real user home unchanged. Competitors checked (OpenClaw, Hermes, DeerFlow, CodePilot, LobsterAI, CoPaw, jiuwenclaw, PilotDeck): **no GUI eight-source four-lane wizard**; Hermes offers CLI `claw migrate` only; PilotDeck has skill-only file copy (361 lines, no memory/instruction/credential/usage migration).
 
 ### What you get after migrating (user-facing)
 
 - **Keep your persona and habits** — SOUL-style instructions land on an Agent profile you pick, not a one-size-fits-all default.
 - **Keep structured memory** — facts and episodic sessions import with batch rollback if you change your mind.
 - **Keep skills under control** — imported skills sit in a review queue; you approve and bind them to the right Agent.
+- **Keep skill usage history** — call counts, last-used dates, pinned status, and lifecycle state are automatically preserved from Hermes `.usage.json`. Your most-used skills stay prioritized; pinned skills remain pinned; no cold-start re-learning period.
 - **No silent key theft** — API keys import only when you opt in lane-by-lane.
 - **Honest follow-up** — MCP servers and messaging channels are guided in Settings (we do not claim one-click channel parity with Hermes CLI hints).
 
