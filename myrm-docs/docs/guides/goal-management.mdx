@@ -149,6 +149,17 @@ When the goal pauses due to parse failures, the reason field clearly states what
 
 API/network errors do **not** count toward this threshold — only content-level parse failures trigger the circuit breaker.
 
+### Server Restart Recovery
+
+If the server restarts (upgrade, crash, or container reschedule) while a goal is active, the orphaned goal is automatically detected and paused with a clear reason:
+
+- On startup, the server scans for goals still marked ACTIVE with no execution engine driving them
+- Each orphaned goal transitions to **PAUSED** with the reason "Server restarted — resume when ready"
+- A system notification alerts you that goals were paused
+- Open the affected chat to see the paused status and one-click Resume when ready
+
+This prevents silent token waste (no automatic resume without your consent) while ensuring you never lose track of interrupted work.
+
 ### Frontend Status
 
 The Goal Status Card displays differentiated states:
