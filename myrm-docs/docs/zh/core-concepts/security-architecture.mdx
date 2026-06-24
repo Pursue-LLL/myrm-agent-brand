@@ -217,6 +217,10 @@ AI 分类器（`TranscriptClassifier`）审查工具调用是否符合用户原�
 
 BLOCKED / REDACTED / WARN / CLEAN 四级。
 
+### 摘要路径保护
+
+长对话压缩为结构化摘要时，PII 和凭证可能在摘要过程中残留。Myrm 在摘要持久化前对所有字段执行双重脱敏（`redact_leaks` + `redact_pii`），确保手机号、邮箱、API Key 等敏感数据不会残留在压缩后的对话历史中。
+
 ### 污点追踪
 
 跟踪敏感数据流经工具执行的间接泄漏路径。

@@ -415,6 +415,39 @@ This prevents the common industry problem of agents burning tokens and time on i
 | Lost context after intervention | Captures post-human page state and adapts |
 | Agent retries blocked domain endlessly | 0ms fast-fail for remembered terminal challenges |
 
+## Resource-Efficient Browsing — Run Anywhere
+
+Myrm's browser system is designed to run efficiently on everything from $5/month cloud containers to low-spec laptops, without sacrificing capability.
+
+### How It Saves Resources
+
+| Optimization | What It Does | Impact |
+|:-------------|:-------------|:-------|
+| **Adaptive Routing** | 70% of pages resolved via lightweight HTTP (no browser launched) | ~0MB per HTTP-only page |
+| **Dual Engine** | Camoufox (Firefox, ~40MB idle) available alongside Chromium (~200MB+) | 5x memory reduction for stealth tasks |
+| **MemoryGuard** | Monitors system memory; blocks new browser pages above 85% usage | Prevents OOM crashes in containers |
+| **Resource Blocking** | Blocks images, stylesheets, scripts, fonts, media + 3500 ad domains | Fewer network requests, less memory per page |
+| **Circuit Breaker** | Stops retrying persistently failing domains | No wasted resources on dead sites |
+
+### Three Presets — Choose Your Profile
+
+| Profile | Best For | Memory Guard | Circuit Breaker |
+|---------|----------|:------------:|:---------------:|
+| **Standard** (default) | Production use | Off | Off |
+| **Defensive** | Cloud containers, high concurrency | On (85%) | On |
+| **Minimal** | Development, single tasks | Off | Off |
+
+Configure via your browser pool settings. Most users never need to change from the default.
+
+### Why This Matters
+
+| Without resource management | With Myrm |
+|:----------------------------|:----------|
+| 3 browser tabs = container OOM kill | MemoryGuard prevents new pages when memory is tight |
+| Every page request launches a full browser | 70% of pages use zero-browser HTTP path |
+| Ad trackers consume bandwidth and RAM | 3500+ domains blocked automatically |
+| One bad domain wastes unlimited retries | Circuit breaker trips after consecutive failures |
+
 ## 5-Layer Anti-Crawl Protection
 
 When crawling at scale, IP blocks, rate limits, and CAPTCHAs are inevitable. Myrm's 5-layer defense system handles all of this automatically so your tasks never die.

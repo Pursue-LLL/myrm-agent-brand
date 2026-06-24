@@ -71,7 +71,7 @@ Three strategies are applied in order: **Dedup** (remove exact duplicates) → *
 
 ### Layer 4: Structured Summarization
 
-When compression alone isn't sufficient, an LLM generates a structured summary with 12 fields (user goal, active tasks, completed actions, errors, decisions, artifacts, etc.) to replace the compressed history. A SummaryAuditor validates quality, and incremental merge ensures new information is folded into existing summaries without loss.
+When compression alone isn't sufficient, an LLM generates a structured summary with 12 fields (user goal, active tasks, completed actions, errors, decisions, artifacts, etc.) to replace the compressed history. A SummaryAuditor validates quality, and incremental merge ensures new information is folded into existing summaries without loss. Before persistence, all summary fields undergo dual redaction (credential leak detection + PII redaction) to ensure sensitive data from raw messages never survives into compressed history.
 
 ### Layer 5: Cache Optimization
 

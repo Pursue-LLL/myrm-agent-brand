@@ -284,6 +284,10 @@ Multi-tier PII handling:
 | **WARN** | Warning logged, content passed through | Email addresses in context |
 | **CLEAN** | No action needed | Normal text |
 
+### Summary Path Protection
+
+When long conversations are compressed into structured summaries, PII and credentials can survive the summarization process. Myrm applies dual redaction (`redact_leaks` + `redact_pii`) to all summary fields before persistence — ensuring phone numbers, emails, API keys, and other sensitive data never persist in compressed conversation history.
+
 ### Taint Tracking
 
 `TaintTracker` follows the information flow of sensitive data through the agent's execution, ensuring PII doesn't leak through indirect channels (e.g., a tool reading a file containing credentials, then using that data in a web request).
