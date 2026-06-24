@@ -18,6 +18,21 @@ The evolution engine follows a **Retrieve-Before-Generate** strategy: before cre
 5. **Approval** — GUI-based human approval workflow with diff preview
 6. **Deployment** — A/B tested with automatic rollback on regression
 
+## Directed Skill Learning: `/learn`
+
+In addition to automatic skill extraction, you can teach the agent new skills on demand using the `/learn` command in any chat:
+
+| Input | What Happens |
+|-------|-------------|
+| `/learn https://docs.stripe.com/webhooks` | Fetches the page, extracts procedures and config, creates a reusable skill |
+| `/learn ./scripts/deploy.sh` | Reads the file, analyzes the workflow, distills it into a SKILL.md |
+| `/learn the deployment workflow we just did` | Reviews the conversation history and captures the steps as a skill |
+| `/learn` (no arguments) | Automatically reviews the current conversation and distills it into a skill |
+
+The `/learn` command works across all channels — WebUI, Telegram, and any connected IM platform. The generated skill follows strict authoring standards (frontmatter, 8-section structure, quality bar) and is saved through the same security pipeline as auto-captured skills.
+
+**vs competitors:** Hermes `/learn` requires arguments (errors on empty input) and only works in CLI. Myrm's `/learn` handles empty arguments gracefully, works across all channels, and feeds into the full quality pipeline (10-dim scoring, dedup, lifecycle management).
+
 ## Four Evolution Types
 
 | Type | Trigger | What It Does |
