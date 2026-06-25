@@ -128,15 +128,31 @@ Agent 可使用：
 
 ## 子 Agent 编排
 
-复杂任务可用 5 种编排模式分解：
+复杂任务可用 6 种编排模式分解：
 
 | 模式 | 说明 |
 |---------|-------------|
-| **Chain** | 顺序执行 A → B → C |
-| **DAG** | 有向无环图与依赖 |
-| **Batch** | 并行独立任务 |
-| **Verified** | Worker + 独立 Verifier 交叉验证 |
+| **Chain** | 顺序执行 A → B → C，结构化接力状态传递 |
+| **DAG** | 有向无环图 + 依赖解析 + 并发限制 |
+| **Batch** | 并行独立任务，聚合结果 |
+| **Race** | 多 Agent 竞争，最快正确结果胜出 |
+| **Verified** | Worker + 独立 Verifier 在沙箱中交叉验证 |
 | **Swarm** | 自主多 Agent 分裂合并 |
+
+### 外部 Agent 委派 (ACP)
+
+通过 ACP 协议将任务委派给外部编程 Agent：
+
+- **Claude Code** — Anthropic 编程 Agent
+- **Codex CLI** — OpenAI 编程 Agent
+- **Gemini CLI** — Google 编程 Agent
+- **任意 ACP 兼容 Agent** — 通过 RuntimePool 无限扩展
+
+`delegate_to_agent` 工具支持完整上下文注入、持久/一次性会话模式和自动重试。
+
+### Google A2A 协议
+
+通过标准 Google Agent-to-Agent 协议发现和集成第三方 Agent。AgentCard 解析含 SSRF 防护和 TTL 缓存。
 
 详见[看板与编排](/zh/core-concepts/kanban-orchestration)。
 

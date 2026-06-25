@@ -128,15 +128,31 @@ Memory persists across sessions, enabling agents to learn and adapt. See [Memory
 
 ## Sub-Agent Orchestration
 
-Complex tasks can be decomposed using 5 orchestration patterns:
+Complex tasks can be decomposed using 6 orchestration patterns:
 
 | Pattern | Description |
 |---------|-------------|
-| **Chain** | Sequential execution A → B → C |
-| **DAG** | Directed acyclic graph with dependencies |
-| **Batch** | Parallel independent tasks |
-| **Verified** | Worker + independent Verifier cross-validation |
+| **Chain** | Sequential execution A → B → C with structured handover state |
+| **DAG** | Directed acyclic graph with dependency resolution and concurrency limits |
+| **Batch** | Parallel independent tasks with aggregated results |
+| **Race** | Multiple agents compete, fastest correct result wins |
+| **Verified** | Worker + independent Verifier cross-validation in sandbox |
 | **Swarm** | Autonomous multi-agent fission and merge |
+
+### External Agent Delegation (ACP)
+
+Delegate tasks to external coding agents via the ACP protocol:
+
+- **Claude Code** — Anthropic's coding agent
+- **Codex CLI** — OpenAI's coding agent
+- **Gemini CLI** — Google's coding agent
+- **Any ACP-compatible agent** — extensible via RuntimePool
+
+The `delegate_to_agent` tool allows seamless handoff with full context injection, persistent/oneshot session modes, and automatic retry.
+
+### Google A2A Protocol
+
+Discover and integrate third-party agents via the standard Google Agent-to-Agent protocol. AgentCard resolution includes SSRF protection and TTL caching.
 
 See [Kanban & Orchestration](/docs/core-concepts/kanban-orchestration) for details.
 
