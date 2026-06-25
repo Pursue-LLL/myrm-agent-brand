@@ -1,0 +1,50 @@
+---
+title: Google Workspace Integration
+description: Connect Gmail, Calendar, and Drive through Settings OAuth — no CLI tokens required.
+---
+
+# Google Workspace Integration
+
+Connect Google Workspace in **Settings → Integrations → Credentials**. After authorization, the `google-workspace` prebuilt skill becomes available to your agents.
+
+## What you get
+
+| Capability | User benefit |
+|------------|--------------|
+| **GUI OAuth** | Click to connect — no copying tokens into YAML or `.env` |
+| **Encrypted refresh tokens** | Credentials stored in the server database with AES-256-GCM |
+| **Skills Catalog hints** | If OAuth is missing, the skill shows as unavailable with a link back to Settings |
+| **Agent runtime guard** | Agents see a clear warning instead of failing mid-task with cryptic API errors |
+| **Read-only v1.5** | Calendar today, Gmail inbox metadata (subject/from/snippet), recent Drive files |
+
+## Connect Google Workspace
+
+1. Open **Settings → Integrations → Credentials**
+2. Find **Google Workspace** and click **Connect**
+3. Complete Google OAuth in your browser
+4. Return to the app — status shows **Connected**
+5. Open **Library → Skills** — `google-workspace` should be available (enabled automatically unless you previously disabled it)
+
+## Example agent prompts
+
+- "What's on my calendar today?"
+- "Summarize my latest inbox messages"
+- "List recently modified Drive files"
+
+The agent reads the prebuilt skill instructions and runs the bundled helper script with your OAuth token injected automatically.
+
+## Troubleshooting
+
+| Symptom | Fix |
+|---------|-----|
+| Skill shows unavailable (amber badge) | Reconnect Google in Settings → Credentials |
+| OAuth button disabled | Ask your admin to configure `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` on the server |
+| Empty calendar | Check timezone in user settings — day bounds follow `MYRM_USER_TIMEZONE` |
+
+## vs MCP Gmail/Calendar entries
+
+The Service Catalog also lists Gmail and Google Calendar as MCP servers. The native **google-workspace** skill is recommended for desktop and local users because:
+
+- One OAuth connection covers Gmail, Calendar, and Drive
+- No separate MCP process to manage
+- Catalog and agent runtime share the same availability checks

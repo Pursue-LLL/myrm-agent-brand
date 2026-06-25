@@ -1,0 +1,50 @@
+---
+title: Google Workspace 集成
+description: 在设置页 OAuth 连接 Gmail、日历与 Drive，无需 CLI 粘贴 Token。
+---
+
+# Google Workspace 集成
+
+在 **设置 → 集成 → 凭证** 中连接 Google Workspace。授权完成后，`google-workspace` 预置技能即可供智能体使用。
+
+## 你能获得什么
+
+| 能力 | 用户收益 |
+|------|----------|
+| **GUI OAuth** | 点击连接，无需把 Token 写进 YAML 或 `.env` |
+| **Refresh Token 加密存储** | 凭证保存在服务端数据库（AES-256-GCM） |
+| **技能目录提示** | 未连接 OAuth 时技能显示不可用，并提供返回设置的链接 |
+| **运行时防护** | 智能体收到明确警告，而不是任务中途出现难懂的 API 报错 |
+| **v1.5 只读能力** | 今日日历、Gmail 收件箱元数据（主题/发件人/摘要）、最近 Drive 文件 |
+
+## 连接步骤
+
+1. 打开 **设置 → 集成 → 凭证**
+2. 找到 **Google Workspace**，点击 **连接**
+3. 在浏览器中完成 Google OAuth
+4. 返回应用 — 状态显示 **已连接**
+5. 打开 **资料库 → 技能** — `google-workspace` 应可用（除非你曾手动禁用，否则会自动启用）
+
+## 示例对话
+
+- 「今天日历上有什么安排？」
+- 「总结一下最近的收件箱邮件」
+- 「列出最近修改的 Drive 文件」
+
+智能体会读取预置技能说明，并通过自动注入 OAuth Token 的辅助脚本执行。
+
+## 故障排查
+
+| 现象 | 处理 |
+|------|------|
+| 技能显示不可用（黄色提示） | 在设置 → 凭证 中重新连接 Google |
+| OAuth 按钮不可用 | 请管理员在服务端配置 `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` |
+| 日历为空 | 检查用户时区设置 — 日界按 `MYRM_USER_TIMEZONE` 计算 |
+
+## 与 MCP Gmail/Calendar 的区别
+
+服务目录中也提供 Gmail、Google Calendar 的 MCP 条目。对桌面端和本地部署用户，更推荐使用原生 **google-workspace** 技能：
+
+- 一次 OAuth 覆盖 Gmail、日历与 Drive
+- 无需单独维护 MCP 进程
+- 技能目录与智能体运行时共用同一套可用性检查

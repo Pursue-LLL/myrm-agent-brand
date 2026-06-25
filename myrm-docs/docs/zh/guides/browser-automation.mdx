@@ -454,7 +454,7 @@ Myrm 的浏览器系统经过优化，可在 $5/月云容器到低配笔记本�
 
 1. **安装 Myrm 扩展** — 一个轻量级 Chrome MV3 扩展，维持与 Myrm 服务器的 WebSocket 连接。
 2. **授权域名** — 在设置 → 集成 → Extension Bridge 中添加允许 Agent 控制的域名（如 `github.com`、`*.google.com`）。支持通配符模式。
-3. **Agent 连接** — 当任务需要访问已授权域名时，Agent 通过 CDP（Chrome DevTools Protocol）代理连接到你的真实浏览器。
+3. **Agent 连接** — 当任务需要访问已授权域名时，Agent 通过扩展的 WebSocket 通道和 `chrome.debugger` API 连接到你的真实浏览器。
 
 ### 后台窗口隔离（无感执行）
 
@@ -492,9 +492,9 @@ Extension Bridge 设置面板（设置 → 集成）提供：
 Extension Bridge 跨越 5 层：
 
 1. **Harness 协议层** (`ExtensionBridge`) — 在框架层定义契约
-2. **Server 服务层** (`ExtensionBridgeService`) — 管理 WebSocket 生命周期、心跳和 CDP 代理
+2. **Server 服务层** (`ExtensionBridgeService`) — 管理 WebSocket 生命周期、心跳和标签页控制
 3. **API 路由层** — WebSocket + REST 端点，服务扩展和前端
-4. **Chrome 扩展** — MV3 Service Worker，具备 CDP 附加能力
+4. **Chrome 扩展** — MV3 Service Worker，具备 chrome.debugger 附加能力
 5. **前端面板** — React 设置组件，用于状态和域名管理
 
 ## Per-Agent 浏览器配置（4 轴控制）

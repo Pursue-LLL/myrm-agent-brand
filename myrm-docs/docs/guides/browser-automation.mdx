@@ -500,7 +500,7 @@ For scenarios where you need the agent to operate within your **real browser** �
 
 1. **Install the Myrm Extension** — A lightweight Chrome MV3 extension that maintains a WebSocket connection to the Myrm server.
 2. **Authorize domains** — In Settings → Integration → Extension Bridge, add domains you want the agent to control (e.g., `github.com`, `*.google.com`). Wildcard patterns are supported.
-3. **Agent connects** — When a task requires browser access to an authorized domain, the agent connects to your real browser via CDP (Chrome DevTools Protocol) proxy.
+3. **Agent connects** — When a task requires browser access to an authorized domain, the agent connects to your real browser through the extension's WebSocket channel and `chrome.debugger` API.
 
 ### Background Window Isolation (Non-Perceptive Execution)
 
@@ -538,9 +538,9 @@ The Extension Bridge settings panel (Settings → Integration) provides:
 The Extension Bridge spans 5 layers:
 
 1. **Harness Protocol** (`ExtensionBridge`) — Defines the contract at the framework level
-2. **Server Service** (`ExtensionBridgeService`) — Manages WebSocket lifecycle, heartbeat, and CDP proxy
+2. **Server Service** (`ExtensionBridgeService`) — Manages WebSocket lifecycle, heartbeat, and tab control
 3. **API Router** — WebSocket + REST endpoints for extension and frontend
-4. **Chrome Extension** — MV3 Service Worker with CDP attachment capability
+4. **Chrome Extension** — MV3 Service Worker with chrome.debugger attachment capability
 5. **Frontend Panel** — React settings component for status and domain management
 
 ### Side Panel Chat — AI Assistant Alongside Every Webpage
