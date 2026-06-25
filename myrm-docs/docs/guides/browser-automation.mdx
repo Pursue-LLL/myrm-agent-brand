@@ -371,6 +371,36 @@ When the memory system is enabled, saved browser sessions are **automatically vi
 | User: "Post a tweet" → Agent calls `list_sessions` → sees twitter.com → calls `restore_session` | User: "Post a tweet" → Agent sees twitter.com in context → calls `restore_session` directly |
 | 2 tool calls + 2 LLM inferences | 1 tool call + 1 LLM inference |
 
+## Site Experience Store — Domain Intelligence That Grows With Use
+
+Every time the agent browses a website, it learns. The **Site Experience Store** captures domain-level knowledge and reuses it on future visits — making repeat interactions faster and more reliable.
+
+### What Gets Learned
+
+| Dimension | Example |
+|-----------|---------|
+| **Platform Features** | "This site has infinite scroll", "Supports GraphQL API" |
+| **URL Patterns** | `/user/{id}/posts`, `/search?q={query}&page={n}` |
+| **Known Traps** | "Login popup after 3 scrolls", "Cookie consent wall on first visit" |
+| **Successful Flows** | "Search → Filter by date → Sort → Extract results" |
+
+### How It Works
+
+1. **Auto-injection on navigation** — When the agent navigates to a previously visited domain, relevant traps and proven flows are injected into the browser snapshot. The agent starts informed instead of exploring blindly.
+2. **Cross-validation** — Experiences are automatically invalidated when a domain's recent failure rate spikes (≥3 failures in 24 hours), preventing outdated knowledge from causing errors.
+3. **Agent-managed** — The agent can save, list, and delete experiences via `browser_manage` tool actions (`save_site_experience`, `list_site_experience`, `delete_site_experience`).
+4. **HTTP/3 learning** — Domains that respond faster over HTTP/3 are remembered and preferred on future requests.
+
+### Impact
+
+| Without Site Experience | With Site Experience |
+|------------------------|---------------------|
+| Agent explores every site from scratch | Known traps avoided, proven flows reused |
+| 3-10 extra LLM calls per complex site | 30-50% fewer exploration steps on repeat visits |
+| Same mistakes repeated across sessions | Mistakes remembered and avoided automatically |
+
+Combined with the **Engine Affinity Store** (remembers which sites need stealth browsing) and **Session Vault** (preserves login state), the agent builds a comprehensive per-domain memory that improves with every interaction.
+
 ## CAPTCHA Detection & Human Takeover
 
 When the agent encounters a CAPTCHA or situation requiring human intervention, it handles it seamlessly:
@@ -427,6 +457,7 @@ Myrm's browser system is designed to run efficiently on everything from $5/month
 | **Dual Engine** | Camoufox (Firefox, ~40MB idle) available alongside Chromium (~200MB+) | 5x memory reduction for stealth tasks |
 | **MemoryGuard** | Monitors system memory; blocks new browser pages above 85% usage | Prevents OOM crashes in containers |
 | **Resource Blocking** | Blocks images, stylesheets, scripts, fonts, media + 3500 ad domains | Fewer network requests, less memory per page |
+| **4-Layer Network Defense** | CSP policy + route interception + WebRTC/WebTransport hardening + CDP audit monitoring | Trackers blocked across all channels (HTTP, WebSocket, EventSource, sendBeacon, WebRTC) |
 | **Circuit Breaker** | Stops retrying persistently failing domains | No wasted resources on dead sites |
 
 ### Three Presets — Choose Your Profile
