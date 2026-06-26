@@ -45,13 +45,12 @@ Myrm 记忆系统是 Agentic Memory Operations（AMO）范式最完整的实现�
 
 Myrm 的 **Working Memory** 通过专用 `__working_state` Profile Memory 条目解决：
 
-- **Agent 自动写入** — `commit_stage_tool` 在每个里程碑自动持久化简短任务摘要（≤500字符）
-- **兜底提取** — 若 Agent 忘记提交，`TaskDigest` 提取器自动从对话摘要中捕获任务进度
+- **自动提取** — 每轮对话结束后，`TaskDigest` 提取器将任务进度写入 working state（≤500 字符）
 - **最高优先级注入** — Working State 以 `priority=0`（最高）注入 System Prompt，下次会话立即知道"做到哪了"
 - **7 天 TTL** — 超过 7 天自动过期，防止旧任务上下文污染新任务
 - **实时 UI** — Chat 头部 Badge 显示当前任务状态，对话完成后自动刷新；设置页卡片提供创建/编辑/清除/字符计数完整管理
 
-对比 ChatGPT Dreaming（被动、无任务聚焦）、CLAUDE.md（手动维护）、第三方 MCP 插件（配置开销），Working Memory 零配置、Agent 驱动、自动清理。
+对比 ChatGPT Dreaming（被动、无任务聚焦）、CLAUDE.md（手动维护）、第三方 MCP 插件（配置开销），Working Memory 零配置、系统自动提取、自动清理。
 
 ## AMO 操作 — 全覆盖
 

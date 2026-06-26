@@ -45,13 +45,12 @@ Long-running tasks (multi-day refactors, iterative research) lose context betwee
 
 Myrm's **Working Memory** solves this with a dedicated `__working_state` Profile Memory entry:
 
-- **Agent writes automatically** — The `commit_stage_tool` persists a concise task summary (≤500 chars) at each milestone
-- **Fallback extraction** — If the Agent forgets to commit, the `TaskDigest` extractor automatically captures task progress from conversation summaries
+- **Automatic extraction** — After each conversation turn, the `TaskDigest` extractor captures task progress into working state (≤500 chars)
 - **Priority injection** — Working State injects at `priority=0` (highest) in the system prompt, ensuring the next session immediately knows where you left off
 - **7-day TTL** — Entries older than 7 days auto-expire, preventing stale context from polluting new tasks
 - **Real-time UI** — A Badge in the chat header shows the current working state; it refreshes automatically after each conversation turn. A Settings card provides full create/edit/clear control with a character counter
 
-Compared to ChatGPT's Dreaming (passive, no task-specific focus), CLAUDE.md (manual maintenance), or third-party MCP plugins (configuration overhead), Working Memory is zero-config, Agent-driven, and self-cleaning.
+Compared to ChatGPT's Dreaming (passive, no task-specific focus), CLAUDE.md (manual maintenance), or third-party MCP plugins (configuration overhead), Working Memory is zero-config, system-extracted, and self-cleaning.
 
 ## AMO Operations — Full Coverage
 
