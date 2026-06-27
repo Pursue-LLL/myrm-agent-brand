@@ -59,7 +59,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **语音** | ✅ 3 种模式（标准/Bridge/Realtime）+ 10 提供商（5 TTS + 5 STT 含免费 Edge TTS 与 Local Whisper）+ Discord 唤醒词 + 打断检测 + Vision 融合 — **1,176 项测试** | ⚠️ Discord 语音 | WebRTC + iOS 原生唤醒 | ⚠️ 基础 | ❌ | ❌ | ❌ |
 | **多模态生成** | ✅ 图片（20+ 模型 + Failover + 编辑）+ 视频（4 引擎：Sora/Veo/Qwen/MiniMax + T2V/I2V/V2V + 幂等任务管理）+ TTS（5 Provider 含免费 Edge + 流式 + 长文本自动摘要 + OpenAI 兼容 base_url）+ 截图即操作管线（粘贴/拖放 → 标注编辑器 → OCR/Vision → 工具调用闭环）+ Vision 自动降级 — 1,293 项测试 | ⚠️ FAL.ai 图片 + 2 视频插件 + 10 TTS（含 5 个 niche 本地方案） | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Computer Use** | ✅ 桌面自动化 + 三平台后台静默输入（不抢焦点）+ BBox 审批 + Tauri OS 叠加层 + 敏感应用防火墙（银行/通信自动阻断）+ 原生 API 智能路由（AppleScript/COM/D-Bus 自动检测）+ 权限智能检测引导（一键跳转系统设置+重检闭环）— 367 项测试 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **浏览器引擎** | ✅ 双隐身引擎（Patchright + Camoufox）+ 跨会话指纹持久化 + 三层 GlobalBrowserPool（零冷启动、三层崩溃恢复）+ Shadow DOM 穿透 + API-First 网络智能（CDP 懒加载响应体 + 请求重放）+ 域名引擎亲和记忆 + 后台无感执行（双层隔离）+ 同源智能Tab路由 + 4 大云浏览器 Provider（GUI 配置 + 热更新免重启） | ⚠️ 第三方云浏览器（环境变量配置，需重启） | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
+| **浏览器引擎** | ✅ 双隐身引擎（Patchright + Camoufox）+ 跨会话指纹持久化 + 三级拟人化交互（高斯延迟 + 贝塞尔鼠标轨迹）+ 三层 GlobalBrowserPool（零冷启动、三层崩溃恢复）+ Shadow DOM 穿透 + API-First 网络智能（CDP 懒加载响应体 + 请求重放）+ 域名引擎亲和记忆 + 后台无感执行（双层隔离）+ 同源智能Tab路由 + 4 大云浏览器 Provider（GUI 配置 + 热更新免重启） | ⚠️ 第三方云浏览器（环境变量配置，需重启） | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
 | **网页搜索** | ✅ 8 引擎 + BM25/Reranker 过滤 + 三层防幻觉 | ⚠️ 云 API 透传 | ⚠️ DDG/Bing 抓取 | ⚠️ 同 OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
 | **网页抓取** | ✅ 三层自动降级 + 自学习 AdaptiveRouter + 反爬自动绕过（主流 WAF）+ 向量提取 + DOM 修剪（391 项测试） | ⚠️ web_extract（Firecrawl + LLM） | ⚠️ HTTP / Firecrawl 回退 | ⚠️ 同上 | ⚠️ 仅 HTTP | ❌ | ❌ |
 | **工作区 RAG** | ✅ **四层管线**：BM25 + 向量 + RRF融合 + Reranker；7类19种格式解析（PDF/Word/Excel/PPT/ipynb/OCR）；双后端知识图谱；Karpathy Wiki；RSG质量守卫（503项测试） | ⚠️ 仅代码AST索引 | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -386,6 +386,7 @@ Myrm 技能进化（42 模块、原生内置）实现 Self-Improving Agent 研�
 | Evolution constraints | ❌ | ✅ Historical error memory prevents repeated mistakes |
 | Prebuilt skill upgrade protection | ❌ Silent overwrite | ✅ **Three-way hash** — user edits preserved, "Update Available" badge |
 | Daily work journal | ❌ | ✅ 6-source aggregated daily timeline with date navigation |
+| AI Daily Wrap summary | ❌ | ✅ LLM-generated daily summary with keywords + next-day suggestions + SQLite cache |
 
 **vs ECC (Everything Claude Code) `continuous-learning-v2`：** ECC 在后台蒸馏原子化「本能」YAML 习惯 — 对高级用户强大，但其 v2.1 项目隔离仅有 2 级（git remote hash → 项目/全局），且 "2+ 项目出现自动晋升全局" 存在误报风险。Myrm 提供相同 *思路*（空闲蒸馏 → 技能提案）+ 架构级更强隔离：**5 级作用域层级**（GLOBAL > AGENT > CHANNEL > CONVERSATION > TASK）+ 命名空间 + 每 Agent CoW 进化。Agent 设置中的 **Insights Inbox** 确保提案保持草稿直至你批准；驳回写入负例以防重复提案；内置 Agent 在 inbox 只读。**3,519 项测试验证**覆盖技能注入、模型纪律、进化、搜索、安全全链路。MCP 方面 Myrm 已提供 **GUI 启用前扫描 + 验证 + 运行时 fail-closed**（见下文 MCP 安全门）— 领先 Hermes 仅日志流；我们**尚未**提供 ECC 的 `/aside` 分叉聊天、`/context-budget` 树图或 102-hook 全量静态包（roadmap #6）。
 
@@ -495,6 +496,7 @@ Myrm 使用 **Python 框架引擎** 搭配 7 个硬编码安全提示模块，�
 | 质量守卫 | Shadow A/B 测试——新技能先影子测试再上线 |
 | 成长仪表盘 | KPI 卡片 + GitHub 风格活跃度热力图 + 健康雷达图 + 周统计 |
 | 每日日志 | 逐日时间线：会话、审批、Cron、看板等 |
+| 每日战报 | AI 生成的自然语言日总结 + 关键词 + 明日建议 |
 | WebSocket 实时流 | 新提案即时推送通知 |
 
 无需解析命令行输出，无需翻看日志文件。一切可视化、可交互、可操作。**2062 项测试验证。**
@@ -1264,6 +1266,7 @@ DeerFlow 1.x 作为专业 Deep Research 框架广受好评，但 2.0 已完全�
 |------|-----------|--------------|------|
 | **专业深度研究编排器** | ✅ DeepResearchOrchestrator（分阶段搜索/分析/汇总） | ❌ 2.0 无专用研究编排 | **开箱即用的深度研究，无需回退1.x分支** |
 | **双模型成本优化** | ✅ 研究用轻量模型 + 主模型规划/报告 | ❌ 无 | **研究任务 API 费用大幅降低** |
+| **自适应思维链** | ✅ 非推理模型自动注入 think 工具，推理模型自动省略 | ❌ 无 | **模型切换零配置，始终保持最佳推理质量** |
 | **断线自动后台守护** | ✅ OfflineDurableTask DB 持久化 + Power Lock 防休眠 | ⚠️ 仅内存级 DisconnectMode | **关掉浏览器、电脑休眠，任务照跑不误** |
 | **Server 崩溃自动恢复** | ✅ 重启后从 DB 恢复 + 系统通知 | ❌ 进程内 RunManager 全部丢失 | **服务器意外重启？Myrm 自动接力** |
 | **交互式研究确认** | ✅ ClarificationWaiter（暂停等用户确认方向） | ✅ ClarificationMiddleware | **研究过程可纠偏，避免跑偏浪费 Token** |

@@ -59,7 +59,7 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **Voice** | ✅ 3 modes (Standard/Bridge/Realtime) + 10 providers (5 TTS + 5 STT incl. free Edge TTS & Local Whisper) + Discord wake word + barge-in + Vision fusion — **1,176 tests** | ⚠️ Discord Voice | WebRTC + iOS native wake | ⚠️ Basic | ❌ | ❌ | ❌ |
 | **Multimodal Generation** | ✅ Image (20+ models + Failover + Edit) + Video (4 engines: Sora/Veo/Qwen/MiniMax + T2V/I2V/V2V + idempotent task mgmt) + TTS (5 providers incl. free Edge + streaming + long-text auto-summary + OpenAI-compat base_url) + Screenshot-to-Action pipeline (paste/drop → annotation editor → OCR/Vision → tool calling loop) + Vision Fallback auto-degrade — 1,293 tests | ⚠️ FAL.ai images + 2 video plugins + 10 TTS (5 niche local) | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Computer Use** | ✅ Desktop automation + background input on all 3 platforms (no focus-steal) + BBox approval + Tauri OS overlay + sensitive app firewall (banking/messaging auto-blocked) + Native API routing (AppleScript/COM/D-Bus auto-detection) + smart permission detection with one-click system settings & recheck — 367 tests | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Browser Engine** | ✅ Dual stealth engine (Patchright + Camoufox) with fingerprint persistence + 3-layer GlobalBrowserPool (zero cold-start, 3-layer crash recovery) + Shadow DOM penetration + API-First network intelligence (CDP lazy body + replay) + domain engine affinity memory + non-perceptive background execution (dual-layer isolation) + origin-based smart tab routing + 4 cloud browser providers (GUI config + hot-reload) | ⚠️ Cloud Browser Use (env var, restart required) | ❌ | ❌ | ❌ | ⚠️ Unknown | ❌ |
+| **Browser Engine** | ✅ Dual stealth engine (Patchright + Camoufox) with fingerprint persistence + 3-level humanized interaction (Gaussian delays + Bézier mouse trajectories) + 3-layer GlobalBrowserPool (zero cold-start, 3-layer crash recovery) + Shadow DOM penetration + API-First network intelligence (CDP lazy body + replay) + domain engine affinity memory + non-perceptive background execution (dual-layer isolation) + origin-based smart tab routing + 4 cloud browser providers (GUI config + hot-reload) | ⚠️ Cloud Browser Use (env var, restart required) | ❌ | ❌ | ❌ | ⚠️ Unknown | ❌ |
 | **Web Search** | ✅ 8 engines + BM25/Reranker filter | ⚠️ Cloud API passthrough | ⚠️ DDG/Bing scrape | ⚠️ Same as OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
 | **Web Fetch** | ✅ 3-tier auto-degradation + self-learning AdaptiveRouter + anti-bot bypass (major WAFs) + vector extract + DOM prune + Schema-Driven structured extraction (391 tests) | ⚠️ web_extract (Firecrawl + LLM) | ⚠️ HTTP / Firecrawl fallback | ⚠️ Same | ⚠️ HTTP only | ❌ | ❌ |
 | **Workspace RAG** | ✅ **4-layer pipeline**: BM25 + Vector + RRF + Reranker; 7-type 19-format parser (PDF/Word/Excel/PPT/ipynb/OCR); dual-backend knowledge graph; Karpathy Wiki; RSG quality guard (503 tests) | ⚠️ Code-only AST index | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -386,6 +386,7 @@ Myrm's Skill Evolution System (42 modules, native built-in) implements all engin
 | Evolution constraints | ❌ | ✅ Historical error memory prevents repeated mistakes |
 | Prebuilt skill upgrade protection | ❌ Silent overwrite | ✅ **Three-way hash** — user edits preserved, "Update Available" badge |
 | Daily work journal | ❌ | ✅ 6-source aggregated daily timeline with date navigation |
+| AI Daily Wrap summary | ❌ | ✅ LLM-generated daily summary with keywords + next-day suggestions + SQLite cache |
 
 **vs ECC (Everything Claude Code) `continuous-learning-v2`:** ECC distills atomic "instinct" YAML habits in the background — powerful for power users, but their v2.1 project scoping relies on a simple 2-level system (git remote hash → project vs global), with auto-promotion when an instinct appears in 2+ projects (false-positive risk). Myrm ships the same *idea* (idle distillation → skill proposals) with architecturally superior isolation: **5-level scope hierarchy** (GLOBAL > AGENT > CHANNEL > CONVERSATION > TASK) + namespace system + per-agent CoW evolution. The **Insights Inbox** in Agent settings ensures proposals stay drafts until you approve; dismiss persists a negative exemplar so the agent stops re-proposing; built-in agents are read-only in the inbox. Verified with **3,519 tests** covering the full continuous learning pipeline including skill injection, model discipline, evolution, search, and security. For MCP, Myrm now ships **GUI pre-enable scan + verify + runtime fail-closed** (see MCP Security Gate below) — ahead of Hermes log-only flows; we still do **not** ship ECC's `/aside` fork chats, `/context-budget` tree-map, or 102-hook full static packs (roadmap #6).
 
@@ -495,6 +496,7 @@ Some competitors rely entirely on Cron jobs and command-line output for skill ev
 | Quality Guardian | Shadow A/B testing — test new skills before going live |
 | Growth Dashboard | KPI cards + GitHub-style activity heatmap + health radar + weekly stats |
 | Daily Journal | Day-by-day timeline of sessions, approvals, cron runs, and more |
+| Daily Wrap | AI-generated daily summary with keywords and next-day suggestions |
 | WebSocket Real-time | Instant push notifications when new proposals arrive |
 
 No command-line output to parse, no log files to tail. Everything is visual, interactive, and actionable. **2900 tests verified.**
@@ -1330,6 +1332,7 @@ DeerFlow 1.x 作为专业 Deep Research 框架广受好评，但 2.0 已完全�
 |------|-----------|--------------|------|
 | **专业深度研究编排器** | ✅ DeepResearchOrchestrator（分阶段搜索/分析/汇总） | ❌ 2.0 无专用研究编排 | **开箱即用的深度研究，无需回退1.x分支** |
 | **双模型成本优化** | ✅ 研究用轻量模型 + 主模型规划/报告 | ❌ 无 | **研究任务 API 费用大幅降低** |
+| **自适应思维链** | ✅ 非推理模型自动注入 think 工具，推理模型自动省略 | ❌ 无 | **模型切换零配置，始终保持最佳推理质量** |
 | **断线自动后台守护** | ✅ OfflineDurableTask DB 持久化 + Power Lock 防休眠 | ⚠️ 仅内存级 DisconnectMode | **关掉浏览器、电脑休眠，任务照跑不误** |
 | **Server 崩溃自动恢复** | ✅ 重启后从 DB 恢复 + 系统通知 | ❌ 进程内 RunManager 全部丢失 | **服务器意外重启？Myrm 自动接力** |
 | **交互式研究确认** | ✅ ClarificationWaiter（暂停等用户确认方向） | ✅ ClarificationMiddleware | **研究过程可纠偏，避免跑偏浪费 Token** |

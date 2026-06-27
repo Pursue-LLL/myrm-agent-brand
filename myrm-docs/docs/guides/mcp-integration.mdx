@@ -35,6 +35,39 @@ Each entry includes:
 
 Click **Connect** on any service card, fill in the required credentials, and the MCP server is ready.
 
+## Integration Memory (Workspace Sync)
+
+Any connected MCP server can be automatically used as a knowledge source. Navigate to **Settings > Integrations > Integration Memory** to sync external data into your AI's long-term memory.
+
+### How It Works
+
+1. **Connect** a service via the Service Catalog (e.g., Notion, GitHub, Gmail)
+2. Click **Sync All** in the Integration Memory section
+3. The system automatically:
+   - Detects the best fetch tool from the MCP server's catalog
+   - Pulls data using incremental sync (detects `since`/`after` parameters)
+   - Deduplicates by `provider::external_id` (idempotent re-sync safe)
+   - Embeds content into the vector store
+   - Builds a tree structure in the knowledge graph
+   - Extracts high-value profile traits via MemoryExtractor
+
+### Key Features
+
+| Feature | Description |
+|---------|-------------|
+| **Universal bridging** | MCPBridgeProvider auto-bridges any MCP server — no per-service code needed |
+| **Concurrent sync** | Up to 5 providers synced in parallel |
+| **Smart parsing** | Handles list, dict, and raw string responses from MCP tools |
+| **Tree management** | Hierarchical structure with summaries for browsing and removal |
+| **Auto knowledge seeding** | Freshly synced data is processed by MemoryExtractor for key insights |
+| **Per-provider sync** | Sync individual providers or all at once |
+
+### Managing Synced Data
+
+- **Status overview**: See total providers, indexed items, and tree count
+- **Per-tree controls**: Sync or remove individual data trees
+- **Sync results**: View created/updated/skipped/failed counts per provider
+
 ## Adding Custom MCP Servers
 
 ### From the GUI

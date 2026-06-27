@@ -1,11 +1,11 @@
 ---
 title: Statistics
-description: Endpoints for analytics, growth metrics, and daily activity journals.
+description: Endpoints for analytics, growth metrics, daily activity journals, and AI-powered daily wrap summaries.
 ---
 
 # Statistics API
 
-Endpoints for querying agent activity analytics, growth metrics, and daily work journals.
+Endpoints for querying agent activity analytics, growth metrics, daily work journals, and AI-generated daily summaries.
 
 ## Daily Journal
 
@@ -87,6 +87,59 @@ The journal aggregates data from 6 existing sources without any additional stora
 |------|-------------|
 | 400 | Invalid date format (must be `YYYY-MM-DD`) |
 | 400 | Missing `date` parameter |
+
+## Daily Wrap (AI Summary)
+
+Get an AI-generated natural-language summary of a day's activity, including keywords and next-day suggestions. Results are cached in SQLite to minimize LLM costs.
+
+```
+GET /api/v1/statistics/daily-wrap?date=YYYY-MM-DD
+```
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `date` | string | Yes | Date in `YYYY-MM-DD` format |
+
+### Response
+
+```json
+{
+  "code": 0,
+  "data": {
+    "date": "2026-06-27",
+    "summary": "Productive day focused on code review and bug fixes. Completed 5 sessions across web and Telegram channels.",
+    "keywords": ["code review", "bug fix", "telegram"],
+    "suggestions": ["Continue the refactoring started in session #3", "Review pending approvals"],
+    "generated_at": "2026-06-27T23:05:00Z",
+    "cached": true
+  }
+}
+```
+
+### Regenerate
+
+Force a fresh AI summary, bypassing the cache:
+
+```
+POST /api/v1/statistics/daily-wrap/regenerate?date=YYYY-MM-DD
+```
+
+Returns the same response structure as the GET endpoint with `cached: false`.
+
+### Requirements
+
+- A **Lite Model** must be configured in Settings (used for low-cost summary generation)
+- If no activity exists for the date, returns `reason: "no_activity"` with `summary: null`
+- If no Lite Model is configured, returns `reason: "lite_model_not_configured"` with `summary: null`
+
+### How It Works
+
+1. Aggregates data from the same 6 sources as Daily Journal (sessions, tokens, approvals, cron runs, kanban events, cost)
+2. Builds a structured prompt and sends it to the configured Lite Model
+3. Parses the LLM response (supports JSON and plain-text fallback)
+4. Caches the result in a dedicated `daily_wrap_cache` SQLite table (one row per date)
 
 ## Per-Agent Usage Analytics
 

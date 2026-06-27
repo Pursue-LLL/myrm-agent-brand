@@ -1,11 +1,11 @@
 ---
 title: 统计
-description: 分析、成长指标与日活动日志端点。
+description: 分析、成长指标、日活动日志与 AI 每日战报端点。
 ---
 
 # Statistics API
 
-查询 Agent 活动分析、成长指标与日工作日志的端点。
+查询 Agent 活动分析、成长指标、日工作日志与 AI 生成每日摘要的端点。
 
 ## 日报（Daily Journal）
 
@@ -87,6 +87,59 @@ GET /api/v1/statistics/daily-journal?date=YYYY-MM-DD&agent_id=optional
 |------|-------------|
 | 400 | 日期格式无效（须 `YYYY-MM-DD`） |
 | 400 | 缺少 `date` 参数 |
+
+## 每日战报（Daily Wrap / AI 摘要）
+
+获取 AI 生成的自然语言每日活动摘要，含关键词和明日建议。结果缓存于 SQLite 以降低 LLM 成本。
+
+```
+GET /api/v1/statistics/daily-wrap?date=YYYY-MM-DD
+```
+
+### 参数
+
+| 参数 | 类型 | 必填 | 说明 |
+|-----------|------|----------|-------------|
+| `date` | string | 是 | `YYYY-MM-DD` 格式日期 |
+
+### 响应
+
+```json
+{
+  "code": 0,
+  "data": {
+    "date": "2026-06-27",
+    "summary": "高效的一天，聚焦代码审查和 Bug 修复。跨 Web 和 Telegram 渠道完成 5 个会话。",
+    "keywords": ["代码审查", "Bug 修复", "Telegram"],
+    "suggestions": ["继续会话 #3 中开始的重构", "处理待审批事项"],
+    "generated_at": "2026-06-27T23:05:00Z",
+    "cached": true
+  }
+}
+```
+
+### 重新生成
+
+强制重新生成，绕过缓存：
+
+```
+POST /api/v1/statistics/daily-wrap/regenerate?date=YYYY-MM-DD
+```
+
+返回与 GET 相同结构，`cached: false`。
+
+### 前置条件
+
+- 必须在设置中配置 **轻量模型（Lite Model）**（用于低成本摘要生成）
+- 当天无活动时返回 `reason: "no_activity"` 且 `summary: null`
+- 未配置轻量模型时返回 `reason: "lite_model_not_configured"` 且 `summary: null`
+
+### 工作原理
+
+1. 聚合与 Daily Journal 相同的 6 源数据（会话、Token、审批、定时任务、看板事件、成本）
+2. 构建结构化 Prompt 并发送给配置的轻量模型
+3. 解析 LLM 响应（支持 JSON 和纯文本回退）
+4. 将结果缓存到 `daily_wrap_cache` SQLite 表（每日一行）
 
 ## Per-Agent 用量分析
 
