@@ -46,6 +46,25 @@ Select **Script (Python)** when creating a task to run Python code without any L
 | **INTERVAL** | Every N minutes (min 5) | `every_minutes=30` |
 | **ONCE** | ISO 8601 one-shot | `2026-06-01T10:00:00` |
 
+## Session Modes
+
+Control how the agent handles conversation context across repeated executions:
+
+| Mode | Behavior | Best for |
+|------|----------|----------|
+| **Isolated** (default) | Fresh context every run — no memory of previous executions | Independent one-off tasks |
+| **Main** | Continues the agent's main chat thread (loads last 30 messages) | Tasks that need full conversation history |
+| **Daily** | Automatically injects same-day run outputs into prompt; resets at midnight (UTC) | Hourly monitoring, trend detection, recurring data collection |
+
+### Daily Mode in Action
+
+When a task runs in **Daily** mode:
+1. The agent sees previous same-day outputs chronologically (up to 5 runs, truncated to 500 chars each)
+2. The first run of a new day includes yesterday's final output as a brief summary
+3. This enables the agent to detect trends — e.g., "CPU went from 45% → 72% → 90% over the last 3 hours"
+
+Daily mode uses zero extra storage (reuses existing run records) and does not affect prompt cache efficiency.
+
 ## Task Chaining (context_from)
 
 Chain tasks together so one task's output feeds into another:
