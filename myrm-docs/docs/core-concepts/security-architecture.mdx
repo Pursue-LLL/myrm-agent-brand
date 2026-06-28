@@ -118,6 +118,7 @@ Multi-agent workflows introduce identity drift and privilege escalation risks. M
 | **Taint Propagation** | `TaintTracker` labels flow from child → parent. If a child touches external network data, the parent session is automatically tainted |
 | **Sink Policies** | Tainted sessions escalate to HITL approval for dangerous tool combinations (e.g., `EXTERNAL_NETWORK` taint + `bash_tool` = blocked without approval) |
 | **Budget Boundary** | 4-dimension `DelegationBudget` (token + USD + time + max descendants) prevents runaway sub-agent chains |
+| **Recursion Guard** | Hard depth limit (max 3 levels) + role-based delegation (only `ORCHESTRATOR` roles receive delegation tools) + cascade cancellation of all descendants on parent abort |
 
 ## Skill Installation Security
 
