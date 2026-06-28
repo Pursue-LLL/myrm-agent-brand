@@ -408,9 +408,20 @@ When controlling your agent remotely via IM channels, high-risk tool calls (file
 | Batch | `/batch a,d,a` (approve, deny, approve) |
 | Chinese | `同意`, `拒绝`, `是`, `不` |
 
+### Interactive Buttons (ActionButton)
+
+On channels that support interactive elements (Telegram InlineKeyboard, Slack Block Kit, Discord buttons, Feishu cards, MS Teams Adaptive Cards), approval prompts include native **Approve / Deny buttons**. Clicking a button:
+
+1. Resolves the approval in the database (PENDING-only — duplicate clicks are safely ignored)
+2. Edits the original message to show the outcome (e.g. "Approved by alice")
+3. Resumes the interrupted agent automatically
+
+This works alongside WebUI approval — both paths lead to the same persistent record.
+
 ### Security
 
 - **Group chat protection**: Only the original requester or configured co-approvers can approve
+- **Idempotency guard**: Already-resolved approvals cannot be re-resolved or status-flipped (DB-level PENDING check)
 - **Timeout guard**: Unanswered approvals auto-deny (configurable)
 - **Persistent allowlist**: "Always allow" decisions survive restarts
 - **Anti-retry**: After 3 denials, agent stops retrying
