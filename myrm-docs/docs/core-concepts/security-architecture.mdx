@@ -59,6 +59,20 @@ Key capabilities:
 - Truncation auto-retry with progressive budget boost
 - Deterministic fallback (LLM-free safety net)
 
+## Authentication & Health Monitoring
+
+Real-time monitoring of credential validity and system health, with automatic alerting:
+
+| Capability | What It Does |
+|------------|--------------|
+| **Auth Detector** | Recognizes 15+ authentication failure patterns across all major providers (OpenAI, Anthropic, Google, etc.) |
+| **Circuit Breaker** | Immediately stops retrying on permanent auth failures, saving tokens and preventing billing waste |
+| **Probe Policy** | Intelligent recovery probing (60s for session expiry, 600s for permanent auth) to auto-detect when keys become valid again |
+| **Brute-Force Alert** | Background monitor detects suspicious auth patterns (10+ failures/IP/hour), creates deduplicated system notifications |
+| **Health History** | Records system health score every 3 minutes to database, retains 7-day trend for diagnosis |
+| **Real-time Push** | Health status changes and memory metrics streamed to frontend via EventBus |
+| **Deployment-Aware** | Local mode skips network audit (saves resources), remote mode enables full monitoring |
+
 ## Prompt Injection Defense
 
 Two complementary subsystems protect against prompt injection — one for untrusted external content flowing **into** the agent, and one guarding user/file **inputs**.

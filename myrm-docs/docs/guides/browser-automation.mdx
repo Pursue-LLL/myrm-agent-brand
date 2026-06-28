@@ -263,6 +263,29 @@ Result: a clean JSON array with just the data you need.
 - **Token savings** — 70–97% reduction compared to raw text extraction.
 - **Schema complexity protection** — Limits on property count and nesting depth prevent misuse.
 
+### From Extracted Data to Interactive Spreadsheet
+
+Once you have structured JSON from extraction, the agent can write it to a CSV or Excel file — which automatically becomes a rich, interactive artifact in the chat.
+
+**The pipeline** (fully automatic, no extra tools needed):
+
+1. Agent extracts structured data via `extraction_schema`
+2. Agent writes a `.csv` file using the built-in file tool → artifact auto-registered
+3. Frontend receives the artifact via real-time SSE push
+4. `SpreadsheetPreview` renders an interactive DataGrid directly in chat
+
+**What users see in the DataGrid:**
+
+- Virtual-scrolled table handling 10,000+ rows smoothly
+- Click any column header to sort (ascending/descending)
+- Real-time search across all cells
+- One-click copy row or entire table to clipboard
+- Export / download as CSV
+
+For Excel (`.xlsx`) files with multiple sheets, the agent can use the code execution tool with Python's `openpyxl` — the frontend automatically shows sheet tabs for switching between sheets.
+
+**vs competitors:** Most browser automation tools (e.g., BrowserAct) only produce a downloadable file. Myrm delivers data as a **live, interactive table** inside the conversation — users can explore, sort, and search before downloading.
+
 ## Vision Auto-Fallback (DOM → LLM)
 
 When a page renders content via Canvas (charts, graphs) or complex SVG (infographics, diagrams), traditional DOM text extraction returns empty or meaningless data. Myrm automatically detects this situation and falls back to Vision LLM-based extraction — transparently, without any agent intervention.

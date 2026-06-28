@@ -83,19 +83,25 @@ Keep all changes backward compatible
 
 Constraints are injected into the agent's prompt every turn as a "CONSTRAINTS (MUST NOT VIOLATE)" block, and the semantic judge evaluates compliance during completion verification.
 
-## 7-Step Continuation Guard
+## 11-Layer Dead-Loop Shield
 
-At the end of every turn, the continuation guard chain determines whether the agent should continue:
+At the end of every turn, an 11-layer guard chain determines whether the agent should continue — preventing runaway execution, cost overruns, and token waste:
 
-1. Check if the user cancelled
-2. Check budget limits (all 4 dimensions)
-3. Check if tools reported completion
-4. Check semantic completion (LLM judge)
-5. Check constraint compliance
-6. Check for stalled progress
-7. Check if dynamic subgoals are satisfied
+| # | Guard Layer | What it does |
+|---|-------------|-------------|
+| 1 | **User cancellation** | Immediate stop via `CancellationToken` |
+| 2 | **4D budget limits** | Tokens / USD / wall-clock time / turns — any dimension exhausted triggers pause |
+| 3 | **Steering token** | Pauses when a new user message is pending, ensuring user input takes priority |
+| 4 | **Tool completion check** | Detects if tools already reported the goal as done |
+| 5 | **Semantic judge (LLM)** | Evaluates whether the objective is met based on conversation context |
+| 6 | **Constraint compliance** | Checks acceptance criteria and protected-file rules |
+| 7 | **Zero-progress pause** | No tool calls in a turn → auto-pause to prevent "talks but does nothing" |
+| 8 | **Judge parse circuit-breaker** | 3 consecutive unparseable judge outputs → pause (saves tokens on bad models) |
+| 9 | **Verification fuse** | 3 consecutive verification failures → pause (prevents verify-retry loops) |
+| 10 | **Convergence detection** | K turns without progress → auto-complete (`convergence_window`) |
+| 11 | **Graceful wrap-up** | On budget exhaustion, injects a wrap-up prompt for a final summary turn — no mid-sentence cutoffs |
 
-This prevents both premature termination and runaway execution.
+Additionally, **progressive budget degradation** (WARNING → FINALIZATION) and **4-layer context-window overflow protection** operate at the middleware level to catch edge cases before they reach the guard chain.
 
 ### Judge Feedback Loop
 
