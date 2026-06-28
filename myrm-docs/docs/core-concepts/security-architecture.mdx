@@ -48,6 +48,16 @@ Every approval surfaces the same four actions across all channels:
 
 Batch operations are supported via `/batch a,d,aa` (approve, deny, always) and UI bulk buttons.
 
+### Approval Timeout Race Protection
+
+When an approval timeout fires and a user manually approves almost simultaneously, the system guarantees **exactly-once execution** via an idempotent `resolve_if_first` guard:
+
+- **WebUI**: Backend returns HTTP 409 → frontend shows a friendly toast and removes the stale approval card
+- **IM Channels**: Agent replies with a localized message (EN/ZH) informing the user the approval was already handled
+- **Concurrent safety**: Only the first resolver wins; all subsequent attempts are no-ops
+
+This prevents double agent execution, duplicate LLM costs, and contradictory operations — a gap present in most competing frameworks.
+
 ## Error Self-Healing
 
 14-layer error recovery system automatically handles failures without user intervention. See [Error Recovery](/docs/core-concepts/error-recovery) for details.
