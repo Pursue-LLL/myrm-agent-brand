@@ -89,7 +89,7 @@ Myrm **三层**架构确保输出既干净又格式正确：
 
 Agent 初始化时向系统提示词注入渠道格式提示，生成前告知 LLM 平台能力：
 
-- **Telegram**：「禁用表格语法 — 用列表或 key: value」
+- **Telegram**：表格、LaTeX、嵌套列表通过 Bot API 10.1 Rich Message 原生渲染；仅 Rich 不可用时激活格式提示
 - **WhatsApp**：「Markdown 不渲染 — 仅纯文本」
 - **Discord**：「超 2000 字符自动拆分」
 - **Voice**：「像与人对话一样说话」
@@ -112,7 +112,17 @@ Agent 初始化时向系统提示词注入渠道格式提示，生成前告知 L
 - 代码围栏状态机保证跨块正确闭合重开
 - 在空白与标点处智能分行
 - 可配置溢出容差保语义
-- 按渠道长度限制（如 Discord 2000、Telegram 4096）
+- 按渠道长度限制（如 Discord 2000、Telegram 4096 HTML / 32000 Rich Message）
+
+### Telegram Rich Message（Bot API 10.1）
+
+Telegram 渠道支持原生 Rich Message 渲染，配备三层智能降级：
+
+1. **Rich Message** — 表格、LaTeX 公式、嵌套列表原生渲染（32KB 限制）
+2. **HTML** — 自动转换，含 ASCII 等宽线框表格降级（4096 UTF-16 限制）
+3. **纯文本** — HTML 解析失败时的最终兜底
+
+流式预览采用**无闪烁草稿模式**（`sendRichMessageDraft` → `sendMessageDraft` → `editMessageText`），设 20 字符最小阈值抑制初始 token 闪烁。CJK 内容享受完整 Rich 格式化，无降级无 workaround。
 
 ## 群聊特性
 

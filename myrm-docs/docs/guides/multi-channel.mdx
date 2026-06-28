@@ -115,7 +115,7 @@ With defaults, IM users only receive **progress labels, final results, and decis
 
 At agent initialization, a channel-specific format hint is injected into the system prompt. This tells the LLM what the platform supports *before* it generates content:
 
-- **Telegram**: "NO table syntax — use bullet lists or key: value pairs"
+- **Telegram**: Tables, LaTeX, and nested lists render natively via Bot API 10.1 Rich Message; the hint is only active when Rich is unavailable
 - **WhatsApp**: "Markdown does NOT render — use plain text only"
 - **Discord**: "Messages over 2000 chars are split automatically"
 - **Voice**: "Speak as you would to a person in conversation"
@@ -138,7 +138,17 @@ Long messages are automatically split at natural boundaries:
 - Code fence state machine ensures code blocks are properly closed and reopened across chunks
 - Intelligent line splitting at whitespace and punctuation boundaries
 - Configurable overflow tolerance for semantic preservation
-- Per-channel length limits (e.g., Discord 2000 chars, Telegram 4096 chars)
+- Per-channel length limits (e.g., Discord 2000 chars, Telegram 4096 HTML / 32000 Rich Message)
+
+### Telegram Rich Message (Bot API 10.1)
+
+Telegram channels support native Rich Message rendering with a 3-tier fallback:
+
+1. **Rich Message** — tables, LaTeX formulas, and nested lists render natively (32KB limit)
+2. **HTML** — auto-converted with ASCII monospace table degradation (4096 UTF-16 limit)
+3. **Plain text** — last resort when HTML parsing fails
+
+Streaming uses **flicker-free draft previews** (`sendRichMessageDraft` → `sendMessageDraft` → `editMessageText`), with a 20-char minimum threshold to suppress initial token flicker. CJK content receives full Rich formatting — no degradation or workarounds.
 
 ## Group Chat Features
 
