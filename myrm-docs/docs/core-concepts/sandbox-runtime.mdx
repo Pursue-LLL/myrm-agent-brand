@@ -90,4 +90,11 @@ Unlike Claude Code's CLI-only `--worktree` flag, Myrm's workspace sandbox is ava
 
 ## Sleep & Wake
 
-Sandboxes automatically sleep after inactivity and wake on demand, preserving all state.
+Sandboxes automatically sleep after configurable inactivity periods and wake on demand, preserving all state (files, processes, memory).
+
+**Idle detection** uses two complementary signals to prevent false positives:
+
+- **Reverse-proxy activity tracking** — every user HTTP/WebSocket request through the proxy refreshes the sandbox's activity timestamp (throttled to one DB write per 5 minutes to avoid overhead).
+- **WebSocket connection guard** — if the sandbox has an active WebSocket connection to the control plane (e.g., during background deep-research or long-running tasks), the recycler skips sleep regardless of the activity timestamp.
+
+This dual-signal approach ensures active users and background tasks are never interrupted, while genuinely idle sandboxes are reclaimed efficiently. Sleep periods incur zero WU cost.
