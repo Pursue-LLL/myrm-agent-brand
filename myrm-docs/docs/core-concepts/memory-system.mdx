@@ -289,14 +289,15 @@ Access from Settings → Memory → Share Rules (Privacy-safe), or via API: `GET
 
 Myrm automatically detects implicit follow-up obligations from conversations — interviews to schedule, deadlines to meet, health check-ins to make — and tracks them via a structured commitment pipeline:
 
-- **Async extraction**: After each session, an LLM pass identifies commitments without blocking your conversation (4 kinds: action, reminder, care, follow-up; 3 sensitivity levels: routine, delicate, confidential)
+- **Async extraction**: After each session, an LLM pass identifies commitments without blocking your conversation (4 kinds: event check-in, deadline, care, open loop; 3 sensitivity levels: routine, personal, care)
 - **Confidence gating**: Only high-confidence commitments pass (threshold ≥ 0.65, care items ≥ 0.86) — no spam
-- **Heartbeat delivery**: Due commitments are injected into the agent's Situation Report at each heartbeat tick, then automatically marked as sent (no duplicates)
-- **GUI management**: View, dismiss, or snooze commitments from the Follow-up Tracking panel in Settings
-- **72-hour auto-expiry**: Stale commitments are automatically cleaned up
+- **Heartbeat delivery**: Due commitments are injected into the agent's Situation Report at each heartbeat tick
+- **Two-phase delivery**: Injection registers an attempt; the item is marked **sent** only after a successful heartbeat ack. If the agent replies with `[SILENT]` (nothing to report), the item is **snoozed for 6 hours** and retried — not dismissed
+- **GUI management**: View, dismiss, or snooze from **Settings → Memory Center → Follow-ups** tab (card UI, status filters, per-agent filter)
+- **72-hour auto-expiry**: Stale commitments are automatically cleaned up (scoped per agent/user)
 - **24-hour rolling window**: Maximum 3 commitment notifications per day to prevent notification fatigue
 
-Access from Settings → System → Follow-up Tracking.
+Access from **Settings → Memory Center → Follow-ups**.
 
 ## Session Notes — Zero-Cost Task Continuity
 
