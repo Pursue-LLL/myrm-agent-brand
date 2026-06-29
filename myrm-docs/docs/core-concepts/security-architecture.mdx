@@ -271,6 +271,15 @@ When static analysis returns ASK (uncertain), an AI classifier provides semantic
 | **Memory** | Optional encryption for sensitive memory entries |
 | **Incognito Mode** | Physical isolation and read-after-burn for sensitive sessions |
 
+### Incognito Mode Deep Dive
+
+One-click toggle in the message input area activates per-session privacy isolation:
+
+- **Harness layer**: `IncognitoPolicy` physically skips all writes to MEMORY and ARCHIVE context scenes
+- **Server layer**: Wraps memory with `ReadOnlyMemoryView`, removes `memory_save` and `memory_manage` tools, disables archive checkpoints, suppresses memory in the system prompt, and disables session cleanup callbacks
+- **Database layer**: `is_incognito` flag ensures sessions are hidden from sidebar listing and excluded from full-text search
+- **Self-hosted advantage**: Unlike SaaS competitors that require a separate "local mode" toggle to keep data off vendor servers, Myrm's self-hosted architecture means user data never leaves the machine by design — Incognito Mode adds session-level non-persistence on top
+
 ## Credential Protection
 
 ### Form Credential Vault

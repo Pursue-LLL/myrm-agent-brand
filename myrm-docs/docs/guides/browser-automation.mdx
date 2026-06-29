@@ -705,6 +705,23 @@ Just enable remote debugging in your browser once:
 
 All discovery runs in a background thread so it never slows down the agent's event loop.
 
+## PDF Archive with Source Metadata
+
+When the agent saves a page as PDF, Myrm automatically injects provenance metadata:
+
+- **Header** — page title
+- **Footer** — source URL, capture date, and page numbers
+- **Background preservation** — dark themes, charts, and colored dashboards render faithfully (no blank-white PDFs)
+
+This means every archived PDF is self-contained — you always know where it came from and when, even months later.
+
+| Feature | Other Agent tools | Myrm |
+|---------|-------------------|------|
+| Background colors in PDF | ❌ Lost (default browser behavior) | ✅ Preserved |
+| Source URL in PDF | ❌ Must remember manually | ✅ Automatic in footer |
+| Page numbers | ❌ | ✅ Automatic |
+| Disable metadata if needed | ❌ | ✅ `include_metadata=False` |
+
 ## Zero-Config Browser Setup
 
 When you first use browser tools on a fresh Myrm desktop install, the browser engine (Chromium) is automatically downloaded and installed — **no terminal commands required**.
