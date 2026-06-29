@@ -182,7 +182,9 @@ Agent 可主动向配置渠道推送 — 无需轮询。
 | 限流 | 每会话上限防刷屏（默认 10） |
 | 内容上限 | 超 `max_body_length`（4000 字符）自动截断 |
 | 审计 | 每次通知目标记入会话状态 |
-| 优先级 | Agent 通知恒为 NORMAL（系统级消息分离） |
+| 实现层 | 业务层 `outbound_notify/`（非 harness 内核），与 ChannelGateway 同层 |
+
+> **测试覆盖（2026.6.29）**：40 项专项测试（单元 29 + 真实 Gateway 集成 7 + API CRUD 2 + profile_resolver 过滤 2），100% 模块覆盖率。
 
 ### 场景示例
 

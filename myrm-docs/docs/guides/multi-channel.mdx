@@ -208,7 +208,9 @@ Your agent can proactively push notifications to configured channels — no manu
 | Rate limit | Per-session cap prevents notification spam (default: 10 per session) |
 | Content cap | Messages exceeding `max_body_length` (4000 chars) are automatically truncated |
 | Audit trail | Every notification target used is recorded in session state |
-| Priority | Agent notifications always use NORMAL priority (system-level messages are separate) |
+| Layer | Server `outbound_notify/` (business layer, not harness kernel), co-located with ChannelGateway |
+
+> **Test coverage (2026-06-29)**: 40 dedicated tests (29 unit + 7 real Gateway integration + 2 API CRUD + 2 profile_resolver filter), 100% module coverage.
 
 ### Example Scenarios
 
