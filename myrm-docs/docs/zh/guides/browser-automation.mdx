@@ -245,11 +245,15 @@ Agent 使用 `verify_goal="购物车数量显示为 2"`。点击后，系统自�
 
 ### 竞品对比
 
-所有竞品（OpenClaw、CoPaw、PilotDeck、Hermes、Claude Computer Use、Codex App）均不提供上述任何可视化追踪能力。竞品通常只有文字日志或简单进度条。
+无竞品提供同等水平的交互式可视化监控能力：
+
+- **Skyvern**：采用 CDP `Page.startScreencast()` 连续推送 JPEG 帧——提供"视频流"体验，但**只能看不能交互**（无元素数据、无 BBox、无 Inspector 模式）。且需要 WebSocket 长连接和持续 CPU/带宽消耗。
+- **我方方案**：专为 AI Agent 离散操作设计——事件驱动截图 + 可交互 BBox 叠加 + 指令注入。你可以**直接点击截图上的任意元素**告诉 Agent 该做什么——纯视频流无法做到。
+- **其他所有竞品**（browser-use、CUA、Claude Computer Use、OpenClaw、Hermes）：无可视化反馈或仅提供纯文本日志。
 
 ### 测试覆盖
 
-251+ 项测试横跨 Rust（Tauri OS overlay）、Python（harness 浏览器池、ARIA 管线、快照/会话管理、限流）、TypeScript（前端 Visual Approval、审批组件、审批决策、SSE 处理）三层——全部通过。
+609 项测试全通过（Snapshot 17 + Session 320 + Tools 89 + BBox/Recording/Takeover 56 + ARIA/Snapshot 42 + Wait/Dialog/Pool 64 + Server WebUI 21）。
 
 ## Schema 驱动结构化提取
 

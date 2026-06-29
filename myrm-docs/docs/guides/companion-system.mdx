@@ -10,34 +10,55 @@ The companion system transforms your agent into a virtual companion with persona
 ## Features
 
 <CardGroup cols={2}>
-  <Card title="15 Species" icon="paw">
-    Choose from 15 companion species, each with unique traits and evolution paths.
+  <Card title="15 Species + 9 Hats" icon="paw">
+    Choose from 15 companion species and 9 hats, each rendered as custom SVG icons with rarity-based glow effects.
   </Card>
-  <Card title="Emotional Awareness" icon="heart">
-    Companion detects conversation tone and adapts its responses accordingly.
+  <Card title="Agent Appearance Sync" icon="shuffle">
+    Companion automatically changes species and hat when you switch agents — robot for Developer, owl for Researcher, fox for Writer. Custom agents with emoji avatars are mapped automatically.
   </Card>
-  <Card title="Growth System" icon="arrow-up">
-    Companions level up through interactions, unlocking new abilities and personality traits.
+  <Card title="23-State Animation Engine" icon="wand-magic-sparkles">
+    Sprite overlay driven by a state machine with 23 step_key mappings. Three animation modes: transient (brief reactions), sticky (persistent states), and release (return to idle). Heartbeat timeout auto-recovery prevents stuck animations.
   </Card>
-  <Card title="Adaptive Style" icon="comment">
-    Communication style evolves based on your relationship history and preferences.
+  <Card title="Desktop Pet Overlay" icon="desktop">
+    On Tauri Desktop, the companion floats as a transparent always-on-top window with drag support, 5 size presets, position memory, and right-click context menu. On WebUI/SaaS, it renders as an inline widget.
+  </Card>
+  <Card title="Growth & Evolution" icon="arrow-up">
+    5-tier rarity system (Common → Legendary) with stat evolution, XP progression, daily snack interactions, and birthday detection.
+  </Card>
+  <Card title="Anti-Fatigue UX" icon="shield-heart">
+    Routine errors are mapped to silent "review" animations instead of distressing failure faces. Approval requests trigger a friendly waving animation, not a loading spinner.
   </Card>
 </CardGroup>
 
 ## Configuration
 
-1. Navigate to **Settings > Companion**
-2. Select a companion species
-3. Customize personality traits
-4. Enable emotional awareness toggle
+1. Navigate to **Settings > Companion** to enable the system
+2. Select a species and hat from 15 + 9 options
+3. Optionally enable **Sprite Overlay** with a Codex-standard SpriteSheet URL (supports 467+ community assets from petdex.dev)
+4. The companion automatically syncs with your active agent's avatar
 
 ## How It Works
 
-The companion system adds an emotional intelligence layer to the agent:
+The companion system operates on two visual layers:
 
-- Analyzes conversation sentiment and context
-- Adjusts response tone, vocabulary, and engagement level
-- Tracks relationship progression over time
-- Provides encouragement during long tasks and celebrates completions
+- **SVG Layer** (default): Lightweight icon-based rendering embedded near the chat input. Automatically reflects the active agent's identity through species and hat changes.
+- **Sprite Layer** (optional): Full Canvas 2D animation engine supporting Codex 8×9 standard SpriteSheets (1536×1872px). On Desktop, renders in a native transparent window; on WebUI, renders as a draggable overlay.
 
-The companion personality is injected as part of the agent's system prompt, compatible with all prompt modes and model configurations.
+The state machine receives events from the agent's SSE stream and maps them to animations:
+
+- `workflow_planning` → Thinking (sticky)
+- `workflow_execution` → Running (sticky)
+- `approval_waiting` → Waving (sticky)
+- `consensus_reference_done` → Celebrating (transient)
+- `model_failover` → Failed (transient)
+
+All state is managed via Zustand with localStorage persistence. Companion preferences sync to the server via the `/companion/config` API.
+
+## Verified Quality
+
+The companion system is backed by **162 unit tests** across 8 test files, with core module coverage:
+
+- PetStateMachine: **100%** line coverage
+- CompanionSprite: **91.83%** line coverage
+- tauriPetBridge: **100%** line coverage
+- companionGenerator: **99.13%** line coverage

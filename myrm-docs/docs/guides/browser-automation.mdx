@@ -217,11 +217,15 @@ When Agent operates browsers or desktop apps, you never have to guess what it's 
 
 ### How It Compares
 
-No competing product (OpenClaw, CoPaw, PilotDeck, Hermes, Claude Computer Use, Codex App) offers any of these visual tracing capabilities. Most competitors provide text-only logs or simple progress bars.
+No competing product offers the same combination of interactive visual monitoring.
+
+- **Skyvern** uses CDP `Page.startScreencast()` to stream continuous JPEG frames — provides a "video" experience but it's **view-only** (no element interaction, no BBox data, no Inspector mode). Also requires WebSocket long connections and continuous CPU/bandwidth consumption.
+- **Our approach** is specifically designed for AI Agent discrete operations: event-driven screenshots + interactive BBox overlays + instruction injection. You can **click any element on the screenshot** and tell the Agent what to do with it — impossible with a pure video stream.
+- **All other competitors** (browser-use, CUA, Claude Computer Use, OpenClaw, Hermes) provide either no visual feedback or text-only logs.
 
 ### Test Coverage
 
-251+ tests across Rust (Tauri OS overlay), Python (harness browser pool, ARIA pipeline, snapshot/session management, throttle), and TypeScript (frontend visual approval, approval components, approval decisions, SSE handlers) — all passing.
+609 tests verified (Snapshot 17 + Session 320 + Tools 89 + BBox/Recording/Takeover 56 + ARIA/Snapshot 42 + Wait/Dialog/Pool 64 + Server WebUI 21) — all passing.
 
 ## Schema-Driven Structured Extraction
 
