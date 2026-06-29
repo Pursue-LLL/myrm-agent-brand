@@ -33,6 +33,19 @@ The `/learn` command works across all channels — WebUI, Telegram, and any conn
 
 **vs competitors:** Hermes `/learn` requires arguments (errors on empty input) and only works in CLI. Myrm's `/learn` handles empty arguments gracefully, works across all channels, and feeds into the full quality pipeline (10-dim scoring, dedup, lifecycle management).
 
+## Learning by Demonstration
+
+Show the agent a "before → after" example and it automatically infers the transformation rule:
+
+1. **Upload** your original file and the expected result (Excel, CSV, text, code — any format)
+2. **Agent analyzes** the differences, infers the transformation logic, and writes a script
+3. **Validates** by executing the script and comparing output against your expected result
+4. **Captures** the validated pattern as a reusable skill via `StructuredExtractor`
+
+The entire flow happens within a natural conversation — no wizard, no template editor, no programming required. The `StructuredExtractor` automatically classifies whether the pattern deserves to be a `skill`, `cron_job`, or is too trivial to capture (`skip`), with built-in `safety_analysis` to detect destructive commands or credential exposure.
+
+**vs competitors:** All competitors require manual template authoring or macro recording. Myrm's approach is fully conversational and leverages LLM understanding — it generalizes from examples rather than replaying exact steps.
+
 ## Four Evolution Types
 
 | Type | Trigger | What It Does |
