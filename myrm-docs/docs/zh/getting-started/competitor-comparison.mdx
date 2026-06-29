@@ -359,6 +359,8 @@ Hermes v0.15（Velocity，2026-05-28）将核心循环从 16k 行重构为 14 �
 - **4D 预算**（Token + USD + 时间 + 最大子代）— Hermes v0.15 仅每任务超时（1 维）
 - **三级智能模型路由** — Hermes v0.15 仅手动每任务选模型（无自动路由）
 - **6 层 Prompt Cache** vs Hermes `system_and_3`（4 断点、仅 Anthropic）— Myrm 支持 5+ 提供商 + 缓存断裂检测 + 防抖动
+- **Cache 友好的记忆注入**：Myrm 将记忆分为 Stable（SystemMessage，缓存安全）+ Learned（HumanMessage + UNTRUSTED_DATA 安全隔离，绝不污染 System Prompt）。Hermes 文章声称「以 User Message 形式注入」，但其真实代码（`system_prompt.py:424-486`）将记忆合并到 System Prompt volatile 层——每次记忆更新都会导致缓存失效。**175 项缓存专项测试已验证**
+- **IP 人设保护零额外成本**：用户配置的 `system_prompt` 通过 `UserInstructionsMiddleware` 以 `priority="highest"` + `[ABSOLUTE OBEDIENCE OVERRIDE]` 最高优先级注入，确保 LLM 严格遵从 IP 身份事实。Hermes 仅依赖纯文本 `SOUL.md`，无优先级强制执行机制。AI Builder 自动生成包含反捏造指令的人设定义——**765 项中间件测试已验证**
 
 ### 技能进化 — 真·自进化 Agent
 
@@ -796,7 +798,12 @@ MemPalace 是独立 AI 记忆系统，用 Wing/Room/Closet/Drawer 建筑隐喻�
 | Knowledge Graph | Basic halls/tunnels co-occurrence | **GraphStore + CTE** with visual exploration | Rich relationship mapping |
 | Contradiction Detection | Rule-based name/relationship check | **LLM-powered ClaimGraph** + cognitive subsumption | Catches subtle contradictions |
 | Search | BM25 + Vector hybrid | **FTS5 + Qdrant** hybrid (FTS5 has built-in BM25) | Production-grade search infrastructure |
+| Fact Correction | ❌ Direct overwrite (history lost) | ✅ **correct()** — demotes old memory (0.3x weight) + creates high-confidence correction (0.95) linked to original | Wrong memories don't pollute — corrections automatically win in retrieval |
+| User Feedback Rating | ❌ None | ✅ **rate_memory** — asymmetric EMA (negative feedback decays faster) auto-adjusts retrieval ranking | Helpful memories float to top, bad ones sink — no manual curation needed |
+| User Lock | ❌ pin blocks delete only, not edit/patch | ✅ **is_user_locked** — Agent cannot overwrite user-edited memories | Your manual edits are safe from AI overwriting |
 | GUI Management | ❌ CLI only | ✅ **Full GUI panel** — browse, edit, approve, pin, delete memories | Visual memory management |
+| Pitfalls Extraction | ⚠️ Markdown `## Pitfalls` section in SKILL.md | ✅ **Structured Gotchas** — auto-extracted as DB records with `source_error` field + `FeedbackSignal` auto-detection (bilingual) + visual amber warning in GUI | Mistakes become searchable, structured knowledge — not buried text |
+| Multi-Agent Rule Isolation | ❌ No `agent_id` — all rules globally shared | ✅ **6-dimension MemoryScope** (agent_id + namespace + channel + conversation + task_id) | Different agents' rules never pollute each other |
 | Memory Safety | ❌ None | ✅ **Scanner + sanitizer** with real-time security events | Prevent memory poisoning |
 | Health Diagnostics | ❌ None | ✅ **Benchmark testing** (Recall@K, NDCG, MRR, Precision) | Quantified memory quality |
 | Preference Tracking | ❌ None | ✅ **Stability scoring** with visual trend cards | Track how preferences evolve |

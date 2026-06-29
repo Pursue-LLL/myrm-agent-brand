@@ -164,6 +164,22 @@ Skills that degrade are automatically isolated via **1-Strike** (critical failur
 
 **vs competitors:** Hermes/OpenClaw offer CLI or file-based rollback; none ship a full GUI loop for shadow validation plus batch mid-flight rollback.
 
+## Known Pitfalls: Auto-Learning from Failures
+
+Myrm automatically extracts structured "pitfalls" from skill execution failures and feeds them back into future prompts — your agent avoids the same mistake twice.
+
+| Capability | What you get |
+|------------|--------------|
+| **Auto-extraction** | Deterministic errors are automatically captured as structured traps (severity + trigger condition + mitigation) |
+| **Deduplication** | Same error increments `occurrence_count` instead of creating duplicates |
+| **Prompt injection** | High-severity traps are injected into evolution prompts as "Known Traps (avoid these pitfalls)" constraints |
+| **GUI display** | `KnownPitfallsSection` renders traps with 4-level color-coded severity, trigger conditions, and mitigation steps |
+| **Template library** | 8 common trap templates (npm timeout, API rate limit, file permissions, memory overflow, encoding, Python version, Docker, Git conflicts) |
+
+**Plain language:** When a skill fails due to a known issue (e.g., npm timeout), Myrm remembers it and explicitly warns the AI on the next evolution attempt. Over time, your skills become more robust automatically — no manual documentation needed.
+
+**vs competitors:** Hermes includes a plain-text "Pitfalls" paragraph in skills. Myrm provides structured storage with severity levels, automatic extraction from runtime errors, deduplication with occurrence counting, and prompt engineering injection — a complete closed-loop learning system.
+
 ## Curator: Lifecycle Governance
 
 Automated skill lifecycle management through the Curator system:
