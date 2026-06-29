@@ -342,10 +342,26 @@ Messages that fail delivery after multiple retries are moved to a DLQ with full 
 
 WebSocket-based channels (Discord, Slack, Feishu, etc.) share a common `reconnect_loop` utility with exponential backoff and jitter. This provides consistent, battle-tested reconnection behavior across all long-lived connections.
 
+### Platform-Specific Rate Limiting
+
+Each channel gets its own **TokenBucket** rate limiter tuned to the platform's API limits. WeChat channels have dedicated parameters:
+
+| Channel | Rate | Effect |
+|---------|------|--------|
+| WeChat (iLink) | 2 msg/s | Prevents personal account throttling |
+| WeChat Official | 1 msg/s | Respects Official Account API quotas |
+
+When the platform returns a rate-limit error (e.g., WeChat errcode 45011/45015/45047 or iLink errcode -2), the system:
+
+1. Maps the error to a `RateLimitError` with a platform-specific `retry_after` delay
+2. Retries with exponential backoff, respecting the `retry_after` value
+3. Falls back to DLQ if all retries exhaust — text messages are never silently dropped
+
 ### What This Means for Users
 
 - **Zero-downtime experience** — temporary network issues or platform outages resolve themselves
 - **No lost messages** — even if the server crashes, pending messages are recovered on restart
+- **No account bans** — per-channel rate limiting prevents exceeding platform API quotas
 - **Visible status** — channel health is always visible in Settings > Channels via color-coded badges
 - **No manual restarts** — channels heal themselves; you only see the result, not the recovery process
 
