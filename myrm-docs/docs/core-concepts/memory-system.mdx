@@ -294,6 +294,7 @@ Myrm automatically detects implicit follow-up obligations from conversations —
 - **Heartbeat delivery**: Due commitments are injected into the agent's Situation Report at each heartbeat tick
 - **Two-phase delivery**: Injection registers an attempt; the item is marked **sent** only after a successful heartbeat ack. If the agent replies with `[SILENT]` (nothing to report), the item is **snoozed for 6 hours** and retried — not dismissed
 - **GUI management**: View, dismiss, or snooze from **Settings → Memory Center → Follow-ups** tab (card UI, status filters, per-agent filter)
+- **REST API**: `GET/PATCH /api/v1/memory/follow-ups` — list, dismiss, snooze; invalid status query returns 400
 - **72-hour auto-expiry**: Stale commitments are automatically cleaned up (scoped per agent/user)
 - **24-hour rolling window**: Maximum 3 commitment notifications per day to prevent notification fatigue
 
