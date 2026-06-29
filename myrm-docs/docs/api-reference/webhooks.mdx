@@ -5,35 +5,49 @@ description: Configure webhooks for event-driven integrations.
 
 # Webhooks
 
-Receive real-time notifications when events occur in your Myrm workspace.
+Trigger Agent tasks from external systems via HTTP, or push Agent results to external services.
 
-## Setup
+## Inbound Triggers
 
-1. Navigate to **Settings > Webhooks**
-2. Add a webhook URL
-3. Select events to subscribe to
-4. Save and verify
+External systems (Zapier, n8n, custom scripts) can trigger Agent tasks by sending HTTP requests to the Cron trigger endpoints.
 
-## Events
+### Webhook Trigger
 
-| Event | Description |
-|-------|-------------|
-| `agent.message.created` | New message from agent |
-| `agent.task.completed` | Scheduled task finished |
-| `agent.task.failed` | Scheduled task failed |
-| `memory.created` | New memory entry |
-| `skill.evolved` | Skill evolution completed |
-
-## Payload Format
-
-```json
-{
-  "event": "agent.message.created",
-  "timestamp": "2026-05-30T00:00:00Z",
-  "data": { ... }
-}
+```bash
+curl -X POST https://your-myrm-host/api/cron/trigger/webhook/my-path \
+  -H "x-webhook-secret: your-secret" \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Process this data"}'
 ```
+
+### Event Trigger
+
+```bash
+curl -X POST https://your-myrm-host/api/cron/trigger/event \
+  -H "Content-Type: application/json" \
+  -d '{"message": "new_order_placed", "channel": "ecommerce"}'
+```
+
+### System Event Trigger
+
+```bash
+curl -X POST https://your-myrm-host/api/cron/trigger/system-event \
+  -H "Content-Type: application/json" \
+  -d '{"source": "monitoring", "event_type": "alert", "payload": {"severity": "high"}}'
+```
+
+## Outbound Webhooks
+
+Configure outbound webhooks in **Settings > Channels** using the Webhook Channel. Agent results are automatically pushed as structured JSON POST requests to your configured URL.
 
 ## Security
 
-Webhook payloads include an HMAC signature in the `X-Myrm-Signature` header for verification.
+Inbound webhook triggers require an `x-webhook-secret` header that must match the secret configured in the Cron job. Requests without a valid secret are rejected with 401.
+
+## Setup via GUI
+
+1. Navigate to **Settings > Automation** (Cron)
+2. Create a new scheduled task
+3. Select "Webhook" as the trigger type
+4. Configure the webhook path and secret
+5. Bind an Agent to execute when triggered

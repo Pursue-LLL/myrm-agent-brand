@@ -5,35 +5,49 @@ description: 配置 Webhook 实现事件驱动集成。
 
 # Webhooks
 
-在 Myrm 工作空间中发生事件时接收实时通知。
+通过 HTTP 触发 Agent 任务，或将 Agent 结果推送到外部服务。
 
-## 配置
+## 入站触发
 
-1. 进入 **设置 > Webhooks**
-2. 添加 Webhook URL
-3. 选择要订阅的事件
-4. 保存并验证
+外部系统（Zapier、n8n、自定义脚本）可通过 HTTP 请求触发 Agent 任务。
 
-## 事件
+### Webhook 触发
 
-| 事件 | 说明 |
-|-------|-------------|
-| `agent.message.created` | Agent 新消息 |
-| `agent.task.completed` | 定时任务完成 |
-| `agent.task.failed` | 定时任务失败 |
-| `memory.created` | 新记忆条目 |
-| `skill.evolved` | 技能进化完成 |
-
-## 载荷格式
-
-```json
-{
-  "event": "agent.message.created",
-  "timestamp": "2026-05-30T00:00:00Z",
-  "data": { ... }
-}
+```bash
+curl -X POST https://your-myrm-host/api/cron/trigger/webhook/my-path \
+  -H "x-webhook-secret: your-secret" \
+  -H "Content-Type: application/json" \
+  -d '{"message": "处理这些数据"}'
 ```
+
+### 事件触发
+
+```bash
+curl -X POST https://your-myrm-host/api/cron/trigger/event \
+  -H "Content-Type: application/json" \
+  -d '{"message": "new_order_placed", "channel": "ecommerce"}'
+```
+
+### 系统事件触发
+
+```bash
+curl -X POST https://your-myrm-host/api/cron/trigger/system-event \
+  -H "Content-Type: application/json" \
+  -d '{"source": "monitoring", "event_type": "alert", "payload": {"severity": "high"}}'
+```
+
+## 出站 Webhook
+
+在 **设置 > 渠道** 中配置 Webhook Channel。Agent 结果会自动以结构化 JSON POST 请求推送到配置的 URL。
 
 ## 安全
 
-Webhook 载荷在 `X-Myrm-Signature` 头中包含 HMAC 签名供校验。
+入站 Webhook 触发器需要 `x-webhook-secret` 请求头，必须与 Cron 任务中配置的密钥匹配。缺少有效密钥的请求会返回 401。
+
+## 通过 GUI 配置
+
+1. 进入 **设置 > 自动化**（定时任务）
+2. 创建新的定时任务
+3. 选择「Webhook」作为触发类型
+4. 配置 Webhook 路径和密钥
+5. 绑定 Agent 执行

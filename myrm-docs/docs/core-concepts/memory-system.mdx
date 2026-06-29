@@ -301,6 +301,19 @@ Myrm automatically detects implicit follow-up obligations from conversations —
 
 Access from **Settings → Memory Center → Follow-ups**.
 
+## Real-Time Memory Notifications
+
+When the agent silently learns from your conversations, Myrm keeps you in the loop with real-time GUI notifications:
+
+- **Auto-extraction toast**: When context compression evicts tool-call content, the harness framework extracts it as long-term memory in the background. Upon completion, a toast notification appears: *"Remembered N items from conversation"*
+- **Throttle & merge**: Multiple extractions within 2 seconds are merged into a single notification to prevent alert fatigue
+- **One-click review**: Every notification includes a "View Memory" action button that jumps directly to Memory Center
+- **Recall scope updates**: When conversation recall inclusion/exclusion changes, a toast confirms the action with a human-readable description
+- **Silent failure**: If the SSE push fails, memory extraction continues uninterrupted — notifications are best-effort, never blocking
+- **5-language i18n**: Notifications are fully localized in Chinese, English, Japanese, Korean, and German
+
+This ensures the "getting smarter over time" experience is **transparent and trustworthy** — users always know what the agent learned and can review it instantly.
+
 ## Session Notes — Zero-Cost Task Continuity
 
 When conversations grow long enough to require compression, traditional approaches use an LLM to generate summaries — consuming tokens and potentially losing important details. Myrm maintains **Session Notes** — a structured, 8-section cognitive model that the AI builds incrementally in the background:
