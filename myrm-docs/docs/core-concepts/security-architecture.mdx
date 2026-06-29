@@ -165,10 +165,12 @@ mcp__{server}__{tool}
 
 DNS Pinning prevents agents from being tricked into accessing internal networks via HTTP redirects:
 
+- **Unified outbound HTTP layer**: All agent-initiated HTTP exits (web_fetch, HTTP tools, OpenAPI executor, skill ZIP install, media resolver, robots/sitemap fetch, channel media download, Feishu attachments) converge on `secure_fetch` / `async_pin_url` — one implementation, no bare httpx blind spots
 - **Manual redirect loop**: `follow_redirects=False` with per-hop re-validation — every redirect target is fully checked before following
 - **DNS Pinning**: Resolved IPs replace hostnames in HTTP connections, eliminating DNS rebinding TOCTOU attacks
 - **Comprehensive IP blocklist**: RFC1918 private, CGNAT, link-local, multicast, reserved, cloud metadata endpoints (AWS/GCP/Alibaba/Tencent), plus IPv4-mapped IPv6 detection
-- **Three-path coverage**: web_fetch tool, HTTP request tool, and browser Navigator all use the same SSRF validation
+- **Audit trail**: Blocked requests emit `SSRF_BLOCKED` security decisions for SIEM and frontend audit views
+- **Live verification**: Integration tests without mocks confirm blocks on 127.0.0.1, 169.254.169.254, and metadata endpoints
 
 ### Malicious Package Detection
 
