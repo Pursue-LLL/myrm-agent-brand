@@ -231,6 +231,35 @@ MCP tools follow the same approval flow as built-in tools:
 - Write/destructive tools require user approval (unless in YOLO mode)
 - Custom approval policies can be configured per MCP server
 
+## Per-Tool Filtering
+
+When configuring agents, you can control which tools from each MCP server are available — down to individual tool granularity.
+
+### How to Use
+
+1. Go to **Agent Config** (click the agent avatar in chat)
+2. Under **MCP Servers**, each enabled server shows a **Tool Filter** toggle
+3. Expand it to see all available tools with risk annotations
+4. Toggle individual tools on/off using checkboxes
+
+### Risk Annotations
+
+Each tool is automatically classified by risk level:
+
+| Risk Level | Icon | Description |
+|------------|------|-------------|
+| **Safe** | 🟢 Shield | Read-only operations (`readOnlyHint: true`) |
+| **Caution** | 🟡 Eye | Write operations (not read-only, not destructive) |
+| **Danger** | 🔴 Warning | Destructive operations (`destructiveHint: true`) |
+
+### Auto-Disable Dangerous Tools
+
+When you first enable an MCP server on an agent, tools marked as **destructive** are automatically excluded from the selection. You can manually re-enable them if needed.
+
+### Filter Summary
+
+The tool filter header shows a count badge (e.g., `5/20`) indicating how many tools are active out of the total available.
+
 ## Multimodal Tool Results
 
 MCP tools can return rich content beyond plain text — screenshots, images, and structured data are all handled natively.

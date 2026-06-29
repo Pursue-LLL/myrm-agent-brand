@@ -60,6 +60,20 @@ This happens at zero extra cost (no LLM calls during recording) and zero interfe
 
 **vs competitors:** No competitor (OpenClaw, Hermes, CoPaw, DeerFlow, or LobsterAI) captures human takeover actions for skill learning. When their agents get stuck, user interventions are simply discarded.
 
+## Automatic Multi-Step Workflow Learning
+
+Every time you complete a task, the agent automatically analyzes the full conversation — including all tool calls, their parameters, ordering, and context — to identify reusable multi-step patterns. If a workflow is generalizable, it's captured as a new skill **on the first occurrence**.
+
+| Aspect | Myrm | OpenSquilla (competitor) |
+|--------|------|------------------------|
+| Detection trigger | First completed session | Requires 3+ identical sessions |
+| Input signal | Full conversation trajectory (context-rich) | Only skill names + frequency count |
+| Output format | Flexible SKILL.md (Agent adapts at runtime) | Fixed DAG (rigid step ordering) |
+| Validation | SandboxValidator dry-run + safety pipeline | Static lint + smoke test |
+| New architecture required | None (reuses CAPTURED pipeline) | Entire DAG engine (6+ modules) |
+
+**Why this matters:** You don't have to repeat yourself three times before the agent "notices" a pattern. One well-executed workflow is enough — the agent learns immediately and adapts the knowledge to future variations.
+
 ## Four Evolution Types
 
 | Type | Trigger | What It Does |
