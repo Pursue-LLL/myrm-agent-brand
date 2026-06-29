@@ -80,3 +80,37 @@ File checkpoints are just one layer of Myrm's comprehensive interruption recover
 | **Stream Recovery** | Network interruptions during LLM streaming | 4 strategies: oneshot, continuation, truncation, overflow failover |
 
 No matter the interruption — process crash, network drop, user pause, or budget exhaustion — Myrm recovers from the exact point of interruption with zero data loss.
+
+## Real-Time Diff Visualization
+
+Every time your Agent modifies a file, Myrm automatically computes a unified diff and streams it to the UI via SSE — no refresh needed.
+
+### What You See
+
+- **File list with change stats** — each modified file shows `+N/-N` lines added/removed
+- **Click to expand** — view the full diff inline with syntax highlighting
+- **Unified or Split view** — toggle between single-pane (GitHub-style) and side-by-side comparison
+- **Language-aware highlighting** — Prism.js automatically detects the file language
+- **Line numbers** — old and new line numbers displayed in dual columns
+- **Copy diff** — one-click copy of the raw diff content
+
+### How It Works
+
+1. **DiffCollectorObserver** (harness layer) intercepts every file write/edit
+2. Computes a cumulative unified diff against the turn's initial snapshot
+3. Pushes a `FILE_DIFF` SSE event to the frontend
+4. **FilePathRenderer** shows the file badge with change stats
+5. **DiffViewer** renders the full interactive diff on expand
+
+### Safety Limits
+
+- Long diffs are automatically truncated at **2,000 lines** with a `(truncated)` indicator
+- Binary files display "Binary file changed" instead of garbled content
+- DiffViewer has a **400px max-height** with scroll — never overwhelms the conversation
+
+### Decide & Act
+
+After reviewing the diff, you can:
+- **Approve** — continue the conversation, the change stays
+- **Rollback** — use File Checkpoints (above) to restore any file to its previous state
+- The Agent automatically detects rollbacks and adjusts its next actions accordingly
