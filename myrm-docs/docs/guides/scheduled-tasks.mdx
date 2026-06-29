@@ -77,6 +77,20 @@ Set `context_from` to inject referenced jobs' latest successful output into the 
 
 Built-in periodic self-check (`__heartbeat__`) with **Situation Report** injection — the agent reviews memory changes, pending reminders, due commitments (follow-up tracking), and system health before each tick, transforming blind checks into intelligence-driven actions. Due commitments are automatically marked as delivered to prevent duplicate notifications.
 
+## Scheduler Liveness Dashboard
+
+A real-time visual indicator at the top of the Cron Dashboard shows scheduler health at a glance:
+
+| Status | Meaning | Visual |
+|--------|---------|--------|
+| **Green** | Healthy — scheduler running and ticking normally | Animated pulse dot |
+| **Yellow** | Degraded — starting up, stale tick (>120s), or tick errors | Static amber dot |
+| **Red** | Stopped — scheduler not running or missing timer | Static red dot |
+
+The badge polls `GET /api/v1/cron/scheduler/health` every 30 seconds. It pauses automatically when the browser tab is hidden and refreshes immediately when you switch back — saving server resources in multi-tab workflows.
+
+Hover over the badge to see the exact last tick timestamp and error count.
+
 ## Smart Delivery
 
 | Feature | Description |
