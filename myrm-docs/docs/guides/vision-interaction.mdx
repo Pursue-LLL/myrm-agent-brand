@@ -1,0 +1,52 @@
+---
+title: Vision & Image Understanding
+description: Send images to your agent — even when your main model does not support vision.
+---
+
+# Vision & Image Understanding
+
+Myrm lets you attach images in chat, on channels, and in desktop uploads. If your **main model does not support vision**, Myrm automatically routes images through a **Vision Fallback** model and injects a text description — so you never have to switch models manually.
+
+## How It Works
+
+1. You paste, drag, or attach an image in the WebUI (or send one on a supported channel).
+2. Myrm checks whether the selected main model supports vision (`supports_vision`).
+3. **If yes** — the image is sent to the main model as a native multimodal block.
+4. **If no** — Myrm shows a live **“Analyzing image…”** status, calls your configured **Vision Fallback** model, replaces the image with a concise text description, then continues the conversation with your main model.
+
+The same pipeline applies to **video**: native video-capable models receive the file directly; others get frame extraction plus vision analysis.
+
+## Setup
+
+1. Open **Settings → Models**.
+2. Pick your **Main** chat model (any provider).
+3. Set **Vision Fallback** to a vision-capable model (e.g. GPT-4o, Gemini Flash, Qwen-VL).
+4. Optional: use the capability icons in the model picker — models with the eye icon support vision natively.
+
+Myrm auto-detects model capabilities via LiteLLM and models.dev. You can override per model in the model card if needed.
+
+## What You Can Do
+
+- **Screenshot Q&A** — paste a screenshot and ask what is wrong or what to click next.
+- **Annotation editor** — draw circles or arrows on an image before sending so the agent focuses on the right region.
+- **Non-vision main model** — use a cheap text model for reasoning while vision fallback handles images.
+- **Channel images** — Telegram, Discord, iMessage, and other channels deliver images into the same pipeline.
+- **PDF & documents** — scanned or image-heavy PDFs can route through vision when text extraction is sparse.
+
+## Status & Caching
+
+While fallback analysis runs, the chat shows an **Analyzing image** (or **Analyzing video**) indicator. When done, it clears automatically.
+
+Identical images in the same session are **cached by content hash** — repeat uploads do not trigger duplicate vision API calls.
+
+## Tips
+
+- Configure a **fast, cost-effective** model for Vision Fallback if you send many screenshots.
+- For large images, Myrm compresses automatically before calling the vision model.
+- If analysis fails, you get a clear error message; the rest of your message still processes.
+
+## Related
+
+- [Model Configuration](/docs/guides/model-configuration) — slots, routing, and API keys
+- [Voice Interaction](/docs/guides/voice-interaction) — audio and video message transcription
+- [Browser Automation](/docs/guides/browser-automation) — vision-assisted page verification
