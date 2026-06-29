@@ -236,7 +236,7 @@ A complete input-side risk detection and governance framework with built-in rule
 
 ### Test Coverage
 
-2078 tests verify the full security pipeline: semantic DOM risk (75) + shell classification (379) + security engine (163) + credential scanning (35) + tool guards (9) + permission engine (119) + tool registry & inheritance (67) + guardrail middleware (15) + architecture registry (4) + server permissions (18) + agent builtin tools API (12) + profile resolver (36) + frontend approval & message (15) + risk governance (117) + webhook routes (2) + dynamic authorization guardrails (845: approval flow 26 + edge cases 33 + batch approval 66 + subagent safety 13 + YOLO/taint 127 + PTC/rate limiter 34 + E-Stop/presets 79 + tool interceptor 40 + security guardrail 58 + execution policy 16 + MCP/PTC batch 10 + denial tracking 22 + LLM reviewer 41 + approval interception 98 + safe exec/path 63) + MCP Elicit benchmark (166: approval core 26 + batch+edge 36 + MCP/PTC/subagent 16 + frontend approval components 88).
+20600+ tests verify the full security pipeline, including shell command approval (harness 1209 + server 261), semantic DOM risk (75), shell classification (379), security engine (163), credential scanning (35), tool guards (9), permission engine (119), tool registry & inheritance (67), guardrail middleware (15), architecture registry (4), server permissions (18), agent builtin tools API (12), profile resolver (36), frontend approval & message (15), risk governance (117), webhook routes (2), dynamic authorization guardrails (845), MCP Elicit benchmark (166), and many more.
 
 ## Shell Command Security
 
@@ -262,6 +262,15 @@ When static analysis returns ASK (uncertain), an AI classifier provides semantic
 - **Deterministic**: `temperature=0`, `max_tokens=200` for reproducible decisions
 - **Fail-safe**: Any error, timeout, or parse failure returns UNCERTAIN → falls back to HITL approval
 - **Context-aware**: Receives taint labels (EXTERNAL_NETWORK, SECRET) and trusted domains for nuanced judgment
+
+### Bilingual Command Explanation
+
+Every command that triggers approval displays a human-readable bilingual explanation (`humanize_command`) generated deterministically — zero LLM calls, microsecond latency:
+
+- **73 common commands covered** with parameter-aware descriptions (extracts URLs, filenames, package names)
+- **sudo prefix auto-tagged**, dangerous pipe patterns highlighted
+- Users understand *what* the command does before approving, even without shell expertise
+- Entirely rule-based: cannot be manipulated via prompt injection unlike LLM-based alternatives
 
 ## Encryption & Incognito Mode
 
