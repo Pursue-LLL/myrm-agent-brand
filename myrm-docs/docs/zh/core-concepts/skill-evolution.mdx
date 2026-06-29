@@ -206,6 +206,20 @@ Agent 捕获行为模式时，不会盲目创建技能，而是在**同一次 LL
 
 升级预置技能时用户定制不会被静默覆盖：未改则静默更新；已改且上游变更则保留用户版并显示「有更新」；用户可一键 Accept Upstream 或拒绝。
 
+## 技能配置热重载
+
+在 WebUI 中修改技能、Agent 绑定或相关设置后，**下一条聊天消息**即生效 — 无需重启服务，也无需手动执行 reload 命令。
+
+**流程简述：**
+
+1. 设置 API 调用 `bump_skill_config_version()`，在数据目录（`MYRM_DATA_DIR/.skill_config_version`）原子写入版本号。
+2. Agent 处理下一条消息前读取该文件，与本地缓存对比。
+3. 若版本过期，清除 SkillLoader 缓存并按需重初始化。
+
+**Volume 持久化的意义：** 云沙箱或多 Worker（Granian）部署时，各进程通过共享 Volume 读到同一版本号。OpenClaw 类似计数器仅在进程内存中，Worker 可能不一致；Hermes 需手动 `/reload-skills`。
+
+**Prompt Cache：** 仅在技能实际变更时 reinit，未改技能的对话仍享受缓存收益。
+
 ## 6 种并发自进化机制
 
 Myrm 不等你发现问题 — 六种独立后台机制让 Agent 24/7 持续学习：

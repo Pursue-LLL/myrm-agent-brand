@@ -234,6 +234,20 @@ Under the hood, `origin_hash` (SHA-256 of the bundled source at last sync) is co
 
 This solves a common problem with prebuilt/template systems: users who tweak defaults lose their changes on every update.
 
+## Skill Config Hot Reload
+
+When you edit skills, agent bindings, or related settings in the WebUI, changes take effect on the **next chat message** — no server restart and no manual reload command.
+
+**What happens under the hood:**
+
+1. The settings API bumps a **config version** stored as a small file under your data directory (`MYRM_DATA_DIR/.skill_config_version`).
+2. Before handling your next message, the agent compares its cached version against that file.
+3. If stale, it clears the skill loader cache and re-initializes only what changed.
+
+**Why Volume persistence matters:** In cloud sandbox or multi-worker deployments (Granian), every process reads the same version file on shared storage. OpenClaw keeps a similar counter in process memory only — workers can drift. Hermes requires a manual `/reload-skills` CLI step.
+
+**Prompt cache:** Re-init happens only when skills actually change, so unrelated conversations keep their cache benefits.
+
 ## 6 Concurrent Self-Evolution Mechanisms
 
 Myrm doesn't wait for you to notice problems — six independent background mechanisms keep your agent learning 24/7:
