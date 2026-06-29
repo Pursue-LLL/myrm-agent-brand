@@ -46,6 +46,20 @@ The entire flow happens within a natural conversation — no wizard, no template
 
 **vs competitors:** All competitors require manual template authoring or macro recording. Myrm's approach is fully conversational and leverages LLM understanding — it generalizes from examples rather than replaying exact steps.
 
+## Learning from Human Takeover
+
+When the Agent gets stuck during a browser task, it can ask you to take over. Your actions then become learning material — automatically and transparently:
+
+1. **Agent requests takeover** — You see a prompt asking for control
+2. **You operate the browser** — Navigate, click, fill forms as needed
+3. **System captures the change** — Pre/post page snapshots are recorded (semantic accessibility tree, not pixels)
+4. **Toast confirmation** — You see "Behavior recorded — Agent will learn from your demonstration"
+5. **Evolution consumes the evidence** — Next time the FIX or DERIVED pipeline triggers, your demonstration appears alongside execution traces
+
+This happens at zero extra cost (no LLM calls during recording) and zero interference to your workflow. The Agent does not attempt to replay your exact clicks — instead, the evolution LLM receives a high-level "before → after" page state to understand what the correct outcome should look like.
+
+**vs competitors:** No competitor (OpenClaw, Hermes, CoPaw, DeerFlow, or LobsterAI) captures human takeover actions for skill learning. When their agents get stuck, user interventions are simply discarded.
+
 ## Four Evolution Types
 
 | Type | Trigger | What It Does |

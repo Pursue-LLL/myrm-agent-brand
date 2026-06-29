@@ -1,32 +1,48 @@
 ---
 title: 认证
-description: API 认证与 Token 管理。
+description: API 认证与密钥管理。
 ---
 
 # 认证
 
-## API Token
+## API 密钥
 
-在 GUI **设置 > API Keys** 中生成 API Token。
+在 GUI **设置 > OpenAI Compatible API** 中生成 API 密钥。每个密钥以 `sk-myrm-` 开头，明文仅在创建时展示一次。
 
 ## 用法
 
-在 `Authorization` 头中携带 Token：
+在 `Authorization` 头中携带密钥：
 
 ```bash
-Authorization: Bearer myrm_sk_...
+Authorization: Bearer sk-myrm-...
 ```
 
-## Token 作用域
+## 密钥管理
 
-| 作用域 | 说明 |
-|-------|-------------|
-| `agent:read` | 读取 Agent 配置 |
-| `agent:write` | 创建与修改 Agent |
-| `memory:read` | 读取记忆条目 |
-| `memory:write` | 创建与修改记忆 |
-| `tool:execute` | 执行工具 |
+| 功能 | 说明 |
+|------|------|
+| **创建** | 设置名称、可选过期天数（1–3650 天）、备注 |
+| **列表** | 查看所有密钥的前缀、状态、使用次数、最后使用时间 |
+| **撤销** | 软禁用密钥（保留历史记录） |
+| **删除** | 永久移除密钥 |
+| **安全** | SHA-256 哈希存储，明文仅创建时展示一次 |
 
-## Token 轮换
+## OpenAI 兼容 API
 
-可在 API Keys 设置页随时轮换 Token，旧 Token 立即失效。
+Myrm 提供 OpenAI 兼容的 `/v1` 端点，任何基于 OpenAI API 的工具（Aider、Cline、Codex、Cursor）都可以直接使用 Myrm 作为替代后端：
+
+```bash
+curl https://localhost:3000/v1/chat/completions \
+  -H "Authorization: Bearer sk-myrm-..." \
+  -H "Content-Type: application/json" \
+  -d '{"model": "default", "messages": [{"role": "user", "content": "你好"}], "stream": true}'
+```
+
+### 双模式路由
+
+- **Agent 模式**：当 `model` 匹配 Agent ID（或 `"default"`）时，请求进入完整的 Agent 执行引擎（记忆、工具、子智能体）。
+- **LLM 透传**：当 `model` 匹配已配置的 LLM（如 `claude-3.5-sonnet`）时，请求通过 litellm 直接转发到提供商。
+
+## 密钥轮换
+
+可在 API Keys 设置页随时撤销或删除密钥，被撤销的密钥立即拒绝访问。

@@ -5,28 +5,44 @@ description: API authentication and token management.
 
 # Authentication
 
-## API Tokens
+## API Keys
 
-Generate API tokens from **Settings > API Keys** in the GUI.
+Generate API keys from **Settings > OpenAI Compatible API** in the GUI. Each key is prefixed with `sk-myrm-` and the plaintext is only shown once at creation time.
 
 ## Usage
 
-Include the token in the `Authorization` header:
+Include the key in the `Authorization` header:
 
 ```bash
-Authorization: Bearer myrm_sk_...
+Authorization: Bearer sk-myrm-...
 ```
 
-## Token Scopes
+## Key Management
 
-| Scope | Description |
-|-------|-------------|
-| `agent:read` | Read agent configurations |
-| `agent:write` | Create and modify agents |
-| `memory:read` | Read memory entries |
-| `memory:write` | Create and modify memory |
-| `tool:execute` | Execute tools |
+| Feature | Description |
+|---------|-------------|
+| **Create** | Name, optional expiration (1–3650 days), and note |
+| **List** | View all keys with prefix, status, usage count, and last used time |
+| **Revoke** | Soft-disable a key (preserves history) |
+| **Delete** | Permanently remove a key |
+| **Security** | SHA-256 hashed storage; plaintext shown only at creation |
+
+## OpenAI Compatible API
+
+Myrm exposes an OpenAI-compatible `/v1` endpoint so that any tool built for the OpenAI API (Aider, Cline, Codex, Cursor) can use Myrm as a drop-in replacement:
+
+```bash
+curl https://localhost:3000/v1/chat/completions \
+  -H "Authorization: Bearer sk-myrm-..." \
+  -H "Content-Type: application/json" \
+  -d '{"model": "default", "messages": [{"role": "user", "content": "Hello"}], "stream": true}'
+```
+
+### Dual-Mode Routing
+
+- **Agent mode**: When `model` matches an agent ID (or `"default"`), the request is routed to the full Agent execution engine with memory, tools, and sub-agents.
+- **LLM passthrough**: When `model` matches a configured LLM (e.g. `claude-3.5-sonnet`), the request is forwarded directly to the provider via litellm.
 
 ## Token Rotation
 
-Tokens can be rotated at any time from the API Keys settings page. Old tokens are immediately invalidated.
+Keys can be revoked or deleted at any time from the API Keys settings page. Revoked keys are immediately rejected.
