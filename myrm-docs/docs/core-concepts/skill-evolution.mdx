@@ -140,10 +140,12 @@ Skills that degrade are automatically isolated via **1-Strike** (critical failur
 
 Automated skill lifecycle management through the Curator system:
 
+- **Zero Background Token Cost** — Background sweeps only run deterministic operations (stale/archive/LRU), architecturally guaranteed to never trigger LLM calls
 - **Cluster Detection** — Identifies semantically similar skills via prefix + embedding analysis
-- **Umbrella Merge** — GUI preview before merging, preventing accidental consolidation
-- **Automatic Pruning** — Removes inactive and low-quality skills
-- **History Visualization** — Timeline view of all evolution events in the GUI
+- **Umbrella Merge** — GUI preview + confirm execution two-step flow, preventing accidental consolidation
+- **Automatic Pruning** — 7-day grace period + 30-day stale threshold + success rate checks for inactive and low-quality skills
+- **Auto Recovery** — Skills marked as stale are automatically restored to active upon re-use
+- **History Visualization** — Timeline view of all evolution events in the GUI, each sweep fully traceable
 
 ## Conversational Skill Management
 
