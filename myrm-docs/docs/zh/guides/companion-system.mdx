@@ -1,6 +1,6 @@
 ---
 title: 伴侣系统
-description: 游戏化 AI 伴侣：15 物种、情感感知与成长进度。
+description: 游戏化 AI 伴侣：15 物种、情感感知、社区精灵图画廊与成长进度。
 ---
 
 # AI 伴侣系统
@@ -10,34 +10,63 @@ description: 游戏化 AI 伴侣：15 物种、情感感知与成长进度。
 ## 特性
 
 <CardGroup cols={2}>
-  <Card title="15 物种" icon="paw">
-    15 种伴侣物种，各有独特特质与进化路径。
+  <Card title="15 物种 + 9 帽子" icon="paw">
+    15 种伴侣物种和 9 种帽子，各有独特 SVG 图标与稀有度光效。支持 Agent 外观自动关联（开发者🤖🔥、研究员🦉🎓、写手🦊🌸等）。
   </Card>
-  <Card title="情感感知" icon="heart">
-    伴侣感知对话语气并相应调整回应。
+  <Card title="23 态动画引擎" icon="wand-magic-sparkles">
+    精灵覆盖层由状态机驱动，映射 23 种 step_key。三种动画模式：transient（短暂反应）、sticky（持续状态）、release（回归空闲）。心跳超时自动恢复防卡死。
   </Card>
-  <Card title="成长系统" icon="arrow-up">
-    通过互动升级，解锁新能力与性格特质。
+  <Card title="桌面端原生桌宠" icon="desktop">
+    Tauri 桌面端：透明 always-on-top 浮窗 + 拖拽 + 5 种尺寸 + 位置记忆 + 右键菜单。WebUI/SaaS：内嵌组件。
   </Card>
-  <Card title="自适应风格" icon="comment">
-    沟通风格随关系历史与偏好演化。
+  <Card title="成长与进化" icon="arrow-up">
+    5 级稀有度（Common→Legendary）+ 属性进化 + XP 经验值 + 每日零食互动 + 生日检测。
+  </Card>
+  <Card title="社区精灵图画廊" icon="store">
+    内置 petdex.dev 社区画廊，Canvas 缩略图预览 + 懒加载 + 搜索过滤 + 一键安装。无需手动输入 URL。
+  </Card>
+  <Card title="动态精灵图兼容" icon="puzzle-piece">
+    `resolveAnimRow` 引擎使用别名映射系统，自动适配 Codex 9 行、Legacy 8 行及任意行数精灵图。社区素材"即装即用"。
+  </Card>
+  <Card title="跨设备配置同步" icon="cloud">
+    伴侣配置（含精灵图选择）通过 `/companion/config` API 服务端持久化，多设备切换不丢失个性化选择。
+  </Card>
+  <Card title="抗疲劳 UX" icon="shield-heart">
+    常规错误映射为安静的"审查"动画而非惊恐的失败表情。审批请求触发友好的挥手而非加载圈。
   </Card>
 </CardGroup>
 
 ## 配置
 
-1. 进入 **设置 > 伴侣**
-2. 选择伴侣物种
-3. 自定义性格特质
-4. 开启情感感知开关
+1. 进入 **设置 > 伴侣** 启用系统
+2. 从 15 种物种和 9 种帽子中选择
+3. 切换到 **画廊** 标签页浏览 petdex.dev 社区精灵图 — 搜索、预览、一键安装
+4. 选中的精灵图配置通过服务端 API 自动跨设备同步
+5. 伴侣自动关联当前活跃 Agent 的外观
 
 ## 工作原理
 
-伴侣系统为 Agent 增加情感智能层：
+伴侣系统在两个视觉层面运作：
 
-- 分析对话情感与上下文
-- 调整语气、用词与参与度
-- 追踪关系进展
-- 长任务中鼓励、完成时庆祝
+- **SVG 层**（默认）：轻量图标渲染，嵌入聊天输入区附近。自动反映活跃 Agent 的物种和帽子。
+- **精灵层**（可选）：Canvas 2D 动画引擎，支持 Codex 8×9 标准精灵图（1536×1872px）。`resolveAnimRow` 引擎自动检测行数并通过别名映射确保所有社区精灵图正确播放。桌面端渲染为原生透明窗口，WebUI 渲染为可拖拽覆盖层。
 
-伴侣人格作为系统提示词一部分注入，兼容所有提示词模式与模型配置。
+状态机从 Agent 的 SSE 流接收事件并映射到动画：
+
+- `workflow_planning` → 思考（sticky）
+- `workflow_execution` → 运行（sticky）
+- `approval_waiting` → 挥手（sticky）
+- `consensus_reference_done` → 庆祝（transient）
+- `model_failover` → 失败（transient）
+
+所有状态通过 Zustand + localStorage 管理。伴侣配置通过 `/companion/config` API 同步到服务端。
+
+## 质量验证
+
+伴侣系统通过 **188 项单元测试**，覆盖 10 个测试文件：
+
+- PetStateMachine：**100%** 行覆盖率
+- CompanionSprite：**91.83%** 行覆盖率
+- tauriPetBridge：**100%** 行覆盖率
+- companionGenerator：**99.13%** 行覆盖率
+- petStateMapping：Codex/Legacy/边界 **18 项测试全通过**
