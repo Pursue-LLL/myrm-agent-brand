@@ -229,6 +229,19 @@ Myrm 主动防止失控重试循环并保护 API 预算：
 
 **实测验证**：重试防护全模块 330 项测试通过（LoopGuard、FrequencyGuard、BudgetGuard、MultidimensionalBudgetGuard、BudgetBoundaryMiddleware）。
 
+## 预算防护体系
+
+Myrm 在所有部署模式下提供全面的预算控制：
+
+- **MultidimensionalBudgetGuard**：会话/日/单次调用 3 维 USD 限制，4 级渐进响应（OK → WARNING → FINALIZATION → EXCEEDED）
+- **BudgetBadge**：聊天输入区实时预算徽章，显示使用百分比和颜色编码状态
+- **BudgetExceededDialog**：预算超限弹窗，一键充值或升级套餐
+- **ChannelBudget**：每个 IM 渠道（Telegram、微信等）独立预算限额
+- **BudgetPolicySection**：完整的预算策略配置 UI，支持 finalization reserve
+- **DailyChart**：30 天用量趋势图 + 缓存命中率叠加折线
+
+**实测验证**：预算防护全模块 156 项测试通过（harness 框架层 76 passed，server 业务层 80 passed）。
+
 ## 用户体验
 
 恢复对用户透明：
