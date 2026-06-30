@@ -304,7 +304,7 @@ Passwords and TOTP seeds **never enter the LLM context**. You configure labeled 
 | **Label-only agent view** | Tool schema exposes labels, not values | Safe to let the agent log in — it cannot "see" or repeat your password |
 | **Browser + desktop coverage** | `fill_credential` (unified action) + password-field block on macOS/Windows/Linux | Same vault works for web apps and native desktop login |
 | **Built-in TOTP** | RFC 6238 generation inside the vault | 2FA flows without you reading codes aloud or pasting into chat |
-| **Encrypted storage** | AES-256-GCM in Server DB, synced to Harness memory vault on startup | Credentials at rest are encrypted; master key stays out of sandbox env |
+| **Encrypted storage** | AES-256-GCM in Server DB, synced to Harness memory vault on startup; partial metadata edits preserve in-memory secrets | Credentials at rest are encrypted; editing description in Settings does not break live automation |
 
 <Note>
 Payment-card CVV has no dedicated `use_payment_method` API yet (unlike FSB's browser extension). Password-type fields are covered; card checkout may need manual approval or future API.

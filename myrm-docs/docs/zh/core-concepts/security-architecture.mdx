@@ -254,7 +254,7 @@ AI 分类器（`TranscriptClassifier`）审查工具调用是否符合用户原�
 
 ### 表单凭证库
 
-密码与 TOTP **永不进 LLM 上下文**。设置中带标签凭证；Agent 只见标签，Harness 在 DOM/OS 层注入。
+密码与 TOTP **永不进 LLM 上下文**。在 **设置 → 凭证** 配置带标签凭证；Agent 只见标签名（如 `github-personal`），调用统一的 `fill_credential`（浏览器与桌面相同动作）；Harness 在 DOM/OS 层注入，明文不回流对话或工具日志。Server 侧 AES-256-GCM 加密存储，启动时同步到 Harness 内存金库；**仅修改描述**时也会保留内存中的密码/TOTP（2026-06-29 修复）。**38 项**凭证专项测试全通过，金库模块 **100%** 语句覆盖。
 
 ### 泄漏检测
 
