@@ -198,6 +198,22 @@ Agent 有可配置迭代上限（默认 50），阈值基于图递归限制动�
 
 这防止了多Agent系统中的常见故障模式：子Agent的冗长崩溃输出占满父Agent的上下文窗口，导致层级间级联推理退化。
 
+## 级联错误防护体系
+
+Myrm 在 Agent 层级的每个层面提供纵深防御，防止级联故障：
+
+| 层级 | 机制 | 范围 |
+|------|------|------|
+| **基础设施** | 熔断器（CLOSED → OPEN → HALF_OPEN 三态） | 每模型/每浏览器池 |
+| **终端错误** | 硬熔断（网络/沙箱不可用） | 会话级 |
+| **行为模式** | LoopGuard（5 类模式检测）+ FrequencyGuard（滑窗限频） | 会话级 |
+| **子Agent** | `_cascade_cancel_descendants` — 递归取消所有后代 Agent | Agent 层级 |
+| **紧急停机** | E-Stop（KILL_ALL）— 立即停止所有工具执行 | 全局 |
+
+与传统微服务的依赖链不同，LLM Agent 中工具之间不存在显式 DAG 依赖 — 调用顺序由 LLM 推理链动态决定。Myrm 在正确的抽象层面解决级联错误：基础设施熔断 + 行为模式检测 + 层级级联取消，而非试图建模不存在的工具依赖图。
+
+**实测验证**：级联错误防护全模块 604 项测试通过（LoopGuard、FrequencyGuard、E-Stop、ToolCallBroadcaster、SubagentExecutor、CircuitBreaker、ToolGuards）。
+
 ## 用户体验
 
 恢复对用户透明：

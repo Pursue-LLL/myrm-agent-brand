@@ -198,6 +198,22 @@ When a child agent crashes with a long traceback, the error message is automatic
 
 This prevents a common multi-agent failure pattern: a child agent's verbose crash output consuming the parent's context window, causing cascading reasoning degradation across the agent hierarchy.
 
+## Cascading Error Protection
+
+Myrm provides defense-in-depth against cascading failures at every level of the agent hierarchy:
+
+| Layer | Mechanism | Scope |
+|-------|-----------|-------|
+| **Infrastructure** | Circuit breaker (CLOSED → OPEN → HALF_OPEN) | Per-model, per-browser pool |
+| **Terminal Error** | Hard circuit breaker for network/sandbox failures | Session-wide |
+| **Behavior Pattern** | LoopGuard (5 pattern types) + FrequencyGuard (sliding window rate limit) | Per-session |
+| **Sub-Agent** | `_cascade_cancel_descendants` — recursive cancellation of all descendant agents | Agent hierarchy |
+| **Emergency** | E-Stop (KILL_ALL) — immediately halts all tool execution | Global |
+
+Unlike traditional microservice dependency chains, LLM agents don't have explicit tool DAGs — the LLM decides the call sequence at runtime. Myrm addresses cascading errors at the right abstraction level: infrastructure-level circuit breaking, behavioral pattern detection, and hierarchical cancellation — rather than attempting to model non-existent tool dependencies.
+
+**Verified**: 604 tests passed across all cascading error protection modules (LoopGuard, FrequencyGuard, E-Stop, ToolCallBroadcaster, SubagentExecutor, CircuitBreaker, ToolGuards).
+
 ## What Users Experience
 
 All recovery happens transparently:
