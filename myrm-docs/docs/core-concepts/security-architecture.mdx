@@ -238,7 +238,7 @@ A complete input-side risk detection and governance framework with built-in rule
 
 ### Test Coverage
 
-20600+ tests verify the full security pipeline, including shell command approval (harness 1209 + server 261), semantic DOM risk (75), shell classification (379), security engine (163), credential scanning (35), tool guards (9), permission engine (119), tool registry & inheritance (67), guardrail middleware (15), architecture registry (4), server permissions (18), agent builtin tools API (12), profile resolver (36), frontend approval & message (15), risk governance (117), webhook routes (2), dynamic authorization guardrails (845), MCP Elicit benchmark (166), and many more.
+20960+ tests verify the full security pipeline, including PII/DLP/privacy routing (1136), shell command approval (harness 1209 + server 261), semantic DOM risk (75), shell classification (379), security engine (163), credential scanning (35), tool guards (9), permission engine (119), tool registry & inheritance (67), guardrail middleware (15), architecture registry (4), server permissions (18), agent builtin tools API (12), profile resolver (36), frontend approval & message (15), risk governance (117), webhook routes (2), dynamic authorization guardrails (845), MCP Elicit benchmark (166), and many more.
 
 ## Shell Command Security
 
@@ -320,16 +320,27 @@ Payment-card CVV has no dedicated `use_payment_method` API yet (unlike FSB's bro
 - SSH private keys
 - Entropy-based detection for unknown credential formats
 
-### PII Redaction
+### PII Redaction & Privacy-Aware Routing
 
-Multi-tier PII handling:
+Myrm provides 8-layer PII defense with 57+ detection capabilities — the deepest privacy protection of any AI agent platform:
 
-| Tier | Action | Example |
-|------|--------|---------|
-| **BLOCKED** | Content completely blocked | Injected prompt attacks |
-| **REDACTED** | Sensitive data replaced with `[REDACTED]` | Credit card numbers |
-| **WARN** | Warning logged, content passed through | Email addresses in context |
-| **CLEAN** | No action needed | Normal text |
+**Detection (3 engines, 57+ types):**
+- **Regex PII Scanner**: 12+ structured types (phone, ID card, passport, bank card with Luhn validation, SSN, email, address, courier number, private IP, etc.)
+- **LLM Semantic Scanner**: 20+ non-structured types (medical health, political views, financial records, precise locations, biometrics) with PL2/PL3/PL4 classification
+- **Credential Leak Scanner**: 25+ secret patterns (AWS, OpenAI, Anthropic, GitHub, Slack, JWT, PEM keys, etc.) with Shannon entropy analysis
+
+**Protection (4 user-selectable modes):**
+
+| Mode | Action | Use Case |
+|------|--------|----------|
+| **WARN** | Log detection, pass content through | Monitoring-only environments |
+| **REDACT** | Type-aware irreversible masking (e.g., `138****5678`) | Production default for S2 data |
+| **PSEUDONYMIZE** | Reversible placeholder replacement via SQLite-backed `PseudonymStore` with streaming-safe chunk-boundary restoration | When AI needs context but user sees originals |
+| **BLOCK** | Completely block the message | S3-level confidential data |
+
+**Privacy-Aware Model Routing**: Automatically routes requests based on sensitivity level — S1 to cloud, S2 to cloud-after-redaction or local, S3 to local-only (data never leaves the machine). Configurable fallback: block or force-redact-then-cloud.
+
+**GUI Configuration**: Full privacy controls in Settings — enable/disable toggle, per-level action selection, deep scan toggle, local model connection test, custom keywords/regex/sensitive tools, and real-time test matching.
 
 ### Summary Path Protection
 
