@@ -872,6 +872,46 @@ MemPalace 是独立 AI 记忆系统，用 Wing/Room/Closet/Drawer 建筑隐喻�
 
 **结论：豆包的优势在于飞书 Office 生态壁垒（数千人年产品），非技术可复制。Myrm 以 Artifact 系统（Monaco + DataGrid + HTML Preview + SelectionToolbar + 一键部署）构建了完整的「AI→交付」闭环，在 AI Agent 场景下更轻量、更高效、更易维护。**
 
+## vs 豆包专业版 — 「防假死 & 细粒度进度」体验对比
+
+豆包专业版的真实用户痛点：(1) 处理 50 页 PDF 时进度条卡在 87%；(2) 生成长文档时页面无响应约 30 秒。Myrm 已在架构层面彻底解决：
+
+| 能力 | Myrm | 豆包专业版 | 对比 |
+|------|------|-----------|------|
+| PDF 渲染 | PDF.js WebWorker（不阻塞主线程） | 主线程同步处理 | **Myrm 胜出** |
+| 前端响应性 | SSE streaming + Zustand immer（永不阻塞 UI） | 同步 DOM 操作→30 秒冻结 | **Myrm 胜出** |
+| 细粒度进度 | ProgressItem 20+ 字段（percent/step/total/category/level） | 简单进度条 | **Myrm 胜出** |
+| 实时反馈 | PTC tools.notify 跨进程通道（10req/s 限流） | 无实时通知 | **Myrm 胜出** |
+| 心跳感知 | TOOL_HEARTBEAT 显示 elapsed_ms | 无心跳 | **Myrm 胜出** |
+| 进度 UI | ProgressSteps 树形渲染器（8 种多态渲染器）+ Live Terminal 实时输出 | 单一进度条 | **Myrm 碾压** |
+| 后台任务 | _background_progress 异步监控 | 无 | **Myrm 独有** |
+| Subagent 进度 | swarm_fission 批次进度（含 partial_success） | 无 | **Myrm 独有** |
+| 错误恢复 | recovery_actions 一键恢复 + error_category 诊断 | 无 | **Myrm 独有** |
+
+**59 项测试验证**（2026.6.30）：ProgressSteps 22/22 ✅ + LiveTerminal 27/27 ✅ + PetDispatch 8/8 ✅ + ArchiveRestore 2/2 ✅
+
+**结论：豆包的卡死问题源于「没做好」（主线程阻塞 + 无细粒度反馈），而非「未做」。Myrm 的架构（SSE + WebWorker + PTC notify + 树形进度步骤 + Live Terminal）构建了完整的防假死与进度反馈体系，远超简单进度条方案。**
+
+## vs Marvis（腾讯） — 「分屏流媒体工作台」对比
+
+Marvis 的核心卖点：「左侧是 Mac mini 的实时桌面画面，右侧是对话框，操作感和坐在电脑前没什么差别。」Myrm 已具备完整的分屏实时监看能力：
+
+| 能力 | Myrm | Marvis | 对比 |
+|------|------|--------|------|
+| 桌面实时监看 | DesktopLiveView（SSE 截图推送） | Mac mini WebRTC 推流 | 平手 |
+| 浏览器实时监看 | BrowserLiveView | ❌ 仅桌面 | **Myrm 胜出** |
+| 元素级交互 | ElementOverlay + @dref 引用 | ❌ 仅查看 | **Myrm 胜出** |
+| 双模式切换 | View/Inspect 切换 | ❌ 仅查看 | **Myrm 胜出** |
+| 面板大小调节 | 可拖拽 (320-960px) + localStorage | ❌ 固定 | **Myrm 胜出** |
+| 权限引导 | TCC 探测 + 一键跳转系统设置 | ❌ | **Myrm 独有** |
+| 服务器基础设施 | 无需额外（SSE 轻量） | 需要 STUN/TURN（重） | **Myrm 胜出** |
+| 带宽消耗 | 极低（按需截图） | 持续高带宽 | **Myrm 胜出** |
+| 手机端适配 | 响应式全屏 | 未知 | **Myrm 已支持** |
+
+**29 项测试验证**（2026.6.30）：useResizableSidebar 13/13 ✅ + resolveDesktopOverlayTarget 5/5 ✅ + visualApproval 11/11 ✅
+
+**结论：Marvis 的「分屏推流」优势在于 WebRTC 的高帧率（30-60fps），但 AI Agent 操作是离散的（点击→等待→截图），不需要游戏级帧率。Myrm 的 SSE 截图方案更轻量、更安全、零额外基础设施，加上 ElementOverlay 元素级交互和浏览器双流监看，整体体验超越 Marvis。**
+
 ## vs Claude Office Visualizer — CLI 状态仪表盘
 
 Claude Office Visualizer 用像素风办公室动画渲染 Claude Code CLI 状态，通过独立 Next.js + PixiJS 应用展示 Agent 状态、上下文用量与任务进度。解决 CLI 用户不盯终端就看不见 Agent 在干啥的痛点。

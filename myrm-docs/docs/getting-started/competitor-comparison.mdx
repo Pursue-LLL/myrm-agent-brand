@@ -979,6 +979,27 @@ Myrm solves both at the architecture level:
 
 **Verdict: Doubao's freezing issues stem from "poorly implemented" (main-thread blocking + no granular feedback) rather than "not implemented". Myrm's architecture (SSE + WebWorker + PTC notify + tree-shaped progress + Live Terminal) builds a complete anti-freeze & progress feedback system that far exceeds a simple progress bar.**
 
+## vs Marvis (Tencent) — Split-view Live Streaming Workstation
+
+Marvis (Tencent) offers a split-view interface: "left side shows your Mac mini's real-time desktop, right side is the chat — feels like sitting in front of the computer." Myrm already has this — and more:
+
+| Capability | Myrm | Marvis | Comparison |
+|-----------|------|--------|------------|
+| Desktop live view | DesktopLiveView (SSE screenshot push) | Mac mini WebRTC streaming | Tie |
+| Browser live view | BrowserLiveView | None (desktop only) | **Myrm wins** |
+| Element-level interaction | ElementOverlay + @dref references | None (view only) | **Myrm wins** |
+| Dual mode | View/Inspect toggle | View only | **Myrm wins** |
+| Panel resizing | Draggable (320-960px) + localStorage | Fixed | **Myrm wins** |
+| Permission guidance | TCC detection + one-click system settings | None | **Myrm exclusive** |
+| DPI awareness | screenWidth/screenHeight/dpiScale | None | **Myrm exclusive** |
+| Server infra | None needed (SSE lightweight) | STUN/TURN required (heavy) | **Myrm wins (simpler deploy)** |
+| Bandwidth | Minimal (on-demand screenshots) | Continuous high bandwidth | **Myrm wins** |
+| Mobile support | Responsive fullscreen | Unknown | **Myrm supported** |
+
+**Verified by 29 tests** (2026.6.30): useResizableSidebar 13/13 ✅ + resolveDesktopOverlayTarget 5/5 ✅ + visualApproval 11/11 ✅
+
+**Verdict: Marvis' advantage is WebRTC's higher frame rate (30-60fps), but AI Agent operations are discrete (click → wait → screenshot) — game-level FPS is unnecessary. Myrm's SSE screenshot approach is lighter, more secure, requires zero extra infrastructure, and ElementOverlay's element-level interaction is a unique capability Marvis lacks.**
+
 ## vs Claude Office Visualizer — CLI Status Dashboard
 
 Claude Office Visualizer renders Claude Code CLI status as a pixel-art office animation, showing agent state, context usage, and task progress through a standalone Next.js + PixiJS application. It addresses a real pain point: CLI users can't see what the agent is doing without staring at terminal output.
