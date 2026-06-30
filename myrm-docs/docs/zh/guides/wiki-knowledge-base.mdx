@@ -47,6 +47,23 @@ Wiki 文件在磁盘上仍为纯 Markdown。Obsidian 等编辑器可打开同一
 - **知识图谱** — 编译器自动抽取概念及其关联关系，构建加权边图谱（直接链接 + 来源重叠 + 共同邻居三维权重）。LPA 社区检测自动将相关概念分组；盲区分析高亮孤立节点和跨领域桥接概念。
 - **智能上下文回忆** — 开始新对话时，Agent 自动根据当前话题检索相关记忆和知识，无需手动指引文档。
 
+## 从 Obsidian 导入
+
+Myrm 提供专用 **Obsidian Vault 导入器**，完整保留笔记、标签和图片：
+
+1. 在 **设置 → Wiki** 中滚动到导入区域。
+2. **Tauri 桌面端**：点击 **导入 Obsidian Vault** 并选择本地 vault 目录。
+3. **WebUI / 云端**：点击 **上传 Obsidian ZIP** 并上传 vault 压缩包。
+
+导入器处理：
+
+- **YAML frontmatter** — 行内数组（`tags: [a, b]`）与 YAML 缩进列表（`tags:\n  - a\n  - b`）双格式，含 `aliases`、`created`、`updated`。
+- **图片嵌入** — `![[image.png]]` 语法自动改写为标准 Markdown 并将图片复制至 wiki 资产目录。
+- **`.canvas` 文件** — 自动跳过（Obsidian Canvas 为私有 JSON 格式）。
+- **编码容错** — UTF-8 解码失败的文件会报告但不阻塞整体导入。
+
+导入完成后弹出 toast 通知，显示已处理笔记数、提取标签数和迁移图片数。导入的文件自动进入编译队列并被索引。
+
 ## 对比 DIY Wiki 技能
 
 | DIY（如 Hermes llm-wiki SKILL） | Myrm |
