@@ -131,6 +131,21 @@ Even if the LLM ignores hints, the rendering pipeline applies format downgrades:
 - HTML/SVG code blocks replaced with short placeholders on IM channels
 - Orphan citation markers auto-cleaned when no sources are present
 
+### Per-Message Cost Display
+
+When `enableCostEstimation` is enabled (default: true), each agent response in IM channels includes a cost footer showing the model used, token count, and estimated cost:
+
+```
+💰 claude-sonnet-4-20250514 | 2.5k tokens | ~$0.0035
+```
+
+- **Zero-cost replies are hidden** — cached or free-model responses show no footer
+- **Emoji toggle** — disable the `💰` prefix via user config while keeping the data
+- **Feishu cards** — cost appears as a native `note` element alongside the timestamp
+- **Precision** — costs always show 4 decimal places for accurate tracking
+
+This works automatically with no additional configuration. The cost data is extracted from the harness `token_usage` event during streaming.
+
 ### Smart Message Splitting
 
 Long messages are automatically split at natural boundaries:
