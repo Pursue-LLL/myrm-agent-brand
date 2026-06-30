@@ -153,11 +153,25 @@ Daily 模式零额外存储（复用已有执行记录），不影响 Prompt Cac
 
 | 触发类型 | 工作方式 |
 |---------|---------|
-| **事件正则** | 入站渠道消息匹配 regex 模式时触发任务 |
+| **事件正则** | 入站 IM 渠道消息匹配 regex 模式时触发任务 — GUI 配置，无需 Webhook 公网 URL |
 | **系统事件** | 结构化事件（source + event_type + filters）自动触发 |
 | **Webhook** | 外部服务发送 HTTP POST，HMAC-SHA256 签名验证 |
 
 触发上下文（匹配的消息、事件载荷或 Webhook body）会注入 Agent 提示词，让它知道*为什么*被触发。
+
+### IM 消息 → 事件触发（架构）
+
+已连接渠道（飞书、Telegram、Slack 等）的入站消息可自动触发事件型 Cron 任务：
+
+1. **连接渠道** — Settings 中长连接或 Webhook Ingress
+2. **创建任务** — 触发类型选 **Event**，设置渠道过滤与正则模式
+3. **消息流经 Router** — `/stop`、`/new`、表情反应、待审批消息自动跳过；匹配消息仅 dispatch 一次
+
+:::tip 云端与本地一致
+云托管场景下，Control Plane Ingress 仅入队消息；事件 dispatch 在沙箱 Router 内执行 — 避免双层 dispatch 导致重复触发。
+:::
+
+**已测场景：** 正常 dispatch、命令跳过、审批跳过、反应跳过、重复消息去重 — 16 项自动化测试覆盖全链路。
 
 ## 崩溃恢复
 

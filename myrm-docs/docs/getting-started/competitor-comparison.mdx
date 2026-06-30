@@ -935,6 +935,28 @@ Competitors like Codex and Claude Code output plain Markdown tables when working
 
 **Verified by 502+ tests** (2026.6.27): Interactive UI 59 ✅ | Artifact renderers 47 ✅ | ArtifactPortalStore + SSE 15 ✅ | Chat export + schema 39 ✅ | Backend Artifact system 22 ✅ | Backend Share API (CSP + HMAC + traversal) 41 ✅ | Backend Deploy API 15 ✅ | Backend Artifact file_id chain 3 ✅ | Deploy integration 4 ✅ | Harness Core Artifacts 27 ✅ | Harness Agent Artifacts 128 ✅ | Inline Artifact Events 9 ✅ | Artifact Judge 9 ✅ | Inline Artifact Push 7 ✅ | Mermaid Theme 18 ✅ | Render UI Tool 9 ✅ | Artifact Services (share_token + share_bundle) 13 ✅ | UI Artifact Stream 7 ✅
 
+## vs Doubao Pro — "AI→Office Delivery" Full-Cycle Closed Loop
+
+Doubao Pro (ByteDance) bundles Feishu's Office suite (Docs/Sheets/Slides) for a full "AI generate → format → output" workflow. Myrm achieves the same — and better — with a lighter Artifact architecture:
+
+| Capability | Myrm | Doubao Pro | Comparison |
+|-----------|------|-----------|------------|
+| Document editing | Monaco Editor Code mode (syntax highlight + autocomplete + multi-language) + Markdown Preview | Feishu WYSIWYG | **Myrm better** (LLM outputs Markdown natively, precise diff/patch) |
+| AI precision collaboration | SelectionToolbar: select → AI modify/explain/optimize/comment | AI writes into doc | **Myrm wins** (selection-level AI interaction) |
+| Auto-save | dirty state + 2s debounce | Feishu built-in | Tie |
+| Spreadsheet viewing | DataGrid: virtual scroll + sort + search + 10K rows | Feishu multi-dimensional table | Tie |
+| CSV parsing | RFC 4180 compliant + 5 delimiter auto-detection | Basic CSV | **Myrm wins** |
+| XLSX support | SheetJS dynamic import + multi-Sheet tabs | Feishu native | Tie |
+| Slides/Presentation | HTML Artifact → Vercel deploy as interactive online PPT | Feishu Slides | **Myrm better** (online interactive, embeds dynamic charts) |
+| Math formulas | KaTeX LaTeX rendering | Feishu formulas | Tie |
+| Mermaid diagrams | Native Mermaid rendering | ❌ | **Myrm wins** |
+| One-click deploy | Vercel deploy + HMAC secure sharing | ❌ | **Myrm dominates** |
+| Bundle size | Zero extra dependencies | Feishu Office ~MB | **Myrm wins** |
+
+**Verified by 52 tests** (2026.6.30): DataGrid 11/11 ✅ + CsvParser 19/19 ✅ + SelectionToolbar 17/17 ✅ + LocaleKeys 5/5 ✅
+
+**Verdict: Doubao's advantage is Feishu Office ecosystem moat (thousands of engineer-years) — not replicable via technology. Myrm's Artifact system (Monaco + DataGrid + HTML Preview + SelectionToolbar + one-click deploy) delivers a complete "AI→delivery" closed loop that's lighter, faster, and easier to maintain for AI Agent scenarios.**
+
 ## vs Claude Office Visualizer — CLI Status Dashboard
 
 Claude Office Visualizer renders Claude Code CLI status as a pixel-art office animation, showing agent state, context usage, and task progress through a standalone Next.js + PixiJS application. It addresses a real pain point: CLI users can't see what the agent is doing without staring at terminal output.
@@ -1511,7 +1533,7 @@ Moving away from competitors relying on simple ReAct loops and basic memory, you
 | Hook definition method | CLI/config files ("not easy to use") | ⚠️ plugins/ JSON (5 events, command only) | ❌ | ✅ GUI panels + JSON hot-reload + SKILL.md frontmatter (16 events, 4 executor types) |
 | Security policy hooks | ⚠️ Basic permissions | ⚠️ 3 tiers + asyncRewake | ❌ | ✅ Permissions + path + PII + NL generator + LLM validation hook + SSRF-safe HTTP hooks |
 | Risk rule engine | ❌ | ❌ | ❌ | ✅ Custom rules + test panel (18K lines) |
-| Event triggers | ⚠️ Basic events | ❌ | ❌ | ✅ Cron / webhook / event pattern / system event |
+| Event triggers | ⚠️ Basic events | ❌ | ❌ | ✅ IM regex + webhook + system event (GUI, router SSOT, no double-dispatch) |
 | Per-agent behavior customization | ❌ | ⚠️ Projects | ❌ | ✅ 5 tabs + 10+ dimensions |
 | Agent middleware pipeline | ❌ | ❌ | ❌ | ✅ 6 middleware + KV Cache optimization |
 | Runtime extensions | ❌ | ❌ | ❌ | ✅ 6 extensions (security / subagent / memory) |

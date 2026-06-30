@@ -155,11 +155,25 @@ Beyond time-based scheduling, tasks can be triggered by external events:
 
 | Trigger Type | How It Works |
 |-------------|-------------|
-| **Event Regex** | Incoming channel messages matching a regex pattern trigger the task |
+| **Event Regex** | Incoming IM channel messages matching a regex pattern trigger the task — configured in the GUI, no webhook URL required |
 | **System Event** | Structured events (source + event_type + filters) trigger automatically |
 | **Webhook** | External services send HTTP POST with HMAC-SHA256 signature verification |
 
 Trigger context (the matched message, event payload, or webhook body) is injected into the Agent's prompt so it knows *why* it was triggered.
+
+### IM Message → Event Trigger (Architecture)
+
+Inbound messages from connected channels (Feishu, Telegram, Slack, etc.) can fire event-triggered cron jobs automatically:
+
+1. **Connect a channel** in Settings — long-connection or webhook ingress
+2. **Create a task** with trigger type **Event** — set channel filter and regex pattern
+3. **Messages flow** through `AgentRouter` — commands (`/stop`, `/new`), reactions, and pending approvals are skipped; matching messages dispatch once
+
+:::tip Cloud & Local Parity
+In cloud deployments, the Control Plane ingress endpoint only enqueues messages. Event dispatch happens in the sandbox router — preventing duplicate triggers that would occur if both layers dispatched.
+:::
+
+**Tested scenarios:** normal dispatch, command skip, approval skip, reaction skip, duplicate message dedup — 16 automated tests verify the full path.
 
 ## Crash Recovery
 
