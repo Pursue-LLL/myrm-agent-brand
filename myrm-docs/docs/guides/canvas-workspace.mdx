@@ -1,0 +1,59 @@
+---
+title: Canvas Workspace
+description: tldraw-powered infinite canvas for visual brainstorming, Agent-driven diagram building, and real-time collaboration between you and your AI Agent.
+---
+
+# Canvas Workspace
+
+Myrm includes a built-in **infinite canvas** powered by [tldraw](https://tldraw.dev), giving you a freeform visual workspace for brainstorming, diagramming, and visual prompting — all without leaving the platform.
+
+## How It Works
+
+<Steps>
+  <Step title="Create a Canvas">
+    Navigate to **Canvas** from the sidebar menu. Click **New Canvas** to create a fresh workspace. You can manage multiple canvases — rename, switch between, or delete them at any time.
+  </Step>
+  <Step title="Draw and Annotate">
+    The full tldraw toolkit is available: freehand drawing, shapes, text, arrows, sticky notes, and more. Everything auto-saves with debounced persistence — no manual saving needed.
+  </Step>
+  <Step title="Agent Interaction">
+    Your AI Agent can read the canvas state, see what you've selected, and insert new elements. This enables **visual prompting** — draw a rough sketch, select it, and ask the Agent to refine or implement it.
+  </Step>
+  <Step title="Real-Time Sync">
+    When the Agent modifies the canvas (via MCP tools), changes appear instantly through SSE (Server-Sent Events). Multiple browser tabs stay in sync.
+  </Step>
+</Steps>
+
+## Agent ↔ Canvas Interop
+
+The Agent interacts with your canvas through three MCP operations:
+
+| Operation | What It Does |
+|-----------|-------------|
+| **get_canvas_state** | Reads the full tldraw snapshot — the Agent sees everything on your canvas |
+| **get_canvas_selection** | Reads which shapes you've currently selected — the Agent knows your focus |
+| **insert_canvas_element** | Adds new shapes (rectangles, text, arrows, etc.) to the canvas |
+
+This enables workflows like:
+- Draw a wireframe → ask the Agent to generate code from it
+- Select a diagram → ask the Agent to explain or improve it
+- Ask the Agent to visualize a concept → it draws directly on your canvas
+
+## Multi-Canvas Management
+
+Unlike single-canvas tools, Myrm supports **multiple independent canvases**:
+
+- Create canvases for different projects or brainstorming sessions
+- Rename canvases for easy identification
+- Delete canvases you no longer need
+- Canvas metadata is stored in SQLite; snapshots are persisted as JSON files
+
+## Security
+
+- **Path traversal protection**: Canvas IDs are validated as UUIDs before any filesystem operation
+- **Non-blocking I/O**: All file reads/writes use `asyncio.to_thread` to avoid blocking the event loop
+- **SSE reconnection**: Automatic 3-second backoff reconnection if the event stream disconnects
+
+## Internationalization
+
+The canvas UI is fully localized in **English** and **Chinese**, including all labels, buttons, empty states, and confirmation dialogs.
