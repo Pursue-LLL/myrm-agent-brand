@@ -214,6 +214,21 @@ Unlike traditional microservice dependency chains, LLM agents don't have explici
 
 **Verified**: 604 tests passed across all cascading error protection modules (LoopGuard, FrequencyGuard, E-Stop, ToolCallBroadcaster, SubagentExecutor, CircuitBreaker, ToolGuards).
 
+## Retry Storm & Budget Protection
+
+Myrm actively prevents runaway retry loops and protects your API budget:
+
+| Guard | What It Does | Response |
+|-------|-------------|----------|
+| **LoopGuard** | Detects 5 loop patterns (repetition, ping-pong, no-progress, divergence, diminishing output) | WARN → BREAK |
+| **FrequencyGuard** | Sliding-window rate limit (100 global / 30 per-tool per minute) | WARN at 80% → BREAK at 100% |
+| **MultidimensionalBudgetGuard** | Per-session, daily, and per-call USD limits | OK → WARNING → FINALIZATION → EXCEEDED |
+| **Iteration Budget** | Dynamic tool-call budget derived from recursion limit | 70% warn → 90% critical → 100% ToolStuckException |
+
+This is **active truncation** (immediately stop execution), not passive monitoring (just log and alert). When a retry storm is detected, the agent is forced to stop and provide its best answer with whatever results it has — protecting both cloud compute costs and local API key balance.
+
+**Verified**: 330 tests passed across all retry protection modules (LoopGuard, FrequencyGuard, BudgetGuard, MultidimensionalBudgetGuard, BudgetBoundaryMiddleware).
+
 ## What Users Experience
 
 All recovery happens transparently:
