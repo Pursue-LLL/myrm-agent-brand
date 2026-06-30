@@ -988,20 +988,23 @@ Marvis (Tencent) offers a split-view interface: "left side shows your Mac mini's
 
 | Capability | Myrm | Marvis | Comparison |
 |-----------|------|--------|------------|
-| Desktop live view | DesktopLiveView (SSE screenshot push) | Mac mini WebRTC streaming | Tie |
-| Browser live view | BrowserLiveView | None (desktop only) | **Myrm wins** |
-| Element-level interaction | ElementOverlay + @dref references | None (view only) | **Myrm wins** |
+| Real-time desktop video | VisualDesktop (noVNC WebSocket, full-frame interactive) | Mac mini WebRTC streaming | **Tie** |
+| Desktop snapshot + element inspect | DesktopLiveView (SSE + ElementOverlay) | No element-level interaction | **Myrm wins** |
+| Browser live view | BrowserLiveView (screenshot + DOM element selector) | None (desktop only) | **Myrm wins** |
+| Browser Takeover | Agent pauses → user takes VNC control → Agent auto-resumes + learns | No human-agent handoff | **Myrm exclusive** |
+| Element-level instructions | ElementOverlay + InspectorInstructionInput (14 interactive roles) | View only | **Myrm wins** |
 | Dual mode | View/Inspect toggle | View only | **Myrm wins** |
-| Panel resizing | Draggable (320-960px) + localStorage | Fixed | **Myrm wins** |
+| Panel resizing | Draggable (320-960px) + localStorage persistence | Fixed | **Myrm wins** |
 | Permission guidance | TCC detection + one-click system settings | None | **Myrm exclusive** |
 | DPI awareness | screenWidth/screenHeight/dpiScale | None | **Myrm exclusive** |
-| Server infra | None needed (SSE lightweight) | STUN/TURN required (heavy) | **Myrm wins (simpler deploy)** |
-| Bandwidth | Minimal (on-demand screenshots) | Continuous high bandwidth | **Myrm wins** |
+| Cloud sandbox support | noVNC auto-connects cloud sandbox + local localhost:6080 | Mac mini only | **Myrm wins** |
+| Server infra | None needed (SSE + noVNC lightweight) | STUN/TURN required (heavy) | **Myrm wins (simpler deploy)** |
+| Bandwidth | Dual-mode flexible (on-demand screenshots / real-time stream toggle) | Continuous high bandwidth | **Myrm wins** |
 | Mobile support | Responsive fullscreen | Unknown | **Myrm supported** |
 
-**Verified by 29 tests** (2026.6.30): useResizableSidebar 13/13 ✅ + resolveDesktopOverlayTarget 5/5 ✅ + visualApproval 11/11 ✅
+**Verified (2026.7.1)**: Artifact tests 105/105 ✅ + useResizableSidebar 13/13 ✅ + resolveDesktopOverlayTarget 5/5 ✅ + visualApproval 11/11 ✅ + ProgressSteps+LiveTerminal 51/51 ✅. Fixed handleResizeStart closure bug (panel width jump on second drag).
 
-**Verdict: Marvis' advantage is WebRTC's higher frame rate (30-60fps), but AI Agent operations are discrete (click → wait → screenshot) — game-level FPS is unnecessary. Myrm's SSE screenshot approach is lighter, more secure, requires zero extra infrastructure, and ElementOverlay's element-level interaction is a unique capability Marvis lacks.**
+**Verdict: Myrm comprehensively surpasses Marvis. Real-time video streaming is on par (noVNC vs WebRTC), but Myrm additionally provides DOM element-level inspectors (BrowserLiveView + DesktopLiveView), Browser Takeover human-agent collaboration (Agent pauses for user control, auto-resumes with learning feedback), cloud sandbox + local dual-mode, and macOS permission auto-guidance — all unique capabilities Marvis lacks.**
 
 ## vs Claude Office Visualizer — CLI Status Dashboard
 

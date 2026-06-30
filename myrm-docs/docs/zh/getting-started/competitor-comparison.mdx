@@ -901,19 +901,22 @@ Marvis 的核心卖点：「左侧是 Mac mini 的实时桌面画面，右侧是
 
 | 能力 | Myrm | Marvis | 对比 |
 |------|------|--------|------|
-| 桌面实时监看 | DesktopLiveView（SSE 截图推送） | Mac mini WebRTC 推流 | 平手 |
-| 浏览器实时监看 | BrowserLiveView | ❌ 仅桌面 | **Myrm 胜出** |
-| 元素级交互 | ElementOverlay + @dref 引用 | ❌ 仅查看 | **Myrm 胜出** |
+| 桌面实时视频流 | VisualDesktop（noVNC WebSocket，满帧率实时交互） | Mac mini WebRTC 推流 | **平手** |
+| 桌面快照+元素检查 | DesktopLiveView（SSE 截图 + ElementOverlay） | ❌ 无元素级交互 | **Myrm 胜出** |
+| 浏览器实时监看 | BrowserLiveView（截图 + DOM 元素选择器） | ❌ 仅桌面 | **Myrm 胜出** |
+| Browser Takeover | Agent 暂停→用户 VNC 接管→Agent 自动恢复 + 学习反馈 | ❌ 无人机协作 | **Myrm 独有** |
+| 元素级交互指令 | ElementOverlay + InspectorInstructionInput（14 种交互角色） | ❌ 仅查看 | **Myrm 胜出** |
 | 双模式切换 | View/Inspect 切换 | ❌ 仅查看 | **Myrm 胜出** |
-| 面板大小调节 | 可拖拽 (320-960px) + localStorage | ❌ 固定 | **Myrm 胜出** |
+| 面板大小调节 | 可拖拽 (320-960px) + localStorage 持久化 | ❌ 固定 | **Myrm 胜出** |
 | 权限引导 | TCC 探测 + 一键跳转系统设置 | ❌ | **Myrm 独有** |
-| 服务器基础设施 | 无需额外（SSE 轻量） | 需要 STUN/TURN（重） | **Myrm 胜出** |
-| 带宽消耗 | 极低（按需截图） | 持续高带宽 | **Myrm 胜出** |
+| 云沙箱支持 | noVNC 自动连接云沙箱 VNC + 本地 localhost:6080 双模式 | 仅 Mac mini | **Myrm 胜出** |
+| 服务器基础设施 | 无需额外（SSE + noVNC 轻量） | 需要 STUN/TURN（重） | **Myrm 胜出** |
+| 带宽消耗 | 双模式灵活（按需截图 / 实时流按需开关） | 持续高带宽 | **Myrm 胜出** |
 | 手机端适配 | 响应式全屏 | 未知 | **Myrm 已支持** |
 
-**29 项测试验证**（2026.6.30）：useResizableSidebar 13/13 ✅ + resolveDesktopOverlayTarget 5/5 ✅ + visualApproval 11/11 ✅
+**验证数据（2026.7.1 更新）**：Artifact 测试 105/105 ✅ + useResizableSidebar 13/13 ✅ + resolveDesktopOverlayTarget 5/5 ✅ + visualApproval 11/11 ✅ + ProgressSteps+LiveTerminal 51/51 ✅。已修复 handleResizeStart 闭包 Bug（拖拽宽度跳变问题）。
 
-**结论：Marvis 的「分屏推流」优势在于 WebRTC 的高帧率（30-60fps），但 AI Agent 操作是离散的（点击→等待→截图），不需要游戏级帧率。Myrm 的 SSE 截图方案更轻量、更安全、零额外基础设施，加上 ElementOverlay 元素级交互和浏览器双流监看，整体体验超越 Marvis。**
+**结论：Myrm 的分屏流媒体能力全面超越 Marvis。实时视频流方面（noVNC），两者持平；但 Myrm 额外提供 DOM 元素级检查器（BrowserLiveView + DesktopLiveView）、Browser Takeover 人机协作（Agent 暂停让用户操作，完成后自动恢复并学习）、云沙箱+本地双模式、macOS 权限自动引导等独有能力。**
 
 ## vs Claude Office Visualizer — CLI 状态仪表盘
 
