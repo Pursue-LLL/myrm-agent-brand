@@ -107,10 +107,12 @@ Myrm supports an intuitive, Coze-like dynamic discovery and delegation mechanism
 The Verified pattern prevents agents from "self-grading" or hallucinating success:
 
 1. **Worker** agent executes the task
-2. **Physical Evidence Required**: The worker must return structural `verifiable_credentials` (e.g., file paths, CLI exit codes) instead of just a natural language summary. Claiming PASS without physical evidence is forced to FAIL.
-3. **Verifier** agent independently reviews the result and the physical evidence in a read-only sandbox
-4. If verification fails, the Worker retries with the Verifier's feedback
-5. Maximum retry count is configurable
+2. **Workspace Diff Injection**: The system automatically takes a stat-based snapshot of the workspace before and after Worker execution, then injects a human-readable file-change diff into the Verifier's prompt — exposing all modified, added, and removed files regardless of what the Worker reported
+3. **Physical Evidence Required**: The worker must return structural `verifiable_credentials` (e.g., file paths, CLI exit codes) instead of just a natural language summary. Claiming PASS without physical evidence is forced to FAIL.
+4. **Verifier** agent independently reviews the result, the workspace diff, and the physical evidence in a read-only sandbox
+5. If verification fails, the Worker retries with the Verifier's feedback
+6. **Real-time Verdict Events**: Each verification round emits a structured `VERIFICATION_VERDICT` SSE event to the frontend, showing PASS/FAIL status, confidence level, and findings summary in the chat progress steps
+7. Maximum retry count is configurable
 
 This ensures high-quality output for critical tasks and completely eradicates "hallucinated success".
 

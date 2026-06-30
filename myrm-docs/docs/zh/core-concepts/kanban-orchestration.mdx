@@ -103,10 +103,12 @@ Myrm 提供可视化看板跟踪复杂多步任务，以及强大的子 Agent �
 防 Agent「自评」或幻觉成功：
 
 1. **Worker** 执行任务
-2. **物理证据**：须返回结构化 `verifiable_credentials`（文件路径、CLI 退出码等），仅自然语言宣称 PASS 会被判 FAIL
-3. **Verifier** 在只读沙箱独立审查结果与证据
-4. 验证失败则 Worker 按 Verifier 反馈重试
-5. 最大重试可配置
+2. **工作区 Diff 注入**：系统自动在 Worker 执行前后对工作区做 stat 快照，将文件变更差异（新增/修改/删除）注入 Verifier 的审查提示中，无论 Worker 是否汇报均可见
+3. **物理证据**：须返回结构化 `verifiable_credentials`（文件路径、CLI 退出码等），仅自然语言宣称 PASS 会被判 FAIL
+4. **Verifier** 在只读沙箱独立审查结果、工作区差异与证据
+5. 验证失败则 Worker 按 Verifier 反馈重试
+6. **验证结果实时推送**：每轮验证发射结构化 `VERIFICATION_VERDICT` SSE 事件，前端在聊天进度中展示 PASS/FAIL 状态、置信度和 findings 摘要
+7. 最大重试可配置
 
 根除「幻觉式成功」。
 
