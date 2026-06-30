@@ -254,6 +254,18 @@ Myrm 自动管理所有存储引擎的数据保留 — 无需手动清理：
 
 **实测验证**：数据生命周期管理全模块 413 项测试通过（server lifecycle 265 passed，harness lifecycle 90 passed，cron + memory 58 passed）。
 
+## 技能进化 — 自我改进的 Agent
+
+Myrm 的 Agent 能从失败中学习并自主进化技能：
+
+- **自动进化**：当技能失败或收到负反馈时，系统生成进化提案直接更新技能文件本身 — 而非临时的 prompt 补丁
+- **审查生命周期**：安全变更自动应用，风险变更变成可审查的 growth case（approve/reject 工作流）
+- **语义去重**：similarity_checker 防止技能熵增 — 重复或近似技能在保存前被拦截
+- **经验账本**：每个进化事件（14 种类型）永久记录，用于审计和分析
+- **质量告警**：技能质量下降时通过 Webhook 通知，支持主动维护
+
+**实测验证**：技能进化全模块 489 项测试通过（server 107 passed，harness 框架层 382 passed）。
+
 ## 用户体验
 
 恢复对用户透明：
