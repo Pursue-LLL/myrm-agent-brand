@@ -242,6 +242,18 @@ Myrm provides comprehensive budget control across all deployment modes:
 
 **Verified**: 156 tests passed across all budget protection modules (harness framework: 76 passed, server business layer: 80 passed).
 
+## Data Lifecycle Management
+
+Myrm automatically manages data retention across all storage engines — no manual cleanup needed:
+
+- **9 Automated Schedulers**: Context files (3-tier: 30d/14d/7d), auth logs (configurable retention), chat trash (30d auto-purge), SQLite WAL checkpoint (every 6h), database rotation backup, Qdrant segment optimization, browser zombie detection (48h threshold), Kanban GC, incognito auto-wipe (1h)
+- **MemoryGuardian**: Adaptive maintenance frequency — every 6h when healthy, every 2h when degraded. Health scoring (70 normal / 35 critical) drives automatic force maintenance after 2 consecutive unhealthy checks
+- **File Access Tracking**: Prevents accidental deletion of referenced context files via `file_access_tracker`
+- **Scheduler Health API**: Real-time green/yellow/red status monitoring for all background schedulers
+- **Hot Backups**: Automatic SQLite hot backup after every maintenance cycle
+
+**Verified**: 413 tests passed across all data lifecycle modules (server lifecycle: 265 passed, harness lifecycle: 90 passed, cron + memory: 58 passed).
+
 ## What Users Experience
 
 All recovery happens transparently:

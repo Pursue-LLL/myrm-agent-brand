@@ -242,6 +242,18 @@ Myrm 在所有部署模式下提供全面的预算控制：
 
 **实测验证**：预算防护全模块 156 项测试通过（harness 框架层 76 passed，server 业务层 80 passed）。
 
+## 数据生命周期管理
+
+Myrm 自动管理所有存储引擎的数据保留 — 无需手动清理：
+
+- **9 大自动调度器**：Context 文件 3 级清理（30d/14d/7d）、Auth 日志可配置轮转、Chat 回收站 30 天自动清除、SQLite WAL checkpoint（每 6h）、数据库轮转备份、Qdrant segment 优化、Browser zombie 检测（48h 阈值）、Kanban GC、Incognito 1h 自动清除
+- **MemoryGuardian**：自适应维护频率 — 健康时每 6h，异常时缩短至每 2h。健康分数驱动（70 normal / 35 critical），连续 2 次不健康后强制维护
+- **文件引用追踪**：通过 `file_access_tracker` 防止误删被引用的上下文文件
+- **调度器健康 API**：所有后台调度器的实时 green/yellow/red 状态监控
+- **热备份**：每次维护周期后自动 SQLite 热备份
+
+**实测验证**：数据生命周期管理全模块 413 项测试通过（server lifecycle 265 passed，harness lifecycle 90 passed，cron + memory 58 passed）。
+
 ## 用户体验
 
 恢复对用户透明：
