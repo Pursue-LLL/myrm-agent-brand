@@ -211,3 +211,26 @@ Myrm Engine 在 `/metrics` 暴露 Prometheus 遥测，零运维开销，供 DevO
 - `myrm_time_to_first_action_seconds`（Histogram）：精确 TTFA，从收到用户指令到首次调用工具的时间。
 - `myrm_policy_denial_total`（Counter）：被安全护栏与路径策略阻断、脱敏或拒绝的次数。
 - `myrm_tool_execution_total` & `myrm_tool_execution_failed_total`（Counter）：各技能执行结果，用于 Grafana 计算「工具有效率」。
+
+### 生产级告警规则（云托管部署）
+
+云托管部署内置 12 条生产级 Prometheus 告警规则，覆盖沙箱健康与可靠性：
+
+| 告警 | 级别 | 触发条件 |
+|------|------|---------|
+| ContainerPoolExhausted | 严重 | 可用容器池 = 0 持续 5 分钟 |
+| ContainerPoolLow | 警告 | 可用容器 < 2 持续 10 分钟 |
+| HealthCheckFailureRateHigh | 严重 | 故障率 > 20% 持续 5 分钟 |
+| ContainerCreationSlow | 警告 | P99 创建耗时 > 10s 持续 5 分钟 |
+| ContainerOOMKills | 严重 | 检测到 OOM 终止 |
+| HotPoolExhausted | 严重 | 热池 = 0 持续 5 分钟 |
+
+每条告警均附带 `runbook_url` 链接至企业运维手册对应章节。
+
+### Grafana 仪表盘
+
+提供即导即用的 Grafana 仪表盘（`grafana-dashboard-sandbox.json`），实时可视化容器池状态、命中率、健康检查成功率、创建延迟、热池可用性。支持 UI 导入或 provisioning 目录挂载。
+
+### 智能启停
+
+指标采集根据部署模式自动启停 — 本地与桌面端零开销运行，云托管部署自动暴露完整 `/metrics` 端点供 Prometheus 抓取。

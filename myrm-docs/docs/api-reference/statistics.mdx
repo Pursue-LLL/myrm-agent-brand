@@ -211,3 +211,26 @@ The Myrm Engine exposes underlying Prometheus telemetry metrics for deep DevOps 
 - `myrm_time_to_first_action_seconds` (Histogram): Captures the precise Time-To-First-Action (TTFA), calculating the exact time from receiving a user's instruction until the agent invokes its first tool.
 - `myrm_policy_denial_total` (Counter): Tracks the number of times agent actions were blocked, redacted, or denied by the Security Guardrails and Path Policies.
 - `myrm_tool_execution_total` & `myrm_tool_execution_failed_total` (Counters): Monitors execution results for all individual skills, providing real-time data for calculating the overall "Tool Effectiveness Ratio" on Grafana dashboards.
+
+### Production Alerting Rules (Cloud Deployment)
+
+For cloud-hosted deployments, Myrm ships with 12 production-grade Prometheus alerting rules covering sandbox health and reliability:
+
+| Alert | Severity | Trigger |
+|-------|----------|---------|
+| ContainerPoolExhausted | Critical | Pool available = 0 for 5 min |
+| ContainerPoolLow | Warning | Pool available < 2 for 10 min |
+| HealthCheckFailureRateHigh | Critical | Failure rate > 20% for 5 min |
+| ContainerCreationSlow | Warning | P99 creation > 10s for 5 min |
+| ContainerOOMKills | Critical | Any OOM kill detected |
+| HotPoolExhausted | Critical | Hot pool = 0 for 5 min |
+
+Each alert includes a `runbook_url` linking to the Enterprise Runbook for remediation steps.
+
+### Grafana Dashboard
+
+A ready-to-import Grafana dashboard (`grafana-dashboard-sandbox.json`) provides real-time visualization of container pool status, hit rates, health check success rates, creation latency, and hot pool availability. Import via Grafana UI or provisioning directory mount.
+
+### Smart Enable/Disable
+
+Metrics collection is automatically enabled or disabled based on deployment mode — local and desktop deployments run with zero overhead, while cloud deployments expose the full `/metrics` endpoint for Prometheus scraping.
