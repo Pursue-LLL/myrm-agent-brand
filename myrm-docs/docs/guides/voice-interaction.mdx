@@ -13,6 +13,12 @@ Communicate with your agent using voice on supported channels.
 
 5 TTS engines available for agent voice output.
 
+**Two TTS paths (by design):**
+- **Settings > Voice** — channel replies, WebRTC, and IM voice bubbles (5 providers + free Edge fallback, streaming, smart summary)
+- **Agent config TTS** — chat command "read this out loud" produces an **Audio artifact** via the `tts_generate` tool (OpenAI/ElevenLabs + Gateway billing)
+
+Both paths are production-tested: 632+ channel voice tests + 23 harness `llms/tts` unit tests (98% coverage).
+
 ### Speech-to-Text (STT)
 
 5 STT engines for voice input recognition: Local Whisper (free, privacy-first), OpenAI Whisper, Groq, Deepgram, and xAI Grok STT. Custom OpenAI-compatible endpoints are also supported via the Base URL setting.

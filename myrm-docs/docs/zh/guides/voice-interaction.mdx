@@ -13,6 +13,12 @@ description: 用语音输入输出与 Agent 对话。
 
 5 种 TTS 引擎，用于 Agent 语音输出。
 
+**两条 TTS 路径（职责分离）：**
+- **Settings > Voice** — 渠道回复、WebRTC、IM 语音气泡（5 家 provider + Edge 免费回退 + 流式 + 智能摘要）
+- **Agent 配置 TTS** — 对话中说「读出来」→ `tts_generate` 工具产出 **Audio 工件**（OpenAI/ElevenLabs + Gateway 计费）
+
+双路径均已生产验证：632+ 渠道语音测试 + harness `llms/tts` 23 项单测（98% 覆盖）。
+
 ### 语音转文字（STT）
 
 5 种 STT 引擎：本地 Whisper（免费、隐私优先）、OpenAI Whisper、Groq、Deepgram 和 xAI Grok STT。支持通过 Base URL 设置接入任意 OpenAI 兼容 STT 端点。
