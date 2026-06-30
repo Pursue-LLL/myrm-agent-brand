@@ -369,3 +369,31 @@ In the Growth Dashboard → "Evolution Digest" tab:
 **Cost:** ~$0.05/week using the consolidation LLM (not your primary chat model).
 
 Access from Growth Dashboard → Evolution Digest tab.
+
+## Right to be Forgotten — Cascade Memory Deletion
+
+When you permanently delete a chat from the Trash, Myrm automatically removes **all memories derived from that conversation** — semantic facts, episodic events, procedural rules, and pending review items.
+
+**How it works:**
+
+1. Open **Trash** in the sidebar and select a chat for permanent deletion
+2. The confirmation dialog shows exactly how many memories will be affected
+3. On confirmation, all memories tagged with `source_chat_id` matching that chat are purged across all stores (Vector + Relational)
+
+**Why this matters:**
+
+- **True privacy:** Deleting a chat means the AI genuinely forgets what it learned there — no "ghost memories" influencing future responses
+- **Clean testing:** Delete experimental chats without polluting your knowledge base with incorrect memories
+- **GDPR-aligned:** Implements the spirit of the Right to be Forgotten — deletion is thorough and verifiable
+
+**Coverage:**
+
+| Memory Type | Store | Cascade Behavior |
+|-------------|-------|-----------------|
+| Semantic | Vector (Qdrant) | Deleted by metadata filter |
+| Episodic | Vector (Qdrant) | Deleted by metadata filter |
+| Conversation | Vector (Qdrant) | Deleted by metadata filter |
+| Procedural (Rules) | Vector (Qdrant) | Deleted by metadata filter |
+| Pending Records | Relational (SQLite) | Deleted by source_chat_id index |
+
+**Bulk operations:** "Empty Trash" cascades through every chat being removed, ensuring complete cleanup.
