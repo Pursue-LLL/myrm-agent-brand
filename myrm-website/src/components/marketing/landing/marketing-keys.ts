@@ -94,6 +94,8 @@ export const COMPARE_ROW_KEYS = [
   'configSync',
   'taskResilience',
   'kanbanUI',
+  'kanbanConcurrentQueue',
+  'modelArenaRanking',
   'dynamicArtifacts',
   'localIotBridge',
   'longTaskOrchestration',
@@ -123,6 +125,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
   automation: [
     'subAgent',
     'kanbanUI',
+    'kanbanConcurrentQueue',
     'dynamicWorkflow',
     'dynamicDiscovery',
     'multiChannel',
@@ -144,6 +147,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
   reliability: [
     'tokenEfficiency',
     'costRouting',
+    'modelArenaRanking',
     'promptMode',
     'contextPipeline',
     'extremeAntiExplosion',
