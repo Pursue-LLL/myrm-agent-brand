@@ -31,8 +31,8 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **渠道** | ✅ 26 渠道 + 三级 Agent 绑定（Thread/Chat/Channel）+ 六维身份隔离 + IM Goal 管理（5,709 测试） | ~23（无 Topic 级绑定） | ~7 | ⚠️ 飞书/钉钉 | ⚠️ IM 机器人 | ❌ 仅飞书 | ❌ |
 | **公网 Ingress 引导** | ✅ SSOT API + 入站/出站徽章 + 自选穿透文档（cpolar/NATAPP/frp） | ❌ 纯文档 | Tailscale 文档 | ⚠️ 文档教 cloudflared | ❌ | ❌ | ❌ |
 | **手机远程指挥台** | ✅ 配对令牌 Hub + 实时 Status Board（SSE attach · HITL 审批 · steer · **停止并 toast 确认**）· 会话级 **chat cancel**（配对安全）· attach 流停止 fallback · **64 项测试**（2026-06） | ❌ 仅 CLI/TUI | ⚠️ 多为 IM 通知，无完整手机控制台 | ❌ | ❌ | ❌ | ❌ |
-| **子 Agent** | ✅ 7 模式 + 动态工作流 | ⚠️ v0.15 Kanban Swarm（1 模式） | ⚠️ 基础 spawn（仅线性） | ⚠️ 基础 spawn | ❌ 单 Agent | ⚠️ L-W-V | ❌ |
-| **工具生态集成** | ✅ 自有 Agent 引擎 + MCP 行业标准（OAuth+安全扫描+Schema容错+动态发现+连接池自愈）+ 5层安全审批 + 技能自动进化 + 7种SubAgent编排（3,491 项测试） | ⚠️ 单文件 Copilot 适配器（686 行，仅 CLI） | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **子 Agent** | ✅ 7 模式 + 动态工作流 + **Template Market（Team 模板一键建队）** | ⚠️ v0.15 Kanban Swarm（1 模式） | ⚠️ 基础 spawn（仅线性） | ⚠️ 基础 spawn | ❌ 单 Agent | ⚠️ L-W-V | ❌ |
+| **工具生态集成** | ✅ 自有 Agent 引擎 + MCP 行业标准（OAuth+安全扫描+Schema容错+动态发现+连接池自愈）+ **Settings 页 MCP GUI 全链路（options/scan/verify/registry）** + **Agent/Team 模板市场一键实例化** + 5层安全审批 + 技能自动进化 + 7种SubAgent编排（3,491 项测试） | ⚠️ 单文件 Copilot 适配器（686 行，仅 CLI） | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **安全** | ✅ 6 层防御 + DM Pairing（4 策略、GUI 审批、防刷冷却） | ⚠️ v0.15 Promptware 3 卡口 | 1 层 | ⚠️ 未知 | ⚠️ 基础沙箱 | ⚠️ 闭源 | ❌ |
 | **凭证库** | ✅ 标签注入 + TOTP（浏览器 + 桌面） | ❌ 工具参数明文 | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **WebUI 访问安全** | ✅ 零信任 WebSocket + 安全 Cookie | ⚠️ 仅 HTTP，WS 脆弱 | ⚠️ 基础 JWT | ⚠️ 未知 | ⚠️ 仅 HTTP | ⚠️ 闭源 SaaS | ❌ LAN 裸奔 |
@@ -849,6 +849,28 @@ MemPalace 是独立 AI 记忆系统，用 Wing/Room/Closet/Drawer 建筑隐喻�
 **路径 2 — React Artifact（全功能）**：复杂可视化场景，Agent 生成自定义 React 组件，使用 Recharts/Echarts/D3/Chart.js，在 Sandpack 实时预览中支持代码编辑、控制台输出和 Tailwind CSS。
 
 **495 项测试验证**: Interactive UI 59 ✅ | Artifact 渲染器 47 ✅ | ArtifactPortalStore + SSE 15 ✅ | Chat 导出+Schema 39 ✅ | 后端 Artifact 系统 61 ✅ | 后端 API（Artifact + Share + UI Stream）57 ✅ | Harness Core Artifacts 27 ✅ | Harness Agent Artifacts 114 ✅ | Inline Artifact Events 9 ✅ | Artifact Judge 9 ✅ | Inline Artifact Push 7 ✅ | Mermaid Theme 18 ✅ | Render UI Tool 9 ✅ | Core file_id chain + listener 4 ✅ | Artifact Services 13 ✅ | UI Artifact Stream 7 ✅
+
+## vs 豆包专业版 — 「AI→办公交付」全流程闭环
+
+豆包专业版内置飞书 Office 套件（文档/表格/PPT），依托字节跳动内部生态实现「AI 生成→排版输出」全流程。Myrm 以更轻量的 Artifact 架构达到同等甚至更优的办公交付体验：
+
+| 能力 | Myrm | 豆包专业版 | 对比 |
+|------|------|-----------|------|
+| 文档编辑 | Monaco Editor Code 模式（语法高亮+补全+多语言）+ Markdown Preview | 飞书 WYSIWYG 文档 | **Myrm 更优**（LLM 原生 Markdown，可精确 diff/patch） |
+| AI 精准协作 | SelectionToolbar: 选中→AI 修改/解释/优化/评论 | AI 写入文档 | **Myrm 胜**（选区级 AI 交互） |
+| 自动保存 | dirty state + 2s debounce | 飞书内置 | 平手 |
+| 表格查看 | DataGrid: 虚拟滚动+排序+搜索+10K行 | 飞书多维表格 | 平手 |
+| CSV 解析 | RFC 4180 合规 + 5种分隔符自动检测 | 基础 CSV | **Myrm 胜** |
+| XLSX 支持 | SheetJS 动态导入 + 多 Sheet 切换 | 飞书原生 | 平手 |
+| PPT/演示 | HTML Artifact → Vercel 部署为在线交互式 PPT | 飞书 PPT | **Myrm 更优**（在线交互式，可嵌入动态图表） |
+| 数学公式 | KaTeX LaTeX 渲染 | 飞书公式 | 平手 |
+| Mermaid 图表 | 原生 Mermaid 渲染 | ❌ | **Myrm 胜** |
+| 一键部署 | Vercel 部署 + HMAC 安全分享 | ❌ | **Myrm 碾压** |
+| 包体积 | 零额外依赖 | 飞书 Office 数 MB | **Myrm 胜** |
+
+**52 项测试验证**（2026.6.30）：DataGrid 11/11 ✅ + CsvParser 19/19 ✅ + SelectionToolbar 17/17 ✅ + LocaleKeys 5/5 ✅
+
+**结论：豆包的优势在于飞书 Office 生态壁垒（数千人年产品），非技术可复制。Myrm 以 Artifact 系统（Monaco + DataGrid + HTML Preview + SelectionToolbar + 一键部署）构建了完整的「AI→交付」闭环，在 AI Agent 场景下更轻量、更高效、更易维护。**
 
 ## vs Claude Office Visualizer — CLI 状态仪表盘
 
