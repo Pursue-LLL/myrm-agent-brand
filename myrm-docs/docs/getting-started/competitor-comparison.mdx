@@ -1682,3 +1682,39 @@ DeerFlow 2.0 introduced a 14-layer middleware chain and Docker sandboxing, but i
 2. **True Agent-in-Sandbox**: Unlike DeerFlow which creates sandboxes from within the agent, our architecture relies on the external deployment layer (Server/Tauri) to provide polymorphic sandboxing (Docker for cloud, lightweight process isolation for desktop). This ensures zero overhead on local machines.
 3. **Zero-Copy ArtifactVault**: For concurrent sub-agents, we use a `vault://` pointer protocol for large files, achieving zero-copy sharing and completely preventing LLM context explosion.
 4. **Security-in-Depth Skills**: While both support Markdown-based skills, we add a 3-layer defense system (Trust Decay + Security Scanning + Content Escaping) to ensure third-party skills never compromise your host.
+
+## 2026 Latest Core Advantages Summary (vs Hermes, OpenClaw, DeerFlow, etc.)
+
+Among the numerous open-source AI Agent frameworks and products, Myrm Agent stands out with its **robust underlying architecture**, **ultimate user experience**, and **enterprise-grade security isolation**:
+
+### 1. Crash-Proof Underlying Self-Healing Mechanism
+When using APIs compatible with the OpenAI format, network jitter or frequent user cancellations often interrupt tool calls, leaving invalid `tool_call_id`s in the history and causing strictly validating models to crash.
+**Our Advantage**: Myrm Agent implements a transparent self-healing mechanism (`SafetyWrappedChatModel`) at the lowest level. Before every request to the LLM, the system automatically scans and cleans up orphan/invalid tool calls. The chat history remains pure, completely eliminating crashes caused by formatting errors.
+
+### 2. Exclusive 4-Level Progressive Skill Loading
+Equipping an Agent with a massive number of skills usually causes the context window to explode, increasing token consumption and degrading instruction-following capability.
+**Our Advantage**: Our exclusive 4-level progressive loading strategy loads the skill body into the context only when truly needed, achieving ultra-low token consumption. Supports `/slash` commands for precise activation, perfectly combining the Agent's autonomy with your precise control.
+
+### 3. Serverless-Grade Sandbox Hibernation & Wake-on-Demand
+Traditional cloud deployments incur exorbitant costs if a resident sandbox instance is maintained for every user.
+**Our Advantage**: The control plane natively supports idle hibernation and wake-on-demand for sandbox environments. When a user is offline, the state of their 100% physically isolated exclusive sandbox is persisted and put to sleep. Upon receiving a new message or a cron trigger, it wakes up instantly, drastically reducing cloud idle costs.
+
+### 4. Cross-Platform Real-Time Live Canvas
+Most competitors generate documents, code, or charts as static, read-only views. Fine-tuning requires jumping out of the app.
+**Our Advantage**: A dynamic workspace based on Infinite Canvas. Generated charts, code, and long documents support not only real-time bidirectional editing but also real-time state synchronization. Say goodbye to static read-only views; what you see is what you get.
+
+### 5. Ultimate Omnichannel IM Coverage
+Many competitors only support a few mainstream channels, with fragmented message formats and media processing capabilities.
+**Our Advantage**: Natively supports 15+ channels (Slack, Discord, Feishu, iMessage, WeChat, Telegram, etc.), truly achieving "ubiquity." A unified underlying media processing pipeline ensures consistent Markdown rendering and interactive experiences across any platform.
+
+### 6. Natural Language Driven Unattended Scheduling
+The vast majority of Agents can only act as "passive response tools," requiring active user triggers to work.
+**Our Advantage**: Built-in powerful unattended scheduling engine. With just a natural language sentence (e.g., "Send a briefing every morning at 8"), the Agent transforms into a proactive digital employee. Supports Webhook push and omnichannel reach.
+
+### 7. Memory Deduplication for a Forever-Lean Brain
+Over long conversations, Agents easily accumulate duplicate facts, causing the memory bank to bloat and retrieval accuracy to plummet.
+**Our Advantage**: The underlying `dedup_semantics` mechanism strictly filters duplicate facts during writing (auto-deduplication for similarity ≥0.95). Keeps the memory bank forever lean and efficient, ensuring the Agent gets smarter without bloating.
+
+### 8. Full-Chain Feedback Rejecting Silent Failures
+Bulk operations without progress bars, network errors failing silently, and files deleted instantly upon "zero references" cause extreme user anxiety.
+**Our Advantage**: Full-chain UI progress feedback, explicit exception Toast notifications, and retry mechanisms. Any action that jumps out of the current context has strong visual feedback. A built-in file system "Trash" soft-delete mechanism completely eliminates data loss anxiety.
