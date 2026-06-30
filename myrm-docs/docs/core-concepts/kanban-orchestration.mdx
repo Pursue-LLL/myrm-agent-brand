@@ -263,7 +263,17 @@ Myrm provides a dedicated real-time dashboard for monitoring and controlling all
 
 ---
 
-## Getting Started
+## Compared to Alternatives
+
+| What you get | Myrm | Hermes Agent | OpenClaw |
+|--------------|------|--------------|----------|
+| **For users** | Drag-and-drop board, live progress, one-click fix for stuck tasks | Powerful CLI board, but mostly terminal-driven | Plugin/community boards; core product is messaging + cron |
+| **Scheduling** | Event-driven — tasks start immediately when ready | Polls every ~60s (`dispatch_once` tick) | Relies on cron jobs or external MCP boards |
+| **Completion quality** | LLM verification gate before marking done | Prompt-only; no built-in verifier | No first-class verifier |
+| **Token cost** | Kanban tools load only when enabled in agent profile (948–2,783 tokens by role) | Kanban guidance injected when tools are present | N/A (external tools) |
+| **Migration** | Hermes users keep familiar concepts (Triage, Specify, worktrees, worker tools) with a full GUI | — | OpenClaw users gain a native board instead of stitching JSON + cron + MCP |
+
+---
 
 1. **Kanban Board**: Navigate to the Kanban page in the sidebar
 2. **Create a Task**: Click "New Task" and describe what needs to be done
@@ -273,4 +283,4 @@ Myrm provides a dedicated real-time dashboard for monitoring and controlling all
 
 For sub-agent orchestration, simply describe a complex task to any agent — it will automatically decompose and delegate using the appropriate pattern.
 
-**Verified**: 1,031 tests passed across all Kanban and orchestration modules (Kanban core: 411 passed, Swarm Fission: 1 passed, SubAgent Orchestration: 619 passed).
+**Verified**: 1,112 tests passed across Kanban modules (harness: 416, server API: 358, server services: 117, integration: 111, frontend: 110). Live API smoke tested on `:8080`.
