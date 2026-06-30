@@ -89,7 +89,7 @@ Two complementary subsystems protect against prompt injection — one for untrus
 
 ### Content Boundary (Output-Side)
 
-5-layer defense wrapping all external content and tool output before it enters the LLM context:
+5-layer defense wrapping all external content and tool output before it enters the LLM context, **covering the entire tool chain** (built-in tools + third-party MCP tools + PTC built-in tools):
 
 | Layer | Technique | What It Catches |
 |-------|-----------|-----------------|
@@ -98,6 +98,8 @@ Two complementary subsystems protect against prompt injection — one for untrus
 | **3** | Marker sanitization | Replaces known boundary/delimiter patterns to prevent breakout |
 | **4** | Random boundary | Wraps content in a cryptographically random delimiter (`===BOUNDARY_xxx===`) unpredictable to attackers |
 | **5** | Pattern detection | Detects remaining injection patterns (role override, instruction override, system simulation) |
+
+Data returned by third-party MCP tools is automatically passed through all 5 defense layers before entering the LLM context, preventing malicious MCP servers from injecting instructions via tool outputs.
 
 ### Prompt Guard (Input-Side)
 
