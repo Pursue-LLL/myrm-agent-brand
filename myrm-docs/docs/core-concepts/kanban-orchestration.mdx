@@ -56,6 +56,14 @@ Completed, failed, or cancelled tasks can have their `result` and `metadata` fie
 - Each edit emits an `EDITED` event with a payload listing changed fields, providing a full audit trail in the activity feed
 - Metadata merges additively — existing keys are preserved unless explicitly overwritten
 
+### Event Timeline & Execution History
+
+The task drawer includes a full **Event Timeline** and **Run History** panel for task-level traceability:
+
+- **Run History**: Each execution attempt shows outcome (success/failure/cancelled), duration, worker ID, and an agent-generated summary. Failed runs include the error message.
+- **Event Timeline**: Time-sorted stream of task lifecycle events with color-coded badges — user comments, heartbeat notes, branch switches, verification failures, timeouts, and more. Each event shows its timestamp and payload details.
+- **Diagnostics**: Health rules (dead dependencies, long-running, stale tasks) are evaluated and displayed as severity badges on task cards.
+
 ### Pipeline Wizard
 
 For complex workflows, use the **Pipeline Wizard** to create a task DAG from a template:
