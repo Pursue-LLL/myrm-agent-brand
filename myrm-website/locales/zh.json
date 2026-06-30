@@ -355,7 +355,7 @@
           "feature": "记忆系统 · 8 种类型、知识图谱、40+ 个可视化管理组件、27 源集成（9 类别）、Obsidian 导出、数据集导出、健康诊断",
           "hermes": "2200字符（无管理UI）",
           "openclaw": "3",
-          "myrmAgent": "8种+知识图谱+40+个可视化管理组件（指挥中心、审批流、3D图谱、健康仪表盘、偏好稳定性、会话回放、回收站/归档）+Working Memory(7天TTL自动续接任务)+辩证偏好推理(异步零延迟)+实时记忆学习通知(后台提取偏好时toast通知+一键跳转记忆中心)+三层检索证据可视化(Budget药丸显示记忆占比·Citations药丸显示引用数+详情面板:类型/分数/内容/命名空间/溯源聊天跳转·MemoryFeedback评分回流7维检索·ChatGPT仅显示'✨Using memory'无详情)+智能跟进GUI(记忆中心Tab·REST API·对话自动捕捉隐含待办·心跳投递·静默失败自动延后6h而非作废·竞品仅CLI无界面)+GEPA防线（6模块进化流水线+PendingMemory人机审批+is_user_locked防覆盖锁+批量审批·竞品无此能力）+27源集成(9类别)+Obsidian导出+14种竞品导入+数据集导出(3格式)+跨任务SharedContext+归档自动恢复+隐私脱敏安全分享 · 2120+项记忆专项测试全通过（后端2060+前端62）"
+          "myrmAgent": "底层的 dedup_semantics 机制在写入时严格过滤重复事实（相似度 ≥0.95 自动去重）。保持记忆库永远精简高效，确保 Agent “越用越懂你”的同时，绝不臃肿，这是长期稳定运行的坚实基础。"
         },
         "knowledgeGraph": {
           "feature": "知识图谱 · 关联可视化",
@@ -391,7 +391,7 @@
           "feature": "沙箱隔离 · 危险操作不影响本机",
           "hermes": "外部 Codex Server",
           "openclaw": "_no",
-          "myrmAgent": "Firecracker 虚拟机隔离 · 工作区一键沙箱 · 数据持久不丢 · 19种原生文件操作(零进程开销) · 原子写入 · 环境自动探测 · 单一工具自动识别 Python/Shell · 运行前语法预检(少重试省 token)"
+          "myrmAgent": "100%物理隔离的专属沙箱。云端部署支持 Serverless 挂起与按需唤醒，离线时自动休眠，收到消息瞬间唤醒。在保证隐私绝对安全的同时，极大降低云端成本。内置回收站软删除机制，彻底消除数据丢失焦虑。"
         },
         "subAgent": {
           "feature": "多 Agent 协作 · P2P 通信 · DAG 编排 · 对抗式验证",
@@ -415,7 +415,7 @@
           "feature": "全渠道触达 · 28渠道+端内Agent切换+三级绑定+身份隔离",
           "hermes": "~19平台, 无Topic级Agent绑定",
           "openclaw": "易断连, 无审批通知",
-          "myrmAgent": "28渠道+一键扫码登录(SSE实时状态流/自动刷新/跨渠道复用)+InlineKeyboard Agent选择器(含实时绑定状态)+Thread/Chat/Channel三级绑定+六维隔离+富文本三层降级(Rich→HTML→Plain)+CJK完整Rich支持(竞品对中文用户禁用Rich)+无闪烁流式预览+按渠道出站降噪(只推结果与决策,零工具调用刷屏)+GUI per-agent notify_targets白名单(channel_notify_tool,50 tests)+长任务智能安抚(静默检测+i18n进度通知含步骤数与阶段名)+iMessage原生体验(引用回复/已读回执/输入指示/Tapback/Webhook自注册)+文件双向收发(入站:自动提取内容注入上下文;出站:Agent产出文件自动推送+重试降级)"
+          "myrmAgent": "原生支持 15+ 种渠道（Slack, Discord, Feishu, iMessage, WeChat 等），真正无处不在。底层统一的媒体处理管道，确保在任何平台都能获得一致的 Markdown 渲染与交互体验，无缝唤醒专属助理。"
         },
         "voiceInteraction": {
           "feature": "语音交互 · 说话即操作 + 视频自动转录",
@@ -445,13 +445,13 @@
           "feature": "技能进化 · 越用越聪明，变更需你审批",
           "hermes": "基础（2级scope、CLI、静默写入）",
           "openclaw": "仅布尔开关",
-          "myrmAgent": "/learn 命令（URL/路径/对话 → 技能，空参数自动学习当前对话）+ 自动检测（无需手动触发）· 7 源技能市场（ClawHub + GitHub + LobeHub + skills.sh + 预置 + ModelScope 80K+ + Aliyun AgentExplorer，113 模式安全扫描 + 隔离安装）· 主动技能推荐（AI 拒绝前自动搜索可用技能） · 7 级作用域隔离（全局/Agent/频道/会话/任务/共享/自定义）+ 跨 Agent 技能挂载（写时复制安全）· 审批收件箱 · 用户编辑自动锁定（你的修改永不被 AI 覆盖） · 变更 Diff 对比 + 就地修订（Monaco DiffEditor）+ 一键回滚 · 多技能组合 Slash 命令（GUI 多选 + 引导词 + Token 预算保护 + Agent 级隔离）· SHA256 增量同步 + 跨设备技能同步(iCloud/Dropbox/NAS) + 4 种冲突策略 · 自动更新检测 · 导出 PII 自动脱敏（10 类检测） · GUI 技能配置热重载（Volume 持久化版本号，云沙箱/多 Worker 一致，下条消息自动生效，无需重启） · 6 面板数据飞轮（成长热力图、质量雷达、进化审计、拒绝追溯）· 模型族执行纪律注入 · 推送质量门控 · 技能健康监控（断路器自动熔断坏技能 + A/B测试自进化 + 死信队列 + Prometheus可观测 + 前端质量仪表盘——540项测试验证）"
+          "myrmAgent": "独创四级渐进式按需加载，极低Token消耗，告别上下文爆炸；支持 /slash 斜杠命令精确激活，将Agent的自主性与你的精确控制完美结合。完成复杂任务后，自动总结并创建新技能，越用越聪明。"
         },
         "cron": {
           "feature": "定时任务 · 自然语言一句话创建+聊天流内任务卡片+23个GUI组件+调度器存活探针+27项配置+6种触发器+3种会话模式+智能重试+误火恢复+云安全脚本模式+一键蓝图模板",
           "hermes": "CLI 基础 cron（无GUI/无重试/无恢复）",
           "openclaw": "_yes",
-          "myrmAgent": "自然语言一句话创建（\"每天8点总结AI资讯\"→自动识别→审批确认→任务卡片展示，比百度搭子DuMate更灵活）+23个GUI组件（含调度器存活探针）+27项配置能力+6种触发器+3种会话模式(Isolated/Main/Daily — Daily模式自动注入同日执行历史用于趋势检测，业界唯一)+指数退避重试+误火恢复+Agent绑定+10款蓝图模板（3次点击创建含工作日调度+内联投递渠道选择+社媒舆情监控+竞品动态追踪）+内联IM渠道直投+飞书/Lark群机器人Webhook原生text投递（粘贴Hook即可，无需OAuth chat_id）+Merkle审计链+智能噪音过滤+云安全纯脚本模式（零LLM成本）+浏览器驱动的社媒情报采集+自我演化（系统自动发现重复场景并建议创建定时任务）+IM入站事件正则触发（连一次渠道即可，GUI配置，Router SSOT，云端零双触发）"
+          "myrmAgent": "内置强大的无人值守调度引擎。只需自然语言一句话（如“每天早上8点发简报”），Agent 即可化身主动工作的数字员工。支持 Webhook 推送和全渠道触达，从被动工具进化为主动服务。"
         },
         "gui": {
           "feature": "可视化 GUI · 零技巧零学习成本",
@@ -583,7 +583,7 @@
           "feature": "4层自愈体系 · 7种循环检测 · 完成验证守卫 · 10种流恢复策略",
           "hermes": "易陷入无限重试死循环",
           "openclaw": "CLI Doctor（无子Agent防污染）",
-          "myrmAgent": "8层纵深防护(LoopGuard 7种模式+ToolStuck→GraphInterrupt+FrequencyGuard+E-Stop+4层熔断器+僵尸自动回收+Gateway超时+内存压力熔断) · 工具调用四层自主修正(7+种JSON修复策略适配弱/本地模型+错误→ToolMessage自动回传LLM自修正+LoopGuard防死循环+CorrectionLearning审批修正持久化记忆) · 6层静默重试 · 9层纵深降级 · 8类自动诊断+智能PyPI映射 · GUI诊断看板+一键导出"
+          "myrmAgent": "底层透明自愈机制，自动清理无效工具调用。无论网络如何抖动、用户如何频繁取消，对话历史永远保持纯净。彻底告别因格式错误导致的崩溃，鲁棒性远超竞品。全链路UI进度反馈与异常重试，绝不静默吞噬错误。"
         },
         "toolIntegration": {
           "feature": "工具生态集成 · 27 项预配置服务 / 9 大类别 / 一键连接",
@@ -847,7 +847,7 @@
           "feature": "动态渲染 Artifacts · 实景发票与全交互数据看板",
           "hermes": "纯文本",
           "openclaw": "基础图表",
-          "myrmAgent": "上传 Excel/CSV → Agent 用 pandas 分析 → 生成交互式 Echarts 看板（自动适配暗色主题）· 指哪改哪修改图表 · 一键部署或分享"
+          "myrmAgent": "基于 Infinite Canvas 打造的动态工作区。生成的图表、代码、长文档不仅支持实时双向编辑，还支持实时状态同步。告别静态只读视图，不打断工作心流，所见即所得。"
         },
         "localIotBridge": {
           "feature": "局域网智能设备操控 (IoT Bridge) · AI 走入真实世界",

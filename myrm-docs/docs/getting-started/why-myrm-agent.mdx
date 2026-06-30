@@ -1,0 +1,68 @@
+---
+title: Why Choose Myrm Agent?
+description: Discover the core advantages of Myrm Agent compared to other mainstream open-source agents like Hermes, OpenClaw, and DeerFlow.
+---
+
+# Why Choose Myrm Agent?
+
+Among the numerous open-source AI Agent frameworks and products, Myrm Agent stands out with its **robust underlying architecture**, **ultimate user experience**, and **enterprise-grade security isolation**. Whether you are a regular user looking for an out-of-the-box solution or a developer needing deep customization, Myrm Agent provides an experience far superior to its competitors.
+
+Here are our tangible advantages compared to mainstream competitors (such as Hermes Agent, OpenClaw, DeerFlow, etc.):
+
+## 1. Crash-Proof Underlying Self-Healing Mechanism
+
+When using APIs compatible with the OpenAI format (like DeepSeek, Kimi, etc.), network jitter or frequent user cancellations often interrupt tool calls. This leaves invalid `tool_call_id`s in the history, causing strictly validating models to crash with malformed history errors.
+
+**Our Advantage**:
+Myrm Agent implements a transparent self-healing mechanism (`SafetyWrappedChatModel`) at the lowest level of the framework. Before every request to the LLM, the system automatically scans and cleans up orphan/invalid tool calls. Regardless of network jitter, the chat history remains pure. We completely eliminate crashes caused by formatting errors, offering robustness far beyond competitors.
+
+## 2. Exclusive 4-Level Progressive Skill Loading
+
+Equipping an Agent with a massive number of skills usually causes the context window to explode (context bloat), increasing token consumption and degrading the model's instruction-following capability.
+
+**Our Advantage**:
+- **On-Demand Loading**: Our exclusive 4-level progressive loading strategy loads the skill body into the context only when truly needed, achieving ultra-low token consumption.
+- **Precise Control**: Supports `/slash` commands for precise activation of specific skills. This perfectly combines the Agent's autonomy with your precise control, achieving 100% execution certainty.
+- **Gets Smarter**: After completing complex tasks, the Agent automatically summarizes and creates new skills, achieving a true closed learning loop.
+
+## 3. Serverless-Grade Sandbox Hibernation & Wake-on-Demand
+
+Traditional cloud deployments incur exorbitant costs if a resident sandbox instance is maintained for every user. Traditional SaaS architectures sacrifice performance and privacy isolation.
+
+**Our Advantage**:
+The control plane natively supports idle hibernation and wake-on-demand for sandbox environments. When a user is offline, the state of their 100% physically isolated exclusive sandbox is persisted and put to sleep. Upon receiving a new message or a cron trigger, it wakes up instantly. This guarantees absolute privacy while drastically reducing cloud idle costs, making it a true enterprise-grade architecture for large-scale commercialization.
+
+## 4. Cross-Platform Real-Time Live Canvas
+
+Most competitors generate documents, code, or charts as static, read-only views. If fine-tuning is needed, users must jump out of the app to use external editors, severely interrupting their workflow.
+
+**Our Advantage**:
+A dynamic workspace based on Infinite Canvas. Generated charts, code, and long documents support not only real-time bidirectional editing but also real-time state synchronization. Say goodbye to static read-only views; don't break your flow—what you see is what you get.
+
+## 5. Ultimate Omnichannel IM Coverage
+
+Many competitors only support a few mainstream channels, and the message formats and media processing capabilities vary greatly between them, resulting in a fragmented experience.
+
+**Our Advantage**:
+Natively supports 15+ channels (Slack, Discord, Feishu, iMessage, WeChat, Telegram, etc.), truly achieving "ubiquity." A unified underlying media processing pipeline ensures consistent Markdown rendering, speech recognition (STT), and interactive experiences across any platform, seamlessly waking up your exclusive assistant.
+
+## 6. Natural Language Driven Unattended Scheduling
+
+The vast majority of Agents can only act as "passive response tools," requiring active user triggers to work.
+
+**Our Advantage**:
+Built-in powerful unattended scheduling engine. With just a natural language sentence (e.g., "Send a briefing every morning at 8"), the Agent transforms into a proactive digital employee. Supports Webhook push and omnichannel reach, evolving from a passive tool to a proactive service.
+
+## 7. Memory Deduplication for a Forever-Lean Brain
+
+Over long, multi-turn conversations, Agents easily accumulate a massive amount of duplicate facts, causing the memory bank to bloat and retrieval accuracy to plummet.
+
+**Our Advantage**:
+The underlying `dedup_semantics` mechanism strictly filters duplicate facts during writing (auto-deduplication for similarity ≥0.95). This keeps the memory bank forever lean and efficient, ensuring the Agent "understands you better the more you use it" without ever bloating.
+
+## 8. Full-Chain Feedback Rejecting Silent Failures
+
+Bulk operations without progress bars, network errors failing silently, and files deleted instantly upon "zero references"... these are common design flaws in competitors that cause extreme user anxiety.
+
+**Our Advantage**:
+Full-chain UI progress feedback, explicit exception Toast notifications, and retry mechanisms. Any action that jumps out of the current context has strong visual feedback. Additionally, a built-in file system "Trash" soft-delete mechanism completely eliminates data loss anxiety, providing true enterprise-grade security.
