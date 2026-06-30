@@ -198,7 +198,8 @@ Your agent can proactively push notifications to configured channels — no manu
 
 1. Configure notification targets in your agent's settings (channel + recipient whitelist)
 2. The agent calls `channel_notify_tool` when it needs to alert you (task completion, anomaly detection, scheduled report ready)
-3. The message is delivered through the ChannelGateway infrastructure with retry and dead-letter queue support
+3. Optionally attach files or images — local paths and URLs are auto-resolved with correct media type detection
+4. The message is delivered through the ChannelGateway infrastructure with retry and dead-letter queue support
 
 ### Security
 
@@ -207,16 +208,17 @@ Your agent can proactively push notifications to configured channels — no manu
 | Whitelist | Only user-configured targets are reachable — no arbitrary recipients |
 | Rate limit | Per-session cap prevents notification spam (default: 10 per session) |
 | Content cap | Messages exceeding `max_body_length` (4000 chars) are automatically truncated |
+| Attachments | Local file existence verified; URL filenames parsed safely (handles query params) |
 | Audit trail | Every notification target used is recorded in session state |
 | Layer | Server `outbound_notify/` (business layer, not harness kernel), co-located with ChannelGateway |
 
-> **Test coverage (2026-06-29)**: 46 server tests + 4 frontend vitest, 100% module coverage.
+> **Test coverage (2026-06-30)**: 50 server tests + 4 frontend vitest, 100% module coverage.
 
 ### Example Scenarios
 
-- Scheduled task completes at 3 AM → agent sends summary to your Telegram
-- Long-running code analysis finishes → results pushed to Slack channel
-- Anomaly detected in monitored data → alert sent to configured notification target
+- Scheduled task completes at 3 AM → agent sends summary + report PDF to your Telegram
+- Long-running code analysis finishes → results + generated chart pushed to Slack channel
+- Anomaly detected in monitored data → alert with dashboard screenshot sent to configured target
 
 ## Background Task Auto-Reply
 
