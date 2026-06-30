@@ -107,6 +107,16 @@ Under the hood, Myrm's retrieval system exposes **33 tunable parameters** throug
 
 All parameters use frozen dataclasses for thread safety. Advanced users can override defaults via server configuration; most users never need to.
 
+## Auto Session Recall
+
+When you start a new conversation, Myrm's **Auto Session Recall** middleware proactively searches your conversation history and injects relevant context — before the Agent even starts thinking. This means the Agent "remembers" relevant past interactions without you having to remind it.
+
+- **Zero-blocking**: runs with a 3-second timeout; if retrieval takes too long, the main flow continues unaffected
+- **Security-wrapped**: recalled content is wrapped in untrusted content boundaries to prevent prompt injection from historical data
+- **Idempotent**: marker-based deduplication ensures recall is injected exactly once per session
+- **Configurable**: threshold (default 0.72), token budget (default 800), and timeout are all tunable
+- **Hybrid retrieval**: uses RRF fusion (Vector + BM25) with the same 7-signal scoring as regular memory search
+
 ## Knowledge Graph
 
 Relationships between memory entries are modeled as a knowledge graph with 4 semantic relation types (SUPPORTED, CONTRADICTED, SUPERSEDED, CONSTRAINED) and multi-hop traversal. Supports both SQLite CTE and Apache AGE backends with 3D visualization in the GUI.
