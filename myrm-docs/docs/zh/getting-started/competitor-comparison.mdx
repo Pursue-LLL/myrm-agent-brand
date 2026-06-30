@@ -967,9 +967,9 @@ Coze 将项目锁在生态内；Lobster 擅长公开静态链但非从 Agent 工
 
 **你将获得**：聊天产物 → 落地页/报告/迷你应用 → **~30s 部署 URL** 或 **即时只读 Link** 供审阅。
 
-**Agent 对话式部署**：直接对 Agent 说"部署这个网页"，Agent 会自动完成预检、弹出确认卡让你批准后才真正发布，约 30 秒后返回公网 URL。无需离开对话去点按钮。Clawith 有 5 个部署工具但缺乏审批和加密；Myrm 用 1 个聚焦工具实现完整安全闭环。
+**GUI 多目标发布（零 LLM Token）**：在 **设置 → 托管目标** 配置 Vercel、Cloudflare Pages、Netlify 或 Webhook，然后在 HTML 工件卡片点 **Globe → 发布**。无 Agent 工具、无 Git、不消耗模型 Token — 服务端内置 provider 直发。Preflight 在出站前拦截不合格工件；每个 target 独立 publication 历史与过期重部署提示。Clawith 仍走 **5 个 Agent 部署工具**（耗 Token + 难审计）；Myrm 发布 **纯 GUI、可测**（**134** 项 hosting pytest，**24** 项集成场景）。
 
-**测试覆盖（2026-06-30）**：**112** 项 deploy pytest（**27** 项集成全链路 + **85** 项单元/API），覆盖 credentials SSOT、统一 executor、WebSocket 状态流、HITL 工具链；真实 DB/vault/encryption，仅 mock 外部 Vercel HTTP。
+**测试覆盖（2026-06-30）**：**134** 项 hosting pytest（**24** 项集成 + **102** 项单元/provider + API），覆盖多 target CRUD、webhook 全链、SSRF、redeploy upsert、WebSocket 状态、凭证边界；真实 DB/vault/preflight/orchestrator，仅在外部 provider HTTP  egress 边界 mock。
 
 **不止部署——完整的产物编辑生命周期**：Myrm 的 Artifact Portal 不只是查看器。代码产物在 **Monaco Editor**（VS Code 内核）中直接编辑。**SelectionToolbar** 支持选中代码后一键 修改 / 解释 / 优化 / 加注释——精准 AI 编辑无需离开预览面板。你的编辑会静默跟踪并自动注入到下条消息，Agent 从你修改后的版本继续工作。React 产物通过 **Sandpack** 实时渲染并热重载。版本 Diff 对比、SHA-256 完整性校验和快照回滚完善了整个生命周期。竞品如 WorkBuddy 依赖外部文档集成（如腾讯文档）而非自建编辑系统。
 
@@ -1393,7 +1393,7 @@ Codex 仅提供基础截图审批，无 Artifact 管理。Myrm 提供**跨 Web�
 | **Artifact 渲染器** | 基础 | **7 种**：文档/McpApp/代码/Mermaid/媒体/PDF/无预览 | 不离开聊天窗口即可预览任何文件类型 |
 | **实时代码编辑** | ❌ 无 | **Sandpack ReactPreview**：预览/代码/分屏三视图 + 控制台 + Tailwind | 实时编辑 Agent 生成的 React 组件，热重载预览 |
 | **代码选中精准编辑** | ❌ 无 | **SelectionToolbar**：选中代码 → 修改/解释/优化/注释/复制 | 在代码选择级别与 Agent 精准协作 |
-| **一键部署** | ❌ 无 | **DeployModal**：Vercel + WebSocket 状态推送 + preflight 检查 | 秒级将 Agent 生成的应用部署到生产环境 |
+| **一键发布** | ❌ 无 | **PublishModal + Hosting Targets**：Vercel / CF Pages / Netlify / Webhook，Globe 零 Token 发布 + WebSocket 状态 + preflight | 秒级将 HTML 工件发到多平台，无需 Git 或 Agent 工具 |
 | **版本管理** | ❌ 无 | **ArtifactsCenter**：不可变时间线 + SHA256 完整性验证 + 回滚；**5 语言**企业工件库 UI + i18n 自动化回归守门 | 企业级 Artifact 审计追踪 |
 | **技能检测** | ❌ 无 | **SkillDetectionCard**：自动检测 SKILL.md → 一键打包注册 | 将 Agent 生成的任何工具转化为可复用技能 |
 | **记忆系统** | ❌ 无 | **14 种 DB 模型**：画像/程序性/待审批/共享上下文 + 导入/归档/回滚/审计 | Agent 记住你的偏好、编码风格和报表格式 |
