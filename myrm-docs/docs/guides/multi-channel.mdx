@@ -96,6 +96,19 @@ When the agent creates files (charts, reports, spreadsheets, compiled documents)
 | Supported types | IMAGE, DOCUMENT, AUDIO, VIDEO (auto-detected from filename) |
 | Multi-file | All generated files delivered as separate attachments |
 
+### Artifact Deep Links
+
+For interactive artifacts (HTML pages, PDFs, documents), the agent automatically generates a clickable **deep link button** in the IM message instead of sending the raw file. Tapping the button opens the artifact directly in the user's browser — no download needed.
+
+| Feature | Details |
+|---------|---------|
+| Trigger | Automatically for shareable artifact types (HTML, PDF, Document) |
+| Security | HMAC-signed, time-limited, read-only share tokens |
+| Multiple artifacts | Each gets a named button (e.g. "💻 dashboard.html") |
+| Redundancy removal | Raw file attachment is removed when a deep link is available |
+| Safe degradation | Falls back to raw file if no public URL, DB error, or token failure |
+| i18n | Button labels localized (English / Chinese) |
+
 ## Channel-Aware Output Adaptation
 
 Myrm uses a **triple-layer** architecture to ensure output is both clean and correctly formatted on every platform:
