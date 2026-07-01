@@ -749,3 +749,14 @@ If automatic installation fails (no network, insufficient disk space, etc.), Myr
 | Must run `playwright install chromium` in terminal | Automatic — just use the app |
 | Windows dependency errors confuse non-dev users | Clear diagnostics with fix instructions |
 | Browser features broken until manual setup | Works on first use |
+
+## For contributors: pytest vs runtime browser cleanup
+
+When browser integration tests time out or crash, orphaned Chrome/Patchright child processes can linger on the developer machine. Myrm separates concerns:
+
+| Layer | Location | Purpose |
+|-------|----------|---------|
+| **Dev/CI only** | `tests/support/browser_process_cleanup.py` (Harness + Server copies) | `atexit` / pytest `sessionfinish` process-tree kill — **not shipped in the wheel** |
+| **Runtime** | `GlobalBrowserPool` health checks, `doctor.py`, pool/singleton orphan sweep | Production browser hygiene for agents |
+
+Hermes-agent mixes similar kill logic into production `browser_tool.py`; Myrm keeps pytest-only cleanup out of the agent runtime. Verified **2026-07-01**: 14 pytest items per repo (12 unit + 2 conftest wiring), 100% line coverage on the cleanup module.

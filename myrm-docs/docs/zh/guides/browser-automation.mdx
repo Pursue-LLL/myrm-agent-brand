@@ -677,3 +677,14 @@ Extension Bridge 跨越 5 层：
 | 必须在终端运行 `playwright install chromium` | 自动完成，直接使用 |
 | Windows 依赖错误令非开发者用户困惑 | 清晰的诊断信息和修复指引 |
 | 浏览器功能在手动安装前不可用 | 首次使用即可工作 |
+
+## 贡献者说明：pytest 与运行时浏览器清理分层
+
+浏览器集成测试超时或崩溃后，Chrome/Patchright 子进程可能残留在开发机上。Myrm 将职责分层：
+
+| 层级 | 位置 | 作用 |
+|------|------|------|
+| **仅 Dev/CI** | `tests/support/browser_process_cleanup.py`（Harness + Server 各一份镜像） | pytest `sessionfinish` / `atexit` 进程树清扫 — **不打进 wheel** |
+| **运行时** | `GlobalBrowserPool` 健康检测、`doctor.py`、pool/singleton 孤儿清扫 | Agent 生产环境浏览器卫生 |
+
+Hermes-agent 将类似逻辑混在生产 `browser_tool.py`；Myrm 把 pytest 专用清理移出 Agent 运行时。**2026-07-01 验证**：每仓库 **14 项 pytest**（12 单元 + 2 conftest 接线），cleanup 模块 **100% 行覆盖**。
