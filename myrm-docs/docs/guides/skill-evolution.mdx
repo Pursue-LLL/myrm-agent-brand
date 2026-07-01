@@ -1,0 +1,82 @@
+---
+title: Skill Evolution
+description: Your AI learns from every interaction—auto-extracts reusable skills, validates in sandbox, and deploys only after your approval.
+---
+
+# Skill Evolution
+
+Myrm's Skill Evolution engine **automatically turns your successful interactions into reusable skills**. Unlike simple prompt storage, the engine runs a full pipeline: trace analysis → extraction → screening → sandbox validation → LLM review → human approval via GUI.
+
+## How it works
+
+1. **Trace Analysis** — After each conversation, the `TraceAnalyzer` extracts execution trajectories using 5-level progressive disclosure, identifying patterns worth turning into skills.
+2. **Structured Extraction** — The `StructuredExtractor` uses an LLM to capture skill definitions with confidence scores, ensuring only high-quality patterns are promoted.
+3. **Automatic Screening** — Low-quality or duplicate extractions are filtered before reaching you.
+4. **Sandbox Validation** — Candidate skills are executed in a safe sandbox environment to verify they actually work.
+5. **LLM Review** — An automated reviewer checks for edge cases, security issues, and correctness.
+6. **Human Approval** — Nothing deploys without your say-so. Review in the **Pending Evolutions Dashboard**.
+
+## Review pending skills
+
+1. Go to **Settings → Skills → Pending Evolutions**.
+2. Browse proposals in **List** or **Grid** view.
+3. For each proposal:
+   - **Approve** — Deploy the skill immediately.
+   - **Reject** — Discard the proposal.
+   - **Revise** — Edit the skill in a Monaco diff editor before approving.
+4. Approved skills become available to the Agent in future conversations.
+
+## Variant testing
+
+When Myrm detects a skill could be improved, it generates variants and runs A/B comparisons. You can review variant results in the **Shadow GUI** panel before promoting a variant to production.
+
+## Version history & rollback
+
+Every skill change is tracked:
+
+- **History panel** — Full evolution timeline with diffs.
+- **Versions panel** — Compare any two versions side by side.
+- **One-click rollback** — Revert to any previous version instantly.
+
+## Batch optimization
+
+For large skill libraries:
+
+1. Go to **Settings → Skills → Batch Optimization**.
+2. Click **Run Optimization** — the engine evaluates all skills for improvement opportunities.
+3. Review the batch snapshot and approve/reject changes individually.
+4. Mid-batch rollback is supported if something goes wrong.
+
+## Background review
+
+Myrm runs 4 types of background async tasks during idle sessions:
+
+- Silent skill extraction from successful interactions
+- Compression of verbose skills for lower token usage
+- Frustration detection → automatic fix variant generation
+- Pruning of low-quality skills
+
+All background changes still require your approval before deployment.
+
+## Key numbers
+
+| Metric | Value |
+|--------|-------|
+| Evolution engine tests | **308 passed** |
+| Safety layers | **15** (Harness 6 + Server 6 + Service 3) |
+| Patch formats | **3** (fuzzy match with 8-level progressive + Unicode normalization) |
+| Routing strategies | **4** (including Correction Propagation) |
+| Background task types | **4** |
+
+## vs competitors
+
+| Capability | Myrm | Hermes `/learn` |
+|-----------|:----:|:------:|
+| Auto-extract skills | Full pipeline | Single CLI command |
+| Sandbox validation | Yes | No |
+| GUI review dashboard | Yes | No (auto-applies) |
+| Confidence scoring | Yes | No |
+| Variant A/B testing | Yes | No |
+| Version rollback GUI | Yes | CLI only |
+| Background optimization | Yes (4 types) | Basic |
+| Cross-agent experience sharing | Yes | No |
