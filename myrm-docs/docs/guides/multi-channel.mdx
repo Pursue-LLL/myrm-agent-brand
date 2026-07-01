@@ -124,6 +124,14 @@ Each channel has its own `RenderStyle` configuration controlling what content th
 
 With defaults, IM users only receive **progress labels, final results, and decision prompts** — no tool call parameters, reasoning tokens, or thinking tags. The `strip_thinking_tags()` function provides an additional safety net that removes any LLM thinking blocks that leak through.
 
+Progress labels are enriched with **input summaries** so you see exactly what the agent is doing:
+
+- `🔍 Searching: AI coding tools 2025` (not just "Searching the web...")
+- `📄 Reading: config/settings.yaml` (not just "Reading file...")
+- `⏳ **notion_query** — Search meeting notes` (custom MCP tools get automatic coverage)
+
+All tools are covered — registered tools show their specific operation, and unregistered tools (including any MCP server you configure) get a generic fallback with input extraction. Updates are throttled (2s minimum interval) to avoid API rate limits.
+
 ### Pre-hoc Guidance (channel_output_hints)
 
 At agent initialization, a channel-specific format hint is injected into the system prompt. This tells the LLM what the platform supports *before* it generates content:

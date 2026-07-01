@@ -98,6 +98,14 @@ Myrm **三层**架构确保输出既干净又格式正确：
 
 默认配置下，IM 用户只收到**进度标签、最终结果和决策提示** — 看不到 tool 调用参数、reasoning token 或 thinking 标签。`strip_thinking_tags()` 函数提供额外安全网，清除任何可能泄露的 LLM 思考块。
 
+进度标签会附带**操作内容摘要**，让你清楚看到 Agent 在做什么：
+
+- `🔍 Searching: AI 编程工具 2025`（而非笼统的 "Searching the web..."）
+- `📄 Reading: config/settings.yaml`（而非笼统的 "Reading file..."）
+- `⏳ **notion_query** — 搜索会议纪要`（自定义 MCP 工具自动覆盖）
+
+所有工具均被覆盖 — 已注册工具显示具体操作内容，未注册工具（包括你配置的任何 MCP 服务）通过通用 fallback 自动提取输入摘要。更新频率受 2 秒节流保护，避免触发平台 API 频率限制。
+
 ### 事前引导（channel_output_hints）
 
 Agent 初始化时向系统提示词注入渠道格式提示，生成前告知 LLM 平台能力：
