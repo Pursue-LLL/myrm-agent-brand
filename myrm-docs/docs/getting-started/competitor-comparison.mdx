@@ -700,6 +700,19 @@ Claude Code uses a "Fork Subagent" design with byte-level prompt prefix alignmen
 
 **Result: 6 upgrades, 0 equivalent, 0 downgrades. Myrm delivers superior cache economics with 3 unique capabilities (Break Detection, Anti-Thrashing, Resume-Aware) that Claude Code completely lacks.**
 
+### SubagentExecutor Reliability (Jul 2026)
+
+Beyond cache economics, Myrm's dedicated **SubagentExecutor** engine handles what users feel when delegating work:
+
+| Area | Typical Competitors (e.g. DeerFlow monolith) | Myrm | User Benefit |
+|------|----------------------------------------------|------|-------------|
+| Oversized sub-agent output | Truncate or flood parent chat | **Auto Vault** archive + summary injection | Context stays lean; fewer tokens |
+| Cancel parent task | Child/grandchild may keep running | **Cascade cancel** across descendants | Stop truly stops billing |
+| Untrusted upstream context | Passed through silently | **Taint propagation** with `[SECURITY WARNING]` | Clear signal to verify independently |
+| Orchestrator delegation | Coarse spawn tools | **Manifest-scoped** delegation tools per role | Safer, clearer permissions |
+
+**Regression coverage:** **366+** dedicated tests green (API E2E + module unit tests, Jul 2026) across Fork/Vault/Cascade/Taint/Handover paths.
+
 ### Claude Code 2.1.154~2.1.157 Harness Upgrade
 
 With Opus 4.8, Claude Code introduced `/effort` (6-level reasoning budget), Dynamic Workflows, lean system prompt, and enhanced `--resume`. Here's how Myrm compares:
