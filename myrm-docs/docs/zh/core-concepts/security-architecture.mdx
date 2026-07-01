@@ -334,6 +334,36 @@ Myrm 自动从 **17 个发现点**（13 个根级文件名 + 4 个子目录模�
 
 E-Stop、会话终止、工具黑名单、预算硬顶。
 
+## 安全态势大盘
+
+`/security` 页面提供完整的 GUI 安全可视化——无需 CLI 命令：
+
+| Tab | 展示内容 |
+|-----|---------|
+| **依赖安全** | 漏洞告警（Critical/High/Medium/Low）+ Dependabot PR + SBOM |
+| **限流状态** | 实时 per-user/per-resource 限流（当前/上限/剩余/窗口） |
+| **审计日志** | 安全事件流 + 多维过滤（用户ID/事件类型/结果）+ CSV/JSON 导出 |
+| **审计统计** | 24小时分析：时间序列、Top IP、事件分布、成功/失败率 |
+
+支持多数据源（GitHub / Control Plane / 合并）、一键刷新、配置引导面板。远超 Hermes 的 CLI 命令（`hermes config view security`）。
+
+## 智能审批（Auto Mode）
+
+开启 `auto_mode_enabled` 后，辅助 LLM（Transcript Classifier）实时审查工具调用，实现长时间无人值守 Agent 会话：
+
+| 层级 | 机制 | 触发时机 |
+|------|------|---------|
+| **确定性规则** | 静态权限引擎评估 | 始终（第一层） |
+| **CommandRiskLevel** | Shell 管道感知分级：SAFE 自动放行 / UNKNOWN 需审查 | Auto Mode + shell_exec |
+| **Allowlist 记忆** | 「始终允许」选择永久免打扰 | 曾被用户批准的 ASK 操作 |
+| **Taint 升级** | 会话含 PII/凭据 → 即使 ALLOW 也送 LLM 审查 | ALLOW + 受污染会话 |
+| **Transcript Classifier** | 推理盲 LLM → ALLOW/DENY/UNCERTAIN | Auto Mode + ASK 操作 |
+| **Outbound 委派检查** | delegate_agent 强制 LLM 审查 | 委派操作 |
+| **Shell 升级检查** | 非 SAFE 命令即使规则 ALLOW 仍送 LLM | shell_exec + UNKNOWN 风险 |
+| **阈值熔断** | 连续拒绝 → 停止自动审批，回落 HITL | 过多拒绝 |
+
+故障安全保证：分类器报错 → 回落 HITL（绝不在失败时自动批准），`temperature=0` 确保确定性，Pydantic 强制结构化输出。
+
 ## vs CaMeL Guard
 
 CaMeL 单信任边界；Myrm **6 层**洋葱防御、5 域循环检测、3 层错误分类、4 策略凭证池、PTC 沙箱隔离、20+ 模块上下文流水线等更深覆盖。

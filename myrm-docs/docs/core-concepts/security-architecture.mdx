@@ -422,6 +422,46 @@ All discovered files are security-scanned before injection:
 | **Tool Blacklist** | Dynamically block specific tools across all agents |
 | **Budget Override** | Hard spending cap that overrides all agent budgets |
 
+## Security Dashboard
+
+A dedicated `/security` page provides full GUI visibility into the system's security posture — no CLI commands needed:
+
+| Tab | What It Shows |
+|-----|---------------|
+| **Dependencies** | Vulnerability alerts (Critical/High/Medium/Low counts) + Dependabot PRs + SBOM availability |
+| **Rate Limit** | Real-time per-user/per-resource throttle status (current/max/remaining/window) |
+| **Audit Logs** | Security event stream with multi-dimension filters (user ID, event type, result) + CSV/JSON export |
+| **Audit Stats** | 24-hour analytics: time series, top IPs, event distribution, success-vs-failure breakdown |
+
+Additional capabilities:
+- **Setup Panel**: Guided configuration of webhooks, monitored repos, and GitHub tokens
+- **Multi-source**: Pulls data from GitHub, Control Plane, or merged sources based on deployment mode
+- **One-click refresh**: Real-time data reload per tab
+- **Export**: Audit logs exportable in CSV or JSON format for SIEM integration
+
+This GUI-first approach is superior to Hermes' CLI-only security commands (`hermes config view security`, `hermes pairing list`) — users get the same information with visual analytics and no terminal expertise required.
+
+## Smart Approval (Auto Mode)
+
+When `auto_mode_enabled` is set, an auxiliary LLM (Transcript Classifier) reviews tool calls in real-time, enabling long unattended agent sessions without sacrificing safety:
+
+| Layer | What It Does | When It Fires |
+|-------|-------------|---------------|
+| **Deterministic Rules** | Static permission engine evaluates against rulesets | Always (first) |
+| **CommandRiskLevel** | Shell-pipe-aware classifier: SAFE (auto-allow) or UNKNOWN (needs review) | shell_exec with Auto Mode |
+| **Allowlist Memory** | "Always Allow" user choice permanently auto-approves identical actions | ASK actions with prior user approval |
+| **Taint Escalation** | Session contains PII/credential → even ALLOW tools get LLM review | ALLOW + tainted session |
+| **Transcript Classifier** | Reasoning-blind LLM (sees only user messages + tool calls) → ALLOW/DENY/UNCERTAIN | ASK actions in Auto Mode |
+| **Outbound Check** | Delegation actions force LLM review regardless of rule result | delegate_agent actions |
+| **Shell Escalation** | Non-SAFE shell commands get LLM review even if rules say ALLOW | shell_exec + UNKNOWN risk |
+| **Threshold Breach** | Consecutive denials → circuit-break auto-approval, revert to HITL | Too many denials |
+
+Fail-safe guarantees:
+- Classifier errors → fall back to HITL (never auto-approve on failure)
+- `temperature=0` for deterministic, reproducible decisions
+- Pydantic-enforced structured output (no free-text manipulation)
+- Taint labels injected for context-aware judgment
+
 ## vs CaMeL Guard (hermes-agent-camel)
 
 The CaMeL Guard project implements a research-based trust boundary model (trusted controller vs untrusted data). Myrm's security architecture provides significantly deeper coverage:
