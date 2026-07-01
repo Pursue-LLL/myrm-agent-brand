@@ -139,6 +139,15 @@ Sub-agents operate under strict budget and logic limits:
 
 **Smart Model Downgrade**: When budgets are near exhaustion or certain limits are triggered, Myrm can automatically downgrade the sub-agent from an expensive reasoning model to a cheaper, faster model, preventing budget burn while still attempting to complete the task. Budget exhaustion produces structured errors with clear reasons, not silent failures.
 
+### Agent-to-Agent Communication (ATA)
+
+When multiple agents collaborate on related tasks, they can communicate directly without going through a parent coordinator:
+
+- **`kanban_comment`** — Any worker can leave comments on any task's thread (not just their own), sharing intermediate findings, flagging issues, or coordinating with sibling tasks. Comments support Markdown and are displayed with author identity in the Event Timeline.
+- **`TeammateMailbox` P2P** — Session-scoped mailbox with JSONL persistence for direct agent-to-agent messaging. Messages survive process restarts. Built-in rate limiting (30 messages per sender per 60 seconds) prevents agent communication storms.
+- **Agent Identity** — Each task card in the Kanban UI displays the assigned agent's name and avatar. The task drawer includes a full agent assignment dropdown with avatar preview, making team composition visible at a glance.
+- **Multimodal Context** — Tasks support file attachments via `TaskAttachment`, and the context builder automatically assembles multimodal queries (text + images) for vision-capable models.
+
 ### Workspace Isolation & UI Blacklisting
 
 Each sub-agent runs in an isolated workspace and system sandbox:
