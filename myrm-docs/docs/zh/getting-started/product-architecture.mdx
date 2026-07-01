@@ -32,7 +32,7 @@ Myrm 由**两层产品**加可选云端控制平面组成。理解这一划分�
 
 `myrm-agent-server` 的 architecture CI 禁止 `from myrm_agent_harness.*._*` 导入，保证 Harness 内部可演进而公开 `api.__all__` 保持稳定。发行 wheel 为可读 `.py` 壳 + 编译 core 扩展。
 
-**对 SaaS 的意义：** 控制平面可按用户沙箱滚动升级 Harness，无需与 Server 业务层大版本联调——多数开源 Agent 单体架构做不到这一点。
+**对 SaaS 的意义：** 控制平面按用户沙箱滚动 **runtime Docker 镜像 tag**（镜像内打包 server + harness）。Server 胶水层仅 import `api.hooks` / `api.skills`，镜像滚动时 glue 层保持稳定——多数开源 Agent 单体架构做不到这一点。
 
 ## 请求流（典型对话）
 

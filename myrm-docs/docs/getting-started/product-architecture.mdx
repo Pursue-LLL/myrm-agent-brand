@@ -32,7 +32,7 @@ Open-source **server** code must integrate through `myrm_agent_harness.api` — 
 
 Architecture CI in `myrm-agent-server` blocks `from myrm_agent_harness.*._*` imports so harness internals can evolve while the public `api.__all__` stays stable. Release wheels ship readable `.py` stubs plus compiled core extensions.
 
-**Why it matters for SaaS:** the control plane can roll out a new harness build per user sandbox without forcing a coordinated server rewrite — a pattern most monolithic open-source agents do not support.
+**Why it matters for SaaS:** the control plane rolls a new **runtime Docker image tag** per user sandbox (server + harness bundled in the image). Server glue imports only `api.hooks` / `api.skills`, so the glue layer stays stable across image rolls — a pattern most monolithic open-source agents do not support.
 
 ## Request flow (typical chat)
 
