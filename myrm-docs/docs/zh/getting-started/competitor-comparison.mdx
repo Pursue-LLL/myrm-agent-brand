@@ -684,6 +684,19 @@ Claude Code 采用「Fork 子 Agent」设计，字节级 prompt 前缀对齐以�
 - **Blazing Fast Data Retrieval**: Don't burn memory on full Chromium instances for simple text extraction; Myrm degrades to HTTP seamlessly.
 - **Production Grade Reliability**: Auto-detects 10 CAPTCHA providers and solves them via CapSolver API with FallbackSolver chain (manual HITL takeover when needed). Passes Cloudflare invisibly.
 
+### SubagentExecutor 可靠性（2026-07）
+
+委派子 Agent 时，Myrm 专用 **SubagentExecutor** 处理用户可感知的边界情况：
+
+| 领域 | 典型竞品（如 DeerFlow 单体） | Myrm | 用户收益 |
+|------|------------------------------|------|----------|
+| 超大子 Agent 输出 | 截断或灌满主聊天 | **Auto Vault** 归档 + 摘要回注 | 上下文不爆、Token 更省 |
+| 取消父任务 | 子/孙任务可能继续跑 | **级联取消** 全后代 | 停止即真停、不再烧 Token |
+| 不可信上游上下文 | 静默透传 | **Taint 传播** + 安全警告 | 独立验证信号清晰 |
+| JIT 子 Agent 配置 | 字段易错/阈值丢失 | **`ephemeralSubagents` + auto_vault_threshold 物化** | GUI/测试/API 一致 |
+
+**回归覆盖：** **111+** 项 vault 闭环测试全绿（harness 单元 + server 集成 + **LLM E2E delegate→bash→vault** + 前端 vitest，2026-07）；Fork/Vault/Cascade/Taint/Handover 等子代理路径合计 **366+** 项专项回归。
+
 ## 凭证库 — 密码与 2FA 永不进入 LLM
 
 多数框架在自动化登录时的默认模式是灾难性的：模型生成密码字符串并通过 `type`/`fill` 工具参数传递，该值残留在聊天历史、MCP 日志与重试缓冲区。
