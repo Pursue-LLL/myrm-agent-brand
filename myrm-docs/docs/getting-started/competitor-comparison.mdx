@@ -1047,21 +1047,6 @@ Myrm is a **GUI-first** application. The problems Claude Office Visualizer solve
 
 **Result: 5 upgrades, 1 equivalent, 0 downgrades. Users move from a separate observation window to a fully integrated GUI with precise data, interactive controls, and a complete agent platform.**
 
-## Bulk homogeneous processing (llm_map) — vs Coze batch node
-
-Use when you need the **same LLM instruction** over hundreds of similar items (classify reviews, tag tickets, summarize rows) — not full SubAgents per row, not a drag-and-drop workflow.
-
-| Dimension | Coze 3.0 batch node | Myrm `llm_map_tool` |
-|-----------|---------------------|---------------------|
-| UX | Workflow canvas | Chat + optional **Batch Processing Assistant** template |
-| Per-call cap | Official max 200, parallel 10 | **200 items/call** (hard reject + batch hint if exceeded) |
-| Cost | LLM node per item | **Lite-model fan-out** (~10–30× cheaper than SubAgent-per-item) |
-| Failures | Node-level policy | **Per-item isolation**, batch continues |
-| Large output | Workflow variables | Auto **artifact** download |
-| Default | Inside workflows | **Opt-in** (EXTENDED layer, no default prompt bloat) |
-
-**Migration:** Replace “batch node → LLM node” with “classify/summarize this list”; keep SubAgents for cross-item reasoning.
-
 ## vs Coze 3.0 / Lobster / Vercel v0 — Artifact Deploy & Read-Only Link (Sites 2.0)
 
 Coze keeps projects inside its ecosystem; Lobster excels at public static links but not multi-platform GUI publish from an agent workspace; v0 targets developers building with AI. Myrm targets **GUI users who want a shareable result from chat artifacts**, not a separate site builder.
