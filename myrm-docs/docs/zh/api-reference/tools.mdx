@@ -35,6 +35,7 @@ POST /api/tools/:name/execute
 | `code_execute` | 沙箱内代码执行 |
 | `grep_tool` | Ripgrep 正则内容搜索（三档：ripgrep → mmap → Python），路径分组密集化输出（≥5 匹配时自动去冗余路径，省 18-39% Token），ReDoS 防护，非代码文件自动截断 |
 | `glob_tool` | 工作区内文件路径模式搜索 |
+| `llm_map_tool` | 对多条同质内容并行施加同一指令（单次最多 200 条）；单条失败隔离；超大结果集自动 spill 为可下载 artifact。通过 Agent 内置工具或「批处理助手」模板按需启用。 |
 | `@codebase` mention | 轻量工作区文件/扩展名概览，注入用户消息（配合 grep/glob 探索代码） |
 | `web_search` | 多引擎搜索 + BM25/Reranker 过滤 — 返回清洗、去重片段 |
 | `web_fetch` | 3 级本地抓取（HTTP/Browser/Stealth）+ DOM 剪枝与 Markdown 提取 |
