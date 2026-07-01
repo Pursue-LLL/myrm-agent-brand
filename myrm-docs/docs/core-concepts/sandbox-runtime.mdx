@@ -102,3 +102,15 @@ Sandboxes automatically sleep after configurable inactivity periods and wake on 
 - **WebSocket connection guard** — if the sandbox has an active WebSocket connection to the control plane (e.g., during background deep-research or long-running tasks), the recycler skips sleep regardless of the activity timestamp.
 
 This dual-signal approach ensures active users and background tasks are never interrupted, while genuinely idle sandboxes are reclaimed efficiently. Sleep periods incur zero WU cost.
+
+## Enterprise Org Management & Volume Handoff
+
+For B2B teams, the Control Plane provides full organization lifecycle management:
+
+- **RBAC**: Owner / Admin / Member roles with atomic permission checks
+- **Idempotent membership**: Adding the same user twice safely returns existing record
+- **One-click offboarding**: When an employee leaves, admin freezes their sandbox, backs up the volume, and transfers it to the successor — all in one operation
+- **Immutable audit trail**: Every offboarding action is logged for compliance
+- **Cross-org protection**: A user cannot silently belong to two organizations
+
+This means enterprise data never leaves with a departing employee — it stays under organizational control with full traceability.
