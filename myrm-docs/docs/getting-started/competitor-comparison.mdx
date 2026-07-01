@@ -1060,6 +1060,21 @@ Myrm is a **GUI-first** application. The problems Claude Office Visualizer solve
 
 **Result: 5 upgrades, 1 equivalent, 0 downgrades. Users move from a separate observation window to a fully integrated GUI with precise data, interactive controls, and a complete agent platform.**
 
+## vs Coze / workflow platforms — batch LLM fan-out vs SubAgent batch (Jul 2026)
+
+Workflow tools (including Coze) often ship a **batch LLM** or **fan-out** node: same prompt template × N inputs, cheap Lite calls, workflow-level billing.
+
+Myrm intentionally **does not** expose an in-agent `llm_map` primitive. Homogeneous or heterogeneous bulk work goes through **`batch_delegate_tasks_tool`** — each item becomes a **full SubAgent** with its own sandbox, tool policy, budget guard, GUI cost approval (≥$0.50 batches), cancel/steer/resume, and audit trail.
+
+| You need… | Coze-style batch LLM | Myrm SubAgent batch |
+|-----------|----------------------|---------------------|
+| 1000× same summarization, no tools | Often sufficient | Heavier than necessary — honest trade-off |
+| Rows that search, read files, write Kanban | Weak — no per-row sandbox | **Native** — each row is an agent job |
+| Cost predictability before run | Workflow estimate | **Pre-run approval card** + 4D budget hard-stop |
+| Debug one failed row | Opaque node retry | **SubagentDashboard** tree + checkpoint |
+
+**Migration win**: Teams leaving Coze batch nodes for **real operational batch work** get traceable, approvable, recoverable jobs instead of a single fan-out bill with no row-level forensics.
+
 ## vs Coze 3.0 / Lobster / Vercel v0 — Artifact Deploy & Read-Only Link (Sites 2.0)
 
 Coze keeps projects inside its ecosystem; Lobster excels at public static links but not multi-platform GUI publish from an agent workspace; v0 targets developers building with AI. Myrm targets **GUI users who want a shareable result from chat artifacts**, not a separate site builder.

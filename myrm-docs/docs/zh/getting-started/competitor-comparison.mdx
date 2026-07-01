@@ -959,6 +959,21 @@ Myrm 是 **GUI 优先** 应用。Claude Office Visualizer 要解决的「看不�
 
 **结论：5 项升级、1 项持平、0 项降级。用户从独立观察窗口进入数据精准、可交互、完整 Agent 平台的一体化 GUI。**
 
+## vs Coze / 工作流平台 — 批量 LLM fan-out vs SubAgent 批量（2026-07）
+
+工作流产品（含 Coze）常见 **批量 LLM / fan-out 节点**：同一 Prompt 模板 × N 条输入，Lite 调用，工作流级计费。
+
+Myrm **刻意不提供** in-agent `llm_map` 原语。同质或异质批量任务统一走 **`batch_delegate_tasks_tool`** — 每一项启动 **完整 SubAgent**，自带沙箱、工具策略、预算守卫、批量预执行 GUI 成本审批（≥$0.50）、cancel/steer/resume 与审计链。
+
+| 需求 | Coze 式批量 LLM | Myrm SubAgent 批量 |
+|------|-----------------|-------------------|
+| 1000× 同质摘要、无需工具 | 通常够用 | 偏重 — 诚实权衡 |
+| 每行需搜索/读写文件/写看板 | 弱 — 无逐行沙箱 | **原生** — 每行是 Agent 作业 |
+| 运行前成本可预期 | 工作流估算 | **预执行审批卡片** + 4 维预算硬停 |
+| 调试单行失败 | 节点重试黑盒 | **SubagentDashboard** 树 + checkpoint |
+
+**迁移收益**：从 Coze 批量节点迁出、要做 **真实运维级批量** 的团队，获得可追踪、可审批、可恢复的作业，而非一张无法逐行排查的 fan-out 账单。
+
 ## vs Coze 3.0 / Lobster / Vercel v0 — 产物部署与只读链接（Sites 2.0）
 
 Coze 将项目锁在生态内；Lobster 擅长公开静态链但非从 Agent 工作区部署 Vercel；v0 面向用 AI 开发的开发者。Myrm 面向 **希望从聊天产物获得可分享结果的 GUI 用户**，非独立建站工具。
