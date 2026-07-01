@@ -40,12 +40,29 @@ description: 用语音输入输出与 Agent 对话。
 
 Tauri 桌面客户端同样支持音频上传，原生文件对话框覆盖 30+ 种文件格式。
 
+## 语音模式
+
+Myrm Agent 支持 **4 种语音交互模式**，在设置 > 语音中可选：
+
+| 模式 | 延迟 | 工具调用 | 说明 |
+|------|------|---------|------|
+| Audio Only | ~1-2s | 通过 Agent Bridge | 标准 STT → Agent → TTS 管道 |
+| Agent Bridge | ~1-2s | 全量 Agent 工具 | 服务端 Agent 全能力闭环对话 |
+| OpenAI Realtime | ~200ms | 原生 Function Calling | WebRTC 直连 OpenAI，从 Agent Profile 动态注入工具声明 |
+| Gemini Live | ~200ms | 原生 Function Calling | WebSocket 连 Google Gemini，支持视频多模态 + 工具声明 |
+
+### 原生 Function Calling（Realtime 与 Gemini Live）
+
+在 Realtime 和 Gemini Live 模式下，工具声明从所选智能体的 Profile 中动态注入。AI 可在语音对话过程中直接调用工具（网络搜索、记忆、文件操作、代码执行、浏览器、看板、后台任务）——无需服务端 Agent 中转，延迟更低。
+
 ## 设置
 
 1. 进入 **设置 > 语音**
 2. 选择偏好的 TTS 与 STT 引擎
 3. 配置语言与音色偏好
 4. 如需自定义 STT 端点，设置 Base URL 字段（OpenAI 和 xAI 提供商可用）
+5. 使用 Realtime 模式需在 设置 > 模型供应商 中配置 OpenAI API Key
+6. 使用 Gemini Live 模式需在 设置 > 模型供应商 中配置 Google API Key
 
 ## 安全
 

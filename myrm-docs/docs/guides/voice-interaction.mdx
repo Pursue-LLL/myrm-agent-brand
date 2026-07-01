@@ -40,12 +40,29 @@ Audio file size limit is **25MB**. Uploaded files are automatically transcribed 
 
 The Tauri desktop client also supports audio upload with a native file dialog covering 30+ file formats.
 
+## Voice Modes
+
+Myrm Agent supports **4 voice interaction modes**, selectable in Settings > Voice:
+
+| Mode | Latency | Tool Calling | Description |
+|------|---------|--------------|-------------|
+| Audio Only | ~1-2s | Via Agent Bridge | Standard STT → Agent → TTS pipeline |
+| Agent Bridge | ~1-2s | Full Agent tools | Server-side Agent handles the conversation with all capabilities |
+| OpenAI Realtime | ~200ms | Native Function Calling | WebRTC direct connection to OpenAI with tool declarations from Agent Profile |
+| Gemini Live | ~200ms | Native Function Calling | WebSocket to Google Gemini with video multimodal + tool declarations |
+
+### Native Function Calling (Realtime & Gemini Live)
+
+In Realtime and Gemini Live modes, tool declarations are dynamically injected from the selected Agent Profile. The AI can call tools (web search, memory, file ops, code execution, browser, kanban, background tasks) directly during the voice conversation — without server-side Agent relay. This enables sub-300ms tool-augmented voice interactions.
+
 ## Setup
 
 1. Navigate to **Settings > Voice**
 2. Select your preferred TTS and STT engines
 3. Configure language and voice preferences
 4. For custom STT endpoints, set the Base URL field (available for OpenAI and xAI providers)
+5. For Realtime mode, configure an OpenAI API key in Settings > Providers
+6. For Gemini Live mode, configure a Google API key in Settings > Providers
 
 ## Security
 
