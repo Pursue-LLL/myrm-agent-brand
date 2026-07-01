@@ -200,12 +200,12 @@ Myrm 在两个关键时刻自动预热 Anthropic/Qwen 服务端前缀缓存：
 | 级别 | 机制 | 效果 |
 |------|------|------|
 | **第 1 级** | `truncate_result` | 按 `max_result_tokens` 硬截断（最后防线） |
-| **第 2 级** | `_auto_vault_or_truncate` | 超过 8,000 字符的输出自动存入 ArtifactVault；父 Agent 仅收到精简摘要（头部+尾部）和 `vault://` 按需取回指针 |
+| **第 2 级** | `_auto_vault_or_truncate` | 超过 8,000 字符的输出自动存入 ArtifactVault；父 Agent 收到精简摘要（头部+尾部）、`vault://` 指针，以及明确的 **`file_read_tool(paths=["vault://…"])` 恢复提示** |
 | **第 3 级** | `AgentHandoverState` | 结构化交接（已完成任务、待办、风险、相关文件）从原始结果中提取并分离 |
 
 此外，子 Agent 通过 `enable_context_compression` **继承完整的上下文流水线**，其内部执行过程就已享受同样的压缩、剪枝和摘要层——从源头防止产出冗长结果。
 
-**为什么重要**：竞品将"让子 Agent 处理长日志，主 Agent 只看结果"描述为目标——Myrm 已经通过零信息丢失（vault:// 取回）和结构化交接状态完整实现。
+**为什么重要**：竞品将"让子 Agent 处理长日志，主 Agent 只看结果"描述为目标——Myrm 已通过零信息丢失（`file_read_tool` 读 `vault://`，支持行号范围）、聊天内 **VaultArtifactCard** 与结构化交接状态完整实现；无需额外 LLM vault 元工具。
 
 ## 会话笔记
 
