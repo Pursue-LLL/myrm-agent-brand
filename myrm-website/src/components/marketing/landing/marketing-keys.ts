@@ -101,6 +101,7 @@ export const COMPARE_ROW_KEYS = [
   'dynamicArtifacts',
   'localIotBridge',
   'longTaskOrchestration',
+  'harnessUpgradeContract',
 ] as const;
 
 export type CompareRowKey = (typeof COMPARE_ROW_KEYS)[number];
@@ -166,7 +167,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'toolOutputIntelligence',
     'antiBlockingTitle',
   ],
-  platform: ['gui', 'chatHistoryManagement', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'codeGraph', 'crossPlatformHandoff', 'configSync', 'taskResilience', 'localIotBridge'],
+  platform: ['gui', 'chatHistoryManagement', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'harnessUpgradeContract', 'codeGraph', 'crossPlatformHandoff', 'configSync', 'taskResilience', 'localIotBridge'],
 };
 
 export function highlightSlideBasePath(slideKey: HighlightSlideKey): string {

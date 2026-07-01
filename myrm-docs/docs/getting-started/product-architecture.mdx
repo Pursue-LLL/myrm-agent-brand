@@ -18,6 +18,22 @@ Myrm ships as **two product layers** plus optional cloud control plane. Understa
 
 **Plain language:** the frontend is what you click; the server is the door into your workspace; the harness is the brain and hands inside the sandbox.
 
+## Harness public API (integration contract)
+
+Open-source **server** code must integrate through `myrm_agent_harness.api` — not deep imports into private harness modules.
+
+| Package area | Purpose |
+|--------------|---------|
+| `factory` | Create agents (`create_skill_agent`, `SkillAgent`) |
+| `types` / `config` | Streaming DTOs and LLM/agent configuration |
+| `protocols` | Extension-point Protocol definitions |
+| `hooks` | Session, skill-agent context, memory extraction, bash registry integration |
+| `skills` | Skill frontmatter parse and metadata builders |
+
+Architecture CI in `myrm-agent-server` blocks `from myrm_agent_harness.*._*` imports so harness internals can evolve while the public `api.__all__` stays stable. Release wheels ship readable `.py` stubs plus compiled core extensions.
+
+**Why it matters for SaaS:** the control plane can roll out a new harness build per user sandbox without forcing a coordinated server rewrite — a pattern most monolithic open-source agents do not support.
+
 ## Request flow (typical chat)
 
 1. User sends a message in **frontend** (or an IM channel via server).

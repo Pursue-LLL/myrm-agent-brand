@@ -18,6 +18,22 @@ Myrm 由**两层产品**加可选云端控制平面组成。理解这一划分�
 
 **通俗说法：** 前端是你点击的界面；服务端是进入工作空间的门；Harness 是沙箱内的「大脑与双手」。
 
+## Harness 公开 API（集成契约）
+
+开源 **Server** 只能通过 `myrm_agent_harness.api` 集成 Harness，**禁止**深 import 私有内部模块。
+
+| 子模块 | 用途 |
+|--------|------|
+| `factory` | 创建 Agent（`create_skill_agent`、`SkillAgent`） |
+| `types` / `config` | 流式 DTO 与 LLM/Agent 配置 |
+| `protocols` | 扩展点 Protocol 定义 |
+| `hooks` | Session、skill-agent 上下文、记忆抽取、bash 注册表等集成 hook |
+| `skills` | 技能 frontmatter 解析与元数据构建 |
+
+`myrm-agent-server` 的 architecture CI 禁止 `from myrm_agent_harness.*._*` 导入，保证 Harness 内部可演进而公开 `api.__all__` 保持稳定。发行 wheel 为可读 `.py` 壳 + 编译 core 扩展。
+
+**对 SaaS 的意义：** 控制平面可按用户沙箱滚动升级 Harness，无需与 Server 业务层大版本联调——多数开源 Agent 单体架构做不到这一点。
+
 ## 请求流（典型对话）
 
 1. 用户在**前端**（或经服务端接入的 IM 渠道）发送消息。
