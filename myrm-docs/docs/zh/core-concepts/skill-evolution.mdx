@@ -162,12 +162,16 @@ Myrm 自动从技能执行失败中提取结构化"陷阱"，并注入后续 Pro
 
 ## Curator：生命周期治理
 
-- **后台零 Token 消耗** — 后台定期清理仅执行确定性操作（stale/archive/LRU），架构上保证不触发 LLM 调用
+- **真实 usage 驱动** — 选技能 / `[use skill]` 自动写 `.stats.json`；Curator 按真实调用决策，避免空 stats 误判
+- **后台零 Token 消耗** — 定期 stale/archive/LRU 为确定性逻辑；consolidation（伞形合并）默认关闭，需显式开启
+- **prebuilt 免疫** — 37+ 内置技能路径自动豁免，不会被误归档
+- **双入口一键清扫** — 设置页「立即运行」+ 智能体配置 Radar「一键净化」，toast 显示 stale/archived 数
+- **never-used 保护** — 新技能 grace + stale 天数双门槛，不会刚安装就被标闲置
 - **聚类检测** — 前缀 + embedding 发现语义相似技能
 - **伞形合并** — GUI 预览 + 确认执行两步操作，不会误合并
-- **自动修剪** — 7 天宽限期 + 30 天过期 + 成功率检测，移除不活跃低质技能
-- **自动恢复** — 被标记为 stale 的技能在被再次使用时自动恢复为 active
-- **历史可视化** — GUI 进化时间线，每次扫描的详情可追溯
+- **自动恢复** — stale 技能再次使用时自动恢复 active
+- **Hermes 迁移 usage 保留** — 迁入后 call_count / last_used 不丢，Curator 不误杀活跃技能
+- **历史可视化** — GUI 进化时间线，每次扫描可追溯
 
 ## 会话式技能管理
 

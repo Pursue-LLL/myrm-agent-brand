@@ -184,12 +184,16 @@ Myrm automatically extracts structured "pitfalls" from skill execution failures 
 
 Automated skill lifecycle management through the Curator system:
 
-- **Zero Background Token Cost** — Background sweeps only run deterministic operations (stale/archive/LRU), architecturally guaranteed to never trigger LLM calls
-- **Cluster Detection** — Identifies semantically similar skills via prefix + embedding analysis
-- **Umbrella Merge** — GUI preview + confirm execution two-step flow, preventing accidental consolidation
-- **Automatic Pruning** — 7-day grace period + 30-day stale threshold + success rate checks for inactive and low-quality skills
-- **Auto Recovery** — Skills marked as stale are automatically restored to active upon re-use
-- **History Visualization** — Timeline view of all evolution events in the GUI, each sweep fully traceable
+- **Real usage-driven decisions** — Skill select / `[use skill]` writes `.stats.json`; Curator sweeps use actual call data, not empty sidecars
+- **Zero background token cost** — Stale/archive/LRU are deterministic; consolidation (umbrella merge) is **off by default** until you opt in
+- **Prebuilt immunity** — 37+ built-in skills under `/prebuilt/` are never auto-archived
+- **Dual one-click sweep** — Settings “Run now” + Agent config Radar “Smart Prune” with toast feedback
+- **Never-used protection** — Grace period + stale threshold; newly installed skills are not instantly marked idle
+- **Cluster detection** — Prefix + embedding finds semantically similar skills
+- **Umbrella merge** — GUI preview + confirm; no accidental consolidation
+- **Auto recovery** — Stale skills return to active on next use
+- **Hermes migration usage preserved** — Imported call counts and last-used timestamps survive; Curator does not false-stale active skills
+- **History visualization** — GUI timeline; every sweep is traceable
 
 ## Conversational Skill Management
 
