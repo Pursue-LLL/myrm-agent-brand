@@ -42,7 +42,7 @@ This closes the loop: **conversation → one-click archive → searchable knowle
 ## Search and maintain
 
 - **Query Wiki** (Overview tab) — natural-language answers via hybrid search (FTS5 full-text + vector semantic, fused with RRF ranking).
-- **Compile / Maintain** — incremental compile (SHA256 change detection) and linter-driven health fixes (broken links, drift, stale content).
+- **Compile / Maintain** — incremental compile (SHA256 change detection) and linter-driven health fixes (broken links, drift, stale content, knowledge-gap detection for isolated/bridge concepts).
 - **Library / Brain views** — 3D knowledge graph with community detection and concept exploration (product navigation may vary by deployment).
 - **Knowledge graph** — the compiler auto-extracts concepts and their relationships, building a graph with weighted edges (direct link + source overlap + common neighbors). LPA community detection groups related concepts; gap analysis highlights isolated nodes and bridge concepts that connect otherwise separate domains.
 - **Smart context recall** — when starting a new conversation, the agent automatically recalls relevant memories and knowledge based on the current topic, so you never need to manually point it to the right documents.
@@ -63,6 +63,18 @@ The importer handles:
 - **Encoding resilience** — files that fail UTF-8 decoding are reported but do not block the import.
 
 After import completes, a toast notification shows the number of notes processed, tags extracted, and images migrated. The imported files enter the compilation queue and are automatically indexed.
+
+## Document parsing and OCR
+
+When ingesting documents into the Wiki, Myrm automatically selects the optimal parsing strategy:
+
+- **Text-rich PDFs** — extracted via pdfplumber with parallel processing, bookmark injection, and font-based heading detection.
+- **Scanned PDFs** — auto-detected when text content is sparse (< 200 characters). Pages are rendered as PNG images and sent to your vision model (VLM) for understanding.
+- **Hybrid PDFs** — text is extracted normally while embedded charts and photos are also captured and filtered through the smart image ablation filter (removes UI noise, logos, decorative elements).
+- **Images** — local PaddleOCR engine supports Chinese, Japanese, Korean, and English with no cloud dependency. Results include confidence scores and bounding boxes.
+- **Office files** — native parsers for DOCX, XLSX, PPTX without external dependencies like MarkItDown.
+
+All strategies run asynchronously and feed into the same compilation pipeline — no manual selection required.
 
 ## Compared to DIY wiki skills
 
