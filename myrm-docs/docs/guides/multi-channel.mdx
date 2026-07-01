@@ -414,6 +414,24 @@ When the platform returns a rate-limit error (e.g., WeChat errcode 45011/45015/4
 2. Retries with exponential backoff, respecting the `retry_after` value
 3. Falls back to DLQ if all retries exhaust — text messages are never silently dropped
 
+### Circuit Breaker & Graceful Degradation
+
+When a channel's outbound API encounters repeated failures, two complementary protection layers activate:
+
+**Channel-Level Circuit Breaker** — after 5 consecutive send failures, the circuit trips and pauses outbound dispatch for 30 seconds. Messages queue safely in the PriorityQueue (max 256) and are delivered once the circuit closes. This prevents flooding a degraded platform API.
+
+**Streaming Graceful Degradation** — during live streaming updates (e.g., real-time message editing), failures trigger a 5-level progressive slowdown instead of a hard stop:
+
+| Level | Multiplier | Effect |
+|-------|-----------|--------|
+| NORMAL | 1× | Standard update frequency |
+| DEGRADED_1 | 2× | Slightly slower updates |
+| DEGRADED_2 | 4× | Noticeable delay, still responsive |
+| DEGRADED_3 | 8× | Significant delay |
+| DEGRADED_4 | 16× | Maximum slowdown, updates still delivered |
+
+The key principle: **users always receive updates** — they may arrive slower during degradation, but never stop completely. This is superior to traditional circuit breakers that create sudden 30-second blackout periods with zero feedback.
+
 ### What This Means for Users
 
 - **Zero-downtime experience** — temporary network issues or platform outages resolve themselves
@@ -421,6 +439,7 @@ When the platform returns a rate-limit error (e.g., WeChat errcode 45011/45015/4
 - **No account bans** — per-channel rate limiting prevents exceeding platform API quotas
 - **Visible status** — channel health is always visible in Settings > Channels via color-coded badges
 - **No manual restarts** — channels heal themselves; you only see the result, not the recovery process
+- **No sudden blackouts** — streaming updates degrade gracefully instead of stopping abruptly
 
 ## GitHub Channel & CI/CD Integration
 
