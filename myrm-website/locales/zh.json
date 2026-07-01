@@ -355,7 +355,7 @@
           "feature": "记忆系统 · 8 种类型、知识图谱、40+ 个可视化管理组件、27 源集成（9 类别）、Obsidian 导出、数据集导出、健康诊断",
           "hermes": "2200字符（无管理UI）",
           "openclaw": "3",
-          "myrmAgent": "三层去重(Hash→Vector→LLM) + 三引擎行为推导(CognitiveDeriver偏好推理 + PreferenceStability稳定性追踪 + FrustrationDetector挫败→技能进化) + BM25/Vector/RRF三通道融合检索(7-Signal加权+MMR多样性) + Skill Evolution自进化 — 1300项测试验证，真正越用越懂你"
+          "myrmAgent": "三层去重(Hash→Vector→LLM) + 三引擎行为推导(CognitiveDeriver偏好推理 + PreferenceStability稳定性追踪 + FrustrationDetector挫败→技能进化) + BM25/Vector/RRF三通道融合检索(7-Signal加权+MMR多样性) + Skill Evolution自进化 + 视觉LLM按需图片理解（无需CLIP常驻占用内存）— 2800+项测试验证，真正越用越懂你"
         },
         "knowledgeGraph": {
           "feature": "知识图谱 · 关联可视化",
@@ -418,10 +418,10 @@
           "myrmAgent": "动态发现 + UI原生 @"
         },
         "multiChannel": {
-          "feature": "全渠道触达 · 28渠道+端内Agent切换+三级绑定+身份隔离",
+          "feature": "全渠道触达 · 28渠道+端内Agent切换+三级绑定+双模式路由+身份隔离",
           "hermes": "~19平台, 无Topic级Agent绑定",
           "openclaw": "易断连, 无审批通知",
-          "myrmAgent": "原生支持 15+ 种渠道（Slack, Discord, Feishu, iMessage, WeChat 等），真正无处不在。底层统一的媒体处理管道，确保在任何平台都能获得一致的 Markdown 渲染与交互体验，无缝唤醒专属助理。"
+          "myrmAgent": "28+ 渠道原生深度集成（Telegram/Slack/Discord/飞书/iMessage/WeChat 等），端内 InlineKeyboard 一键切换 Agent（竞品均无），双模式路由：`/cc fix bug` 临时用 Claude 回复而不改变绑定、`/cc` 持久绑定。三级 Topic Binding（Thread→Chat→Channel）+ 六维 Agent 隔离（Prompt/Model/Tools/MCP/Personality/Memory）。495 项路由测试全通过。"
         },
         "voiceInteraction": {
           "feature": "语音交互 · 说话即操作 + 视频自动转录",
@@ -433,7 +433,7 @@
           "feature": "多模态生成 · 图片/视频/语音一句话创作",
           "hermes": "FAL.ai图片+2视频Plugin+10TTS",
           "openclaw": "_no",
-          "myrmAgent": "20+ 图片模型(Failover+编辑+批量) · 4 视频引擎(Sora/Veo/Qwen/MiniMax + T2V/I2V/V2V + 幂等任务) · 5 TTS(含免费Edge+流式+长文本摘要+自定义端点接入VoxCPM2等本地TTS) · 截图即操作管线(粘贴→标注编辑器→OCR/视觉→工具调用闭环) · Vision自动降级(SSE进度+会话缓存+非视觉主模型无感)"
+          "myrmAgent": "20+ 图片模型(智能Failover+Gateway回退+图片编辑含Inpainting局部重绘+4层校验SSRF防护+批量生成+112项测试验证) · 4 视频引擎(Sora/Veo/Qwen/MiniMax + T2V/I2V/V2V + 幂等任务) · 5 TTS(含免费Edge+流式+长文本摘要+自定义端点接入VoxCPM2等本地TTS) · 截图即操作管线(粘贴→标注编辑器→OCR/视觉→工具调用闭环) · Vision自动降级(SSE进度+会话缓存+非视觉主模型无感)"
         },
         "securityLayers": {
           "feature": "纵深安全 · 隐私不泄露",
@@ -685,7 +685,7 @@
           "feature": "中文搜索+迁移 · 换平台不丢配置",
           "hermes": "_no",
           "openclaw": "_no",
-          "myrmAgent": "10种适配器自动发现（含Windsurf/Trae）+ 一键迁移"
+          "myrmAgent": "11种适配器自动发现（含Windsurf/Trae/Mem0）+ 一键迁移 · 199项测试验证"
         },
         "workspaceRulesCompat": {
           "feature": "项目规则兼容 · 你的 AGENTS.md / .cursorrules / CLAUDE.md 直接生效",
@@ -823,7 +823,7 @@
           "feature": "结果交付 · 富媒体产物与一键部署",
           "hermes": "纯文本",
           "openclaw": "纯文本",
-          "myrmAgent": "原生 Artifacts 系统（12种类型）· React/HTML/PDF/电子表格 高保真预览 · 交互式 DataGrid 查看 CSV/XLSX（虚拟滚动万行数据、排序、搜索、导出）· HMAC 安全分享短链 · 多平台发布（Vercel、Cloudflare Pages、Netlify、Webhook）Settings 配置、零 Git、零 LLM Token · 企业工件库（5 语言 + 版本审计时间线）· Wiki 知识库归档 · 交付可运行的工程级产物 · 无限画布工作区（Agent 可读写画布，看到你的绘图和思维导图）"
+          "myrmAgent": "原生 Artifacts 系统（12种类型）· React/HTML/PDF/电子表格 高保真预览 · 交互式 DataGrid 查看 CSV/XLSX（虚拟滚动万行数据、排序、搜索、导出）· HMAC 安全分享短链 · 多平台发布（Vercel、Cloudflare Pages、Netlify、Webhook）Settings 配置、零 Git、零 LLM Token · 企业工件库（5 语言 + 版本审计时间线 + SHA256 防篡改）· Portal 多标签页管理 + 版本历史回滚 · 键盘快捷键 + 移动端手势 + 选中文本操作栏 · Wiki 知识库归档 · 交付可运行的工程级产物 · 无限画布工作区——673项测试验证"
         },
         "workflowIntegration": {
           "feature": "工作流集成 · 外部 SaaS 原生挂载",
