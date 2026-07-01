@@ -250,7 +250,14 @@ Agent 可主动向配置渠道推送 — 无需轮询。
 
 ### 快捷切换命令
 
-Agent 配置中定义了 `command_bindings` 的会注册快捷命令（如 `/claude`、`/gpt`）。无参数发送该命令等同于从 `/agent` 菜单中选择该 Agent。
+Agent 配置中定义了 `command_bindings` 的会注册快捷命令（如 `/claude`、`/gpt`）。
+
+**双模式路由：**
+
+- `/cc fix this bug` — **一次性路由**：本条消息用 Claude 处理，但不改变当前绑定（下条消息仍用原 Agent）
+- `/cc`（无参数）— **持久绑定**：将默认 Agent 切换为 Claude
+
+这种设计消除了临时借用其他 Agent 时频繁切换回来的摩擦。
 
 ### Topic 绑定粒度
 

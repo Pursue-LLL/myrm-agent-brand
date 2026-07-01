@@ -291,7 +291,14 @@ Switch between configured agents directly inside any IM channel — no need to o
 
 ### Quick Switch Commands
 
-Agents that define `command_bindings` in their configuration register shortcut commands (e.g., `/claude`, `/gpt`). Sending the command with no arguments is equivalent to picking that agent from the `/agent` menu.
+Agents that define `command_bindings` in their configuration register shortcut commands (e.g., `/claude`, `/gpt`).
+
+**Dual-mode routing:**
+
+- `/cc fix this bug` — **one-shot routing**: this message is handled by the Claude agent, but your binding stays unchanged (next message goes to your previous agent)
+- `/cc` (no arguments) — **persistent binding**: switches your default agent to Claude for all subsequent messages
+
+This design eliminates the friction of switching back and forth when you temporarily need a different agent.
 
 ### Topic Binding Granularity
 
