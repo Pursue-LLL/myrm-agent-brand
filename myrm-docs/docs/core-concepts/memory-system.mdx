@@ -65,6 +65,10 @@ Cross-session continuity follows the same pattern as Hermes and CodePilot: profi
 
 **Memory is on by default** for new users (Settings → Knowledge → Enable memory). Turning it off removes all memory and session-search tools.
 
+### How we compare (honest, Jul 2026)
+
+Most leading open-source agents (Hermes, CodePilot, OpenClaw) keep **semantic memory** and **session history search** as **separate eager tools** the model calls when needed — not a silent first-turn injection. Myrm follows the same pattern: L1 profile injection + dual eager recall tools. This keeps Anthropic prompt-cache prefixes stable (no deferred tool append, no hidden HumanMessage preload). CoPaw is an outlier with `auto_memory_search` middleware; we intentionally avoid that trade-off in favor of Sources-verifiable recalls.
+
 CustomAgent sub-delegates keep scoped session search eager (low-frequency path).
 
 ## AMO Operations — Full Coverage
