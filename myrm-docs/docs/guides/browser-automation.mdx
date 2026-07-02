@@ -705,6 +705,27 @@ Just enable remote debugging in your browser once:
 
 All discovery runs in a background thread so it never slows down the agent's event loop.
 
+### IDE developer E2E (Cursor MCP) — use your real Chrome
+
+When using MCP browser tools in Cursor (e.g. `ultimate-playwright-mcp`) for **logged-in frontend integration tests**, attach to **your Google Chrome** — not the default **Chrome for Testing** daemon some servers spawn on port 9223 (Cmd+Q won't stick; the daemon respawns it every 5s).
+
+**Recommended MCP args**: `--cdp-endpoint http://127.0.0.1:9222`
+
+**macOS one-liner** (dedicated debug profile, separate from daily browsing):
+
+```bash
+open -na "Google Chrome" --args \
+  --remote-debugging-port=9222 \
+  --remote-debugging-address=127.0.0.1 \
+  --user-data-dir="$HOME/Library/Application Support/Google/Chrome-Remote-Debug" \
+  --no-first-run --no-default-browser-check \
+  "http://localhost:3000"
+```
+
+Use `open -na` for a fresh instance and `--remote-debugging-address=127.0.0.1` so MCP clients on `127.0.0.1` connect reliably. **Myrm product Auto mode** skips this — `chrome_discovery` finds your browser automatically.
+
+If Chrome for Testing zombies appear: `pkill -f chrome-daemon; pkill -f "Chrome for Testing.*9223"`.
+
 ## PDF Archive with Source Metadata
 
 When the agent saves a page as PDF, Myrm automatically injects provenance metadata:

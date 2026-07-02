@@ -633,6 +633,27 @@ Extension Bridge 跨越 5 层：
 
 所有发现过程在后台线程运行，不会阻塞 Agent 的事件循环。
 
+### IDE 开发者（Cursor MCP）E2E 最佳实践
+
+若你在 Cursor 等 IDE 中通过 MCP（如 `ultimate-playwright-mcp`）做 **带登录态的前端集成测试**，请连接**你自己的 Google Chrome**，不要依赖默认拉起的 **Chrome for Testing** 后台进程。
+
+**推荐 MCP 配置**：`--cdp-endpoint http://127.0.0.1:9222`（无此参数时，部分 MCP 会在 9223 端口启动 daemon + Chrome for Testing，退出后仍被自动重启）。
+
+**macOS 一次性启动真实 Chrome（独立调试配置，不影响日常浏览器）**：
+
+```bash
+open -na "Google Chrome" --args \
+  --remote-debugging-port=9222 \
+  --remote-debugging-address=127.0.0.1 \
+  --user-data-dir="$HOME/Library/Application Support/Google/Chrome-Remote-Debug" \
+  --no-first-run --no-default-browser-check \
+  "http://localhost:3000"
+```
+
+要点：`open -na` 强制新实例；`--remote-debugging-address=127.0.0.1` 避免 MCP 连不上 CDP。Myrm 产品内的 **Auto** 模式则无需上述步骤——由 `chrome_discovery` 自动发现。
+
+若误出现无法退出的 Chrome for Testing：`pkill -f chrome-daemon; pkill -f "Chrome for Testing.*9223"`。
+
 ## PDF 归档自动注入来源元数据
 
 当 Agent 保存网页为 PDF 时，Myrm 自动注入来源追溯信息：
