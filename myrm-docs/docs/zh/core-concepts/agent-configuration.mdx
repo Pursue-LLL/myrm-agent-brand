@@ -93,19 +93,16 @@ Agent 可使用：
 
 可按 Agent 启用/禁用工具，单独配置审批策略。
 
-### 进度平面（互斥）
+### 进度平面
 
-Agent 配置面板提供三种**互斥**进度模式（默认均关闭，不占 Turn1 Token）：
+Agent 配置面板提供进度模式（默认关闭，不占 Turn1 Token）：
 
 | 模式 | 内置工具 | 适用场景 |
 |------|----------|----------|
 | **Planning** | `planner_tool` | 复杂任务分解与子 Agent 规划 |
-| **Task Tracking** | `update_execution_checklist_tool` | 会话内多步清单，前端 ProgressSteps 展示 |
 | **Kanban** | kanban_* | 跨会话看板与 DAG 编排（chat 默认 orchestrator 8 工具） |
 
-Planning 与 Task Tracking 在 UI 上互斥切换。启用 Task Tracking 后，清单持久化在 chat sandbox（`{sandbox}/.myrm/execution_checklist.json`），CompletionGuard 会在有文件写入且步骤未完成时阻断过早结束。前端按 `step_key` 合并重复的 SSE `tasks_steps` 事件，ProgressSteps 不会因重发而重复渲染。
-
-**Verified (2026-07-02)**: harness checklist **35/35** + server TSM 集成 **9/9** + **live :8080 LLM E2E 1/1** + Playwright UI 互斥 **1/1** + frontend vitest checklist merge **4/4**。
+启用 Planning 后，计划持久化在 chat sandbox 的 `{sandbox}/planner/plan.json`；CompletionGuard 会在有文件写入且 plan 步骤未完成时阻断过早结束。前端按 `step_key` 合并重复的 SSE `tasks_steps` 事件，ProgressSteps 不会因重发而重复渲染。
 
 ### 延迟工具加载
 
