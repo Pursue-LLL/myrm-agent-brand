@@ -200,7 +200,7 @@ Agent 配置面板提供进度模式（默认关闭，不占 Turn1 Token）：
 ### Built-in Tools SSOT（2026-07）
 
 - **15 canonical IDs**：`web_search`、`memory`、`file_ops`、`code_execute` 等，前后端同一 catalog。
-- **24 预置 Agent 工具矩阵**：服务启动时 initializer 幂等同步；Agent 画廊卡片展示 `enabled_builtin_tools` chip（`page_size=50` 拉全 24 个；Playwright smoke 验证 `:3000` 展示）。
+- **24 预置 Agent 工具矩阵**：服务启动时 initializer 幂等同步；Agent 画廊与设置页均展示完整 24 个 built-in（`AGENT_LIST_BUILTIN_PAGE_SIZE=50` 默认；画廊 chip 来自 `enabled_builtin_tools`）。
 - **写路径单入口**：`persist_enabled_builtin_tools` 校验后再落库；legacy ID 返回 422，避免 silent 失效。
 - **默认 sandbox 基线**：未配置时为 `web_search` + `memory` + `file_ops` + `code_execute` 四件套（开箱可写文件、跑命令）。
 - **用户开关 ON → Turn1 直接可用**：默认或手动开启的内置工具（含 render_ui、canvas、computer_use、x_search、delegate_to_agent 等）、已绑定 skill 对应工具，首轮即出现在 LLM schema，无需先调 `discover_capability`。
