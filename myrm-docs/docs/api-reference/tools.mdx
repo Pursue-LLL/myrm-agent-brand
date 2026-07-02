@@ -37,6 +37,16 @@ POST /api/tools/:name/execute
 | `glob_tool` | File path pattern search under the workspace |
 | `@codebase` mention | Lightweight workspace file/extension overview injected into the user message (use with grep/glob for exploration) |
 | `web_search` | Multi-engine search with BM25/Reranker filtering — returns cleaned, deduplicated snippets |
+
+### Default tool groups vs on-demand capabilities
+
+| Scenario | Enabled by default | Opt-in |
+|----------|-------------------|--------|
+| General chat | `web_search` + `memory` | — |
+| Coding / files | Enable **file_ops** → `glob_tool` + `grep_tool` + file_* mount **immediately** (Claude Code–style eager, not discover-deferred) | `code_execute` (bash) |
+| Low-frequency native tools | — | `discover_capability_tool` search then auto-mount (cron, skill_analyze, bash background jobs) |
+| Skill hygiene | WebUI **Curator** sweep (primary) | Chat discover → `skill_analyze_tool` (fallback) |
+
 | `web_fetch` | 3-tier local fetch (HTTP/Browser/Stealth) with DOM pruning and Markdown extraction |
 | `github` | GitHub API integration |
 

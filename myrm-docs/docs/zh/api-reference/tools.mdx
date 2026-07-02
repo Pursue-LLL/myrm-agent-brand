@@ -37,6 +37,16 @@ POST /api/tools/:name/execute
 | `glob_tool` | 工作区内文件路径模式搜索 |
 | `@codebase` mention | 轻量工作区文件/扩展名概览，注入用户消息（配合 grep/glob 探索代码） |
 | `web_search` | 多引擎搜索 + BM25/Reranker 过滤 — 返回清洗、去重片段 |
+
+### 默认工具组 vs 按需能力
+
+| 场景 | 默认启用 | 按需开启 |
+|------|----------|----------|
+| 普通对话 | `web_search` + `memory` | — |
+| 编码 / 文件 | 勾选 **file_ops** → `glob_tool` + `grep_tool` + file_* **立即挂载**（与 Claude Code 同款 eager，非 discover） | `code_execute`（bash） |
+| 低频 native 工具 | — | `discover_capability_tool` 搜索后自动挂载（如 cron、skill_analyze、bash 后台进程） |
+| Skill 质量清理 | WebUI **Curator** 一键 sweep（主路径） | 对话内 discover → `skill_analyze_tool`（备用） |
+
 | `web_fetch` | 3 级本地抓取（HTTP/Browser/Stealth）+ DOM 剪枝与 Markdown 提取 |
 | `github` | GitHub API 集成 |
 
