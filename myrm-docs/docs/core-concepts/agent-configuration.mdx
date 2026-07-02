@@ -205,6 +205,7 @@ When an agent has too many skills loaded, the LLM may invoke irrelevant ones —
 - **Default sandbox baseline** — unset profiles get `web_search` + `memory` + `file_ops` + `code_execute`.
 - **User switch ON → Turn1 direct use** — default or manually enabled builtins (including render_ui, canvas, computer_use, x_search, delegate_to_agent) and bound-skill tools appear in the first-turn LLM schema without calling `discover_capability` first.
 - **active_tool_groups SSOT** — `derive_active_tool_groups()` derives enabled groups in one place, preventing false `capability_gap` when render_ui or media groups are already on.
+- **Full matrix regression** — 12 gap-trigger capability groups (browser, render_ui, computer_use, wiki, kanban, canvas, planning, media trio, file_ops, shell) each have disabled→gap and enabled→no-gap tests.
 - **Entitlement gap** — when `discover_capability` misses and intent needs a disabled builtin or unbound skill, SSE emits `capability_gap` / `skill_gap`; WebUI toast offers one-click enable/bind without leaving chat.
 
 ### vs. Competitor Approaches

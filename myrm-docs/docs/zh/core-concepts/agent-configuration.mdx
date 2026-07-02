@@ -205,6 +205,7 @@ Agent 配置面板提供进度模式（默认关闭，不占 Turn1 Token）：
 - **默认 sandbox 基线**：未配置时为 `web_search` + `memory` + `file_ops` + `code_execute` 四件套（开箱可写文件、跑命令）。
 - **用户开关 ON → Turn1 直接可用**：默认或手动开启的内置工具（含 render_ui、canvas、computer_use、x_search、delegate_to_agent 等）、已绑定 skill 对应工具，首轮即出现在 LLM schema，无需先调 `discover_capability`。
 - **active_tool_groups SSOT**：`derive_active_tool_groups()` 统一推导已启用工具组，避免 render_ui / 媒体组已开仍误报 `capability_gap`。
+- **全矩阵回归**：12 组 gap 触发能力（browser、render_ui、computer_use、wiki、kanban、canvas、planning、三媒体、file_ops、shell）均有「未开→gap / 已开→无 gap」测试覆盖。
 - **权限缺口（Entitlement Gap）**：`discover_capability` 搜索 miss 且用户意图需要**未开启**的工具或未绑定的技能时，SSE 推送 `capability_gap` / `skill_gap`；WebUI toast **一键开启/绑定**，无需离开对话去设置页。
 
 | 能力 | Skill Bundles | Agent Profile |
