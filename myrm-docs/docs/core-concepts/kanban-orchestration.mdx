@@ -47,6 +47,19 @@ The Kanban board gives you a drag-and-drop interface to manage agent tasks acros
   </Card>
 </CardGroup>
 
+### Role-Based Kanban LLM Tools
+
+Kanban tools are **opt-in** and **role-gated** to save tokens and reduce misuse:
+
+| Context | Tools bound | Count |
+|---------|-------------|------:|
+| Default chat (Kanban off) | None | 0 |
+| Chat with Kanban enabled | Orchestrator set (add/list/move tasks, dependencies, board summary) | 8 |
+| Kanban task worker | Worker set (show, complete, block, heartbeat, comment) | 5 |
+| Full mode (explicit opt-in only) | All Kanban tools | 16 |
+
+Hermes users migrating to Myrm get the same **worker vs orchestrator** split, plus a visual Kanban GUI, DAG scheduling, and CompletionVerifier. Most other competitors expose **zero** native Kanban LLM tools.
+
 ### Task Result Editing
 
 Completed, failed, or cancelled tasks can have their `result` and `metadata` fields edited directly from the task drawer in the frontend.

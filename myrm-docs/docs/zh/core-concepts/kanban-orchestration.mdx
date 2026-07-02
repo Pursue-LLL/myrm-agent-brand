@@ -43,6 +43,19 @@ Myrm 提供可视化看板跟踪复杂多步任务，以及强大的子 Agent �
   </Card>
 </CardGroup>
 
+### 角色化 Kanban LLM 工具
+
+看板工具**默认不加载**，按场景 **Role Gate** 绑定，省 Token、降误调用：
+
+| 场景 | 绑定工具集 | 数量 |
+|------|-----------|-----:|
+| 默认聊天（未勾选 Kanban） | 无 | 0 |
+| 聊天启用 Kanban | orchestrator（增删改移、依赖、看板摘要等） | 8 |
+| 看板任务 Worker | worker（show/complete/block/heartbeat/comment） | 5 |
+| full 模式（仅显式 opt-in） | 全部 Kanban 工具 | 16 |
+
+Hermes 用户迁移后可保留 **worker / orchestrator** 分角色体验，并额外获得可视化看板、DAG 调度与 CompletionVerifier。多数竞品 **没有** 原生 Kanban LLM 工具。
+
 ### 任务结果编辑
 
 已完成、失败或取消的任务，可直接在前端任务抽屉中编辑 `result` 和 `metadata` 字段。
