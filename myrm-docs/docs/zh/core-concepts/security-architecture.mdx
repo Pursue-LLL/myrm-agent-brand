@@ -285,9 +285,19 @@ AI 分类器（`TranscriptClassifier`）审查工具调用是否符合用户原�
 
 此机制防范 **slopsquatting 攻击**——攻击者注册 LLM 常见幻觉包名并植入恶意代码。
 
-## 加密与无痕模式
+## 加密与企业网络兼容
 
 静态 AES-256-GCM；传输 TLS 1.3；API Key 加密库；可选记忆加密；无痕模式物理隔离与阅后即焚。
+
+### 企业 TLS 兼容
+
+企业网络常部署 TLS 检查代理（Zscaler、Netskope、Palo Alto Prisma 等），可能导致 Agent 的所有 HTTPS 出口连接失败。Myrm 提供一键企业网络兼容：
+
+- **设置 → 高级 → Enterprise Network Compatibility** 开启，或设置环境变量 `MYRM_TLS_STRICT=0`
+- 精确放松 Python 3.13+ 的 `VERIFY_X509_STRICT` 标志，不禁用证书验证
+- 支持自定义 CA 证书：`SSL_CERT_FILE`（替换系统信任库）或 `NODE_EXTRA_CA_CERTS`（追加到系统信任库）
+- 覆盖全部 38 个 HTTPS 出口（技能市场、视频生成、A2A、Webhook 等）
+- TLS 连接失败时自动诊断并提示修复方法
 
 ### 无痕模式深度解析
 

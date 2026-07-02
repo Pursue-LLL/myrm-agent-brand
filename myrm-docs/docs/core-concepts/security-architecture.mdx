@@ -320,7 +320,7 @@ Before every `pip install` / `npm install` / `yarn add` / `bun add` command, a p
 
 This prevents **slopsquatting attacks** — where an attacker registers a package name that LLMs commonly hallucinate, embedding malware in the published package.
 
-## Encryption & Incognito Mode
+## Encryption & Enterprise Network Compatibility
 
 | Scope | Standard |
 |-------|----------|
@@ -329,6 +329,16 @@ This prevents **slopsquatting attacks** — where an attacker registers a packag
 | **API Keys** | Encrypted secrets vault with per-user isolation |
 | **Memory** | Optional encryption for sensitive memory entries |
 | **Incognito Mode** | Physical isolation and read-after-burn for sensitive sessions |
+
+### Enterprise TLS Compatibility
+
+Corporate networks often deploy TLS inspection proxies (Zscaler, Netskope, Palo Alto Prisma) that can cause all HTTPS connections to fail. Myrm provides one-click enterprise network compatibility:
+
+- **Settings → Advanced → Enterprise Network Compatibility**, or set `MYRM_TLS_STRICT=0`
+- Precision relaxation of Python 3.13+ `VERIFY_X509_STRICT` flag — does NOT disable certificate verification
+- Custom CA bundle support: `SSL_CERT_FILE` (replace system trust store) or `NODE_EXTRA_CA_CERTS` (append to system trust store)
+- Covers all 38 HTTPS exits (skill marketplace, video generation, A2A, webhooks, etc.)
+- Automatic TLS error diagnosis with actionable remediation hints
 
 ### Incognito Mode Deep Dive
 
