@@ -90,6 +90,12 @@ This is ideal for:
 
 Seven orchestration modes (Spawn / Chain / Batch / DAG / Verified / Swarm Fission / Alternatives), cascade cancellation, and delegation budgets ensure safe, cost-controlled parallel execution. 3-tier sandbox (OS namespace / Docker container / Workspace COW) starts in milliseconds without Docker dependency. **1,101 tests verify the full sub-agent & sandbox stack.**
 
+**Robustness guarantees:**
+- Locale-safe: All git commands use `LANG=C` to prevent parsing failures on non-English systems
+- Auto-cleanup: On startup, stale worktrees and orphaned sandbox branches are automatically pruned
+- Git-invisible: Sandbox directories are auto-excluded from `git status` via `.git/info/exclude`
+- Structured errors: Failures return specific reasons (branch-exists, already-checked-out, path-exists) for clear diagnostics
+
 Unlike Claude Code's CLI-only `--worktree` flag, Myrm's workspace sandbox is available via a GUI toggle, can be enabled/disabled mid-session, and includes a complete merge/discard workflow with pre-approval integration.
 
 ## Sleep & Wake
