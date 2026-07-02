@@ -200,7 +200,7 @@ When an agent has too many skills loaded, the LLM may invoke irrelevant ones —
 ### Built-in Tools SSOT (Jul 2026)
 
 - **16 canonical IDs** — shared catalog across frontend and server (`web_search`, `memory`, `file_ops`, `code_execute`, …).
-- **24 preset agent matrices** — initializer syncs on startup; gallery cards show `enabled_builtin_tools` chips.
+- **24 preset agent matrices** — initializer syncs on startup; gallery cards show `enabled_builtin_tools` chips (`page_size=50` loads all 24; Playwright smoke on `:3000`).
 - **Single write path** — `persist_enabled_builtin_tools` validates before DB writes; legacy IDs return 422 instead of silent failure.
 - **Default sandbox baseline** — unset profiles get `web_search` + `memory` + `file_ops` + `code_execute`.
 - **User switch ON → Turn1 direct use** — default or manually enabled builtins (including render_ui, canvas, computer_use, x_search, delegate_to_agent) and bound-skill tools appear in the first-turn LLM schema without calling `discover_capability` first.
