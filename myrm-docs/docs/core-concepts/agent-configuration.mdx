@@ -113,10 +113,12 @@ Not all tools need to occupy the LLM prompt at all times. Myrm splits tools into
 
 | Tier | Behavior | Examples |
 |------|----------|---------|
-| **Immediate** | Always available in the prompt | File ops, terminal, search, browser |
-| **Deferred** | Loaded on demand when intent is detected | UI rendering, image/video generation, TTS, cron management, computer use |
+| **Immediate** | Always available in the prompt when enabled | File ops, terminal, search, browser, **image/video/TTS when you toggle them in Agent config** (AgentDeclared eager mount) |
+| **Deferred** | Loaded on demand when intent is detected | UI rendering (`render_ui`), cron management, computer use, optional integrations |
 
-This saves approximately 4,000 tokens per turn for agents with many tools configured, without reducing capability — the agent can still use any tool when needed.
+**Media tools & credentials**: When you enable Image / Video / TTS in the Agent built-in tools panel, those tools appear in Turn 1 **only if** a provider API key or media gateway is configured in Settings → Model Service. If credentials are missing, the UI shows an inline amber warning with a link to Settings — the agent will not crash or expose broken tool schemas.
+
+This saves approximately 4,000 tokens per turn for agents with many *deferred* tools configured, while media tools you explicitly opt into are immediately callable without an extra discovery step.
 
 ### Skill Hot-Reload
 
