@@ -379,6 +379,21 @@ Navigate to **Settings > Memory > Connect** to launch the Connect Wizard:
 
 When you work in Cursor on code and then switch to Myrm's WebUI for research, both agents share the same memory. Project decisions stored by one agent are instantly available to the other — no manual context transfer needed.
 
+## Enterprise Org MCP (Cloud SaaS)
+
+On **cloud-hosted enterprise** deployments, IT admins can centrally manage MCP servers for the whole organization:
+
+1. Navigate to **Settings → Enterprise → Org MCP** (owner/admin only)
+2. Add HTTP/SSE MCP servers with name, URL, and optional auth headers
+3. Changes are **pushed automatically** to every member sandbox via the control plane
+4. If a sandbox is **sleeping**, delivery is queued and **replayed on wake** (up to 3 retries)
+5. Employees see org-managed MCP servers as **read-only** under **Settings → MCP** — they cannot edit or remove IT-managed entries
+6. **stdio MCP is blocked** in cloud sandboxes for security (local process servers are not allowed)
+
+:::tip
+This closes the gap competitors leave open: no org-wide MCP catalog, no automatic sync after idle sleep, and no IT/employee permission split. New hires get the same internal tools on day one without manual YAML or curl.
+:::
+
 ## Troubleshooting
 
 ### Server Won't Start
