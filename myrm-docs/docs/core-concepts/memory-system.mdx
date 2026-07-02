@@ -52,17 +52,16 @@ Myrm's **Working Memory** solves this with a dedicated `__working_state` Profile
 
 Compared to ChatGPT's Dreaming (passive, no task-specific focus), CLAUDE.md (manual maintenance), or third-party MCP plugins (configuration overhead), Working Memory is zero-config, system-extracted, and self-cleaning.
 
-## Three-Layer Auto-Recall + Session Search
+## Profile Injection + Eager Recall Tools
 
-Most "continue where we left off" moments do **not** require the agent to manually search history:
+Cross-session continuity follows the same pattern as Hermes and CodePilot: profile context is injected automatically; historical search is explicit and verifiable.
 
 | Layer | What it does | What you do |
 |-------|--------------|-------------|
 | **L1 Profile injection** | Injects Profile, rules, and long-term preferences into context | Nothing (enable memory) |
-| **L2 First-turn auto-recall** | Injects relevant session snippets/memories before the model runs | Nothing (~95% of continuations) |
-| **L3 Tools** | `memory_recall` for semantic cross-session search; `conversation_search` for exact quotes and precomputed summaries (both eager, same as Hermes/CodePilot) | Only when L2 is insufficient |
+| **L2 Tools** | `memory_recall` for semantic cross-session search; `conversation_search` for exact quotes and precomputed summaries (both eager) | Agent calls when needed; results appear in Sources UI |
 
-**Turn 1 behavior**: L2 handles most continuations without tool calls. When you need verbatim history, the agent calls `conversation_search` directly — results appear in Sources UI with conversation citations.
+**Turn 1 behavior**: The agent calls `memory_recall` or `conversation_search` when your question needs prior context. Verbatim history citations flow through Sources with conversation references.
 
 **Memory is on by default** for new users (Settings → Knowledge → Enable memory). Turning it off removes all memory and session-search tools.
 
@@ -122,16 +121,6 @@ Under the hood, Myrm's retrieval system exposes **33 tunable parameters** throug
 - **Frontend Settings** — 4 toggles (enable/confirmation/auto-extraction/pre-compact) + 1 slider (token budget 800–2000) + 6 tab views — the optimal UX balance between power and simplicity
 
 All parameters use frozen dataclasses for thread safety. Advanced users can override defaults via server configuration; most users never need to.
-
-## Auto Session Recall
-
-When you start a new conversation, Myrm's **Auto Session Recall** middleware proactively searches your conversation history and injects relevant context — before the Agent even starts thinking. This means the Agent "remembers" relevant past interactions without you having to remind it.
-
-- **Zero-blocking**: runs with a 3-second timeout; if retrieval takes too long, the main flow continues unaffected
-- **Security-wrapped**: recalled content is wrapped in untrusted content boundaries to prevent prompt injection from historical data
-- **Idempotent**: marker-based deduplication ensures recall is injected exactly once per session
-- **Configurable**: threshold (default 0.72), token budget (default 800), and timeout are all tunable
-- **Hybrid retrieval**: uses RRF fusion (Vector + BM25) with the same 7-signal scoring as regular memory search
 
 ## Knowledge Graph
 

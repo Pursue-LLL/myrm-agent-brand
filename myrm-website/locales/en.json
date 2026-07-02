@@ -359,7 +359,7 @@
           "feature": "Memory · 8 types, knowledge graph, 40+ visual management components, 27 integrations (9 categories), Obsidian export, dataset export, diagnostics",
           "hermes": "2,200 chars (no management UI)",
           "openclaw": "3 types",
-          "myrmAgent": "3-layer dedup (Hash→Vector→LLM) + 3-engine behavior inference (CognitiveDeriver preference reasoning + PreferenceStability tracking + FrustrationDetector→skill evolution) + BM25/Vector/RRF tri-channel retrieval (7-Signal weighted + MMR diversity) + Auto Dreaming Consolidation + Graph Enhanced Retrieval + **L1/L2/L3 auto-recall (most continuations need zero tools)** + eager memory_recall + conversation_search (stable prompt cache) + **memory on by default** — 2800+ tests verified, truly learns from every interaction"
+          "myrmAgent": "3-layer dedup (Hash→Vector→LLM) + 3-engine behavior inference (CognitiveDeriver preference reasoning + PreferenceStability tracking + FrustrationDetector→skill evolution) + BM25/Vector/RRF tri-channel retrieval (7-Signal weighted + MMR diversity) + Auto Dreaming Consolidation + Graph Enhanced Retrieval + L1 profile injection + eager memory_recall + conversation_search (stable prompt cache, Sources-verifiable) + **memory on by default** — 2800+ tests verified, truly learns from every interaction"
         },
         "knowledgeGraph": {
           "feature": "Knowledge graph · Visual connections",
@@ -527,7 +527,7 @@
           "feature": "Token cost · ~7x tasks on same budget + built-in anti-bloat skill",
           "hermes": "~15,520",
           "openclaw": "~18,000",
-          "myrmAgent": "2,167 -86% + default sandbox quartet (web_search+memory+file_ops+code_execute) out of the box; low-frequency tools via discover; in-chat one-click enable/bind when discover detects entitlement gap; L2 auto-inject for continuations; lean-coding 7-rung ladder"
+          "myrmAgent": "2,167 -86% + default sandbox quartet (web_search+memory+file_ops+code_execute) out of the box; low-frequency tools via discover; in-chat one-click enable/bind when discover detects entitlement gap; L1 profile + dual eager recall tools; lean-coding 7-rung ladder"
         },
         "costRouting": {
           "feature": "3D Smart Routing + Auto-Escalation · Complexity + Privacy + Fallback + model self-upgrade when stuck",
@@ -605,7 +605,7 @@
           "feature": "Tool Profile SSOT · 16 canonical tool IDs + 24 preset matrices + gallery chips",
           "hermes": "Scattered YAML names; legacy IDs can fail silently",
           "openclaw": "CLI/extension naming; no unified write-path validation",
-          "myrmAgent": "Single source of truth across UI, API, and DB: 16 canonical IDs locked by py↔ts contract; legacy IDs return 422; default sandbox quartet includes file_ops+code_execute; discover miss emits CapabilityGap/SkillGap SSE with in-chat one-click enable/bind — no competitor offers in-chat entitlement repair; 24 built-in agents sync from initializer (67 SSOT + integration/E2E tests passing, Jul 2026)"
+          "myrmAgent": "Single source of truth across UI, API, and DB: 16 canonical IDs locked by py↔ts contract; legacy IDs return 422; default sandbox quartet includes file_ops+code_execute; user-enabled tools mount Turn1 eager (render_ui, canvas, computer_use, x_search, delegate_to_agent); active_tool_groups SSOT prevents false gaps; discover miss emits CapabilityGap/SkillGap SSE with in-chat one-click enable/bind — no competitor offers in-chat entitlement repair; 51+ regression + 67 SSOT + integration/E2E passing (Jul 2026)"
         },
         "mcpArchitecture": {
           "feature": "MCP Architecture · persistent connection + prompt cache stable",
@@ -1230,7 +1230,7 @@
         "memoryKnowsYou": {
           "label": "Memory & wiki",
           "title": "Eight memory types that learn you over time",
-          "desc": "Eight memory types carry preferences across sessions. Working Memory resumes tasks; first-turn auto-recall preloads relevant history (3s timeout, zero-blocking); one-click save any reply to long-term memory; real-time toast when preferences are auto-extracted with one-click to review; memory conflicts auto-detected and routed to you for arbitration (keep / replace / merge / discard) with 72h safe fallback; wiki with 3D graph and HITL review grounds answers.",
+          "desc": "Eight memory types carry preferences across sessions. Working Memory resumes tasks; eager memory_recall + conversation_search tools recall history on demand (Sources-verifiable); one-click save any reply to long-term memory; real-time toast when preferences are auto-extracted with one-click to review; memory conflicts auto-detected and routed to you for arbitration (keep / replace / merge / discard) with 72h safe fallback; wiki with 3D graph and HITL review grounds answers.",
           "stat": "8",
           "statLabel": "memory types",
           "tag1": "Visual memory panel",

@@ -203,6 +203,8 @@ When an agent has too many skills loaded, the LLM may invoke irrelevant ones —
 - **24 preset agent matrices** — initializer syncs on startup; gallery cards show `enabled_builtin_tools` chips.
 - **Single write path** — `persist_enabled_builtin_tools` validates before DB writes; legacy IDs return 422 instead of silent failure.
 - **Default sandbox baseline** — unset profiles get `web_search` + `memory` + `file_ops` + `code_execute`.
+- **User switch ON → Turn1 direct use** — default or manually enabled builtins (including render_ui, canvas, computer_use, x_search, delegate_to_agent) and bound-skill tools appear in the first-turn LLM schema without calling `discover_capability` first.
+- **active_tool_groups SSOT** — `derive_active_tool_groups()` derives enabled groups in one place, preventing false `capability_gap` when render_ui or media groups are already on.
 - **Entitlement gap** — when `discover_capability` misses and intent needs a disabled builtin or unbound skill, SSE emits `capability_gap` / `skill_gap`; WebUI toast offers one-click enable/bind without leaving chat.
 
 ### vs. Competitor Approaches
