@@ -52,7 +52,7 @@ Myrm's **Working Memory** solves this with a dedicated `__working_state` Profile
 
 Compared to ChatGPT's Dreaming (passive, no task-specific focus), CLAUDE.md (manual maintenance), or third-party MCP plugins (configuration overhead), Working Memory is zero-config, system-extracted, and self-cleaning.
 
-## Three-Layer Auto-Recall + On-Demand Session Search
+## Three-Layer Auto-Recall + Session Search
 
 Most "continue where we left off" moments do **not** require the agent to manually search history:
 
@@ -60,9 +60,9 @@ Most "continue where we left off" moments do **not** require the agent to manual
 |-------|--------------|-------------|
 | **L1 Profile injection** | Injects Profile, rules, and long-term preferences into context | Nothing (enable memory) |
 | **L2 First-turn auto-recall** | Injects relevant session snippets/memories before the model runs | Nothing (~95% of continuations) |
-| **L3 On-demand tools** | `memory_recall` for semantic cross-session search; `conversation_search` is **deferred** (discover-mounted) for exact quotes and precomputed summaries | Only when you need verbatim history |
+| **L3 Tools** | `memory_recall` for semantic cross-session search; `conversation_search` for exact quotes and precomputed summaries (both eager, same as Hermes/CodePilot) | Only when L2 is insufficient |
 
-**Why conversation_search is not on Turn 1**: GeneralAgent registers it as a deferred tool, saving ~**300 prompt tokens per turn**. When needed, `discover_capability` mounts it automatically; results appear in Sources UI.
+**Turn 1 behavior**: L2 handles most continuations without tool calls. When you need verbatim history, the agent calls `conversation_search` directly — results appear in Sources UI with conversation citations.
 
 **Memory is on by default** for new users (Settings → Knowledge → Enable memory). Turning it off removes all memory and session-search tools.
 

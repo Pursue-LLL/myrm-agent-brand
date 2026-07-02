@@ -359,7 +359,7 @@
           "feature": "记忆系统 · 8 种类型、知识图谱、40+ 个可视化管理组件、27 源集成（9 类别）、Obsidian 导出、数据集导出、健康诊断",
           "hermes": "2200字符（无管理UI）",
           "openclaw": "3",
-          "myrmAgent": "三层去重(Hash→Vector→LLM) + 三引擎行为推导(CognitiveDeriver偏好推理 + PreferenceStability稳定性追踪 + FrustrationDetector挫败→技能进化) + BM25/Vector/RRF三通道融合检索(7-Signal加权+MMR多样性) + Auto Dreaming 异步固化 + 知识图谱增强检索 + **L1/L2/L3 自动召回(续聊多数零工具)** + conversation_search deferred 每轮约省300 prompt token + **新用户默认开启记忆** — 2800+项测试验证，真正越用越懂你"
+          "myrmAgent": "三层去重(Hash→Vector→LLM) + 三引擎行为推导(CognitiveDeriver偏好推理 + PreferenceStability稳定性追踪 + FrustrationDetector挫败→技能进化) + BM25/Vector/RRF三通道融合检索(7-Signal加权+MMR多样性) + Auto Dreaming 异步固化 + 知识图谱增强检索 + **L1/L2/L3 自动召回(续聊多数零工具)** + memory_recall 与 conversation_search 双 eager（稳定 prompt cache）+ **新用户默认开启记忆** — 2800+项测试验证，真正越用越懂你"
         },
         "knowledgeGraph": {
           "feature": "知识图谱 · 关联可视化",
@@ -527,7 +527,7 @@
           "feature": "Token 消耗 · 同样预算约 7 倍任务量 + 内置防膨胀技能",
           "hermes": "~15,520",
           "openclaw": "~18,000",
-          "myrmAgent": "2,167 省86% + 默认仅 web_search+memory（file_ops/grep/glob 按需开启）；低频工具 discover 挂载（含 conversation_search ~-300tok/轮）；记忆 L2 首轮自动注入续聊零工具；lean-coding 7级必要性阶梯"
+          "myrmAgent": "2,167 省86% + 默认 sandbox 四件套（web_search+memory+file_ops+code_execute）开箱即用；低频工具 discover 挂载；discover miss 时聊天内一键开启缺失工具/绑定技能；记忆 L2 首轮自动注入续聊零工具；lean-coding 7级必要性阶梯"
         },
         "costRouting": {
           "feature": "三维智能路由 + 自动升级 · 复杂度+隐私+容错+模型卡住自动升级",
@@ -605,7 +605,7 @@
           "feature": "Tool Profile SSOT · 16 canonical 工具 ID + 24 预置角色矩阵 + 画廊 chip",
           "hermes": "YAML 分散命名，legacy ID 易 silent 失效",
           "openclaw": "CLI/Extension 各自命名，无统一写路径校验",
-          "myrmAgent": "前后端+DB 单源真相：16 类工具 ID py↔ts 契约锁死，legacy image_gen 等明确 422 拒绝；24 内置 Agent 工具矩阵 initializer 同步，画廊卡片直接展示能力 chip，配置面板开关=运行时真实能力（2026-07 验证 67 项 SSOT 测试全过）"
+          "myrmAgent": "前后端+DB 单源真相：16 类工具 ID py↔ts 契约锁死，legacy image_gen 等明确 422 拒绝；默认 sandbox 四件套（含 file_ops+code_execute）；discover miss 推送 CapabilityGap/SkillGap SSE，聊天 toast 一键开启/绑定技能——竞品无聊天内 entitlement 修复；24 内置 Agent 工具矩阵 initializer 同步（2026-07 验证 67 项 SSOT + 集成/E2E 全过）"
         },
         "mcpArchitecture": {
           "feature": "MCP 架构 · 持久连接 + Prompt 缓存稳定",

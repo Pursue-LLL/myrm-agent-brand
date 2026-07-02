@@ -52,7 +52,7 @@ Myrm 的 **Working Memory** 通过专用 `__working_state` Profile Memory 条目
 
 对比 ChatGPT Dreaming（被动、无任务聚焦）、CLAUDE.md（手动维护）、第三方 MCP 插件（配置开销），Working Memory 零配置、系统自动提取、自动清理。
 
-## 三层自动召回 + 按需会话搜索
+## 三层自动召回 + 会话搜索
 
 大多数「接着上次聊」不需要 Agent 手动搜历史——Myrm 用三层栈覆盖：
 
@@ -60,13 +60,13 @@ Myrm 的 **Working Memory** 通过专用 `__working_state` Profile Memory 条目
 |----|--------|--------------|
 | **L1 画像注入** | 把你的 Profile、规则、长期偏好写进上下文 | 无（默认开启记忆即可） |
 | **L2 首轮自动召回** | 新消息发送前，自动注入与本话题相关的会话片段/记忆 | 无（~95% 续聊场景） |
-| **L3 按需工具** | `memory_recall` 做语义跨会话检索；`conversation_search` **按需 discover 挂载**，搜历史原文与预存摘要 | 仅当需要精确引用旧对话时 |
+| **L3 工具** | `memory_recall` 语义跨会话检索；`conversation_search` 搜历史原文与预存摘要（均为 eager，与 Hermes/CodePilot 同构） | 仅当 L2 不足时 |
 
-**为什么 conversation_search 不占 Turn1**：GeneralAgent 将其设为 deferred 工具，每轮约省 **300 prompt token**；需要时通过 `discover_capability` 自动挂载，结果带来源引用（Sources UI）。
+**Turn1 行为**：L2 覆盖多数续聊，无需工具调用。需要精确引用旧对话时，Agent 直接调用 `conversation_search`，结果在 Sources UI 展示会话来源。
 
 **新用户默认开启记忆**（设置 → 知识 → 启用记忆）。关闭后不会加载任何记忆与会话搜索工具。
 
-CustomAgent 委派子任务仍使用 scoped 的会话搜索（低频路径，保持 eager 以降低 discover 轮次）。
+CustomAgent 委派子任务仍使用 scoped 的会话搜索（低频路径，保持 eager）。
 
 ## AMO 操作 — 全覆盖
 
