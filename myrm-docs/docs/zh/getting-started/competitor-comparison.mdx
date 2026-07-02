@@ -1575,6 +1575,22 @@ DeerFlow 2.0 提出了 14 层中间件链和 Docker 沙箱，但其架构严重�
 3. **ArtifactVault 零拷贝共享**：面对海量并发的子 Agent 协作，我们独创 `vault://` 指针协议，大文件落盘后仅交换指针，实现“零拷贝”，彻底解决大模型上下文爆炸和数据越权问题。
 4. **安全纵深的 Markdown 技能生态**：同样是零代码的 Markdown 技能定义，我们额外内置了三层防御体系（信任衰减 + 安全扫描 + 内容转义），确保你运行任何社区第三方技能时，宿主机和敏感数据绝对安全。
 
+## vs Hermes / DeerFlow / OpenClaw / Cursor — 三平面任务进度（TSM v1.5）
+
+多数 Agent 把 todo/plan 工具**默认挂进 Turn 1**，既膨胀 prompt，又无法在模型想早退时真正拦住。Myrm 将进度拆为 **三个互斥平面**，且**默认全关**（Turn1 近似零 Token 税）：
+
+| 能力 | Myrm TSM v1.5 | Hermes | DeerFlow | OpenClaw / Cursor TodoWrite |
+|------|---------------|--------|----------|----------------------------|
+| 持久化 SSOT | ✅ chat sandbox 文件 | ❌ 内存 TodoStore | thread state | 仅会话内 |
+| CompletionGuard | ✅ 读 workspace 再允许结束 | ❌ | ❌ | ❌ |
+| 条件 bind | ✅ 按需启用 | 常默认挂载 | prompt 注入 write_todos | 常默认挂载 |
+| 三平面 | ✅ Planning / Task Tracking / Kanban（UI 互斥） | 混用 | 混用 | N/A |
+| 进度 UI | ✅ ProgressSteps 树 + step_key merge（重发不重复） | 文本 | 基础 | 内联列表 |
+
+**用户收益**：只在 3+ 步任务时打开 Task Tracking——聊天里实时看清单，断线重连后沙箱与 Guard 仍对齐，且不为没用到的工具每轮多付 ~15k Token。
+
+**验证（2026-07-02）**：harness checklist 22/22 + server 31/31 + 前端 vitest 2016/2016。
+
 ## 2026 最新核心优势总结 (对标 Hermes, OpenClaw, DeerFlow 等)
 
 在众多开源 AI Agent 框架和产品中，Myrm Agent 凭借其**底层架构的鲁棒性**、**极致的用户体验**以及**企业级的安全隔离**脱颖而出：

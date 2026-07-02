@@ -103,7 +103,9 @@ The agent config panel offers three **mutually exclusive** progress modes (all o
 | **Task Tracking** | `update_execution_checklist_tool` | In-session multi-step checklist with ProgressSteps UI |
 | **Kanban** | kanban_* | Cross-session board and DAG orchestration (chat defaults to orchestrator — 8 tools) |
 
-Planning and Task Tracking are mutually exclusive in the UI. With Task Tracking enabled, the checklist persists in the chat sandbox; CompletionGuard blocks premature completion when files were written but steps remain incomplete.
+Planning and Task Tracking are mutually exclusive in the UI. With Task Tracking enabled, the checklist persists in the chat sandbox (`{sandbox}/.myrm/execution_checklist.json`); CompletionGuard blocks premature completion when files were written but steps remain incomplete. The frontend merges repeated SSE `tasks_steps` events by `step_key` so ProgressSteps never duplicate on re-emit.
+
+**Verified (2026-07-02)**: harness checklist 22/22 + server progress-plane/kanban/profile/builtin 31/31 + frontend vitest 2016/2016 (includes TASKS_STEPS merge + status mapping).
 
 ### Deferred Tool Loading
 

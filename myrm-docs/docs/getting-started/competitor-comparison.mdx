@@ -1715,6 +1715,22 @@ DeerFlow 2.0 introduced a 14-layer middleware chain and Docker sandboxing, but i
 3. **Zero-Copy ArtifactVault**: For concurrent sub-agents, we use a `vault://` pointer protocol for large files, achieving zero-copy sharing and completely preventing LLM context explosion.
 4. **Security-in-Depth Skills**: While both support Markdown-based skills, we add a 3-layer defense system (Trust Decay + Security Scanning + Content Escaping) to ensure third-party skills never compromise your host.
 
+## vs Hermes / DeerFlow / OpenClaw / Cursor — Three-Plane Task Progress (TSM v1.5)
+
+Most agents ship a single todo/plan tool that is **always bound** to Turn 1 — inflating prompts and offering no guard when the model tries to finish early. Myrm splits progress into **three mutually exclusive planes**, all **off by default** (~zero Turn1 token tax):
+
+| Capability | Myrm TSM v1.5 | Hermes | DeerFlow | OpenClaw / Cursor TodoWrite |
+|-----------|---------------|--------|----------|----------------------------|
+| Persistent SSOT | ✅ chat sandbox files | ❌ in-memory TodoStore | thread state | session-only |
+| CompletionGuard | ✅ reads workspace before "done" | ❌ | ❌ | ❌ |
+| Conditional bind | ✅ enable only when you need it | often always-on | prompt-injected write_todos | often always-on |
+| Three planes | ✅ Planning / Task Tracking / Kanban (UI mutual exclusion) | mixed todo+plan | mixed | N/A |
+| Progress UI | ✅ ProgressSteps tree + step_key merge (no duplicate nodes on re-emit) | text | basic | inline list |
+
+**User benefit**: Turn on Task Tracking only for 3+ step jobs — you get a live checklist in the chat, files and guard stay in sync across reconnects, and you are not paying ~15k tokens per turn for tools you did not ask for.
+
+**Verified (2026-07-02)**: harness checklist 22/22 + server 31/31 + frontend vitest 2016/2016.
+
 ## 2026 Latest Core Advantages Summary (vs Hermes, OpenClaw, DeerFlow, etc.)
 
 Among the numerous open-source AI Agent frameworks and products, Myrm Agent stands out with its **robust underlying architecture**, **ultimate user experience**, and **enterprise-grade security isolation**:
