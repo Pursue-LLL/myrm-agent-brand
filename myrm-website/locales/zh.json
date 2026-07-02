@@ -425,7 +425,7 @@
           "feature": "全渠道触达 · 28渠道+端内Agent切换+三级绑定+双模式路由+身份隔离+Agent主动推送",
           "hermes": "~19平台, 无Topic级Agent绑定；send_message_tool 无 GUI 白名单收件人选择",
           "openclaw": "易断连, 无审批通知；无 Agent 跨渠道推送 GUI",
-          "myrmAgent": "28+ 渠道原生深度集成（Telegram/Slack/Discord/飞书/iMessage/WeChat 等），端内 InlineKeyboard 一键切换 Agent（竞品均无），双模式路由：`/cc fix bug` 临时用 Claude 回复而不改变绑定、`/cc` 持久绑定。三级 Topic Binding（Thread→Chat→Channel）+ 六维 Agent 隔离（Prompt/Model/Tools/MCP/Personality/Memory）。Agent 主动 `channel_notify_tool`：设置页 pairing 下拉选收件人 + 白名单 + send_tracked 可靠投递（73 项专项测试）。IM 实时工具进度透出（如「🔍 Searching: AI 编程工具」而非笼统的「Searching...」）——通用 fallback 覆盖所有工具含自定义 MCP，竞品仅支持硬编码工具。495 项路由测试全通过。"
+          "myrmAgent": "28+ 渠道原生深度集成（Telegram/Slack/Discord/飞书/iMessage/WeChat 等），端内 InlineKeyboard 一键切换 Agent（竞品均无），双模式路由：`/cc fix bug` 临时用 Claude 回复而不改变绑定、`/cc` 持久绑定。三级 Topic Binding（Thread→Chat→Channel）+ 六维 Agent 隔离（Prompt/Model/Tools/MCP/Personality/Memory）。Per-channel 独立预算隔离（防止单频道耗尽全局配额，SSE 实时告警+DB 持久化重启恢复）。Agent 主动 `channel_notify_tool`：设置页 pairing 下拉选收件人 + 白名单 + send_tracked 可靠投递（73 项专项测试）。IM 实时工具进度透出（如「🔍 Searching: AI 编程工具」而非笼统的「Searching...」）——通用 fallback 覆盖所有工具含自定义 MCP，竞品仅支持硬编码工具。495 项路由测试全通过。"
         },
         "voiceInteraction": {
           "feature": "语音交互 · 说话即操作 + 视频自动转录",
@@ -653,7 +653,7 @@
           "feature": "手机指挥台 · 离席也能看进度、点批准、改指令",
           "hermes": "_no",
           "openclaw": "仅 IM 通知",
-          "myrmAgent": "完整 PWA（Serwist 离线缓存+安装引导+版本自动更新）· E2EE 加密配对令牌 Hub · 实时 Status Board（SSE 进度·视觉审批·语音 push-to-talk·中途 steer 纠正·紧急停止）· 78项移动端安全测试全通过 · 零安装浏览器即用——碾压 OpenClaw iOS App"
+          "myrmAgent": "完整 PWA（Serwist 离线缓存+安装引导+版本自动更新）· E2EE 加密配对令牌 Hub · 实时 Status Board（SSE 进度·视觉审批·语音 push-to-talk·中途 steer 纠正·紧急停止）· 194项远程访问安全测试全通过 · 零安装浏览器即用——碾压 OpenClaw iOS App 和 Orca Tailscale"
         },
         "agentTemplates": {
           "feature": "Agent Hub · 模板+Marketplace组织集市+导出导入",
@@ -755,7 +755,7 @@
           "feature": "MCP+工具安全 · 三层纵深防御",
           "hermes": "仅 log",
           "openclaw": "env 过滤",
-          "myrmAgent": "三层安全(113规则Regex+AST语法树+LLM语义审计) · GUI扫描确认+信任四级徽章 · 运行时隔离过滤 · 全工具链5层内容边界防御(内置工具+MCP+PTC全覆盖，第三方工具输出自动安全隔离)"
+          "myrmAgent": "三层安全(113规则Regex+AST语法树+LLM语义审计) · MCP配置扫描13种威胁类型（注入/伪装/窃取/供应链等）+Trust/Revoke信任机制+域名白名单 · GUI扫描确认+信任四级徽章 · 运行时隔离过滤 · 全工具链5层内容边界防御(内置工具+MCP+PTC全覆盖，第三方工具输出自动安全隔离)"
         },
         "credentialVault": {
           "feature": "表单凭证金库 · 密码不进对话",
@@ -845,7 +845,7 @@
           "feature": "任务分发看板 (Kanban) · 告别日志刷屏，多智能体进度清晰可见",
           "hermes": "文本打印",
           "openclaw": "展示看板",
-          "myrmAgent": "31 组件 GUI · 事件驱动即时分派 · 角色化 8/5/16 LLM 工具（聊天侧 Kanban schema 较 full 约减半）· CompletionVerifier · 38+ 项 role-gate 测试 · Hermes 用户概念兼容迁移"
+          "myrmAgent": "31 组件 GUI · 8 态生命周期 + 19 种事件（StrEnum 类型安全）· 事件驱动即时分派（毫秒级唤醒 vs 竞品 60 秒轮询）· 角色化 8/5/16 LLM 工具（聊天侧 Kanban schema 较 full 约减半）· CompletionVerifier · 910+ 项测试 100% 通过 · Hermes 用户概念兼容迁移"
         },
         "kanbanConcurrentQueue": {
           "feature": "看板极致吞吐 (百万级并发) · 拒绝数据库锁定与界面卡死",
@@ -1318,7 +1318,7 @@
         },
         "wuBilling": {
           "title": "Work Units 透明计费与预算管控",
-          "description": "单一 WU 余额覆盖 LLM 调用、工具执行与沙箱活跃时间。企业管理员可设定团队预算与告警阈值，超支前自动预警，杜绝账单意外。"
+          "description": "单一 WU 余额覆盖 LLM 调用、工具执行与沙箱活跃时间。4 级预算徽章实时告警，发送前自动预估 WU 消耗并拦截超额。企业管理员可设定团队预算与告警阈值，杜绝账单意外。283+ 项计费测试验证。"
         },
         "alwaysOn": {
           "title": "工作区永远在线",

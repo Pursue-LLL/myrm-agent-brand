@@ -425,7 +425,7 @@
           "feature": "Omni-channel · 28 channels + in-chat Agent switching + dual-mode routing + 3-tier binding + identity isolation + agent push notify",
           "hermes": "~19 platforms, no per-topic Agent binding; send_message_tool without GUI whitelist picker",
           "openclaw": "Prone to drop, no approval push; no agent-initiated cross-channel notify GUI",
-          "myrmAgent": "28+ channels with deep native integration (Telegram/Slack/Discord/Feishu/iMessage/WeChat, etc.). In-chat InlineKeyboard one-tap Agent switching (no competitor has this). Dual-mode routing: `/cc fix bug` uses Claude for this message only without changing binding; `/cc` permanently binds. 3-tier Topic Binding (Thread→Chat→Channel) + 6-dimension Agent isolation (Prompt/Model/Tools/MCP/Personality/Memory). Agent-initiated `channel_notify_tool`: GUI pairing picker + whitelist + reliable send_tracked delivery (73 dedicated tests). Real-time tool progress with input summary in IM cards (e.g. '🔍 Searching: AI coding tools' instead of generic 'Searching...') — covers ALL tools including custom MCP, unlike competitors that only support hardcoded tools. 495 routing tests passing."
+          "myrmAgent": "28+ channels with deep native integration (Telegram/Slack/Discord/Feishu/iMessage/WeChat, etc.). In-chat InlineKeyboard one-tap Agent switching (no competitor has this). Dual-mode routing: `/cc fix bug` uses Claude for this message only without changing binding; `/cc` permanently binds. 3-tier Topic Binding (Thread→Chat→Channel) + 6-dimension Agent isolation (Prompt/Model/Tools/MCP/Personality/Memory). Per-channel budget isolation (prevents a single busy channel from exhausting global quota, SSE real-time alerts + DB persistence across restarts). Agent-initiated `channel_notify_tool`: GUI pairing picker + whitelist + reliable send_tracked delivery (73 dedicated tests). Real-time tool progress with input summary in IM cards (e.g. '🔍 Searching: AI coding tools' instead of generic 'Searching...') — covers ALL tools including custom MCP, unlike competitors that only support hardcoded tools. 495 routing tests passing."
         },
         "voiceInteraction": {
           "feature": "Voice · Speak to operate + Video transcription",
@@ -653,7 +653,7 @@
           "feature": "Mobile command center · Monitor, approve, and steer from your phone",
           "hermes": "_no",
           "openclaw": "IM notify only",
-          "myrmAgent": "Full PWA (Serwist offline cache + install prompt + auto-update) · E2EE encrypted pair-token Hub · live Status Board (SSE progress · visual approval · voice push-to-talk · mid-task steer · emergency stop) · 78 mobile security tests passing · zero-install browser-native — outperforms OpenClaw iOS App"
+          "myrmAgent": "Full PWA (Serwist offline cache + install prompt + auto-update) · E2EE encrypted pair-token Hub · live Status Board (SSE progress · visual approval · voice push-to-talk · mid-task steer · emergency stop) · 194 remote-access security tests passing · zero-install browser-native — outperforms OpenClaw iOS App & Orca Tailscale"
         },
         "agentTemplates": {
           "feature": "Agent Hub · templates + Org Marketplace + export/import",
@@ -755,7 +755,7 @@
           "feature": "MCP + tool security · triple-layer defense",
           "hermes": "Log only",
           "openclaw": "Env filter",
-          "myrmAgent": "3-layer security (113-rule Regex + AST analysis + LLM semantic audit) · GUI scan confirm + 4-tier trust badges · runtime quarantine filter · full-chain 5-layer content boundary defense (built-in + MCP + PTC tools all covered, third-party outputs auto-sandboxed)"
+          "myrmAgent": "3-layer security (113-rule Regex + AST analysis + LLM semantic audit) · MCP config scan for 13 threat types (injection/concealment/exfiltration/supply-chain etc.) + Trust/Revoke mechanism + domain allowlist · GUI scan confirm + 4-tier trust badges · runtime quarantine filter · full-chain 5-layer content boundary defense (built-in + MCP + PTC tools all covered, third-party outputs auto-sandboxed)"
         },
         "credentialVault": {
           "feature": "Credential Vault · passwords stay out of chat",
@@ -815,7 +815,7 @@
           "feature": "Kanban UI for SubAgents · Multi-agent progress at a glance",
           "hermes": "Text logs",
           "openclaw": "Display board",
-          "myrmAgent": "31-component GUI · event-driven dispatch · Role-gated 8/5/16 LLM tools (~50% fewer Kanban tokens in chat vs full) · CompletionVerifier · 38+ role-gate tests · Hermes-concept compatible migration"
+          "myrmAgent": "31-component GUI · 8-state lifecycle + 19 event types (StrEnum type-safe) · event-driven dispatch (ms-level wake vs 60s polling) · Role-gated 8/5/16 LLM tools (~50% fewer Kanban tokens in chat vs full) · CompletionVerifier · 910+ tests 100% pass · Hermes-concept compatible migration"
         },
         "kanbanConcurrentQueue": {
           "feature": "Kanban Extreme Throughput · No more 'Database is locked' or UI Freezing",
@@ -1318,7 +1318,7 @@
         },
         "wuBilling": {
           "title": "Transparent Work Units & Budget Control",
-          "description": "One WU balance covers LLM calls, tool runs, and sandbox time. Enterprise admins can set team budgets with automatic threshold alerts — no surprise bills."
+          "description": "One WU balance covers LLM calls, tool runs, and sandbox time. 4-state budget badge warns before you overspend; pre-send WU estimation blocks accidental overruns. Enterprise admins set team budgets with automatic threshold alerts — no surprise bills. 283+ billing tests verified."
         },
         "alwaysOn": {
           "title": "Always-on workspace",

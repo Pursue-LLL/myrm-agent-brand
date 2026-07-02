@@ -11,10 +11,10 @@ Myrm implements a defense-in-depth security model with six layers, ensuring agen
 
 | Layer | Function | How It Works |
 |-------|----------|--------------|
-| **L1** | Budget Control | Token and WU spending limits with 3-level warnings (35/45/48 turns) |
+| **L1** | Budget Control | MultidimensionalBudgetGuard (per-session / daily / per-call) with 4-level progressive response (warn → eco → finalize → block) + Per-channel budget isolation (DailyBudgetGuard + SSE alerts + DB persistence) + GoalBudget (max_tokens / max_usd / max_time / max_turns) |
 | **L2** | Permission | 12-dimension tool and resource access policies |
 | **L3** | Rate Limiting | HTTP signature detection + minimum recovery time + SSE event throttling |
-| **L4** | Loop Detection | 5 detectors (repetition, ping-pong, no-progress, divergence, output-diminishing) |
+| **L4** | Loop Detection | 7 detectors (repetition, ping-pong, no-progress, divergence, output-diminishing, consecutive-failures, error-signature) + FrequencyGuard (100 calls/60s global, 30/tool/60s) + progressive WARN→BREAK hard-stop |
 | **L5** | PII Protection | Automatic PII detection, redaction, and taint tracking |
 | **L5.5** | Trajectory Classification | Behavioral analysis with blind trajectory classifier for anomaly detection |
 
@@ -173,6 +173,28 @@ DNS Pinning prevents agents from being tricked into accessing internal networks 
 - **Comprehensive IP blocklist**: RFC1918 private, CGNAT, link-local, multicast, reserved, cloud metadata endpoints (AWS/GCP/Alibaba/Tencent), plus IPv4-mapped IPv6 detection
 - **Audit trail**: Blocked requests emit `SSRF_BLOCKED` security decisions for SIEM and frontend audit views
 - **Live verification**: Integration tests without mocks confirm blocks on 127.0.0.1, 169.254.169.254, and metadata endpoints
+
+### Configuration Security Scan
+
+Every MCP server configuration is scanned for 13 threat types before activation:
+
+| Threat Type | What It Catches |
+|-------------|----------------|
+| `prompt_injection` | Malicious system prompts embedded in config |
+| `name_injection` | Tool names designed to mislead the LLM |
+| `concealment` | Hidden instructions in descriptions |
+| `exfiltration` | Data theft via outbound channels |
+| `credential_harvesting` | Attempts to collect user secrets |
+| `context_leak` | Leaking conversation context to external services |
+| `arbitrary_execution` | Unrestricted code execution capabilities |
+| `risky_profile` | Known high-risk server profiles |
+| `suspicious_url` | Non-HTTPS or suspicious domain patterns |
+| `sensitive_path` | Access to sensitive filesystem paths |
+| `hardcoded_secret` | Credentials embedded in configuration |
+| `supply_chain` | Dependency chain compromise indicators |
+| `supply_chain_malware` | Known malicious package signatures |
+
+Findings are presented in the `ScanConfirmDialog` with severity badges. Users can trust, reject, or force-enable (at their own risk) each server.
 
 ### Malicious Package Detection
 

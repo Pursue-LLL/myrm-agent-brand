@@ -134,6 +134,30 @@ Myrm 六层纵深防御，确保 Agent 在广泛自主权下仍安全运行。
 
 ## MCP 工具安全
 
+### 配置安全扫描
+
+每个 MCP 服务器在激活前会自动扫描 13 种威胁类型：
+
+| 威胁类型 | 检测内容 |
+|---------|---------|
+| `prompt_injection` | 配置中嵌入的恶意系统提示 |
+| `name_injection` | 设计用于误导 LLM 的工具名 |
+| `concealment` | 描述中隐藏的指令 |
+| `exfiltration` | 通过外部通道窃取数据 |
+| `credential_harvesting` | 收集用户凭证的企图 |
+| `context_leak` | 向外部服务泄露对话上下文 |
+| `arbitrary_execution` | 不受限的代码执行能力 |
+| `risky_profile` | 已知高风险服务器配置 |
+| `suspicious_url` | 非 HTTPS 或可疑域名 |
+| `sensitive_path` | 访问敏感文件系统路径 |
+| `hardcoded_secret` | 配置中硬编码的凭证 |
+| `supply_chain` | 依赖链受损指标 |
+| `supply_chain_malware` | 已知恶意包签名 |
+
+扫描结果通过 `ScanConfirmDialog` 展示严重程度徽章，用户可信任、拒绝或强制启用（自担风险）。
+
+### 基础安全
+
 工具名 `mcp__{server}__{tool}` 隔离；OSV 恶意包检测；按 Agent 工具过滤；`destructiveHint` 默认禁用。
 
 ### SSRF 防护
