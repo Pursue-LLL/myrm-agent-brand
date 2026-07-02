@@ -181,7 +181,7 @@ Each Agent Profile is a full-dimension configuration unit — far beyond simple 
 |-----------|:---:|
 | **Skills** | `skill_ids[]` — exact set of skills this agent can use |
 | **Model** | Per-agent model selection (different agents, different models) |
-| **Built-in Tools** | `enabled_builtin_tools[]` — whitelist of enabled tools |
+| **Built-in Tools** | `enabled_builtin_tools[]` — whitelist of 16 canonical tool IDs (py↔ts contract; legacy IDs like `image_gen` rejected with 422) |
 | **MCP Tools** | `mcp_tool_selections{}` — per-server tool selection |
 | **Security** | `security_overrides{}` — independent security policy |
 | **Sub-Agents** | `subagent_ids[]` — multi-layer collaboration |
@@ -199,6 +199,13 @@ When an agent has too many skills loaded, the LLM may invoke irrelevant ones —
 3. **Progressive Disclosure (L0–L3)** — Only relevant skill details are expanded to full content
 4. **Noise Gauge** — Skills exceeding noise thresholds are automatically attenuated
 5. **Hybrid Retrieval** — Qdrant vector search selects the most relevant skill for each query
+
+### Built-in Tools SSOT (Jul 2026)
+
+- **16 canonical IDs** — shared catalog across frontend and server (`web_search`, `memory`, `file_ops`, `code_execute`, …).
+- **24 preset agent matrices** — initializer syncs on startup; gallery cards show `enabled_builtin_tools` chips.
+- **Single write path** — `persist_enabled_builtin_tools` validates before DB writes; legacy IDs return 422 instead of silent failure.
+- **Minimal default** — unset profiles get `web_search` + `memory` only.
 
 ### vs. Competitor Approaches
 

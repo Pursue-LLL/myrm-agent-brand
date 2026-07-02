@@ -65,6 +65,7 @@ export const COMPARE_ROW_KEYS = [
   'mcpToolCoercion',
   'errorRecovery',
   'toolIntegration',
+  'toolProfileSsot',
   'unifiedToolGateway',
   'computerUse',
   'browserEngine',
@@ -126,7 +127,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'searchIntelligence',
     'agentTemplates',
   ],
-  security: ['sandbox', 'securityLayers', 'toolSecurity', 'credentialVault', 'fileEditSafety', 'privacySafeShare', 'cascadeDeletion', 'toolIntegration', 'unifiedToolGateway'],
+  security: ['sandbox', 'securityLayers', 'toolSecurity', 'credentialVault', 'fileEditSafety', 'privacySafeShare', 'cascadeDeletion', 'toolIntegration', 'toolProfileSsot', 'unifiedToolGateway'],
   automation: [
     'subAgent',
     'kanbanUI',

@@ -181,7 +181,7 @@ Planning 与 Task Tracking 在 UI 上互斥切换。启用 Task Tracking 后，�
 |-----------|:---:|
 | **Skills** | `skill_ids[]` — 该 Agent 可用技能集 |
 | **Model** | 按 Agent 选模型 |
-| **Built-in Tools** | `enabled_builtin_tools[]` — 工具白名单 |
+| **Built-in Tools** | `enabled_builtin_tools[]` — 16 类 canonical 工具白名单（py↔ts 契约锁死；legacy ID 如 `image_gen` 明确拒绝） |
 | **MCP Tools** | `mcp_tool_selections{}` — 按服务选工具 |
 | **Security** | `security_overrides{}` — 独立安全策略 |
 | **Sub-Agents** | `subagent_ids[]` — 多层协作 |
@@ -200,9 +200,12 @@ Planning 与 Task Tracking 在 UI 上互斥切换。启用 Task Tracking 后，�
 4. **Noise Gauge** — 超噪声阈值技能自动衰减
 5. **Hybrid Retrieval** — Qdrant 向量检索为每查询选最相关技能
 
-### 对比竞品方案
+### Built-in Tools SSOT（2026-07）
 
-部分平台用「Skill Bundles」— YAML 下 slash 命令分组。Myrm Agent Profile 是超集：
+- **16 canonical IDs**：`web_search`、`memory`、`file_ops`、`code_execute` 等，前后端同一 catalog。
+- **24 预置 Agent 工具矩阵**：服务启动时 initializer 幂等同步；Agent 画廊卡片展示 `enabled_builtin_tools` chip。
+- **写路径单入口**：`persist_enabled_builtin_tools` 校验后再落库；legacy ID 返回 422，避免 silent 失效。
+- **默认最小权限**：未配置时仅 `web_search` + `memory`。
 
 | 能力 | Skill Bundles | Agent Profile |
 |------------|:---:|:---:|
