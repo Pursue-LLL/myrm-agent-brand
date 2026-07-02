@@ -93,6 +93,18 @@ Agents can access:
 
 Tools can be enabled/disabled per agent, with approval policies configured individually.
 
+### Progress Planes (Mutually Exclusive)
+
+The agent config panel offers three **mutually exclusive** progress modes (all off by default — zero Turn1 token cost):
+
+| Mode | Built-in Tool | Best For |
+|------|---------------|----------|
+| **Planning** | `planner_tool` | Complex decomposition and sub-agent planning |
+| **Task Tracking** | `update_execution_checklist_tool` | In-session multi-step checklist with ProgressSteps UI |
+| **Kanban** | kanban_* | Cross-session board and DAG orchestration (chat defaults to orchestrator — 8 tools) |
+
+Planning and Task Tracking are mutually exclusive in the UI. With Task Tracking enabled, the checklist persists in the chat sandbox; CompletionGuard blocks premature completion when files were written but steps remain incomplete.
+
 ### Deferred Tool Loading
 
 Not all tools need to occupy the LLM prompt at all times. Myrm splits tools into two tiers:

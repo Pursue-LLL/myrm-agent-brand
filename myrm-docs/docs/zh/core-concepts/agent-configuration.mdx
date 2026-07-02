@@ -93,6 +93,18 @@ Agent 可使用：
 
 可按 Agent 启用/禁用工具，单独配置审批策略。
 
+### 进度平面（互斥）
+
+Agent 配置面板提供三种**互斥**进度模式（默认均关闭，不占 Turn1 Token）：
+
+| 模式 | 内置工具 | 适用场景 |
+|------|----------|----------|
+| **Planning** | `planner_tool` | 复杂任务分解与子 Agent 规划 |
+| **Task Tracking** | `update_execution_checklist_tool` | 会话内多步清单，前端 ProgressSteps 展示 |
+| **Kanban** | kanban_* | 跨会话看板与 DAG 编排（chat 默认 orchestrator 8 工具） |
+
+Planning 与 Task Tracking 在 UI 上互斥切换。启用 Task Tracking 后，清单持久化在 chat sandbox，CompletionGuard 会在有文件写入且步骤未完成时阻断过早结束。
+
 ### 延迟工具加载
 
 并非所有工具都需要始终占用 LLM Prompt 空间。Myrm 将工具分为两级：
