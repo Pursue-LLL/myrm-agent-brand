@@ -114,3 +114,17 @@ For B2B teams, the Control Plane provides full organization lifecycle management
 - **Cross-org protection**: A user cannot silently belong to two organizations
 
 This means enterprise data never leaves with a departing employee — it stays under organizational control with full traceability.
+
+### Zero-Secret LLM Gateway
+
+In cloud-hosted mode, API keys never enter the sandbox:
+
+- Real keys are stored in the Control Plane's **AES-256-GCM SecretsVault**
+- Sandboxes receive signed **virtual keys** (`myrm-vk-...`) that are useless against real providers
+- All LLM calls route through the CP relay, which verifies the virtual key and injects the real credential
+- Request bodies are streamed byte-for-byte, preserving upstream **Prompt Prefix Cache** perfectly
+- Even a fully compromised sandbox cannot exfiltrate usable API credentials
+
+### Enterprise SSO
+
+Enterprise deployments support OIDC single sign-on (Google Workspace, WeCom, Feishu, DingTalk, Azure AD, Okta). Employees open the app and authenticate via corporate IdP — no separate registration, no API key management.

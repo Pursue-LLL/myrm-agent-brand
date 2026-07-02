@@ -59,6 +59,29 @@ Myrm includes a three-dimensional budget system that protects you from unexpecte
 
 Configure all budgets in **Settings > System > Budget Policy**. The system respects prompt cache — budget enforcement uses prompt injection that preserves cache prefix stability.
 
+## Enterprise Org Budget (Cloud Only)
+
+For organizations on cloud-hosted plans, admins can set team-level monthly WU budgets with automatic threshold alerts.
+
+### How It Works
+
+1. Admin sets a monthly WU budget and alert threshold (e.g., 10,000 WU at 80%)
+2. The system tracks WU consumption across all team members in real time
+3. When total org usage crosses the threshold, an alert is sent automatically
+4. Alerts are idempotent per month — no alert storms
+5. Changing the threshold resets the alert marker so the new threshold takes effect immediately
+
+### Usage Summary API
+
+The `/api/enterprise/org/{org_id}/usage-summary` endpoint returns a detailed breakdown:
+
+- **Per-member usage** — how much each team member consumed this month
+- **Per-category usage** — LLM output, tool execution, etc.
+- **Usage ratio** — current consumption vs. monthly budget
+- **Budget status** — whether the threshold has been crossed
+
+This is available exclusively in the Control Plane for cloud-hosted enterprise deployments.
+
 ## Cost Analytics Dashboard
 
 Access via **Settings > System > Usage Statistics** to see comprehensive cost analytics.
