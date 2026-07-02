@@ -517,3 +517,23 @@ This works alongside WebUI approval — both paths lead to the same persistent r
 - **Timeout guard**: Unanswered approvals auto-deny (configurable)
 - **Persistent allowlist**: "Always allow" decisions survive restarts
 - **Anti-retry**: After 3 denials, agent stops retrying
+
+## Intelligent Silent Filtering
+
+When your agent's system prompt includes instructions like "reply with `[SILENT]` when nothing needs attention", Myrm automatically detects and filters these silent replies before delivery:
+
+- **Group chats**: Agent is mentioned, checks, finds nothing notable → sends no message (zero noise)
+- **Scheduled tasks**: Periodic checks come back normal → auto-silent, only pushes when issues found
+- **Placeholder cleanup**: "Processing..." placeholder messages are silently removed
+
+### Detection Rules
+
+| Format | Silent? |
+|--------|:-------:|
+| `[SILENT]` | ✅ |
+| With whitespace `  [SILENT]  ` | ✅ |
+| Wrapped in markdown fence | ✅ |
+| `[SILENT] nothing to report` | ❌ Delivered normally |
+| Contains other text | ❌ Delivered normally |
+
+This ensures a "notify only when needed" experience — your agent only sends messages to IM channels when it has something meaningful to say.
