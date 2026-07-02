@@ -159,8 +159,10 @@ Beyond time-based scheduling, tasks can be triggered by external events:
 | **Event Regex** | Incoming IM channel messages matching a regex pattern trigger the task — configured in the GUI, no webhook URL required |
 | **System Event** | Structured events (source + event_type + filters) trigger automatically |
 | **Webhook** | External services send HTTP POST with HMAC-SHA256 signature verification |
+| **Stream (WS/SSE)** | Outbound WebSocket or Server-Sent Events connection — listens for real-time events from external services. Works behind NAT/firewall without exposing a public URL. Supports JSONPath + regex filtering, auto-reconnect with exponential backoff. |
+| **Poll** | Periodic HTTP GET with content-hash change detection — fires only when the response content changes. Supports JSONPath field extraction for targeted monitoring. |
 
-Trigger context (the matched message, event payload, or webhook body) is injected into the Agent's prompt so it knows *why* it was triggered.
+Trigger context (the matched message, event payload, webhook body, stream data, or polled content) is injected into the Agent's prompt so it knows *why* it was triggered.
 
 ### IM Message → Event Trigger (Architecture)
 

@@ -157,8 +157,10 @@ Daily 模式零额外存储（复用已有执行记录），不影响 Prompt Cac
 | **事件正则** | 入站 IM 渠道消息匹配 regex 模式时触发任务 — GUI 配置，无需 Webhook 公网 URL |
 | **系统事件** | 结构化事件（source + event_type + filters）自动触发 |
 | **Webhook** | 外部服务发送 HTTP POST，HMAC-SHA256 签名验证 |
+| **实时流监听 (WS/SSE)** | 出站 WebSocket 或 Server-Sent Events 连接 — 实时监听外部服务事件。无需公网 URL，在 NAT/防火墙后也能工作。支持 JSONPath + 正则过滤，自动重连指数退避。 |
+| **URL 轮询** | 定期 HTTP GET + 内容哈希变更检测 — 仅在响应内容变化时触发。支持 JSONPath 字段提取，精准监控目标数据。 |
 
-触发上下文（匹配的消息、事件载荷或 Webhook body）会注入 Agent 提示词，让它知道*为什么*被触发。
+触发上下文（匹配的消息、事件载荷、Webhook body、流数据或轮询内容）会注入 Agent 提示词，让它知道*为什么*被触发。
 
 ### IM 消息 → 事件触发（架构）
 
