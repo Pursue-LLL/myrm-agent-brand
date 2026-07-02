@@ -232,10 +232,10 @@ Your agent can proactively push notifications to configured channels — no manu
 
 ### How It Works
 
-1. Configure notification targets in your agent's settings (channel + recipient whitelist)
+1. In **Agent settings → Notification Channels**, pick a channel and select a recipient from your paired contacts (or enter an ID manually)
 2. The agent calls `channel_notify_tool` when it needs to alert you (task completion, anomaly detection, scheduled report ready)
 3. Optionally attach files or images — local paths and URLs are auto-resolved with correct media type detection
-4. The message is delivered through the ChannelGateway infrastructure with retry and dead-letter queue support
+4. Delivery uses `send_tracked` for a synchronous success/failure result (same retry policy as critical channel messages), not fire-and-forget queue drops
 
 ### Security
 
@@ -248,7 +248,7 @@ Your agent can proactively push notifications to configured channels — no manu
 | Audit trail | Every notification target used is recorded in session state |
 | Layer | Server `outbound_notify/` (business layer, not harness kernel), co-located with ChannelGateway |
 
-> **Test coverage (2026-06-30)**: 50 server tests + 4 frontend vitest, 100% module coverage.
+> **Test coverage (2026-07-02)**: 67 server tests + 6 frontend vitest (pairing picker + manual ID fallback), 100% `outbound_notify` module coverage.
 
 ### Example Scenarios
 
