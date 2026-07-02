@@ -296,6 +296,22 @@ Every command that triggers approval displays a human-readable bilingual explana
 - Users understand *what* the command does before approving, even without shell expertise
 - Entirely rule-based: cannot be manipulated via prompt injection unlike LLM-based alternatives
 
+### Install Slopcheck (Anti-Slopsquatting)
+
+Before every `pip install` / `npm install` / `yarn add` / `bun add` command, a preflight check verifies that each package name actually exists on the public registry:
+
+| Aspect | Detail |
+|--------|--------|
+| **Detection** | HEAD probe against PyPI JSON API (`/pypi/{name}/json`) and npm registry (`/{name}`) |
+| **Normalization** | PEP 503 rules (underscores, dots, mixed case → canonical lowercase-hyphen) |
+| **Concurrency** | All packages probed in parallel via `asyncio.gather()` |
+| **Cache** | In-memory set of verified packages — zero repeated network calls within a session |
+| **Private registries** | Commands with `--index-url`, `--extra-index-url`, or `--registry` are auto-skipped |
+| **Graceful fallback** | Network timeout or DNS failure → allow install (never block legitimate work) |
+| **Response** | Unknown package → `ToolError` blocks the install and explains which packages were not found |
+
+This prevents **slopsquatting attacks** — where an attacker registers a package name that LLMs commonly hallucinate, embedding malware in the published package.
+
 ## Encryption & Incognito Mode
 
 | Scope | Standard |

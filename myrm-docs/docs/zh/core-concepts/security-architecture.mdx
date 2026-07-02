@@ -261,6 +261,22 @@ AI 分类器（`TranscriptClassifier`）审查工具调用是否符合用户原�
 - 用户无需 Shell 专业知识也能理解命令含义后做出审批决策
 - 纯规则引擎：不可被 prompt injection 操控（优于 LLM 方案）
 
+### Install Slopcheck（防包名幻觉 / Anti-Slopsquatting）
+
+每次 `pip install` / `npm install` / `yarn add` / `bun add` 执行前，预检链自动验证所有包名是否真实存在：
+
+| 方面 | 细节 |
+|------|------|
+| **检测方式** | HEAD 探活 PyPI JSON API (`/pypi/{name}/json`) 和 npm registry (`/{name}`) |
+| **名称标准化** | PEP 503 规则（下划线、点、大小写 → 统一小写连字符） |
+| **并发** | 所有包名通过 `asyncio.gather()` 并发探活 |
+| **缓存** | 会话内内存缓存已验证包名，零重复网络请求 |
+| **私有仓库** | 含 `--index-url`、`--extra-index-url`、`--registry` 的命令自动跳过 |
+| **容错** | 网络超时或 DNS 异常 → 放行安装（不阻断正常工作） |
+| **响应** | 未知包 → `ToolError` 阻断安装并说明哪些包未找到 |
+
+此机制防范 **slopsquatting 攻击**——攻击者注册 LLM 常见幻觉包名并植入恶意代码。
+
 ## 加密与无痕模式
 
 静态 AES-256-GCM；传输 TLS 1.3；API Key 加密库；可选记忆加密；无痕模式物理隔离与阅后即焚。
