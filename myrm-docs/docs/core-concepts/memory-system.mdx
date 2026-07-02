@@ -194,7 +194,7 @@ Long-running agents accumulate thousands of memories that inevitably fragment â€
 
 ## Cross-Session Consolidation & Autonomous Maintenance
 
-Myrm's memory maintenance engine runs 10 specialized modules (4,128 lines of code) that keep memory organized without user intervention:
+Myrm's memory maintenance engine runs 10 specialized modules (4,128 lines of code) that keep memory organized without user intervention. The **Memory Guardian** scheduler orchestrates all maintenance autonomously with adaptive timing â€” healthy systems run every 6 hours, degraded systems escalate to every 2 hours with forced recovery. It automatically pauses during active user sessions, respects daily token budgets, performs SQLite hot backups after each cycle, writes audit events to the operation ledger with SSE push to the Command Center, and cleans up expired archives and stale conflicts.
 
 ### Consolidation (5 operations)
 
