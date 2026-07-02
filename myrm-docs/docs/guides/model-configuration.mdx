@@ -32,6 +32,19 @@ The 3-dimensional complexity router automatically selects the optimal model base
 
 **Fast Lane:** Tasks classified as SIMPLE skip the heavy middleware pipeline and go directly to the model with minimal overhead. This reduces response latency by ~30-50% for everyday chat, greetings, and short follow-ups — the messages you send most often feel the fastest.
 
+## In-Chat Model Transparency
+
+Every assistant message shows a Token Economics badge in the action bar. Click it to see exactly which model handled the request, how it was routed, what it cost, and how fast it ran:
+
+- **Model name & routing tier** — see the exact model (e.g. `gpt-4o`, `claude-sonnet-4`) and its routing classification (Simple / Standard / Reasoning)
+- **Prompt cache hit rate** — percentage of cached tokens, estimated dollar savings, and cache-break attribution when the cache is invalidated
+- **Cost breakdown** — per-message cost with actual/estimated badge, multi-model breakdown when routing uses multiple models, and per-tool token consumption
+- **Performance baseline** — TTFT, tokens-per-second, and latency compared to your session average, with color-coded delta indicators
+- **Context budget ring** — circular progress showing context window usage with healthy/warning/critical thresholds
+- **Privacy level** — data sensitivity classification (S1 Public / S2 Internal / S3 Confidential) and routing path (local / cloud)
+
+No black boxes — every routing decision is visible and verifiable directly in the chat.
+
 ## Key Rotation
 
 4-strategy key rotation maximizes throughput and availability across multiple API keys per provider.

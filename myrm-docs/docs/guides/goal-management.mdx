@@ -258,3 +258,48 @@ Agent:
   
 Goal COMPLETED — 26 turns, $3.47 spent
 ```
+
+## Project Milestones (Cross-Session Goals)
+
+While Goals operate within a single session, **Project Milestones** span across sessions. They let you define strategic objectives for an entire project, and the agent automatically stays aware of them in every conversation.
+
+### How It Works
+
+1. **Create milestones** in the sidebar panel (within a Project)
+2. **Agent auto-injects** — `ProjectRoadmapMiddleware` injects a compact roadmap context (~100 tokens) into every conversation in that project
+3. **Track progress** — Milestones link to Kanban boards for automatic progress calculation
+
+### Creating Milestones
+
+In the sidebar, navigate to your project and find the **Milestones** section:
+
+- Click the `+` button to add a new milestone
+- Each milestone has a **title**, optional **description**, and **acceptance criteria**
+- Mark milestones as completed when objectives are met
+
+### Automatic Context Injection
+
+When you chat within a project that has milestones, the agent receives context like:
+
+```
+Project: Q3 Product Upgrade — Complete core feature iteration
+Current Focus: Finish milestone system and ship to production
+
+Active Milestones:
+  - [active] MVP Release (criteria: All core APIs pass integration tests)
+  - [active] Beta Launch
+
+Completed: Technical Research
+```
+
+This happens automatically — no commands needed.
+
+### Goals vs Milestones
+
+| Aspect | Goal | Milestone |
+|--------|------|-----------|
+| Scope | Single session | Cross-session (project-level) |
+| Lifecycle | QUEUED → ACTIVE → COMPLETE | active → completed → archived |
+| Execution | Agent executes autonomously | Strategic direction, manual completion |
+| Budget | Yes (tokens, cost, turns, time) | No budget — purely organizational |
+| Use case | "Migrate API to Fastify" | "Q3: Ship v2.0 to production" |
