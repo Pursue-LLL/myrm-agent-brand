@@ -1145,7 +1145,7 @@ Codex recently shipped two flagship features: **Appshots** (window capture + tex
 
 | Dimension | Codex /goal | Myrm Goal System |
 |-----------|------------|-----------------|
-| Planning | Linear self-planning | PlannerAgent auto-generates DAG plans with dependencies |
+| Planning | Linear self-planning | Main-agent `todo_write` + sandbox SSOT — opt-in, zero tax when off; CompletionGuard blocks early exit |
 | Execution | Linear, sequential | DAG concurrent executor + Swarm Fission |
 | Budget | token_budget only | 4D budget (tokens / USD / wall-clock / turns) |
 | Completion | User checks | CompletionGuard — evidence-based TDD-like verification |
@@ -1715,21 +1715,21 @@ DeerFlow 2.0 introduced a 14-layer middleware chain and Docker sandboxing, but i
 3. **Zero-Copy ArtifactVault**: For concurrent sub-agents, we use a `vault://` pointer protocol for large files, achieving zero-copy sharing and completely preventing LLM context explosion.
 4. **Security-in-Depth Skills**: While both support Markdown-based skills, we add a 3-layer defense system (Trust Decay + Security Scanning + Content Escaping) to ensure third-party skills never compromise your host.
 
-## vs Hermes / DeerFlow / OpenClaw / Cursor — Three-Plane Task Progress (TSM v1.5)
+## vs Hermes / DeerFlow / OpenClaw / Cursor — Single-Track Task Progress (2026-07-02)
 
-Most agents ship a single todo/plan tool that is **always bound** to Turn 1 — inflating prompts and offering no guard when the model tries to finish early. Myrm splits progress into **three mutually exclusive planes**, all **off by default** (~zero Turn1 token tax):
+Most agents ship a single todo/plan tool that is **always bound** to Turn 1 — inflating prompts and offering no guard when the model tries to finish early. Myrm converged progress to **Planning (`todo_write`) + Kanban**, all **off by default** (~zero Turn1 token tax):
 
-| Capability | Myrm TSM v1.5 | Hermes | DeerFlow | OpenClaw / Cursor TodoWrite |
-|-----------|---------------|--------|----------|----------------------------|
-| Persistent SSOT | ✅ chat sandbox files | ❌ in-memory TodoStore | thread state | session-only |
-| CompletionGuard | ✅ reads workspace before "done" | ❌ | ❌ | ❌ |
-| Conditional bind | ✅ enable only when you need it | often always-on | prompt-injected write_todos | often always-on |
-| Three planes | ✅ Planning / Task Tracking / Kanban (UI mutual exclusion) | mixed todo+plan | mixed | N/A |
+| Capability | Myrm (2026-07-02) | Hermes | DeerFlow | OpenClaw / Cursor TodoWrite |
+|-----------|-------------------|--------|----------|----------------------------|
+| Persistent SSOT | ✅ `.myrm/progress/todos.json` in sandbox | ❌ in-memory TodoStore | thread state | session-only |
+| CompletionGuard | ✅ reads workspace todos before "done" | ❌ | ❌ | ❌ |
+| Conditional bind | ✅ enable only when you need it (~150 tok) | often always-on | prompt-injected write_todos | often always-on |
+| Single-track progress | ✅ Planning opt-in (no second checklist rail) | single `todo` | plan_mode + write_todos | TodoWrite |
 | Progress UI | ✅ ProgressSteps tree + step_key merge (no duplicate nodes on re-emit) | text | basic | inline list |
 
-**User benefit**: Turn on Task Tracking only for 3+ step jobs — you get a live checklist in the chat, files and guard stay in sync across reconnects, and you are not paying ~15k tokens per turn for tools you did not ask for.
+**User benefit**: Turn on Planning only for 3+ step jobs — you get a live todo tree in chat, Goal long tasks auto-enable it, files and guard stay in sync across reconnects, and you are not paying token tax for tools you did not ask for.
 
-**Verified (2026-07-02 full re-run)**: harness checklist **35/35** + server TSM integration **9/9** + **live :8080 LLM E2E 1/1** + **Playwright UI 2/2** (mutual exclusion + WebUI full flow: seed provider → send chat → ProgressSteps) + frontend vitest checklist merge **4/4**.
+**Verified (2026-07-02)**: harness progress **31/31** + server integration **16/16** + planning **live LLM E2E 1/1** + frontend vitest **8/8** (incl. `is_plan` todo tree merge).
 
 ## 2026 Latest Core Advantages Summary (vs Hermes, OpenClaw, DeerFlow, etc.)
 

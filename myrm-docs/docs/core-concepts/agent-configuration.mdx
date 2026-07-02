@@ -99,10 +99,10 @@ The agent config panel offers progress modes (off by default — zero Turn1 toke
 
 | Mode | Built-in Tool | Best For |
 |------|---------------|----------|
-| **Planning** | `planner_tool` | Complex decomposition and sub-agent planning |
+| **Planning** | `todo_write` | Multi-step task breakdown and live progress (deer-flow / Cursor TodoWrite style) |
 | **Kanban** | kanban_* | Cross-session board and DAG orchestration (chat defaults to orchestrator — 8 tools) |
 
-With Planning enabled, plans persist in the chat sandbox under `{sandbox}/planner/plan.json`; CompletionGuard blocks premature completion when file writes exist but plan steps remain incomplete. The frontend merges repeated SSE `tasks_steps` events by `step_key` so ProgressSteps never duplicate on re-emit.
+With Planning enabled, todos persist in the chat sandbox under `{sandbox}/.myrm/progress/todos.json`; CompletionGuard blocks premature completion when file writes exist but todos remain incomplete. The frontend merges repeated SSE `tasks_steps` events by `step_key` so ProgressSteps never duplicate on re-emit. Planning is **off by default** (~150 tokens when enabled) — simple Q&A pays zero progress-tool tax.
 
 ### Deferred Tool Loading
 
