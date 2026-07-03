@@ -125,7 +125,7 @@ Competitors often guard only the outer tool API. Myrm guards at **`BrowserSessio
 
 Approve, reject, or add feedback — the agent receives a structured block message and must find an alternative if you reject.
 
-The global **Approval Drawer** persists the interrupt payload (including `tool_input` and `page_url`), shows the polymorphic approval card, and on approve sends the correct `{decision: "approve"}` resume so the agent continues — not a dead-end HTTP-only resolve.
+The global **Approval Drawer** persists the interrupt payload (including `tool_input`, `page_url`, and click `element` metadata), shows the polymorphic approval card, and on approve sends the correct `{decision: "approve"}` resume so the agent continues. The server `/approvals/{id}/resolve` endpoint publishes an `APPROVAL_RESOLVED` event — approval is not a dead-end HTTP-only action.
 
 ### Two-layer evaluate policy
 
