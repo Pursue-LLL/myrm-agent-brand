@@ -102,6 +102,18 @@ When building the open-source server image from pre-built harness wheels, the bu
 
 See the harness distribution guide in the monorepo: `myrm-agent-harness/harness_packaging/DISTRIBUTION_SYSTEM.md`.
 
+## Modular engine packaging (embedders)
+
+The harness ships as **24 lean runtime dependencies** plus **11 optional Extras** (browser, retrieval, ACP, observability, etc.). End users installing via `install.sh`, Docker, or Tauri get the full server bundle automatically—no manual extra selection.
+
+If you embed the engine in your own Python service, install only what you need:
+
+```bash
+pip install 'myrm-agent-harness[fastapi,web,compiled-core]==0.1.0'
+```
+
+Missing an Extra surfaces a clear install hint at call time (not a silent mid-conversation crash). Architecture tests lock the core list to prevent dependency creep—**327** harness architecture tests verified (Jul 2026).
+
 ## Automatic Dependency Management
 
 Myrm handles dependencies automatically so you never need to manually install packages:

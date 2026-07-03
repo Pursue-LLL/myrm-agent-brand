@@ -102,6 +102,18 @@ curl http://localhost:3000/api/health
 
 详见 monorepo 中的 harness 分发指南：`myrm-agent-harness/harness_packaging/DISTRIBUTION_SYSTEM.md`。
 
+## 模块化引擎打包（二次开发者）
+
+Harness 核心仅 **24 项运行时依赖**，另有 **11 组可选 Extras**（浏览器、检索、ACP、可观测性等）。通过 `install.sh`、Docker 或 Tauri 安装的最终用户会自动获得 server 所需的完整组合——**无需手动选 Extras**。
+
+若你在自有 Python 服务中嵌入引擎，可按需安装：
+
+```bash
+pip install 'myrm-agent-harness[fastapi,web,compiled-core]==0.1.0'
+```
+
+缺少 Extra 时会在调用点给出明确安装提示，而非对话中途静默崩溃。架构测试锁定核心依赖列表，防止 silent 膨胀——**327** 项 harness 架构测试已验证（2026-07）。
+
 ## 依赖自动管理
 
 Myrm 自动处理依赖安装，无需手动操作：
