@@ -345,7 +345,7 @@ Corporate networks often deploy TLS inspection proxies (Zscaler, Netskope, Palo 
 One-click toggle in the message input area activates per-session privacy isolation:
 
 - **Harness layer**: `IncognitoPolicy` physically skips all writes to MEMORY and ARCHIVE context scenes
-- **Server layer**: Wraps memory with `ReadOnlyMemoryView`, removes `memory_save` and `memory_manage` tools, disables archive checkpoints, suppresses memory in the system prompt, and disables session cleanup callbacks
+- **Server layer**: Skips memory manager binding and all memory tools (`memory_recall`, `memory_save`, `memory_manage`, `conversation_search`), disables memory context injection, archive checkpoints, and session cleanup callbacks
 - **Database layer**: `is_incognito` flag ensures sessions are hidden from sidebar listing and excluded from full-text search
 - **Self-hosted advantage**: Unlike SaaS competitors that require a separate "local mode" toggle to keep data off vendor servers, Myrm's self-hosted architecture means user data never leaves the machine by design — Incognito Mode adds session-level non-persistence on top
 
