@@ -350,6 +350,18 @@ Agent 使用如下 Schema：
 
 每个浏览器上下文**默认为临时模式**——通过 `browser.new_context()` 创建，不使用持久化配置。会话结束时 Cookie、localStorage 和缓存自动销毁。Agent 永远无法访问你的真实浏览器配置，从根源杜绝会话泄露风险。
 
+## 隐私优先的已登录访问（不读取 OS 浏览历史）
+
+Myrm **不会**读取 Chrome/Edge 的 `History.db`、书签数据库或其他 OS 级浏览记录。已登录站点与内网访问走显式、用户可控的路径：
+
+| 需求 | Myrm 方案 | 我们刻意不做 |
+|------|-----------|-------------|
+| 复用你已登录的站点 | **Extension Bridge** — 在真实 Chrome 标签页中操作，沿用现有登录态 | 批量索引历史/书签 |
+| 登录一次，跨 Agent 运行保持登录 | **Session Vault** — 按域名 AES-256-GCM 加密保存 Cookie + localStorage | 从浏览器配置导入 Cookie DB |
+| 回忆与 Agent 讨论过的 URL | **memory_recall** / 可选 **conversation_search** | OS 级历史搜索 |
+
+**行业对齐：** 主流 claw 竞品（OpenClaw、Hermes、CoPaw、DeerFlow、CodePilot、LobsterAI、JiuwenClaw）均未提供读取 `History.db` 或书签 JSON 的 Agent 工具。部分产品（如 Orca、Holaboss）支持将 Chrome Cookie/配置一次性导入内置浏览器——架构不同，目标相同。CoPaw 明确建议不想暴露历史/Cookie 时使用 `private_mode`。
+
 ## 加密 Session 库（跨会话保持登录）
 
 会话默认临时，但你可以为每个 Agent 配置 **auto_restore_domains**，在对话之间保持登录状态。
@@ -533,8 +545,10 @@ Myrm 的浏览器系统经过优化，可在 $5/月云容器到低配笔记本�
 | 全新的自动化浏览 | 默认方案（临时引擎） |
 | 复用特定登录会话 | SessionVault `auto_restore_domains` |
 | 需要完整浏览器指纹一致性 | **Extension Bridge** |
-| Agent 需要看到你真实的标签页/书签/扩展 | **Extension Bridge** |
+| Agent 需在真实 Chrome 中操作（沿用现有登录态/扩展） | **Extension Bridge** |
 | SaaS 模式远程控制用户浏览器 | **Extension Bridge** |
+
+> **隐私说明：** Extension Bridge 仅控制已授权标签页，**不会**批量读取 OS 浏览历史或书签数据库。回忆与 Agent 讨论过的 URL 请使用 memory_recall 或可选 conversation_search。
 
 ### 工作原理
 

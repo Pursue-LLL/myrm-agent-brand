@@ -385,6 +385,18 @@ The agent uses `browser_extract(mode='media', selector='.product-gallery')` and 
 
 Every browser context is **ephemeral by default** — created via `browser.new_context()` with no persistent profile. Cookies, localStorage, and cache are automatically destroyed when the session ends. The agent never has access to your real browser profile, eliminating session leakage risk entirely.
 
+## Privacy-First Logged-In Access (No OS History Mining)
+
+Myrm **does not** read your Chrome/Edge `History.db`, bookmark databases, or other OS-level browsing artifacts. This is intentional — logged-in and intranet access uses explicit, user-controlled paths instead:
+
+| Need | Myrm path | What we avoid |
+|------|-----------|---------------|
+| Reuse login on a site you already use | **Extension Bridge** — agent controls your real Chrome tab with existing session | Bulk history/bookmark indexing |
+| Login once, stay logged in across agent runs | **Session Vault** — AES-256-GCM encrypted cookies + localStorage per domain | Cookie DB import from your profile |
+| Recall a URL you discussed with the agent | **Memory recall** / opt-in **conversation_search** | OS-level history search |
+
+**Industry alignment:** No major claw competitor (OpenClaw, Hermes, CoPaw, DeerFlow, CodePilot, LobsterAI, JiuwenClaw) ships an agent tool that reads `History.db` or bookmark JSON. Some products (e.g. Orca, Holaboss) offer one-time Chrome cookie/profile import into a built-in browser — a different architecture with the same user goal. CoPaw explicitly recommends `private_mode` when users do not want history/cookies exposed to agents.
+
 ## Persistent Session Vault (Cross-Session Login)
 
 While sessions are ephemeral by default, you can configure **auto-restore domains** for each agent to preserve login state across conversations.
@@ -579,8 +591,10 @@ For scenarios where you need the agent to operate within your **real browser** �
 | Fresh automated browsing | Default (ephemeral engine) |
 | Re-use specific login sessions | SessionVault `auto_restore_domains` |
 | Need full browser fingerprint consistency | **Extension Bridge** |
-| Agent must see your real tabs/bookmarks/extensions | **Extension Bridge** |
+| Agent must control your real Chrome with existing login/extensions | **Extension Bridge** |
 | SaaS mode controlling a remote user's browser | **Extension Bridge** |
+
+> **Privacy note:** Extension Bridge controls authorized tabs in your browser — it does **not** bulk-read your OS browsing history or bookmark database. For URL recall from past conversations, use memory recall or opt-in conversation search.
 
 ### How It Works
 
