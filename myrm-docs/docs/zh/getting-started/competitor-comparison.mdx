@@ -579,7 +579,7 @@ MiniMax Mavis 是闭源 SaaS 多 Agent 系统，采用 Leader-Worker-Verifier �
 | Leader-Worker-Verifier | DAG + Verification orchestration mode | ⬆️ Upgrade (6 modes vs 1) |
 | IM multi-task parallel | WebUI multi-session + Goal continuation | ↔️ Equivalent (different design) |
 | Verifier adversarial check | `_enforce_evidence` + ReadonlySandbox | ⬆️ Upgrade (physical evidence required) |
-| Plan → Approve → Execute | PlannerAgent + Goal approval workflow | ⬆️ Upgrade (7-state lifecycle) |
+| Plan → Approve → Execute | 主 Agent `todo_write` + Goal approval workflow | ⬆️ Upgrade (7-state lifecycle) |
 | "Learned something" | 42-module Skill Evolution system | ⬆️ Upgrade (full evolution pipeline) |
 | Lark integration | 35+ channel support (including Lark) | ⬆️ Upgrade |
 | Worker 上下文隔离 | **四层写入防护**：行级冲突检测 + CoW 工作区隔离 + git worktree + 串行批量合并 + 三层沙箱（毫秒级启动，无需Docker）— 1,101 项子代理与沙箱专项测试 | ⬆️ 工业级升级 |
@@ -1475,7 +1475,7 @@ Codex 仅提供基础截图审批，无 Artifact 管理。Myrm 提供**跨 Web�
 
 | 领域 | 传统半人工工作流 (如 Codex 实践) | Myrm Agent | 用户收益 |
 |------|-------------------------------|------------|---------|
-| **任务拆解与上下文隔离** | 手工新建 Markdown 文件作为隔离屏障 | **PlannerAgent 自动生成 DAG 任务树** | 内部节点间状态流转对主会话零污染，**自动且绝对干净**。 |
+| **任务拆解与上下文隔离** | 手工新建 Markdown 文件作为隔离屏障 | **主 Agent `todo_write` + Kanban DAG** | 内部节点间状态流转对主会话零污染，**自动且绝对干净**。 |
 | **并行执行隔离** | 需用户手动在不同分支或工作树间切换 | **原生自动 Git Worktree 隔离沙箱** | 在后端直接支持多工作树并行隔离，互不干涉。 |
 | **阶段执行验证** | 需要人在旁边盯，手动核对后放行 | **内置 3-Strike Protocol** | 任务执行连续失败自动升级警告，强制要求执行验证命令。 |
 | **跨任务交接与恢复** | 手工维护 `handoff.md` 等状态摘要 | **ArchiveCheckpoint + SessionNotes** | 记忆系统实现零 Token 成本的无损多层归档，断线重启一键接力。 |

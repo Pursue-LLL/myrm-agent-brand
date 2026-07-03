@@ -663,7 +663,7 @@ MiniMax Mavis is a closed-source SaaS multi-agent system with Leader-Worker-Veri
 | Leader-Worker-Verifier | DAG + Verification orchestration mode | ⬆️ Upgrade (6 modes vs 1) |
 | IM multi-task parallel | WebUI multi-session + Goal continuation | ↔️ Equivalent (different design) |
 | Verifier adversarial check | `_enforce_evidence` + ReadonlySandbox | ⬆️ Upgrade (physical evidence required) |
-| Plan → Approve → Execute | PlannerAgent + Goal approval workflow | ⬆️ Upgrade (7-state lifecycle) |
+| Plan → Approve → Execute | 主 Agent `todo_write` + Goal approval workflow | ⬆️ Upgrade (7-state lifecycle) |
 | "Learned something" | 42-module Skill Evolution system | ⬆️ Upgrade (full evolution pipeline) |
 | Lark integration | 35+ channel support (including Lark) | ⬆️ Upgrade |
 | Worker context isolation | **4-layer write protection**: line-level conflict guard + CoW workspace_isolation (INHERIT/ISOLATED_COPY/READ_ONLY_SANDBOX) + serial batch_merge + OrphanRecovery + 3-tier sandbox (ms-level startup, no Docker needed) — 1,101 sub-agent & sandbox tests verified | ⬆️ Upgrade (engineering-grade) |
@@ -1661,7 +1661,7 @@ While this semi-manual mode prevents LLM context pollution, it should **never** 
 
 | Domain | Traditional Semi-Manual Workflow (e.g., Codex) | Myrm Agent | User Benefit |
 |------|---------------------------------------------|------------|--------------|
-| **Task Breakdown & Isolation** | Manually creating Markdown files as isolation barriers | **PlannerAgent auto-generates DAG task trees** | Internal state transitions have zero pollution on the main session, **automatic and absolutely clean**. |
+| **Task Breakdown & Isolation** | Manually creating Markdown files as isolation barriers | **Main-agent `todo_write` + Kanban DAG** | Internal state transitions have zero pollution on the main session, **automatic and absolutely clean**. |
 | **Parallel Execution Isolation** | User must manually switch between Git branches or worktrees | **Native automated Git Worktree isolation** | Backend natively supports parallel isolation across multiple worktrees without interference. |
 | **Stage Execution Verification** | Requires a human to monitor and manually approve | **Built-in 3-Strike Protocol** | Continuous execution failures trigger automatic escalation, forcing verification commands. |
 | **Cross-Task Handoff & Recovery** | Manually maintaining `handoff.md` and state summaries | **ArchiveCheckpoint + SessionNotes** | Memory system achieves zero-token-cost lossless multi-layer archiving. Resume with one click after a crash. |
