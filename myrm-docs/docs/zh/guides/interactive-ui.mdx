@@ -1,0 +1,52 @@
+---
+title: 交互式 UI（render_ui）
+description: 通过 A2UI v3.1 在对话内渲染表单、表格与图表。
+---
+
+# 交互式 UI（`render_ui`）
+
+Myrm 提供**声明式 UI 工件**链路：Agent 调用 `render_ui` → Server 推送 `UI_UPDATE` SSE → WebUI 在对话内渲染可交互组件。
+
+## 启用方式
+
+1. 在聊天中打开 **Agent 配置**。
+2. 开启 **交互式 UI**（`render_ui`）。
+3. 首次在有 workspace 的场景运行时会自动 seed `.agent/docs/A2UI_REFERENCE.md`（完整 props 手册）。
+
+Turn1 工具描述约 **223 token**（瘦 docstring）；完整组件 props **不会**常驻 prompt。
+
+## A2UI v3.1 要点
+
+| 主题 | 行为 |
+|------|------|
+| 组件白名单 | **23** 种 `UIComponentType`（前后端枚举 SSOT） |
+| 渐进式 spec | 简单 UI（text + field + button）无需额外读取；**table / chart / tabs** 或 **3+ 组件** 前应 `file_read_tool` `.agent/docs/A2UI_REFERENCE.md` |
+| 校验 | **fail-closed** — 未知 `type` 或空 `components` 直接返回结构化工具错误，禁止静默跳过 |
+| 用户操作 | 按钮/表单提交以 `UIActionEvent` 回传 Agent 继续执行 |
+
+## JSON 结构（邻接表）
+
+```json
+{
+  "title": "反馈表单",
+  "components": [
+    {"id": "t1", "type": "text", "props": {"content": "请评价本次运行"}},
+    {"id": "f1", "type": "text_field", "props": {"label": "备注"}},
+    {"id": "b1", "type": "button", "props": {"label": "提交"}, "events": {"click": {"action": "submit"}}}
+  ],
+  "root_ids": ["t1", "f1", "b1"]
+}
+```
+
+## 竞品对比
+
+| 产品 | 对话内生成式 UI |
+|------|----------------|
+| **Myrm** | 23 种 typed 组件 + SSE 工件 + 渐进 spec + fail-closed |
+| OpenClaw / Codex / Claude Code | 无一等公民对话内表单渲染 |
+| CopilotKit AG-UI | Web 协议 catalog（约 19 基础控件）；无 workspace spec seed + 枚举门禁 |
+| Hermes | 文本建议为主；无结构化 chat UI 工件 |
+
+简单澄清问题请优先 `ask_question_tool`，不必搭完整 UI。
+
+另见：[Agent 配置 — 延迟 vs 即时工具](/docs/zh/core-concepts/agent-configuration#deferred-vs-eager-tools)。

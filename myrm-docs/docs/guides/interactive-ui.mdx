@@ -1,0 +1,52 @@
+---
+title: Interactive UI (render_ui)
+description: Declarative in-chat forms, tables, and charts via the A2UI v3.1 stack.
+---
+
+# Interactive UI (`render_ui`)
+
+Myrm ships a **declarative UI artifact** pipeline: the agent calls `render_ui`, the server emits a `UI_UPDATE` SSE event, and the WebUI renders interactive components inline in chat.
+
+## Enable the tool
+
+1. Open **Agent settings** in chat.
+2. Turn on **Interactive UI** (`render_ui`).
+3. On first run with a workspace, the server seeds `.agent/docs/A2UI_REFERENCE.md` (full props manual).
+
+Turn1 cost is **~223 tokens** for the slim tool docstring — full component props are **not** inlined in the prompt.
+
+## A2UI v3.1 behavior
+
+| Topic | Behavior |
+|-------|----------|
+| Component whitelist | **23** `UIComponentType` values (enum SSOT, front + back) |
+| Progressive spec | Simple UIs (text + field + button) need no extra read; for **table / chart / tabs** or **3+ components**, the agent should `file_read_tool` `.agent/docs/A2UI_REFERENCE.md` first |
+| Validation | **Fail-closed** — unknown `type` or empty `components` returns a structured tool error (no silent skip) |
+| User actions | Button / form submissions flow back as `UIActionEvent` and continue the agent loop |
+
+## JSON shape (adjacency list)
+
+```json
+{
+  "title": "Feedback form",
+  "components": [
+    {"id": "t1", "type": "text", "props": {"content": "Rate this run"}},
+    {"id": "f1", "type": "text_field", "props": {"label": "Comment"}},
+    {"id": "b1", "type": "button", "props": {"label": "Submit"}, "events": {"click": {"action": "submit"}}}
+  ],
+  "root_ids": ["t1", "f1", "b1"]
+}
+```
+
+## vs competitors
+
+| Product | In-chat generative UI |
+|---------|----------------------|
+| **Myrm** | 23 typed components, SSE artifact, progressive spec, fail-closed validation |
+| OpenClaw / Codex / Claude Code | No first-class in-chat form renderer |
+| CopilotKit AG-UI | Web protocol catalog (~19 basic widgets); no Myrm-style workspace spec seed + enum gate |
+| Hermes | Text suggestions; no structured chat UI artifact |
+
+For simple clarifying questions, prefer `ask_question_tool` instead of building a full UI.
+
+See also: [Agent configuration — deferred tools](/docs/core-concepts/agent-configuration#deferred-vs-eager-tools).
