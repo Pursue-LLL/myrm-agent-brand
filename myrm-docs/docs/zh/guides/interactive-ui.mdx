@@ -30,11 +30,13 @@ Turn1 工具描述约 **223 token**（瘦 docstring）；完整组件 props **�
 {
   "title": "反馈表单",
   "components": [
-    {"id": "t1", "type": "text", "props": {"content": "请评价本次运行"}},
-    {"id": "f1", "type": "text_field", "props": {"label": "备注"}},
-    {"id": "b1", "type": "button", "props": {"label": "提交"}, "events": {"click": {"action": "submit"}}}
+    {"id": "t1", "type": "text", "props": {"text": "请评价本次运行"}},
+    {"id": "f1", "type": "text_field", "props": {"label": "备注"}, "bindings": {"value": "$.form.comment"}},
+    {"id": "b1", "type": "button", "props": {"label": "提交"}, "events": {"onClick": "submit"}}
   ],
-  "root_ids": ["t1", "f1", "b1"]
+  "root_ids": ["t1", "f1", "b1"],
+  "data": {"form": {"comment": ""}},
+  "actions": [{"id": "submit", "type": "submit", "label": "提交"}]
 }
 ```
 

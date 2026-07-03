@@ -30,11 +30,13 @@ Turn1 cost is **~223 tokens** for the slim tool docstring — full component pro
 {
   "title": "Feedback form",
   "components": [
-    {"id": "t1", "type": "text", "props": {"content": "Rate this run"}},
-    {"id": "f1", "type": "text_field", "props": {"label": "Comment"}},
-    {"id": "b1", "type": "button", "props": {"label": "Submit"}, "events": {"click": {"action": "submit"}}}
+    {"id": "t1", "type": "text", "props": {"text": "Rate this run"}},
+    {"id": "f1", "type": "text_field", "props": {"label": "Comment"}, "bindings": {"value": "$.form.comment"}},
+    {"id": "b1", "type": "button", "props": {"label": "Submit"}, "events": {"onClick": "submit"}}
   ],
-  "root_ids": ["t1", "f1", "b1"]
+  "root_ids": ["t1", "f1", "b1"],
+  "data": {"form": {"comment": ""}},
+  "actions": [{"id": "submit", "type": "submit", "label": "Submit"}]
 }
 ```
 
