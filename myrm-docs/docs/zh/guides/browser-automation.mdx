@@ -153,6 +153,8 @@ Agent 使用 `browser_extract(mode='media', selector='.product-gallery')` 获得
 
 可批准、拒绝或附反馈；拒绝后 Agent 会收到结构化阻断信息并需换方案。
 
+全局 **Approval Drawer** 会持久化 interrupt 载荷（含 `tool_input` 与 `page_url`），展示多态审批卡；批准后以 `{decision: "approve"}` 正确 resume Agent 继续执行，而非仅 HTTP resolve 导致任务卡死。
+
 ### evaluate 双层策略
 
 1. **L1 工具审批**：安全策略默认 **DENY** `browser_evaluate`（YOLO/allowlist 可覆盖）。
