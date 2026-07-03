@@ -255,6 +255,8 @@ Myrm 在框架最底层提供 **基于标签的环境降级** 架构。
 
 **结论：Myrm 保证无人值守工作流防弹可靠。后台任务物理剥离交互工具，在 LLM 犯错前根除 Cron 死锁根因。**
 
+此外，Myrm 的 **Stuck Task Watchdog** 可检测基础设施层面卡死的 Agent 任务（如 LLM API 半开连接、工具死锁），并在可配置超时（默认 600 秒）后自动取消。Watchdog 运行于现有 60 秒 janitor 周期内，零新增组件，向用户发送本地化超时通知（支持 5 种语言），并释放会话以便后续消息正常处理。竞品 OpenClaw 需容器级 `killContainer`（粗暴），Hermes 需手动 `/stop` — Myrm 全程透明处理。
+
 ## 极端场景防爆（vs Hermes / OpenClaw）
 
 自主多模态场景（如 Computer Use）或超长会话中，Agent 必然撞上下文窗口上限；竞品频繁 OOM、断连或记忆全丢。
@@ -695,7 +697,7 @@ Claude Code 采用「Fork 子 Agent」设计，字节级 prompt 前缀对齐以�
 | 不可信上游上下文 | 静默透传 | **Taint 传播** + 安全警告 | 独立验证信号清晰 |
 | JIT 子 Agent 配置 | 字段易错/阈值丢失 | **`ephemeralSubagents` + auto_vault_threshold 物化** | GUI/测试/API 一致 |
 
-**回归覆盖：** **111+** 项 vault 闭环测试全绿（harness 单元 + server 集成 + **LLM E2E delegate→bash→vault** + 前端 vitest，2026-07）；Fork/Vault/Cascade/Taint/Handover 等路径合计 **366+** 项 harness 专项回归；**2026-07 server API 集成批次（27 项通过）** 覆盖并发委托、REST 子 Agent 列表/hydrate、蜂群裂变 resume 与 binding。
+**回归覆盖：** **606+** 项 vault 闭环测试全绿（harness 591 + server 15，2026-07：vault 核心 + auto_vault + resume_compact + file_read_vault + path_boundary + executor + server e2e）；Fork/Vault/Cascade/Taint/Handover 等路径合计 **366+** 项 harness 专项回归；**2026-07 server API 集成批次（27 项通过）** 覆盖并发委托、REST 子 Agent 列表/hydrate、蜂群裂变 resume 与 binding。
 
 ## 凭证库 — 密码与 2FA 永不进入 LLM
 
@@ -758,7 +760,7 @@ Myrm 的 MCP 实现采用持久热连接与事件驱动的工具发现机制 —
 | **工具发现** | 每次调用时轮询或固定列表 | **事件驱动**（`list_changed` 通知） | 无浪费；始终最新 |
 | **Prompt Cache 影响** | 工具列表每次重连变化 → 缓存失效 | **冻结代理工具**（稳定 Token 指纹） | 最高可保留 90% Prompt Cache 命中率 |
 | **自愈能力** | 断线需手动重启 | **自动重连 + 工具刷新** | 无人值守任务可承受网络抖动 |
-| **多模态结果** | 仅文本透传 | **结构化内容规范化**（图像、JSON、注解）+ 8 种多态 UI 渲染器 + JSON 自动美化与语法高亮 | LLM 获得丰富上下文；用户看到精美可交互的输出 |
+| **多模态结果** | 仅文本透传 | **结构化内容规范化**（图像、JSON、注解）+ 9 种多态 UI 渲染器 + 大输出 Eviction Drawer（搜索/Copy/分页）| LLM 获得丰富上下文；用户看到精美可交互的输出 |
 | **状态处理** | 需自定义 Handle 中间件 | **原生 Handle 透传**（不透明 ID 自然流经工具结果） | 有状态 MCP 服务器开箱即用 |
 
 **成本影响**：每次竞品重连 MCP 服务器，工具列表在 Prompt 中的 Token 位置变化，导致 LLM Prompt Cache 失效。启用 10+ MCP 服务器时，这可能带来每小时 **$0.50–$2.00** 的额外缓存未命中开销。Myrm 的冻结代理方案使工具区段在各轮对话中字节稳定。
@@ -900,12 +902,12 @@ MemPalace 是独立 AI 记忆系统，用 Wing/Room/Closet/Drawer 建筑隐喻�
 | 细粒度进度 | ProgressItem 20+ 字段（percent/step/total/category/level） | 简单进度条 | **Myrm 胜出** |
 | 实时反馈 | PTC tools.notify 跨进程通道（10req/s 限流） | 无实时通知 | **Myrm 胜出** |
 | 心跳感知 | TOOL_HEARTBEAT 显示 elapsed_ms | 无心跳 | **Myrm 胜出** |
-| 进度 UI | ProgressSteps 树形渲染器（8 种多态渲染器）+ Live Terminal 实时输出 | 单一进度条 | **Myrm 碾压** |
+| 进度 UI | ProgressSteps 树形渲染器（9 种多态渲染器含 LiveTerminal + EvictedOutputDrawer 大输出查看器：搜索/Copy/分页）| 单一进度条 | **Myrm 碾压** |
 | 后台任务 | _background_progress 异步监控 | 无 | **Myrm 独有** |
 | Subagent 进度 | swarm_fission 批次进度（含 partial_success） | 无 | **Myrm 独有** |
 | 错误恢复 | recovery_actions 一键恢复 + error_category 诊断 | 无 | **Myrm 独有** |
 
-**59 项测试验证**（2026.6.30）：ProgressSteps 22/22 ✅ + LiveTerminal 27/27 ✅ + PetDispatch 8/8 ✅ + ArchiveRestore 2/2 ✅
+**81 项测试验证**（2026.7.2）：ProgressSteps 22/22 ✅ + LiveTerminal 27/27 ✅ + PetDispatch 8/8 ✅ + ArchiveRestore 2/2 ✅ + MessageStream handlers 29/29 ✅（toolLifecycle/gapEvents/statusStream/tasksSteps/petDispatch/clarification/completion）
 
 **结论：豆包的卡死问题源于「没做好」（主线程阻塞 + 无细粒度反馈），而非「未做」。Myrm 的架构（SSE + WebWorker + PTC notify + 树形进度步骤 + Live Terminal）构建了完整的防假死与进度反馈体系，远超简单进度条方案。**
 
@@ -1589,7 +1591,7 @@ DeerFlow 2.0 提出了 14 层中间件链和 Docker 沙箱，但其架构严重�
 
 **用户收益**：只在 3+ 步任务时打开 Planning——聊天里实时看 todo 树，Goal 长任务自动启用，断线重连后沙箱与 Guard 仍对齐，且不为没用到的工具每轮多付 Token。
 
-**验证（2026-07-02）**：harness progress **24/24（100% cov）** + todo 条件加载 + CompletionGuard **22/22** + server planning 套件 **35/35（1 skipped）** + live LLM E2E **1/1** + frontend planning vitest **11/11** + MCP Chrome 移动端 plan 卡片 + ProgressSteps；全量 frontend vitest **2040/2040**。产品 WebUI 已移除 `@playwright/test` 无头 CI，UI 集成走 **真实 Chrome MCP** + API prepare 脚本。
+**验证（2026-07-03）**：harness progress + todo 条件加载 **38/38** + server planning 集成 **24/24（1 skipped）** + live LLM E2E **3/3**（含 resume 续聊更新 todo）+ frontend `tasksStepsMerge` **5/5**；修复 `task_workspace_root` 传递与 `workspace_todos_exist` 误判两个生产 Bug。产品 WebUI 已移除 `@playwright/test` 无头 CI，UI 集成走 **真实 Chrome MCP** + API prepare 脚本。
 
 ## 2026 最新核心优势总结 (对标 Hermes, OpenClaw, DeerFlow 等)
 

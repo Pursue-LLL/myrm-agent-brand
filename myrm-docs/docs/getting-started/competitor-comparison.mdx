@@ -255,6 +255,8 @@ Myrm introduces a robust **Tag-Based Environment Degradation** architecture at t
 
 **Result: Myrm ensures bullet-proof reliability for unattended workflows. By physically stripping interactive tools from the LLM's context during background tasks, it eliminates the root cause of Cron job deadlocks before the LLM can even attempt to make a mistake.**
 
+Additionally, Myrm's **Stuck Task Watchdog** detects agent tasks that hang at the infrastructure level (e.g., LLM API half-open connections, tool deadlocks) and automatically cancels them after a configurable timeout (default 600s). The watchdog runs inside the existing 60-second janitor cycle with zero new components, sends a localized timeout notification to the user (5 languages), and releases the session so subsequent messages can be processed. Competitors like OpenClaw require container-level `killContainer` (harsh), while Hermes relies on manual `/stop` — Myrm handles it transparently.
+
 ## Extreme Scenario Anti-Explosion (vs Hermes / OpenClaw)
 
 In autonomous multimodal scenarios (e.g., Computer Use) or very long sessions, agents inevitably hit the limits of context windows, causing frequent OOM crashes, dropped API connections, or total memory loss in competitors. 
@@ -712,7 +714,7 @@ Beyond cache economics, Myrm's dedicated **SubagentExecutor** engine handles wha
 | Untrusted upstream context | Passed through silently | **Taint propagation** with `[SECURITY WARNING]` | Clear signal to verify independently |
 | Orchestrator delegation | Coarse spawn tools | **Manifest-scoped** delegation tools per role | Safer, clearer permissions |
 
-**Regression coverage:** **111+** vault-closure tests green (harness unit + server integration + LLM E2E delegate→bash→vault + frontend vitest, Jul 2026); **366+** total subagent/orchestration harness regression; **Jul 2026 server API integration batch (27 passed)** covers concurrent delegate, REST subagent list/hydrate, swarm fission resume, and binding paths.
+**Regression coverage:** **606+** vault-closure tests green (harness 591 + server 15, Jul 2026: vault core + auto_vault + resume_compact + file_read_vault + path_boundary + executor + server e2e); **366+** total subagent/orchestration harness regression; **Jul 2026 server API integration batch (27 passed)** covers concurrent delegate, REST subagent list/hydrate, swarm fission resume, and binding paths.
 
 ### Claude Code 2.1.154~2.1.157 Harness Upgrade
 
@@ -987,12 +989,12 @@ Myrm solves both at the architecture level:
 | Granular progress | ProgressItem 20+ fields (percent/step/total/category/level) | Basic progress bar | **Myrm wins** |
 | Real-time feedback | PTC tools.notify cross-process channel (10req/s rate limit) | No real-time notifications | **Myrm wins** |
 | Heartbeat sensing | TOOL_HEARTBEAT shows elapsed_ms for long tools | No heartbeat | **Myrm wins** |
-| Progress UI | ProgressSteps tree renderer (8 polymorphic renderers) + Live Terminal | Single progress bar | **Myrm dominates** |
+| Progress UI | ProgressSteps tree renderer (9 polymorphic renderers incl. LiveTerminal + EvictedOutputDrawer full-output viewer with Search/Copy/Pagination) | Single progress bar | **Myrm dominates** |
 | Background tasks | _background_progress async monitoring | None | **Myrm exclusive** |
 | Subagent progress | swarm_fission batch progress (partial_success) | None | **Myrm exclusive** |
 | Error recovery | recovery_actions one-click + error_category diagnostics | None | **Myrm exclusive** |
 
-**Verified by 59 tests** (2026.6.30): ProgressSteps 22/22 ✅ + LiveTerminal 27/27 ✅ + PetDispatch 8/8 ✅ + ArchiveRestore 2/2 ✅
+**Verified by 81 tests** (2026.7.2): ProgressSteps 22/22 ✅ + LiveTerminal 27/27 ✅ + PetDispatch 8/8 ✅ + ArchiveRestore 2/2 ✅ + MessageStream handlers 29/29 ✅ (toolLifecycle/gapEvents/statusStream/tasksSteps/petDispatch/clarification/completion)
 
 **Verdict: Doubao's freezing issues stem from "poorly implemented" (main-thread blocking + no granular feedback) rather than "not implemented". Myrm's architecture (SSE + WebWorker + PTC notify + tree-shaped progress + Live Terminal) builds a complete anti-freeze & progress feedback system that far exceeds a simple progress bar.**
 
@@ -1729,7 +1731,7 @@ Most agents ship a single todo/plan tool that is **always bound** to Turn 1 — 
 
 **User benefit**: Turn on Planning only for 3+ step jobs — you get a live todo tree in chat, Goal long tasks auto-enable it, files and guard stay in sync across reconnects, and you are not paying token tax for tools you did not ask for.
 
-**Verified (2026-07-02)**: harness progress **24/24 (100% cov)** + todo conditional + CompletionGuard **22/22** + server planning suite **35/35 (1 skipped)** + live LLM E2E **1/1** + frontend planning vitest **11/11** + MCP Chrome mobile plan card + ProgressSteps; full frontend vitest **2040/2040**. Product WebUI dropped `@playwright/test` headless CI — UI integration uses **real Chrome MCP** + API prepare scripts.
+**Verified (2026-07-03)**: harness progress + todo conditional **38/38** + server planning integration **24/24 (1 skipped)** + live LLM E2E **3/3** (including resume with existing todos) + frontend `tasksStepsMerge` **5/5**; fixed two production bugs (`task_workspace_root` passthrough + `workspace_todos_exist` false negatives). Product WebUI dropped `@playwright/test` headless CI — UI integration uses **real Chrome MCP** + API prepare scripts.
 
 ## 2026 Latest Core Advantages Summary (vs Hermes, OpenClaw, DeerFlow, etc.)
 

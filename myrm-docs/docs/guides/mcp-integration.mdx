@@ -414,3 +414,12 @@ The self-healing reconnect system handles most connection issues transparently �
 - Network connectivity to the MCP server
 - Server process health (may need restart)
 - Resource limits (file descriptors, memory)
+
+### OAuth Token Expiry
+
+When an MCP server's OAuth token expires (common with GitHub, Linear, Notion, Slack integrations), Myrm automatically detects the authentication failure and guides you to re-authorize:
+
+1. The session actor detects auth-related errors (401/unauthorized/invalid_token) after reconnect exhaustion
+2. A toast notification appears: **"{server} requires re-authorization"** with a one-click **"Reauthorize"** button
+3. Click the button to jump directly to Settings → Extensions where you can re-authorize
+4. After re-authorization, the connection pool automatically rebuilds the session with the fresh token — no page reload needed
