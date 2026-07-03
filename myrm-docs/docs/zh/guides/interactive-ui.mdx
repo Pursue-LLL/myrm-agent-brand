@@ -24,6 +24,10 @@ Turn1 工具描述约 **223 token**（瘦 docstring）；完整组件 props **�
 | 校验 | **fail-closed** — 未知 `type`、空 `components`、无效图（`root_ids`/`children`）、非法 `actions` 均返回结构化错误，禁止静默跳过 |
 | 用户操作 | 按钮/表单提交以 `UIActionEvent` 回传 Agent 继续执行 |
 
+## 投递链路（SSE）
+
+工具可能在 LangGraph 子 asyncio 任务中执行，此时 `ArtifactContext` 的 ContextVar 不可见。Myrm 按 assistant `message_id` stash UI 工件（run 级绑定 + post_run 弹出），确保 **`UI_UPDATE` SSE** 在 `MESSAGE_END` 前到达 WebUI。由集成 wiring 测试与 **真实 LLM agent-stream E2E**（关键路径无 mock）覆盖。
+
 ## JSON 结构（邻接表）
 
 ```json

@@ -24,6 +24,10 @@ Turn1 cost is **~223 tokens** for the slim tool docstring — full component pro
 | Validation | **Fail-closed** — unknown `type`, empty `components`, invalid graph (`root_ids`/`children`), or malformed `actions` return structured tool errors (no silent skip) |
 | User actions | Button / form submissions flow back as `UIActionEvent` and continue the agent loop |
 
+## Delivery pipeline (SSE)
+
+Tool execution may run in a LangGraph child asyncio task where `ArtifactContext` ContextVars are not visible. Myrm stashes UI artifacts by assistant `message_id` (run-level bind + post_run pop) so **`UI_UPDATE` SSE** still reaches the WebUI before `MESSAGE_END`. Covered by integration wiring tests and a **real LLM agent-stream E2E** (not mocked on the critical path).
+
 ## JSON shape (adjacency list)
 
 ```json
