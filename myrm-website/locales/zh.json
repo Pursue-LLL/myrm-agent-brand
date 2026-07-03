@@ -359,7 +359,7 @@
           "feature": "记忆系统 · 8 种类型、知识图谱、40+ 个可视化管理组件、27 源集成（9 类别）、Obsidian 导出、数据集导出、健康诊断",
           "hermes": "2200字符（无管理UI）",
           "openclaw": "3",
-          "myrmAgent": "三层去重(Hash→Vector→LLM) + 三引擎行为推导(CognitiveDeriver偏好推理 + PreferenceStability稳定性追踪 + FrustrationDetector挫败→技能进化) + BM25/Vector/RRF三通道融合检索(7-Signal加权+MMR多样性) + Auto Dreaming 异步固化 + 知识图谱增强检索 + L1 画像注入 + memory_recall 与 conversation_search 双 eager（与 Hermes/OpenClaw 同构分离，稳定 prompt cache，Sources 可核对）+ **新用户默认开启记忆** — 2800+项测试验证（2026-07 记忆栈 34 场景回归），真正越用越懂你"
+          "myrmAgent": "三层去重(Hash→Vector→LLM) + 三引擎行为推导(CognitiveDeriver偏好推理 + PreferenceStability稳定性追踪 + FrustrationDetector挫败→技能进化) + BM25/Vector/RRF三通道融合检索(7-Signal加权+MMR多样性) + Auto Dreaming 异步固化 + 知识图谱增强检索 + L1 画像注入 + memory×3 COMMON 层 eager + conversation_search **独立开关默认关**（按需开启，Sources 可核对）+ **无痕模式全记忆关闭** + **新用户默认开启记忆** — 2800+项测试验证（2026-07 记忆栈 34 场景回归），真正越用越懂你"
         },
         "knowledgeGraph": {
           "feature": "知识图谱 · 关联可视化",
@@ -383,7 +383,7 @@
           "feature": "无痕模式 · 敏感数据物理隔离",
           "hermes": "_no",
           "openclaw": "_no",
-          "myrmAgent": "阅后即焚"
+          "myrmAgent": "Burn-after-read · full memory off for session (no read/write/search tools, no profile injection)"
         },
         "privacySafeShare": {
           "feature": "隐私安全分享 · 路径脱敏 + 凭证脱敏 + 元数据剥离",
@@ -527,7 +527,7 @@
           "feature": "Token 消耗 · 同样预算约 7 倍任务量 + 内置防膨胀技能",
           "hermes": "~15,520",
           "openclaw": "~18,000",
-          "myrmAgent": "2,167 省86% + Turn1 实测 15 工具/~8,354 tok 工具层（SSOT 脚本锁定）+ 控制面工具零 bind（编排/Guard/Verifier/PTC 不占默认 schema）+ Agent 基线 file_ops/code_execute 始终 Turn1；discover miss 聊天内一键开启/绑定；记忆 L1 画像 + 双 eager 召回"
+          "myrmAgent": "2,167 省86% + Turn1 实测 14 工具/~8,244 tok 工具层（SSOT 脚本锁定；conversation_search 按需 +~67 tok）+ 控制面工具零 bind + memory×3 COMMON 层 Prefix Cache 友好排序；discover miss 聊天内一键开启/绑定"
         },
         "costRouting": {
           "feature": "三维智能路由 + 自动升级 · 复杂度+隐私+容错+模型卡住自动升级",
@@ -1236,7 +1236,7 @@
         "memoryKnowsYou": {
           "label": "记忆与 Wiki",
           "title": "八类记忆，越用越懂你",
-          "desc": "偏好、流程与任务进度跨会话保留 — Working Memory 自动续接上次未完成的工作；memory_recall 与 conversation_search 双 eager 工具按需召回历史（Sources 可核对）；聊天中一键保存回复为长期记忆；后台自动提取偏好时实时 toast 通知并可一键跳转查看；记忆冲突自动检测并通知你裁决（保留/替换/合并/放弃四选一），72h 未处理安全降级；个人 Wiki 配备 3D 知识图谱、HITL 防幻觉审核和 10 源迁移，让回答基于你的资料。",
+          "desc": "偏好、流程与任务进度跨会话保留 — Working Memory 自动续接上次未完成的工作；memory×3 默认 eager 召回 + **历史会话搜索独立开关**（默认关，按需开启，Sources 可核对）；聊天中一键保存回复为长期记忆；后台自动提取偏好时实时 toast 通知并可一键跳转查看；**无痕模式全记忆关闭**；记忆冲突自动检测并通知你裁决（保留/替换/合并/放弃四选一），72h 未处理安全降级；个人 Wiki 配备 3D 知识图谱、HITL 防幻觉审核和 10 源迁移，让回答基于你的资料。",
           "stat": "8",
           "statLabel": "类记忆",
           "tag1": "可视化记忆面板",

@@ -52,22 +52,23 @@ Myrm 的 **Working Memory** 通过专用 `__working_state` Profile Memory 条目
 
 对比 ChatGPT Dreaming（被动、无任务聚焦）、CLAUDE.md（手动维护）、第三方 MCP 插件（配置开销），Working Memory 零配置、系统自动提取、自动清理。
 
-## 画像注入 + 双 eager 召回工具
+## 画像注入 + 记忆召回工具（Prefix Cache 友好）
 
-跨会话续聊与 Hermes、CodePilot 同构：画像自动注入；历史搜索由 Agent 显式调用、Sources 可核对。
+跨会话续聊：L1 画像自动注入；语义记忆由 `memory_recall` eager 召回；历史原文/摘要搜索由 **`conversation_search` 独立开关**控制（默认关闭）。
 
 | 层 | 做什么 | 你需要做什么 |
 |----|--------|--------------|
-| **L1 画像注入** | 把你的 Profile、规则、长期偏好写进上下文 | 无（默认开启记忆即可） |
-| **L2 工具** | `memory_recall` 语义跨会话检索；`conversation_search` 搜历史原文与预存摘要（均为 eager） | Agent 按需调用；结果在 Sources UI 展示 |
+| **L1 画像注入** | 把你的 Profile、规则、长期偏好写进上下文 | 无（默认开启记忆即可；无痕模式全关） |
+| **L2 工具 · memory×3** | `memory_recall` / `memory_save` / `memory_manage`（COMMON 层 eager） | Agent 按需调用；结果在 Sources UI 展示 |
+| **L2 工具 · conversation_search** | 搜历史原文与预存摘要（EXTENDED，**默认不 bind**） | 设置 → 知识 → 开启「历史会话搜索」 |
 
-**Turn1 行为**：需要历史上下文时，Agent 调用 `memory_recall` 或 `conversation_search`。精确引用旧对话时，Sources 展示会话来源。
+**Turn1 行为**：需要历史上下文时，Agent 调用 `memory_recall`；精确引用旧对话且已开启历史搜索时，调用 `conversation_search`。Sources 展示会话来源。
 
-**新用户默认开启记忆**（设置 → 知识 → 启用记忆）。关闭后不会加载任何记忆与会话搜索工具。
+**新用户默认开启记忆**（设置 → 知识 → 启用记忆）。关闭后不会加载任何记忆工具。**历史会话搜索与核心记忆解耦**，默认关闭以节省 Turn1 schema（约 ~67 tok）。
 
-### 竞品对比（诚实表述，2026-07）
+### 竞品对比（诚实表述，2026-07-03）
 
-Hermes、CodePilot、OpenClaw 等主流开源 Agent 均将**语义记忆**与**会话历史搜索**拆成独立 eager 工具，由模型按需调用——而非首轮静默注入。Myrm 采用同构方案：L1 画像注入 + 双 eager 召回工具，避免 deferred 动态 append 与隐藏 HumanMessage 预加载破坏 Anthropic prompt cache。CoPaw 的 `auto_memory_search` middleware 是少数派；我们优先 Sources 可核对、用户可验证的召回路径。
+Hermes、CodePilot 等将语义记忆与会话搜索拆成独立工具；多数产品**无独立开关**，历史搜索常默认 eager。Myrm：**memory×3 COMMON 层**（Prefix Cache 友好排序）+ **conversation_search opt-in**（不为不搜历史的用户付 schema 税）+ **无痕模式全记忆关闭**（非只读）。CoPaw 的 `auto_memory_search` middleware 是少数派；我们优先 Sources 可核对、用户可验证的召回路径。
 
 CustomAgent 委派子任务仍使用 scoped 的会话搜索（低频路径，保持 eager）。
 

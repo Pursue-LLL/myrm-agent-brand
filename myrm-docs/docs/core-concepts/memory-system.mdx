@@ -52,22 +52,23 @@ Myrm's **Working Memory** solves this with a dedicated `__working_state` Profile
 
 Compared to ChatGPT's Dreaming (passive, no task-specific focus), CLAUDE.md (manual maintenance), or third-party MCP plugins (configuration overhead), Working Memory is zero-config, system-extracted, and self-cleaning.
 
-## Profile Injection + Eager Recall Tools
+## Profile Injection + Memory Recall Tools (Prefix Cache Friendly)
 
-Cross-session continuity follows the same pattern as Hermes and CodePilot: profile context is injected automatically; historical search is explicit and verifiable.
+Cross-session continuity: L1 profile is injected automatically; semantic memory via eager `memory_recall`; verbatim history search via **`conversation_search` opt-in toggle** (off by default).
 
 | Layer | What it does | What you do |
 |-------|--------------|-------------|
-| **L1 Profile injection** | Injects Profile, rules, and long-term preferences into context | Nothing (enable memory) |
-| **L2 Tools** | `memory_recall` for semantic cross-session search; `conversation_search` for exact quotes and precomputed summaries (both eager) | Agent calls when needed; results appear in Sources UI |
+| **L1 Profile injection** | Injects Profile, rules, and long-term preferences into context | Nothing (enable memory; incognito disables all) |
+| **L2 · memory×3** | `memory_recall` / `memory_save` / `memory_manage` (COMMON layer, eager) | Agent calls when needed; results in Sources UI |
+| **L2 · conversation_search** | Search verbatim history and precomputed summaries (EXTENDED, **not bound by default**) | Settings → Knowledge → Enable conversation search |
 
-**Turn 1 behavior**: The agent calls `memory_recall` or `conversation_search` when your question needs prior context. Verbatim history citations flow through Sources with conversation references.
+**Turn 1 behavior**: Agent calls `memory_recall` for prior context; calls `conversation_search` for exact quotes when opt-in is enabled. Sources show conversation references.
 
-**Memory is on by default** for new users (Settings → Knowledge → Enable memory). Turning it off removes all memory and session-search tools.
+**Memory is on by default** for new users (Settings → Knowledge → Enable memory). Turning it off removes all memory tools. **Conversation search is decoupled** from core memory and off by default (~67 tok saved on Turn 1).
 
 ### How we compare (honest, Jul 2026)
 
-Most leading open-source agents (Hermes, CodePilot, OpenClaw) keep **semantic memory** and **session history search** as **separate eager tools** the model calls when needed — not a silent first-turn injection. Myrm follows the same pattern: L1 profile injection + dual eager recall tools. This keeps Anthropic prompt-cache prefixes stable (no deferred tool append, no hidden HumanMessage preload). CoPaw is an outlier with `auto_memory_search` middleware; we intentionally avoid that trade-off in favor of Sources-verifiable recalls.
+Hermes and CodePilot split semantic memory and session search into separate tools; most products **lack an independent toggle** and keep history search eager by default. Myrm: **memory×3 in COMMON layer** (cache-friendly sort) + **conversation_search opt-in** + **incognito fully disables memory** (not read-only). CoPaw is an outlier with `auto_memory_search` middleware; we prioritize Sources-verifiable recalls.
 
 CustomAgent sub-delegates keep scoped session search eager (low-frequency path).
 
