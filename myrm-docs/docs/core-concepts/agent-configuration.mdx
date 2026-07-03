@@ -199,10 +199,10 @@ When an agent has too many skills loaded, the LLM may invoke irrelevant ones —
 
 ### Built-in Tools SSOT (Jul 2026)
 
-- **15 canonical IDs** — shared catalog across frontend and server (`web_search`, `memory`, `file_ops`, `code_execute`, …).
+- **15 canonical IDs** — 13 UI-togglable IDs plus **agent baseline** `file_ops` / `code_execute` (always Turn1 eager, no panel toggle).
 - **24 preset agent matrices** — initializer syncs on startup; gallery and settings list show all 24 built-ins (`AGENT_LIST_BUILTIN_PAGE_SIZE=50` default; chips from `enabled_builtin_tools`).
 - **Single write path** — `persist_enabled_builtin_tools` validates before DB writes; legacy IDs return 422 instead of silent failure.
-- **Default sandbox baseline** — unset profiles get `web_search` + `memory` + `file_ops` + `code_execute`.
+- **Default profile** — UI defaults to `web_search` + `memory`; file/shell capabilities are always on via agent baseline.
 - **User switch ON → Turn1 direct use** — default or manually enabled builtins (including render_ui, canvas, computer_use, x_search, delegate_to_agent) and bound-skill tools appear in the first-turn LLM schema without calling `discover_capability` first.
 - **active_tool_groups SSOT** — `derive_active_tool_groups()` derives enabled groups in one place, preventing false `capability_gap` when render_ui or media groups are already on.
 - **Full matrix regression** — `CAPABILITY_GAP_REGISTRY` covers **15** builtins (web_search, memory, answer_tool, browser, render_ui, computer_use, wiki, kanban, canvas, planning, media trio, file_ops, code_execute), each with disabled→gap and enabled→no-gap tests (84 dedicated cases, Jul 2026).
