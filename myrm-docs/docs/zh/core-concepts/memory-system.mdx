@@ -70,6 +70,8 @@ Myrm 的 **Working Memory** 通过专用 `__working_state` Profile Memory 条目
 
 Hermes、CodePilot 等将语义记忆与会话搜索拆成独立工具；多数产品**无独立开关**，历史搜索常默认 eager。Myrm：**memory×3 COMMON 层**（Prefix Cache 友好排序）+ **conversation_search opt-in**（不为不搜历史的用户付 schema 税）+ **无痕模式全记忆关闭**（非只读）。CoPaw 的 `auto_memory_search` middleware 是少数派；我们优先 Sources 可核对、用户可验证的召回路径。
 
+**验证（2026-07-03）**：server memory/conv/incognito 集成套件 39 e2e 通过；WebUI 设置页历史搜索 toggle + 真实聊天 + 无痕模式全链路手验。
+
 CustomAgent 委派子任务仍使用 scoped 的会话搜索（低频路径，保持 eager）。
 
 ## AMO 操作 — 全覆盖
