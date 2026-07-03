@@ -104,6 +104,32 @@ Configurable via parameters: `max_steps` (how far to scroll), `delay_ms` (wait t
 - Handle authentication flows
 - Handle browser dialogs intelligently
 
+## Semantic DOM Safety — Session-Layer HITL
+
+Destructive browser actions (Delete, Pay, Submit, account changes) and **mutating JavaScript** (`element.click()`, `form.submit()`, `innerHTML=`) trigger a **Human-in-the-Loop approval card** before execution — regardless of which tool initiated the action.
+
+### Why session layer matters
+
+Competitors often guard only the outer tool API. Myrm guards at **`BrowserSession`** so these paths share one safety gate:
+
+- `browser_interact_tool` (click / double-click)
+- `browser_execute_script_tool` (Python scripts calling `session.interact()`)
+- `browser_manage_tool` evaluate (after L1 tool allowlist / YOLO)
+
+### What you see in the WebUI
+
+| Action type | Approval card shows |
+|-------------|---------------------|
+| High-risk click | Element role, accessible name, ref ID, and `click(e5)` |
+| Mutating evaluate | **Full JavaScript expression** in a monospace block (informed consent — not a blind approve) |
+
+Approve, reject, or add feedback — the agent receives a structured block message and must find an alternative if you reject.
+
+### Two-layer evaluate policy
+
+1. **L1 Tool approval**: `browser_evaluate` defaults to **DENY** in security policy (YOLO/allowlist can override).
+2. **L2 Semantic guard**: Even when L1 passes, mutating expressions still require HITL; read-only expressions like `document.title` run immediately.
+
 ## Dialog Policy (Handling Popups Automatically)
 
 JavaScript dialogs (`alert`, `confirm`, `prompt`, `beforeunload`) can block all page interaction if not handled. Myrm provides **four configurable policies** per agent:

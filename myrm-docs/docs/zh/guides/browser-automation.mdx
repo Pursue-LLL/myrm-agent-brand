@@ -132,6 +132,32 @@ Agent 使用 `browser_extract(mode='media', selector='.product-gallery')` 获得
 - 处理认证流程
 - 智能处理浏览器弹窗
 
+## 语义 DOM 安全 — Session 层 HITL
+
+删除、支付、提交、改账号等**高危 DOM 操作**，以及 **会改页面的 JavaScript**（如 `element.click()`、`form.submit()`、`innerHTML=`），在执行前都会弹出**人机共驾审批卡**——无论由哪个工具发起。
+
+### 为什么要在 Session 层统一
+
+竞品常只 guard 外层 tool API。Myrm 在 **`BrowserSession`** 统一拦截，以下路径共用同一套守卫：
+
+- `browser_interact_tool`（click / dblclick）
+- `browser_execute_script_tool`（脚本内 `session.interact()`）
+- `browser_manage_tool` evaluate（L1 放行后仍走 L2 语义 guard）
+
+### WebUI 里你能看到什么
+
+| 操作类型 | 审批卡展示 |
+|----------|------------|
+| 高危点击 | 元素 role、可访问名称、ref，以及 `click(e5)` |
+| 变异 evaluate | **完整 JavaScript 表达式**（等宽字体块 — 知情同意，不是盲批） |
+
+可批准、拒绝或附反馈；拒绝后 Agent 会收到结构化阻断信息并需换方案。
+
+### evaluate 双层策略
+
+1. **L1 工具审批**：安全策略默认 **DENY** `browser_evaluate`（YOLO/allowlist 可覆盖）。
+2. **L2 语义 guard**：L1 放行后，变异表达式仍须 HITL；只读表达式如 `document.title` 直接执行。
+
 ## 弹窗策略（自动处理弹窗）
 
 JavaScript 弹窗（`alert`、`confirm`、`prompt`、`beforeunload`）若不处理会阻塞所有页面交互。Myrm 提供**四种可配置策略**，按智能体独立设置：
