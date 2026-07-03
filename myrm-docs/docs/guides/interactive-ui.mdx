@@ -21,7 +21,7 @@ Turn1 cost is **~223 tokens** for the slim tool docstring — full component pro
 |-------|----------|
 | Component whitelist | **23** `UIComponentType` values (enum SSOT, front + back) |
 | Progressive spec | Simple UIs (text + field + button) need no extra read; for **table / chart / tabs** or **3+ components**, the agent should `file_read_tool` `.agent/docs/A2UI_REFERENCE.md` first |
-| Validation | **Fail-closed** — unknown `type` or empty `components` returns a structured tool error (no silent skip) |
+| Validation | **Fail-closed** — unknown `type`, empty `components`, invalid graph (`root_ids`/`children`), or malformed `actions` return structured tool errors (no silent skip) |
 | User actions | Button / form submissions flow back as `UIActionEvent` and continue the agent loop |
 
 ## JSON shape (adjacency list)
