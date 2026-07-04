@@ -153,6 +153,9 @@ Myrm 自动优化 MCP 工具 Schema 以兼容 LLM：
 | **$ref 解析** | 完整递归 JSON Schema `$ref` 解析 |
 | **循环引用防护** | 最大深度 + 访问追踪防无限递归 |
 | **Anthropic Schema 自适应** | 自动剥离 Claude 不支持的 JSON Schema 关键字（`minimum`、`maximum`、`pattern`、`format`、`default`、`title` 等），约束语义折叠到 `description` 保留 LLM 理解能力，无需手动配置 |
+| **描述长度安全阀** | 超长第三方描述自动截断至 2048 字符，防止 Token 浪费 |
+| **Schema 缓存稳定** | Key 递归排序 + set 类字段排序，消除 MCP 服务器重启导致的序列化随机性，确保 Prompt Cache 命中 |
+| **内容边界防御** | 所有 MCP 返回值经 5 层 `wrap_untrusted` 防御链处理，防止 Prompt Injection |
 
 ## 连接管理
 

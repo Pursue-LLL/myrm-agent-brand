@@ -153,6 +153,9 @@ Myrm automatically optimizes MCP tool schemas for LLM compatibility:
 | **$ref Resolution** | Full recursive JSON Schema `$ref` resolution |
 | **Circular Reference Guard** | Max depth limit + visited tracking prevents infinite recursion |
 | **Anthropic Schema Auto-Adapt** | Automatically strips unsupported JSON Schema keywords (`minimum`, `maximum`, `pattern`, `format`, `default`, `title`, etc.) for Claude models, folds constraint semantics into `description` to preserve LLM understanding. Zero manual configuration needed |
+| **Description Safety Valve** | Excessively long third-party descriptions auto-truncated to 2048 chars to prevent token waste |
+| **Schema Cache Stability** | Recursive key sorting + set field sorting eliminates serialization randomness from MCP server restarts, ensuring Prompt Cache hits |
+| **Content Boundary Defense** | All MCP return values pass through 5-layer `wrap_untrusted` defense chain to prevent Prompt Injection |
 
 ## Connection Management
 
