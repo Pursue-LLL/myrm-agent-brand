@@ -121,6 +121,24 @@ When your **main model does not support vision**, set a **Vision Fallback** mode
 
 See the [Vision & Image Understanding](/docs/guides/vision-interaction) guide for setup and usage.
 
+## Multi-Model Consensus (MoA)
+
+Multiple models generate answers in parallel, and an aggregator model synthesizes the most reliable result. Ideal for critical decisions, contract reviews, and technical assessments that require cross-validation.
+
+**How to use:** Go to **Settings > Agent > Capabilities > Multi-Model Consensus**, enable it, and select reference and aggregator models.
+
+**Key parameters:**
+- **Reference Temperature** — Controls reference model output diversity (default 0.6, higher = more diverse)
+- **Aggregator Temperature** — Controls final synthesis precision (default 0.4, lower = more precise)
+- **Reference Output Limit** — Limits max output tokens per reference model (default unlimited, recommend 600-2000 for cost savings)
+- **Min Successful** — Minimum reference models that must succeed (default 1)
+
+**Smart optimizations:**
+- Skips aggregation when only 1 reference succeeds — returns directly
+- Aggregator output is never truncated — user-visible answers stay complete
+- Compatible with reasoning model output formats (DeepSeek-R1, etc.)
+- Full multi-turn conversation context preserved
+
 ## Fault Tolerance
 
 The 14-layer error recovery system handles failures automatically:
