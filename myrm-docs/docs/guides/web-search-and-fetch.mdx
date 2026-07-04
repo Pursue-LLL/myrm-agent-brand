@@ -91,6 +91,25 @@ When reference images are needed, the agent uses **web_search → web_fetch / br
 
 **AdaptiveRouter** learns per-domain costs and picks the optimal tier automatically.
 
+### Optional L4 Remote Fallback (Default OFF)
+
+When L1–L3 all fail, you can **opt in** to a remote reader fallback (Settings → Search → **Web Fetch Remote Escalation**):
+
+| Provider | Role |
+|----------|------|
+| Jina Reader | First remote attempt (optional API key; free tier when available) |
+| Firecrawl | Second attempt (can reuse your search-service Firecrawl key) |
+
+**Design guarantees (vs competitors that always hit cloud APIs):**
+
+- **Default OFF** — no extra Turn1 tools, prompt cache unchanged
+- **Per-session cap** (1–50) — prevents runaway remote billing
+- **SSRF guard** before any remote call
+- **deep_crawl never escalates** — bulk site crawls stay local-only
+- **Plane deny switch** — `MYRM_WEB_FETCH_ESCALATION=denied` for enterprise hard blocks
+
+OpenClaw/Hermes often depend on Firecrawl for hard pages; Myrm keeps **local-first** and treats cloud as an explicit, capped last resort.
+
 ### Privacy Protection
 
 **Explicit Opt-In Design:** Search only activates when you manually configure and enable a provider in Settings. Unlike some alternatives that silently send queries to free engines (e.g., DuckDuckGo) behind your back, Myrm never makes network calls without your explicit configuration. No API key configured = no search at all.
