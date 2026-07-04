@@ -371,7 +371,7 @@
           "feature": "Wiki 引擎 · 树形 GUI + 混合检索 + 防幻觉审核",
           "hermes": "SKILL手动",
           "openclaw": "纯MD文件(无GUI)",
-          "myrmAgent": "20+API端点·LLM编译引擎+树形GUI+3D知识图谱+HITL防幻觉审核+ZIP/文件夹/Obsidian一键导入+Web研究注入+Artifact入库+扫描PDF三策略自动识别+PaddleOCR本地CJK识别+DeepCrawl站点抓取+三层记忆去重(Hash→向量→LLM)——192项测试验证"
+          "myrmAgent": "20+API端点·LLM编译引擎+树形GUI+3D知识图谱+HITL防幻觉审核+ZIP/文件夹/Obsidian一键导入+Web研究注入+Artifact入库+扫描PDF三策略自动识别+PaddleOCR本地CJK识别+DeepCrawl站点抓取+三层记忆去重(Hash→向量→LLM)+SQLite单写者一致性保证(零竞态条件)——250项测试验证"
         },
         "smartForgetting": {
           "feature": "防碎片化 · 7 大策略保持索引纯净与极速召回",
@@ -425,7 +425,7 @@
           "feature": "全渠道触达 · 28渠道+端内Agent切换+三级绑定+双模式路由+身份隔离+Agent主动推送",
           "hermes": "~19平台, 无Topic级Agent绑定；send_message_tool 无 GUI 白名单收件人选择",
           "openclaw": "易断连, 无审批通知；无 Agent 跨渠道推送 GUI",
-          "myrmAgent": "28+ 渠道原生深度集成（Telegram/Slack/Discord/飞书/iMessage/WeChat 等），端内 InlineKeyboard 一键切换 Agent（竞品均无），双模式路由：`/cc fix bug` 临时用 Claude 回复而不改变绑定、`/cc` 持久绑定。三级 Topic Binding（Thread→Chat→Channel）+ 六维 Agent 隔离（Prompt/Model/Tools/MCP/Personality/Memory）。Per-channel 独立预算隔离（防止单频道耗尽全局配额，SSE 实时告警+DB 持久化重启恢复）。Agent 主动 `channel_notify_tool`：设置页 pairing 下拉选收件人 + 白名单 + send_tracked 可靠投递（73 项专项测试）。IM 实时工具进度透出（如「🔍 Searching: AI 编程工具」而非笼统的「Searching...」）——通用 fallback 覆盖所有工具含自定义 MCP，竞品仅支持硬编码工具。495 项路由测试全通过。"
+          "myrmAgent": "28+ 渠道原生深度集成（Telegram/Slack/Discord/飞书/iMessage/WeChat 等），端内 InlineKeyboard 一键切换 Agent（竞品均无），双模式路由：`/cc fix bug` 临时用 Claude 回复而不改变绑定、`/cc` 持久绑定。三级 Topic Binding（Thread→Chat→Channel）+ 六维 Agent 隔离（Prompt/Model/Tools/MCP/Personality/Memory）+ 完整 GUI（ChannelRoutingSection：话题发现 + Agent 绑定 + 高风险工具警告）。Per-channel 独立预算隔离（防止单频道耗尽全局配额，SSE 实时告警+DB 持久化重启恢复）。Agent 主动 `channel_notify_tool`：设置页 pairing 下拉选收件人 + 白名单 + send_tracked 可靠投递（73 项专项测试）。IM 实时工具进度透出（如「🔍 Searching: AI 编程工具」而非笼统的「Searching...」）——通用 fallback 覆盖所有工具含自定义 MCP，竞品仅支持硬编码工具。744 项 topic/routing/agent 测试全通过（2026年7月）。"
         },
         "voiceInteraction": {
           "feature": "语音交互 · 说话即操作 + 视频自动转录",
@@ -443,7 +443,7 @@
           "feature": "纵深安全 · 隐私不泄露",
           "hermes": "3处拦截",
           "openclaw": "1层",
-          "myrmAgent": "6层纵深+15层DLP · 25000+安全测试全通过 · E2EE视觉背书——手机远程访问时显示锁图标+密钥指纹+算法信息(NaCl Box Curve25519, 39项测试) · 跨通道统一安全(桌面控制≥shell安全级别，零绕过向量) · 确定性安全审批(零Token/不可注入)+双语命令解释 · 全出站HTTP统一SSRF盾(DNS Pinning+逐跳重定向校验+250+专项测试) · Per-Agent 安全策略(工具+凭证+路径独立隔离) · 3级PII敏感度分级+隐私感知模型路由(S3数据→本地模型) · 摘要路径PII+凭证双重脱敏 · 3档安全预设一键切换 · /freeze 全局急停 · 暴力破解自动告警+凭证失效秒级检测 · 公开分享HTML CSP防护(XSS零风险)"
+          "myrmAgent": "6层纵深+15层DLP · 27000+安全测试全通过(2026年7月) · 容器级沙箱隔离(seatbelt/bwrap)——非应用层黑名单 · AES-256-GCM凭证保险库(三层：Vault+Session+DB) · 三层浏览器清理兜底(优雅关闭→超时→强制Kill PID) · E2EE视觉背书——手机远程访问时显示锁图标+密钥指纹+算法信息(NaCl Box Curve25519, 39项测试) · 跨通道统一安全(桌面控制≥shell安全级别，零绕过向量) · 确定性安全审批(零Token/不可注入)+双语命令解释 · 全出站HTTP统一SSRF盾(DNS Pinning+逐跳重定向校验+250+专项测试) · Per-Agent安全策略(工具+凭证+路径独立隔离) · 3级PII敏感度分级+隐私感知模型路由(S3数据→本地模型) · 摘要路径PII+凭证双重脱敏 · 3档安全预设一键切换 · /freeze全局急停 · 暴力破解自动告警+凭证失效秒级检测 · 公开分享HTML CSP防护(XSS零风险)"
         },
         "goalMode": {
           "feature": "目标驱动 · 复杂项目全程管控",
@@ -641,7 +641,7 @@
           "feature": "网页抓取 · 正文、全站、视频字幕一次到位",
           "hermes": "LLM摘要费Token",
           "openclaw": "单层HTTP",
-          "myrmAgent": "HTTP→浏览器→隐身三层自动降级（用户无感）· 自学习路由（越用越快）· 反爬自动绕过（Cloudflare/Akamai 等主流 WAF）· 全站爬取 + 充分性校验 · YouTube 字幕一键提取 · 3500+ 广告域名拦截 · 391 项测试验证"
+          "myrmAgent": "HTTP→浏览器→隐身三层自动降级（用户无感）· 自学习路由（越用越快）· 反爬自动绕过（Cloudflare/Akamai 等主流 WAF）· 全站爬取 + 充分性校验 · YouTube 字幕一键提取 · 3500+ 广告域名拦截 · 400 项测试验证"
         },
         "desktopApp": {
           "feature": "桌面客户端 · 25+项原生OS能力",
@@ -743,7 +743,7 @@
           "feature": "终端输出压缩 · 长日志不撑爆对话",
           "hermes": "_no",
           "openclaw": "_no",
-          "myrmAgent": "内置压缩"
+          "myrmAgent": "三层渐进压缩流水线：11 个命令专用语义压缩器 + YAML 可配置声明式过滤 + 全局 MD5 去重。覆盖 git/pytest/npm/docker/cargo/tsc 等 14+ 高频命令，用户可通过 `.myrm/filters.yaml` 自定义扩展。91 项测试全通过，覆盖率 94.7%"
         },
         "toolOutputIntelligence": {
           "feature": "全工具输出智能管理 · 大结果不丢不爆",

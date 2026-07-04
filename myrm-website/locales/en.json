@@ -371,7 +371,7 @@
           "feature": "Wiki engine · Tree GUI + hybrid search + review",
           "hermes": "SKILL manual",
           "openclaw": "MD files only (no GUI)",
-          "myrmAgent": "20+ API endpoints · LLM compiler + tree GUI + 3D knowledge graph + HITL review + ZIP/folder/Obsidian import + Scanned PDF auto-detect (text/hybrid/image) + PaddleOCR local CJK + DeepCrawl site ingestion + 3-layer memory dedup (Hash→Vector→LLM) — 192 tests verified"
+          "myrmAgent": "20+ API endpoints · LLM compiler + tree GUI + 3D knowledge graph + HITL review + ZIP/folder/Obsidian import + Scanned PDF auto-detect (text/hybrid/image) + PaddleOCR local CJK + DeepCrawl site ingestion + 3-layer memory dedup (Hash→Vector→LLM) + SQLite single-writer consistency (zero race conditions) — 250 tests verified"
         },
         "smartForgetting": {
           "feature": "Anti-fragmentation · 7 strategies keep index pure & fast",
@@ -425,7 +425,7 @@
           "feature": "Omni-channel · 28 channels + in-chat Agent switching + dual-mode routing + 3-tier binding + identity isolation + agent push notify",
           "hermes": "~19 platforms, no per-topic Agent binding; send_message_tool without GUI whitelist picker",
           "openclaw": "Prone to drop, no approval push; no agent-initiated cross-channel notify GUI",
-          "myrmAgent": "28+ channels with deep native integration (Telegram/Slack/Discord/Feishu/iMessage/WeChat, etc.). In-chat InlineKeyboard one-tap Agent switching (no competitor has this). Dual-mode routing: `/cc fix bug` uses Claude for this message only without changing binding; `/cc` permanently binds. 3-tier Topic Binding (Thread→Chat→Channel) + 6-dimension Agent isolation (Prompt/Model/Tools/MCP/Personality/Memory). Per-channel budget isolation (prevents a single busy channel from exhausting global quota, SSE real-time alerts + DB persistence across restarts). Agent-initiated `channel_notify_tool`: GUI pairing picker + whitelist + reliable send_tracked delivery (73 dedicated tests). Real-time tool progress with input summary in IM cards (e.g. '🔍 Searching: AI coding tools' instead of generic 'Searching...') — covers ALL tools including custom MCP, unlike competitors that only support hardcoded tools. 495 routing tests passing."
+          "myrmAgent": "28+ channels with deep native integration (Telegram/Slack/Discord/Feishu/iMessage/WeChat, etc.). In-chat InlineKeyboard one-tap Agent switching (no competitor has this). Dual-mode routing: `/cc fix bug` uses Claude for this message only without changing binding; `/cc` permanently binds. 3-tier Topic Binding (Thread→Chat→Channel) + 6-dimension Agent isolation (Prompt/Model/Tools/MCP/Personality/Memory) + full GUI (ChannelRoutingSection: topic discovery + agent binding + high-risk tool warnings). Per-channel budget isolation (prevents a single busy channel from exhausting global quota, SSE real-time alerts + DB persistence across restarts). Agent-initiated `channel_notify_tool`: GUI pairing picker + whitelist + reliable send_tracked delivery (73 dedicated tests). Real-time tool progress with input summary in IM cards (e.g. '🔍 Searching: AI coding tools' instead of generic 'Searching...') — covers ALL tools including custom MCP, unlike competitors that only support hardcoded tools. 744 topic/routing/agent tests passing (Jul 2026)."
         },
         "voiceInteraction": {
           "feature": "Voice · Speak to operate + Video transcription",
@@ -443,7 +443,7 @@
           "feature": "Defense in depth · Privacy protected",
           "hermes": "3 checkpoints",
           "openclaw": "1 layer",
-          "myrmAgent": "6 layers + 15-layer DLP · 25000+ security tests passed · E2EE visual endorsement — lock badge with algorithm + key fingerprint on mobile remote access (NaCl Box Curve25519, 39 tests) · Cross-channel unified security (desktop_control ≥ shell_exec safety level in all modes — no bypass vectors) · Deterministic shell approval (zero-Token, injection-proof) with bilingual humanize_command explanations · Unified outbound HTTP SSRF shield (DNS Pinning + per-hop redirect validation + 250+ dedicated tests) · Per-agent security policy (tools + credentials + paths isolated) · 3-tier PII sensitivity grading + privacy-aware model routing (S3 data → local model) · summary-path PII+credential dual redaction · 3 security presets one-click switch · /freeze global E-Stop · Brute-force auto-alert + credential failure instant detection · Public HTML share CSP protection (zero XSS risk)"
+          "myrmAgent": "6 layers + 15-layer DLP · 27000+ security tests passed (Jul 2026) · Container-level sandbox isolation (seatbelt/bwrap) — not app-layer blacklists · AES-256-GCM credential vault (3-tier: Vault+Session+DB) · 3-layer browser cleanup fallback (graceful→timeout→force_kill PID) · E2EE visual endorsement — lock badge with algorithm + key fingerprint on mobile remote access (NaCl Box Curve25519, 39 tests) · Cross-channel unified security (desktop_control ≥ shell_exec safety level in all modes — no bypass vectors) · Deterministic shell approval (zero-Token, injection-proof) with bilingual humanize_command explanations · Unified outbound HTTP SSRF shield (DNS Pinning + per-hop redirect validation + 250+ dedicated tests) · Per-agent security policy (tools + credentials + paths isolated) · 3-tier PII sensitivity grading + privacy-aware model routing (S3 data → local model) · summary-path PII+credential dual redaction · 3 security presets one-click switch · /freeze global E-Stop · Brute-force auto-alert + credential failure instant detection · Public HTML share CSP protection (zero XSS risk)"
         },
         "goalMode": {
           "feature": "Goal-driven · Full project control",
@@ -641,7 +641,7 @@
           "feature": "Web fetch · Body text, full-site crawl, video captions in one go",
           "hermes": "LLM sum costs tokens",
           "openclaw": "Single HTTP",
-          "myrmAgent": "HTTP→browser→stealth 3-tier auto-degradation (invisible to users) · self-learning adaptive router (faster with use) · anti-bot auto-bypass (Cloudflare/Akamai major WAFs) · full-site crawl + sufficiency check · YouTube captions one-click · 3500+ ad domains blocked · 391 tests verified"
+          "myrmAgent": "HTTP→browser→stealth 3-tier auto-degradation (invisible to users) · self-learning adaptive router (faster with use) · anti-bot auto-bypass (Cloudflare/Akamai major WAFs) · full-site crawl + sufficiency check · YouTube captions one-click · 3500+ ad domains blocked · 400 tests verified"
         },
         "desktopApp": {
           "feature": "Desktop app · 25+ native OS capabilities",
@@ -743,7 +743,7 @@
           "feature": "Terminal output compression · long logs won't blow up chat",
           "hermes": "_no",
           "openclaw": "_no",
-          "myrmAgent": "Built-in"
+          "myrmAgent": "3-layer progressive compression pipeline: 11 command-specific semantic compressors + YAML-configurable declarative filters + global MD5 dedup. Covers git/pytest/npm/docker/cargo/tsc and 14+ high-frequency commands. Users can extend via `.myrm/filters.yaml`. 91 tests passed, 94.7% coverage"
         },
         "toolOutputIntelligence": {
           "feature": "Universal tool output management · large results safe & recoverable",
