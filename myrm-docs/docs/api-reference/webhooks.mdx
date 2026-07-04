@@ -44,6 +44,17 @@ Configure outbound webhooks in **Settings > Channels** using the Webhook Channel
 
 Inbound webhook triggers require an `x-webhook-secret` header that must match the secret configured in the Cron job. Requests without a valid secret are rejected with 401.
 
+## GitHub Integration
+
+The built-in GitHub Channel provides native webhook integration for PR reviews, issue management, and push event handling.
+
+1. Navigate to **Settings > Integrations > GitHub**
+2. Enter your Personal Access Token (PAT)
+3. Configure the Webhook Secret
+4. GitHub events (PR opened, issues, push) automatically trigger Agent responses with full context
+
+HMAC-SHA256 signature verification ensures only authentic GitHub payloads are processed.
+
 ## Setup via GUI
 
 1. Navigate to **Settings > Automation** (Cron)
@@ -51,3 +62,11 @@ Inbound webhook triggers require an `x-webhook-secret` header that must match th
 3. Select "Webhook" as the trigger type
 4. Configure the webhook path and secret
 5. Bind an Agent to execute when triggered
+
+## Natural Language Setup
+
+You can also configure webhook triggers via conversation:
+
+> "Help me create a webhook trigger that processes incoming data from our payment system"
+
+The Agent will automatically set up the trigger, generate the webhook URL and secret, and guide you through the external system configuration.

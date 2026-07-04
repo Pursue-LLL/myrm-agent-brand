@@ -223,6 +223,15 @@ Embedding-based buffer detects when the same topic recurs ≥4 times across sess
 
 When new knowledge fully encompasses an older memory, the system safely soft-deletes the subsumed entry while preserving audit trails.
 
+### Conflict Arbitration
+
+When consolidation detects a high-importance contradiction (conflicting old/new memories with insufficient confidence for automatic resolution), the conflict is routed to the user:
+
+- **Real-time notification** — SSE push + sidebar badge pulse alert
+- **Visual comparison** — ConflictCard displays old/new content side-by-side with importance percentage and accuracy score
+- **Four actions** — Keep old / Accept new / Free-edit merge (LLM pre-generates suggestion) / Discard both
+- **72h safe fallback** — Unresolved conflicts auto-retain the old value, preventing information loss
+
 ### One-Click Rollback
 
 Every consolidation operation is reversible with zero extra storage — the system uses existing `previous_content` metadata and soft-deletion flags. The GUI shows a dedicated Consolidation Rollback card with conflict warnings for memories modified by the user after consolidation.

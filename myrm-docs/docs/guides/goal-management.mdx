@@ -71,6 +71,16 @@ The agent uses **dual-engine verification**:
 
 Both engines must agree for the goal to be marked complete.
 
+### Advanced: Logical Consistency Verification
+
+For long document tasks, semantic verification ensures the entire output is logically consistent:
+
+```
+Verify all sections are logically coherent: data and claims introduced earlier are addressed in later sections with no contradictions or omissions
+```
+
+After the agent finishes writing, the LLM reads the full output and judges logical consistency. If it fails, the agent automatically fixes the issues (up to 3 retries, then pauses for human review).
+
 ## Constraints
 
 Hard rules the agent must follow:

@@ -44,6 +44,17 @@ curl -X POST https://your-myrm-host/api/cron/trigger/system-event \
 
 入站 Webhook 触发器需要 `x-webhook-secret` 请求头，必须与 Cron 任务中配置的密钥匹配。缺少有效密钥的请求会返回 401。
 
+## GitHub 集成
+
+内置 GitHub Channel 提供原生 Webhook 集成，支持 PR 审查、Issue 管理和 Push 事件处理。
+
+1. 进入 **设置 > 集成 > GitHub**
+2. 输入 Personal Access Token (PAT)
+3. 配置 Webhook Secret
+4. GitHub 事件（PR 创建、Issue、Push）自动触发 Agent 响应，携带完整上下文
+
+HMAC-SHA256 签名验证确保只有来自 GitHub 的真实请求被处理。
+
 ## 通过 GUI 配置
 
 1. 进入 **设置 > 自动化**（定时任务）
@@ -51,3 +62,11 @@ curl -X POST https://your-myrm-host/api/cron/trigger/system-event \
 3. 选择「Webhook」作为触发类型
 4. 配置 Webhook 路径和密钥
 5. 绑定 Agent 执行
+
+## 自然语言配置
+
+也可以通过对话让 Agent 自动配置 Webhook 触发器：
+
+> "帮我创建一个 Webhook 触发器，当支付系统发来新订单时自动处理"
+
+Agent 会自动设置触发器、生成 Webhook URL 和密钥，并引导你完成外部系统的配置。
