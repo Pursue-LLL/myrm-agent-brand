@@ -18,13 +18,31 @@ description: 每用户持久化沙箱，用于代码执行与工具调用。
 
 ## 隔离
 
-每个沙箱在独立容器中运行：
+每个沙箱在独立环境中运行：
 
 - 独立文件系统卷
 - 网络命名空间隔离
 - 资源限制（CPU、内存、磁盘）
 - 运行时强制安全策略
 - **UI 交互黑名单**：后台子 Agent 的沙箱会屏蔽 UI 接口（`interactive_feedback`、`send_message`），确保后台任务无法用弹窗打断前台用户，实现物理级隔离。
+
+### 原生 OS 级沙箱（无需 Docker）
+
+本地和桌面部署时，Myrm 在所有主流平台提供**原生 OS 级进程隔离**：
+
+| 平台 | 隔离机制 | 工作原理 |
+|------|----------|----------|
+| macOS | Seatbelt (sandbox-exec) | 动态生成 SBPL 策略；零信任挂载，仅允许明确指定路径 |
+| Linux | bubblewrap (bwrap) | 内核命名空间隔离 + PID/网络 unshare + 会话隔离 |
+| Windows | AppContainer | Win32 原生安全令牌 + 逐路径 ACL 权限控制 |
+
+沙箱 Provider 启动时自动检测，无需配置。若首选 Provider 不可用，系统优雅降级并给出明确警告。
+
+**相比 Docker 方案的优势：**
+- 无需安装 Docker Desktop（降低 Windows/macOS 安装门槛）
+- 亚毫秒级启动（无需拉取容器镜像）
+- 使用 OS 原生安全原语（内核强制，非用户态模拟）
+- Local WebUI、Tauri 桌面端、云托管三种模式行为一致
 
 ## 代码执行
 

@@ -18,13 +18,31 @@ Unlike ephemeral sandboxes, Myrm sandboxes retain:
 
 ## Isolation
 
-Each sandbox runs in an isolated container with:
+Each sandbox runs in an isolated environment with:
 
 - Dedicated filesystem volume
 - Network namespace isolation
 - Resource limits (CPU, memory, disk)
 - Security policies enforced at runtime
 - **UI Interaction Blacklisting**: For sub-agents running in the background, the sandbox blocks UI interfaces (`interactive_feedback`, `send_message`), ensuring they can never interrupt the user with popups, providing true physical isolation between background tasks and foreground user interaction.
+
+### Native OS-Level Sandbox (No Docker Required)
+
+For local and desktop deployments, Myrm provides **native OS-level process isolation** on all major platforms:
+
+| Platform | Mechanism | How It Works |
+|----------|-----------|--------------|
+| macOS | Seatbelt (sandbox-exec) | Dynamically generates SBPL profile; Zero-Trust mounts only allow explicit paths |
+| Linux | bubblewrap (bwrap) | Kernel namespace isolation with PID/network unshare + session separation |
+| Windows | AppContainer | Win32 native security token with per-path ACL enforcement |
+
+The sandbox provider is auto-detected at startup — no configuration needed. If the preferred provider is unavailable, the system gracefully falls back with a clear warning.
+
+**Key advantages over Docker-based approaches:**
+- No Docker Desktop dependency (reduces install friction on Windows/macOS)
+- Sub-millisecond startup (no container image pull)
+- Native OS security primitives (kernel-enforced, not userspace emulation)
+- Works identically in Local WebUI, Tauri Desktop, and Cloud modes
 
 ## Code Execution
 
