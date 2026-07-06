@@ -279,20 +279,23 @@ A complete input-side risk detection and governance framework with built-in rule
 
 ### Test Coverage
 
-20960+ tests verify the full security pipeline, including PII/DLP/privacy routing (1136), shell command approval (harness 1209 + server 261), semantic DOM risk (75), shell classification (379), security engine (163), credential scanning (35), tool guards (9), permission engine (119), tool registry & inheritance (67), guardrail middleware (15), architecture registry (4), server permissions (18), agent builtin tools API (12), profile resolver (36), frontend approval & message (15), risk governance (117), webhook routes (2), dynamic authorization guardrails (845), MCP Elicit benchmark (166), and many more.
+21000+ tests verify the full security pipeline, including PII/DLP/privacy routing (1136), shell command approval (harness 1209 + server 261), semantic DOM risk (75), shell classification (379), SQL statement guard (68, 99.1% coverage), security engine integration (163+74), credential scanning (35), tool guards (9), permission engine (119), tool registry & inheritance (67), guardrail middleware (15), architecture registry (4), server permissions (18), agent builtin tools API (12), profile resolver (36), frontend approval & message (15), risk governance (117), webhook routes (2), dynamic authorization guardrails (845), MCP Elicit benchmark (166), and many more.
 
 ## Shell Command Security
 
-Commands are analyzed through a 4-layer quote-aware pipeline before execution:
+Commands are analyzed through a 5-layer quote-aware pipeline before execution:
 
 | Layer | Detection | Response |
 |-------|-----------|----------|
 | **L1** | Binary characters, 12 invisible Unicode categories (zero-width, direction overrides) | BLOCK |
 | **L1.5** | ANSI-C quoting `$'...'` and locale quoting `$"..."` | BLOCK |
 | **L2** | 6 injection vectors (`$()`, backtick, `${}`, `;`, process substitution) + 70+ dangerous command patterns | BLOCK → DENY |
+| **L2.5** | SQL syntax-level guard: detects destructive SQL in DB client commands (`psql`, `mysql`, `sqlite3`, etc.) — handles multi-statement injection and WITH CTE bypass vectors | ESCALATE → ASK |
 | **L3** | Suspicious patterns (`curl\|sh`, `eval`, `base64 -d`, kill/pkill) | ESCALATE → ASK |
 
 **Quote-aware preprocessing**: A character-level state machine (`_strip_quoted_content`) replaces single-quoted content with placeholders before L2/L3 scanning, preventing false positives on `echo 'rm -rf /'` while still catching real threats in double-quoted or unquoted contexts.
+
+**SQL Guard (L2.5)**: Analyzes the *original* command (before quote stripping) to detect destructive SQL operations (`DROP`, `DELETE`, `TRUNCATE`, `ALTER`, `INSERT`, `UPDATE`, `CREATE`) embedded in database client commands. Defends against two advanced bypass vectors: multi-statement injection (`SELECT 1; DROP TABLE`) and WITH CTE wrapping (`WITH x AS (...) DELETE FROM`). Works with flag-based (`psql -c '...'`) and pipe-based (`echo '...' | psql`) patterns. No competitor implements SQL-level command analysis for shell execution.
 
 **Safe Exec path**: Simple commands without shell metacharacters are executed via `create_subprocess_exec` (no shell interpreter), structurally eliminating `$IFS`, glob expansion, and command substitution injection classes.
 
