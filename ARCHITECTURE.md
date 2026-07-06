@@ -95,6 +95,7 @@
 ## 约束
 
 - 仓根不得再放置第二套 Next 应用（`package.json` / `src/` 等于废弃副本）。
+- 仓根 `.gitignore` 含 `.agent/`、`.myrm/`（本地联调 agent workspace 产物，勿提交）。
 - **营销站 CI/CD 仅 Cloudflare Pages**；GHA 仅 **`website-release.yml`**（tag 发布）+ **`pr-check.yml`**（PR lint/validate/test）；禁止 Vercel 与其他 deploy workflow；push `main` 不自动部署
 - 勿对子目录执行 rsync 覆盖（会破坏 submodule `.git`）。
 - 对外域名统一 `myrmagent.ai` / `app.myrmagent.ai` / `docs.myrmagent.ai`；GitHub 统一 `Pursue-LLL/myrm-agent`。

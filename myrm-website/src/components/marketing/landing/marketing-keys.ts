@@ -121,7 +121,6 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'wikiKnowledgeBase',
     'smartForgetting',
     'incognitoMode',
-    'cascadeDeletion',
     'companion',
     'cjkMigration',
     'workspaceRulesCompat',

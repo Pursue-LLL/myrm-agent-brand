@@ -20,7 +20,7 @@ Myrm 内置了基于 [tldraw](https://tldraw.dev) 的**无限画布**，为你�
     你的 AI Agent 可以读取画布状态、查看你选中的内容、并插入新元素。这实现了**视觉提示** —— 画一个草图，选中它，然后让 Agent 去完善或实现它。
   </Step>
   <Step title="实时同步">
-    当 Agent 通过 MCP 工具修改画布时，变更会通过 SSE（服务端推送事件）即时显示。多个浏览器标签页保持同步。
+    当 Agent 通过**内置服务端工具**（无需安装 MCP）修改画布时，变更会通过 SSE（服务端推送事件）即时显示。多个浏览器标签页保持同步。
   </Step>
 </Steps>
 
@@ -77,3 +77,16 @@ Myrm 内置了基于 [tldraw](https://tldraw.dev) 的**无限画布**，为你�
 ## 国际化
 
 画布 UI 完整支持**英文**和**中文**本地化，包括所有标签、按钮、空状态和确认对话框。
+
+## 为何选择 Myrm 而非 MCP 画布插件
+
+| 如果你来自… | 常见痛点 | Myrm 的替代方案 |
+|------------|----------|----------------|
+| **Hermes + 自装 MCP** | 无内置画布；独立浏览器 tab；与聊天无绑定 | GUI 勾选**无限画布** — Agent 自动绑定当前活跃画布 |
+| **OpenClaw / HTML 画布** | 仅为 HTML 快照，非 tldraw 协作板 | 完整 tldraw 编辑器 + 多画布 CRUD + SSE 同步 |
+| **Cowart / Excalidraw MCP** | 需本地 Node；单画布；手动画布局 | Web 原生；**140 项自动化测试**；**AI 自动排版**（Grid/Tree/Force）一次调用 |
+| **Obsidian 画布插件** | 节点随机堆叠，需手拖数分钟整理 | `canvas_batch_layout` + 400ms 自动 **zoomToFit** |
+
+<Note>
+画布**默认关闭** — 未启用时不占 LLM token。你仍可同时使用用户 MCP（GitHub、Notion 等）与内置画布。
+</Note>

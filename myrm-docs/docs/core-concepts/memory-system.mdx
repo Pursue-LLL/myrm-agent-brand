@@ -393,6 +393,25 @@ In the Growth Dashboard → "Evolution Digest" tab:
 
 Access from Growth Dashboard → Evolution Digest tab.
 
+## Auto-Learning from Mistakes
+
+Traditional AI assistants start fresh every session — repeating the same mistakes. Myrm has triple-layer automatic learning built in:
+
+| Layer | Mechanism | How it works | Cost |
+|-------|-----------|--------------|------|
+| Real-time | **Tool-level failure capture** | Same tool fails 2+ times → auto-creates behavioral rule. User prohibitions detected in real-time (bilingual regex) | Zero LLM |
+| Per-session | **Correction chains** | When you correct the AI, the error + fix are paired; future recalls append `(avoid: …)` hints automatically | 1 LLM call at extraction |
+| Cross-session | **Goal learnings** | After long tasks complete, extracts Gotchas (pitfalls), Patterns (effective approaches), and Context (project facts) | 1 LLM call at extraction |
+
+**Example flow:**
+
+1. You say "Never use sudo again" → captured instantly as a critical rule bound to `bash_code_execute_tool`
+2. AI uses wrong API → you correct it → system stores `source_error: "Used deprecated v1 API"` + correct approach
+3. Next time → retrieval automatically returns this correction with `(avoid: Used deprecated v1 API)` label
+4. The outdated memory is automatically demoted by 90% — it won't resurface
+
+**Safety net:** All lesson memories are scoped at AGENT level, ensuring each persona only recalls its own experience — no cross-contamination.
+
 ## Right to be Forgotten — Cascade Memory Deletion
 
 When you permanently delete a chat from the Trash, Myrm automatically removes **all memories derived from that conversation** — semantic facts, episodic events, procedural rules, and pending review items.

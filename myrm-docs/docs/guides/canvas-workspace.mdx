@@ -20,7 +20,7 @@ Myrm includes a built-in **infinite canvas** powered by [tldraw](https://tldraw.
     Your AI Agent can read the canvas state, see what you've selected, and insert new elements. This enables **visual prompting** — draw a rough sketch, select it, and ask the Agent to refine or implement it.
   </Step>
   <Step title="Real-Time Sync">
-    When the Agent modifies the canvas (via MCP tools), changes appear instantly through SSE (Server-Sent Events). Multiple browser tabs stay in sync.
+    When the Agent modifies the canvas (via **built-in server tools** — no MCP install required), changes appear instantly through SSE (Server-Sent Events). Multiple browser tabs stay in sync.
   </Step>
 </Steps>
 
@@ -77,3 +77,16 @@ Unlike single-canvas tools, Myrm supports **multiple independent canvases**:
 ## Internationalization
 
 The canvas UI is fully localized in **English** and **Chinese**, including all labels, buttons, empty states, and confirmation dialogs.
+
+## Why Myrm vs MCP Canvas Plugins
+
+| If you're coming from… | Pain you likely hit | What Myrm gives you instead |
+|------------------------|---------------------|-----------------------------|
+| **Hermes + self-hosted MCP** | No integrated canvas; separate browser tab; no chat binding | Toggle **Infinite Canvas** in GUI — Agent binds to your active canvas automatically |
+| **OpenClaw / HTML canvas** | Snapshot-only HTML, not a tldraw workspace | Full tldraw editor + multi-canvas CRUD + SSE sync |
+| **Cowart / Excalidraw MCP** | Local Node install; one canvas; manual layout | Web-native; **140 automated tests**; **AI Auto-Layout** (Grid/Tree/Force) in one Agent call |
+| **Obsidian canvas plugins** | Random node placement; manual drag for minutes | `canvas_batch_layout` + auto **zoomToFit** in 400ms |
+
+<Note>
+Canvas is **off by default** — zero extra tokens until you enable it. You can still attach user MCP servers (GitHub, Notion, etc.) alongside the built-in canvas.
+</Note>
