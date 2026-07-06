@@ -59,7 +59,7 @@ The importer handles:
 
 - **YAML frontmatter** — both inline arrays (`tags: [a, b]`) and YAML indented lists (`tags:\n  - a\n  - b`), including `aliases`, `created`, and `updated`.
 - **Image embeds** — `![[image.png]]` syntax is rewritten to standard Markdown and images are copied to the wiki assets directory.
-- **`.canvas` files** — automatically skipped (Obsidian Canvas is proprietary JSON, not Markdown).
+- **`.canvas` files** — empty boards or boards with no extractable text are skipped; boards with text nodes are converted to Markdown (text content and file/link labels per JSON Canvas 1.0).
 - **Encoding resilience** — files that fail UTF-8 decoding are reported but do not block the import.
 
 After import completes, a toast notification shows the number of notes processed, tags extracted, and images migrated. The imported files enter the compilation queue and are automatically indexed.

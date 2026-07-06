@@ -59,7 +59,7 @@ Myrm 提供专用 **Obsidian Vault 导入器**，完整保留笔记、标签和�
 
 - **YAML frontmatter** — 行内数组（`tags: [a, b]`）与 YAML 缩进列表（`tags:\n  - a\n  - b`）双格式，含 `aliases`、`created`、`updated`。
 - **图片嵌入** — `![[image.png]]` 语法自动改写为标准 Markdown 并将图片复制至 wiki 资产目录。
-- **`.canvas` 文件** — 自动跳过（Obsidian Canvas 为私有 JSON 格式）。
+- **`.canvas` 文件** — 空板或无可用文本时跳过；含 text 节点的白板按 JSON Canvas 1.0 提取为 Markdown（文本内容及 file/link 标签）。
 - **编码容错** — UTF-8 解码失败的文件会报告但不阻塞整体导入。
 
 导入完成后弹出 toast 通知，显示已处理笔记数、提取标签数和迁移图片数。导入的文件自动进入编译队列并被索引。
