@@ -114,6 +114,7 @@ All model configuration values are automatically sanitized on save, preventing c
 - **API Key** — leading/trailing spaces and newlines stripped (prevents auth failures)
 - **Model name** — extra whitespace removed (prevents model-not-found errors)
 - **Empty values** — converted to unset state gracefully (prevents crashes)
+- **Legacy providerType values** — old exports that used bare ids like `openai` instead of `openai-like` are auto-normalized on load; routing falls back to the provider id instead of crashing the app
 
 This means when pasting from docs or terminal, even if your input has extra spaces, slashes, or newlines, the system works correctly. You never need to worry about formatting.
 
