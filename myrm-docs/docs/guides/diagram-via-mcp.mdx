@@ -1,0 +1,30 @@
+---
+title: Diagrams via MCP
+description: Use Excalidraw or tldraw MCP servers for editable whiteboards — no built-in canvas required.
+---
+
+Myrm does **not** ship a built-in infinite whiteboard. For architecture sketches, flowcharts, and collaborative diagrams, connect an MCP server and keep the core product lean.
+
+## Built-in alternatives (no MCP)
+
+- **Mermaid artifacts** in chat — mind maps, flowcharts, sequence diagrams, Gantt charts
+- **`render_ui`** — structured in-chat UI (forms, tables, charts) via A2UI
+- **HTML / SVG artifacts** — exportable, shareable documents
+
+## Recommended MCP extensions
+
+| Use case | MCP | Notes |
+| --- | --- | --- |
+| Hand-drawn diagrams | [Excalidraw MCP App](https://github.com/excalidraw/excalidraw-mcp) | Official remote HTTP extension; also supported by Goose |
+| Programmatic `.tldr` files | [tldraw-mcp-server](https://github.com/AndresMuelas2004/tldraw-mcp-server) | Node.js; 30 tools, no browser required |
+| Codex-style widget canvas | [Cowart](https://github.com/zhongerxin/cowart) | Codex plugin + MCP widget (reference only) |
+
+## Setup (Settings → MCP)
+
+1. Add a remote MCP server URL (Excalidraw MCP App) **or** run a local stdio server (tldraw / excalidraw-mcp-server).
+2. Enable the MCP on your agent profile.
+3. Ask the agent to create or edit diagrams through MCP tools — persistence lives in the MCP app, not in Myrm server storage.
+
+## Migration from legacy Canvas
+
+If you previously enabled the removed **Canvas** builtin tool, it is silently stripped from saved profiles. Use Mermaid for quick diagrams or install Excalidraw MCP for editable whiteboards.

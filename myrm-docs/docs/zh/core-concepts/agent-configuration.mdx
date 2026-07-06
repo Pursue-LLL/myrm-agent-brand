@@ -207,9 +207,9 @@ Agent 配置面板提供进度模式（默认关闭，不占 Turn1 Token）：
 - **24 预置 Agent 工具矩阵**：服务启动时 initializer 幂等同步；Agent 画廊与设置页均展示完整 24 个 built-in（`AGENT_LIST_BUILTIN_PAGE_SIZE=50` 默认；画廊 chip 来自 `enabled_builtin_tools`）。
 - **写路径单入口**：`persist_enabled_builtin_tools` 校验后再落库；legacy ID 返回 422，避免 silent 失效。
 - **默认 profile**：UI 默认开启 `web_search` + `memory`；**文件/代码执行能力始终可用**（Agent 基线，无需用户勾选）。
-- **用户开关 ON → Turn1 直接可用**：默认或手动开启的内置工具（含 **cron（需手动开启）**、render_ui、canvas、computer_use、x_search、delegate_to_agent 等）、已绑定 skill 对应工具，首轮即出现在 LLM schema，无需先调 `discover_capability`。**Cron 默认关闭（可发现加载）**——仅开启的用户承担约 827 tok eager schema；OpenClaw/Hermes 无 per-agent 开关，Turn1 始终挂载 cron。
+- **用户开关 ON → Turn1 直接可用**：默认或手动开启的内置工具（含 **cron（需手动开启）**、render_ui、computer_use、x_search、delegate_to_agent 等）、已绑定 skill 对应工具，首轮即出现在 LLM schema，无需先调 `discover_capability`。**Cron 默认关闭（可发现加载）**——仅开启的用户承担约 827 tok eager schema；OpenClaw/Hermes 无 per-agent 开关，Turn1 始终挂载 cron。
 - **active_tool_groups SSOT**：`derive_active_tool_groups()` 统一推导已启用工具组，避免 render_ui / 媒体组已开仍误报 `capability_gap`。
-- **全矩阵回归**：`CAPABILITY_GAP_REGISTRY` 覆盖 **14 个 GUI 可切换** builtin（含 web_search、memory、cron、answer_tool 及 browser/render_ui/computer_use/wiki/kanban/canvas/planning/三媒体）。Agent 基线 `file_ops` / `code_execute` 运行时强制，不参与 Gap 提示。
+- **全矩阵回归**：`CAPABILITY_GAP_REGISTRY` 覆盖 **13 个 GUI 可切换** builtin（含 web_search、memory、cron、answer_tool 及 browser/render_ui/computer_use/wiki/kanban/planning/三媒体）。Agent 基线 `file_ops` / `code_execute` 运行时强制，不参与 Gap 提示。可编辑白板见 [通过 MCP 绘制图表](/docs/zh/guides/diagram-via-mcp)。
 - **权限缺口（Entitlement Gap）**：`discover_capability` 搜索 miss 且用户意图需要**未开启**的工具或未绑定的技能时，SSE 推送 `capability_gap` / `skill_gap`；WebUI toast **一键开启/绑定**，无需离开对话去设置页。
 - **会话工具面板**：聊天输入框 **wrench 图标**通过 SSE `tools_snapshot` 展示本会话 **Turn1 已绑定**工具列表（含 layer 标签），比静态配置页更准确反映「此刻 Agent 能调用什么」。
 - **控制面工具（默认 0 Turn1 token）**：编排信号（Deep Research）、CompletionGuard（`_completion_check`）、Verifier（`submit_verdict`）、Workflow PTC（`spawn_subagent`/`notify`）**登记供审计，但不进入默认 Chat bind**——简单对话不为 spawn/编排工具付 schema 税。典型默认 profile 实测 **15 工具 / ~8,354 tok 工具层**（2026-07-03 SSOT）。

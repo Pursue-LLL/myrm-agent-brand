@@ -1,0 +1,30 @@
+---
+title: 通过 MCP 绘制图表
+description: 使用 Excalidraw 或 tldraw MCP 服务实现可编辑白板，无需内置 Canvas 模块。
+---
+
+Myrm **不再内置**无限画布。架构草图、流程图、协作绘图请通过 MCP 扩展接入，保持核心产品简洁。
+
+## 内置替代（无需 MCP）
+
+- 对话内 **Mermaid 工件** — 思维导图、流程图、序列图、甘特图等
+- **`render_ui`** — A2UI 对话内交互 UI（表单、表格、图表）
+- **HTML / SVG 工件** — 可导出、可分享
+
+## 推荐 MCP 扩展
+
+| 场景 | MCP | 说明 |
+| --- | --- | --- |
+| 手绘风格图 | [Excalidraw MCP App](https://github.com/excalidraw/excalidraw-mcp) | 官方远程 HTTP；Goose 等亦有文档 |
+| 程序化 `.tldr` | [tldraw-mcp-server](https://github.com/AndresMuelas2004/tldraw-mcp-server) | Node.js；30 工具，无需浏览器 |
+| Codex 插件参考 | [Cowart](https://github.com/zhongerxin/cowart) | Codex 插件 + MCP widget（竞品参考） |
+
+## 配置（设置 → MCP）
+
+1. 添加远程 MCP（Excalidraw MCP App URL）**或**本地 stdio 服务（tldraw / excalidraw-mcp-server）。
+2. 在智能体配置中启用该 MCP。
+3. 通过 MCP 工具创建/编辑图表；持久化由 MCP 应用负责，不在 Myrm 服务端存储。
+
+## 从旧版 Canvas 迁移
+
+若曾开启已移除的 **Canvas** 内置工具，保存的配置会自动忽略该 ID。快速出图用 Mermaid；可编辑白板请安装 Excalidraw MCP。
