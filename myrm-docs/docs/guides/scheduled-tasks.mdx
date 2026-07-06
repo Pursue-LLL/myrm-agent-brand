@@ -17,6 +17,17 @@ Describe your schedule naturally in any conversation:
 
 The agent automatically detects scheduling intent and presents an approval card — once you confirm, the task is created instantly. A structured task card appears in the chat showing the task name, schedule, next run time, and bound model, with a button to jump to the management dashboard. The agent also auto-matches the best built-in blueprint template to improve task quality. Recurring schedules require explicit confirmation to prevent accidental creation.
 
+### Cron Tool Mode (Agent Config)
+
+By default, cron management is **discoverable** — it does not occupy your Turn1 tool schema (~0 cron tokens). When you describe a schedule in chat, Myrm loads `cron_manage_tool` on demand.
+
+| Setting | Turn1 tools | Best for |
+|---------|-------------|----------|
+| **Cron OFF** (default) | Discover on intent | Everyday chat — lean token footprint, prompt-cache friendly |
+| **Cron ON** in Agent built-in tools | Eager Turn1 (~827 tok) | Power users who want cron callable every turn without discovery |
+
+Enable or disable in **Agent config → Built-in tools → Scheduled tasks (Cron)**. On cloud/sandbox plans without cron entitlement, the toggle is disabled with an upgrade link — the same rule applies to GUI, REST API, and Agent paths.
+
 ### Via GUI
 
 Navigate to **Settings > Scheduled Tasks** and click **Create** to use the visual configuration dialog with schedule picker, model selector, and delivery options.

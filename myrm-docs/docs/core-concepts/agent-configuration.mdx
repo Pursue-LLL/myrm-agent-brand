@@ -111,7 +111,7 @@ Not all tools need to occupy the LLM prompt at all times. Myrm splits tools into
 | Tier | Behavior | Examples |
 |------|----------|---------|
 | **Immediate** | Always available in the prompt when enabled | File ops, terminal, search, browser, **image/video/TTS when you toggle them in Agent config** (AgentDeclared eager mount) |
-| **Deferred** | Loaded on demand when intent is detected | UI rendering (`render_ui`), cron management, computer use, optional integrations |
+| **Deferred** | Loaded on demand when intent is detected | UI rendering (`render_ui`), **cron management (default)**, computer use, optional integrations |
 
 **Media tools & credentials**: When you enable Image / Video / TTS in the Agent built-in tools panel, those tools appear in Turn 1 **only if** a provider API key or media gateway is configured in Settings → Model Service. If credentials are missing, the UI shows an inline amber warning with a link to Settings — the agent will not crash or expose broken tool schemas.
 
@@ -207,7 +207,7 @@ When an agent has too many skills loaded, the LLM may invoke irrelevant ones —
 - **24 preset agent matrices** — initializer syncs on startup; gallery and settings list show all 24 built-ins (`AGENT_LIST_BUILTIN_PAGE_SIZE=50` default; chips from `enabled_builtin_tools`).
 - **Single write path** — `persist_enabled_builtin_tools` validates before DB writes; legacy IDs return 422 instead of silent failure.
 - **Default profile** — UI defaults to `web_search` + `memory`; file/shell capabilities are always on via agent baseline.
-- **User switch ON → Turn1 direct use** — default or manually enabled builtins (including render_ui, canvas, computer_use, x_search, delegate_to_agent) and bound-skill tools appear in the first-turn LLM schema without calling `discover_capability` first.
+- **User switch ON → Turn1 direct use** — default or manually enabled builtins (including **cron** when opted in, render_ui, canvas, computer_use, x_search, delegate_to_agent) and bound-skill tools appear in the first-turn LLM schema without calling `discover_capability` first. **Cron default is OFF (discoverable)** — only users who enable it pay ~827 tok eager schema; OpenClaw/Hermes always mount cron in Turn1 with no per-agent opt-out.
 - **active_tool_groups SSOT** — `derive_active_tool_groups()` derives enabled groups in one place, preventing false `capability_gap` when render_ui or media groups are already on.
 - **Full matrix regression** — `CAPABILITY_GAP_REGISTRY` covers **14 GUI-togglable** builtins (web_search, memory, cron, answer_tool, browser, render_ui, computer_use, wiki, kanban, canvas, planning, media trio). Agent baseline `file_ops` / `code_execute` are runtime-forced and excluded from gap hints.
 - **Entitlement gap** — when `discover_capability` misses and intent needs a disabled builtin or unbound skill, SSE emits `capability_gap` / `skill_gap`; WebUI toast offers one-click enable/bind without leaving chat.
