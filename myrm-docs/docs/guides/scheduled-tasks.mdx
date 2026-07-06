@@ -123,6 +123,27 @@ When creating a **Script (Python)** task, the dialog shows an inline delivery ta
 
 This eliminates the need to navigate to a separate delivery configuration page. The model selector is automatically hidden for script tasks since no LLM is involved.
 
+## Delivery Assurance (Opt-In Post-Run Review)
+
+For **Agent** scheduled tasks (not script-only jobs), you can enable an optional delivery review per Agent:
+
+1. Open **Settings → Agents → [your agent] → Capabilities**
+2. Under **Delivery Assurance**, turn on **Scheduled Task Verification**
+3. Save — the setting persists per Agent (default is off)
+
+**What happens when enabled:**
+
+| Step | User-visible effect |
+|------|---------------------|
+| Cron run completes successfully | Run shows as successful (unchanged) |
+| Run used side-effect tools (file write, bash, browser, etc.) | A built-in reviewer sub-agent runs afterward (≤ 120s, bounded by job timeout) |
+| Review passes | Run history shows a **delivery review: pass** badge |
+| Review fails | Run **still shows success**, but history adds an amber warning — task is not auto-retried |
+
+**Why this exists:** Unattended jobs can report “done” while side effects are wrong. This gives you a structured audit trail in the Cron run list — competitors typically only offer silent turn-end guards or goal rubrics, not **opt-in Cron run metadata + WebUI badges**.
+
+**Cost control:** Default off; read-only runs skip review; interactive chat is unaffected (no extra Turn1 tools).
+
 ## 10-Layer Anti-Noise Defense
 
 | Layer | Mechanism | Effect |
@@ -188,6 +209,36 @@ In cloud deployments, the Control Plane ingress endpoint only enqueues messages.
 :::
 
 **Tested scenarios:** normal dispatch, command skip, approval skip, reaction skip, duplicate message dedup — 16 automated tests verify the full path.
+
+### Remote Node Events (Mobile / IoT Automation)
+
+External systems can report structured events to your Agent via HTTP — no always-on connection, no SDK required:
+
+```bash
+curl -X POST https://your-myrm.example/api/v1/remote-access/node/events \
+  -H "Authorization: Bearer <pair_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"source": "ios_shortcuts", "event_type": "location_arrived", "payload": {"location": "home"}}'
+```
+
+| Field | Description |
+|-------|-------------|
+| `source` | Identifier of the reporting system (e.g., `ios_shortcuts`, `android_tasker`, `home_assistant`) |
+| `event_type` | The event name (e.g., `location_arrived`, `wifi_connected`, `battery_low`) |
+| `payload` | Arbitrary JSON context passed to the triggered Agent task |
+
+**Authentication:** Requires a valid `pair_token` (hub_list scope) issued via QR code pairing, or an active WebUI session.
+
+**How to set up:**
+1. Pair your mobile device via Settings → Remote Access → QR Code
+2. Create a scheduled task with trigger type **System Event** — set source and event_type filters
+3. Configure iOS Shortcuts / Android Tasker / Home Assistant to POST events to the endpoint
+
+The event is automatically matched against your configured SystemEventTrigger rules and fires the bound Agent task with the payload injected as context. Rate-limited to 60 requests/minute.
+
+:::tip Zero Battery Drain
+Unlike competitors that require persistent WebSocket connections (draining battery and requiring background keep-alive hacks), our HTTP-based approach fires only when an event occurs — zero idle power consumption.
+:::
 
 ## Crash Recovery
 

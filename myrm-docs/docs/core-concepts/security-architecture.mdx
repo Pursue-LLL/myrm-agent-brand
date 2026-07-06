@@ -58,6 +58,17 @@ When an approval timeout fires and a user manually approves almost simultaneousl
 
 This prevents double agent execution, duplicate LLM costs, and contradictory operations — a gap present in most competing frameworks.
 
+### Correction Learning
+
+When you edit an approved action's arguments or reject a tool call, the system automatically learns your preferences:
+
+- **Zero LLM cost**: Deterministic dict-diff classification (no additional inference calls)
+- **Path preferences**: Rejects or edits on file operations → remembered as workspace conventions
+- **Command rules**: Rejects on shell commands → added to procedural memory as permanent rules
+- **Repetition tracking**: Repeated rejections of similar patterns → auto-deny (stops asking)
+
+Over time, approval prompts naturally decrease as the agent aligns with your working style.
+
 ## Error Self-Healing
 
 14-layer error recovery system automatically handles failures without user intervention. See [Error Recovery](/docs/core-concepts/error-recovery) for details.

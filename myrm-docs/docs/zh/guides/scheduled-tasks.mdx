@@ -123,6 +123,27 @@ Daily 模式零额外存储（复用已有执行记录），不影响 Prompt Cac
 
 无需跳转到单独的投递配置页面。脚本任务会自动隐藏模型选择器（无 LLM 参与）。
 
+## 交付保障（可选事后复核）
+
+针对 **Agent 定时任务**（非纯脚本任务），可按智能体开启可选的交付复核：
+
+1. 打开 **设置 → 智能体 → [你的智能体] → 能力**
+2. 在 **交付保障** 下开启 **定时任务交付复核**
+3. 保存 — 默认关闭，按智能体持久化
+
+**开启后的行为：**
+
+| 步骤 | 用户可见效果 |
+|------|-------------|
+| 定时任务成功完成 | 运行记录仍显示成功（不变） |
+| 任务使用了有副作用的工具（写文件、bash、浏览器等） | 内置 reviewer 子智能体事后复核（≤120 秒，且不超过任务剩余超时） |
+| 复核通过 | 运行历史显示 **交付复核：通过** 徽章 |
+| 复核未通过 | 运行 **仍显示成功**，但历史追加琥珀色警告 — **不会自动重跑** |
+
+**适用场景：** 无人值守夜间任务「说完成了但交付错了」— 早上看 Cron 历史即可发现，无需翻完整日志。竞品多为交互式 turn-end guard 或 Goal rubric，缺少 **Cron 运行史结构化复核 + WebUI 徽章**。
+
+**成本控制：** 默认关闭；只读任务自动跳过；不影响交互式聊天（无额外 Turn1 工具）。
+
 ## 10 层防噪
 
 | 层 | 机制 | 效果 |
@@ -186,6 +207,36 @@ Daily 模式零额外存储（复用已有执行记录），不影响 Prompt Cac
 :::
 
 **已测场景：** 正常 dispatch、命令跳过、审批跳过、反应跳过、重复消息去重 — 16 项自动化测试覆盖全链路。
+
+### 远程节点事件（移动端 / IoT 自动化）
+
+外部系统可通过 HTTP 上报结构化事件到你的 Agent — 无需保持长连接，无需 SDK：
+
+```bash
+curl -X POST https://your-myrm.example/api/v1/remote-access/node/events \
+  -H "Authorization: Bearer <pair_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"source": "ios_shortcuts", "event_type": "location_arrived", "payload": {"location": "home"}}'
+```
+
+| 字段 | 说明 |
+|------|------|
+| `source` | 上报系统标识（如 `ios_shortcuts`、`android_tasker`、`home_assistant`） |
+| `event_type` | 事件名称（如 `location_arrived`、`wifi_connected`、`battery_low`） |
+| `payload` | 任意 JSON 上下文，传递给被触发的 Agent 任务 |
+
+**认证方式：** 需要有效的 `pair_token`（hub_list 范围，通过扫码配对签发），或活跃的 WebUI 会话。
+
+**配置步骤：**
+1. 在设置 → 远程访问 → 二维码中配对移动设备
+2. 创建定时任务，触发类型选 **系统事件** — 设置 source 和 event_type 过滤条件
+3. 在 iOS Shortcuts / Android Tasker / Home Assistant 中配置 POST 请求到该端点
+
+事件会自动与你配置的 SystemEventTrigger 规则匹配，触发绑定的 Agent 任务并将 payload 作为上下文注入。限流 60 次/分钟。
+
+:::tip 零电量消耗
+竞品要求维持 WebSocket 长连接（耗电且需要后台保活 hack），我们基于 HTTP 的方案仅在事件发生时触发 — 零空闲功耗。
+:::
 
 ## 崩溃恢复
 
