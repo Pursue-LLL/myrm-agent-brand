@@ -55,7 +55,7 @@ Unlike competitors that use a single retrieval path, Myrm employs 5 layers of ro
 | 1 | LLM natural selection | Agent decides which tools to call per step |
 | 2 | Tool description guidance | Each tool states when it should be invoked |
 | 3 | Intent optimizer | Zero-cost keyword routing to engine categories |
-| 4 | Capability discovery | Semantic search for deferred tools when 10+ are available |
+| 4 | Capability discovery | DeferEconomics-gated `discover_capability_tool` + stable deferred index; execution via `invoke_deferred_tool` (no mid-thread bind_tools mutate) |
 | 5 | RSG post-verification | Evaluates quality and guides follow-up searches |
 
 This means: no extra latency, no prompt cache break, and more flexible than a static pre-planner.

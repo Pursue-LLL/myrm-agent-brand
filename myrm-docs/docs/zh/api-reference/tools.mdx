@@ -45,7 +45,7 @@ POST /api/tools/:name/execute
 |------|----------|----------|
 | 普通对话 | `web_search` + `memory` | — |
 | 编码 / 文件 | 勾选 **file_ops** → `glob_tool` + `grep_tool` + file_* **立即挂载**（与 Claude Code 同款 eager，非 discover） | `code_execute`（bash） |
-| 低频 native 工具 | — | `discover_capability_tool` 搜索后自动挂载（如 cron、bash 后台进程） |
+| 低频 native 工具 | — | 稳定 `<available-deferred-tools>` 索引 + `invoke_deferred_tool` 代理（Turn1 ~42 tok）；仅 DeferEconomics 净收益时 bind `discover_capability_tool`（有 skills / 大池 / 大 schema） |
 | Skill 质量清理 | WebUI **Curator** 一键 sweep | — |
 
 | `web_fetch` | 3 级本地抓取（HTTP/Browser/Stealth）+ DOM 剪枝与 Markdown 提取 |

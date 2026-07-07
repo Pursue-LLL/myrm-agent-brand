@@ -527,7 +527,7 @@
           "feature": "Token 消耗 · 同样预算约 7 倍任务量 + 内置防膨胀技能",
           "hermes": "~15,520",
           "openclaw": "~18,000",
-          "myrmAgent": "2,167 省86% + Turn1 实测 14 工具/~8,244 tok 工具层（SSOT 脚本锁定；conversation_search 按需 +~67 tok）+ 控制面工具零 bind + memory×3 COMMON 层 Prefix Cache 友好排序；discover miss 聊天内一键开启/绑定（14 项可切换含 cron）；会话 wrench 面板 SSE 实时展示 Turn1 已绑定工具"
+          "myrmAgent": "2,167 省86% + Turn1 `invoke_deferred_tool` ~42 tok 轻量代理（mid-thread 不 mutate bind_tools）+ DeferEconomics 小池默认不 bind discover + 稳定 `<available-deferred-tools>` 索引；实测工具层 ~8,063 tok（SSOT 锁定；conversation_search 按需 +~67 tok）+ 控制面零 bind + memory×3 COMMON 层 cache 友好排序；discover miss 聊天内一键开启/绑定（14 项含 cron）；会话 wrench SSE 实时展示 Turn1 工具"
         },
         "costRouting": {
           "feature": "三维智能路由 + 自动升级 · 复杂度+隐私+容错+模型卡住自动升级",
@@ -557,7 +557,7 @@
           "feature": "无人值守 · 后台任务不挂死",
           "hermes": "易卡死",
           "openclaw": "不支持",
-          "myrmAgent": "后台子任务完成自动唤醒主Agent续跑(3次重试+指数退避) · 超时死锁自动跳过 · 服务重启后中断任务自动恢复 · 预算超额自动阻止 · GUI-first 后台闭环 v1：run_in_background→统一 bash_process_tool（Deferred AutoMount，Turn1 零 token）→自然结束写入 i18n 聊天+单次 SSE toast+自动刷新；Navbar 角标/Tooltip+Tauri 托盘 running 数；kill/cancel 静默无骚扰 · 8 条集成+120+ 项自动化测试全绿 · Web+桌面+云三端统一(不绑定任何SDK)"
+          "myrmAgent": "后台子任务完成自动唤醒主Agent续跑(3次重试+指数退避) · 超时死锁自动跳过 · 服务重启后中断任务自动恢复 · 预算超额自动阻止 · GUI-first 后台闭环 v1：run_in_background→统一 bash_process_tool（Turn1 经 invoke_deferred_tool 代理零 token，Prefix Cache 稳定）→自然结束写入 i18n 聊天+单次 SSE toast+自动刷新；Navbar 角标/Tooltip+Tauri 托盘 running 数；kill/cancel 静默无骚扰 · 9 条集成+120+ 项自动化测试全绿 · Web+桌面+云三端统一(不绑定任何SDK)"
         },
         "extremeAntiExplosion": {
           "feature": "极限防爆盾 · 怎么聊都不会炸",
@@ -617,7 +617,7 @@
           "feature": "统一工具网关",
           "hermes": "硬切换 (易报错)",
           "openclaw": "无",
-          "myrmAgent": "四合一网关 + discover_capability 按需挂载低频 native 工具 + 弹性 BYOK 回退 + 669项网关审计测试全通过 · 开启 file_ops 时 Glob/Grep 与 Claude Code 同款 eager（非 deferred）· Bash命令独立审计面板 · 全工具ExecutionTrace时间线 · 会话回放 · OpenTelemetry全链路Trace"
+          "myrmAgent": "四合一网关 + DeferEconomics discover + invoke_deferred_tool 稳定代理（无 AutoMount mutate bind）+ 弹性 BYOK 回退 + 669项网关审计测试全通过 · 开启 file_ops 时 Glob/Grep 与 Claude Code 同款 eager（非 deferred）· Bash命令独立审计面板 · 全工具ExecutionTrace时间线 · 会话回放 · OpenTelemetry全链路Trace"
         },
         "externalAgentAcp": {
           "feature": "外部 Agent 集成 · 一个平台调度 Claude Code / Codex / Gemini",

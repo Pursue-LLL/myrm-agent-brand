@@ -527,7 +527,7 @@
           "feature": "Token cost · ~7x tasks on same budget + built-in anti-bloat skill",
           "hermes": "~15,520",
           "openclaw": "~18,000",
-          "myrmAgent": "2,167 -86% + measured Turn1 14 tools/~8,244 tok tool layer (SSOT locked; conversation_search opt-in +~67 tok) + control-plane zero bind + memory×3 COMMON layer cache-friendly sort; in-chat one-click enable/bind on discover miss (14 togglable incl. cron); session wrench panel shows live Turn1 tools via SSE"
+          "myrmAgent": "2,167 -86% + Turn1 invoke_deferred_tool ~42 tok proxy (no mid-thread bind_tools mutate) + DeferEconomics skips discover on small pools + stable `<available-deferred-tools>` index; measured Turn1 ~8,063 tok tool layer (SSOT locked; conversation_search opt-in +~67 tok) + control-plane zero bind + memory×3 COMMON layer cache-friendly sort; in-chat one-click enable/bind on discover miss (14 togglable incl. cron); session wrench panel shows live Turn1 tools via SSE"
         },
         "costRouting": {
           "feature": "3D Smart Routing + Auto-Escalation · Complexity + Privacy + Fallback + model self-upgrade when stuck",
@@ -557,7 +557,7 @@
           "feature": "Unattended · Background jobs don't hang",
           "hermes": "Prone to freeze",
           "openclaw": "Unsupported",
-          "myrmAgent": "Background subtask auto-wakes idle Agent (3x retry + exponential backoff) · timeout deadlock auto-skip · interrupted tasks auto-resume after restart · budget-exceeded auto-block · GUI-first background closure v1: run_in_background → unified bash_process_tool (Deferred AutoMount, 0 Turn1 tokens) → natural exit writes i18n chat + single SSE toast + auto reload; Navbar badge/Tooltip + Tauri tray running count; kill/cancel stays silent · 8 integration + 120+ automated tests green · works on Web+Desktop+Cloud (not tied to any single SDK)"
+          "myrmAgent": "Background subtask auto-wakes idle Agent (3x retry + exponential backoff) · timeout deadlock auto-skip · interrupted tasks auto-resume after restart · budget-exceeded auto-block · GUI-first background closure v1: run_in_background → unified bash_process_tool (Turn1 0 tok via invoke_deferred_tool proxy; stable prefix cache) → natural exit writes i18n chat + single SSE toast + auto reload; Navbar badge/Tooltip + Tauri tray running count; kill/cancel stays silent · 9 integration + 120+ automated tests green · works on Web+Desktop+Cloud (not tied to any single SDK)"
         },
         "extremeAntiExplosion": {
           "feature": "Extreme Anti-Explosion · Never crashes on massive chats",
@@ -617,7 +617,7 @@
           "feature": "Unified Tool Gateway",
           "hermes": "Hard Switch (Error Prone)",
           "openclaw": "N/A",
-          "myrmAgent": "4-in-1 Gateway + discover_capability on-demand native tools + Elastic BYOK Fallback + 669 tests · file_ops enables eager Glob/Grep (Claude Code parity, not deferred) · Bash Audit Panel · ExecutionTrace · Session Replay · OpenTelemetry"
+          "myrmAgent": "4-in-1 Gateway + DeferEconomics discover + invoke_deferred_tool stable proxy (no AutoMount bind_tools mutate) + Elastic BYOK Fallback + 669 tests · file_ops enables eager Glob/Grep (Claude Code parity, not deferred) · Bash Audit Panel · ExecutionTrace · Session Replay · OpenTelemetry"
         },
         "externalAgentAcp": {
           "feature": "External Agent hub · call Claude Code / Codex / Gemini from one place",

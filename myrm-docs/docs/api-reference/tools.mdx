@@ -45,7 +45,7 @@ POST /api/tools/:name/execute
 |----------|-------------------|--------|
 | General chat | `web_search` + `memory` | — |
 | Coding / files | Enable **file_ops** → `glob_tool` + `grep_tool` + file_* mount **immediately** (Claude Code–style eager, not discover-deferred) | `code_execute` (bash) |
-| Low-frequency native tools | — | `discover_capability_tool` search then auto-mount (cron, bash background jobs) |
+| Low-frequency native tools | — | Stable `<available-deferred-tools>` index + `invoke_deferred_tool` proxy (~42 tok Turn1); `discover_capability_tool` binds only when DeferEconomics is net-positive (skills / large pool / large schema) |
 | Skill hygiene | WebUI **Curator** sweep | — |
 
 | `web_fetch` | 3-tier local fetch (HTTP/Browser/Stealth) with DOM pruning and Markdown extraction |
