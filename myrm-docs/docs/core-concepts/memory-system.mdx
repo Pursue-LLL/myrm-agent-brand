@@ -272,6 +272,16 @@ Shared Context lets you create curated knowledge spaces that multiple agents, ch
 
 Manage everything from the GUI: create contexts, bind them to targets, review write proposals, and browse history — all from the Memory Center's Shared Context tab.
 
+## Agent Instruction vs Global Memory Boundary Control
+
+When multiple agents share global memories, a global preference might conflict with a specific agent's instructions. For example: global memory records "user prefers detailed explanations," but your coding agent is configured to be "concise."
+
+Myrm automatically injects a **Scope Boundary declaration** at the prompt level, explicitly telling the LLM: when global memories conflict with the agent's own instructions, agent instructions always take precedence. This ensures each agent's persona and behavioral rules are never compromised by global memory.
+
+- **Zero configuration** — auto-injected when global memories exist, skipped when none
+- **Zero performance cost** — fixed text participates in Prefix Cache, no latency impact
+- **Industry-first** — comprehensive competitor research confirms no other product implements instruction boundary control in multi-agent shared memory scenarios
+
 ## Memory GUI Management
 
 A comprehensive 40+ component interactive GUI replaces the traditional plain-text file approach (like MEMORY.md). Every aspect of the memory system is manageable through rich visual interfaces — while competitors like Hermes Agent have zero memory management UI in their dashboard. Verified with 2,120+ dedicated tests (2,060 backend + 62 frontend GUI):
