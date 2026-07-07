@@ -32,7 +32,7 @@ Both discover (default) and eager modes are covered by automated tests and real-
 
 ### Via GUI
 
-Navigate to **Settings > Scheduled Tasks** and click **Create** to use the visual configuration dialog with schedule picker, model selector, and delivery options. Choose from **11 blueprint templates** (morning briefing, weekly review, custom reminder, etc.) for one-click setup — the same templates the Agent uses via API. The `GET /cron/blueprints` API returns localized **title**, **description**, and **prompt_template** for **en, zh, ja, de, and ko**; the catalog UI reads API titles first, with frontend locales as fallback only.
+Navigate to **Settings > Scheduled Tasks** and click **Create** to use the visual configuration dialog with schedule picker, model selector, and delivery options. Choose from **11 blueprint templates** (morning briefing, weekly review, custom reminder, etc.) for one-click setup — the same templates the Agent uses via API. The `GET /cron/blueprints` API returns localized **title**, **description**, and **prompt_template** for **en, zh, ja, de, and ko**; the catalog loads exclusively from this API (retry on failure). Slot labels use frontend locale keys.
 
 ## Task Types
 
@@ -284,14 +284,14 @@ Create common automation tasks in 3 clicks with pre-built templates. Navigate to
 | Competitor Watch | Business | time, day, competitors | Track competitor news and product updates |
 | Habit Check-in | Personal | time, habits | Daily habit tracking with streak awareness |
 | Daily Learning | Education | time, weekdays, subject | Get a curated learning topic each day |
-| **Social Media Watch** | Business | time, weekdays, brand, platforms, keywords | Monitor brand mentions and sentiment across social platforms |
+| **Social Media Watch** | Business | time, weekdays, brand, platforms, keywords (optional) | Monitor brand mentions and sentiment across social platforms |
 | **Read-it-Later Ingestion** | Productivity | time, weekdays | Auto-ingest saved articles into your knowledge base daily |
 
 ### Social Media Watch Blueprint
 
 Automated brand monitoring using browser automation — works on platforms without public APIs (Xiaohongshu, Weibo, Twitter/X, LinkedIn, Douyin).
 
-**Setup:** Select the Social Media Watch template → fill in your brand name, target platforms, and keywords → choose delivery channel → done.
+**Setup:** Select the Social Media Watch template → fill in your brand name and target platforms → keywords are optional (brand-only monitoring works) → choose delivery channel → done.
 
 **What it does each run:**
 1. Navigates target platforms via browser automation
