@@ -29,6 +29,20 @@ Myrm 提供**编译型知识库（Wiki）**——不是让 Agent 解读的一堆
 Wiki 文件在磁盘上仍为纯 Markdown。Obsidian 等编辑器可打开同一库；Myrm 在其上增加索引、检索与 GUI 管理。
 </Note>
 
+## 知识消费闭环
+
+Wiki 不是「写完就忘」的死水。Myrm 用 **12 条代码级路径** 把知识库和 Agent 连起来（无需像 OpenWiki 那样手工维护 AGENTS.md）：
+
+- **四工具自动挂载** — 在智能体配置中启用 Wiki 后，ingest / compile / query / maintain 随对话可用。
+- **大文件上传引导** — 上传 PDF 等大文档时，系统自动注入「先 wiki_ingest 再 wiki_query」指令，避免整文件塞进 prompt。
+- **Deep Research 入库** — 深度研究报告自动写入 Wiki 并触发编译。
+- **聊天一键保存** — 任意助手消息可「存入 Wiki」，带来源 frontmatter。
+- **设置页即席查询** — 概览标签直接问 Wiki、编译、维护。
+
+<Note>
+Memory→Wiki 自动归档服务（`MemoryToWikiArchiver`）已实现 API 与配置项；压缩后自动触发接线为后续增强项。当前写入路径：手动 ingest、存入 Wiki 按钮、Deep Research vault、文件上传引导。
+</Note>
+
 ## 将聊天消息存入 Wiki
 
 任意**已完成的助手消息**，在消息操作栏用 **存入 Wiki**（书本图标）：
