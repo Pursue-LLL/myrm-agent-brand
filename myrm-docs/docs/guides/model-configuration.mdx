@@ -119,6 +119,24 @@ All model configuration values are automatically sanitized on save, preventing c
 
 This means when pasting from docs or terminal, even if your input has extra spaces, slashes, or newlines, the system works correctly. You never need to worry about formatting.
 
+## Multi-Device Config Sync
+
+Myrm keeps settings consistent across browser tabs, desktop app, and SaaS — without nagging you on every refresh.
+
+**What you get:**
+- Change language, TTS, or model defaults on your phone — your desktop picks it up automatically
+- Open multiple tabs or hard-refresh — **no false "Configuration Conflict" dialogs**
+- Work offline — changes queue locally and sync when you're back online
+- Break something? **Config Time Machine** rolls back any key to a previous version
+
+**How it works (user-facing):**
+- **Smart merge** — if two devices edit *different* fields, both changes apply automatically
+- **Honest conflicts** — if two devices edit the *same* field, you choose which version to keep
+- **Same-device silence** — your own tab refreshing never triggers a conflict prompt
+- **Idempotent sync** — identical content never bumps version numbers or creates noise
+
+**vs file-based agents (OpenClaw, Hermes CLI):** settings live in scattered files with no merge UI; multi-device use means manual copy or git conflicts. Myrm is the only agent workstation with enterprise-grade config sync **and** a full GUI.
+
 ## Network Proxy (For Restricted Networks)
 
 Myrm automatically respects your system's proxy settings — if you already have a VPN or proxy (e.g., ClashX, V2Ray) configured at the OS level, all LLM API calls will route through it with **zero additional configuration**.
