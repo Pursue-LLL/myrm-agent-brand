@@ -39,6 +39,19 @@ While fallback analysis runs, the chat shows an **Analyzing image** (or **Analyz
 
 Identical images in the same session are **cached by content hash** — repeat uploads do not trigger duplicate vision API calls.
 
+## Async Image Generation
+
+When your agent has the **image generation** tool enabled and credentials are ready, saying “draw a banner” does **not** block the chat for 30–120 seconds.
+
+1. The agent enqueues a background task and returns a `task_id` immediately.
+2. An **ImageTaskCard** appears in the message thread with live progress (SSE, with polling fallback).
+3. You can keep chatting, refine the prompt, or start another task while images render.
+4. Finished images appear in the card and can flow into the media library.
+
+**Security (cloud & desktop):** API keys and Gateway tokens are **AES-GCM sealed before** the task is written to local `tasks.db` — backups and sandbox volumes never store plaintext secrets.
+
+Enable image models under **Settings → Models** (or your agent’s tool panel) and pick a provider (20+ via LiteLLM, with automatic failover).
+
 ## Tips
 
 - Configure a **fast, cost-effective** model for Vision Fallback if you send many screenshots.
