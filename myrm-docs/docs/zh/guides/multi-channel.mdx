@@ -205,9 +205,11 @@ Agent 可主动向配置渠道推送 — 无需轮询。
 | 内容上限 | 超 `max_body_length`（4000 字符）自动截断 |
 | 附件校验 | 本地文件验证存在性；URL 文件名安全解析（兼容查询参数） |
 | 审计 | 每次通知目标记入会话状态 |
+| 子 Agent 隔离 | 子 Agent 默认无法调用 `channel_notify_tool`（harness L1 blocklist） |
+| 失败可见 | sync 投递失败进入 DLQ 并触发 WebUI toast（presync dedupe，重启后 dedupe 不持久） |
 | 实现层 | 业务层 `outbound_notify/`（非 harness 内核），与 ChannelGateway 同层 |
 
-> **测试覆盖（2026.7.2）**：67 项 server 专项测试 + 6 项前端 vitest（pairing 下拉 + 手动 ID 回退），`outbound_notify` 模块 100% 覆盖率。
+> **测试覆盖（2026-07-07）**：notify 范围 **210 项** server+harness 测试全绿（outbound_notify/bus/dispatcher/integration + delivery/delegation/builder）+ **6 项**前端 vitest（pairing 下拉 + 手动 ID 回退）。`GET /channels/manage/status` 修复后，Agent 设置页「通知渠道」收件人下拉正常可用。
 
 ### 场景示例
 

@@ -246,9 +246,11 @@ Your agent can proactively push notifications to configured channels — no manu
 | Content cap | Messages exceeding `max_body_length` (4000 chars) are automatically truncated |
 | Attachments | Local file existence verified; URL filenames parsed safely (handles query params) |
 | Audit trail | Every notification target used is recorded in session state |
+| Sub-agent isolation | Sub-agents cannot call `channel_notify_tool` by default (harness L1 blocklist) |
+| Failure visibility | Sync delivery failures enter DLQ and trigger a WebUI toast (presync dedupe; not persisted across restarts) |
 | Layer | Server `outbound_notify/` (business layer, not harness kernel), co-located with ChannelGateway |
 
-> **Test coverage (2026-07-02)**: 67 server tests + 6 frontend vitest (pairing picker + manual ID fallback), 100% `outbound_notify` module coverage.
+> **Test coverage (2026-07-07)**: **210** notify-scope server+harness tests passing (outbound_notify/bus/dispatcher/integration + delivery/delegation/builder) + **6** frontend vitest (pairing picker + manual ID fallback). After the `GET /channels/manage/status` fix, the Agent settings notification recipient dropdown works reliably.
 
 ### Example Scenarios
 
