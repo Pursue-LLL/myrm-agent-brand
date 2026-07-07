@@ -232,7 +232,7 @@ Your agent can proactively push notifications to configured channels — no manu
 
 ### How It Works
 
-1. In **Agent settings → Notification Channels**, pick a channel and select a recipient from your paired contacts (or enter an ID manually)
+1. In **Agent settings → Notification Channels**, pick a channel from your **currently running** integrations (dynamic list with human-readable names — new channels appear without a frontend release), then select a recipient from paired contacts (or enter an ID manually)
 2. The agent calls `channel_notify_tool` when it needs to alert you (task completion, anomaly detection, scheduled report ready)
 3. Optionally attach files or images — local paths and URLs are auto-resolved with correct media type detection
 4. Delivery uses `send_tracked` for a synchronous success/failure result (same retry policy as critical channel messages), not fire-and-forget queue drops
@@ -246,13 +246,13 @@ Your agent can proactively push notifications to configured channels — no manu
 | Whitelist | Only user-configured targets are reachable — no arbitrary recipients |
 | Rate limit | Per-session cap prevents notification spam (default: 10 per session) |
 | Content cap | Messages exceeding `max_body_length` (4000 chars) are automatically truncated |
-| Attachments | Local file existence verified; URL filenames parsed safely (handles query params) |
+| Attachments | Local paths must stay within the agent workspace (`declared_allowed_roots`); URL filenames parsed safely (handles query params) |
 | Audit trail | Every notification target used is recorded in session state |
 | Sub-agent isolation | Sub-agents cannot call `channel_notify_tool` by default (harness L1 blocklist) |
 | Failure visibility | Sync delivery failures enter DLQ and trigger a WebUI toast (presync dedupe; not persisted across restarts) |
 | Layer | Server `outbound_notify/` (business layer, not harness kernel), co-located with ChannelGateway |
 
-> **Test coverage (2026-07-07)**: **210** notify-scope server+harness tests passing (outbound_notify/bus/dispatcher/integration + delivery/delegation/builder) + **6** frontend vitest (pairing picker + manual ID fallback). After the `GET /channels/manage/status` fix, the Agent settings notification recipient dropdown works reliably.
+> **Test coverage (2026-07-07)**: **75+** notify-scope tests passing — outbound_notify unit (54) + wiring integration (14) + frontend vitest (7). Sub-agent isolation, DLQ failure toasts, attachment path sandbox, and dynamic running-channel picker verified.
 
 ### Example Scenarios
 
