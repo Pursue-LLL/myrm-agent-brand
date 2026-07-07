@@ -20,7 +20,7 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **Code Search** | ✅ ripgrep grep/glob + `@codebase` overview + path-grouped densification (18-39% token savings) | ❌ grep only | ⚠️ tree-sitter exact match | ❌ | ❌ grep only | ❌ | ❌ |
 | **GUI Interface** | ✅ Web-native | ❌ CLI (v0.15 TUI multi-session) | CLI | ✅ Web/App | ⚠️ Basic WebUI | ⚠️ Lark-embedded | ❌ CLI only |
 | **Desktop App** | ✅ Tauri + Auto-Launch + Zero-Flicker | Electron | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Deployment** | ✅ Web/Tauri/SaaS · **local `./myrm start` one-command backend + WebUI proxy** (shared SQLite) | Self-hosted | Self-hosted | ❌ SaaS only | Local + WebUI | ❌ Closed SaaS | Local only |
+| **Deployment** | ✅ Web/Tauri/SaaS · **local `./myrm start` one-command backend + WebUI proxy** (shared SQLite) · **backend-down Banner + BACKEND_UNREACHABLE** (no JSON parse crashes, ConfigSync offline) | Self-hosted | Self-hosted | ❌ SaaS only | Local + WebUI | ❌ Closed SaaS | Local only |
 | **Harness upgrade contract** | ✅ `myrm_agent_harness.api` + CI gate · Zero-ops DB migration engine (SHA-256 tamper-proof + 5 idempotent patterns + Baseline) · Pre-upgrade auto hot-backup + auto-recovery · Agent config snapshot rollback (preserves MCP) — **114 backward-compat tests** | ❌ Monolith deep imports | ❌ Monolith deep imports | ❌ | ❌ | ❌ | ❌ |
 | **Worktree Isolation** | ✅ 1-click GUI Sandbox + Kanban auto-assigns isolated Worktree with full merge/discard approval flow | ⚠️ Background auto-create only, lacks lifecycle management | ❌ None | ❌ None | ❌ None | ❌ None | ❌ None |
 | **Cross-Platform Handoff** | ✅ Web ↔ IM (Telegram/WeChat) transfer, instantly clones structured state, even terminal processes | ⚠️ Desktop local model switch only | ❌ None | ❌ None | ❌ None | ❌ None | ❌ None |
@@ -870,7 +870,7 @@ Myrm's **Shell Command Display** splits pipelines into spans with per-segment ri
 | **Sub-agent cards** | ❌ | ❌ | ✅ Spans flow to delegate approvals | Same clarity for spawned workers |
 | **Workspace context** | ❌ | ❌ | ✅ Shows workspace root (EN/ZH) | Know where the shell runs |
 
-**Honest limits**: Commands over 128KB truncate parsing (shown in UI). Production PyPI installs need a harness release; local `./myrm dev` uses editable harness (45 harness + 33 frontend approval tests).
+**Honest limits**: Commands over 128KB truncate parsing (shown in UI). Production PyPI installs need a harness release; local `./myrm dev` uses editable harness (45 harness + 33 frontend approval tests). If you start only the WebUI without the backend, you get a clear Banner and `BACKEND_UNREACHABLE` errors—not opaque `SyntaxError` JSON parse failures (2193 frontend tests, Jul 2026).
 
 ### Migration wins
 
