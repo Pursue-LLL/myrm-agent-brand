@@ -185,8 +185,12 @@ Myrm 六层纵深防御，确保 Agent 在广泛自主权下仍安全运行。
 - **手动重定向循环**：`follow_redirects=False`，逐跳重新验证目标地址，消除 DNS 重绑定 TOCTOU 攻击
 - **DNS Pinning**：解析后的 IP 直接替换域名，绕过 DNS TTL 刷新窗口
 - **全面 IP 黑名单**：RFC1918 私网、CGNAT、链路本地、多播、云元数据端点（AWS/GCP/阿里云/腾讯云）+ IPv4-mapped IPv6 检测
+- **数据外泄检测**：6 类模式（API 密钥、文件路径、base64、JWT、密钥模式、数据库连接串）防止敏感数据通过 URL 参数泄漏
+- **Domain HITL 审批**：非白名单域名自动触发人工审批（`domainHitlEnabled`），每个 Agent 可独立配置网络域名白名单
+- **URL 解析混淆防护**：阻断 Tab/换行/反斜杠等混淆字符，防止 urlparse 与 HTTP 客户端的解析歧义（CVE 级 SSRF 绕过防御）
+- **内网后缀阻断**：`.local`、`.svc`、`.cluster.local`、`.home.arpa` 等后缀默认拦截，防止 mDNS 和 Kubernetes 内网访问
 - **审计链**：拦截请求写入 `SSRF_BLOCKED` 安全决策，可在审计面板追溯
-- **真实环境验证**：无 mock 集成测试实测阻断 127.0.0.1、169.254.169.254 及云元数据端点
+- **358 项专项测试**：覆盖核心守卫、Agent 安全、浏览器导航、DNS Pinning、媒体验证、A2A 解析、深度爬取和权限引擎
 
 ## 操作级语义风险检测
 

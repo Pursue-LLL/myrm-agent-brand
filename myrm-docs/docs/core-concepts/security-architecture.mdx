@@ -190,8 +190,12 @@ DNS Pinning prevents agents from being tricked into accessing internal networks 
 - **Manual redirect loop**: `follow_redirects=False` with per-hop re-validation — every redirect target is fully checked before following
 - **DNS Pinning**: Resolved IPs replace hostnames in HTTP connections, eliminating DNS rebinding TOCTOU attacks
 - **Comprehensive IP blocklist**: RFC1918 private, CGNAT, link-local, multicast, reserved, cloud metadata endpoints (AWS/GCP/Alibaba/Tencent), plus IPv4-mapped IPv6 detection
+- **Data exfiltration detection**: 6 pattern categories (API keys, file paths, base64, JWT, secret keys, DB connection strings) prevent sensitive data leaking through URL parameters
+- **Domain HITL approval**: Non-allowlisted domains trigger human-in-the-loop approval when `domainHitlEnabled` is active — per-agent network allowlist configurable via UI
+- **Parser-confusing character defense**: Tab, newline, and backslash in URLs are blocked to prevent hostname extraction divergence between parsers (CVE-class SSRF bypass prevention)
+- **Internal hostname suffix blocking**: `.local`, `.svc`, `.cluster.local`, `.home.arpa` suffixes are blocked to prevent mDNS and Kubernetes internal network access
 - **Audit trail**: Blocked requests emit `SSRF_BLOCKED` security decisions for SIEM and frontend audit views
-- **Live verification**: Integration tests without mocks confirm blocks on 127.0.0.1, 169.254.169.254, and metadata endpoints
+- **358 dedicated SSRF tests**: Coverage across core guards, agent security, browser navigation, DNS pinning, media validation, A2A resolver, deep crawl, and permission engine
 
 ### Configuration Security Scan
 
