@@ -710,10 +710,11 @@ Claude Code 采用「Fork 子 Agent」设计，字节级 prompt 前缀对齐以�
 | Harness 运行时 | `config_loader` SSOT 校验 + `executor_attempt_mixin` 对空 allowlist **硬失败** | 结构化错误，杜绝空转子代理 |
 | Server | 开启 Browser 时自动绑定 **外围** `browser-automation` skill（`is_core: false`），经 `AgentFactory` 覆盖 Web/Cron/Channel/Kanban | 操作 loop 指引不污染 Prefix Cache 核心段 |
 | WebUI | Browser 开关旁 delegate 提示（中/英） | 用户发现 `@browser` / `delegate_task` 委派路径 |
+| Server L3 | `build_parent_delegatable_toolkit()` 合并 session 级 `browser_*_tool`（修复 `Not in parent toolkit`） | WebUI 开 Browser 后委派子代理 **立即可用** |
 
-**诚实竞品说明：** OpenClaw、Hermes 已支持浏览器委派；Myrm 额外提供 **preset SSOT fail-fast** 与 **cache-safe 外围 skill 绑定**，避免生产环境 silent no-op。
+**诚实竞品说明：** OpenClaw、Hermes 已支持浏览器委派；Myrm 额外提供 **preset SSOT fail-fast**、**cache-safe 外围 skill 绑定** 与 **L3 父工具集 session 合并**，避免生产环境 silent no-op 与「开了 Browser 仍委派失败」。
 
-**SCIP 测试包：** **65 passed, 1 skipped**（harness preset/护栏 + server binding/spawn smoke + 前端 hint vitest，2026-07）。
+**SCIP 测试包：** **65 passed, 1 skipped**（harness preset/护栏 + server binding/spawn smoke + 前端 hint vitest，2026-07）· **API Live E2E** `example_domain_seen` ~6.5s（`mimo-v2.5-pro`，2026-07-08）。
 
 ## 凭证库 — 密码与 2FA 永不进入 LLM
 

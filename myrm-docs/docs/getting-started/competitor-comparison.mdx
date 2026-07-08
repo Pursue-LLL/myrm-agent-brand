@@ -727,10 +727,11 @@ Fixes the **silent dead delegate** class of bugs where a browser/analysis subage
 | Harness runtime | `config_loader` SSOT validation + `executor_attempt_mixin` **hard-fails** empty allowlists | Immediate structured error — no empty subagent runs |
 | Server | `browser-automation` prebuilt skill auto-bound as **peripheral** (`is_core: false`) when Browser is enabled — wired in `AgentFactory` (Web/Cron/Channel/Kanban) | Operating-loop guidance without Prefix Cache core bloat |
 | WebUI | Delegate hint on Browser toggle (en/zh) | Users discover `@browser` / `delegate_task` delegation |
+| Server L3 | `build_parent_delegatable_toolkit()` merges session `browser_*_tool` into parent toolkit | Browser toggle + delegate works immediately — no `Not in parent toolkit` |
 
-**Honest competitor note:** OpenClaw and Hermes already support browser delegation paths; Myrm adds **preset SSOT fail-fast** and **cache-safe peripheral skill binding** so production delegates do not silently no-op.
+**Honest competitor note:** OpenClaw and Hermes already support browser delegation paths; Myrm adds **preset SSOT fail-fast**, **cache-safe peripheral skill binding**, and **L3 parent toolkit session merge** so production delegates do not silently no-op or fail after enabling Browser.
 
-**SCIP bundle:** **65 passed, 1 skipped** (harness preset/guardrail tests + server binding/spawn smoke + frontend hint vitest, Jul 2026).
+**SCIP bundle:** **65 passed, 1 skipped** (harness preset/guardrail tests + server binding/spawn smoke + frontend hint vitest, Jul 2026) · **API Live E2E** `example_domain_seen` ~6.5s (`mimo-v2.5-pro`, Jul 8 2026).
 
 ### Claude Code 2.1.154~2.1.157 Harness Upgrade
 
