@@ -527,7 +527,7 @@
           "feature": "Token 消耗 · 同样预算约 7 倍任务量 + 内置防膨胀技能",
           "hermes": "~15,520",
           "openclaw": "~18,000",
-          "myrmAgent": "2,167 省86% + Turn1 `invoke_deferred_tool` ~42 tok 轻量代理（mid-thread 不 mutate bind_tools）+ DeferEconomics 小池默认不 bind discover + 稳定 `<available-deferred-tools>` 索引；实测工具层 ~8,063 tok（SSOT 锁定；conversation_search 按需 +~67 tok）+ 控制面零 bind + memory×3 COMMON 层 cache 友好排序；discover miss 聊天内一键开启/绑定（14 项含 cron）；会话 wrench SSE 实时展示 Turn1 工具"
+          "myrmAgent": "2,167 省86% + Turn1 `invoke_deferred_tool` ~42 tok 轻量代理（mid-thread 不 mutate bind_tools）+ DeferEconomics 小池默认不 bind discover + 稳定 `<available-deferred-tools>` 索引；实测工具层 ~8,063 tok（SSOT 锁定；conversation_search 按需 +~67 tok）+ 控制面零 bind + memory×3 COMMON 层 cache 友好排序；**发消息即预检** `capability_gap`（WebUI workspace 多路复用长连接 + 早到 chunk 缓冲，toast「开启并重发」不丢）；14 项含 cron/render_ui；会话 wrench SSE 实时展示 Turn1 工具"
         },
         "costRouting": {
           "feature": "三维智能路由 + 自动升级 · 复杂度+隐私+容错+模型卡住自动升级",
