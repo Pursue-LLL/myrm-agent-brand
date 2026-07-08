@@ -674,6 +674,37 @@ Extension Bridge 跨越 5 层：
 
 所有发现过程在后台线程运行，不会阻塞 Agent 的事件循环。
 
+## Cursor / IDE MCP — 一个 Chrome，保留登录态
+
+开发者在 Cursor 等 IDE 中用 **chrome-devtools-mcp** 对 `:3000` 做前端 E2E 时，推荐 **`--autoConnect`**，不要用第二个 9222 端口的 Chrome。
+
+### 竞品常见「翻车」现象
+
+| 现象 | 原因 |
+|------|------|
+| 有时有登录，有时空白 | `--autoConnect`（主 Profile）与 `--browser-url=9222` 或脚本拉起的空 Profile 并行 |
+| 活动监视器显示「经翻译的 x86_64」 | Rosetta 下的**第二个**实例，不是不同版本 Chrome |
+| Dock 两个 Chrome 图标 | 回退 Profile（`~/.cache/chrome-devtools-mcp/` 或独立调试 Profile） |
+
+### Myrm 推荐的 Cursor 配置
+
+```json
+{
+  "mcpServers": {
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest", "--autoConnect"]
+    }
+  }
+}
+```
+
+**主 Chrome 一次性设置：** 打开 `chrome://inspect/#remote-debugging` → 开启远程调试 → Agent 连接时点 **允许**。
+
+**2026-07 实测：** `list_pages` 读到真实标签页 · `isolatedContext` 打开 `:3000` · 仅 1 个 ARM64 Chrome · 9222 空闲。
+
+产品内 Browser 工具仍走 **AUTO 模式** + Extension Bridge；本节仅针对 **IDE 开发者 E2E**。
+
 ## PDF 归档自动注入来源元数据
 
 当 Agent 保存网页为 PDF 时，Myrm 自动注入来源追溯信息：

@@ -746,6 +746,37 @@ Just enable remote debugging in your browser once:
 
 All discovery runs in a background thread so it never slows down the agent's event loop.
 
+## Cursor / IDE MCP — One Chrome, Your Login State
+
+When developers use **chrome-devtools-mcp** in Cursor (or similar IDEs) for frontend E2E on `:3000`, the recommended setup is **`--autoConnect`** — not a second Chrome on port 9222.
+
+### Why competitors feel broken
+
+| Symptom | Cause |
+|---------|-------|
+| Sometimes logged-in Chrome, sometimes blank | `--autoConnect` (main profile) vs `--browser-url=9222` or script-launched empty profile |
+| Activity Monitor shows "translated x86_64" Chrome | Rosetta slice of a **second** instance — same Chrome.app, different launch path |
+| Two Chrome icons in the Dock | Fallback profile at `~/.cache/chrome-devtools-mcp/` or a dedicated debug profile |
+
+### Myrm-recommended Cursor config
+
+```json
+{
+  "mcpServers": {
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest", "--autoConnect"]
+    }
+  }
+}
+```
+
+**One-time in your daily Chrome:** open `chrome://inspect/#remote-debugging` → enable Remote Debugging → click **Allow** when the agent connects.
+
+**Verified Jul 2026:** MCP `list_pages` shows real tabs (cart, chat history) · `new_page` with `isolatedContext` on `localhost:3000` · single ARM64 Chrome process · port 9222 idle.
+
+Product browser tools still use **AUTO mode** + Extension Bridge — this section is for **IDE developer E2E** only.
+
 ## PDF Archive with Source Metadata
 
 When the agent saves a page as PDF, Myrm automatically injects provenance metadata:
