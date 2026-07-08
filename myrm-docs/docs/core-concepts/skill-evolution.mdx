@@ -180,6 +180,24 @@ Myrm automatically extracts structured "pitfalls" from skill execution failures 
 
 **vs competitors:** Hermes includes a plain-text "Pitfalls" paragraph in skills. Myrm provides structured storage with severity levels, automatic extraction from runtime errors, deduplication with occurrence counting, and prompt engineering injection — a complete closed-loop learning system.
 
+## Decision History: Dual-Loop Learning
+
+Every evolution outcome — success or failure — is permanently recorded and automatically fed into future evolution attempts. The agent accumulates institutional knowledge over time, remembering both what worked and what didn't.
+
+| Source | What is recorded | When |
+|--------|-----------------|------|
+| **FIX success** | Error description + fix reasoning | After successful auto-repair (score ≥ 0.7) |
+| **User-driven optimization** | User feedback + optimization reasoning | After successful DERIVED evolution (score ≥ 0.7) |
+| **Evidence-driven repair** | Aggregated failure patterns + fix reasoning | After successful evidence-based evolution (score ≥ 0.7) |
+| **Screener rejection** | Rejection reasoning with confidence score | When an evolution proposal is rejected (confidence ≥ 0.7) |
+| **Manual rejection** | Human reviewer's rejection reasoning | When a user rejects a proposed change in the GUI |
+
+**How it works:** The 5 most recent constraints are automatically injected into the LLM prompt as "Historical Constraints (MUST obey or rejection is guaranteed)" — so the next evolution attempt builds on accumulated wisdom instead of starting from scratch.
+
+**Plain language:** Your agent gets smarter with each evolution cycle. If a fix worked well, it remembers why. If a proposal was rejected, it won't try the same approach again. Over months of use, your skills accumulate a rich history of lessons learned — all automatic, zero maintenance.
+
+**vs competitors:** SkillHone (Tencent) uses a Git server (Forgejo) with Issues/PRs/Wiki to record decision history — requiring docker compose setup and manual browsing. Myrm stores everything in SQLite with zero external dependencies and automatically injects lessons into future prompts. No other competitor offers dual-loop (success + failure) persistent learning.
+
 ## Curator: Lifecycle Governance
 
 Automated skill lifecycle management through the Curator system:
