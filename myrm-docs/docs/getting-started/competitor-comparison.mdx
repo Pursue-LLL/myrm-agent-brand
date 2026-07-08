@@ -717,6 +717,21 @@ Beyond cache economics, Myrm's dedicated **SubagentExecutor** engine handles wha
 
 **Regression coverage:** **606+** vault-closure tests green (harness 591 + server 15, Jul 2026: vault core + auto_vault + resume_compact + file_read_vault + path_boundary + executor + server e2e); **366+** total subagent/orchestration harness regression; **Jul 2026 server API integration batch (27 passed)** covers concurrent delegate, REST subagent list/hydrate, swarm fission resume, and binding paths.
 
+### Core Preset Tool Availability — SCIP Phase 0+1 (Jul 2026)
+
+Fixes the **silent dead delegate** class of bugs where a browser/analysis subagent preset referenced stale tool names, `filter_tools()` produced **zero tools**, and the parent agent believed delegation succeeded.
+
+| Layer | Change | User benefit |
+|-------|--------|--------------|
+| Harness YAML | `browser` / `analysis` core presets aligned to canonical `_TOOL_LAYERS` tool names | Browser delegate catalog works out of the box |
+| Harness runtime | `config_loader` SSOT validation + `executor_attempt_mixin` **hard-fails** empty allowlists | Immediate structured error — no empty subagent runs |
+| Server | `browser-automation` prebuilt skill auto-bound as **peripheral** (`is_core: false`) when Browser is enabled — wired in `AgentFactory` (Web/Cron/Channel/Kanban) | Operating-loop guidance without Prefix Cache core bloat |
+| WebUI | Delegate hint on Browser toggle (en/zh) | Users discover `@browser` / `delegate_task` delegation |
+
+**Honest competitor note:** OpenClaw and Hermes already support browser delegation paths; Myrm adds **preset SSOT fail-fast** and **cache-safe peripheral skill binding** so production delegates do not silently no-op.
+
+**SCIP bundle:** **65 passed, 1 skipped** (harness preset/guardrail tests + server binding/spawn smoke + frontend hint vitest, Jul 2026).
+
 ### Claude Code 2.1.154~2.1.157 Harness Upgrade
 
 With Opus 4.8, Claude Code introduced `/effort` (6-level reasoning budget), Dynamic Workflows, lean system prompt, and enhanced `--resume`. Here's how Myrm compares:
