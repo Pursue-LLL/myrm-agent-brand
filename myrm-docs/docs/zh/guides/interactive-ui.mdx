@@ -15,6 +15,17 @@ Myrm 提供**声明式 UI 工件**链路：Agent 调用 `render_ui` → Server �
 
 Turn1 工具描述约 **223 token**（瘦 docstring）；完整组件 props **不会**常驻 prompt。
 
+## `render_ui` 默认关闭时
+
+为保持 Prompt Cache 轻量，`render_ui` **默认关闭**。若你直接要求「填表 / 部署清单」等交互 UI 而未开启：
+
+1. **Preflight** 在 Agent 运行前推送 `capability_gap` SSE。
+2. WebUI 弹出 toast — 点 **开启并重发**。
+3. 若首轮 stream 仍在 loading，**`pendingGapRetry`** 会等到 **MESSAGE_END / ERROR / CANCEL** 后自动重发（已开启 `render_ui`）。
+4. 第二轮在气泡内渲染 A2UI 表单 — **无需去设置页**。
+
+OpenClaw、Hermes、jiuwenclaw 等竞品无此「预检 + 延迟自动重发」闭环，用户需自行找设置或重打一遍消息。
+
 ## A2UI v3.1 要点
 
 | 主题 | 行为 |

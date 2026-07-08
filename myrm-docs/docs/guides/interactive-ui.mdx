@@ -15,6 +15,17 @@ Myrm ships a **declarative UI artifact** pipeline: the agent calls `render_ui`, 
 
 Turn1 cost is **~223 tokens** for the slim tool docstring — full component props are **not** inlined in the prompt.
 
+## When `render_ui` is off (default)
+
+`render_ui` defaults **OFF** to keep Prompt Cache lean. If you ask for in-chat forms (e.g. deployment checklists) without enabling it:
+
+1. **Preflight** emits a `capability_gap` SSE before the agent runs.
+2. WebUI shows a toast — tap **Enable & resend**.
+3. If the first stream is still loading, **`pendingGapRetry`** waits until **MESSAGE_END**, **ERROR**, or **CANCEL**, then auto-resends with `render_ui` on.
+4. Turn 2 renders the A2UI form inline — no trip to settings.
+
+Competitors (OpenClaw, Hermes, jiuwenclaw) lack this preflight + deferred-retry loop; users must hunt settings or retype the message manually.
+
 ## A2UI v3.1 behavior
 
 | Topic | Behavior |
