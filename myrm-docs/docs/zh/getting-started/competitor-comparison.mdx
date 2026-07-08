@@ -908,7 +908,7 @@ MemPalace 是独立 AI 记忆系统，用 Wing/Room/Closet/Drawer 建筑隐喻�
 | Subagent 进度 | swarm_fission 批次进度（含 partial_success） | 无 | **Myrm 独有** |
 | 错误恢复 | recovery_actions 一键恢复 + error_category 诊断 | 无 | **Myrm 独有** |
 
-**81 项测试验证**（2026.7.2）：ProgressSteps 22/22 ✅ + LiveTerminal 27/27 ✅ + PetDispatch 8/8 ✅ + ArchiveRestore 2/2 ✅ + MessageStream handlers 29/29 ✅（toolLifecycle/gapEvents/statusStream/tasksSteps/petDispatch/clarification/completion）
+**166 项测试验证**（2026.7.8）：ProgressSteps 22/22 ✅ + LiveTerminal 27/27 ✅ + PetDispatch 8/8 ✅ + ArchiveRestore 2/2 ✅ + MessageStream handlers 29/29 ✅（toolLifecycle/gapEvents/statusStream/tasksSteps/petDispatch/clarification/completion）+ **structured_clarify E2E**（SSE 解包 + option.id + live API interrupt/resume 1/1 ✅）
 
 **结论：豆包的卡死问题源于「没做好」（主线程阻塞 + 无细粒度反馈），而非「未做」。Myrm 的架构（SSE + WebWorker + PTC notify + 树形进度步骤 + Live Terminal）构建了完整的防假死与进度反馈体系，远超简单进度条方案。**
 

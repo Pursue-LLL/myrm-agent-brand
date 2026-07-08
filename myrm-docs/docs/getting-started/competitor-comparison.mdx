@@ -728,7 +728,7 @@ With Opus 4.8, Claude Code introduced `/effort` (6-level reasoning budget), Dyna
 | System prompt optimization | lean system prompt | 6-layer Prompt Cache + TaskAdaptiveMiddleware | ⬆️ Complete cache engineering |
 | Autonomous execution | "Ask fewer questions" | Goal 7-state machine + auto_approve + continuation guard | ⬆️ Systematic |
 | Skill system | .claude/skills directory scan | 42-module Skill system + 6 discovery sources + evolution | ⬆️ Full evolution ecosystem |
-| Agent configuration | CLI-based agent config | 24 presets + 10 YAML templates + 5-tab GUI (Monaco SmartPromptEditor + AI gen + 17 personalities + model picker w/ fallback + 6 engine params) + DB storage + TimeMachine rollback + **Profile-Driven Adaptive UI** (AgentIndicator + SamplePrompts auto-adapt + BuiltinToolsPanel dynamic toggle + AgentBrickCard hover details + AgentGallery) + **Org Marketplace** — **562 tests** (435 config + 127 profile-adaptive) | ⬆️ Full visual builder |
+| Agent configuration | CLI-based agent config | 24 presets + 10 YAML templates + 5-tab GUI (Monaco SmartPromptEditor + AI gen + 17 personalities + model picker w/ fallback + 6 engine params) + DB storage + TimeMachine rollback + **Profile-Driven Adaptive UI** (AgentIndicator + SamplePrompts auto-adapt + BuiltinToolsPanel dynamic toggle incl. **structured_clarify** multi-question forms + AgentBrickCard hover details + AgentGallery) + **Org Marketplace** — **562 tests** (435 config + 127 profile-adaptive) | ⬆️ Full visual builder |
 | Code isolation | EnterWorktree | WorkspacePolicy (INHERIT/ISOLATED_COPY/READ_ONLY_SANDBOX) + GUI config | ⬆️ 3 policies + visual |
 | Task resumption | `--resume` CLI flag | 5-layer context persistence (SessionNotes + ContextSnapshot + GoalStorage + SubagentCheckpoint + ArchiveCheckpoint) + OrphanRecovery + StreamRecovery + workspace_isolation 3-policy COW + batch_merge — 501 tests verified (213 persistence + 288 isolation) | ⬆️ Complete recovery |
 | Cost control | Manual effort selection | Auto-routing + GoalBudget + DelegationBudget + token_economics | ⬆️ Automated |
@@ -995,7 +995,7 @@ Myrm solves both at the architecture level:
 | Subagent progress | swarm_fission batch progress (partial_success) | None | **Myrm exclusive** |
 | Error recovery | recovery_actions one-click + error_category diagnostics | None | **Myrm exclusive** |
 
-**Verified by 81 tests** (2026.7.2): ProgressSteps 22/22 ✅ + LiveTerminal 27/27 ✅ + PetDispatch 8/8 ✅ + ArchiveRestore 2/2 ✅ + MessageStream handlers 29/29 ✅ (toolLifecycle/gapEvents/statusStream/tasksSteps/petDispatch/clarification/completion)
+**Verified by 166 tests** (2026.7.8): ProgressSteps 22/22 ✅ + LiveTerminal 27/27 ✅ + PetDispatch 8/8 ✅ + ArchiveRestore 2/2 ✅ + MessageStream handlers 29/29 ✅ (toolLifecycle/gapEvents/statusStream/tasksSteps/petDispatch/clarification/completion) + **structured_clarify E2E** (SSE unwrap + option.id + live API interrupt/resume 1/1 ✅)
 
 **Verdict: Doubao's freezing issues stem from "poorly implemented" (main-thread blocking + no granular feedback) rather than "not implemented". Myrm's architecture (SSE + WebWorker + PTC notify + tree-shaped progress + Live Terminal) builds a complete anti-freeze & progress feedback system that far exceeds a simple progress bar.**
 
