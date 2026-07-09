@@ -37,7 +37,9 @@ Competitors (OpenClaw, Hermes, jiuwenclaw) lack this preflight + deferred-retry 
 
 ## Delivery pipeline (SSE)
 
-Tool execution may run in a LangGraph child asyncio task where `ArtifactContext` ContextVars are not visible. Myrm stashes UI artifacts by assistant `message_id` (run-level bind + post_run pop) so **`UI_UPDATE` SSE** still reaches the WebUI before `MESSAGE_END`. Covered by integration wiring tests and a **real LLM agent-stream E2E** (not mocked on the critical path).
+Tool execution may run in a LangGraph child asyncio task where `ArtifactContext` ContextVars are not visible. Myrm stashes UI artifacts by assistant `message_id` (run-level bind + post_run pop) so **`UI_UPDATE` SSE** still reaches the WebUI before `MESSAGE_END`.
+
+**Regression coverage (2026-07-09)**: 20 SSE wiring cases + 13 stream-collector tests + 12 frontend Vitest (incl. deep-merge `data_update`) + architecture enum parity + **1 real LLM agent-stream E2E** (minimax/MiniMax-M3) — **66 tests green** on the critical path.
 
 ## Incremental data updates (`update_ui_data`)
 
