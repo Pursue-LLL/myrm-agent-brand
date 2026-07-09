@@ -134,6 +134,7 @@ Prompt caching reduces input token costs by up to 90% when cache hits occur.
 2. **4-Layer Stable Prefix** — System prompt → tools → workspace rules → first user message form a stable prefix
 3. **Cache Break Detection** — `cache_break_detector` actively monitors for cache invalidation and reports the cause
 4. **Only-Append Policy** — History messages are never modified in-place, preserving prefix stability
+5. **Cache-Safe Skill Attenuation** — After loading a skill, tool access is narrowed via `tool_choice.allowed_tools`; the bound tool schema list stays frozen so Prefix Cache is not invalidated mid-session
 
 ### Cache Preheat (Zero Cold-Start)
 
