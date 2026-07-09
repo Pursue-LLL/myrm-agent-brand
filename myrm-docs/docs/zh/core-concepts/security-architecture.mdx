@@ -314,8 +314,10 @@ AI 分类器（`TranscriptClassifier`）审查工具调用是否符合用户原�
 - **设置 → 高级 → Enterprise Network Compatibility** 开启，或设置环境变量 `MYRM_TLS_STRICT=0`
 - 精确放松 Python 3.13+ 的 `VERIFY_X509_STRICT` 标志，不禁用证书验证
 - 支持自定义 CA 证书：`SSL_CERT_FILE`（替换系统信任库）或 `NODE_EXTRA_CA_CERTS`（追加到系统信任库）
-- 覆盖全部 38 个 HTTPS 出口（技能市场、视频生成、A2A、Webhook 等）
-- TLS 连接失败时自动诊断并提示修复方法
+- **MCP 服务器级 TLS**：每个 MCP server 可独立配置 `ssl_verify`（true/false/自定义CA路径）和 `client_cert`/`client_key`/`client_key_password` 实现完整 mTLS 双向认证
+- 4 层自动注入：infra (`tls_compat.py`) → server (`tls_config.py`) → MCP (`client.py`) → LLM (`llm.py`)，覆盖 28+ 个 HTTP 客户端调用点
+- TLS 连接失败时自动诊断：8 种错误模式检测 + 5 语言修复提示
+- **144 项 TLS 专项测试验证**（38 项 TLS 核心 + 31 项 MCP TLS + 75 项错误诊断）
 
 ### 无痕模式深度解析
 

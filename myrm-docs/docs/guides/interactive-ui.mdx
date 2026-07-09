@@ -39,6 +39,18 @@ Competitors (OpenClaw, Hermes, jiuwenclaw) lack this preflight + deferred-retry 
 
 Tool execution may run in a LangGraph child asyncio task where `ArtifactContext` ContextVars are not visible. Myrm stashes UI artifacts by assistant `message_id` (run-level bind + post_run pop) so **`UI_UPDATE` SSE** still reaches the WebUI before `MESSAGE_END`. Covered by integration wiring tests and a **real LLM agent-stream E2E** (not mocked on the critical path).
 
+## Incremental data updates (`update_ui_data`)
+
+Long-lived UIs (progress bars, task lists, live metrics) should not require a full `render_ui` redraw every turn. The agent calls **`update_ui_data`** to emit `data_update` events; the WebUI **deep-merges** `data` model fields (nested objects keep sibling keys; arrays replace by key).
+
+| Competitor | In-chat UI data refresh |
+|------------|-------------------------|
+| OpenClaw / Hermes / Codex | No first-class incremental UI data channel |
+| CopilotKit AG-UI | Stateful sync protocol, but no Myrm-style workspace spec + fail-closed enum gate |
+| **Myrm** | `render_ui` initial render + `update_ui_data` incremental SSE + frontend `mergeUiDataModel` deep merge |
+
+**User benefit**: deployment checklists, batch progress, and monitoring panels update live without flicker or wiping fields the user already filled.
+
 ## JSON shape (adjacency list)
 
 ```json

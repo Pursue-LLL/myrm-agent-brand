@@ -355,8 +355,10 @@ Corporate networks often deploy TLS inspection proxies (Zscaler, Netskope, Palo 
 - **Settings → Advanced → Enterprise Network Compatibility**, or set `MYRM_TLS_STRICT=0`
 - Precision relaxation of Python 3.13+ `VERIFY_X509_STRICT` flag — does NOT disable certificate verification
 - Custom CA bundle support: `SSL_CERT_FILE` (replace system trust store) or `NODE_EXTRA_CA_CERTS` (append to system trust store)
-- Covers all 38 HTTPS exits (skill marketplace, video generation, A2A, webhooks, etc.)
-- Automatic TLS error diagnosis with actionable remediation hints
+- **Per-MCP-server TLS**: each MCP server can specify its own `ssl_verify` (true/false/custom CA path) and `client_cert`/`client_key`/`client_key_password` for full mTLS
+- 4-layer auto-injection: infra (`tls_compat.py`) → server (`tls_config.py`) → MCP (`client.py`) → LLM (`llm.py`), covering 28+ HTTP client call sites
+- Automatic TLS error diagnosis: 8 error patterns detected, 5-language remediation hints
+- **144 TLS-specific tests verified** (38 TLS core + 31 MCP TLS + 75 error diagnostics)
 
 ### Incognito Mode Deep Dive
 
