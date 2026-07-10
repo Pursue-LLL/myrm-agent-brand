@@ -60,7 +60,9 @@ Kanban tools are **opt-in** and **role-gated** to save tokens and reduce misuse:
 
 Board create/list CRUD stays **REST/GUI only** — no LLM tool slots wasted. `kanban_link` merges add/remove dependency; `kanban_list_tasks` accepts optional `task_id` for single-task lookup without a separate get tool. Board listings default to **50 tasks** (max 200) with `truncated` metadata when more rows exist — aligned with the REST API and Hermes.
 
-Hermes users migrating to Myrm get the same **worker vs orchestrator** split, plus a visual Kanban GUI, DAG scheduling, and CompletionVerifier. OpenClaw has a display-only Workboard with **zero** LLM tools; most competitors expose **zero** native Kanban LLM tools.
+Hermes users migrating to Myrm get the same **worker vs orchestrator** split, plus a visual Kanban GUI, DAG scheduling, and CompletionVerifier. OpenClaw has a display-only Workboard with **zero** LLM tools; deer-flow / LobsterAI / CoPaw / jiuwenclaw expose **zero** native Kanban LLM tools.
+
+**Verified (2026-07-10)**: 429 harness tests (96% coverage) + 20 server binding tests + live agent-stream e2e + Chrome board/chat UI E2E — all green.
 
 **PTC vs native tools:** Use **native** `web_search_tool` / `grep_tool` for one-off calls. Use **PTC** (Python in `bash_code_execute_tool`) only when the same script must RPC many tools and return one summary — bash instructions no longer use web search as the PTC example (aligns with Hermes: omit disabled tools from schema to prevent misuse).
 
