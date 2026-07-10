@@ -706,7 +706,7 @@ Extension Bridge 跨越 5 层：
 
 **主 Chrome 一次性设置：** 打开 `chrome://inspect/#remote-debugging` → 开启远程调试 → Agent 连接时点 **允许**。
 
-**为何 `:3000` 在 MCP 里感觉慢（2026-07 审计）：** Next.js dev 编译期可能已建立 TCP 但 **数秒内无 HTML**；`navigate_page` 底层 Puppeteer `goto` 等待 **`load` 事件**（dev 模式 40+ chunk），`timeout=5000` 可能已报错但标签标题已变。请用 **`127.0.0.1:3000`**，`./myrm ready` 后用 `curl` 预热，先 `new_page(about:blank)` 再导航；超时后 **`take_snapshot` 验证**，勿盲重试 navigate。
+**为何 `:3000` 在 MCP 里感觉慢（2026-07 审计）：** Next.js dev 编译期可能已建立 TCP 但 **数秒内无 HTML**；`navigate_page` 底层 Puppeteer `goto` 等待 **`load` 事件**（dev 模式 40+ chunk），`timeout=5000` 可能已报错但标签标题已变。请用 **`127.0.0.1:3000`**，`./myrm start` 后用 `curl` 预热，先 `new_page(about:blank)` 再导航；超时后 **`take_snapshot` 验证**，勿盲重试 navigate。
 
 **2026-07 实测：** `new_page` + `isolatedContext`（字符串名）+ `timeout`≤5000 · 仅 1 个 ARM64 Chrome · 禁止用无超时的 `list_pages` 探活（曾挂起 30min+）。
 
@@ -714,7 +714,7 @@ Extension Bridge 跨越 5 层：
 
 **Port cleanup (Jul 2026):** `myrm-agent-frontend/scripts/port-cleanup.ts` uses `lsof -sTCP:LISTEN` only — never signals Chrome tabs connected to `:3000`.
 
-**启动编排：** 日常维护者入口为 **`./myrm ready`**（harness editable 自愈 + `:8080/:3000`）；`./myrm start` 为别名。`start.sh` 在 `:3000` 已 LISTEN 但 HTTP 尚未就绪（Next 冷编译）时按墙钟最多等待 30s 再决定是否重启；若检测到多条 `chrome-devtools-mcp` 进程会输出 WARN。MCP UI E2E 前执行 **`./myrm ready --chrome`**。
+**启动编排：** `./myrm start`（`start.sh`）在 `:3000` 已 LISTEN 但 HTTP 尚未就绪（Next 冷编译）时按墙钟最多等待 30s 再决定是否重启；若检测到多条 `chrome-devtools-mcp` 进程会输出 WARN。
 
 产品内 Browser 工具仍走 **AUTO 模式** + Extension Bridge；本节仅针对 **IDE 开发者 E2E**。
 
