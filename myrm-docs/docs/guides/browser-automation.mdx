@@ -786,6 +786,8 @@ When developers use **chrome-devtools-mcp** in Cursor (or similar IDEs) for fron
 
 **Port cleanup (Jul 2026):** `myrm-agent-frontend/scripts/port-cleanup.ts` uses `lsof -sTCP:LISTEN` only — never signals Chrome tabs connected to `:3000`.
 
+**Start orchestration:** `./myrm start` (`start.sh`) waits up to 30s wall-clock when `:3000` is LISTEN but HTTP is not ready (Next cold compile) before restarting; warns if multiple `chrome-devtools-mcp` processes are detected.
+
 Product browser tools still use **AUTO mode** + Extension Bridge — this section is for **IDE developer E2E** only.
 
 ## PDF Archive with Source Metadata
