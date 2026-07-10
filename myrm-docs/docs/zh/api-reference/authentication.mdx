@@ -43,6 +43,20 @@ curl https://localhost:3000/v1/chat/completions \
 - **Agent 模式**：当 `model` 匹配 Agent ID（或 `"default"`）时，请求进入完整的 Agent 执行引擎（记忆、工具、子智能体）。
 - **LLM 透传**：当 `model` 匹配已配置的 LLM（如 `claude-3.5-sonnet`）时，请求通过 litellm 直接转发到提供商。
 
+## 交互式 API 文档（Swagger UI）
+
+访问 `http://localhost:8080/docs` 可在交互式 Swagger UI 中浏览完整 API。
+
+| 部署模式 | 认证方式 |
+|----------|---------|
+| **本地 / Tauri** | 无需 token — loopback 请求自动信任 |
+| **WebUI 远程** | 先登录，session cookie 自动携带 |
+| **沙箱 / API Key** | 点击 **Authorize**，输入 API Key，点击 **Apply** |
+
+授权后，每次 **Try it out → Execute** 调用都会自动携带 `Authorization: Bearer <key>` 请求头。端点旁的锁图标会指示当前凭据状态。
+
+ReDoc 文档也可在 `http://localhost:8080/redoc` 访问。
+
 ## 密钥轮换
 
 可在 API Keys 设置页随时撤销或删除密钥，被撤销的密钥立即拒绝访问。

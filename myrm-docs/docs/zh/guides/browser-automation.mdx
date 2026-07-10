@@ -693,7 +693,12 @@ Extension Bridge 跨越 5 层：
   "mcpServers": {
     "chrome-devtools": {
       "command": "npx",
-      "args": ["-y", "chrome-devtools-mcp@latest", "--autoConnect"]
+      "args": ["-y", "chrome-devtools-mcp@1.5.0", "--autoConnect", "--no-usage-statistics"],
+      "timeout": 60000,
+      "env": {
+        "CHROME_DEVTOOLS_MCP_NO_UPDATE_CHECKS": "1",
+        "CHROME_DEVTOOLS_MCP_NO_USAGE_STATISTICS": "1"
+      }
     }
   }
 }
@@ -701,7 +706,9 @@ Extension Bridge 跨越 5 层：
 
 **主 Chrome 一次性设置：** 打开 `chrome://inspect/#remote-debugging` → 开启远程调试 → Agent 连接时点 **允许**。
 
-**2026-07 实测：** `new_page` + `isolatedContext`（字符串名）+ `timeout`≤5000 打开 `:3000` · 仅 1 个 ARM64 Chrome · 禁止用无超时的 `list_pages` 探活（曾挂起 30min+）。
+**为何 `:3000` 在 MCP 里感觉慢（2026-07 审计）：** Next.js dev 编译期可能已建立 TCP 但 **数秒内无 HTML**；`navigate_page` 底层 Puppeteer `goto` 等待 **`load` 事件**（dev 模式 40+ chunk），`timeout=5000` 可能已报错但标签标题已变。请用 **`127.0.0.1:3000`**，`./myrm start` 后用 `curl` 预热，先 `new_page(about:blank)` 再导航；超时后 **`take_snapshot` 验证**，勿盲重试 navigate。
+
+**2026-07 实测：** `new_page` + `isolatedContext`（字符串名）+ `timeout`≤5000 · 仅 1 个 ARM64 Chrome · 禁止用无超时的 `list_pages` 探活（曾挂起 30min+）。
 
 **卡死时：** 在 monorepo 根运行 `scripts/dev/chrome-mcp-preflight.sh` — 自动检测多条 MCP 进程、MyrmChromeMcp 第二实例、陈旧远程调试会话。浏览器任务期间只开 **1 个** Cursor Agent 对话。
 

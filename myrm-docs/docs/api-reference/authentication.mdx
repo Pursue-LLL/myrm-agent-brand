@@ -43,6 +43,20 @@ curl https://localhost:3000/v1/chat/completions \
 - **Agent mode**: When `model` matches an agent ID (or `"default"`), the request is routed to the full Agent execution engine with memory, tools, and sub-agents.
 - **LLM passthrough**: When `model` matches a configured LLM (e.g. `claude-3.5-sonnet`), the request is forwarded directly to the provider via litellm.
 
+## Interactive API Docs (Swagger UI)
+
+Visit `http://localhost:8080/docs` to explore the full API in an interactive Swagger UI.
+
+| Deploy mode | How to authenticate |
+|---|---|
+| **Local / Tauri** | No token needed — loopback requests are auto-trusted |
+| **WebUI Remote** | Log in first; the session cookie is sent automatically |
+| **Sandbox / API Key** | Click **Authorize**, enter your API key, then **Apply** |
+
+After authorizing, every **Try it out → Execute** call includes the `Authorization: Bearer <key>` header automatically. Lock icons next to each endpoint indicate whether credentials are active.
+
+ReDoc is also available at `http://localhost:8080/redoc`.
+
 ## Token Rotation
 
 Keys can be revoked or deleted at any time from the API Keys settings page. Revoked keys are immediately rejected.

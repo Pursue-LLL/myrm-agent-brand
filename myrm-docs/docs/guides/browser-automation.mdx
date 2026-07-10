@@ -765,7 +765,12 @@ When developers use **chrome-devtools-mcp** in Cursor (or similar IDEs) for fron
   "mcpServers": {
     "chrome-devtools": {
       "command": "npx",
-      "args": ["-y", "chrome-devtools-mcp@latest", "--autoConnect"]
+      "args": ["-y", "chrome-devtools-mcp@1.5.0", "--autoConnect", "--no-usage-statistics"],
+      "timeout": 60000,
+      "env": {
+        "CHROME_DEVTOOLS_MCP_NO_UPDATE_CHECKS": "1",
+        "CHROME_DEVTOOLS_MCP_NO_USAGE_STATISTICS": "1"
+      }
     }
   }
 }
@@ -773,7 +778,9 @@ When developers use **chrome-devtools-mcp** in Cursor (or similar IDEs) for fron
 
 **One-time in your daily Chrome:** open `chrome://inspect/#remote-debugging` → enable Remote Debugging → click **Allow** when the agent connects.
 
-**Verified Jul 2026:** `new_page` with `isolatedContext` (string name) + `timeout`≤5000 on `localhost:3000` · single ARM64 Chrome · never probe with timeout-less `list_pages` (hung 30min+ in production).
+**Why `:3000` can feel slow (Jul 2026 audit):** Next.js dev may accept TCP but return **no HTML for several seconds** while webpack compiles. MCP `navigate_page` uses Puppeteer `goto` and waits for the **`load` event** (40+ JS chunks in dev) — a 5000ms timeout may report failure even when the tab title already updated. **Use `127.0.0.1:3000`**, pre-warm with `curl` after `./myrm start`, start with `new_page(about:blank)` then navigate, and on timeout run `take_snapshot` instead of retrying navigation.
+
+**Verified Jul 2026:** `new_page` with `isolatedContext` (string name) + `timeout`≤5000 · single ARM64 Chrome · never probe with timeout-less `list_pages` (hung 30min+ in production).
 
 **When stuck:** run `scripts/dev/chrome-mcp-preflight.sh` from the monorepo root — detects too many MCP processes, MyrmChromeMcp second instance, and stale remote-debugging sessions. Keep **one** Cursor Agent tab open for browser work.
 
