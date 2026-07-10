@@ -698,7 +698,7 @@ Claude Code 采用「Fork 子 Agent」设计，字节级 prompt 前缀对齐以�
 | 不可信上游上下文 | 静默透传 | **Taint 传播** + 安全警告 | 独立验证信号清晰 |
 | JIT 子 Agent 配置 | 字段易错/阈值丢失 | **`ephemeralSubagents` + auto_vault_threshold 物化** | GUI/测试/API 一致 |
 
-**回归覆盖：** **9,534** 项编排全链路测试通过、0 失败（2026-07-11）：委派核心(97) + 锦标赛与验证(5) + spawn工具与安全注册(21) + sub_agents全套含manager/executor/event/checkpoint/orphan recovery(603) + 并行与resume compact(5) + Kanban引擎全套(429) + streaming与stream_recovery(637) + security全套含context_budget/隔离/权限(1,761) + LLM toolkit含credential_pool/路由/fallback(1,344) + context_budget专项(60) + credential_pool专项(36) + error_classifier专项(175) + **Item #13~15 验证(2,431)**：sub_agents套件(603) + security套件(1,761) + multiplexer与thread_sharing(27) + 前端Vitest SubagentDashboard+SubagentStore(17) + EventForwarder(12) + TeammateMailbox(11) + **Item #17 验证(105)**：consensus引擎(56) + council编排(25) + council集成(16) + consensus类型(8) + **Item #18~19 验证(978)**：memory scope绑定(9) + ACP全套(386) + A2A resolver+SSRF(44) + MCP工具集全套(539) + **Item #20+Token预算验证(847)**：budget_guard(59) + manager_core(186) + context_budget(71) + executor+delegation(165) + config+heartbeat(70) + stream+lifecycle(121) + token_control+memory+loop_guard(175)。
+**回归覆盖：** **9,764** 项编排全链路测试通过、0 失败（2026-07-11）：委派核心(97) + 锦标赛与验证(5) + spawn工具与安全注册(21) + sub_agents全套含manager/executor/event/checkpoint/orphan recovery(603) + 并行与resume compact(5) + Kanban引擎全套(429) + streaming与stream_recovery(637) + security全套含context_budget/隔离/权限(1,761) + LLM toolkit含credential_pool/路由/fallback(1,344) + context_budget专项(60) + credential_pool专项(36) + error_classifier专项(175) + **Item #13~15 验证(2,431)**：sub_agents套件(603) + security套件(1,761) + multiplexer与thread_sharing(27) + 前端Vitest SubagentDashboard+SubagentStore(17) + EventForwarder(12) + TeammateMailbox(11) + **Item #17 验证(105)**：consensus引擎(56) + council编排(25) + council集成(16) + consensus类型(8) + **Item #18~19 验证(978)**：memory scope绑定(9) + ACP全套(386) + A2A resolver+SSRF(44) + MCP工具集全套(539) + **Item #20+Token预算验证(847)**：budget_guard(59) + manager_core(186) + context_budget(71) + executor+delegation(165) + config+heartbeat(70) + stream+lifecycle(121) + token_control+memory+loop_guard(175) + **Item #32+#36 验证(230)**：dynamic_workflow引擎(64) + DW_e2e(9) + pipeline+模板(47) + orchestrator+swarm(99) + swarm_fission+marketplace(11)。
 
 ### 核心 Preset 工具可用性 — SCIP Phase 0+1（2026-07）
 
@@ -1302,7 +1302,7 @@ Myrm 从底层架构上彻底碾压了这些痛点，让用户能毫无顾虑地
 | 维度 | WeSight | Myrm | 用户收益 |
 |------|---------|------|-------------|
 | **跨平台原生部署** | 仅支持 Mac，Win/Linux 缺失 | **Tauri 原生编译 + SaaS/Local 三端** | 告别“不支持 Windows”的烦恼，全平台一致体验。 |
-| **工具生态集成** | 需配置繁琐的环境变量 | **自有 Agent 引擎 + MCP 行业标准（安全扫描+Schema容错+动态发现）+ 5层安全审批 + 技能自动进化 + 8种SubAgent编排** | 内置完整 Agent 引擎覆盖 95%+ 场景，MCP 标准生态无缝对接任何外部工具，9,534 项测试验证。 |
+| **工具生态集成** | 需配置繁琐的环境变量 | **自有 Agent 引擎 + MCP 行业标准（安全扫描+Schema容错+动态发现）+ 5层安全审批 + 技能自动进化 + 8种SubAgent编排** | 内置完整 Agent 引擎覆盖 95%+ 场景，MCP 标准生态无缝对接任何外部工具，9,764 项测试验证。 |
 | **团队协作上下文** | 智能体间上下文强制隔离 | **Global Context Mesh + 隔离双切** | 共享底层向量库，不仅能无缝继承历史记录省 Token，还提供严格防污染模式开关。 |
 | **多 Agent 通信** | 依赖系统作为中心化指挥器 | **P2P 对等智能体通信协议** | Agent 间可直接“@”互相交流，效率与协同度成倍提升。 |
 | **全息工作流监控** | “桌面宠物”等非工作流强相关的展示 | **Swarm DAG (多节点动态连线图) + 差异大盘** | 剔除低幼向功能，以极客级的可视化图表直观展示算力去向、实时 TPS 与文件 Diff。 |
