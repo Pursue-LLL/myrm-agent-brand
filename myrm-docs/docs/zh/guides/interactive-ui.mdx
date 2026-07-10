@@ -39,7 +39,7 @@ OpenClaw、Hermes、jiuwenclaw 等竞品无此「预检 + 延迟自动重发」�
 
 工具可能在 LangGraph 子 asyncio 任务中执行，此时 `ArtifactContext` 的 ContextVar 不可见。Myrm 按 assistant `message_id` stash UI 工件（run 级绑定 + post_run 弹出），确保 **`UI_UPDATE` SSE** 在 `MESSAGE_END` 前到达 WebUI。
 
-**回归覆盖（2026-07-09）**：20 项 SSE wiring + 13 项 stream-collector + 12 项前端 Vitest（含 `data_update` 深合并）+ 架构枚举 parity + **1 项真实 LLM agent-stream E2E**（minimax/MiniMax-M3）——关键路径 **66 项全绿**。
+**回归覆盖（2026-07-10）**：20 项 SSE wiring + 13 项 stream-collector + 12 项前端 Vitest（含 `data_update` 深合并）+ 架构枚举 parity + **1 项真实 LLM agent-stream E2E**（minimax/MiniMax-M3）——关键路径 **66 项全绿**。GUI & UX 审计通过：**65 项 A2UI 交互组件 + 105 项 ArtifactCard + 68 项 ProgressSteps + 73 项审批系统 + 6 项 gapEvents = 317 项前端测试全通过**。
 
 ## 增量数据更新（`update_ui_data`）
 
