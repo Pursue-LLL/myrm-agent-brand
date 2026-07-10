@@ -593,7 +593,7 @@
           "feature": "Self-healing · 4-layer auto-recovery · 7 loop detectors · completion guard",
           "hermes": "Prone to infinite retry loops",
           "openclaw": "CLI Doctor (no subagent error guard)",
-          "myrmAgent": "Transparent underlying self-healing mechanism automatically cleans up invalid tool calls. Regardless of network jitter or frequent user cancellations, chat history remains pure. Completely eliminates crashes caused by formatting errors. Full-chain UI progress feedback and retry mechanisms. 3-layer HITL co-piloting (frontend polymorphic approval + Harness 7-layer LoopGuard + Server approval middleware) · 3-level 'Always Allow' granularity (Permission / Tool / Exact-match with canonical args hash — competitors offer CLI-only 2-level signing), 913 dedicated HITL tests passing (Jul 2026 verified)"
+          "myrmAgent": "Transparent underlying self-healing mechanism automatically cleans up invalid tool calls. Regardless of network jitter or frequent user cancellations, chat history remains pure. Completely eliminates crashes caused by formatting errors. Full-chain UI progress feedback and retry mechanisms. 3-layer HITL co-piloting (frontend polymorphic approval + Harness 7-layer LoopGuard + Server approval middleware) · 3-level 'Always Allow' granularity (Permission / Tool / Exact-match with canonical args hash — competitors offer CLI-only 2-level signing) · **Text truncation auto-recovery** (keep+continue+boost 2x/3x/4x, cap 32768 — optimal for real-time streaming UI where CC's CLI-only silent retry causes content duplication) + tool truncation discard+retry + SSE status notification with 5-language i18n · **Smart deferred failover** (rate-limit 429 never triggers model switch — always retries same model; overload 529 waits 3 consecutive failures before switching — saves your primary model quota and avoids unnecessary fallback to weaker models) · **859 recovery/failover tests passing (Jul 2026 verified)**"
         },
         "toolIntegration": {
           "feature": "Tool Integration · 27 prebuilt services / 9 categories / one-click connect",
@@ -1246,7 +1246,7 @@
         "deepResearch": {
           "label": "Search & research",
           "title": "Deep research with local-first crawling",
-          "desc": "Multi-engine search, local fetch, and cited reports—four source types with previews. Your wiki knowledge is automatically scanned before web searches, saving cost and avoiding redundancy. Review and edit the research plan before execution. Pause anytime; budget always visible.",
+          "desc": "Multi-engine search, local fetch, and cited reports—four source types with previews. Your wiki knowledge is automatically scanned before web searches, saving cost and avoiding redundancy; past reports are auto-archived and reused in future research, with built-in cross-validation of prior conclusions—no manual mode switching needed. Review and edit the research plan before execution. Pause anytime; real-time per-cycle cost and budget visible. Dual-model architecture cuts research costs while keeping report quality high.",
           "stat": "70+",
           "statLabel": "search sources",
           "tag1": "Plan review gate",

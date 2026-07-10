@@ -14,7 +14,7 @@ Myrm's error recovery system ensures agents keep running through network failure
 | **L1** | Stream Recovery | Network interruptions during LLM streaming — token-level precise resume |
 | **L2** | Continuation Recovery | Consecutive stream failures — maintains context across multiple interruptions |
 | **L3** | Circuit Breaker | Model provider outages — 3-tier cooldown (auth 30min / permanent 10min / transient 1min) with half-open probe |
-| **L4** | Fallback Presets | Provider failover — pre-configured backup model chains |
+| **L4** | Smart Deferred Failover | Provider failover with intelligence — rate-limit (429) never triggers model switch (always retries same model); overload (529) requires 3 consecutive failures before switching to backup model. Saves primary model quota and avoids unnecessary degradation |
 | **L5** | Agent Recovery | Tool execution failures — automatic re-planning with alternative strategies |
 | **L6** | Truncation Recovery | Response cutoff — local JSON repair (stack-based nesting, literal/numeric completion, dangling key fill) + progressive output budget boost (2x → 3x → 4x) with auto-retry |
 | **L7** | Aux Model Guard | Small model safety — dynamic message truncation before summarization to prevent aux model crashes |
@@ -276,7 +276,7 @@ All recovery happens transparently:
 - **Rate limited?** — Key rotation or backoff, then retry
 - **API key expired?** — One-click button to update it, right in the error card
 - **Agent loops?** — Detected early, before wasting budget
-- **Response truncated?** — Local JSON repair first, then auto-retry with larger output budget
+- **Response truncated?** — Text truncation: seamless keep+continue with progressive output boost (2x/3x/4x, cap 32768); Tool truncation: discard invalid + auto-retry; JSON truncation: local repair. SSE status notification in 5 languages. **294 truncation/recovery tests verified**
 - **Upgrade interrupted?** — Pre-migration snapshot restores your data automatically
 - **Child agent crashes?** — Error auto-compacted, parent receives a clean summary, reasoning stays unpolluted
 - **Tool call fails?** — Silent retry with heartbeat timer; you see "running... 15s" instead of an error
