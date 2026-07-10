@@ -184,7 +184,7 @@ GUI 配置编辑器提供 5 个独立面板（技能 / MCP / 内置工具 / 子�
 
 **按 Agent 的 `external_cli` 开关（2026-07）：** 本地模式下 **设置 → 开发者 → 外部 Agent** 会自动检测 PATH 中的 CLI —— 若 Claude Code 已配置三方模型，**无需** Anthropic 官方订阅凭据也可委派；Settings 徽章显示「**CLI 可用**」（而非误导性的「未登录」）。仅在需要 `delegate_to_agent` 的 Agent 上开启「外部 CLI」（如 General Assistant、Code Developer）。Writer/Research 预设默认关闭，省约 216 Turn1 schema token。Settings 与内置工具面板双向交叉提示；聊天面板在 auto-detect 成功时不再误报「尚未配置 CLI 后端」。
 
-**验收（2026-07-10）：** 42 项后端集成/单测全绿；Chrome E2E（`:3000`）确认 Writer/Research 无 external_cli chip、General/Developer 有；Developer → 添加 Agent → Claude Code 显示「CLI 可用」；真实 `mimo-v2.5-pro` → 委派 → Claude Code 返回 **PONG**，聊天页含任务步骤与工具执行轨迹。
+**验收（2026-07-10）：** 108+ 项后端集成/单测全绿（含 `test_external_cli_live_e2e.py` 直连 claude-code PONG）；Chrome E2E（`:3000`）确认 Writer/Research 无 external_cli chip、General/Developer 有；Developer → 添加 Agent → Claude Code 显示「CLI 可用」；真实 `mimo-v2.5-pro` → 委派 → Claude Code 返回 **PONG**，聊天页含任务步骤与工具执行轨迹。
 
 **从 Hermes / AionUi 迁移：** 保留已安装的 Claude Code / Codex / Gemini CLI（Settings 自动检测），在自有 Agent 引擎与 MCP 生态之上可选委派，并额外获得 5 层审批与 SubAgent 编排。删除对话会立即释放已池化的外部 CLI 进程，不留后台僵尸任务。
 
