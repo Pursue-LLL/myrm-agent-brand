@@ -712,6 +712,8 @@ Extension Bridge 跨越 5 层：
 
 **卡死时：** 在 monorepo 根运行 `scripts/dev/chrome-mcp-preflight.sh` — 自动检测多条 MCP 进程、MyrmChromeMcp 第二实例、陈旧远程调试会话。浏览器任务期间只开 **1 个** Cursor Agent 对话。
 
+**Port cleanup (Jul 2026):** `myrm-agent-frontend/scripts/port-cleanup.ts` uses `lsof -sTCP:LISTEN` only — never signals Chrome tabs connected to `:3000`.
+
 产品内 Browser 工具仍走 **AUTO 模式** + Extension Bridge；本节仅针对 **IDE 开发者 E2E**。
 
 ## PDF 归档自动注入来源元数据
