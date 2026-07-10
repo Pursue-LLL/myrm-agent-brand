@@ -32,8 +32,8 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **Channels** | ✅ 26 channels + 3-tier Agent binding (Thread/Chat/Channel) + 6-dim identity isolation + IM Goal management (5,709 tests) | ~23 (no per-topic binding) | ~7 | ⚠️ Feishu/DingTalk | ⚠️ IM bots | ❌ Lark only | ❌ |
 | **Public Ingress guidance** | ✅ SSOT API + inbound/outbound badges + guided tunnel docs (cpolar/NATAPP/frp) | ❌ manual docs | Tailscale docs | ⚠️ bundled cloudflared docs | ❌ | ❌ | ❌ |
 | **Mobile remote command center** | ✅ Full PWA (Serwist offline cache + install prompt + auto-update) · E2EE pair-token Hub · live Status Board (SSE progress · **visual approval** · voice **push-to-talk** · mid-task **steer** · emergency stop · **Browser/Desktop Live Preview** — real-time agent screen snapshots with Lightbox zoom, tab switching, collapsible card, zero new APIs) · scoped **chat-level** cancel (safe pair binding) · 100dvh + pb-safe viewport · **194 tests** (2026-07) | ❌ CLI/TUI only | ⚠️ IM notify, no full mobile console | ❌ | ❌ | ❌ | ❌ |
-| **Sub-Agent** | ✅ 7 modes + Dynamic Workflow | ⚠️ v0.15 Kanban Swarm (1 mode) | ⚠️ Basic spawn (linear only) | ⚠️ Basic spawn | ❌ Single agent | ⚠️ L-W-V | ❌ |
-| **Tool Ecosystem** | ✅ Built-in Agent engine + MCP industry standard (OAuth + security scan + schema tolerance + dynamic discovery + connection pool self-healing) + **Settings MCP GUI full-stack (options/scan/verify/registry)** + **Agent/Team template market one-click instantiate** + 5-layer approval + skill auto-evolution + 7 SubAgent orchestration modes (3,491 tests) | ⚠️ Single-file Copilot adapter (686 lines, CLI only) | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Sub-Agent** | ✅ 8 modes + Dynamic Workflow | ⚠️ v0.15 Kanban Swarm (1 mode) | ⚠️ Basic spawn (linear only) | ⚠️ Basic spawn | ❌ Single agent | ⚠️ L-W-V | ❌ |
+| **Tool Ecosystem** | ✅ Built-in Agent engine + MCP industry standard (OAuth + security scan + schema tolerance + dynamic discovery + connection pool self-healing) + **Settings MCP GUI full-stack (options/scan/verify/registry)** + **Agent/Team template market one-click instantiate** + 5-layer approval + skill auto-evolution + 8 SubAgent orchestration modes (5,173 tests) | ⚠️ Single-file Copilot adapter (686 lines, CLI only) | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Security** | ✅ 6-layer defense + DM Pairing (4 policies, GUI approval, anti-spam cooldown) | ⚠️ v0.15 Promptware 3 chokepoints | 1 layer | ⚠️ Unknown | ⚠️ Basic sandbox | ⚠️ Closed | ❌ |
 | **Credential Vault** | ✅ Label inject + TOTP (browser + desktop) | ❌ Plaintext in tool args | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **WebUI Access Security** | ✅ Zero-Trust WebSocket + Secure Cookie | ⚠️ HTTP only, WS vulnerable | ⚠️ Basic JWT | ⚠️ Unknown | ⚠️ HTTP only | ⚠️ Closed SaaS | ❌ Open on LAN |
@@ -207,13 +207,13 @@ Agent conversations may contain sensitive personal information. Competitors (e.g
 
 ## Multi-Agent Orchestration: Deterministic Scheduling (vs Hermes / OpenClaw / JiuwenSwarm)
 
-While competitors rely on single-mode orchestration (e.g., Hermes' Kanban Swarm, OpenClaw's basic linear spawn, or JiuwenSwarm's static DAG workflow scripts), Myrm introduces a **6-Mode Deterministic Orchestration Engine** backed by a **5-Layer Tool Security Fence** and **4-Dimension Budget Control**. Unlike JiuwenSwarm's CLI-only `workflow.py` approach (which requires users to write Python scripts to define execution order), Myrm's Leader Agent dynamically schedules sub-agents through natural language — with runtime steer/cancel capabilities that static DAGs cannot provide.
+While competitors rely on single-mode orchestration (e.g., Hermes' Kanban Swarm, OpenClaw's basic linear spawn, or JiuwenSwarm's static DAG workflow scripts), Myrm introduces an **8-Mode Deterministic Orchestration Engine** backed by a **5-Layer Tool Security Fence** and **4-Dimension Budget Control**. Unlike JiuwenSwarm's CLI-only `workflow.py` approach (which requires users to write Python scripts to define execution order), Myrm's Leader Agent dynamically schedules sub-agents through natural language — with runtime steer/cancel capabilities that static DAGs cannot provide.
 
 ### Where Myrm Goes Further
 
 | Area | Hermes / OpenClaw | Myrm | User Benefit |
 |------|-------------------|------|-------------|
-| **Orchestration Modes** | ⚠️ 1-2 modes (Kanban or Spawn) | **6 Modes** (DAG, Swarm, Chain, Batch, Verified, Spawn) | Right tool for the right job; DAG guarantees execution order without relying on LLM improvisation. |
+| **Orchestration Modes** | ⚠️ 1-2 modes (Kanban or Spawn) | **8 Modes** (Spawn, Chain, Batch, DAG, Verified, Swarm Fission, Alternatives Race, Council Debate) | Right tool for the right job; DAG guarantees execution order without relying on LLM improvisation. |
 | **Tool Isolation** | ⚠️ Basic global scope | **5-Layer Fence** (Type, Blocklist, Config, Intersection, Role) | Complete prevention of child agents escalating privileges or executing unauthorized tools. |
 | **Budget Control** | ⚠️ Token limit only | **4D Budget** (Tokens, USD, Time, Descendants) | Perfect predictability for cost and execution depth. Zero bill shock. |
 | **Execution Verification** | ❌ None | **CompletionGuard** (Evidence-based) | Children must prove task completion with actual STDOUT/STDERR, not just say "I'm done". |
@@ -350,7 +350,7 @@ Hermes v0.15 (Velocity Release, 2026-05-28) refactored its core loop from 16k to
 
 - **Event-driven Kanban** vs Hermes' polling — instant task dispatch with heartbeat + zombie detection + 3-layer anti-conflict (atomic claim + ownership enforcement + assignment audit trail, 817 tests)
 - **6-rule diagnostic engine** with severity auto-escalation (warning→error→critical) — detects stranded tasks, repeated failures, stuck blocked, dead dependencies, triage stalls, and block→unblock cycling (O(1) per-card evaluation vs Hermes' O(N) event scan)
-- **7 orchestration modes** (Spawn/Chain/DAG/Batch/Verified/Swarm Fission) vs v0.15's single Swarm pattern
+- **8 orchestration modes** (Spawn/Chain/Batch/DAG/Verified/Swarm Fission/Alternatives Race/Council Debate) vs v0.15's single Swarm pattern
 - **CompletionGuard** with physical evidence verification — Hermes has no completion verifier
 - **Pipeline template wizard** with discovery questions + role auto-matching — Hermes' `hermes kanban swarm` is a fixed CLI command
 - **35+ messaging channels** (25 with output hints) vs ~23 channels (19 with platform hints) — Myrm covers DingTalk, Teams, GoogleChat, LINE, IRC, iMessage, Voice, Webhook, Zalo that Hermes lacks
@@ -542,7 +542,7 @@ Some competitors use CLI config files to bind skills to agents. Myrm's approach 
 | L3: Runtime Dynamic Binding | `task.extra_skill_ids` | Kanban tasks can append extra skills at runtime without changing agent config |
 
 Additional advantages:
-- **7 orchestration patterns** (Spawn / DAG / Chain / Batch / Verified / Swarm Fission) vs competitor's single pattern
+- **8 orchestration patterns** (Spawn / Chain / Batch / DAG / Verified / Swarm Fission / Alternatives Race / Council Debate) vs competitor's single pattern
 - **GUI-first management**: AgentEditPanel with 12 config tabs vs CLI-only
 - **ProfileTimeMachine**: Config snapshot versioning with GUI rollback vs migration scripts
 - **7-competitor import**: One-click migration from OpenClaw, Hermes, Cursor, Codex, Claude Code, Windsurf, Trae
@@ -644,7 +644,7 @@ MiniMax Mavis is a closed-source SaaS multi-agent system with Leader-Worker-Veri
 
 | Area | MiniMax Mavis | Myrm | User Benefit |
 |------|---------------|------|-------------|
-| Orchestration | Leader LLM dispatches tasks | **6 deterministic modes** (Spawn/Chain/Batch/DAG/Verified/Swarm Fission) | Structured scheduling, not dependent on LLM improvisation |
+| Orchestration | Leader LLM dispatches tasks | **8 deterministic modes** (Spawn/Chain/Batch/DAG/Verified/Swarm Fission/Alternatives Race/Council Debate) | Structured scheduling, not dependent on LLM improvisation |
 | DAG Dependencies | ❌ None | ✅ Dependency graph + cycle detection + concurrency limits | Complex tasks auto-resolve execution order |
 | Verification | Text-based review | **Physical evidence enforcement** — must provide STDOUT/STDERR execution logs; claiming PASS without evidence is forced to FAIL | No rubber-stamp reviews |
 | Tool Isolation | Not disclosed | **5-layer isolation** (type admission → global blocklist → per-config → parent-child intersection → role control) | Sub-agents cannot escalate privileges |
@@ -661,7 +661,7 @@ MiniMax Mavis is a closed-source SaaS multi-agent system with Leader-Worker-Veri
 
 | Mavis Feature | Myrm Equivalent | Experience |
 |---------------|-----------------|------------|
-| Leader-Worker-Verifier | DAG + Verification orchestration mode | ⬆️ Upgrade (6 modes vs 1) |
+| Leader-Worker-Verifier | DAG + Verification orchestration mode | ⬆️ Upgrade (8 modes vs 1) |
 | IM multi-task parallel | WebUI multi-session + Goal continuation | ↔️ Equivalent (different design) |
 | Verifier adversarial check | `_enforce_evidence` + ReadonlySandbox | ⬆️ Upgrade (physical evidence required) |
 | Plan → Approve → Execute | 主 Agent `todo_write` + Goal approval workflow | ⬆️ Upgrade (7-state lifecycle) |
@@ -697,7 +697,7 @@ Claude Code uses a "Fork Subagent" design with byte-level prompt prefix alignmen
 |---------------------|-----------------|------------|
 | Fork Subagent (lightweight child) | `context_mode="fork"` with prefix reuse | ⬆️ Upgrade (100% cache hit vs lost prefix) |
 | Prompt Cache prefix alignment | 6-layer Prompt Cache system | ⬆️ Upgrade (6 layers vs 1 strategy) |
-| Agent Team (parallel agents) | 7 orchestration modes (Spawn/Chain/Batch/DAG/Verified/Swarm Fission) | ⬆️ Upgrade |
+| Agent Team (parallel agents) | 8 orchestration modes (Spawn/Chain/Batch/DAG/Verified/Swarm Fission/Alternatives Race/Council Debate) | ⬆️ Upgrade |
 | sendTask message passing | P2P Mailbox + AgentHandoverState | ⬆️ Upgrade (structured handover) |
 | CLI interface | Web GUI + Tauri Desktop + SaaS | ⬆️ Upgrade |
 | Anthropic-only models | 100+ models with intelligent routing | ⬆️ Upgrade |
@@ -715,7 +715,7 @@ Beyond cache economics, Myrm's dedicated **SubagentExecutor** engine handles wha
 | Untrusted upstream context | Passed through silently | **Taint propagation** with `[SECURITY WARNING]` | Clear signal to verify independently |
 | Orchestrator delegation | Coarse spawn tools | **Manifest-scoped** delegation tools per role | Safer, clearer permissions |
 
-**Regression coverage:** **606+** vault-closure tests green (harness 591 + server 15, Jul 2026: vault core + auto_vault + resume_compact + file_read_vault + path_boundary + executor + server e2e); **366+** total subagent/orchestration harness regression; **Jul 2026 server API integration batch (27 passed)** covers concurrent delegate, REST subagent list/hydrate, swarm fission resume, and binding paths.
+**Regression coverage:** **5,173** orchestration full-chain tests passed with 0 failures (Jul 11 2026): delegate core (97) + tournament & verification (5) + spawn tools & security registry (21) + sub_agents full suite incl. manager/executor/event/checkpoint/orphan recovery (603) + parallel & resume compact (5) + Kanban engine full suite (429) + streaming & stream_recovery (637) + security full suite incl. context_budget/isolation/permissions (1,761) + LLM toolkit incl. credential_pool/routing/fallback (1,344) + context_budget dedicated (60) + credential_pool dedicated (36) + error_classifier dedicated (175).
 
 ### Core Preset Tool Availability — SCIP Phase 0+1 (Jul 2026)
 
@@ -740,7 +740,7 @@ With Opus 4.8, Claude Code introduced `/effort` (6-level reasoning budget), Dyna
 | Feature | Claude Code | Myrm | Result |
 |---------|------------|------|--------|
 | Reasoning budget control | `/effort` 6 levels (manual) | `complexity_router` 3-tier auto-routing + PenaltyTracker | ⬆️ Smarter (auto vs manual) |
-| Workflow orchestration | Dynamic Workflows (unpredictable LLM JS, keyword trigger) | 6 deterministic modes + manual Dynamic Workflow (Python PTC + SQLite event sourcing) | ⬆️ Dual-path: safe DW + richer modes |
+| Workflow orchestration | Dynamic Workflows (unpredictable LLM JS, keyword trigger) | 8 deterministic modes + manual Dynamic Workflow (Python PTC + SQLite event sourcing) | ⬆️ Dual-path: safe DW + richer modes |
 | System prompt optimization | lean system prompt | 6-layer Prompt Cache + TaskAdaptiveMiddleware | ⬆️ Complete cache engineering |
 | Autonomous execution | "Ask fewer questions" | Goal 7-state machine + auto_approve + continuation guard | ⬆️ Systematic |
 | Skill system | .claude/skills directory scan | 42-module Skill system + 6 discovery sources + evolution | ⬆️ Full evolution ecosystem |

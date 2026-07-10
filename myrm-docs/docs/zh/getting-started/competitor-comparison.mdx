@@ -32,8 +32,8 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **渠道** | ✅ 26 渠道 + 三级 Agent 绑定（Thread/Chat/Channel）+ 六维身份隔离 + IM Goal 管理（5,709 测试） | ~23（无 Topic 级绑定） | ~7 | ⚠️ 飞书/钉钉 | ⚠️ IM 机器人 | ❌ 仅飞书 | ❌ |
 | **公网 Ingress 引导** | ✅ SSOT API + 入站/出站徽章 + 自选穿透文档（cpolar/NATAPP/frp） | ❌ 纯文档 | Tailscale 文档 | ⚠️ 文档教 cloudflared | ❌ | ❌ | ❌ |
 | **手机远程指挥台** | ✅ 完整 PWA（离线缓存+安装引导）· E2EE 加密配对令牌 Hub · 实时 Status Board（SSE 进度 · 视觉审批 · 语音 push-to-talk · 中途 steer · 紧急停止 · **Browser/Desktop Live Preview** — Agent 操作画面实时截图预览，Lightbox 全屏放大，浏览器/桌面 Tab 切换，可折叠卡片，零新 API）· 会话级 **chat cancel**（配对安全）· 100dvh + pb-safe 视口 · **194 项测试**（2026-07） | ❌ 仅 CLI/TUI | ⚠️ 多为 IM 通知，无完整手机控制台 | ❌ | ❌ | ❌ | ❌ |
-| **子 Agent** | ✅ 7 模式 + 动态工作流 + **Template Market（Team 模板一键建队）** | ⚠️ v0.15 Kanban Swarm（1 模式） | ⚠️ 基础 spawn（仅线性） | ⚠️ 基础 spawn | ❌ 单 Agent | ⚠️ L-W-V | ❌ |
-| **工具生态集成** | ✅ 自有 Agent 引擎 + MCP 行业标准（OAuth+安全扫描+Schema容错+动态发现+连接池自愈）+ **Settings 页 MCP GUI 全链路（options/scan/verify/registry）** + **Agent/Team 模板市场一键实例化** + 5层安全审批 + 技能自动进化 + 7种SubAgent编排（3,491 项测试） | ⚠️ 单文件 Copilot 适配器（686 行，仅 CLI） | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **子 Agent** | ✅ 8 模式 + 动态工作流 + **Template Market（Team 模板一键建队）** | ⚠️ v0.15 Kanban Swarm（1 模式） | ⚠️ 基础 spawn（仅线性） | ⚠️ 基础 spawn | ❌ 单 Agent | ⚠️ L-W-V | ❌ |
+| **工具生态集成** | ✅ 自有 Agent 引擎 + MCP 行业标准（OAuth+安全扫描+Schema容错+动态发现+连接池自愈）+ **Settings 页 MCP GUI 全链路（options/scan/verify/registry）** + **Agent/Team 模板市场一键实例化** + 5层安全审批 + 技能自动进化 + 8种SubAgent编排（5,173 项测试） | ⚠️ 单文件 Copilot 适配器（686 行，仅 CLI） | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **安全** | ✅ 6 层防御 + DM Pairing（4 策略、GUI 审批、防刷冷却） | ⚠️ v0.15 Promptware 3 卡口 | 1 层 | ⚠️ 未知 | ⚠️ 基础沙箱 | ⚠️ 闭源 | ❌ |
 | **凭证库** | ✅ 标签注入 + TOTP（浏览器 + 桌面） | ❌ 工具参数明文 | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **WebUI 访问安全** | ✅ 零信任 WebSocket + 安全 Cookie | ⚠️ 仅 HTTP，WS 脆弱 | ⚠️ 基础 JWT | ⚠️ 未知 | ⚠️ 仅 HTTP | ⚠️ 闭源 SaaS | ❌ LAN 裸奔 |
@@ -207,13 +207,13 @@ Agent 对话可能涉及敏感个人信息。竞品（如 ClawVault）仅在对�
 
 ## 多 Agent 编排：确定性调度（vs Hermes / OpenClaw / JiuwenSwarm）
 
-竞品多依赖单一编排模式（如 Hermes Kanban Swarm、OpenClaw 基础线性 spawn、或 JiuwenSwarm 的静态 DAG 工作流脚本）。Myrm 提供 **7 模式确定性编排引擎**，辅以 **5 层工具安全围栏** 与 **4 维预算控制**。与 JiuwenSwarm 需要用户编写 Python `workflow.py` 脚本来定义执行顺序不同，Myrm 的 Leader Agent 通过自然语言动态调度子 Agent，并支持运行时转向/取消 —— 这是静态 DAG 无法提供的能力。
+竞品多依赖单一编排模式（如 Hermes Kanban Swarm、OpenClaw 基础线性 spawn、或 JiuwenSwarm 的静态 DAG 工作流脚本）。Myrm 提供 **8 模式确定性编排引擎**，辅以 **5 层工具安全围栏** 与 **4 维预算控制**。与 JiuwenSwarm 需要用户编写 Python `workflow.py` 脚本来定义执行顺序不同，Myrm 的 Leader Agent 通过自然语言动态调度子 Agent，并支持运行时转向/取消 —— 这是静态 DAG 无法提供的能力。
 
 ### Myrm 的领先之处
 
 | 领域 | Hermes / OpenClaw | Myrm | 用户收益 |
 |------|-------------------|------|-------------|
-| **Orchestration Modes** | ⚠️ 1-2 modes (Kanban or Spawn) | **6 Modes** (DAG, Swarm, Chain, Batch, Verified, Spawn) | Right tool for the right job; DAG guarantees execution order without relying on LLM improvisation. |
+| **Orchestration Modes** | ⚠️ 1-2 modes (Kanban or Spawn) | **8 Modes** (Spawn, Chain, Batch, DAG, Verified, Swarm Fission, Alternatives Race, Council Debate) | Right tool for the right job; DAG guarantees execution order without relying on LLM improvisation. |
 | **Tool Isolation** | ⚠️ Basic global scope | **5-Layer Fence** (Type, Blocklist, Config, Intersection, Role) | Complete prevention of child agents escalating privileges or executing unauthorized tools. |
 | **Budget Control** | ⚠️ Token limit only | **4D Budget** (Tokens, USD, Time, Descendants) | Perfect predictability for cost and execution depth. Zero bill shock. |
 | **Execution Verification** | ❌ None | **CompletionGuard** (Evidence-based) | Children must prove task completion with actual STDOUT/STDERR, not just say "I'm done". |
@@ -350,7 +350,7 @@ Hermes v0.15（Velocity，2026-05-28）将核心循环从 16k 行重构为 14 �
 
 - **事件驱动看板** vs Hermes 轮询 — 即时分派 + 心跳 + 僵尸检测 + 三层防冲突（原子认领 + 所有权强制 + 分配审计，817 项测试）
 - **6 条诊断规则** + 严重度自动升级（warning→error→critical）— 检测滞留 Ready、重复失败、长期 Blocked、死依赖、Triage 停滞、Block↔Unblock 循环（每卡 O(1) vs Hermes O(N) 事件扫描）
-- **7 种编排模式**（Spawn/Chain/DAG/Batch/Verified/Swarm Fission）vs v0.15 单一 Swarm
+- **8 种编排模式**（Spawn/Chain/Batch/DAG/Verified/Swarm Fission/Alternatives Race/Council Debate）vs v0.15 单一 Swarm
 - **CompletionGuard** 物理证据验证 — Hermes 无完成验证器
 - **流水线模板向导**（发现问题 + 角色自动匹配）— Hermes `hermes kanban swarm` 为固定 CLI
 - **35+ 消息渠道**（25 带输出提示）vs ~23（19 带平台提示）— Myrm 覆盖钉钉、Teams、Google Chat、LINE、IRC、iMessage、Voice、Webhook、Zalo 等 Hermes 缺失项
@@ -560,7 +560,7 @@ MiniMax Mavis 是闭源 SaaS 多 Agent 系统，采用 Leader-Worker-Verifier �
 
 | 领域 | MiniMax Mavis | Myrm | 用户收益 |
 |------|---------------|------|-------------|
-| Orchestration | Leader LLM dispatches tasks | **6 deterministic modes** (Spawn/Chain/Batch/DAG/Verified/Swarm Fission) | Structured scheduling, not dependent on LLM improvisation |
+| Orchestration | Leader LLM dispatches tasks | **8 deterministic modes** (Spawn/Chain/Batch/DAG/Verified/Swarm Fission/Alternatives Race/Council Debate) | Structured scheduling, not dependent on LLM improvisation |
 | DAG Dependencies | ❌ None | ✅ Dependency graph + cycle detection + concurrency limits | Complex tasks auto-resolve execution order |
 | Verification | Text-based review | **Physical evidence enforcement** — must provide STDOUT/STDERR execution logs; claiming PASS without evidence is forced to FAIL | No rubber-stamp reviews |
 | Tool Isolation | Not disclosed | **5-layer isolation** (type admission → global blocklist → per-config → parent-child intersection → role control) | Sub-agents cannot escalate privileges |
@@ -577,7 +577,7 @@ MiniMax Mavis 是闭源 SaaS 多 Agent 系统，采用 Leader-Worker-Verifier �
 
 | Mavis Feature | Myrm Equivalent | 体验 |
 |---------------|-----------------|------------|
-| Leader-Worker-Verifier | DAG + Verification orchestration mode | ⬆️ Upgrade (6 modes vs 1) |
+| Leader-Worker-Verifier | DAG + Verification orchestration mode | ⬆️ Upgrade (8 modes vs 1) |
 | IM multi-task parallel | WebUI multi-session + Goal continuation | ↔️ Equivalent (different design) |
 | Verifier adversarial check | `_enforce_evidence` + ReadonlySandbox | ⬆️ Upgrade (physical evidence required) |
 | Plan → Approve → Execute | 主 Agent `todo_write` + Goal approval workflow | ⬆️ Upgrade (7-state lifecycle) |
@@ -613,7 +613,7 @@ Claude Code 采用「Fork 子 Agent」设计，字节级 prompt 前缀对齐以�
 |---------------------|-----------------|------------|
 | Fork Subagent (lightweight child) | `context_mode="fork"` with prefix reuse | ⬆️ Upgrade (100% cache hit vs lost prefix) |
 | Prompt Cache prefix alignment | 6-layer Prompt Cache system | ⬆️ Upgrade (6 layers vs 1 strategy) |
-| Agent Team (parallel agents) | 7 orchestration modes (Spawn/Chain/Batch/DAG/Verified/Swarm Fission) | ⬆️ Upgrade |
+| Agent Team (parallel agents) | 8 orchestration modes (Spawn/Chain/Batch/DAG/Verified/Swarm Fission/Alternatives Race/Council Debate) | ⬆️ Upgrade |
 | sendTask message passing | P2P Mailbox + AgentHandoverState | ⬆️ Upgrade (structured handover) |
 | CLI interface | Web GUI + Tauri Desktop + SaaS | ⬆️ Upgrade |
 | Anthropic-only models | 100+ models with intelligent routing | ⬆️ Upgrade |
@@ -627,7 +627,7 @@ Claude Code 采用「Fork 子 Agent」设计，字节级 prompt 前缀对齐以�
 | Feature | Claude Code | Myrm | 结果 |
 |---------|------------|------|--------|
 | Reasoning budget control | `/effort` 6 levels (manual) | `complexity_router` 3-tier auto-routing + PenaltyTracker | ⬆️ Smarter (auto vs manual) |
-| Workflow orchestration | Dynamic Workflows (unpredictable LLM JS, keyword trigger) | 6 deterministic modes + manual Dynamic Workflow (Python PTC + SQLite event sourcing) | ⬆️ Dual-path: safe DW + richer modes |
+| Workflow orchestration | Dynamic Workflows (unpredictable LLM JS, keyword trigger) | 8 deterministic modes + manual Dynamic Workflow (Python PTC + SQLite event sourcing) | ⬆️ Dual-path: safe DW + richer modes |
 | System prompt optimization | lean system prompt | 6-layer Prompt Cache + TaskAdaptiveMiddleware | ⬆️ Complete cache engineering |
 | Autonomous execution | "Ask fewer questions" | Goal 7-state machine + auto_approve + continuation guard | ⬆️ Systematic |
 | Skill system | .claude/skills directory scan | 42-module Skill system + 6 discovery sources + evolution | ⬆️ Full evolution ecosystem |
@@ -698,7 +698,7 @@ Claude Code 采用「Fork 子 Agent」设计，字节级 prompt 前缀对齐以�
 | 不可信上游上下文 | 静默透传 | **Taint 传播** + 安全警告 | 独立验证信号清晰 |
 | JIT 子 Agent 配置 | 字段易错/阈值丢失 | **`ephemeralSubagents` + auto_vault_threshold 物化** | GUI/测试/API 一致 |
 
-**回归覆盖：** **606+** 项 vault 闭环测试全绿（harness 591 + server 15，2026-07：vault 核心 + auto_vault + resume_compact + file_read_vault + path_boundary + executor + server e2e）；Fork/Vault/Cascade/Taint/Handover 等路径合计 **366+** 项 harness 专项回归；**2026-07 server API 集成批次（27 项通过）** 覆盖并发委托、REST 子 Agent 列表/hydrate、蜂群裂变 resume 与 binding。
+**回归覆盖：** **5,173** 项编排全链路测试通过、0 失败（2026-07-11）：委派核心(97) + 锦标赛与验证(5) + spawn工具与安全注册(21) + sub_agents全套含manager/executor/event/checkpoint/orphan recovery(603) + 并行与resume compact(5) + Kanban引擎全套(429) + streaming与stream_recovery(637) + security全套含context_budget/隔离/权限(1,761) + LLM toolkit含credential_pool/路由/fallback(1,344) + context_budget专项(60) + credential_pool专项(36) + error_classifier专项(175)。
 
 ### 核心 Preset 工具可用性 — SCIP Phase 0+1（2026-07）
 
@@ -1302,7 +1302,7 @@ Myrm 从底层架构上彻底碾压了这些痛点，让用户能毫无顾虑地
 | 维度 | WeSight | Myrm | 用户收益 |
 |------|---------|------|-------------|
 | **跨平台原生部署** | 仅支持 Mac，Win/Linux 缺失 | **Tauri 原生编译 + SaaS/Local 三端** | 告别“不支持 Windows”的烦恼，全平台一致体验。 |
-| **工具生态集成** | 需配置繁琐的环境变量 | **自有 Agent 引擎 + MCP 行业标准（安全扫描+Schema容错+动态发现）+ 5层安全审批 + 技能自动进化 + 7种SubAgent编排** | 内置完整 Agent 引擎覆盖 95%+ 场景，MCP 标准生态无缝对接任何外部工具，3,491 项测试验证。 |
+| **工具生态集成** | 需配置繁琐的环境变量 | **自有 Agent 引擎 + MCP 行业标准（安全扫描+Schema容错+动态发现）+ 5层安全审批 + 技能自动进化 + 8种SubAgent编排** | 内置完整 Agent 引擎覆盖 95%+ 场景，MCP 标准生态无缝对接任何外部工具，5,173 项测试验证。 |
 | **团队协作上下文** | 智能体间上下文强制隔离 | **Global Context Mesh + 隔离双切** | 共享底层向量库，不仅能无缝继承历史记录省 Token，还提供严格防污染模式开关。 |
 | **多 Agent 通信** | 依赖系统作为中心化指挥器 | **P2P 对等智能体通信协议** | Agent 间可直接“@”互相交流，效率与协同度成倍提升。 |
 | **全息工作流监控** | “桌面宠物”等非工作流强相关的展示 | **Swarm DAG (多节点动态连线图) + 差异大盘** | 剔除低幼向功能，以极客级的可视化图表直观展示算力去向、实时 TPS 与文件 Diff。 |
