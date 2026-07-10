@@ -1,3 +1,13 @@
+/**
+ * [INPUT]
+ * - download/DesktopReleaseProvider (POS: 桌面 release React 上下文边界)
+ *
+ * [OUTPUT]
+ * - ReleaseNotesSection: 可折叠 release notes 展示
+ *
+ * [POS]
+ * 下载页 release notes 区块；无 notes 时不渲染。
+ */
 'use client';
 
 import { useTranslations } from 'next-intl';

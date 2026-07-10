@@ -9,7 +9,7 @@ This **closed-source** repository hosts the public marketing website and product
 
 ## Before you open a PR
 
-1. Read [ARCHITECTURE.md](ARCHITECTURE.md) for repo layout, deploy flow, and cross-package contracts.
+1. Read [ARCHITECTURE.md](ARCHITECTURE.md) and [_ARCH.md](_ARCH.md) for repo layout, deploy flow, and cross-package contracts.
 2. For product behavior or API docs, also read the main repo guides linked from [docs.myrmagent.ai](https://docs.myrmagent.ai/contributing/development-setup).
 3. Run checks from `myrm-website/`:
 
@@ -20,6 +20,7 @@ bun run lint
 bun run validate:locales
 bun run validate:docs-slugs
 bun run test
+bun run validate:fractal-docs  # also covered by test; explicit for doc-only PRs
 ```
 
 4. For docs-only changes in `myrm-docs/`, run Mintlify locally: `cd myrm-docs && mint dev`.

@@ -157,12 +157,13 @@ Myrm's Deep Research runs a structured **CLARIFY → PLAN → RESEARCH → REPOR
 | Phase | What happens | Why it matters |
 |-------|-------------|---------------|
 | **CLARIFY** | Structured form asks the user to confirm intent | 100% accurate understanding vs AI guessing |
-| **PLAN** | Generates ≤6-step research plan | Ensures systematic coverage, no aimless browsing |
+| **PLAN** | Generates ≤6-step research plan, **pauses for user review** (approve / edit / skip) | Ensures systematic coverage; user controls direction before spending tokens |
 | **RESEARCH** | Parallel sub-agents search + self-reflect via `think` tool | Faster with quality checkpoints at each cycle |
 | **REPORT** | Multi-page structured report with inline citations【1】【2】, Information Integrity Rules, and Limitations/Gaps disclosure | Verifiable, honest about unknowns, zero extra LLM calls |
 
 ### Mid-Research Controls
 
+- **Plan confirmation gate** — review, edit, or approve the research plan before execution begins
 - **HITL callback** — pause after any cycle to adjust direction
 - **Budget guard** — `max_budget_usd` + threshold warnings
 - **Cancel + keep** — stop anytime, partial results preserved

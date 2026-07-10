@@ -1,3 +1,14 @@
+/**
+ * [INPUT]
+ * - download/DesktopReleaseProvider (POS: 桌面 release React 上下文边界)
+ * - lib/desktop-release.ts::fetchSha256FromUrl (POS: 桌面端安装包元数据单一入口)
+ *
+ * [OUTPUT]
+ * - ChecksumSection: SHA256 内联展示与一键复制
+ *
+ * [POS]
+ * 下载页校验和区块；按需懒加载远端 checksum 文件。
+ */
 'use client';
 
 import { useRef, useState } from 'react';

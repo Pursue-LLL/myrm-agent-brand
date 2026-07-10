@@ -56,6 +56,10 @@
 | `../../lib/marketing-nav.ts` | 核心 | Nav DRY；Header → `/download`；Hero 次 CTA → local QuickStart |
 | `../../lib/cloud-marketing-nav.ts` | 核心 | SaaS 页 Nav |
 | `MarketingShell.tsx` | 核心 | 非 Landing 页共享壳层（下载/法务） | ✅ |
+| `BrandLogo.tsx` | 辅助 | 品牌图标 / wordmark / full 组合 | — |
+| `LocaleSwitcher.tsx` | 辅助 | 顶栏 locale 切换 | — |
+| `MouseGlowLayer.tsx` | 辅助 | 全页鼠标光晕跟随层 | — |
+| `EasterEgg.tsx` | 辅助 | 隐藏彩蛋交互 | — |
 | `LegalPage.tsx` | 核心 | 法务页 section 排版 | ✅ |
 | `landing/HighlightsCarouselSection.tsx` | 核心 | 8 张亮点轮播（Embla 垂直 + 左栏导览）；IO 离屏停播 |
 | `landing/UseCasesSection.tsx` | 核心 | 四场景用例卡片 |

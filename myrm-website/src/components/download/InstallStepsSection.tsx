@@ -1,3 +1,13 @@
+/**
+ * [INPUT]
+ * - next-intl marketing 文案键 `download.installSteps.*`
+ *
+ * [OUTPUT]
+ * - InstallStepsSection: 三平台安装步骤卡片网格
+ *
+ * [POS]
+ * 下载页安装引导区块；macOS / Windows / Linux 并列展示。
+ */
 'use client';
 
 import { useTranslations } from 'next-intl';

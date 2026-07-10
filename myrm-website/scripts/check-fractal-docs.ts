@@ -16,6 +16,7 @@ const BRAND_ROOT = join(import.meta.dir, '../..');
 /** Module _ARCH.md paths relative to myrm-agent-brand root. */
 const REQUIRED_ARCH_PATHS = [
   'ARCHITECTURE.md',
+  '_ARCH.md',
   'myrm-website/_ARCH.md',
   'myrm-website/DUAL_PAGE_SYSTEM.md',
   'myrm-website/scripts/_ARCH.md',
@@ -32,6 +33,7 @@ const REQUIRED_ARCH_PATHS = [
   'myrm-website/src/components/marketing/landing/colony/_ARCH.md',
   'myrm-docs/_ARCH.md',
   'myrm-docs/scripts/_ARCH.md',
+  '.github/_ARCH.md',
   '.github/workflows/_ARCH.md',
 ] as const;
 

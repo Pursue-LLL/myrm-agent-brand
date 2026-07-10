@@ -1,4 +1,6 @@
-# GitHub Actions（营销站发布）
+# GitHub Actions workflows
+
+父级 CI 说明见 [../_ARCH.md](../_ARCH.md)。
 
 | 文件 | 职责 |
 |------|------|

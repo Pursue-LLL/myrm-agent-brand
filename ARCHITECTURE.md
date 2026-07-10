@@ -10,6 +10,7 @@
 
 | 路径 | 地位 | 职责 | 部署 |
 |------|------|------|------|
+| `_ARCH.md` | 核心 | 仓级目录索引（链至 ARCHITECTURE 与子包） | — |
 | `README.md` | 入口 | Clone 与常用命令 | — |
 | `CONTRIBUTING.md` | 辅助 | 贡献指南（链至 docs 详细说明） | — |
 | `ARCHITECTURE.md` | 核心 | 仓级架构 SSOT | — |
@@ -57,6 +58,8 @@
 
 | 文档 | 范围 |
 |------|------|
+| [`_ARCH.md`](_ARCH.md) | 仓级目录索引 |
+| [`.github/_ARCH.md`](.github/_ARCH.md) | GitHub Actions CI 根 |
 | [`myrm-website/_ARCH.md`](myrm-website/_ARCH.md) | Next.js 营销站模块 |
 | [`myrm-docs/_ARCH.md`](myrm-docs/_ARCH.md) | Mintlify 文档站 |
 | [`myrm-website/scripts/_ARCH.md`](myrm-website/scripts/_ARCH.md) | 构建/校验脚本 |

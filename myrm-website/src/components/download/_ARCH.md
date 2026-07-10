@@ -6,14 +6,15 @@
 
 ## 模块
 
-| 文件 | 地位 | 职责 | I/O |
-|------|------|------|-----|
+| 文件 | 地位 | 职责 | I/O/P |
+|------|------|------|-------|
 | `../../lib/desktop-release.ts` | 核心 | Release 元数据解析、平台检测、embedded/live fetch | — |
 | `../../hooks/useDesktopReleaseState.ts` | 核心 | embedded 优先 + SWR 刷新 + 状态 | — |
 | `DesktopReleaseProvider.tsx` | 核心 | 单页共享 release 状态 | ✅ |
 | `platform-display.ts` | 核心 | 平台分组与 i18n 键映射（CTA + footnote 共用） | ✅ |
 | `PlatformGlyph.tsx` | 核心 | Hero 下载 CTA 平台 SVG 图标 | ✅ |
 | `SmartDownloadButton.tsx` | 核心 | OS 智能下载 CTA；Hero 直链 / Mac 选型 / 筹备中诚实文案 | ✅ |
+| `HeroDownloadFootnote.tsx` | 核心 | Hero CTA 下方 release 元信息与全平台链接 | ✅ |
 | `CliInstallFallback.tsx` | 核心 | 无桌面包：筹备说明 + localWebui 终端引导（非桌面 App） | ✅ |
 | `PlatformDownloadGrid.tsx` | 核心 | 全平台安装包矩阵 + Recommended + size；无包时 CliInstallFallback | ✅ |
 | `ReleaseNotesSection.tsx` | 辅助 | Release notes 折叠展示 | ✅ |
