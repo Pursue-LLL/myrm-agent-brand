@@ -33,7 +33,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **公网 Ingress 引导** | ✅ SSOT API + 入站/出站徽章 + 自选穿透文档（cpolar/NATAPP/frp） | ❌ 纯文档 | Tailscale 文档 | ⚠️ 文档教 cloudflared | ❌ | ❌ | ❌ |
 | **手机远程指挥台** | ✅ 完整 PWA（离线缓存+安装引导）· E2EE 加密配对令牌 Hub · 实时 Status Board（SSE 进度 · 视觉审批 · 语音 push-to-talk · 中途 steer · 紧急停止 · **Browser/Desktop Live Preview** — Agent 操作画面实时截图预览，Lightbox 全屏放大，浏览器/桌面 Tab 切换，可折叠卡片，零新 API）· 会话级 **chat cancel**（配对安全）· 100dvh + pb-safe 视口 · **194 项测试**（2026-07） | ❌ 仅 CLI/TUI | ⚠️ 多为 IM 通知，无完整手机控制台 | ❌ | ❌ | ❌ | ❌ |
 | **子 Agent** | ✅ 8 模式 + 动态工作流 + **Template Market（Team 模板一键建队）** | ⚠️ v0.15 Kanban Swarm（1 模式） | ⚠️ 基础 spawn（仅线性） | ⚠️ 基础 spawn | ❌ 单 Agent | ⚠️ L-W-V | ❌ |
-| **工具生态集成** | ✅ 自有 Agent 引擎 + MCP 行业标准（OAuth+安全扫描+Schema容错+动态发现+连接池自愈）+ **Settings 页 MCP GUI 全链路（options/scan/verify/registry）** + **Agent/Team 模板市场一键实例化** + 5层安全审批 + 技能自动进化 + 8种SubAgent编排（5,173 项测试） | ⚠️ 单文件 Copilot 适配器（686 行，仅 CLI） | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **工具生态集成** | ✅ 自有 Agent 引擎 + MCP 行业标准（OAuth+安全扫描+Schema容错+动态发现+连接池自愈）+ **Settings 页 MCP GUI 全链路（options/scan/verify/registry）** + **Agent/Team 模板市场一键实例化** + 5层安全审批 + 技能自动进化 + 8种SubAgent编排（7,604 项测试） | ⚠️ 单文件 Copilot 适配器（686 行，仅 CLI） | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **安全** | ✅ 6 层防御 + DM Pairing（4 策略、GUI 审批、防刷冷却） | ⚠️ v0.15 Promptware 3 卡口 | 1 层 | ⚠️ 未知 | ⚠️ 基础沙箱 | ⚠️ 闭源 | ❌ |
 | **凭证库** | ✅ 标签注入 + TOTP（浏览器 + 桌面） | ❌ 工具参数明文 | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **WebUI 访问安全** | ✅ 零信任 WebSocket + 安全 Cookie | ⚠️ 仅 HTTP，WS 脆弱 | ⚠️ 基础 JWT | ⚠️ 未知 | ⚠️ 仅 HTTP | ⚠️ 闭源 SaaS | ❌ LAN 裸奔 |
@@ -698,7 +698,7 @@ Claude Code 采用「Fork 子 Agent」设计，字节级 prompt 前缀对齐以�
 | 不可信上游上下文 | 静默透传 | **Taint 传播** + 安全警告 | 独立验证信号清晰 |
 | JIT 子 Agent 配置 | 字段易错/阈值丢失 | **`ephemeralSubagents` + auto_vault_threshold 物化** | GUI/测试/API 一致 |
 
-**回归覆盖：** **5,173** 项编排全链路测试通过、0 失败（2026-07-11）：委派核心(97) + 锦标赛与验证(5) + spawn工具与安全注册(21) + sub_agents全套含manager/executor/event/checkpoint/orphan recovery(603) + 并行与resume compact(5) + Kanban引擎全套(429) + streaming与stream_recovery(637) + security全套含context_budget/隔离/权限(1,761) + LLM toolkit含credential_pool/路由/fallback(1,344) + context_budget专项(60) + credential_pool专项(36) + error_classifier专项(175)。
+**回归覆盖：** **7,604** 项编排全链路测试通过、0 失败（2026-07-11）：委派核心(97) + 锦标赛与验证(5) + spawn工具与安全注册(21) + sub_agents全套含manager/executor/event/checkpoint/orphan recovery(603) + 并行与resume compact(5) + Kanban引擎全套(429) + streaming与stream_recovery(637) + security全套含context_budget/隔离/权限(1,761) + LLM toolkit含credential_pool/路由/fallback(1,344) + context_budget专项(60) + credential_pool专项(36) + error_classifier专项(175) + **Item #13~15 验证(2,431)**：sub_agents套件(603) + security套件(1,761) + multiplexer与thread_sharing(27) + 前端Vitest SubagentDashboard+SubagentStore(17) + EventForwarder(12) + TeammateMailbox(11)。
 
 ### 核心 Preset 工具可用性 — SCIP Phase 0+1（2026-07）
 
@@ -1302,7 +1302,7 @@ Myrm 从底层架构上彻底碾压了这些痛点，让用户能毫无顾虑地
 | 维度 | WeSight | Myrm | 用户收益 |
 |------|---------|------|-------------|
 | **跨平台原生部署** | 仅支持 Mac，Win/Linux 缺失 | **Tauri 原生编译 + SaaS/Local 三端** | 告别“不支持 Windows”的烦恼，全平台一致体验。 |
-| **工具生态集成** | 需配置繁琐的环境变量 | **自有 Agent 引擎 + MCP 行业标准（安全扫描+Schema容错+动态发现）+ 5层安全审批 + 技能自动进化 + 8种SubAgent编排** | 内置完整 Agent 引擎覆盖 95%+ 场景，MCP 标准生态无缝对接任何外部工具，5,173 项测试验证。 |
+| **工具生态集成** | 需配置繁琐的环境变量 | **自有 Agent 引擎 + MCP 行业标准（安全扫描+Schema容错+动态发现）+ 5层安全审批 + 技能自动进化 + 8种SubAgent编排** | 内置完整 Agent 引擎覆盖 95%+ 场景，MCP 标准生态无缝对接任何外部工具，7,604 项测试验证。 |
 | **团队协作上下文** | 智能体间上下文强制隔离 | **Global Context Mesh + 隔离双切** | 共享底层向量库，不仅能无缝继承历史记录省 Token，还提供严格防污染模式开关。 |
 | **多 Agent 通信** | 依赖系统作为中心化指挥器 | **P2P 对等智能体通信协议** | Agent 间可直接“@”互相交流，效率与协同度成倍提升。 |
 | **全息工作流监控** | “桌面宠物”等非工作流强相关的展示 | **Swarm DAG (多节点动态连线图) + 差异大盘** | 剔除低幼向功能，以极客级的可视化图表直观展示算力去向、实时 TPS 与文件 Diff。 |
