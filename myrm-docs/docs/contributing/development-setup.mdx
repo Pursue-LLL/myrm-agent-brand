@@ -30,8 +30,11 @@ For harness framework work, clone the **vortexai** monorepo (private) with `myrm
 
 ```bash
 ./myrm setup            # editable harness into server venv (vortexai root)
-./myrm start            # backend + frontend
+git pull && ./myrm ready  # harness self-heal + :8080/:3000 (same path as ./myrm start)
+./myrm test -n0 <paths>   # all pytest via gate; do not use uv run pytest in monorepo
 ```
+
+For MCP UI checks on real logged-in Chrome: `./myrm ready --chrome` (see `MAINTAINER_QUICKSTART.md`).
 
 ## Running tests
 
