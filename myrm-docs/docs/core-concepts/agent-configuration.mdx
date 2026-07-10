@@ -153,6 +153,22 @@ Complex tasks can be decomposed using 7 orchestration patterns:
 | **Swarm** | Autonomous multi-agent fission and merge |
 | **Alternatives** | N agents generate competing solutions, user picks the best |
 
+### Role Boundaries & Tool Safety Isolation
+
+Every sub-agent inherits a `SubagentConfig` — a 21-field declarative profile that defines its responsibilities, permissions, and resource limits:
+
+| Control Layer | Fields | Effect |
+|---------------|--------|--------|
+| **Responsibility** | `system_prompt`, `display_name`, `description` | Declares what the agent does and doesn't do |
+| **Tool Access** | 4-layer isolation: type admission → global blocklist → per-config allow/blocklist → parent superset constraint | Prevents privilege escalation — child can never exceed parent's toolset |
+| **Data Scope** | `workspace_policy` (3 levels) + `memory_isolation` (3 levels) | Controls which files and memories each agent can access |
+| **Model Strategy** | `model_selection` with 3-level resolution chain (config → model → parent fallback) | Per-agent model assignment with safety fallbacks |
+| **Resource Budget** | `budget_tokens` + `max_cost_usd` + `max_children` + `max_descendants` | 4-dimensional budget guard with progressive response |
+| **Orchestration Role** | `delegation_role` (LEAF / ORCHESTRATOR) + `max_spawn_depth` | Controls delegation hierarchy depth |
+| **Context Isolation** | `context_mode` (isolated / fork) + `max_fork_tokens` | Prevents context leakage between agents |
+
+The GUI agent config editor provides 5 dedicated panels (Skills / MCP / Built-in Tools / Subagents / Instruction) for visual configuration, with AI-assisted prompt generation and ActionSpace Accuracy Radar for coverage analysis.
+
 ### External Agent Delegation (ACP)
 
 Delegate tasks to external coding agents via the ACP protocol:

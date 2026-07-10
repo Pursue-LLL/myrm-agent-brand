@@ -81,6 +81,14 @@ Desktop automation (Computer Use) requires two macOS permissions: **Accessibilit
 - **Recheck Button** — After granting access in System Settings, click "Recheck" to verify instantly without restarting
 - **Runtime Banner** — If permissions are revoked while using Desktop Inspector, a contextual banner appears with guidance
 
+### Desktop Inspector: Numbered Overlay (SOM)
+
+When you refresh the Desktop Inspector panel, Myrm overlays **numbered badges [N]** on interactive controls in the live screenshot. The same indices appear in the accessibility tree and in approval cards — so you always know **which element** the agent is about to click.
+
+- **Token-safe default** — Agent tool calls keep `include_screenshot=false` unless you need a visual turn; SOM runs on Inspector refresh and explicit screenshot requests only
+- **Semantic-first** — `@dref` references remain the primary control path; numbers are a human-readable translation layer, not a replacement
+- **Filtered labels** — Static text and non-interactive nodes are excluded so the overlay stays readable
+
 <Note>
 **Deploy-aware behavior:** On **local/Tauri/WebUI local**, Computer Use controls your real Mac/PC/Linux desktop. On **SaaS sandbox**, it only mounts when the sandbox runs a **Visual Desktop** (noVNC) **and** your plan includes the VNC entitlement—headless sandboxes keep the toggle off so marketing matches reality.
 </Note>

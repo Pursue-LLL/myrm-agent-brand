@@ -153,6 +153,22 @@ Agent 配置面板提供进度模式（默认关闭，不占 Turn1 Token）：
 | **Swarm** | 自主多 Agent 分裂合并 |
 | **Alternatives** | N 个 Agent 并行生成竞争方案，用户选择最优 |
 
+### 角色边界与工具安全隔离
+
+每个子 Agent 均继承一个 `SubagentConfig` — 包含 21 个字段的声明式配置文件，明确定义其职责、权限和资源限制：
+
+| 控制层 | 字段 | 效果 |
+|--------|------|------|
+| **职责声明** | `system_prompt`、`display_name`、`description` | 明确 Agent 做什么、不做什么 |
+| **工具访问** | 4 层隔离：类型准入 → 全局黑名单 → per-config 白/黑名单 → 父级约束 | 子 Agent 永远无法超越父级工具集 |
+| **数据域** | `workspace_policy`（3 级）+ `memory_isolation`（3 级） | 控制每个 Agent 可访问的文件和记忆 |
+| **模型策略** | `model_selection` 三级解析链（配置 → 模型 → 父级兜底） | 按 Agent 分配模型，含安全兜底 |
+| **资源预算** | `budget_tokens` + `max_cost_usd` + `max_children` + `max_descendants` | 4 维预算守卫 + 渐进响应 |
+| **编排角色** | `delegation_role`（LEAF/ORCHESTRATOR）+ `max_spawn_depth` | 控制委派层级深度 |
+| **上下文隔离** | `context_mode`（isolated/fork）+ `max_fork_tokens` | 防止 Agent 间上下文泄露 |
+
+GUI 配置编辑器提供 5 个独立面板（技能 / MCP / 内置工具 / 子智能体 / 指令），支持可视化配置。集成 AI 辅助 Prompt 生成和 ActionSpace 准确率雷达图进行覆盖率分析。
+
 ### 外部 Agent 委派 (ACP)
 
 通过 ACP 协议将任务委派给外部编程 Agent：
