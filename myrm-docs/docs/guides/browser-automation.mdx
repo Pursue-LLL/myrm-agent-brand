@@ -773,7 +773,9 @@ When developers use **chrome-devtools-mcp** in Cursor (or similar IDEs) for fron
 
 **One-time in your daily Chrome:** open `chrome://inspect/#remote-debugging` → enable Remote Debugging → click **Allow** when the agent connects.
 
-**Verified Jul 2026:** MCP `list_pages` shows real tabs (cart, chat history) · `new_page` with `isolatedContext` on `localhost:3000` · single ARM64 Chrome process · port 9222 idle.
+**Verified Jul 2026:** `new_page` with `isolatedContext` (string name) + `timeout`≤5000 on `localhost:3000` · single ARM64 Chrome · never probe with timeout-less `list_pages` (hung 30min+ in production).
+
+**When stuck:** run `scripts/dev/chrome-mcp-preflight.sh` from the monorepo root — detects too many MCP processes, MyrmChromeMcp second instance, and stale remote-debugging sessions. Keep **one** Cursor Agent tab open for browser work.
 
 Product browser tools still use **AUTO mode** + Extension Bridge — this section is for **IDE developer E2E** only.
 

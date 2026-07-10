@@ -701,7 +701,9 @@ Extension Bridge 跨越 5 层：
 
 **主 Chrome 一次性设置：** 打开 `chrome://inspect/#remote-debugging` → 开启远程调试 → Agent 连接时点 **允许**。
 
-**2026-07 实测：** `list_pages` 读到真实标签页 · `isolatedContext` 打开 `:3000` · 仅 1 个 ARM64 Chrome · 9222 空闲。
+**2026-07 实测：** `new_page` + `isolatedContext`（字符串名）+ `timeout`≤5000 打开 `:3000` · 仅 1 个 ARM64 Chrome · 禁止用无超时的 `list_pages` 探活（曾挂起 30min+）。
+
+**卡死时：** 在 monorepo 根运行 `scripts/dev/chrome-mcp-preflight.sh` — 自动检测多条 MCP 进程、MyrmChromeMcp 第二实例、陈旧远程调试会话。浏览器任务期间只开 **1 个** Cursor Agent 对话。
 
 产品内 Browser 工具仍走 **AUTO 模式** + Extension Bridge；本节仅针对 **IDE 开发者 E2E**。
 
