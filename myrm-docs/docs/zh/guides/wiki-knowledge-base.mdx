@@ -35,13 +35,21 @@ Wiki 不是「写完就忘」的死水。Myrm 用 **12 条代码级路径** 把�
 
 - **四工具自动挂载** — 在智能体配置中启用 Wiki 后，ingest / compile / query / maintain 随对话可用。
 - **大文件上传引导** — 上传 PDF 等大文档时，系统自动注入「先 wiki_ingest 再 wiki_query」指令，避免整文件塞进 prompt。
-- **Deep Research 入库** — 深度研究报告自动写入 Wiki 并触发编译。
+- **Deep Research 入库** — 深度研究报告经共享 archiver 写入同一 Wiki 库并触发编译。
 - **聊天一键保存** — 任意助手消息可「存入 Wiki」，带来源 frontmatter。
-- **设置页即席查询** — 概览标签直接问 Wiki、编译、维护。
+- **压缩后会话笔记归档** — 上下文压缩完成时，会话笔记自动归档到 Wiki（`on_summary_persist` 触发，而非每次 note 保存）。
+- **设置页即席查询** — 概览标签直接问 Wiki、编译、维护，并展示库健康状态。
 
-<Note>
-Memory→Wiki 自动归档服务（`MemoryToWikiArchiver`）已实现 API 与配置项；压缩后自动触发接线为后续增强项。当前写入路径：手动 ingest、存入 Wiki 按钮、Deep Research vault、文件上传引导。
-</Note>
+## 统一 Vault 路径
+
+所有 Wiki 数据位于**单一库目录**（`{harness_dir}/wiki`）。设置页、REST API、Agent 工具、存入 Wiki、Deep Research 与压缩归档均通过 `get_wiki_archiver()` 共用同一路径；启动时自动迁移旧路径。
+
+在 **设置 → Wiki → 概览** 中，统计信息随页面打开自动加载，并显示：
+
+- **知识库已就绪** — Wiki 目录存在且可写。
+- **旧库已迁移** — 历史路径已合并到当前库。
+
+无需再依赖 CLI「doctor」式自检，产品内即可确认库状态。
 
 ## 将聊天消息存入 Wiki
 
