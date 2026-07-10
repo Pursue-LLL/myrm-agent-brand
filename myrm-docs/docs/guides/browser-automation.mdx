@@ -778,7 +778,7 @@ When developers use **chrome-devtools-mcp** in Cursor (or similar IDEs) for fron
 
 **One-time in your daily Chrome:** open `chrome://inspect/#remote-debugging` → enable Remote Debugging → click **Allow** when the agent connects.
 
-**Why `:3000` can feel slow (Jul 2026 audit):** Next.js dev may accept TCP but return **no HTML for several seconds** while webpack compiles. MCP `navigate_page` uses Puppeteer `goto` and waits for the **`load` event** (40+ JS chunks in dev) — a 5000ms timeout may report failure even when the tab title already updated. **Use `127.0.0.1:3000`**, pre-warm with `curl` after `./myrm start`, start with `new_page(about:blank)` then navigate, and on timeout run `take_snapshot` instead of retrying navigation.
+**Why `:3000` can feel slow (Jul 2026 audit):** Next.js dev may accept TCP but return **no HTML for several seconds** while webpack compiles. MCP `navigate_page` uses Puppeteer `goto` and waits for the **`load` event** (40+ JS chunks in dev) — a 5000ms timeout may report failure even when the tab title already updated. **Use `127.0.0.1:3000`**, pre-warm with `curl` after `./myrm ready`, start with `new_page(about:blank)` then navigate, and on timeout run `take_snapshot` instead of retrying navigation.
 
 **Verified Jul 2026:** `new_page` with `isolatedContext` (string name) + `timeout`≤5000 · single ARM64 Chrome · never probe with timeout-less `list_pages` (hung 30min+ in production).
 
@@ -786,7 +786,7 @@ When developers use **chrome-devtools-mcp** in Cursor (or similar IDEs) for fron
 
 **Port cleanup (Jul 2026):** `myrm-agent-frontend/scripts/port-cleanup.ts` uses `lsof -sTCP:LISTEN` only — never signals Chrome tabs connected to `:3000`.
 
-**Start orchestration:** `./myrm start` (`start.sh`) waits up to 30s wall-clock when `:3000` is LISTEN but HTTP is not ready (Next cold compile) before restarting; warns if multiple `chrome-devtools-mcp` processes are detected.
+**Start orchestration:** Daily maintainer flow is **`./myrm ready`** (harness editable self-heal + `:8080/:3000`); `./myrm start` is an alias. `start.sh` waits up to 30s wall-clock when `:3000` is LISTEN but HTTP is not ready (Next cold compile) before restarting; warns if multiple `chrome-devtools-mcp` processes are detected. Before MCP UI E2E: **`./myrm ready --chrome`**.
 
 Product browser tools still use **AUTO mode** + Extension Bridge — this section is for **IDE developer E2E** only.
 
