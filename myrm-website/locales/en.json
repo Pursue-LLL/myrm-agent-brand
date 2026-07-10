@@ -821,7 +821,7 @@
           "feature": "Kanban UI for SubAgents · Multi-agent progress at a glance",
           "hermes": "Text logs",
           "openclaw": "Display board",
-          "myrmAgent": "31-component GUI · 8-state lifecycle + 19 event types (StrEnum type-safe) · event-driven dispatch (ms-level wake vs 60s polling) · Role-gated 8/5/16 LLM tools (~50% fewer Kanban tokens in chat vs full) · CompletionVerifier · 1203 sub_agents+kanban tests 100% pass (Jul 2026) · Hermes-concept compatible migration"
+          "myrmAgent": "31-component GUI · 8-state lifecycle + 19 events · ms-level event-driven dispatch · Role-gated 7/5/12 LLM tools (16→12 lean: link merges deps, list optional single lookup, boards GUI-only) · CompletionVerifier · 1204 sub_agents+kanban tests 100% pass · Hermes-compatible · OpenClaw display-only—we orchestrate & verify"
         },
         "kanbanConcurrentQueue": {
           "feature": "Kanban Extreme Throughput · No more 'Database is locked' or UI Freezing",
@@ -898,7 +898,7 @@
       "savings": "86% fewer tokens · ~7x tasks same budget",
       "savingsCache": "97% more with cache hits · repeat queries cost almost nothing",
       "footnote": "Based on the same knowledge Q&A scenario in real use; bars show prompt tokens per request.",
-      "ptcFootnote": "In complex workflows, orchestrated execution saves about half the input tokens vs. calling tools directly. Kanban LLM tools use role gates (8 orchestrator / 5 worker, not 16 by default). PTC: batch local tools in one script; single web search stays native — bash prompt no longer suggests web-in-PTC. Planning stays off by default (~150 tok/turn when enabled) — no DeerFlow-style prompt injection; `todo_write` persists todos to sandbox SSOT, CompletionGuard blocks early exit, ProgressSteps merge by step_key without duplicate nodes.",
+      "ptcFootnote": "In complex workflows, orchestrated execution saves about half the input tokens vs. calling tools directly. Kanban LLM tools use role gates (7 orchestrator / 5 worker, full opt-in 12). PTC: batch local tools in one script; single web search stays native. Planning stays off by default (~150 tok/turn when enabled); `todo_write` persists todos to sandbox SSOT, CompletionGuard blocks early exit.",
       "breakdown": {
         "title": "Token Composition",
         "systemPrompt": "System Prompt",

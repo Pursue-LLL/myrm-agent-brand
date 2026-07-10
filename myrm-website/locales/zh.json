@@ -851,7 +851,7 @@
           "feature": "任务分发看板 (Kanban) · 告别日志刷屏，多智能体进度清晰可见",
           "hermes": "文本打印",
           "openclaw": "展示看板",
-          "myrmAgent": "31 组件 GUI · 8 态生命周期 + 19 种事件（StrEnum 类型安全）· 事件驱动即时分派（毫秒级唤醒 vs 竞品 60 秒轮询）· 角色化 8/5/16 LLM 工具（聊天侧 Kanban schema 较 full 约减半）· CompletionVerifier · 1203 项 sub_agents+kanban 测试 100% 通过（2026-07-06）· Hermes 用户概念兼容迁移"
+          "myrmAgent": "31 组件 GUI · 8 态生命周期 + 19 种事件 · 事件驱动毫秒级分派 · 角色化 7/5/12 LLM 工具（16→12 精简：link 合并依赖、list 可选单查、Board 仅 GUI）· CompletionVerifier · 1204 项 sub_agents+kanban 测试 100% 通过 · Hermes 概念兼容 · OpenClaw 仅展示我们可编可验"
         },
         "kanbanConcurrentQueue": {
           "feature": "看板极致吞吐 (百万级并发) · 拒绝数据库锁定与界面卡死",
@@ -898,7 +898,7 @@
       "savings": "省 86% Token · 同样预算约 7 倍任务量",
       "savingsCache": "缓存命中后再省 97% · 重复问题几乎不花钱",
       "footnote": "基于相同知识问答场景的真实使用对比；柱状图为单次请求的提示词用量。",
-      "ptcFootnote": "复杂工作流场景下，编排执行比直连工具再省约一半输入用量。Kanban LLM 工具按角色绑定（聊天 8 / Worker 5，默认非 full 16）。PTC 适合同脚本批量本地工具；单次搜网仍走 native，bash 说明不再举例 web-in-PTC。Planning 默认关闭，按需启用约 ~150 tok/轮，无 DeerFlow 式 prompt 注入；启用后 `todo_write` 写入沙箱 todos SSOT，CompletionGuard 防早退，ProgressSteps 按 step_key 去重不重复渲染。",
+      "ptcFootnote": "复杂工作流场景下，编排执行比直连工具再省约一半输入用量。Kanban LLM 工具按角色绑定（聊天 orchestrator 7 / Worker 5，full 仅 opt-in 12）。PTC 适合同脚本批量本地工具；单次搜网仍走 native。Planning 默认关闭，按需启用约 ~150 tok/轮；启用后 `todo_write` 写入沙箱 todos SSOT，CompletionGuard 防早退。",
       "breakdown": {
         "title": "Token 占用构成",
         "systemPrompt": "系统提示词",

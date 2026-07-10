@@ -54,11 +54,13 @@ Kanban tools are **opt-in** and **role-gated** to save tokens and reduce misuse:
 | Context | Tools bound | Count |
 |---------|-------------|------:|
 | Default chat (Kanban off) | None | 0 |
-| Chat with Kanban enabled | Orchestrator set (add/list/move tasks, dependencies, board summary) | 8 |
+| Chat with Kanban enabled | Orchestrator set (add/list/update/move/delete, link deps, board summary) | 7 |
 | Kanban task worker | Worker set (show, complete, block, heartbeat, comment) | 5 |
-| Full mode (explicit opt-in only) | All Kanban tools | 16 |
+| Full mode (explicit opt-in only) | Worker + orchestrator union | 12 |
 
-Hermes users migrating to Myrm get the same **worker vs orchestrator** split, plus a visual Kanban GUI, DAG scheduling, and CompletionVerifier. Most other competitors expose **zero** native Kanban LLM tools.
+Board create/list CRUD stays **REST/GUI only** — no LLM tool slots wasted. `kanban_link` merges add/remove dependency; `kanban_list_tasks` accepts optional `task_id` for single-task lookup without a separate get tool.
+
+Hermes users migrating to Myrm get the same **worker vs orchestrator** split, plus a visual Kanban GUI, DAG scheduling, and CompletionVerifier. OpenClaw has a display-only Workboard with **zero** LLM tools; most competitors expose **zero** native Kanban LLM tools.
 
 **PTC vs native tools:** Use **native** `web_search_tool` / `grep_tool` for one-off calls. Use **PTC** (Python in `bash_code_execute_tool`) only when the same script must RPC many tools and return one summary — bash instructions no longer use web search as the PTC example (aligns with Hermes: omit disabled tools from schema to prevent misuse).
 
@@ -307,4 +309,4 @@ Myrm provides a dedicated real-time dashboard for monitoring and controlling all
 
 For sub-agent orchestration, simply describe a complex task to any agent — it will automatically decompose and delegate using the appropriate pattern.
 
-**Verified**: 1203 sub_agents + kanban dedicated tests passed (sub_agents: 780, kanban: 423), plus server 488 + frontend 110 totaling 1800+. 8-state lifecycle with 19 event types (StrEnum type-safe). Event-driven dispatch confirmed ms-level response vs competitor 60s polling. All tests 100% pass (2026-07-06).
+**Verified**: 1204 sub_agents + kanban dedicated tests passed (sub_agents: 780, kanban: 424), plus server Kanban binding integration 10 + frontend 110 totaling 1800+. 8-state lifecycle with 19 event types (StrEnum type-safe). Event-driven dispatch confirmed ms-level response vs competitor 60s polling. All tests 100% pass (2026-07-10).
