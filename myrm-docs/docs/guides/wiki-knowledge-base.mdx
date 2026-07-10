@@ -19,12 +19,12 @@ Myrm connects the wiki to the Agent through **12 code-level paths** (no manual A
 - **Large upload hints** inject wiki_ingest → wiki_query instructions so PDFs are not pasted into the chat context.
 - **Deep Research vault** writes reports into the same wiki vault via the shared archiver and triggers compilation.
 - **Save to Wiki** on any assistant message with provenance frontmatter.
-- **Post-compaction session notes** — when context is compressed, session notes are automatically archived to the wiki (via `on_summary_persist`, not on every note save).
+- **Post-compaction session notes** — when context is compressed, session notes are automatically archived to the wiki (after summary persist, not on every note save).
 - **Settings overview tab** for ad-hoc query, compile, maintain, and vault health badges.
 
 ## Unified vault path
 
-All wiki data lives under a **single vault directory** (`{harness_dir}/wiki`). Settings, REST API, Agent tools, Save to Wiki, Deep Research, and compaction archive share the same path via `get_wiki_archiver()`. On startup, legacy paths are migrated automatically.
+All wiki data lives under a **single vault directory** per workspace. Settings, REST API, Agent tools, Save to Wiki, Deep Research, and compaction archive share the same path. On startup, legacy paths are migrated automatically.
 
 In **Settings → Wiki → Overview**, stats load on page open and show:
 

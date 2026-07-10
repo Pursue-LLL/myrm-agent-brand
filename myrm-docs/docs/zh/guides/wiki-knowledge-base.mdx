@@ -37,12 +37,12 @@ Wiki 不是「写完就忘」的死水。Myrm 用 **12 条代码级路径** 把�
 - **大文件上传引导** — 上传 PDF 等大文档时，系统自动注入「先 wiki_ingest 再 wiki_query」指令，避免整文件塞进 prompt。
 - **Deep Research 入库** — 深度研究报告经共享 archiver 写入同一 Wiki 库并触发编译。
 - **聊天一键保存** — 任意助手消息可「存入 Wiki」，带来源 frontmatter。
-- **压缩后会话笔记归档** — 上下文压缩完成时，会话笔记自动归档到 Wiki（`on_summary_persist` 触发，而非每次 note 保存）。
+- **压缩后会话笔记归档** — 上下文压缩完成时，会话笔记自动归档到 Wiki（在摘要持久化之后触发，而非每次 note 保存）。
 - **设置页即席查询** — 概览标签直接问 Wiki、编译、维护，并展示库健康状态。
 
 ## 统一 Vault 路径
 
-所有 Wiki 数据位于**单一库目录**（`{harness_dir}/wiki`）。设置页、REST API、Agent 工具、存入 Wiki、Deep Research 与压缩归档均通过 `get_wiki_archiver()` 共用同一路径；启动时自动迁移旧路径。
+所有 Wiki 数据位于**同一工作区下的单一库目录**。设置页、REST API、Agent 工具、存入 Wiki、Deep Research 与压缩归档共用该路径；启动时自动迁移旧路径。
 
 在 **设置 → Wiki → 概览** 中，统计信息随页面打开自动加载，并显示：
 
