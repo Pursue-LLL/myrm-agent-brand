@@ -168,6 +168,8 @@ The `delegate_to_agent` tool allows seamless handoff with full context injection
 
 **Per-agent `external_cli` switch (Jul 2026):** under **Settings → Developer → External Agents**, Myrm auto-detects CLIs on PATH in local mode — you do **not** need Anthropic subscription credentials if Claude Code is already configured with a third-party model. The Settings badge shows **CLI ready** (not a scary “not logged in”) when the binary is usable. Enable **External CLI** only on agents that should call `delegate_to_agent` at runtime (e.g. General Assistant, Code Developer). Writer/Research presets stay OFF by default — they skip ~216 Turn1 schema tokens and avoid eager RuntimePool init. Both Settings and the Agent builtin-tools panel show cross-hints; the chat panel no longer warns “no backend” when auto-detect finds a CLI.
 
+**Verified (Jul 10 2026):** 42 backend integration/unit tests green; Chrome E2E on `:3000` confirms Writer/Research presets hide the chip, General/Developer show it, Developer → Add Agent → Claude Code shows **CLI ready**, and live `mimo-v2.5-pro` → delegate → Claude Code returns **PONG** with task steps + tool trace in the chat UI.
+
 **Migrating from Hermes or AionUi-style tools:** keep your installed Claude Code / Codex / Gemini CLI — Myrm auto-detects them in Settings. You gain optional delegation on top of Myrm's own agent engine, MCP ecosystem, 5-layer approvals, and SubAgent orchestration without giving up external CLI strengths. Deleting a chat immediately stops any pooled external CLI process—no orphaned background agents.
 
 ### Google A2A Protocol
