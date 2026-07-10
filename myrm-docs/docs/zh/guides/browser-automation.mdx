@@ -674,50 +674,6 @@ Extension Bridge 跨越 5 层：
 
 所有发现过程在后台线程运行，不会阻塞 Agent 的事件循环。
 
-## Cursor / IDE MCP — 一个 Chrome，保留登录态
-
-开发者在 Cursor 等 IDE 中用 **chrome-devtools-mcp** 对 `:3000` 做前端 E2E 时，推荐 **`--autoConnect`**，不要用第二个 9222 端口的 Chrome。
-
-### 竞品常见「翻车」现象
-
-| 现象 | 原因 |
-|------|------|
-| 有时有登录，有时空白 | `--autoConnect`（主 Profile）与 `--browser-url=9222` 或脚本拉起的空 Profile 并行 |
-| 活动监视器显示「经翻译的 x86_64」 | Rosetta 下的**第二个**实例，不是不同版本 Chrome |
-| Dock 两个 Chrome 图标 | 回退 Profile（`~/.cache/chrome-devtools-mcp/` 或独立调试 Profile） |
-
-### Myrm 推荐的 Cursor 配置
-
-```json
-{
-  "mcpServers": {
-    "chrome-devtools": {
-      "command": "npx",
-      "args": ["-y", "chrome-devtools-mcp@1.5.0", "--autoConnect", "--no-usage-statistics"],
-      "timeout": 60000,
-      "env": {
-        "CHROME_DEVTOOLS_MCP_NO_UPDATE_CHECKS": "1",
-        "CHROME_DEVTOOLS_MCP_NO_USAGE_STATISTICS": "1"
-      }
-    }
-  }
-}
-```
-
-**主 Chrome 一次性设置：** 打开 `chrome://inspect/#remote-debugging` → 开启远程调试 → Agent 连接时点 **允许**。
-
-**为何 `:3000` 在 MCP 里感觉慢（2026-07 审计）：** Next.js dev 编译期可能已建立 TCP 但 **数秒内无 HTML**；`navigate_page` 底层 Puppeteer `goto` 等待 **`load` 事件**（dev 模式 40+ chunk），`timeout=5000` 可能已报错但标签标题已变。请用 **`127.0.0.1:3000`**，`./myrm start` 后用 `curl` 预热，先 `new_page(about:blank)` 再导航；超时后 **`take_snapshot` 验证**，勿盲重试 navigate。
-
-**2026-07 实测：** `new_page` + `isolatedContext`（字符串名）+ `timeout`≤5000 · 仅 1 个 ARM64 Chrome · 禁止用无超时的 `list_pages` 探活（曾挂起 30min+）。
-
-**卡死时：** 在 monorepo 根运行 `scripts/dev/chrome-mcp-preflight.sh` — 自动检测多条 MCP 进程、MyrmChromeMcp 第二实例、陈旧远程调试会话。浏览器任务期间只开 **1 个** Cursor Agent 对话。
-
-**Port cleanup (Jul 2026):** `myrm-agent-frontend/scripts/port-cleanup.ts` uses `lsof -sTCP:LISTEN` only — never signals Chrome tabs connected to `:3000`.
-
-**启动编排：** `./myrm start`（`start.sh`）在 `:3000` 已 LISTEN 但 HTTP 尚未就绪（Next 冷编译）时按墙钟最多等待 30s 再决定是否重启；若检测到多条 `chrome-devtools-mcp` 进程会输出 WARN。
-
-产品内 Browser 工具仍走 **AUTO 模式** + Extension Bridge；本节仅针对 **IDE 开发者 E2E**。
-
 ## PDF 归档自动注入来源元数据
 
 当 Agent 保存网页为 PDF 时，Myrm 自动注入来源追溯信息：

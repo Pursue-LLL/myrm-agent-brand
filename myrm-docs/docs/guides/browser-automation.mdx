@@ -746,50 +746,6 @@ Just enable remote debugging in your browser once:
 
 All discovery runs in a background thread so it never slows down the agent's event loop.
 
-## Cursor / IDE MCP — One Chrome, Your Login State
-
-When developers use **chrome-devtools-mcp** in Cursor (or similar IDEs) for frontend E2E on `:3000`, the recommended setup is **`--autoConnect`** — not a second Chrome on port 9222.
-
-### Why competitors feel broken
-
-| Symptom | Cause |
-|---------|-------|
-| Sometimes logged-in Chrome, sometimes blank | `--autoConnect` (main profile) vs `--browser-url=9222` or script-launched empty profile |
-| Activity Monitor shows "translated x86_64" Chrome | Rosetta slice of a **second** instance — same Chrome.app, different launch path |
-| Two Chrome icons in the Dock | Fallback profile at `~/.cache/chrome-devtools-mcp/` or a dedicated debug profile |
-
-### Myrm-recommended Cursor config
-
-```json
-{
-  "mcpServers": {
-    "chrome-devtools": {
-      "command": "npx",
-      "args": ["-y", "chrome-devtools-mcp@1.5.0", "--autoConnect", "--no-usage-statistics"],
-      "timeout": 60000,
-      "env": {
-        "CHROME_DEVTOOLS_MCP_NO_UPDATE_CHECKS": "1",
-        "CHROME_DEVTOOLS_MCP_NO_USAGE_STATISTICS": "1"
-      }
-    }
-  }
-}
-```
-
-**One-time in your daily Chrome:** open `chrome://inspect/#remote-debugging` → enable Remote Debugging → click **Allow** when the agent connects.
-
-**Why `:3000` can feel slow (Jul 2026 audit):** Next.js dev may accept TCP but return **no HTML for several seconds** while webpack compiles. MCP `navigate_page` uses Puppeteer `goto` and waits for the **`load` event** (40+ JS chunks in dev) — a 5000ms timeout may report failure even when the tab title already updated. **Use `127.0.0.1:3000`**, pre-warm with `curl` after `./myrm start`, start with `new_page(about:blank)` then navigate, and on timeout run `take_snapshot` instead of retrying navigation.
-
-**Verified Jul 2026:** `new_page` with `isolatedContext` (string name) + `timeout`≤5000 · single ARM64 Chrome · never probe with timeout-less `list_pages` (hung 30min+ in production).
-
-**When stuck:** run `scripts/dev/chrome-mcp-preflight.sh` from the monorepo root — detects too many MCP processes, MyrmChromeMcp second instance, and stale remote-debugging sessions. Keep **one** Cursor Agent tab open for browser work.
-
-**Port cleanup (Jul 2026):** `myrm-agent-frontend/scripts/port-cleanup.ts` uses `lsof -sTCP:LISTEN` only — never signals Chrome tabs connected to `:3000`.
-
-**Start orchestration:** `./myrm start` (`start.sh`) waits up to 30s wall-clock when `:3000` is LISTEN but HTTP is not ready (Next cold compile) before restarting; warns if multiple `chrome-devtools-mcp` processes are detected.
-
-Product browser tools still use **AUTO mode** + Extension Bridge — this section is for **IDE developer E2E** only.
-
 ## PDF Archive with Source Metadata
 
 When the agent saves a page as PDF, Myrm automatically injects provenance metadata:
