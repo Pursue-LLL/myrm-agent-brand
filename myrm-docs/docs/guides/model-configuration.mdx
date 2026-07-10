@@ -48,6 +48,20 @@ Before committing to a model, test its real-world performance right from Setting
 
 Speed test results reflect your actual network conditions and API key quotas — not synthetic benchmarks. Combined with Smart Routing's automatic model selection, you get data-driven confidence that the right model is handling each task.
 
+## Thinking Intensity Control
+
+For reasoning-capable models (Claude 3.7+, o1/o3/o4-mini, Gemini 2.5, DeepSeek R1, Qwen3, etc.), Myrm provides fine-grained control over how deeply the model "thinks" before responding.
+
+**6 preset levels:** Off / Low / Medium / High / Extra High / Max — covering everything from quick answers to deep multi-step reasoning.
+
+**Custom token budget:** Enter any value (e.g. `16384`) to set a precise thinking budget for providers that support it (like Claude's `budget_tokens`).
+
+**Per-model memory:** Your intensity preference is automatically saved per model. Switch between Claude and GPT — each remembers its own last setting. No re-configuration needed.
+
+**Auto-detection:** The thinking intensity button only appears when the current model supports reasoning. Non-reasoning models (e.g. GPT-4o-mini) show no button — zero clutter. Detection uses a dual-layer approach: API-reported capability takes priority, with regex fallback covering 25+ model families.
+
+The selected intensity is passed through the full pipeline — frontend `model_kwargs` → server passthrough → harness `extra_body` → LiteLLM → provider API — with zero framework coupling.
+
 ## In-Chat Model Transparency
 
 Every assistant message shows a Token Economics badge in the action bar. Click it to see exactly which model handled the request, how it was routed, what it cost, and how fast it ran:
