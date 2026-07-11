@@ -103,7 +103,7 @@ PilotDeck（清华 THUNLP 等联合开源）主打“Agent 操作系统”概念
 | **Agent 创建** | 「Shrimp Coach」对话 | **24 预设 Agent + 10 YAML 模板市场 (individual+team, i18n, 原子性实例化) + GUI 向导** | 零提示词即开即用，点击即用。 |
 | **Token 成本控制** | LLM Judge 单阶段路由 (PilotDeck) | **规则+Judge 双阶段复杂度路由** | 80%+ 请求规则阶段即可决定（0 额外 token），仅歧义 case 调 Judge。 |
 | **成本可见性** | 基础统计 | **双层消息级可视化（内嵌缓存节省 banner + 17 项 tooltip）+ 14 维统计大屏 + Per-Agent 成本归因** | 每条回复显示缓存命中率与节省金额、5 类 Token、TTFT/P95/TPS、per-model/per-tool 成本分解、会话基线对比、cache-break 归因+修复建议。竞品中无一具备消息级实时成本可视化。 |
-| **执行 Trace 与回放** | 仅日志 | **产品内嵌 7 层 Trace（ProgressSteps 实时树 + 思考过程 + 17 项 tooltip + 缓存节省 banner + ExecutionTraceTimeline + SessionReplayPlayer + SessionAnalyticsDialog）** | 任意消息一键查看完整执行回放（速度控制+键盘步进）——无需外部 SaaS 和额外费用。LangSmith 需独立登录/付费；竞品中无一在产品内嵌入端到端 Trace 可视化。 |
+| **执行 Trace 与回放** | 仅日志 / AI Purpose Title（额外 LLM 调用） | **产品内嵌 7 层 Trace（ProgressSteps 实时树 + 语义工具标签 28 工具 × 5 语言 + 内联 AI 意图描述 + 分类图标 + 阶段折叠分组 + 思考过程 + 17 项 tooltip + 缓存节省 banner + ExecutionTraceTimeline + SessionReplayPlayer + SessionAnalyticsDialog）** | 每个工具调用显示人类可读标签 + AI 意图描述，零额外成本（意图由主模型在 tool_call 中直接提供，无需独立 utility model）。任意消息一键查看完整执行回放——无需外部 SaaS 和额外费用。 |
 | **云环境** | 云电脑 | **沙箱 + 持久终端 + SaaS** | 真跨平台隔离与数据归属。 |
 | **多媒体** | 基础视频 Agent | **原生 `video/generator.py` + 全双工语音** | 创作内容并支持打断（barge-in）免提交互。 |
 
@@ -925,7 +925,7 @@ MemPalace 是独立 AI 记忆系统，用 Wing/Room/Closet/Drawer 建筑隐喻�
 | Subagent 进度 | swarm_fission 批次进度（含 partial_success） | 无 | **Myrm 独有** |
 | 错误恢复 | recovery_actions 一键恢复 + error_category 诊断 | 无 | **Myrm 独有** |
 
-**166 项测试验证**（2026.7.8）：ProgressSteps 22/22 ✅ + LiveTerminal 27/27 ✅ + PetDispatch 8/8 ✅ + ArchiveRestore 2/2 ✅ + MessageStream handlers 29/29 ✅（toolLifecycle/gapEvents/statusStream/tasksSteps/petDispatch/clarification/completion）+ **structured_clarify E2E**（SSE 解包 + option.id + live API interrupt/resume 1/1 ✅）
+**169 项测试验证**（2026.7.11）：ProgressSteps 25/25 ✅（含语义工具标签 + workflowStage）+ LiveTerminal 27/27 ✅ + PetDispatch 8/8 ✅ + ArchiveRestore 2/2 ✅ + MessageStream handlers 29/29 ✅（toolLifecycle/gapEvents/statusStream/tasksSteps/petDispatch/clarification/completion）+ **structured_clarify E2E**（SSE 解包 + option.id + live API interrupt/resume 1/1 ✅）+ **Harness step_builder 38/38 ✅ + scrubbing 5/5 ✅ + event_handlers 47/47 ✅**（reason 提取 + 敏感信息脱敏）
 
 **结论：豆包的卡死问题源于「没做好」（主线程阻塞 + 无细粒度反馈），而非「未做」。Myrm 的架构（SSE + WebWorker + PTC notify + 树形进度步骤 + Live Terminal）构建了完整的防假死与进度反馈体系，远超简单进度条方案。**
 
@@ -1132,6 +1132,8 @@ Codex 近期发布两大旗舰功能：**Appshots**（⌘⌘ 窗口捕获 + 文�
 | 标签页管理 | 基础 | ✅ 列表/筛选标签页 + 调试器附加/分离生命周期 |
 
 **你将获得**：让 Agent 使用你真实的 Chrome 会话（Gmail、SaaS 应用、内部工具），精细的域名级控制，每个操作需要你的审批。实时状态显示扩展正在做什么。Myrm **不会**批量读取 OS 级 Chrome/Edge `History.db` 或书签数据库——已登录访问仅通过 Extension Bridge + 加密 Session Vault。
+
+**为什么 Myrm 不需要 Chrome Cookie 导入**：OpenClaw 导入 Chrome 系统 cookie 是因为它没有持久化会话存储——每次启动浏览器都是全新的上下文。Myrm 的 **SessionVault**（AES-256-GCM）+ **auto_restore_domains** 从架构层面解决了这个问题：通过 takeover 认证一次 → 会话加密保存 → 之后每次访问自动恢复。支持所有认证方式（密码/2FA/扫码/OAuth），保存 cookies + localStorage（不仅仅是 cookies），全平台全部署模式可用（包括云托管），Chrome 更新 cookie 格式也无需维护。196 项相关测试通过。
 
 ## vs 360 LobsterAI — 消费级 Agent 平台
 

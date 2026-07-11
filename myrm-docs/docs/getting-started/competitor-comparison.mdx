@@ -103,7 +103,7 @@ Migrating from PilotDeck upgrades you from a "CLI-centric operating system" to a
 | **Agent Creation** | "Shrimp Coach" dialogue | **24 Preset Agents + 10 YAML Templates (individual+team, i18n, atomic instantiation) + GUI Wizard** | Zero-prompting instant start. Just click and use. |
 | **Token Cost Control** | LLM Judge single-phase routing (PilotDeck) | **Rule + Judge dual-phase Complexity Router** | 80%+ requests routed by rules alone (0 extra tokens). Judge only called for ambiguous cases. |
 | **Cost Visibility** | Basic stats | **Dual-layer per-message visualization (inline cache-savings banner + 17-metric tooltip) + 14-dim analytics dashboard + per-agent cost attribution** | Every reply shows cache hit rate, savings amount, 5 token types, TTFT/P95/TPS, per-model/tool cost breakdown, session baseline comparison, cache-break attribution with fix suggestions. No competitor offers message-level real-time cost visualization. |
-| **Execution Trace & Replay** | Logs only | **7-layer in-product Trace (ProgressSteps real-time tree + thinking content + 17-metric tooltip + cache-savings banner + ExecutionTraceTimeline + SessionReplayPlayer + SessionAnalyticsDialog)** | One click from any message to full execution replay with speed control — no external SaaS, no extra fees. LangSmith requires separate login/payment; no competitor embeds end-to-end trace visualization in the product. |
+| **Execution Trace & Replay** | Logs only / AI Purpose Title (extra LLM call) | **7-layer in-product Trace (ProgressSteps real-time tree + semantic tool labels 28 tools × 5 languages + inline AI intent reasons + category icons + stage grouping + thinking content + 17-metric tooltip + cache-savings banner + ExecutionTraceTimeline + SessionReplayPlayer + SessionAnalyticsDialog)** | Every tool call shows a human-readable label + AI-generated intent at zero extra cost (the main model provides intent in the tool call itself — no separate utility model). One click from any message to full execution replay with speed control — no external SaaS, no extra fees. |
 | **Cloud Environment** | Cloud Computer | **Sandbox + Persistent Terminal + SaaS** | Real cross-platform isolation and data ownership. |
 | **Multimedia** | Basic Video Agent | **Native `video/generator.py` + Full-duplex Voice** | Create content and interact hands-free with barge-in support. |
 
@@ -1012,7 +1012,7 @@ Myrm solves both at the architecture level:
 | Subagent progress | swarm_fission batch progress (partial_success) | None | **Myrm exclusive** |
 | Error recovery | recovery_actions one-click + error_category diagnostics | None | **Myrm exclusive** |
 
-**Verified by 166 tests** (2026.7.8): ProgressSteps 22/22 ✅ + LiveTerminal 27/27 ✅ + PetDispatch 8/8 ✅ + ArchiveRestore 2/2 ✅ + MessageStream handlers 29/29 ✅ (toolLifecycle/gapEvents/statusStream/tasksSteps/petDispatch/clarification/completion) + **structured_clarify E2E** (SSE unwrap + option.id + live API interrupt/resume 1/1 ✅)
+**Verified by 169 tests** (2026.7.11): ProgressSteps 25/25 ✅ (incl. semantic tool labels + workflowStage) + LiveTerminal 27/27 ✅ + PetDispatch 8/8 ✅ + ArchiveRestore 2/2 ✅ + MessageStream handlers 29/29 ✅ (toolLifecycle/gapEvents/statusStream/tasksSteps/petDispatch/clarification/completion) + **structured_clarify E2E** (SSE unwrap + option.id + live API interrupt/resume 1/1 ✅) + **Harness step_builder 38/38 ✅ + scrubbing 5/5 ✅ + event_handlers 47/47 ✅** (reason extraction + sensitive info scrub)
 
 **Verdict: Doubao's freezing issues stem from "poorly implemented" (main-thread blocking + no granular feedback) rather than "not implemented". Myrm's architecture (SSE + WebWorker + PTC notify + tree-shaped progress + Live Terminal) builds a complete anti-freeze & progress feedback system that far exceeds a simple progress bar.**
 
@@ -1222,6 +1222,8 @@ Codex recently shipped two flagship features: **Appshots** (window capture + tex
 | Tab management | Basic | ✅ List/filter tabs + debugger attach/detach lifecycle |
 
 **What you get**: Let your Agent use your real Chrome session (Gmail, SaaS apps, internal tools) with fine-grained domain control. Every action requires your approval. Real-time status shows exactly what the extension is doing. Myrm does **not** bulk-read your OS Chrome/Edge `History.db` or bookmark database — logged-in access is Extension Bridge + encrypted Session Vault only.
+
+**Why Myrm doesn't need Chrome Cookie Import**: OpenClaw imports Chrome system profile cookies because it lacks persistent session storage — every browser launch starts fresh. Myrm's **SessionVault** (AES-256-GCM) + **auto_restore_domains** solves this at the architecture level: authenticate once via takeover → session encrypted and saved → automatically restored on every future visit. This covers all auth methods (password, 2FA, QR, OAuth), saves cookies + localStorage (not just cookies), works across all platforms and deployment modes (including cloud-hosted), and requires zero maintenance when Chrome updates its cookie format. 196 related tests passed.
 
 ## vs 360 LobsterAI — Consumer Agent Platform
 
