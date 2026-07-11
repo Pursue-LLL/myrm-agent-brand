@@ -365,6 +365,18 @@ In a multi-agent sandbox, skills are perfectly isolated yet securely shareable.
 - **1-Click Rollback**: Undo an evolution on a CoW fork, and the system intelligently restores the cross-agent mount mapping, retaining complete semantic history.
 - **Robust Garbage Collection**: Deleting an agent cascade-deletes its exclusive skills (both database records and physical `rmtree` wipe with path boundary protection), leaving zero orphan data or "ghost" skills.
 
+## Per-Session Skill Scope
+
+Beyond agent-level scoping, Myrm supports **per-session skill selection** — choose exactly which skills are active for each conversation:
+
+- **Visual Toggle**: A sparkle icon (✦) in the message input opens a popover listing all enabled skills. Toggle off anything irrelevant to the current task.
+- **Token Savings**: Disabling unused skills removes their prompt fragments, saving ~1800 tokens per turn in typical 9-skill setups.
+- **Sharper AI Focus**: Fewer candidate skills means less LLM decision noise — the agent picks the right skill faster.
+- **Persistent Override**: Your selection is stored server-side (in `session_loaded_skill_names`), surviving page reloads, context compaction, and conversation forks.
+- **Auto-Clear on Agent Switch**: Changing the bound Agent automatically resets the skill scope to the new Agent's defaults.
+
+**vs competitors:** LobsterAI offers `active_skill_ids` with a similar UI. OpenClaw has config-level `skillFilter` (no GUI). CoPaw supports runtime filtering (no GUI). Hermes, DeerFlow, and jiuwenclaw have no session-level skill scoping at all.
+
 ## Cross-Device Skill Sync & Privacy
 
 Myrm is the only AI agent platform offering **bidirectional skill synchronization** with **export-time PII redaction** — no competitor implements either capability.
