@@ -217,7 +217,7 @@ Agent 对话可能涉及敏感个人信息。竞品（如 ClawVault）仅在对�
 | **Orchestration Modes** | ⚠️ 1-2 modes (Kanban or Spawn) | **8 Modes** (Spawn, Chain, Batch, DAG, Verified, Swarm Fission, Alternatives Race, Council Debate) | Right tool for the right job; DAG guarantees execution order without relying on LLM improvisation. |
 | **Tool Isolation** | ⚠️ Basic global scope | **5-Layer Fence** (Type, Blocklist, Config, Intersection, Role) | Complete prevention of child agents escalating privileges or executing unauthorized tools. |
 | **Budget Control** | ⚠️ Token limit only | **4D Budget** (Tokens, USD, Time, Descendants) | Perfect predictability for cost and execution depth. Zero bill shock. |
-| **Execution Verification** | ❌ None | **CompletionGuard** (Evidence-based) | Children must prove task completion with actual STDOUT/STDERR, not just say "I'm done". |
+| **Execution Verification** | ❌ None | **CompletionGuard** (Evidence-based + Temporal + Independent Re-run) | Children must prove task completion with actual STDOUT/STDERR. Temporal check detects post-verification code writes; independent re-run validates in sandbox. |
 | **Handoffs（控制权转移）** | ❌ 无（OpenAI Swarm 仅 Demo 级 `transfer_to_agent`） | **run_chain**（A→B→C 接力赛）+ **delegate_task_tool**（动态路由）+ **handoff_chat**（跨平台会话交接）+ **context_mode:"fork"**（可控上下文继承） | 完整的接力赛语义，不牺牲安全边界。733 项测试验证。 |
 
 **结论：Myrm 用确定性软件工程模式取代「提示并祈祷」式多 Agent。流水线每次可靠、安全、在预算内执行。**
@@ -1080,7 +1080,7 @@ Codex 近期发布两大旗舰功能：**Appshots**（⌘⌘ 窗口捕获 + 文�
 | Planning | Linear self-planning | Main-agent `todo_write` + sandbox SSOT — opt-in, zero tax when off; CompletionGuard blocks early exit |
 | Execution | Linear, sequential | DAG concurrent executor + Swarm Fission |
 | Budget | No budget control | 4D budget (tokens / USD / wall-clock / turns) |
-| Completion | User checks | CompletionGuard — evidence-based TDD-like verification |
+| Completion | User checks | CompletionGuard — evidence-based TDD-like verification + temporal order enforcement + independent sandbox re-run |
 | Continuation | "Asks if stuck" | 11-layer dead-loop shield + Semantic Judge |
 | Multi-goal | Single goal | Priority Queue + auto_approve unattended serial |
 | Runtime adjust | Not mentioned | Dynamic Subgoals + Objective Hot-Edit |

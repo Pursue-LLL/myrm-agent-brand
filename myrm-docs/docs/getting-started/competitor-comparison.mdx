@@ -217,7 +217,7 @@ While competitors rely on single-mode orchestration (e.g., Hermes' Kanban Swarm,
 | **Orchestration Modes** | ⚠️ 1-2 modes (Kanban or Spawn) | **8 Modes** (Spawn, Chain, Batch, DAG, Verified, Swarm Fission, Alternatives Race, Council Debate) | Right tool for the right job; DAG guarantees execution order without relying on LLM improvisation. |
 | **Tool Isolation** | ⚠️ Basic global scope | **5-Layer Fence** (Type, Blocklist, Config, Intersection, Role) | Complete prevention of child agents escalating privileges or executing unauthorized tools. |
 | **Budget Control** | ⚠️ Token limit only | **4D Budget** (Tokens, USD, Time, Descendants) | Perfect predictability for cost and execution depth. Zero bill shock. |
-| **Execution Verification** | ❌ None | **CompletionGuard** (Evidence-based) | Children must prove task completion with actual STDOUT/STDERR, not just say "I'm done". |
+| **Execution Verification** | ❌ None | **CompletionGuard** (Evidence-based + Temporal + Independent Re-run) | Children must prove task completion with actual STDOUT/STDERR. Temporal check detects post-verification code writes; independent re-run validates in sandbox. |
 | **Handoffs (Control Transfer)** | ❌ None (OpenAI Swarm: demo-only `transfer_to_agent`) | **run_chain** (A→B→C relay) + **delegate_task_tool** (dynamic routing) + **handoff_chat** (cross-platform session transfer) + **context_mode:"fork"** (controlled context inheritance) | Full relay-race semantics without compromising security boundaries. 733 tests verified. |
 
 **Result: Myrm replaces the "prompt and pray" multi-agent paradigm with deterministic software engineering patterns. Your multi-agent pipelines execute reliably, securely, and within budget every single time.**
@@ -1168,7 +1168,7 @@ Codex recently shipped two flagship features: **Appshots** (window capture + tex
 | Planning | Linear self-planning | Main-agent `todo_write` + sandbox SSOT — opt-in, zero tax when off; CompletionGuard blocks early exit |
 | Execution | Linear, sequential | DAG concurrent executor + Swarm Fission |
 | Budget | token_budget only | 4D budget (tokens / USD / wall-clock / turns) |
-| Completion | User checks | CompletionGuard — evidence-based TDD-like verification |
+| Completion | User checks | CompletionGuard — evidence-based TDD-like verification + temporal order enforcement + independent sandbox re-run |
 | Continuation | "Asks if stuck" | 11-layer dead-loop shield + Semantic Judge |
 | File protection | ❌ None | InvariantSnapshot SHA-256 + Protected paths physical block |
 | Convergence | ❌ LLM self-judges "blocked" | System-level: convergence_window + no_progress_streak auto-detect |
