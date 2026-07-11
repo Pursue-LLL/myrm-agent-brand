@@ -195,7 +195,17 @@ DNS Pinning prevents agents from being tricked into accessing internal networks 
 - **Parser-confusing character defense**: Tab, newline, and backslash in URLs are blocked to prevent hostname extraction divergence between parsers (CVE-class SSRF bypass prevention)
 - **Internal hostname suffix blocking**: `.local`, `.svc`, `.cluster.local`, `.home.arpa` suffixes are blocked to prevent mDNS and Kubernetes internal network access
 - **Audit trail**: Blocked requests emit `SSRF_BLOCKED` security decisions for SIEM and frontend audit views
-- **358 dedicated SSRF tests**: Coverage across core guards, agent security, browser navigation, DNS pinning, media validation, A2A resolver, deep crawl, and permission engine
+- **461 dedicated SSRF tests**: Coverage across core guards, agent security, browser navigation, DNS pinning, media validation, A2A resolver, deep crawl, SessionVault, and permission engine
+
+### Malicious URL Architectural Immunity
+
+Instead of maintaining static phishing domain blocklists (e.g. 2.5M scam domains), Myrm eliminates threats at the architecture level:
+
+- **SessionVault domain binding**: Credentials (cookies/passwords) are strictly isolated per domain — `bank.com` login state is never sent to phishing domains like `bank-secure-login.xyz`, eliminating credential theft by design
+- **Browser sandbox isolation**: Agent browsers run in isolated sandboxes — even if a malicious site is visited, the user's host system is unaffected
+- **Four-layer deep domain filtering**: CSP policy (kernel-level network restriction) + protocol interception (context.route blocks non-allowlisted domains) + main thread hardening (WebRTC/WebTransport/ServiceWorker blocking) + CDP audit monitoring
+
+This architecture makes maintaining large phishing domain databases unnecessary — thousands of new domains appear daily, static lists become outdated rapidly, and consume 50-100MB memory.
 
 ### Configuration Security Scan
 
