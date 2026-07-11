@@ -133,6 +133,18 @@ Detection follows a graduated response: first a warning with context-aware sugge
 
 When context overflow triggers emergency compaction (`_emergency_compact` / `_truncate_oldest_rounds`), LoopGuard detection state **survives intact** — compaction only operates on the message list, never touching LoopGuard's sliding window. Repeated tool calls after compaction **accumulate** on top of pre-compaction records, making detection more sensitive rather than more lenient. This architectural design fundamentally eliminates the "post-compaction doom loop" — a known production failure pattern in competing systems.
 
+### Post-Compaction Memory Protection
+
+After context compaction, the agent's memory retrieval remains fully intact with zero lag or data loss, thanks to a 5-layer memory protection architecture:
+
+1. **SystemMessage Immune to Compaction**: User profile and rules are injected as SystemMessage at position 0, never touched by the compress processor
+2. **Learned Context Immune to Compaction**: Learned context is injected as HumanMessage, not a tool call pair, so it's never selected for compression
+3. **PreCompactProcessor Proactive Recall**: Before compaction, the system automatically triggers vector database semantic search and injects relevant memories as standalone message blocks, ensuring the LLM retains access to critical memories after compaction
+4. **Real-time Vector Index**: Qdrant vector database entries are searchable immediately after write — no index lag
+5. **Independent Memory Extraction**: End-of-session memory extraction uses the original dialogue, unaffected by in-session compaction
+
+This architectural design fundamentally eliminates "post-compaction memory loss" — a problem competitors must patch with forced index refresh mechanisms.
+
 ## Iteration Budget
 
 Agents have configurable iteration limits (default: 50) with dynamically computed thresholds based on the graph recursion limit:
