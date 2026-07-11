@@ -129,6 +129,10 @@ This enables cost-efficient routing: simple tasks use cheap models, complex task
 
 Detection follows a graduated response: first a warning with context-aware suggestions is injected into the agent's context, then a forced break if the pattern persists (severity: WARNING 3-5x → ERROR 6-9x → CRITICAL 10+x).
 
+### Post-Compaction Loop Protection
+
+When context overflow triggers emergency compaction (`_emergency_compact` / `_truncate_oldest_rounds`), LoopGuard detection state **survives intact** — compaction only operates on the message list, never touching LoopGuard's sliding window. Repeated tool calls after compaction **accumulate** on top of pre-compaction records, making detection more sensitive rather than more lenient. This architectural design fundamentally eliminates the "post-compaction doom loop" — a known production failure pattern in competing systems.
+
 ## Iteration Budget
 
 Agents have configurable iteration limits (default: 50) with dynamically computed thresholds based on the graph recursion limit:

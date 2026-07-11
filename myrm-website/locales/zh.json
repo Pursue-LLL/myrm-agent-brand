@@ -407,13 +407,13 @@
           "feature": "多 Agent 协作 · P2P 通信 · DAG 编排 · 对抗式验证",
           "hermes": "Kanban + Batch Tasks",
           "openclaw": "展示型看板",
-          "myrmAgent": "8种编排（链式/批量/DAG/竞速/验证/蜂群/多方案竞争/委员会辩论）+ 批量走完整 SubAgent 沙箱/预算/审批，非浅层 LLM fan-out + 按需注入 6 个 LLM 委派工具（默认 0 tok 不占 Prompt Cache）+ 双控制面：Agent 工具 + REST Dashboard（cancel/steer/list）+ Fork 子代理 + Auto Vault（vault:// 协议 + SSE 前端推送）+ 级联取消 + P2P 邮箱 + 对抗验证 + COW 隔离 + 10+ GUI + 12 态生命周期 + ACP/A2A + 双层超时（非致命wait + 3x硬安全网）+ 前端 isNodeOvertime 多策略卡死检测 + 4层模型解析链 + **SCIP 2026-07：核心 preset SSOT fail-fast + L3 父工具集合并 session browser 工具（开 Browser 即可委派，无 Not in parent toolkit）+ browser/analysis YAML 对齐 canonical 工具**（API Live E2E example_domain_seen ~6.5s · 9764 项编排+安全+恢复+UI+多路复用+共识+协议+预算+工作流全链路测试通过 0 失败 · 核心模块覆盖率 90.1% · 2026-07-11 验证）"
+          "myrmAgent": "8种编排（链式/批量/DAG/竞速/验证/蜂群/多方案竞争/委员会辩论）+ 批量走完整 SubAgent 沙箱/预算/审批，非浅层 LLM fan-out + 按需注入 6 个 LLM 委派工具（默认 0 tok 不占 Prompt Cache）+ 双控制面：Agent 工具 + REST Dashboard（cancel/steer/list）+ Fork 子代理 + Auto Vault（vault:// 协议 + SSE 前端推送）+ 级联取消 + P2P 邮箱 + 对抗验证 + COW 隔离 + 10+ GUI + 12 态生命周期 + ACP/A2A + 双层超时（非致命wait + 3x硬安全网）+ 前端 isNodeOvertime 多策略卡死检测 + 4层模型解析链 + **SCIP 2026-07：核心 preset SSOT fail-fast + L3 父工具集合并 session browser 工具（开 Browser 即可委派，无 Not in parent toolkit）+ browser/analysis YAML 对齐 canonical 工具**（API Live E2E example_domain_seen ~6.5s · 10838 项编排+安全+恢复+UI+多路复用+共识+协议+预算+可视化+Goal引擎+Webhook全链路测试通过 0 失败 · 核心模块覆盖率 90.1% · 2026-07-11 验证）"
         },
         "dynamicWorkflow": {
           "feature": "动态工作流 · 运行时 DAG，无需重新部署",
           "hermes": "静态流程 (易盲目开始)",
           "openclaw": "_no",
-          "myrmAgent": "LLM 动态生成 Python 编排脚本 · 强制 Understand 目标理解杜绝幻觉 · PTC 沙箱安全执行 · SQLite 持久化断点恢复 · 竞速/锦标赛/对抗验证三模式 · 前端一键工作流开关 + ReactFlow DAG 实时可视化"
+          "myrmAgent": "一键工作流开关（对标 Ultra 但更智能——LLM 动态决策并行数，非固定4）· PTC 沙箱生成 Python 编排 · SQLite 持久化断点恢复（Ultra 无持久化）· 四级可信度汇总（✅/⚠️/❌/💥）· 发送后自动重置防意外高消耗 · 竞速/锦标赛/对抗验证 · ReactFlow DAG 实时可视化 · 155 项测试全通过"
         },
         "dynamicDiscovery": {
           "feature": "动态团队与 @ 委派 · 输入框 @ 即可唤起任意 Agent 接力",
@@ -592,7 +592,7 @@
         "errorRecovery": {
           "feature": "4层自愈体系 · 7种循环检测 · 完成验证守卫 · 10种流恢复策略",
           "hermes": "易陷入无限重试死循环",
-          "openclaw": "CLI Doctor（无子Agent防污染）",
+          "openclaw": "CLI Doctor + postCompactionGuard（3次观测窗口补救压缩后循环检测缺失）",
           "myrmAgent": "底层透明自愈机制，自动清理无效工具调用。无论网络如何抖动、用户如何频繁取消，对话历史永远保持纯净。彻底告别因格式错误导致的崩溃，鲁棒性远超竞品。全链路UI进度反馈与异常重试，绝不静默吞噬错误。三层HITL人机共驾（前端多态审批+Harness 7层LoopGuard+Server审批中间件） · 三级「始终允许」精确授权（Permission/Tool/Exact-match，canonical args hash消除LLM辅助字段干扰——竞品仅CLI级2层签名） · **文本截断自动恢复**（keep+continue+boost 2x/3x/4x, 上限32768——针对实时streaming UI的最优策略，CC的CLI silent retry在我们架构中会导致内容重复）+ 工具截断丢弃重试 + SSE状态通知含5语言i18n · **智能延迟Failover**（429限速永不切换模型——始终在同一模型上重试；529过载连续3次才切换——节省主模型配额，避免不必要地降级到弱模型） · **859项恢复/容错测试全通过（2026-07验证）**"
         },
         "toolIntegration": {
