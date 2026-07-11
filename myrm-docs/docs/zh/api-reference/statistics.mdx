@@ -234,3 +234,61 @@ Myrm Engine 在 `/metrics` 暴露 Prometheus 遥测，零运维开销，供 DevO
 ### 智能启停
 
 指标采集根据部署模式自动启停 — 本地与桌面端零开销运行，云托管部署自动暴露完整 `/metrics` 端点供 Prometheus 抓取。
+
+## Agent Liveness SSOT（全局三态指示器）
+
+单一聚合端点，一个 API 即可知道 Agent 当前是忙碌、空闲还是异常 — 无需轮询多个接口。
+
+```
+GET /api/v1/health/liveness
+```
+
+### 响应
+
+```json
+{
+  "state": "busy",
+  "agents": {
+    "activeCount": 2,
+    "maxConcurrent": 3,
+    "availableSlots": 1,
+    "sessions": [
+      {
+        "sessionId": "abc-123",
+        "chatId": "chat-456",
+        "agentType": "general",
+        "elapsedSeconds": 12.5
+      }
+    ]
+  },
+  "channels": {
+    "wechat": { "status": "connected" },
+    "telegram": { "status": "connected" }
+  },
+  "memory": {
+    "level": "NORMAL",
+    "percent": 42.3
+  },
+  "uptimeSeconds": 3600.5
+}
+```
+
+### 状态派生逻辑
+
+| 状态 | 触发条件 |
+|------|---------|
+| `busy` | 至少有一个 Agent 会话正在执行 |
+| `degraded` | 无活跃会话，但某渠道掉线或内存压力升高 |
+| `idle` | 无活跃会话，所有渠道健康，内存正常 |
+
+### 使用场景
+
+- **前端托盘 / 宠物指示器**：轮询此端点显示三态图标（转圈 = 忙碌，绿色 = 空闲，琥珀色 = 异常）
+- **云运维监控**：`curl /api/v1/health/liveness | jq .state` 接入 Prometheus/Grafana 告警
+- **多标签工作区**：跨浏览器标签页显示 Agent 可用性，无需打开设置
+
+### 关键特性
+
+- **纯只读聚合**：零 I/O、零数据库查询 — 所有数据来自内存中的网关状态
+- **亚毫秒级响应**：适合高频轮询（每 2-5 秒）
+- **全部署模式通用**：本地 WebUI、Tauri 桌面端、云托管部署均可使用

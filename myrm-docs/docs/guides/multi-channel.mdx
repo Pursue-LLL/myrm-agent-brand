@@ -60,6 +60,8 @@ Connect your personal WeChat account in under a minute with QR code login:
 
 The login flow provides real-time status updates: generating QR → waiting for scan → verifying → connected. If the QR code expires, click **Retry** to generate a fresh one.
 
+**Typing indicator reliability**: iLink typing tickets expire after 600 seconds. For long-running agent tasks (>10 minutes), the system proactively refreshes tickets before expiry (540s threshold with 60s safety buffer) using a monotonic clock for drift safety. This ensures the "typing..." indicator always disappears when the agent finishes — no frozen typing states.
+
 ### WhatsApp (via Baileys)
 
 1. Navigate to **Settings > Channels > WhatsApp** in the GUI

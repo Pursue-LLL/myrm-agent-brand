@@ -31,3 +31,18 @@ In complex DAG plans, not every step is equally important. MyRM Agent supports *
 **Real-world example:** In a multi-source research task, one search engine API is rate-limited and fails. Instead of aborting the entire research, MyRM skips that source, continues with the remaining sources, and delivers a complete report. Competing frameworks would abort the entire DAG on any single step failure.
 
 This capability is unique to MyRM — no competing framework (Claude Code, CrewAI, Dify, OpenHands, Hermes) supports DAG node-level `allow_failure` declarations. The result: **30%+ higher task success rates** in multi-step workflows compared to all-or-nothing competitors.
+
+### 8. One-Click Workflow Toggle: Smarter Than Ultra Mode
+
+OpenAI's GPT-5.6 Sol introduced "Ultra Mode" — a one-click toggle that runs 4 agents in parallel, trading higher token costs for faster results. MyRM's **WorkflowModeToggle** provides equivalent one-click activation, but with significant advantages:
+
+| | OpenAI Ultra | MyRM Workflow Mode |
+|---|---|---|
+| **Orchestration** | Fixed 4 parallel agents | LLM dynamically decides parallelism and strategy |
+| **Persistence** | None | SQLite durable execution with crash-safe resume |
+| **Cost safety** | None (3-5x cost, no controls) | Budget fuse-breaker + auto-reset after send |
+| **Progress visibility** | Black box | 4 SSE event types + categorized progress bars |
+| **Result synthesis** | Simple merge | 4-level confidence classification (✅/⚠️/❌/💥) |
+| **Orchestration modes** | 1 (fixed parallel) | 4 primitives (delegate/batch/swarm/workflow) |
+
+The toggle automatically resets after sending to prevent accidental high-cost follow-up messages — a safety mechanism OpenAI Ultra lacks.

@@ -234,3 +234,61 @@ A ready-to-import Grafana dashboard (`grafana-dashboard-sandbox.json`) provides 
 ### Smart Enable/Disable
 
 Metrics collection is automatically enabled or disabled based on deployment mode — local and desktop deployments run with zero overhead, while cloud deployments expose the full `/metrics` endpoint for Prometheus scraping.
+
+## Agent Liveness SSOT
+
+A single aggregated endpoint that tells you whether your agent is busy, idle, or degraded — no need to poll multiple APIs.
+
+```
+GET /api/v1/health/liveness
+```
+
+### Response
+
+```json
+{
+  "state": "busy",
+  "agents": {
+    "activeCount": 2,
+    "maxConcurrent": 3,
+    "availableSlots": 1,
+    "sessions": [
+      {
+        "sessionId": "abc-123",
+        "chatId": "chat-456",
+        "agentType": "general",
+        "elapsedSeconds": 12.5
+      }
+    ]
+  },
+  "channels": {
+    "wechat": { "status": "connected" },
+    "telegram": { "status": "connected" }
+  },
+  "memory": {
+    "level": "NORMAL",
+    "percent": 42.3
+  },
+  "uptimeSeconds": 3600.5
+}
+```
+
+### State Logic
+
+| State | Condition |
+|-------|-----------|
+| `busy` | At least one agent session is actively running |
+| `degraded` | No active sessions, but a channel is disconnected or memory pressure is elevated |
+| `idle` | No active sessions, all channels healthy, memory normal |
+
+### Use Cases
+
+- **Frontend tray / pet indicator**: Poll this endpoint to show a tri-state icon (spinning = busy, green = idle, amber = degraded)
+- **Cloud monitoring**: `curl /api/v1/health/liveness | jq .state` integrates with Prometheus/Grafana alerting
+- **Multi-pane workspace**: Show agent availability across browser tabs without opening settings
+
+### Key Properties
+
+- **Pure read-only aggregation**: Zero I/O, zero database queries — all data comes from in-memory gateway state
+- **Sub-millisecond response time**: Suitable for frequent polling (every 2-5 seconds)
+- **Works across all deployment modes**: Local WebUI, Tauri desktop, and cloud-hosted
