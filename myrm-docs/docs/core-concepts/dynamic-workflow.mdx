@@ -46,3 +46,15 @@ OpenAI's GPT-5.6 Sol introduced "Ultra Mode" — a one-click toggle that runs 4 
 | **Orchestration modes** | 1 (fixed parallel) | 4 primitives (delegate/batch/swarm/workflow) |
 
 The toggle automatically resets after sending to prevent accidental high-cost follow-up messages — a safety mechanism OpenAI Ultra lacks.
+
+### 9. Planning Guardrails: Focused Execution, Not Runaway Planning
+
+When LLMs plan multi-step tasks, two failure modes are common: **over-planning** (generating 50+ trivial plan items, wasting tokens) and **multi-focus drift** (marking 3-5 tasks as "in progress" simultaneously, completing none).
+
+MyRM's `todo_write` tool enforces hard guardrails at the code level:
+
+- **MAX_TODOS = 20**: Prevents planning explosion. When exceeded, a clear error guides the LLM to merge or simplify.
+- **Single in_progress enforcement**: Only one task may be actively worked on at a time. If the LLM violates this, the system **intelligently corrects** (reverts older in_progress items to pending, keeps the latest) and provides a feedback note explaining the correction.
+- **Correction over rejection**: Unlike hard rejections that disrupt flow, intelligent correction keeps the workflow moving while teaching the LLM to self-correct in subsequent turns.
+
+This is a code-enforced constraint, not a prompt-level suggestion — behavior is consistent regardless of which LLM model or provider is used.

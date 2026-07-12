@@ -39,6 +39,7 @@ POST /api/tools/:name/execute
 | `web_search` | Multi-engine search with BM25/Reranker filtering — returns cleaned, deduplicated snippets |
 | `render_ui` | Declarative in-chat UI (23 A2UI components). Turn1 ~223 tok; full props in `.agent/docs/A2UI_REFERENCE.md` (auto-seeded when enabled). Fail-closed on unknown types |
 | `update_ui_data` | Incremental `data_update` SSE for live panels (progress, metrics, task lists). Deep-merges `data` model — nested fields update without wiping sibling keys. Mounted with `render_ui` when Interactive UI is enabled |
+| `todo_write` | Structured task planning for multi-step objectives. Hard-enforced MAX_TODOS=20 limit prevents over-planning; single `in_progress` concurrency keeps execution focused. Violations auto-corrected with LLM feedback. Opt-in via Planning toggle or auto-enabled on resume when existing todos detected |
 
 ### Default tool groups vs on-demand capabilities
 
