@@ -262,6 +262,51 @@ Your agent can proactively push notifications to configured channels — no manu
 - Long-running code analysis finishes → results + generated chart pushed to Slack channel
 - Anomaly detected in monitored data → alert with dashboard screenshot sent to configured target
 
+## Web Push (Offline Notifications)
+
+Receive critical alerts even after closing your browser — no native app required.
+
+When the PWA is closed or backgrounded, the server sends push notifications via the W3C Web Push standard (VAPID). This covers scenarios where IM channels are not configured or the user simply wants browser-native alerts.
+
+### Supported Events
+
+| Event | Example |
+|-------|---------|
+| Approval request | Agent needs permission to execute a sensitive operation |
+| Goal completed | Background task finished successfully |
+| Goal failed | Task encountered an unrecoverable error |
+| Goal verification | Results ready for your review |
+| Health alert | System detected a service disruption |
+| Budget alert | Usage approaching configured limits |
+| Background task done | Long-running task completed |
+| System notification | Security events, pairing requests, OAuth callbacks |
+
+### Setup
+
+1. Navigate to **Settings > System > Push Notifications**
+2. Toggle **Enable** — your browser asks for notification permission
+3. Done. Notifications arrive even with the browser tab closed.
+
+A **Test** button lets you verify delivery immediately.
+
+### Platform Notes
+
+| Platform | Support |
+|----------|---------|
+| Desktop browsers (Chrome, Firefox, Edge) | ✅ Full support |
+| Android (Chrome, Firefox) | ✅ Full support |
+| iOS / iPadOS (Safari 16.4+) | ✅ Requires "Add to Home Screen" (PWA mode) |
+| Tauri desktop app | N/A — uses native OS notifications instead |
+
+On iOS, the card automatically detects whether the app is running in standalone PWA mode and shows an install guide if needed.
+
+### Security & Maintenance
+
+- **VAPID key auto-generation** — server creates and persists keys on first boot, zero configuration
+- **Expired subscription cleanup** — push failures (410/404) automatically remove stale subscriptions
+- **No third-party service** — pushes go directly to browser vendor endpoints (Google FCM, Apple APNs, Mozilla autopush)
+- **Tauri-aware** — the setting card is hidden in desktop app builds where native notifications already work
+
 ## Background Task Auto-Reply
 
 When you start a background task via `/btw` in any IM channel, the result is automatically pushed back to your original conversation when the task finishes:
