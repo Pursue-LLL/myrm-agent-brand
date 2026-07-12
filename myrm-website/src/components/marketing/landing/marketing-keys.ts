@@ -92,6 +92,12 @@ export const COMPARE_ROW_KEYS = [
   'searchIntelligence',
   'smartDesktopDistribution',
   'antiBlockingTitle',
+  'steerToken',
+  'threeDGraph',
+  'chatOpsIM',
+  'serverless',
+  'datasetsExport',
+  'agentSkills',
   'appshotFlowPad',
   'crossPlatformHandoff',
   'configSync',
@@ -168,8 +174,10 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'shellCompression',
     'toolOutputIntelligence',
     'antiBlockingTitle',
+    'datasetsExport',
+    'agentSkills',
   ],
-  platform: ['gui', 'chatHistoryManagement', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'harnessUpgradeContract', 'codeGraph', 'crossPlatformHandoff', 'configSync', 'taskResilience', 'localIotBridge'],
+  platform: ['gui', 'chatHistoryManagement', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'harnessUpgradeContract', 'codeGraph', 'crossPlatformHandoff', 'configSync', 'taskResilience', 'localIotBridge', 'steerToken', 'threeDGraph', 'chatOpsIM', 'serverless'],
 };
 
 export function highlightSlideBasePath(slideKey: HighlightSlideKey): string {

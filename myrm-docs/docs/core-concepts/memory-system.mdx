@@ -449,3 +449,15 @@ When you permanently delete a chat from the Trash, Myrm automatically removes **
 | Pending Records | Relational (SQLite) | Deleted by source_chat_id index |
 
 **Bulk operations:** "Empty Trash" cascades through every chat being removed, ensuring complete cleanup.
+
+## Embedding Model Migration
+
+When you change the embedding model in Settings, previously stored memories are encoded with the old model's vectors and cannot be retrieved by the new model. Myrm handles this transparently:
+
+1. **Automatic Detection** — After saving a new embedding model, the system scans for "orphan collections" (memories stored under the previous model)
+2. **Inline Warning** — If orphan memories are found, an amber banner appears in Settings showing the count
+3. **One-Click Migration** — Click "Migrate" to re-embed all orphan memories using your new model. The process reuses the existing export/import pipeline
+4. **Safe & Reversible** — Original collections are preserved (not deleted), so no data is lost even if migration is interrupted
+5. **Memory Doctor Integration** — The `probe_orphan_collections` check appears in Health diagnostics, ensuring long-term awareness
+
+**Cost note:** Migration re-embeds text through your configured embedding provider. The estimate shown before migration helps you anticipate API usage.
