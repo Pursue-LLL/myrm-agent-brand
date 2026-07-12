@@ -593,7 +593,7 @@
           "feature": "4层自愈体系 · 7种循环检测 · 完成验证守卫 · 10种流恢复策略",
           "hermes": "易陷入无限重试死循环",
           "openclaw": "CLI Doctor + postCompactionGuard（3次观测窗口补救压缩后循环检测缺失）+ postCompactionForce（压缩后强制刷新 memory 索引补救记忆丢失）",
-          "myrmAgent": "底层透明自愈机制，自动清理无效工具调用。无论网络如何抖动、用户如何频繁取消，对话历史永远保持纯净。彻底告别因格式错误导致的崩溃，鲁棒性远超竞品。全链路UI进度反馈与异常重试，绝不静默吞噬错误。三层HITL人机共驾（前端多态审批+Harness 7层LoopGuard+Server审批中间件） · 三级「始终允许」精确授权（Permission/Tool/Exact-match，canonical args hash消除LLM辅助字段干扰——竞品仅CLI级2层签名） · **文本截断自动恢复**（keep+continue+boost 2x/3x/4x, 上限32768——针对实时streaming UI的最优策略，CC的CLI silent retry在我们架构中会导致内容重复）+ 工具截断丢弃重试 + SSE状态通知含5语言i18n · **智能延迟Failover**（429限速永不切换模型——始终在同一模型上重试；529过载连续3次才切换——节省主模型配额，避免不必要地降级到弱模型） · **859项恢复/容错测试全通过（2026-07验证）**"
+          "myrmAgent": "底层透明自愈机制，自动清理无效工具调用。无论网络如何抖动、用户如何频繁取消，对话历史永远保持纯净。彻底告别因格式错误导致的崩溃，鲁棒性远超竞品。全链路UI进度反馈与异常重试，绝不静默吞噬错误。三层HITL人机共驾（前端多态审批+Harness 7层LoopGuard+Server审批中间件） · 三级「始终允许」精确授权（Permission/Tool/Exact-match，canonical args hash消除LLM辅助字段干扰——竞品仅CLI级2层签名） · **压缩后迭代预算智能重置**（上下文压缩后自动重置迭代预算，保留错误签名跨压缩追踪——竞品均无此交叉点处理，长对话不再因历史累积被过早终止） · **文本截断自动恢复**（keep+continue+boost 2x/3x/4x, 上限32768——针对实时streaming UI的最优策略，CC的CLI silent retry在我们架构中会导致内容重复）+ 工具截断丢弃重试 + SSE状态通知含5语言i18n · **智能延迟Failover**（429限速永不切换模型——始终在同一模型上重试；529过载连续3次才切换——节省主模型配额，避免不必要地降级到弱模型） · **871项恢复/容错测试全通过（2026-07验证）**"
         },
         "toolIntegration": {
           "feature": "工具生态集成 · 29 项预配置服务 / 9 大类别 / 一键连接 / Keyless 零配置",

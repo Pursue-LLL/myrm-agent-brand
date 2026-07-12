@@ -131,7 +131,13 @@ Detection follows a graduated response: first a warning with context-aware sugge
 
 ### Post-Compaction Loop Protection
 
-When context overflow triggers emergency compaction (`_emergency_compact` / `_truncate_oldest_rounds`), LoopGuard detection state **survives intact** — compaction only operates on the message list, never touching LoopGuard's sliding window. Repeated tool calls after compaction **accumulate** on top of pre-compaction records, making detection more sensitive rather than more lenient. This architectural design fundamentally eliminates the "post-compaction doom loop" — a known production failure pattern in competing systems.
+When context overflow triggers emergency compaction, LoopGuard handles the transition with precision:
+
+- **Loop detection state survives intact** — the sliding window (pattern detection) and error signatures operate in `ContextVar`, fully decoupled from the message list that compaction modifies
+- **Iteration budget is intelligently reset** — `notify_compaction()` resets `total_calls` so the agent is not prematurely terminated due to pre-compaction call history, while preserving `error_signatures` for cross-compaction failure tracking
+- **Agent phase is preserved** — the current execution phase (exploration, execution, etc.) carries over, maintaining context-aware detection thresholds
+
+This dual approach — detect loops more sensitively while giving the agent a fresh budget — fundamentally eliminates both the "post-compaction doom loop" and the "premature termination after compaction" failure patterns. No competing system addresses this compaction×budget intersection.
 
 ### Post-Compaction Memory Protection
 
