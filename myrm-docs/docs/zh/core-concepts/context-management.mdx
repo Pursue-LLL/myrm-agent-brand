@@ -206,6 +206,8 @@ Myrm 在两个关键时刻自动预热 Anthropic/Qwen 服务端前缀缓存：
 
 此外，子 Agent 通过 `enable_context_compression` **继承完整的上下文流水线**，其内部执行过程就已享受同样的压缩、剪枝和摘要层——从源头防止产出冗长结果。
 
+**子 Agent 压缩安全**：子 Agent 上下文压缩时，同样的流水线保护生效——`extract_protected_head` 保护前导系统消息，摘要以 `HumanMessage`（而非 `SystemMessage`）注入以保护提示词缓存，`ensure_tool_pair_integrity` 验证消息结构完整性。压缩后子 Agent 上下文始终以合法系统消息开头，从架构层面消除了竞品中常见的「压缩后 assistant-first 被拒」失败模式。
+
 **为什么重要**：竞品将"让子 Agent 处理长日志，主 Agent 只看结果"描述为目标——Myrm 已通过零信息丢失（`file_read_tool` 读 `vault://`，支持行号范围）、聊天内 **VaultArtifactCard** 与结构化交接状态完整实现；无需额外 LLM vault 元工具。
 
 ## 会话笔记

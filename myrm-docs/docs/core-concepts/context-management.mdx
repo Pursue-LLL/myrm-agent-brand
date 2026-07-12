@@ -207,6 +207,8 @@ When sub-agents execute tasks (e.g., running test suites, researching codebases)
 
 Additionally, sub-agents **inherit the full context pipeline** via `enable_context_compression`, so their internal execution already benefits from the same compression, pruning, and summarization layers — preventing bloated results from forming in the first place.
 
+**Subagent compaction safety**: When a sub-agent's context is compacted, the same pipeline protections apply — `extract_protected_head` preserves leading system messages, the summary is injected as a `HumanMessage` (not `SystemMessage`) to preserve prompt cache, and `ensure_tool_pair_integrity` validates message structure. This means sub-agent context always starts with a valid system message after compaction, eliminating the "assistant-first rejection" failure pattern seen in competing frameworks.
+
 **Why this matters**: Competitors describe "letting sub-agents handle long logs so the main agent only sees results" as a goal — Myrm already implements this with zero information loss (`file_read_tool` on `vault://` URIs, line ranges supported) and structured handover state. The chat UI shows **VaultArtifactCard** for vaulted results; no extra LLM vault tools needed.
 
 ## Session Notes
