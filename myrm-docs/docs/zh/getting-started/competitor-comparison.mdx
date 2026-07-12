@@ -367,6 +367,7 @@ Hermes v0.15（Velocity，2026-05-28）将核心循环从 16k 行重构为 14 �
 - **6 层 Prompt Cache** vs Hermes `system_and_3`（4 断点、仅 Anthropic）— Myrm 支持 5+ 提供商 + 缓存断裂检测 + 防抖动
 - **Cache 友好的记忆注入**：Myrm 将记忆分为 Stable（SystemMessage，缓存安全）+ Learned（HumanMessage + UNTRUSTED_DATA 安全隔离，绝不污染 System Prompt）。Hermes 文章声称「以 User Message 形式注入」，但其真实代码（`system_prompt.py:424-486`）将记忆合并到 System Prompt volatile 层——每次记忆更新都会导致缓存失效。**175 项缓存专项测试已验证**
 - **IP 人设保护零额外成本**：用户配置的 `system_prompt` 通过 `UserInstructionsMiddleware` 以 `priority="highest"` + `[ABSOLUTE OBEDIENCE OVERRIDE]` 最高优先级注入，确保 LLM 严格遵从 IP 身份事实。Hermes 仅依赖纯文本 `SOUL.md`，无优先级强制执行机制。AI Builder 自动生成包含反捏造指令的人设定义——**765 项中间件测试已验证**
+- **4 层工作区上下文注入**：`workspace_rules_middleware` 自动发现 **15 种格式**（`.myrm.md`、`AGENTS.md`、`CLAUDE.md`、`.cursorrules`、`.clinerules`、`.windsurfrules`、`SOUL.md`、`MEMORY.md`、`.cursor/rules/*.mdc`、`.claude/CLAUDE.md`、`.github/copilot-instructions.md` 等）的项目规则文件，注入为 `<workspace_context>`。包含 prompt injection 检测（score≥0.8 阻断）、隐形 Unicode 清洗、YAML 前言清除、inode 去重、20K 字符总预算内 head/tail 截断。每层按作用域划分（跨用户/per-user/per-workspace）最大化 Prompt Cache 效率。Hermes/WorkBuddy 需要手动创建 `MEMORY.md` + `SOUL.md` 且无优先级控制——**17 项集成测试已验证**
 
 ### 技能进化 — 真·自进化 Agent
 
