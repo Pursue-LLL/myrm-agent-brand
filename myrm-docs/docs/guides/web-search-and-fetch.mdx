@@ -98,7 +98,13 @@ When L1–L3 all fail, you can **opt in** to a remote reader fallback (Settings 
 | Provider | Role |
 |----------|------|
 | Jina Reader | First remote attempt (optional API key; free tier when available) |
-| Firecrawl | Second attempt (can reuse your search-service Firecrawl key) |
+| Firecrawl v2 | Second attempt — **Keyless (1,000 req/mo free)** or bring your own API key for higher quotas |
+
+**Firecrawl v2 highlights:**
+
+- **Zero-config start** — works without an API key; Firecrawl's free tier gives you 1,000 requests/month
+- **Custom API Base** — point to your own self-hosted Firecrawl instance for enterprise privacy or higher throughput
+- **One-click verify** — the Settings UI tests connectivity against your configured endpoint (including self-hosted)
 
 **Design guarantees (vs competitors that always hit cloud APIs):**
 
@@ -108,7 +114,7 @@ When L1–L3 all fail, you can **opt in** to a remote reader fallback (Settings 
 - **deep_crawl never escalates** — bulk site crawls stay local-only
 - **Plane deny switch** — `MYRM_WEB_FETCH_ESCALATION=denied` for enterprise hard blocks
 
-OpenClaw/Hermes often depend on Firecrawl for hard pages; Myrm keeps **local-first** and treats cloud as an explicit, capped last resort.
+OpenClaw/Hermes often depend on Firecrawl for hard pages and always require an API key; Myrm keeps **local-first**, supports keyless free-tier out of the box, and treats cloud as an explicit, capped last resort.
 
 ### Privacy Protection
 
@@ -190,12 +196,12 @@ Myrm's Deep Research runs a structured **CLARIFY → PLAN → EXPLORE → RESEAR
 |---|:---:|:------:|:--------:|:--------:|
 | Built-in search | ✅ | ✅ | ✅ | ✅ |
 | Result filtering | ✅ BM25/Reranker | ❌ API passthrough | ❌ raw snippet | ❌ API passthrough |
-| Built-in fetch | ✅ 3-tier local | ⚠️ Firecrawl+LLM | ⚠️ HTTP/Firecrawl | ⚠️ HTTP only |
+| Built-in fetch | ✅ 3-tier local + L4 Firecrawl v2 keyless | ⚠️ Firecrawl+LLM (key required) | ⚠️ HTTP/Firecrawl (key required) | ⚠️ HTTP only |
 | Vector extract mode | ✅ fetch_and_extract | ❌ (LLM summary) | ❌ | ❌ |
 | DOM pruning | ✅ | ❌ | ❌ regex/text | ❌ Turndown full page |
 | Chinese search | ✅ SearxNG+Baidu | ⚠️ backend-dependent | ❌ DDG poor | ⚠️ cloud API |
 | Image search | ❌ (web_search + web_fetch / browser) | ❌ | ❌ | ❌ |
-| Monthly cost (local) | **$0** | API fees | Firecrawl fallback fees | Exa/Parallel fees |
+| Monthly cost (local) | **$0** (keyless free tier included) | API fees (key required) | Firecrawl fallback fees (key required) | Exa/Parallel fees |
 
 ### Where Hermes Differs (not stronger)
 
@@ -219,7 +225,7 @@ Myrm's Deep Research runs a structured **CLARIFY → PLAN → EXPLORE → RESEAR
 
 | | Myrm | Hermes |
 |---|------|--------|
-| web_fetch out of box | ✅ **Local 3-tier + DOM prune**, no API key | ❌ Needs Firecrawl/Exa API key |
+| web_fetch out of box | ✅ **Local 3-tier + L4 Firecrawl v2 keyless**, no API key needed | ❌ Needs Firecrawl/Exa API key |
 | web_search out of box | ✅ GUI one-click SearxNG/DuckDuckGo | ⚠️ `hermes tools` + backend key |
 | Smart long-page extract | ✅ fetch_and_extract (BM25+vector+Reranker) | ⚠️ LLM summary (costs tokens) |
 
