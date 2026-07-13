@@ -412,6 +412,17 @@ Transfer a conversation from one platform to another without losing context.
 
 **Test coverage:** 17 unit tests + 7 API integration tests = 24 tests covering all edge cases (conflict resolution, same-channel rejection, inactive pairing, agent preservation, policy modes).
 
+### Automatic "Continue in Browser" Button
+
+Every IM reply from the Agent includes a **"Continue in browser"** button at the bottom. Tapping it opens the full Web UI conversation page — complete with tool call steps, code diffs, and file history — in one click.
+
+- **Precise routing** — The button links to `/{chatUUID}` using the database Chat UUID (not the IM platform's peer ID), so it always opens the correct conversation
+- **Background task notifications** — When a `/btw` background task finishes, the IM notification also includes the button
+- **Graceful degradation** — Channels that don't support interactive buttons (e.g., WeChat) automatically fall back to a text link; if no public URL is available, the button is silently omitted without blocking the reply
+- **WebUI filtering** — Messages already in the Web UI do not show the button (no redundant self-links)
+
+**Test coverage:** 22 tests (11 unit + 8 integration + 3 regression) covering URL construction, DB UUID resolution, channel filtering, error handling, and graceful degradation.
+
 ## Session Continuity & Context Preservation
 
 Remote control through IM never loses context — four layers guarantee seamless continuity:
