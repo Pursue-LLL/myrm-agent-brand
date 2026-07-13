@@ -228,7 +228,7 @@ Myrm provides defense-in-depth against cascading failures at every level of the 
 |-------|-----------|-------|
 | **Infrastructure** | Circuit breaker (CLOSED → OPEN → HALF_OPEN) | Per-model, per-browser pool |
 | **Terminal Error** | Hard circuit breaker for network/sandbox failures | Session-wide |
-| **Behavior Pattern** | LoopGuard (5 pattern types) + FrequencyGuard (sliding window rate limit) | Per-session |
+| **Behavior Pattern** | LoopGuard (7 pattern types) + FrequencyGuard (sliding window rate limit) | Per-session |
 | **Sub-Agent** | `_cascade_cancel_descendants` — recursive cancellation of all descendant agents | Agent hierarchy |
 | **Emergency** | E-Stop (KILL_ALL) — immediately halts all tool execution | Global |
 
@@ -242,7 +242,7 @@ Myrm actively prevents runaway retry loops and protects your API budget:
 
 | Guard | What It Does | Response |
 |-------|-------------|----------|
-| **LoopGuard** | Detects 5 loop patterns (repetition, ping-pong, no-progress, divergence, diminishing output) | WARN → BREAK |
+| **LoopGuard** | Detects 7 loop patterns (repetition, ping-pong, no-progress, divergence, diminishing output, consecutive-failures, cross-tool error-signature) | WARN → BREAK |
 | **FrequencyGuard** | Sliding-window rate limit (100 global / 30 per-tool per minute) | WARN at 80% → BREAK at 100% |
 | **MultidimensionalBudgetGuard** | Per-session, daily, and per-call USD limits | OK → WARNING → FINALIZATION → EXCEEDED |
 | **Iteration Budget** | Dynamic tool-call budget derived from recursion limit | 70% warn → 90% critical → 100% ToolStuckException |
