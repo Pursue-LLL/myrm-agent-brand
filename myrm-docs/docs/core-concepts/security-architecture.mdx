@@ -550,6 +550,34 @@ Fail-safe guarantees:
 - Pydantic-enforced structured output (no free-text manipulation)
 - Taint labels injected for context-aware judgment
 
+## Security Profiles: One-Click Safety Modes
+
+MyRM provides three built-in security profiles that users can switch between from the Settings UI:
+
+| Profile | Permissions | Use Case |
+|---------|------------|----------|
+| **Read Only** | All writes denied (files, shell, browser, skills, cron). Reads auto-allowed. | Research, planning, code review |
+| **Workspace** | File ops within allowed roots, shell requires approval | Normal development |
+| **Full Access** | All operations allowed (YOLO mode) | Trusted local environments |
+
+Profiles are persisted to the database and survive server restarts. Each Agent can also have its own independent security configuration — enabling scenarios like a "research-only analyst" agent alongside a "full-access developer" agent.
+
+## Subagent Recursive Isolation: 5-Layer Defense
+
+When agents delegate tasks to subagents, a common failure mode is uncontrolled recursive spawning — subagents spawning more subagents until token budgets are exhausted.
+
+MyRM enforces 5 layers of isolation:
+
+| Layer | Mechanism |
+|-------|-----------|
+| **L0** | Type admission whitelist (only catalog-registered agent types) |
+| **L1** | Global blocklist (7 orchestration tools + 2 privileged tools stripped from LEAF agents) |
+| **L2** | Config-level blocklist + readonly mode additional blocks |
+| **L3** | Child ⊆ Parent tool intersection (child can never have more tools than parent) |
+| **L4** | Dual depth limits (global max 3 + per-config max_spawn_depth) |
+
+Additional safety nets: payload hash deduplication prevents delegation loops, result caching avoids redundant work, and 3 memory isolation strategies (EPHEMERAL / READ_ONLY_GLOBAL / COLLABORATIVE_SESSION) prevent cross-agent data contamination.
+
 ## vs CaMeL Guard (hermes-agent-camel)
 
 The CaMeL Guard project implements a research-based trust boundary model (trusted controller vs untrusted data). Myrm's security architecture provides significantly deeper coverage:
