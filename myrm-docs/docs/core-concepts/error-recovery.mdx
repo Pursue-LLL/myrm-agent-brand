@@ -305,3 +305,7 @@ All recovery happens transparently:
 - **Repeated failures?** — 3-Strike protocol auto-escalates to ask for your help — no infinite loops
 - **Environment broken?** — Doctor Dashboard shows health status at a glance with one-click fix buttons
 - **SSE disconnects mid-task?** — Goal progress panel auto-clears stale indicators on reconnect, re-syncs from server, and preserves completed steps. No ghost spinners, no misleading "in progress" after the agent has stopped
+- **Cancel a running task?** — End-to-end cancellation propagates through the entire execution chain within 0.5s (CancellationMonitor polling interval). Background jobs killed, subagents cascade-cancelled, resources cleaned up, token registry unregistered
+- **Disconnect during long task?** — Grace period tolerance keeps the task alive. If disconnection persists, OfflineDurableTask registers the work for background completion with user notification on finish
+- **Server restarts mid-goal?** — Orphaned goals auto-pause with clear reason. Durable tasks resume from LangGraph checkpoint on next startup — zero repeated work
+- **Emergency halt needed?** — E-Stop API (`/freeze`) cancels ALL active agent streams globally in one call — the panic button for production incidents
