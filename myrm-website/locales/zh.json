@@ -422,10 +422,10 @@
           "myrmAgent": "动态发现 + UI原生 @"
         },
         "multiChannel": {
-          "feature": "全渠道触达 · 28渠道+端内Agent切换+三级绑定+双模式路由+身份隔离+Agent主动推送",
+          "feature": "全渠道触达 · 35+渠道+端内Agent切换+三级绑定+双模式路由+身份隔离+Agent主动推送",
           "hermes": "~19平台, 无Topic级Agent绑定；send_message_tool 无 GUI 白名单收件人选择",
           "openclaw": "易断连, 无审批通知；无 Agent 跨渠道推送 GUI",
-          "myrmAgent": "28+ 渠道原生深度集成（Telegram/Slack/Discord/飞书/iMessage/WeChat 等），端内 InlineKeyboard 一键切换 Agent（竞品均无），双模式路由：`/cc fix bug` 临时用 Claude 回复而不改变绑定、`/cc` 持久绑定。三级 Topic Binding（Thread→Chat→Channel）+ 六维 Agent 隔离（Prompt/Model/Tools/MCP/Personality/Memory）+ 完整 GUI（ChannelRoutingSection：话题发现 + Agent 绑定 + 高风险工具警告）。Per-channel 独立预算隔离（防止单频道耗尽全局配额，SSE 实时告警+DB 持久化重启恢复）。Agent 主动 `channel_notify_tool`：**动态 running 渠道下拉** + pairing 收件人白名单 + **附件 workspace 边界** + send_tracked 可靠投递 + **应用内 chat 收件箱真实落库**；**sync 失败 WebUI toast + DLQ 告警链；子 Agent 默认无法越权发 IM**（**127 pytest + live MiniMax-M2.7 E2E + 7 vitest + Chrome round42 全流程**，2026-07-07 深度审计）。IM 实时工具进度透出（如「🔍 Searching: AI 编程工具」而非笼统的「Searching...」）——通用 fallback 覆盖所有工具含自定义 MCP，竞品仅支持硬编码工具。IM `/new` 会话边界清理：级联取消所有子代理+清空排队消息+重置安全设置+审批残留清理——竞品仅单层取消且不处理审批。776 项 topic/routing/agent 测试全通过（2026年7月）。"
+          "myrmAgent": "35+ 渠道原生深度集成（Telegram/Slack/Discord/飞书/iMessage/WeChat/企微/WhatsApp/LINE/Matrix/Signal 等），端内 InlineKeyboard 一键切换 Agent（竞品均无），双模式路由：`/cc fix bug` 临时用 Claude 回复而不改变绑定、`/cc` 持久绑定。三级 Topic Binding（Thread→Chat→Channel）+ 六维 Agent 隔离（Prompt/Model/Tools/MCP/Personality/Memory）+ 完整 GUI（ChannelRoutingSection：话题发现 + Agent 绑定 + 高风险工具警告）。Per-channel 独立预算隔离（防止单频道耗尽全局配额，SSE 实时告警+DB 持久化重启恢复）。Agent 主动 `channel_notify_tool`：**动态 running 渠道下拉** + pairing 收件人白名单 + **附件 workspace 边界** + send_tracked 可靠投递 + **应用内 chat 收件箱真实落库**；**sync 失败 WebUI toast + DLQ 告警链；子 Agent 默认无法越权发 IM**（**127 pytest + live MiniMax-M2.7 E2E + 7 vitest + Chrome round42 全流程**，2026-07-07 深度审计）。IM 实时工具进度透出（如「🔍 Searching: AI 编程工具」而非笼统的「Searching...」）——通用 fallback 覆盖所有工具含自定义 MCP，竞品仅支持硬编码工具。IM `/new` 会话边界清理：级联取消所有子代理+清空排队消息+重置安全设置+审批残留清理——竞品仅单层取消且不处理审批。3007 项渠道+安全测试全通过（2026-07-13 实测）。"
         },
         "voiceInteraction": {
           "feature": "语音交互 · 说话即操作 + 视频自动转录",
@@ -533,7 +533,7 @@
           "feature": "三维智能路由 + 自动升级 · 复杂度+隐私+容错+模型卡住自动升级",
           "hermes": "单一辅助模型",
           "openclaw": "LLM judge 单阶段",
-          "myrmAgent": "6层智能路由（规则评分+LLM裁判+会话动量+隐私感知+误路由惩罚学习+自动升级）· 三级自动分类（SIMPLE/STANDARD/REASONING）· 5种语义ActionMode（fast/agent/deep_research/consensus/claude_code）vs 竞品2档滑块 · 4维预算守卫（tokens/USD/时间/轮次）+Eco自动降级 · 模型自升级契约（<<<NEEDS_PRO>>>自动升级，完整上下文保持）· 11模块降级链（熔断器+候选池+指数退避+场景选择+健康检查+探针限流）+Fast Lane（快30-50%）· PenaltyTracker从误路由中学习（24h衰减）· 10模块Token经济学（成本溯源+工具归因+延迟统计+Net Cache ROI+多维预算）· 模型测速仪表盘（TTFT+TPS+批量重测——数据驱动选模型，竞品无此功能）· 前端路由分析面板展示节省成本 · 2,309项路由+降级+经济学+子Agent+ManagedLLM智能降级测试全通过"
+          "myrmAgent": "6层智能路由（规则评分+LLM裁判+会话动量+隐私感知+误路由惩罚学习+自动升级）· 三级自动分类（SIMPLE/STANDARD/REASONING）· 5种语义ActionMode（fast/agent/deep_research/consensus/claude_code）vs 竞品2档滑块 · 4维预算守卫（tokens/USD/时间/轮次）+Eco自动降级 · 模型自升级契约（<<<NEEDS_PRO>>>自动升级，完整上下文保持）· 11模块降级链（熔断器+候选池+指数退避+场景选择+健康检查+探针限流）+Fast Lane（快30-50%）· PenaltyTracker从误路由中学习（24h衰减）· 10模块Token经济学（成本溯源+工具归因+延迟统计+Net Cache ROI+多维预算）· 模型测速仪表盘（TTFT+TPS+批量重测——数据驱动选模型，竞品无此功能）· 前端路由分析面板展示节省成本 · 2,334项路由+降级+经济学+子Agent+ManagedLLM智能降级测试全通过（2026-07-13 实测）"
         },
         "promptMode": {
           "feature": "Prompt 可控 · 按场景精确调教 AI 行为",
@@ -1009,7 +1009,7 @@
           "title": "GUI + 远程控制，全链路可观测",
           "desc": "高级可视化 GUI ，延迟、工具审批、缓存命中、子 Agent 状态全程可视 —— 细粒度配置和可观测性给你足够掌控感。",
           "point1": "WebUI + 桌面端统一配置，手机电脑无缝衔接",
-          "point2": "25+ 消息与语音渠道远程派活，外出也能推进任务",
+          "point2": "35+ 消息与语音渠道远程派活，外出也能推进任务",
           "point3": "飞书/钉钉/企微长连接出站，无需公网 IP；Webhook 渠道与定时触发可在 Settings 配置 Ingress 或 Quick Tunnel"
         },
         "taskModes": {

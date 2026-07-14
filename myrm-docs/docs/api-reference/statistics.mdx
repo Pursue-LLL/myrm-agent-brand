@@ -193,6 +193,89 @@ GET /api/v1/statistics/usage/by-agent?days=7
 - Automatically resolves agent names and avatars from the Agent registry
 - The `AgentUsageCard` component auto-hides when there is only 1 agent (no comparison value)
 
+## Session Execution Trace
+
+Retrieve the complete execution trace for a session — tool calls, LLM invocations, errors, human feedback events, and memory operations — structured for timeline replay.
+
+```
+GET /api/v1/statistics/session/{session_id}/trace
+```
+
+### Response
+
+```json
+{
+  "code": 0,
+  "data": {
+    "session_id": "sess-abc123",
+    "metadata": {
+      "user_id": "user-1",
+      "agent_id": "builtin-general",
+      "task_type": "chat",
+      "trace_id": "trace-xyz"
+    },
+    "outcome": "success",
+    "start_time": 1720000000.0,
+    "end_time": 1720000030.0,
+    "duration_ms": 30000,
+    "task_input": "Help me refactor this module",
+    "output": "Done! I've refactored the module into 3 files.",
+    "tool_calls": [
+      {
+        "sequence": 1,
+        "tool_name": "read_file",
+        "start_time": 1720000002.0,
+        "end_time": 1720000003.5,
+        "duration_ms": 1500,
+        "success": true,
+        "error": null,
+        "input_data": { "path": "/src/module.py" },
+        "output_summary": "Read 200 lines"
+      }
+    ],
+    "llm_calls": [
+      {
+        "sequence": 1,
+        "start_time": 1720000001.0,
+        "end_time": 1720000005.0,
+        "model_name": "claude-sonnet-4-20250514",
+        "prompt_preview": "[user] Help me refactor...",
+        "message_count": 3,
+        "duration_ms": 4000,
+        "ttft_ms": 180,
+        "prompt_tokens": 1200,
+        "completion_tokens": 800,
+        "total_tokens": 2000
+      }
+    ],
+    "errors": [],
+    "human_feedback": [],
+    "memory_events": [
+      {
+        "id": "mem-1",
+        "phase": "extraction",
+        "status": "completed",
+        "timestamp": 1720000028.0,
+        "title": "Working Memory Extract",
+        "summary": "Learned user prefers small focused modules",
+        "target_kind": "memory",
+        "target_id": "mem-target-1",
+        "influence_count": 2
+      }
+    ],
+    "total_events": 12,
+    "total_tokens": 2000
+  }
+}
+```
+
+### Key Features
+
+- **Zero-storage replay**: Traces are reconstructed on-demand from the append-only event log — no extra database or video files needed
+- **Seven event types**: tool_start, tool_end, llm_call, human_feedback, memory, error, message
+- **Frontend Session Replay Player**: The WebUI provides a three-pane interactive player (Chat View / Mind View / Inspector) with scrubber, playback speed control, keyboard navigation, and jump-to-error
+- **Dataset export**: Traces can be batch-exported to ShareGPT/Alpaca/OpenAI JSONL format for fine-tuning via the `dataset_export` pipeline
+
 ## Growth Statistics
 
 Growth dashboard metrics are available through the unified **Learning Journey** page (`/journey`, former `/growth` auto-redirects) and provide:

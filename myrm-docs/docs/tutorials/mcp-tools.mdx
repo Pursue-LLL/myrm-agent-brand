@@ -1,0 +1,61 @@
+---
+title: "MCP Tools: Give Your Agent Superpowers"
+description: Connect external services to Myrm through MCP servers — databases, APIs, design tools, and more — to extend what your agent can do.
+---
+
+# MCP Tools
+
+## Scenario
+
+You want your agent to interact with external services — query a database, create Figma designs, manage GitHub issues, or access company APIs. MCP (Model Context Protocol) lets you plug in any compatible tool server without modifying the agent's core.
+
+## Materials
+
+- An MCP server URL or a locally installed MCP server (many are available as npm packages)
+- The server's connection details (URL, authentication token if required)
+
+## Steps
+
+<Steps>
+  <Step title="Open MCP Settings">
+    Go to **Settings → MCP Servers** in the WebUI. You'll see a list of connected servers and an **Add Server** button.
+  </Step>
+  <Step title="Add a Server">
+    Click **Add Server** and fill in:
+    - **Name**: A friendly label (e.g., "GitHub")
+    - **Type**: SSE (remote) or Stdio (local process)
+    - **URL or Command**: The server endpoint or launch command
+
+    Click **Save**. Myrm connects to the server and discovers available tools.
+  </Step>
+  <Step title="Verify Connection">
+    After saving, the server status shows **Connected** with a list of discovered tools. Click any tool to see its description and parameters.
+  </Step>
+  <Step title="Use in Conversation">
+    Start a new chat and ask the agent to use the tool:
+
+    > "List my open GitHub issues from the myrm-agent repo"
+
+    The agent selects the appropriate MCP tool, calls it, and presents the results.
+  </Step>
+</Steps>
+
+<Note>
+  **Per-agent binding**: You can bind specific MCP servers to specific agents. A "Database Expert" agent might have access to your PostgreSQL MCP server, while a "Content Creator" agent connects to Figma. Configure this in **Agent Settings → MCP Servers**.
+</Note>
+
+## Deliverable
+
+A connected MCP server whose tools are available to your agent in any conversation.
+
+## Acceptance Criteria
+
+- [ ] Server shows **Connected** status in Settings
+- [ ] Tools are listed with correct descriptions
+- [ ] Agent can successfully call the tool and return results
+- [ ] Tool usage appears in the conversation with proper formatting
+
+## What's Next
+
+- **Explore the MCP ecosystem** → See [MCP Integration](/docs/guides/mcp-integration) for the full configuration reference and popular server recommendations
+- **Build your own** → Create custom MCP servers to expose internal company APIs to your agent

@@ -193,6 +193,89 @@ GET /api/v1/statistics/usage/by-agent?days=7
 - 自动关联 Agent 注册表中的名称和头像
 - 当仅有 1 个 Agent 时 `AgentUsageCard` 组件自动隐藏（无对比价值）
 
+## 会话执行追踪（Session Execution Trace）
+
+获取完整的会话执行追踪 —— 工具调用、LLM 调用、错误、人工审批事件和记忆操作 —— 结构化用于时间轴回放。
+
+```
+GET /api/v1/statistics/session/{session_id}/trace
+```
+
+### 响应
+
+```json
+{
+  "code": 0,
+  "data": {
+    "session_id": "sess-abc123",
+    "metadata": {
+      "user_id": "user-1",
+      "agent_id": "builtin-general",
+      "task_type": "chat",
+      "trace_id": "trace-xyz"
+    },
+    "outcome": "success",
+    "start_time": 1720000000.0,
+    "end_time": 1720000030.0,
+    "duration_ms": 30000,
+    "task_input": "帮我重构这个模块",
+    "output": "完成！我已将该模块拆分为 3 个文件。",
+    "tool_calls": [
+      {
+        "sequence": 1,
+        "tool_name": "read_file",
+        "start_time": 1720000002.0,
+        "end_time": 1720000003.5,
+        "duration_ms": 1500,
+        "success": true,
+        "error": null,
+        "input_data": { "path": "/src/module.py" },
+        "output_summary": "读取 200 行"
+      }
+    ],
+    "llm_calls": [
+      {
+        "sequence": 1,
+        "start_time": 1720000001.0,
+        "end_time": 1720000005.0,
+        "model_name": "claude-sonnet-4-20250514",
+        "prompt_preview": "[user] 帮我重构...",
+        "message_count": 3,
+        "duration_ms": 4000,
+        "ttft_ms": 180,
+        "prompt_tokens": 1200,
+        "completion_tokens": 800,
+        "total_tokens": 2000
+      }
+    ],
+    "errors": [],
+    "human_feedback": [],
+    "memory_events": [
+      {
+        "id": "mem-1",
+        "phase": "extraction",
+        "status": "completed",
+        "timestamp": 1720000028.0,
+        "title": "工作记忆提取",
+        "summary": "学到用户偏好小而专注的模块",
+        "target_kind": "memory",
+        "target_id": "mem-target-1",
+        "influence_count": 2
+      }
+    ],
+    "total_events": 12,
+    "total_tokens": 2000
+  }
+}
+```
+
+### 核心特性
+
+- **零存储回放**：追踪从追加式事件日志按需重建 —— 无需额外数据库或视频文件
+- **七种事件类型**：tool_start, tool_end, llm_call, human_feedback, memory, error, message
+- **前端会话回放播放器**：WebUI 提供三窗格交互式播放器（对话视图 / 思维视图 / 检查器），支持进度条拖拽、变速播放、键盘导航、一键跳转错误
+- **数据集导出**：追踪可通过 `dataset_export` 管道批量导出为 ShareGPT/Alpaca/OpenAI JSONL 格式用于微调
+
 ## 成长统计
 
 成长看板指标通过统一的**学习旅程**页面（`/journey`，旧 `/growth` 自动重定向）提供：

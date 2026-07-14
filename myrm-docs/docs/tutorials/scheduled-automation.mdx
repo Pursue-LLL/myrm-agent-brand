@@ -1,0 +1,58 @@
+---
+title: "Scheduled Automation: Hands-Free Recurring Tasks"
+description: Set up unattended tasks that run on a schedule — from daily reports to weekly data collection — and deliver results to any channel.
+---
+
+# Scheduled Automation
+
+## Scenario
+
+You've built a daily briefing (or any repeatable task) and you want it to run automatically every morning at 9 AM, with the result pushed to your WeChat, Slack, or email — no manual trigger needed.
+
+## Materials
+
+- A working task or Skill you want to automate (e.g., the [Daily Briefing](/docs/tutorials/daily-briefing))
+- A delivery channel configured in **Settings → Channels** (optional — results also appear in the task dashboard)
+
+## Steps
+
+<Steps>
+  <Step title="Describe Your Schedule in Chat">
+    In any conversation, tell the agent:
+
+    > "Every weekday at 9 AM, run my 'Morning Briefing' Skill and send the result to my WeChat."
+
+    The agent detects the scheduling intent and presents a confirmation card showing the task name, schedule (cron expression), bound Skill, and delivery channel.
+  </Step>
+  <Step title="Confirm the Task">
+    Review the confirmation card and click **Confirm**. The task is created instantly. A task card appears with a link to the management dashboard.
+  </Step>
+  <Step title="Monitor in the Dashboard">
+    Go to **Settings → Scheduled Tasks** to see all your recurring tasks. Each entry shows the schedule, last run time, status, and output history.
+  </Step>
+  <Step title="Adjust or Pause">
+    Click any task to edit the schedule, change the delivery channel, update the prompt, or pause execution. You can also manage tasks via chat:
+
+    > "Pause my morning briefing" or "Change it to run at 8:30 AM instead"
+  </Step>
+</Steps>
+
+<Note>
+  **Three task types**: Agent tasks (full LLM execution), Shell commands (local/desktop only), and Python scripts (zero LLM cost, works everywhere including cloud). See [Scheduled Tasks](/docs/guides/scheduled-tasks) for the full reference.
+</Note>
+
+## Deliverable
+
+An automated recurring task that runs on your defined schedule and delivers results to your chosen channel without manual intervention.
+
+## Acceptance Criteria
+
+- [ ] Task runs at the scheduled time
+- [ ] Output is delivered to the configured channel
+- [ ] Task appears in the Scheduled Tasks dashboard
+- [ ] You can pause, edit, or delete the task
+
+## What's Next
+
+- **Add reliability checks** → Set up three successful manual runs before automating (a best practice for production workflows)
+- **Chain tasks** → Use task chaining to run dependent tasks in sequence (e.g., data collection → analysis → report)
