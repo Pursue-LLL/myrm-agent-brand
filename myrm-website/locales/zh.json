@@ -425,19 +425,19 @@
           "feature": "全渠道触达 · 35+渠道+端内Agent切换+三级绑定+双模式路由+身份隔离+Agent主动推送",
           "hermes": "~19平台, 无Topic级Agent绑定；send_message_tool 无 GUI 白名单收件人选择",
           "openclaw": "易断连, 无审批通知；无 Agent 跨渠道推送 GUI",
-          "myrmAgent": "35+ 渠道原生深度集成（Telegram/Slack/Discord/飞书/iMessage/WeChat/企微/WhatsApp/LINE/Matrix/Signal 等），端内 InlineKeyboard 一键切换 Agent（竞品均无），双模式路由：`/cc fix bug` 临时用 Claude 回复而不改变绑定、`/cc` 持久绑定。三级 Topic Binding（Thread→Chat→Channel）+ 六维 Agent 隔离（Prompt/Model/Tools/MCP/Personality/Memory）+ 完整 GUI（ChannelRoutingSection：话题发现 + Agent 绑定 + 高风险工具警告）。Per-channel 独立预算隔离（防止单频道耗尽全局配额，SSE 实时告警+DB 持久化重启恢复）。Agent 主动 `channel_notify_tool`：**动态 running 渠道下拉** + pairing 收件人白名单 + **附件 workspace 边界** + send_tracked 可靠投递 + **应用内 chat 收件箱真实落库**；**sync 失败 WebUI toast + DLQ 告警链；子 Agent 默认无法越权发 IM**（**127 pytest + live MiniMax-M2.7 E2E + 7 vitest + Chrome round42 全流程**，2026-07-07 深度审计）。IM 实时工具进度透出（如「🔍 Searching: AI 编程工具」而非笼统的「Searching...」）——通用 fallback 覆盖所有工具含自定义 MCP，竞品仅支持硬编码工具。IM `/new` 会话边界清理：级联取消所有子代理+清空排队消息+重置安全设置+审批残留清理——竞品仅单层取消且不处理审批。3007 项渠道+安全测试全通过（2026-07-13 实测）。"
+          "myrmAgent": "35+ 渠道原生深度集成（Telegram/Slack/Discord/飞书/iMessage/WeChat/企微/WhatsApp/LINE/Matrix/Signal 等），端内 InlineKeyboard 一键切换 Agent（竞品均无），双模式路由：`/cc fix bug` 临时用 Claude 回复而不改变绑定、`/cc` 持久绑定。三级 Topic Binding（Thread→Chat→Channel）+ 六维 Agent 隔离（Prompt/Model/Tools/MCP/Personality/Memory）+ 完整 GUI（ChannelRoutingSection：话题发现 + Agent 绑定 + 高风险工具警告）。Per-channel 独立预算隔离（防止单频道耗尽全局配额，SSE 实时告警+DB 持久化重启恢复）。Agent 主动 `channel_notify_tool`：**动态 running 渠道下拉** + pairing 收件人白名单 + **附件 workspace 边界** + send_tracked 可靠投递 + **应用内 chat 收件箱真实落库**；**sync 失败 WebUI toast + DLQ 告警链；子 Agent 默认无法越权发 IM**（**127 pytest + live MiniMax-M2.7 E2E + 7 vitest + Chrome round42 全流程**，2026-07-07 深度审计）。IM 实时工具进度透出（如「🔍 Searching: AI 编程工具」而非笼统的「Searching...」）——通用 fallback 覆盖所有工具含自定义 MCP，竞品仅支持硬编码工具。IM `/new` 会话边界清理：级联取消所有子代理+清空排队消息+重置安全设置+审批残留清理——竞品仅单层取消且不处理审批。**Outbound HITL 草稿审核**：per-topic `draft_review` 模式拦截 AI 回复为待审草稿，WebUI Drawer + IM 按钮双通道审批，可配超时策略（auto_send/auto_reject），销售/客服合规刚需（竞品仅停留在概念层面）。3007+ 项渠道+安全测试全通过（2026-07-14 实测）。"
         },
         "voiceInteraction": {
           "feature": "语音交互 · 说话即操作 + 视频自动转录",
           "hermes": "Discord 语音, 无视频转录",
           "openclaw": "WebRTC, 无视频转录",
-          "myrmAgent": "四模式(audio_only/agent_bridge/OpenAI Realtime/Gemini Live)+Realtime与Gemini Live原生Function Calling+Vision+5个STT提供商+视频音频转录+自定义STT端点+对话框直传音频8格式(mp3/wav/ogg等)+25MB分级校验+Tauri桌面端30+扩展名+双TTS路径(Settings Voice渠道免费Edge/流式/摘要；Agent tts_generate聊天Audio工件+Gateway BYOK)"
+          "myrmAgent": "四模式(audio_only/agent_bridge/OpenAI Realtime/Gemini Live)+Realtime与Gemini Live原生Function Calling+**Voice A2UI可视化卡片**（对话时实时推送天气/股票/图表等交互式UI，比GPT-Live固定卡片更灵活）+Vision+5个STT提供商+视频音频转录+自定义STT端点+对话框直传音频8格式(mp3/wav/ogg等)+25MB分级校验+Tauri桌面端30+扩展名+双TTS路径(Settings Voice渠道免费Edge/流式/摘要；Agent tts_generate聊天Audio工件+Gateway BYOK)+**124项Voice API测试全通过**"
         },
         "multimodalGeneration": {
           "feature": "多模态生成 · 图片/视频/语音一句话创作",
           "hermes": "FAL.ai图片+2视频Plugin+10TTS",
           "openclaw": "_no",
-          "myrmAgent": "20+ 图片模型（Agent 勾选+凭证就绪即 Turn1 可用 · 缺 Key 时配置面板内联警告链设置 · Harness 引擎/Server 适配分层 · Failover+Gateway+编辑+Inpainting+SSRF+批量 · **异步生图：即时 task_id + 聊天气泡 ImageTaskCard + SSE 进度，生图时继续对话；密钥写入任务队列前 AES 加密，云沙箱安全** · 370+ 项测试全通过） · 4 视频引擎(Sora/Veo/Qwen/MiniMax + T2V/I2V/V2V + 幂等任务) · 5 TTS(含免费 Edge+流式+长文本摘要+自定义端点) · 截图即操作 · Vision 自动降级(SSE+缓存+非视觉主模型无感)"
+          "myrmAgent": "20+ 图片模型（Agent 勾选+凭证就绪即 Turn1 可用 · 缺 Key 时配置面板内联警告链设置 · Harness 引擎/Server 适配分层 · Failover+Gateway+编辑+Inpainting+SSRF+批量 · **异步生图：即时 task_id + 聊天气泡 ImageTaskCard + SSE 进度，生图时继续对话；密钥写入任务队列前 AES 加密，云沙箱安全** · 370+ 项测试全通过） · 4 视频引擎(Sora/Veo/Qwen/MiniMax + T2V/I2V/V2V + 幂等任务) · 5 TTS(含免费 Edge+流式+长文本摘要+自定义端点) · 截图即操作 · Vision 自动降级(SSE+缓存+非视觉主模型无感) · **创意设计全覆盖**：沙箱内ffmpeg视频剪辑/Pillow+ImageMagick批量图片处理 + computer_use智能操控Adobe PS/AI/InDesign(AppleScript/COM自动路由) + Figma MCP接入——不需要专用PS插件(Adobe版本更新常破坏API)，AI原生引擎更可靠 · **401 项多媒体全栈测试全通过**（图片89+视频43+工具27+辅助51+server单元34+集成157）"
         },
         "securityLayers": {
           "feature": "纵深安全 · 隐私不泄露",
@@ -629,7 +629,7 @@
           "feature": "桌面操控 · 看得见它在点什么",
           "hermes": "_no",
           "openclaw": "_no",
-          "myrmAgent": "后台静默输入（三平台，不抢焦点）+ 前台权限主动授权（三级粒度：单次/会话/永久，iOS 式授权弹窗）+ 双屏实时画面 + **Desktop Inspector SOM 编号叠加**（截图/AX 树/WebUI 角标同源，默认不烧 Token）+ 审批卡片 + 卡住可人工接管 + 敏感应用防火墙（银行/通信自动阻断）+ 审批延迟自动重验防误点 + 跨平台环境诊断卡片（macOS TCC + Linux xdotool/scrot/DISPLAY + Windows pyautogui/mss — 设置页自动检测+一键修复命令）· 三平台原生 API 智能路由（95+ 应用自动检测：macOS AppleScript + Windows COM/PowerShell + Linux D-Bus，零配方零依赖）· **部署感知门控**：本地/Tauri 控制本机桌面；SaaS 沙箱仅在 Visual Desktop + VNC 权益时启用 VM 虚拟桌面（无头沙箱不虚假宣传）"
+          "myrmAgent": "后台静默输入（三平台，不抢焦点）+ 前台权限主动授权（三级粒度：单次/会话/永久，iOS 式授权弹窗）+ 双屏实时画面 + **Desktop Inspector SOM 编号叠加**（截图/AX 树/WebUI 角标同源，默认不烧 Token）+ 审批卡片 + 卡住可人工接管 + 敏感应用防火墙（银行/通信自动阻断）+ 审批延迟自动重验防误点 + 跨平台环境诊断卡片（macOS TCC + Linux xdotool/scrot/DISPLAY + Windows pyautogui/mss — 设置页自动检测+一键修复命令）· 三平台原生 API 智能路由（95+ 应用自动检测：macOS AppleScript + Windows COM/PowerShell + Linux D-Bus，零配方零依赖）· **部署感知门控**：本地/Tauri 控制本机桌面；SaaS 沙箱仅在 Visual Desktop + VNC 权益时启用 VM 虚拟桌面（无头沙箱不虚假宣传）· **VNC 安全 Token 签名**（HMAC+TTL 防重放）+ Takeover/Resume 全生命周期人工接管 · **454 项 VNC+ArtifactPortal 专项测试全通过** · **办公文件三层覆盖**：ExcelParser 4模式直读 .xlsx（不需打开WPS）+ python-pptx/python-docx 原生生成 PPT/Word + 17 渠道 Bot API 直发文件附件——「读Excel→生成PPT→发企微群」全链路零 GUI 操控 · **519 项办公+通讯全栈测试全通过**（routing 40 + file_parsers 182 + channels 297）"
         },
         "browserEngine": {
           "feature": "浏览器自动化 · 像人一样浏览、登录、验收",
@@ -647,7 +647,7 @@
           "feature": "桌面客户端 · 25+项原生OS能力",
           "hermes": "Electron",
           "openclaw": "Win节点(无GUI)",
-          "myrmAgent": "Tauri+25项OS API+8080自动对齐 · 原生通知+Dock弹跳+截屏+防休眠+跨标签页零重复通知+快捷键原子注册(冲突自动回滚)+流式完成/澄清自动OS弹窗"
+          "myrmAgent": "Tauri+25项OS API+8080自动对齐 · 原生通知+Dock弹跳+截屏+防休眠+跨标签页零重复通知+快捷键原子注册(冲突自动回滚)+流式完成/澄清自动OS弹窗 · **Per-Thread 草稿持久化**（localStorage+LRU 淘汰，切线程写到一半不丢）· **11 项右键操作**（Pin/Fork/Handoff/导出4格式/定时任务/移动项目等——竞品仅 4 项）· **202 项桌面端专项测试全通过** · **跨设备遥控中心**：E2EE加密穿透(Curve25519)+CF Tunnel一键公网穿透+Mobile Hub手机控制面(SSE实时流+HITL审批+Steer追加指令+Stop+Live Preview+语音)+QR码扫码即连——零安装零品牌绑定，任何浏览器/17个IM均可远程操控Agent · **401 项跨设备遥控全栈测试全通过**"
         },
         "tunnel": {
           "feature": "公网连通 · 缺了会提醒",
@@ -683,7 +683,7 @@
           "feature": "文件系统智能 · 19 种原生操作、11 模块解析引擎、5 层自动观察者、三层写后防呆",
           "hermes": "基础文档提取 + 写后py_compile级语法检查（无自动格式化、无回滚）",
           "openclaw": "_no",
-          "myrmAgent": "11模块文档解析引擎（PDF 3策略智能编排 · 500页默认/2000页上限+并行解析+截断透明 · 书签+字体标题双模检测 · 表格L0/L2 RAG反碎片 · OCR · 噪点过滤 · Office全格式 · Excel智能分析：结构探查+公式审计+大文件自动策略省90%+Token · Jupyter Notebook含kernel语言检测+语法高亮+全栈拖拽入库）+ 未知格式附件感知兜底 + 7层编辑防护 + 写后三层防呆（内存语法校验+CLI深度诊断+12种自动格式化）+ 语法错误自动回滚 + Shadow Git快照恢复 + 多Agent快照归属标识+按智能体过滤+SSE实时刷新 + 实时Diff可视化（SSE推送 · Unified/Split双视图 · Prism语法高亮 · 行号+增删统计 · 2000行截断保护 · 95.4%测试覆盖）+ 上传自动同步workspace"
+          "myrmAgent": "11模块文档解析引擎（PDF 3策略智能编排 · 500页默认/2000页上限+并行解析+截断透明 · 书签+字体标题双模检测 · 表格L0/L2 RAG反碎片 · OCR · 噪点过滤 · Office全格式 · Excel智能分析：结构探查+公式审计+大文件自动策略省90%+Token · Jupyter Notebook含kernel语言检测+语法高亮+全栈拖拽入库）+ 未知格式附件感知兜底 + 7层编辑防护 + 写后三层防呆（内存语法校验+CLI深度诊断+12种自动格式化）+ 语法错误自动回滚 + Shadow Git快照恢复 + 多Agent快照归属标识+按智能体过滤+SSE实时刷新 + 实时Diff可视化（SSE推送 · Unified/Split双视图 · Prism语法高亮 · 行号+增删统计 · 2000行截断保护 · 95.4%测试覆盖）+ 上传自动同步workspace + **智能文件检索**：glob通配递归搜索 + grep三级引擎（ripgrep>mmap>Python）正则全文搜索 + ReDoS防护 + token节约格式化 + 前端typeahead路径补全 · **163项file_search+suggest全栈测试全通过**"
         },
         "ptcEngine": {
           "feature": "PTC 引擎 · 复杂任务更省 Token",
@@ -875,7 +875,7 @@
           "feature": "结果交付 · 富媒体产物与一键部署",
           "hermes": "纯文本",
           "openclaw": "纯文本",
-          "myrmAgent": "原生 Artifacts 系统（12种类型）· React/HTML/PDF/电子表格 高保真预览 · 交互式 DataGrid 查看 CSV/XLSX（虚拟滚动万行数据、排序、搜索、导出）· HMAC 安全分享短链 · 多平台发布（Vercel、Cloudflare Pages、Netlify、Webhook）Settings 配置、零 Git、零 LLM Token · 企业工件库（5 语言 + 版本审计时间线 + SHA256 防篡改）· Portal 多标签页管理 + 版本历史回滚 · 键盘快捷键 + 移动端手势 + 选中文本操作栏 · Wiki 知识库归档 · 交付可运行的工程级产物 · **Office 文档技能**（Excel/PPT/Word 原生生成，6字标题 + 公式优先 + 视觉规范）· **105 ArtifactCard 测试 + 65 A2UI 交互测试 + 68 ProgressSteps 测试全部通过**"
+          "myrmAgent": "原生 Artifacts 系统（12种类型）· React/HTML/PDF/电子表格 高保真预览 · 交互式 DataGrid 查看 CSV/XLSX（虚拟滚动万行数据、排序、搜索、导出）· HMAC 安全分享短链 · 多平台发布（Vercel、Cloudflare Pages、Netlify、Webhook）Settings 配置、零 Git、零 LLM Token · 企业工件库（5 语言 + 版本审计时间线 + SHA256 防篡改）· Portal 多标签页管理 + 版本历史回滚 · 键盘快捷键 + 移动端手势 + 选中文本操作栏 · Wiki 知识库归档 · 交付可运行的工程级产物 · **Office 文档技能**（Excel/PPT/Word 原生生成，6字标题 + 公式优先 + 视觉规范）· **零点击成果交付**：Agent生成文件→ArtifactRegistry自动注册→SSE事件触发→Portal自动弹出预览（竞品仅调用OS Open打开文件，无版本管理、无发布、仅限桌面端）· **347 项成果物交付全栈测试全通过**（harness注册137 + server处理105 + 前端Portal 105）"
         },
         "workflowIntegration": {
           "feature": "工作流集成 · 外部 SaaS 原生挂载",

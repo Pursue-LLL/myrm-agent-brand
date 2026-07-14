@@ -580,6 +580,43 @@ This works alongside WebUI approval — both paths lead to the same persistent r
 - **Persistent allowlist**: "Always allow" decisions survive restarts
 - **Anti-retry**: After 3 denials, agent stops retrying
 
+## Outbound HITL (Draft Review)
+
+For enterprise sales and customer service scenarios, AI-generated replies may need human review before sending. Myrm's **Outbound HITL** intercepts agent replies as drafts, requiring explicit approval.
+
+### Configuration
+
+Each topic can be independently configured via **Settings → Channel Routing**:
+
+| Setting | Options | Description |
+|---------|---------|-------------|
+| Reply Mode | Auto / Draft Review | Auto sends immediately; Draft Review holds for approval |
+| Timeout | 1 min – 1 hour | How long to wait before auto-action |
+| On Expiry | Auto Reject / Auto Send | What happens when nobody reviews in time |
+
+### How It Works
+
+1. Message arrives on IM channel → Agent generates a reply
+2. Reply is intercepted and stored as an `ApprovalRecord` (not sent)
+3. Reviewer sees the draft in WebUI Approval Drawer or IM ActionButton
+4. **Approve** → message is sent to the channel
+5. **Reject** → message is discarded
+6. **Timeout** → configurable auto-send or auto-reject
+
+### Review Channels
+
+- **WebUI Approval Drawer**: Shows the original customer message, AI-generated draft, channel/topic info
+- **IM ActionButtons**: Approve/Deny buttons on the approval notification in the channel
+
+### Use Cases
+
+| Scenario | Why Draft Review |
+|----------|-----------------|
+| Customer quotes/pricing | Incorrect prices create legal liability |
+| Contract terms | AI may hallucinate non-standard clauses |
+| Compliance-regulated industries | Financial/medical communications require review |
+| Brand-sensitive communications | Tone and accuracy matter |
+
 ## Intelligent Silent Filtering
 
 When your agent's system prompt includes instructions like "reply with `[SILENT]` when nothing needs attention", Myrm automatically detects and filters these silent replies before delivery:
