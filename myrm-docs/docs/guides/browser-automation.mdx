@@ -438,6 +438,27 @@ When the memory system is enabled, saved browser sessions are **automatically vi
 | User: "Post a tweet" → Agent calls `list_sessions` → sees twitter.com → calls `restore_session` | User: "Post a tweet" → Agent sees twitter.com in context → calls `restore_session` directly |
 | 2 tool calls + 2 LLM inferences | 1 tool call + 1 LLM inference |
 
+## OAuth Popup Auto-Capture
+
+When the agent clicks "Sign in with Google", "Login with GitHub", or any link that opens a new browser window, Myrm automatically captures the popup and manages its lifecycle.
+
+### How It Works
+
+1. **Auto-capture** — Every browser page has a popup listener registered automatically. When `window.open()` fires (OAuth, `target=_blank`, etc.), the new window is instantly captured as a child tab.
+2. **Focus switch** — The active tab switches to the popup so the agent (or Session Vault auto-restore) can interact with the authentication flow.
+3. **Parent recovery** — When the popup closes (user completes login, or the OAuth redirect finishes), the agent automatically switches back to the parent page.
+4. **Recursive support** — Popup pages themselves listen for nested popups (e.g., Google OAuth → SAML IdP → MFA provider).
+
+### Practical Scenarios
+
+| Scenario | What Happens |
+|----------|-------------|
+| Agent visits GitHub, clicks "Sign in with Google" | Popup captured → agent observes OAuth flow → popup closes → agent back on GitHub, now logged in |
+| Web form with `target=_blank` link | New tab captured as child → agent continues on new page → closes it → returns to form |
+| Session Vault + OAuth | First time: popup captured, login completed, session saved. Next time: auto-restore skips OAuth entirely |
+
+No competitor (Hermes, OpenClaw, CoPaw, LobsterAI, DeerFlow, JiuwenClaw) implements automatic popup capture — verified by codebase scan of `page.on('popup')` across all reference repositories.
+
 ## Site Experience Store — Domain Intelligence That Grows With Use
 
 Every time the agent browses a website, it learns. The **Site Experience Store** captures domain-level knowledge and reuses it on future visits — making repeat interactions faster and more reliable.
@@ -801,3 +822,34 @@ When browser integration tests time out or crash, orphaned Chrome/Patchright chi
 | **Runtime** | `GlobalBrowserPool` health checks, `doctor.py`, pool/singleton orphan sweep | Production browser hygiene for agents |
 
 Hermes-agent mixes similar kill logic into production `browser_tool.py`; Myrm keeps pytest-only cleanup out of the agent runtime. Verified **2026-07-01**: 14 pytest items per repo (12 unit + 2 conftest wiring), 100% line coverage on the cleanup module.
+
+## Browser Session & Security Management
+
+Myrm separates browser management concerns into purpose-specific locations rather than cramming everything into a single menu:
+
+### Session Management (Settings → Browser)
+
+- **Encrypted Session Vault** — Log in once, AES-256 encrypted cookies + localStorage; view, delete, and clean up expired sessions per domain
+- **Cloud Browser Config** — GUI for 4 cloud browser providers (Browserless/Browserbase/Steel/HyperBrowser) + one-click connection testing
+- **Proxy Config** — Multiple proxy URLs + connectivity testing
+
+### Per-Agent Access Control (Agent Editor)
+
+- **Tool Gateway** — Set allowed/blocked domains and tools for each agent individually
+- **Session Policy** — Control whether agents auto-restore saved login sessions
+
+### Real-Time Interaction (Inspector Side Panel)
+
+- **Live Screenshot Stream** — Browser view displayed in real-time alongside chat
+- **BBox Element Selection** — Click any element to send natural language instructions about it
+- **Action Recording** — Record browser workflows for later replay
+
+### Three-Layer Visual Verification
+
+1. **DOM Mutation Detection** — Automatically compares DOM changes after actions
+2. **dHash Pixel Comparison** — Low-overhead screenshot difference detection
+3. **Vision LLM Verification** — Calls vision model to confirm action success when significant changes occur
+
+Most actions are confirmed at Layer 1 alone — no manual toggle needed.
+
+**Verified 2026-07-14**: 388 browser tests passed across 8 batches, 0 failures.

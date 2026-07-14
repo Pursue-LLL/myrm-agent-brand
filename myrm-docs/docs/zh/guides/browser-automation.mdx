@@ -403,6 +403,27 @@ Myrm **不会**读取 Chrome/Edge 的 `History.db`、书签数据库或其他 OS
 | 用户："帮我发推文" → Agent 调用 `list_sessions` → 发现 twitter.com → 调用 `restore_session` | 用户："帮我发推文" → Agent 上下文已有 twitter.com → 直接调用 `restore_session` |
 | 2 次工具调用 + 2 次 LLM 推理 | 1 次工具调用 + 1 次 LLM 推理 |
 
+## OAuth 弹窗自动捕获
+
+当 Agent 点击"使用 Google 登录"、"GitHub 登录"或任何会打开新窗口的链接时，Myrm 自动捕获弹窗并管理其生命周期。
+
+### 工作原理
+
+1. **自动捕获** — 每个页面自动注册 popup 监听器。当 `window.open()` 触发（OAuth、`target=_blank` 等），新窗口立即被捕获为子 Tab。
+2. **焦点切换** — 活跃 Tab 自动切换到弹窗，Agent（或会话保险箱的自动恢复）可以与认证流程交互。
+3. **父页面恢复** — 弹窗关闭后（用户完成登录或 OAuth 重定向完成），Agent 自动切回父页面。
+4. **递归支持** — 弹窗页面本身也会监听嵌套弹窗（如 Google OAuth → SAML IdP → MFA 提供商）。
+
+### 实际场景
+
+| 场景 | 发生了什么 |
+|------|-----------|
+| Agent 访问 GitHub，点击"使用 Google 登录" | 弹窗被捕获 → Agent 观察 OAuth 流程 → 弹窗关闭 → Agent 回到 GitHub，已登录 |
+| 网页表单包含 `target=_blank` 链接 | 新标签被捕获为子 Tab → Agent 在新页面继续 → 关闭后回到表单 |
+| 会话保险箱 + OAuth | 首次：弹窗捕获，登录完成，会话保存。下次：自动恢复跳过 OAuth |
+
+竞品（Hermes、OpenClaw、CoPaw、LobsterAI、DeerFlow、JiuwenClaw）均未实现自动弹窗捕获——已通过代码库扫描 `page.on('popup')` 验证。
+
 ## 站点经验库 — 越用越聪明的域名级智能
 
 Agent 每次浏览网站都在学习。**站点经验库**自动捕获域名级知识，并在后续访问中复用——让重复交互更快、更可靠。
@@ -729,3 +750,34 @@ Extension Bridge 跨越 5 层：
 | **运行时** | `GlobalBrowserPool` 健康检测、`doctor.py`、pool/singleton 孤儿清扫 | Agent 生产环境浏览器卫生 |
 
 Hermes-agent 将类似逻辑混在生产 `browser_tool.py`；Myrm 把 pytest 专用清理移出 Agent 运行时。**2026-07-01 验证**：每仓库 **14 项 pytest**（12 单元 + 2 conftest 接线），cleanup 模块 **100% 行覆盖**。
+
+## 浏览器会话与安全管理
+
+Myrm 将浏览器管理关注点分离到最合适的位置，而非塞入单一菜单：
+
+### 会话管理（设置页 → 浏览器）
+
+- **加密会话保险箱** — 登录一次，AES-256 加密保存 Cookie + localStorage；支持按域名查看、删除、清理过期
+- **云浏览器配置** — 4 大云浏览器服务商（Browserless/Browserbase/Steel/HyperBrowser）GUI 配置 + 一键测试连接
+- **代理配置** — 多代理 URL 设置 + 连通性测试
+
+### 智能体级权限控制（智能体编辑器）
+
+- **工具网关（tool_gateway）** — 为每个智能体设置允许/禁止访问的域名和工具
+- **会话策略（session_policy）** — 控制智能体是否自动恢复已保存的登录会话
+
+### 实时交互（Inspector 侧边栏）
+
+- **实时截图流** — 浏览器画面实时显示在聊天旁侧
+- **BBox 元素选择** — 点选页面元素直接发送自然语言指令
+- **操作录制** — 录制浏览器操作流程供后续回放
+
+### 三层可视化验证
+
+1. **DOM 变更检测** — 操作后自动对比 DOM 变化
+2. **dHash 像素比对** — 低开销截图差异检测
+3. **Vision LLM 验证** — 发生显著变化时自动调用视觉模型确认操作成功
+
+只有在页面确实发生了变化时才会触发更高级别的验证，大多数操作仅需第 1 层即可确认——无需手动关闭。
+
+**2026-07-14 验证**：388 项浏览器测试分 8 批运行全通过，0 失败。
