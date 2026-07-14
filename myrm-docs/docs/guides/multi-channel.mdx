@@ -448,6 +448,19 @@ Remote control through IM never loses context — four layers guarantee seamless
 
 Unlike message-forwarding architectures (e.g., Coze → Claude Code) that lose workspace context in transit, Myrm's agent runs directly on your workspace. It has full filesystem access, can run linters, check git status, and explore the project tree — no IDE state synchronization layer needed.
 
+## Undo, Retry & File Revert in IM
+
+Send `/undo` or `/retry` in any IM channel to roll back the agent's last turn — **including automatic file restoration**.
+
+| Command | What happens |
+|---------|-------------|
+| `/undo` | Deletes the last user + assistant message pair **and** reverts any files the agent modified during that turn |
+| `/retry` | Deletes the last assistant reply, reverts its file changes, **then** re-sends your original question for a fresh answer |
+
+**How it works:** When the agent processes a message, a consistent `message_id` is tracked from the agent's SnapshotStore through to the database. On `/undo`, the system retrieves the deleted message IDs, looks up the corresponding file snapshots, and restores them. The user sees a localized confirmation (e.g., "↩ Undone: 2 message(s) removed. ↩ Reverted 3 file(s).").
+
+**Why this matters:** Competitors (OpenClaw, Hermes, DeerFlow) only support file revert in their desktop GUI or CLI. No other product offers file revert linked to undo/retry commands within IM channels. This means you can safely let the agent edit files from your phone — if something goes wrong, one `/undo` command fixes everything.
+
 ## Channel Self-Healing & Reliability
 
 Every channel runs under a **ChannelGateway** that continuously monitors health and automatically recovers from failures — no human intervention required.
