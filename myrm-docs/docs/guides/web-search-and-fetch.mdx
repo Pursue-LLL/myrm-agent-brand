@@ -69,6 +69,16 @@ This means: no extra latency, no prompt cache break, and more flexible than a st
 
 Precision mode uses semantic reranking (score threshold **0.6**) — low-relevance chunks are dropped.
 
+### Domain Diversity Sort
+
+Multi-query results are automatically reordered to prevent any single domain from dominating. Each subsequent result from the same domain is penalized by an exponential decay factor (default **0.8**):
+
+- 1st result from `example.com` — full score
+- 2nd result from `example.com` — score × 0.8
+- 3rd result from `example.com` — score × 0.64
+
+This ensures the Agent sees diverse sources rather than multiple pages from one website. No configuration needed — enabled by default in `combine_search_results_unified`.
+
 ### Visual references (no dedicated image search tool)
 
 When reference images are needed, the agent uses **web_search → web_fetch / browser** to obtain image URLs from pages, then **image_tool** for generation — same pattern as OpenClaw / Hermes; no separate DuckDuckGo image-search dependency.
@@ -217,6 +227,7 @@ Myrm's Deep Research runs a structured **CLARIFY → PLAN → EXPLORE → RESEAR
 | Remove ads (link_density scoring) | ✅ ContentPruningFilter | ❌ | ❌ | ❌ |
 | Clean search snippets | ✅ | ❌ | ❌ | ❌ |
 | Dedup multi-query results | ✅ URL+content hash | ❌ | ❌ | ❌ |
+| Domain diversity sort | ✅ decay_factor=0.8 | ❌ | ❌ | ❌ |
 | Drop low-relevance passages | ✅ Reranker threshold 0.6 | ❌ | ❌ | ❌ |
 
 **Plain language:** We don't dump whole pages into the AI — we extract body text, strip ads and nav, dedupe, and keep only passages that match your question.

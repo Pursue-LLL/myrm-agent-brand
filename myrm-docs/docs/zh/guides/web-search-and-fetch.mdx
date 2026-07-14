@@ -69,6 +69,16 @@ Hermes、OpenClaw、OpenCode、Claude Code 都有基础 web 搜索/抓取。Myrm
 
 Precision 用语义重排（阈值 **0.6**）— 低相关块丢弃。
 
+### 同源衰减排序（Domain Diversity Sort）
+
+多查询搜索结果自动按域名指数衰减重排序，防止单一网站刷屏。每个域名的后续结果按衰减因子（默认 **0.8**）递减：
+
+- 第 1 条 `example.com` 结果 — 原始分数
+- 第 2 条 `example.com` 结果 — 分数 × 0.8
+- 第 3 条 `example.com` 结果 — 分数 × 0.64
+
+确保 Agent 看到多样化的信息来源，而非同一网站的多个页面。无需配置，`combine_search_results_unified` 中默认启用。
+
 ### 视觉参考（无独立 image search 工具）
 
 需要找参考图时，Agent 使用 **web_search → web_fetch / browser** 从页面获取图片 URL，再配合 **image_tool** 生图。与 OpenClaw / Hermes 等通用助手一致，不维护单独的 DuckDuckGo 搜图依赖。
@@ -217,6 +227,7 @@ Myrm 的 Deep Research 采用结构化的 **CLARIFY → PLAN → EXPLORE → RES
 | 去广告（link_density） | ✅ | ❌ | ❌ | ❌ |
 | 清洗搜索片段 | ✅ | ❌ | ❌ | ❌ |
 | 多查询去重 | ✅ URL+内容 hash | ❌ | ❌ | ❌ |
+| 同源衰减排序 | ✅ decay_factor=0.8 | ❌ | ❌ | ❌ |
 | 丢弃低相关段落 | ✅ Reranker 0.6 | ❌ | ❌ | ❌ |
 
 **通俗说：** 我们不把整页丢给 AI — 提取正文、去广告导航、去重，只保留与问题相关的段落。
