@@ -92,6 +92,18 @@ The importer handles:
 
 After import completes, a toast notification shows the number of notes processed, tags extracted, and images migrated. The imported files enter the compilation queue and are automatically indexed.
 
+## URL ingestion and video subtitle extraction
+
+When ingesting URLs into the Wiki, Myrm routes all links through the **CrawlEngine**:
+
+- **YouTube videos** — subtitles are automatically extracted (10+ languages supported). The wiki stores searchable text, not raw HTML.
+- **Bilibili videos** — subtitle extraction via direct API, no DOM parsing needed.
+- **WeChat articles** — multi-tier fetcher automatically handles anti-crawl protections (HTTP → browser → stealth mode progressive degradation).
+- **Regular web pages** — CrawlEngine adaptively selects the optimal fetching strategy; JS-rendered pages are automatically upgraded to the browser engine.
+- **High-availability fallback** — if CrawlEngine fails, the system automatically falls back to `secure_get` + Markdown conversion, ensuring ingestion is never blocked.
+
+Users simply share a link with the Agent and say "import this" — the system automatically identifies the URL type and selects the optimal extraction method.
+
 ## Document parsing and OCR
 
 When ingesting documents into the Wiki, Myrm automatically selects the optimal parsing strategy:
