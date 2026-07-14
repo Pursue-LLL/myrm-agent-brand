@@ -32,8 +32,10 @@ Navigate to **/research** from the sidebar or browser URL bar. The page loads wi
 ### Upload files
 
 1. Click **Upload** in the resource pool header.
-2. Select one or more files (PDF, DOCX, TXT, MD, CSV, XLSX, PPTX).
+2. Select one or more files (PDF, DOCX, TXT, MD, CSV, XLSX, PPTX) — up to 20 files at once, 50 MB per file.
 3. Uploaded files appear in the resource pool as selectable items.
+4. Large documents (> 100 KB) are automatically indexed into the knowledge base for intelligent RAG retrieval, saving LLM tokens.
+5. Duplicate files are detected via SHA-256 hashing and skipped automatically.
 
 ## Select and deselect
 
@@ -57,6 +59,33 @@ When the agent generates artifacts (reports, slide decks, documents), they appea
 - **Preview** — rendered content with syntax highlighting and formatting.
 - **Download** — save the artifact to your local device.
 - **Save to Wiki** — persist the artifact directly into the knowledge base for future reference.
+
+## Research → Notes → Presentation workflow
+
+Research Studio supports the complete research-to-deliverable pipeline without leaving the workbench:
+
+1. **Research** — Select materials in the resource pool and ask the agent to conduct deep research. The `builtin-researcher` agent supports HITL plan confirmation, where you can review and edit the research plan before execution.
+2. **Save as note** — When the agent produces a report, click the **Save to Wiki** button on the message action bar. Notes are saved with provenance metadata (source chat, message ID, timestamp), so you can always trace back to the original conversation.
+3. **Edit** — Open the saved note in the Wiki knowledge base panel and edit the Markdown content directly.
+4. **Generate presentation** — Ask the agent "Create a PPT from this report" in the chat. The `office-document` skill generates fully editable `.pptx` files using `python-pptx` in a sandboxed environment. The agent has full control over slide content, layout, charts, and styling—no fixed template constraints.
+5. **Download** — The generated presentation appears in the right output column, ready for download.
+
+This conversational workflow is **more flexible than fixed pipeline engines**: you can intervene at any step, ask the agent to revise specific sections, change the presentation style, or restart from any point—all through natural conversation.
+
+## Cross-document analysis
+
+Upload multiple files to the resource pool (or import them into Wiki), select them all, and ask analytical questions like:
+
+- "What consensus views do these reports share?"
+- "Where do these documents contradict each other?"
+- "Which report originally stated that AI will replace 30% of jobs?"
+
+The agent reads all selected documents, identifies consensus, contradictions, and attributed quotes, and produces a structured analysis report. Key features:
+
+- **Clickable citations** — Every attributed quote links back to the original source text via Citation Source Jump. Click a citation to see the highlighted passage in context.
+- **Parallel analysis** — For large document sets, the agent can delegate analysis of individual documents to sub-agents in parallel, then synthesize the results.
+- **Information integrity** — Built-in integrity rules ensure claims are evidence-based and contradictions between sources are explicitly flagged.
+- **Flexible angles** — No preset analysis templates. Ask any question—trends, timelines, sentiment, risk factors—and the agent adapts its analysis dynamically.
 
 ## Responsive design
 

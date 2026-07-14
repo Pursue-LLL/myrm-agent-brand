@@ -29,7 +29,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **零配置迁移 (OOBE)** | ✅ 首次启动自动扫描 Claude Code, Cursor, Codex 等 11 种凭证，一键导入（199项测试验证） | ⚠️ 仅支持少数 CLI 工具的粗糙调用 | ❌ 无 | ❌ 无 | ❌ 无 | ❌ 无 | ❌ 无 |
 | **SaaS 登录** | ✅ Google OAuth + 一次性交换（JWT 不进 URL）；企业 OIDC 就绪 | ❌ | ❌（OAuth 仅 LLM Key） | ⚠️ 厂商账号 | ❌ | ❌ 闭源 SaaS | ❌ |
 | **模型支持** | ✅ 100+ 供应商经 LiteLLM + 小模型自动调优 + API 方言自动转换（DeepSeek/Kimi/MiMo 零配置）+ 原生思考模型支持（6 级强度 + 思考面板 + 20+ 推理模型检测）— 310 项测试 | 200+ 经 OpenRouter 网关 | 固定 | ⚠️ 固定三档 | BYOK 多模型 | ❌ 仅 MiniMax | N/A |
-| **渠道** | ✅ 26 渠道 + 三级 Agent 绑定（Thread/Chat/Channel）+ 六维身份隔离 + IM Goal 管理（5,709 测试） | ~23（无 Topic 级绑定） | ~7 | ⚠️ 飞书/钉钉 | ⚠️ IM 机器人 | ❌ 仅飞书 | ❌ |
+| **渠道** | ✅ 26 渠道 + 三级 Agent 绑定（Thread/Chat/Channel）+ 六维身份隔离 + IM Goal 管理 + **微信语音闭环**（iLink 语音 STT + channel_notify_tool 文件回推 + DLQ 去重 + 656 项专项测试全通过 2026-07-14）（5,709 测试） | ~23（无 Topic 级绑定） | ~7 | ⚠️ 飞书/钉钉 | ⚠️ IM 机器人 | ❌ 仅飞书 | ❌ |
 | **公网 Ingress 引导** | ✅ SSOT API + 入站/出站徽章 + 一键 Cloudflare 隧道 + 自选穿透文档（cpolar/NATAPP/frp）+ E2EE 端到端加密 + 6 级 TrustZone + DNS 重绑定防护 | ❌ 纯文档 | SSH+Tailscale(CLI) | ⚠️ 文档教 cloudflared | ❌ | ❌ | ❌ |
 | **手机远程指挥台** | ✅ 完整 PWA（离线缓存+安装引导）· E2EE NaCl Box 加密配对令牌 Hub · 实时 Status Board（SSE 进度 · 视觉审批 · 语音 push-to-talk · 中途 steer · 紧急停止 · **Browser/Desktop Live Preview** — Agent 操作画面实时截图预览，Lightbox 全屏放大，浏览器/桌面 Tab 切换，可折叠卡片，零新 API）· 会话级 **chat cancel**（配对安全）· 100dvh + pb-safe 视口 · **Web Push VAPID 离线推送**（8 类事件、iOS PWA 安装引导、过期订阅自动清理）· **144 项移动端测试**（2026-07-11：MobileStatusBoard 8 + MobileActionSheet 28 + PWA Install 4 + Web Push 53 + Remote Access 51） | ❌ 仅 CLI/TUI | ⚠️ macOS 远程模式(SSH+CLI) | ❌ | ❌ | ❌ | ❌ |
 | **子 Agent** | ✅ 8 模式 + 动态工作流 + **Template Market（Team 模板一键建队）** | ⚠️ v0.15 Kanban Swarm（1 模式） | ⚠️ 基础 spawn（仅线性） | ⚠️ 基础 spawn | ❌ 单 Agent | ⚠️ L-W-V | ❌ |
@@ -61,7 +61,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **多模态生成** | ✅ 图片（20+ 模型 + 智能 Failover + Gateway 回退 + 图片编辑含 Inpainting 局部重绘 + 4 层校验含 SSRF 防护 + 批量生成 + **异步生图：即时 task_id + 聊天气泡 ImageTaskCard + SSE 进度，生图时继续对话；API Key 与 Gateway Token 写入任务队列前 AES 加密，云沙箱 tasks.db 无明文密钥**，370+ 项测试）+ 视频（4 引擎：Sora/Veo/Qwen/MiniMax + T2V/I2V/V2V + 幂等任务管理）+ TTS（5 Provider 含免费 Edge + 流式 + 长文本自动摘要 + OpenAI 兼容 base_url）+ 截图即操作管线（粘贴/拖放 → 标注编辑器 → OCR/Vision → 工具调用闭环）+ Vision 自动降级 + **创意设计全覆盖**：沙箱内 ffmpeg 视频剪辑 / Pillow+ImageMagick 批量图片处理 + computer_use 智能操控 Adobe PS/AI/InDesign（AppleScript/COM 自动路由）+ Figma MCP 接入——AI 原生引擎比专用 PS 插件更可靠（Adobe 版本更新常破坏 API）— **401 项多媒体全栈测试全通过** — 总计 1,293+ 项测试 | ⚠️ FAL.ai 图片（7 编辑模型，同步阻塞，无 mask/无 SSRF/无 failover）+ 2 视频插件 + 10 TTS（含 5 个 niche 本地方案） | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Computer Use** | ✅ 桌面自动化 + 三平台后台静默输入（不抢焦点）+ 前台权限主动授权门控（三级粒度 once/session/always）+ BBox 审批 + Tauri OS 叠加层 + 敏感应用防火墙（银行/通信自动阻断）+ 原生 API 智能路由（95+ 应用：AppleScript/COM/D-Bus 自动检测，零配方零依赖）+ 三平台完整语义 AX invoke（macOS AX/Windows UIA/Linux AT-SPI）+ 跨平台环境诊断卡片（macOS TCC + Linux 依赖+xvfb + Windows 依赖 — GUI 一键修复）+ VNC 安全 Token 签名（HMAC+TTL 防重放）+ Takeover/Resume 全生命周期人工接管 — **454 项 VNC+ArtifactPortal 专项测试全通过** + 办公文件三层覆盖（ExcelParser 4模式直读 + python-pptx/docx 原生生成 + 17渠道 Bot API 直发文件附件，「读Excel→生成PPT→发企微群」零 GUI 操控）— **519 项办公+通讯全栈测试全通过** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **浏览器引擎** | ✅ 双隐身引擎（Patchright + Camoufox）+ 跨会话指纹持久化 + 三级拟人化交互（高斯延迟 + 贝塞尔鼠标轨迹）+ 三层 GlobalBrowserPool（零冷启动、三层崩溃恢复）+ Shadow DOM 穿透 + API-First 网络智能（CDP 懒加载响应体 + 请求重放）+ 域名引擎亲和记忆 + 后台无感执行（双层隔离）+ 同源智能Tab路由 + 4 大云浏览器 Provider（GUI 配置 + 热更新免重启） | ⚠️ 第三方云浏览器（环境变量配置，需重启） | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
-| **网页搜索** | ✅ 8 引擎 + BM25/Reranker 过滤 + 三层防幻觉 | ⚠️ 云 API 透传 | ⚠️ DDG/Bing 抓取 | ⚠️ 同 OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
+| **网页搜索** | ✅ 8 引擎 + 中文全网搜索（百度/搜狗/360/夸克自托管零成本）+ 7类意图零LLM路由 + BM25/Reranker 过滤 + 三层防幻觉 + 191项搜索测试 | ⚠️ 云 API 透传 | ⚠️ DDG/Bing 抓取 | ⚠️ 同 OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
 | **网页抓取** | ✅ 三层自动降级 + 自学习 AdaptiveRouter + 反爬自动绕过（主流 WAF）+ 向量提取 + DOM 修剪（391 项测试） | ⚠️ web_extract（Firecrawl + LLM） | ⚠️ HTTP / Firecrawl 回退 | ⚠️ 同上 | ⚠️ 仅 HTTP | ❌ | ❌ |
 | **工作区 RAG** | ✅ **四层管线**：BM25 + 向量 + RRF融合 + Reranker；7类19种格式解析（PDF/Word/Excel/PPT/ipynb/OCR）；双后端知识图谱；Karpathy Wiki 编译引擎；Skill Evolution 自学习；RSG质量守卫（2,886项测试——Wiki 159 + Evolution 385 + Skills 565 + Memory 1,901 + 索引/RAG 159 + Marketplace 52 + Optimization 23） | ⚠️ 仅代码AST索引 | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **图片搜索** | ❌（web_search + web_fetch / browser 可找页面图） | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -204,7 +204,7 @@ Agent 对话可能涉及敏感个人信息。竞品（如 ClawVault）仅在对�
 | **前端可视化** | 无 | 每条消息旁显示 **S2/S3 色彩标签 + 脱敏状态 + 路由方式** | 透明可信 |
 | **用户自定义** | 无 | 自定义敏感关键词 + 自定义正则模式 + 自定义敏感工具标记 | 完全掌控 |
 
-**777 项 DLP/PII 测试全通过**，覆盖 PII 分类器（88）+ 隐私路由（219）+ 消息过滤与凭证检测（361）+ 安全审计（109）。
+**2033 项离线/隐私/安全测试全通过**（2026-07-14 验证），覆盖 PrivacyRouting（44）+ Hardware API + 部署模式（48）+ LLM Fallback 降级（153）+ 安全全套（1766）+ OfflineGuardian 通知（22）。vs QoderWork「离线运行」仅绑定通义千问本地版，无隐私路由、无硬件推荐、无熔断降级——Myrm 9 项离线维度全面碾压。
 
 ## 多 Agent 编排：确定性调度（vs Hermes / OpenClaw / JiuwenSwarm）
 
@@ -909,6 +909,25 @@ MemPalace 是独立 AI 记忆系统，用 Wing/Room/Closet/Drawer 建筑隐喻�
 **52 项测试验证**（2026.6.30）：DataGrid 11/11 ✅ + CsvParser 19/19 ✅ + SelectionToolbar 17/17 ✅ + LocaleKeys 5/5 ✅
 
 **结论：豆包的优势在于飞书 Office 生态壁垒（数千人年产品），非技术可复制。Myrm 以 Artifact 系统（Monaco + DataGrid + HTML Preview + SelectionToolbar + 一键部署）构建了完整的「AI→交付」闭环，在 AI Agent 场景下更轻量、更高效、更易维护。**
+
+## vs Trae/WorkBuddy/deer-flow — 报告排版与 PDF 导出
+
+用户评判 AI 办公产出的第一标准：「成品能否直接发给老板」。Trae 被夸赞的是排版清爽，WorkBuddy 的 stock-advisor 能生成杂志风 PDF 报告。Myrm 在报告生成全链路上全面领先：
+
+| 能力 | Myrm | WorkBuddy | deer-flow | Trae |
+|------|:----:|:---------:|:---------:|:----:|
+| PDF 生成 | **✅ pdfkit+reportlab 沙箱预装** | ✅ magazine-layout Skill | ❌ | ❌ |
+| 报告 Skill 数量 | **✅ 8 个** | ✅ 2 个 | ✅ 1 个 | ❌ |
+| Office 文档生成 | **✅ 专业级**（Excel 颜色编码+公式+图表, PPT 6字标题, Word 目录+层级） | ⚠️ 依赖 Skill 市场 | ❌ | ❌ |
+| Artifact 预览 | **✅ 12 种类型** | ❌ | ❌ | ⚠️ 基础 |
+| 一键下载 | **✅ Blob download** | ❌ 依赖飞书 | ❌ | ⚠️ |
+| 一键发布到公网 | **✅ hosting** | ❌ | ❌ | ❌ |
+| 定时简报 | **✅ cron + 26+ 渠道推送** | ❌ | ❌ | ❌ |
+| IM 推送报告 | **✅ channel_notify_tool** | ✅ 飞书 | ❌ | ❌ |
+
+**Myrm 独有优势**：沙箱预装 PDF 工具链（pdfkit + reportlab + pdfplumber + pdf2image + img2pdf + Pillow），Agent 无需安装任何依赖即可生成专业 PDF；8 个报告 Skill 覆盖从日报简报到深度研究到竞品分析到数据可视化的全场景；daily-briefing + cron 实现全自动定时简报推送到 26+ IM 渠道。
+
+**4,612 项报告+Artifact 全栈测试通过**（2026-07-14）：Artifact 系统 159 + Skill 系统 398 + 文件/PDF/简报/Cron 492 + 代码执行 1,272 + 前端 2,291。
 
 ## vs 豆包专业版 — 「防假死 & 细粒度进度」体验对比
 

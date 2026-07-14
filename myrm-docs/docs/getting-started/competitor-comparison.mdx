@@ -29,7 +29,7 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **OOBE Migration** | ✅ Auto-scans Claude Code, Cursor, Codex, etc. on first launch for 1-click import | ⚠️ Rough CLI tool calls only | ❌ None | ❌ None | ❌ None | ❌ None | ❌ None |
 | **SaaS sign-in** | ✅ Google OAuth + one-time exchange (JWT never in URL); enterprise OIDC ready | ❌ | ❌ (OAuth for LLM keys only) | ⚠️ Vendor account | ❌ | ❌ Closed SaaS | ❌ |
 | **Model Support** | ✅ 100+ providers via LiteLLM + Auto-Tune for small models (7B-35B auto-adapts prompt/tools/compression) | 200+ via OpenRouter gateway | Fixed | ⚠️ Fixed 3-tier | BYOK multi-model | ❌ MiniMax only | N/A |
-| **Channels** | ✅ 26 channels + 3-tier Agent binding (Thread/Chat/Channel) + 6-dim identity isolation + IM Goal management (5,709 tests) | ~23 (no per-topic binding) | ~7 | ⚠️ Feishu/DingTalk | ⚠️ IM bots | ❌ Lark only | ❌ |
+| **Channels** | ✅ 26 channels + 3-tier Agent binding (Thread/Chat/Channel) + 6-dim identity isolation + IM Goal management + **WeChat voice loop** (iLink voice STT + channel_notify_tool file push-back + DLQ dedup + 656 dedicated tests passed 2026-07-14) (5,709 tests) | ~23 (no per-topic binding) | ~7 | ⚠️ Feishu/DingTalk | ⚠️ IM bots | ❌ Lark only | ❌ |
 | **Public Ingress guidance** | ✅ SSOT API + inbound/outbound badges + one-click Cloudflare tunnel + guided docs (cpolar/NATAPP/frp) + E2EE NaCl Box encryption + 6-level TrustZone + DNS rebinding protection | ❌ manual docs | SSH+Tailscale (CLI) | ⚠️ bundled cloudflared docs | ❌ | ❌ | ❌ |
 | **Mobile remote command center** | ✅ Full PWA (Serwist offline cache + install prompt + auto-update) · E2EE NaCl Box pair-token Hub · live Status Board (SSE progress · **visual approval** · voice **push-to-talk** · mid-task **steer** · emergency stop · **Browser/Desktop Live Preview** — real-time agent screen snapshots with Lightbox zoom, tab switching, collapsible card, zero new APIs) · scoped **chat-level** cancel (safe pair binding) · 100dvh + pb-safe viewport · **Web Push VAPID offline notifications** (8 event types, iOS PWA install guidance, auto-cleanup expired subscriptions) · **144 mobile tests** (2026-07-11: MobileStatusBoard 8 + MobileActionSheet 28 + PWA Install 4 + Web Push 53 + Remote Access 51) | ❌ CLI/TUI only | ⚠️ macOS remote mode (SSH+CLI) | ❌ | ❌ | ❌ | ❌ |
 | **Sub-Agent** | ✅ 8 modes + Dynamic Workflow | ⚠️ v0.15 Kanban Swarm (1 mode) | ⚠️ Basic spawn (linear only) | ⚠️ Basic spawn | ❌ Single agent | ⚠️ L-W-V | ❌ |
@@ -61,7 +61,7 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 | **Multimodal Generation** | ✅ Image (20+ models + smart Failover + Gateway fallback + Edit with Inpainting mask + 4-layer validation with SSRF protection + batch generation + **async generate with chat ImageTaskCard + SSE task progress — non-blocking conversation; API key & Gateway token sealed in tasks.db before persist (AES-GCM, cloud-sandbox safe)**, 370+ tests) + Video (4 engines: Sora/Veo/Qwen/MiniMax + T2V/I2V/V2V + idempotent task mgmt) + TTS (5 providers incl. free Edge + streaming + long-text auto-summary + OpenAI-compat base_url) + Screenshot-to-Action pipeline (paste/drop → annotation editor → OCR/Vision → tool calling loop) + Vision Fallback auto-degrade + **Creative design coverage**: sandbox ffmpeg video editing / Pillow+ImageMagick batch image processing + computer_use smart control of Adobe PS/AI/InDesign (AppleScript/COM auto-routed) + Figma MCP — AI-native engine more reliable than dedicated PS plugins (Adobe version updates frequently break APIs) — **401 multimedia full-stack tests passing** — total 1,293+ tests | ⚠️ FAL.ai images (7 edit models, sync blocking, no mask/no SSRF/no failover) + 2 video plugins + 10 TTS (5 niche local) | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Computer Use** | ✅ Desktop automation + background input on all 3 platforms (no focus-steal) + proactive foreground permission gate (3-tier: once/session/always) + BBox approval + Tauri OS overlay + sensitive app firewall (banking/messaging auto-blocked) + Native API routing (95+ apps: AppleScript/COM/D-Bus auto-detected, zero recipes, zero dependencies) + full semantic AX invoke on all 3 platforms (macOS AX/Windows UIA/Linux AT-SPI) + cross-platform environment diagnostics (macOS TCC + Linux deps+xvfb + Windows deps — GUI card with one-click fix) + VNC secure Token signing (HMAC+TTL anti-replay) + Takeover/Resume full lifecycle human handoff — **454 VNC+ArtifactPortal dedicated tests passing** + Office file 3-layer coverage (ExcelParser 4 modes direct read + python-pptx/docx native generation + 17 channel Bot APIs direct file delivery — 'Read Excel → Generate PPT → Send to WeCom group' zero GUI interaction) — **519 office+messaging full-stack tests passing** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Browser Engine** | ✅ Dual stealth engine (Patchright + Camoufox) with fingerprint persistence + 3-level humanized interaction (Gaussian delays + Bézier mouse trajectories) + 3-layer GlobalBrowserPool (zero cold-start, 3-layer crash recovery) + Shadow DOM penetration + API-First network intelligence (CDP lazy body + replay) + domain engine affinity memory + non-perceptive background execution (dual-layer isolation) + origin-based smart tab routing + 4 cloud browser providers (GUI config + hot-reload) | ⚠️ Cloud Browser Use (env var, restart required) | ❌ | ❌ | ❌ | ⚠️ Unknown | ❌ |
-| **Web Search** | ✅ 8 engines + BM25/Reranker filter | ⚠️ Cloud API passthrough | ⚠️ DDG/Bing scrape | ⚠️ Same as OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
+| **Web Search** | ✅ 8 engines + CJK search (Baidu/Sogou/360/Quark self-hosted $0) + 7-intent zero-LLM routing + BM25/Reranker filter + 3-layer anti-hallucination + 191 tests | ⚠️ Cloud API passthrough | ⚠️ DDG/Bing scrape | ⚠️ Same as OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
 | **Web Fetch** | ✅ 3-tier auto-degradation + self-learning AdaptiveRouter + anti-bot bypass (major WAFs) + vector extract + DOM prune + Schema-Driven structured extraction (391 tests) | ⚠️ web_extract (Firecrawl + LLM) | ⚠️ HTTP / Firecrawl fallback | ⚠️ Same | ⚠️ HTTP only | ❌ | ❌ |
 | **Workspace RAG** | ✅ **4-layer pipeline**: BM25 + Vector + RRF + Reranker; 7-type 19-format parser (PDF/Word/Excel/PPT/ipynb/OCR); dual-backend knowledge graph; Karpathy Wiki compilation engine; RSG quality guard; Skill Evolution self-learning (2,886 tests — Wiki 159 + Evolution 385 + Skills 565 + Memory 1,901 + indexer/RAG 159 + Marketplace 52 + Optimization 23) | ⚠️ Code-only AST index | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Web Image Search** | ❌ (use web_search + web_fetch / browser for page images) | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -204,7 +204,7 @@ Agent conversations may contain sensitive personal information. Competitors (e.g
 | **Frontend Visualization** | None | **S2/S3 color badges + redaction status + routing indicator** per message | Transparent & trustworthy |
 | **User Customization** | None | Custom sensitive keywords + custom regex patterns + custom sensitive tool tags | Full control |
 
-**777 DLP/PII tests passed**, covering PII classifier (88) + privacy routing (219) + message filtering & credential detection (361) + security audit (109).
+**2,033 offline/privacy/security tests passed** (verified 2026-07-14), covering PrivacyRouting (44) + Hardware API & deploy modes (48) + LLM Fallback degradation (153) + full security suite (1,766) + OfflineGuardian notifications (22). vs QoderWork's "offline mode" which only binds Qwen local edition — no privacy routing, no hardware recommendations, no circuit breaker degradation. Myrm leads across all 9 offline/sovereignty dimensions.
 
 ## Multi-Agent Orchestration: Deterministic Scheduling (vs Hermes / OpenClaw / JiuwenSwarm)
 
@@ -993,6 +993,25 @@ Doubao Pro (ByteDance) bundles Feishu's Office suite (Docs/Sheets/Slides) for a 
 **Verified by 52 tests** (2026.6.30): DataGrid 11/11 ✅ + CsvParser 19/19 ✅ + SelectionToolbar 17/17 ✅ + LocaleKeys 5/5 ✅
 
 **Verdict: Doubao's advantage is Feishu Office ecosystem moat (thousands of engineer-years) — not replicable via technology. Myrm's Artifact system (Monaco + DataGrid + HTML Preview + SelectionToolbar + one-click deploy) delivers a complete "AI→delivery" closed loop that's lighter, faster, and easier to maintain for AI Agent scenarios.**
+
+## vs Trae/WorkBuddy/deer-flow — Report Formatting & PDF Export
+
+Users judge AI office output by one criterion: "Can this go straight to the boss?" Trae is praised for clean formatting, WorkBuddy's stock-advisor generates magazine-style PDF reports. Myrm leads across the entire report generation pipeline:
+
+| Capability | Myrm | WorkBuddy | deer-flow | Trae |
+|------------|:----:|:---------:|:---------:|:----:|
+| PDF generation | **✅ pdfkit+reportlab sandbox pre-installed** | ✅ magazine-layout Skill | ❌ | ❌ |
+| Report Skills | **✅ 8** | ✅ 2 | ✅ 1 | ❌ |
+| Office doc generation | **✅ Professional-grade** (Excel color coding + formulas + charts, PPT 6-word headlines, Word TOC + hierarchy) | ⚠️ Skill marketplace | ❌ | ❌ |
+| Artifact preview | **✅ 12 types** | ❌ | ❌ | ⚠️ Basic |
+| One-click download | **✅ Blob download** | ❌ depends on Feishu | ❌ | ⚠️ |
+| Publish to web | **✅ hosting** | ❌ | ❌ | ❌ |
+| Scheduled briefings | **✅ cron + 26+ channel delivery** | ❌ | ❌ | ❌ |
+| IM report push | **✅ channel_notify_tool** | ✅ Feishu only | ❌ | ❌ |
+
+**Myrm exclusive advantages**: Sandbox pre-installs PDF toolchain (pdfkit + reportlab + pdfplumber + pdf2image + img2pdf + Pillow) — Agent generates professional PDFs with zero setup; 8 report Skills cover all scenarios from daily briefings to deep research to competitive analysis to data visualization; daily-briefing + cron delivers automated briefings to 26+ IM channels.
+
+**4,612 report+artifact full-stack tests passing** (2026-07-14): Artifact system 159 + Skill system 398 + File/PDF/Briefing/Cron 492 + Code execution 1,272 + Frontend 2,291.
 
 ## vs Doubao Pro — Anti-Freeze & Granular Progress
 
