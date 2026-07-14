@@ -283,7 +283,7 @@ Myrm 将 **web_search** 与 **web_fetch** 作为一等内置工具。竞品要�
 
 | 能力 | Technical | 用户收益 |
 |------------|-----------|--------------|
-| **Web Search** | 8 engines + 7 intent types (zero LLM) + BM25/RRF + Reranker + Autocut 动态截断 | 只保留高相关结果 —— Autocut 检测分数断崖自动截断低相关内容 |
+| **Web Search** | 8 engines + 7 intent types (zero LLM) + 双层智能去重（URL 仲裁+镜像站哈希去重）+ BM25/RRF + Reranker + Autocut 动态截断 | 只保留高相关结果 —— 重复结果自动合并（同 URL 保留信息最丰富的版本，镜像站自动折叠），Autocut 检测分数断崖自动截断低相关内容 |
 | **Web Fetch** | HTTP → Browser → Stealth + DOM pruning + Markdown + Schema-Driven structured extraction | Article body, not nav/ads HTML — **~40–50% fewer tokens**; Schema extraction saves **97%** |
 | **可选 L4 远程兜底** | L1–L3 失败后 Jina → Firecrawl；**默认关闭**；会话 cap；deep_crawl 禁用 | 极难页面可选云端，但不强制像 OpenClaw/Hermes 那样默认走 Firecrawl |
 | **Logged-in fetch** | SessionVault: CookieJar (HTTP) + `storage_state` (browser) | One login works across fetch tiers — competitors often lose cookies on engine switch |
