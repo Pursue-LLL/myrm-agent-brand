@@ -1,0 +1,70 @@
+---
+title: Research Studio
+description: Three-column research workbench that combines a resource pool, AI chat, and artifact output in a single view.
+---
+
+# Research Studio
+
+Research Studio is a **three-column workbench** that lets you curate research materials, converse with AI, and preview generated artifacts—all in one interface. It works on **local WebUI**, **Tauri desktop**, and **SaaS cloud**.
+
+## Layout
+
+| Column | Purpose |
+|--------|---------|
+| **Left — Resource Pool** | Curate sources from the Wiki knowledge base and uploaded files. |
+| **Center — Chat** | Talk to any configured agent with selected resources automatically injected as context. |
+| **Right — Output** | Preview generated artifacts (documents, presentations, reports) with download and save-to-wiki options. |
+
+On mobile devices (viewport ≤ 768 px), the three columns collapse into **tab navigation** for comfortable use on phones and tablets.
+
+## Open Research Studio
+
+Navigate to **/research** from the sidebar or browser URL bar. The page loads with the Resource Pool on the left, Chat in the center, and Output on the right.
+
+## Add research materials
+
+### From Wiki
+
+1. Click **From Wiki** in the resource pool header.
+2. Search for knowledge base concepts by keyword.
+3. Click a concept to add it to the pool. Duplicates are prevented automatically.
+
+### Upload files
+
+1. Click **Upload** in the resource pool header.
+2. Select one or more files (PDF, DOCX, TXT, MD, CSV, XLSX, PPTX).
+3. Uploaded files appear in the resource pool as selectable items.
+
+## Select and deselect
+
+Each resource has a **checkbox**. Selected resources are automatically injected into the AI chat context as `@wiki_concept` or `@wiki_raw_file` mention references.
+
+- **Select All / Deselect All** — toggle all resources at once.
+- **Individual toggle** — click a resource row to toggle its selection.
+
+Only wiki-type references are managed by the sync. Any other mention references you add manually in the chat input (like `@file.pdf`) are preserved.
+
+## Chat with context
+
+The center column is a full chat interface. When you select resources in the pool, their content is injected into the next message you send. The agent can reference and reason over all selected materials.
+
+Use the built-in `builtin-researcher` agent or any custom agent for specialized research tasks.
+
+## View and export artifacts
+
+When the agent generates artifacts (reports, slide decks, documents), they appear in the right column:
+
+- **Preview** — rendered content with syntax highlighting and formatting.
+- **Download** — save the artifact to your local device.
+- **Save to Wiki** — persist the artifact directly into the knowledge base for future reference.
+
+## Responsive design
+
+The workbench adapts to your screen:
+
+| Screen | Layout |
+|--------|--------|
+| Desktop (> 768 px) | Three resizable columns with drag handles. |
+| Mobile (≤ 768 px) | Tab navigation: Resources, Chat, Output. |
+
+Column widths are adjustable via drag handles between panels.
