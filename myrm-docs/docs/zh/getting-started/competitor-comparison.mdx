@@ -652,6 +652,7 @@ Claude Code 采用「Fork 子 Agent」设计，字节级 prompt 前缀对齐以�
 | "8 万字 output lost content midway" | No checkpointing for long parallel runs | **Checkpointer** + OrphanRecovery + **WorkflowEventStore** — stage-by-stage persistence, crash-safe |
 | "Had to babysit for 5 hours" | No completion guard or auto-recovery | **CompletionGuard** + 429/503 auto-backoff + 7×24 unattended operation |
 | "Accidentally triggered workflow by keyword" | Keyword-based trigger (mention "parallel" or "research") | **Manual WorkflowModeToggle** — opt-in only, auto-resets after send; zero keyword accidents |
+| "Didn't know I could use workflow mode" | No discoverability mechanism | **Workflow Escalation** — zero-LLM-cost detection proactively suggests workflow mode for complex decomposable tasks (non-blocking inline card) |
 | "max 16 concurrency, max 1000 total agents" | Fixed runtime limits | **Configurable ConcurrencyLimiter** + TokenBucket — no hard ceiling |
 | "Cost is a black box until the end" | No real-time cost tracking | **SubagentDashboard** — Real-time `$0.001` precision cost visualization per node |
 | "Approval requests get lost in long terminal logs" | CLI-only, no visual anchors | **Visual HITL Approval** — One-click jump from Dashboard to Approval Card |

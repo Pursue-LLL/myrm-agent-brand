@@ -58,3 +58,14 @@ MyRM's `todo_write` tool enforces hard guardrails at the code level:
 - **Correction over rejection**: Unlike hard rejections that disrupt flow, intelligent correction keeps the workflow moving while teaching the LLM to self-correct in subsequent turns.
 
 This is a code-enforced constraint, not a prompt-level suggestion — behavior is consistent regardless of which LLM model or provider is used.
+
+### 10. Workflow Escalation: Proactive Mode Suggestion
+
+Most AI tools require users to **know** they need a workflow mode. MyRM goes further — it proactively detects when a task would benefit from multi-Agent orchestration and suggests upgrading:
+
+- **Zero LLM cost**: Detection uses pure regex-based scoring on the query structure (numbered lists, parallel keywords, multi-goal markers).
+- **Non-blocking**: The suggestion appears as an inline card in the chat stream; the current response is never interrupted.
+- **User control**: Accept (enables workflow for next message), dismiss (hides card), or permanently disable in Settings.
+- **Conservative by design**: Only triggers when the ComplexityRouter classifies the task as `reasoning` tier AND the decomposability score meets a strict threshold (≥4/7).
+
+No competing product — including Claude Code, OpenClaw, Hermes, DeerFlow, CoPaw, or Lobe-Chat — offers pre-execution non-blocking workflow mode suggestion. They all require explicit user action to activate multi-Agent capabilities.
