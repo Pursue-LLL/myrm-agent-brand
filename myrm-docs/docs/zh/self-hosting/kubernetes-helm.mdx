@@ -1,0 +1,215 @@
+---
+title: "Kubernetes (Helm Chart)"
+description: "使用官方 Helm Chart 将 Myrm 平台部署到 Kubernetes"
+---
+
+## 概述
+
+官方 `myrm-platform` Helm Chart 将**控制平面 + 前端**作为双组件部署到任意 Kubernetes 集群。每个用户的沙箱实例由控制平面通过 K8s API 动态创建。
+
+<Note>
+  Helm Chart 适用于**云托管**和**企业私有化部署**场景。个人本地使用请选择[桌面客户端](/docs/zh/getting-started/desktop-app)或[本地部署](/docs/zh/getting-started/local-deployment)。
+</Note>
+
+## 前置要求
+
+- Kubernetes 集群（v1.25+）
+- Helm 3.10+
+- `kubectl` 已配置集群访问
+- 已创建包含 `JWT_SECRET` 的 Kubernetes Secret
+
+## 快速开始
+
+```bash
+# 1. 创建密钥
+kubectl create secret generic myrm-secrets \
+  --from-literal=JWT_SECRET=$(openssl rand -hex 32) \
+  --from-literal=MYRM_CP_ADMIN_API_KEY=$(openssl rand -hex 32)
+
+# 2. 安装 Chart
+helm install myrm deploy/helm/myrm-platform/ -f my-values.yaml
+
+# 3. 访问前端
+kubectl port-forward svc/myrm-frontend 3000:3000
+# 打开 http://localhost:3000
+```
+
+## 架构
+
+```
+┌─────────────────────────────────────────────┐
+│                  Ingress                     │
+│  frontend.host → Frontend Service (3000)     │
+│  api.host      → CP Service (8003)           │
+└──────────────┬────────────┬─────────────────┘
+               │            │
+     ┌─────────▼──┐  ┌──────▼──────────┐
+     │  前端        │  │  控制平面        │
+     │ (Next.js)   │  │  (FastAPI)       │
+     │  Deployment │  │  Deployment      │
+     └─────────────┘  │  + PVC (/data)   │
+                      │  + ServiceAccount │
+                      └──────┬───────────┘
+                             │ K8s API
+                    ┌────────▼────────┐
+                    │  沙箱 Pod        │
+                    │  (每用户独立,     │
+                    │   动态创建)       │
+                    └─────────────────┘
+```
+
+## 配置
+
+所有配置集中在 `values.yaml` 中，与控制平面的 `ControlPlaneConfig` 字段 1:1 映射。
+
+### 镜像
+
+```yaml
+images:
+  controlPlane:
+    repository: ghcr.io/myrmagent/myrm-control-plane
+    tag: ""          # 默认使用 Chart.appVersion
+    pullPolicy: IfNotPresent
+  frontend:
+    repository: ghcr.io/myrmagent/myrm-frontend
+    tag: ""
+    pullPolicy: IfNotPresent
+
+global:
+  imagePullSecrets: []
+  #   - name: my-registry-secret
+```
+
+### 密钥管理
+
+Chart 采用**外部 Secret 模式** — 需手动创建 Secret，Chart 引用它：
+
+```yaml
+existingSecret: myrm-secrets
+```
+
+必须包含：`JWT_SECRET`
+
+可选包含：`MYRM_CP_STRIPE_SECRET_KEY`、`MYRM_CP_GOOGLE_OAUTH_CLIENT_SECRET`、`MYRM_CP_GITHUB_OAUTH_CLIENT_SECRET`、`MYRM_CP_ADMIN_API_KEY`、`MYRM_CP_ENTERPRISE_LICENSE_KEY` 等。
+
+### Ingress
+
+```yaml
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+  frontend:
+    host: myrm.example.com
+  api:
+    host: api.myrm.example.com
+  tls:
+    - hosts: [myrm.example.com, api.myrm.example.com]
+      secretName: myrm-tls
+```
+
+### 数据持久化
+
+```yaml
+controlPlane:
+  persistence:
+    enabled: true
+    size: 5Gi
+    storageClass: ""    # 使用集群默认
+    accessModes:
+      - ReadWriteOnce
+```
+
+### RBAC
+
+控制平面需要权限通过 K8s API 管理沙箱 Pod：
+
+```yaml
+rbac:
+  create: true
+  serviceAccount:
+    create: true
+    name: ""
+    annotations: {}    # 如 eks.amazonaws.com/role-arn
+```
+
+## 可选企业级能力
+
+默认全部关闭，按需启用：
+
+| 功能 | 配置项 | 用途 |
+|-----|--------|------|
+| 网络策略 | `networkPolicy.enabled` | 限制组件间流量 |
+| HPA 自动伸缩 | `autoscaling.enabled` | 按 CPU 自动扩缩 Pod |
+| PDB 中断预算 | `podDisruptionBudget.enabled` | 升级时保证可用性 |
+| PrometheusRule | `monitoring.prometheusRule.enabled` | CP 宕机/高延迟告警 |
+
+### 生产环境配置示例
+
+```yaml
+controlPlane:
+  replicas: 3
+  config:
+    edition: enterprise
+    runtime: docker
+  persistence:
+    enabled: true
+    size: 50Gi
+    storageClass: gp3
+
+frontend:
+  replicas: 2
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+  frontend:
+    host: myrm.mycompany.com
+  api:
+    host: api.myrm.mycompany.com
+  tls:
+    - hosts: [myrm.mycompany.com, api.myrm.mycompany.com]
+      secretName: myrm-tls
+
+rbac:
+  create: true
+
+networkPolicy:
+  enabled: true
+
+autoscaling:
+  enabled: true
+  controlPlane:
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+
+podDisruptionBudget:
+  enabled: true
+  controlPlane:
+    minAvailable: 1
+
+monitoring:
+  prometheusRule:
+    enabled: true
+    severity: critical
+```
+
+## 升级
+
+```bash
+helm upgrade myrm deploy/helm/myrm-platform/ -f my-values.yaml
+```
+
+Chart 在 ConfigMap 和 Secret 引用上使用 checksum 注解，配置变更时 Pod 自动重启。
+
+## 卸载
+
+```bash
+helm uninstall myrm
+# PVC 默认保留，如需删除手动执行：
+kubectl delete pvc myrm-control-plane-data
+```

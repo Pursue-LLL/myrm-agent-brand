@@ -1,0 +1,215 @@
+---
+title: "Kubernetes (Helm Chart)"
+description: "Deploy Myrm Platform to Kubernetes with the official Helm Chart"
+---
+
+## Overview
+
+The official `myrm-platform` Helm Chart deploys the **control plane + frontend** as a dual-component release on any Kubernetes cluster. Sandbox instances (one per user) are dynamically created by the control plane via the K8s API.
+
+<Note>
+  The Helm Chart is for **cloud-hosted** and **enterprise private deployment** scenarios. For local single-user setups, use the [Desktop App](/docs/getting-started/desktop-app) or [Local Deployment](/docs/getting-started/local-deployment) instead.
+</Note>
+
+## Prerequisites
+
+- Kubernetes cluster (v1.25+)
+- Helm 3.10+
+- `kubectl` configured for your cluster
+- A pre-created Kubernetes Secret containing at minimum `JWT_SECRET`
+
+## Quick Start
+
+```bash
+# 1. Create the required secret
+kubectl create secret generic myrm-secrets \
+  --from-literal=JWT_SECRET=$(openssl rand -hex 32) \
+  --from-literal=MYRM_CP_ADMIN_API_KEY=$(openssl rand -hex 32)
+
+# 2. Install the chart
+helm install myrm deploy/helm/myrm-platform/ -f my-values.yaml
+
+# 3. Access the frontend
+kubectl port-forward svc/myrm-frontend 3000:3000
+# Open http://localhost:3000
+```
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────┐
+│                  Ingress                     │
+│  frontend.host → Frontend Service (3000)     │
+│  api.host      → CP Service (8003)           │
+└──────────────┬────────────┬─────────────────┘
+               │            │
+     ┌─────────▼──┐  ┌──────▼──────────┐
+     │  Frontend   │  │  Control Plane   │
+     │ (Next.js)   │  │  (FastAPI)       │
+     │  Deployment │  │  Deployment      │
+     └─────────────┘  │  + PVC (/data)   │
+                      │  + ServiceAccount │
+                      └──────┬───────────┘
+                             │ K8s API
+                    ┌────────▼────────┐
+                    │  Sandbox Pods    │
+                    │  (per-user,      │
+                    │   dynamic)       │
+                    └─────────────────┘
+```
+
+## Configuration
+
+All configuration is centralized in `values.yaml`. The chart maps 1:1 to the control plane's `ControlPlaneConfig` fields.
+
+### Images
+
+```yaml
+images:
+  controlPlane:
+    repository: ghcr.io/myrmagent/myrm-control-plane
+    tag: ""          # defaults to Chart.appVersion
+    pullPolicy: IfNotPresent
+  frontend:
+    repository: ghcr.io/myrmagent/myrm-frontend
+    tag: ""
+    pullPolicy: IfNotPresent
+
+global:
+  imagePullSecrets: []
+  #   - name: my-registry-secret
+```
+
+### Secrets
+
+The chart uses an **external Secret** pattern — you create the Secret manually, and the chart references it:
+
+```yaml
+existingSecret: myrm-secrets
+```
+
+Required keys: `JWT_SECRET`
+
+Optional keys: `MYRM_CP_STRIPE_SECRET_KEY`, `MYRM_CP_GOOGLE_OAUTH_CLIENT_SECRET`, `MYRM_CP_GITHUB_OAUTH_CLIENT_SECRET`, `MYRM_CP_ADMIN_API_KEY`, `MYRM_CP_ENTERPRISE_LICENSE_KEY`, etc.
+
+### Ingress
+
+```yaml
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+  frontend:
+    host: myrm.example.com
+  api:
+    host: api.myrm.example.com
+  tls:
+    - hosts: [myrm.example.com, api.myrm.example.com]
+      secretName: myrm-tls
+```
+
+### Persistence
+
+```yaml
+controlPlane:
+  persistence:
+    enabled: true
+    size: 5Gi
+    storageClass: ""    # uses cluster default
+    accessModes:
+      - ReadWriteOnce
+```
+
+### RBAC
+
+The control plane needs permissions to manage sandbox Pods via the K8s API:
+
+```yaml
+rbac:
+  create: true
+  serviceAccount:
+    create: true
+    name: ""
+    annotations: {}    # e.g. eks.amazonaws.com/role-arn
+```
+
+## Optional Enterprise Features
+
+All disabled by default — enable as needed:
+
+| Feature | Config Key | Purpose |
+|---------|-----------|---------|
+| Network Policy | `networkPolicy.enabled` | Restrict traffic between components |
+| HPA | `autoscaling.enabled` | Auto-scale CP and frontend pods |
+| PDB | `podDisruptionBudget.enabled` | Guarantee availability during upgrades |
+| PrometheusRule | `monitoring.prometheusRule.enabled` | Alert on CP downtime and high latency |
+
+### Example: Production-Ready Configuration
+
+```yaml
+controlPlane:
+  replicas: 3
+  config:
+    edition: enterprise
+    runtime: docker
+  persistence:
+    enabled: true
+    size: 50Gi
+    storageClass: gp3
+
+frontend:
+  replicas: 2
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+  frontend:
+    host: myrm.mycompany.com
+  api:
+    host: api.myrm.mycompany.com
+  tls:
+    - hosts: [myrm.mycompany.com, api.myrm.mycompany.com]
+      secretName: myrm-tls
+
+rbac:
+  create: true
+
+networkPolicy:
+  enabled: true
+
+autoscaling:
+  enabled: true
+  controlPlane:
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+
+podDisruptionBudget:
+  enabled: true
+  controlPlane:
+    minAvailable: 1
+
+monitoring:
+  prometheusRule:
+    enabled: true
+    severity: critical
+```
+
+## Upgrading
+
+```bash
+helm upgrade myrm deploy/helm/myrm-platform/ -f my-values.yaml
+```
+
+The chart uses checksum annotations on ConfigMap and Secret references, so pods automatically restart when configuration changes.
+
+## Uninstalling
+
+```bash
+helm uninstall myrm
+# PVCs are retained by default — delete manually if needed:
+kubectl delete pvc myrm-control-plane-data
+```
