@@ -119,6 +119,18 @@ Agent 初始化时向系统提示词注入渠道格式提示，生成前告知 L
 
 28 条渠道提示预配置，KV-Cache 安全（初始化注入一次）。
 
+### IM 行为策略 Persona（自动注入）
+
+对于受限 IM 渠道（不支持消息编辑且不支持 Markdown），系统自动注入行为策略指令：
+
+- **简洁对话风格**：像聊天一样回复，不长篇大论
+- **长内容自动转文件**：超过约 200 字符的内容写入工作区文件，IM 中只回复一句话摘要 + Artifact 深链
+- **精准追问**：用户意图不明时最多问 1-2 个关键问题
+
+自动触发的渠道：微信 iLink、微信公众号、Signal、iMessage、LINE、SMS、OneBot(QQ)、IRC、Zalo、Voice（共 10 个）。
+
+无需任何配置 — 基于 `ChannelCapabilities` 声明自动判断。支持 Markdown 或消息编辑的渠道（如 Telegram、Discord、Slack）不受影响。
+
 ### 事后格式降级（renderer）
 
 即使 LLM 忽略提示，渲染流水线仍降级：

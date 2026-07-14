@@ -145,6 +145,18 @@ At agent initialization, a channel-specific format hint is injected into the sys
 
 28 channel hints are pre-configured and KV-Cache safe (injected once at init).
 
+### IM Behavior Persona (auto-injected)
+
+For restricted IM channels (no message editing, no Markdown support), the system automatically injects a behavioral strategy:
+
+- **Concise chat style**: replies like a chat conversation, not a textbook
+- **Long content → file + summary**: content exceeding ~200 characters is written to a workspace file; the IM reply contains only a one-sentence summary + Artifact deep link
+- **Focused clarification**: asks at most 1-2 key questions when user intent is unclear
+
+Auto-triggered channels: WeChat iLink, WeChat Official, Signal, iMessage, LINE, SMS, OneBot(QQ), IRC, Zalo, Voice (10 total).
+
+Zero configuration required — detected automatically from `ChannelCapabilities`. Channels with Markdown or edit support (Telegram, Discord, Slack, etc.) are unaffected.
+
 ### Post-hoc Format Downgrade (renderer)
 
 Even if the LLM ignores hints, the rendering pipeline applies format downgrades:
