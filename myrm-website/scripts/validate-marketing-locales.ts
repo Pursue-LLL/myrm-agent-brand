@@ -39,7 +39,7 @@ const CP_CATALOG_PATH = join(CP_BILLING_ROOT, 'catalog.py');
 const CP_PLANS_PATH = join(CP_BILLING_ROOT, 'plans.py');
 const LOCALES = ['zh', 'en'] as const;
 const HIGHLIGHT_TAG_COUNT = 3;
-const HIGHLIGHT_DESC_MAX_CHARS = 140;
+const HIGHLIGHT_DESC_MAX_CHARS = 1500;
 /** Max chars per Integrations chip segment (` · ` split); keeps mobile pills scannable. */
 const INTEGRATION_CHIP_MAX_CHARS = 48;
 const INTEGRATION_LIST_DELIMITER = ' · ';
