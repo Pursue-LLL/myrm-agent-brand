@@ -5,7 +5,7 @@ description: 配置并在 100+ LLM 模型间切换。
 
 # 模型配置
 
-Myrm 通过 LiteLLM 统一访问任意提供商的 100+ 模型。
+Myrm 通过 LiteLLM 统一访问 26+ 内置提供商的 100+ 模型，支持三种兼容协议（OpenAI-like、Gemini-like、Anthropic-like）无限扩展自定义提供商。每个内置提供商预填 API URL 并支持国内/国际区域一键切换，真正零配置即用。
 
 ## 首次配置引导
 
@@ -178,6 +178,25 @@ Myrm 在浏览器标签、桌面端与 SaaS 之间保持设置一致——**刷�
 - 聚合模型输出永不截断——用户看到的答案始终完整
 - 兼容推理模型（DeepSeek-R1 等）的特殊输出格式
 - 完整的多轮对话上下文传递
+
+## 成本可视化
+
+完整的 Token 经济学可视化体系，从后端到前端全链路覆盖：
+
+| 层级 | 能力 | 关键组件 |
+|------|------|---------|
+| 消息级 | 每条消息展示 Token 用量和成本 | TokenUsageDisplay、缓存节省水滴动画 |
+| 会话级 | 会话诊断六问分析 + 执行 Trace 回放 | SessionAnalyticsDialog、ExecutionTraceTimeline |
+| Dashboard 级 | 7/30/365 天多维度用量统计 | UsageStatisticsSection、路由分析面板 |
+| 预算控制 | 3 维预算守卫 (session/daily/per-call) | BudgetPolicySection、渠道预算管理 |
+| 企业级 | 组织用量概览 + 审计日志 | EnterpriseUsageTab |
+
+| 指标 | 数值 |
+|------|------|
+| Token 经济学测试 | **355 项通过** |
+| Token 类型追踪 | **7 种**（prompt/completion/cached/reasoning/audio_in/audio_out/image） |
+| 前端可视化组件 | **18+** |
+| 后端统计 API | **12 端点** |
 
 ## 容错
 

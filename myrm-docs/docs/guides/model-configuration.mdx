@@ -5,7 +5,7 @@ description: Configure and switch between 100+ LLM models.
 
 # Model Configuration
 
-Myrm uses LiteLLM for unified access to 100+ models from any provider.
+Myrm uses LiteLLM for unified access to 100+ models from 26+ built-in providers, with three compatibility protocols (OpenAI-like, Gemini-like, Anthropic-like) for infinite custom provider extension. Each built-in provider comes with pre-filled API URLs and supports one-click domestic/international region switching — truly zero-configuration ready.
 
 ## First-Time Setup
 
@@ -198,6 +198,25 @@ Multiple models generate answers in parallel, and an aggregator model synthesize
 - Aggregator output is never truncated — user-visible answers stay complete
 - Compatible with reasoning model output formats (DeepSeek-R1, etc.)
 - Full multi-turn conversation context preserved
+
+## Cost Visualization
+
+Complete token economics visualization pipeline from backend to frontend:
+
+| Level | Capability | Key Components |
+|-------|-----------|----------------|
+| Per-message | Token usage and cost per message | TokenUsageDisplay, cache savings water-drop animation |
+| Per-session | Session diagnostics + execution trace replay | SessionAnalyticsDialog, ExecutionTraceTimeline |
+| Dashboard | 7/30/365-day multi-dimensional usage stats | UsageStatisticsSection, routing analytics panel |
+| Budget control | 3-dimensional budget guard (session/daily/per-call) | BudgetPolicySection, channel budget management |
+| Enterprise | Org usage overview + audit logs | EnterpriseUsageTab |
+
+| Metric | Value |
+|--------|-------|
+| Token economics tests | **355 passed** |
+| Token types tracked | **7** (prompt/completion/cached/reasoning/audio_in/audio_out/image) |
+| Frontend visualization components | **18+** |
+| Backend statistics API endpoints | **12** |
 
 ## Fault Tolerance
 
