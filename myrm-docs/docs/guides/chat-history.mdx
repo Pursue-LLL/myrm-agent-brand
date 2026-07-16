@@ -65,6 +65,21 @@ Right-click any conversation to export in four formats:
 - **JSON** — Structured data for programmatic use
 - **Copy to clipboard** — Quick paste anywhere
 
+### Diagnostic Information in Exports
+
+Exported files automatically include metadata for debugging and workflow reproduction:
+
+| Info | Description |
+|------|------|
+| **Agent Identity** | Name, model, and description of the agent that generated the response |
+| **Tool Call Details** | Argument summary, execution duration, and success/failure status for each tool invocation |
+| **Token Usage** | Total tokens consumed and cost estimate for the conversation |
+| **Tool Usage Stats** | Call count and total duration per tool |
+
+<Note>
+Sensitive information in tool arguments (API keys, passwords, tokens, etc.) is automatically redacted to `***` for safe sharing.
+</Note>
+
 ### Print Conversation
 
 The right-click menu also offers a "Print" option to print or save the current conversation as PDF. Uses a hidden iframe to invoke the browser's native print dialog, bypassing popup blockers.
