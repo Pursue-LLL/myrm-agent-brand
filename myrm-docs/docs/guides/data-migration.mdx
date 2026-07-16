@@ -72,6 +72,26 @@ A **Discovery Banner** also appears in the chat window when external data is det
 
 ## Export
 
+### Full Archive Backup & Restore
+
+Export your entire Myrm workspace as a structured archive that preserves all data relationships:
+
+- **Conversations**: Full message history including compaction state (compressed summary), session notes, tool usage stats, and token cost summaries
+- **Memory**: All memory types (episodic, semantic, procedural, preferences, shared context)
+- **Agent Configurations**: Complete Agent profiles (model, prompt, skills, MCP bindings) via JSON round-trip export/import
+- **Section-Selective Restore**: Import the full archive or choose specific sections (conversations only, memory only, etc.)
+
+This is the recommended path for disaster recovery, cross-instance cloning, or team onboarding.
+
+### Cross-Deployment Migration (Local ↔ Cloud)
+
+Myrm uses SQLite as its single data store across all deployment modes. Migrating between Local WebUI, Tauri Desktop, and Cloud-hosted is seamless:
+
+- **Volume Copy**: Simply copy the SQLite database file between deployments — zero data loss, zero format conversion
+- **Archive Route**: Export a full archive from one deployment, restore on another with section selection
+
+No competitor supports this level of deployment portability; most are locked to a single deployment mode.
+
 ### Memory Archive Export
 
 Export your Myrm memories as a structured JSON archive (`myrm_memory_archive` format) that can be imported into another Myrm instance or shared.
@@ -99,3 +119,8 @@ Export conversation data in training-ready formats:
 | MCP Config Migration | ✅ | ✅ (overwrites) | ❌ | ❌ |
 | Skill Review Queue | ✅ | ❌ | ❌ | ❌ |
 | Target Agent Selection | ✅ | ❌ | ❌ | ❌ |
+| Full Archive Backup/Restore | ✅ | ❌ | ❌ | ❌ |
+| Section-Selective Restore | ✅ | ❌ | ❌ | ❌ |
+| Cross-Deployment Migration | ✅ (3 modes) | ❌ (single) | ❌ (single) | ❌ (CLI only) |
+| Agent Config Export/Import | ✅ JSON | ❌ | ❌ | ❌ |
+| Session Export with Compaction State | ✅ | ❌ | ❌ | ❌ |

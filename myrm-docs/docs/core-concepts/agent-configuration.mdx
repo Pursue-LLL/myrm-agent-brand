@@ -32,7 +32,7 @@ Myrm supports 100+ models through LiteLLM integration:
 
 ### Smart Routing
 
-The complexity router automatically selects the optimal model tier:
+The complexity router automatically selects the optimal model tier. **Enabled by default** — no configuration required. When light/reasoning models are not explicitly set, the system auto-selects from your enabled models by cost (cheapest → light, most expensive → reasoning).
 
 | Tier | When Used | Cost |
 |------|-----------|------|
@@ -40,7 +40,7 @@ The complexity router automatically selects the optimal model tier:
 | **STANDARD** | General tasks, moderate complexity | Moderate |
 | **REASONING** | Complex analysis, multi-step planning | Highest |
 
-The router uses a two-stage assessment (rule-based + LLM judge) with session momentum — short follow-up messages inherit the session's established tier.
+The router uses a two-stage assessment (rule-based scoring at zero cost + LLM judge for ambiguous cases) with session momentum — short follow-up messages inherit the session's established tier.
 
 ### Multi-Slot Model Architecture
 
