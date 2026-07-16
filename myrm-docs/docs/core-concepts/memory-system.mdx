@@ -454,6 +454,20 @@ When you permanently delete a chat from the Trash, Myrm automatically removes **
 
 **Bulk operations:** "Empty Trash" cascades through every chat being removed, ensuring complete cleanup.
 
+## Embedding Configuration
+
+Myrm supports 7+ embedding providers out of the box. Configure in **Settings → Retrieval → Embedding**:
+
+| Provider | Setup |
+|----------|-------|
+| OpenAI | Select provider, choose model (`text-embedding-3-small`), enter API key |
+| Jina AI / Cohere / Voyage | Select provider, choose model, enter API key |
+| Silicon Flow | Select provider, choose model (free options available like `BAAI/bge-m3`), enter API key |
+| Azure OpenAI | Select provider, enter deployment name + API key |
+| **Ollama (Local)** | Select "OpenAI Compatible", set API Base to `http://localhost:11434/v1`, enter model name (e.g. `nomic-embed-text`), any non-empty API key |
+
+**Local embedding with Ollama** — Your data never leaves your device. After installing Ollama, run `ollama pull nomic-embed-text` (or `bge-m3` for multilingual), then configure as shown above.
+
 ## Embedding Model Migration
 
 When you change the embedding model in Settings, previously stored memories are encoded with the old model's vectors and cannot be retrieved by the new model. Myrm handles this transparently:

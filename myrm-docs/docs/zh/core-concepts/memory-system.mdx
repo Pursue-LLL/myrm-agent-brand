@@ -454,6 +454,20 @@ Myrm 周期性分析你的累积记忆，发现行为模式 — 反复出现的�
 
 **批量操作：** "清空回收站"会对每个被删除的会话执行级联清理，确保彻底干净。
 
+## Embedding 配置
+
+Myrm 开箱支持 7+ 家 Embedding 服务商。在**设置 → 检索 → Embedding**中配置：
+
+| 服务商 | 配置方式 |
+|--------|---------|
+| OpenAI | 选择服务商，选模型（`text-embedding-3-small`），输入 API Key |
+| Jina AI / Cohere / Voyage | 选择服务商，选模型，输入 API Key |
+| 硅基流动 | 选择服务商，选模型（`BAAI/bge-m3` 等免费可用），输入 API Key |
+| Azure OpenAI | 选择服务商，输入部署名 + API Key |
+| **Ollama（本地）** | 选择 "OpenAI Compatible"，API Base 填 `http://localhost:11434/v1`，模型名填 `nomic-embed-text`，API Key 填任意非空值 |
+
+**本地 Embedding（Ollama）** — 数据完全不出设备。安装 Ollama 后，执行 `ollama pull nomic-embed-text`（或 `bge-m3` 支持中英双语），然后按上表配置即可。
+
 ## Embedding 模型迁移
 
 当你在设置中更换 Embedding 模型后，之前存储的记忆是以旧模型的向量编码的，新模型无法检索到它们。Myrm 透明地处理了这个问题：
