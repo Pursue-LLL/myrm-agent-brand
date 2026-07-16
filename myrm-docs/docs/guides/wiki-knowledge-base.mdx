@@ -55,6 +55,18 @@ In **Concepts**:
 Wiki files remain plain Markdown on disk. Obsidian and other editors can open the same vault; Myrm adds indexing, search, and GUI management on top.
 </Note>
 
+## Reference Wiki in chat with @wiki:
+
+Type `@wiki:` in the chat input to search your Wiki concepts with live autocomplete. Select a concept to inject its compiled content as context for the current message:
+
+- **`@wiki:keyword`** — filters the dropdown to show only matching Wiki concepts (fuzzy match on concept name).
+- **Select a concept** — the input becomes `@wiki:ConceptName` with a removable pill tag, just like `@staged` or `@diff`.
+- **The Agent receives** the concept content in a `<mentioned_files>` XML block, grounding its answers in your knowledge base.
+- **Combine references** — `@wiki:ProjectArchitecture @staged` sends both the wiki article and your git staged changes in one message.
+- **Plain `@` search** — typing `@keyword` (without the `wiki:` prefix) shows a mixed list of agents, wiki concepts, and uploaded files.
+
+This gives you explicit, per-message control over which knowledge the Agent uses — no reliance on automatic retrieval or prompt engineering.
+
 ## Save a chat message to Wiki
 
 On any **completed assistant message**, use **Save to Wiki** (book icon) in the message action bar:

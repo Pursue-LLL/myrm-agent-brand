@@ -140,7 +140,9 @@ Edit any previous message to retry with different wording. MyrmAgent ensures ful
 
 1. **Atomic truncation** — Messages after the edited one are removed from the database _before_ the new message is sent, so the agent never sees stale context
 2. **Version preservation** — Regenerated responses are stored as sibling versions (`is_active` flag); switch between versions using the left/right arrows on any assistant message
-3. **Undo last turn** — One click removes the last user + assistant message pair and updates the conversation state
+3. **Smart Regeneration** — Four preset modes (Try Again, More Concise, More Detailed, More Creative) plus custom instruction. The instruction is injected into the agent's context as `[Regeneration guidance: ...]`, directly steering the new response
+4. **Complaint-Up auto-escalation** — When you regenerate _without_ a custom instruction (plain retry), the system interprets this as implicit dissatisfaction and automatically upgrades the model tier (SIMPLE→STANDARD→REASONING) for a higher-quality response — no manual model switching needed
+5. **Undo last turn** — One click removes the last user + assistant message pair and updates the conversation state
 4. **Conversation forking** — Fork from any message to explore an alternative path without losing the original thread. Three entry points: sidebar right-click menu, `/fork` slash command, and mobile action sheet. Use `message_index=-1` to fork from the latest message instantly. When context usage exceeds 75%, a "Fork new topic" button appears in the context usage panel for quick topic branching. If the parent conversation has an active sandbox (git worktree), the forked child automatically resets to the original repository root — preventing file conflicts from multiple conversations sharing the same sandbox workspace
 
 <Tip>
