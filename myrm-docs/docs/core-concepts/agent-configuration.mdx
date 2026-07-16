@@ -44,6 +44,14 @@ The router uses a two-stage assessment (rule-based scoring at zero cost + LLM ju
 
 **Complaint-up**: When you click Regenerate without adding modification instructions, the system interprets this as dissatisfaction and automatically upgrades the routing tier (SIMPLE→STANDARD→REASONING). The PenaltyTracker records this feedback so future similar queries route more accurately. If you add instructions (e.g., "rewrite in a more formal tone"), it's treated as a direction change, not a complaint — no tier upgrade occurs.
 
+**Per-Agent Routing Strategy**: Each agent can have its own routing configuration independent of the global setting. In the Agent Capabilities tab, you can set:
+
+- **Inherit Global** (default): follows the global Smart Routing configuration
+- **Custom**: specify independent light and reasoning models for this agent
+- **Disabled**: this agent always uses its primary model — no routing, no tier classification
+
+Use cases: A customer service agent bound to a messaging channel can disable routing to always use a cheap model (saving $200+/month), while a research agent can disable routing to always use the strongest model for quality assurance.
+
 ### Multi-Slot Model Architecture
 
 Each agent can be configured with 11+ independent model slots for different task types:
