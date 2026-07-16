@@ -831,7 +831,7 @@ MemPalace 是独立 AI 记忆系统，用 Wing/Room/Closet/Drawer 建筑隐喻�
 | Memory Types | 1 flat type (drawer) | **8 structured types** (Profile/Semantic/Episodic/Procedural/Conversation/Claim/TaskDigest/Integration) | AI understands "this is a fact" vs "this is a preference" vs "this is a rule" |
 | Verbatim Storage | ChromaDB single vector | **Dual-track** (raw_exchange + summary) with **dual embedding** | Both precise recall and fast overview |
 | Deduplication | Single-layer vector similarity | **3-layer smart dedup** (Hash → Vector → LLM) with UPDATE_REPLACE/UPDATE_MERGE/NEW | No duplicate memories, intelligent merging |
-| Forgetting | None (memories only grow) | **5 维智能遗忘**覆盖全部记忆类型（时间衰减 + 访问频率 + 重要性 + 关系 + 用户评分）含三重保护（钉选 / CRITICAL / 近期活跃） | 记忆保持精简且关键知识不丢失 |
+| Forgetting | None (memories only grow) | **双层智能遗忘**：5维保留分（零LLM成本）+ LLM过期审查（每条记忆独立TTL、严重度排序、batch限制、KEEP冷却期）含4层保护（钉选/纠正链/近期活跃/最小候选数） | 记忆保持精简且关键知识不丢失 |
 | Knowledge Graph | Basic halls/tunnels co-occurrence | **GraphStore + CTE** with visual exploration | Rich relationship mapping |
 | Contradiction Detection | Rule-based name/relationship check | **LLM-powered ClaimGraph** + cognitive subsumption | Catches subtle contradictions |
 | Search | BM25 + Vector hybrid | **FTS5 + Qdrant** hybrid (FTS5 has built-in BM25) | Production-grade search infrastructure |
@@ -1603,7 +1603,7 @@ MyrmAgent 作为一个拥有完整 GUI、底层支持多层安全/调度协议�
 1. **从“拼凑脚本”到“开箱即用”**：无需熟悉 Bash 和繁杂的文件结构树，Web/Tauri 桌面双端加持，真正做到安装即用。
 2. **从“文本约束”到“代码强制”**：用底层的确定性代码逻辑替代不可靠的大模型 Prompt 文本约束（如危险命令拦截、死循环熔断等），100% 确保资产安全。
 3. **从“手动打点”到“全景可视化”**：自动追踪所有 Token、开销与工作流节点（DAG），直接生成数据面板，让 Agent 动作完全透明化。
-4. **内置化、内生化的企业级记忆**：抛弃繁琐的外挂 Obsidian 同步脚本，内置的 Qdrant 向量库加上 5 维遗忘机制，让你拥有最流畅的认知记忆体验。
+4. **内置化、内生化的企业级记忆**：抛弃繁琐的外挂 Obsidian 同步脚本，内置的 Qdrant 向量库加上双层智能遗忘（5维保留分 + LLM语义过期审查），让你拥有最流畅的认知记忆体验。
 5. **生态开放自由**：不仅不受限于单一 Github 仓库的更新，更能连接包含 ClawHub 在内的多个插件市场，且支持完全无外网离线安装。
 
 ## 长程任务极限UX与工程深度 (vs Claude Code / OpenClaw)

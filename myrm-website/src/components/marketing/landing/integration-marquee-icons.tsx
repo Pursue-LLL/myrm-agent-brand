@@ -40,7 +40,7 @@ import {
   SiWechat,
   SiWhatsapp,
 } from 'react-icons/si';
-import { Mail01Icon } from 'hugeicons-react';
+import { Mail01Icon, SmartPhone01Icon } from 'hugeicons-react';
 
 export interface MarqueeItem {
   id: string;
@@ -85,6 +85,7 @@ export const MARQUEE_CHANNELS: MarqueeItem[] = [
   { id: 'mattermost', name: 'Mattermost' },
   { id: 'email', name: 'Email' },
   { id: 'gmail', name: 'Gmail' },
+  { id: 'sms', name: 'SMS' },
 ];
 
 const ICON_SIZE = 20;
@@ -218,6 +219,8 @@ export function ChannelMarqueeIcon({ id }: { id: string }): ReactNode {
       return <Mail01Icon className="h-5 w-5" style={{ color: 'var(--ed-accent)' }} />;
     case 'gmail':
       return <SiIcon icon={SiGmail} color="#EA4335" />;
+    case 'sms':
+      return <SmartPhone01Icon className="h-5 w-5" style={{ color: '#6366F1' }} />;
     default:
       return null;
   }

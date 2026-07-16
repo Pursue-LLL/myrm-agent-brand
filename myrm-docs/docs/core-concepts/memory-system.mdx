@@ -171,7 +171,7 @@ Three forgetting modes: **DELETE** (permanent remove), **ARCHIVE** (deactivate w
 
 ## Memory Staleness Defense
 
-Mem0's 2026 benchmark identified "memory staleness" as the hardest open problem — high-frequency memories that become outdated lead to confidently wrong answers. Myrm's 7-layer defense:
+Mem0's 2026 benchmark identified "memory staleness" as the hardest open problem — high-frequency memories that become outdated lead to confidently wrong answers. Myrm's 8-layer defense:
 
 | Layer | Mechanism | Effect |
 |-------|-----------|--------|
@@ -181,15 +181,17 @@ Mem0's 2026 benchmark identified "memory staleness" as the hardest open problem 
 | 4 | Consolidation contradiction detection | New vs old conflicts auto-corrected |
 | 5 | Extractor auto-update on new conversations | Fresh facts replace outdated ones |
 | 6 | Subsumption cognitive consolidation | New knowledge subsumes old memories |
-| 7 | User explicit correction action | Correction chains + penalty scoring |
+| 7 | LLM staleness review (per-fact TTL + semantic validation) | Facts past their expiry get LLM review — KEEP/EXTEND/REMOVE |
+| 8 | User explicit correction action | Correction chains + penalty scoring |
 
 ## 7-Strategy Anti-Fragmentation System
 
-Long-running agents accumulate thousands of memories that inevitably fragment — duplicates, outdated entries, and noise dilute retrieval quality. Unlike competitors that offer no fragmentation defense (Hermes acknowledges the problem but provides zero mitigation), Myrm deploys **7 autonomous strategies** working in concert:
+Long-running agents accumulate thousands of memories that inevitably fragment — duplicates, outdated entries, and noise dilute retrieval quality. Unlike competitors that offer no fragmentation defense (Hermes acknowledges the problem but provides zero mitigation), Myrm deploys **8 autonomous strategies** working in concert:
 
 | Strategy | Function | Key Metric |
 |----------|----------|-----------|
 | **5D Forgetting** | Time/frequency/importance/relevance/composite retention scoring | Configurable half-life per category |
+| **LLM Staleness Review** | Per-fact TTL + LLM semantic validation for expired memories | Severity-sorted batch processing with KEEP cooldown |
 | **3-Layer Dedup** | Hash→Vector→LLM progressive deduplication | 0.18ms O(1) first pass, 98% embedding savings |
 | **Consolidation** | Cross-session merge/correct/update/archive/split | 5 operations with Rubric quality gate ≥0.7 |
 | **Subsumption** | Cognitive erasure of fully subsumed memories | Preserves unique preferences |
@@ -197,7 +199,7 @@ Long-running agents accumulate thousands of memories that inevitably fragment �
 | **Pattern Discovery** | Surfaces cross-cycle behavioral insights | Weekly analysis with actionable suggestions |
 | **Preference Stability** | Category-aware evidence lifecycle management | 6 categories × independent half-lives |
 
-**Result**: Memory index stays pure, fast, and always relevant — no manual cleanup needed. Verified with 253 automated tests covering all strategies.
+**Result**: Memory index stays pure, fast, and always relevant — no manual cleanup needed. Verified with 314 automated tests covering all strategies.
 
 ## Cross-Session Consolidation & Autonomous Maintenance
 

@@ -81,10 +81,27 @@ Both WeChat and WhatsApp use the same `AsyncLoginProtocol` — consistent UX acr
 
 - Supports Gmail, Outlook, QQ Mail, 163 Mail, Foxmail, and other major clients
 - Three-layer detection: Subject prefix (Fwd:/FW:/转发:/轉發:) → Body separator → MIME attachment
-- Just write "expense this" or "summarize this" when forwarding — Agent precisely understands your intent
+- Just write "expense this" or "translate to English" when forwarding — Agent sees both your instruction and the full original email, then executes precisely
 - Full CJK email client support with adaptive charset decoding (gb2312/GBK/UTF-8)
 
-**Smart HTML Cleaning**: When emails contain only HTML (Amazon orders, Jira notifications, Outlook rich text), the content is automatically converted to clean Markdown — preserving tables, links, and lists while reducing token usage by 90%+, so the Agent understands faster and more accurately.
+**Smart HTML Cleaning**: When emails contain only HTML (Amazon orders, Jira notifications, Outlook rich text), the content is automatically converted to clean Markdown — preserving tables, links, and lists while reducing content size by 65–74% (measured), so the Agent understands faster and more accurately.
+
+**Multi-Agent Email Routing**: If you have multiple Agents configured, start your email body with a slash command to route to a specific agent:
+
+- `/coder review this PR` → routes to your "coder" agent
+- `/accountant expense this` → routes to your "accountant" agent
+- No command → routes to default agent
+
+### SMS (Twilio)
+
+1. Open **Settings > Channels > SMS**
+2. Enter your Twilio **Account SID**, **Auth Token**, and **Phone Number** (E.164 format, e.g. `+15551234567`)
+3. Copy the auto-generated **Webhook URL** and paste it into your Twilio Console > Phone Numbers > Messaging webhook
+4. Click **Test Connection** to verify
+
+- Bidirectional: receive SMS from any phone → Agent processes → replies via SMS
+- Long messages are automatically split at natural boundaries (max 1600 chars per segment)
+- Twilio signature verification ensures only legitimate messages are processed
 
 ## Message Types
 

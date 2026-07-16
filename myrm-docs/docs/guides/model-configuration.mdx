@@ -87,7 +87,16 @@ No black boxes — every routing decision is visible and verifiable directly in 
 
 ## Key Rotation
 
-4-strategy key rotation maximizes throughput and availability across multiple API keys per provider.
+Add multiple API keys per provider and Myrm automatically rotates them with smart failover. When you have 2+ active keys, a **strategy selector** appears in the pool status bar — pick the rotation mode that best fits your setup:
+
+| Strategy | Best For |
+|----------|----------|
+| **Round Robin** | Even distribution across all keys (default) |
+| **Fill First** | Maximizing free tier quota before using paid keys |
+| **Least Used** | Balancing by actual call count |
+| **Random** | Simple unpredictable selection |
+
+On rate-limit errors, the pool applies exponential backoff with ±15% jitter and automatically switches to the next available key — users never notice the switch.
 
 ## Privacy Routing
 

@@ -1,0 +1,101 @@
+---
+title: "Data Migration"
+description: "Import your data from other AI assistants with a zero-risk, GUI-guided migration wizard."
+---
+
+## Overview
+
+Myrm provides a complete data migration system that lets you transfer your AI assistant data from other platforms — including memories, skills, API keys, MCP configurations, and workspace rules — with full preview, conflict resolution, and one-click rollback.
+
+**Supported Sources**: Hermes, OpenClaw, Claude Code, Codex, ChatGPT, Windsurf, Trae, Mem0
+
+## Migration Wizard (3-Step GUI)
+
+### Step 1: Discover
+
+Navigate to **Settings → Memory Center → Migration** to start the wizard.
+
+- **Local/Desktop**: Click **Scan** to auto-detect installed AI assistants on your system
+- **Cloud**: Drag and drop a `.zip` export file from your previous assistant
+
+The scanner checks well-known directories (macOS, Windows, Linux) and reports what it found with confidence scoring (high/medium/low).
+
+### Step 2: Preview (Dry-Run)
+
+Click **Preview** on any detected source to see exactly what will be imported — without writing anything:
+
+- **Coverage Matrix**: Shows which data categories are ready, need review, or require manual action
+- **Migration Lanes**: Persona → Agent, Facts → Memory, Skills → Review Queue, Keys → Explicit Confirm, MCP → Audit
+- **Token Economics**: Compare token usage before and after migration
+- **MCP Server Preview**: See which MCP tools will be available after import
+- **Conflict Detection**: Highlights items that would overwrite existing data
+
+### Step 3: Confirm & Import
+
+Choose a target Agent (or create a new one), then confirm the import:
+
+- Secrets are only imported with explicit opt-in (never silently)
+- Skills go to a review queue — you approve each before it activates
+- A transaction batch ID is generated for every import
+
+## Rollback
+
+Every import can be fully reversed:
+
+1. Go to **Settings → Memory Center → Recent Imports**
+2. Click **Rollback** on any import batch
+3. Preview what will be undone (rollback dry-run)
+4. Confirm to restore your previous state
+
+## Backup & Remote Sync
+
+### Local Backup
+
+Create manual backups of all memories at any time:
+
+- **Settings → System → Backup** → Create Backup
+- Stores: all memory types, shared contexts, conversation history
+- List, restore, or delete backups as needed
+
+### Remote Backup (S3 / WebDAV)
+
+Configure automatic sync to cloud storage:
+
+- **S3-compatible**: Any provider (AWS S3, Cloudflare R2, MinIO, etc.)
+- **WebDAV**: NAS devices, Nextcloud, ownCloud, etc.
+
+## New User Onboarding
+
+When you first launch Myrm, the **Onboarding Wizard** automatically checks for existing AI assistant data on your system. If found, it offers a one-click migration path — so your first conversation already has your personality, memories, and tools.
+
+A **Discovery Banner** also appears in the chat window when external data is detected, providing quick access to the migration wizard.
+
+## Export
+
+### Memory Archive Export
+
+Export your Myrm memories as a structured JSON archive (`myrm_memory_archive` format) that can be imported into another Myrm instance or shared.
+
+### Dataset Export
+
+Export conversation data in training-ready formats:
+
+- **ShareGPT**: Standard fine-tuning format
+- **PII Redaction**: Optionally strip personal information
+- **Quality Filtering**: Min turns, min content length, success-only
+- **Incremental**: Export only new data since last export
+
+## Comparison with Competitors
+
+| Feature | Myrm | Hermes | OpenClaw | Claude Code |
+|---------|:----:|:------:|:--------:|:-----------:|
+| GUI Migration Wizard | ✅ | ❌ CLI only | ❌ | ❌ |
+| Dry-Run Preview | ✅ | ✅ (text) | ❌ | ❌ |
+| One-Click Rollback | ✅ | ❌ | ❌ | ❌ |
+| Multi-Source Discovery | ✅ (8 sources) | ❌ (1 source) | ❌ | ❌ |
+| Cloud ZIP Upload | ✅ | ❌ | ❌ | ❌ |
+| Remote Backup (S3/WebDAV) | ✅ | ❌ | ❌ | ❌ |
+| Token Economics Comparison | ✅ | ❌ | ❌ | ❌ |
+| MCP Config Migration | ✅ | ✅ (overwrites) | ❌ | ❌ |
+| Skill Review Queue | ✅ | ❌ | ❌ | ❌ |
+| Target Agent Selection | ✅ | ❌ | ❌ | ❌ |
