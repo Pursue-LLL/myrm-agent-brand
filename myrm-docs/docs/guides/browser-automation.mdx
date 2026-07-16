@@ -634,6 +634,14 @@ When the agent operates via Extension Bridge, all automation runs in a **dedicat
 - If you manually close the background window, it's automatically recreated on next task
 - On disconnect, all background tabs are cleaned up to prevent resource accumulation
 
+**Triple-layer session safety net** — no zombie processes or stale sessions, ever:
+
+| Layer | Trigger | Response Time |
+|-------|---------|---------------|
+| L1: WebSocket disconnect | Server crash, network drop, or user stops agent | Instant — all debuggers detached immediately |
+| L2: Heartbeat timeout | Extension becomes unresponsive | 30 seconds — server disconnects and cleans up |
+| L3: Tab lifecycle events | User closes browser or Chrome reclaims tabs | Instant — extension notifies server |
+
 **Result**: You continue browsing normally while the agent works in the background at full speed. No window flashing, no focus stealing, no disruption.
 
 ### Security Model
