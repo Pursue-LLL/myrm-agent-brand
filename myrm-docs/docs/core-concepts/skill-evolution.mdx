@@ -455,6 +455,20 @@ Myrm's Skill Growth dashboard supports two view modes, switchable with a single 
 
 In Simple mode, each card includes a "View changes" link that expands the diff on demand — no performance penalty until you actually need it. Your preference is persisted in localStorage across sessions.
 
+### Growth Center data plane (2026-07)
+
+Settings → Skills → **Pending Evolutions** uses a three-layer read path so large diffs never slow the list:
+
+| Capability | API | What you see |
+|------------|-----|--------------|
+| **Summary list** | `GET /skill-growth/cases` | Fast list without diff/trajectory bodies |
+| **Lazy detail** | `GET /skill-growth/cases/{id}` | Full diff only when you expand a card |
+| **Stats bar** | `GET /skill-growth/stats` | SQL-accurate Total/Pending/Auto/Blocked |
+| **Filter badges** | Same stats source | Badge counts match the full corpus, not just loaded rows |
+| **Scope hint** | Cases API `total` field | Shows “latest N of M” when M > loaded page |
+
+Verified by **10+ pytest + Chrome MCP E2E** on real `:3000` UI: seed → API asserts → stat cards → filter → refresh → lazy diff.
+
 No competitor offers a GUI-based skill review dashboard. OpenClaw uses CLI commands (`openclaw skills workshop apply <id>`). Other competitors either have no skill evolution system or rely entirely on CLI/text-based approval.
 
 ### Data Flywheel Dashboard

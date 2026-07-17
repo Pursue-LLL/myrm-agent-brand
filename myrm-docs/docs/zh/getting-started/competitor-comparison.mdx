@@ -44,10 +44,10 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **极端防爆** | ✅ 4 层护城河（卫生/护盾/剥离/预算） | ⚠️ 大负载崩溃/丢失 | ⚠️ 单点失败 | ⚠️ 未知 | ⚠️ 基础限制 | ⚠️ 未知 | ❌ |
 | **输出净化** | ✅ 双层防护（流式+投递前），覆盖全角管道符和 DeepSeek token | ⚠️ 单层，仅 ASCII 管道符（近期修复） | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **MCP 工具安全** | ✅ 双层防护：上游异常捕获+下游 block 类型强制转换（file/audio/未知→text） | ⚠️ 单层转换（无上游容错） | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **智能路由与模型自动升级** | ✅ 六层体系: ComplexityRouter 三档路由（40+ 中英关键词 + 20 种异常正则 + 多维信号评分）+ LLM 裁判(256条TTL缓存) + 会话动量(长度加权衰减) + 隐私感知路由 + PenaltyTracker误路由反馈学习(24h衰减) + ESCALATION_CONTRACT (模型自主升级合约) + EscalationScrubber + 11模块降级链 + 10模块Token经济学(成本溯源+工具归因+延迟统计+多维预算) — 2,334 项测试 | ⚠️ 仅 Sonnet→Opus 单维度 | ❌ | ⚠️ 手动三档 | ❌ | ⚠️ 未知 | ❌ |
+| **智能路由与模型自动升级** | ✅ 六层体系: ComplexityRouter 三档路由（40+ 中英关键词 + 20 种异常正则 + 多维信号评分）+ LLM 裁判(256条TTL缓存) + 会话动量(长度加权衰减) + 隐私感知路由 + PenaltyTracker误路由反馈学习(24h衰减) + ESCALATION_CONTRACT (模型自主升级合约) + EscalationScrubber + 11模块降级链 + 10模块Token经济学(成本溯源+工具归因+延迟统计+多维预算) + 17+维度路由透明度（tier badge+成本+缓存+隐私+工具归因+路由分析面板）+ 6级推理强度GUI控件(off/low/medium/high/xhigh/max+自定义值+per-model持久化+reasoning模型自动检测) — 3,189 项测试 | ⚠️ 仅 Sonnet→Opus 单维度 | ❌ | ⚠️ 手动三档 | ❌ | ⚠️ 未知 | ❌ |
 | **后台任务托盘** | ✅ GUI-first 闭环 v1（2026-07）：统一 `bash_process_tool`（list/output/kill）+ **`invoke_deferred_tool` 代理**（Turn1 ~42 tok，Prefix Cache 稳定，无 AutoMount mutate bind）→ 自然结束写入 i18n 聊天 + **单次** SSE toast + 自动刷新；Navbar 角标/Tooltip + Tauri 托盘 running 数；kill/cancel/流取消静默 — **9 条集成 + 120+ 项自动化测试全绿** | ⚠️ 仅运行+取消 | ❌ | ❌ | ⚠️ Background Agent（无转向） | ⚠️ 未知 | ❌ |
 | **错误恢复** | ✅ 8层纵深防护(LoopGuard 7种模式+ToolStuck→GraphInterrupt+FrequencyGuard+E-Stop+4层熔断器+僵尸自动回收+Gateway超时+内存压力熔断) + **工具调用四层自主修正**(7+种JSON修复策略适配弱/本地模型+错误→ToolMessage自动回传LLM自修正+LoopGuard防死循环+CorrectionLearning审批修正持久化记忆) + 14类自愈 + 9层纵深降级 — 3,276项测试 | try/catch | 基础 | 基础 | ⚠️ 上下文溢出恢复 | ⚠️ 未知 | ❌ |
-| **企业可靠性** | ✅ xdist 锁、EventBus 截断、OTEL 安全、路径边界 + TOCTOU 审批测试；聊天 SSE 状态机回归；**521 份分形 `_ARCH` 模块文档 + 296 项架构 CI 门禁**；**Eval 引擎：4 类 12+ 种断言体系（Tool+State+Sandbox+Semantic LLM 裁判）+ 多轮评测 + 一键 chat→eval 捕获 + AdaptiveEvalManager + GUI 集成 + 多数据集 CRUD + SSE 流式进度 + 6 项 IR 指标（Recall/Precision/NDCG/MRR）+ ModelTier 自动调优 — 150 项 eval 测试验证，13/14 维度领先 LocalBench/ClawEval/Claw-Eval**（2026-07-12） | ⚠️ 仅快乐路径测试 | ⚠️ 易竞态（ClawEval: CLI 59 角色基准测试，无 GUI） | ⚠️ 未知 | ⚠️ 未知 | ⚠️ 未知 | ❌ |
+| **企业可靠性** | ✅ xdist 锁、EventBus 截断、OTEL 安全、路径边界 + TOCTOU 审批测试；聊天 SSE 状态机回归；**521 份分形 `_ARCH` 模块文档 + 296 项架构 CI 门禁**；**Eval 引擎：4 类 12+ 种断言体系（Tool+State+Sandbox+Semantic LLM 裁判，支持自定义 judge_prompt/model/threshold）+ 多轮评测（MultiTurnEvalCase）+ 一键 chat→eval 捕获（GUI Flywheel 闭环）+ AdaptiveEvalManager 智能算力让步 + GUI 集成 + 多数据集 CRUD + A/B 历史报告 + SSE 流式进度 + 6 项 IR 指标（Recall/Precision/NDCG/MRR/HitRate/Latency）+ ModelTier 自动调优 + 评测工作空间物理防污染隔离 + 记忆检索质量评测子系统 — 127 项 eval 测试验证，唯一具备完整评测 GUI+AI 裁判+并发执行+一键捕获闭环的 Agent 框架**（2026-07-17） | ⚠️ 仅快乐路径测试 | ⚠️ 易竞态（ClawEval: CLI 59 角色基准测试，无 GUI） | ⚠️ 未知 | ⚠️ 未知 | ⚠️ 未知 | ❌ |
 | **模块文档地图** | ✅ **521** 份 `_ARCH.md` + CI 防漂移（`check_fractal_docs`） | ❌ 仅集中式 docs | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **文件编辑安全** | ✅ 7 层保护 + 三层写后防呆（内存语法校验+CLI深度诊断+12种自动格式化）+ 语法错误自动回滚 + Shadow Git 快照**选择性文件恢复**（checkbox 多选）+ 行级变更统计 (+X/−Y) + 回退后 Agent 自动感知 + 冲突检测 + 配置保护 + 敏感文件保护 + 实时 diff SSE（1,190 项测试） | ⚠️ py_compile 级写后检查（无自动格式化、无回滚） | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
 | **文件系统智能** | ✅ 19 种原生操作 + 11模块解析引擎（PDF 3策略 + Office全格式 + Jupyter Notebook含kernel语言检测+语法高亮+全栈拖拽入库 + 未知格式附件感知兜底）+ 5 层观察者 + **智能文件检索**（glob通配递归 + grep三级引擎 ripgrep>mmap>Python + ReDoS防护 + token节约格式化 + 前端typeahead路径补全）——**163项file_search+suggest测试 + 788项文件系统测试 = 951项全通过** | ⚠️ 4 种基础操作 + 基础 ipynb/docx/xlsx（同步、无降级） | ⚠️ 仅 bash | ⚠️ 仅 bash | ❌ | ⚠️ 基础 | ❌ |
@@ -454,7 +454,7 @@ Myrm 技能进化（42 模块、原生内置）实现 Self-Improving Agent 研�
 |------|---------|------|
 | SkillHistoryPanel | 进化记录 + Monaco DiffEditor + 状态徽章(approved/rejected/rolled_back) + 一键回滚 | HISTORY.md 文件 |
 | EvolutionRejectionDashboard | 7 种状态分类 + 统计卡片 + 时间范围筛选(7/30/90/180天) + SSE 实时推送 + 强制重试 | 无 |
-| PendingEvolutionsDashboard | 简洁/详细双视图 + approve/reject/revise 生命周期 + localStorage 持久化 | 无 |
+| PendingEvolutionsDashboard | 简洁/详细双视图 + SQL 精确 stats/筛选徽章 + lazy detail + 列表 scope 提示 + approve/reject/revise 生命周期 + localStorage 持久化 | 无 |
 | SkillGrowthCaseCard | 单个提案卡片 + Monaco DiffEditor 就地编辑 + 拒绝理由输入 | 无 |
 | SkillVersionsPanel | 版本列表 + 跨版本对比(任意 v1 vs v2) + 回滚确认 | 无 |
 | SkillQualityGuardian | A/B 测试状态 + 影子样本 + 质量指标 | 无 |

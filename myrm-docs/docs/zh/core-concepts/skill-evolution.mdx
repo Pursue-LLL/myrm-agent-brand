@@ -385,6 +385,20 @@ Myrm 技能成长看板支持两种视图模式，一键切换：
 
 简洁模式下，每张卡片保留「查看变更」链接，按需展开 diff——不展开则零性能开销。偏好设置通过 localStorage 持久化。
 
+### Growth Center 数据面（2026-07）
+
+设置 → 技能 → **待审核进化** 面板采用三层读路径，避免大 payload 拖慢页面：
+
+| 能力 | 说明 | 用户可见效果 |
+|------|------|-------------|
+| **Summary 列表** | `GET /skill-growth/cases` 仅返回摘要字段 | 列表秒开，不含 diff/轨迹正文 |
+| **Lazy Detail** | 展开卡片时 `GET /skill-growth/cases/{id}` | 按需看完整 diff，不展开零开销 |
+| **Stats 顶栏** | `GET /skill-growth/stats` SQL 精确分桶 | Total/Pending/Auto/Blocked 与全库一致 |
+| **Filter 徽章** | 与 stats 同源，非「只数当前页」 | 点「待审核」徽章数字 = 顶栏待审核数 |
+| **Scope 提示** | cases API 返回 `total` | 超过 100 条时显示「展示最新 100 / 共 N 条」 |
+
+已通过 **10+ pytest + Chrome MCP E2E**（真实 :3000 UI）验证：seed → API 断言 → 统计卡 → 筛选 → 刷新 → lazy diff。
+
 所有竞品均无 GUI 技能审核面板。OpenClaw 使用 CLI 命令（`openclaw skills workshop apply <id>`），其他竞品无技能进化系统或仅支持 CLI/文本审批。
 
 ### 数据飞轮仪表盘
