@@ -45,7 +45,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **输出净化** | ✅ 双层防护（流式+投递前），覆盖全角管道符和 DeepSeek token | ⚠️ 单层，仅 ASCII 管道符（近期修复） | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **MCP 工具安全** | ✅ 双层防护：上游异常捕获+下游 block 类型强制转换（file/audio/未知→text） | ⚠️ 单层转换（无上游容错） | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **智能路由与模型自动升级** | ✅ 六层体系: ComplexityRouter 三档路由（40+ 中英关键词 + 20 种异常正则 + 多维信号评分）+ LLM 裁判(256条TTL缓存) + 会话动量(长度加权衰减) + 隐私感知路由 + PenaltyTracker误路由反馈学习(24h衰减) + ESCALATION_CONTRACT (模型自主升级合约) + EscalationScrubber + 11模块降级链 + 10模块Token经济学(成本溯源+工具归因+延迟统计+多维预算) + 17+维度路由透明度（tier badge+成本+缓存+隐私+工具归因+路由分析面板）+ 6级推理强度GUI控件(off/low/medium/high/xhigh/max+自定义值+per-model持久化+reasoning模型自动检测) — 3,189 项测试 | ⚠️ 仅 Sonnet→Opus 单维度 | ❌ | ⚠️ 手动三档 | ❌ | ⚠️ 未知 | ❌ |
-| **后台任务托盘** | ✅ GUI-first 闭环 v1（2026-07）：统一 `bash_process_tool`（list/output/kill）+ **`invoke_deferred_tool` 代理**（Turn1 ~42 tok，Prefix Cache 稳定，无 AutoMount mutate bind）→ 自然结束写入 i18n 聊天 + **单次** SSE toast + 自动刷新；Navbar 角标/Tooltip + Tauri 托盘 running 数；kill/cancel/流取消静默 — **9 条集成 + 120+ 项自动化测试全绿** | ⚠️ 仅运行+取消 | ❌ | ❌ | ⚠️ Background Agent（无转向） | ⚠️ 未知 | ❌ |
+| **后台任务托盘** | ✅ GUI-first 闭环 v1（2026-07）：统一 `bash_process_tool`（list/output/kill）Turn1 eager（Prefix Cache 稳定，不 mutate bind_tools）→ 自然结束写入 i18n 聊天 + **单次** SSE toast + 自动刷新；Navbar 角标/Tooltip + Tauri 托盘 running 数；kill/cancel/流取消静默 — **9 条集成 + 120+ 项自动化测试全绿** | ⚠️ 仅运行+取消 | ❌ | ❌ | ⚠️ Background Agent（无转向） | ⚠️ 未知 | ❌ |
 | **错误恢复** | ✅ 8层纵深防护(LoopGuard 7种模式+ToolStuck→GraphInterrupt+FrequencyGuard+E-Stop+4层熔断器+僵尸自动回收+Gateway超时+内存压力熔断) + **工具调用四层自主修正**(7+种JSON修复策略适配弱/本地模型+错误→ToolMessage自动回传LLM自修正+LoopGuard防死循环+CorrectionLearning审批修正持久化记忆) + 14类自愈 + 9层纵深降级 — 3,276项测试 | try/catch | 基础 | 基础 | ⚠️ 上下文溢出恢复 | ⚠️ 未知 | ❌ |
 | **企业可靠性** | ✅ xdist 锁、EventBus 截断、OTEL 安全、路径边界 + TOCTOU 审批测试；聊天 SSE 状态机回归；**521 份分形 `_ARCH` 模块文档 + 296 项架构 CI 门禁**；**Eval 引擎：4 类 12+ 种断言体系（Tool+State+Sandbox+Semantic LLM 裁判，支持自定义 judge_prompt/model/threshold）+ 多轮评测（MultiTurnEvalCase）+ 一键 chat→eval 捕获（GUI Flywheel 闭环）+ AdaptiveEvalManager 智能算力让步 + GUI 集成 + 多数据集 CRUD + A/B 历史报告 + SSE 流式进度 + 6 项 IR 指标（Recall/Precision/NDCG/MRR/HitRate/Latency）+ ModelTier 自动调优 + 评测工作空间物理防污染隔离 + 记忆检索质量评测子系统 — 127 项 eval 测试验证，唯一具备完整评测 GUI+AI 裁判+并发执行+一键捕获闭环的 Agent 框架**（2026-07-17） | ⚠️ 仅快乐路径测试 | ⚠️ 易竞态（ClawEval: CLI 59 角色基准测试，无 GUI） | ⚠️ 未知 | ⚠️ 未知 | ⚠️ 未知 | ❌ |
 | **模块文档地图** | ✅ **521** 份 `_ARCH.md` + CI 防漂移（`check_fractal_docs`） | ❌ 仅集中式 docs | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -185,6 +185,7 @@ Myrm 以奥卡姆剃刀式 WebUI 安全方案，解决本地优先部署的「�
 
 *   **本地零摩擦 vs 远程铁壁**：WebUI 自动识别 `localhost` 回环免登录；一经隧道或 LAN 暴露即强制密码保护。
 *   **零信任 WebSocket 网关**：竞品常只保护 HTTP，WebSocket（实时日志/语音）裸奔。Myrm `WsAuthMiddleware` 在 session cookie 缺失或无效时物理拒绝握手（HTTP 403）。
+*   **CORS 三层纵深防护**：scheme+host 双层输入校验（通配符 `*` 直接拒绝）+ WebSocket Origin Guard（复用 CORS 配置统一安全边界，4003 拒绝非法 origin）+ HostAllowlist DNS Rebinding 防护（动态 ingress/tunnel hostname 白名单）。Tauri 桌面端 `tauri://localhost` 原生 scheme 支持。云部署 default-deny。29 项 CORS 安全测试验证。
 *   **即时会话驱逐**：改密码或切换保护时自动轮换全局 HMAC Session Signing Key，瞬间作废所有会话（类似失窃设备一键熔断）；竞品旧 JWT 常仍有效。
 *   **单租户 Vault vs 重型 DB**：本地模式用单一高加密 `admin.json`，非 SaaS 式 Postgres/MySQL + RBAC 膨胀；安全、可移植、零依赖。
 

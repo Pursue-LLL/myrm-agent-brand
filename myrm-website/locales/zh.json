@@ -512,10 +512,10 @@
           "myrmAgent": "首次启动自动扫描本机 Claude Code, Cursor, Codex 等 8 种工具凭证，一键导入 + 技能使用历史/偏好/Pin 状态同步迁移（零冷启动），真正做到开箱即用"
         },
         "webuiSecurity": {
-          "feature": "WebUI 隧道安全 · 内网不裸奔",
+          "feature": "WebUI 隧道安全 · 三层跨域防护 + DNS Rebinding 防护",
           "hermes": "易穿透/无",
-          "openclaw": "易穿透/无",
-          "myrmAgent": "企业级强阻断"
+          "openclaw": "仅 origin_guard 单层",
+          "myrmAgent": "CORS 三层纵深防护：scheme+host 双层输入校验（拒绝通配符和无效 origin）+ WebSocket Origin Guard（复用 CORS 配置统一安全边界）+ HostAllowlist DNS Rebinding 防护（动态 ingress/tunnel hostname 白名单），Tauri 桌面端原生 scheme 支持，云部署 default-deny（29 项测试验证）"
         },
         "multimodel": {
           "feature": "多模型 · 不被供应商锁定 · 原生思考模型支持",
@@ -527,7 +527,7 @@
           "feature": "Token 消耗 · 同样预算约 7 倍任务量 + 内置防膨胀技能",
           "hermes": "~15,520",
           "openclaw": "~18,000",
-          "myrmAgent": "2,167 省86% + Turn1 `invoke_deferred_tool` ~42 tok 轻量代理（mid-thread 不 mutate bind_tools）+ DeferEconomics 小池默认不 bind discover + 稳定 `<available-deferred-tools>` 索引；实测工具层 ~8,063 tok（SSOT 锁定；conversation_search 按需 +~67 tok）+ 控制面零 bind + memory×3 COMMON 层 cache 友好排序；**发消息即预检** `capability_gap`（WebUI workspace 多路复用长连接 + 早到 chunk 缓冲，toast「开启并重发」不丢）；14 项含 cron/render_ui；会话 wrench SSE 实时展示 Turn1 工具；**实时 Token 可观测**：每轮 LLM 调用后立即推送 token_usage 事件 + cached_tokens 精确报告 + model_usage 按模型分组 + CacheBreakDetector 缓存中断原因归因——每一分钱花在哪里实时可见（竞品第三方模型显示 Token: 0）"
+          "myrmAgent": "2,167 省86% + 内置工具 Turn1 直出零代理开销（mid-thread 不 mutate bind_tools）+ MCP 技能通过 discover_capability → skill_select 渐进加载（比竞品全量注入省 94% token）；实测工具层 ~8,063 tok（SSOT 锁定；conversation_search 按需 +~67 tok）+ 控制面零 bind + memory×3 COMMON 层 cache 友好排序；**发消息即预检** `capability_gap`（WebUI workspace 多路复用长连接 + 早到 chunk 缓冲，toast「开启并重发」不丢）；14 项含 cron/render_ui；会话 wrench SSE 实时展示 Turn1 工具；**实时 Token 可观测**：每轮 LLM 调用后立即推送 token_usage 事件 + cached_tokens 精确报告 + model_usage 按模型分组 + CacheBreakDetector 缓存中断原因归因——每一分钱花在哪里实时可见（竞品第三方模型显示 Token: 0）"
         },
         "costRouting": {
           "feature": "三维智能路由 + 自动升级 · 复杂度+隐私+容错+模型卡住自动升级",
@@ -557,7 +557,7 @@
           "feature": "无人值守 · 后台任务不挂死",
           "hermes": "易卡死",
           "openclaw": "不支持",
-          "myrmAgent": "后台子任务完成自动唤醒主Agent续跑(3次重试+指数退避) · 超时死锁自动跳过 · 服务重启后中断任务自动恢复 · 预算超额自动阻止 · GUI-first 后台闭环 v1：run_in_background→统一 bash_process_tool（Turn1 经 invoke_deferred_tool 代理零 token，Prefix Cache 稳定）→自然结束写入 i18n 聊天+单次 SSE toast+自动刷新；**全局存活三态指示器**：浏览器 Tab 标记 `[*]`/`[!]` + Tauri 托盘图标三色切换(忙=绿/异常=橙) + 桌面宠物动画联动 + 网络故障自动降级——useSyncExternalStore 单例轮询器零重复请求；kill/cancel 静默无骚扰 · 9 条集成+120+ 项自动化测试全绿 · Web+桌面+云三端统一(不绑定任何SDK)"
+          "myrmAgent": "后台子任务完成自动唤醒主Agent续跑(3次重试+指数退避) · 超时死锁自动跳过 · 服务重启后中断任务自动恢复 · 预算超额自动阻止 · GUI-first 后台闭环 v1：run_in_background→统一 bash_process_tool（Turn1 eager，Prefix Cache 稳定）→自然结束写入 i18n 聊天+单次 SSE toast+自动刷新；**全局存活三态指示器**：浏览器 Tab 标记 `[*]`/`[!]` + Tauri 托盘图标三色切换(忙=绿/异常=橙) + 桌面宠物动画联动 + 网络故障自动降级——useSyncExternalStore 单例轮询器零重复请求；kill/cancel 静默无骚扰 · 9 条集成+120+ 项自动化测试全绿 · Web+桌面+云三端统一(不绑定任何SDK)"
         },
         "extremeAntiExplosion": {
           "feature": "极限防爆盾 · 怎么聊都不会炸",
@@ -617,7 +617,7 @@
           "feature": "统一工具网关",
           "hermes": "硬切换 (易报错)",
           "openclaw": "无",
-          "myrmAgent": "四合一网关 + DeferEconomics discover + invoke_deferred_tool 稳定代理（无 AutoMount mutate bind）+ 弹性 BYOK 回退 + 669项网关审计测试全通过 · 开启 file_ops 时 Glob/Grep 与 Claude Code 同款 eager（非 deferred）· Bash命令独立审计面板 · 全工具ExecutionTrace时间线 · 会话回放 · OpenTelemetry全链路Trace"
+          "myrmAgent": "四合一网关 + MCP 渐进发现（discover_capability → skill_select，不 mutate bind_tools）+ SkillAttenuation 中间件 + 弹性 BYOK 回退 + 669项网关审计测试全通过 · 开启 file_ops 时 Glob/Grep 与 Claude Code 同款 eager · Bash命令独立审计面板 · 全工具ExecutionTrace时间线 · 会话回放 · OpenTelemetry全链路Trace"
         },
         "externalAgentAcp": {
           "feature": "外部 Agent 集成 · 一个平台调度 Claude Code / Codex / Gemini",

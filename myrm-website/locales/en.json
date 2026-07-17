@@ -512,10 +512,10 @@
           "myrmAgent": "Auto-scans Claude Code, Cursor, Codex, etc. on first launch for 1-click import + skill usage history/preferences/pinned state preserved (zero cold-start). Truly out-of-the-box experience"
         },
         "webuiSecurity": {
-          "feature": "WebUI Tunnel Security",
+          "feature": "WebUI Tunnel Security · 3-Layer CORS + DNS Rebinding Protection",
           "hermes": "Weak/None",
-          "openclaw": "Weak/None",
-          "myrmAgent": "Enterprise-grade block"
+          "openclaw": "origin_guard only",
+          "myrmAgent": "3-layer CORS defense-in-depth: scheme+host dual input validation (rejects wildcards and invalid origins) + WebSocket Origin Guard (unified security boundary with CORS config) + HostAllowlist DNS rebinding protection (dynamic ingress/tunnel hostname allowlist). Native Tauri scheme support. Cloud default-deny (29 tests verified)"
         },
         "multimodel": {
           "feature": "Multi-model · No vendor lock-in · Native thinking model support",
@@ -527,7 +527,7 @@
           "feature": "Token cost · ~7x tasks on same budget + built-in anti-bloat skill",
           "hermes": "~15,520",
           "openclaw": "~18,000",
-          "myrmAgent": "2,167 -86% + Turn1 invoke_deferred_tool ~42 tok proxy (no mid-thread bind_tools mutate) + DeferEconomics skips discover on small pools + stable `<available-deferred-tools>` index; measured Turn1 ~8,063 tok tool layer (SSOT locked; conversation_search opt-in +~67 tok) + control-plane zero bind + memory×3 COMMON layer cache-friendly sort; **per-message preflight** `capability_gap` (WebUI workspace multiplex SSE + early-chunk buffer — gap toasts never dropped); 14 togglable incl. cron/render_ui; session wrench panel shows live Turn1 tools via SSE; **real-time token observability**: per-call streaming token_usage events + cached_tokens precise reporting + model_usage per-model breakdown + CacheBreakDetector auto-attribution — every penny spent, visible in real-time (competitors show Token: 0 on third-party models)"
+          "myrmAgent": "2,167 -86% + builtin tools Turn1 eager (zero proxy overhead, no mid-thread bind_tools mutate) + MCP skills via discover_capability → skill_select progressive load (94% token savings vs full injection); measured Turn1 ~8,063 tok tool layer (SSOT locked; conversation_search opt-in +~67 tok) + control-plane zero bind + memory×3 COMMON layer cache-friendly sort; **per-message preflight** `capability_gap` (WebUI workspace multiplex SSE + early-chunk buffer — gap toasts never dropped); 14 togglable incl. cron/render_ui; session wrench panel shows live Turn1 tools via SSE; **real-time token observability**: per-call streaming token_usage events + cached_tokens precise reporting + model_usage per-model breakdown + CacheBreakDetector auto-attribution — every penny spent, visible in real-time (competitors show Token: 0 on third-party models)"
         },
         "costRouting": {
           "feature": "3D Smart Routing + Auto-Escalation · Complexity + Privacy + Fallback + model self-upgrade when stuck",
@@ -557,7 +557,7 @@
           "feature": "Unattended · Background jobs don't hang",
           "hermes": "Prone to freeze",
           "openclaw": "Unsupported",
-          "myrmAgent": "Background subtask auto-wakes idle Agent (3x retry + exponential backoff) · timeout deadlock auto-skip · interrupted tasks auto-resume after restart · budget-exceeded auto-block · GUI-first background closure v1: run_in_background → unified bash_process_tool (Turn1 0 tok via invoke_deferred_tool proxy; stable prefix cache) → natural exit writes i18n chat + single SSE toast + auto reload; **Global Liveness Tri-State Indicator**: browser Tab badge `[*]`/`[!]` + Tauri tray icon switching (busy green / degraded orange) + Pet animation sync + network-fault auto-degraded — singleton poller via useSyncExternalStore (zero duplicate intervals); kill/cancel stays silent · 9 integration + 120+ automated tests green · works on Web+Desktop+Cloud (not tied to any single SDK)"
+          "myrmAgent": "Background subtask auto-wakes idle Agent (3x retry + exponential backoff) · timeout deadlock auto-skip · interrupted tasks auto-resume after restart · budget-exceeded auto-block · GUI-first background closure v1: run_in_background → unified bash_process_tool (Turn1 eager; stable prefix cache) → natural exit writes i18n chat + single SSE toast + auto reload; **Global Liveness Tri-State Indicator**: browser Tab badge `[*]`/`[!]` + Tauri tray icon switching (busy green / degraded orange) + Pet animation sync + network-fault auto-degraded — singleton poller via useSyncExternalStore (zero duplicate intervals); kill/cancel stays silent · 9 integration + 120+ automated tests green · works on Web+Desktop+Cloud (not tied to any single SDK)"
         },
         "extremeAntiExplosion": {
           "feature": "Extreme Anti-Explosion · Never crashes on massive chats",
@@ -617,7 +617,7 @@
           "feature": "Unified Tool Gateway",
           "hermes": "Hard Switch (Error Prone)",
           "openclaw": "N/A",
-          "myrmAgent": "4-in-1 Gateway + DeferEconomics discover + invoke_deferred_tool stable proxy (no AutoMount bind_tools mutate) + Elastic BYOK Fallback + 669 tests · file_ops enables eager Glob/Grep (Claude Code parity, not deferred) · Bash Audit Panel · ExecutionTrace · Session Replay · OpenTelemetry"
+          "myrmAgent": "4-in-1 Gateway + MCP progressive discovery (discover_capability → skill_select, no bind_tools mutate) + SkillAttenuation middleware + Elastic BYOK Fallback + 669 tests · file_ops enables eager Glob/Grep (Claude Code parity) · Bash Audit Panel · ExecutionTrace · Session Replay · OpenTelemetry"
         },
         "externalAgentAcp": {
           "feature": "External Agent hub · call Claude Code / Codex / Gemini from one place",
