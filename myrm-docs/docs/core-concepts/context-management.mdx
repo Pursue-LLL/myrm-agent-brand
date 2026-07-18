@@ -45,12 +45,13 @@ Not just terminal commands — **every tool** (search, API, browser, MCP, etc.) 
 | **L1** | 11 Bash command compressors + YAML declarative engine | Shell output | Smart compression for git/pytest/npm etc., preserving key information |
 | **L2** | `FilterProcessor` + `SemanticFilter` / `StructuralFilter` | Any tool output >5K tokens (single) or >15K tokens (turn aggregate) | Structural content: zero-LLM-cost extraction (9 formats); Unstructured: lightweight LLM semantic summary |
 | **L3** | `ContextBudgetGuard` | Single output >100K chars | Hard safety net: persist to disk + return summary reference |
+| **L4** | `OversizedResultHandler` (MCP) | MCP tool output > `max_output_chars` | Vault spill: full content → ArtifactVault with `vault://` pointer + head/tail summary. Fallback: head-truncation if vault unavailable |
 
 **Tool protection whitelist**: `file_read_tool`, `file_edit_tool` and other critical tools are automatically exempt from filtering to avoid "read→truncate→re-read" loops.
 
 **Prompt Cache aware**: Automatically skips filtering during session resume (Resume) or human-in-the-loop (HITL) scenarios to protect existing cache prefixes.
 
-**Full content recoverable**: All filtered large results are persisted to `.myrm/artifacts/tool_outputs/`. The Agent can retrieve original content at any time via file read tools.
+**Full content recoverable**: All filtered large results are persisted to `.myrm/artifacts/tool_outputs/`. MCP oversized outputs are stored in ArtifactVault with `vault://` pointers — the Agent can retrieve original content at any time via `file_read_tool(paths=["vault://..."])`.
 
 ### Layer 2: Cache TTL Pruning
 
