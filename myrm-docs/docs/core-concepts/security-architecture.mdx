@@ -464,6 +464,25 @@ When sharing procedural memory rules (e.g., with teammates or the community), ad
 
 This ensures no personally identifiable file paths or credentials can leak through shared rules. See [Memory System → Privacy-safe Rule Sharing](/core-concepts/memory-system#privacy-safe-rule-sharing) for full details.
 
+### Agent Secret Management — Zero Plaintext Exposure
+
+Per-agent secrets (custom API keys, tokens, environment variables) use a **zero-plaintext-exposure architecture**:
+
+| Security Property | How It Works |
+|-------------------|--------------|
+| **Frontend never receives values** | `listAgentSecrets` API returns only key names (`string[]`), never values |
+| **No reveal endpoint** | Unlike competitors that return plaintext on "reveal," Myrm has no reveal pathway |
+| **Edit requires new value** | Password input field, placeholder "Enter new value to overwrite" |
+| **Sentinel protection unnecessary** | Since old values never reach the frontend, no "****" round-trip risk exists |
+| **Encrypted at rest** | AES-256-GCM via `DatabaseSecretBackend` with server-side master key |
+| **Atomic file writes** | `LocalSecretBackend` uses tempfile + `os.replace` + `fsync` for crash safety |
+| **Log auto-redaction** | `SensitiveDataFilter` replaces token/key/secret patterns with `***REDACTED***` |
+| **Agent isolation** | Each agent can only access its own secrets via `agent_id` scoping |
+
+<Note>
+Competitors (e.g., Multica) return plaintext environment variables to the frontend and must rely on sentinel values ("****") to prevent accidental overwrites. Myrm eliminates this entire attack surface by never exposing values.
+</Note>
+
 ## Audit Trail
 
 ### Structured Audit Trail

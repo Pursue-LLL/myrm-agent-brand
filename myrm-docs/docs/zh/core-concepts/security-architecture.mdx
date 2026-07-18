@@ -405,6 +405,25 @@ Myrm 提供 8 层 PII 纵深防御，具备 57+ 种检测能力 — 市场上隐
 
 确保分享的规则中不会泄露个人文件路径或凭证。完整说明参见[记忆系统 → 隐私安全规则分享](/zh/core-concepts/memory-system#隐私安全规则分享)。
 
+### Agent 密钥管理——零明文暴露架构
+
+每个 Agent 的自定义密钥（API Key / Token / 环境变量）采用**零明文暴露架构**：
+
+| 安全特性 | 实现方式 |
+|----------|----------|
+| **前端永不接收密钥值** | `listAgentSecrets` API 仅返回 key 名列表（`string[]`），绝不返回值 |
+| **无 reveal 端点** | 竞品需要"显示明文"端点，Myrm 没有这个路径 |
+| **编辑必须输入新值** | 密码输入框，占位符"输入新值以覆盖" |
+| **无需 sentinel 防护** | 旧值从未到达前端，不存在 "****" 回传覆盖风险 |
+| **静态加密** | AES-256-GCM + 服务端主密钥 |
+| **原子文件写入** | tempfile + `os.replace` + `fsync` 防崩溃 |
+| **日志自动脱敏** | `SensitiveDataFilter` 自动替换 token/key/secret 为 `***REDACTED***` |
+| **Agent 隔离** | 每个 Agent 只能通过 `agent_id` 访问自己的密钥 |
+
+<Note>
+竞品（如 Multica）向前端返回明文环境变量，必须依赖 sentinel 值（"****"）防止意外覆盖。Myrm 从架构上消除了这个攻击面。
+</Note>
+
 ## 审计追踪
 
 结构化审计日志：37 种安全决策类型 + Prometheus 实时指标 + TaintTracker 信息流追踪。
