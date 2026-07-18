@@ -220,7 +220,36 @@ When a child agent crashes with a long traceback, the error message is automatic
 
 This prevents a common multi-agent failure pattern: a child agent's verbose crash output consuming the parent's context window, causing cascading reasoning degradation across the agent hierarchy.
 
-## Cascading Error Protection
+## Subagent Partial Progress on Failure
+
+When a sub-agent fails mid-execution (LLM error, budget exceeded, timeout, or runtime exception), all accumulated work is preserved and returned to the parent agent — never lost.
+
+| Failure Path | What Happens | Parent Agent Receives |
+|---|---|---|
+| **LLM Error** (MyrmLLMError) | Provider returns error after partial work | `SubAgentResult(success=False, result="80% completed work...")` |
+| **Budget Exceeded** | Token/cost limit hit mid-task | `SubAgentResult(success=False, result="work done before budget hit...")` |
+| **Timeout** | Task exceeds deadline | `SubAgentResult(success=False, result="progress before timeout...")` |
+| **Runtime Exception** | Unexpected crash | `SubAgentResult(success=False, result="all output accumulated...")` |
+
+### Why This Matters
+
+Without partial progress preservation, a sub-agent that completed 80% of a complex task before hitting a rate limit would lose **all** its work. The parent agent would have to start from scratch — wasting the tokens already consumed and doubling the cost.
+
+With Myrm's approach:
+- Parent receives all completed work as structured output
+- Parent can resume from where the sub-agent left off
+- Token cost for the successful portion is not wasted
+- Over-long partial output is automatically truncated (configurable via `max_error_chars * 2`)
+
+### Competitor Comparison
+
+| Feature | Myrm | Claude Code | OpenClaw | Hermes |
+|---------|:----:|:-----------:|:--------:|:------:|
+| Partial progress on failure | 4 paths | None | None | None |
+| Structured error status | 12 states | Exit code only | tool_error | Timeout/crash |
+| Truncation protection | Auto | None | None | None |
+
+
 
 Myrm provides defense-in-depth against cascading failures at every level of the agent hierarchy:
 
