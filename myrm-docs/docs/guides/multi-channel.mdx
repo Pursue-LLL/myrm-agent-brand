@@ -351,6 +351,14 @@ On iOS, the card automatically detects whether the app is running in standalone 
 - **No third-party service** — pushes go directly to browser vendor endpoints (Google FCM, Apple APNs, Mozilla autopush)
 - **Tauri-aware** — the setting card is hidden in desktop app builds where native notifications already work
 
+### One-click approval deep links
+
+Tapping a push notification opens the exact chat and **approval drawer** — not just the homepage.
+
+- **Approval requests** navigate to `/{chat_id}?approval={id}`; the WebUI opens the global ApprovalDrawer and strips the query param for a clean URL
+- **Service Worker routing** sanitizes same-origin paths and, when your chat tab is already open, calls `navigate()` instead of focus-only — so a new approval on an open tab still opens the drawer (OpenClaw's SW only compares pathname and misses this)
+- **Chrome MCP E2E verified** — hot tab + cold start deeplink paths (2026-07)
+
 ## Background Task Auto-Reply
 
 When you start a background task via `/btw` in any IM channel, the result is automatically pushed back to your original conversation when the task finishes:

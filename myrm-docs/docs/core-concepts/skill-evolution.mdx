@@ -374,6 +374,22 @@ In a multi-agent sandbox, skills are perfectly isolated yet securely shareable.
 - **1-Click Rollback**: Undo an evolution on a CoW fork, and the system intelligently restores the cross-agent mount mapping, retaining complete semantic history.
 - **Robust Garbage Collection**: Deleting an agent cascade-deletes its exclusive skills (both database records and physical `rmtree` wipe with path boundary protection), leaving zero orphan data or "ghost" skills.
 
+### Zero-Overhead Global Registry
+
+Unlike competitors that require dedicated database tables (`shared_capability` + `shared_capability_version` + `agent_capability_binding`) and a materialization layer to achieve "maintain shared capabilities once," Myrm's architecture makes this free:
+
+| Property | How It Works |
+|----------|--------------|
+| **Single-instance by default** | Skills exist once on the filesystem or database; agents reference them by ID |
+| **Per-agent configuration** | `SkillInstanceConfig` allows different env/config overrides per agent without duplicating the skill |
+| **CompositeSkillBackend routing** | Multiple skill sources (prebuilt, local, MCP) compose transparently with longest-prefix-match routing |
+| **Automatic deduplication** | "Last wins" strategy ensures user skills override bundled ones without manual conflict resolution |
+| **Dependency auto-check** | `SkillRequires` (bins, env, config) + `requires_tools` + `required_credential_files` auto-validate at load time |
+
+<Note>
+Competitors solve "shared capability deduplication" with 3 extra database tables and a runtime materialization query. Myrm's GUI-centric architecture eliminates the problem entirely — skills are naturally singletons referenced by ID.
+</Note>
+
 ## Per-Session Skill Scope
 
 Beyond agent-level scoping, Myrm supports **per-session skill selection** — choose exactly which skills are active for each conversation:

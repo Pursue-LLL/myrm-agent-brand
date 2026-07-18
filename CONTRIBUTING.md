@@ -23,9 +23,16 @@ bun run test
 bun run validate:fractal-docs  # also covered by test; explicit for doc-only PRs
 ```
 
-4. For docs-only changes in `myrm-docs/`, run Mintlify locally: `cd myrm-docs && mint dev`.
+4. For docs-only changes in `myrm-docs/`, run:
 
-Pull requests that touch `myrm-website/` run `.github/workflows/pr-check.yml` (same checks as above).
+```bash
+cd myrm-docs
+bun run validate:fractal-docs
+bun run test
+mint dev
+```
+
+Pull requests that touch `myrm-website/` or `myrm-docs/` run `.github/workflows/pr-check.yml`.
 
 ## Conventions
 

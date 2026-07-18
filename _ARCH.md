@@ -29,4 +29,4 @@
 - 仓根不得再放置第二套 Next 应用（`package.json` / `src/` 等于废弃副本）
 - 营销站 CI/CD **仅 Cloudflare Pages**；GHA 不直接部署 Vercel
 - 对外域名统一 `myrmagent.ai` / `app.myrmagent.ai` / `docs.myrmagent.ai`
-- 分形文档门禁：`myrm-website/scripts/check-fractal-docs.ts`（`bun run validate:fractal-docs`）
+- 分形文档门禁：`myrm-website/scripts/check-fractal-docs.ts`（`bun run validate:fractal-docs`）；`myrm-docs/scripts/check-fractal-docs.ts`（`cd myrm-docs && bun run validate:fractal-docs`）

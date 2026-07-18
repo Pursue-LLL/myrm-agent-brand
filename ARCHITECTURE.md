@@ -80,7 +80,7 @@
 
 - 官网桌面下载元数据：`myrm-website/src/lib/desktop-release.ts` → GitHub Releases `Pursue-LLL/myrm-agent`；无 release 时 `/download` SaaS 优先、`CliInstallFallback` 诚实标注 localWebui 终端路径（非桌面 App），主 CTA 不暴露 GitHub Releases
 - 营销 ↔ 文档 slug 契约：`myrm-website/scripts/validate-docs-slugs.ts`（orphan MDX + legacy URL grep：`myrm.ai`、`app.myrm.ai`、`github.com/myrm-ai`）
-- 分形文档门禁：`myrm-website/scripts/check-fractal-docs.ts`（`bun run test` / `validate:fractal-docs`；对齐主产品 `check_fractal_docs.py` 理念）
+- 分形文档门禁：`myrm-website/scripts/check-fractal-docs.ts`（`bun run test` / `validate:fractal-docs`）；`myrm-docs/scripts/check-fractal-docs.ts`（`cd myrm-docs && bun run validate:fractal-docs` / `bun run test`）
 - `public/desktop-release.json`：构建链 `bake:release` 产物（CF Pages / 本地 build），静态 export 首屏用；**不入库**（见 `myrm-website/.gitignore`），本地 dev 可选 `bun run bake:release` 或依赖 live GitHub fetch
 
 ## 文档 i18n（en + zh）
@@ -93,7 +93,7 @@
 | App locale 接力 | `getAppUrl(path, locale)` → **主产品** `myrm-agent/myrm-agent-frontend` 的 `middleware.ts` 写 cookie → 登录后 `locale-personal-sync` 写 `personalSettings` |
 | 营销契约 | `MARKETING_DOC_PATHS` + `validate-docs-slugs` 双 locale（`bun run build` 门禁） |
 | zh MDX 内链 | `/zh/...`（非 `/docs/...`） |
-| 脚本 | `myrm-docs/package.json`：`apply-i18n` / `build-zh-nav`；`apply-i18n-docs-json.ts`（导航 + zh footer）、`build-zh-navigation.ts` |
+| 脚本 | `myrm-docs/package.json`：`validate:fractal-docs` / `test` / `apply-i18n` / `build-zh-nav`；`check-fractal-docs.ts`（分形 `_ARCH` + 导航页 + EN/zh 分区）；`apply-i18n-docs-json.ts`（导航 + zh footer）、`build-zh-navigation.ts` |
 
 ## 约束
 

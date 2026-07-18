@@ -322,6 +322,22 @@ Myrm 不等你发现问题 — 六种独立后台机制让 Agent 24/7 持续学�
 - **一键回滚**：CoW 分叉上撤销进化可恢复跨 Agent 挂载映射
 - **垃圾回收**：删 Agent 级联删专属技能（DB + 物理 `rmtree`，路径边界保护）
 
+### 零开销全局注册
+
+竞品需要专用数据表（`shared_capability` + `shared_capability_version` + `agent_capability_binding`）和物化层才能实现「共享能力只维护一份」。Myrm 的架构天然免费解决此问题：
+
+| 特性 | 实现方式 |
+|------|----------|
+| **天然单例** | Skill 在文件系统或数据库中只存一份，Agent 通过 ID 引用 |
+| **每 Agent 配置** | `SkillInstanceConfig` 允许不同 Agent 使用不同 env/config，无需复制 skill |
+| **CompositeSkillBackend 路由** | 多来源 skill（prebuilt/local/MCP）透明组合，最长前缀匹配 |
+| **自动去重** | "最后胜出"策略确保用户 skill 覆盖内置 skill，无需手动解决冲突 |
+| **依赖自检** | `SkillRequires`（bins/env/config）+ `requires_tools` + 凭证文件 加载时自动校验 |
+
+<Note>
+竞品用 3 张额外数据表 + 运行时物化查询解决「共享能力去重」。Myrm 的 GUI 中心化架构从根本上消除了这个问题——技能天然就是单例，通过 ID 引用即可。
+</Note>
+
 ## 会话级 Skill 精选
 
 除了 Agent 级别的技能作用域，Myrm 还支持**按会话选择技能**——精确控制每次对话加载哪些技能：

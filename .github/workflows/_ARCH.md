@@ -4,7 +4,7 @@
 
 | 文件 | 职责 |
 |------|------|
-| `pr-check.yml` | PR → `myrm-website/`：`lint` + `validate:locales` + `validate:docs-slugs` + `test` |
+| `pr-check.yml` | PR → `myrm-website/`：`lint` + `validate:locales` + `validate:docs-slugs` + `test`；PR → `myrm-docs/`：`validate:fractal-docs` + `test` |
 | `website-release.yml` | `website-v*` tag push（仅此触发）→ preflight → **assert origin/main == tag commit** → POST `CF_PAGES_DEPLOY_HOOK` → post-deploy curl smoke |
 
 Secrets：`CF_PAGES_DEPLOY_HOOK`（必填）；`GITHUB_TOKEN`（内置，供 bake GitHub API 限额）。

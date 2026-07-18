@@ -14,10 +14,11 @@ Mintlify 文档站源码；导航与主题由 `docs.json` 定义。对外域名 
 | `docs/zh/**/*.mdx` | 核心 | 中文文档（URL 前缀 `/zh/`） | — |
 | `images/logo-icon.webp` | 辅助 | Mintlify nav logo（透明底，light/dark 共用，源自官网 brand） | — |
 | `images/favicon.png` | 辅助 | 站点 favicon | — |
-| `scripts/` | 辅助 | 导航维护脚本 | [scripts/_ARCH.md](scripts/_ARCH.md) |
+| `scripts/` | 辅助 | 导航维护脚本 + 分形门禁 | [scripts/_ARCH.md](scripts/_ARCH.md) |
 
 ## 依赖
 
 - 官网外链：`myrm-agent-brand/myrm-website/src/lib/deploy-mode.ts`（`myrmagent.ai` / `app.myrmagent.ai` / `docs.myrmagent.ai`）
 - GitHub：`Pursue-LLL/myrm-agent`（与 desktop-release、development-setup 一致）
 - orphan MDX 检测 + legacy URL grep + zh 关键页英文句门禁：`myrm-website/scripts/validate-docs-slugs.ts`（禁止 `myrm.ai`、`app.myrm.ai`、`github.com/myrm-ai`；`competitor-comparison` zh 零容忍）
+- 分形 `_ARCH` 门禁：`scripts/check-fractal-docs.ts`（`bun run validate:fractal-docs`）

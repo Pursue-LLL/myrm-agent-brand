@@ -8,6 +8,8 @@ Mintlify 文档站维护脚本；非常规开发路径，仅在导航结构或�
 
 | 文件 | 地位 | 职责 | I/O/P |
 |------|------|------|-------|
+| `check-fractal-docs.ts` | 核心 | 分形 `_ARCH.md` + 导航页 + EN/zh 分区对齐门禁 | ✅ |
+| `check-fractal-docs.test.ts` | 测试 | 门禁 smoke test | — |
 | `apply-i18n-docs-json.ts` | 辅助 | 一次性将 `docs.json` 改写为 `navigation.languages[en,zh]` 双语结构 | — |
 | `build-zh-navigation.ts` | 辅助 | 从 EN 导航生成 zh 页面路径列表 | — |
 
@@ -16,11 +18,18 @@ Mintlify 文档站维护脚本；非常规开发路径，仅在导航结构或�
 ```bash
 cd myrm-docs
 bun run dev                  # mint dev
+bun run validate:fractal-docs
+bun run test
 bun run apply-i18n           # 导航结构大改时
 bun run build-zh-nav         # 新增 EN 页面后同步 zh 路径
 ```
 
 运行后须人工检查 `docs/zh/**/*.mdx` 是否已翻译，并执行 `myrm-website` 侧 `bun run validate:docs-slugs`。
+
+## 约束
+
+- 新增 `docs/` 或 `docs/zh/` 顶层分区时，须同步更新 `check-fractal-docs.ts` 内 `DOC_SECTIONS` 常量
+- orphan MDX 仍以 `validate-docs-slugs.ts` 为 SSOT；本门禁不替代 slug 契约校验
 
 ## 模块依赖
 

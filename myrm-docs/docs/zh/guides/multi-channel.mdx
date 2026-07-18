@@ -293,6 +293,14 @@ Agent 可主动向配置渠道推送 — 无需轮询。
 - **无第三方依赖** — 推送直达浏览器厂商端点（Google FCM、Apple APNs、Mozilla autopush）
 - **Tauri 感知** — 桌面应用构建中自动隐藏此设置卡片（已有原生通知）
 
+### 一键审批深链
+
+点击推送通知会直达对应会话并**弹出审批抽屉**——不是只打开首页。
+
+- **审批请求**跳转到 `/{chat_id}?approval={id}`；WebUI 打开全局 ApprovalDrawer 并剥离 query，保持 URL 干净
+- **Service Worker 路由**校验同源路径；若聊天 Tab 已打开，在 query 变化时调用 `navigate()` 而非仅 focus——新审批不会漏开抽屉（OpenClaw 的 SW 只比 pathname，存在此缺陷）
+- **Chrome MCP E2E 已验证** — 热 Tab 与冷启动深链双路径（2026-07）
+
 ## 后台任务自动回复
 
 通过 `/btw` 在任意 IM 渠道发起后台任务后，任务完成时结果会自动推送回你的原始会话：

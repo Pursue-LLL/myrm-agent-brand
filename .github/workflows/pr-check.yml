@@ -48,3 +48,25 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bun run test
+
+  docs-check:
+    name: Docs fractal gate
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: myrm-docs
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Validate fractal docs
+        run: bun run validate:fractal-docs
+
+      - name: Run docs script tests
+        run: bun run test
