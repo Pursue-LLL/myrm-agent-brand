@@ -58,6 +58,20 @@ Myrm 提供可视化看板跟踪复杂多步任务，以及强大的子 Agent �
 
 Hermes 用户迁移后可保留 **worker / orchestrator** 分角色体验，并额外获得可视化看板、DAG 调度与 CompletionVerifier。OpenClaw 仅有展示看板、**0** LLM 工具；deer-flow / LobsterAI / CoPaw / jiuwenclaw 等 **无** 原生 Kanban LLM 工具。
 
+### 自治认领（Worker 自动抢单）
+
+常见 Agent Team 教程描述：**Lead 逐个手动分配**、Worker **每 5 秒轮询**、文件任务板 + 易竞态的 claim。Myrm 提供生产级替代：
+
+| 教程痛点 | Myrm 你得到什么 |
+|---------|----------------|
+| Lead 任务逐个 assign | **Worker 自治认领** — 建好 DAG 即可，分派全自动 |
+| 5s idle 轮询 | **事件驱动唤醒** — 毫秒级开跑，几乎零空转 CPU |
+| 幽灵认领 / 文件锁 | **SQL 原子 claim** — 只有一个 Worker 成功，其余干净失败 |
+| Lead 盯 CLI `[Inbox]` | **活动流 SSE** — promoted/completed/failed 实时可见，可选 IM 通知 |
+| 同目录并发写冲突 | **每任务 Git Worktree** — 同仓库多 Agent 并行改码不覆盖 |
+
+**迁移要点：** 保留「Lead 规划、Worker 执行」心智，但**不必再当调度员**；看板用共享状态协调，而非点对点命令。
+
 **验证（2026-07-10）**：429 项 harness（96% 覆盖）+ 20 项 server 绑定 + live agent-stream e2e + Chrome 看板/聊天 UI 全绿。
 
 **PTC 与 native 分工：** 单次搜网/检索用 **native** `web_search_tool` / `grep_tool`；仅当同一段 Python 需多次 RPC 并只回一行摘要时用 **PTC**（`bash_code_execute_tool`）。bash 说明已不再以 web 搜为例，避免误路由（与 Hermes「disabled 工具不出现在 schema」同理）。

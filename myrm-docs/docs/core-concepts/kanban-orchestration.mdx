@@ -62,6 +62,20 @@ Board create/list CRUD stays **REST/GUI only** — no LLM tool slots wasted. `ka
 
 Hermes users migrating to Myrm get the same **worker vs orchestrator** split, plus a visual Kanban GUI, DAG scheduling, and CompletionVerifier. OpenClaw has a display-only Workboard with **zero** LLM tools; deer-flow / LobsterAI / CoPaw / jiuwenclaw expose **zero** native Kanban LLM tools.
 
+### Autonomous Dispatch (Self-Claim Workers)
+
+Popular Agent Team tutorials describe a **Lead manually assigning** every task, workers **polling every 5 seconds**, and file-based task boards with race-prone claims. Myrm ships a production-grade alternative:
+
+| Tutorial pain | What you get in Myrm |
+|---------------|----------------------|
+| Lead assigns task-by-task | **Workers self-claim** — create the DAG once; dispatch is automatic |
+| 5s idle polling | **Event-driven wake** — tasks start in milliseconds, near-zero idle CPU |
+| Ghost claims / file locks | **SQL atomic claim** — one worker wins, others fail cleanly |
+| Lead watches CLI `[Inbox]` logs | **Live Activity Feed** — promoted/completed/failed events over SSE + optional IM alerts |
+| Shared folder write conflicts | **Per-task Git worktree** — parallel agents on the same repo without overwriting each other |
+
+**Migration takeaway:** If you used a tutorial-style Agent Team, keep the mental model “Lead plans, workers execute”—but stop being the dispatcher. The board coordinates through shared state, not point-to-point commands.
+
 **Verified (2026-07-10)**: 429 harness tests (96% coverage) + 20 server binding tests + live agent-stream e2e + Chrome board/chat UI E2E — all green.
 
 **PTC vs native tools:** Use **native** `web_search_tool` / `grep_tool` for one-off calls. Use **PTC** (Python in `bash_code_execute_tool`) only when the same script must RPC many tools and return one summary — bash instructions no longer use web search as the PTC example (aligns with Hermes: omit disabled tools from schema to prevent misuse).

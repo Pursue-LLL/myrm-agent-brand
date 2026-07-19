@@ -857,7 +857,7 @@
           "feature": "Kanban UI for SubAgents · Multi-agent progress at a glance",
           "hermes": "Text logs",
           "openclaw": "Display board",
-          "myrmAgent": "31-component GUI · 8-state lifecycle + 19 events · ms-level event-driven dispatch · Role-gated 7/5/12 LLM tools (16→12 lean: link merges deps, list single lookup + board list cap 50/200 with truncated, boards GUI-only) · CompletionVerifier · 1167 Kanban tests (Harness 429 + Server 618 + Frontend 119 + Live E2E) all passing · Hermes-compatible · OpenClaw display-only—we orchestrate & verify"
+          "myrmAgent": "Workers self-claim tasks—Lead creates once, no manual dispatch · DAG auto-unlocks downstream · per-task Git worktree for parallel coding · 31-component GUI + live Activity Feed (promoted/completed) · ms event-driven dispatch (not 5s polling) · CompletionVerifier · 1167 Kanban tests · Hermes-compatible · OpenClaw display-only—we orchestrate, verify & isolate"
         },
         "kanbanConcurrentQueue": {
           "feature": "Kanban Extreme Throughput · No more 'Database is locked' or UI Freezing",
@@ -881,7 +881,7 @@
           "feature": "Dynamic Artifacts · Real-world receipts & interactive dashboards",
           "hermes": "Plain text",
           "openclaw": "Basic charts",
-          "myrmAgent": "Dynamic workspace: Mermaid 13+ chart types rendered live (mindmaps/timelines/flowcharts/sequence/gantt/state diagrams & more) with dark/light theme auto-adaptation. **Inline-First Visual Preview**: HTML/SVG/Mermaid artifacts auto-expand and render directly in the chat stream with zero clicks (competitors require opening a side panel); built on useRef dedup-fetch + triple-renderer routing. Diagrams in chat via **Mermaid artifacts** and **render_ui**; editable whiteboards via optional **Excalidraw/tldraw MCP** (industry-standard extension, not built into core). **In-chat interactive UI (A2UI v3.1)**: 23 component types — forms, tables, and charts you fill and tap in-conversation; **`update_ui_data` incremental refresh** for progress panels without wiping fields you already filled; broken layouts are fail-closed before they clutter the chat. **What you get**: skip copying Markdown tables into spreadsheets — roughly 80% fewer manual steps; deployment checklists, approvals, and live dashboards finish inside chat with actions flowing straight back to the Agent."
+          "myrmAgent": "Dynamic workspace: Mermaid 13+ chart types rendered live (mindmaps/timelines/flowcharts/sequence/gantt/state diagrams & more) with dark/light theme auto-adaptation. **Inline-First Visual Preview**: HTML/SVG/Mermaid artifacts auto-expand and render directly in the chat stream with zero clicks (competitors require opening a side panel); built on useRef dedup-fetch + triple-renderer routing. Diagrams in chat via **Mermaid artifacts** and **render_ui**; editable whiteboards via optional **Excalidraw/tldraw MCP** (industry-standard extension, not built into core). **In-chat interactive UI (A2UI v3.1)**: 23 component types — forms, tables, and charts you fill and tap in-conversation; **`update_ui_data` incremental refresh** for progress panels without wiping fields you already filled; **Surface Gate (channel-aware)**: UI tools mount only on Web/desktop — Telegram/cron get plain text and ~318 fewer prompt tokens per turn, with a Web-only hint in settings; broken layouts are fail-closed before they clutter the chat. **What you get**: skip copying Markdown tables into spreadsheets — roughly 80% fewer manual steps; deployment checklists, approvals, and live dashboards finish inside chat with actions flowing straight back to the Agent."
         },
         "localIotBridge": {
           "feature": "Local IoT Bridge · AI enters the physical world",
@@ -1302,7 +1302,7 @@
         "multiAgent": {
           "label": "Multi-agent",
           "title": "A team of agents — with you as boss",
-          "desc": "Eight orchestration modes, 7-layer tool safety isolation, and visual role config panels — each agent's responsibilities, permissions, and budget at a glance. Agents in unified sandbox natively share files and browser with zero sync cost, enabling seamless relay collaboration.",
+          "desc": "Eight orchestration modes plus Kanban self-claim dispatch—create a task graph once, workers pick up jobs automatically while you watch the live board. 7-layer tool safety, visual role panels, and per-task Git worktrees for conflict-free parallel coding.",
           "stat": "8",
           "statLabel": "orchestration modes",
           "tag1": "Visual role config · GUI orchestration",
