@@ -1021,7 +1021,7 @@ Myrm 是 **GUI 优先** 应用。Claude Office Visualizer 要解决的「看不�
 
 工作流产品（含 Coze）常见 **批量 LLM / fan-out 节点**：同一 Prompt 模板 × N 条输入，Lite 调用，工作流级计费。
 
-Myrm **刻意不提供** in-agent `llm_map` 原语。同质或异质批量任务统一走 **`batch_delegate_tasks_tool`** — 每一项启动 **完整 SubAgent**，自带沙箱、工具策略、预算守卫、批量预执行 GUI 成本审批（≥$0.50）、cancel/steer/resume 与审计链。
+Myrm **刻意不提供** in-agent `llm_map` 原语。同质或异质批量任务统一走 **`delegate_task_tool`（mode=batch|parallel）** — 每一项启动 **完整 SubAgent**，自带沙箱、工具策略、预算守卫、批量预执行 GUI 成本审批（≥$0.50）、`subagent_control_tool`（cancel/steer/list）与审计链。
 
 | 需求 | Coze 式批量 LLM | Myrm SubAgent 批量 |
 |------|-----------------|-------------------|

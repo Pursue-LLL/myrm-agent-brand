@@ -54,11 +54,10 @@ Kanban tools are **opt-in** and **role-gated** to save tokens and reduce misuse:
 | Context | Tools bound | Count |
 |---------|-------------|------:|
 | Default chat (Kanban off) | None | 0 |
-| Chat with Kanban enabled | Orchestrator set (add/list/update/move/delete, link deps, board summary) | 7 |
-| Kanban task worker | Worker set (show, complete, block, heartbeat, comment) | 5 |
-| Full mode (explicit opt-in only) | Worker + orchestrator union | 12 |
+| Chat with Kanban enabled | Orchestrator set (add, list with optional stats, unblock) | 3 |
+| Kanban task worker | Worker set (show, complete, block, heartbeat, comment, attach) | 6 |
 
-Board create/list CRUD stays **REST/GUI only** — no LLM tool slots wasted. `kanban_link` merges add/remove dependency; `kanban_list_tasks` accepts optional `task_id` for single-task lookup without a separate get tool. Board listings default to **50 tasks** (max 200) with `truncated` metadata when more rows exist — aligned with the REST API and Hermes.
+Board create/list CRUD stays **REST/GUI only** — no LLM tool slots wasted. Use `kanban_add_task.depends_on` for DAG edges; `kanban_list_tasks` accepts optional `task_id` for single-task lookup and `include_stats=true` for board counts. Board listings default to **50 tasks** (max 200) with `truncated` metadata when more rows exist — aligned with the REST API and Hermes.
 
 Hermes users migrating to Myrm get the same **worker vs orchestrator** split, plus a visual Kanban GUI, DAG scheduling, and CompletionVerifier. OpenClaw has a display-only Workboard with **zero** LLM tools; deer-flow / LobsterAI / CoPaw / jiuwenclaw expose **zero** native Kanban LLM tools.
 

@@ -1108,7 +1108,7 @@ Myrm is a **GUI-first** application. The problems Claude Office Visualizer solve
 
 Workflow tools (including Coze) often ship a **batch LLM** or **fan-out** node: same prompt template × N inputs, cheap Lite calls, workflow-level billing.
 
-Myrm intentionally **does not** expose an in-agent `llm_map` primitive. Homogeneous or heterogeneous bulk work goes through **`batch_delegate_tasks_tool`** — each item becomes a **full SubAgent** with its own sandbox, tool policy, budget guard, GUI cost approval (≥$0.50 batches), cancel/steer/resume, and audit trail.
+Myrm intentionally **does not** expose an in-agent `llm_map` primitive. Homogeneous or heterogeneous bulk work goes through **`delegate_task_tool` (mode=batch|parallel)** — each item becomes a **full SubAgent** with its own sandbox, tool policy, budget guard, GUI cost approval (≥$0.50 batches), `subagent_control_tool` (cancel/steer/list), and audit trail.
 
 | You need… | Coze-style batch LLM | Myrm SubAgent batch |
 |-----------|----------------------|---------------------|

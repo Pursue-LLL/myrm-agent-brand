@@ -19,6 +19,8 @@ Turn1 工具描述约 **223 token**（瘦 docstring）；完整组件 props **�
 
 内联 A2UI 仅在 **Web 对话**与 **Tauri 桌面客户端**挂载（`client_surface` 为 `web` 或 `tauri`）。Telegram、Discord、定时任务、语音等渠道在 Turn1 **不会**加载 `render_ui_tool` / `update_ui_data_tool`，Agent 以纯文本回复，并在这些渠道上每轮节省约 **318** prompt token。开启「交互式 UI」时 Agent 配置页会显示说明；表单与 live 面板请使用 Web 对话或桌面客户端。
 
+**已验证（2026-07-19）**：Chrome E2E 覆盖配置页 Web-only 提示、`client_surface` 注入与对话内 live inline 卡片；agent-stream 集成断言各 surface 挂载/省略；API LLM E2E 断言模型调用 `render_ui_tool` 时推送 `UI_UPDATE` SSE。
+
 ## `render_ui` 默认关闭时
 
 为保持 Prompt Cache 轻量，`render_ui` **默认关闭**。若你直接要求「填表 / 部署清单」等交互 UI 而未开启：

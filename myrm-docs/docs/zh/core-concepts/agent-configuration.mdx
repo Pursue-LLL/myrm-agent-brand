@@ -110,7 +110,7 @@ Agent 配置面板提供进度模式（默认关闭，不占 Turn1 Token）：
 | 模式 | 内置工具 | 适用场景 |
 |------|----------|----------|
 | **Planning** | `todo_write` | 多步任务分解与实时进度（类 deer-flow / Cursor TodoWrite） |
-| **Kanban** | kanban_* | 跨会话看板与 DAG 编排（chat 默认 orchestrator 7 工具，full 12） |
+| **Kanban** | kanban_* | 跨会话看板与 DAG 编排（chat orchestrator 3 工具；task worker 6 工具） |
 
 启用 Planning 后，进度持久化在 chat sandbox 的 `{sandbox}/.myrm/progress/todos.json`；CompletionGuard 会在有文件写入且 todos 未完成时阻断过早结束。前端按 `step_key` 合并重复的 SSE `tasks_steps` 事件，ProgressSteps 不会因重发而重复渲染。Planning **默认关闭**（开启约 ~150 token）——简单问答零进度工具税。
 

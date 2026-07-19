@@ -50,11 +50,10 @@ Myrm 提供可视化看板跟踪复杂多步任务，以及强大的子 Agent �
 | 场景 | 绑定工具集 | 数量 |
 |------|-----------|-----:|
 | 默认聊天（未勾选 Kanban） | 无 | 0 |
-| 聊天启用 Kanban | orchestrator（增删改移、依赖 link、看板摘要等） | 7 |
-| 看板任务 Worker | worker（show/complete/block/heartbeat/comment） | 5 |
-| full 模式（仅显式 opt-in） | worker + orchestrator 全集 | 12 |
+| 聊天启用 Kanban | orchestrator（add、list 含可选 stats、unblock） | 3 |
+| 看板任务 Worker | worker（show/complete/block/heartbeat/comment/attach） | 6 |
 
-看板创建/列表等 **Board CRUD 仅 REST/GUI**，不占用 LLM tool slot。`kanban_link` 合并 add/remove 依赖；`kanban_list_tasks` 可选 `task_id` 单查任务与依赖，无需额外 get 工具。板级列表默认 **50 条**（上限 200），超出时返回 `truncated` 元数据，与 REST API 及 Hermes 行为一致。
+看板创建/列表等 **Board CRUD 仅 REST/GUI**，不占用 LLM tool slot。用 `kanban_add_task.depends_on` 建 DAG 边；`kanban_list_tasks` 可选 `task_id` 单查任务与依赖，或 `include_stats=true` 获取板级计数。板级列表默认 **50 条**（上限 200），超出时返回 `truncated` 元数据，与 REST API 及 Hermes 行为一致。
 
 Hermes 用户迁移后可保留 **worker / orchestrator** 分角色体验，并额外获得可视化看板、DAG 调度与 CompletionVerifier。OpenClaw 仅有展示看板、**0** LLM 工具；deer-flow / LobsterAI / CoPaw / jiuwenclaw 等 **无** 原生 Kanban LLM 工具。
 
