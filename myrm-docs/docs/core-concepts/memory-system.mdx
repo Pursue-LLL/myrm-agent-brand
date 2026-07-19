@@ -74,6 +74,29 @@ Hermes and CodePilot split semantic memory and session search into separate tool
 
 CustomAgent sub-delegates keep scoped session search eager (low-frequency path).
 
+## Memory Diagnostic Explainability Loop
+
+Most products can tell you memory exists, but not whether it was actually used in this turn.
+Myrm closes that gap with a user-visible diagnostic loop:
+
+1. **Stream phase** emits per-turn memory status during response generation
+2. **Persist phase** writes the same normalized status to stored message metadata
+3. **Control-plane telemetry** aggregates stream/persist status and raises alerts on drift or abnormal drop signals
+4. **Frontend explanation UI** shows `preflight` vs `runtime_fallback` source, including mobile-friendly non-hover copy
+
+Why this matters in real use:
+
+- **Faster trust recovery**: users can see why memory was skipped instead of guessing
+- **Lower support cost**: operations can triage by status/source/reason labels instead of replaying whole chats
+- **No prompt-cache regression**: diagnostics are emitted after model output (`message_end`/persist paths), not by mutating prompt prefixes
+- **No silent telemetry corruption (cloud mode)**: strict shared dedup fail-closed rejects unsafe ingest paths and records reject reasons for fast incident triage
+
+Latest targeted verification (2026-07-19):
+
+- Server memory telemetry regression: **28 passed**
+- Control-plane ingest + auth + metrics regression: **55 passed**
+- Frontend memory explanation and flow regression: **14 passed**
+
 ## AMO Operations — Full Coverage
 
 The AMO paradigm (2025-2026) defines four core operations that a complete memory system must support. Anthropic's Dreaming covers steps 1-2; Mem0 covers Store and partial Retrieve. Myrm implements all four with production-grade depth:

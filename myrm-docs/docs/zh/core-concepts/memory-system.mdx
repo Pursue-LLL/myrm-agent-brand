@@ -74,6 +74,29 @@ Hermes、CodePilot 等将语义记忆与会话搜索拆成独立工具；多数�
 
 CustomAgent 委派子任务仍使用 scoped 的会话搜索（低频路径，保持 eager）。
 
+## 记忆诊断可解释闭环
+
+很多产品只告诉你“有记忆”，但不会告诉你“这一轮到底有没有真正用上记忆”。
+Myrm 补齐了这条可解释链路：
+
+1. **Stream 阶段**：响应生成时输出本轮 memory status
+2. **Persist 阶段**：将同一标准化状态写入落库消息元数据
+3. **控制平面遥测**：聚合 stream/persist 状态并对漂移与丢弃异常告警
+4. **前端解释 UI**：显示 `preflight` 与 `runtime_fallback` 来源，移动端也有非 hover 文案
+
+对真实用户的价值：
+
+- **信任更快恢复**：用户知道为什么这次没用上记忆，不再靠猜
+- **排障成本更低**：运维可按状态/来源/原因标签快速定位问题
+- **不破坏 Prompt Cache**：诊断发生在模型输出后（`message_end`/persist），不改前缀提示词
+- **云模式不再静默污染遥测**：共享去重严格 fail-closed，拒绝不安全入库并记录拒绝原因，便于快速定位故障
+
+最近一次定向验证（2026-07-19）：
+
+- Server 记忆遥测回归：**28 passed**
+- Control-plane ingest + 鉴权 + 指标回归：**55 passed**
+- Frontend 记忆解释与链路回归：**14 passed**
+
 ## AMO 操作 — 全覆盖
 
 AMO 范式（2025-2026）定义完整记忆系统须支持的四种核心操作。Anthropic Dreaming 覆盖 1-2；Mem0 覆盖 Store 与部分 Retrieve。Myrm 以生产级深度实现全部四种：
