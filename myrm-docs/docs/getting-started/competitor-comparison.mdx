@@ -17,11 +17,13 @@ For memory specifically, Myrm now ships a full **diagnostic + telemetry integrit
 
 - **Browser automation baseline (targeted, low-load batches):** 109 harness tests passed (`snapshot`, dispatcher/event routing, takeover).
 - **Contract parity checks:** server SSE event parity 1 passed; frontend event schema 6 passed.
-- **Real browser proof (not paper analysis):** real Chrome MCP `take_snapshot` + `evaluate_script` on live WebUI pages; `/api/v1/runs` returns structured `stop_reason`, and Runs UI shows the stop reason text.
+- **Quick interaction stability (focused regression):** frontend `deep-link-listener` + `flow-pad-inline-mode` + `intent page` suites passed **36/36**; server gate/finish/integration suites passed **43/43**.
+- **Coverage evidence (focused files):** frontend (`deep-link-listener.tsx`, `flow-pad-modal.tsx`) **78.28%** overall in focused run; server modules `desktop_control/gate.py` **89%**, `background_job_finish_handler.py` **94%**.
+- **Real browser proof (not paper analysis):** real Chrome MCP `take_snapshot` + `evaluate_script` on live WebUI pages; verified `/intent/ask?text=...` auto-returns home and opens FlowPad with prefilled text.
 - **Chrome UI E2E:** `test_background_tasks_panel_chrome_e2e.py` 3 passed.
 - **Delegation control Chrome LIVE E2E:** `test_subagent_dashboard_chrome_e2e.py` 3/3 (340s); session-scoped delegation pause + Dashboard cancel/token/model signed off on real Chrome.
 - **Pre-existing bug fixed during validation:** `mode=running` seed fixture returned 500 due to `UnboundLocalError`; fixed in API fixture route and covered by integration regression.
-- **Resource envelope during verification:** memory free percentage stayed in the 40%-49% range (no high-pressure >80% used state observed).
+- **Resource envelope during verification:** memory free percentage stayed in the **36%-40%** range in this run (no high-pressure >80% used state observed).
 - **Known environment caveat (honest):** captcha coordinator tests still depend on local `patchright` availability; this does not block the browser snapshot/telemetry baseline verification above.
 
 ## At a Glance
@@ -82,7 +84,7 @@ For memory specifically, Myrm now ships a full **diagnostic + telemetry integrit
 | **Rich Content Rendering** | ✅ Mermaid (zoom/fullscreen/legend/export) + KaTeX math + GFM Alerts (5 types with icons) + Footnotes + Code Diff + Smooth streaming | ⚠️ Basic Mermaid | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Precision Multimodal** | ✅ Intent-aware vision (No UI ops = 0 vision token) | ⚠️ Always-on (wastes tokens) | ⚠️ Blind (no screenshots) | ⚠️ Unknown | ⚠️ Blind | ⚠️ Blind | ❌ |
 | **Title Generation** | ✅ O(1) Anti-Blocking + Redaction | ⚠️ Prone to freeze/leak | ⚠️ Prone to freeze/leak | ⚠️ Unknown | ⚠️ Unknown | ⚠️ Unknown | ❌ |
-| **Global Quick Capture** | ✅ macOS+Windows dual capture + UI text extraction + Voice + FlowPad + Inline Agent Switcher/Profile routing + Privacy blacklist | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Global Quick Capture** | ✅ macOS+Windows dual capture + UI text extraction + Voice + FlowPad + Inline Agent Switcher/Profile routing + Privacy blacklist + request-id stream pinning + route-switch abort + deep-link dedupe (**36 focused tests + real Chrome MCP `/intent` proof**) | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Token Efficiency** | ✅ ~2,167 tokens total (86% less) | ~15,520 | ~18,000 | ⚠️ Manual 3-mode | ⚠️ ~9 Kanban LLM tools | ⚠️ High cost | ⚠️ ~900 wake-up |
 
 ## vs PilotDeck — Agent Operating System

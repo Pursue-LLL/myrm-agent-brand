@@ -17,11 +17,13 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 - **浏览器自动化基线（分批低负载）**：Harness 定向 109 项通过（`snapshot`、事件分发链路、takeover）。
 - **契约一致性校验**：Server SSE 事件一致性 1 项通过；前端事件 schema 6 项通过。
-- **真实浏览器证据（非纸面）**：在真实 Chrome MCP 上对 WebUI 页面执行 `take_snapshot` + `evaluate_script`；`/api/v1/runs` 已返回结构化 `stop_reason`，并在 Runs 页面看到停止原因文案。
+- **快速交互稳定性（定向回归）**：前端 `deep-link-listener` + `flow-pad-inline-mode` + `intent page` 套件 **36/36** 通过；服务端 gate/finish/integration 套件 **43/43** 通过。
+- **覆盖率证据（定向文件）**：前端（`deep-link-listener.tsx`、`flow-pad-modal.tsx`）定向覆盖 **78.28%**；服务端 `desktop_control/gate.py` **89%**、`background_job_finish_handler.py` **94%**。
+- **真实浏览器证据（非纸面）**：在真实 Chrome MCP 上对 WebUI 页面执行 `take_snapshot` + `evaluate_script`；已实测 `/intent/ask?text=...` 自动回首页并拉起预填文本 FlowPad。
 - **Chrome UI E2E**：`test_background_tasks_panel_chrome_e2e.py` 3 项通过。
 - **委派控制面 Chrome LIVE E2E**：`test_subagent_dashboard_chrome_e2e.py` 3/3（340s）；Session 级委派暂停 + Dashboard cancel/token/model 在真实 Chrome 签收。
 - **验证过程中修复的预存缺陷**：`mode=running` seed fixture 因 `UnboundLocalError` 导致 500，已修复 API fixture 路由并补齐集成回归测试。
-- **资源安全边界**：验证期间系统可用内存保持在 40%-49%，未出现高压（已用 >80%）状态。
+- **资源安全边界**：本轮验证期间系统可用内存保持在 **36%-40%**，未出现高压（已用 >80%）状态。
 - **已知环境前提（诚实说明）**：captcha coordinator 测试仍依赖本机 `patchright`，但不影响本次浏览器语义快照/遥测基线结论。
 
 ## 一览
@@ -82,7 +84,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **富内容渲染** | ✅ Mermaid（缩放/全屏/图例/导出）+ KaTeX 数学公式 + GFM Alerts（5 种类型带图标）+ 脚注 + 代码 Diff + 平滑流式 | ⚠️ 基础 Mermaid | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **精准多模态** | ✅ 意图感知视觉（无 UI 操作 = 0 vision token） | ⚠️ 常开（浪费 token） | ⚠️ 盲（无截图） | ⚠️ 未知 | ⚠️ 盲 | ⚠️ 盲 | ❌ |
 | **标题生成** | ✅ O(1) 防阻塞 + 脱敏 | ⚠️ 易卡死/泄漏 | ⚠️ 易卡死/泄漏 | ⚠️ 未知 | ⚠️ 未知 | ⚠️ 未知 | ❌ |
-| **全局闪念捕捉** | ✅ macOS+Windows 双平台截屏 + UI 文本提取 + 语音 + FlowPad + Inline Agent Switcher/Profile 路由 + 隐私黑名单 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **全局闪念捕捉** | ✅ macOS+Windows 双平台截屏 + UI 文本提取 + 语音 + FlowPad + Inline Agent Switcher/Profile 路由 + 隐私黑名单 + request-id 串流归因 + route-switch 请求级 abort + deep-link 去重队列（**36 项前端定向 + Chrome MCP `/intent` 实证**） | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Token 效率** | ✅ 总计 ~2,167 tokens（少 86%） | ~15,520 | ~18,000 | ⚠️ 手动三档 | ⚠️ ~9 Kanban LLM 工具 | ⚠️ 高成本 | ⚠️ ~900 唤醒 |
 
 ## vs PilotDeck — 代理操作系统与多 Agent 协作平台
