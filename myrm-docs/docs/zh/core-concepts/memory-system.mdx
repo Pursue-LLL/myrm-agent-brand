@@ -52,27 +52,25 @@ Myrm 的 **Working Memory** 通过专用 `__working_state` Profile Memory 条目
 
 对比 ChatGPT Dreaming（被动、无任务聚焦）、CLAUDE.md（手动维护）、第三方 MCP 插件（配置开销），Working Memory 零配置、系统自动提取、自动清理。
 
-## 画像注入 + 记忆召回工具（Prefix Cache 友好）
+## 画像注入 + 统一记忆搜索（Prefix Cache 友好）
 
-跨会话续聊：L1 画像自动注入；语义记忆由 `memory_recall` eager 召回；历史原文/摘要搜索由 **`conversation_search` 独立开关**控制（默认关闭）。
+跨会话续聊：L1 **stable** 画像自动注入；**learned** 偏好通过 `memory_search_tool` 检索（非 Turn1 middleware），最大化 Prompt Cache 命中率。
 
 | 层 | 做什么 | 你需要做什么 |
 |----|--------|--------------|
-| **L1 画像注入** | 把你的 Profile、规则、长期偏好写进上下文 | 无（默认开启记忆即可；无痕模式全关） |
-| **L2 工具 · memory×3** | `memory_recall` / `memory_save` / `memory_manage`（COMMON 层 eager） | Agent 按需调用；结果在 Sources UI 展示 |
-| **L2 工具 · conversation_search** | 搜历史原文与预存摘要（EXTENDED，**默认不 bind**） | 设置 → 知识 → 开启「历史会话搜索」 |
+| **L1 Stable 画像** | 注入稳定 Profile、规则与长期偏好 | 开启记忆（无痕模式全关） |
+| **L2 工具 · memory** | `memory_search_tool(corpus=memory\|wiki\|sessions\|all)` + `memory_save` + `memory_manage` | Agent 按需调用；统一 **依据 N** Sheet |
+| **Sessions ACL** | 历史原文搜索仅在设置 → 记忆 → **历史会话搜索** 开启时可用 | Opt-in（默认关） |
 
-**Turn1 行为**：需要历史上下文时，Agent 调用 `memory_recall`；精确引用旧对话且已开启历史搜索时，调用 `conversation_search`。Sources 展示会话来源。
+**Turn1 行为**：单一读工具 + `corpus` 参数 — GeneralAgent 无 standalone `conversation_search_tool`。子 Agent（Custom + Ephemeral JIT）自动 rebind `memory_search_tool`（scoped policy/backends：子 agent_id、父 chat_id、父 opt-in）。
 
-**新用户默认开启记忆**（设置 → 知识 → 启用记忆）。关闭后不会加载任何记忆工具。**历史会话搜索与核心记忆解耦**，默认关闭以节省 Turn1 schema（约 ~67 tok）。
+**新用户默认开启记忆**。**历史会话搜索与核心记忆解耦**，默认关闭直至手动开启。
 
-### 竞品对比（诚实表述，2026-07-03）
+### 竞品对比（诚实表述，2026-07）
 
-Hermes、CodePilot 等将语义记忆与会话搜索拆成独立工具；多数产品**无独立开关**，历史搜索常默认 eager。Myrm：**memory×3 COMMON 层**（Prefix Cache 友好排序）+ **conversation_search opt-in**（不为不搜历史的用户付 schema 税）+ **无痕模式全记忆关闭**（非只读）。CoPaw 的 `auto_memory_search` middleware 是少数派；我们优先 Sources 可核对、用户可验证的召回路径。
+Hermes 将语义记忆与会话搜索拆成独立工具；CoPaw 默认 auto-inject 历史。Myrm：**单一 corpus ACL** + **GUI opt-in sessions** + **无痕全关** + **依据 N** 引用 UI。OpenClaw 有类似 corpus 模型；我们额外提供 GUI 隐私控制与统一引用。
 
-**验证（2026-07-03）**：server memory/conv/incognito 集成套件 39 e2e 通过；WebUI 设置页历史搜索 toggle + 真实聊天 + 无痕模式全链路手验。
-
-CustomAgent 委派子任务仍使用 scoped 的会话搜索（低频路径，保持 eager）。
+**验证（2026-07-20）**：factory 单元 38 项（99.6% 覆盖）、API memory/session e2e 8 项、Chrome citation e2e 4 项、前端 vitest 7 项 — 模型 mimo-v2.5-pro（`.env.test`）。
 
 ## 记忆诊断可解释闭环
 

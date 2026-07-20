@@ -359,7 +359,7 @@
           "feature": "记忆系统 · 8 种类型、知识图谱、40+ 个可视化管理组件、27 源集成（9 类别）、Obsidian 导出、数据集导出、健康诊断",
           "hermes": "2200字符（无管理UI）",
           "openclaw": "3",
-          "myrmAgent": "三层去重(Hash→Vector→LLM) + 三引擎行为推导(CognitiveDeriver偏好推理 + PreferenceStability稳定性追踪 + FrustrationDetector挫败→技能进化) + BM25/Vector/RRF三通道融合检索(7-Signal加权+MMR多样性) + Auto Dreaming 异步固化 + 知识图谱增强检索 + L1 画像注入 + memory×3 COMMON 层 eager + conversation_search **独立开关默认关**（按需开启，Sources 可核对）+ **无痕模式全记忆关闭** + **新用户默认开启记忆** + **多Agent记忆隔离Scope Boundary**（全局记忆与Agent指令冲突时自动确保Agent人设优先，业界唯一）+ **记忆矛盾主动通知**（LLM跨会话矛盾检测→智能路由→前端实时通知+4种交互裁决+72h超时自动兜底+IM推送——竞品仅静态标注）+ **MemoryGuardian自适应维护**（健康6h/不健康2h自动调度+容量控制+预算感知+健康恢复）+ **记忆诊断可解释 + 遥测完整性闭环**（stream/persist 一致性、控制平面聚合告警、前端 `preflight`/`runtime_fallback` 来源解释，云模式共享信封幂等+去重后端故障 fail-closed + dedup_reject 原因指标）— 2800+项测试验证（2026-07 记忆栈 39 场景 server e2e + 前端全链路手验），真正越用越懂你"
+          "myrmAgent": "三层去重(Hash→Vector→LLM) + 三引擎行为推导(CognitiveDeriver偏好推理 + PreferenceStability稳定性追踪 + FrustrationDetector挫败→技能进化) + BM25/Vector/RRF三通道融合检索(7-Signal加权+MMR多样性) + Auto Dreaming 异步固化 + 知识图谱增强检索 + L1 画像注入 + memory×3 COMMON 层 eager + unified memory_search_tool(corpus=memory/wiki/sessions/all) + sessions **opt-in default off**（按需开启，Evidence N 可核对）+ **无痕模式全记忆关闭** + **新用户默认开启记忆** + **多Agent记忆隔离Scope Boundary**（全局记忆与Agent指令冲突时自动确保Agent人设优先，业界唯一）+ **记忆矛盾主动通知**（LLM跨会话矛盾检测→智能路由→前端实时通知+4种交互裁决+72h超时自动兜底+IM推送——竞品仅静态标注）+ **MemoryGuardian自适应维护**（健康6h/不健康2h自动调度+容量控制+预算感知+健康恢复）+ **记忆诊断可解释 + 遥测完整性闭环**（stream/persist 一致性、控制平面聚合告警、前端 `preflight`/`runtime_fallback` 来源解释，云模式共享信封幂等+去重后端故障 fail-closed + dedup_reject 原因指标）— 2800+项测试验证（2026-07 记忆栈 39 场景 server e2e + 前端全链路手验），真正越用越懂你"
         },
         "knowledgeGraph": {
           "feature": "知识图谱 · 关联可视化",
@@ -527,7 +527,7 @@
           "feature": "Token 消耗 · 同样预算约 7 倍任务量 + 内置防膨胀技能",
           "hermes": "~15,520",
           "openclaw": "~18,000",
-          "myrmAgent": "2,167 省86% + 内置工具 Turn1 直出零代理开销（mid-thread 不 mutate bind_tools）+ MCP 技能通过 discover_capability → skill_select 渐进加载（比竞品全量注入省 94% token）；实测工具层 ~8,063 tok（SSOT 锁定；conversation_search 按需 +~67 tok）+ 控制面零 bind + memory×3 COMMON 层 cache 友好排序；**发消息即预检** `capability_gap`（WebUI workspace 多路复用长连接 + 早到 chunk 缓冲，toast「开启并重发」不丢）；14 项含 cron/render_ui；会话 wrench SSE 实时展示 Turn1 工具；**实时 Token 可观测**：每轮 LLM 调用后立即推送 token_usage 事件 + cached_tokens 精确报告 + model_usage 按模型分组 + CacheBreakDetector 缓存中断原因归因——每一分钱花在哪里实时可见（竞品第三方模型显示 Token: 0）"
+          "myrmAgent": "2,167 省86% + 内置工具 Turn1 直出零代理开销（mid-thread 不 mutate bind_tools）+ MCP 技能通过 discover_capability → skill_select 渐进加载（比竞品全量注入省 94% token）；实测工具层 ~8,063 tok（SSOT 锁定；sessions corpus ACL opt-in（无 standalone conversation_search Turn1 bind））+ 控制面零 bind + memory×3 COMMON 层 cache 友好排序；**发消息即预检** `capability_gap`（WebUI workspace 多路复用长连接 + 早到 chunk 缓冲，toast「开启并重发」不丢）；14 项含 cron/render_ui；会话 wrench SSE 实时展示 Turn1 工具；**实时 Token 可观测**：每轮 LLM 调用后立即推送 token_usage 事件 + cached_tokens 精确报告 + model_usage 按模型分组 + CacheBreakDetector 缓存中断原因归因——每一分钱花在哪里实时可见（竞品第三方模型显示 Token: 0）"
         },
         "costRouting": {
           "feature": "三维智能路由 + 自动升级 · 复杂度+隐私+容错+模型卡住自动升级",
