@@ -18,6 +18,7 @@ function parseTokenValue(raw: string): number {
 
 const BAR_KEYS = ['myrmAgentValue', 'hermesValue', 'openclawValue'] as const;
 const BAR_LABEL_KEYS = ['myrmAgent', 'hermes', 'openclaw'] as const;
+const EXTRA_KEYS = ['shellCompression', 'cacheObservability', 'toolOutputIntelligence', 'liveValidation'] as const;
 
 export default function BenchmarkSection() {
   const t = useTranslations('marketing');
@@ -108,34 +109,19 @@ export default function BenchmarkSection() {
             </div>
           </div>
 
-          <div className="mt-8 grid gap-3 sm:grid-cols-3">
-            <div
-              className="rounded-2xl p-4 sm:p-5"
-              style={{ border: '1px solid var(--ed-border)', background: 'var(--ed-surface)' }}
-            >
-              <p className="text-[12px] font-semibold">{t('tokenBenchmark.extras.shellCompression.title')}</p>
-              <p className="mt-2 text-[11px] sm:text-[12px] leading-relaxed font-light" style={{ color: 'var(--ed-dim)' }}>
-                {t('tokenBenchmark.extras.shellCompression.desc')}
-              </p>
-            </div>
-            <div
-              className="rounded-2xl p-4 sm:p-5"
-              style={{ border: '1px solid var(--ed-border)', background: 'var(--ed-surface)' }}
-            >
-              <p className="text-[12px] font-semibold">{t('tokenBenchmark.extras.cacheObservability.title')}</p>
-              <p className="mt-2 text-[11px] sm:text-[12px] leading-relaxed font-light" style={{ color: 'var(--ed-dim)' }}>
-                {t('tokenBenchmark.extras.cacheObservability.desc')}
-              </p>
-            </div>
-            <div
-              className="rounded-2xl p-4 sm:p-5"
-              style={{ border: '1px solid var(--ed-border)', background: 'var(--ed-surface)' }}
-            >
-              <p className="text-[12px] font-semibold">{t('tokenBenchmark.extras.toolOutputIntelligence.title')}</p>
-              <p className="mt-2 text-[11px] sm:text-[12px] leading-relaxed font-light" style={{ color: 'var(--ed-dim)' }}>
-                {t('tokenBenchmark.extras.toolOutputIntelligence.desc')}
-              </p>
-            </div>
+          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {EXTRA_KEYS.map((key) => (
+              <div
+                key={key}
+                className="rounded-2xl p-4 sm:p-5"
+                style={{ border: '1px solid var(--ed-border)', background: 'var(--ed-surface)' }}
+              >
+                <p className="text-[12px] font-semibold">{t(`tokenBenchmark.extras.${key}.title`)}</p>
+                <p className="mt-2 text-[11px] sm:text-[12px] leading-relaxed font-light" style={{ color: 'var(--ed-dim)' }}>
+                  {t(`tokenBenchmark.extras.${key}.desc`)}
+                </p>
+              </div>
+            ))}
           </div>
 
           <p className="mt-8 text-center text-[11px] ed-mono leading-relaxed" style={{ color: 'var(--ed-muted)' }}>
