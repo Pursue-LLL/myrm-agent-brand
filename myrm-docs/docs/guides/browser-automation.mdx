@@ -104,6 +104,22 @@ Configurable via parameters: `max_steps` (how far to scroll), `delay_ms` (wait t
 - Handle authentication flows
 - Handle browser dialogs intelligently
 
+## URL Domain Blocklist (Settings + Per-Agent)
+
+Block sensitive or unwanted domains **before the browser opens a connection** — not after a failed navigation.
+
+| Layer | What happens |
+|-------|----------------|
+| **Permission engine** | `browser_navigate` denied when hostname matches merged blocklist |
+| **Session navigate** | Hard stop with `BROWSER_URL_BLOCKLIST` — user sees the exact reason in chat |
+| **HTTP domain filter** | Blocked hosts never load subresources in the browser context |
+
+**GUI (no YAML):** Global list under **Settings → Security**; per-agent overrides under **Agent → Security**. Lists merge (union) — agent can only add blocks, not remove global policy.
+
+**Browser Doctor:** **Settings → System** runs connectivity checks (launch, pool, extension bridge) so you can fix browser issues without reading logs.
+
+**Verified:** Live model E2E + Chrome WebUI both show `Navigation blocked: domain … is on the URL blocklist` when an agent tries a blocked URL.
+
 ## Semantic DOM Safety — Session-Layer HITL
 
 Destructive browser actions (Delete, Pay, Submit, account changes) and **mutating JavaScript** (`element.click()`, `form.submit()`, `innerHTML=`) trigger a **Human-in-the-Loop approval card** before execution — regardless of which tool initiated the action.

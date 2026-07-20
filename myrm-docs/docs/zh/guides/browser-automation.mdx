@@ -132,6 +132,22 @@ Agent 使用 `browser_extract(mode='media', selector='.product-gallery')` 获得
 - 处理认证流程
 - 智能处理浏览器弹窗
 
+## URL 域名黑名单（全局 Settings + 按 Agent）
+
+在浏览器**发起连接之前**拦截敏感或不允许的域名，而不是等导航失败后再报错。
+
+| 层级 | 行为 |
+|------|------|
+| **权限引擎** | hostname 命中合并黑名单时，`browser_navigate` 直接 DENY |
+| **Session navigate** | 硬拦截并返回 `BROWSER_URL_BLOCKLIST`，聊天里可见完整原因 |
+| **HTTP domain filter** | 黑名单域名及其子资源不会加载 |
+
+**GUI（无需 YAML）：** **Settings → 安全** 配置全局列表；**Agent → 安全** 配置按 Agent 追加。列表取并集——Agent 只能追加拦截，不能绕过全局策略。
+
+**Browser Doctor：** **Settings → 系统** 一键诊断启动、池、扩展桥接等，无需看日志。
+
+**已验收：** Live 模型 E2E + Chrome WebUI 均可见 `Navigation blocked: domain … is on the URL blocklist`。
+
 ## 语义 DOM 安全 — Session 层 HITL
 
 删除、支付、提交、改账号等**高危 DOM 操作**，以及 **会改页面的 JavaScript**（如 `element.click()`、`form.submit()`、`innerHTML=`），在执行前都会弹出**人机共驾审批卡**——无论由哪个工具发起。
