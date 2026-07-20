@@ -13,6 +13,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在记忆能力上，Myrm 现已形成完整的**诊断可解释 + 遥测完整性闭环**：stream 阶段状态、persist 阶段状态、控制平面聚合告警、前端 `preflight`/`runtime_fallback` 来源解释（含移动端非 hover 文案），并在云模式提供严格 fail-closed 入库（共享 `envelope_id` 幂等 + 共享去重后端不可用时禁止静默本地回退 + `dedup_reject` 原因指标）。最近一次定向回归（2026-07-19）：server 28 passed、control-plane 55 passed、frontend 14 passed。
 
+## 最新验证快照（2026-07-20）
+
+- **浏览器自动化基线（分批低负载）**：Harness 定向 109 项通过（`snapshot`、事件分发链路、takeover）。
+- **契约一致性校验**：Server SSE 事件一致性 1 项通过；前端事件 schema 6 项通过。
+- **真实浏览器证据（非纸面）**：在真实 Chrome MCP 上对 WebUI 页面执行 `take_snapshot` + `evaluate_script`；`/api/v1/runs` 已返回结构化 `stop_reason`，并在 Runs 页面看到停止原因文案。
+- **Chrome UI E2E**：`test_background_tasks_panel_chrome_e2e.py` 3 项通过。
+- **验证过程中修复的预存缺陷**：`mode=running` seed fixture 因 `UnboundLocalError` 导致 500，已修复 API fixture 路由并补齐集成回归测试。
+- **资源安全边界**：验证期间系统可用内存保持在 40%-49%，未出现高压（已用 >80%）状态。
+- **已知环境前提（诚实说明）**：captcha coordinator 测试仍依赖本机 `patchright`，但不影响本次浏览器语义快照/遥测基线结论。
+
 ## 一览
 
 | 能力 | Myrm | Hermes Agent (v0.15) | OpenClaw | 360 Security OpenClaw | OpenClacky | MiniMax Mavis | MemPalace |
