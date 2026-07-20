@@ -59,9 +59,14 @@ export default function QuickStartSection() {
               </a>
             </p>
           ) : (
-            <p className="ed-quickstart-note mt-4 text-center text-[13px] leading-relaxed font-light" style={{ color: 'var(--ed-dim)' }}>
-              {t('quickStart.noteDesktop')}
-            </p>
+            <>
+              <p className="ed-quickstart-note mt-4 text-center text-[13px] leading-relaxed font-light" style={{ color: 'var(--ed-dim)' }}>
+                {t('quickStart.noteDesktop')}
+              </p>
+              <p className="ed-quickstart-note mt-2 text-center text-[12px] leading-relaxed ed-mono" style={{ color: 'var(--ed-accent)' }}>
+                {t('quickStart.noteDesktopInlineRoute')}
+              </p>
+            </>
           )}
         </div>
       </div>
