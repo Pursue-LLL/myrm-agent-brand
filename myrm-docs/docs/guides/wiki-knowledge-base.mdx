@@ -33,6 +33,24 @@ In **Settings → Wiki → Overview**, stats load on page open and show:
 
 This replaces ad-hoc CLI “doctor” checks with in-product health visibility.
 
+## Per-agent wiki scope
+
+Each agent can have its **own wiki vault**. In **Settings → Wiki**, use the **Agent scope** dropdown (or open `/settings/wiki?agentId=<agent-id>` from the agent banner). Stats, compile, maintain, and imports apply to the selected agent only.
+
+Artifact **Save to Wiki** and chat-bound ingest use the **current chat’s agent id**, so documents do not land in the default vault by mistake.
+
+## Unified memory + wiki recall
+
+When **both Wiki and Memory** are enabled on an agent profile, Myrm mounts a unified **`knowledge_recall_tool`** with `corpus=all` — one tool call searches long-term memory and the agent wiki together. Memory hits emit **cited memory IDs** for the UI; wiki hits appear in the tool result text.
+
+Default agent profiles include Memory; enable Wiki in **Agent config → Built-in tools** to get the unified path.
+
+## Memory citation button (reload-safe)
+
+When the agent recalls semantic/episodic memories, completed assistant messages show a **Memory N** button in the action bar. Open the sheet to inspect which memories influenced the answer (type, score, namespace, link back to source chat).
+
+Citations are **persisted to the database** and survive **page reload** — not SSE-only ephemeral state.
+
 ## Open Wiki settings
 
 1. Go to **Settings → Wiki 知识库 (Wiki)**.
