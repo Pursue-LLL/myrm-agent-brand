@@ -19,7 +19,7 @@ Turn1 工具描述约 **223 token**（瘦 docstring）；完整组件 props **�
 
 内联 A2UI 仅在 **Web 对话**与 **Tauri 桌面客户端**挂载（`client_surface` 为 `web` 或 `tauri`）。Telegram、Discord、定时任务等非 Web 渠道在 Turn1 **不会**加载 `render_ui_tool` / `update_ui_data_tool`，Agent 以纯文本回复，并在这些渠道上每轮节省约 **318** prompt token。**语音**（OpenAI Realtime、Gemini Live、agent bridge）同样不提供内联 A2UI：会话内没有 UI 渲染面，暴露 `render_ui` 只会浪费 token 并导致无效工具调用。开启「交互式 UI」时 Agent 配置页会显示说明；表单与 live 面板请使用 Web 对话或桌面客户端。
 
-**已验证（2026-07-19）**：Chrome E2E 覆盖配置页 Web-only 提示、`client_surface=web` 注入、**注入 `window.__TAURI__` 时 `client_surface=tauri`**（桌面 dev / Tauri WebView）、对话内 live inline 卡片；agent-stream 集成断言各 surface 挂载/省略；API LLM E2E 断言模型调用 `render_ui_tool` 时推送 `UI_UPDATE` SSE。
+**已验证（2026-07-20）**：Chrome E2E — 配置页 Web-only 提示、`client_surface=web` 注入、**注入 `window.__TAURI__` 时 `client_surface=tauri`**、对话内 live inline 卡片（**READ 2/2 + LIVE 1/1**）；agent-stream 集成断言各 surface 挂载/省略；lane resolver 确保 READ 测试不再误占 LIVE lease。
 
 ## `render_ui` 默认关闭时
 

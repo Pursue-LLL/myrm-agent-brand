@@ -19,7 +19,7 @@ Turn1 cost is **~223 tokens** for the slim tool docstring — full component pro
 
 Inline A2UI mounts only on **Web Chat** and the **Tauri desktop client** (`client_surface`: `web` or `tauri`). Telegram, Discord, cron, and other non-web channels do not load `render_ui_tool` / `update_ui_data_tool` at Turn1 — the agent answers in plain text instead, which saves ~318 prompt tokens per turn on those surfaces. **Voice** (OpenAI Realtime, Gemini Live, and the agent bridge) also omits inline A2UI: there is no in-session UI renderer, so exposing `render_ui` would only waste tokens and invite broken tool calls. Agent settings show a hint when **Interactive UI** is enabled; use Web Chat or the desktop app for in-chat forms and live panels.
 
-**Verified (2026-07-19)**: Chrome E2E covers the settings hint + `client_surface=web` hook, **`client_surface=tauri` when `window.__TAURI__` is present** (desktop dev / Tauri WebView), and a live inline card in chat; agent-stream integration asserts mount/omit per surface; API LLM E2E asserts `UI_UPDATE` SSE when the model invokes `render_ui_tool`.
+**Verified (2026-07-20)**: Chrome E2E — settings hint + `client_surface=web` hook, **`client_surface=tauri` when `window.__TAURI__` is present**, and a live inline card in chat (**READ 2/2 + LIVE 1/1**); agent-stream integration asserts mount/omit per surface; lane resolver ensures READ tests do not block LIVE lease.
 
 ## When `render_ui` is off (default)
 
