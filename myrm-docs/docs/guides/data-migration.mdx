@@ -37,6 +37,7 @@ Choose a target Agent (or create a new one), then confirm the import:
 - Secrets are only imported with explicit opt-in (never silently)
 - Skills go to a review queue — you approve each before it activates
 - A transaction batch ID is generated for every import
+- ZIP skill migration uses a stable two-phase error contract (`message + error_code`) in both preview and confirm, so UI remediation stays deterministic.
 
 ## Rollback
 
@@ -114,6 +115,7 @@ Export conversation data in training-ready formats:
 | One-Click Rollback | ✅ | ❌ | ❌ | ❌ |
 | Multi-Source Discovery | ✅ (8 sources) | ❌ (1 source) | ❌ | ❌ |
 | Cloud ZIP Upload | ✅ | ❌ | ❌ | ❌ |
+| Deterministic Import Error Codes (`message + error_code`) | ✅ (preview + confirm) | ❌ | ❌ | ❌ |
 | Remote Backup (S3/WebDAV) | ✅ | ❌ | ❌ | ❌ |
 | Token Economics Comparison | ✅ | ❌ | ❌ | ❌ |
 | MCP Config Migration | ✅ | ✅ (overwrites) | ❌ | ❌ |

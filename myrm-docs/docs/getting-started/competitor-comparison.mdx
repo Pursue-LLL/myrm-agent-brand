@@ -426,14 +426,14 @@ While competitors scan a single local directory (`.claude/skills/`, `.agents/ski
 | Discovery sources | 1 (local directory scan) | **5 parallel** (ClawHub + GitHub + LobeHub + skills.sh + Prebuilt) | One search, all ecosystems |
 | Search UI | CLI / none | **GUI SkillDiscoverTab** with filter, sort, category | Visual browsing like an app store |
 | URL import | ❌ | **URL → auto-analyze → batch install** with conflict detection | Paste a link, get a skill |
-| ZIP batch import | ❌ | **Drag & drop → security scan → conflict detection → atomic install** | Bulk migration in seconds |
+| ZIP batch import | ❌ | **Drag & drop → security scan → conflict detection → 2-phase preview/confirm (`message+error_code`) → atomic install** | Bulk migration in seconds, with stable recoverable errors |
 | Hot-reload | Restart required | **Zero-downtime**: `bump_skill_config_version()` → agent detects staleness → re-init | Install and use immediately |
-| Security scanning | None / hardcoded | **Pre-install quarantine** + `SkillSecurityValidator` + safe ZIP extraction (anti-Zip Bomb + path traversal) | Safe by default |
+| Security scanning | None / hardcoded | **Pre-install quarantine** + `SkillSecurityValidator` + safe ZIP extraction (entry limit + anti-Zip Bomb + path traversal + executable binary block) | Safe by default |
 | Atomic installation | `os.replace` file swap | **Blue-green directory swap** + transactional DB write + rollback | Never a broken state |
 | Auto-update | ❌ | **`SkillAutoUpdateChecker`** with "Update Available" badge | Always current |
 | Format compatibility | Own format only | **SKILL.md** with YAML frontmatter (shared with Hermes/OpenClaw) + any Markdown skill | Zero-friction ecosystem import |
 
-**Result: 9 upgrades, 0 equivalent, 0 downgrades. Myrm treats skill discovery as a first-class GUI experience with enterprise-grade safety, while competitors remain limited to local directory scanning.**
+**Result: 9 upgrades, 0 equivalent, 0 downgrades. Myrm treats skill discovery as a first-class GUI experience with enterprise-grade safety and deterministic error contracts across preview/confirm, while competitors remain limited to local directory scanning.**
 
 ### Evolution Validation Pipeline — 5-Layer vs Zero Validation
 
