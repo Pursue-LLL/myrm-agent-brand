@@ -19,6 +19,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **契约一致性校验**：Server SSE 事件一致性 1 项通过；前端事件 schema 6 项通过。
 - **真实浏览器证据（非纸面）**：在真实 Chrome MCP 上对 WebUI 页面执行 `take_snapshot` + `evaluate_script`；`/api/v1/runs` 已返回结构化 `stop_reason`，并在 Runs 页面看到停止原因文案。
 - **Chrome UI E2E**：`test_background_tasks_panel_chrome_e2e.py` 3 项通过。
+- **委派控制面 Chrome LIVE E2E**：`test_subagent_dashboard_chrome_e2e.py` 3/3（340s）；Session 级委派暂停 + Dashboard cancel/token/model 在真实 Chrome 签收。
 - **验证过程中修复的预存缺陷**：`mode=running` seed fixture 因 `UnboundLocalError` 导致 500，已修复 API fixture 路由并补齐集成回归测试。
 - **资源安全边界**：验证期间系统可用内存保持在 40%-49%，未出现高压（已用 >80%）状态。
 - **已知环境前提（诚实说明）**：captcha coordinator 测试仍依赖本机 `patchright`，但不影响本次浏览器语义快照/遥测基线结论。
@@ -1447,7 +1448,7 @@ DeerFlow 1.x 作为专业 Deep Research 框架广受好评，但 2.0 已完全�
 | **增量研究自动复用** | ✅ 旧报告 Wiki Vault 自动入库 + EXPLORE FTS5 自动检索旧知识 | ❌ 用户需手动指定旧文件 | **后续研究自动衔接，无需手动切换模式** |
 | **隐式交叉验证** | ✅ THINK 评估发现 + Information Integrity 标注不一致 + 偏离机制修正旧结论 | ❌ 无系统级机制 | **发现旧报告错误时自动纠正，研究更可靠** |
 | **对比评估维度模板** | ✅ 对比类查询自动按统一维度规划步骤 + 报告末尾生成汇总对比表 | ❌ 无 | **框架对比、技术选型场景输出专业对比表** |
-| **知识三层流转** | ✅ 同会话 chat_history + 跨会话 Wiki 自动归档+EXPLORE 召回 + 普通对话 memory_recall 语义检索 | ❌ 无跨会话知识流转 | **研究成果永不断裂，跨对话可用** |
+| **知识三层流转** | ✅ 同会话 chat_history + 跨会话 Wiki 自动归档+EXPLORE 召回 + 普通对话 `memory_search_tool(corpus=memory)` 语义检索 | ❌ 无跨会话知识流转 | **研究成果永不断裂，跨对话可用** |
 
 **用户感知收益**：你可以发起一个数小时的深度研究任务后安心关闭浏览器甚至合上笔记本——Myrm 会自动阻止系统休眠、将任务状态持久化到数据库。即使服务器意外重启，Myrm 也会自动恢复中断的任务并在完成后推送系统通知。研究开始前，你的 Wiki 知识库会被自动检索，已有知识不再重复搜索，直接节省 token 费用；旧报告会自动入库并在后续研究中复用和验证，确保知识不断迭代更新。研究成果通过三层机制确保不丢失：同会话内直接可见，跨会话通过 Wiki 自动归档并被后续研究召回，普通对话中 AI 也能通过记忆检索工具访问历史研究。对比类查询（如"React vs Vue"）自动按统一维度规划研究步骤并在报告中生成汇总对比表。研究过程中，每轮研究的实时成本和预算使用情况都在 UI 上清晰可见。这种级别的深度研究能力与长任务可靠性，在所有竞品中独一无二。（9,487 项相关测试全部通过）
 

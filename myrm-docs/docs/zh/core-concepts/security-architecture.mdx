@@ -334,7 +334,7 @@ AI 分类器（`TranscriptClassifier`）审查工具调用是否符合用户原�
 消息输入区一键 Toggle 激活 per-session 隐私隔离：
 
 - **Harness 层**：`IncognitoPolicy` 物理跳过 MEMORY 和 ARCHIVE 上下文场景的所有写入
-- **Server 层**：不绑定 memory manager，不挂载全部记忆工具（`memory_recall`、`memory_save`、`memory_manage`、`conversation_search`），不注入记忆上下文，禁用归档检查点与会话清理回调
+- **Server 层**：不绑定 memory manager，不挂载全部记忆工具（`memory_search_tool`、`memory_save`、`memory_manage`），不注入记忆上下文，禁用归档检查点与会话清理回调
 - **数据库层**：`is_incognito` 标记确保无痕会话不在侧边栏显示、不可被全文搜索命中
 - **Self-hosted 架构优势**：竞品（如 SaaS 产品）需要额外的"本地模式"开关来防止数据上传至厂商服务器；Myrm 的 self-hosted 架构意味着用户数据天然不离开本机——无痕模式在此基础上叠加了会话级的非持久化保护
 

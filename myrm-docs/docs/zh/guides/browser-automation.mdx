@@ -374,7 +374,7 @@ Myrm **不会**读取 Chrome/Edge 的 `History.db`、书签数据库或其他 OS
 |------|-----------|-------------|
 | 复用你已登录的站点 | **Extension Bridge** — 在真实 Chrome 标签页中操作，沿用现有登录态 | 批量索引历史/书签 |
 | 登录一次，跨 Agent 运行保持登录 | **Session Vault** — 按域名 AES-256-GCM 加密保存 Cookie + localStorage | 从浏览器配置导入 Cookie DB |
-| 回忆与 Agent 讨论过的 URL | **memory_recall** / 可选 **conversation_search** | OS 级历史搜索 |
+| 回忆与 Agent 讨论过的 URL | **`memory_search_tool(corpus=sessions)`（opt-in）** | OS 级历史搜索 |
 
 **行业对齐：** 主流 claw 竞品（OpenClaw、Hermes、CoPaw、DeerFlow、CodePilot、LobsterAI、JiuwenClaw）均未提供读取 `History.db` 或书签 JSON 的 Agent 工具。部分产品（如 Orca、Holaboss）支持将 Chrome Cookie/配置一次性导入内置浏览器——架构不同，目标相同。CoPaw 明确建议不想暴露历史/Cookie 时使用 `private_mode`。
 
@@ -586,7 +586,7 @@ Myrm 的浏览器系统经过优化，可在 $5/月云容器到低配笔记本�
 | Agent 需在真实 Chrome 中操作（沿用现有登录态/扩展） | **Extension Bridge** |
 | SaaS 模式远程控制用户浏览器 | **Extension Bridge** |
 
-> **隐私说明：** Extension Bridge 仅控制已授权标签页，**不会**批量读取 OS 浏览历史或书签数据库。回忆与 Agent 讨论过的 URL 请使用 memory_recall 或可选 conversation_search。
+> **隐私说明：** Extension Bridge 仅控制已授权标签页，**不会**批量读取 OS 浏览历史或书签数据库。回忆与 Agent 讨论过的 URL 请使用 `memory_search_tool(corpus=sessions)`（需在设置中开启历史会话搜索）。
 
 ### 工作原理
 
