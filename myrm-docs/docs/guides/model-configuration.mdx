@@ -229,6 +229,19 @@ Complete token economics visualization pipeline from backend to frontend:
 | Frontend visualization components | **18+** |
 | Backend statistics API endpoints | **12** |
 
+## Tool Schema Auto-Normalization
+
+When you switch between models (e.g., GPT-4o → Gemini → Claude), each provider has different requirements for tool schemas. Myrm automatically normalizes all tool schemas before sending them to the model — no manual configuration required.
+
+**What it fixes automatically:**
+- Orphan `required` entries (fields listed as required but not defined in properties) — causes 400 errors on Gemini/Vertex AI
+- Nested nullable patterns (`anyOf: [{type: X}, {type: null}]`) — causes errors on strict OpenAI function calling
+- `$ref`/`$defs` inline definitions — most providers don't support JSON Schema references
+- Missing `type` annotations on nested objects — strict providers reject them
+- Anthropic-unsupported keywords (`minimum`, `maxItems`, `pattern`, etc.) — constraints are folded into description
+
+**Why this matters:** MCP tools come from third-party servers with varying schema quality. Without normalization, switching your agent from one model to another often breaks tool calling entirely. Myrm ensures every tool works on every model, transparently.
+
 ## Fault Tolerance
 
 The 14-layer error recovery system handles failures automatically:

@@ -208,6 +208,19 @@ Myrm 在浏览器标签、桌面端与 SaaS 之间保持设置一致——**刷�
 | 前端可视化组件 | **18+** |
 | 后端统计 API | **12 端点** |
 
+## 工具 Schema 自动规范化
+
+切换模型时（如从 GPT-4o 切到 Gemini 或 Claude），各提供商对工具 schema 的要求各不相同。Myrm 在发送给模型前自动规范化所有工具 schema，无需任何配置。
+
+**自动修正的问题：**
+- 孤儿 `required` 条目（引用了不存在的 `properties` 字段）—— Gemini/Vertex AI 会返回 400 错误
+- 嵌套 nullable 模式（`anyOf: [{type: X}, {type: null}]`）—— OpenAI strict 模式会报错
+- `$ref`/`$defs` 内联定义 —— 大多数提供商不支持 JSON Schema 引用
+- 缺失 `type` 注解 —— 严格模式提供商直接拒绝
+- Anthropic 不支持的关键字（`minimum`、`maxItems`、`pattern` 等）—— 约束折叠为描述文本
+
+**为什么重要：** MCP 工具来自第三方服务器，schema 质量参差不齐。没有规范化，切换模型时工具调用经常直接失败。Myrm 确保每个工具在每个模型上都能正常工作，对用户完全透明。
+
 ## 容错
 
 14 层错误恢复系统自动处理故障：
