@@ -149,13 +149,14 @@ Myrm automatically optimizes MCP tool schemas for LLM compatibility:
 | Feature | Description |
 |---------|-------------|
 | **Schema Flattening** | Deeply nested schemas (depth > 2 or leaves > 10) are automatically flattened |
-| **Type Correction** | 5 auto-fixes (string → int, bool → string, etc.) for common schema issues |
+| **Type Intelligent Fix** | 7 auto-fixes: nullable completion, mixed-union container parsing, enum/const null recognition, reverse coercion (dict→string), boolean/number string conversion, markdown code block stripping, deep-nested dot-path flattening |
 | **Dot-Path Detection** | Automatically detects if the model uses dot notation for nested params |
 | **$ref Resolution** | Full recursive JSON Schema `$ref` resolution |
 | **Circular Reference Guard** | Max depth limit + visited tracking prevents infinite recursion |
 | **Anthropic Schema Auto-Adapt** | Automatically strips unsupported JSON Schema keywords (`minimum`, `maximum`, `pattern`, `format`, `default`, `title`, etc.) for Claude models, folds constraint semantics into `description` to preserve LLM understanding. Zero manual configuration needed |
 | **Description Safety Valve** | Excessively long third-party descriptions auto-truncated to 2048 chars to prevent token waste |
 | **Schema Cache Stability** | Recursive key sorting + set field sorting eliminates serialization randomness from MCP server restarts, ensuring Prompt Cache hits |
+| **Coercion Observability** | Runtime counters track each fix type's trigger frequency, with DEBUG logging for diagnostics |
 | **Content Boundary Defense** | All MCP return values pass through 5-layer `wrap_untrusted` defense chain to prevent Prompt Injection |
 
 ## Connection Management
