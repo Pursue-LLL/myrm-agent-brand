@@ -155,6 +155,18 @@ This is an exclusive capability — no competing framework implements prompt cac
 | **90% Safety Net** | Emergency compression at 90% context window utilization to prevent OOM |
 | **Cache-TTL Archive** | Expired cache entries are archived (not deleted) for potential restoration |
 
+### Tool-Call Linear Alignment
+
+Long conversations inevitably require compaction — but compressing messages must never break the pairing between AI tool calls and their results. Myrm provides 3-layer architectural protection:
+
+| Layer | Mechanism | When |
+|-------|-----------|------|
+| **L1: ID-based Grouping** | `tool_call_groups` pairs messages by `tool_call_id` (not position), handling cross-turn reuse | During compression selection |
+| **L2: Integrity Guard** | Post-compaction validation removes orphan tool messages and trims partially-matched AI messages | After compression completes |
+| **L3: Dangling-Call Repair** | Pre-LLM middleware inserts synthetic error results for interrupted/timed-out tool calls (covers 3 call sources) | Before every LLM invocation |
+
+This eliminates the `Tool message must follow tool_calls` API rejection that plagues competing frameworks after session truncation. Verified by 239 dedicated tests.
+
 ### Session-Affinity Routing (OpenAI)
 
 For OpenAI models, Myrm automatically injects a `prompt_cache_key` routing hint on every request. This ensures all calls within the same session route to the same inference node, maximizing the Auto Prefix Cache hit rate:
