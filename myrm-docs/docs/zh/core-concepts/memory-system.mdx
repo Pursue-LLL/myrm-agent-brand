@@ -64,6 +64,8 @@ Myrm 的 **Working Memory** 通过专用 `__working_state` Profile Memory 条目
 
 **Turn1 行为**：单一读工具 + `corpus` 参数 — GeneralAgent 无 standalone `conversation_search_tool`。子 Agent（Custom + Ephemeral JIT）自动 rebind `memory_search_tool`（scoped policy/backends：子 agent_id、父 chat_id、父 opt-in）。
 
+**语音（Realtime 与 Gemini Live）**：与 Chat 共用 Settings ACL — 语音会话声明裁剪后的 `memory_search_tool` corpus，tool-exec 传递 `enable_conversation_search` 等 flags；设置里开启「历史会话搜索」后，语音也可追问「上次聊的…」。语音 transcript 仍为纯文本（暂无「依据 N」按钮）。
+
 **新用户默认开启记忆**。**历史会话搜索与核心记忆解耦**，默认关闭直至手动开启。
 
 ### 竞品对比（诚实表述，2026-07）
