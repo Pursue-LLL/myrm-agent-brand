@@ -146,6 +146,15 @@ When ingesting documents into the Wiki, Myrm automatically selects the optimal p
 
 All strategies run asynchronously and feed into the same compilation pipeline — no manual selection required.
 
+## Security
+
+Wiki ingestion is protected by dual-layer path traversal defense:
+
+1. **Filename sanitization** — any directory components in LLM-provided filenames are stripped (`Path(filename).name`), preventing an injected tool call from targeting paths like `../../../etc/cron.d/evil.md`.
+2. **Boundary validation** — `safe_join_path()` validates that resolved paths stay within the wiki raw directory, blocking absolute paths, null byte injection, symlink escapes, and `../` traversal.
+
+These defenses operate at the harness framework level, meaning all wiki ingestion paths (agent tool calls, auto-archive, large document RAG ingest) are automatically protected. The wiki directory itself lives outside the user home directory and is further isolated by OS-level sandboxing (macOS Seatbelt / Linux bubblewrap / Windows AppContainer) during code execution.
+
 ## Compared to DIY wiki skills
 
 | DIY (e.g. Hermes llm-wiki SKILL) | Myrm |
