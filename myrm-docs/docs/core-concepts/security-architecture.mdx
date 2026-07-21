@@ -594,8 +594,9 @@ Scheduled Agent jobs support a **dual-layer policy** independent of the bound Ag
 **Where to edit:** Settings → Scheduled Tasks → open a job → **Execution policy** editor in run history (same placement pattern as allowed filesystem roots). New jobs stay unrestricted by default.
 
 **Built-in safeguards:**
+- **Preset packs** (web-only / research / devops) dual-write capability fence + tool scope, aligned with blueprint SSOT.
 - **Read-it-Later blueprint** defaults to `file_ops` only — ingestion jobs cannot accidentally enable browser or code execution.
-- **Lifecycle guard** rejects cron prompts/commands containing Myrm restart/stop or `pkill myrm-agent` patterns — prevents self-inflicted outage loops.
+- **Lifecycle guard** rejects cron prompts/commands/**pre-flight probe scripts** containing Myrm restart/stop or `pkill myrm-agent` patterns — prevents self-inflicted outage loops.
 - **Restricted jobs do not silently gain baseline tools** — a file-only cron will not auto-enable `code_execute`; unrestricted jobs still inherit the Agent baseline.
 
 **vs competitors:** OpenClaw/Hermes offer cron scheduling but no GUI per-job capability fence + Turn1 tool scope with REST/GUI/Agent SSOT. Myrm closes the gap for teams running many unattended jobs on one Agent.
