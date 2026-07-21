@@ -8,8 +8,39 @@ description: 以编程方式访问与管理 Agent 记忆。
 ## 列出记忆条目
 
 ```bash
-GET /api/memory
+GET /api/memory?type=semantic&page=1&page_size=20&sort_by=created_at&sort_order=desc&tag=python
 ```
+
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `type` | string | 全部 | 记忆类型过滤: `semantic`, `episodic`, `procedural`, `conversation`, `task_digest` |
+| `page` | int | 1 | 页码（从 1 开始） |
+| `page_size` | int | 20 | 每页条数（最大 100） |
+| `sort_by` | string | `created_at` | 排序字段: `created_at`, `updated_at`, `importance` |
+| `sort_order` | string | `desc` | 排序方向: `asc` 或 `desc` |
+| `tag` | string | — | 按标签过滤（不区分大小写） |
+| `search` | string | — | 语义搜索查询（使用向量相似度） |
+
+响应：
+
+```json
+{
+  "items": [...],
+  "total": 91,
+  "page": 1,
+  "page_size": 20,
+  "has_next": true,
+  "has_prev": false
+}
+```
+
+## 获取记忆标签
+
+```bash
+GET /api/memory/tags?limit=20
+```
+
+返回所有记忆类型中最常用的标签及其计数。
 
 ## 搜索记忆
 

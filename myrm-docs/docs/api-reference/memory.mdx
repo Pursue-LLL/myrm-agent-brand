@@ -8,8 +8,39 @@ description: Access and manage agent memory programmatically.
 ## List Memory Entries
 
 ```bash
-GET /api/memory
+GET /api/memory?type=semantic&page=1&page_size=20&sort_by=created_at&sort_order=desc&tag=python
 ```
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `type` | string | all | Memory type filter: `semantic`, `episodic`, `procedural`, `conversation`, `task_digest` |
+| `page` | int | 1 | Page number (1-indexed) |
+| `page_size` | int | 20 | Items per page (max 100) |
+| `sort_by` | string | `created_at` | Sort field: `created_at`, `updated_at`, `importance` |
+| `sort_order` | string | `desc` | Sort direction: `asc` or `desc` |
+| `tag` | string | — | Filter by tag (case-insensitive) |
+| `search` | string | — | Semantic search query (uses vector similarity) |
+
+Response:
+
+```json
+{
+  "items": [...],
+  "total": 91,
+  "page": 1,
+  "page_size": 20,
+  "has_next": true,
+  "has_prev": false
+}
+```
+
+## Get Memory Tags
+
+```bash
+GET /api/memory/tags?limit=20
+```
+
+Returns the most frequent tags across all memory types with their counts.
 
 ## Search Memory
 
