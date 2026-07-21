@@ -61,6 +61,21 @@ Hermes 用户迁移后可保留 **worker / orchestrator** 分角色体验，并�
 
 Worker 通过 **`kanban_attach`**（path/url，SSRF 安全）挂附件后，任务卡片显示 **📎 回形针 badge**——**点击即可打开任务抽屉**预览或下载，无需在日志或 CLI 里翻文件。竞品多为纯展示或只见计数。
 
+### Chat↔Board 闭环（Lean CORE）
+
+在 Chat 中启用 Kanban 后，`kanban_add_task` 成功会在对话流展示 **`KanbanTaskCreatedCard`**（标题、板名、状态、任务 ID），并持久化到消息的 `extra_data.kanban_tasks_created`，刷新或续聊后卡片仍在。
+
+点击 **「在看板查看」** 会带 `source_chat_id` 打开过滤后的看板视图，只显示与本会话相关的任务。Pipeline/Decompose 拆出的子任务会继承 originating chat 的 `source_chat_id`，过滤视图完整。
+
+| 能力 | Hermes | OpenClaw | Myrm |
+|------|--------|----------|------|
+| Chat 侧 Kanban 工具 | ✅ 模块化 @tools | ❌ 0 个 | ✅ orchestrator 3 工具（opt-in） |
+| GUI 成功回执卡 | ❌ CLI 输出 | ❌ 无 | ✅ KanbanTaskCreatedCard |
+| 一键跳过滤看板 | ❌ | ❌ | ✅ source_chat 深链 |
+| 大板 list 防 token 爆炸 | ⚠️ 视配置 | N/A | ✅ 自动 scope + 50/200 limit |
+
+**验证（2026-07-21）**：Chrome E2E #4（seed fixture → 成功卡 → 深链看板）+ Vitest TOOL_END 单元测试 + live agent-stream e2e 2/2。
+
 ### 自治认领（Worker 自动抢单）
 
 常见 Agent Team 教程描述：**Lead 逐个手动分配**、Worker **每 5 秒轮询**、文件任务板 + 易竞态的 claim。Myrm 提供生产级替代：

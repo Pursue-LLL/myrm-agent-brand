@@ -61,6 +61,21 @@ Board create/list CRUD stays **REST/GUI only** — no LLM tool slots wasted. Use
 
 Hermes users migrating to Myrm get the same **worker vs orchestrator** split, plus a visual Kanban GUI, DAG scheduling, and CompletionVerifier. OpenClaw has a display-only Workboard with **zero** LLM tools; deer-flow / LobsterAI / CoPaw / jiuwenclaw expose **zero** native Kanban LLM tools.
 
+### Chat↔Board closure (Lean CORE)
+
+With Kanban enabled in Chat, a successful `kanban_add_task` renders **`KanbanTaskCreatedCard`** in the thread (title, board, status, task ID) and persists it under `extra_data.kanban_tasks_created` so the card survives refresh and resume.
+
+**View on board** opens a filtered Kanban view scoped by `source_chat_id`. Subtasks from Pipeline/Decompose inherit the originating chat’s `source_chat_id`.
+
+| Capability | Hermes | OpenClaw | Myrm |
+|------------|--------|----------|------|
+| Chat-side Kanban tools | ✅ modular @tools | ❌ none | ✅ orchestrator 3 (opt-in) |
+| GUI success receipt card | ❌ CLI output | ❌ none | ✅ KanbanTaskCreatedCard |
+| One-click filtered board jump | ❌ | ❌ | ✅ source_chat deep link |
+| Large-board list token guard | ⚠️ config-dependent | N/A | ✅ auto scope + 50/200 limit |
+
+**Verified (2026-07-21)**: Chrome E2E #4 (seed fixture → success card → deep link) + Vitest TOOL_END unit test + live agent-stream e2e 2/2.
+
 ### Autonomous Dispatch (Self-Claim Workers)
 
 Popular Agent Team tutorials describe a **Lead manually assigning** every task, workers **polling every 5 seconds**, and file-based task boards with race-prone claims. Myrm ships a production-grade alternative:
