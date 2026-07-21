@@ -47,7 +47,8 @@ POST /api/tools/:name/execute
 |----------|-------------------|--------|
 | General chat | `web_search` + `memory` | — |
 | Coding / files | Enable **file_ops** → `glob_tool` + `grep_tool` + file_* mount **immediately** (Claude Code–style eager, not discover-deferred) | `code_execute` (bash) |
-| MCP / external skills | — | Progressive loading via `discover_capability_tool` → `skill_select_tool` (only MCP skills use discover; all builtin tools are Turn1 eager) |
+| MCP / bound skills | — | `discover_capability_tool` → `skill_select_tool` searches **already-bound** library (`<BoundSkills>`) |
+| External skill marketplace | — | `skill_discovery_tool` search/install from GitHub/skills.sh; Settings **Discover** tab also available |
 | Skill hygiene | WebUI **Curator** sweep | — |
 
 | `web_fetch` | 3-tier local fetch (HTTP/Browser/Stealth) with DOM pruning and Markdown extraction |
