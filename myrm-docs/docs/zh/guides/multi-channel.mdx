@@ -206,6 +206,20 @@ Telegram 渠道支持原生 Rich Message 渲染，配备三层智能降级：
 
 查找顺序 Thread→Chat→Channel 逐级降级，未绑定时使用默认 Agent。
 
+### 线程自动跟进
+
+Agent 在线程中回复后，**GroupFollowUpTracker** 自动激活该线程（TTL：10 分钟）。在此窗口内，线程中的后续消息无需 @mention — Agent 自动继续对话，如同真人聊天。
+
+发送 `/mute`、`/shutup`、`闭嘴` 或 `别吵` 即可停止 Agent 在当前线程的响应。再次 @mention 即可重新激活。
+
+### 客模式（Guest Mention）
+
+即使群组未显式启用 Agent，用户也可以 @mention Agent 获得一次性回复（需开启 guest mode）。无需将群组加入白名单即可获得 AI 临时帮助。
+
+### 精确 Bot ID 匹配
+
+每个渠道适配器均执行精确的 bot 身份匹配 — Telegram 匹配 `bot_username`，飞书匹配 `bot_open_id`，Teams 匹配 `app_id`，WhatsApp 匹配 `mentionedJids`。@mention 始终精确路由到正确的 bot，35+ 渠道零误触发。
+
 ### GroupContextBuffer
 
 群聊非触发消息累积于 per-group 环形缓冲。@Agent 等触发时排空缓冲注入上下文 — Agent 感知群讨论脉络。

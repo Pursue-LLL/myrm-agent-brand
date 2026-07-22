@@ -264,6 +264,20 @@ Three-tier granularity binds different agents to different conversation scopes:
 
 Lookup order is Thread→Chat→Channel with graceful fallback to the default agent.
 
+### Thread Follow-Up
+
+After the agent responds in a thread, a **GroupFollowUpTracker** activates for that thread (TTL: 10 minutes). During this window, subsequent messages in the same thread don't require @mention — the agent automatically continues the conversation, just like a human would.
+
+To stop the follow-up, send `/mute`, `/shutup`, `闭嘴`, or `别吵` in the thread. The agent immediately stops responding. To reactivate, simply @mention the agent again.
+
+### Guest Mention
+
+Even in groups not explicitly enabled for the agent, users can @mention the agent for a one-shot response (if guest mode is enabled). This allows ad-hoc AI assistance without adding the group to the whitelist.
+
+### Precise Bot ID Matching
+
+Every channel provider performs exact bot identity matching — Telegram checks `bot_username`, Feishu checks `bot_open_id`, Teams checks `app_id`, WhatsApp checks `mentionedJids`. This means @mentions are always precisely routed to the correct bot, with zero false triggers across all 35+ channels.
+
 ### GroupContextBuffer
 
 Non-trigger messages in group chats are accumulated in a per-group ring buffer. When a trigger message arrives (e.g., @agent), the buffer is drained and injected as context — giving the agent conversational awareness of the group discussion.
