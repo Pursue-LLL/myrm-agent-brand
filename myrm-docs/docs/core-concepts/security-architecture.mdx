@@ -27,8 +27,26 @@ Control how much autonomy agents have:
 | **Auto** | Read-only operations auto-approved, writes require confirmation |
 | **YOLO** | All operations auto-approved (for trusted environments) |
 | **HITL** | Human-in-the-loop approval for every action |
-| **Always-Allow** | Per-tool permanent approval with 3-level granularity |
+| **Always-Allow** | Per-tool permanent approval with 4-level granularity (permission / tool / exact-args / command-pattern) |
 | **Domain-HITL** | Approval based on domain/resource classification |
+
+### 10-Layer Progressive Approval Architecture
+
+Every tool call passes through up to 10 layers of deterministic and intelligent checks before reaching the user:
+
+| Layer | Mechanism | What it does |
+|-------|-----------|--------------|
+| L0 | **YOLO Full-Auto** | Auto-approves everything except hard DENY rules |
+| L1 | **CapabilitySet** | Checks declared capabilities with negative-priority deny rules |
+| L2 | **Command Risk Classifier** | Categorizes shell commands by risk level (SAFE / UNKNOWN / DANGEROUS) |
+| L3 | **URL Domain Allowlist** | Auto-allows network access to trusted domains |
+| L4 | **Path Policy** | Enforces file access boundaries (workspace-only, deny-list, etc.) |
+| L5 | **Fast-Path Read-Only MCP** | Auto-allows MCP tools with `readOnlyHint=true` and no destructive/open-world flags |
+| L6 | **Allowlist Persistence** | 4-level matching: permission → tool → exact args hash → command glob pattern |
+| L7 | **Taint-Aware Escalation** | Escalates already-ALLOW tools to ASK when session contains tainted data (PII, credentials) |
+| L8 | **Cron Capability Pre-Approval** | Auto-allows declared capabilities in scheduled tasks; fail-closed without declarations |
+| L9 | **Domain HITL Runtime** | Auto-allows previously-approved domains within the same session |
+| L10 | **LLM Security Review** | AI classifier for ASK/Taint/Shell-Escalation/Outbound-Check scenarios |
 
 ### Multi-Platform Approval UX
 
@@ -131,7 +149,7 @@ Multi-agent workflows introduce identity drift and privilege escalation risks. M
 | **Taint Propagation** | `TaintTracker` labels flow from child → parent. If a child touches external network data, the parent session is automatically tainted |
 | **Sink Policies** | Tainted sessions escalate to HITL approval for dangerous tool combinations (e.g., `EXTERNAL_NETWORK` taint + `bash_tool` = blocked without approval) |
 | **Budget Boundary** | 4-dimension `DelegationBudget` (token + USD + time + max descendants) prevents runaway sub-agent chains |
-| **Recursion Guard** | Hard depth limit (max 3 levels) + role-based delegation (only `ORCHESTRATOR` roles receive delegation tools) + cascade cancellation of all descendants on parent abort |
+| **Recursion Guard** | 5-layer progressive defense: L1 global depth hard limit (max 3) + L2 per-config depth (LEAF agents forced to depth=0) + L3 descendant budget (max 20 including parallel branches, atomic reserve) + L4 concurrency limits (semaphore=5 + per-agent children=5) + L5 LoopGuard 7-class behavioral detection (repetition/ping-pong/no-progress/divergence/diminishing). Rejections emit frontend STATUS events with actionable suggestions for LLM self-correction. Cascade cancellation of all descendants on parent abort |
 
 ## Skill Installation Security
 

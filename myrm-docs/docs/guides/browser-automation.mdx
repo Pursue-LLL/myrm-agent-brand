@@ -526,9 +526,11 @@ For scenarios beyond CAPTCHAs — 2FA prompts, payment gateways, proprietary for
 
 1. Agent recognizes it cannot proceed (e.g., "this requires SMS verification")
 2. Calls `browser_ask_human` with a clear explanation
-3. VNC panel opens with the reason displayed
-4. You complete the action directly in the browser
-5. Click "Done" — agent captures the new page state and continues
+3. **Extension path** (everyday Chrome / Extension Bridge): an in-chat **`ExtensionTakeoverBanner`** appears with the reason, screenshot preview, and a link to the live tab — complete the action in your browser, then click **Done** or **Can't do this**
+4. **Managed path** (sandbox / VNC): the VNC panel opens with the reason displayed — complete the action there, then click **Done**
+5. Agent captures the new page state and continues
+
+Both paths share the same structured resume contract (`{action:'completed'|'skipped'}`) and are validated by Chrome MCP E2E (READ ×3 + LIVE ×1, Jul 2026).
 
 ### Terminal Challenge Hard-Halt
 

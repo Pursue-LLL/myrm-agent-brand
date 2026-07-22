@@ -418,6 +418,23 @@ Myrm 也可作为 **MCP 服务**，将记忆系统暴露给外部 AI Agent（Cla
 
 自愈重连通常透明处理。若因传输中断失败，重试消息即可；持续失败（5 次重连后）检查网络、进程健康、资源限制。
 
+### 本地编辑器 MCP 探测诊断
+
+当你连接本地限定集成（如 Unreal Engine、Blender）时，Myrm 会先调用 `/api/v1/integrations/mcp/probe`，再决定是否进入 scan/verify。这样可以避免“反复点连接但不知道根因”的死路流程。
+
+| 分类 | 信号 | 含义 | 下一步 |
+|------|------|------|--------|
+| 可达 | `reasonCode=reachable` | MCP 端点在超时内正常响应 | 继续执行 scan/verify |
+| 编辑器端服务未启动 | `reasonCode=connection_refused` | 端口存在但无服务监听 | 启动编辑器侧 MCP 服务/插件 |
+| TLS 信任失败 | `reasonCode=tls_verification_failed` | 证书链或主机名校验失败 | 导入企业 CA，或配置每服务器 CA bundle / mTLS |
+| 回环策略拦截 | HTTP 400 + `localhost addresses only` 详情 | 非回环地址被 SSRF 防护阻断 | 本地集成改用 `127.0.0.1` / `localhost` |
+
+补充保证：
+
+- 当 `shouldBlockConnect=true` 时，连接链会立刻终止，不再触发 scan/verify，减少无效报错噪声。
+- 前端按 `reasonCode` 映射本地化运维文案，应用团队与基础设施团队可基于同一信号协同排障。
+- 相比仅返回通用网络错误的竞品，Myrm 提供可机读诊断信号，可直接用于 CI 检查与入职脚本自动化。
+
 ### OAuth Token 过期
 
 当 MCP 服务的 OAuth Token 过期（GitHub、Linear、Notion、Slack 集成常见），Myrm 在运行时实时检测认证失败并引导重新授权：

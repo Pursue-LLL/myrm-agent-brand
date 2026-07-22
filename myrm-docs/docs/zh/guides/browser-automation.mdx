@@ -491,9 +491,11 @@ Agent 在浏览网页时遇到验证码或需要人工介入的场景，系统�
 
 1. Agent 判断自己无法继续（如"需要短信验证码"）
 2. 调用 `browser_ask_human`，附带清晰的说明
-3. VNC 面板弹出，展示原因
-4. 你直接在浏览器中完成操作
-5. 点击"完成"——Agent 捕获新页面状态并继续
+3. **Extension 路径**（日常 Chrome / Extension Bridge）：聊天内 **`ExtensionTakeoverBanner`** 横幅显示原因、截图预览和实时标签链接——在本地浏览器完成操作后点击 **完成** 或 **无法完成**
+4. **Managed 路径**（沙箱 / VNC）：VNC 面板弹出并展示原因——在面板内完成操作后点击 **完成**
+5. Agent 捕获新页面状态并继续
+
+两条路径共用同一结构化 resume 契约（`{action:'completed'|'skipped'}`），已通过 Chrome MCP E2E 验证（READ ×3 + LIVE ×1，2026-07）。
 
 ### 终端挑战硬停机
 
