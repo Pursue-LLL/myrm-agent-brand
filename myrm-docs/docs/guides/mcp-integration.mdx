@@ -432,6 +432,7 @@ When you connect local-only integrations (for example Unreal Engine or Blender),
 | Local route unavailable | `reasonCode=connection_unreachable` | Loopback path exists but local routing/VPN/proxy policy blocks reachability | Verify localhost routing, VPN/proxy policy, and editor MCP settings |
 | TLS trust failure | `reasonCode=tls_verification_failed` | Certificate chain/hostname validation failed | Import enterprise CA or configure per-server CA bundle / mTLS |
 | Connection timeout | `reasonCode=connection_timeout` | Target is reachable intermittently or too slow to respond | Check local network stability and editor MCP health, then retry |
+| Unexpected probe failure | `reasonCode=probe_failed_unknown` + `recommendedMode=verify_local_network_and_editor` | A non-network runtime failure occurred while probing | Retry after checking editor MCP settings; use server logs for diagnostics |
 | Loopback policy | HTTP 400 + `localhost addresses only` detail | Non-loopback endpoint was blocked by SSRF guard | Use `127.0.0.1` / `localhost` endpoint for local integrations |
 
 Additional behavior guarantees:
