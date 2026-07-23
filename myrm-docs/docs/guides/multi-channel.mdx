@@ -385,36 +385,49 @@ When you start a background task via `/btw` in any IM channel, the result is aut
 
 Start a task in Discord, switch to something else, and come back to find the result waiting in your thread.
 
-## Long-Task Reassurance Messages
+## Long-Task Heartbeat (Edit-in-Place)
 
-When the agent works on a complex task for an extended period without sending any output, it automatically sends reassurance messages so you know it hasn't stalled.
+When the agent works on a complex task for an extended period without sending any output, it automatically provides a live heartbeat message so you know it hasn't stalled — without flooding your chat with multiple notifications.
 
 ### How It Works
 
 1. A parallel background monitor tracks the time since the last activity (message sent, progress update, etc.)
-2. After 5 minutes of silence, a reassurance message is sent to the originating IM channel
-3. The message includes the number of completed steps and the current stage name (if available)
-4. Up to 3 reassurance messages are sent per task — enough to keep you informed without flooding the chat
+2. After 2 minutes of silence, a heartbeat message is sent to the originating IM channel
+3. On subsequent heartbeats, the **same message is edited in place** with updated elapsed time, step count, and stage — no new messages are created
+4. If the channel does not support message editing, only a single message is sent (no spam)
+5. Up to 3 heartbeat cycles per task
+6. Uses NORMAL priority — the heartbeat arrives silently without triggering a push notification on your phone
 
 ### Example Message
 
-> ⚓ Still working… (12 steps done, data analysis) — hang tight!
+> ⏳ Working — 3 min (12 steps, data analysis)
+
+The message updates in place as the task progresses:
+
+> ⏳ Working — 5 min (18 steps, code generation)
 
 ### Smart Silence Detection
 
-Unlike simple interval timers, the monitor **resets whenever the agent produces output**. If the agent sends a progress update at minute 4, the 5-minute silence window restarts from that point. This avoids unnecessary reminders when the agent is actively communicating.
+Unlike simple interval timers, the monitor **resets whenever the agent produces output**. If the agent sends a progress update at minute 1, the 2-minute silence window restarts from that point. This avoids unnecessary reminders when the agent is actively communicating.
+
+### Channel-Aware Adaptation
+
+The heartbeat automatically detects whether the channel supports message editing (`ChannelCapabilities.edit`). Channels like Telegram and Discord support edit-in-place; channels that don't will receive a single heartbeat message and no further updates to avoid spam.
+
+If an edit operation fails (e.g., message too old to edit), the system gracefully falls back to sending a new message.
 
 ### Details
 
 | Aspect | Behavior |
 |--------|----------|
-| Silence threshold | 300 seconds (configurable via `_SILENCE_REASSURANCE_THRESHOLD`) |
-| Max messages | 3 per task (configurable via `_MAX_REASSURANCE_COUNT`) |
-| Priority | SYSTEM — delivered even under rate limiting |
-| Language | Fully internationalized (English, Chinese, extensible via `.ftl` files) |
+| Silence threshold | 120 seconds (configurable via `_SILENCE_REASSURANCE_THRESHOLD`) |
+| Max heartbeats | 3 per task (configurable via `_MAX_REASSURANCE_COUNT`) |
+| Update mode | Edit-in-place (falls back to single send for channels without edit support) |
+| Priority | NORMAL — silent delivery, no push notification |
+| Language | Fully internationalized (English, Simplified Chinese, Traditional Chinese, Japanese — extensible via `.ftl` files) |
 | Typing indicator | Runs in parallel — "Typing..." keeps showing during the silence window |
-| Prompt cache | Zero impact — reassurance is outbound-only, never modifies the system prompt |
-| Error handling | Send failures are logged silently; the main task is never interrupted |
+| Prompt cache | Zero impact — heartbeat is outbound-only, never modifies the system prompt |
+| Error handling | Send/edit failures are logged silently; the main task is never interrupted |
 
 ## In-Chat Agent Switching
 
