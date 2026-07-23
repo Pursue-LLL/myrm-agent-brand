@@ -442,6 +442,13 @@ Additional behavior guarantees:
 - `recommendedMode` is actionable in one click: `start_local_editor_mcp` / `verify_local_network_and_editor` trigger a probe retry and auto-continue connect on success, while `local_or_tauri` opens local deployment guidance directly.
 - Compared to competitors that surface generic network errors only, Myrm provides machine-readable diagnostics that can be automated in CI checks and onboarding scripts.
 
+### Why this migration path is smoother than CLI-first flows
+
+- **In-product remediation, not terminal handoff**: Operators can recover from local MCP failures inside the same Connect dialog. In contrast, OpenClaw's MCP page is explicitly an operator view and asks users to run terminal probe commands (`openclaw mcp doctor --probe`) for live proof.
+- **Actionable contract instead of boolean pass/fail**: Myrm returns `reasonCode + recommendedMode + shouldBlockConnect`, so frontend behavior is deterministic (block fan-out, show localized cause, and provide one-click action). Hermes' `/api/mcp/servers/{name}/test` style response is primarily `ok/error/tools`, which is useful for diagnostics but less expressive for guided onboarding UX.
+- **Noise reduction by design**: When the probe says block, Myrm stops scan/verify fan-out immediately. This prevents avoidable downstream failures and reduces "retry blindly" behavior during migration from legacy MCP setups.
+- **Unknown-failure safety**: Unexpected probe failures return a sanitized operator message while server logs retain debuggable details, avoiding accidental leak of low-level exception internals to end users.
+
 ### OAuth Token Expiry
 
 When an MCP server's OAuth token expires (common with GitHub, Linear, Notion, Slack integrations), Myrm detects the failure at runtime and guides you to re-authorize:

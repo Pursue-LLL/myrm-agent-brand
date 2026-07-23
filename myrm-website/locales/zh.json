@@ -545,7 +545,7 @@
           "feature": "上下文管理 · 长聊更稳、缓存更省",
           "hermes": "8层固定栈 + 内存态单层压缩",
           "openclaw": "LCM",
-          "myrmAgent": "11步上下文流水线（缓存TTL修剪 + 四级压缩 + 智能回退 + 防抖保护 + 结构化/语义双过滤器）+ Prompt Cache 自动断点（Claude/Qwen 缓存命中省90%成本）+ 缓存预热（Agent初始化即预热，首字延迟降低52%，零冷启动——独家能力，竞品均未实现）+ 七层防鞭尸 + 数据库级会话压缩持久化 + 五维归档导出 + 22+中间件 + 实时会话笔记（自动化结构化跨运行记忆，压缩时零API调用注入）+ 上下文安全阀（可配阈值0.20~0.85，智能压缩而非丢弃）+ 熔断降级 + 定时任务双会话模式（ISOLATED/MAIN）+ 16种生命周期Hooks（4种类型）+ 三层工具排序(CORE/COMMON/EXTENDED) + **三层工具调用线性对齐**（ID精确配对 + 压缩后完整性校验 + 悬空调用自动修复——竞品仅前端UI层补丁，239项测试全通过）"
+          "myrmAgent": "11步上下文流水线（缓存TTL修剪 + 四级压缩 + 智能回退 + 防抖保护 + 结构化/语义双过滤器）+ Prompt Cache 自动断点（Claude/Qwen 缓存命中省90%成本）+ 缓存预热（Agent初始化即预热，首字延迟降低52%，零冷启动——独家能力，竞品均未实现）+ 七层防鞭尸 + 数据库级会话压缩持久化 + 五维归档导出 + 22+中间件 + 实时会话笔记（自动化结构化跨运行记忆，压缩时零API调用注入）+ 上下文安全阀（可配阈值0.20~0.85，智能压缩而非丢弃）+ 熔断降级 + 定时任务双会话模式（ISOLATED/MAIN）+ 16种生命周期Hooks（4种类型）+ 三层工具排序(CORE/COMMON/EXTENDED) + **三层工具调用线性对齐**（ID精确配对 + 压缩后完整性校验 + 悬空调用自动修复——竞品仅前端UI层补丁，239项测试全通过）+ **Human Anchor 架构保证**（架构级 correct-by-construction 保护用户首条意图不被压缩丢失，竞品依赖~120行运行时检查易绕过）+ **7层超大输出纵深防护**（vault spill + auto-vault + 结构感知裁剪 + stream recovery + preflight guard + hook spiller + bash spill——完整数据存vault可按需精确读取，竞品丢弃原数据或仅2层截断，127项测试全通过）"
         },
         "smartConcurrency": {
           "feature": "并发引擎 · 彻底消灭读写竞态",
@@ -611,7 +611,7 @@
           "feature": "MCP 架构 · 持久连接 + Prompt 缓存稳定",
           "hermes": "会话级冷重连",
           "openclaw": "会话级冷重连，无执行超时（工具卡死永久等待），基础错误透传（无分类、无熔断、无注入防护）",
-          "myrmAgent": "持久热连接 + 事件驱动 + 冻结代理（90% 缓存命中）+ 双层超时（SDK+wrapper）+ 3次自动重试 + 自愈重连 + 按服务器可配 + 客户端身份自动声明 + 多层错误架构（分类+熔断+脱敏+i18n诊断）+ 本地集成 probe reasonCode 契约（reachable / connection_refused / connection_unreachable / connection_timeout / tls_verification_failed / probe_failed_unknown）+ shouldBlockConnect 硬阻断（失败时不再扇出 scan/verify）+ recommendedMode 行动闭环（`start_local_editor_mcp` / `verify_local_network_and_editor` 触发重试探测并在成功后自动续接 connect；`local_or_tauri` 直接打开本地部署指引）"
+          "myrmAgent": "持久热连接 + 事件驱动 + 冻结代理（90% 缓存命中）+ 双层超时（SDK+wrapper）+ 3次自动重试 + 自愈重连 + 按服务器可配 + 客户端身份自动声明 + 多层错误架构（分类+熔断+脱敏+i18n诊断）+ 本地集成 probe reasonCode 契约（reachable / connection_refused / connection_unreachable / connection_timeout / tls_verification_failed / probe_failed_unknown）+ shouldBlockConnect 硬阻断（失败时不再扇出 scan/verify）+ recommendedMode 行动闭环（`start_local_editor_mcp` / `verify_local_network_and_editor` 触发重试探测并在成功后自动续接 connect；`local_or_tauri` 直接打开本地部署指引）+ unknown 路径前台脱敏（用户安全文案 + 服务端可诊断日志）+ 4 条本地接入真实 Chrome E2E 实证，显著减少迁移期反复重试"
         },
         "unifiedToolGateway": {
           "feature": "统一工具网关",

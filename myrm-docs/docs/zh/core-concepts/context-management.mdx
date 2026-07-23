@@ -241,6 +241,36 @@ Agent 可在会话中创建结构化笔记 — 零 API 成本持久于上下文�
 
 用小 LLM 做摘要时，Myrm 动态检测辅助模型上下文窗口并在发送前截断消息，防小模型压缩时崩溃 — 任意输入规模均可优雅处理。
 
+## Human Anchor 保护
+
+上下文压缩时，用户的首条指令（系统消息之后的第一条 `HumanMessage`）不能与系统生成的合成消息（如压缩摘要、会话笔记）混淆。
+
+Myrm 通过**架构级 correct-by-construction 保证**而非运行时检测来解决：
+
+1. **执行时序保证**：`extract_protected_head()` 在任何合成消息（摘要、会话笔记、预压缩回忆）注入消息列表之前运行，函数只看到真实用户消息。
+2. **角色隔离**：从数据库重载聊天历史时，`compacted_summary` 以 `assistant` 角色（AIMessage）注入，永远不会被 HumanMessage 检查器误匹配。
+3. **标记纵深防御**：所有合成 user 角色消息携带 `UNVERIFIED_CONTEXT_MARKER` 与 `<memory-context>` / `<pre_compact_recall_context>` 标签，提供额外语义边界。
+
+**vs. 竞品**：Hermes 使用 `_is_real_user_message()` —— ~120 行运行时检查器，每次压缩时检查 4 种 flag + 5 种前缀 + 压缩元数据。每新增一种合成消息类型都需同步更新检查器，维护负担大且存在绕过风险。Myrm 的架构从结构上消除了误识别的可能性。
+
+## 7 层超大输出纵深防护
+
+当工具输出超出上下文窗口预算（如 200KB JSON 响应、50K 行测试日志），Myrm 采用 **7 层纵深防护**策略。每层独立运作并有独立 fallback，确保零数据丢失和完整可恢复性：
+
+| 层 | 组件 | 触发条件 | 策略 |
+|-----|------|---------|------|
+| **L1** | MCP Vault Spill | MCP 工具输出超 `max_output_chars` | 完整内容 → ArtifactVault，返回 head+tail 摘要 + `vault://` 指针 + `file_read_tool` 恢复提示 |
+| **L2** | Subagent Auto-Vault | 子 Agent 输出超 8K 字符 | 同 vault 策略 + 前端 VaultArtifactCard 可视化 |
+| **L3** | 结构感知裁剪 | JSON/文本工具结果 | 保留 JSON 骨架（4 层深度 + 12 key + 6 item 限制）；文本保留 head+tail |
+| **L4** | Stream Recovery | LLM API 返回 `CONTEXT_OVERFLOW` | 阶段 1：紧急压缩工具输出 → 阶段 2：截断最旧对话轮 |
+| **L5** | Preflight Guard | 请求前 token 预估 | 预估 token 超限即拦截，避免 API 成本浪费 |
+| **L6** | Hook Output Spiller | Hook 输出超 2500 token | 落盘 + 返回截断预览及文件路径 |
+| **L7** | Background Output Spill | Bash 后台命令输出 | 自动 spill 超大后台进程输出到磁盘 |
+
+**完整数据保留**：竞品替换超大输出为简短指令（原数据丢失）或仅做字符截断，Myrm 的 vault 机制保留 100% 原始内容。Agent 可通过 `file_read_tool(paths=["vault://..."], line_range="100:200")` 按需精确读取任意片段。
+
+**vs. 竞品**：nanobot 使用单层"in-flight context governor"，用 bounded instruction 替换工具输出——原始数据丢失。OpenClaw 使用 2 层截断（per-result + aggregate budget）+ 文件 spill——可用但缺乏 vault 协议和前端可视化。Myrm 的 7 层方案确保每条工具路径（MCP、bash、浏览器、子 Agent、hooks）都有专属防护和独立 fallback 链。
+
 ### 后台任务的极致降噪与 Token 优化
 
 Myrm 对后台辅助任务（如自动生成会话标题）的 Token 消耗进行了极致优化：

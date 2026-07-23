@@ -439,6 +439,13 @@ Myrm 也可作为 **MCP 服务**，将记忆系统暴露给外部 AI Agent（Cla
 - `recommendedMode` 支持一键可执行：`start_local_editor_mcp` / `verify_local_network_and_editor` 会触发重试探测并在成功后自动续接连接；`local_or_tauri` 会直接打开本地部署指引。
 - 相比仅返回通用网络错误的竞品，Myrm 提供可机读诊断信号，可直接用于 CI 检查与入职脚本自动化。
 
+### 为什么迁移到 Myrm 的接入路径更顺滑
+
+- **在产品内修复，而不是把用户丢回终端**：本地 MCP 失败可直接在同一个连接弹窗内修复并继续。对比之下，OpenClaw 的 MCP 页面定位为运维视图，文档明确需要在终端执行 `openclaw mcp doctor --probe` 做在线探测。
+- **可执行契约替代“仅成功/失败”**：Myrm 返回 `reasonCode + recommendedMode + shouldBlockConnect`，前端可确定性执行（阻断扇出、展示本地化原因、一键建议动作）。Hermes 的 `/api/mcp/servers/{name}/test` 更偏 `ok/error/tools` 诊断结构，对新手接入引导的表达力较弱。
+- **架构级降噪**：一旦探测判定需阻断，Myrm 立即停止 scan/verify 扇出，避免“明知失败仍继续请求”造成的连锁报错和误导性重试。
+- **未知失败安全可用**：未知异常对前台返回脱敏文案，后端日志保留可排障细节，避免把底层异常细节直接暴露给终端用户。
+
 ### OAuth Token 过期
 
 当 MCP 服务的 OAuth Token 过期（GitHub、Linear、Notion、Slack 集成常见），Myrm 在运行时实时检测认证失败并引导重新授权：
