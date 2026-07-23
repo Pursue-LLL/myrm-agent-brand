@@ -426,14 +426,16 @@ Myrm 也可作为 **MCP 服务**，将记忆系统暴露给外部 AI Agent（Cla
 |------|------|------|--------|
 | 可达 | `reasonCode=reachable` | MCP 端点在超时内正常响应 | 继续执行 scan/verify |
 | 编辑器端服务未启动 | `reasonCode=connection_refused` | 端口存在但无服务监听 | 启动编辑器侧 MCP 服务/插件 |
+| 本地路由不可达 | `reasonCode=connection_unreachable` | 回环链路存在但被本地路由/VPN/代理策略阻断 | 检查 localhost 路由、VPN/代理策略与编辑器 MCP 配置 |
 | TLS 信任失败 | `reasonCode=tls_verification_failed` | 证书链或主机名校验失败 | 导入企业 CA，或配置每服务器 CA bundle / mTLS |
+| 连接超时 | `reasonCode=connection_timeout` | 目标可达性不稳定或响应过慢 | 检查本地网络稳定性与编辑器 MCP 服务健康后重试 |
 | 回环策略拦截 | HTTP 400 + `localhost addresses only` 详情 | 非回环地址被 SSRF 防护阻断 | 本地集成改用 `127.0.0.1` / `localhost` |
 
 补充保证：
 
 - 当 `shouldBlockConnect=true` 时，连接链会立刻终止，不再触发 scan/verify，减少无效报错噪声。
 - 前端按 `reasonCode` 映射本地化运维文案，应用团队与基础设施团队可基于同一信号协同排障。
-- `recommendedMode` 支持一键可执行：`start_local_editor_mcp` / `verify_local_network_and_editor` 会触发重试探测并在成功后自动续接连接；`local_or_tauri` 会直接引导用户切换到正确部署模式。
+- `recommendedMode` 支持一键可执行：`start_local_editor_mcp` / `verify_local_network_and_editor` 会触发重试探测并在成功后自动续接连接；`local_or_tauri` 会直接打开本地部署指引。
 - 相比仅返回通用网络错误的竞品，Myrm 提供可机读诊断信号，可直接用于 CI 检查与入职脚本自动化。
 
 ### OAuth Token 过期

@@ -57,12 +57,17 @@ Every approval surfaces the same four actions across all channels:
 | **Approve** (once) | Button | `/approve`, `1`, `y`, 👍 emoji |
 | **Edit & Approve** | Inline editor with re-validation | N/A (edit in WebUI) |
 | **Reject** (with feedback) | Button + feedback textarea | `/deny`, `2`, `n`, 👎 emoji |
-| **Allow Always** | Button → confirmation dialog | `/approve-always`, `!y`, ♾️ emoji |
+| **Allow Always** | Button → confirmation dialog (4 scopes for shell: permission / tool / exact / **pattern**) | `/approve-always`, `!y`, ♾️ emoji |
 
-**Allow Always** offers three granularity levels:
+**Allow Always** offers four granularity levels:
 - **Permission**: Allow all tools with this permission type (e.g., all file writes)
 - **Tool**: Allow this specific tool regardless of arguments
-- **Exact**: Allow this tool only with these exact arguments
+- **Exact**: Allow this tool only with these exact arguments (default for shell tools — safest)
+- **Pattern** (shell only): Allow commands matching a derived glob (e.g. `curl -sS *`). Compound shell (`&&`, `|`, `;`) is **never** saved. All pattern rows appear in **Settings → Allowlist** and can be deleted anytime.
+
+<Note>
+**Migration benefit:** Approve a recurring deploy script once with "Allow always (this pattern)" — later runs auto-approve without YOLO. Claude Code and OpenClaw typically stop at tool-name allowlists or CLI-only signing; Myrm gives you GUI-managed, revocable pattern rules with Chrome LIVE E2E proof (Jul 2026).
+</Note>
 
 Batch operations are supported via `/batch a,d,aa` (approve, deny, always) and UI bulk buttons.
 

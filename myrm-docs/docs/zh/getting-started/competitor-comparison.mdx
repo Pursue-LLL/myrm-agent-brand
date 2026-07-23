@@ -13,6 +13,11 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在记忆能力上，Myrm 现已形成完整的**诊断可解释 + 遥测完整性闭环**：stream 阶段状态、persist 阶段状态、控制平面聚合告警、前端 `preflight`/`runtime_fallback` 来源解释（含移动端非 hover 文案），并在云模式提供严格 fail-closed 入库（共享 `envelope_id` 幂等 + 共享去重后端不可用时禁止静默本地回退 + `dedup_reject` 原因指标）。最近一次定向回归（2026-07-19）：server 28 passed、control-plane 55 passed、frontend 14 passed。
 
+## 最新验证快照（2026-07-23）
+
+- **Shell Pattern Allow-Always 全链路**：Harness pattern **20 passed**；Server SHPOIB + allowlist API **11 passed**；前端 derive-pattern parity **13 passed**；**Chrome LIVE_AGENT E2E 1 passed**（bash HITL → 始终允许此命令模式 → 设置页列表/删除 → 下次自动放行）。
+- **相对竞品的用户收益**：四级 Allow-Always（permission / tool / exact / **命令模式**）+ 设置页 CRUD——Claude Code / OpenClaw 多止于工具名或 CLI 签名；复合 shell（`&&`/管道）永不写入 pattern。
+
 ## 最新验证快照（2026-07-20）
 
 - **浏览器自动化基线（分批低负载）**：Harness 定向 109 项通过（`snapshot`、事件分发链路、takeover）。
@@ -50,7 +55,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **手机远程指挥台** | ✅ 完整 PWA（离线缓存+安装引导）· E2EE NaCl Box 加密配对令牌 Hub · 实时 Status Board（SSE 进度 · 视觉审批 · 语音 push-to-talk · 中途 steer · 紧急停止 · **Browser/Desktop Live Preview** — Agent 操作画面实时截图预览，Lightbox 全屏放大，浏览器/桌面 Tab 切换，可折叠卡片，零新 API）· 会话级 **chat cancel**（配对安全）· 100dvh + pb-safe 视口 · **Web Push VAPID 离线推送**（8 类事件、iOS PWA 安装引导、过期订阅自动清理）· **144 项移动端测试**（2026-07-11：MobileStatusBoard 8 + MobileActionSheet 28 + PWA Install 4 + Web Push 53 + Remote Access 51） | ❌ 仅 CLI/TUI | ⚠️ macOS 远程模式(SSH+CLI) | ❌ | ❌ | ❌ | ❌ |
 | **子 Agent** | ✅ 8 模式 + 动态工作流 + **Template Market（Team 模板一键建队）** | ⚠️ v0.15 Kanban Swarm（1 模式） | ⚠️ 基础 spawn（仅线性） | ⚠️ 基础 spawn | ❌ 单 Agent | ⚠️ L-W-V | ❌ |
 | **工具生态集成** | ✅ 自有 Agent 引擎 + MCP 行业标准（OAuth+安全扫描+Schema容错+动态发现+连接池自愈）+ **Settings 页 MCP GUI 全链路（options/scan/verify/registry）** + **Agent/Team 模板市场一键实例化** + 5层安全审批 + 技能自动进化 + 8种SubAgent编排（8,687 项测试） | ⚠️ 单文件 Copilot 适配器（686 行，仅 CLI） | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **安全** | ✅ 6 层防御 + DM Pairing（4 策略、GUI 审批、防刷冷却） | ⚠️ v0.15 Promptware 3 卡口 | 1 层 | ⚠️ 未知 | ⚠️ 基础沙箱 | ⚠️ 闭源 | ❌ |
+| **安全** | ✅ 6 层防御 + **四级 Allow-Always**（permission/tool/exact/**命令模式**，设置页 CRUD，复合 shell 防护，Chrome LIVE E2E）+ DM Pairing（4 策略、GUI 审批、防刷冷却） | ⚠️ v0.15 Promptware 3 卡口 | 1 层 | ⚠️ 未知 | ⚠️ 基础沙箱 | ⚠️ 闭源 | ❌ |
 | **凭证库** | ✅ 标签注入 + TOTP（浏览器 + 桌面） | ❌ 工具参数明文 | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **WebUI 访问安全** | ✅ 零信任 WebSocket + 安全 Cookie | ⚠️ 仅 HTTP，WS 脆弱 | ⚠️ 基础 JWT | ⚠️ 未知 | ⚠️ 仅 HTTP | ⚠️ 闭源 SaaS | ❌ LAN 裸奔 |
 | **目标模式** | ✅ 8 状态 + 4D 预算 + 11层防死循环盾 | /goal | ❌ | ❌ | ❌ | ⚠️ 计划审批 | ❌ |
@@ -900,6 +905,7 @@ MemPalace 是独立 AI 记忆系统，用 Wing/Room/Closet/Drawer 建筑隐喻�
 | Artifact 版本管理 | SHA-256 完整性验证 + 版本历史 | 无 |
 | 跨会话数据分析 | pandas + SQLite 沙箱持久化 | 无持久化 |
 | **Widget 状态持久化** | **透明 localStorage 桥接 — 组件数据跨页面刷新/重新打开保留** | 无 Widget 状态持久化 |
+| **Widget 安全沙箱** | **三层隔离**（iframe `sandbox=allow-scripts` + CSP `default-src 'none'` + `connect-src 'none'`）— Widget 无法访问宿主 Cookie/localStorage/网络；22 个 CSS 语义变量 + 60+ 工具类自动继承宿主主题（含暗色模式） | 无 Widget 沙箱 |
 
 **路径 1 — Generative UI（零代码）**：Agent 通过 SSE 事件渲染 24 种内置组件（UIChart、UITable、UIProgress、UIBadge、UICard、UIGrid、UITabs 等），前后端双重白名单安全保障 + 8 种验证规则 + i18n 国际化 + 条件渲染，用户无需写代码即可看到丰富的交互式数据可视化。
 

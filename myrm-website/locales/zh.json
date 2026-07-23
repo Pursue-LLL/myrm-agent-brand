@@ -593,7 +593,7 @@
           "feature": "4层自愈体系 · 7种循环检测 · 完成验证守卫 · 10种流恢复策略",
           "hermes": "易陷入无限重试死循环",
           "openclaw": "CLI Doctor + postCompactionGuard（3次观测窗口补救压缩后循环检测缺失）+ postCompactionForce（压缩后强制刷新 memory 索引补救记忆丢失）",
-          "myrmAgent": "底层透明自愈机制，自动清理无效工具调用。无论网络如何抖动、用户如何频繁取消，对话历史永远保持纯净。彻底告别因格式错误导致的崩溃，鲁棒性远超竞品。全链路UI进度反馈与异常重试，绝不静默吞噬错误。三层HITL人机共驾（前端多态审批+Harness 7层LoopGuard+Server审批中间件） · 三级「始终允许」精确授权（Permission/Tool/Exact-match，canonical args hash消除LLM辅助字段干扰——竞品仅CLI级2层签名） · **压缩后迭代预算智能重置**（上下文压缩后自动重置迭代预算，保留错误签名跨压缩追踪——竞品均无此交叉点处理，长对话不再因历史累积被过早终止） · **文本截断自动恢复**（keep+continue+boost 2x/3x/4x, 上限32768——针对实时streaming UI的最优策略，CC的CLI silent retry在我们架构中会导致内容重复）+ 工具截断丢弃重试 + SSE状态通知含5语言i18n · **智能延迟Failover**（429限速永不切换模型——始终在同一模型上重试；529过载连续3次才切换——节省主模型配额，避免不必要地降级到弱模型） · **Output Cap自适应恢复**（覆盖5种提供商格式：Anthropic/OpenRouter/LM Studio/vLLM/DashScope，自动解析可用Token并重试） · **1,259项恢复/容错测试全通过**（2026-07: 388项output-cap专项 + 871项恢复/容错验证）"
+          "myrmAgent": "底层透明自愈机制，自动清理无效工具调用。无论网络如何抖动、用户如何频繁取消，对话历史永远保持纯净。彻底告别因格式错误导致的崩溃，鲁棒性远超竞品。全链路UI进度反馈与异常重试，绝不静默吞噬错误。三层HITL人机共驾（前端多态审批+Harness 7层LoopGuard+Server审批中间件） · **四级「始终允许」精确授权**（Permission/Tool/Exact-match/**命令模式**——Shell 默认精确匹配；pattern 可在设置页查看删除；复合 shell 永不保存；**Chrome LIVE_AGENT E2E 已签收 2026-07**——竞品仅 CLI 二级签名或工具名白名单） · **压缩后迭代预算智能重置**（上下文压缩后自动重置迭代预算，保留错误签名跨压缩追踪——竞品均无此交叉点处理，长对话不再因历史累积被过早终止） · **文本截断自动恢复**（keep+continue+boost 2x/3x/4x, 上限32768——针对实时streaming UI的最优策略，CC的CLI silent retry在我们架构中会导致内容重复）+ 工具截断丢弃重试 + SSE状态通知含5语言i18n · **智能延迟Failover**（429限速永不切换模型——始终在同一模型上重试；529过载连续3次才切换——节省主模型配额，避免不必要地降级到弱模型） · **Output Cap自适应恢复**（覆盖5种提供商格式：Anthropic/OpenRouter/LM Studio/vLLM/DashScope，自动解析可用Token并重试） · **1,259项恢复/容错测试全通过**（2026-07: 388项output-cap专项 + 871项恢复/容错验证）"
         },
         "toolIntegration": {
           "feature": "工具生态集成 · 35 项预配置服务 / 9 大类别 / 一键连接 / Keyless 零配置 / 45+ Prebuilt Skills",
@@ -611,7 +611,7 @@
           "feature": "MCP 架构 · 持久连接 + Prompt 缓存稳定",
           "hermes": "会话级冷重连",
           "openclaw": "会话级冷重连，无执行超时（工具卡死永久等待），基础错误透传（无分类、无熔断、无注入防护）",
-          "myrmAgent": "持久热连接 + 事件驱动 + 冻结代理（90% 缓存命中）+ 双层超时（SDK+wrapper）+ 3次自动重试 + 自愈重连 + 按服务器可配 + 客户端身份自动声明 + 多层错误架构（分类+熔断+脱敏+i18n诊断）+ 本地集成 probe reasonCode 契约（reachable / connection_refused / tls_verification_failed）+ shouldBlockConnect 硬阻断（失败时不再扇出 scan/verify）+ recommendedMode 行动闭环（`start_local_editor_mcp` / `verify_local_network_and_editor` 触发重试探测并在成功后自动续接 connect；`local_or_tauri` 直接引导切换到正确模式）"
+          "myrmAgent": "持久热连接 + 事件驱动 + 冻结代理（90% 缓存命中）+ 双层超时（SDK+wrapper）+ 3次自动重试 + 自愈重连 + 按服务器可配 + 客户端身份自动声明 + 多层错误架构（分类+熔断+脱敏+i18n诊断）+ 本地集成 probe reasonCode 契约（reachable / connection_refused / connection_unreachable / connection_timeout / tls_verification_failed）+ shouldBlockConnect 硬阻断（失败时不再扇出 scan/verify）+ recommendedMode 行动闭环（`start_local_editor_mcp` / `verify_local_network_and_editor` 触发重试探测并在成功后自动续接 connect；`local_or_tauri` 直接打开本地部署指引）"
         },
         "unifiedToolGateway": {
           "feature": "统一工具网关",
@@ -647,7 +647,7 @@
           "feature": "桌面客户端 · 25+项原生OS能力",
           "hermes": "Electron",
           "openclaw": "Win节点(无GUI)",
-          "myrmAgent": "Tauri+25项OS API+8080自动对齐 · 原生通知+Dock弹跳+截屏+防休眠+跨标签页零重复通知+快捷键原子注册(冲突自动回滚)+流式完成/澄清自动OS弹窗 · **窗口位置/尺寸跨重启自动恢复**（官方插件三平台，Hermes自研120行→Myrm 2行等效） · **冷启动零白屏**（暗色背景预设，启动即舒适） · **Tab路由跨重启记忆**（崩溃/更新后自动回到上次页面，Myrm独有） · **Per-Thread 草稿持久化**（localStorage+LRU 淘汰，切线程写到一半不丢）· **11 项右键操作**（Pin/Fork/Handoff/导出4格式/定时任务/移动项目等——竞品仅 4 项）· **235 项桌面端专项测试全通过** · **跨设备遥控中心**：E2EE加密穿透(Curve25519)+CF Tunnel一键公网穿透+Mobile Hub手机控制面(SSE实时流+HITL审批+Steer追加指令+Stop+Live Preview+语音)+QR码扫码即连——零安装零品牌绑定，任何浏览器/17个IM均可远程操控Agent · **401 项跨设备遥控全栈测试全通过**"
+          "myrmAgent": "Tauri+25项OS API+8080自动对齐 · 原生通知+Dock弹跳+截屏+防休眠+跨标签页零重复通知+快捷键原子注册(冲突自动回滚)+流式完成/澄清自动OS弹窗+**任务栏进度条**（Agent运行时Dock图标显示进度指示）+**SubagentDashboard桌面端零额外代码天然可用**（WebView渲染完整Next.js前端，cancel/steer/Gantt/排序/过滤/停滞告警全部可用） · **窗口位置/尺寸跨重启自动恢复**（官方插件三平台，Hermes自研120行→Myrm 2行等效） · **冷启动零白屏**（暗色背景预设，启动即舒适） · **Tab路由跨重启记忆**（崩溃/更新后自动回到上次页面，Myrm独有） · **Per-Thread 草稿持久化**（localStorage+LRU 淘汰，切线程写到一半不丢）· **11 项右键操作**（Pin/Fork/Handoff/导出4格式/定时任务/移动项目等——竞品仅 4 项）· **235 项桌面端专项测试全通过** · **跨设备遥控中心**：E2EE加密穿透(Curve25519)+CF Tunnel一键公网穿透+Mobile Hub手机控制面(SSE实时流+HITL审批+Steer追加指令+Stop+Live Preview+语音)+QR码扫码即连——零安装零品牌绑定，任何浏览器/17个IM均可远程操控Agent · **401 项跨设备遥控全栈测试全通过**"
         },
         "tunnel": {
           "feature": "公网连通 · 缺了会提醒",
