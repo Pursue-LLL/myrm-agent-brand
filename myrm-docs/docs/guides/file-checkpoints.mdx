@@ -7,6 +7,17 @@ description: Automatic file snapshots with selective rollback, external effect d
 
 Every time your Agent runs a destructive command (file edits, shell commands), Myrm automatically captures a **Shadow Git snapshot** of your workspace. You can view changes, selectively restore files, and the Agent automatically adapts to your rollbacks.
 
+## Batch Atomic Edits
+
+When the Agent needs to change multiple regions in one file (rename imports, update several constants, etc.), `file_edit_tool` accepts an **`edits` array** (up to 20 items) and applies them in a **single atomic transaction**:
+
+- **One read, one write** — all replacements happen in memory before a single disk commit
+- **Overlap protection** — edits whose search spans overlap in the original file are rejected up front
+- **All-or-nothing verify** — if `verify_command` fails (e.g. syntax check), **every** edit in the batch rolls back
+- **UI** — the progress panel shows a merged diff with `--- edit 1 ---`, `--- edit 2 ---` sections
+
+This avoids the classic multi-call failure mode where edit 3 fails but edits 1–2 already corrupted your file. Verified by Chrome LIVE WebUI E2E (real LLM + real workspace write).
+
 ## How It Works
 
 <Steps>
