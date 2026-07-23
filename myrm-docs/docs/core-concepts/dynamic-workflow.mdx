@@ -59,13 +59,18 @@ MyRM's `todo_write` tool enforces hard guardrails at the code level:
 
 This is a code-enforced constraint, not a prompt-level suggestion — behavior is consistent regardless of which LLM model or provider is used.
 
-### 10. Workflow Escalation: Proactive Mode Suggestion
+### 10. Single Agent Gatekeeping: Simple by Default, Powerful on Demand
 
-Most AI tools require users to **know** they need a workflow mode. MyRM goes further — it proactively detects when a task would benefit from multi-Agent orchestration and suggests upgrading:
+MyRM defaults to a focused single-agent experience — `suggestWorkflowMode` is **off by default**. The system silently handles most tasks with one agent, delivering fast, predictable responses with zero orchestration overhead. Users never see workflow suggestions unless they explicitly opt in.
+
+For power users who want proactive multi-agent suggestions, a single toggle in **Settings → Preferences → Advanced** enables the detection engine:
 
 - **Zero LLM cost**: Detection uses pure regex-based scoring on the query structure (numbered lists, parallel keywords, multi-goal markers).
 - **Non-blocking**: The suggestion appears as an inline card in the chat stream; the current response is never interrupted.
-- **User control**: Accept (enables workflow for next message), dismiss (hides card), or permanently disable in Settings.
+- **User control**: Accept (enables workflow for next message), dismiss (hides card), or turn the toggle back off.
 - **Conservative by design**: Only triggers when the ComplexityRouter classifies the task as `reasoning` tier AND the decomposability score meets a strict threshold (≥4/7).
+- **Backward compatible**: Existing users who previously had `suggestWorkflowMode: true` saved in their settings keep their preference — no silent behavior change on upgrade.
 
-No competing product — including Claude Code, OpenClaw, Hermes, DeerFlow, CoPaw, or Lobe-Chat — offers pre-execution non-blocking workflow mode suggestion. They all require explicit user action to activate multi-Agent capabilities.
+**Why single-agent first?** As Bret Taylor (Sierra CEO, former Salesforce CEO) articulated: the best multi-agent systems present as a single agent to the user. Multi-agent orchestration is an implementation detail, not a product surface. MyRM is the only platform that has full multi-agent DAG orchestration capability **and** deliberately suppresses it by default — ensuring new users get the simplest, fastest experience while experts retain full control.
+
+No competing product — including Claude Code, OpenClaw, Hermes, DeerFlow, CoPaw, or Lobe-Chat — offers configurable workflow mode suggestion. They either always show it (adding noise) or never offer it (missing opportunities).
