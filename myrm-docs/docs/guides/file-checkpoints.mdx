@@ -118,9 +118,30 @@ Every time your Agent modifies a file, Myrm automatically computes a unified dif
 - Binary files display "Binary file changed" instead of garbled content
 - DiffViewer has a **400px max-height** with scroll — never overwhelms the conversation
 
+### Message-Level Turn Undo (Honest UX)
+
+Each assistant message that changed files shows an **Undo** control in the WebUI. One click lets you preview the diff and restore revertible files for that turn only.
+
+**Honest feedback — no false promises:**
+
+| Situation | What you see |
+|-----------|--------------|
+| No file changes on this turn | “No file changes on this message” |
+| All changes skipped (e.g. file >2 MB) | Clear reason — file too large or snapshot store full |
+| Mixed revertible + skipped | Popover shows which paths can and cannot be restored |
+
+Session-level **Undo all files** lives in the chat header chips row — same honest rules.
+
+IM channels: `/undo` removes the last turn and reverts linked files; if some paths cannot be restored, the reply says so explicitly.
+
+<Note>
+Turn undo uses lightweight per-message snapshots (default on, zero setup). Shadow Git checkpoints (below) are a separate, deeper rollback layer for destructive shell workflows.
+</Note>
+
 ### Decide & Act
 
 After reviewing the diff, you can:
+- **Undo this message** — one-click turn restore (Honest UX above)
 - **Approve** — continue the conversation, the change stays
 - **Rollback** — use File Checkpoints (above) to restore any file to its previous state
 - The Agent automatically detects rollbacks and adjusts its next actions accordingly
