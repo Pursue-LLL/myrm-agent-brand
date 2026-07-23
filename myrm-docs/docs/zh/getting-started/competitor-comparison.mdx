@@ -75,7 +75,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **代码执行引擎** | ✅ 零进程开销 pathlib I/O + 语法错误自动回滚 + 持久化 Shell 会话 + 环境自动探测 + seatbelt/bwrap 沙箱 + PTC 双向通道 + 输出压缩 + 虚拟环境管理 + 工具自动发现 + **BashExecutor/BashTool 模块化拆分（13 文件，97.1% 覆盖，架构门禁）** — **1,520+ 项测试** | ⚠️ 仅 Shell 子进程 | ⚠️ 仅 bash | ⚠️ 仅 bash | ❌ | ⚠️ 基础 | ❌ |
 | **工作区上下文** | ✅ 7 种 @ 引用（文件/文件夹/staged/diff/URL/上传/行范围）+ 工具层全文件系统访问 + Dynamic Workflow 多项目并行（259 项测试） | ⚠️ 仅 @file（沙箱限制） | ❌ 单目录 | ❌ | ❌ | ⚠️ 未知 | ❌ |
 | **本地文件"数据不出域"** | ✅ 天然支持 — Agent 在本地运行，所有文件原地处理 | ❌ 仅云端 | ⚠️ Docker | ⚠️ Docker | ❌ 云端 | ❌ | ❌ |
-| **定时任务** | ✅ 20+ GUI 组件 + 27 项配置能力 + 6 种触发器 + 3 种会话模式(Isolated/Main/Daily — Daily 自动注入同日执行历史用于趋势检测) + 指数退避重试 + 误火恢复 + Agent 绑定 + 结果投递 + Merkle 审计链 + 智能噪音过滤 + **按任务执行策略（能力围栏 + 工具范围）**（**801+ 项测试**） | ⚠️ CLI 基础 cron（无GUI/无重试/无恢复） | ✅ | ✅ | ❌ | ❌ | ❌ |
+| **定时任务** | ✅ 20+ GUI 组件 + 27 项配置能力 + 6 种触发器 + 3 种会话模式(Isolated/Main/Daily — Daily 自动注入同日执行历史用于趋势检测) + 指数退避重试 + 误火恢复 + Agent 绑定 + 结果投递 + Merkle 审计链 + 智能噪音过滤 + **按任务执行策略（能力围栏 + 工具范围）** + **5 层并发控制**（全局信号量 + 用户信号量 + skip_if_active + active_hours + stagger）+ **无内容跳过**（无事可报时零 token 消耗）（**985+ 项测试**） | ⚠️ CLI 基础 cron（无GUI/无重试/无恢复） | ✅ | ✅ | ❌ | ❌ | ❌ |
 | **统一工具网关 + 行为审计** | ✅ 四合一网关 + 弹性 BYOK 回退 + Bash 独立审计面板(12 字段) + 全工具 ExecutionTrace 时间线 + 会话回放 + OTel 全链路(**669 项测试**) | ⚠️ 硬切换（易出错） | ❌ N/A | ⚠️ 未知 | ❌ | ⚠️ 未知 | ❌ |
 | **OpenAI 兼容代理** | ✅ 双模（Agent+LLM）`/v1` 端点 + `/v1/models` 自动发现 + 4 策略密钥轮转 + Aider/Cline/Continue GUI 配置模板（74 项测试） | ⚠️ `/v1/chat/completions`（仅 Agent，无 LLM 直通，无模型发现） | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **语音** | ✅ 3 种模式（标准/Bridge/Realtime）+ 10 提供商（5 TTS + 5 STT 含免费 Edge TTS 与 Local Whisper）+ Discord 唤醒词 + 打断检测 + Vision 融合 — **1,176 项测试** | ⚠️ Discord 语音 | WebRTC + iOS 原生唤醒 | ⚠️ 基础 | ❌ | ❌ | ❌ |

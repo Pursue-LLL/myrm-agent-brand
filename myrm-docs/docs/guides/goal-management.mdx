@@ -93,9 +93,9 @@ Keep all changes backward compatible
 
 Constraints are injected into the agent's prompt every turn as a "CONSTRAINTS (MUST NOT VIOLATE)" block, and the semantic judge evaluates compliance during completion verification.
 
-## 11-Layer Dead-Loop Shield
+## 13-Layer Dead-Loop Shield
 
-At the end of every turn, an 11-layer guard chain determines whether the agent should continue — preventing runaway execution, cost overruns, and token waste:
+At the end of every turn, a 13-layer guard chain determines whether the agent should continue — preventing runaway execution, cost overruns, token waste, goal drift, and sandbox probing:
 
 | # | Guard Layer | What it does |
 |---|-------------|-------------|
@@ -103,13 +103,15 @@ At the end of every turn, an 11-layer guard chain determines whether the agent s
 | 2 | **4D budget limits** | Tokens / USD / wall-clock time / turns — any dimension exhausted triggers pause |
 | 3 | **Steering token** | Pauses when a new user message is pending, ensuring user input takes priority |
 | 4 | **Tool completion check** | Detects if tools already reported the goal as done |
-| 5 | **Semantic judge (LLM)** | Evaluates whether the objective is met based on conversation context |
-| 6 | **Constraint compliance** | Checks acceptance criteria and protected-file rules |
-| 7 | **Zero-progress pause** | No tool calls in a turn → auto-pause to prevent "talks but does nothing" |
-| 8 | **Judge parse circuit-breaker** | 3 consecutive unparseable judge outputs → pause (saves tokens on bad models) |
-| 9 | **Verification fuse** | 3 consecutive verification failures → pause (prevents verify-retry loops) |
-| 10 | **Convergence detection** | K turns without progress → auto-complete (`convergence_window`) |
-| 11 | **Graceful wrap-up** | On budget exhaustion, injects a wrap-up prompt for a final summary turn — no mid-sentence cutoffs |
+| 5 | **Sandbox boundary HITL** | 3× consecutive `PERMISSION_DENIED` → graceful PAUSE (not hard crash) + red alert in GoalStatusCard for human review |
+| 6 | **Goal drift detection** | Every 5 turns, LITE_MODEL scores trajectory drift 0–10. Score ≥3 → nudge message injected; ≥7 → PAUSE for human review. Fail-open on LLM error |
+| 7 | **Semantic judge (LLM)** | Evaluates whether the objective is met based on conversation context |
+| 8 | **Constraint compliance** | Checks acceptance criteria and protected-file rules |
+| 9 | **Zero-progress pause** | No tool calls in a turn → auto-pause to prevent "talks but does nothing" |
+| 10 | **Judge parse circuit-breaker** | 3 consecutive unparseable judge outputs → pause (saves tokens on bad models) |
+| 11 | **Verification fuse** | 3 consecutive verification failures → pause (prevents verify-retry loops) |
+| 12 | **Convergence detection** | K turns without progress → auto-complete (`convergence_window`) |
+| 13 | **Graceful wrap-up** | On budget exhaustion, injects a wrap-up prompt for a final summary turn — no mid-sentence cutoffs |
 
 Additionally, **progressive budget degradation** (WARNING → FINALIZATION) with dynamic remaining USD injection and **4-layer context-window overflow protection** operate at the middleware level to catch edge cases before they reach the guard chain.
 
