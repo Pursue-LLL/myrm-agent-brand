@@ -246,8 +246,8 @@ When you switch between models (e.g., GPT-4o → Gemini → Claude), each provid
 
 The 14-layer error recovery system handles failures automatically:
 
-- Rate limit errors (4-strategy key rotation + credential pool)
-- Provider outages (Circuit Breaker with 3-tier cooldown + fallback presets)
+- Rate limit errors (4-strategy key rotation + credential pool + Passthrough auto-failover with up to 3 cross-key retries)
+- Provider outages (Circuit Breaker with 3-tier cooldown + fallback presets + ComboRouter 7-strategy multi-provider chain)
 - Stream interruptions (token-level precise resume)
 - Response truncation (progressive output budget boost 2x → 3x → 4x)
 - Oversized images (automatic re-encoding and compression)

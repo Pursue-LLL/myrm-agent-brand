@@ -17,7 +17,7 @@ Goals transform Myrm from a chat assistant into an autonomous worker. Define an 
    - **Acceptance Criteria** — Define shell commands and semantic checks the agent must pass
    - **Constraints** — Rules the agent must follow during execution
    - **Protected Paths** — Glob patterns for files the agent must not modify (e.g., `*.env`, `migrations/**`)
-   - **Advanced** — `loop_on_pause`, `convergence_window`
+   - **Advanced** — `loop_on_pause`, `convergence_window`, **Pause after each step** (per-todo checkpoint)
 3. Type your objective in the message box and send — the agent begins planning and executing
 
 ### From Chat
@@ -93,9 +93,9 @@ Keep all changes backward compatible
 
 Constraints are injected into the agent's prompt every turn as a "CONSTRAINTS (MUST NOT VIOLATE)" block, and the semantic judge evaluates compliance during completion verification.
 
-## 13-Layer Dead-Loop Shield
+## 14-Layer Dead-Loop Shield
 
-At the end of every turn, a 13-layer guard chain determines whether the agent should continue — preventing runaway execution, cost overruns, token waste, goal drift, and sandbox probing:
+At the end of every turn, a 14-layer guard chain determines whether the agent should continue — preventing runaway execution, cost overruns, token waste, goal drift, and sandbox probing:
 
 | # | Guard Layer | What it does |
 |---|-------------|-------------|
@@ -105,19 +105,40 @@ At the end of every turn, a 13-layer guard chain determines whether the agent sh
 | 4 | **Tool completion check** | Detects if tools already reported the goal as done |
 | 5 | **Sandbox boundary HITL** | 3× consecutive `PERMISSION_DENIED` → graceful PAUSE (not hard crash) + red alert in GoalStatusCard for human review |
 | 6 | **Goal drift detection** | Every 5 turns, LITE_MODEL scores trajectory drift 0–10. Score ≥3 → nudge message injected; ≥7 → PAUSE for human review. Fail-open on LLM error |
-| 7 | **Semantic judge (LLM)** | Evaluates whether the objective is met based on conversation context |
-| 8 | **Constraint compliance** | Checks acceptance criteria and protected-file rules |
-| 9 | **Zero-progress pause** | No tool calls in a turn → auto-pause to prevent "talks but does nothing" |
-| 10 | **Judge parse circuit-breaker** | 3 consecutive unparseable judge outputs → pause (saves tokens on bad models) |
-| 11 | **Verification fuse** | 3 consecutive verification failures → pause (prevents verify-retry loops) |
-| 12 | **Convergence detection** | K turns without progress → auto-complete (`convergence_window`) |
-| 13 | **Graceful wrap-up** | On budget exhaustion, injects a wrap-up prompt for a final summary turn — no mid-sentence cutoffs |
+| 7 | **Per-todo checkpoint** | Opt-in mode: auto-PAUSE after each todo completion, waits for user confirmation before continuing. Ideal for high-risk multi-step tasks (deployments, migrations, data pipelines) |
+| 8 | **Semantic judge (LLM)** | Evaluates whether the objective is met based on conversation context |
+| 9 | **Constraint compliance** | Checks acceptance criteria and protected-file rules |
+| 10 | **Zero-progress pause** | No tool calls in a turn → auto-pause to prevent "talks but does nothing" |
+| 11 | **Judge parse circuit-breaker** | 3 consecutive unparseable judge outputs → pause (saves tokens on bad models) |
+| 12 | **Verification fuse** | 3 consecutive verification failures → pause (prevents verify-retry loops) |
+| 13 | **Convergence detection** | K turns without progress → auto-complete (`convergence_window`) |
+| 14 | **Graceful wrap-up** | On budget exhaustion, injects a wrap-up prompt for a final summary turn — no mid-sentence cutoffs |
 
 Additionally, **progressive budget degradation** (WARNING → FINALIZATION) with dynamic remaining USD injection and **4-layer context-window overflow protection** operate at the middleware level to catch edge cases before they reach the guard chain.
 
 ### Judge Feedback Loop
 
 When the semantic judge determines the goal is **not yet complete**, it provides a specific reason (e.g., "only 3 of 5 charts produced"). This reason is automatically injected into the next turn's prompt so the agent knows exactly what gap to address — eliminating redundant re-analysis and reducing unnecessary turns.
+
+### Per-Todo Checkpoint
+
+Enable **"Pause after each step"** in Advanced settings to activate per-todo checkpoint mode. When enabled, the agent automatically pauses after completing each todo item and waits for your confirmation before continuing.
+
+**How it works:**
+
+1. Agent reports a todo item as completed via `todo_write`
+2. Guard chain detects the new completion and pauses the goal
+3. GoalStatusCard shows which step(s) just finished with a **Continue** button
+4. You review the results, then click **Continue** to proceed to the next step
+
+**Best for:**
+
+- **Production deployments** — Confirm each migration step before proceeding
+- **Data pipelines** — Verify data integrity at each stage
+- **Complex refactors** — Review code changes step by step
+- **Learning** — Understand what the agent does at each stage
+
+This is opt-in and defaults to off. When disabled, the agent runs uninterrupted as usual.
 
 ## Priority Queue
 

@@ -92,6 +92,31 @@ Both WeChat and WhatsApp use the same `AsyncLoginProtocol` — consistent UX acr
 - `/accountant expense this` → routes to your "accountant" agent
 - No command → routes to default agent
 
+### Telegram
+
+Two paths to connect Telegram — choose whichever fits your situation:
+
+**Path A: Onboarding Wizard (recommended for first-time users)**
+
+During the initial setup wizard, a **Telegram Personal Assistant** step appears after configuring your model and routing preferences:
+
+1. Paste your **Bot Token** (get one from [@BotFather](https://t.me/BotFather))
+2. Optionally enter your **Webhook URL** (required only for VPS / cloud deployments behind a public domain)
+3. Optionally name your assistant (defaults to `Myrm Assistant`)
+4. Click **Activate** — the system atomically validates the token, writes credentials, sets DM policy to "open", and binds your default Agent
+
+If any step fails, all changes are automatically rolled back — no half-configured state. The wizard also handles concurrent submissions gracefully: if another request is already in progress, it retries automatically and shows a friendly message instead of a raw error.
+
+**Path B: Settings page (for adding Telegram later)**
+
+1. Navigate to **Settings > Channels > Telegram**
+2. Enter your **Bot Token** and optional **Webhook URL**
+3. Save — the bot connects and begins receiving messages
+
+**Webhook vs. Polling**: Without a webhook URL, the bot uses long-polling (suitable for local / desktop setups). With a webhook URL, Telegram pushes updates to your server (required for VPS / cloud deployments where the bot must be reachable from the internet).
+
+**Rich Message rendering**: Telegram supports native Rich Message via Bot API 10.1 — tables, LaTeX formulas, and nested lists render natively. See [Telegram Rich Message](#telegram-rich-message-bot-api-101) for details.
+
 ### SMS (Twilio)
 
 1. Open **Settings > Channels > SMS**

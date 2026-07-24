@@ -121,7 +121,7 @@ L1–L3 全部失败后，可在 **设置 → 搜索 → 网页抓取远程兜�
 - **默认关闭** — 不影响 Turn1 工具装载与 Prompt 缓存
 - **会话次数上限**（1–50）— 防止远程抓取失控计费
 - **SSRF 防护** — 远程请求前强制校验
-- **deep_crawl 永不走 L4** — 全站爬取保持本地-only
+- **deep_crawl 已移除** — 全站索引请用 search+fetch+browser，或接入 Firecrawl MCP
 - **企业级 deny** — `MYRM_WEB_FETCH_ESCALATION=denied` 硬阻断
 
 Myrm 坚持 **本地优先**，云端仅作显式、可封顶的最后手段。
@@ -295,54 +295,6 @@ page = await tools.web_fetch("https://example.com/pricing")
 ```
 
 无额外 API 往返 — 搜索与抓取在沙箱内执行。
-
-## Deep Crawl（全站递归爬取）
-
-对话中一句话即可触发整站爬取：
-
-```
-「爬取 docs.nextjs.org，深度 3，最多 200 页」
-```
-
-### 工作原理
-
-1. Agent 调用 `web_fetch(operation="deep_crawl", url=..., max_depth=3, max_pages=200)`
-2. 后台 **RobotsParser** 获取 robots.txt，提取 sitemap 和 Crawl-Delay
-3. **CrawlTaskStore** 将任务持久化到 SQLite WAL 数据库
-4. **CrawlTaskExecutor** 异步 worker 池并发抓取（复用 3 级引擎）
-5. 每页经 DOM 剪枝输出 Markdown 文件 + 自动生成 `_index.json`
-6. 进度实时推送，完成后结果可直接用于 RAG 或 Wiki
-
-### 崩溃恢复
-
-进程崩溃、电脑重启 — 任务不丢：
-
-- SQLite WAL 事务保证持久化
-- 重启后 stale `running` 自动回退为 `pending`
-- 已完成页面的 Markdown 文件始终保留
-
-### 取消爬取
-
-发现爬错了或够用了？随时取消：
-
-```
-「取消刚才的爬取任务」
-```
-
-- 只取消未开始的任务（`pending → cancelled`）
-- 正在运行的任务自然完成但不再发现新链接
-- 已完成的 Markdown 文件完整保留
-
-### vs 竞品
-
-| | Myrm | Crawl4AI | Hermes/OpenClaw/Claude |
-|---|:---:|:---:|:---:|
-| Agent 原生对话触发 | ✅ | ❌ 需编码 | ❌ |
-| 崩溃恢复 | ✅ SQLite WAL | ⚠️ 内存 dict | ❌ |
-| 可取消+保留结果 | ✅ | ❌ | ❌ |
-| robots.txt 合规 | ✅ | ✅ | ❌ |
-| per-domain 限速 | ✅ | ⚠️ 全局 | ❌ |
-| 三层引擎复用 | ✅ | ❌ 固定 | ❌ |
 
 ## 配置
 

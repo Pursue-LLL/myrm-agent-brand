@@ -45,6 +45,31 @@ description: 将 Agent 连接到 35+ 消息平台，输出自动适配渠道。
 
 微信和 WhatsApp 均使用统一的 `AsyncLoginProtocol`，跨渠道体验一致。
 
+### Telegram
+
+两种方式连接 Telegram，选择适合你的路径：
+
+**路径 A：首次设置向导（推荐新用户）**
+
+首次启动设置向导时，在配置模型和路由偏好后会出现 **Telegram 个人助手** 步骤：
+
+1. 粘贴你的 **Bot Token**（从 [@BotFather](https://t.me/BotFather) 获取）
+2. 可选填写 **Webhook URL**（仅 VPS / 云部署且有公网域名时需要）
+3. 可选命名你的助手（默认 `Myrm Assistant`）
+4. 点击 **激活** — 系统原子化地校验 token、写入凭据、将 DM 策略设为 open、绑定默认 Agent
+
+任何步骤失败都会自动回滚，不会出现半配置状态。向导还能优雅处理并发提交：若有另一请求正在处理，系统自动重试并展示友好提示，不会暴露原始错误。
+
+**路径 B：设置页（后续添加 Telegram）**
+
+1. 进入 **设置 > 渠道 > Telegram**
+2. 填写 **Bot Token** 和可选 **Webhook URL**
+3. 保存 — Bot 连接并开始接收消息
+
+**Webhook vs 轮询**：不填 Webhook URL 时 Bot 使用长轮询（适合本地/桌面端），填写后 Telegram 主动推送更新到你的服务器（VPS/云部署必须）。
+
+**Rich Message 渲染**：Telegram 通过 Bot API 10.1 支持原生 Rich Message — 表格、LaTeX 公式、嵌套列表均可原生渲染。
+
 ### Email（IMAP + SMTP）
 
 1. 打开 **设置 > 渠道 > Email**

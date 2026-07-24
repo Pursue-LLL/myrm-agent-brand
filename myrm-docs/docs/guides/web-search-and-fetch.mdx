@@ -121,7 +121,7 @@ When L1–L3 all fail, you can **opt in** to a remote reader fallback (Settings 
 - **Default OFF** — no extra Turn1 tools, prompt cache unchanged
 - **Per-session cap** (1–50) — prevents runaway remote billing
 - **SSRF guard** before any remote call
-- **deep_crawl never escalates** — bulk site crawls stay local-only
+- **No built-in bulk crawl** — use search+fetch+browser locally, or Firecrawl MCP for site-wide indexing
 - **Plane deny switch** — `MYRM_WEB_FETCH_ESCALATION=denied` for enterprise hard blocks
 
 OpenClaw/Hermes often depend on Firecrawl for hard pages and always require an API key; Myrm keeps **local-first**, supports keyless free-tier out of the box, and treats cloud as an explicit, capped last resort.
@@ -295,54 +295,6 @@ page = await tools.web_fetch("https://example.com/pricing")
 ```
 
 No extra API round-trips — search and fetch run inside the sandbox.
-
-## Deep Crawl (Recursive Site Crawling)
-
-Trigger a full-site crawl with a single message:
-
-```
-"Crawl docs.nextjs.org, depth 3, max 200 pages"
-```
-
-### How It Works
-
-1. Agent calls `web_fetch(operation="deep_crawl", url=..., max_depth=3, max_pages=200)`
-2. **RobotsParser** fetches robots.txt, extracts sitemaps and Crawl-Delay
-3. **CrawlTaskStore** persists tasks to SQLite WAL database
-4. **CrawlTaskExecutor** async worker pool crawls concurrently (reuses 3-tier engine)
-5. Each page gets DOM-pruned Markdown output + auto-generated `_index.json`
-6. Real-time progress events; results ready for RAG or Wiki on completion
-
-### Crash Recovery
-
-Process crash, laptop reboot — no work lost:
-
-- SQLite WAL transactions guarantee durability
-- On restart, stale `running` tasks auto-reset to `pending`
-- Completed Markdown files always preserved
-
-### Cancel Crawl
-
-Realized you don't need more pages? Cancel anytime:
-
-```
-"Cancel the crawl task"
-```
-
-- Only pending tasks get cancelled (`pending → cancelled`)
-- Running tasks complete naturally but discover no new links
-- All completed Markdown files are preserved
-
-### vs Competitors
-
-| | Myrm | Crawl4AI | Hermes/OpenClaw/Claude |
-|---|:---:|:---:|:---:|
-| Agent-native conversational trigger | ✅ | ❌ Requires code | ❌ |
-| Crash recovery | ✅ SQLite WAL | ⚠️ In-memory dict | ❌ |
-| Cancel + preserve results | ✅ | ❌ | ❌ |
-| robots.txt compliance | ✅ | ✅ | ❌ |
-| Per-domain rate limiting | ✅ | ⚠️ Global delay | ❌ |
-| 3-tier engine reuse | ✅ | ❌ Fixed engine | ❌ |
 
 ## Configuration
 

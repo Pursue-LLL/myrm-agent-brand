@@ -449,7 +449,7 @@
           "feature": "目标驱动 · 复杂项目全程管控",
           "hermes": "/goal",
           "openclaw": "_no",
-          "myrmAgent": "12状态机 · 4维预算(tokens/USD/时间/轮次) · GUI配置向导 · 17层无人值守安全网(9步守卫链：预算→抑制→取消→转向→收敛→循环重启→**沙箱边界HITL**→**轨迹偏离检测**→语义Judge + shell+semantic验收网关3次重试熔断 + Judge解析熔断器 + 优雅收尾轮 + 零进度自动暂停 + interactive工具标签过滤 + 保护路径不变性验证 + 上下文溢出保护) · **轨迹偏离检测**(每5轮LITE_MODEL评估偏离分0-10, ≥3纠偏/≥7暂停, fail-open) · **沙箱边界HITL**(连续3次PERMISSION_DENIED→优雅暂停而非暴力中断，前端红色警报) · 逐条验收pass/fail(含耗时+错误日志+历史时间线) · 文件篡改检测 · IM约束管理 · 队列系统 · Git分支保存/恢复 · 全局实时NavBar追踪(badge+SSE推送+OS通知) · 跨会话Goal概览面板"
+          "myrmAgent": "12状态机 · 4维预算(tokens/USD/时间/轮次) · GUI配置向导 · 17层无人值守安全网(9步守卫链：预算→抑制→取消→转向→收敛→循环重启→**沙箱边界HITL**→**轨迹偏离检测**→**逐步人工确认**→语义Judge + shell+semantic验收网关3次重试熔断 + Judge解析熔断器 + 优雅收尾轮 + 零进度自动暂停 + interactive工具标签过滤 + 保护路径不变性验证 + 上下文溢出保护) · **轨迹偏离检测**(每5轮LITE_MODEL评估偏离分0-10, ≥3纠偏/≥7暂停, fail-open) · **沙箱边界HITL**(连续3次PERMISSION_DENIED→优雅暂停而非暴力中断，前端红色警报) · **Per-Todo逐步确认**(opt-in开关，每完成一个todo自动暂停等待用户确认后继续，高风险任务每步可控——6大竞品均无此能力) · 逐条验收pass/fail(含耗时+错误日志+历史时间线) · 文件篡改检测 · IM约束管理 · 队列系统 · Git分支保存/恢复 · 全局实时NavBar追踪(badge+SSE推送+OS通知) · 跨会话Goal概览面板"
         },
         "skillEvolution": {
           "feature": "技能进化 · 越用越聪明，渐进按需加载",
@@ -497,7 +497,7 @@
           "feature": "多账号凭证池 · 告别 API 限流焦虑",
           "hermes": "4 种策略，CLI 管理，无退避/抖动",
           "openclaw": "单账号",
-          "myrmAgent": "4 种轮换策略 + GUI 策略选择器（按 Provider 选择：轮询/优先填充/最少使用/随机）+ 指数退避 ±15% 抖动 + GUI 多密钥管理 + 自动健康探针 + Retry-After 解析 + 64 项测试验证"
+          "myrmAgent": "4 种轮换策略 + GUI 策略选择器（按 Provider 选择：轮询/优先填充/最少使用/随机）+ 指数退避 ±15% 抖动 + GUI 多密钥管理 + 自动健康探针 + Retry-After 解析 + **Passthrough 自动故障转移**（429/5xx 触发秒级换 Key 重试，最多 3 次跨 Key 重试——用户零感知）+ **ComboRouter** 7 策略多 Provider 路由链（优先级/成本优化/轮询/随机/LKGP 粘性/上下文亲和/配额余量，Pydantic 类型安全）+ 104 项测试验证"
         },
         "directRouting": {
           "feature": "纯本地直连 (Direct Routing) · 绝对隐私与极低内存",
@@ -531,7 +531,7 @@
         },
         "costRouting": {
           "feature": "三维智能路由 + 自动升级 · 复杂度+隐私+容错+模型卡住自动升级",
-          "hermes": "单一辅助模型",
+          "hermes": "per-task 辅助模型手动配置（无自动路由）",
           "openclaw": "LLM judge 单阶段",
           "myrmAgent": "6层智能路由（规则评分+LLM裁判+会话动量+隐私感知+误路由惩罚学习+自动升级）· 三级自动分类（SIMPLE/STANDARD/REASONING）· **默认开启零配置**（注册即生效，自动按模型成本选取轻量/推理模型，竞品均需手动配置）· 5种语义ActionMode（fast/agent/deep_research/consensus/claude_code）vs 竞品2档滑块 · 4维预算守卫（tokens/USD/时间/轮次）+Eco自动降级 · 模型自升级契约（<<<NEEDS_PRO>>>自动升级，完整上下文保持）· 11模块降级链（熔断器+候选池+指数退避+场景选择+健康检查+探针限流）+Fast Lane（快30-50%）· **Complaint-up**：Regenerate时自动升级模型（不满意→一键重新生成→系统自动用更强模型回答，无需手动切换，6大竞品均无此能力）· PenaltyTracker从误路由中学习（24h衰减）· 10模块Token经济学（成本溯源+工具归因+延迟统计+Net Cache ROI+多维预算）· 模型测速仪表盘（TTFT+TPS+批量重测——数据驱动选模型，竞品无此功能）· 前端路由分析面板展示节省成本 · **工作流智能升级建议**：零LLM成本检测复杂可分解任务并主动建议开启多Agent工作流模式（业界首创，竞品均需用户手动触发） · **路由透明度**：17+维度实时展示（tier badge+成本+缓存+隐私+工具归因），会话级路由节省统计+GUI路由分析面板，比竞品CLI诊断模式更直观 · **推理强度精准控制**：6级可视化按钮(off/low/medium/high/xhigh/max)+自定义值+per-model持久化+reasoning模型自动检测隐藏，零token开销（竞品仅CLI配置无GUI无持久化），128项测试全通过 · 3,926项路由+降级+经济学+25+内置Provider+三维预算+子Agent+ManagedLLM+Fast Lane+升级建议+透明度+推理强度测试全通过（2026-07-23 实测）· **Per-Agent 独立路由策略**：每个智能体可继承全局/自定义/禁用三种路由模式，GUI可视化配置（竞品仅支持全局路由或 per-agent model override，无 per-agent routing strategy）"
         },
@@ -545,7 +545,7 @@
           "feature": "上下文管理 · 长聊更稳、缓存更省",
           "hermes": "8层固定栈 + 内存态单层压缩",
           "openclaw": "LCM",
-          "myrmAgent": "11步上下文流水线（缓存TTL修剪 + 四级压缩 + 智能回退 + 防抖保护 + 结构化/语义双过滤器）+ Prompt Cache 自动断点（Claude/Qwen 缓存命中省90%成本）+ 缓存预热（Agent初始化即预热，首字延迟降低52%，零冷启动——独家能力，竞品均未实现）+ 七层防鞭尸 + 数据库级会话压缩持久化 + 五维归档导出 + 22+中间件 + 实时会话笔记（自动化结构化跨运行记忆，压缩时零API调用注入）+ 上下文安全阀（可配阈值0.20~0.85，智能压缩而非丢弃）+ 熔断降级 + 定时任务双会话模式（ISOLATED/MAIN）+ 16种生命周期Hooks（4种类型）+ 三层工具排序(CORE/COMMON/EXTENDED) + **三层工具调用线性对齐**（ID精确配对 + 压缩后完整性校验 + 悬空调用自动修复——竞品仅前端UI层补丁，239项测试全通过）+ **Human Anchor 架构保证**（架构级 correct-by-construction 保护用户首条意图不被压缩丢失，竞品依赖~120行运行时检查易绕过）+ **7层超大输出纵深防护**（vault spill + auto-vault + 结构感知裁剪 + stream recovery + preflight guard + hook spiller + bash spill——完整数据存vault可按需精确读取，竞品丢弃原数据或仅2层截断，127项测试全通过）"
+          "myrmAgent": "11步上下文流水线（缓存TTL修剪 + 四级压缩 + 智能回退 + 防抖保护 + 结构化/语义双过滤器）+ Prompt Cache 自动断点（Claude/Qwen 缓存命中省90%成本）+ 缓存预热（Agent初始化即预热，首字延迟降低52%，零冷启动——独家能力，竞品均未实现）+ 七层防鞭尸 + 数据库级会话压缩持久化 + 五维归档导出 + 22+中间件 + 实时会话笔记（自动化结构化跨运行记忆，压缩时零API调用注入）+ 上下文安全阀（可配阈值0.20~0.85，智能压缩而非丢弃）+ 熔断降级 + 定时任务双会话模式（ISOLATED/MAIN）+ 16种生命周期Hooks（4种类型）+ 三层工具排序(CORE/COMMON/EXTENDED) + **三层工具调用线性对齐**（ID精确配对 + 压缩后完整性校验 + 悬空调用自动修复——竞品仅前端UI层补丁，239项测试全通过）+ **Human Anchor 架构保证**（架构级 correct-by-construction 保护用户首条意图不被压缩丢失，竞品依赖~120行运行时检查易绕过）+ **7层超大输出纵深防护**（vault spill + auto-vault + 结构感知裁剪 + stream recovery + preflight guard + hook spiller + bash spill——完整数据存vault可按需精确读取，竞品丢弃原数据或仅2层截断，127项测试全通过）+ **上下文健康环**（实时Token用量环形指示器+健康状态点+一键手动压缩+≥75%用量自动显示Fork建议+策略详情面板展示压缩/裁剪/缓存统计——竞品无上下文感知的Fork建议）"
         },
         "smartConcurrency": {
           "feature": "并发引擎 · 彻底消灭读写竞态",
@@ -803,7 +803,7 @@
           "feature": "跨平台 IM 中枢",
           "hermes": "原生支持",
           "openclaw": "无",
-          "myrmAgent": "原生监听 Telegram/Discord/Slack/Feishu/WhatsApp"
+          "myrmAgent": "原生监听 Telegram/Discord/Slack/Feishu/WhatsApp + 一步式 Telegram 首次向导（Token 校验+策略写入+默认 Agent 绑定+失败回滚）"
         },
         "serverless": {
           "feature": "Serverless 按需唤醒",
