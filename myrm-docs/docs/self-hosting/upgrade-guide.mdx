@@ -22,6 +22,20 @@ Download the latest release from [GitHub Releases](https://github.com/Pursue-LLL
 
 Database migrations run automatically on startup. No manual intervention required.
 
+## Graceful Shutdown During Upgrades
+
+Myrm includes built-in **Gateway Drain Control** that protects in-flight Agent tasks during restarts:
+
+1. When the server receives a shutdown signal (SIGTERM or `POST /system/shutdown`), the **AgentGateway** enters draining mode.
+2. New Agent requests are rejected with a user-friendly message ("Service is restarting, please try again shortly.").
+3. Currently running Agent turns are allowed up to **120 seconds** to complete naturally.
+4. If tasks exceed the drain timeout, they are safely interrupted via the interrupt mechanism.
+5. After draining, all components (storage, MCP, browser, cron, etc.) shut down in parallel.
+
+The frontend's **ConnectionManager** automatically reconnects after the server restarts, ensuring a seamless experience.
+
+For Kubernetes deployments, set `terminationGracePeriodSeconds` to at least **150 seconds** (120s drain + 30s buffer) in your pod spec to allow the drain to complete before forced termination.
+
 ## Breaking Changes
 
 Check the [CHANGELOG](https://github.com/Pursue-LLL/myrm-agent/blob/main/CHANGELOG.md) for breaking changes before upgrading major versions.

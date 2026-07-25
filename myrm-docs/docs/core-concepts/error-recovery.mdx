@@ -11,7 +11,7 @@ Myrm's error recovery system ensures agents keep running through network failure
 
 | Layer | Mechanism | What It Handles |
 |-------|-----------|-----------------|
-| **L1** | Stream Recovery | Network interruptions during LLM streaming — token-level precise resume |
+| **L1** | Stream Recovery | Network interruptions and stalls during LLM streaming — dual-phase stall detection (first-event 60s + inter-chunk 180s) + token-level precise resume + auto-failover on silent provider hangs |
 | **L2** | Continuation Recovery | Consecutive stream failures — maintains context across multiple interruptions |
 | **L3** | Circuit Breaker | Model provider outages — 3-tier cooldown (auth 30min / permanent 10min / transient 1min) with half-open probe |
 | **L4** | Smart Deferred Failover | Provider failover with intelligence — rate-limit (429) never triggers model switch (always retries same model); overload (529) requires 3 consecutive failures before switching to backup model. Saves primary model quota and avoids unnecessary degradation |
@@ -332,9 +332,9 @@ All recovery happens transparently:
 - **Child agent crashes?** — Error auto-compacted, parent receives a clean summary, reasoning stays unpolluted
 - **Tool call fails?** — Silent retry with heartbeat timer; you see "running... 15s" instead of an error
 - **Repeated failures?** — 3-Strike protocol auto-escalates to ask for your help — no infinite loops
-- **Environment broken?** — Doctor Dashboard shows health status at a glance with one-click fix buttons
+- **Environment broken?** — Doctor Dashboard runs 9 parallel diagnostic probes (Python version, dependencies, LLM connectivity, network, workspace storage, database, browser, hooks, desktop control) and shows health status at a glance with one-click repair actions. Unlike CLI-only competitors that require terminal access, the GUI health cards display real-time status with actionable fix buttons
 - **SSE disconnects mid-task?** — Goal progress panel auto-clears stale indicators on reconnect, re-syncs from server, and preserves completed steps. No ghost spinners, no misleading "in progress" after the agent has stopped
 - **Cancel a running task?** — End-to-end cancellation propagates through the entire execution chain within 0.5s (CancellationMonitor polling interval). Background jobs killed, subagents cascade-cancelled, resources cleaned up, token registry unregistered
-- **Disconnect during long task?** — Grace period tolerance keeps the task alive. If disconnection persists, OfflineDurableTask registers the work for background completion with user notification on finish
+- **Disconnect during long task?** — Grace period tolerance keeps the task alive. If disconnection persists, OfflineDurableTask registers the work for background completion with user notification on finish. Background processes (npm install, webpack watch, test suites) are managed by a process-level singleton registry completely decoupled from the SSE stream — refreshing the page or reconnecting never kills live daemon sessions. SSE reconnection uses Last-Event-ID with a 5MB sliding window buffer for lossless event replay. **108 tests verified across 4 batches (registry, streaming, reconnect)**
 - **Server restarts mid-goal?** — Orphaned goals auto-pause with clear reason. Durable tasks resume from LangGraph checkpoint on next startup — zero repeated work
 - **Emergency halt needed?** — E-Stop API (`/freeze`) cancels ALL active agent streams globally in one call — the panic button for production incidents

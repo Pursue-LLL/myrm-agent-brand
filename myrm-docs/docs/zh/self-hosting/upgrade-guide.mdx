@@ -22,6 +22,20 @@ docker compose up -d
 
 数据库迁移在启动时自动执行，无需手动操作。
 
+## 升级时的优雅关闭
+
+Myrm 内置 **Gateway Drain Control**（网关排空控制），在重启期间保护正在执行的 Agent 任务：
+
+1. 当服务收到关闭信号（SIGTERM 或 `POST /system/shutdown`）时，**AgentGateway** 进入排空模式。
+2. 新的 Agent 请求会被拒绝，并向用户显示友好提示（"服务正在重启，请稍后重试"）。
+3. 正在执行的 Agent 任务最多有 **120 秒**的完成窗口。
+4. 如果任务超过排空超时时间，会通过中断机制安全停止。
+5. 排空完成后，所有组件（存储、MCP、浏览器、定时任务等）并行安全关闭。
+
+前端的 **ConnectionManager** 会在服务重启后自动重连，确保无缝体验。
+
+对于 Kubernetes 部署，建议在 Pod spec 中设置 `terminationGracePeriodSeconds` 为至少 **150 秒**（120 秒排空 + 30 秒缓冲），以确保排空完成后再强制终止。
+
 ## 破坏性变更
 
 升级大版本前请查阅 [CHANGELOG](https://github.com/Pursue-LLL/myrm-agent/blob/main/CHANGELOG.md) 中的破坏性变更说明。

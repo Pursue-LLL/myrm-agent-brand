@@ -437,13 +437,13 @@
           "feature": "多模态生成 · 图片/视频/语音一句话创作",
           "hermes": "FAL.ai图片+2视频Plugin+10TTS",
           "openclaw": "_no",
-          "myrmAgent": "20+ 图片模型（Agent 勾选+凭证就绪即 Turn1 可用 · 缺 Key 时配置面板内联警告链设置 · Harness 引擎/Server 适配分层 · Failover+Gateway+编辑+Inpainting+SSRF+批量 · **异步生图：即时 task_id + 聊天气泡 ImageTaskCard + SSE 进度，生图时继续对话；密钥写入任务队列前 AES 加密，云沙箱安全** · 370+ 项测试全通过） · 4 视频引擎(Sora/Veo/Qwen/MiniMax + T2V/I2V/V2V + 幂等任务) · 5 TTS(含免费 Edge+流式+长文本摘要+自定义端点) · 截图即操作 · Vision 自动降级(SSE+缓存+非视觉主模型无感) · **创意设计全覆盖**：沙箱内ffmpeg视频剪辑/Pillow+ImageMagick批量图片处理 + computer_use智能操控Adobe PS/AI/InDesign(AppleScript/COM自动路由) + Figma MCP接入——不需要专用PS插件(Adobe版本更新常破坏API)，AI原生引擎更可靠 · **401 项多媒体全栈测试全通过**（图片89+视频43+工具27+辅助51+server单元34+集成157）"
+          "myrmAgent": "20+ 图片模型（Agent 勾选+凭证就绪即 Turn1 可用 · 缺 Key 时配置面板内联警告链设置 · Harness 引擎/Server 适配分层 · Failover+Gateway+编辑+Inpainting+SSRF+批量 · **异步生图：即时 task_id + 聊天气泡 ImageTaskCard + SSE 进度，生图时继续对话；密钥写入任务队列前 AES 加密，云沙箱安全** · 370+ 项测试全通过） · 4 视频引擎(Sora/Veo/Qwen/MiniMax + T2V/I2V/V2V + 幂等任务 + **对话内 VideoTaskCard 内嵌播放器+进度条+重试** — 视频生成后直接在对话中预览，无需额外导出流程 + **工具无关沙箱**：Agent 可在沙箱内 npm/npx 安装并使用任意视频工具(HyperFrames/Remotion/FFmpeg/CapCut API)——不锁定单一框架 + **内置7步Multi-Shot Pipeline**：自动检测provider时长限制、规划分镜、base image视觉一致性、I2V生成、FFmpeg无损拼接、BGM后期叠加、关键帧质量验证) · 5 TTS(含免费 Edge+流式+长文本摘要+自定义端点) · 截图即操作 · Vision 自动降级(SSE+缓存+非视觉主模型无感) · **创意设计全覆盖**：沙箱内ffmpeg视频剪辑/Pillow+ImageMagick批量图片处理 + computer_use智能操控Adobe PS/AI/InDesign(AppleScript/COM自动路由) + Figma MCP接入——不需要专用PS插件(Adobe版本更新常破坏API)，AI原生引擎更可靠 · **401 项多媒体全栈测试全通过**（图片89+视频43+工具27+辅助51+server单元34+集成157）"
         },
         "securityLayers": {
           "feature": "纵深安全 · 隐私不泄露",
           "hermes": "3处拦截",
           "openclaw": "1层",
-          "myrmAgent": "22层纵深防御(5层洋葱架构+4安全维度) · 30000+安全测试全通过(2026年7月) · **架构级零遥测**：Metrics/OTEL 默认 opt-in 关闭（竞品 Claude Code 被曝 opt-out 隐秘追踪）· 输入侧：PromptGuard 7+2中英注入检测+ContentBoundary 5层结构防护 · 执行侧：ShellCommandAnalyzer 6层命令分析(二进制注入→ANSI-C绕过→危险命令→SQL守卫→可疑模式→递归shell wrapper分析)+Python 40+模块黑名单+PEP 578 C级审计钩子+OS沙箱(seatbelt/bwrap)+TaintTracker污点追踪+CapabilityFence deny-by-default · 输出侧：CanaryGuard确定性金丝雀令牌+LeakDetector 40+凭证模式+ToolOutputRedact 30+模式脱敏+PII 30+中英双语检测 · AES-256-GCM凭证保险库(三层：Vault+Session+DB) · E2EE视觉背书(NaCl Box Curve25519, 39测试) · 确定性安全审批(零Token/不可注入) · SQL语法级命令守卫(multi-statement注入+WITH CTE绕过防御) · SSRF盾(DNS Pinning+逐跳重定向+数据外泄检测+Domain HITL审批, 358项测试) · Per-Agent安全策略 · 3级PII敏感度+隐私感知路由 · 3档安全预设一键切换 · OAuth自动告警+/freeze全局急停 · CSP防护"
+          "myrmAgent": "22层纵深防御(5层洋葱架构+4安全维度) · 30000+安全测试全通过(2026年7月) · **架构级零遥测**：Metrics/OTEL 默认 opt-in 关闭（竞品 Claude Code 被曝 opt-out 隐秘追踪）· 输入侧：PromptGuard 7+2中英注入检测+ContentBoundary 5层结构防护 · 执行侧：ShellCommandAnalyzer 6层命令分析(二进制注入→ANSI-C绕过→危险命令→SQL守卫→可疑模式→递归shell wrapper分析)+Python 40+模块黑名单+PEP 578 C级审计钩子+OS沙箱(seatbelt/bwrap)+TaintTracker污点追踪+CapabilityFence deny-by-default · 输出侧：CanaryGuard确定性金丝雀令牌+LeakDetector 40+凭证模式+ToolOutputRedact 30+模式脱敏+PII 30+中英双语检测 · AES-256-GCM凭证保险库(三层：Vault+Session+DB) · E2EE视觉背书(NaCl Box Curve25519, 39测试) · 确定性安全审批(零Token/不可注入) · SQL语法级命令守卫(multi-statement注入+WITH CTE绕过防御) · SSRF盾(DNS Pinning+逐跳重定向+数据外泄检测+Domain HITL审批, 358项测试) · Per-Agent安全策略 · 3级PII敏感度+隐私感知路由 · 3档会话级安全预设一键切换（HITL/自动批准编辑+AI智能审查/只读模式，与YOLO双向互斥） · OAuth自动告警+/freeze全局急停 · CSP防护"
         },
         "goalMode": {
           "feature": "目标驱动 · 复杂项目全程管控",
@@ -761,13 +761,13 @@
           "feature": "MCP+工具安全 · 三层纵深防御",
           "hermes": "仅 log",
           "openclaw": "env 过滤",
-          "myrmAgent": "三层安全(113规则Regex+AST语法树+LLM语义审计) · MCP配置扫描13种威胁类型（注入/伪装/窃取/供应链等）+Trust/Revoke信任机制+域名白名单 · GUI扫描确认+信任四级徽章 · 运行时隔离过滤 · 全工具链5层内容边界防御(内置工具+MCP+PTC全覆盖，第三方工具输出自动安全隔离)"
+          "myrmAgent": "三层安全(113规则覆盖26种威胁类别Regex + Python AST语法树结构分析 + LLM语义审计only-escalate策略) · MCP配置扫描13种威胁类型（注入/伪装/窃取/供应链等）+Trust/Revoke信任机制+域名白名单 · GUI扫描确认+信任四级徽章(REJECT/UNTRUSTED/INSTALLED/TRUSTED) · 运行时隔离过滤+工具衰减 · 全工具链5层内容边界防御(内置工具+MCP+PTC全覆盖，第三方工具输出自动安全隔离) · 2,023项安全测试验证"
         },
         "credentialVault": {
           "feature": "表单凭证金库 · 密码不进对话",
           "hermes": "明文 type",
           "openclaw": "明文 type",
-          "myrmAgent": "Label 引用注入：浏览器+桌面统一 `fill_credential` · AES-256-GCM 加密金库 + TOTP 自动填充 · Settings 统一管理 · 密码永不进入 LLM 上下文 · API 密钥零 env 写入（进程级沙箱隔离） · **279** 项凭证安全测试全通过"
+          "myrmAgent": "Label 引用注入：浏览器+桌面统一 `fill_credential` · AES-256-GCM Fail-Closed 加密金库 + TOTP 自动填充 · Settings 统一管理 · 5层凭据纵深防护（Vault label引用 + ContextVar协程隔离 + LeakDetector 40+模式 + CredentialLeakFilter消息级阻断 + prompt_guard） · 密码永不进入 LLM 上下文 · API 密钥零 env 写入（进程级沙箱隔离） · **445** 项凭证安全测试全通过"
         },
         "visionFusion": {
           "feature": "语音+视觉融合 · 通话时 Agent 能看摄像头和屏幕",

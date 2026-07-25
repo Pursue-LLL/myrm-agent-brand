@@ -206,6 +206,23 @@ helm upgrade myrm deploy/helm/myrm-platform/ -f my-values.yaml
 
 The chart uses checksum annotations on ConfigMap and Secret references, so pods automatically restart when configuration changes.
 
+### Graceful Shutdown for Sandbox Pods
+
+Each sandbox pod runs a Myrm Agent Server instance with built-in **Gateway Drain Control**. During rolling updates or pod evictions:
+
+1. The pod receives SIGTERM from Kubernetes.
+2. The AgentGateway enters draining mode — new Agent requests are rejected with a user-friendly message.
+3. In-flight Agent turns get up to 120 seconds to complete naturally.
+4. After the drain timeout, remaining tasks are safely interrupted.
+
+To allow the drain to complete, ensure your sandbox pod template sets an adequate grace period:
+
+```yaml
+terminationGracePeriodSeconds: 150   # 120s drain + 30s buffer
+```
+
+If using PDB (Pod Disruption Budget), this ensures zero-downtime upgrades with no lost Agent work.
+
 ## Uninstalling
 
 ```bash

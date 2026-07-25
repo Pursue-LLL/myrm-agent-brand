@@ -30,6 +30,21 @@ Control how much autonomy agents have:
 | **Always-Allow** | Per-tool permanent approval with 4-level granularity (permission / tool / exact-args / command-pattern) |
 | **Domain-HITL** | Approval based on domain/resource classification |
 
+### Session Security Presets
+
+Switch security posture per chat session from the input toolbar — no need to change global settings:
+
+| Preset | Behavior | Use Case |
+|--------|----------|----------|
+| **HITL** (default) | Every tool call requires approval | Sensitive tasks, production environments |
+| **Auto-Approve Edits** | File reads/writes auto-approved; shell, browser, MCP require approval with AI-powered smart review | Coding, document editing, routine development |
+| **Read-Only** | All write operations denied; reads auto-approved | Code review, exploration, research |
+
+- Presets are **mutually exclusive with YOLO mode** — selecting a non-default preset automatically disables YOLO, and vice versa.
+- The `Auto-Approve Edits` preset enables the **Transcript Classifier** (LLM-based smart review) for shell commands — safer than blanket ALLOW because suspicious commands still trigger human review.
+- The `Read-Only` preset precisely denies 12 categories of write operations (file write/edit/delete, shell, code interpreter, browser automation, skill/cron management) while keeping reads and agent delegation open.
+- Available in Agent mode only; the selector hides automatically in Fast Search mode.
+
 ### 10-Layer Progressive Approval Architecture
 
 Every tool call passes through up to 10 layers of deterministic and intelligent checks before reaching the user:

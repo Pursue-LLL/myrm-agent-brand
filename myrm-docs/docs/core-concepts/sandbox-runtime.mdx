@@ -24,6 +24,8 @@ Each sandbox runs in an isolated environment with:
 - Network namespace isolation
 - Resource limits (CPU, memory, disk)
 - Security policies enforced at runtime
+- **6-Layer Concurrency & Resource Defense**: Process-level RLIMIT enforcement (NPROC=512 anti-fork-bomb, CPU time cap, virtual memory cap, file descriptor cap, file size cap) + SubAgent fan-out limiting (max 3 delegate calls per turn) + per-type concurrency semaphores (default 5) + per-step timeout protection (300s) + memory pressure coordinated load-shedding + container-level cgroup hard caps. The `resource` Python module is blacklisted to prevent agents from escalating their own limits.
+- **4-level Memory Pressure Monitor**: Real-time system memory monitoring (NORMAL → WARNING → CRITICAL → EMERGENCY) with container-aware cgroup v2 detection, hysteresis to prevent flapping, coordinated load-shedding via Pub/Sub subscribers, and automatic GC on emergency. Combined with process-level resource tracking (RSS/VMS + 512-point historical ring buffer + on-demand heap profiling), your agent self-protects before resource exhaustion becomes a problem.
 - **UI Interaction Blacklisting**: For sub-agents running in the background, the sandbox blocks UI interfaces (`interactive_feedback`, `send_message`), ensuring they can never interrupt the user with popups, providing true physical isolation between background tasks and foreground user interaction.
 
 ### Native OS-Level Sandbox (No Docker Required)
