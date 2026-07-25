@@ -12,7 +12,7 @@ Myrm's context management system ensures agents can sustain 200+ turn conversati
 Every message passes through an 11-step pipeline before reaching the LLM:
 
 ```
-User Message → Thinking Cleanup → Media Filter → Smart Filter → Cache TTL Prune → Pre-Compact → Compress → Session Notes → Summarize → Normalize → Media Resolve → Prompt Cache Optimize → LLM
+User Message → Thinking Cleanup → Media Filter → Smart Filter → Cache TTL Prune → Pre-Compact → Compress → Session Notes → Summarize → Post-Compaction Reread → Normalize → Media Resolve → Prompt Cache Optimize → LLM
 ```
 
 ## Compression Pipeline
@@ -72,7 +72,21 @@ Three strategies are applied in order: **Dedup** (remove exact duplicates) → *
 
 ### Layer 4: Structured Summarization
 
-When compression alone isn't sufficient, an LLM generates a structured summary with 12 fields (user goal, active tasks, completed actions, errors, decisions, artifacts, etc.) to replace the compressed history. A SummaryAuditor validates quality, and incremental merge ensures new information is folded into existing summaries without loss. Before persistence, all summary fields undergo dual redaction (credential leak detection + PII redaction) to ensure sensitive data from raw messages never survives into compressed history.
+When compression alone isn't sufficient, an LLM generates a structured summary with 14 fields (user goal, active tasks, completed actions, errors, decisions, artifacts, blocked items, next steps, etc.) to replace the compressed history. A SummaryAuditor validates quality, and incremental merge ensures new information is folded into existing summaries without loss. Before persistence, all summary fields undergo dual redaction (credential leak detection + PII redaction) to ensure sensitive data from raw messages never survives into compressed history.
+
+**Task continuity fields**: The summary includes dedicated `blocked_items` (up to 3 current blockers) and `next_steps` (up to 5 planned actions). These are rendered in the U-curve tail zone of the summary message — the high-attention region (~80% recall) identified by Lost-in-Middle research — ensuring the agent precisely remembers "what's blocking progress" and "what to do next" after compaction.
+
+**Incremental merge intelligence**: When a new summary is merged with an existing one, resolved blockers are automatically removed and completed steps are discarded, keeping the handoff context current without manual intervention.
+
+### Layer 4.5: Post-Compaction Reread
+
+After summarization, the `PostCompactionRereadProcessor` automatically re-reads the top 5 most recently modified/created files from the `ArtifactTracker`, injecting their latest content into the context as a `HumanMessage`. This ensures the agent has fresh file contents immediately after compaction — not stale snapshots from before compression occurred.
+
+- **Dynamic budget**: Total reread content is capped at 50,000 tokens to prevent context re-inflation
+- **Integrity Guard sync**: Re-read file paths are automatically registered with `FileIntegrityGuard`, preventing "file modified since last read" false alarms
+- **Prompt Cache safe**: Content is injected as `HumanMessage`, never touching the system prompt prefix
+
+This matches the post-compaction reread capability documented in Claude Code and Codex, while adding Guard synchronization that competitors lack.
 
 ### Layer 5: Cache Optimization
 
