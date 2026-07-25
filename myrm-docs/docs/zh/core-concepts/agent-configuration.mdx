@@ -243,7 +243,7 @@ GUI 配置编辑器提供 5 个独立面板（技能 / MCP / 内置工具 / 子�
 ### Built-in Tools SSOT（2026-07）
 
 - **15 canonical IDs**：`web_search`、`memory`、**`structured_clarify`** 等 **14 项**在 UI 可切换；`file_ops`、`code_execute` 为 **Agent 基线**（服务端强制 Turn1 eager，面板不展示开关）。
-- **24 预置 Agent 工具矩阵**：服务启动时 initializer 幂等同步；Agent 画廊与设置页均展示完整 24 个 built-in（`AGENT_LIST_BUILTIN_PAGE_SIZE=50` 默认；画廊 chip 来自 `enabled_builtin_tools`）。
+- **27 预置 Agent 工具矩阵**：服务启动时 initializer 幂等同步；Agent 画廊与设置页均展示完整 27 个 built-in（`AGENT_LIST_BUILTIN_PAGE_SIZE=50` 默认；画廊 chip 来自 `enabled_builtin_tools`）。
 - **写路径单入口**：`persist_enabled_builtin_tools` 校验后再落库；legacy ID 返回 422，避免 silent 失效。
 - **默认 profile**：UI 默认开启 `web_search` + `memory` + **`structured_clarify`（结构化多题澄清表单）**；**文件/代码执行能力始终可用**（Agent 基线，无需用户勾选）。表单 payload 使用 **`requires_confirmation: bool`**（替代竞品常见的 5 类枚举）；`true` 时 WebUI 以琥珀色强调风险确认。
 - **用户开关 ON → Turn1 直接可用**：默认或手动开启的内置工具（含 **cron（需手动开启）**、**structured_clarify**、render_ui、computer_use、x_search、delegate_to_agent 等）、已绑定 skill 对应工具，首轮即出现在 LLM schema，无需先调 `discover_capability`。**Cron 默认关闭（可发现加载）**——仅开启的用户承担约 827 tok eager schema；OpenClaw/Hermes 无 per-agent 开关，Turn1 始终挂载 cron。**`structured_clarify` 关闭时不暴露 `ask_question_tool` schema**——竞品多把澄清写死在常驻 Prompt 里。Harness **`ClarificationGuardMiddleware`** 保证每轮至多一次 `ask_question_tool`，且与并行工具互斥（对齐 Hermes `clarify` 单轮约束）。

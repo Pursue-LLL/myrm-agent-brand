@@ -1,0 +1,103 @@
+---
+title: 分层验证作战手册
+description: 在低负载条件下，用可复现证据验证“首字响应更快、运行更稳”，覆盖开源产品层与闭源 harness 运行时。
+---
+
+# 分层验证作战手册
+
+当你需要的是**证据**而不是“看起来不错”的结论（例如“首字更快”“长任务更稳”“优于竞品默认体验”）时，按这份手册执行。
+
+## 为什么需要这份手册
+
+很多 Agent 产品只展示能力清单，不给可复现实证。Myrm 的验证闭环强调三层一起签收：
+
+1. **Harness 运行时层**（闭源运行时，由 server 调用）
+2. **开源产品层**（`myrm-agent-server` + `myrm-agent-frontend`）
+3. **用户可感知表达层**（docs + 官网文案）
+
+## 分层与证据映射
+
+| 层 | 验证目标 | 典型证据 |
+|---|---|---|
+| Harness 运行时 | 启动探测稳定、缓存行为可控 | `backend_detector` 测试 + 定向覆盖率 |
+| 开源服务端 | TTFT 端到端采集与落库聚合正确 | stream loop / collector / usage aggregation 测试 |
+| 前端与文档 | 真实收益可被用户理解 | 双语文案同步 + 诚实范围说明 |
+
+## 第一步：先保护机器不卡死
+
+使用**小批次**执行并记录资源边界：
+
+```bash
+/usr/bin/time -l bash scripts/dev/run-pytest-safe.sh -- ./myrm test <target> -q
+```
+
+至少记录：
+
+- `/usr/bin/time -l` 峰值 RSS
+- 当前机器可用内存（`available`、`used_percent`）
+- 连续重跑是否出现单调内存爬升
+
+## 第二步：验证 harness 启动路径
+
+定向命令：
+
+```bash
+bash scripts/dev/run-pytest-safe.sh -- ./myrm test myrm-agent-harness/tests/toolkits/acp/test_backend_detector.py -q --cov=myrm_agent_harness.toolkits.acp.backend_detector --cov-report=term
+```
+
+签收点：
+
+- 测试通过
+- 定向覆盖率足够覆盖缓存/刷新关键路径
+- 重跑无异常内存趋势
+
+## 第三步：验证产品层 TTFT 链路
+
+定向命令：
+
+```bash
+bash scripts/dev/run-pytest-safe.sh -- ./myrm test myrm-agent/myrm-agent-server/tests/services/agent/stream_session/test_stream_loop_ttft.py myrm-agent/myrm-agent-server/tests/api/statistics/test_usage_aggregation_coverage.py -q --cov=app.services.agent.stream_session.stream_loop --cov=app.api.statistics.usage_aggregation --cov-report=term
+
+bash scripts/dev/run-pytest-safe.sh -- ./myrm test myrm-agent/myrm-agent-server/tests/api/agent/test_stream_collector_coverage.py -q --cov=app.services.agent.streaming_support.stream_collector --cov-report=term
+```
+
+签收点：
+
+- 可见文本 payload 上 TTFT 采集通过
+- TTFT 能注入 `message_end`，并被统计聚合读取
+- 覆盖率证明关键路径被真实测试，而非只做外围 mock
+
+## 第四步：浏览器实景验收（资源允许时）
+
+若要进一步增强说服力，可补一条轻量 MCP 浏览器实证：
+
+- `new_page` 打开 WebUI
+- `take_snapshot` 验证可见状态
+- `evaluate_script` 验证交互结果
+
+若为保护 CPU/内存而跳过，必须在文档中明确说明，并引用最近一次已完成的浏览器实测快照。
+
+## 第五步：发布证据，避免过度宣传
+
+三个面必须同步：
+
+1. `temp-docs/materials/*_ADVANTAGE.md`（完整证据）
+2. docs 竞品页（最新验证快照）
+3. 官网落地页亮点文案（用户语言表达）
+
+约束：
+
+- 竞品结论必须绑定测试证据
+- 明确“测了什么、没测什么”
+- 官网文案避免底层术语堆砌；未明确要求时不改“六项核心能力”板块
+
+## 通过标准
+
+满足以下四条才可对外宣称“已验证”：
+
+- 定向测试通过
+- 资源边界可接受
+- TTFT/探测契约无隐藏回退
+- docs 与官网文案和实测证据一致
+
+这是“更快 + 更稳 + 可证实”的最低发布门槛。

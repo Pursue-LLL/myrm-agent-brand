@@ -1,0 +1,103 @@
+---
+title: Layered Verification Playbook
+description: Prove reliability and first-reply speed with low-load, reproducible checks across open product layers and the closed harness runtime.
+---
+
+# Layered Verification Playbook
+
+Use this guide when you need **evidence**, not assumptions — especially for claims like "faster first reply", "stable long runs", or "better than competitor defaults".
+
+## Why this playbook exists
+
+Most agent products show feature lists but skip reproducible proof. Myrm keeps proof close to delivery by validating:
+
+1. **Harness runtime layer** (closed-source runtime, called by server)
+2. **Open product layer** (`myrm-agent-server` + `myrm-agent-frontend`)
+3. **User-visible messaging layer** (docs + landing wording)
+
+## Layer map (what to test)
+
+| Layer | Goal | Typical evidence |
+|---|---|---|
+| Harness runtime | Startup detection is stable and cache-safe | `backend_detector` tests + focused coverage |
+| Open server | TTFT is captured end-to-end and persisted | stream loop / collector / usage aggregation tests |
+| Frontend/docs | Benefits are understandable by real users | updated bilingual copy with honest scope notes |
+
+## Step 1: Keep the machine responsive
+
+Run verification in **small batches** and record resource usage:
+
+```bash
+/usr/bin/time -l bash scripts/dev/run-pytest-safe.sh -- ./myrm test <target> -q
+```
+
+Record:
+
+- Peak RSS from `/usr/bin/time -l`
+- Current machine memory state (`available`, `used_percent`)
+- Whether repeated runs show monotonic memory growth
+
+## Step 2: Validate harness startup path
+
+Focused test:
+
+```bash
+bash scripts/dev/run-pytest-safe.sh -- ./myrm test myrm-agent-harness/tests/toolkits/acp/test_backend_detector.py -q --cov=myrm_agent_harness.toolkits.acp.backend_detector --cov-report=term
+```
+
+Expected proof:
+
+- tests pass
+- focused coverage is high enough to trust cache/refresh behavior
+- no abnormal memory trend during rerun
+
+## Step 3: Validate product TTFT chain
+
+Focused tests:
+
+```bash
+bash scripts/dev/run-pytest-safe.sh -- ./myrm test myrm-agent/myrm-agent-server/tests/services/agent/stream_session/test_stream_loop_ttft.py myrm-agent/myrm-agent-server/tests/api/statistics/test_usage_aggregation_coverage.py -q --cov=app.services.agent.stream_session.stream_loop --cov=app.api.statistics.usage_aggregation --cov-report=term
+
+bash scripts/dev/run-pytest-safe.sh -- ./myrm test myrm-agent/myrm-agent-server/tests/api/agent/test_stream_collector_coverage.py -q --cov=app.services.agent.streaming_support.stream_collector --cov-report=term
+```
+
+Expected proof:
+
+- TTFT capture logic passes on visible payloads
+- TTFT persists into `message_end` and statistics aggregation
+- focused coverage proves critical path is tested, not only mocked indirectly
+
+## Step 4: Browser reality check (when budget allows)
+
+For stronger proof, add a lightweight real-browser MCP check:
+
+- `new_page` -> open live WebUI
+- `take_snapshot` -> verify expected UI state
+- `evaluate_script` -> verify expected reactive behavior
+
+If skipped to protect CPU/memory, document that clearly and reference the latest completed browser snapshot run.
+
+## Step 5: Publish proof without overclaiming
+
+Update three surfaces together:
+
+1. `temp-docs/materials/*_ADVANTAGE.md` (full evidence)
+2. docs competitor page (latest validation snapshot)
+3. landing highlights (user-facing value language)
+
+Rules:
+
+- Keep competitor claims tied to test evidence
+- Say what was tested, what was not tested
+- For landing page, avoid low-level jargon and keep six-core-capabilities section unchanged unless explicitly required
+
+## Pass criteria
+
+A verification batch is "publishable" when all are true:
+
+- focused tests pass
+- measured resource envelope is acceptable
+- no hidden regressions in TTFT/detection contract
+- docs and landing copy are synchronized with actual evidence
+
+This is the minimum bar for claiming "faster + stable + proven".

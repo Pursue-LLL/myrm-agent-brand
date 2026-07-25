@@ -20,6 +20,13 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **真实并行负载下的 Dev Gate 稳定性**：执行 `./myrm ready --chrome` 预检后，`./myrm test` 定向套件全绿（**ready/install 回归 54 项 + dev-gate 契约 32 项 + Chrome E2E 三条流程：READ spill / READ expired / LIVE marketplace 聊天**）。共享栈短暂不可达时，attach 预检通过内置重试自动恢复，无需让用户手动停掉其他 pytest。
 - **迁移收益（可落地）**：从 CLI-only 测试链路迁移到 Myrm 后，团队可统一使用“ready → test → 真实 Chrome 签收”闭环，并拿到 `clientHot`、runtimeId、lane 队列等显式健康证据，不再依赖经验式排障。
 
+## 最新验证快照（2026-07-24）
+
+- **TTFT 启动路径实证（最小批次、低负载）：** Harness `test_backend_detector.py` **21 passed**，定向模块覆盖 **84%**（`backend_detector`）；Server 端 TTFT 链路测试（`test_stream_loop_ttft.py`、`test_stream_collector_coverage.py`、`test_usage_aggregation_coverage.py`）合计 **18 passed**，`stream_loop` / `stream_collector` / `usage_aggregation` 定向覆盖 **48%-72%**。
+- **资源边界（实测非估算）：** 通过 `/usr/bin/time -l` 记录，以上批次峰值 RSS 约 **90MB / 337MB / 144MB / 355MB**，重复执行未出现持续爬升。
+- **用户可感知收益：** 在本机真实约束下，首字响应（TTFT）端到端可观测链路保持可验证，同时外部 Agent 探测启动路径稳定、无卡死回退。
+- **诚实范围说明：** 为避免高 CPU/高内存负载，本轮（2026-07-24）未追加重型浏览器 E2E；真实 Chrome MCP 证据仍以 2026-07-23 与 2026-07-20 快照为准。
+
 ## 最新验证快照（2026-07-20）
 
 - **浏览器自动化基线（分批低负载）**：Harness 定向 109 项通过（`snapshot`、事件分发链路、takeover）。
@@ -60,7 +67,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **安全** | ✅ 6 层防御 + **四级 Allow-Always**（permission/tool/exact/**命令模式**，设置页 CRUD，复合 shell 防护，Chrome LIVE E2E）+ DM Pairing（4 策略、GUI 审批、防刷冷却） | ⚠️ v0.15 Promptware 3 卡口 | 1 层 | ⚠️ 未知 | ⚠️ 基础沙箱 | ⚠️ 闭源 | ❌ |
 | **凭证库** | ✅ 标签注入 + TOTP（浏览器 + 桌面） | ❌ 工具参数明文 | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **WebUI 访问安全** | ✅ 零信任 WebSocket + 安全 Cookie | ⚠️ 仅 HTTP，WS 脆弱 | ⚠️ 基础 JWT | ⚠️ 未知 | ⚠️ 仅 HTTP | ⚠️ 闭源 SaaS | ❌ LAN 裸奔 |
-| **目标模式** | ✅ 8 状态 + 4D 预算 + 11层防死循环盾 | /goal | ❌ | ❌ | ❌ | ⚠️ 计划审批 | ❌ |
+| **目标模式** | ✅ 8 状态 + 4D 预算 + 14层防死循环盾 + **逐步人工确认**（opt-in 每步自动暂停等待用户确认——6大竞品均无此能力） | /goal | ❌ | ❌ | ❌ | ⚠️ 计划审批 | ❌ |
 | **上下文管理** | ✅ 6 层 Prompt Cache（301 项缓存专项测试）+ 22+ 中间件 + 11 步压缩流水线 + 七层防鞭尸（Agent 不执行旧任务、不误判话题相似为旧任务、不忽略 stop 指令）+ 数据库级会话压缩持久化（CAS MVCC + 备份 + 五维归档导出）+ 确定性回退 + 熔断降级 + **三层 tool_call 配对完整性防护**（ToolCallGroups 精确 ID 匹配 + IntegrityGuard 压缩后校验 + DanglingToolCallMiddleware LLM 调用前最终兜底——压缩永不破坏工具调用配对，98 项配对完整性测试）+ **Human Anchor 架构保证**（correct-by-construction 保护用户首条意图，竞品需 ~120 行运行时检查器）+ **7 层超大输出纵深防护**（vault spill → auto-vault → 结构感知裁剪 → stream recovery → preflight guard → hook spiller → bash spill——完整数据保留，竞品丢弃原数据，127 项测试）+ **上下文健康环**（实时Token用量环形指示器 + 一键压缩 + ≥75%用量自动显示Fork建议 + 策略详情面板——竞品无此能力）（986+ 上下文管线测试 + 209 Goal 守卫链测试 = 1,195+ 项测试） | ⚠️ system_and_3（4 断点）+ 8 层固定栈 + 单层 ContextCompressor（内存态，无 DB 持久化）+ 运行时 `_is_real_user_message` 检查（新增合成消息类型时有绕过风险）+ 强防误导 Prompt（但无 XML 边界和 U-curve 布局） | LCM | LCM | ⚠️ 空闲压缩 + 双缓存 | ⚠️ Worker 隔离 | ⚠️ 4 层栈 |
 | **智能并发路由** | ✅ 五层守卫（会话互斥+用户级+全局信号量+内存压力熔断+分层超时）+ O(1) 路径锁，92项并发测试通过 | ⚠️ 粗粒度写锁 + runtime-id 映射（双ID易出错） | ❌ 不安全 | ⚠️ 未知 | ❌ | ⚠️ 未知 | ❌ |
 | **无头无人值守** | ✅ 标签工具隔离（零死锁） | ⚠️ 易交互死锁 | ❌ 不支持 | ❌ | ❌ | ❌ | ❌ |
@@ -79,7 +86,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **本地文件"数据不出域"** | ✅ 天然支持 — Agent 在本地运行，所有文件原地处理 | ❌ 仅云端 | ⚠️ Docker | ⚠️ Docker | ❌ 云端 | ❌ | ❌ |
 | **定时任务** | ✅ 20+ GUI 组件 + 27 项配置能力 + 6 种触发器 + 3 种会话模式(Isolated/Main/Daily — Daily 自动注入同日执行历史用于趋势检测) + 指数退避重试 + 误火恢复 + Agent 绑定 + 结果投递 + Merkle 审计链 + 智能噪音过滤 + **按任务执行策略（能力围栏 + 工具范围）** + **5 层并发控制**（全局信号量 + 用户信号量 + skip_if_active + active_hours + stagger）+ **无内容跳过**（无事可报时零 token 消耗）（**985+ 项测试**） | ⚠️ CLI 基础 cron（无GUI/无重试/无恢复） | ✅ | ✅ | ❌ | ❌ | ❌ |
 | **统一工具网关 + 行为审计** | ✅ 四合一网关 + 弹性 BYOK 回退 + Bash 独立审计面板(12 字段) + 全工具 ExecutionTrace 时间线 + 会话回放 + OTel 全链路(**669 项测试**) | ⚠️ 硬切换（易出错） | ❌ N/A | ⚠️ 未知 | ❌ | ⚠️ 未知 | ❌ |
-| **OpenAI 兼容代理** | ✅ 双模（Agent+LLM）`/v1` 端点 + `/v1/models` 自动发现 + 4 策略密钥轮转 + **Passthrough 自动故障转移**（429/5xx 秒级跨 Key 重试，用户零感知）+ Aider/Cline/Continue GUI 配置模板（74 项测试） | ⚠️ `/v1/chat/completions`（仅 Agent，无 LLM 直通，无模型发现） | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **OpenAI 兼容代理** | ✅ 双模（Agent+LLM）`/v1` 端点 + `/v1/models` 自动发现 + 4 策略密钥轮转 + **Passthrough 自动故障转移**（429/5xx 秒级跨 Key 重试，用户零感知）+ **ComboRouter Passthrough**（Priority/RoundRobin/Random 多供应商路由）+ 9 工具 GUI 配置模板（Codex/Claude Code/Cursor/Aider/Cline/Continue/OpenCode/Goose/Qwen Code）（74 项测试） | ⚠️ `/v1/chat/completions`（仅 Agent，无 LLM 直通，无模型发现） | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **语音** | ✅ 3 种模式（标准/Bridge/Realtime）+ 10 提供商（5 TTS + 5 STT 含免费 Edge TTS 与 Local Whisper）+ Discord 唤醒词 + 打断检测 + Vision 融合 — **1,176 项测试** | ⚠️ Discord 语音 | WebRTC + iOS 原生唤醒 | ⚠️ 基础 | ❌ | ❌ | ❌ |
 | **多模态生成** | ✅ 图片（20+ 模型 + 智能 Failover + Gateway 回退 + 图片编辑含 Inpainting 局部重绘 + 4 层校验含 SSRF 防护 + 批量生成 + **异步生图：即时 task_id + 聊天气泡 ImageTaskCard + SSE 进度，生图时继续对话；API Key 与 Gateway Token 写入任务队列前 AES 加密，云沙箱 tasks.db 无明文密钥**，370+ 项测试）+ 视频（4 引擎：Sora/Veo/Qwen/MiniMax + T2V/I2V/V2V + 幂等任务管理）+ TTS（5 Provider 含免费 Edge + 流式 + 长文本自动摘要 + OpenAI 兼容 base_url）+ 截图即操作管线（粘贴/拖放 → 标注编辑器 → OCR/Vision → 工具调用闭环）+ Vision 自动降级 + **创意设计全覆盖**：沙箱内 ffmpeg 视频剪辑 / Pillow+ImageMagick 批量图片处理 + computer_use 智能操控 Adobe PS/AI/InDesign（AppleScript/COM 自动路由）+ Figma MCP 接入——AI 原生引擎比专用 PS 插件更可靠（Adobe 版本更新常破坏 API）— **401 项多媒体全栈测试全通过** — 总计 1,293+ 项测试 | ⚠️ FAL.ai 图片（7 编辑模型，同步阻塞，无 mask/无 SSRF/无 failover）+ 2 视频插件 + 10 TTS（含 5 个 niche 本地方案） | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Computer Use** | ✅ 桌面自动化 + 三平台后台静默输入（不抢焦点）+ 前台权限主动授权门控（三级粒度 once/session/always）+ BBox 审批 + Tauri OS 叠加层 + 敏感应用防火墙（银行/通信自动阻断）+ 原生 API 智能路由（95+ 应用：AppleScript/COM/D-Bus 自动检测，零配方零依赖）+ 三平台完整语义 AX invoke（macOS AX/Windows UIA/Linux AT-SPI）+ 跨平台环境诊断卡片（macOS TCC + Linux 依赖+xvfb + Windows 依赖 — GUI 一键修复）+ VNC 安全 Token 签名（HMAC+TTL 防重放）+ Takeover/Resume 全生命周期人工接管 — **454 项 VNC+ArtifactPortal 专项测试全通过** + 办公文件三层覆盖（ExcelParser 4模式直读 + python-pptx/docx 原生生成 + 17渠道 Bot API 直发文件附件，「读Excel→生成PPT→发企微群」零 GUI 操控）— **519 项办公+通讯全栈测试全通过** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -1203,7 +1210,7 @@ Codex 近期发布两大旗舰功能：**Appshots**（⌘⌘ 窗口捕获 + 文�
 
 | 维度 | 360 LobsterAI | Myrm |
 |-----------|--------------|------|
-| Preset agents | 100+ (quantity) | 24 high-quality presets + 10 YAML templates + unlimited custom + Org Marketplace |
+| Preset agents | 100+ (quantity) | 27 high-quality presets + 10 YAML templates + unlimited custom + Org Marketplace |
 | Template depth | System prompt only | System prompt + tools + skills + model + security overrides |
 | Customization | Limited editing | Full GUI editor + clone + import/export + version snapshots |
 | Onboarding | Q&A "coaching" wizard | PresetAgent Gallery + conversational creation + per-agent suggestion prompts |
