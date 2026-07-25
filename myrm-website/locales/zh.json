@@ -497,7 +497,7 @@
           "feature": "多账号凭证池 · 告别 API 限流焦虑",
           "hermes": "4 种策略，CLI 管理，无退避/抖动",
           "openclaw": "单账号",
-          "myrmAgent": "4 种轮换策略 + GUI 策略选择器（按 Provider 选择：轮询/优先填充/最少使用/随机）+ 指数退避 ±15% 抖动 + GUI 多密钥管理 + 自动健康探针 + Retry-After 解析 + **Passthrough 自动故障转移**（429/5xx 触发秒级换 Key 重试，最多 3 次跨 Key 重试——用户零感知）+ **ComboRouter** 7 策略多 Provider 路由链（优先级/成本优化/轮询/随机/LKGP 粘性/上下文亲和/配额余量，Pydantic 类型安全）+ 104 项测试验证"
+          "myrmAgent": "4 种轮换策略 + GUI 策略选择器（按 Provider 选择：轮询/优先填充/最少使用/随机）+ 指数退避 ±15% 抖动 + GUI 多密钥管理 + 自动健康探针 + Retry-After 解析 + **Passthrough 自动故障转移**（429/5xx + 空响应 Soft Failover——200 OK 但空内容自动切换下一个 Provider 重试；finish_reason 真实透传 length/content_filter/refusal 状态，CLI 工具精确感知截断/过滤）+ **ComboRouter** 7 策略多 Provider 路由链（优先级/成本优化/轮询/随机/LKGP 粘性/上下文亲和/配额余量，Pydantic 类型安全）+ **Vision Bridge** 守卫（目标模型不支持视觉时自动图转文描述，fail-open 设计，GUI 开关）+ **Passthrough SSRF 守卫**（部署模式感知：本地允许 loopback 兼容 Ollama/vLLM，云端阻断私网）+ 双模认证（SHA-256 哈希 + 开放代理模式）+ 152 项测试验证"
         },
         "directRouting": {
           "feature": "纯本地直连 (Direct Routing) · 绝对隐私与极低内存",
@@ -1327,11 +1327,11 @@
         "tokenSmart": {
           "label": "Token 更省",
           "title": "同样 API 预算，做更多事",
-          "desc": "按需加载技能减少固定提示词开销，同时端到端首字响应（TTFT）可观测，启动变慢可在用户感知前被发现。",
+          "desc": "12 步渐进降载流水线自动管理对话上下文：按需加载技能减少固定开销；四层动态阈值智能触发压缩；压缩后自动恢复活动文件上下文和任务状态——长对话永不崩溃，任务交接零信息丢失。",
           "stat": "94%",
           "statLabel": "技能加载 Token 节省",
-          "tag1": "会话分析内置 TTFT 实时指标",
-          "tag2": "CLI 探测缓存后台稳态",
+          "tag1": "12 步渐进降载 · 对话永不崩溃",
+          "tag2": "压缩后自动恢复活动文件和任务状态",
           "tag3": "同预算约 7× 任务量"
         }
       }

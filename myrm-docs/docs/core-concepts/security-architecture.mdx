@@ -218,7 +218,8 @@ DNS Pinning prevents agents from being tricked into accessing internal networks 
 - **Parser-confusing character defense**: Tab, newline, and backslash in URLs are blocked to prevent hostname extraction divergence between parsers (CVE-class SSRF bypass prevention)
 - **Internal hostname suffix blocking**: `.local`, `.svc`, `.cluster.local`, `.home.arpa` suffixes are blocked to prevent mDNS and Kubernetes internal network access
 - **Audit trail**: Blocked requests emit `SSRF_BLOCKED` security decisions for SIEM and frontend audit views
-- **461 dedicated SSRF tests**: Coverage across core guards, agent security, browser navigation, DNS pinning, media validation, A2A resolver, web fetch, SessionVault, and permission engine
+- **Passthrough path protection**: The LLM passthrough proxy (`/v1/chat/completions`) validates user-configured Provider apiUrl for SSRF safety — deploy-mode-aware: local mode allows loopback hosts (Ollama/vLLM), cloud/sandbox mode blocks private networks and cloud metadata endpoints
+- **461+ dedicated SSRF tests**: Coverage across core guards, agent security, browser navigation, DNS pinning, media validation, A2A resolver, web fetch, SessionVault, permission engine, and Passthrough SSRF integration
 
 ### Malicious URL Architectural Immunity
 

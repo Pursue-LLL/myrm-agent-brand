@@ -497,7 +497,7 @@
           "feature": "Credential Pooling · End API Rate Limits",
           "hermes": "4 strategies, CLI management, no backoff/jitter",
           "openclaw": "Single account",
-          "myrmAgent": "4 rotation strategies + GUI strategy selector (pick per-provider: Round Robin / Fill First / Least Used / Random) + exponential backoff with ±15% jitter + GUI multi-key management + auto health probe + Retry-After parsing + **Passthrough auto-failover** (429/5xx triggers instant key rotation, up to 3 cross-key retries — zero user interruption) + **ComboRouter** 7-strategy multi-provider chain (Priority/CostOpt/RoundRobin/Random/LKGP/ContextRelay/Headroom, Pydantic type-safe) + 104 tests verified"
+          "myrmAgent": "4 rotation strategies + GUI strategy selector (pick per-provider: Round Robin / Fill First / Least Used / Random) + exponential backoff with ±15% jitter + GUI multi-key management + auto health probe + Retry-After parsing + **Passthrough auto-failover** (429/5xx + empty response soft failover — 200 OK with empty content auto-retries next provider; finish_reason passthrough preserves length/content_filter/refusal signals for CLI tools) + **ComboRouter** 7-strategy multi-provider chain (Priority/CostOpt/RoundRobin/Random/LKGP/ContextRelay/Headroom, Pydantic type-safe) + **Vision Bridge** guardrail (auto-describes images when target model lacks vision, fail-open design, GUI toggle) + **Passthrough SSRF Guard** (deploy-mode-aware: Local allows loopback for Ollama/vLLM, Cloud blocks private networks) + dual-mode auth (SHA-256 + open proxy mode) + 152 tests verified"
         },
         "directRouting": {
           "feature": "Local Direct Routing · Absolute Privacy & Low RAM",
@@ -1327,11 +1327,11 @@
         "tokenSmart": {
           "label": "Token smart",
           "title": "More work on the same API budget",
-          "desc": "On-demand skill loading cuts fixed prompt overhead, while end-to-end first-reply telemetry (TTFT) catches startup slowdowns before users feel them.",
+          "desc": "A 12-step progressive offloading pipeline auto-manages context: on-demand skill loading cuts fixed overhead; four-tier dynamic thresholds trigger smart compression; post-compaction reread restores active files and task state — long conversations never crash, handoffs lose zero context.",
           "stat": "94%",
           "statLabel": "skill loading token savings",
-          "tag1": "Live TTFT in session analytics",
-          "tag2": "Background-safe CLI detection cache",
+          "tag1": "12-step progressive offloading pipeline",
+          "tag2": "Auto-restore active files & task state after compaction",
           "tag3": "7× task volume on same budget"
         }
       }
