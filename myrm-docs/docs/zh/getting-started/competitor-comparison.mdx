@@ -149,7 +149,7 @@ OpenClacky 主打低成本本地 AI Agent，宣称 Token 约为 Hermes 的 1/6�
 | 领域 | OpenClacky | Myrm | 用户收益 |
 |------|-----------|------|-------------|
 | Tool Architecture | 16 core + invoke_skill (2-tier) | **3-tier (CORE/COMMON/EXTENDED)** + ASCS cognitive load scoring + **Dynamic Schema Weaver** | Scientifically optimized, dynamic tool pruning prevents hallucinations |
-| Idle Pipeline | Single-purpose message compression (Thread) | **3 parallel tasks** (memory consolidation + evidence mining + cache preheating) + MaintenanceScheduler + crash-resilient registry | Idle time does 3x more work |
+| Idle Pipeline | Single-purpose message compression (Thread) | **3 parallel tasks** (memory consolidation + evidence mining + cache preheating) + **CacheKeepAliveManager** (4分钟探测间隔, 活跃时自动暂停) + MaintenanceScheduler + crash-resilient registry | 空闲时完成3倍工作 + 缓存永不过期 |
 | Compression | LLM-based summarization (each compression costs LLM tokens) | **Rule engine 3-tier (Dedup/Truncate/Remove)** — zero LLM cost + Cold Cache Drain + Anti-Thrashing | No extra LLM calls for compression |
 | Cache Strategy | Fixed last-2-message marking | **Multi-breakpoint** (system + 15-block protection + compression boundary + last message) + TTL strategy + 20-block window protection + token distance validation | More precise, provider-aware caching |
 | Model Routing | Simple main/sub-task model split | **4-layer routing** (ComplexityRouter + PrivacyRouter + FallbackManager + KeyPool) | Comprehensive cost + privacy + reliability routing |
@@ -165,7 +165,7 @@ OpenClacky 主打低成本本地 AI Agent，宣称 Token 约为 Hermes 的 1/6�
 
 **缓存智能**：OpenClacky 双缓存标记是静态模式（始终标记最后 2 条消息）。Myrm 的 ExplicitCacheProcessor 根据内容块、token 距离与压缩边界动态计算断点，并带完整校验流水线。
 
-**空闲利用**：OpenClacky 空闲定时器仅压缩消息。Myrm 空闲流水线并行 3 项：认知记忆整合、会话证据挖掘（从失败中学习）、前缀缓存预热 — 由容量感知调度器协调，带熔断保护。
+**空闲利用**：OpenClacky 空闲定时器仅压缩消息。Myrm 空闲流水线并行 3 项：认知记忆整合、会话证据挖掘（从失败中学习）、前缀缓存预热 — 由容量感知调度器协调，带熔断保护。此外，`CacheKeepAliveManager` 每 4 分钟发送轻量 probe，防止 Anthropic/Qwen 5 分钟缓存 TTL 过期，确保用户暂停后继续对话时 TTFT 一致（0.5-1s vs 冷启动 2-5s）。
 
 ### 从 OpenClacky 迁移到 Myrm
 

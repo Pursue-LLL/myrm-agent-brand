@@ -151,14 +151,15 @@ Prompt caching reduces input token costs by up to 90% when cache hits occur.
 4. **Only-Append Policy** — History messages are never modified in-place, preserving prefix stability
 5. **Cache-Safe Skill Attenuation** — After loading a skill, tool access is narrowed via `tool_choice.allowed_tools`; the bound tool schema list stays frozen so Prefix Cache is not invalidated mid-session
 
-### Cache Preheat (Zero Cold-Start)
+### Cache Preheat & Idle KeepAlive (Zero Cold-Start)
 
-Myrm automatically pre-warms the Anthropic/Qwen server-side prefix cache at two key moments:
+Myrm automatically pre-warms the Anthropic/Qwen server-side prefix cache at three key moments:
 
 1. **Agent initialization** — Right after the system prompt is built, a fire-and-forget `max_tokens=0` request seeds the cache while the user is still typing. The first real message hits a warm cache, reducing TTFT by up to 52%.
-2. **Idle compression** — After context compaction rewrites the message list, the new prefix is immediately preheated to avoid a cache miss on the next message.
+2. **Post-compaction** — After context compaction rewrites the message list, the new prefix is immediately preheated to avoid a cache miss on the next message.
+3. **Idle keep-alive** — When the agent is idle for more than 4 minutes, a background `CacheKeepAliveManager` sends lightweight probes (10 input tokens, 0 output) every 4 minutes to prevent the provider's 5-minute TTL from evicting the prefix cache. This ensures consistent 0.5-1s TTFT when users resume after thinking breaks, instead of 2-5s cold restarts. Cost: ~$0.09/day/session. The manager automatically pauses during active conversations and correctly replaces itself during LLM failover.
 
-This is an exclusive capability — no competing framework implements prompt cache pre-warming.
+This is an exclusive capability — no competing framework implements prompt cache pre-warming or idle keep-alive.
 
 ### Protection Features
 

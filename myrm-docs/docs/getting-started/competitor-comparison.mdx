@@ -149,7 +149,7 @@ OpenClacky markets itself as a cost-efficient local AI agent, claiming 1/6 the t
 | Area | OpenClacky | Myrm | User Benefit |
 |------|-----------|------|-------------|
 | Tool Architecture | 16 core + invoke_skill (2-tier) | **3-tier (CORE/COMMON/EXTENDED)** + ASCS cognitive load scoring + **Dynamic Schema Weaver** | Scientifically optimized, dynamic tool pruning prevents hallucinations |
-| Idle Pipeline | Single-purpose message compression (Thread) | **3 parallel tasks** (memory consolidation + evidence mining + cache preheating) + MaintenanceScheduler + crash-resilient registry | Idle time does 3x more work |
+| Idle Pipeline | Single-purpose message compression (Thread) | **3 parallel tasks** (memory consolidation + evidence mining + cache preheating) + **CacheKeepAliveManager** (4-min probe interval, auto-pause during active use) + MaintenanceScheduler + crash-resilient registry | Idle time does 3x more work + cache never expires |
 | Compression | LLM-based summarization (each compression costs LLM tokens) | **Rule engine 3-tier (Dedup/Truncate/Remove)** — zero LLM cost + Cold Cache Drain + Anti-Thrashing | No extra LLM calls for compression |
 | Cache Strategy | Fixed last-2-message marking | **Multi-breakpoint** (system + 15-block protection + compression boundary + last message) + TTL strategy + 20-block window protection + token distance validation | More precise, provider-aware caching |
 | Model Routing | Simple main/sub-task model split | **4-layer routing** (ComplexityRouter + PrivacyRouter + FallbackManager + KeyPool) | Comprehensive cost + privacy + reliability routing |
@@ -165,7 +165,7 @@ OpenClacky markets itself as a cost-efficient local AI agent, claiming 1/6 the t
 
 **Cache intelligence**: OpenClacky's dual cache marking is a static pattern (always mark last 2 messages). Myrm's ExplicitCacheProcessor dynamically calculates breakpoints based on content blocks, token distances, and compression boundaries, with full validation pipeline.
 
-**Idle utilization**: OpenClacky's idle timer only compresses messages. Myrm's idle pipeline runs 3 tasks: cognitive memory consolidation, session evidence extraction (learning from failures), and prefix cache preheating — all coordinated by a capacity-aware scheduler with circuit breaker protection.
+**Idle utilization**: OpenClacky's idle timer only compresses messages. Myrm's idle pipeline runs 3 tasks: cognitive memory consolidation, session evidence extraction (learning from failures), and prefix cache preheating — all coordinated by a capacity-aware scheduler with circuit breaker protection. Additionally, `CacheKeepAliveManager` sends lightweight probes every 4 minutes during idle to prevent the Anthropic/Qwen 5-minute cache TTL from expiring, ensuring consistent TTFT when users resume (0.5-1s vs 2-5s cold restart).
 
 ### Migration from OpenClacky to Myrm
 
