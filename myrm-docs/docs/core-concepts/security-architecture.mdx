@@ -283,6 +283,14 @@ Findings are presented in the `ScanConfirmDialog` with severity badges. Users ca
 
 When MCP tools install dependencies, the OSV (Open Source Vulnerability) API is consulted in real-time to detect known malicious packages.
 
+### Dynamic Tool Change Safety
+
+When an MCP server adds or removes tools at runtime (via `tools/list_changed` notifications), Myrm ensures security without interrupting your workflow:
+
+- **Automatic security vetting** — Newly added tools are evaluated against the same 13-threat security scan applied at configuration time. If a tool fails the check, it is rejected and a warning is logged — no unsafe tool is ever silently activated
+- **Prompt cache preservation** — The agent's prompt-facing tool list is frozen; dynamic changes only update the internal execution layer. This guarantees prompt prefix cache hits are never invalidated by external MCP server behavior
+- **Zero user interruption** — Unlike CLI-based competitors that require manual `/reload` confirmation, Myrm handles tool changes transparently. Users are never interrupted with confirmation dialogs for events they cannot meaningfully evaluate
+
 ### Per-Agent Tool Filtering
 
 Different agents can enable different MCP tools from the same server — a "Code Reviewer" agent sees only read-only tools, while a "DevOps" agent sees all. Tools with `destructiveHint` annotations are disabled by default in the safe set.
@@ -672,6 +680,23 @@ When the Transcript Classifier recommends DENY, Myrm does **not** silently rejec
 This prevents "false positive lockout" where the AI reviewer misclassifies a legitimate action, while maintaining full audit visibility.
 
 **vs competitors:** Hermes offers `smart_denied_for_owner` with CLI-only `once`/`deny` buttons but no visual reason display, no audit logging, and no layered hard-deny for taint/outbound paths.
+
+### High-Risk Scenario: Always Allow Hidden
+
+In 6 high-risk scenarios, the "Always Allow" button is automatically hidden from the approval card — users can only approve once or reject. This prevents accidental permanent bypass of security checks for dangerous operations:
+
+| Trigger | Why Always Allow Is Hidden |
+|---------|---------------------------|
+| **Taint Escalation** | Session contains external network data — permanent allow would bypass all future taint checks |
+| **Outbound UNCERTAIN** | AI reviewer uncertain about outbound delegation safety |
+| **Shell Escalation UNCERTAIN** | Non-safe shell command under AI review uncertainty |
+| **LLM Review UNCERTAIN** | General AI reviewer uncertainty about any tool call |
+| **Auto Mode Suspended** | Consecutive denial threshold breached — system reverted to HITL |
+| **Shell Threat Detected** | ShellCommandAnalyzer flagged a threat pattern |
+
+Normal, low-risk approvals still show "Always Allow" as usual. Users experience zero friction change for safe operations.
+
+**vs competitors:** Hermes hides permanent allow only for `tirith` content-security warnings (1 trigger). OpenClaw controls via backend `allowedDecisions` array with an "Always Allow Unavailable" warning message. Myrm covers 6 trigger scenarios — the most comprehensive in the industry.
 
 ## Command Denylist (User-Defined Hard Floor)
 
