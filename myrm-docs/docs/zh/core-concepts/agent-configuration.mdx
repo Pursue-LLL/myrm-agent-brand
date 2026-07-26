@@ -181,7 +181,7 @@ Agent 配置面板提供进度模式（默认关闭，不占 Turn1 Token）：
 | **职责声明** | `system_prompt`、`display_name`、`description` | 明确 Agent 做什么、不做什么 |
 | **工具访问** | 4 层隔离：类型准入 → 全局黑名单 → per-config 白/黑名单 → 父级约束 | 子 Agent 永远无法超越父级工具集 |
 | **数据域** | `workspace_policy`（3 级）+ `memory_isolation`（3 级） | 控制每个 Agent 可访问的文件和记忆 |
-| **模型策略** | `model_selection` 三级解析链（配置 → 模型 → 父级兜底） | 按 Agent 分配模型，含安全兜底 |
+| **模型策略** | `model_selection` 三级解析链（配置 → 模型 → 父级兜底） | 按 Agent 分配模型，含安全兜底。工具栏临时切换为**内存 Sticky**（不自动写入 DB）；刷新回退到已保存配置；显式点击配置面板 **Update** 才持久化。 |
 | **资源预算** | `budget_tokens` + `max_cost_usd` + `max_children` + `max_descendants` | 4 维预算守卫 + 渐进响应 |
 | **编排角色** | `delegation_role`（LEAF/ORCHESTRATOR）+ `max_spawn_depth` | 控制委派层级深度 |
 | **上下文隔离** | `context_mode`（isolated/fork）+ `max_fork_tokens` | 防止 Agent 间上下文泄露 |
