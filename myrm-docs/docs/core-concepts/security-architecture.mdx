@@ -544,6 +544,32 @@ Every security decision is recorded in a structured audit log with Prometheus re
 - `LOOP_DETECTED` / `CANCELLED`
 - `COMPRESSION_TRIGGERED` / `CHECKPOINT_CREATED`
 
+## Profile Audit Engine
+
+The **Profile Audit Engine** provides real-time configuration risk assessment for every Agent profile. When you open the Security tab in Agent settings, a **Health Score Card** instantly shows your agent's security posture:
+
+- **Score**: 0–100 (higher = safer), deducted per finding severity
+- **Risk Level**: Safe / Low / Medium / High / Critical
+- **Findings**: Sorted by severity (Critical first), with colored indicators and actionable recommendations
+
+### Six Detection Dimensions
+
+| Checker | Detects |
+|---------|---------|
+| **Tool Exposure** | Dangerous built-in tool combinations (e.g., shell + file_write + MCP) |
+| **MCP Auth** | MCP servers without authentication or with insecure transport |
+| **Skill Aggregate** | Skills flagged as untrusted or rejected during import scanning |
+| **Subagent Risk** | Multi-level delegation chains creating unauditable privilege paths |
+| **Cron Risk** | Unattended scheduled tasks with high-privilege tools |
+| **Policy Gap** | Missing security controls relative to enabled capabilities |
+
+### Design
+
+- **Zero LLM**: Pure deterministic rule engine — no token cost, instant response
+- **Plugin architecture**: Each checker implements `BaseChecker` and can be extended independently
+- **Auto-refresh**: Results update automatically when you save Agent configuration changes
+- **Framework-level**: Available to any project using the harness engine, not just the product UI
+
 ## Workspace Rules Security
 
 Myrm automatically discovers and loads project-level rule files from **17 discovery points** (13 root-level filenames + 4 subdirectory patterns), covering all major AI tool ecosystems:
