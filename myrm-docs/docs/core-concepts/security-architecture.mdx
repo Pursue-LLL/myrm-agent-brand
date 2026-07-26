@@ -609,6 +609,20 @@ Fail-safe guarantees:
 - Pydantic-enforced structured output (no free-text manipulation)
 - Taint labels injected for context-aware judgment
 
+## Memory Write Trust Isolation
+
+All memory writes pass through a unified security pipeline — even those triggered internally by the AI:
+
+| Guard | What It Prevents |
+|-------|-----------------|
+| **Approval Queue** | Implicit preferences extracted by Cognitive Deriver go through the standard approval queue (no bypass). External content cannot silently pollute your Profile |
+| **Security Scan** | Every memory write runs through `scan_and_clean_memory` with injection detection (CLEAN/WARN/REDACTED/BLOCKED) |
+| **Preference Stability** | Multi-observation lifecycle (Candidate → Provisional → Active) ensures only validated preferences reach your Profile — single-conversation flukes are filtered out |
+| **AGENT_SELF Priority Ceiling** | Agent self-generated procedural rules are capped at HIGH priority — they cannot claim CRITICAL (compression-immune) slots, preventing prompt inflation |
+| **Profile Promotion** | Core preferences (communication style, cognitive depth, proactivity) promote to Profile only after stability validation, via `set_system_profile_attribute` with security scanning |
+
+No competitor implements memory write trust isolation — most agents write extracted preferences directly to the user profile without approval, validation, or priority guardrails.
+
 ## Security Profiles: One-Click Safety Modes
 
 MyRM provides three built-in security profiles that users can switch between from the Settings UI:

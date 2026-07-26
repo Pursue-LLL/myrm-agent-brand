@@ -30,8 +30,9 @@ When a conversation ends, the **Cognitive Deriver** runs in the background with 
 2. Extracts implicit preferences across unlimited dimensions (communication style, cognitive depth, proactivity, coding paradigm, etc.)
 3. Applies a 0.8 confidence threshold — only high-certainty insights are stored
 4. Resolves conflicts via change_kind semantics (support/contradict/supersede/constrain)
-5. Dual-writes to both vector store (SemanticMemory) and knowledge graph (Claim nodes)
-6. Core preferences (reply_style, cognitive_depth, proactivity) auto-inject into the system prompt via ProfileEntry
+5. Securely writes to vector store (SemanticMemory) through the standard approval queue + security scanning — external content cannot bypass defenses
+6. Core preferences go through **PreferenceStabilityStrategy** multi-observation validation (Candidate → Provisional → Active) before safe promotion to ProfileEntry, auto-injected into the system prompt
+7. Agent self-generated rules (AGENT_SELF) have a hard priority ceiling of HIGH, preventing them from claiming compression-immune slots
 
 Unlike Honcho's cloud-dependent approach requiring a third-party API key, Myrm's implementation is fully local, privacy-safe, and works offline. The system only notifies users on disruptive changes (contradict/supersede) — normal preference accumulation is completely silent.
 
@@ -222,7 +223,7 @@ Long-running agents accumulate thousands of memories that inevitably fragment �
 | **Pattern Discovery** | Surfaces cross-cycle behavioral insights | Weekly analysis with actionable suggestions |
 | **Preference Stability** | Category-aware evidence lifecycle management | 6 categories × independent half-lives |
 
-**Result**: Memory index stays pure, fast, and always relevant — no manual cleanup needed. Verified with 314 automated tests covering all strategies.
+**Result**: Memory index stays pure, fast, and always relevant — no manual cleanup needed. Verified with 446 automated tests covering all strategies.
 
 ## Cross-Session Consolidation & Autonomous Maintenance
 

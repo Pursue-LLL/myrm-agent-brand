@@ -30,8 +30,9 @@ Myrm 记忆系统是 Agentic Memory Operations（AMO）范式最完整的实现�
 2. 提取无限维度的隐式偏好（沟通风格、认知深度、主动性、编码范式等）
 3. 0.8 置信度阈值 — 仅存储高确定性洞察
 4. 通过 change_kind 语义解决冲突（support/contradict/supersede/constrain）
-5. 双写向量库（SemanticMemory）和知识图谱（Claim 节点）
-6. 核心偏好（reply_style/cognitive_depth/proactivity）通过 ProfileEntry 自动注入 system prompt
+5. 安全写入向量库（SemanticMemory）— 走标准审批队列 + 安全扫描，外部内容无法绕过防护
+6. 核心偏好经 **PreferenceStabilityStrategy** 多轮观测验证（Candidate → Provisional → Active）后安全晋升至 ProfileEntry，自动注入 system prompt
+7. Agent 自生成规则（AGENT_SELF）强制优先级上限为 HIGH，防止占据免压缩位
 
 与 Honcho 依赖第三方云 API 不同，Myrm 完全本地运行、隐私安全、支持离线。仅在颠覆性变化（contradict/supersede）时通知用户 — 常规偏好积累完全静默。
 
@@ -222,7 +223,7 @@ Mem0 2026 基准将「记忆陈旧」列为最难开放问题——高频但过�
 | **模式发现** | 挖掘跨周期行为洞察 | 每周分析+可执行建议 |
 | **偏好稳定** | 类别感知的证据生命周期管理 | 6个类别×独立半衰期 |
 
-**效果**：记忆索引始终纯净、极速、永不过载 — 无需手动清理。经 314 项自动化测试验证覆盖所有策略。
+**效果**：记忆索引始终纯净、极速、永不过载 — 无需手动清理。经 446 项自动化测试验证覆盖所有策略。
 
 ## 跨会话巩固与自主维护
 
