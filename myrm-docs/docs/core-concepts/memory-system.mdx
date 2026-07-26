@@ -135,7 +135,7 @@ Myrm invented the **No-Op Default (Strict Precision)** paradigm:
 
 Retrieving outdated information (like a file path from a month ago) causes naive Agents to blindly use broken context and fail repeatedly.
 
-Myrm's memory retriever injects `[Created: YYYY-MM-DD]` timestamps into every loaded episodic/semantic memory. Furthermore, if the system detects sensitive time-decaying assets (like code paths), it dynamically prepends a `[CRITICAL WARNING]` instructing the LLM: *"This path may be outdated. You MUST use Read/Grep tools to verify its existence before making code assumptions."* This effectively immunizes the Agent against RAG-induced code hallucinations.
+Myrm's memory retriever injects human-readable age labels (e.g., "today", "3 days ago", "2 months ago") and relevance scores into every loaded episodic/semantic memory. The age reflects the most recent modification — if a memory was updated yesterday, it shows "yesterday" regardless of creation date. Furthermore, if the system detects sensitive time-decaying assets (like code paths), it dynamically prepends a `[CRITICAL WARNING]` instructing the LLM: *"This path may be outdated. You MUST use Read/Grep tools to verify its existence before making code assumptions."* This effectively immunizes the Agent against RAG-induced code hallucinations.
 
 Additional enhancements: 6 result boosters (keyword overlap, temporal proximity, person name, quoted phrase, preference, pattern matching), MMR diversity reranking with source-session deduplication, correction-chain suppression (outdated corrected memories auto-demoted 90%), and adaptive dual-channel selection saving ~35% query cost.
 

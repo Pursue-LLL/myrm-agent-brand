@@ -322,9 +322,9 @@ An AI classifier (`TranscriptClassifier`) reviews tool calls to verify they alig
 
 ### Risk Governance System
 
-A complete input-side risk detection and governance framework with built-in rules, custom rule management, and full-stack event handling.
+A complete bidirectional risk detection and governance framework with built-in rules, custom rule management, and full-stack event handling. The same rule engine protects **both** WebUI input and IM channel inbound messages — no blind spots.
 
-**31 Built-in Rules** across 6 categories detect sensitive data before it reaches the LLM:
+**31 Built-in Rules** across 7 categories detect sensitive data before it reaches the LLM:
 
 | Category | Examples | Count |
 |----------|---------|-------|
@@ -334,6 +334,8 @@ A complete input-side risk detection and governance framework with built-in rule
 | **Customer** | Customer IDs, order numbers, support ticket numbers | 4 |
 | **Finance & Legal** | Bank accounts, credit cards, tax IDs, contract numbers | 4 |
 | **Political** | Politically sensitive content patterns | 3 |
+
+**Symmetric Inbound/Outbound Gate**: IM channel messages pass through `RiskDetectionService.detect()` at the router level before reaching the Agent. Blocked messages receive a localized notification (6 languages) and are audit-logged. Outbound agent responses pass through the same engine via `_apply_outbound_risk_gate` — forming a closed-loop defense.
 
 **GUI Rule Management**: Full CRUD via WebUI settings panel — create custom rules with regex patterns, toggle rules on/off, batch operations, and rule testing before deployment. No code required.
 
