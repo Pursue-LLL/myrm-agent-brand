@@ -287,3 +287,39 @@ When tool outputs exceed the context window budget (e.g., a 200KB JSON response,
 **Full data preservation**: Unlike competitors that replace oversized outputs with brief instructions (losing original data) or apply simple character truncation, Myrm's vault mechanism retains 100% of the original content. The Agent can retrieve any portion via `file_read_tool(paths=["vault://..."], line_range="100:200")`.
 
 **vs. competitors**: nanobot uses a single-layer "in-flight context governor" that replaces tool output with a bounded instruction — the original data is lost. OpenClaw uses 2-layer truncation (per-result + aggregate budget) with file spill — functional but lacks vault protocol and frontend visualization. Myrm's 7-layer approach ensures every tool pathway (MCP, bash, browser, subagent, hooks) has dedicated protection with independent fallback chains.
+
+## Zero-Config Compression & Model Hot-Switch
+
+Switching models or adjusting context parameters takes effect on the next message — no restart, no `/reset`, no YAML editing.
+
+### How It Works
+
+1. **DB-backed config**: All model/compression settings are stored in the database via GUI Settings. Changes persist immediately.
+2. **Per-message fingerprint**: `compute_execution_fingerprint()` hashes 30+ agent parameters (model, provider, engine_params, prompt_mode, skills, etc.). Every new message compares the current fingerprint against the cached one.
+3. **Auto rebuild**: If the fingerprint differs, `ChatAgentExecutionCache` tears down the old agent unit and builds a fresh one with updated config — transparent to the user.
+4. **Proportional threshold auto-calculation**: `ContextConfig(max_context_tokens=N)` automatically computes all compression thresholds as ratios of N:
+   - `compress_threshold` = 50% of N
+   - `compress_force_threshold` = 70% of N
+   - `summarize_trigger_threshold` = 90% of N
+   - Switch from GPT-4o (128K) to Claude Sonnet (200K) → all thresholds scale up automatically.
+5. **Auto context window discovery**: `enrich_model_context_window()` fetches the real `max_input_tokens` from the LiteLLM registry for 500+ models. No manual `context_length` config needed.
+6. **Auto summarizer model**: `summarizer_llm` defaults to `lite_model` (cheaper, faster) with automatic fallback to the main model if unavailable.
+7. **Circuit breaker protection**: Summarization failures trigger a circuit breaker with half-open probe recovery — no cascading errors.
+
+### Frontend Visualization
+
+- **Context Health Ring** (`ContextUsageIndicator`): real-time SVG ring showing token usage percentage, health status dot (green/amber/red), one-click manual compression button, and auto fork-CTA at ≥75% usage.
+- **Session Context Health Panel** (`SessionContextHealthPanel`): three-card layout with 20+ metrics covering compaction efficiency, pruning ROI, cache hit rates, and adaptive backoff status.
+
+### vs. Competitors
+
+| Aspect | Hermes | Myrm |
+|--------|--------|------|
+| Config changes | Edit `config.yaml` → next message rebuilds agent | GUI Settings → DB → per-message fingerprint → auto rebuild |
+| Compression params | 15+ manual YAML keys (`threshold`, `target_ratio`, `protect_last_n`, etc.) | Zero-config: proportional auto-calculation from `max_context_tokens` |
+| Context window | Manual `model.context_length` in YAML | Auto-fetched from LiteLLM registry (500+ models) |
+| Compression model | Manual `auxiliary.compression.model/provider` | Auto-selects `lite_model` with main-model fallback |
+| Visibility | CLI text progress bar (60% info / 85% warning) | GUI Health Ring + 3-card analytics panel + fork guidance |
+| Error handling | `hygiene_timeout_seconds` + cooldown | Circuit breaker with half-open auto-recovery |
+
+**409 hot-reload tests verified** (execution_cache 21 + context_management 312 + config/hot-reload 17 + frontend 59).

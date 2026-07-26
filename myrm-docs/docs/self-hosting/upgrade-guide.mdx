@@ -38,4 +38,8 @@ For Kubernetes deployments, set `terminationGracePeriodSeconds` to at least **15
 
 ## Breaking Changes
 
+### Port Binding Security Hardening
+
+All Docker Compose port mappings now bind to `127.0.0.1` (localhost only) by default. If you previously accessed Myrm from another device on your LAN (e.g. a phone or tablet), set `MYRM_BIND_HOST=0.0.0.0` in your `.env` file to restore LAN access.
+
 Check the [CHANGELOG](https://github.com/Pursue-LLL/myrm-agent/blob/main/CHANGELOG.md) for breaking changes before upgrading major versions.

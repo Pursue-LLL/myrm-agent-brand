@@ -290,3 +290,39 @@ Myrm 对后台辅助任务（如自动生成会话标题）的 Token 消耗进�
 
 *   **O(1) 截断与结构化剥离**：精准剥离代码块、URL 链接、HTML 标签等对生成标题毫无帮助的“高 Token 密度”结构，只保留核心自然语言。
 *   **0 Token 拦截机制**：如果经过降噪后文本为空（例如用户只发了一段代码），系统会直接触发本地兜底文案（如 `Snippet`），实现 **0 Token 消耗**，彻底避免无效的 API 调用。
+
+## 零配置压缩参数与模型热切换
+
+切换模型或调整上下文参数，下一条消息即时生效——无需重启、无需 `/reset`、无需编辑 YAML。
+
+### 工作原理
+
+1. **DB 配置持久化**：所有模型/压缩设置通过 GUI Settings 存储在数据库中，修改即刻持久化。
+2. **Per-message 指纹比对**：`compute_execution_fingerprint()` 对 30+ 参数（model、provider、engine_params、prompt_mode、skills 等）生成哈希。每条新消息都会比对当前指纹与缓存指纹。
+3. **自动重建**：指纹不匹配时，`ChatAgentExecutionCache` 自动 teardown 旧 agent unit → 构建新 unit——对用户完全透明。
+4. **比例阈值自动计算**：`ContextConfig(max_context_tokens=N)` 自动按 N 的比例计算所有压缩阈值：
+   - `compress_threshold` = N × 50%
+   - `compress_force_threshold` = N × 70%
+   - `summarize_trigger_threshold` = N × 90%
+   - 从 GPT-4o (128K) 切换到 Claude Sonnet (200K) → 所有阈值自动等比放大。
+5. **上下文窗口自动发现**：`enrich_model_context_window()` 从 LiteLLM registry 自动获取 500+ 模型的真实 `max_input_tokens`，无需手动配置 `context_length`。
+6. **压缩模型自动选择**：`summarizer_llm` 默认使用 `lite_model`（更便宜、更快），不可用时自动回退到主模型。
+7. **熔断器保护**：摘要失败触发熔断器 + half-open 探针自动恢复——无级联错误。
+
+### 前端可视化
+
+- **上下文健康环**（`ContextUsageIndicator`）：实时 SVG 环形指示器显示 Token 用量百分比、健康状态点（绿/黄/红）、一键手动压缩按钮、≥75% 用量自动显示 Fork 建议。
+- **会话上下文健康面板**（`SessionContextHealthPanel`）：三卡片布局展示 20+ 指标，涵盖压缩效率、修剪 ROI、缓存命中率、自适应退避状态。
+
+### vs. 竞品
+
+| 维度 | Hermes | Myrm |
+|------|--------|------|
+| 配置变更生效 | 编辑 `config.yaml` → 下一条消息重建 agent | GUI Settings → DB → per-message fingerprint → 自动重建 |
+| 压缩参数 | 15+ 手动 YAML 参数（`threshold`、`target_ratio`、`protect_last_n` 等） | 零配置：按 `max_context_tokens` 等比自动计算 |
+| 上下文窗口 | 手动设置 `model.context_length` | 从 LiteLLM registry 自动获取（500+ 模型） |
+| 压缩模型 | 手动配置 `auxiliary.compression.model/provider` | 自动选择 `lite_model` + 主模型回退 |
+| 可视化 | CLI 文本进度条（60% info / 85% warning） | GUI 健康环 + 三卡片分析面板 + Fork 引导 |
+| 错误处理 | `hygiene_timeout_seconds` + 冷却期 | 熔断器 + half-open 自动恢复 |
+
+**409 项热更新测试验证**（execution_cache 21 + context_management 312 + config/hot-reload 17 + 前端 59）。
