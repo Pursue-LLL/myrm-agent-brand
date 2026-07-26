@@ -261,10 +261,12 @@ Myrm's scheduler auto-recovers after unexpected restarts with a 3-phase startup 
 
 ## Security
 
+- **Fail-closed by default**: tasks without declared `required_capabilities` are denied shell/code/MCP execution with clear guidance
+- **Per-job capability fence**: each task independently declares required permissions (`shell_exec`, `file_write`, `mcp_invoke`, etc.) — declared capabilities are pre-approved, undeclared ones are denied
+- **BLOCK-level absolute denial**: destructive commands (`rm -rf /`, `sudo`, `DROP DATABASE`, etc.) are always rejected even within approved capabilities
 - **Prompt injection scanning** (12 patterns) before every execution
 - **ContextVar self-scheduling guard** prevents infinite task chains (cron job cannot create new cron jobs)
 - **Budget enforcement** blocks execution when daily budget is exceeded
-- **YOLO mode auto-enable** for unattended execution (no HITL blocking)
 - **ReDoS protection** on event trigger regex patterns
 - **SSRF protection** on webhook delivery URLs
 

@@ -259,10 +259,12 @@ Myrm 调度器在意外重启后三阶段自动恢复：
 
 ## 安全
 
+- **Fail-closed 默认安全**：未声明 `required_capabilities` 的任务，shell/代码执行/MCP 调用等危险操作一律拒绝并提供清晰引导
+- **Per-job 能力围栏**：每个任务独立声明所需权限（`shell_exec`、`file_write`、`mcp_invoke` 等），已声明能力自动预批准，未声明一律拒绝
+- **BLOCK 级绝对拦截**：`rm -rf /`、`sudo`、`DROP DATABASE` 等破坏性命令即使在已批准能力范围内也始终拒绝
 - 每次执行前**提示词注入扫描**（12 种模式）
 - **ContextVar 自调度防护**防无限任务链（Cron 不能创建新 Cron）
 - **预算强制**超日预算则阻断执行
-- **YOLO 模式自动启用**无人值守（无 HITL 阻塞）
 - **ReDoS 防护**事件触发正则模式安全检查
 - **SSRF 防护** Webhook 投递 URL 安全检查
 

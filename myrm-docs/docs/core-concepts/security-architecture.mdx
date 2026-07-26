@@ -86,6 +86,16 @@ Every approval surfaces the same four actions across all channels:
 
 Batch operations are supported via `/batch a,d,aa` (approve, deny, always) and UI bulk buttons.
 
+### Sidebar Attention Indicator
+
+When an agent pauses for approval, the sidebar displays a real-time amber pulse indicator next to the affected chat — even if you're currently viewing a different conversation. This eliminates the need to manually check each session for pending approvals:
+
+- **Amber pulse dot**: Agent is waiting for your approval/clarification
+- **Green pulse dot**: Agent is actively generating
+- **No dot**: Session is idle
+
+The indicator survives page refresh (via server-side approval recovery) and syncs in real-time across all open browser tabs via SSE multiplex. When you resolve the approval, the indicator disappears immediately as the agent resumes.
+
 ### Approval Timeout Race Protection
 
 When an approval timeout fires and a user manually approves almost simultaneously, the system guarantees **exactly-once execution** via an idempotent `resolve_if_first` guard:
