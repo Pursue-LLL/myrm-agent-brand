@@ -13,6 +13,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在记忆能力上，Myrm 现已形成完整的**诊断可解释 + 遥测完整性闭环**：stream 阶段状态、persist 阶段状态、控制平面聚合告警、前端 `preflight`/`runtime_fallback` 来源解释（含移动端非 hover 文案），并在云模式提供严格 fail-closed 入库（共享 `envelope_id` 幂等 + 共享去重后端不可用时禁止静默本地回退 + `dedup_reject` 原因指标）。最近一次定向回归（2026-07-19）：server 28 passed、control-plane 55 passed、frontend 14 passed。
 
+## 最新验证快照（2026-07-26）
+
+- **任务导航 & AI 自动路由（vs mattpocock/skills `ask-matt`）**：DiscoverCapability **57/57** + Clarification/ask_question **15/15** + capability_gap SSE **37/37** + StreamDispatcher **17/17** + Kanban API **361/361** + Kanban Service **102/102** + Kanban Integration **33/33** + Kanban Channels **89/89** = **711 tests, 0 failures**。
+- **验收接缝门（vs mattpocock/skills `/to-spec`）**：Goal Engine（VerificationGatekeeper + ShellCriterion + SemanticCriterion + CompletionGuard + 熔断保护）**209/209** + PlanConfirmMiddleware **13/13** + Kanban Verifier + Criteria Integration **47/47** = **269 tests, 0 failures**。
+- **修复预存在 bug**：`kanban_command_handler.py:326` — `by_agent` 字典含 `None` key 导致排序 `TypeError`；已安全处理。
+- **为何 CLI 手动导航在此过时**：Matt 的 ask-matt 需要用户从 17 个孤立 CLI 技能中手动选择工作流路径。Myrm 的 6 层自动路由让用户只需描述需求——Agent 自动规划并执行。
+- **为何手动 `/to-spec` 在此过时**：Matt 的 to-spec 需要用户手动触发接缝定义。Myrm 拥有 5 层自动验收：GoalMode acceptance_criteria（用户定义）+ PlanConfirm HITL（计划审核）+ Kanban completion_criteria（结构化 shell+semantic）+ VerificationGatekeeper（任务完成后自动执行）+ CompletionGuard（反幻觉）。
+- **用户迁移收益**：使用 Matt skills 的开发者切换到 Myrm 后不丢失任何能力；他们获得的是 AI 自动任务路由和程序化验证，而非记忆斜杠命令。
+- **实时任务监控（vs mattpocock/skills GTE 工作台概念）**：GoalStatusCard+GoalControlPlane+GoalPlanStepsList **27/27** + SubagentDashboard **2/2** + Kanban DnD+Markdown **48/48** + Goal Engine **164/164** + Subagent Engine **179/179** + Kanban API **250/250** + Kanban Integration **100/100** = **770 tests, 0 failures**。Myrm 提供 9 层实时监控（GoalStatusCard fixed overlay + GoalPlanStepsList + GoalControlPlane + SubagentDashboard + ArtifactPortal + BrowserLiveView + DesktopLiveView + KanbanBoardView + MobileStatusBoard）——所有组件均可在 0-1 次点击内访问。并排布局不必要，因为 fixed overlay 已提供常驻可见性，不占用屏幕空间，不破坏移动端 UX。
+
 ## 最新验证快照（2026-07-23）
 
 - **Shell Pattern Allow-Always 全链路**：Harness pattern **20 passed**；Server SHPOIB + allowlist API **11 passed**；前端 derive-pattern parity **13 passed**；**Chrome LIVE_AGENT E2E 1 passed**（bash HITL → 始终允许此命令模式 → 设置页列表/删除 → 下次自动放行）。
@@ -136,7 +146,7 @@ PilotDeck（清华 THUNLP 等联合开源）主打“Agent 操作系统”概念
 | **成本可见性** | 基础统计 | **双层消息级可视化（内嵌缓存节省 banner + 17 项 tooltip）+ 14 维统计大屏 + Per-Agent 成本归因 + SessionSpendSurface 常驻胶囊（每轮 WU/-$、会话累计、burn-rate ETA）** | 每条回复显示缓存命中率与节省金额、5 类 Token、TTFT/P95/TPS、per-model/per-tool 成本分解、会话基线对比、cache-break 归因+修复建议。常驻胶囊实时展示每轮 WU 消耗（沙箱）或 USD 成本（本地/Tauri），含会话累计与剩余天数 ETA。竞品中无一具备消息级实时成本可视化。 |
 | **执行 Trace 与回放** | 仅日志 / AI Purpose Title（额外 LLM 调用） | **产品内嵌 7 层 Trace（ProgressSteps 实时树 + 语义工具标签 28 工具 × 5 语言 + 内联 AI 意图描述 + 分类图标 + 阶段折叠分组 + 思考过程 + 17 项 tooltip + 缓存节省 banner + ExecutionTraceTimeline + SessionReplayPlayer + SessionAnalyticsDialog）** | 每个工具调用显示人类可读标签 + AI 意图描述，零额外成本（意图由主模型在 tool_call 中直接提供，无需独立 utility model）。任意消息一键查看完整执行回放——无需外部 SaaS 和额外费用。 |
 | **云环境** | 云电脑 | **沙箱 + 持久终端 + SaaS** | 真跨平台隔离与数据归属。 |
-| **多媒体** | 基础视频 Agent | **原生 `video/generator.py` + 全双工语音 + 工具无关沙箱（Agent 可 npm/npx 安装任意视频工具 HyperFrames/Remotion/FFmpeg——不锁定单一框架）+ 7 步 Multi-Shot Pipeline（自动检测 provider 时长限制→分镜规划→base image 一致性→I2V 生成→FFmpeg 无损拼接→BGM 叠加→关键帧 QC）** | 创作内容并支持打断（barge-in）免提交互。对话内 VideoTaskCard 内嵌播放器+重试。沙箱架构让 Agent 使用任意 CLI 视频工具，无框架锁定。内置 shot pipeline 指引解决 6-12s provider 时长限制——Agent 自动规划多段拍摄工作流制作长视频。 |
+| **多媒体** | 基础视频 Agent | **原生 `video/generator.py` + 全双工语音 + 工具无关沙箱（Agent 可 npm/npx 安装任意视频工具 HyperFrames/Remotion/FFmpeg——不锁定单一框架）+ 7 步 Multi-Shot Pipeline（自动检测 provider 时长限制→分镜规划→base image 一致性→I2V 生成→FFmpeg 无损拼接→BGM 叠加→关键帧 QC）+ 平台导出规格控制（10 种画幅 + 3 级分辨率 + 自动归一化 + 6 平台问卷 + QC 双通道：ffprobe 硬指标 + Vision 字幕安全区）** | 创作内容并支持打断（barge-in）免提交互。对话内 VideoTaskCard 内嵌播放器+重试。沙箱架构让 Agent 使用任意 CLI 视频工具，无框架锁定。内置 shot pipeline 指引解决 6-12s provider 时长限制——Agent 自动规划多段拍摄工作流制作长视频。平台导出规格自动归一化确保视频符合目标平台规范（抖音 9:16、YouTube 16:9 等），无需手动配置。 |
 
 **结论：Myrm 提供更自动化、原生的 GUI 体验。无需「教练」问答，直接给可用模板；双阶段路由比竞品的纯 LLM Judge 方案更省 token 且更准确，并提供约 10 倍成本透明度。**
 
@@ -1028,7 +1038,7 @@ Myrm 是 **GUI 优先** 应用。Claude Office Visualizer 要解决的「看不�
 | Context Usage | TrashCanSprite (filling trash can metaphor) | **ContextUsageIndicator** — exact percentage + multi-level color warnings | Numbers > metaphors |
 | Task Management | 12 PixiJS read-only whiteboard modes | **KanbanBoardView** — interactive drag/drop/filter/edit | Actionable, not just viewable |
 | Notifications | Screen flash (attentionStore) | **NotificationBell** — 4 severity levels + unread count + persistence + **切走标签页时流式完成/澄清自动 OS 弹窗**（前台自动静默、权限拒绝时 toast 降级、5 语言）+ **Web Push VAPID 离线推送**（浏览器关闭后仍收到审批/目标/健康告警；iOS PWA 引导安装；过期订阅自动清理） | 结构化告警，而非屏幕闪烁；关闭浏览器也能收到 |
-| Onboarding | TourOverlay 7步引导 | **4步动态向导** + 自动探测 Ollama/LM Studio + **HardwareCookbook**（反常识智能推荐 + MoE 精准 ~tok/s 速度 + 流式下载）+ SearXNG 一键 Docker + 11种竞品迁移适配器（199项测试验证） | 零配置启动：探测→激活→开始工作 |
+| Onboarding | TourOverlay 7步引导 | **4步动态向导** + 自动探测 Ollama/LM Studio + **HardwareCookbook**（反常识智能推荐 + MoE 精准 ~tok/s 速度 + 流式下载）+ SearXNG 一键 Docker + 14种竞品迁移适配器（276项测试验证） | 零配置启动：探测→激活→开始工作 |
 | Companion | Fixed pixel character | **15 species + 9 hats + Agent 外观联动 + 23 态动画 + 进化系统** | 智能体身份可视化 + 完整养成体系 |
 | Deployment | Docker front+back separate deployment | **Built into the app** — zero extra infrastructure | Zero additional setup |
 | Mobile | ❌ Desktop-only (PixiJS) | ✅ PWA + 35+ messaging channels | Monitor from anywhere |
@@ -1210,9 +1220,9 @@ Codex 近期发布两大旗舰功能：**Appshots**（⌘⌘ 窗口捕获 + 文�
 
 | 维度 | 360 LobsterAI | Myrm |
 |-----------|--------------|------|
-| Preset agents | 100+ (quantity) | 27 high-quality presets + 10 YAML templates + unlimited custom + Org Marketplace |
-| Template depth | System prompt only | System prompt + tools + skills + model + security overrides |
-| Customization | Limited editing | Full GUI editor + clone + import/export + version snapshots |
+| Preset agents | 100+ (quantity) | 27 high-quality presets + 10 YAML templates (individual + team atomic creation with rollback) + unlimited custom + Org Marketplace |
+| Template depth | System prompt only | System prompt + tools + skills + model + security overrides + MCP + subagent bundling |
+| Customization | Limited editing | Full GUI editor + 1-click clone + import/export (HMAC + SHA-256 integrity) + Profile Time Machine (10-version rollback, industry-exclusive) |
 | Onboarding | Q&A "coaching" wizard | PresetAgent Gallery + conversational creation + per-agent suggestion prompts |
 | Anti-confusion | None | 5-layer anti-interference (Profile → Conditional Activation → Progressive Disclosure → Noise Gauge → Hybrid Retrieval) |
 
@@ -1255,7 +1265,7 @@ Myrm（**v0.1.39 生产验证**）提供 **消费级下载 + 生产 OTA + 诚实
 
 ## 本地迁移向导（v1.4）
 
-Myrm 在 Local 与 Tauri 部署提供 **GUI 优先竞品迁移向导**，范围诚实：八个文件系统发现源、四条预览通道，以及 Hermes CLI 可能自动接线但需手动的集成项。
+Myrm 在 Local 与 Tauri 部署提供 **GUI 优先竞品迁移向导**，支持 **14 种竞品适配器（12 种 ready）**，自动发现 + MCP 配置自动转换 + 模型自动映射 + 完整 dry-run/confirm/rollback 生命周期。
 
 ### 八个发现源（Local / Tauri）
 
@@ -1316,7 +1326,7 @@ Myrm 提供 **零成本热迁移与原子持久化引擎**：
 | OSS 脚本架构测试 | **5 通过** |
 | `check_fractal_docs --no-stub` + 行数预算 CI | **OK** |
 
-**迁移系统专项测试合计：199 项全部通过**（2026-07-01，含架构守门/多竞品发现/四车道拆分/E2E/API/配置版本管理/Hermes § 分隔符修复验证全链路）。测试目录 scoped 扫描 [server `competitor_discovery.py`] 仅影响自动化测试；生产 `/migration/discover` 仍扫描真实用户主目录。竞品（OpenClaw、Hermes、DeerFlow、CodePilot、LobsterAI、CoPaw、jiuwenclaw、PilotDeck）：**无 GUI 八源四车道向导**；Hermes 仅有 CLI `claw migrate`；PilotDeck 仅有技能文件复制（361 行，无记忆/指令/凭证迁移）。
+**迁移系统专项测试合计：276 项全部通过**（2026-07-25，含 14 种竞品适配器/dry-run 会话/导入适配器/MCP 配置转换器/模型迁移/架构守门/多竞品发现/E2E/API/技能批量导入全链路）。竞品（OpenClaw、Hermes、DeerFlow、CodePilot、LobsterAI、CoPaw、jiuwenclaw、PilotDeck、Grok Build）：**无 GUI 14 源迁移向导 + MCP 自动转换**；Hermes 仅有 CLI `claw migrate`；Grok Build 仅支持 2 种源（Claude + Cursor）的 TUI modal。
 
 ### 迁移后你将获得（面向用户）
 

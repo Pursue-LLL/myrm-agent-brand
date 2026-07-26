@@ -145,3 +145,23 @@ Additional marketplace capabilities:
 | Auto lifecycle management | **Curator** (stale/archive/cleanup via Settings + Smart Prune — not chat-only text suggestions) | Manual |
 | Skill consolidation | **Auto-merge duplicates** | No |
 | Per-session skill scope | **Visual toggle** (pick skills per chat, ~1800 tokens/turn saved) | No |
+
+## Why AI-native skills beat deterministic scripts
+
+Traditional browser automation tools generate **deterministic code** that breaks when a website changes its layout. They need "self-test loops" to detect breakage and regenerate scripts.
+
+Myrm takes a fundamentally different approach:
+
+| Aspect | Deterministic Scripts | Myrm SKILL.md |
+|--------|:---------------------:|:-------------:|
+| Format | Python/JS code with CSS selectors | Natural language guide |
+| When site changes | Script breaks, manual re-forge | Agent adapts in real-time |
+| Element location | Brittle `#id` / `.class` selectors | SelfHealingLocator (ARIA + visual + semantic) |
+| Failure recovery | Re-run forge pipeline | FIX evolution auto-patches |
+| Maintenance | Manual | Zero-maintenance |
+
+This architecture means:
+
+- **No "self-test" step needed** — skills are interpreted by an AI that adapts to the current page state.
+- **No re-forging on redesign** — the SelfHealingLocator finds elements even after layout changes.
+- **Automatic repair** — if a skill does fail, the FIX evolution type patches it without user intervention.

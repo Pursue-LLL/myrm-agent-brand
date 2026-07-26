@@ -42,7 +42,18 @@ curl -X POST https://your-myrm-host/api/cron/trigger/system-event \
 
 ## 安全
 
+### 入站
+
 入站 Webhook 触发器需要 `x-webhook-secret` 请求头，必须与 Cron 任务中配置的密钥匹配。缺少有效密钥的请求会返回 401。
+
+### 出站
+
+所有出站 Webhook 请求均受多层安全防护：
+
+- **SSRF 防护**：每个出站 HTTP 请求都经过 `secure_request()` 处理，包含 DNS 固定和私网地址拦截。指向内网 IP（127.0.0.1、10.x、192.168.x 等）的 Webhook URL 会被自动拒绝。
+- **HMAC-SHA256 签名**：出站 Webhook 负载包含 `X-Webhook-Signature` 头（`sha256=...`），接收方可验证请求真实性。为每个 Webhook 配置独立密钥以获得最强验证。
+- **重定向验证**：出站请求的每一跳重定向都会进行 SSRF 检查——即使原始 URL 是公网地址，重定向到内网也会被拦截。
+- **指数退避重试**：临时故障（5xx、超时）自动指数退避重试；永久错误（4xx）立即失败。
 
 ## GitHub 集成
 

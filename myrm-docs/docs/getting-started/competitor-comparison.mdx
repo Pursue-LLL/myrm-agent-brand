@@ -13,6 +13,16 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 
 For memory specifically, Myrm now ships a full **diagnostic + telemetry integrity loop** end-to-end: stream-phase status, persist-phase status, control-plane aggregation/alerts, frontend source explanation (`preflight` vs `runtime_fallback`) including mobile non-hover copy, plus strict cloud fail-closed ingest (shared envelope idempotency + no silent local fallback when shared dedup backend is unavailable, with `dedup_reject` reason metrics). Latest focused regression run (2026-07-19): server 28 passed, control-plane 55 passed, frontend 14 passed.
 
+## Latest Validation Snapshot (2026-07-26)
+
+- **Task Navigation & AI Auto-Routing (vs mattpocock/skills `ask-matt`):** DiscoverCapability **57/57** + Clarification/ask_question **15/15** + capability_gap SSE **37/37** + StreamDispatcher **17/17** + Kanban API **361/361** + Kanban Service **102/102** + Kanban Integration **33/33** + Kanban Channels **89/89** = **711 tests, 0 failures**.
+- **Verification Seam Gate (vs mattpocock/skills `/to-spec`):** Goal Engine (VerificationGatekeeper + ShellCriterion + SemanticCriterion + CompletionGuard + 熔断保护) **209/209** + PlanConfirmMiddleware **13/13** + Kanban Verifier + Criteria Integration **47/47** = **269 tests, 0 failures**.
+- **Pre-existing bug fixed:** `kanban_command_handler.py:326` — `by_agent` dict with `None` key caused `TypeError` in sorted(); now handles gracefully.
+- **Why CLI navigation is obsolete here:** Matt's ask-matt requires users to manually choose a workflow path from 17 isolated CLI skills. Myrm's 6-layer auto-routing (ActionMode + DiscoverCapability + capability_gap + ask_question + task-planning + KanbanPipeline) makes the user simply describe what they want — the Agent automatically plans and executes.
+- **Why manual `/to-spec` is obsolete here:** Matt's to-spec requires users to manually trigger seam definition. Myrm has 5-layer automated verification: GoalMode acceptance_criteria (user-defined) + PlanConfirm HITL (plan review) + Kanban completion_criteria (structured shell+semantic) + VerificationGatekeeper (auto-execution after task completion) + CompletionGuard (anti-hallucination).
+- **User migration payoff:** developers using Matt's skills lose zero capability when switching to Myrm; they gain AI-automatic task routing and programmatic verification instead of memorizing slash commands.
+- **Real-time Task Monitoring (vs mattpocock/skills GTE Workbench concept):** GoalStatusCard+GoalControlPlane+GoalPlanStepsList **27/27** + SubagentDashboard **2/2** + Kanban DnD+Markdown **48/48** + Goal Engine **164/164** + Subagent Engine **179/179** + Kanban API **250/250** + Kanban Integration **100/100** = **770 tests, 0 failures**. Myrm provides 9-layer real-time monitoring (GoalStatusCard fixed overlay + GoalPlanStepsList + GoalControlPlane + SubagentDashboard + ArtifactPortal + BrowserLiveView + DesktopLiveView + KanbanBoardView + MobileStatusBoard) — all accessible at 0-1 click distance. Side-by-side layout is unnecessary because fixed overlay provides persistent visibility without consuming screen space or breaking mobile UX.
+
 ## Latest Validation Snapshot (2026-07-23)
 
 - **Shell pattern Allow-Always full chain:** Harness pattern tests **20 passed**; server SHPOIB + allowlist API **11 passed**; frontend derive-pattern parity **13 passed**; **Chrome LIVE_AGENT E2E 1 passed** (bash HITL → Allow always this pattern → Settings list/delete → next run auto-approved).
@@ -136,7 +146,7 @@ Migrating from PilotDeck upgrades you from a "CLI-centric operating system" to a
 | **Cost Visibility** | Basic stats | **Dual-layer per-message visualization (inline cache-savings banner + 17-metric tooltip) + 14-dim analytics dashboard + per-agent cost attribution + SessionSpendSurface persistent pill (per-turn WU/-$, session cumulative, burn-rate ETA)** | Every reply shows cache hit rate, savings amount, 5 token types, TTFT/P95/TPS, per-model/tool cost breakdown, session baseline comparison, cache-break attribution with fix suggestions. Persistent pill displays real-time per-turn WU consumption (Sandbox) or USD cost (Local/Tauri) with session totals and remaining-days ETA. No competitor offers message-level real-time cost visualization. |
 | **Execution Trace & Replay** | Logs only / AI Purpose Title (extra LLM call) | **7-layer in-product Trace (ProgressSteps real-time tree + semantic tool labels 28 tools × 5 languages + inline AI intent reasons + category icons + stage grouping + thinking content + 17-metric tooltip + cache-savings banner + ExecutionTraceTimeline + SessionReplayPlayer + SessionAnalyticsDialog)** | Every tool call shows a human-readable label + AI-generated intent at zero extra cost (the main model provides intent in the tool call itself — no separate utility model). One click from any message to full execution replay with speed control — no external SaaS, no extra fees. |
 | **Cloud Environment** | Cloud Computer | **Sandbox + Persistent Terminal + SaaS** | Real cross-platform isolation and data ownership. |
-| **Multimedia** | Basic Video Agent | **Native `video/generator.py` + Full-duplex Voice + tool-agnostic sandbox (Agent npm/npx installs any video tool — HyperFrames/Remotion/FFmpeg — not locked to one framework) + 7-step Multi-Shot Pipeline (auto-detect provider limits → plan shots → base image consistency → I2V → FFmpeg concat → BGM → QC)** | Create content and interact hands-free with barge-in support. In-chat VideoTaskCard with built-in player & retry. Sandbox architecture lets agents use any CLI video tool without framework lock-in. Built-in shot pipeline guidance solves the 6-12s provider duration limit — agents automatically plan multi-shot workflows for longer videos. |
+| **Multimedia** | Basic Video Agent | **Native `video/generator.py` + Full-duplex Voice + tool-agnostic sandbox (Agent npm/npx installs any video tool — HyperFrames/Remotion/FFmpeg — not locked to one framework) + 7-step Multi-Shot Pipeline (auto-detect provider limits → plan shots → base image consistency → I2V → FFmpeg concat → BGM → QC) + platform-aware export (10 aspect ratios + 3 resolution tiers + auto-normalization + 6-platform questionnaire + QC dual-channel: ffprobe hard metrics + Vision safe-area)** | Create content and interact hands-free with barge-in support. In-chat VideoTaskCard with built-in player & retry. Sandbox architecture lets agents use any CLI video tool without framework lock-in. Built-in shot pipeline guidance solves the 6-12s provider duration limit — agents automatically plan multi-shot workflows for longer videos. Platform-aware export with auto-normalization ensures videos match target platform specs (TikTok 9:16, YouTube 16:9, etc.) without manual configuration. |
 
 **Result: Myrm delivers a more automated, native GUI experience. Instead of a "coach" asking questions, Myrm provides ready-to-use templates. Dual-phase routing is more token-efficient and accurate than competitors' pure LLM-judge approach, with 10x more cost transparency.**
 
@@ -1300,9 +1310,9 @@ Codex recently shipped two flagship features: **Appshots** (window capture + tex
 
 | Dimension | 360 LobsterAI | Myrm |
 |-----------|--------------|------|
-| Preset agents | 100+ (quantity) | 27 high-quality presets + 10 YAML templates + unlimited custom + Org Marketplace |
-| Template depth | System prompt only | System prompt + tools + skills + model + security overrides |
-| Customization | Limited editing | Full GUI editor + clone + import/export + version snapshots |
+| Preset agents | 100+ (quantity) | 27 high-quality presets + 10 YAML templates (individual + team atomic creation with rollback) + unlimited custom + Org Marketplace |
+| Template depth | System prompt only | System prompt + tools + skills + model + security overrides + MCP + subagent bundling |
+| Customization | Limited editing | Full GUI editor + 1-click clone + import/export (HMAC + SHA-256 integrity) + Profile Time Machine (10-version rollback, industry-exclusive) |
 | Onboarding | Q&A "coaching" wizard | PresetAgent Gallery + conversational creation + per-agent suggestion prompts |
 | Anti-confusion | None | 5-layer anti-interference (Profile → Conditional Activation → Progressive Disclosure → Noise Gauge → Hybrid Retrieval) |
 
@@ -1345,7 +1355,7 @@ Myrm (**verified v0.1.39**) offers **consumer-grade download + production OTA + 
 
 ## Local Migration Wizard (v1.4)
 
-Myrm provides a **GUI-first competitor migration wizard** on Local and Tauri deployments. It is honest about scope: five filesystem discovery sources, four preview lanes, and manual follow-up for integrations Hermes CLI might auto-wire.
+Myrm provides a **GUI-first competitor migration wizard** on Local and Tauri deployments. It supports **14 competitor adapters (12 ready)** with auto-discovery, MCP config auto-conversion, model auto-mapping, and full dry-run/confirm/rollback lifecycle.
 
 ### Five discovery sources (Local / Tauri)
 
@@ -1406,7 +1416,7 @@ Automated regression on a developer machine (minimal batch, ~7s total):
 | OSS scripts architecture tests | **5 passed** |
 | `check_fractal_docs --no-stub` + line budget CI scripts | **OK** |
 
-**Total migration-specific tests: 199 all passed** (Jul 1, 2026 — covering architecture guard / multi-competitor discovery / four-lane split / E2E / API / config version management / usage sidecar import + Curator integration + Hermes § delimiter parsing fix). Discovery scoped to explicit test home dirs [server `competitor_discovery.py`] — production `/migration/discover` still scans the real user home unchanged. Competitors checked (OpenClaw, Hermes, DeerFlow, CodePilot, LobsterAI, CoPaw, jiuwenclaw, PilotDeck): **no GUI eight-source four-lane wizard**; Hermes offers CLI `claw migrate` only; PilotDeck has skill-only file copy (361 lines, no memory/instruction/credential/usage migration).
+**Total migration-specific tests: 276 all passed** (Jul 25, 2026 — covering 14 competitor adapters / dry-run sessions / import adapters / MCP config converter / model migration / architecture guards / multi-competitor discovery / E2E / API / skill batch import). Competitors checked (OpenClaw, Hermes, DeerFlow, CodePilot, LobsterAI, CoPaw, jiuwenclaw, PilotDeck, Grok Build): **no GUI 14-source migration wizard with MCP auto-conversion**; Hermes offers CLI `claw migrate` only; Grok Build supports 2 sources (Claude + Cursor) via TUI modal.
 
 ### What you get after migrating (user-facing)
 

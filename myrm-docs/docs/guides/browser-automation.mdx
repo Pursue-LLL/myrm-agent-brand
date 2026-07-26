@@ -590,6 +590,22 @@ Configure via your browser pool settings. Most users never need to change from t
 
 When crawling at scale, IP blocks, rate limits, and CAPTCHAs are inevitable. Myrm's 5-layer defense system handles all of this automatically so your tasks never die.
 
+### Autonomous Session Lifecycle
+
+Browser sessions are fully self-managing — you never need to manually start, stop, or recover browser sessions:
+
+| Layer | What It Does | Response Time |
+|:------|:-------------|:--------------|
+| **L1: Disconnect detection** | Detects browser process crash via `disconnected` event | Instant |
+| **L2: Page crash detection** | Detects renderer crash via `crash` event | Instant |
+| **L3: Periodic health-check** | Probes all browsers every 30 seconds, evicts unresponsive instances | 30s |
+| **Idle eviction** | Reclaims browsers with zero active pages after configurable timeout | Automatic |
+| **Elastic scaling** | Creates browsers on-demand under load, scales to zero when idle | Automatic |
+
+**What this means for you:** Start an agent, give it browsing tasks, walk away. If a browser crashes, login state is preserved in the encrypted Session Vault and restored automatically on the next request. If you run multiple agents concurrently, each gets isolated browser contexts — zero interference, zero manual coordination.
+
+**vs competitors:** BrowserAct requires manual `session list` / `session close` CLI commands to manage sessions. Other competitors (Hermes, OpenClaw, CoPaw) have no session lifecycle management at all. Myrm is fully autonomous.
+
 ### Protection Layers
 
 | Layer | What It Does | User Benefit |
