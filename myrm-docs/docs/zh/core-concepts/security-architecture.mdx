@@ -326,6 +326,8 @@ AI 分类器（`TranscriptClassifier`）审查工具调用是否符合用户原�
 
 **引号感知预处理**：字符级状态机 `_strip_quoted_content` 在 L2/L3 扫描前将单引号内容替换为占位符，避免 `echo 'rm -rf /'` 误报，同时保留双引号中命令替换的检测能力。
 
+**特权提升无条件地板**：所有 `sudo` 命令在 L2 层被无条件 BLOCK——包括 `sudo apt install`、`sudo -S`（stdin 管道密码注入）、`env sudo cmd`、以及 `bash -c 'sudo ...'`（由 L4 递归捕获）。此规则不可被 YOLO 模式、Smart Guard 或用户审批绕过。竞品 Hermes 仅阻断 `sudo -S`（密码猜测向量），仍允许配合 SUDO_PASSWORD 的常规 sudo——攻击面更大。其他 6 家竞品无任何 sudo 防护。
+
 **破坏性命令自动快照**：匹配破坏性模式的命令（`rm`、`mv`、`git reset/clean/checkout/restore/apply` 含任意前置 flag、`sed -i`、重定向覆盖）会在执行前自动触发工作区快照，确保无论结果如何均可完整恢复。
 
 **SQL 守卫（L2.5）**：分析*原始命令*（引号去除前）以检测嵌入在数据库客户端命令中的破坏性 SQL 操作（`DROP`、`DELETE`、`TRUNCATE`、`ALTER`、`INSERT`、`UPDATE`、`CREATE`）。防御两种高级绕过向量：多语句注入（`SELECT 1; DROP TABLE`）和 WITH CTE 包裹（`WITH x AS (...) DELETE FROM`）。支持 flag 模式（`psql -c '...'`）和管道模式（`echo '...' | psql`）。竞品无此能力。

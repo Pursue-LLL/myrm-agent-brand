@@ -362,6 +362,8 @@ Commands are analyzed through a 5-layer quote-aware pipeline before execution:
 
 **Quote-aware preprocessing**: A character-level state machine (`_strip_quoted_content`) replaces single-quoted content with placeholders before L2/L3 scanning, preventing false positives on `echo 'rm -rf /'` while still catching real threats in double-quoted or unquoted contexts.
 
+**Privilege Escalation Floor**: All `sudo` commands are unconditionally BLOCKED at L2 — including `sudo apt install`, `sudo -S` (stdin password piping), `env sudo cmd`, and `bash -c 'sudo ...'` (caught recursively by L4). This cannot be bypassed by YOLO mode, Smart Guard, or user approval. Competitors like Hermes only block `sudo -S` (the password-guessing vector), still allowing regular `sudo` with SUDO_PASSWORD injection — a broader attack surface. Six other competitors have no sudo guard at all.
+
 **Auto-snapshot on destructive commands**: Commands matching destructive patterns (`rm`, `mv`, `git reset/clean/checkout/restore/apply` with arbitrary flag prefixes, `sed -i`, redirect overwrite) trigger an automatic workspace snapshot before execution, ensuring full recovery regardless of outcome.
 
 **SQL Guard (L2.5)**: Analyzes the *original* command (before quote stripping) to detect destructive SQL operations (`DROP`, `DELETE`, `TRUNCATE`, `ALTER`, `INSERT`, `UPDATE`, `CREATE`) embedded in database client commands. Defends against two advanced bypass vectors: multi-statement injection (`SELECT 1; DROP TABLE`) and WITH CTE wrapping (`WITH x AS (...) DELETE FROM`). Works with flag-based (`psql -c '...'`) and pipe-based (`echo '...' | psql`) patterns. No competitor implements SQL-level command analysis for shell execution.
