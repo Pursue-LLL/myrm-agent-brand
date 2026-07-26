@@ -654,6 +654,23 @@ Fail-safe guarantees:
 - Pydantic-enforced structured output (no free-text manipulation)
 - Taint labels injected for context-aware judgment
 
+### Smart DENY → User Override (Once)
+
+When the Transcript Classifier recommends DENY, Myrm does **not** silently reject the action. Instead, it shows a clear approval card:
+
+| Aspect | Behavior |
+|--------|----------|
+| **Visual indicator** | Amber warning box displaying the reviewer's denial reason |
+| **Available actions** | "Override Once" and "Reject" only (session/always/edit hidden) |
+| **Override behavior** | Action executes this one time but is NOT added to the allowlist — next identical action still triggers review |
+| **Audit trail** | `LLM_REVIEW_DENY_USER_OVERRIDE` event recorded with reason |
+| **Non-interactive sessions** | Cron jobs and shadow agents auto-deny without override option (fail-closed) |
+| **High-risk paths** | Taint escalation, outbound delegation, and shell escalation always hard-deny — no override possible (security red line) |
+
+This prevents "false positive lockout" where the AI reviewer misclassifies a legitimate action, while maintaining full audit visibility.
+
+**vs competitors:** Hermes offers `smart_denied_for_owner` with CLI-only `once`/`deny` buttons but no visual reason display, no audit logging, and no layered hard-deny for taint/outbound paths.
+
 ## Command Denylist (User-Defined Hard Floor)
 
 Users can define glob patterns that permanently block specific commands — regardless of YOLO mode, Smart Intent Guard decisions, or permission rules. This provides a user-controlled safety net that cannot be bypassed by any approval mechanism.
@@ -667,6 +684,8 @@ Users can define glob patterns that permanently block specific commands — rega
 | **GUI Editor** | Visual pattern editor with add/remove, example placeholders, and validation — no CLI or YAML editing needed |
 
 The command denylist operates at **Layer 2a.5** in the approval pipeline — after permission rules but before YOLO bypass, ensuring denied commands are always blocked.
+
+The **Natural Language Policy Generator** can also produce command denylist and network blocklist rules from plain language descriptions (e.g., "block all force push and database drop commands") — the generated patterns are validated, previewed with human-readable explanations, and applied only after user confirmation.
 
 ## Memory Write Trust Isolation
 
