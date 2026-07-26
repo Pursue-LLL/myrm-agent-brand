@@ -86,4 +86,20 @@ OpenClaw、Hermes、jiuwenclaw 等竞品无此「预检 + 延迟自动重发」�
 
 简单澄清问题请优先 `ask_question_tool`，不必搭完整 UI。
 
+## 大文件内联预览保护
+
+HTML/SVG/Mermaid 工件默认在对话流内自动展开渲染。当工件超过 **1 MB**（`LARGE_FILE_THRESHOLD`）时，内联渲染器自动优雅降级：
+
+1. 不执行内容 fetch 或 `srcDoc` 渲染（防止 OOM / 浏览器卡顿）。
+2. 显示精简降级卡片：文件大小提示 + **"全屏查看"** 按钮。
+3. 点击按钮打开 `ArtifactPortal`，通过隔离 URL 模式（`iframe src`）安全渲染——无论文件多大均无性能风险。
+
+避免用户因大文件（数据仪表盘、复杂 SVG 信息图）导致的空白/卡死而误认为"Agent 任务失败"。
+
+| 产品 | 大文件保护 |
+|------|-----------|
+| **Myrm** | 1MB 阈值 + 降级 CTA + URL 模式安全渲染 + 预加载跳过 |
+| Hermes | 仅桌面端（512KB）；WebUI 无保护 |
+| LobsterAI / OpenClaw | 无保护；直接 srcDoc 渲染 |
+
 另见：[Agent 配置 — 工具加载策略](/docs/zh/core-concepts/agent-configuration)。

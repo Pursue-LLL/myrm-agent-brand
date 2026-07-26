@@ -346,8 +346,11 @@ Commands are analyzed through a 5-layer quote-aware pipeline before execution:
 | **L2** | 6 injection vectors (`$()`, backtick, `${}`, `;`, process substitution) + 70+ dangerous command patterns | BLOCK → DENY |
 | **L2.5** | SQL syntax-level guard: detects destructive SQL in DB client commands (`psql`, `mysql`, `sqlite3`, etc.) — handles multi-statement injection and WITH CTE bypass vectors | ESCALATE → ASK |
 | **L3** | Suspicious patterns (`curl\|sh`, `eval`, `base64 -d`, kill/pkill) | ESCALATE → ASK |
+| **L4** | Recursive analysis of nested commands in `bash -c '...'`, `sh -lc '...'`, `zsh -c '...'`, `trap '...'` wrappers — depth-limited to prevent DoS | Recursive BLOCK/ESCALATE |
 
 **Quote-aware preprocessing**: A character-level state machine (`_strip_quoted_content`) replaces single-quoted content with placeholders before L2/L3 scanning, preventing false positives on `echo 'rm -rf /'` while still catching real threats in double-quoted or unquoted contexts.
+
+**Auto-snapshot on destructive commands**: Commands matching destructive patterns (`rm`, `mv`, `git reset/clean/checkout/restore/apply` with arbitrary flag prefixes, `sed -i`, redirect overwrite) trigger an automatic workspace snapshot before execution, ensuring full recovery regardless of outcome.
 
 **SQL Guard (L2.5)**: Analyzes the *original* command (before quote stripping) to detect destructive SQL operations (`DROP`, `DELETE`, `TRUNCATE`, `ALTER`, `INSERT`, `UPDATE`, `CREATE`) embedded in database client commands. Defends against two advanced bypass vectors: multi-statement injection (`SELECT 1; DROP TABLE`) and WITH CTE wrapping (`WITH x AS (...) DELETE FROM`). Works with flag-based (`psql -c '...'`) and pipe-based (`echo '...' | psql`) patterns. No competitor implements SQL-level command analysis for shell execution.
 

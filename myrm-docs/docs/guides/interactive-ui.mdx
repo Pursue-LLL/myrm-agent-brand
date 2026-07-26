@@ -86,4 +86,20 @@ Long-lived UIs (progress bars, task lists, live metrics) should not require a fu
 
 For simple clarifying questions, prefer `ask_question_tool` instead of building a full UI.
 
+## Large-file inline preview protection
+
+HTML/SVG/Mermaid artifacts auto-expand in the chat stream by default. When an artifact exceeds **1 MB** (`LARGE_FILE_THRESHOLD`), the inline renderer gracefully degrades:
+
+1. No content fetch or `srcDoc` rendering occurs (prevents OOM / browser lag).
+2. A compact fallback card shows the file size and a **"View in Fullscreen"** button.
+3. Clicking the button opens `ArtifactPortal`, which loads the content via isolated URL mode (`iframe src`) — no performance risk regardless of file size.
+
+This prevents users from mistaking large generated files (data dashboards, complex SVG infographics) as "failed tasks" due to a frozen or blank inline preview.
+
+| Product | Large-file protection |
+|---------|----------------------|
+| **Myrm** | 1 MB threshold + fallback CTA + URL-mode safe render + preload skip |
+| Hermes | Desktop only (512 KB); WebUI has no protection |
+| LobsterAI / OpenClaw | No protection; direct srcDoc render |
+
 See also: [Agent configuration — tool loading](/docs/core-concepts/agent-configuration).
