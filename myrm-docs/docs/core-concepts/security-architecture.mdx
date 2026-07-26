@@ -552,19 +552,22 @@ Every security decision is recorded in a structured audit log with Prometheus re
 The **Profile Audit Engine** provides real-time configuration risk assessment for every Agent profile. When you open the Security tab in Agent settings, a **Health Score Card** instantly shows your agent's security posture:
 
 - **Score**: 0–100 (higher = safer), deducted per finding severity
-- **Risk Level**: Safe / Low / Medium / High / Critical
-- **Findings**: Sorted by severity (Critical first), with colored indicators and actionable recommendations
+- **Risk Level**: Safe / Low / Medium / High / Critical (5-level color-coded)
+- **6-Dimension Grouped View**: Findings grouped by checker dimension with per-dimension color coding — expand any dimension to see individual findings with severity borders, titles, and actionable recommendations
+- **One-Click Fix**: Policy gap findings include Fix (toggle switch) or Configure (navigate to settings section) buttons for immediate remediation
 
 ### Six Detection Dimensions
 
-| Checker | Detects |
-|---------|---------|
-| **Tool Exposure** | Dangerous built-in tool combinations (e.g., shell + file_write + MCP) |
-| **MCP Auth** | MCP servers without authentication or with insecure transport |
-| **Skill Aggregate** | Skills flagged as untrusted or rejected during import scanning |
-| **Subagent Risk** | Multi-level delegation chains creating unauditable privilege paths |
-| **Cron Risk** | Unattended scheduled tasks with high-privilege tools |
-| **Policy Gap** | Missing security controls relative to enabled capabilities |
+| Checker | Color | Detects |
+|---------|-------|---------|
+| **Tool Exposure** | Orange | Dangerous built-in tool combinations (e.g., shell + file_write + MCP) and large tool surfaces |
+| **MCP Auth** | Violet | MCP servers without authentication, insecure transport, or high scan findings |
+| **Skill Aggregate** | Sky | Skills flagged as untrusted or rejected during import scanning |
+| **Subagent Risk** | Rose | Multi-level delegation chains creating unauditable privilege paths |
+| **Cron Risk** | Amber | Unattended scheduled tasks with high-privilege tools |
+| **Policy Gap** | Slate | Missing security controls relative to enabled capabilities (with one-click fix) |
+
+Each dimension shows issue count or "Pass" status. Dimensions with issues can be expanded to reveal individual findings.
 
 ### Design
 
@@ -572,6 +575,7 @@ The **Profile Audit Engine** provides real-time configuration risk assessment fo
 - **Plugin architecture**: Each checker implements `BaseChecker` and can be extended independently
 - **Auto-refresh**: Results update automatically when you save Agent configuration changes
 - **Framework-level**: Available to any project using the harness engine, not just the product UI
+- **Test coverage**: 37 backend unit tests + 15 frontend component tests (52 total)
 
 ## Workspace Rules Security
 
