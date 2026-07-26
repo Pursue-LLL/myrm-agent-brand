@@ -654,6 +654,20 @@ Fail-safe guarantees:
 - Pydantic-enforced structured output (no free-text manipulation)
 - Taint labels injected for context-aware judgment
 
+## Command Denylist (User-Defined Hard Floor)
+
+Users can define glob patterns that permanently block specific commands — regardless of YOLO mode, Smart Intent Guard decisions, or permission rules. This provides a user-controlled safety net that cannot be bypassed by any approval mechanism.
+
+| Feature | How It Works |
+|---------|-------------|
+| **Glob Pattern Matching** | Case-insensitive `fnmatch` matching (e.g., `git push --force*`, `rm -rf /*`, `DROP TABLE*`) |
+| **Global + Per-Agent** | Set global deny patterns in Security Settings, and per-agent overrides in Agent Configuration |
+| **Union Merge** | Per-agent denylist is merged (union) with the global denylist — agents can only add restrictions, never remove global ones |
+| **YOLO-Proof** | Denied commands are blocked even in YOLO mode — this is a hard floor below all approval layers |
+| **GUI Editor** | Visual pattern editor with add/remove, example placeholders, and validation — no CLI or YAML editing needed |
+
+The command denylist operates at **Layer 2a.5** in the approval pipeline — after permission rules but before YOLO bypass, ensuring denied commands are always blocked.
+
 ## Memory Write Trust Isolation
 
 All memory writes pass through a unified security pipeline — even those triggered internally by the AI:
