@@ -46,6 +46,16 @@ The sandbox provider is auto-detected at startup — no configuration needed. If
 - Native OS security primitives (kernel-enforced, not userspace emulation)
 - Works identically in Local WebUI, Tauri Desktop, and Cloud modes
 
+### Zero-Latency Agent Startup
+
+Agent runs start producing tokens in under 30ms from request receipt:
+
+- **Local/Desktop**: Workspace setup (mkdir + executor bind) takes <15ms — within LLM RTT measurement error
+- **Cloud**: Pre-warmed sandbox pool ensures containers are ready before user requests arrive — zero cold-start delay
+- **Tool initialization**: Cached after first run (`_tools_initialized` flag) — subsequent messages skip entirely
+- **MCP connections**: Global singleton persistent connection pool — no reconnection overhead between messages
+- **TTFT monitoring**: Built-in `benchmark_llm_ttft()` probe + `time_to_first_action_seconds` histogram for continuous performance validation
+
 ## Code Execution
 
 Agents can execute code directly in the sandbox:
@@ -118,16 +128,20 @@ Seven orchestration modes (Spawn / Chain / Batch / DAG / Verified / Swarm Fissio
 
 Unlike Claude Code's CLI-only `--worktree` flag, Myrm's workspace sandbox is available via a GUI toggle, can be enabled/disabled mid-session, and includes a complete merge/discard workflow with pre-approval integration.
 
-## Sleep & Wake
+## Three-Tier Resource Management
 
-Sandboxes automatically sleep after configurable inactivity periods and wake on demand, preserving all state (files, processes, memory).
+Sandboxes go through three resource stages to minimize cost while maximizing responsiveness:
+
+1. **CPU Throttle** — after a short idle period, the `ResourceScaler` reduces CPU quota to 25% of full allocation. When a new task arrives, `boost_sandbox()` instantly restores full CPU — no cold start delay.
+2. **Sleep** — after a longer idle period (plan-dependent: 5 min for Free → 24 hours for Max), the `SandboxRecycler` stops the container but preserves the persistent Volume. Sleep periods incur zero WU cost.
+3. **Destroy** — after extended inactivity (configurable, default 7 days), the sandbox is fully reclaimed.
 
 **Idle detection** uses two complementary signals to prevent false positives:
 
 - **Reverse-proxy activity tracking** — every user HTTP/WebSocket request through the proxy refreshes the sandbox's activity timestamp (throttled to one DB write per 5 minutes to avoid overhead).
 - **WebSocket connection guard** — if the sandbox has an active WebSocket connection to the control plane (e.g., during background deep-research or long-running tasks), the recycler skips sleep regardless of the activity timestamp.
 
-This dual-signal approach ensures active users and background tasks are never interrupted, while genuinely idle sandboxes are reclaimed efficiently. Sleep periods incur zero WU cost.
+This dual-signal approach ensures active users and background tasks are never interrupted, while genuinely idle sandboxes are reclaimed efficiently.
 
 ## Enterprise Org Management & Volume Handoff
 
