@@ -71,7 +71,7 @@ CLOSED（正常）→ OPEN（检测到失败）→ HALF-OPEN（探测）→ CLOS
 | `ToolError` | 工具执行失败 | 尝试替代工具 |
 | `ModelError` | 模型能力不足 | 升级到更强模型 |
 
-每条错误含 `error_hint`、`error_category` 与建议 `RecoveryAction` — GUI 显示为可点击按钮。
+每条错误含 `error_hint`、`error_category`（28 种规范化分类，由 `ToolErrorCategory` StrEnum 统一管理，4 语言 i18n 全覆盖）与建议 `RecoveryAction` — GUI 显示为可点击按钮。跨层同步测试套件（46 项）确保 harness 枚举与前端 i18n key 永不漂移。
 
 ### 交互式恢复按钮
 
