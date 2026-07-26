@@ -250,6 +250,17 @@ Myrm 的 **ConsentDismisser** 在每次页面导航后自动运行——零配�
 
 Agent 使用 `verify_goal="购物车数量显示为 2"`。点击后，系统自动截图并验证结果。评分低于 4 时，Agent 收到反馈并可自主重试。
 
+### 设计技能集成
+
+设计类技能（`ui-design`、`popular-web-designs`、`infographic`）的 allowed-tools 包含 `browser_navigate_tool`。当 Agent 生成 HTML 设计稿时会自动：
+
+1. 在后台启动本地 HTTP 服务器
+2. 使用 `verify_goal` 描述预期的视觉效果进行导航
+3. 接收 3 层验证反馈（DOM + dHash + Vision LLM 评分）
+4. 修复渲染问题并重新验证，直到评分 ≥ 4
+
+这意味着您首次看到的 HTML 设计稿就是**经过验证的高质量结果**——减少 1-3 轮手动反馈。当浏览器工具不可用时，此步骤自动跳过，零影响。
+
 ### 隐私保护
 
 密码输入框在截图时**自动遮蔽**——Vision LLM 不会看到敏感凭证。

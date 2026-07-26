@@ -407,7 +407,7 @@
           "feature": "多 Agent 协作 · P2P 通信 · DAG 编排 · 对抗式验证",
           "hermes": "Kanban + Batch Tasks",
           "openclaw": "展示型看板",
-          "myrmAgent": "8种编排（链式/批量/DAG/竞速/验证/蜂群/多方案竞争/委员会辩论）+ 批量走完整 SubAgent 沙箱/预算/审批，非浅层 LLM fan-out + 按需注入 6 个 LLM 委派工具（默认 0 tok 不占 Prompt Cache）+ 双控制面：Agent 工具 + REST Dashboard（cancel/steer/list/session pause/token+model）+ Session 级委派暂停（优于 Hermes 全局 spawn_paused）+ Fork 子代理 + Auto Vault（vault:// 协议 + SSE 前端推送）+ 级联取消 + P2P 邮箱 + 对抗验证 + COW 隔离 + 10+ GUI + 12 态生命周期 + ACP/A2A + 双层超时（非致命wait + 3x硬安全网）+ 前端 isNodeOvertime 多策略卡死检测 + 事件驱动**停滞探测**（零额外开销，工具执行中 4x 容忍，Dashboard 告警 + IM 推送 + 桌面通知）+ **实时工作证明**（SUBAGENT_LOG 工具流 + FILE_DIFF 含完整 diff + SUBAGENT_PROGRESS token/成本/ETA + ARTIFACT_CONTENT——全程实时推送，非竞品事后提取）+ **Dashboard 高级可视化**（HeaderSummary 总代理/成本/模型分布 + SortFilterBar 4排序×4过滤 + AggregateBadge 子树成本/tokens/后代数 + MiniGantt CSS 时间线——GUI 原生，碾压 Hermes CLI TUI）+ 4层模型解析链 + **失败时保留部分进展**（4条失败路径全覆盖：LLM错误/预算耗尽/超时/运行时异常均返回已完成工作，父Agent可复用80%结果仅补做剩余——竞品子Agent失败后工作全部丢失） + **SCIP 2026-07：核心 preset SSOT fail-fast + L3 父工具集合并 session browser 工具（开 Browser 即可委派，无 Not in parent toolkit）+ browser/analysis YAML 对齐 canonical 工具**（API Live E2E example_domain_seen ~6.5s · 10864 项编排+安全+恢复+UI+多路复用+共识+协议+预算+可视化+Goal引擎+Webhook全链路测试通过 0 失败 · 核心模块覆盖率 90.1% · **Dashboard Chrome LIVE E2E 3/3（2026-07-20）**）"
+          "myrmAgent": "8种编排（链式/批量/DAG/竞速/验证/蜂群/多方案竞争/委员会辩论）+ 批量走完整 SubAgent 沙箱/预算/审批，非浅层 LLM fan-out + 按需注入 6 个 LLM 委派工具（默认 0 tok 不占 Prompt Cache）+ 双控制面：Agent 工具 + REST Dashboard（cancel/steer/list/session pause/token+model）+ Session 级委派暂停（优于 Hermes 全局 spawn_paused）+ Fork 子代理 + Auto Vault（vault:// 协议 + SSE 前端推送）+ 级联取消 + P2P 邮箱 + 对抗验证（**代码级角色分离**：Expert→CouncilOpinion + Chair→CouncilResult 含交叉辩论——竞品仅靠 Prompt 指示角色分工，LLM 可违反；**防伪验证**：未实际执行代码声称 PASS → 自动 FAIL，系统级 `has_executed_code` 追踪）+ COW 隔离 + 10+ GUI + 12 态生命周期 + ACP/A2A + 双层超时（非致命wait + 3x硬安全网）+ 前端 isNodeOvertime 多策略卡死检测 + 事件驱动**停滞探测**（零额外开销，工具执行中 4x 容忍，Dashboard 告警 + IM 推送 + 桌面通知）+ **实时工作证明**（SUBAGENT_LOG 工具流 + FILE_DIFF 含完整 diff + SUBAGENT_PROGRESS token/成本/ETA + ARTIFACT_CONTENT——全程实时推送，非竞品事后提取）+ **Dashboard 高级可视化**（HeaderSummary 总代理/成本/模型分布 + SortFilterBar 4排序×4过滤 + AggregateBadge 子树成本/tokens/后代数 + MiniGantt CSS 时间线——GUI 原生，碾压 Hermes CLI TUI）+ 4层模型解析链 + **失败时保留部分进展**（4条失败路径全覆盖：LLM错误/预算耗尽/超时/运行时异常均返回已完成工作，父Agent可复用80%结果仅补做剩余——竞品子Agent失败后工作全部丢失） + **SCIP 2026-07：核心 preset SSOT fail-fast + L3 父工具集合并 session browser 工具（开 Browser 即可委派，无 Not in parent toolkit）+ browser/analysis YAML 对齐 canonical 工具**（API Live E2E example_domain_seen ~6.5s · 10864 项编排+安全+恢复+UI+多路复用+共识+协议+预算+可视化+Goal引擎+Webhook全链路测试通过 0 失败 · 核心模块覆盖率 90.1% · **Dashboard Chrome LIVE E2E 3/3（2026-07-20）**）"
         },
         "dynamicWorkflow": {
           "feature": "动态工作流 · 运行时 DAG，无需重新部署",
@@ -455,7 +455,7 @@
           "feature": "技能进化 · 越用越聪明，渐进按需加载",
           "hermes": "基础（2级scope、CLI、静默写入）",
           "openclaw": "仅布尔开关",
-          "myrmAgent": "独创安全 XML 摘要与 L1/L2 双层感知按需加载架构，极低 Token 消耗，告别上下文爆炸；企业级脚手架防错（一键打包、安全扫描防毒）；Agent 当场修正报错技能，即刻复用（FIX/Patch）。会话级 Skill 精选：可视化选择当前对话所需技能子集。自动从对话轨迹提取可复用技能（10维评分+安全红线+沙箱验证+去重+GUI审批）。达尔文式隔离（连续失败自动quarantine + trap学习）+ Two-phase screening防雪球效应。Curator 真实 usage 驱动生命周期。企业级Marketplace：一键发布到组织内部。4层审查机制：10维语义Rubric评分+独立LLM-as-Judge（架构原生支持异源模型）+ExecutionMetrics预筛（物理阻止幻觉）+审核生命周期全链路（create/approve/reject/revise/rollback），250项审查测试全通过。**Growth Center 统一读路径**：list 摘要 + lazy detail + SQL 精确 stats，筛选徽章与全库一致，Chrome E2E 验证。"
+          "myrmAgent": "独创安全 XML 摘要与 L1/L2 双层感知按需加载架构，极低 Token 消耗，告别上下文爆炸；企业级脚手架防错（一键打包、安全扫描防毒）；Agent 当场修正报错技能，即刻复用（FIX/Patch）。会话级 Skill 精选：可视化选择当前对话所需技能子集。自动从对话轨迹提取可复用技能（10维评分+安全红线+沙箱验证+去重+GUI审批）。**ConfidenceApprovalFlow 多信号风控审批**（高置信度自动合并 + diff比例红线 + 历史成功率检查 → 高风险提案降级人工Diff Review）。达尔文式隔离（确定性错误1-Strike + 连续失败3-Strikes → 自动quarantine + trap学习 + FIX自动入队）。6指标质量度量体系（selections/applied/completed/success/failures/corrections）。Curator 真实 usage 驱动生命周期。企业级Marketplace：一键发布到组织内部。4层审查机制：10维语义Rubric评分+独立LLM-as-Judge（架构原生支持异源模型）+ExecutionMetrics预筛（物理阻止幻觉）+审核生命周期全链路（create/approve/reject/revise/rollback），250项审查测试全通过。**Growth Center 统一读路径**：list 摘要 + lazy detail + SQL 精确 stats，筛选徽章与全库一致，Chrome E2E 验证。"
         },
         "cron": {
           "feature": "定时任务 · 自然语言一句话创建+聊天流内任务卡片+23个GUI组件+调度器存活探针+27项配置+8种触发器(含实时WS/SSE流监听+URL轮询变更检测)+3种会话模式+智能重试+误火恢复+到期/限额自动通知+云安全脚本模式+一键蓝图模板+心跳Agent绑定与模型继承+AI每日总结+成长仪表板",
@@ -680,10 +680,10 @@
           "myrmAgent": "流式 MoA 共识引擎（多 LLM 并行 + 聚合器综合分析）· 多轮对话完整上下文传递（竞品仅单轮生效）· 工具结果智能保留（竞品直接丢弃 ToolMessage）· Prompt Cache 最大化（System→History→Query 布局）· 专家委员会原语（N 专家独立分析 → 交叉审查 → 主席综合，含防盲从 prompt）· Race 竞速模式（最快成功即返回）· 优雅降级（自动回退最佳参考 + 中流失败部分综合保留）· 深度思考模型支持（DeepSeek-R1/GLM reasoning_content 自动回退）· 预算感知竞速准入 · 参考输出上限（reference_max_tokens — 节省 70-85% 参考 token 成本，聚合器不截断）· 单参考智能跳过（仅1个成功时省去聚合调用）· 温度分离（参考高温多样 + 聚合低温精确）· 成本自动归因（per-call token_tracker）· 人格继承（聚合器保持 Agent persona）· 任意阶段取消（CancellationToken）· 复杂任务智能升级建议（WorkflowEscalation 零成本检测 + 非阻塞建议）· GUI 配置面板 + ConsensusThinkingPanel 实时多模型思考展示 + ConsensusMetaDisplay 元数据展示 · 在12个维度上优于唯一有完整 ensemble 实现的竞品（OpenSquilla 2872行 CLI 实现）· OmniRoute「fusion」策略经源码验证为零实现（纯营销），Myrm 是唯一真正实现 MoA 的 Agent 产品 · 154 项测试验证（2026-07-25 实测）"
         },
         "fileEditSafety": {
-          "feature": "文件系统智能 · 19 种原生操作、11 模块解析引擎、5 层自动观察者、三层写后防呆",
+          "feature": "文件系统智能 · 19 种原生操作、11 模块解析引擎、5 层自动观察者、8 层多代理文件保护",
           "hermes": "基础文档提取 + 写后py_compile级语法检查（无自动格式化、无回滚）",
           "openclaw": "_no",
-          "myrmAgent": "11模块文档解析引擎（PDF 3策略智能编排 · 500页默认/2000页上限+并行解析+截断透明 · 书签+字体标题双模检测 · 表格L0/L2 RAG反碎片 · OCR · 噪点过滤 · Office全格式 · Excel智能分析：结构探查+公式审计+大文件自动策略省90%+Token · Jupyter Notebook含kernel语言检测+语法高亮+全栈拖拽入库）+ 未知格式附件感知兜底 + 7层编辑防护 + **batch atomic file_edit（edits[] 最多20处 · 单次落盘 · overlap预检 · verify全批回滚 · Chrome LIVE WebUI E2E已验）** + 写后三层防呆（内存语法校验+CLI深度诊断+12种自动格式化）+ 语法错误自动回滚 + **Turn 级 Undo（消息+会话 chips）Honest UX** — 无变更/超大文件诚实提示，不虚假承诺 · IM `/undo`/`/retry` 联动 · **Undo 后 Agent 下轮自动 re-read（restore_inbox，WebUI+IM 对称）** · **44 harness + 32 server/inbox + 15 IM + Chrome E2E 5/5 验证** · OpenClaw Rewind 仅对话 · Hermes `/rollback` 需 opt-in · Shadow Git快照恢复 + 多Agent快照归属标识+按智能体过滤+SSE实时刷新 + 实时Diff可视化（SSE推送 · Unified/Split双视图 · Prism语法高亮 · 行号+增删统计 · 2000行截断保护 · 95.4%测试覆盖）+ 上传自动同步workspace + **智能文件检索**：glob通配递归搜索 + grep三级引擎（ripgrep>mmap>Python）正则全文搜索 + ReDoS防护 + token节约格式化 + 前端typeahead路径补全 · **163项file_search+suggest全栈测试全通过**"
+          "myrmAgent": "11模块文档解析引擎（PDF 3策略智能编排 · 500页默认/2000页上限+并行解析+截断透明 · 书签+字体标题双模检测 · 表格L0/L2 RAG反碎片 · OCR · 噪点过滤 · Office全格式 · Excel智能分析：结构探查+公式审计+大文件自动策略省90%+Token · Jupyter Notebook含kernel语言检测+语法高亮+全栈拖拽入库）+ 未知格式附件感知兜底 + **8层多代理文件保护**（先读后写 + 版本匹配 + 完整读取前置 + 行级冲突检测 + 跨代理活动追踪 + 自动工作空间隔离 ISOLATED_COPY + 延迟串行合并 + 完成自动清理 — **192项多代理测试**）+ **batch atomic file_edit（edits[] 最多20处 · 单次落盘 · overlap预检 · verify全批回滚 · Chrome LIVE WebUI E2E已验）** + 写后三层防呆（内存语法校验+CLI深度诊断+12种自动格式化）+ 语法错误自动回滚 + **Turn 级 Undo（消息+会话 chips）Honest UX** — 无变更/超大文件诚实提示，不虚假承诺 · IM `/undo`/`/retry` 联动 · **Undo 后 Agent 下轮自动 re-read（restore_inbox，WebUI+IM 对称）** · **44 harness + 32 server/inbox + 15 IM + Chrome E2E 5/5 验证** · OpenClaw Rewind 仅对话 · Hermes `/rollback` 需 opt-in · Shadow Git快照恢复 + 多Agent快照归属标识+按智能体过滤+SSE实时刷新 + 实时Diff可视化（SSE推送 · Unified/Split双视图 · Prism语法高亮 · 行号+增删统计 · 2000行截断保护 · 95.4%测试覆盖）+ 上传自动同步workspace + **智能文件检索**：glob通配递归搜索 + grep三级引擎（ripgrep>mmap>Python）正则全文搜索 + ReDoS防护 + token节约格式化 + 前端typeahead路径补全 · **163项file_search+suggest全栈测试全通过**"
         },
         "ptcEngine": {
           "feature": "PTC 引擎 · 复杂任务更省 Token",
@@ -755,7 +755,7 @@
           "feature": "视觉差异检测 · 一眼发现页面变化",
           "hermes": "_no",
           "openclaw": "_no",
-          "myrmAgent": "双模式视觉对比：dHash 感知哈希（~2ms，零成本变化检测）+ Canvas 像素级分析（~100ms，含抗锯齿的 YIQ 色彩空间 diff 图）· 截图自动遮蔽密码字段 · Retina 2x 高清截图 · verify_goal：3 层自动验收漏斗（dHash → 像素 diff → Vision LLM 1-5 分评判），每次操作后自动验证"
+          "myrmAgent": "双模式视觉对比：dHash 感知哈希（~2ms，零成本变化检测）+ Canvas 像素级分析（~100ms，含抗锯齿的 YIQ 色彩空间 diff 图）· 截图自动遮蔽密码字段 · Retina 2x 高清截图 · verify_goal：3 层自动验收漏斗（dHash → 像素 diff → Vision LLM 1-5 分评判），每次操作后自动验证 · **设计技能自动验收**：ui-design/popular-web-designs/infographic 技能交付 HTML 前自动启动 verify_goal 验证（≥4分门禁）——竞品写完即交，不做任何渲染检查"
         },
         "toolSecurity": {
           "feature": "MCP+工具安全 · 三层纵深防御",
@@ -1307,7 +1307,7 @@
         "multiAgent": {
           "label": "多 Agent",
           "title": "默认简洁，按需释放团队力量",
-          "desc": "默认以单 Agent 快速响应，零编排开销。一键 toggle 即可解锁 8 种编排模式、看板自治认领与实时拓扑看板。多 Agent 能力始终就绪，只在你需要时才现身。",
+          "desc": "默认以单 Agent 快速响应，零编排开销。一键 toggle 即可解锁 8 种编排模式、看板自治认领与实时拓扑看板。代码级 DAG/Council/Verification 编排取代脆弱的纯 Prompt 工作流——1,680 项测试，0 失败。",
           "stat": "8",
           "statLabel": "种编排模式",
           "tag1": "单 Agent 默认 · 零噪音",

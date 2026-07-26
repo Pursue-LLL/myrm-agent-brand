@@ -22,6 +22,8 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **为何手动 `/to-spec` 在此过时**：Matt 的 to-spec 需要用户手动触发接缝定义。Myrm 拥有 5 层自动验收：GoalMode acceptance_criteria（用户定义）+ PlanConfirm HITL（计划审核）+ Kanban completion_criteria（结构化 shell+semantic）+ VerificationGatekeeper（任务完成后自动执行）+ CompletionGuard（反幻觉）。
 - **用户迁移收益**：使用 Matt skills 的开发者切换到 Myrm 后不丢失任何能力；他们获得的是 AI 自动任务路由和程序化验证，而非记忆斜杠命令。
 - **实时任务监控（vs mattpocock/skills GTE 工作台概念）**：GoalStatusCard+GoalControlPlane+GoalPlanStepsList **27/27** + SubagentDashboard **2/2** + Kanban DnD+Markdown **48/48** + Goal Engine **164/164** + Subagent Engine **179/179** + Kanban API **250/250** + Kanban Integration **100/100** = **770 tests, 0 failures**。Myrm 提供 9 层实时监控（GoalStatusCard fixed overlay + GoalPlanStepsList + GoalControlPlane + SubagentDashboard + ArtifactPortal + BrowserLiveView + DesktopLiveView + KanbanBoardView + MobileStatusBoard）——所有组件均可在 0-1 次点击内访问。并排布局不必要，因为 fixed overlay 已提供常驻可见性，不占用屏幕空间，不破坏移动端 UX。
+- **智能运行时 HITL vs 任务级 AFK/HITL 声明（vs mattpocock/skills `/to-tickets`）**：Kanban task_runner **25/25** + unattended_mode **2/2** + approval_flow+yolo **111/111** + unattended_mode_guard **2/2** + approval_edge_cases+batch+ptc **38/38** + rate_limiter+denial+subagent_safety **22/22** + interception+correction+scheduler **104/104** + security_config+execution_policy+permission **169/169** + server approvals **67/67** + personality_yolo+payload **19/19** + HITL_resume+kanban_binding **11/11** + subagent_approval_integration **4/4** + batch_decisions+session **72/72** + workspace_boundary **12/12** = **658 tests, 0 failures**。Myrm 的设计哲学：Kanban=天然 AFK（yolo+unattended）、Chat=天然 HITL、Cron=天然 AFK、GoalMode=智能切换。运行时 ToolApproval 按操作粒度触发（而非按任务），配合 4 级 Allow-Always 学习。Matt 的任务级 AFK/HITL 标记是 CLI 能力缺失的补丁——它制造了语义冲突（AFK 任务执行危险操作时怎么办？），而 Myrm 的操作级方案优雅解决了这一问题。
+- **上下文管理 & 智能 Handoff（vs mattpocock/skills ask-matt Context Hygiene + `/handoff`）**：ContextBudgetGuard **24/24** + ConversationForkManager **24/24** + ContextUsageIndicator **25/25** + Context pipeline **111/111** + Filter+cache_ttl_prune+resume **68/68** + Handoff API **24/24** + SummarizeProcessor **49/49** = **325 tests, 0 failures**。Myrm 提供 6 层上下文管理：(1) ContextBudgetGuard 4 层溢出保护 (2) 50+ 文件自动压缩 pipeline (3) compactChat 手动压缩 API (4) ≥75% 时 checkpoint-based fork (5) ContextUsageIndicator 环形+CTA (6) HandoffDialog 跨渠道迁移。Matt 的 `/handoff` 是手动 CLI 命令，产生文本摘要会丢失上下文；Myrm 的 Fork 保留完整 LangGraph checkpoint 状态。修复预存在 bug：summarize_processor `_NoOpMetric` AttributeError。
 
 ## 最新验证快照（2026-07-23）
 
@@ -89,7 +91,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **错误恢复** | ✅ 8层纵深防护(LoopGuard 7种模式+ToolStuck→GraphInterrupt+FrequencyGuard+E-Stop+4层熔断器+僵尸自动回收+Gateway超时+内存压力熔断) + **工具调用四层自主修正**(7+种JSON修复策略适配弱/本地模型+错误→ToolMessage自动回传LLM自修正+LoopGuard防死循环+CorrectionLearning审批修正持久化记忆) + 14类自愈 + 9层纵深降级 — 3,276项测试 | try/catch | 基础 | 基础 | ⚠️ 上下文溢出恢复 | ⚠️ 未知 | ❌ |
 | **企业可靠性** | ✅ xdist 锁、EventBus 截断、OTEL 安全、路径边界 + TOCTOU 审批测试；聊天 SSE 状态机回归；**521 份分形 `_ARCH` 模块文档 + 296 项架构 CI 门禁**；**Eval 引擎：4 类 12+ 种断言体系（Tool+State+Sandbox+Semantic LLM 裁判，支持自定义 judge_prompt/model/threshold）+ 多轮评测（MultiTurnEvalCase）+ 一键 chat→eval 捕获（GUI Flywheel 闭环）+ AdaptiveEvalManager 智能算力让步 + GUI 集成 + 多数据集 CRUD + A/B 历史报告 + SSE 流式进度 + 6 项 IR 指标（Recall/Precision/NDCG/MRR/HitRate/Latency）+ ModelTier 自动调优 + 评测工作空间物理防污染隔离 + 记忆检索质量评测子系统 — 127 项 eval 测试验证，唯一具备完整评测 GUI+AI 裁判+并发执行+一键捕获闭环的 Agent 框架**（2026-07-17） | ⚠️ 仅快乐路径测试 | ⚠️ 易竞态（ClawEval: CLI 59 角色基准测试，无 GUI） | ⚠️ 未知 | ⚠️ 未知 | ⚠️ 未知 | ❌ |
 | **模块文档地图** | ✅ **521** 份 `_ARCH.md` + CI 防漂移（`check_fractal_docs`） | ❌ 仅集中式 docs | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **文件编辑安全** | ✅ 7 层保护 + 三层写后防呆（内存语法校验+CLI深度诊断+12种自动格式化）+ 语法错误自动回滚 + Shadow Git 快照**选择性文件恢复**（checkbox 多选）+ 行级变更统计 (+X/−Y) + 回退后 Agent 自动感知 + 冲突检测 + 配置保护 + 敏感文件保护 + 实时 diff SSE（1,190 项测试） | ⚠️ py_compile 级写后检查（无自动格式化、无回滚） | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
+| **文件编辑安全** | ✅ **8 层多代理文件保护**（先读后写 + 版本匹配 + 完整读取前置 + 行级冲突检测 + 跨代理活动追踪 + 自动工作空间隔离 ISOLATED_COPY + 延迟串行合并 + 完成自动清理 — **192 项多代理测试**）+ 三层写后防呆（内存语法校验+CLI深度诊断+12种自动格式化）+ 语法错误自动回滚 + Shadow Git 快照**选择性文件恢复**（checkbox 多选）+ 行级变更统计 (+X/−Y) + 回退后 Agent 自动感知 + 配置保护 + 敏感文件保护 + 实时 diff SSE（1,380+ 项测试） | ⚠️ py_compile 级写后检查（无自动格式化、无回滚） | ❌ | ❌ | ❌ 仅 Prompt 文件互斥（LLM 可绕过） | ⚠️ 未知 | ❌ |
 | **文件系统智能** | ✅ 19 种原生操作 + 11模块解析引擎（PDF 3策略 + Office全格式 + Jupyter Notebook含kernel语言检测+语法高亮+全栈拖拽入库 + 未知格式附件感知兜底）+ 5 层观察者 + **智能文件检索**（glob通配递归 + grep三级引擎 ripgrep>mmap>Python + ReDoS防护 + token节约格式化 + 前端typeahead路径补全）——**163项file_search+suggest测试 + 788项文件系统测试 = 951项全通过** | ⚠️ 4 种基础操作 + 基础 ipynb/docx/xlsx（同步、无降级） | ⚠️ 仅 bash | ⚠️ 仅 bash | ❌ | ⚠️ 基础 | ❌ |
 | **代码执行引擎** | ✅ 零进程开销 pathlib I/O + 语法错误自动回滚 + 持久化 Shell 会话 + 环境自动探测 + seatbelt/bwrap 沙箱 + PTC 双向通道 + 输出压缩 + 虚拟环境管理 + 工具自动发现 + **BashExecutor/BashTool 模块化拆分（13 文件，97.1% 覆盖，架构门禁）** — **1,520+ 项测试** | ⚠️ 仅 Shell 子进程 | ⚠️ 仅 bash | ⚠️ 仅 bash | ❌ | ⚠️ 基础 | ❌ |
 | **工作区上下文** | ✅ 7 种 @ 引用（文件/文件夹/staged/diff/URL/上传/行范围）+ 工具层全文件系统访问 + Dynamic Workflow 多项目并行（259 项测试） | ⚠️ 仅 @file（沙箱限制） | ❌ 单目录 | ❌ | ❌ | ⚠️ 未知 | ❌ |
@@ -262,7 +264,13 @@ Agent 对话可能涉及敏感个人信息。竞品（如 ClawVault）仅在对�
 | **Execution Verification** | ❌ None | **CompletionGuard** (Evidence-based + Temporal + Independent Re-run) | Children must prove task completion with actual STDOUT/STDERR. Temporal check detects post-verification code writes; independent re-run validates in sandbox. |
 | **Handoffs（控制权转移）** | ❌ 无（OpenAI Swarm 仅 Demo 级 `transfer_to_agent`） | **run_chain**（A→B→C 接力赛）+ **delegate_task_tool**（动态路由）+ **handoff_chat**（跨平台会话交接）+ **context_mode:"fork"**（可控上下文继承） | 完整的接力赛语义，不牺牲安全边界。733 项测试验证。 |
 
-**结论：Myrm 用确定性软件工程模式取代「提示并祈祷」式多 Agent。流水线每次可靠、安全、在预算内执行。**
+**结论：Myrm 用确定性软件工程模式取代「提示并祈祷」式多 Agent。流水线每次可靠、安全、在预算内执行。1,680 项编排测试通过，0 失败（2026 年 7 月）。**
+
+:::tip vs AWS Codex Agent Team — 代码级编排
+AWS 的 sample-codex-agent-team 通过 6 个纯 Prompt 的 `SKILL.md` 模板（头脑风暴→规格→协调→评审→文档→项目管理）指导多 Agent 协作——完全依赖 LLM 自律。Myrm 用代码级原语替代每一步：`run_council` 多专家交叉审查、`execute_dag_plan` 确定性 DAG、`run_with_verification` 对抗验证自动重试、31 组件看板 GUI 实时项目管理。LLM 无法绕过任何一环。
+
+竞品的 12 字段 "Handoff Contract"（role、objective、file scope、acceptance criteria、verification command 等）同样是纯 Prompt 约定。Myrm 通过 `DelegateTaskInput` Pydantic schema + 8 项代码级强制检查（payload-hash 去重、深度/容量限制、类型白名单、暂停控制、验证模式）全部覆盖——还额外拥有 4 项竞品完全没有的独有机制。2,488 项测试通过，0 失败。
+:::
 
 ## 智能并发路由 — 消除读写竞态（vs Hermes / OpenClaw）
 
@@ -1724,3 +1732,7 @@ DeerFlow 2.0 提出了 14 层中间件链和 Docker 沙箱，但其架构严重�
 ### 8. 拒绝静默失败的全链路反馈
 批量操作无进度条、网络异常静默失败、文件“零引用”直接删除……这些都是竞品中常见的导致用户极度焦虑的设计。
 **我们的优势**：全链路的 UI 进度反馈、明确的异常 Toast 提示与重试机制，任何跳出当前上下文的操作都有强视觉反馈。同时内置文件系统的“回收站”软删除机制，彻底消除数据丢失焦虑，提供真正的企业级安全感。
+
+### 9. 行级并行文件冲突防护
+当多个子代理同时编辑同一代码库时，文件冲突可能悄无声息地损坏代码。AWS 使用粗粒度的文件路径级互斥波次；OpenAI Codex 完全没有应用层保护。
+**我们的优势**：三层纵深防御——L1 行级冲突检测（`check_conflict_pre_write`）精确阻断重叠行编辑并给出行范围信息；L2 `FileActivityTracker` 记录每个代理的写入行范围；L3 `apply_parallel_write_isolation` 检测到多写者时自动切换 `ISOLATED_COPY` 工作空间 + 延迟合并。同文件非重叠区域可并发写入（吞吐量比 AWS 方案翻倍）。任务完成时自动清理——零内存泄漏。**1,199 项测试验证通过，0 失败。**

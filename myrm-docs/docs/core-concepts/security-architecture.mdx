@@ -670,6 +670,32 @@ MyRM enforces 5 layers of isolation:
 
 Additional safety nets: payload hash deduplication prevents delegation loops, result caching avoids redundant work, and 3 memory isolation strategies (EPHEMERAL / READ_ONLY_GLOBAL / COLLABORATIVE_SESSION) prevent cross-agent data contamination.
 
+## Multi-Agent File Protection: 8-Layer Defense
+
+When multiple agents work in the same workspace simultaneously, file conflicts are the #1 source of data corruption. MyRM enforces 8 layers of defense — all code-enforced, zero Prompt reliance:
+
+| Layer | Mechanism | What It Prevents |
+|-------|-----------|-----------------|
+| **L1** | **Read-Before-Write** (staleness_guard) | Blind edits on unread files — agent must read a file before writing |
+| **L2** | **Version Match** (file_integrity_guard) | Stale edits — rejects writes when file content changed since last read |
+| **L3** | **Full-Read-Before-Edit** (file_integrity_guard) | Partial reads — rejects edits if only part of a file was read |
+| **L4** | **Line-Level Conflict Detection** (file_conflict_guard) | Overlapping edits — detects when two agents modify the same line range |
+| **L5** | **Cross-Agent Activity Tracking** (file_activity_tracker) | Untracked concurrent access — records every agent's write activity per file |
+| **L6** | **Automatic Workspace Isolation** (workspace_policy) | Shared-state corruption — auto-upgrades to ISOLATED_COPY when multiple agents write in parallel |
+| **L7** | **Deferred Serial Merge** (batch_merge) | Merge conflicts — isolated workspaces merge back one-at-a-time |
+| **L8** | **Auto-Cleanup on Completion** (subagent_manager) | Stale tracking data — clears all tracking records when a subagent finishes |
+
+**How it works in practice:**
+
+1. A parent agent delegates 3 coding tasks to parallel subagents
+2. `workspace_policy` detects ≥2 parallel writers → auto-upgrades to ISOLATED_COPY
+3. Each subagent gets its own COW (Copy-on-Write) workspace clone
+4. Subagents work independently — no lock contention, no blocking
+5. On completion, `batch_merge` applies changes back to the parent workspace one-at-a-time
+6. If two subagents edited overlapping lines, `file_conflict_guard` raises a conflict at merge time
+
+**vs competitors:** AWS Codex Agent Team relies on Prompt instructions ("no two active tasks may write the same file") — LLMs can ignore this constraint. MyRM enforces every layer in application code — impossible to bypass regardless of model behavior.
+
 ## vs CaMeL Guard (hermes-agent-camel)
 
 The CaMeL Guard project implements a research-based trust boundary model (trusted controller vs untrusted data). Myrm's security architecture provides significantly deeper coverage:
