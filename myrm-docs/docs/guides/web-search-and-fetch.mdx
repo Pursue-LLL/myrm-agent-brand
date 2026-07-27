@@ -58,6 +58,18 @@ Unlike competitors that use a single retrieval path, Myrm employs 5 layers of ro
 | 4 | Capability discovery | `discover_capability_tool` progressive loading for MCP skills (all builtin tools Turn1 eager; no mid-thread bind_tools mutate) |
 | 5 | RSG post-verification | Evaluates quality and guides follow-up searches |
 
+### Web Fetch vs Browser (Smart Routing)
+
+When both **web_fetch** and **browser** tools are enabled, Myrm guides the Agent without coupling to System Prompt:
+
+| Task | Preferred tool | Why |
+|------|----------------|-----|
+| Read article / docs / blog (no clicks) | **web_fetch** | Faster, cheaper; JS rendering handled internally |
+| Login, forms, clicks, infinite scroll | **browser** | Full interaction + session reuse via Extension Bridge |
+| Find URLs first | **web_search** | Discovery before fetch or browse |
+
+**How it works:** Tool descriptions + Dynamic Hints (injected only when the paired tool is available) + symmetric Loop Guard suggestions + separate browser pool isolation (CRAWL vs AGENT). Hermes only hints browser→web_extract; OpenClaw has no cross-tool hints.
+
 This means: no extra latency, no prompt cache break, and more flexible than a static pre-planner.
 
 ### Retrieval Modes

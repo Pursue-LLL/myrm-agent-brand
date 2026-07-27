@@ -58,6 +58,18 @@ Hermes、OpenClaw、OpenCode、Claude Code 都有基础 web 搜索/抓取。Myrm
 | 4 | 能力发现 | 10+ 工具时语义搜索延迟加载工具 |
 | 5 | RSG 后验评估 | 评估检索质量并指导补搜方向 |
 
+### web_fetch vs browser（智能分工）
+
+同时开启 **web_fetch** 与 **browser** 时，Myrm 通过工具层引导 Agent 选型，**不耦合 System Prompt**：
+
+| 场景 | 优先工具 | 原因 |
+|------|----------|------|
+| 读文章/文档/博客（无需点击） | **web_fetch** | 更快更省；内部处理 JS 渲染 |
+| 登录、表单、点击、无限滚动 | **browser** | 完整交互 + Extension Bridge 复用登录态 |
+| 先找 URL | **web_search** | 发现来源后再抓或浏览 |
+
+**机制**：工具描述 + Dynamic Hints（仅在配对工具可用时注入）+ Loop Guard 对称建议 + 浏览器池隔离（CRAWL vs AGENT）。Hermes 仅 browser→web_extract 单向 hint；OpenClaw 无互引。
+
 效果：零额外延迟、不破坏 prompt cache、比静态预规划更灵活。
 
 ### 检索模式
