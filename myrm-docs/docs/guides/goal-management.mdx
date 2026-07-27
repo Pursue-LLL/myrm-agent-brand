@@ -272,6 +272,31 @@ After completion, every goal produces a `GoalExecutionSummary` with:
 
 This summary is available in the GUI and via API.
 
+## Deliverable Bundle
+
+When a goal completes and has produced **2 or more artifacts** (documents, spreadsheets, presentations, etc.), Myrm automatically aggregates them into a **Deliverable Bundle** card:
+
+- **Auto-Collection** — All artifacts generated during the goal's session are collected without any manual action
+- **One-Click ZIP Download** — Download the entire bundle as a single ZIP archive
+- **Per-File Preview** — Click any individual deliverable to open it in the Artifact Portal with format-aware rendering
+- **Filename Deduplication** — If multiple artifacts share the same name, unique identifiers are appended automatically
+
+### Use Case: Full-Chain Office Delivery
+
+Use the pre-built **"Office Full-Chain Delivery"** agent template to generate complete document suites in one conversation:
+
+1. Select the "Office Full-Chain Delivery" agent from the agent selector
+2. Describe your deliverables (e.g., "Prepare quarterly report: Excel data + PPT presentation + Word summary")
+3. The agent executes with Goal mode, maintaining data consistency across all documents
+4. On completion, the Deliverable Bundle card appears with all files ready for download
+
+### API Access
+
+Deliverables are also available via REST API:
+
+- `GET /api/goals/{goal_id}/status` — Returns `deliverables` array with artifact IDs and filenames
+- `POST /api/files/download-bundle` — Downloads multiple artifacts as a ZIP archive
+
 ## Example Workflow
 
 ```
