@@ -140,6 +140,8 @@ This means you know whether a model will feel snappy or sluggish *before* commit
 
 **Deploy Mode Awareness:** In SaaS mode, local model features are automatically hidden — no clutter for cloud-only users. In Local WebUI or Desktop modes, the full Hardware Cookbook is available.
 
+**Adaptive Stall Detection for Local Endpoints:** When your API URL points to a local address (localhost, 192.168.x.x, 10.x.x.x, or any private network), Myrm automatically relaxes internal timeout thresholds. Large local models (70B+) can take minutes for initial token generation with big contexts — cloud-optimized 60-second timeouts would kill these requests prematurely, triggering futile retry loops. Myrm detects local endpoints via RFC1918/IPv6 address analysis and extends timeouts to 5–30 minutes, ensuring your local inference completes successfully. Remote API behavior remains unchanged. No configuration needed — it just works.
+
 ## Config Auto-Healing
 
 All model configuration values are automatically sanitized on save, preventing common copy-paste errors from causing connection failures:
