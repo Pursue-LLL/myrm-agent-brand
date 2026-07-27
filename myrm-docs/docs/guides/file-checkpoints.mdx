@@ -149,7 +149,7 @@ After a successful Turn Undo (message, session, or IM), the Agent receives a **r
 
 ### Empty write rejection & failure banner
 
-If the Agent calls `file_write_tool` with **empty or whitespace-only** content, Myrm **does not** create a 0-byte file on disk. Instead:
+If the Agent calls `file_write_tool` with **empty, whitespace-only, or invisible-only content (ZWSP/BOM)**, Myrm **does not** create a misleading file on disk. Instead:
 
 1. The tool returns a clear error (`Cannot write empty file content`)
 2. The per-turn mutation verifier records the failure

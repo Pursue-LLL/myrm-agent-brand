@@ -149,7 +149,7 @@ Turn Undo（消息级、会话级或 IM）成功后，Agent 在下一轮会通�
 
 ### 空写入拒绝与失败横幅
 
-当 Agent 误调用 `file_write_tool` 且内容为**空或纯空白**时，Myrm **不会**在磁盘创建 0 字节文件，而是：
+当 Agent 误调用 `file_write_tool` 且内容为**空、纯空白、或仅含零宽字符/BOM 等不可见字符**时，Myrm **不会**在磁盘创建误导性文件，而是：
 
 1. 工具层返回明确错误（`Cannot write empty file content`）
 2. Turn 级 mutation verifier 记录失败
