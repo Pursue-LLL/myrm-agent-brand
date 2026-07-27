@@ -107,6 +107,7 @@ export const COMPARE_ROW_KEYS = [
   'projectMilestone',
   'modelArenaRanking',
   'dynamicArtifacts',
+  'officialDocuments',
   'localIotBridge',
   'longTaskOrchestration',
   'harnessUpgradeContract',
@@ -156,6 +157,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'visionFusion',
     'longTaskOrchestration',
     'dynamicArtifacts',
+    'officialDocuments',
   ],
   reliability: [
     'tokenEfficiency',
