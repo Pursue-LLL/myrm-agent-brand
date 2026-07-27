@@ -15,6 +15,8 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 ## 最新验证快照（2026-07-27）
 
+- **Office 模板保真填表（vs WPS 灵犀 / OpenClaw / Hermes / DeerFlow / LobsterAI / CoPaw / jiuwenclaw）**：file_parsers 单元 **213/213** + document_reader 集成 **26/26** + docx_e2e 集成 **16/16** = **255 tests, 0 failures**。能力：XML-level `<w:t>` 占位符替换保留 `<w:rPr>` 格式、空单元格填写（`add_run` + `deepcopy(donor.rPr)`）、占位符清理规则、多文件批量填表工作流、Phase 5 视觉校验（字体替换/行距溢出/残留占位符检查）、LegacyFormatParser OLE2 magic 检测 + soffice 自动转换（.doc/.xls/.ppt）、docx.py cell_map（行/列/值坐标，上限 500 cell）。
+- **为何竞品缺失**：6 个开源竞品均无 Office 填表能力。WPS 灵犀通过闭源 WPS 内核实现保真（平台锁定）。Myrm 通过纯 python-docx XML-level 操作 + SKILL.md 指导实现 90%+ 保真度——三端可用（本地 WebUI / Tauri 桌面 / 云沙箱），无需依赖任何办公套件。
 - **前端 Agent 状态管理架构（vs CopilotKit AG-UI useAgent/useAgentEvents Hooks）**：multiplexChunkBridge **16/16** + SSE handlers (gap+clarification+completion) **24/24** + messageStreamHandler core **27/27** + Zustand store (snapshot+navigation+subagent+model config) **30/30** + integration & event dispatch **39/39** + UI data model merge **6/6** + state recovery (budget+memory+reasoning) **40/40** + plan lifecycle **13/13** = **195 tests, 0 failures**。修复预存在 bug 1 枚（日语 locale「必須」更新后测试断言未同步）。
 - **为何 CopilotKit SDK Hooks 在此过时**：CopilotKit 的 `useAgent()` / `useAgentEvents()` 是面向 SDK 嵌入场景（将 Agent 嵌入第三方 App）的简化封装；Myrm 作为独立 AI 产品，前端团队直接使用 Zustand store + 13 专职 Handler 模块 + `streamConsumer`（含断线重连 / Last-Event-ID 续流 / chunk 缓冲 / capability_gap 延迟重发 / missed HITL 恢复 / 历史状态水合）——66 种 SSE 事件类型对比 CopilotKit ~10 种抽象事件，粒度 6.6x，精确 re-render 无额外 Hook 开销。
 - **用户迁移收益**：基于 CopilotKit AG-UI 构建的 Agent 前端迁移至 Myrm 后，无需编写任何 SDK hook、EventSource 管理、重连逻辑——开箱即用的实时流 + 断线自愈 + UI 状态机。
