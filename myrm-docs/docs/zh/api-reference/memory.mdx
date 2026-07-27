@@ -74,3 +74,19 @@ POST /api/memory
 ```bash
 DELETE /api/memory/:id
 ```
+
+## 记忆指挥中心
+
+获取完整的记忆系统健康状态和诊断快照，用于设置页面展示。
+
+```bash
+GET /api/v1/memory/command-center?project_id=<可选>
+```
+
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `project_id` | string | — | 可选的项目 ID，用于将快照范围限定为单个项目的记忆空间 |
+
+响应包含：概览统计、记忆空间、治理项、健康诊断、时间线事件、迁移状态、运行时配置等。
+
+提供 `project_id` 时，`spaces`、`governance` 和 `timeline` 部分仅显示与该项目 SharedContext 绑定相关的数据。空字符串会被自动归一化为全局视图。

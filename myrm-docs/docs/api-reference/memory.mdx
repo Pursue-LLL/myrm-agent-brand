@@ -74,3 +74,19 @@ POST /api/memory
 ```bash
 DELETE /api/memory/:id
 ```
+
+## Memory Command Center
+
+Get the full memory system health and diagnostics snapshot for the Settings UI.
+
+```bash
+GET /api/v1/memory/command-center?project_id=<optional>
+```
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `project_id` | string | — | Optional project ID to scope the snapshot to a single project's memory spaces |
+
+Response includes: overview statistics, memory spaces, governance items, health diagnostics, timeline events, migration status, runtime configuration, and more.
+
+When `project_id` is provided, the `spaces`, `governance`, and `timeline` sections are filtered to show only data related to that project's SharedContext bindings. Empty strings are normalized to the global view.
