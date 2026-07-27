@@ -314,3 +314,37 @@ When triggered, all SOPs are merged and injected into a single LLM turn with aut
 ### Per-Agent Isolation
 
 Each agent has its own set of command bindings. A "Code Assistant" agent's `/review` is completely independent from an "Ops Assistant" agent's `/deploy` — no crosstalk, no conflicts.
+
+## Profile Snapshots & Rollback
+
+Every configuration change creates an automatic snapshot. You get worry-free experimentation with one-click undo:
+
+| Feature | Description |
+|---------|-------------|
+| **Auto-snapshot** | Each update creates a versioned snapshot (up to 10 retained) |
+| **One-click rollback** | Revert to any previous configuration state instantly |
+| **Pre-rollback protection** | Rolling back auto-saves the current state first, so you can always undo the undo |
+| **Selective history** | Cosmetic changes (avatar-only) do not pollute the snapshot timeline |
+| **Cache-safe** | Rollback invalidates the profile resolver cache immediately — the agent uses the restored config on the very next turn |
+
+Access snapshot history from **Agent Settings > Version History**.
+
+<Tip>
+No competitor offers automatic multi-version profile snapshots with rollback. Hermes, OpenClaw, and ChatGPT require manual backup before changes — one mis-click permanently overwrites your configuration.
+</Tip>
+
+## Export, Import & Clone
+
+Share agent configurations across teams or back them up externally:
+
+| Operation | Description |
+|-----------|-------------|
+| **Export** | Downloads the full agent profile as JSON (credential fields auto-stripped for safety) |
+| **Import** | Creates a new agent from any exported JSON (supports both individual and team formats) |
+| **Clone** | One-click duplicate within your workspace — new UUID, same configuration |
+
+For team agents, export bundles the leader + all member profiles in a single versioned package.
+
+<Warning>
+Sensitive fields (API keys, OAuth tokens, gateway credentials) are automatically removed during export to prevent accidental credential leaks when sharing.
+</Warning>

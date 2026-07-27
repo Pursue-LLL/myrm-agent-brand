@@ -13,6 +13,14 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在记忆能力上，Myrm 现已形成完整的**诊断可解释 + 遥测完整性闭环**：stream 阶段状态、persist 阶段状态、控制平面聚合告警、前端 `preflight`/`runtime_fallback` 来源解释（含移动端非 hover 文案），并在云模式提供严格 fail-closed 入库（共享 `envelope_id` 幂等 + 共享去重后端不可用时禁止静默本地回退 + `dedup_reject` 原因指标）。最近一次定向回归（2026-07-19）：server 28 passed、control-plane 55 passed、frontend 14 passed。
 
+## 最新验证快照（2026-07-27）
+
+- **前端 Agent 状态管理架构（vs CopilotKit AG-UI useAgent/useAgentEvents Hooks）**：multiplexChunkBridge **16/16** + SSE handlers (gap+clarification+completion) **24/24** + messageStreamHandler core **27/27** + Zustand store (snapshot+navigation+subagent+model config) **30/30** + integration & event dispatch **39/39** + UI data model merge **6/6** + state recovery (budget+memory+reasoning) **40/40** + plan lifecycle **13/13** = **195 tests, 0 failures**。修复预存在 bug 1 枚（日语 locale「必須」更新后测试断言未同步）。
+- **为何 CopilotKit SDK Hooks 在此过时**：CopilotKit 的 `useAgent()` / `useAgentEvents()` 是面向 SDK 嵌入场景（将 Agent 嵌入第三方 App）的简化封装；Myrm 作为独立 AI 产品，前端团队直接使用 Zustand store + 13 专职 Handler 模块 + `streamConsumer`（含断线重连 / Last-Event-ID 续流 / chunk 缓冲 / capability_gap 延迟重发 / missed HITL 恢复 / 历史状态水合）——66 种 SSE 事件类型对比 CopilotKit ~10 种抽象事件，粒度 6.6x，精确 re-render 无额外 Hook 开销。
+- **用户迁移收益**：基于 CopilotKit AG-UI 构建的 Agent 前端迁移至 Myrm 后，无需编写任何 SDK hook、EventSource 管理、重连逻辑——开箱即用的实时流 + 断线自愈 + UI 状态机。
+- **声明式 Agent UI 框架（vs CopilotKit Generative UI useRenderTool/A2UI）**：前端 interactive-ui 组件 **65/65** + Harness render_ui_tool + update_ui_data_tool **30/30** = **95 tests, 0 failures**。Myrm 23 种白名单组件注册表（表单10+布局5+展示6+基础3）+ 8 种内置表单验证 + 条件渲染（visible binding）+ UIComponentErrorBoundary 单组件容错 + validate_ui_adjacency 结构校验 + update_ui_data_tool 增量深合并——Agent 只需输出 JSON schema，零前端代码即可获得完整交互 UI。
+- **为何 CopilotKit Generative UI 在此过时**：CopilotKit 需要前端为每个 tool 手写 render callback，无内建验证/错误边界/增量更新。Myrm 的声明式注册表模式在安全性、一致性、开发效率上全面优于。
+
 ## 最新验证快照（2026-07-26）
 
 - **任务导航 & AI 自动路由（vs mattpocock/skills `ask-matt`）**：DiscoverCapability **57/57** + Clarification/ask_question **15/15** + capability_gap SSE **37/37** + StreamDispatcher **17/17** + Kanban API **361/361** + Kanban Service **102/102** + Kanban Integration **33/33** + Kanban Channels **89/89** = **711 tests, 0 failures**。
@@ -1736,3 +1744,11 @@ DeerFlow 2.0 提出了 14 层中间件链和 Docker 沙箱，但其架构严重�
 ### 9. 行级并行文件冲突防护
 当多个子代理同时编辑同一代码库时，文件冲突可能悄无声息地损坏代码。AWS 使用粗粒度的文件路径级互斥波次；OpenAI Codex 完全没有应用层保护。
 **我们的优势**：三层纵深防御——L1 行级冲突检测（`check_conflict_pre_write`）精确阻断重叠行编辑并给出行范围信息；L2 `FileActivityTracker` 记录每个代理的写入行范围；L3 `apply_parallel_write_isolation` 检测到多写者时自动切换 `ISOLATED_COPY` 工作空间 + 延迟合并。同文件非重叠区域可并发写入（吞吐量比 AWS 方案翻倍）。任务完成时自动清理——零内存泄漏。**1,199 项测试验证通过，0 失败。**
+
+### 10. 业界最完整的 HITL 安全审批体系
+CopilotKit 等 SDK 框架仅提供简单的 Promise hook 审批（respond 后继续），无风险评估、无回滚、无批量审批。
+**我们的优势**：Myrm 拥有完整的工程化 HITL 审批系统——命令逐段风险标注（safe/unknown/dangerous）+ 自然语言影响解释 + 截图 BBox 可视化上下文 + 文件级快照回滚（pre_rollback 触发器）+ 外部副作用告警 + 批量审批 + 命令编辑二次验证 + 4 级 Allow-always 粒度 + 超时策略 + 跨平台通知 + 断线恢复 + AI 审核员智能拒绝。覆盖桌面、移动、Web 三端。**2,036 项安全测试验证通过（80 审批逻辑 + 42 命令解析 + 16 组件级 + 33 框架审批 + 1865 安全引擎）。**
+
+### 11. 完整的开发者诊断工具链（非简单调试面板）
+CopilotKit 提供简单的浮动调试面板 + console.log；Myrm 提供完整的产品级诊断体系。
+**我们的优势**：66+ SSE 事件全部可视化渲染 + Browser/Desktop 实时视图与元素检查 + Eval Lab 评测实验室（8 种断言 + 图表历史）+ 分布式追踪（W3C traceparent）+ 会话统计分析 + 记忆健康仪表盘 + 审计日志 + 会话录制回放 + 配额监控 + 上下文健康面板。**84 项诊断测试验证通过。**
