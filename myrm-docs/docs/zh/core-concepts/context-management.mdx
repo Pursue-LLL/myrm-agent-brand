@@ -326,3 +326,17 @@ Myrm 对后台辅助任务（如自动生成会话标题）的 Token 消耗进�
 | 错误处理 | `hygiene_timeout_seconds` + 冷却期 | 熔断器 + half-open 自动恢复 |
 
 **409 项热更新测试验证**（execution_cache 21 + context_management 312 + config/hot-reload 17 + 前端 59）。
+
+### Progress-Aware 双超时保护
+
+压缩（Summarization）过程可能因 LLM 响应缓慢或完全挂死而阻塞。Myrm 采用 **Progress-Aware 双超时** 精准区分两种情况：
+
+| 机制 | 说明 |
+|------|------|
+| **ProgressClock** | 每收到一个 streaming token 即调用 `touch()` 重置空闲计时器。只要模型在输出，就永远不会被误杀 |
+| **Inactivity Timeout (90s)** | watchdog 协程每 10s 检查 `seconds_since_last_touch`，连续 90s 无 token 才触发 `InactivityTimeoutError` |
+| **Total Ceiling (600s)** | 无论 token 是否持续流入，600s 总墙钟上限硬保护，防止异常慢模型无限占用资源 |
+| **Per-Chat Lock** | `asyncio.Lock` 防止同一会话并发压缩踩踏 |
+| **Pre-Compact Backup** | 压缩前完整备份原始上下文，超时/失败可 100% 恢复 |
+
+**vs. 竞品**：Hermes 仅提供 `hygiene_timeout_seconds`（固定单一超时 + 冷却期）。当本地模型生成速度慢（如 8B Q4 模型每秒仅几个 token）时，固定超时会误杀正常生成过程。Myrm 的 progress-aware 设计从根本上解决了「慢≠死」的区分问题。
