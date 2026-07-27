@@ -346,6 +346,7 @@ Myrm ships **web_search** and **web_fetch** as first-class built-in tools. Compe
 | **Optional L4 fallback** | Jina → Firecrawl after L1–L3 fail; **OFF by default**; per-session cap | Hard pages without forcing cloud API spend — OpenClaw/Hermes often default to Firecrawl |
 | **Logged-in fetch** | SessionVault: CookieJar (HTTP) + `storage_state` (browser) | One login works across fetch tiers — competitors often lose cookies on engine switch |
 | **fetch_and_extract** | Crawl → BM25 + vector hybrid → Reranker | Long pages → only relevant passages (zero LLM cost vs Hermes Gemini summary) |
+| **Smart fetch vs browser routing** | Tool descriptions + Dynamic Hints + symmetric Loop Guard; web_fetch=CORE Turn1, browser=EXTENDED | Read-only pages skip browser (faster/cheaper); interactive pages still use full browser — Hermes only hints browser→web |
 | **Cost** | 100% local processing | **$0/month** vs Firecrawl/Jina/Exa subscriptions |
 | **Chinese search** | SearxNG + Baidu aggregation | Works out of the box — no Tavily/baidu Skill hacks |
 | **PTC inline** | Batch local tools in one Python script (RPC stubs); **single web search stays native** | Multi-file analysis without N LLM round-trips; honest routing vs Hermes/OpenClaw stepwise |

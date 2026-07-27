@@ -346,6 +346,7 @@ Myrm 将 **web_search** 与 **web_fetch** 作为一等内置工具。竞品要�
 | **可选 L4 远程兜底** | L1–L3 失败后 Jina → Firecrawl；**默认关闭**；会话 cap | 极难页面可选云端，但不强制像 OpenClaw/Hermes 那样默认走 Firecrawl |
 | **Logged-in fetch** | SessionVault: CookieJar (HTTP) + `storage_state` (browser) | One login works across fetch tiers — competitors often lose cookies on engine switch |
 | **fetch_and_extract** | Crawl → BM25 + vector hybrid → Reranker | Long pages → only relevant passages (zero LLM cost vs Hermes Gemini summary) |
+| **web_fetch vs browser 智能分工** | 工具描述 + Dynamic Hints + Loop Guard 对称建议；web_fetch=CORE Turn1，browser=按需 | 只读页面少开浏览器（更快更省）；需交互仍走完整浏览器 — Hermes 仅 browser→web 单向 hint |
 | **Cost** | 100% local processing | **$0/month** vs Firecrawl/Jina/Exa subscriptions |
 | **Chinese search** | SearxNG + Baidu aggregation | Works out of the box — no Tavily/baidu Skill hacks |
 | **PTC inline** | 同脚本批量本地工具（RPC stub）；**单次搜网仍 native** | 多文件分析无需 N 轮 LLM；相对 Hermes/OpenClaw 逐步调用更诚实路由 |
