@@ -147,6 +147,16 @@ IM channels: `/undo` removes the last turn and reverts linked files; if some pat
 
 After a successful Turn Undo (message, session, or IM), the Agent receives a **restore_inbox** notification on its next turn—the same mechanism as Shadow Git restore—so it re-reads affected files instead of relying on stale chat memory.
 
+### Empty write rejection & failure banner
+
+If the Agent calls `file_write_tool` with **empty or whitespace-only** content, Myrm **does not** create a 0-byte file on disk. Instead:
+
+1. The tool returns a clear error (`Cannot write empty file content`)
+2. The per-turn mutation verifier records the failure
+3. The WebUI shows a **FileModificationWarning** amber banner under that assistant message: file modification failed — changes were rolled back automatically
+
+Users are not misled by the model claiming success when nothing was written. Many competitors allow empty writes and lack an equivalent honest UI cue.
+
 <Note>
 Turn undo uses lightweight per-message snapshots (default on, zero setup). Shadow Git checkpoints (below) are a separate, deeper rollback layer for destructive shell workflows.
 </Note>

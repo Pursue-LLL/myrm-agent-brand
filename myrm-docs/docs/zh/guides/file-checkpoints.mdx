@@ -147,6 +147,16 @@ IM 渠道：`/undo` 删除最后一轮并还原关联文件；无法还原的路
 
 Turn Undo（消息级、会话级或 IM）成功后，Agent 在下一轮会通过 **restore_inbox** 收到与 Shadow Git 恢复相同的通知，主动 re-read 文件，而不是沿用过时的对话记忆。
 
+### 空写入拒绝与失败横幅
+
+当 Agent 误调用 `file_write_tool` 且内容为**空或纯空白**时，Myrm **不会**在磁盘创建 0 字节文件，而是：
+
+1. 工具层返回明确错误（`Cannot write empty file content`）
+2. Turn 级 mutation verifier 记录失败
+3. WebUI 在该条助手消息下显示 **FileModificationWarning** 黄色横幅，告知「文件修改失败 — 变更已自动回滚」
+
+这样用户不会把模型的「已写入」口头承诺误当成真实落盘。竞品（如 OpenClaw/nullclaw 路径）多数允许空 content 写入，且缺少同等 UI 诚实提示。
+
 <Note>
 Turn Undo 使用轻量 per-message 快照（默认开启、零配置）。下方 Shadow Git 检查点是更深层的命令级回滚，二者互补。
 </Note>
