@@ -62,6 +62,22 @@ POST /api/tools/:name/execute
 POST /api/tools/mcp__github__search_repos/execute
 ```
 
+### 三路智能路由
+
+连接工具数量多的 MCP 服务时，系统自动选择最优路由策略以最小化 token 消耗，同时保留完整的工具访问能力：
+
+| 路由 | 条件 | 行为 | 用户体验 |
+|------|------|------|----------|
+| **Direct** | 服务工具数 ≤ 阈值 且在总预算内 | 完整 schema 预加载 | 零延迟调用 |
+| **Bridge** | 服务工具数 ≤ 阈值 但超出总预算 | 通过 `mcp_tool_search` → `mcp_tool_describe` → `mcp_tool_call` 按需发现 | 原生函数调用 + 按需加载 |
+| **PTC**（技能降级） | 服务工具数 > 阈值 | 封装为 Skill + SOP 引导 | 自然语言调用 |
+
+连接 50+ 工具的 MCP 服务不会撑大 prompt — Agent 按需发现并调用工具，UI 显示实际工具名（如 "Create Issue"）而非泛称。
+
+<Callout type="info">
+安全规则（ALLOW/ASK/DENY）对 Bridge 路由完全透明。针对 `mcp__gmail__send_email` 的 DENY 规则无论工具是直接调用还是通过 Bridge 调用都生效 — 无法绕过。
+</Callout>
+
 ### 过滤
 
 可在 MCP 服务配置中用 `tool_include` / `tool_exclude` 按 Agent 过滤：

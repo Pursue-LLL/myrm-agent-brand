@@ -58,6 +58,22 @@ POST /api/tools/:name/execute
 
 External tools connected via [MCP](/docs/guides/mcp-integration) are automatically registered alongside built-in tools. MCP tool names are internally prefixed as `mcp__{server}__{tool}` for namespace isolation — the API accepts both the prefixed and original names.
 
+### Three-Route MCP Routing
+
+When you connect MCP servers with many tools, Myrm automatically selects the optimal routing strategy to minimize token usage while preserving full tool access:
+
+| Route | Condition | Behavior | User Experience |
+|-------|-----------|----------|-----------------|
+| **Direct** | Server tools ≤ threshold AND within aggregate budget | Full tool schemas loaded upfront | Zero-latency tool calls |
+| **Bridge** | Server tools ≤ threshold BUT exceeds aggregate budget | Deferred discovery via `mcp_tool_search` → `mcp_tool_describe` → `mcp_tool_call` | Native function-calling with on-demand schema loading |
+| **PTC** (Skill demotion) | Server tools > threshold | Wrapped as a Skill with SOP guidance | Natural-language tool invocation |
+
+This means connecting a 50-tool MCP server does not inflate your prompt — the agent discovers and invokes tools on demand, with the UI showing the actual tool name (e.g., "Create Issue") rather than a generic label.
+
+<Callout type="info">
+Security rules (ALLOW/ASK/DENY) are fully transparent to bridge-routed tools. A per-tool DENY rule on `mcp__gmail__send_email` applies regardless of whether the tool is called directly or through the bridge — no bypass is possible.
+</Callout>
+
 ```bash
 POST /api/tools/mcp__github__search_repos/execute
 ```
