@@ -22,6 +22,24 @@ Myrm connects the wiki to the Agent through **12 code-level paths** (no manual A
 - **Post-compaction session notes** — when context is compressed, session notes are automatically archived to the wiki (after summary persist, not on every note save).
 - **Settings overview tab** for ad-hoc query, compile, maintain, and vault health badges.
 
+## Karpathy cognitive map trio (index / log / hot)
+
+After compile, maintain, import, or human review, the engine **deterministically** maintains three vault-root files (zero extra LLM cost):
+
+| File | Role | User benefit |
+|------|------|--------------|
+| **index.md** | Concept catalog grouped by page `type`; summaries prefer L0 `.abstract.md` sidecars | Browse in Obsidian or any editor; migrated users see a structured vault |
+| **log.md** | Human-readable audit trail, newest first | Trace when compile/import/approve happened |
+| **hot.md** | Recent ops, pending compile queue, review hints | Settings query and `wiki_query` honestly surface vault status when FTS finds no match |
+
+**Honest differentiation vs competitors:**
+
+- **Stronger than Molio**: hot is used only on the wiki query path — **not** injected into the agent global system prompt → safer prompt cache
+- **Stronger than Hippocampus**: event-driven refresh, not blind per-session hot inject
+- **Intentionally not**: Molio-style LLM hot rewrite (token/hallucination cost); global middleware hot (breaks cache)
+
+Settings **Overview** auto-loads trio readiness stats — no CLI required.
+
 ## Unified vault path
 
 All wiki data lives under a **single vault directory** per workspace. Settings, REST API, Agent tools, Save to Wiki, Deep Research, and compaction archive share the same path. On startup, legacy paths are migrated automatically.
@@ -30,6 +48,7 @@ In **Settings → Wiki → Overview**, stats load on page open and show:
 
 - **Vault ready** — the wiki directory exists and is writable.
 - **Legacy migrated** — any old vault location was merged into the current path.
+- **Knowledge catalog / Activity log / Recent context** — whether the Karpathy-style trio (`index.md`, `log.md`, `hot.md`) is built and fresh after compile, import, or review actions.
 
 This replaces ad-hoc CLI “doctor” checks with in-product health visibility.
 

@@ -73,6 +73,8 @@ For reasoning-capable models (Claude 3.7+, o1/o3/o4-mini, Gemini 2.5, DeepSeek R
 
 The selected intensity is passed through the full pipeline — frontend `model_kwargs` → server passthrough → harness `extra_body` → LiteLLM → provider API — with zero framework coupling.
 
+**Thinking Headroom (automatic):** All major reasoning models (Claude 4.6+, DeepSeek R1, OpenAI o-series, Gemini 2.5+) count thinking tokens against the `max_tokens` budget. If `max_tokens` is too small, the thinking phase exhausts the budget before the response starts — causing truncation. Myrm automatically raises `max_tokens` to a safe floor based on the selected thinking intensity (8K for low, 16K for medium, 32K for high, 65K for xhigh/max). When no intensity is explicitly set, a conservative 16K default floor is applied since all thinking models default to thinking-on. This works alongside stream recovery as a dual-layer defense — proactive prevention plus reactive fallback. The adjustment is completely transparent and does not increase API costs (providers bill actual tokens used, not the `max_tokens` ceiling).
+
 ## Per-Model Prompt Adaptation
 
 Different AI models have different behavioral tendencies. Myrm automatically adapts its system prompt for each model family to get the best results:

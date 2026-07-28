@@ -72,6 +72,8 @@ GOOGLE_API_KEY=...
 
 选中的强度通过完整管道传递 — 前端 `model_kwargs` → Server 透传 → Harness `extra_body` → LiteLLM → Provider API — 三层零耦合。
 
+**智能推理预算（自动生效）：** 所有主流推理模型（Claude 4.6+、DeepSeek R1、OpenAI o 系列、Gemini 2.5+）都将思考 Token 计入 `max_tokens` 预算。如果 `max_tokens` 设置过小，思考阶段会耗尽预算导致回复被截断。Myrm 根据选择的思考强度自动提升 `max_tokens` 到安全下限（低=8K、中=16K、高=32K、超高/最大=65K）。未显式设置时，默认应用 16K 保守下限（因为所有思考模型默认开启推理）。该机制与 stream recovery 形成双层防线 — 事前预防 + 事后恢复。调整完全透明，不增加 API 费用（供应商按实际使用 Token 计费，而非 `max_tokens` 上限）。
+
 ## 按模型家族自适应提示词
 
 不同的 AI 模型有不同的行为倾向。Myrm 会自动为每个模型家族调整系统提示词，以获得最佳效果：
