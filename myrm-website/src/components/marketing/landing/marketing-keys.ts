@@ -111,6 +111,7 @@ export const COMPARE_ROW_KEYS = [
   'localIotBridge',
   'longTaskOrchestration',
   'harnessUpgradeContract',
+  'benchmarkProfile',
 ] as const;
 
 export type CompareRowKey = (typeof COMPARE_ROW_KEYS)[number];
@@ -178,6 +179,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'antiBlockingTitle',
     'datasetsExport',
     'agentSkills',
+    'benchmarkProfile',
   ],
   platform: ['gui', 'chatHistoryManagement', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'harnessUpgradeContract', 'codeGraph', 'crossPlatformHandoff', 'configSync', 'taskResilience', 'localIotBridge', 'steerToken', 'threeDGraph', 'chatOpsIM', 'serverless'],
 };
