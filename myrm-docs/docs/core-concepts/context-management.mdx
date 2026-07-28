@@ -288,6 +288,73 @@ When tool outputs exceed the context window budget (e.g., a 200KB JSON response,
 
 **vs. competitors**: nanobot uses a single-layer "in-flight context governor" that replaces tool output with a bounded instruction — the original data is lost. OpenClaw uses 2-layer truncation (per-result + aggregate budget) with file spill — functional but lacks vault protocol and frontend visualization. Myrm's 7-layer approach ensures every tool pathway (MCP, bash, browser, subagent, hooks) has dedicated protection with independent fallback chains.
 
+## Real-Time Recovery Progress Feedback
+
+When emergency context recovery occurs (overflow, model failure), users never experience a silent "freeze." Myrm streams fine-grained diagnostic progress to the frontend in real time:
+
+### Step Keys
+
+| Step Key | Trigger | User Sees |
+|----------|---------|-----------|
+| `context_compaction` | Emergency LLM-based compression | "Compressing context..." |
+| `context_truncation` | Oldest rounds removed to fit window | "Trimming old context to fit window" |
+| `model_failover` | Primary model overflows, switching to backup | "Context too long, switched to backup model" |
+| `transient_retry` | Transient API error, auto-retrying | "Retrying..." |
+
+### Deterministic Fallback
+
+If the LLM-based summarizer fails (network error, timeout, auth failure), a **deterministic fallback** immediately produces a non-LLM truncation summary. The user's conversation is never blocked — the reply continues with slightly less compression quality but zero delay.
+
+### Circuit Breaker
+
+Consecutive summarization failures activate a tiered circuit breaker:
+
+| Failure Type | Cooldown | Recovery |
+|-------------|----------|----------|
+| Transient (network/timeout) | 60 seconds | Half-open probe |
+| Permanent (model error) | 10 minutes | Half-open probe |
+| Auth failure | 30 minutes | Half-open probe |
+
+During cooldown, all compression requests use deterministic fallback. The half-open probe automatically tests recovery without user intervention.
+
+### Progress-Aware Timeout Guard
+
+Local models (Ollama, vLLM) may take 30-90 seconds for summarization. A dual-timeout guard ensures slow models are never killed while still protecting against hangs:
+
+| Guard | Threshold | Effect |
+|-------|-----------|--------|
+| **Inactivity timeout** | 90s without a new token | Raises `InactivityTimeoutError` → deterministic fallback |
+| **Total wall-clock ceiling** | 600s absolute max | Raises `TotalCeilingTimeoutError` → deterministic fallback |
+| **ProgressClock heartbeat** | Each streamed token resets idle timer | Distinguishes "slow but alive" from "completely hung" |
+
+Per-chat lock prevents concurrent compression requests from trampling each other. Full pre-compaction backup ensures 100% recovery if compression is aborted.
+
+### Compression Lifecycle Diagnostics (UI)
+
+When compression takes longer than 3 seconds, users see a real-time progress bar in the chat UI:
+
+| Phase | What the user sees | When |
+|-------|-------------------|------|
+| (hidden) | Nothing — fast compression completes silently | <3s |
+| `active` | "Compressing context (4.2s)" with elapsed counter | After 3s debounce |
+| `timeout` | "Compression timed out, using fallback" (warning color) | Inactivity/ceiling exceeded |
+| `circuit_open` | "Compression unavailable, using fallback" (warning color) | Circuit breaker tripped |
+| `fallback` | "Compression degraded, using fast fallback" | LLM error |
+| `completed` | "Context compressed successfully" (green) + tokens saved | Normal completion |
+
+The progress bar uses **upsert logic** — heartbeat updates overwrite the same entry (never stacking), and the 3-second debounce ensures API-model users (who compress in 1-2s) never see the indicator at all.
+
+### vs. Competitors
+
+| Feature | Myrm | Hermes | DeerFlow/CoPaw/OpenClaw |
+|---------|------|--------|------------------------|
+| Compression UI feedback | 5-phase lifecycle + elapsed_s + color-coded status | Plain text `status_callback` + default OFF (opt-in) | None |
+| Debounce | 3s (fast compression = invisible) | None | N/A |
+| Upsert logic | Single progress bar, updated in place | Text messages stack | N/A |
+| Default state | Always ON | OFF (`silent-by-design`) | N/A |
+
+**1,616 tests verified** (SummarizeProcessor 49 + Middlewares 890 + Streaming 668 + Server Compact 9) covering timeout guard, lifecycle events, and UI integration paths.
+
 ## Zero-Config Compression & Model Hot-Switch
 
 Switching models or adjusting context parameters takes effect on the next message — no restart, no `/reset`, no YAML editing.

@@ -235,6 +235,20 @@ Myrm takes a fundamentally different approach: **timed-out sub-agents keep runni
 
 **What this means for you:** Long-running research tasks, code generation, or complex analysis never lose progress to arbitrary timeouts. Your agents work like a real team — if someone takes longer than expected, the team keeps moving and picks up the result when it's ready.
 
+### Delegation Heartbeat & Gateway Keepalive
+
+When a sub-agent runs for minutes (large code refactors, deep research, complex analysis), the parent's SSE connection must stay alive — otherwise proxies, load balancers, or the gateway itself will drop the idle connection and the user sees a mysterious disconnect.
+
+Myrm solves this with **three complementary heartbeat layers**:
+
+1. **Tool-level heartbeat** — Every tool call (including `delegate_task` itself) emits a `TOOL_HEARTBEAT` SSE event every 3 seconds with elapsed time. This keeps the parent stream active while any tool runs.
+2. **Event forwarding** — The `SubagentEventForwarder` translates 14 child event types into parent-visible SSE events (progress %, tool logs, status). Each forwarded event naturally refreshes the connection.
+3. **Staleness detection** — If no effective progress (token growth or tool completion) occurs within a configurable threshold, a `SUBAGENT_STALE` event fires with diagnostic context (wasted tokens, cost, current tool). In-tool execution uses a relaxed multiplier to avoid false positives during long computations.
+
+Combined with the Gateway's 3-tier timeout strategy (goal mode: 1 hour, fission: 2x default, standard: 5 minutes), delegation never drops — even for sub-agents running 30+ minutes.
+
+**vs. competitors:** Other frameworks (including those claiming "delegation heartbeat" in marketing) lack actual implementation — their long-running sub-tasks silently disconnect, forcing users to retry from scratch.
+
 ---
 
 ## Completion Verification

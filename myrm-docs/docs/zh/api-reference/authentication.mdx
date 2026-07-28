@@ -7,7 +7,7 @@ description: API 认证与密钥管理。
 
 ## API 密钥
 
-在 GUI **设置 > OpenAI Compatible API** 中生成 API 密钥。每个密钥以 `sk-myrm-` 开头，明文仅在创建时展示一次。
+在 GUI **设置 > 集成 > 智能体 API** 中生成 API 密钥。每个密钥以 `sk-myrm-` 开头，明文仅在创建时展示一次。
 
 ## 用法
 
@@ -29,19 +29,19 @@ Authorization: Bearer sk-myrm-...
 
 ## OpenAI 兼容 API
 
-Myrm 提供 OpenAI 兼容的 `/v1` 端点，任何基于 OpenAI API 的工具（Aider、Cline、Codex、Cursor）都可以直接使用 Myrm 作为替代后端：
+Myrm 提供 OpenAI 兼容的 **Agent API**（`/v1`）。外部工具调用已配置智能体（记忆、工具、技能），不是裸 LLM 转发：
 
 ```bash
-curl https://localhost:3000/v1/chat/completions \
+curl http://localhost:8080/v1/chat/completions \
   -H "Authorization: Bearer sk-myrm-..." \
   -H "Content-Type: application/json" \
   -d '{"model": "default", "messages": [{"role": "user", "content": "你好"}], "stream": true}'
 ```
 
-### 双模式路由
+### Agent API 与 LLM 代理分工
 
-- **Agent 模式**：当 `model` 匹配 Agent ID（或 `"default"`）时，请求进入完整的 Agent 执行引擎（记忆、工具、子智能体）。
-- **LLM 透传**：当 `model` 匹配已配置的 LLM（如 `claude-3.5-sonnet`）时，请求通过 litellm 直接转发到提供商。
+- **Agent API（Myrm `/v1`）**：`model` 为 Agent ID 或 `"default"` → 完整 Agent 执行引擎。
+- **LLM 代理（Cursor/Codex）**：跨 Provider 原始 LLM 路由不在 Myrm 产品范围内，请使用独立的外部 LLM 网关。
 
 ## 交互式 API 文档（Swagger UI）
 

@@ -155,6 +155,59 @@ Daily 模式零额外存储（复用已有执行记录），不影响 Prompt Cac
 
 **成本控制：** 默认关闭；只读任务自动跳过；不影响交互式聊天（无额外 Turn1 工具）。
 
+## 验收标准（结构化输出验证）
+
+为每个定时任务定义可量化的质量检查条件，每次运行后自动验证输出质量。与交付保障（LLM 复核）不同，验收标准是**确定性**的 —— shell 命令或语义检查直接判定成功/失败。
+
+### 添加验收标准
+
+创建或编辑任务时，在 GUI 中展开 **验收标准** 区域（仅 agent 类型任务）：
+
+1. 点击 **添加条件**
+2. 选择类型：
+   - **Shell** — 必须成功执行（退出码 0）或匹配期望输出的 shell 命令
+   - **Semantic** — LLM 裁判评估输出是否满足自然语言描述的条件
+3. 填写描述（如 "输出 JSON 至少包含 3 个条目" 或 "报告必须提到所有 5 个竞品"）
+
+### 工作原理
+
+| 路径 | 触发条件 | 机制 |
+|------|----------|------|
+| **Goal 队列**（存在活跃目标时） | `create_goal(acceptance_criteria=...)` | Harness `VerificationGatekeeper` 在目标完成后运行 |
+| **直接执行**（无活跃目标时） | `_run_once` 后 | `acceptance_verification.py` 桥接 `VerificationGatekeeper` |
+
+两条路径使用同一个 Harness 框架的 `VerificationGatekeeper` —— 无论执行模式如何，验收标准的评估方式完全一致。
+
+### 失败行为
+
+- 任何一条标准失败 → 运行状态标记为 **FAIL**
+- 触发失败投递（已配置的告警渠道）
+- 不会自动重试（与普通失败处理一致）
+
+### 示例
+
+每日竞品价格爬虫配合验收标准：
+
+| 类型 | 描述 |
+|------|------|
+| Shell | `jq '.items \| length' /tmp/prices.json` 输出必须 `>=3` |
+| Semantic | "报告包含所有被监控竞品的定价数据" |
+
+如果爬虫因网站变更仅获取了 3 家竞品中的 2 家数据，shell 检查立即失败 —— 你会即时收到告警，而非数天后才发现数据缺失。
+
+### API 支持
+
+`POST /cron/jobs` 和 `PATCH /cron/jobs/:id` 接口支持 `acceptance_criteria` 数组：
+
+```json
+{
+  "acceptance_criteria": [
+    { "type": "shell", "description": "jq '.count' output.json >= 5" },
+    { "type": "semantic", "description": "摘要涵盖所有关键指标" }
+  ]
+}
+```
+
 ## 10 层防噪
 
 | 层 | 机制 | 效果 |

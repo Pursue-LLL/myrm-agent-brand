@@ -289,6 +289,35 @@ Three-tier granularity binds different agents to different conversation scopes:
 
 Lookup order is Thread→Chat→Channel with graceful fallback to the default agent.
 
+### Topic Workspace Binding (Vault / Project)
+
+Bind each IM topic to a real workspace so remote messages do not fall into an empty JIT sandbox.
+
+| Method | How |
+|--------|-----|
+| **GUI** | **Settings → Channel Routing** → per-topic **Project** dropdown |
+| **IM** | `/bind workspace=project:<uuid>` or `/bind workspace=/path/to/vault` |
+| **Combined** | `/bind agent=my-agent workspace=project:<uuid>` |
+
+Before each Agent run, the system syncs the topic binding into the chat SSOT (`project_id` or `workspace_dir`) using the same `resolve_effective_chat_workspace` chain as WebUI sessions. Unbinding clears both fields on the chat. If the Project or path is unavailable, execution fails loudly instead of silently using an empty sandbox.
+
+**Honest limits:** IM `/status` still shows `project:uuid` (not a friendly name). There is no GUI path picker — GUI users bind Projects; path binding is IM-first.
+
+**Test coverage:** 9 server pytest cases (sync, topic_config validation, unbind clear, effective_workspace chain). Frontend label helper: 3 vitest cases.
+
+**vs OpenClaw:** OpenClaw binds `workspaceDir` at the Agent config level — one workspace per Agent. Myrm binds at Topic granularity, so the same Agent can serve different Telegram threads pointing at different vaults.
+
+### Obsidian Vault Write Fidelity
+
+When a topic is bound to an Obsidian vault, Agent edits go to your **real vault files** (not a copy). Myrm adds two code-level safeguards:
+
+1. **Frontmatter preserve** — if the LLM drops the `---` YAML block while editing the body, the write guard reinjects the pre-edit frontmatter before save (`date:`, `tags:`, Dataview fields stay intact).
+2. **No prettier on vault notes** — FormatObserver skips `.md` files under a `.obsidian/` vault root so automated formatting cannot strip metadata.
+
+**Honest limits:** Block-level reinject only (not field-by-field merge). Wikilink integrity relies on the `obsidian-notes` skill — no vault-wide backlink scan yet.
+
+**Tests:** 44 pytest cases (Jul 2026): harness guard + server parser + service integration + format observer.
+
 ### Thread Follow-Up
 
 After the agent responds in a thread, a **GroupFollowUpTracker** activates for that thread (TTL: 10 minutes). During this window, subsequent messages in the same thread don't require @mention — the agent automatically continues the conversation, just like a human would.

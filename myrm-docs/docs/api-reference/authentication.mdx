@@ -7,7 +7,7 @@ description: API authentication and token management.
 
 ## API Keys
 
-Generate API keys from **Settings > OpenAI Compatible API** in the GUI. Each key is prefixed with `sk-myrm-` and the plaintext is only shown once at creation time.
+Generate API keys from **Settings > Integration > Agent API** in the GUI. Each key is prefixed with `sk-myrm-` and the plaintext is only shown once at creation time.
 
 ## Usage
 
@@ -29,19 +29,19 @@ Authorization: Bearer sk-myrm-...
 
 ## OpenAI Compatible API
 
-Myrm exposes an OpenAI-compatible `/v1` endpoint so that any tool built for the OpenAI API (Aider, Cline, Codex, Cursor) can use Myrm as a drop-in replacement:
+Myrm exposes an OpenAI-compatible **Agent API** at `/v1`. External tools call configured agents (memory, tools, skills) — not raw LLM forwarding:
 
 ```bash
-curl https://localhost:3000/v1/chat/completions \
+curl http://localhost:8080/v1/chat/completions \
   -H "Authorization: Bearer sk-myrm-..." \
   -H "Content-Type: application/json" \
   -d '{"model": "default", "messages": [{"role": "user", "content": "Hello"}], "stream": true}'
 ```
 
-### Dual-Mode Routing
+### Agent API vs LLM proxy
 
-- **Agent mode**: When `model` matches an agent ID (or `"default"`), the request is routed to the full Agent execution engine with memory, tools, and sub-agents.
-- **LLM passthrough**: When `model` matches a configured LLM (e.g. `claude-3.5-sonnet`), the request is forwarded directly to the provider via litellm.
+- **Agent API (Myrm `/v1`)**: `model` is an agent ID or `"default"` → full Agent execution engine.
+- **LLM proxy (Cursor/Codex)**: cross-provider raw LLM routing is out of scope for Myrm — use a separate external LLM gateway.
 
 ## Interactive API Docs (Swagger UI)
 

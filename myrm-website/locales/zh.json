@@ -371,7 +371,7 @@
           "feature": "Wiki 引擎 · 树形 GUI + 混合检索 + 防幻觉审核",
           "hermes": "SKILL手动",
           "openclaw": "纯MD文件(无GUI)",
-          "myrmAgent": "统一Vault路径+Settings**按智能体选库**·20+API·12条消费闭环+**双开Wiki+Memory统一knowledge_recall(corpus=all)**+**Memory N引用按钮刷新不丢**(31项测试含Chrome E2E)+**@wiki:聊天引用**+LLM编译+树形GUI+3D图谱+HITL+WikiLinter+Obsidian/ZIP导入+混合FTS5+Vector+CrawlEngine URL入库+**双层路径遍历防御**(safe_join_path边界校验+filename组件剥离，防LLM注入写入任意路径，241项wiki安全测试全通过)——claw竞品无等价pytest Chrome MCP纪律"
+          "myrmAgent": "统一Vault路径+Settings**按智能体选库**·20+API·12条消费闭环+**双开Wiki+Memory统一knowledge_recall(corpus=all)**+**Memory N引用按钮刷新不丢**(31项测试含Chrome E2E)+**@wiki:聊天引用**+LLM编译+树形GUI+3D图谱+HITL+WikiLinter+Obsidian/ZIP导入+**Obsidian原位vault写入保真**(file_edit自动补回YAML frontmatter+vault内.md不跑prettier，44 pytest 2026-07-28)+混合FTS5+Vector+CrawlEngine URL入库+**双层路径遍历防御**(safe_join_path边界校验+filename组件剥离，防LLM注入写入任意路径，241项wiki安全测试全通过)——claw竞品无等价pytest Chrome MCP纪律"
         },
         "smartForgetting": {
           "feature": "防碎片化 · 7 大策略保持索引纯净与极速召回",
@@ -425,7 +425,7 @@
           "feature": "全渠道触达 · 35+渠道+端内Agent切换+三级绑定+双模式路由+身份隔离+Agent主动推送+IM文件Revert",
           "hermes": "~19平台, 无Topic级Agent绑定；send_message_tool 无 GUI 白名单收件人选择",
           "openclaw": "易断连, 无审批通知；无 Agent 跨渠道推送 GUI",
-          "myrmAgent": "35+ 渠道原生深度集成（Telegram/Slack/Discord/飞书/iMessage/WeChat/企微/WhatsApp/LINE/Matrix/Signal 等），端内 InlineKeyboard 一键切换 Agent（竞品均无），双模式路由：`/cc fix bug` 临时用 Claude 回复而不改变绑定、`/cc` 持久绑定。三级 Topic Binding（Thread→Chat→Channel）+ 六维 Agent 隔离（Prompt/Model/Tools/MCP/Personality/Memory）+ 完整 GUI（ChannelRoutingSection：话题发现 + Agent 绑定 + 高风险工具警告）。Per-channel 独立预算隔离（防止单频道耗尽全局配额，SSE 实时告警+DB 持久化重启恢复）+ **IM `/status` 一站式诊断**（session 信息/累计费用/调用次数/渠道每日预算用量/Agent 运行态——竞品 /usage 仅显示 token，无费用无预算）。Agent 主动 `channel_notify_tool`：**动态 running 渠道下拉** + pairing 收件人白名单 + **附件 workspace 边界** + send_tracked 可靠投递 + **应用内 chat 收件箱真实落库**；**sync 失败 WebUI toast + DLQ 告警链；子 Agent 默认无法越权发 IM**（**127 pytest + live MiniMax-M2.7 E2E + 7 vitest + Chrome round42 全流程**，2026-07-07 深度审计）。IM 实时工具进度透出（如「🔍 Searching: AI 编程工具」而非笼统的「Searching...」）——通用 fallback 覆盖所有工具含自定义 MCP，竞品仅支持硬编码工具。IM `/new` 会话边界清理：级联取消所有子代理+清空排队消息+重置安全设置+审批残留清理——竞品仅单层取消且不处理审批。**Outbound HITL 草稿审核**：per-topic `draft_review` 模式拦截 AI 回复为待审草稿，WebUI Drawer + IM 按钮双通道审批，可配超时策略（auto_send/auto_reject），销售/客服合规刚需（竞品仅停留在概念层面）。**IM `/undo` `/retry` 联动文件快照 Revert**：在微信/Telegram/飞书等 IM 中发送 `/undo` 不仅撤销消息，还自动还原 Agent 修改过的文件（独家，竞品仅桌面 GUI 支持文件 revert，IM 渠道无此能力），`message_id` 全链路一致保证 + i18n 本地化反馈 + 47 tests 验证。3054+ 项渠道+安全测试全通过（2026-07-14 实测）。"
+          "myrmAgent": "35+ 渠道原生深度集成（Telegram/Slack/Discord/飞书/iMessage/WeChat/企微/WhatsApp/LINE/Matrix/Signal 等），端内 InlineKeyboard 一键切换 Agent（竞品均无），双模式路由：`/cc fix bug` 临时用 Claude 回复而不改变绑定、`/cc` 持久绑定。三级 Topic Binding（Thread→Chat→Channel）+ 六维 Agent 隔离（Prompt/Model/Tools/MCP/Personality/Memory）+ 完整 GUI（ChannelRoutingSection：话题发现 + Agent 绑定 + 高风险工具警告）。**Topic→Vault/Project 工作区绑定**：每话题 Project 下拉或 IM `/bind workspace=project:uuid|/path`，执行前 sync 到 chat SSOT——远程 IM 不再落入空 JIT 沙箱（OpenClaw 仅 Agent 级 workspaceDir；Hermes 无）；解绑双向清空 + 解析失败 fail-loud；**9 pytest 验证（2026-07-28）**。**Obsidian vault 写入保真**：file_edit 自动补回 YAML frontmatter + vault 内 `.md` 不跑 prettier（**44 pytest 2026-07-28**）。Per-channel 独立预算隔离（防止单频道耗尽全局配额，SSE 实时告警+DB 持久化重启恢复）+ **IM `/status` 一站式诊断**（session 信息/累计费用/调用次数/渠道每日预算用量/Agent 运行态——竞品 /usage 仅显示 token，无费用无预算）。Agent 主动 `channel_notify_tool`：**动态 running 渠道下拉** + pairing 收件人白名单 + **附件 workspace 边界** + send_tracked 可靠投递 + **应用内 chat 收件箱真实落库**；**sync 失败 WebUI toast + DLQ 告警链；子 Agent 默认无法越权发 IM**（**127 pytest + live MiniMax-M2.7 E2E + 7 vitest + Chrome round42 全流程**，2026-07-07 深度审计）。IM 实时工具进度透出（如「🔍 Searching: AI 编程工具」而非笼统的「Searching...」）——通用 fallback 覆盖所有工具含自定义 MCP，竞品仅支持硬编码工具。IM `/new` 会话边界清理：级联取消所有子代理+清空排队消息+重置安全设置+审批残留清理——竞品仅单层取消且不处理审批。**Outbound HITL 草稿审核**：per-topic `draft_review` 模式拦截 AI 回复为待审草稿，WebUI Drawer + IM 按钮双通道审批，可配超时策略（auto_send/auto_reject），销售/客服合规刚需（竞品仅停留在概念层面）。**IM `/undo` `/retry` 联动文件快照 Revert**：在微信/Telegram/飞书等 IM 中发送 `/undo` 不仅撤销消息，还自动还原 Agent 修改过的文件（独家，竞品仅桌面 GUI 支持文件 revert，IM 渠道无此能力），`message_id` 全链路一致保证 + i18n 本地化反馈 + 47 tests 验证。3054+ 项渠道+安全测试全通过（2026-07-14 实测）。"
         },
         "voiceInteraction": {
           "feature": "语音交互 · 说话即操作 + 视频自动转录",
@@ -455,13 +455,13 @@
           "feature": "技能进化 · 越用越聪明，渐进按需加载",
           "hermes": "基础（2级scope、CLI、静默写入）",
           "openclaw": "仅布尔开关",
-          "myrmAgent": "独创安全 XML 摘要与 L1/L2 双层感知按需加载架构，极低 Token 消耗，告别上下文爆炸；企业级脚手架防错（一键打包、安全扫描防毒）；Agent 当场修正报错技能，即刻复用（FIX/Patch）。会话级 Skill 精选：可视化选择当前对话所需技能子集。自动从对话轨迹提取可复用技能（10维评分+安全红线+沙箱验证+去重+GUI审批）。**ConfidenceApprovalFlow 多信号风控审批**（高置信度自动合并 + diff比例红线 + 历史成功率检查 → 高风险提案降级人工Diff Review）。达尔文式隔离（确定性错误1-Strike + 连续失败3-Strikes → 自动quarantine + trap学习 + FIX自动入队）。6指标质量度量体系（selections/applied/completed/success/failures/corrections）。Curator 真实 usage 驱动生命周期。企业级Marketplace：一键发布到组织内部。4层审查机制：10维语义Rubric评分+独立LLM-as-Judge（架构原生支持异源模型）+ExecutionMetrics预筛（物理阻止幻觉）+审核生命周期全链路（create/approve/reject/revise/rollback），250项审查测试全通过。**Growth Center 统一读路径**：list 摘要 + lazy detail + SQL 精确 stats，筛选徽章与全库一致，Chrome E2E 验证。"
+          "myrmAgent": "独创安全 XML 摘要与 L1/L2 双层感知按需加载架构，极低 Token 消耗，告别上下文爆炸；企业级脚手架防错（一键打包、安全扫描防毒）；Agent 当场修正报错技能，即刻复用（FIX/Patch）。会话级 Skill 精选：可视化选择当前对话所需技能子集。自动从对话轨迹提取可复用技能（10维评分+安全红线+沙箱验证+去重+GUI审批）。**ConfidenceApprovalFlow 多信号风控审批**（高置信度自动合并 + diff比例红线 + 历史成功率检查 → 高风险提案降级人工Diff Review）。达尔文式隔离（确定性错误1-Strike + 连续失败3-Strikes → 自动quarantine + trap学习 + FIX自动入队）。6指标质量度量体系（selections/applied/completed/success/failures/corrections）。Curator 真实 usage 驱动生命周期。企业级Marketplace：一键发布到组织内部。4层审查机制：10维语义Rubric评分+独立LLM-as-Judge（架构原生支持异源模型）+ExecutionMetrics预筛（物理阻止幻觉）+审核生命周期全链路（create/approve/reject/revise/rollback），250项审查测试全通过。**Growth Center 统一读路径**：list 摘要 + lazy detail + SQL 精确 stats，筛选徽章与全库一致，Chrome E2E 验证。**进化质量守护 (Improvement Gate)**：每个进化候选必须与原版 baseline 参与评分竞争——仅真正优于原版时才更新，自动防止质量退化。"
         },
         "cron": {
           "feature": "定时任务 · 自然语言一句话创建+聊天流内任务卡片+23个GUI组件+调度器存活探针+27项配置+8种触发器(含实时WS/SSE流监听+URL轮询变更检测)+3种会话模式+智能重试+误火恢复+到期/限额自动通知+云安全脚本模式+一键蓝图模板+心跳Agent绑定与模型继承+AI每日总结+成长仪表板",
           "hermes": "CLI 基础 cron（无GUI/无重试/无恢复）",
           "openclaw": "_yes",
-          "myrmAgent": "内置强大的无人值守调度引擎——自然语言一句话（如「每天早上8点发简报」）即可让 Agent 化身主动工作的数字员工。**双模式工具：** 默认可发现加载（Turn1 零 cron schema，实测 tools_snapshot 不含 cron）；在智能体配置中开启则 Turn1 直接可用（约 827 tok）。**按任务执行策略：** 能力围栏 + 内置工具范围 + fail-closed 默认（无声明 = 拒绝危险操作）在任务详情编辑（仅联网/研究/运维组合预设双写 caps+tools；稍后读蓝图默认仅文件操作）；服务端拦截 prompt/命令/**预检脚本**中的 Myrm 重启/停止命令。**27 项 policy pytest + Chrome MCP E2E**（四档预设持久化 · 预检脚本拒绝 · 保存后状态同步）。**可选交付保障：** 按智能体开启定时任务事后复核，运行历史显示通过/未通过徽章（默认关闭，失败不重跑任务）。**沙箱权益一致：** GUI、Agent、REST 共用同一门禁，无绕过。11 种蓝图模板 **五语系完整本地化**（en/zh/ja/de/ko 目录标题 + 内联填写）；**服务端唯一蓝图填充**（无离线假目录）；**选填槽位**（如社媒关键词可留空）。Webhook/全渠道触达、AI 每日总结 + 成长仪表板。"
+          "myrmAgent": "内置强大的无人值守调度引擎——自然语言一句话（如「每天早上8点发简报」）即可让 Agent 化身主动工作的数字员工。**双模式工具：** 默认可发现加载（Turn1 零 cron schema，实测 tools_snapshot 不含 cron）；在智能体配置中开启则 Turn1 直接可用（约 827 tok）。**按任务执行策略：** 能力围栏 + 内置工具范围 + fail-closed 默认（无声明 = 拒绝危险操作）在任务详情编辑（仅联网/研究/运维组合预设双写 caps+tools；稍后读蓝图默认仅文件操作）；服务端拦截 prompt/命令/**预检脚本**中的 Myrm 重启/停止命令。**27 项 policy pytest + Chrome MCP E2E**（四档预设持久化 · 预检脚本拒绝 · 保存后状态同步）。**结构化验收标准（8层管线）：** 每个定时任务可定义 shell 命令或语义检查——VerificationGatekeeper 在每次运行后自动验证输出质量（Goal队列和直接执行两条路径均覆盖）；前端可视化增删验收条件；静默失败即时告警。**可选交付保障：** 按智能体开启定时任务事后复核，运行历史显示通过/未通过徽章（默认关闭，失败不重跑任务）。**沙箱权益一致：** GUI、Agent、REST 共用同一门禁，无绕过。11 种蓝图模板 **五语系完整本地化**（en/zh/ja/de/ko 目录标题 + 内联填写）；**服务端唯一蓝图填充**（无离线假目录）；**选填槽位**（如社媒关键词可留空）。Webhook/全渠道触达、AI 每日总结 + 成长仪表板。**393 项 cron+goal+verification 测试全绿（2026-07-28）**。"
         },
         "gui": {
           "feature": "可视化 GUI · 零技巧零学习成本",
@@ -497,7 +497,7 @@
           "feature": "多账号凭证池 · 告别 API 限流焦虑",
           "hermes": "4 种策略，CLI 管理，无退避/抖动",
           "openclaw": "单账号",
-          "myrmAgent": "4 种轮换策略 + GUI 策略选择器（按 Provider 选择：轮询/优先填充/最少使用/随机）+ 指数退避 ±15% 抖动 + GUI 多密钥管理 + 自动健康探针 + Retry-After 解析 + **Passthrough 自动故障转移**（429/5xx + 空响应 Soft Failover——200 OK 但空内容自动切换下一个 Provider 重试；finish_reason 真实透传 length/content_filter/refusal 状态，CLI 工具精确感知截断/过滤）+ **ComboRouter** 7 策略多 Provider 路由链（优先级/成本优化/轮询/随机/LKGP 粘性/上下文亲和/配额余量，Pydantic 类型安全）+ **Vision Bridge** 守卫（目标模型不支持视觉时自动图转文描述，fail-open 设计，GUI 开关）+ **Passthrough SSRF 守卫**（部署模式感知：本地允许 loopback 兼容 Ollama/vLLM，云端阻断私网）+ 双模认证（SHA-256 哈希 + 开放代理模式）+ 152 项测试验证"
+          "myrmAgent": "4 种轮换策略 + GUI 策略选择器（按 Provider 选择：轮询/优先填充/最少使用/随机）+ 指数退避 ±15% 抖动 + GUI 多密钥管理 + 自动健康探针 + Retry-After 解析 + **Agent API**（OpenAI 兼容 `/v1`，仅智能体执行，严格 API Key 认证）+ ManagedLLM/KeyPool 智能体内故障转移；Cursor/Codex 原始 LLM 代理请搭配独立的外部 LLM 网关"
         },
         "directRouting": {
           "feature": "纯本地直连 (Direct Routing) · 绝对隐私与极低内存",
@@ -509,7 +509,7 @@
           "feature": "零配置迁移 (OOBE) · 带着资产零成本入住 · 使用习惯不丢失",
           "hermes": "需手动配置",
           "openclaw": "无",
-          "myrmAgent": "首次启动自动扫描本机 Claude Code, Cursor, Codex, Hermes, OpenClaw, Windsurf, Trae 等 14 种竞品配置（12 种 ready），一键导入记忆/技能/MCP/模型配置 + 自动映射 + 技能使用历史/偏好/Pin 状态同步迁移（零冷启动），真正做到开箱即用"
+          "myrmAgent": "首次启动自动扫描本机 Claude Code, Cursor, Codex, Hermes, OpenClaw, Windsurf, Trae, gbrain 等 14 种竞品配置（13 种 ready），一键导入记忆/技能/MCP/模型配置 + 自动映射 + 技能使用历史/偏好/Pin 状态同步迁移（零冷启动），真正做到开箱即用"
         },
         "webuiSecurity": {
           "feature": "WebUI 隧道安全 · 三层跨域防护 + DNS Rebinding 防护",
@@ -545,7 +545,7 @@
           "feature": "上下文管理 · 长聊更稳、缓存更省",
           "hermes": "8层固定栈 + 内存态单层压缩",
           "openclaw": "LCM",
-          "myrmAgent": "11步上下文流水线（缓存TTL修剪 + 四级压缩 + 智能回退 + 防抖保护 + 结构化/语义双过滤器）+ Prompt Cache 自动断点（Claude/Qwen 缓存命中省90%成本）+ 缓存预热（Agent初始化即预热，首字延迟降低52%，零冷启动）+ **空闲缓存保活**（每4分钟自动probe保持前缀缓存，暂停后继续聊TTFT保持0.5-1s vs 冷启动2-5s；成本$0.09/天——独家能力，竞品均未实现）+ 七层防鞭尸 + 数据库级会话压缩持久化 + 五维归档导出 + 22+中间件 + 实时会话笔记（自动化结构化跨运行记忆，压缩时零API调用注入）+ 上下文安全阀（可配阈值0.20~0.85，智能压缩而非丢弃）+ 熔断降级 + 定时任务双会话模式（ISOLATED/MAIN）+ 16种生命周期Hooks（4种类型）+ 三层工具排序(CORE/COMMON/EXTENDED) + **三层工具调用线性对齐**（ID精确配对 + 压缩后完整性校验 + 悬空调用自动修复——竞品仅前端UI层补丁，239项测试全通过）+ **Human Anchor 架构保证**（架构级 correct-by-construction 保护用户首条意图不被压缩丢失，竞品依赖~120行运行时检查易绕过）+ **7层超大输出纵深防护**（vault spill + auto-vault + 结构感知裁剪 + stream recovery + preflight guard + hook spiller + bash spill——完整数据存vault可按需精确读取，竞品丢弃原数据或仅2层截断，127项测试全通过）+ **上下文健康环**（实时Token用量环形指示器+健康状态点+一键手动压缩+≥75%用量自动显示Fork建议+策略详情面板展示压缩/裁剪/缓存统计——竞品无上下文感知的Fork建议）+ **主动记忆召回**（压缩前自动语义搜索持久记忆注入相关上下文——零agent操作，零额外工具token开销；独家能力，CoPaw等竞品需agent手动调用recall_history）+ **707项上下文管理测试验证**（50个测试文件，6批次全通过：优先级压缩+摘要器+管线+智能回退+缓存优化+完整性守卫）+ **压缩参数零配置自适应**（切换模型→ContextConfig按max_context_tokens自动等比重算所有压缩阈值——零YAML编辑 vs 竞品15+参数手动配置；summarizer_llm自动选择lite_model+主模型回退；熔断器half-open探针自动恢复；GUI Settings即改即生效通过DB配置+per-message fingerprint自动重建——409项热更新测试验证）+ **Progress-Aware 双超时守卫**（ProgressClock流式心跳——每token重置空闲计时，精准区分'慢模型正常输出'与'完全挂死'；90s inactivity + 600s总墙钟双保险；per-chat锁防并发踩踏；压缩前完整备份可恢复——竞品仅固定单一超时无法区分死活，本地慢模型频繁被误杀）"
+          "myrmAgent": "11步上下文流水线（缓存TTL修剪 + 四级压缩 + 智能回退 + 防抖保护 + 结构化/语义双过滤器）+ Prompt Cache 自动断点（Claude/Qwen 缓存命中省90%成本）+ 缓存预热（Agent初始化即预热，首字延迟降低52%，零冷启动）+ **空闲缓存保活**（每4分钟自动probe保持前缀缓存，暂停后继续聊TTFT保持0.5-1s vs 冷启动2-5s；成本$0.09/天——独家能力，竞品均未实现）+ 七层防鞭尸 + 数据库级会话压缩持久化 + 五维归档导出 + 22+中间件 + 实时会话笔记（自动化结构化跨运行记忆，压缩时零API调用注入）+ 上下文安全阀（可配阈值0.20~0.85，智能压缩而非丢弃）+ 熔断降级 + 定时任务双会话模式（ISOLATED/MAIN）+ 16种生命周期Hooks（4种类型）+ 三层工具排序(CORE/COMMON/EXTENDED) + **三层工具调用线性对齐**（ID精确配对 + 压缩后完整性校验 + 悬空调用自动修复——竞品仅前端UI层补丁，239项测试全通过）+ **Human Anchor 架构保证**（架构级 correct-by-construction 保护用户首条意图不被压缩丢失，竞品依赖~120行运行时检查易绕过）+ **7层超大输出纵深防护**（vault spill + auto-vault + 结构感知裁剪 + stream recovery + preflight guard + hook spiller + bash spill——完整数据存vault可按需精确读取，竞品丢弃原数据或仅2层截断，127项测试全通过）+ **上下文健康环**（实时Token用量环形指示器+健康状态点+一键手动压缩+≥75%用量自动显示Fork建议+策略详情面板展示压缩/裁剪/缓存统计——竞品无上下文感知的Fork建议）+ **主动记忆召回**（压缩前自动语义搜索持久记忆注入相关上下文——零agent操作，零额外工具token开销；独家能力，CoPaw等竞品需agent手动调用recall_history）+ **707项上下文管理测试验证**（50个测试文件，6批次全通过：优先级压缩+摘要器+管线+智能回退+缓存优化+完整性守卫）+ **压缩参数零配置自适应**（切换模型→ContextConfig按max_context_tokens自动等比重算所有压缩阈值——零YAML编辑 vs 竞品15+参数手动配置；summarizer_llm自动选择lite_model+主模型回退；熔断器half-open探针自动恢复；GUI Settings即改即生效通过DB配置+per-message fingerprint自动重建——409项热更新测试验证）+ **Progress-Aware 双超时守卫**（ProgressClock流式心跳——每token重置空闲计时，精准区分'慢模型正常输出'与'完全挂死'；90s inactivity + 600s总墙钟双保险；per-chat锁防并发踩踏；压缩前完整备份可恢复——竞品仅固定单一超时无法区分死活，本地慢模型频繁被误杀）+ **实时恢复进度反馈**（4类细分step_key——context_compaction/context_truncation/model_failover/transient_retry——紧急恢复时实时推送到前端Progress Steps；deterministic_fallback确保压缩失败永不阻塞对话；107项stream_recovery测试验证——竞品无恢复过程反馈，用户陷入黑盒等待）+ **压缩生命周期实时诊断**（5阶段实时进度：3s去抖→active心跳含elapsed_s→timeout/circuit_open/fallback/completed终态——单条upsert进度条含色彩编码状态；零LLM成本；Hermes仅纯文本status+默认关闭需opt-in；DeerFlow/CoPaw/OpenClaw零压缩UI反馈）"
         },
         "smartConcurrency": {
           "feature": "并发引擎 · 彻底消灭读写竞态",
@@ -623,7 +623,7 @@
           "feature": "外部 Agent 集成 · 一个平台调度 Claude Code / Codex / Gemini",
           "hermes": "仅 Copilot 适配器 (CLI)",
           "openclaw": "_no",
-          "myrmAgent": "自有 Agent 引擎 + MCP 行业标准（OAuth+安全扫描+Schema容错+动态发现+连接池自愈）+ 5层安全审批 + 技能自动进化 + 8种SubAgent编排模式（7,604 项测试）— 可选 delegate_to_agent：本地 PATH 自动发现 CLI（三方 Claude Code 无需订阅凭据即显示「CLI 可用」）+ Agent 级 external_cli 开关（Writer 默认 OFF 省 ~216 tok）· 对话级 CLI --resume 跨消息续接 + 单对话 turn-lock（取消免锁）+ 删对话即时释放 CLI 子进程 · **Connect Wizard 一键配置**：5 种 IDE/Agent（Cursor/Windsurf/Claude Code/Codex/Gemini CLI）一键生成 MCP 配置+Token认证+健康检查 · 维护者 monorepo `./myrm ready` 开发守门（2026-07-10：20 项自动化测试 + 真实 Chrome CHROME_E2E_READY）· 153+ 项集成/单测（Connect 45 + External CLI 108+）+ Live E2E + Chrome E2E 全绿"
+          "myrmAgent": "自有 Agent 引擎 + MCP 行业标准（OAuth+安全扫描+Schema容错+动态发现+连接池自愈）+ 5层安全审批 + 技能自动进化 + 8种SubAgent编排模式（7,604 项测试）— 可选 delegate_to_agent：本地 PATH 自动发现 CLI（三方 Claude Code 无需订阅凭据即显示「CLI 可用」）+ Agent 级 external_cli 开关（Writer 默认 OFF 省 ~216 tok）· 对话级 CLI --resume 跨消息续接 + 单对话 turn-lock（取消免锁）+ 删对话即时释放 CLI 子进程 · **Connect Wizard 一键配置**：5 种 IDE/Agent（Cursor/Windsurf/Claude Code/Codex/Gemini CLI）一键生成 MCP 配置 + per-Agent 记忆作用域（token 携带 agent_id，外部工具读写绑定 Agent 的专属记忆+共享上下文——竞品仅支持单一无作用域记忆）+Token认证+健康检查 · 维护者 monorepo `./myrm ready` 开发守门（2026-07-10：20 项自动化测试 + 真实 Chrome CHROME_E2E_READY）· 153+ 项集成/单测（Connect 45 + External CLI 108+）+ Live E2E + Chrome E2E 全绿"
         },
         "computerUse": {
           "feature": "桌面操控 · 看得见它在点什么",
@@ -677,13 +677,13 @@
           "feature": "多模型共识 · 多 LLM 并行推理出更可靠的答案",
           "hermes": "基础（单文件、硬编码 4 模型）",
           "openclaw": "_no",
-          "myrmAgent": "流式 MoA 共识引擎（多 LLM 并行 + 聚合器综合分析）· 多轮对话完整上下文传递（竞品仅单轮生效）· 工具结果智能保留（竞品直接丢弃 ToolMessage）· Prompt Cache 最大化（System→History→Query 布局）· 专家委员会原语（N 专家独立分析 → 交叉审查 → 主席综合，含防盲从 prompt）· Race 竞速模式（最快成功即返回）· 优雅降级（自动回退最佳参考 + 中流失败部分综合保留）· 深度思考模型支持（DeepSeek-R1/GLM reasoning_content 自动回退）· 预算感知竞速准入 · 参考输出上限（reference_max_tokens — 节省 70-85% 参考 token 成本，聚合器不截断）· 单参考智能跳过（仅1个成功时省去聚合调用）· 温度分离（参考高温多样 + 聚合低温精确）· 成本自动归因（per-call token_tracker）· 人格继承（聚合器保持 Agent persona）· 任意阶段取消（CancellationToken）· 复杂任务智能升级建议（WorkflowEscalation 零成本检测 + 非阻塞建议）· GUI 配置面板 + ConsensusThinkingPanel 实时多模型思考展示 + ConsensusMetaDisplay 元数据展示 · 在12个维度上优于唯一有完整 ensemble 实现的竞品（OpenSquilla 2872行 CLI 实现）· OmniRoute「fusion」策略经源码验证为零实现（纯营销），Myrm 是唯一真正实现 MoA 的 Agent 产品 · 154 项测试验证（2026-07-25 实测）"
+          "myrmAgent": "流式 MoA 共识引擎（多 LLM 并行 + 聚合器综合分析）· 多轮对话完整上下文传递（竞品仅单轮生效）· 工具结果智能保留（竞品直接丢弃 ToolMessage）· Prompt Cache 最大化（System→History→Query 布局）· 专家委员会原语（N 专家独立分析 → 交叉审查 → 主席综合，含防盲从 prompt）· Race 竞速模式（最快成功即返回）· 优雅降级（自动回退最佳参考 + 中流失败部分综合保留）· 深度思考模型支持（DeepSeek-R1/GLM reasoning_content 自动回退）· 预算感知竞速准入 · 参考输出上限（reference_max_tokens — 节省 70-85% 参考 token 成本，聚合器不截断）· 单参考智能跳过（仅1个成功时省去聚合调用）· 温度分离（参考高温多样 + 聚合低温精确）· 成本自动归因（per-call token_tracker）· 人格继承（聚合器保持 Agent persona）· 任意阶段取消（CancellationToken）· 复杂任务智能升级建议（WorkflowEscalation 零成本检测 + 非阻塞建议）· GUI 配置面板 + ConsensusThinkingPanel 实时多模型思考展示 + ConsensusMetaDisplay 元数据展示 · 在12个维度上优于唯一有完整 ensemble 实现的竞品（OpenSquilla 2872行 CLI 实现）· 竞品「fusion」策略经源码验证为零实现（纯营销），Myrm 是唯一真正实现 MoA 的 Agent 产品 · 154 项测试验证（2026-07-25 实测）"
         },
         "fileEditSafety": {
           "feature": "文件系统智能 · 19 种原生操作、11 模块解析引擎、5 层自动观察者、8 层多代理文件保护",
           "hermes": "基础文档提取 + 写后py_compile级语法检查（无自动格式化、无回滚）",
           "openclaw": "_no",
-          "myrmAgent": "11模块文档解析引擎（PDF 3策略智能编排 · 500页默认/2000页上限+并行解析+截断透明 · 书签+字体标题双模检测 · 表格L0/L2 RAG反碎片 · OCR · 噪点过滤 · Office全格式 · Excel智能分析：结构探查+公式审计+大文件自动策略省90%+Token · Jupyter Notebook含kernel语言检测+语法高亮+全栈拖拽入库）+ 未知格式附件感知兜底 + **8层多代理文件保护**（先读后写 + 版本匹配 + 完整读取前置 + 行级冲突检测 + 跨代理活动追踪 + 自动工作空间隔离 ISOLATED_COPY + 延迟串行合并 + 完成自动清理 — **192项多代理测试**）+ **batch atomic file_edit（edits[] 最多20处 · 单次落盘 · overlap预检 · verify全批回滚 · Chrome LIVE WebUI E2E已验）** + **空/隐形 write 拒绝** + Turn 级 FileMutationWarning 诚实横幅（竞品多数允许 0 字节或无 UI 提示）+ **刷新后横幅仍保留** + 写后三层防呆（内存语法校验+CLI深度诊断+12种自动格式化）+ 语法错误自动回滚 + **Turn 级 Undo（消息+会话 chips）Honest UX** — 无变更/超大文件诚实提示，不虚假承诺 · IM `/undo`/`/retry` 联动 · **Undo 后 Agent 下轮自动 re-read（restore_inbox，WebUI+IM 对称）** · **44 harness + 32 server/inbox + 15 IM + Chrome E2E 5/5 验证** · OpenClaw Rewind 仅对话 · Hermes `/rollback` 需 opt-in · Shadow Git快照恢复 + 多Agent快照归属标识+按智能体过滤+SSE实时刷新 + 实时Diff可视化（SSE推送 · Unified/Split双视图 · Prism语法高亮 · 行号+增删统计 · 2000行截断保护 · 95.4%测试覆盖）+ 上传自动同步workspace + **智能文件检索**：glob通配递归搜索 + grep三级引擎（ripgrep>mmap>Python）正则全文搜索 + ReDoS防护 + token节约格式化 + 前端typeahead路径补全 · **163项file_search+suggest全栈测试全通过**"
+          "myrmAgent": "11模块文档解析引擎（PDF 3策略智能编排 · 500页默认/2000页上限+并行解析+截断透明 · 书签+字体标题双模检测 · 表格L0/L2 RAG反碎片 · OCR · 噪点过滤 · Office全格式 · Excel智能分析：结构探查+公式审计+大文件自动策略省90%+Token · Jupyter Notebook含kernel语言检测+语法高亮+全栈拖拽入库）+ 未知格式附件感知兜底 + **Harness Office 写保真**（bash 后 OPC/公式 diff + 损坏文件 warn + 可选自动 recalc — **18 pytest 2026-07**，OSS 唯一 harness 级 in-place 守卫）+ **8层多代理文件保护**（先读后写 + 版本匹配 + 完整读取前置 + 行级冲突检测 + 跨代理活动追踪 + 自动工作空间隔离 ISOLATED_COPY + 延迟串行合并 + 完成自动清理 — **192项多代理测试**）+ **batch atomic file_edit（edits[] 最多20处 · 单次落盘 · overlap预检 · verify全批回滚 · Chrome LIVE WebUI E2E已验）** + **空/隐形 write 拒绝** + Turn 级 FileMutationWarning 诚实横幅（竞品多数允许 0 字节或无 UI 提示）+ **刷新后横幅仍保留** + 写后三层防呆（内存语法校验+CLI深度诊断+12种自动格式化）+ 语法错误自动回滚 + **Turn 级 Undo（消息+会话 chips）Honest UX** — 无变更/超大文件诚实提示，不虚假承诺 · IM `/undo`/`/retry` 联动 · **Undo 后 Agent 下轮自动 re-read（restore_inbox，WebUI+IM 对称）** · **44 harness + 32 server/inbox + 15 IM + Chrome E2E 5/5 验证** · OpenClaw Rewind 仅对话 · Hermes `/rollback` 需 opt-in · Shadow Git快照恢复 + 多Agent快照归属标识+按智能体过滤+SSE实时刷新 + 实时Diff可视化（SSE推送 · Unified/Split双视图 · Prism语法高亮 · 行号+增删统计 · 2000行截断保护 · 95.4%测试覆盖）+ 上传自动同步workspace + **智能文件检索**：glob通配递归搜索 + grep三级引擎（ripgrep>mmap>Python）正则全文搜索 + ReDoS防护 + token节约格式化 + 前端typeahead路径补全 · **163项file_search+suggest全栈测试全通过**"
         },
         "ptcEngine": {
           "feature": "PTC 引擎 · 复杂任务更省 Token",
@@ -695,7 +695,7 @@
           "feature": "中文搜索+迁移 · 换平台不丢配置",
           "hermes": "_no",
           "openclaw": "_no",
-          "myrmAgent": "13种适配器自动发现（含Hermes/Windsurf/Trae/Mem0/Claude Code/Cursor/Codex）+ Mem0兼容API（8个端点）+ 一键迁移向导 + 安全 ZIP 技能迁移（preview/confirm 统一 message+error_code 契约，冲突支持 rename/replace）· 371项记忆测试 + 26项迁移契约测试验证"
+          "myrmAgent": "14种适配器自动发现（含Hermes/Windsurf/Trae/Mem0/ChatGPT/gbrain/Claude Code/Cursor/Codex — 13种已就绪）+ Mem0兼容API（8个端点）+ 一键迁移向导 + 安全 ZIP 技能迁移（preview/confirm 统一 message+error_code 契约，冲突支持 rename/replace）· 217项导入/连接测试 + 26项迁移契约测试验证"
         },
         "workspaceRulesCompat": {
           "feature": "项目规则兼容 · 你的 AGENTS.md / .cursorrules / CLAUDE.md 直接生效",
@@ -917,7 +917,7 @@
           "feature": "公文 & 学术论文国标排版 · 一键生成专业政务文档",
           "hermes": "_no",
           "openclaw": "_no",
-          "myrmAgent": "内置 GB/T 9704-2012 公文格式规范（仿宋_GB2312 / 小标宋体 / 28磅固定行距 / 红头结构）+ 学术论文排版规范。预置「公文助手」Agent 一键生成通知/请示/函/纪要——替代 WPS VIP 付费模板，零依赖标准 .docx 输出可用任意 Office 打开。"
+          "myrmAgent": "内置 GB/T 9704-2012 公文格式规范（仿宋_GB2312 / 小标宋体 / 28磅固定行距 / 红头结构）+ 学术论文排版规范。预置「公文助手」Agent 一键生成通知/请示/函/纪要——替代 WPS VIP 付费模板，零依赖标准 .docx 输出可用任意 Office 打开。**in-place 写保真**：Harness bash 后 OPC/公式 audit 捕获破坏性改稿与损坏文件（**18 pytest 2026-07**）；旧格式 .doc/.xls/.ppt 自动转换（278 项读链 pytest）。灵犀在政府固定模板内核级保真上仍领先——复杂模板建议人工复核。"
         },
         "localIotBridge": {
           "feature": "局域网智能设备操控 (IoT Bridge) · AI 走入真实世界",
@@ -992,7 +992,7 @@
           "desc": "八种记忆 + 个人知识库 + 技能持续进化 —— 记住对话中的宝贵偏好和经验，形成越用越懂你的长期搭档。",
           "point1": "跨会话记忆：画像、常用事实、流程与偏好自动召回",
           "point2": "知识库智能检索 + 隐性偏好画像，回答更贴合你的习惯",
-          "point3": "技能自进化：看范例即学会（示例学习）· 失败自动修复（挫折感知 + FIX 变体生成）· 变更需审批（Monaco Diff + 一键回滚）· 完整版本历史 + 批量回滚 · 错误自动提炼避坑指南并注入后续 Prompt——越用越少犯错"
+          "point3": "技能自进化：看范例即学会（示例学习）· 失败自动修复（挫折感知 + FIX 变体生成）· 回归安全协同进化（自动生成测试用例，每次变更前自动验证不会破坏已有行为）· 变更需审批（Monaco Diff + 一键回滚）· 完整版本历史 + 批量回滚 · 错误自动提炼避坑指南并注入后续 Prompt——越用越少犯错"
         },
         "security": {
           "title": "六重安全防护，敏感操作须你确认",

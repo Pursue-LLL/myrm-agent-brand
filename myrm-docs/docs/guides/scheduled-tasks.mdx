@@ -155,6 +155,59 @@ For **Agent** scheduled tasks (not script-only jobs), you can enable an optional
 
 **Cost control:** Default off; read-only runs skip review; interactive chat is unaffected (no extra Turn1 tools).
 
+## Acceptance Criteria (Structured Output Verification)
+
+Define measurable quality checks that automatically verify your task's output after every run. Unlike Delivery Assurance (LLM-based review), acceptance criteria are **deterministic** — shell commands or semantic checks that gate success/failure.
+
+### Adding Criteria
+
+When creating or editing a task in the GUI, expand the **Acceptance Criteria** section (agent-type tasks only):
+
+1. Click **Add criterion**
+2. Choose type:
+   - **Shell** — a shell command that must succeed (exit code 0) or match expected output
+   - **Semantic** — an LLM judge evaluates if the output meets a natural-language description
+3. Describe the check (e.g., "Output JSON has at least 3 items" or "Report mentions all 5 competitors")
+
+### How It Works
+
+| Path | Trigger | Mechanism |
+|------|---------|-----------|
+| **Goal queue** (active goal exists) | `create_goal(acceptance_criteria=...)` | Harness `VerificationGatekeeper` runs after goal completion |
+| **Direct execution** (no active goal) | Post-run in `_run_once` | `acceptance_verification.py` bridges `VerificationGatekeeper` |
+
+Both paths use the same `VerificationGatekeeper` from the harness framework — criteria are evaluated identically regardless of execution mode.
+
+### Failure Behavior
+
+- If **any** criterion fails → run status is marked **FAIL**
+- Failure delivery (configured alert channels) is triggered
+- The task is **not** auto-retried (same as normal failures)
+
+### Example
+
+A daily price scraper with acceptance criteria:
+
+| Type | Description |
+|------|-------------|
+| Shell | `jq '.items \| length' /tmp/prices.json` must output `>=3` |
+| Semantic | "Report includes pricing data for all monitored competitors" |
+
+If the scraper only fetches 2 of 3 competitors due to a site change, the shell check fails immediately — you get an alert instead of discovering missing data days later.
+
+### API Support
+
+The `POST /cron/jobs` and `PATCH /cron/jobs/:id` endpoints accept an `acceptance_criteria` array:
+
+```json
+{
+  "acceptance_criteria": [
+    { "type": "shell", "description": "jq '.count' output.json >= 5" },
+    { "type": "semantic", "description": "Summary covers all key metrics" }
+  ]
+}
+```
+
 ## 10-Layer Anti-Noise Defense
 
 | Layer | Mechanism | Effect |

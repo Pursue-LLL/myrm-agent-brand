@@ -231,6 +231,35 @@ Telegram 渠道支持原生 Rich Message 渲染，配备三层智能降级：
 
 查找顺序 Thread→Chat→Channel 逐级降级，未绑定时使用默认 Agent。
 
+### Topic 工作区绑定（Vault / Project）
+
+将每个 IM 话题绑定到真实工作区，避免远程消息落入空 JIT 沙箱。
+
+| 方式 | 操作 |
+|------|------|
+| **GUI** | **设置 → 渠道路由** → 每话题 **Project** 下拉 |
+| **IM** | `/bind workspace=project:<uuid>` 或 `/bind workspace=/path/to/vault` |
+| **组合** | `/bind agent=my-agent workspace=project:<uuid>` |
+
+每次 Agent 执行前，系统将话题绑定 sync 到 chat SSOT（`project_id` 或 `workspace_dir`），与 WebUI 会话共用 `resolve_effective_chat_workspace` 解析链。解绑会双向清空 chat 工作区字段。Project 或路径不可用时 fail-loud，不会静默进入空沙箱。
+
+**诚实边界**：IM `/status` 仍显示 `project:uuid`（非友好名）。GUI 无路径选择器——GUI 用户绑 Project，路径绑定走 IM。
+
+**测试**：9 项 server pytest（sync、topic_config 校验、解绑清空、effective_workspace 链）；FE label helper 3 vitest。
+
+**vs OpenClaw**：OpenClaw 在 Agent 配置级绑定 `workspaceDir`，一个 Agent 一个目录。Myrm 在 Topic 粒度绑定，同一 Agent 可服务指向不同 vault 的不同 Telegram 话题。
+
+### Obsidian Vault 写入保真
+
+话题绑定 Obsidian vault 后，Agent 直接改**真实 vault 文件**（非副本）。Myrm 提供两层代码级保护：
+
+1. **Frontmatter 保留** — LLM 编辑正文时若整段丢掉 `---` YAML 块，写前守卫自动补回 pre-edit frontmatter（`date:`、`tags:`、Dataview 字段不丢）。
+2. **vault 笔记不跑 prettier** — FormatObserver 跳过 `.obsidian/` 下 `.md`，避免自动格式化剥离元数据。
+
+**诚实边界**：仅整块 frontmatter 丢失时补回（非 field 级 merge）。双链完整性靠 `obsidian-notes` skill 提示，暂无 vault 全库 backlink 扫描。
+
+**测试**：44 pytest（2026-07-28）：harness guard + server parser + service 集成 + format observer。
+
 ### 线程自动跟进
 
 Agent 在线程中回复后，**GroupFollowUpTracker** 自动激活该线程（TTL：10 分钟）。在此窗口内，线程中的后续消息无需 @mention — Agent 自动继续对话，如同真人聊天。

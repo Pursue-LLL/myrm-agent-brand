@@ -350,10 +350,13 @@ Myrm can also act as an **MCP server**, exposing its memory system to external A
 
 Navigate to **Settings > Memory > Connect** to launch the Connect Wizard:
 
-1. **Choose your IDE** — Select from 5 supported MCP clients
-2. **Generate config** — One click generates a Bearer token and a ready-to-paste config snippet
-3. **Paste into your IDE** — Copy the snippet into your IDE's MCP settings file
-4. **Done** — Your external agent now has access to Myrm's memory
+1. **Choose your Myrm Agent** — Select which Agent Profile the external tool should bind to. The external tool will read/write that agent's memory space, including any shared contexts bound to it.
+2. **Choose your IDE** — Select from 5 supported MCP clients
+3. **Generate config** — One click generates a Bearer token (carrying the agent scope) and a ready-to-paste config snippet
+4. **Paste into your IDE** — Copy the snippet into your IDE's MCP settings file
+5. **Done** — Your external agent now has scoped access to the selected Myrm Agent's memory
+
+Each token is scoped to a specific Agent Profile. When the external tool makes MCP requests, Myrm's middleware automatically resolves the token to the correct agent and binds the appropriate memory namespace + shared contexts. This means different external tools can connect to different Myrm agents with completely isolated memory spaces.
 
 ### Exposed Tools
 
@@ -366,7 +369,8 @@ Navigate to **Settings > Memory > Connect** to launch the Connect Wizard:
 
 ### Security
 
-- **Bearer Token authentication** — Each connector gets a unique `myrm_mcp_*` token
+- **Bearer Token authentication** — Each connector gets a unique `myrm_mcp_*` token scoped to a specific Agent Profile
+- **Per-agent memory isolation** — External tools only access the bound agent's memory and shared contexts, not other agents' data
 - **One-click revoke** — Instantly invalidate a connector's access without affecting others
 - **HTTP transport** — Works over the network (not limited to local stdio)
 - **Doctor health check** — Verify connectivity from the GUI at any time

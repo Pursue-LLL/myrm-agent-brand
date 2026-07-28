@@ -246,8 +246,8 @@ Myrm 六层纵深防御，确保 Agent 在广泛自主权下仍安全运行。
 - **URL 解析混淆防护**：阻断 Tab/换行/反斜杠等混淆字符，防止 urlparse 与 HTTP 客户端的解析歧义（CVE 级 SSRF 绕过防御）
 - **内网后缀阻断**：`.local`、`.svc`、`.cluster.local`、`.home.arpa` 等后缀默认拦截，防止 mDNS 和 Kubernetes 内网访问
 - **审计链**：拦截请求写入 `SSRF_BLOCKED` 安全决策，可在审计面板追溯
-- **Passthrough 路径防护**：LLM 直通代理（`/v1/chat/completions`）对用户配置的 Provider apiUrl 也执行 SSRF 检查，deploy 模式感知——本地模式允许 localhost/127.0.0.1 等 loopback（Ollama/vLLM），云/沙箱模式阻断私网和云元数据端点
-- **461+ 项专项测试**：覆盖核心守卫、Agent 安全、浏览器导航、DNS Pinning、媒体验证、A2A 解析、深度爬取、SessionVault、权限引擎和 Passthrough SSRF 集成
+- **Agent API 范围**：`/v1/chat/completions` 仅运行 Myrm 智能体（无 LLM 直通）。用户配置的 Provider apiUrl 在智能体内 LLM 调用路径仍执行 SSRF 检查，deploy 模式感知——本地模式允许 localhost/127.0.0.1 等 loopback（Ollama/vLLM），云/沙箱模式阻断私网和云元数据端点
+- **461+ 项专项测试**：覆盖核心守卫、Agent 安全、浏览器导航、DNS Pinning、媒体验证、A2A 解析、深度爬取、SessionVault、权限引擎和 Provider URL 校验
 
 ### 恶意 URL 架构级免疫
 

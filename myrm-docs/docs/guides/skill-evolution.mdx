@@ -14,7 +14,9 @@ Myrm's Skill Evolution engine **automatically turns your successful interactions
 3. **Automatic Screening** — Low-quality or duplicate extractions are filtered before reaching you.
 4. **Sandbox Validation** — Candidate skills are executed in a safe sandbox environment to verify they actually work.
 5. **LLM Review** — An automated reviewer checks for edge cases, security issues, and correctness.
-6. **Human Approval** — Nothing deploys without your say-so. Review in the **Pending Evolutions Dashboard**.
+6. **Regression Gate** — Auto-generated test cases (EvalCases) validate every candidate against the original skill's known-good behavior. Changes that break existing functionality get penalized or filtered before reaching you.
+7. **Improvement Gate** — The original skill is injected as a baseline candidate and competes head-to-head against all proposed variants. Only variants that genuinely score higher than the original survive — preventing quality regression even when all variants "look good" in isolation.
+8. **Human Approval** — Nothing deploys without your say-so. Review in the **Pending Evolutions Dashboard**.
 
 ## Review pending skills
 
@@ -92,7 +94,7 @@ Matplotlib charts render inline with zero-copy vault:// pointers — no Jupyter 
 
 | Metric | Value |
 |--------|-------|
-| Evolution engine tests | **385 passed** |
+| Evolution engine tests | **437 passed** |
 | Review pipeline tests | **250 passed** (10-dim rubric + approval security + batch E2E) |
 | ConfidenceApprovalFlow + lifecycle tests | **168 passed** (risk signals + quarantine + evidence + forgetting + stats) |
 | Safety layers | **15** (Harness 6 + Server 6 + Service 3) |
@@ -136,6 +138,7 @@ Additional marketplace capabilities:
 | GUI review dashboard | Yes | No (auto-applies) |
 | Confidence scoring | Yes | No |
 | Variant A/B testing | Yes | No |
+| Regression-safe evolution | Yes (auto-generated EvalCases) | No |
 | Version rollback GUI | Yes | CLI only |
 | Background optimization | Yes (4 types) | Basic |
 | Cross-agent experience sharing | Yes | No |
