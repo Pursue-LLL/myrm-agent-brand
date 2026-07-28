@@ -73,6 +73,18 @@ For reasoning-capable models (Claude 3.7+, o1/o3/o4-mini, Gemini 2.5, DeepSeek R
 
 The selected intensity is passed through the full pipeline — frontend `model_kwargs` → server passthrough → harness `extra_body` → LiteLLM → provider API — with zero framework coupling.
 
+## Per-Model Prompt Adaptation
+
+Different AI models have different behavioral tendencies. Myrm automatically adapts its system prompt for each model family to get the best results:
+
+- **GPT / Codex / Grok**: Tool persistence enforcement, mandatory tool use for facts, act-don't-ask bias
+- **Claude**: Disclaimer minimization, execution-first mindset
+- **Gemini / Gemma**: Absolute file path construction, dependency verification
+- **DeepSeek / Qwen / GLM**: Concise Chinese-aware discipline
+- **Claude Opus 5+**: Automatic behavioral tuning for three Anthropic-documented issues — scope expansion (doing more than asked), self-correction narration (unnecessary "I was wrong" statements), and default verbosity (responses longer than needed)
+
+All prompt adaptations are **fixed at agent initialization** and cached in the system prompt, ensuring zero impact on KV Cache hit rates. You don't need to configure anything — Myrm detects the model family from the model name and applies the appropriate discipline automatically.
+
 ## In-Chat Model Transparency
 
 Every assistant message shows a Token Economics badge in the action bar. Click it to see exactly which model handled the request, how it was routed, what it cost, and how fast it ran:
