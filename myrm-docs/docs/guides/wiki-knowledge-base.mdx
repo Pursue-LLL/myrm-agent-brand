@@ -106,6 +106,22 @@ On any **completed assistant message**, use **Save to Wiki** (book icon) in the 
 2. Confirm save — content is written as a new concept (or overwrite confirm if the path already exists).
 3. Each save adds YAML frontmatter: `source_chat`, `source_message`, `saved_at` for traceability.
 
+## Page type contract (frontmatter `type`)
+
+Every wiki page must declare a **page type** in YAML frontmatter. This is enforced at compile time, on pending-edit approval, and by the linter — not just a prompt suggestion.
+
+**Allowed values:** `source`, `entity`, `concept`, `comparison`, `overview`, `question`, `session` (Google OKF–compatible subset).
+
+| When | What happens |
+|------|----------------|
+| **Compile** | LLM output passes through a compile gate; missing `type` defaults to `concept`, invalid values are rejected |
+| **Pending approve** | Approve returns **422** if frontmatter is invalid; the UI shows a friendly error |
+| **Maintain / Linter** | Auto-detects missing or invalid `type` and can repair on maintain |
+| **Repair Page Types** | Settings → Wiki → **Repair Page Types** scans the vault and infers types for legacy notes |
+| **Obsidian import** | Types are inferred from path/content heuristics; writeback preserves `type`, `sources`, and `provenance` |
+
+**Honest boundary:** Save to Wiki from chat currently writes provenance fields only (`source_chat`, etc.); run **Repair Page Types** or **Maintain** to backfill `type` on those notes. Concept tree PUT edits are not hard-blocked — the linter heals drift on the next maintain pass.
+
 This closes the loop: **conversation → one-click archive → searchable knowledge**.
 
 ## Search and maintain

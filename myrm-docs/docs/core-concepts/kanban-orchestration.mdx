@@ -61,6 +61,14 @@ Board create/list CRUD stays **REST/GUI only** — no LLM tool slots wasted. Use
 
 Hermes users migrating to Myrm get the same **worker vs orchestrator** split, plus a visual Kanban GUI, DAG scheduling, and CompletionVerifier. OpenClaw has a display-only Workboard with **zero** LLM tools; deer-flow / LobsterAI / CoPaw / jiuwenclaw expose **zero** native Kanban LLM tools.
 
+### Architecture-Level Anti-Lie
+
+Hermes implements runtime `_verify_created_cards` + `_scan_prose_for_phantom_ids` to detect when an agent falsely claims it created sub-tasks. This is necessary because Hermes gives **every** agent both `kanban_create` and `kanban_complete` tools.
+
+Myrm solves this structurally: **Workers cannot create tasks** (they have 6 tools, none of which is `kanban_add_task`). Only Orchestrators can create tasks, and only Workers can complete tasks. This tool-surface separation makes it architecturally impossible for a Worker to lie about creating sub-tasks — no runtime DB verification needed.
+
+Combined with the existing **CompletionVerifier** (Shell + Semantic dual-layer quality gate) and **DAG dependencies via TaskEdge** (downstream promotion never parses summary prose), Myrm provides stronger anti-hallucination guarantees through architecture rather than runtime patches.
+
 ### Chat↔Board closure (Lean CORE)
 
 With Kanban enabled in Chat, a successful `kanban_add_task` renders **`KanbanTaskCreatedCard`** in the thread (title, board, status, task ID) and persists it under `extra_data.kanban_tasks_created` so the card survives refresh and resume.

@@ -57,6 +57,14 @@ Myrm 提供可视化看板跟踪复杂多步任务，以及强大的子 Agent �
 
 Hermes 用户迁移后可保留 **worker / orchestrator** 分角色体验，并额外获得可视化看板、DAG 调度与 CompletionVerifier。OpenClaw 仅有展示看板、**0** LLM 工具；deer-flow / LobsterAI / CoPaw / jiuwenclaw 等 **无** 原生 Kanban LLM 工具。
 
+### 架构级防谎
+
+Hermes 在运行时通过 `_verify_created_cards` + `_scan_prose_for_phantom_ids` 检测 Agent 是否谎报创建了子任务。这是因为 Hermes 给**每个** Agent 同时提供 `kanban_create` 和 `kanban_complete` 工具。
+
+Myrm 从架构层面解决了这个问题：**Worker 无法创建任务**（仅有 6 个工具，不含 `kanban_add_task`）。只有 Orchestrator 能建任务，只有 Worker 能完成任务。这种工具面分离使 Worker 在架构上不可能谎称创建了子任务——无需运行时 DB 验证。
+
+配合已有的 **CompletionVerifier**（Shell + 语义双层质量闸）和 **DAG 依赖通过 TaskEdge 建立**（下游 promote 不解析 summary 文本），Myrm 通过架构设计而非运行时补丁提供更强的防幻觉保障。
+
 ### 看板附件一键可达
 
 Worker 通过 **`kanban_attach`**（path/url，SSRF 安全）挂附件后，任务卡片显示 **📎 回形针 badge**——**点击即可打开任务抽屉**预览或下载，无需在日志或 CLI 里翻文件。竞品多为纯展示或只见计数。

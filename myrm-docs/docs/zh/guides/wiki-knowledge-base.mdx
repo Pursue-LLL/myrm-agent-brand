@@ -102,6 +102,22 @@ Wiki 不是「写完就忘」的死水。Myrm 用 **12 条代码级路径** 把�
 2. 确认保存 — 内容写入新词条（路径已存在则覆盖确认）。
 3. 每次保存添加 YAML frontmatter：`source_chat`、`source_message`、`saved_at` 便于追溯。
 
+## 页面类型契约（frontmatter `type`）
+
+每条 Wiki 页面必须在 YAML frontmatter 中声明 **页面类型**。在编译、待审批准、以及 Linter 维护时**代码级强制**，而非仅靠 prompt 建议。
+
+**允许值：** `source`、`entity`、`concept`、`comparison`、`overview`、`question`、`session`（与 Google OKF 兼容的子集）。
+
+| 场景 | 行为 |
+|------|------|
+| **编译** | LLM 产出经 compile gate；缺 `type` 默认 `concept`，非法值拒绝写入 |
+| **待审批准** | frontmatter 无效时 Approve 返回 **422**，前端友好 toast |
+| **维护 / Linter** | 自动检测缺失或非法 `type`，Maintain 时可修复 |
+| **Repair Page Types** | 设置 → Wiki → **Repair Page Types** 扫描 vault 并为历史笔记推断类型 |
+| **Obsidian 导入** | 按路径/内容启发式推断；写回保留 `type`、`sources`、`provenance` |
+
+**诚实边界：** 聊天「Save to Wiki」当前仅写溯源字段；可对这类笔记运行 **Repair Page Types** 或 **Maintain** 补全 `type`。词条树 PUT 编辑未硬拦截 — 下次 Maintain 时 Linter 自愈。
+
 闭环：**对话 → 一键归档 → 可检索知识**。
 
 ## 检索与维护

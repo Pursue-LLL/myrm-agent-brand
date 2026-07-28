@@ -371,7 +371,7 @@
           "feature": "Wiki 引擎 · 树形 GUI + 混合检索 + 防幻觉审核",
           "hermes": "SKILL手动",
           "openclaw": "纯MD文件(无GUI)",
-          "myrmAgent": "统一Vault路径+Settings**按智能体选库**·20+API·12条消费闭环+**双开Wiki+Memory统一knowledge_recall(corpus=all)**+**Memory N引用按钮刷新不丢**(31项测试含Chrome E2E)+**@wiki:聊天引用**+LLM编译+树形GUI+3D图谱+HITL+WikiLinter+Obsidian/ZIP导入+**Obsidian原位vault写入保真**(file_edit自动补回YAML frontmatter+vault内.md不跑prettier，44 pytest 2026-07-28)+混合FTS5+Vector+CrawlEngine URL入库+**双层路径遍历防御**(safe_join_path边界校验+filename组件剥离，防LLM注入写入任意路径，241项wiki安全测试全通过)——claw竞品无等价pytest Chrome MCP纪律"
+          "myrmAgent": "统一Vault路径+Settings**按智能体选库**·20+API·12条消费闭环+**双开Wiki+Memory统一knowledge_recall(corpus=all)**+**Memory N引用按钮刷新不丢**(31项测试含Chrome E2E)+**@wiki:聊天引用**+LLM编译+**frontmatter `type` 枚举硬闸门**(编译+Pending 422+Linter修复+Repair Page Types·7类OKF·47 pytest 2026-07-28)+树形GUI+3D图谱+HITL+WikiLinter+Obsidian/ZIP导入+**Obsidian原位vault写入保真**(file_edit自动补回YAML frontmatter+vault内.md不跑prettier，44 pytest 2026-07-28)+混合FTS5+Vector+CrawlEngine URL入库+**双层路径遍历防御**(safe_join_path边界校验+filename组件剥离，防LLM注入写入任意路径，241项wiki安全测试全通过)——claw竞品无等价pytest Chrome MCP纪律"
         },
         "smartForgetting": {
           "feature": "防碎片化 · 7 大策略保持索引纯净与极速召回",
@@ -431,7 +431,7 @@
           "feature": "语音交互 · 说话即操作 + 视频自动转录",
           "hermes": "Discord 语音, 无视频转录",
           "openclaw": "WebRTC, 无视频转录",
-          "myrmAgent": "四模式(audio_only/agent_bridge/OpenAI Realtime/Gemini Live)+Realtime与Gemini Live原生Function Calling+**Settings 对齐的记忆搜索**（与 Chat 同一「历史会话搜索」开关 — 语音声明裁剪 corpus + 运行时 respect opt-in）+**Web对话与桌面内联A2UI**（聊天气泡内声明式表单与图表，纯语音会话不含UI渲染）+Vision+5个STT提供商+视频音频转录+自定义STT端点+对话框直传音频8格式(mp3/wav/ogg等)+25MB分级校验+Tauri桌面端30+扩展名+双TTS路径(Settings Voice渠道免费Edge/流式/摘要；Agent tts_generate聊天Audio工件+Gateway BYOK)+**140项Voice API测试全通过**"
+          "myrmAgent": "四模式(audio_only/agent_bridge/OpenAI Realtime/Gemini Live)+Realtime与Gemini Live原生Function Calling+**Settings 对齐的记忆搜索**（与 Chat 同一「历史会话搜索」开关 — 语音声明裁剪 corpus + 运行时 respect opt-in）+**Web对话与桌面内联A2UI**（聊天气泡内声明式表单与图表，纯语音会话不含UI渲染）+**打断感知 Barge-in Latch**（用户打断时模型自动获知"上次没说完"，不重复已说内容自然衔接；实例级隔离多会话安全）+Vision+5个STT提供商+视频音频转录+自定义STT端点+对话框直传音频8格式(mp3/wav/ogg等)+25MB分级校验+Tauri桌面端30+扩展名+双TTS路径(Settings Voice渠道免费Edge/流式/摘要；Agent tts_generate聊天Audio工件+Gateway BYOK)+**140项Voice API测试全通过**"
         },
         "multimodalGeneration": {
           "feature": "多模态生成 · 图片/视频/语音一句话创作",
@@ -788,10 +788,10 @@
           "myrmAgent": "8 搜索引擎 + 中文全网搜索（百度/搜狗/360/夸克自托管零成本）+ 7类意图零LLM路由 · 不确定即搜索（全模型防幻觉） · 双层智能去重（同URL保留最丰富内容+镜像站哈希去重）· 同源衰减排序（自动打散相同域名，确保来源多样）· Autocut 智能截断 · 充分性验证再回答 · 4 类来源可追溯"
         },
         "steerToken": {
-          "feature": "中途纠偏 /steer",
-          "hermes": "CLI 宏",
+          "feature": "中途纠偏 · 无需等待即刻纠正",
+          "hermes": "仅 CLI redirect",
           "openclaw": "无",
-          "myrmAgent": "SteeringToken 架构（WebUI / Tauri 任务中途随时中断并重定向）"
+          "myrmAgent": "三态 Busy Input（重定向/引导/排队）· 流式生成中途即刻中断并保留已输出的推理上下文 · 用户可配置默认模式 · Enter 发送纠偏不丢失上下文（每次节省 8-30 秒等待）"
         },
         "threeDGraph": {
           "feature": "3D 第二大脑",
@@ -887,7 +887,7 @@
           "feature": "任务分发看板 (Kanban) · 告别日志刷屏，多智能体进度清晰可见",
           "hermes": "文本打印",
           "openclaw": "展示看板",
-          "myrmAgent": "Worker 自治认领—Lead 只建任务、无需人肉分配 · DAG 完成自动解锁下游 · 每任务 Git Worktree 并行改码 · 31 组件 GUI + 活动流实时 promoted/completed · Chat `kanban_add_task` 成功卡 +「在看板查看」深链过滤（竞品无 GUI 闭环）· Agent 挂附件后看板 📎 一点开 Drawer 即下载（SSRF 安全 kanban_attach）· 毫秒事件驱动（非 5s 轮询）· CompletionVerifier · Chrome E2E 4/4 · Hermes 概念兼容 · OpenClaw 仅展示我们可编可验可深链"
+          "myrmAgent": "Worker 自治认领—Lead 只建任务、无需人肉分配 · DAG 完成自动解锁下游 · 每任务 Git Worktree 并行改码 · 31 组件 GUI + 活动流实时 promoted/completed · Chat `kanban_add_task` 成功卡 +「在看板查看」深链过滤（竞品无 GUI 闭环）· Agent 挂附件后看板 📎 一点开 Drawer 即下载（SSRF 安全 kanban_attach）· 毫秒事件驱动（非 5s 轮询）· 架构级防谎（Worker/Orchestrator 工具面分离——Worker 无法谎称创建子任务，优于 Hermes 运行时 DB 验证）+ CompletionVerifier 双层质量闸 · Chrome E2E 4/4 · 1002 项 Kanban 测试全绿 · Hermes 概念兼容 · OpenClaw 仅展示我们可编可验可深链"
         },
         "kanbanConcurrentQueue": {
           "feature": "看板极致吞吐 (百万级并发) · 拒绝数据库锁定与界面卡死",
@@ -1283,12 +1283,12 @@
         "memoryKnowsYou": {
           "label": "记忆与 Wiki",
           "title": "八类记忆，越用越懂你",
-          "desc": "八类记忆跨会话保留偏好与进度。无痕模式可关闭记忆；同时开启 Wiki+Memory 可一次统一检索。回答下方 Memory N 按钮可查看引用来源，刷新不丢。聊天输入 @wiki: 注入指定知识。Settings 按智能体隔离 Wiki 库，资料不串库。",
+          "desc": "八类记忆跨会话保留偏好与进度。无痕模式可关闭记忆；同时开启 Wiki+Memory 可一次统一检索。回答下方 Memory N 按钮可查看引用来源，刷新不丢。聊天输入 @wiki: 注入指定知识。Settings 按智能体隔离 Wiki 库。Wiki 页面在编译与审批时强制 frontmatter `type` 契约，Repair Page Types 一键修复历史笔记。",
           "stat": "8",
           "statLabel": "类记忆",
           "tag1": "Memory 引用刷新不丢",
           "tag2": "@wiki: 聊天引用",
-          "tag3": "按智能体 Wiki 库"
+          "tag3": "Frontmatter type 闸门"
         },
         "deepResearch": {
           "label": "搜索与研究",
