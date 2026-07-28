@@ -149,6 +149,24 @@ Edit any previous message to retry with different wording. MyrmAgent ensures ful
 Unlike many competitors that only truncate locally, MyrmAgent's backend-first approach prevents "ghost messages" from polluting agent context — every edit is a clean slate.
 </Tip>
 
+## Mid-Stream Redirect (Busy Input)
+
+When the agent is actively generating a response, pressing Enter sends your correction as a **redirect** — interrupting the current generation immediately without waiting for completion:
+
+| Mode | Behavior | When to use |
+|------|----------|-------------|
+| **Redirect** (default) | Interrupts mid-generation, preserves partial output in context, starts fresh turn with your correction | Agent is going in the wrong direction |
+| **Steer** | Waits for current generation/tool to finish, then injects your message for the next turn | Agent is doing something useful but needs a course correction afterward |
+| **Queue** | Adds your message to a queue, sent automatically after the current task completes | You want to line up follow-up work without interrupting |
+
+Key benefits of redirect mode:
+- **Zero wasted tokens** — Stops generation the moment you realize the direction is wrong (saves 200–1800 tokens per redirect)
+- **Context consistency** — Partial AI output is preserved as an AIMessage so the LLM sees the same context you saw
+- **Prompt cache friendly** — Preserved partial text maintains the message prefix, improving cache hit rates on the next call
+- **Zero learning curve** — Default Enter behavior, no special key combo needed
+
+Change the default mode in **Settings → Agent → Busy Input Mode** (`redirect` / `steer` / `queue`).
+
 ## vs Competitor Approaches
 
 Most competitors (e.g., Hermes Agent) use a separate `/history` page that duplicates sidebar functionality. MyrmAgent follows the same pattern as ChatGPT, Claude, and Gemini — **sidebar-integrated history** — while providing 16 additional capabilities that the separate-page approach lacks.
