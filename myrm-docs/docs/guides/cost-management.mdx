@@ -95,6 +95,21 @@ Each root task has a `max_descendants = 20` guard preventing runaway subagent sp
 
 Budget tracking is scoped per root agent run — subagent costs accumulate against the parent's budget dimensions, providing unified visibility.
 
+### Multi-Agent Cost Pre-Flight
+
+When the agent needs to spawn multiple sub-agents (batch delegation, council cross-review, or alternatives parallel generation), Myrm estimates the total LLM cost **before execution begins**:
+
+- **Batch mode** — estimates cost based on task count × per-task model pricing
+- **Council mode** — accounts for `expert_count × (1 + cross_review_rounds) + 1` (chair synthesis) LLM calls
+- **Alternatives mode** — estimates based on the number of parallel expert agents
+
+If the estimated cost exceeds **$0.50**, an interactive approval card appears in the chat, showing:
+- Total estimated cost in USD
+- Number of LLM calls to be made
+- Remaining budget
+
+You can approve to proceed or reject to cancel the operation — no tokens are consumed until you approve. This prevents surprise bills from complex multi-agent operations.
+
 ## Long Task Resilience
 
 ### Checkpoint & Recovery

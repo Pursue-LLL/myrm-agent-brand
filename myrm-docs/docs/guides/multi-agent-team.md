@@ -27,6 +27,18 @@ The system will intelligently route requests based on your Agent Profiles and ta
 Unoptimized AI can easily get stuck in "infinite retry loops" when encountering errors, burning through resources.
 Myrm's Harness has a strict **Max-Iteration** hard halt logic built into the execution layer. Upon detecting an abnormal loop, it politely pauses and displays an honest, user-visible corrective hint on the Kanban board. Additionally, powered by independent execution sandboxes (Git Worktree support), multiple agents can safely refactor code in parallel without stepping on each other's toes.
 
+### 5. Pre-Flight Cost Estimation
+
+Multi-agent collaboration means higher model invocation costs. Myrm automatically estimates total LLM call costs **before execution begins** for all three multi-agent modes:
+
+- **Batch mode** — estimates cost based on task count × per-task model pricing
+- **Council mode** — precise formula: `expert_count × (1 + cross_review_rounds) + 1 (chair synthesis)`
+- **Alternatives mode** — estimates based on the number of parallel expert agents
+
+When the estimated cost exceeds **$0.50**, an interactive approval card appears in the chat showing the estimated cost, number of LLM calls, and remaining budget. You can approve or reject — **no tokens are consumed until you approve**.
+
+This means you'll never get a surprise bill from a complex multi-agent operation.
+
 ## How to Get Started
 
 1.  Open the **Myrm Agent WebUI**, and navigate to the Workflow or Kanban section.
