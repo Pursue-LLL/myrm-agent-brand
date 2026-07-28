@@ -1,0 +1,89 @@
+---
+title: Workspace Auto-Organize
+description: Scan a workspace folder, review a move plan in WebUI, and apply batch file moves with rollback — without silent Agent mv.
+---
+
+# Workspace Auto-Organize
+
+Clean up a messy chat workspace or vault folder: the Agent proposes a **move plan**, you review it in a table, then apply or rollback — **never silent auto-move**.
+
+This is **file-centric** and **HITL-first**, similar in spirit to WeChat draft publishing: the Agent writes a plan artifact; you confirm in WebUI.
+
+<Note>
+**Turn Undo** reverts conversation/tool snapshots. It does **not** undo workspace file moves. Use **Rollback last job** on the organize plan panel instead.
+</Note>
+
+## When to use it
+
+- After a long research chat left dozens of files in one folder
+- Before syncing an Obsidian vault folder into the sandbox
+- When Downloads-style clutter builds up inside a workspace scope you trust
+
+## How to start
+
+### Option A — File tree (recommended)
+
+1. Open the **workspace file browser** in the chat sidebar.
+2. Right-click a **directory** → **AI organize folder**.
+3. The chat input is prefilled with an organize prompt. Send it (edit if you want, e.g. "group by project").
+
+### Option B — Chat
+
+Ask the Agent directly:
+
+> Organize files under `my-folder/` using workspace-auto-organizer. Write an organize-plan.json for my review.
+
+## Workflow
+
+### Step 1 — Agent scans and writes a plan
+
+The **workspace-auto-organizer** prebuilt skill:
+
+- Scans the scope (up to 500 files) with `glob_tool`
+- Samples files to infer categories
+- Writes `{scope}.organize-plan.json` with `src`, `dst`, and `reason` per item
+- **Does not** run `mv` or shell moves
+
+### Step 2 — Review in WebUI
+
+When the plan appears as a chat artifact:
+
+1. Click **Review organize plan** on the artifact card.
+2. Edit destination paths or remove rows you disagree with.
+3. Click **Validate** (dry-run) to check collisions and scope rules.
+
+### Step 3 — Apply
+
+Click **Apply moves**. The server:
+
+- Validates paths with the same security stack as workspace file ops
+- Moves files in batch and records an **OrganizeJob** for rollback
+- Updates `[[wikilink]]` targets in Markdown when file names change
+
+The file tree refreshes after Apply or Rollback (sidebar watch or organize panel refresh).
+
+### Step 4 — Rollback if needed
+
+Click **Rollback last job** on the same panel. This restores moves from the job log — **not** Turn Undo.
+
+If rollback cannot restore every file (e.g. a file was deleted manually), you will see a **partial rollback** warning. Check the file tree and fix remaining paths by hand.
+
+## Security and design choices
+
+| Choice | Why |
+|--------|-----|
+| No Harness organize meta tool | Keeps agent tool schema stable for Prompt Cache |
+| Skill forbids direct mv | Forces HITL; reduces accidental mass delete |
+| OrganizeJob rollback | Turn Undo only covers turn snapshots, not arbitrary moves |
+| Scope + depth limits | Plans cannot escape the folder you authorized |
+
+## Troubleshooting
+
+| Symptom | Fix |
+|---------|-----|
+| Validate fails `dst_exists` | Destination already exists — edit the plan or remove the row |
+| Validate fails `mtime_mismatch` | Source changed after the plan was generated — regenerate the plan |
+| Rollback button missing | No applied job for this workspace, or job already rolled back |
+| Turn Undo did not restore files | Expected — use **Rollback last job** on the organize panel |
+| Validate fails `duplicate_src` | Plan lists the same source twice — remove or fix the duplicate row |
+| File tree looks stale | Switch to the workspace sidebar tab or refresh; Apply triggers an automatic tree update |

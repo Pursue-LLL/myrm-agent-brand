@@ -76,7 +76,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **多端会话接力 (Handoff)** | ✅ Web ↔ IM (Telegram/WeChat) 无缝转移，瞬间克隆结构化状态，连终端进程都能接力 | ⚠️ 仅桌面端本地模型切换 | ❌ 无 | ❌ 无 | ❌ 无 | ❌ 无 | ❌ 无 |
 | **多账号凭证池** | ✅ 4 种轮换策略 + 错误感知冷却与熔断器 + ManagedLLM/KeyPool 智能体内故障转移（33 项 openai_compat 测试）| ⚠️ 单一账号 | ⚠️ 单一账号 | ⚠️ 厂商账号 | ⚠️ 单一账号 | ⚠️ 厂商账号 | ⚠️ 单一账号 |
 | **纯本地直连** | ✅ Tauri 轻量级直连官方 API，满足企业绝对隐私合规，内存占用仅为 Electron 的 1/10 | ⚠️ 依赖 Electron 内存占用极大 | ⚠️ 云端中转 | ❌ 仅云端 | ⚠️ 依赖 Electron | ❌ 仅云端 | ⚠️ 依赖 Electron |
-| **零配置迁移 (OOBE)** | ✅ 首次启动自动扫描 Claude Code, Cursor, Codex 等 11 种凭证，一键导入 + **自动迁移默认模型配置**（迁移后首次对话即用，无需手动选模型）（216项测试验证） | ⚠️ 仅支持少数 CLI 工具的粗糙调用 | ❌ 无 | ❌ 无 | ❌ 无 | ❌ 无 | ❌ 无 |
+| **零配置迁移 (OOBE)** | ✅ 首次启动自动扫描 Claude Code, Cursor, Codex 等 11 种凭证，一键导入 + **自动迁移默认模型配置**（迁移后首次对话即用，无需手动选模型）+ **OpenClaw vault 绑定闭环**（导入后 GUI 绑 Project → 首条消息写 chat SSOT — **5 pytest 2026-07-28**）（216项测试验证） | ⚠️ 仅支持少数 CLI 工具的粗糙调用 | ❌ 无 | ❌ 无 | ❌ 无 | ❌ 无 | ❌ 无 |
 | **零配置首跑 (Express Lane)** | ✅ 平台预置托管模型，Cloud 新用户无需 API Key 即可对话；WU 额度计费 + tier 降级 + 额度耗尽引导 BYOK | ❌ 必须 BYOK | ❌ 必须 BYOK | ⚠️ 闭源厂商提供 | ❌ 必须 BYOK | ❌ 仅闭源厂商 | ❌ 必须 BYOK |
 | **SaaS 登录** | ✅ Google OAuth + 一次性交换（JWT 不进 URL）；企业 OIDC 就绪 | ❌ | ❌（OAuth 仅 LLM Key） | ⚠️ 厂商账号 | ❌ | ❌ 闭源 SaaS | ❌ |
 | **模型支持** | ✅ 100+ 供应商经 LiteLLM + 小模型自动调优 + API 方言自动转换（DeepSeek/Kimi/MiMo 零配置）+ 原生思考模型支持（6 级强度 + 思考面板 + 20+ 推理模型检测 + 逐模型超时底线自动适配，思考期间永不超时）+ **base_url 全路径统一管理**（Agent/视觉/视频/检索/Structured Output 7 条 LLM 创建路径统一尊重自定义端点，企业内网代理与离线部署开箱即用，147 项验证测试）— 310 项测试 | 200+ 经 OpenRouter 网关 | 固定 | ⚠️ 固定三档 | BYOK 多模型 | ❌ 仅 MiniMax | N/A |
@@ -762,7 +762,7 @@ Claude Code 采用「Fork 子 Agent」设计，字节级 prompt 前缀对齐以�
 | 不可信上游上下文 | 静默透传 | **Taint 传播** + 安全警告 | 独立验证信号清晰 |
 | JIT 子 Agent 配置 | 字段易错/阈值丢失 | **`ephemeralSubagents` + auto_vault_threshold 物化** | GUI/测试/API 一致 |
 
-**回归覆盖：** **10,838** 项编排全链路测试通过、0 失败（2026-07-11）：委派核心(97) + 锦标赛与验证(5) + spawn工具与安全注册(21) + sub_agents全套含manager/executor/event/checkpoint/orphan recovery(603) + 并行与resume compact(5) + Kanban引擎全套(429) + streaming与stream_recovery(637) + security全套含context_budget/隔离/权限(1,761) + LLM toolkit含credential_pool/路由/fallback(1,344) + context_budget专项(60) + credential_pool专项(36) + error_classifier专项(175) + **Item #13~15 验证(2,431)**：sub_agents套件(603) + security套件(1,761) + multiplexer与thread_sharing(27) + 前端Vitest SubagentDashboard+SubagentStore(17) + EventForwarder(12) + TeammateMailbox(11) + **Item #17 验证(105)**：consensus引擎(56) + council编排(25) + council集成(16) + consensus类型(8) + **Item #18~19 验证(978)**：memory scope绑定(9) + ACP全套(386) + A2A resolver+SSRF(44) + MCP工具集全套(539) + **Item #20+Token预算验证(847)**：budget_guard(59) + manager_core(186) + context_budget(71) + executor+delegation(165) + config+heartbeat(70) + stream+lifecycle(121) + token_control+memory+loop_guard(175) + **Item #32+#36 验证(230)**：dynamic_workflow引擎(64) + DW_e2e(9) + pipeline+模板(47) + orchestrator+swarm(99) + swarm_fission+marketplace(11)。
+**回归覆盖：** **10,838** 项编排全链路测试通过、0 失败（2026-07-11）：委派核心(97) + 锦标赛与验证(5) + spawn工具与安全注册(21) + sub_agents全套含manager/executor/event/checkpoint/orphan recovery(603) + 并行与resume compact(5) + Kanban引擎全套(429) + streaming与stream_recovery(637) + security全套含context_budget/隔离/权限(1,761) + LLM toolkit含credential_pool/路由/fallback(1,344) + context_budget专项(60) + credential_pool专项(36) + error_classifier专项(175) + **Item #13~15 验证(2,431)**：sub_agents套件(603) + security套件(1,761) + multiplexer与thread_sharing(27) + 前端Vitest SubagentDashboard+SubagentStore(17) + EventForwarder(12) + TeammateMailbox(11) + **Item #17 验证(105)**：consensus引擎(64) + council编排(25) + council集成(16) + consensus类型(8) + **Item #18~19 验证(978)**：memory scope绑定(9) + ACP全套(386) + A2A resolver+SSRF(44) + MCP工具集全套(539) + **Item #20+Token预算验证(847)**：budget_guard(59) + manager_core(186) + context_budget(71) + executor+delegation(165) + config+heartbeat(70) + stream+lifecycle(121) + token_control+memory+loop_guard(175) + **Item #32+#36 验证(230)**：dynamic_workflow引擎(64) + DW_e2e(9) + pipeline+模板(47) + orchestrator+swarm(99) + swarm_fission+marketplace(11)。
 
 ### 核心 Preset 工具可用性 — SCIP Phase 0+1（2026-07）
 
@@ -1415,6 +1415,7 @@ Myrm 在架构和体验设计上实现了降维打击：
 | **技能安全演进** | 基础 Proposal 流程 | **GUI 审批流 + Quarantine 检疫隔离 + 静态扫描** | AI 学习的新技能必须经过防投毒扫描，用户在前端审批后才能上线，杜绝大模型恶搞。|
 | **系统稳定性基建** | `openclaw doctor` 命令行诊断 | **前端一键体检 + OOM 静默防护 (Cgroup-Aware) + mtime 状态存储 + 一键诊断导出 (Markdown/JSON)** | 在 Docker 或 SaaS 下不再无故消失，通过前端即可了解所有网络、端口和 API 健康度，一键导出诊断报告反馈给开发者。|
 | **交互 UX 细节** | 命令行打字感 | **长文自动目录 (TOC) + IME 候选词保护 + Quick/Reasoning 模型秒切 + 消息队列 DnD 拖拽排序（排队中可调整发送顺序，竞品均无）+ 专业字体系统（Inter + JetBrains Mono 自托管 + 3套预设 + 无障碍字体 + 零闪烁）** | 极具质感的现代聊天界面。报告自动生成目录并跟随滚动，排队消息可拖拽调整优先级，聊天流畅度比肩原生 App，专业字体排版让长时间阅读更舒适。|
+| **Obsidian Vault 迁移闭环** | 仅 CLI `workspaceDir` JSON 手配 | **迁移向导 Result 卡片 + Onboarding 预填 bind → Start Chat 首条消息写 project SSOT**（5 pytest 2026-07-28） | 迁完 Obsidian vault 后无需再手动建 Project/绑路径，Files 面板与 Agent 首句即可读写 vault `.md`。|
 
 **一句话总结**：从 OpenClaw 迁移到 Myrm，你将告别"修一天跑一小时"的极客折腾期，获得一个拥有全天候健壮队列、极致 UI/UX 细节以及跨端原生体验的企业级 AI 工作站。
 

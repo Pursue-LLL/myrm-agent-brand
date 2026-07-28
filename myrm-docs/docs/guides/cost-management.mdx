@@ -1,0 +1,148 @@
+---
+title: Cost Management & Budget Control
+description: Keep LLM spending under control with real-time observability, proactive budget guards, and intelligent model routing.
+---
+
+# Cost Management & Budget Control
+
+Myrm provides a comprehensive multi-layer cost control system that ensures you never overspend on LLM usage — while maintaining task quality through intelligent routing.
+
+## Budget Policy
+
+### Configuration (Settings → System → Budget Policy)
+
+Set spending limits across three independent dimensions:
+
+| Dimension | Scope | Reset |
+|-----------|-------|-------|
+| **Per-session** | Single conversation / goal | Manual or new session |
+| **Daily** | All sessions combined | Midnight auto-reset |
+| **Per-call** | Single LLM invocation | Stateless |
+
+Each dimension triggers a 4-level progressive response:
+
+```
+OK → WARNING (80%) → FINALIZATION (85%) → EXCEEDED (100%)
+```
+
+### How It Works
+
+1. **WARNING** — Agent receives a budget hint via cache-safe prompt injection. Eco mode activates (compression threshold lowered 20%)
+2. **FINALIZATION** — Agent is instructed to output final results immediately. Tool calls are stripped from model output
+3. **EXCEEDED** — Hard block. No further LLM calls until budget is reset or expanded
+
+Budget status is displayed in real-time via SSE push to the frontend `BudgetBadge` and Goal status card.
+
+## Real-Time Cost Observability
+
+### Per-Message Display
+
+Every assistant message shows detailed token breakdown:
+
+- **7 token types**: prompt, completion, cached, cache_write, reasoning, citation, total
+- **Cost in USD** with cache savings percentage
+- **Model tier** indicator (simple / standard / reasoning)
+- **Cache break reason** attribution when cache misses occur
+
+### Goal Panel (Active Goals)
+
+While a goal is running, the expanded status card shows:
+
+- **Burn rate** — tokens/minute consumption
+- **Cost rate** — $/minute spending
+- **ETA** — estimated time to budget exhaustion
+- **Progress bar** — percentage of budget consumed
+
+### Usage Statistics Dashboard (Settings → System)
+
+Full analytics dashboard with:
+
+- Daily spending chart (7/30/365 day ranges)
+- Session-level drill-down with token/cost breakdown
+- Model breakdown panel (cost per model)
+- Hour and weekday distribution heatmaps
+- Per-agent usage cards with sparkline trends
+- Routing analytics (how many requests used each tier)
+
+## Intelligent Cost Routing
+
+### ComplexityRouter (Automatic)
+
+Myrm automatically routes requests to the most cost-effective model tier:
+
+- **SIMPLE** — Quick questions, greetings → cheapest model
+- **STANDARD** — Normal tasks → balanced model
+- **REASONING** — Complex multi-step problems → premium model
+
+Features:
+- Two-phase classification (rule scoring + LLM judge)
+- **Session momentum** — follow-up messages inherit the conversation's recent tier to prevent quality degradation
+- **Penalty feedback** — records misroutes and adjusts future routing probability (24h decay)
+- **Min-tier floor** — regenerate requests automatically escalate tier
+- **Zero configuration** — active by default on all accounts
+
+### Privacy-Aware Routing
+
+Sensitive content is automatically routed to privacy-appropriate models based on PII detection level.
+
+## Subagent Cost Isolation
+
+### Delegation Budget
+
+Each root task has a `max_descendants = 20` guard preventing runaway subagent spawning. This ensures a single task cannot create an unbounded delegation tree that drains budget.
+
+### Per-Root Budget Scope
+
+Budget tracking is scoped per root agent run — subagent costs accumulate against the parent's budget dimensions, providing unified visibility.
+
+## Long Task Resilience
+
+### Checkpoint & Recovery
+
+If the server process is interrupted during a long task:
+
+1. **Signal-safe checkpoint** — all running subagents are checkpointed to disk (JSON + fcntl file locking)
+2. **Orphan recovery** — on restart, orphan scanner detects interrupted checkpoints and publishes events to the UI
+3. **Resume API** — user can resume from checkpoint with full state restoration (messages + workspace)
+
+### Goal Continuation Guard
+
+The continuation engine evaluates 9+ conditions before each turn:
+
+- Budget remaining check
+- Cancellation / steering token
+- Convergence detection
+- Goal drift detection (trajectory scoring every 5 turns)
+- Per-todo checkpoint (optional pause after each step)
+- Protected file integrity validation
+
+## Output Compression
+
+CLI tool output is automatically compressed using intelligent rules to minimize token consumption:
+
+- Path deduplication and summarization
+- Repeated pattern collapsing
+- Binary/noise filtering
+- Large output truncation with summary
+
+## Stable Prefix for Cache Efficiency
+
+System prompts and tool schemas are carefully ordered and canonicalized to maximize prompt cache hit rates:
+
+- Deterministic tool schema ordering (SSOT)
+- Schema canonicalization (removing non-semantic differences)
+- Cache breakpoint detection with attribution reporting
+
+## Test Coverage
+
+313 tests verify the cost management system:
+
+| Module | Tests |
+|--------|-------|
+| token_economics (ledger, budget, cost engine) | 9 |
+| Checkpoint (save/resume/delete/orphan) | 47 |
+| ComplexityRouter (routing + momentum + penalty) | 70 |
+| Delegation budget (spawn limits) | 26 |
+| Budget middleware (injection + strip) | 14 |
+| Goal continuation (9-step guard chain) | 76 |
+| Output compressor (CLI compression) | 71 |

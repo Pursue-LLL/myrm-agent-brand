@@ -1,0 +1,89 @@
+---
+title: 工作区智能整理
+description: 扫描工作区目录、在 WebUI 审阅移动计划并批量执行，支持回滚，禁止 Agent 静默 mv。
+---
+
+# 工作区智能整理
+
+清理杂乱的 chat workspace 或 vault 目录：Agent 生成**移动计划**，你在表格中审阅后再执行或回滚——**不会静默自动移动文件**。
+
+这与公众号草稿推送同属 **file-centric + HITL**：Agent 写 plan 工件，你在 WebUI 确认。
+
+<Note>
+**Turn Undo** 撤销的是对话/工具快照，**不会**还原工作区文件移动。请使用整理面板上的 **回滚上一任务**。
+</Note>
+
+## 适用场景
+
+- 长研究会话后在同一目录堆了大量文件
+- 将 Obsidian vault 子目录接入 sandbox 前先归档
+- workspace 内类似 Downloads 的临时文件堆积
+
+## 如何开始
+
+### 方式 A — 文件树（推荐）
+
+1. 在聊天侧栏打开 **工作区文件浏览器**。
+2. 对**目录**右键 → **AI 整理此目录**。
+3. 聊天输入框会预填整理 prompt，发送即可（可改，如「按项目分类」）。
+
+### 方式 B — 对话
+
+直接对 Agent 说：
+
+> 使用 workspace-auto-organizer 整理 `my-folder/` 下的文件，生成 organize-plan.json 供我审阅。
+
+## 流程
+
+### 步骤 1 — Agent 扫描并写入计划
+
+**workspace-auto-organizer** 预置技能会：
+
+- 用 `glob_tool` 扫描范围（最多 500 个文件）
+- 抽样阅读以推断分类
+- 写入 `{scope}.organize-plan.json`（每项含 `src`、`dst`、`reason`）
+- **禁止** 执行 `mv` 或 shell 移动
+
+### 步骤 2 — WebUI 审阅
+
+计划以聊天工件出现时：
+
+1. 点击工件卡片 **Review organize plan**。
+2. 编辑目标路径或删除不同意的行。
+3. 点击 **Validate**（dry-run）检查冲突与范围规则。
+
+### 步骤 3 — 执行
+
+点击 **Apply moves**。服务端会：
+
+- 使用与工作区写操作相同的安全栈校验路径
+- 批量移动并记录 **OrganizeJob** 供回滚
+- 文件名变更时更新 Markdown 中的 `[[wikilink]]`
+
+Apply 或 Rollback 后文件树会自动刷新（侧栏 watch 或整理面板触发更新）。
+
+### 步骤 4 — 需要时回滚
+
+在同一面板点击 **Rollback last job**。从任务日志恢复移动——**不是** Turn Undo。
+
+若无法恢复全部文件（例如中间手动删了文件），会提示 **部分回滚**，请检查文件树并手动处理剩余项。
+
+## 安全与设计
+
+| 设计 | 原因 |
+|------|------|
+| 无 Harness organize 元工具 | 保持 Agent 工具 schema 稳定，利于 Prompt Cache |
+| 技能禁止直接 mv | 强制 HITL，降低误删风险 |
+| OrganizeJob 回滚 | Turn Undo 不覆盖任意文件移动 |
+| 范围与深度限制 | 计划不能逃出你授权的子目录 |
+
+## 故障排查
+
+| 现象 | 处理 |
+|------|------|
+| Validate 报 `dst_exists` | 目标已存在——改计划或删行 |
+| Validate 报 `mtime_mismatch` | 源文件在生成计划后被修改——重新生成计划 |
+| 无回滚按钮 | 本 workspace 无已执行任务，或已回滚 |
+| Turn Undo 未还原文件 | 预期行为——用整理面板的 **回滚** |
+| Validate 报 `duplicate_src` | 计划中同一源路径出现两次——删行或改正 |
+| 文件树未更新 | 切换到工作区侧栏；Apply 后会自动触发树更新 |

@@ -203,12 +203,14 @@ Multiple models generate answers in parallel, and an aggregator model synthesize
 - **Reference Temperature** — Controls reference model output diversity (default 0.6, higher = more diverse)
 - **Aggregator Temperature** — Controls final synthesis precision (default 0.4, lower = more precise)
 - **Reference Output Limit** — Limits max output tokens per reference model (default unlimited, recommend 600-2000 for cost savings)
+- **Reference Reasoning Effort** — Controls reasoning depth for reference models (low/medium/high); recommend low to save reasoning token costs
+- **Aggregator Reasoning Effort** — Controls reasoning depth for the aggregator model; recommend high for synthesis quality
 - **Min Successful** — Minimum reference models that must succeed (default 1)
 
 **Smart optimizations:**
 - Skips aggregation when only 1 reference succeeds — returns directly
 - Aggregator output is never truncated — user-visible answers stay complete
-- Compatible with reasoning model output formats (DeepSeek-R1, etc.)
+- Compatible with reasoning model output formats (DeepSeek-R1, etc.) with independent reasoning effort control
 - Full multi-turn conversation context preserved
 
 ## Cost Visualization
@@ -220,12 +222,15 @@ Complete token economics visualization pipeline from backend to frontend:
 | Per-message | Token usage and cost per message | TokenUsageDisplay, cache savings water-drop animation |
 | Per-session | Session diagnostics + execution trace replay | SessionAnalyticsDialog, ExecutionTraceTimeline |
 | Dashboard | 7/30/365-day multi-dimensional usage stats | UsageStatisticsSection, routing analytics panel |
-| Budget control | 4D budget guard (tokens/USD/time/turns) + 3-stage progressive response (WARNING eco-compress → FINALIZATION forced output → EXCEEDED hard block) + SSE real-time push | BudgetPolicySection, BudgetBadge, BudgetDialog, channel budget management |
-| Enterprise | Org usage overview + audit logs | EnterpriseUsageTab |
+| Budget control | MultidimensionalBudgetGuard (per-session/daily/per-call) + 4-stage progressive response (OK → WARNING eco-compress → FINALIZATION forced output → EXCEEDED hard block) + budget_boundary_middleware auto-intercept + SSE real-time push | BudgetPolicySection, BudgetBadge, BudgetDialog, channel budget management |
+| Cloud quota | Work Unit quota pre-check before execution | useQuotaGuard hook |
+| Usage ledger | Per-provider per-model token/cost full accounting | UsageLedger, cost_engine (5 providers, vision/reasoning multipliers) |
+| Enterprise | Org usage overview + daily charts + model breakdown + user quota table + budget settings + audit logs | EnterpriseUsageTab |
 | Model Policy | Org-level model whitelist (restrict which LLMs are available) | EnterpriseModelPolicyTab |
 
 | Metric | Value |
 |--------|-------|
+| Budget & quota tests | **374 passed** (Jul 2026) |
 | Token economics tests | **355 passed** |
 | Token types tracked | **7** (prompt/completion/cached/reasoning/audio_in/audio_out/image) |
 | Frontend visualization components | **18+** |

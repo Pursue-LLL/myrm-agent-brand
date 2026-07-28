@@ -228,6 +228,16 @@ Myrm implements DNS pinning for MCP tool URLs:
 
 When MCP tools install dependencies, the OSV (Open Source Vulnerability) API is consulted in real-time to detect known malicious packages.
 
+### Runtime Prompt Injection Protection
+
+Every time MCP tools are registered (initial freeze) or dynamically refreshed (after `list_changed`), Myrm runs a runtime surface scan that inspects:
+
+- **Server instructions** for embedded directives that could hijack agent behavior
+- **Tool names** for deceptive names mimicking built-in tools
+- **Tool descriptions** for injected prompt manipulation patterns
+
+If suspicious content is detected, the server's tools are blocked with a `MCPRuntimePostureError` — the malicious tools never reach the agent's context. This prevents a class of attacks where a compromised or malicious MCP server subtly changes its tool descriptions to inject instructions into the agent's prompt.
+
 ### Tool Approval
 
 MCP tools follow the same approval flow as built-in tools:

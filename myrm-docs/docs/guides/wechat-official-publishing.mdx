@@ -1,0 +1,90 @@
+---
+title: WeChat Official Account Publishing
+description: Convert vault Markdown to styled HTML and push to the WeChat Official Account draft box with human-in-the-loop confirmation.
+---
+
+# WeChat Official Account Publishing
+
+Publish long-form articles from your **workspace vault** to the **WeChat Official Account draft box** — without giving the Agent a one-click publish tool.
+
+This workflow is **file-centric**: Markdown lives in the vault, the formatter writes `.wechat.html` beside it, you preview in WebUI, then you click **Push to WeChat Draft** when ready.
+
+<Note>
+**WeChat (iLink)** is your **personal WeChat** via QR login. **WeChat Official** uses **AppID + AppSecret** and the Official Account draft API. They are separate channels.
+</Note>
+
+## Prerequisites
+
+1. A **WeChat Official Account** (subscription or service account) with API access enabled.
+2. **AppID** and **AppSecret** from [mp.weixin.qq.com](https://mp.weixin.qq.com/) → Settings → Basic configuration.
+3. Server **public IP whitelisted** on the same page (required for `uploadimg` and `draft/add`).
+4. Optional: bind the **WeChat Official** channel in **Settings → Channels** for inbound messages (draft push works with credentials alone).
+
+## Configure credentials
+
+1. Open **Settings → Channels → WeChat Official**.
+2. Enter **AppID** and **AppSecret**.
+3. Click **Test connection** — fix IP whitelist if the test fails.
+4. Save. Credentials are stored as `wechatOfficialCredentials`.
+
+## Workflow: vault → HTML → draft
+
+### Step 1 — Write Markdown in the vault
+
+Author in Typora, Obsidian, or any editor. Save under the workspace vault, e.g. `articles/my-post.md`. Use relative images:
+
+```markdown
+![](./images/cover.png)
+```
+
+### Step 2 — Format with the prebuilt skill
+
+Ask the Agent (or run Kanban with the **WeChat (微信公众号)** branch):
+
+> "Convert `articles/my-post.md` to WeChat Official HTML."
+
+The **wechat-article-formatter** skill runs `md_to_wechat_html.py` and produces `articles/my-post.wechat.html` with block-level inline CSS (headings, paragraphs, code blocks, tables, images).
+
+### Step 3 — Preview the HTML artifact
+
+Open the HTML artifact in chat. **ArtifactCard** renders it inline. Confirm layout and images.
+
+### Step 4 — HITL push to draft box
+
+1. On the HTML artifact card, click **Push to WeChat Draft**.
+2. Set the **title** (required).
+3. **Cover image**: auto-filled from the first inline `<img>` when present; or pick from workspace image suggestions; or enter a workspace-relative path manually.
+4. Confirm push.
+
+The server:
+
+- Validates paths with `relative_to` (workspace unknown → **503 fail-closed**).
+- Uploads inline images to WeChat CDN (`uploadimg`) **before** the cover thumb.
+- Calls `draft/add` with body HTML + embedded styles.
+
+### Step 5 — Publish on WeChat (manual)
+
+Open [mp.weixin.qq.com](https://mp.weixin.qq.com/) → **Draft box**, review the article, then publish or schedule. Myrm does **not** auto-publish — by design (HITL).
+
+## Security and design choices
+
+| Choice | Why |
+|--------|-----|
+| No Agent draft tool | Keeps tool schema stable for Prompt Cache; publishing is an explicit human action |
+| Path fail-closed | Prevents LLM-injected paths outside the workspace |
+| HITL only | You always review on WeChat before mass send |
+| Single theme | One SSOT inline-style table; head CSS generated from the same source |
+
+## Troubleshooting
+
+| Symptom | Fix |
+|---------|-----|
+| Test connection fails | Add server egress IP to WeChat IP whitelist |
+| 503 on draft push | Workspace root not resolved — open the chat's workspace or retry after server ready |
+| Images missing in draft | Use workspace-relative paths; remote URLs must be reachable from the server |
+| Cover not applied | Provide a workspace image path or ensure first inline image uses a local path |
+
+## Related
+
+- [Multi-Channel](/docs/guides/multi-channel) — all messaging channels including WeChat iLink vs Official
+- Prebuilt skill: `myrm-agent-server/assets/prebuilt_skills/wechat-article-formatter/SKILL.md`

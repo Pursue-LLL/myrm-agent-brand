@@ -355,3 +355,27 @@ Myrm provides a dedicated real-time dashboard for monitoring and controlling all
 For sub-agent orchestration, simply describe a complex task to any agent — it will automatically decompose and delegate using the appropriate pattern.
 
 **Verified**: Kanban harness **429** dedicated tests (incl. list limit/truncated), sub_agents **780**, plus server Kanban binding integration **10** + live agent-stream e2e **1** + frontend **110** totaling 1800+. 8-state lifecycle with 19 event types (StrEnum type-safe). Event-driven dispatch confirmed ms-level response vs competitor 60s polling. All tests 100% pass (2026-07-10).
+
+## External Agent Delegation
+
+Beyond internal sub-agents, Myrm can delegate tasks to **any external AI agent** — Claude Code, Codex CLI, Gemini CLI, or any custom CLI/ACP/SDK-compatible agent.
+
+### Key capabilities
+
+| Feature | Description |
+|---------|-------------|
+| **3 Runtime Backends** | CLI (spawn process), ACP (protocol), SDK (direct integration) |
+| **MCP Tool Injection** | ACP/SDK runtimes pass Myrm tools (memory, web_search, skills) to external agents |
+| **Session Reuse** | `persistent` mode maintains state across delegations (CLI `--resume`) |
+| **Safety Callbacks** | Permission requests + file I/O safety boundary (AcpCallbackHandler) |
+| **Per-Chat Pool** | One RuntimePool per conversation with idle cleanup and turn serialization |
+| **Vendor-Agnostic** | Not locked to any single provider (competitors only support Codex) |
+
+### Usage
+
+Simply use `delegate_to_agent_tool` in any conversation:
+- **agent_name**: The configured backend (e.g., `claude-code`, `codex`, `gemini`)
+- **task**: Complete task description with all necessary context
+- **mode**: `persistent` (reuse session) or `oneshot` (fresh each time)
+
+**Verified**: 377 delegation/runtime tests passed (Jul 2026) — harness ACP 332 + server external agents 28 + server migration 17.

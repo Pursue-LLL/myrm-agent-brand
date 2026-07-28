@@ -1,0 +1,90 @@
+---
+title: 微信公众号发布
+description: 将 vault 内 Markdown 转为公众号风格 HTML，经 WebUI 人工确认后推送到微信草稿箱。
+---
+
+# 微信公众号发布
+
+从 **工作区 vault** 写长文，经 **HITL（人工确认）** 推送到 **微信公众号草稿箱** — Agent **没有**一键发布工具。
+
+工作流是 **以文件为中心**：Markdown 在 vault，`wechat-article-formatter` 在同目录生成 `.wechat.html`，WebUI 预览满意后，你再点 **推送到公众号草稿**。
+
+<Note>
+**微信（iLink）** 是 **个人微信** 扫码登录；**微信公众号（WeChat Official）** 使用 **AppID + AppSecret** 与草稿 API。两者是独立渠道，勿混淆。
+</Note>
+
+## 前置条件
+
+1. 已开通 **微信公众号**（订阅号或服务号），并启用开发者接口。
+2. 在 [mp.weixin.qq.com](https://mp.weixin.qq.com/) → 设置与开发 → 基本配置 获取 **AppID**、**AppSecret**。
+3. 将 **服务器公网 IP** 加入同一页的 IP 白名单（`uploadimg`、`draft/add` 必需）。
+4. 可选：在 **设置 → 渠道 → 微信公众号** 绑定渠道以接收粉丝消息（仅推草稿只需配置凭证）。
+
+## 配置凭证
+
+1. 打开 **设置 → 渠道 → 微信公众号**。
+2. 填写 **AppID**、**AppSecret**。
+3. 点击 **测试连接** — 若失败，先补全 IP 白名单。
+4. 保存。凭证键名为 `wechatOfficialCredentials`。
+
+## 工作流：vault → HTML → 草稿
+
+### 步骤 1 — 在 vault 写 Markdown
+
+可用 Typora、Obsidian 等，保存到工作区，例如 `articles/my-post.md`。图片使用相对路径：
+
+```markdown
+![](./images/cover.png)
+```
+
+### 步骤 2 — 用预置 Skill 排版
+
+对 Agent 说（或使用 Kanban **WeChat (微信公众号)** 分支）：
+
+> 「把 `articles/my-post.md` 转成微信公众号 HTML。」
+
+**wechat-article-formatter** 会调用 `md_to_wechat_html.py`，生成 `articles/my-post.wechat.html`，标题/段落/代码块/表格/图片均带块级内联样式。
+
+### 步骤 3 — 预览 HTML 工件
+
+在对话中打开 HTML 工件，**ArtifactCard** 内联渲染，检查版式与图片。
+
+### 步骤 4 — HITL 推送到草稿箱
+
+1. 在 HTML 工件卡片点击 **推送到公众号草稿**。
+2. 填写 **标题**（必填）。
+3. **封面**：文内首张 `<img>` 会自动预填；或从工作区图片建议中选择；或手动输入工作区相对路径。
+4. 确认推送。
+
+服务端会：
+
+- 用 `relative_to` 校验路径（工作区未知 → **503 fail-closed**）。
+- 先上传正文 inline 图到微信 CDN（`uploadimg`），再处理封面 thumb。
+- 调用 `draft/add`，正文为带内嵌 style 的 HTML 片段。
+
+### 步骤 5 — 在微信后台群发（人工）
+
+打开 [mp.weixin.qq.com](https://mp.weixin.qq.com/) → **草稿箱**，预览后群发或定时发布。Myrm **不会**自动群发 — 这是刻意的 HITL 设计。
+
+## 安全与设计取舍
+
+| 设计 | 原因 |
+|------|------|
+| 无 Agent draft 工具 | 保持 Prompt Cache 友好的工具 schema；发布必须人工点击 |
+| 路径 fail-closed | 防止 LLM 注入工作区外路径 |
+| 仅 HITL | 群发前必在微信后台人工审阅 |
+| 单主题 CSS | 块级 inline style 单表 SSOT，head CSS 同源生成 |
+
+## 故障排查
+
+| 现象 | 处理 |
+|------|------|
+| 测试连接失败 | 检查 IP 白名单是否包含服务器出口 IP |
+| 推送返回 503 | 工作区根路径未解析 — 确认当前会话工作区或等待服务就绪 |
+| 草稿内缺图 | 使用工作区相对路径；远程 URL 需服务器可访问 |
+| 封面未生效 | 手动指定工作区图片路径，或确保文内首图为本机相对路径 |
+
+## 相关文档
+
+- [多渠道集成](/docs/zh/guides/multi-channel) — 含微信 iLink 与公众号区别
+- 预置 Skill：`myrm-agent-server/assets/prebuilt_skills/wechat-article-formatter/SKILL.md`

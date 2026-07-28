@@ -55,6 +55,20 @@ A connected MCP server whose tools are available to your agent in any conversati
 - [ ] Agent can successfully call the tool and return results
 - [ ] Tool usage appears in the conversation with proper formatting
 
+## Many MCP tools? Smart routing (vs brute-force injection)
+
+Research frameworks like Alibaba **SkillWeaver** show that dumping thousands of tool descriptions into one prompt can consume **~884k tokens per turn** with poor accuracy. Myrm takes a different, GUI-first approach tuned for **your** Agent Profile:
+
+| What you get | Plain-language benefit |
+|--------------|------------------------|
+| **Token budget routing** (≤2,700 tok direct tools) | Frequently used MCP tools stay visible; oversized servers auto-switch to searchable skills—no manual tuning |
+| **discover → select** | Agent searches bound skills on demand (`skill_search_tool` → `skill_select_tool`) instead of loading every schema up front |
+| **Hybrid search** (BM25 + embeddings) | Finds the right skill even when your words don't match the tool name—works well in Chinese and English |
+| **Multi-skill workflows** | For "download → transform → report" style jobs, enable **Workflow Mode** or use **Kanban** pipelines—plan the full chain, not one tool at a time |
+| **Execution resilience** | Retries, verification gates, and error diagnostics—areas research prototypes often skip |
+
+You do **not** need to build a FAISS index or run a three-stage Decompose/Retrieve/Compose script. Connect MCP in Settings, bind to an agent, and chat.
+
 ## What's Next
 
 - **Explore the MCP ecosystem** → See [MCP Integration](/docs/guides/mcp-integration) for the full configuration reference and popular server recommendations
