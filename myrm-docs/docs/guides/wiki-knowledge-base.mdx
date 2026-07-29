@@ -22,6 +22,23 @@ Myrm connects the wiki to the Agent through **12 code-level paths** (no manual A
 - **Post-compaction session notes** — when context is compressed, session notes are automatically archived to the wiki (after summary persist, not on every note save).
 - **Settings overview tab** for ad-hoc query, compile, maintain, and vault health badges.
 
+## Memory → Wiki auto-bridge
+
+When **Wiki is enabled** on an agent profile, four automatic ingress paths land in the same vault through **`publish_raw`** (Roadmap #16 — not separate toggles):
+
+| Source | When | What happens |
+|--------|------|----------------|
+| **Deep Research** | Research lane completes | Report archived to vault → security scan → compile queue |
+| **Turn digest** | SkillAgent end-of-turn review | High-signal digest published with `PUT_IF_ABSENT` |
+| **Consolidation insights** | Memory consolidation callback | Structured insights bridged after dedup/subsumption |
+| **Session notes** | Post-compaction archive | Session notes archived after summary persist (not every note save) |
+
+**Security & gates:** Every path runs **#15 archive security** (credential block/redact) and **#14 raw gate** (no silent overwrite on stable paths). Agent-level **`enable_wiki`** is the master switch — no per-source Settings toggles.
+
+**Recall direction:** Wiki content is pulled into chat via **`knowledge_recall_tool(corpus=wiki|all)`** when both Wiki and Memory are enabled — not pushed into every turn like OpenClaw-style digest injection.
+
+**Tests:** 37 targeted pytest (Harness 18 + Server 19, Jul 2026).
+
 ## Karpathy cognitive map trio (index / log / hot)
 
 After compile, maintain, import, or human review, the engine **deterministically** maintains three vault-root files (zero extra LLM cost):

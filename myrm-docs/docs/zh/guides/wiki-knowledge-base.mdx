@@ -127,6 +127,23 @@ Wiki 不是「写完就忘」的死水。Myrm 用 **12 条代码级路径** 把�
 - **压缩后会话笔记归档** — 上下文压缩完成时，会话笔记自动归档到 Wiki（在摘要持久化之后触发，而非每次 note 保存）。
 - **设置页即席查询** — 概览标签直接问 Wiki、编译、维护，并展示库健康状态。
 
+## Memory → Wiki 自动桥接
+
+在智能体配置中**启用 Wiki** 后，四条自动入库路径经统一 **`publish_raw`** 写入同一 vault（Roadmap #16 — 无独立 per-source 开关）：
+
+| 来源 | 触发时机 | 行为 |
+|------|----------|------|
+| **Deep Research** | 研究 lane 完成 | 报告归档 → 安全扫描 → 编译队列 |
+| **回合 digest** | SkillAgent 回合结束 review | 高信号 digest 以 `PUT_IF_ABSENT` 发布 |
+| **Consolidation insights** | 记忆整合回调 | 去重/覆盖后的结构化 insights 桥接入库 |
+| **Session notes** | 压缩后归档 | 摘要持久化后会话笔记归档（非每次 note 保存） |
+
+**安全与门控：** 全部路径经 **#15 归档安全**（凭证拒收/脱敏）与 **#14 raw gate**（稳定路径禁止 silent overwrite）。**`enable_wiki`** 为智能体级总开关 — Settings 无 per-source 开关。
+
+**召回方向：** Wiki 内容通过 **`knowledge_recall_tool(corpus=wiki|all)`** 按需 pull 进对话（Wiki+Memory 双开时）— 非 OpenClaw 式每轮 push digest。
+
+**测试：** 37 项定向 pytest（Harness 18 + Server 19，2026-07）。
+
 ## Karpathy 认知地图三件套（index / log / hot）
 
 编译、维护、导入或审批后，引擎**确定性**维护 vault 根目录三文件（零额外 LLM 成本）：
