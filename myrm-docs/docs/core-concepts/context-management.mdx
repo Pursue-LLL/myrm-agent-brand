@@ -12,7 +12,7 @@ Myrm's context management system ensures agents can sustain 200+ turn conversati
 Every message passes through a 12-step progressive offloading pipeline before reaching the LLM:
 
 ```
-User Message → Thinking Cleanup → Media Filter → Smart Filter → Cache TTL Prune → Pre-Compact → Compress → Session Notes → Summarize → Post-Compaction Reread → Normalize → Media Resolve → Prompt Cache Optimize → LLM
+User Message → Thinking Cleanup → Media Filter → Smart Filter → Active Tool Result Prune → Cache TTL Prune → Pre-Compact → Compress → Session Notes → Summarize → Post-Compaction Reread → Normalize → Media Resolve → Prompt Cache Optimize → LLM
 ```
 
 ## Compression Pipeline
@@ -52,6 +52,12 @@ Not just terminal commands — **every tool** (search, API, browser, MCP, etc.) 
 **Prompt Cache aware**: Automatically skips filtering during session resume (Resume) or human-in-the-loop (HITL) scenarios to protect existing cache prefixes.
 
 **Full content recoverable**: All filtered large results are persisted to `.myrm/artifacts/tool_outputs/`. MCP oversized outputs are stored in ArtifactVault with `vault://` pointers — the Agent can retrieve original content at any time via `file_read_tool(paths=["vault://..."])`.
+
+### Layer 1.5: Active Per-Step Tool Result Pruning
+
+Before each LLM call, tool results from *earlier completed steps* that exceed 2,048 tokens are automatically replaced with compact archive placeholders — at **zero LLM cost**. Results from the most recent step are always preserved so the model can consume them. Protected tools (`file_read_tool`, etc.) are exempt from pruning. If the archive offload fails, the original content is kept (fail-safe). Previously archived placeholders are cached in-memory to avoid redundant offload calls on subsequent steps.
+
+This fills the gap between L1 filtering (which handles oversized *single* results) and L2 cache TTL pruning (which only triggers after cache expiry). During continuous multi-step execution, every step would otherwise pay full token price for all prior tool results — this processor proactively reclaims that waste.
 
 ### Layer 2: Cache TTL Pruning
 

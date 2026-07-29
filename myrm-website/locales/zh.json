@@ -253,7 +253,7 @@
         "tools": "工具与能力"
       },
       "llmList": "OpenAI · Anthropic · Google Gemini · DeepSeek · Qwen · Kimi (Moonshot) · MiniMax · 零一万物 · 智谱 · 百川 · SiliconFlow · xAI · Groq · Mistral · OpenRouter · Ollama · LM Studio · vLLM 等 26+",
-      "toolsList": "MCP 协议 · MCP 设置 GUI · Agent/Team 模板市场 · Mermaid 图表 · render_ui 交互 · 反向 MCP Server · OpenAI 兼容代理 · 集成记忆 · OpenAPI · Google Workspace OAuth · Gitee/GitHub/GitLab 一键集成 · 微信公众号草稿（HITL） · 工作区智能整理（HITL） · 同步目录挂载 + OpenClaw 迁移 vault 绑定 · 浏览器 · 文件系统 · 终端 · 定时任务 · 代码执行 · @codebase 概览 · Web Search + Fetch · 数据库",
+      "toolsList": "MCP 协议 · MCP 设置 GUI · Agent/Team 模板市场 · Mermaid 图表 · render_ui 交互 · 反向 MCP Server · OpenAI 兼容代理 · 集成记忆 · OpenAPI · Google Workspace OAuth · xAI SuperGrok OAuth · Gitee/GitHub/GitLab 一键集成 · 微信公众号草稿（HITL） · 工作区智能整理（HITL） · 同步目录挂载 + OpenClaw 迁移 vault 绑定 · 浏览器 · 文件系统 · 终端 · 定时任务 · 代码执行 · @codebase 概览 · Web Search + Fetch · X (Twitter) 搜索 · 数据库",
       "more": "更多集成持续扩展中"
     },
     "testimonials": {
@@ -371,7 +371,7 @@
           "feature": "Wiki 引擎 · 树形 GUI + 混合检索 + 防幻觉审核",
           "hermes": "SKILL手动",
           "openclaw": "纯MD文件(无GUI)",
-          "myrmAgent": "统一Vault路径+Settings**按智能体选库**·20+API·12条消费闭环+**双开Wiki+Memory统一knowledge_recall(corpus=all)**+**Memory N引用按钮刷新不丢**(31项测试含Chrome E2E)+**@wiki:聊天引用**+LLM编译+**frontmatter `type` 枚举硬闸门**(编译+Pending 422+Linter修复+Repair Page Types·7类OKF·47 pytest 2026-07-28)+**Karpathy认知地图三件套**(`index.md`/`log.md`/`hot.md`事件驱动刷新；hot仅wiki_query消费·cache-safe·25 pytest 2026-07-28)+树形GUI+3D图谱+HITL+WikiLinter+Obsidian/ZIP导入+**Obsidian原位vault写入保真**(file_edit自动补回YAML frontmatter+vault内.md不跑prettier，44 pytest 2026-07-28)+混合FTS5+Vector+CrawlEngine URL入库+**双层路径遍历防御**(safe_join_path边界校验+filename组件剥离，防LLM注入写入任意路径，241项wiki安全测试全通过)——claw竞品无等价pytest Chrome MCP纪律"
+          "myrmAgent": "统一Vault路径+Settings**按智能体选库**·20+API·12条消费闭环+**双开Wiki+Memory统一knowledge_recall(corpus=all)**+**Memory N引用按钮刷新不丢**(31项测试含Chrome E2E)+**@wiki:聊天引用**+LLM编译+**frontmatter `type` 枚举硬闸门**(编译+Pending 422+Linter修复+Repair Page Types·7类OKF·47 pytest 2026-07-28)+**Settings Wiki Query 检索模式**(综合检索/声明优先·零LLM best-first图收敛+引用卡片snapshot信任·34 pytest 2026-07-28)+**Karpathy认知地图三件套**(`index.md`/`log.md`/`hot.md`事件驱动刷新；hot仅wiki_query消费·cache-safe·25 pytest 2026-07-28)+**Settings ingest SSE live可见性**(Queue Tab实时四态+熔断pause/resume；bulk compile中Overview/词条树ingest三色点live刷新·signal+REST·**33项定向测试2026-07-29复测**)+树形GUI+3D图谱+HITL+WikiLinter+Obsidian/ZIP导入+**Obsidian原位vault写入保真**(file_edit自动补回YAML frontmatter+vault内.md不跑prettier，44 pytest 2026-07-28)+混合FTS5+Vector+CrawlEngine URL入库+**双层路径遍历防御**(safe_join_path边界校验+filename组件剥离，防LLM注入写入任意路径，241项wiki安全测试全通过)——claw竞品无等价pytest Chrome MCP纪律"
         },
         "smartForgetting": {
           "feature": "防碎片化 · 7 大策略保持索引纯净与极速召回",
@@ -972,8 +972,8 @@
           "desc": "每条回复内嵌缓存节省 banner（命中率 + 节省金额），展开 17 项 tooltip 详情（5 类 Token、per-model/per-tool 成本分解、TTFT/P95/TPS、会话基线对比、cache-break 归因+修复建议）。竞品中无一具备消息级实时成本可视化。"
         },
         "toolOutputIntelligence": {
-          "title": "全工具输出三层智能管理",
-          "desc": "不只压缩终端——搜索、浏览器等工具返回的大结果也会自动精简与存档，长任务不撑爆上下文，随时可恢复。"
+          "title": "全工具输出四层智能管理",
+          "desc": "每步主动归档超量工具结果（零 LLM 成本），搜索、浏览器等大结果自动精简与存档，四层递进降载保障长任务不撑爆上下文，随时可恢复。"
         },
         "liveValidation": {
           "title": "真实浏览器实测验证（Real Chrome）",
@@ -1289,7 +1289,7 @@
         "memoryKnowsYou": {
           "label": "记忆与 Wiki",
           "title": "八类记忆，越用越懂你",
-          "desc": "八类记忆跨会话保留偏好与进度。无痕模式可关闭记忆；同时开启 Wiki+Memory 可一次统一检索。回答下方 Memory N 按钮可查看引用来源，刷新不丢。聊天输入 @wiki: 注入指定知识。Settings 按智能体隔离 Wiki 库。Wiki 页面在编译与审批时强制 frontmatter `type` 契约，Repair Page Types 一键修复历史笔记。编译或导入后，Settings 概览展示 Karpathy 式 index/log/hot 认知地图就绪状态。",
+          "desc": "八类记忆跨会话保留偏好与进度。无痕模式可关闭记忆；同时开启 Wiki+Memory 可一次统一检索。回答下方 Memory N 按钮可查看引用来源，刷新不丢。聊天输入 @wiki: 注入指定知识。Settings 按智能体隔离 Wiki 库。Wiki 页面在编译与审批时强制 frontmatter `type` 契约，Repair Page Types 一键修复历史笔记。编译或导入后，Settings 概览展示 Karpathy 式 index/log/hot 认知地图就绪状态。批量入库时 Queue Tab SSE 实时推送进度，原始文件树三色 ingest 点随编译推进自动变绿——无需手动刷新。",
           "stat": "8",
           "statLabel": "类记忆",
           "tag1": "Memory 引用刷新不丢",
