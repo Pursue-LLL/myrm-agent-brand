@@ -13,6 +13,8 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 
 For memory specifically, Myrm now ships a full **diagnostic + telemetry integrity loop** end-to-end: stream-phase status, persist-phase status, control-plane aggregation/alerts, frontend source explanation (`preflight` vs `runtime_fallback`) including mobile non-hover copy, plus strict cloud fail-closed ingest (shared envelope idempotency + no silent local fallback when shared dedup backend is unavailable, with `dedup_reject` reason metrics). Latest focused regression run (2026-07-19): server 28 passed, control-plane 55 passed, frontend 14 passed.
 
+For per-turn capability control, Myrm supports **one-turn Skill/MCP override chips** with full observability (submit/apply/noop/queue/busy/final outcome + failure reasons). Focused validation (2026-07-29): frontend 29/29 passed, server 10/10 passed; targeted coverage reached 62.47% lines on core frontend files and 72% total on server telemetry modules. This gives teams migration-safe proof for cost/reliability tuning, not guesswork.
+
 ## Latest Validation Snapshot (2026-07-27)
 
 - **Office Document Pipeline (vs WPS Lingxi / OpenClaw / Hermes / DeerFlow / LobsterAI / CoPaw / jiuwenclaw):** file_parsers **213/213** + document_reader **26/26** + docx read-chain E2E **16/16** + deliverable bundle **23/23** = **278 tests, 0 failures** (2026-07-28 batched run). **Verified:** LegacyFormatParser OLE2 + soffice auto-conversion, docx.py cell_map structure metadata, full-chain Goal deliverable ZIP bundle. **Write fidelity (in-place):** Harness `OfficeBashAudit` post-bash OPC/formula diff + baseline-missing honest warn + corrupt Office package warn + optional LibreOffice recalc error scan + layout QA (**18 pytest**, 2026-07-28) — no OSS competitor has an equivalent harness-level post-bash audit. WPS Lingxi still leads on fixed government-template fidelity via proprietary kernel; Myrm leads on legacy format handling, structured parsing, delivery bundle, and 3-deployment independence.
@@ -1486,6 +1488,7 @@ Myrm 在架构和体验设计上实现了降维打击：
 | **系统稳定性基建** | `openclaw doctor` 命令行诊断 | **前端一键体检 + OOM 静默防护 (Cgroup-Aware) + mtime 状态存储 + 一键诊断导出 (Markdown/JSON)** | 在 Docker 或 SaaS 下不再无故消失，通过前端即可了解所有网络、端口和 API 健康度，一键导出诊断报告反馈给开发者。|
 | **交互 UX 细节** | 命令行打字感 | **长文自动目录 (TOC) + IME 候选词保护 + Quick/Reasoning 模型秒切 + 消息队列 DnD 拖拽排序（排队中可调整发送顺序，竞品均无）+ 专业字体系统（Inter + JetBrains Mono 自托管 + 3套预设 + 无障碍字体 + 零闪烁）** | 极具质感的现代聊天界面。报告自动生成目录并跟随滚动，排队消息可拖拽调整优先级，聊天流畅度比肩原生 App，专业字体排版让长时间阅读更舒适。|
 | **Obsidian Vault 迁移闭环** | 仅 CLI `workspaceDir` JSON 手配 | **迁移向导 Result 卡片 + Onboarding 预填 bind → Start Chat 首条消息写 project SSOT**（5 pytest 2026-07-28） | 迁完 Obsidian vault 后无需再手动建 Project/绑路径，Files 面板与 Agent 首句即可读写 vault `.md`。|
+| **Obsidian 图片检索** | 无 wiki asset caption 索引 | **Vision caption + FTS5/Qdrant · Chat Sources 缩略图 · 融合 wiki_query/knowledge_recall**（56 pytest 2026-07-29） | 笔记里的 `![[img]]` 导入后可自然语言找图；诚实边界：文字找图，非 OpenViking 式以图搜图。|
 
 **一句话总结**：从 OpenClaw 迁移到 Myrm，你将告别"修一天跑一小时"的极客折腾期，获得一个拥有全天候健壮队列、极致 UI/UX 细节以及跨端原生体验的企业级 AI 工作站。
 

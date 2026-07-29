@@ -261,6 +261,18 @@ The importer handles:
 
 After import completes, a toast notification shows the number of notes processed, tags extracted, and images migrated. The imported files enter the compilation queue and are automatically indexed.
 
+## Search imported images (Obsidian assets)
+
+When **Vision Fallback Model** is configured under **Settings → Models**, Myrm indexes images under `wiki/assets/` with vision-generated captions (FTS5 + optional vector hybrid). You can find them without a separate image-search tool:
+
+- **`wiki_query` / `knowledge_recall(corpus=wiki|all)`** — text questions like “where is the architecture diagram?” can return asset hits with captions and **thumbnail citations** in Chat Sources.
+- **Settings → Wiki → Overview** — `asset_index` badges show indexed / pending / failed counts; if images exist but vision is not configured, an amber hint links you to Models.
+- **Import path** — Obsidian import schedules background asset indexing; compile/maintain also refreshes the asset index.
+
+<Note>
+**Honest limits:** This is **text → image** search via captions, not **image → image** (multimodal embed). Competitors like OpenViking offer the latter; general claw agents (OpenClaw, Hermes) lack this Obsidian asset caption pipeline entirely. Without vision configured, assets are imported but not searchable — the Overview hint covers that case; Chat will not show misleading empty-caption asset sources.
+</Note>
+
 ## URL ingestion and video subtitle extraction
 
 When ingesting URLs into the Wiki, Myrm routes all links through the **CrawlEngine**:

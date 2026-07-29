@@ -257,6 +257,18 @@ Myrm 提供专用 **Obsidian Vault 导入器**，完整保留笔记、标签和�
 
 导入完成后弹出 toast 通知，显示已处理笔记数、提取标签数和迁移图片数。导入的文件自动进入编译队列并被索引。
 
+## 搜索已导入图片（Obsidian assets）
+
+在 **设置 → 模型** 中配置 **Vision Fallback Model** 后，Myrm 会用视觉模型为 `wiki/assets/` 下的图片生成 caption 并建立索引（FTS5 + 可选向量混合检索）。**无需**单独的 image search 工具即可找图：
+
+- **`wiki_query` / `knowledge_recall(corpus=wiki|all)`** — 用自然语言问「架构图在哪」可返回 asset 命中，Chat **Sources 带缩略图** citation。
+- **设置 → Wiki → Overview** — `asset_index` badge 显示已索引/待处理/失败数量；有图但未配 vision 时显示 amber 提示并引导至模型设置。
+- **导入链路** — Obsidian 导入会后台调度 asset 索引；compile/maintain 也会刷新 asset 索引。
+
+<Note>
+**诚实边界：** 这是 **文字找图**（caption 检索），不是 **以图搜图**（multimodal embed）。OpenViking 有后者；OpenClaw/Hermes 等普遍 **没有** Obsidian asset caption 索引管线。未配 vision 时图片会导入但 **不可搜索** — Overview 提示已覆盖；Chat 不会出现「有缩略图但 caption 为空」的误导路径。
+</Note>
+
 ## URL 入库与视频字幕提取
 
 向 Wiki 导入 URL 时，Myrm 通过 **CrawlEngine** 统一处理所有链接：

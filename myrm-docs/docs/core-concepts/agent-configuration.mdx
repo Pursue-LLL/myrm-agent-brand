@@ -26,6 +26,25 @@ Myrm embeds the Agent configuration panel directly inside the chat page, enablin
 - **Auto-save on navigate**: Clicking "Start Chat" from the editor page automatically saves unsaved changes before navigating to the chat page
 - **Consistent navigation**: All entry points (sidebar, settings, template market, org marketplace) navigate within the same tab — never opens a new browser tab
 
+## Per-Turn Capability Chips (Skill/MCP)
+
+In addition to agent-level defaults, Myrm supports **one-turn capability override** directly from the chat input:
+
+- Pick a temporary Skill/MCP subset for the **next message only**
+- Subtractive-first behavior: selection is constrained to capabilities already enabled on the current agent
+- Queue-safe semantics: direct send, queued send, and busy requeue all preserve the same one-turn override intent
+- Prompt-cache-safe normalization: selecting the full set collapses to no-op override instead of creating noisy config churn
+
+### Why this matters in real usage
+
+- **Lower accidental tool spend**: users can narrow tools for one risky turn without changing their long-term agent profile
+- **Cleaner collaboration**: teammates can run a focused turn and immediately return to the default profile
+- **Operational proof, not guesswork**: telemetry tracks submit/apply/noop/queue/busy/final outcome and failure reasons
+
+You can inspect summary metrics from:
+
+- `GET /api/v1/statistics/turn-capability/summary`
+
 ## Model Selection
 
 Myrm supports 100+ models through LiteLLM integration:
