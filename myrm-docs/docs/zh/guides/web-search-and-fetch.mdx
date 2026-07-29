@@ -38,6 +38,21 @@ Hermes、OpenClaw、OpenCode、Claude Code 都有基础 web 搜索/抓取。Myrm
 | DataForSEO | SEO/数据任务 |
 | Firecrawl | 搜索即服务回退 |
 
+### X (Twitter) 实时搜索
+
+Myrm 提供专属 **X/Twitter 实时搜索**，基于 xAI Responses API —— 检索帖子、话题和热门讨论，附带内联引用。
+
+**两种认证方式：**
+
+| 方式 | 设置 | 适合 |
+|------|------|------|
+| API Key | 在 设置 → 模型与提供商 粘贴 xAI API Key | 持有 xAI 付费 API 的开发者 |
+| SuperGrok OAuth | 在 设置 → 集成 一键设备码登录 | SuperGrok / X Premium+ 订阅用户（无额外费用） |
+
+**能力：** 日期范围过滤、用户句柄包含/排除（最多 10 个）、匹配帖中图片/视频理解、内联引用含源 URL、降级结果检测（过滤无源数据时发出警告）。
+
+OAuth token 以 AES-256-GCM 加密存储，过期前自动刷新，在 5 项 xAI 服务（X 搜索、图片生成、视频生成、TTS、STT）间复用 —— 一次登录解锁完整 xAI 多模态能力。
+
 ### 意图检测（零 LLM 成本）
 
 自动识别 **7 种意图**并调整引擎参数：

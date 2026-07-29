@@ -39,6 +39,23 @@ Choose a target Agent (or create a new one), then confirm the import:
 - A transaction batch ID is generated for every import
 - ZIP skill migration uses a stable two-phase error contract (`message + error_code`) in both preview and confirm, so UI remediation stays deterministic.
 
+## Post-Import Readiness (First Chat Guidance)
+
+After a successful import, Myrm **live-resolves** readiness before your first message — you are never left guessing why chat feels broken.
+
+| Status | What you see | Where to fix |
+|--------|--------------|--------------|
+| **Warning** | Toast + in-stream notice: MCP imported but not enabled | **Settings → MCP** |
+| **Critical** | Toast: diagnostics failed or providers not ready | **Settings → Memory** or **Models** |
+
+**Design principles:**
+- **Soft gate** — the assistant can still reply; you get guidance, not a hard block
+- **Issue-aware CTA** — each gap links to the exact settings page (`settings_path` SSOT)
+- **Wizard recheck** — Migration Result step can re-run readiness before "Start chat"
+- **Queue anchor** — handoff state survives navigation until first chat consumes it
+
+**Verified (2026-07-29):** Chrome E2E batch signoff **1 passed** (mcp_warning + diagnostic_critical) · 65+ unit/integration tests · competitors typically silent-fail or CLI-only with no post-import UX.
+
 ## Rollback
 
 Every import can be fully reversed:

@@ -11,6 +11,8 @@ Myrm 提供**编译型知识库（Wiki）**——不是让 Agent 解读的一堆
 
 每个智能体可有**独立 Wiki 库**。在 **设置 → Wiki** 使用 **智能体范围** 下拉（或从智能体横幅打开 `/settings/wiki?agentId=<id>`）。统计、编译、维护与导入均作用于所选智能体。
 
+**诚实边界（Agent Scope SSOT v2 落地前）：** **队列 Tab** 与 ingest SSE 会随所选智能体立即切换；若在 **待审** 或 **词条** Tab 内切换下拉，在 scope 全链路重载完成前请刷新页面或切 Tab，避免误把 A 库草稿批准进 B 库——这是下一版 scope 硬化要闭合的 P0 风险。
+
 工件 **存入 Wiki** 与聊天入库会使用**当前会话的 agent id**，避免误写入默认库。
 
 ## 记忆 + Wiki 统一检索
@@ -34,6 +36,22 @@ Myrm 提供**编译型知识库（Wiki）**——不是让 Agent 解读的一堆
    - **待审编辑** — LLM 草稿的人工审批/驳回。
    - **队列** — 文档摄取流水线状态。
 
+## 编译过程实时可见（需打开 Settings Wiki 页）
+
+在浏览器或桌面端 **设置 → Wiki** 页面保持打开时：
+
+| 区域 | 实时更新内容 | 用户收益 |
+|------|--------------|----------|
+| **队列 Tab** | SSE（`GET /wiki/ingest/stream`）推送 pending/processing/failed 计数与 compile 熔断状态（约 5s）；计数与失败列表不一致时自动 REST 对齐 | 批量入库无需点刷新；API Key 失效时出现 amber 暂停条，可一键恢复 |
+| **概览 → 原始来源树** | bulk compile 中 `tree_sync_required` 触发 silent `GET /wiki/raw/tree`，三色 ingest 点 live 更新 | 文件从「未编译灰点」变「已入库绿点」可即时看见，建立迁移信任 |
+| **词条 Tab 树** | 同上信号在词条 Tab 挂载时刷新 concept 树 | 关联源过期的 amber 点随编译推进更新 |
+
+<Note>
+实时推送仅在 Settings Wiki 页 EventSource 连接期间生效；关闭设置页即停止 SSE——这是 GUI 范围内的可见性设计，不是后台守护进程。Hermes SKILL / OpenClaw 纯 MD 文件夹等竞品无等价 Queue 面板 + compile 中树 badge live。
+</Note>
+
+**回归测试（2026-07-29 复测）：** Harness 6 raw_gate + 48 persistence/raw security + 21 apply/canonical + Server 9 wiki_apply/import raw_gate + 40 obsidian_adapter pytest（分批 ~18s）。本轮未跑浏览器 MCP E2E。
+
 ## 在树中管理词条
 
 在 **词条管理**：
@@ -42,6 +60,57 @@ Myrm 提供**编译型知识库（Wiki）**——不是让 Agent 解读的一堆
 - **重命名 / 删除** — 悬停行；删除显示完整路径及将移除的条目数。
 - **拖放** — 在父级间移动文件夹或词条（服务端更新链接引用）。
 - **详情面板** — 选中词条查看富渲染内容（Mermaid 图表、KaTeX 数学公式、GFM 表格、代码语法高亮、暗色模式），或切换到原始 Markdown 编辑。
+- **四 Tab 编辑（Edit）** — 经 `POST /wiki/apply` 窄写（非整页 PUT）：
+  - **Compiled Truth** — 仅 patch `## Compiled Truth` 区块。
+  - **Timeline** — 只追加条目；重复行会 toast 跳过。
+  - **Metadata** — Settings 路径下 **replace** tags/aliases（Agent merge 走不同 caller 门禁）。
+  - **Advanced** — 整页 replace；**仅 Settings**（`caller=settings`）。Agent/聊天不可用此 op。
+
+每次保存携带页 **租约**（`if_match` = 上次 `content_hash`）。若其他 Tab/客户端已先改页，会 toast **页冲突** — 请刷新后重试。
+
+## 受控写入面（`POST /wiki/apply`）
+
+所有 Wiki 变更统一走 **`POST /wiki/apply?caller=`**（`settings` | `agent` | `chat`）。
+
+| 操作 | 调用方 | 作用 |
+|------|--------|------|
+| `create_note` | 存入 Wiki、Agent（opt-in） | 新建词条 + 受管区块 + 溯源 frontmatter |
+| `update_metadata` | Settings Metadata Tab；Agent merge | tags / aliases / sources / claims |
+| `patch_compiled_truth` | Settings Truth Tab | 仅替换 Compiled Truth |
+| `append_timeline` | Settings Timeline Tab | Timeline 只追加 + 去重 |
+| `replace_full_document` | 仅 Settings Advanced Tab | 整页 replace — agent/chat **403** |
+
+**写时去重：** `canonical_id` 与 alias 索引在创建时拒绝近义重复页（HTTP 409 `canonical_conflict`）。存入 Wiki 时若同主题笔记已存在，会友好 toast 而非静默重复建页。
+
+**诚实边界：** Agent `wiki_apply_tool` 仍为 CSV 形参、不自动 `if_match`；Settings GUI 与 Save to Wiki 路径已完整。
+
+## Raw 证据层闸门（导入与 ingest）
+
+稳定路径写入 `wiki/raw/` 经 harness **`publish_raw`** 闸门 — 与 concept 层 `POST /wiki/apply`（#12+#13）互补。
+
+| 场景 | 默认行为 | 用户收益 |
+|------|----------|----------|
+| **重复导入** 文件夹 / ZIP / Obsidian | 已存在且**内容不同**的 raw **跳过** | 已 curated 的 raw 笔记不会被静默覆盖 |
+| **冲突弹窗** | 列出跳过路径；可选填 reason **全部覆盖** | GUI 显式决策，无需翻文件系统 |
+| **审计** | 覆盖事件写入 **`wiki/log.md`** | 可追溯 raw 被替换的原因 |
+| **Agent ingest** | `wiki_ingest`（caller=agent） | 高置信 prompt injection **写前拦截** |
+| **未改文件** | 同 hash 跳过，**不重复 compile** | 重复导入省 LLM 编译费 |
+
+**诚实边界：** timestamp/uuid 路径（research、artifact、会话归档）故意不 gate；无专用 Raw 审计页，可读 `wiki/log.md`。
+
+## 归档安全治理（敏感内容）
+
+所有 durable Wiki 写入共享 harness 持久化扫描 SSOT（`core/security/persistence/content_scan.py`）：
+
+| 阶段 | 闸门 | 用户收益 |
+|------|------|----------|
+| **导入 / ingest / 会话归档** | `publish_raw` 预扫描（`WIKI_RAW`） | API Key 等凭证形文本在落盘前 **拒收** 或 **脱敏** |
+| **编译发布** | `publish_concept_article`（`WIKI_PUBLISH`） | 不可脱敏凭证不会静默成为 canonical 页 |
+| **Settings 导入反馈** | `WikiImportSecurityDialog` | 文件夹/ZIP/Obsidian 导入后列出 blocked/redacted 路径 |
+| **擦除证据** | Overview raw 树 → 填写 reason → `DELETE /wiki/raw/{path}` | 误导入可删；依赖页 re-anchor；事件写入 `wiki/log.md` |
+| **维护** | `wiki_maintain` 扫描既有 raw vault | 捕获旧文件；**不可脱敏凭证会从磁盘删除**（非仅计数） |
+
+**诚实边界：** 尚无安全统计面板；Settings/chat 导入 injection 仅 warn；**agent `wiki_ingest` 拦截高置信 injection**。Agent 被拦路径以工具错误呈现，无 Settings 弹窗。
 
 <Note>
 Wiki 文件在磁盘上仍为纯 Markdown。Obsidian 等编辑器可打开同一库；Myrm 在其上增加索引、检索与 GUI 管理。
@@ -118,8 +187,9 @@ Settings **概览** 自动展示三件套就绪状态；无需 CLI。
 任意**已完成的助手消息**，在消息操作栏用 **存入 Wiki**（书本图标）：
 
 1. 在树选择器中选文件名与可选目标文件夹。
-2. 确认保存 — 内容写入新词条（路径已存在则覆盖确认）。
+2. 确认保存 — 经 `POST /wiki/apply` 的 **`create_note`** 写入（受管 Compiled Truth + Timeline 骨架）。
 3. 每次保存添加 YAML frontmatter：`source_chat`、`source_message`、`saved_at` 便于追溯。
+4. 若同 **canonical 主题** 的笔记已存在，会 toast **canonical 冲突**，而非静默重复建页。
 
 ## 页面类型契约（frontmatter `type`）
 
@@ -135,13 +205,15 @@ Settings **概览** 自动展示三件套就绪状态；无需 CLI。
 | **Repair Page Types** | 设置 → Wiki → **Repair Page Types** 扫描 vault 并为历史笔记推断类型 |
 | **Obsidian 导入** | 按路径/内容启发式推断；写回保留 `type`、`sources`、`provenance` |
 
-**诚实边界：** 聊天「Save to Wiki」当前仅写溯源字段；可对这类笔记运行 **Repair Page Types** 或 **Maintain** 补全 `type`。词条树 PUT 编辑未硬拦截 — 下次 Maintain 时 Linter 自愈。
+**诚实边界：** 聊天「Save to Wiki」当前仅写溯源字段；可对这类笔记运行 **Repair Page Types** 或 **Maintain** 补全 `type`。Settings Advanced 整页 replace 未硬拦截 frontmatter — 下次 Maintain 时 Linter 自愈。
 
 闭环：**对话 → 一键归档 → 可检索知识**。
 
 ## 检索与维护
 
-- **查询 Wiki**（概览标签）— 从已索引词条生成自然语言回答。
+- **查询 Wiki**（概览标签）— 自然语言问答走 **零 LLM** 检索路径：从认知 index、sidecar 摘要、FTS5 与关键词种子出发，经有预算的 best-first 图扩展收敛后，组装 L0/L1/L2 片段与声明/证据卡片。
+- **检索模式**（概览 → 查询 Wiki）— 可选 **综合检索**（索引、目录与文章均衡召回）或 **声明优先**（优先含 frontmatter claims 与关联证据的概念；无匹配时自动回退综合检索）。OpenClaw 有类似 `raw-claim` 但仅 CLI；Myrm 在 Settings 下拉即可切换。
+- **引用可信度** — 回答卡片展示 claim 文本、evidence 路径与 `snapshot_status`，便于判断引用内容是否仍与 vault 磁盘一致。
 - **编译 / 维护** — 增量编译、并发批量摄入（Semaphore 限流并行处理，多文档编译提速约40%）、视觉化指导（编译器自动引导 LLM 在合适位置产出 Mermaid 图表、GFM 表格和代码块，提升信息密度）与 linter 驱动健康修复（断链、漂移、孤立概念/桥接节点知识盲区检测等）。
 - **图书馆 / Brain 视图** — 3D 知识图谱与词条探索（因部署而异）。
 - **知识图谱** — 编译器自动抽取概念及其关联关系，构建加权边图谱（直接链接 + 来源重叠 + 共同邻居三维权重）。LPA 社区检测自动将相关概念分组；盲区分析高亮孤立节点和跨领域桥接概念。
@@ -163,6 +235,7 @@ Myrm 提供专用 **Obsidian Vault 导入器**，完整保留笔记、标签和�
 - **图片嵌入** — `![[image.png]]` 语法自动改写为标准 Markdown 并将图片复制至 wiki 资产目录。
 - **`.canvas` 文件** — 空板或无可用文本时跳过；含 text 节点的白板按 JSON Canvas 1.0 提取为 Markdown（文本内容及 file/link 标签）。
 - **编码容错** — UTF-8 解码失败的文件会报告但不阻塞整体导入。
+- **冲突安全 re-import** — raw 已存在且内容不同时**默认跳过**；弹窗可填 reason 覆盖（记入 `wiki/log.md`）。
 
 导入完成后弹出 toast 通知，显示已处理笔记数、提取标签数和迁移图片数。导入的文件自动进入编译队列并被索引。
 
@@ -192,12 +265,13 @@ Myrm 提供专用 **Obsidian Vault 导入器**，完整保留笔记、标签和�
 
 ## 安全防护
 
-Wiki 入库受双层路径遍历防御保护：
+Wiki 入库受 **路径遍历防御** 与 **持久化层内容扫描** 保护：
 
 1. **文件名清理** — 剥离 LLM 提供文件名中的目录组件（`Path(filename).name`），防止注入攻击写入 `../../../etc/cron.d/evil.md` 等任意路径。
 2. **边界校验** — `safe_join_path()` 验证解析后路径始终位于 Wiki raw 目录内，阻断绝对路径、空字节注入、符号链接逃逸和 `../` 遍历。
+3. **写前扫描** — `publish_raw` 与编译发布在落盘前执行凭证/注入检查（见上文 **归档安全治理**）。
 
-这些防御在 harness 框架层实现，所有入库路径（agent 工具调用、自动归档、大文档 RAG 入库）均自动受保护。Wiki 目录位于用户主目录外，代码执行期间还受 OS 级沙箱隔离（macOS Seatbelt / Linux bubblewrap / Windows AppContainer）保护。
+这些防御在 harness 框架层实现，所有入库路径（agent 工具、自动归档、Settings 导入、大文档 RAG 入库）均自动受保护。Wiki 目录位于用户主目录外，代码执行期间还受 OS 级沙箱隔离（macOS Seatbelt / Linux bubblewrap / Windows AppContainer）保护。
 
 ## 对比 DIY Wiki 技能
 

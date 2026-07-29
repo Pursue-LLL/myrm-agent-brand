@@ -71,6 +71,8 @@ Each agent can have its **own wiki vault**. In **Settings → Wiki**, use the **
 
 Artifact **Save to Wiki** and chat-bound ingest use the **current chat’s agent id**, so documents do not land in the default vault by mistake.
 
+**Honest boundary (until Agent Scope SSOT v2 ships):** the **Queue** tab and ingest SSE follow the selected agent immediately. If you switch agents while staying on **Pending** or **Concepts**, reload the page or switch tabs until scope reload is fully wired — approving a draft against the wrong vault is the risk we are closing in the next scope hardening release.
+
 ## Unified memory + wiki recall
 
 When **both Wiki and Memory** are enabled on an agent profile, Myrm mounts a unified **`knowledge_recall_tool`** with `corpus=all` — one tool call searches long-term memory and the agent wiki together. Memory hits emit **cited memory IDs** for the UI; wiki hits appear in the tool result text.
@@ -92,6 +94,22 @@ Citations are **persisted to the database** and survive **page reload** — not 
    - **Pending edits** — human-in-the-loop approve/reject for LLM drafts.
    - **Queue** — document ingestion pipeline status.
 
+## Live compile visibility (Settings open)
+
+When **Settings → Wiki** is open in the browser or desktop app:
+
+| Surface | What updates live | User benefit |
+|---------|-------------------|--------------|
+| **Queue tab** | SSE stream (`GET /wiki/ingest/stream`) pushes queue counts + compile circuit state (~5s). Failed-item list auto-resyncs if counts diverge. | See batch progress without clicking Refresh; API key expiry shows an amber pause banner with resume. |
+| **Overview → Raw sources tree** | Ingest status dots refresh during bulk compile (`tree_sync_required` → silent `GET /wiki/raw/tree`). | Gray/green/amber dots track "not compiled / clean / modified" while files are still processing. |
+| **Concepts tab tree** | Same signal triggers concept-tree reload when that tab is mounted. | Amber dots on concepts with stale sources update as compile finishes. |
+
+<Note>
+Live updates require the Settings Wiki page to stay open (EventSource subscription). Closing Settings stops SSE — this is intentional GUI-scope visibility, not a background daemon. Competitors with CLI-only or file-tree-only wikis (Hermes SKILL, OpenClaw markdown folders) do not offer an equivalent Queue panel + live ingest badges.
+</Note>
+
+**Regression tests (2026-07-29 re-run):** Harness 6 raw_gate + 21 apply/canonical + 48 persistence/raw security + Server 9 wiki_apply/import raw_gate + Frontend 1 SaveToWiki vitest. Browser MCP E2E not run this round.
+
 ## Manage concepts in the tree
 
 In **Concepts**:
@@ -100,6 +118,57 @@ In **Concepts**:
 - **Rename / delete** — hover a row; delete shows the full path and how many items inside will be removed.
 - **Drag and drop** — move folders or concepts between parents (link refs are updated server-side).
 - **Detail panel** — select a concept to view rich-rendered content (Mermaid diagrams, KaTeX math, GFM tables, syntax-highlighted code blocks, and dark mode) or switch to raw Markdown editing.
+- **Four-tab editor (Edit)** — narrow writes via `POST /wiki/apply` (not full-page PUT):
+  - **Compiled Truth** — patch the `## Compiled Truth` section only.
+  - **Timeline** — append-only entries; duplicate lines are skipped with a toast.
+  - **Metadata** — replace tags and aliases in frontmatter (Settings path; Agent merge uses a different caller gate).
+  - **Advanced** — full-page replace; **Settings-only** (`caller=settings`). Agent and chat cannot use this op.
+
+Each save sends the page **lease** (`if_match` = last known `content_hash`). If another tab or client changed the page first, you get a **page conflict** toast — reload and retry.
+
+## Controlled write surface (`POST /wiki/apply`)
+
+All wiki mutations go through one REST endpoint: **`POST /wiki/apply?caller=`** (`settings` | `agent` | `chat`).
+
+| Operation | Who | What it does |
+|-----------|-----|----------------|
+| `create_note` | Save to Wiki, Agent (opt-in) | New concept with managed sections + provenance frontmatter |
+| `update_metadata` | Settings Metadata tab; Agent merge | Tags / aliases / sources / claims |
+| `patch_compiled_truth` | Settings Truth tab | Replace Compiled Truth block only |
+| `append_timeline` | Settings Timeline tab | Append-only Timeline with dedup guard |
+| `replace_full_document` | Settings Advanced tab only | Full page replace — **403** for agent/chat callers |
+
+**Write-time dedup:** `canonical_id` and alias index reject near-duplicate pages on create (HTTP 409 `canonical_conflict`). Save to Wiki shows a friendly toast when a note on the same topic already exists.
+
+**Honest boundary:** Agent `wiki_apply_tool` still uses CSV-style parameters and does not auto-send `if_match`; the Settings GUI and Save to Wiki paths are complete.
+
+## Raw evidence layer gate (import & ingest)
+
+Stable-path writes to `wiki/raw/` go through the harness **`publish_raw`** gate — complementary to concept-layer `POST /wiki/apply` (#12+#13).
+
+| Scenario | Default behavior | User benefit |
+|----------|------------------|--------------|
+| **Re-import** Folder / ZIP / Obsidian | Skip files that already exist with **different** content | Your curated raw notes are not silently overwritten |
+| **Conflict dialog** | Lists skipped paths; optional **Supersede all** with a required reason | Explicit decision in GUI — no filesystem detective work |
+| **Audit trail** | Supersede events append to **`wiki/log.md`** | Trace why a raw source was replaced |
+| **Agent ingest** | `wiki_ingest` with `caller=agent` | High-confidence prompt injection is **blocked** before raw write |
+| **Unchanged files** | Same content hash → skip without re-compile | Saves LLM compile cost on repeat imports |
+
+**Honest boundary:** Timestamp/uuid raw paths (research dumps, artifact ingest, session archive) are intentionally ungated — no stable-path conflict. There is no dedicated Raw Audit panel; read `wiki/log.md` or use Overview stats.
+
+## Archive security governance (sensitive content)
+
+All durable Wiki writes share the harness persistence scan SSOT (`core/security/persistence/content_scan.py`):
+
+| Stage | Gate | User benefit |
+|-------|------|--------------|
+| **Import / ingest / session archive** | `publish_raw` pre-scan (`WIKI_RAW`) | API keys and credential-shaped text are **blocked** or **redacted** before landing in `wiki/raw/` |
+| **编译发布** | `publish_concept_article`（`WIKI_PUBLISH`） | 不可脱敏凭证不会静默成为 canonical 页 |
+| **Settings import feedback** | `WikiImportSecurityDialog` | Lists blocked/redacted paths after folder/ZIP/Obsidian import — no silent drops |
+| **Forget evidence** | Overview raw tree → reason → `DELETE /wiki/raw/{path}` | Remove mistaken imports; dependent compiled pages are re-anchored; event logged to `wiki/log.md` |
+| **Maintenance** | `wiki_maintain` scans existing raw vault | Catches legacy files; **blocked credentials are removed** from disk (not count-only) |
+
+**Honest boundary:** No security stats dashboard yet; Settings/chat import injection is warn-only; **agent `wiki_ingest` blocks high-confidence injection**. Agent blocked paths surface as tool errors, not a Settings dialog.
 
 <Note>
 Wiki files remain plain Markdown on disk. Obsidian and other editors can open the same vault; Myrm adds indexing, search, and GUI management on top.
@@ -122,8 +191,9 @@ This gives you explicit, per-message control over which knowledge the Agent uses
 On any **completed assistant message**, use **Save to Wiki** (book icon) in the message action bar:
 
 1. Choose a filename and optional target folder in the tree picker.
-2. Confirm save — content is written as a new concept (or overwrite confirm if the path already exists).
+2. Confirm save — content is written via **`create_note`** on `POST /wiki/apply` (managed Compiled Truth + Timeline skeleton).
 3. Each save adds YAML frontmatter: `source_chat`, `source_message`, `saved_at` for traceability.
+4. If a note with the same **canonical topic** already exists, you get a **canonical conflict** toast instead of silently creating a duplicate page.
 
 ## Page type contract (frontmatter `type`)
 
@@ -139,13 +209,15 @@ Every wiki page must declare a **page type** in YAML frontmatter. This is enforc
 | **Repair Page Types** | Settings → Wiki → **Repair Page Types** scans the vault and infers types for legacy notes |
 | **Obsidian import** | Types are inferred from path/content heuristics; writeback preserves `type`, `sources`, and `provenance` |
 
-**Honest boundary:** Save to Wiki from chat currently writes provenance fields only (`source_chat`, etc.); run **Repair Page Types** or **Maintain** to backfill `type` on those notes. Concept tree PUT edits are not hard-blocked — the linter heals drift on the next maintain pass.
+**Honest boundary:** Save to Wiki from chat currently writes provenance fields only (`source_chat`, etc.); run **Repair Page Types** or **Maintain** to backfill `type` on those notes. Settings Advanced full-page replace is not hard-blocked on frontmatter — the linter heals drift on the next maintain pass.
 
 This closes the loop: **conversation → one-click archive → searchable knowledge**.
 
 ## Search and maintain
 
-- **Query Wiki** (Overview tab) — natural-language answers via hybrid search (FTS5 full-text + vector semantic, fused with RRF ranking).
+- **Query Wiki** (Overview tab) — natural-language answers with **zero LLM** on the query path: seeds from the cognitive index, sidecar summaries, FTS5, and keywords converge through a budgeted best-first graph expansion before assembling L0/L1/L2 snippets and claim/evidence cards.
+- **Retrieval mode** (Overview → Query Wiki) — choose **General** (balanced across index, directories, and articles) or **Claims first** (boost concepts with structured frontmatter claims and linked evidence; falls back to General when no claim match). OpenClaw offers similar `raw-claim` behavior via CLI only; Myrm exposes it in Settings without memorizing flags.
+- **Citation trust** — answer cards include claim text, evidence paths, and `snapshot_status` so you can see whether cited content still matches the vault on disk.
 - **Compile / Maintain** — incremental compile (SHA256 change detection), parallel batch ingestion (Semaphore-limited concurrency for ~40% faster multi-document processing), visual element guidance (the compiler prompts the LLM to produce Mermaid diagrams, GFM tables, and fenced code blocks where appropriate), and linter-driven health fixes (broken links, drift, stale content, knowledge-gap detection for isolated/bridge concepts).
 - **Library / Brain views** — 3D knowledge graph with community detection and concept exploration (product navigation may vary by deployment).
 - **Knowledge graph** — the compiler auto-extracts concepts and their relationships, building a graph with weighted edges (direct link + source overlap + common neighbors). LPA community detection groups related concepts; gap analysis highlights isolated nodes and bridge concepts that connect otherwise separate domains.
@@ -167,6 +239,7 @@ The importer handles:
 - **Image embeds** — `![[image.png]]` syntax is rewritten to standard Markdown and images are copied to the wiki assets directory.
 - **`.canvas` files** — empty boards or boards with no extractable text are skipped; boards with text nodes are converted to Markdown (text content and file/link labels per JSON Canvas 1.0).
 - **Encoding resilience** — files that fail UTF-8 decoding are reported but do not block the import.
+- **Conflict-safe re-import** — if a raw file already exists with different content, it is **skipped by default**. A dialog lets you supersede with a reason (logged to `wiki/log.md`).
 
 After import completes, a toast notification shows the number of notes processed, tags extracted, and images migrated. The imported files enter the compilation queue and are automatically indexed.
 
@@ -196,12 +269,13 @@ All strategies run asynchronously and feed into the same compilation pipeline �
 
 ## Security
 
-Wiki ingestion is protected by dual-layer path traversal defense:
+Wiki ingestion is protected by **path traversal defense** and **persistence-layer content scanning**:
 
 1. **Filename sanitization** — any directory components in LLM-provided filenames are stripped (`Path(filename).name`), preventing an injected tool call from targeting paths like `../../../etc/cron.d/evil.md`.
 2. **Boundary validation** — `safe_join_path()` validates that resolved paths stay within the wiki raw directory, blocking absolute paths, null byte injection, symlink escapes, and `../` traversal.
+3. **Pre-write scan** — `publish_raw` and compiled publish run credential / injection checks before bytes hit disk (see **Archive security governance** above).
 
-These defenses operate at the harness framework level, meaning all wiki ingestion paths (agent tool calls, auto-archive, large document RAG ingest) are automatically protected. The wiki directory itself lives outside the user home directory and is further isolated by OS-level sandboxing (macOS Seatbelt / Linux bubblewrap / Windows AppContainer) during code execution.
+These defenses operate at the harness framework level, meaning all wiki ingestion paths (agent tool calls, auto-archive, Settings import, large document RAG ingest) are automatically protected. The wiki directory itself lives outside the user home directory and is further isolated by OS-level sandboxing (macOS Seatbelt / Linux bubblewrap / Windows AppContainer) during code execution.
 
 ## Compared to DIY wiki skills
 

@@ -39,6 +39,23 @@ Myrm 提供完整的数据迁移系统，支持从多个平台导入 AI 助手�
 - 每次导入生成唯一的事务批次 ID
 - ZIP 技能迁移在预览和确认阶段使用一致的错误契约（`message + error_code`），前端提示行为确定可预期
 
+## 导入后 Readiness（首聊引导）
+
+导入成功后，Myrm 会在**首条消息前 live-resolve readiness**——不会让用户猜「为什么聊不了」。
+
+| 状态 | 用户看到什么 | 去哪修复 |
+|------|-------------|---------|
+| **Warning** | Toast + 流内提示：MCP 已导入但未启用 | **设置 → MCP** |
+| **Critical** | Toast：诊断失败或模型未就绪 | **设置 → 记忆** 或 **模型** |
+
+**设计原则：**
+- **软门禁** — assistant 仍可回复，给引导而非硬阻断
+- **Issue-aware CTA** — 每个 gap 直达对应设置页（`settings_path` SSOT）
+- **Wizard recheck** — 迁移结果页可重新检查 readiness 再「开始聊天」
+- **Queue anchor** — handoff 状态跨页面保留至首聊消费
+
+**验证（2026-07-29）**：Chrome E2E batch **1 passed**（mcp_warning + diagnostic_critical）· 65+ 单元/集成测试 · 竞品多为导入后 silent fail 或无 GUI 引导。
+
 ## 回滚
 
 每次导入都可完全撤销：
