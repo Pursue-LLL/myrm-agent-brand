@@ -15,6 +15,14 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-07-30 · Chat Wiki Knowledge Quick Lane · Roadmap #30）
+
+- **Chat Wiki 知识快路径（vs Hermes llm-wiki / OpenClaw memory-wiki / deer-flow / LobsterAI / CoPaw / jiuwenclaw）**：intent **+** knowledge_query_service **+** wiki_knowledge_lane **+** API query = **16 pytest, 0 failures**（约 6s、server lane、**Chrome MCP E2E 待签收**）。
+- **已验证**：`should_use_wiki_knowledge_lane` 闸门（Agent 模式 + `enable_wiki` + vault ready + 问句 intent）；`execute_wiki_knowledge_query` SSOT（Settings `POST /wiki/query` 与 Lane 共用）；`wiki_knowledge_lane` 输出 STATUS → SOURCES → MESSAGE → `execution_lane=wiki_knowledge`；查询失败显式 failed STATUS（不 bare raise、不 silent fallback GeneralAgent）；FE ProgressSteps `wiki_knowledge_lane` / `_clear` + `message_end` lane 字段。
+- **对用户可见的竞品优势**：Settings 已可零 LLM 查 Wiki，Chat 短知识问句不再多轮 GeneralAgent tool call — **GUI Chat 零 LLM wiki lane 独家**；Hermes 为 SKILL/CLI 多步；OpenClaw 为 memory-wiki 工具链；六家均无 Settings+Chat 检索 parity + ProgressSteps + SOURCES Drawer 闭环。
+- **诚实边界**：无 lite 合成；闸门外仍走 GeneralAgent；Chrome MCP Chat E2E + FE vitest `completionEvents.wikiKnowledgeLane` 本地 bun 待签收。
+- **Material SSOT：** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `USER_EXPERIENCE_ADVANTAGE.md` §22 #30 小节 · `services/wiki/_ARCH.md` · `lanes/_ARCH.md`
+
 ## 最新验证快照（2026-07-30 · ChatExecutionPrewarm Turn1 · Roadmap #29）
 
 - **Turn1 冷启动预热（vs Hermes CLI 并行 init / OpenClaw TUI 发送前 prewarm）：** coordinator **4/4** + prewarm API **3/3** + CDP log helper **2/2** = **9 pytest，0 失败**（~10s，server lane）。Chrome E2E 另断言 `Turn prewarm requested` 日志 ≥1，再接既有 **2msg1build** execution-cache 证明（`test_execution_cache_chrome_e2e.py`）。
