@@ -15,6 +15,20 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-07-30 · Wiki ↔ Memory 边界 #27）
+
+- **Wiki 与 Memory 写入边界（vs Hermes / OpenClaw / Mem0 概念）**：`test_wiki_memory_boundary` **7/7** + save 护栏 **3/3** + extract prompt **2/2** + agent 接线 **1/1** = **25 tests, 0 failures**（约 5s、3 批、harness-only、**无 Chrome MCP** — 后端护栏无浏览器交互路径）。
+- **已验证**：`memory_save_tool` 在 wiki 开启时硬拒 document-like knowledge/event（>800 字或 ≥3 markdown 标题 → `wiki_ingest_tool`）；**`persist_extracted_memories` 硬滤** auto-extract semantic/episodic；提取 prompt `wiki_boundary_enabled`；Settings 中英文分工文案。
+- **对比竞品**：Hermes 扁平 MEMORY.md **2200 字符上限** — 无编译 Wiki + 无双路径代码 enforcement；OpenClaw MEMORY.md 文件 — 无 vector auto-extract 滤；Mem0 Wiki≠MemCon 概念 — Myrm 增加**写路径 enforcement** + compile + `corpus=all`。
+- **诚实边界**：拆条绕过未专门防；无独立 Boundary Card（终极扣问 WORTH:NO）。
+
+## 最新验证快照（2026-07-30）
+
+- **Wiki 外部来源 GUI 同步（vs OpenClaw / Hermes / deer-flow / LobsterAI / CoPaw / jiuwenclaw / OpenWiki）**：`test_source_sync_gmail` **3/3** + 模块批次（config/state/defaults/rss/blueprint/hygiene/gmail_html）**18/18** = **21 tests, 0 failures**（约 21s、2 批、harness-only lane、**无 Chrome MCP**）。
+- **已验证**：Settings **外部来源**面板（Gmail 标签 + RSS + 集成镜像 → wiki `raw/` · `publish_raw`）；**零 LLM pull**；OAuth 自动开启 Gmail `ReadLater`；持久化同步状态 + **`syncIssue` 错误回显**；Cron 蓝图 **`read_it_later`** router（`__wiki_source_sync__` · 空 tools）。
+- **相对竞品的用户收益**：GUI 完整 **摄入→编译→检索** 闭环（收藏邮件/RSS）——OpenClaw 为 Gmail **Pub/Sub 聊天 hook**（非 wiki vault 管道）；Hermes 为 **手动 google-workspace CLI skill**；deer-flow / LobsterAI / CoPaw / jiuwenclaw 参考仓 **无对等能力**；OpenWiki Gmail 为 **env 配置**，非 Settings+Cron 一体。
+- **诚实边界**：Gmail 标签在 Settings **手打**（大小写不敏感）；配错显示 `Gmail label not found`——**不做标签下拉**（终极扣问 WORTH:NO）。本轮未跑 Chrome MCP E2E；行为由 mock Gmail API 单测证明。
+
 ## 最新验证快照（2026-07-27）
 
 - **Office 文档管线（vs WPS 灵犀 / OpenClaw / Hermes / DeerFlow / LobsterAI / CoPaw / jiuwenclaw）**：file_parsers **213/213** + document_reader **26/26** + docx 读链 E2E **16/16** + 交付 Bundle **23/23** = **278 tests, 0 failures**（2026-07-28 分批实测）。**已验证**：LegacyFormatParser OLE2 + soffice 自动转换、docx.py cell_map 结构元数据、Goal 全链路交付 ZIP 打包。**写保真（in-place）**：Harness `OfficeBashAudit` bash 后 OPC/公式 diff + baseline-missing honest warn + 损坏 Office 包 warn + 可选 LibreOffice recalc 错误扫描 + layout QA（**18 pytest**, 2026-07-28）——OSS 六竞品无同类 harness 级 post-bash audit。灵犀在政府固定模板填表上仍领先（闭源内核）；Myrm 在 Legacy 格式、结构化解析、交付 Bundle、三端独立部署上已实测领先。
@@ -91,7 +105,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **凭证库** | ✅ 标签注入 + TOTP（浏览器 + 桌面） | ❌ 工具参数明文 | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **WebUI 访问安全** | ✅ 零信任 WebSocket + 安全 Cookie | ⚠️ 仅 HTTP，WS 脆弱 | ⚠️ 基础 JWT | ⚠️ 未知 | ⚠️ 仅 HTTP | ⚠️ 闭源 SaaS | ❌ LAN 裸奔 |
 | **目标模式** | ✅ 8 状态 + 4D 预算 + 14层防死循环盾 + **逐步人工确认**（opt-in 每步自动暂停等待用户确认——6大竞品均无此能力） | /goal | ❌ | ❌ | ❌ | ⚠️ 计划审批 | ❌ |
-| **上下文管理** | ✅ 6 层 Prompt Cache（301 项缓存专项测试）+ 22+ 中间件 + 11 步压缩流水线 + 七层防鞭尸（Agent 不执行旧任务、不误判话题相似为旧任务、不忽略 stop 指令）+ 数据库级会话压缩持久化（CAS MVCC + 备份 + 五维归档导出）+ 确定性回退 + 熔断降级 + **三层 tool_call 配对完整性防护**（ToolCallGroups 精确 ID 匹配 + IntegrityGuard 压缩后校验 + DanglingToolCallMiddleware LLM 调用前最终兜底——压缩永不破坏工具调用配对，98 项配对完整性测试）+ **Human Anchor 架构保证**（correct-by-construction 保护用户首条意图，竞品需 ~120 行运行时检查器）+ **7 层超大输出纵深防护**（vault spill → auto-vault → 结构感知裁剪 → stream recovery → preflight guard → hook spiller → bash spill——完整数据保留，竞品丢弃原数据，127 项测试）+ **上下文健康环**（实时Token用量环形指示器 + 一键压缩 + ≥75%用量自动显示Fork建议 + 策略详情面板——竞品无此能力）+ **压缩参数零配置热更新**（切换模型→ContextConfig按比例自动重算所有压缩阈值——零YAML编辑 vs Hermes 15+手动参数；summarizer_llm自动选择+熔断器half-open恢复；DB per-message fingerprint自动重建——409项热更新测试）（986+ 上下文管线测试 + 209 Goal 守卫链测试 = 1,195+ 项测试） | ⚠️ system_and_3（4 断点）+ 8 层固定栈 + 单层 ContextCompressor（内存态，无 DB 持久化）+ 运行时 `_is_real_user_message` 检查（新增合成消息类型时有绕过风险）+ 强防误导 Prompt（但无 XML 边界和 U-curve 布局） | LCM | LCM | ⚠️ 空闲压缩 + 双缓存 | ⚠️ Worker 隔离 | ⚠️ 4 层栈 |
+| **上下文管理** | ✅ 6 层 Prompt Cache + 22+ 中间件 + 11 步压缩流水线 + **compression_intent 结构化 retain**（业务层自动提取 focus 文件/失败命令/目标提示 → Filter 与 Compress group 级对齐，结构裁剪替代 LLM 摘要，保留最近 5 组工具调用——竞品无此链路）+ 七层防鞭尸 + 数据库级会话压缩持久化 + 确定性回退 + **三层 tool_call 配对完整性防护** + **Human Anchor** + **7 层超大输出纵深防护** + **上下文健康环** + **压缩参数零配置热更新**（**1092+** 上下文管线 unit 测试 + 2 API E2E 长会话验证 + 209 Goal 守卫链测试） | ⚠️ system_and_3（4 断点）+ 8 层固定栈 + 单层 ContextCompressor（内存态，无 DB 持久化）+ 运行时 `_is_real_user_message` 检查（新增合成消息类型时有绕过风险）+ 强防误导 Prompt（但无 XML 边界和 U-curve 布局） | LCM | LCM | ⚠️ 空闲压缩 + 双缓存 | ⚠️ Worker 隔离 | ⚠️ 4 层栈 |
 | **智能并发路由** | ✅ 五层守卫（会话互斥+用户级+全局信号量+内存压力熔断+分层超时）+ O(1) 路径锁 + **Busy Ack**（IM：即时 i18n 排队/满队回复，30s 防抖；Web：toast 携带队列位置）— 103项并发+busy测试通过 | ⚠️ 粗粒度写锁 + runtime-id 映射（双ID易出错） | ❌ 不安全 | ⚠️ 未知 | ❌ | ⚠️ 未知 | ❌ |
 | **无头无人值守** | ✅ 标签工具隔离（零死锁） | ⚠️ 易交互死锁 | ❌ 不支持 | ❌ | ❌ | ❌ | ❌ |
 | **极端防爆** | ✅ 4 层护城河（卫生/护盾/剥离/预算） | ⚠️ 大负载崩溃/丢失 | ⚠️ 单点失败 | ⚠️ 未知 | ⚠️ 基础限制 | ⚠️ 未知 | ❌ |
@@ -1419,6 +1433,7 @@ Myrm 在架构和体验设计上实现了降维打击：
 | **交互 UX 细节** | 命令行打字感 | **长文自动目录 (TOC) + IME 候选词保护 + Quick/Reasoning 模型秒切 + 消息队列 DnD 拖拽排序（排队中可调整发送顺序，竞品均无）+ 专业字体系统（Inter + JetBrains Mono 自托管 + 3套预设 + 无障碍字体 + 零闪烁）** | 极具质感的现代聊天界面。报告自动生成目录并跟随滚动，排队消息可拖拽调整优先级，聊天流畅度比肩原生 App，专业字体排版让长时间阅读更舒适。|
 | **Obsidian Vault 迁移闭环** | 仅 CLI `workspaceDir` JSON 手配 | **迁移向导 Result 卡片 + Onboarding 预填 bind → Start Chat 首条消息写 project SSOT**（5 pytest 2026-07-28） | 迁完 Obsidian vault 后无需再手动建 Project/绑路径，Files 面板与 Agent 首句即可读写 vault `.md`。|
 | **Obsidian 图片检索** | 无 wiki asset caption 索引 | **Vision caption + FTS5/Qdrant · Chat Sources 缩略图 · 融合 wiki_query/knowledge_recall**（56 pytest 2026-07-29） | 笔记里的 `![[img]]` 导入后可自然语言找图；诚实边界：文字找图，非 OpenViking 式以图搜图。|
+| **第二大脑日常双闹钟** | Article 8 需手配 Claude Schedule；OpenClaw/Hermes 仅通用 morning-brief | **Settings Wiki 一键 preset：06:00 稍后读 + 07:00 知识库晨间摘要（≤3 行 · `[SILENT]`）**（51 pytest 2026-07-29） | 迁完 Obsidian 后不用自己拼 Cron；早上知道「昨天 vault 变了啥」。|
 
 **一句话总结**：从 OpenClaw 迁移到 Myrm，你将告别"修一天跑一小时"的极客折腾期，获得一个拥有全天候健壮队列、极致 UI/UX 细节以及跨端原生体验的企业级 AI 工作站。
 

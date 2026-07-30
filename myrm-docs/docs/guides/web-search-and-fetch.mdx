@@ -206,6 +206,21 @@ Myrm's Deep Research runs a structured **CLARIFY → PLAN → EXPLORE → RESEAR
 | **RESEARCH** | Parallel sub-agents search + self-reflect via `think` tool; local context injected into orchestrator prompt | Faster with quality checkpoints at each cycle; known information excluded from search tasks |
 | **REPORT** | Multi-page structured report with inline citations【1】【2】, Information Integrity Rules, and Limitations/Gaps disclosure | Verifiable, honest about unknowns, zero extra LLM calls |
 
+### Research Studio (Three-Column Workbench)
+
+The `/research` route provides a dedicated three-column layout optimized for deep research workflows:
+
+| Column | Purpose | Key features |
+|--------|---------|-------------|
+| **Left: Resource Pool** | Curate inputs | Wiki concept search, file upload with progress, checkbox selection |
+| **Center: Chat** | Converse with AI | Full ChatWindow with all Agent capabilities |
+| **Right: Output** | Preview artifacts | ArtifactRenderer + PortalTabs + download + save to Wiki |
+
+- **PC**: three columns side-by-side with draggable dividers (left 240–480px, right 280–600px)
+- **Mobile**: auto-degrades to tab switching (768px breakpoint)
+- **Context sync**: checking a resource in the pool automatically injects it into the chat context via `mentionReferences`; unchecking removes it without affecting other @ references
+- **Output actions**: download artifacts or save them to your Wiki with one click (scoped to the active agent)
+
 ### Mid-Research Controls
 
 - **Plan confirmation gate** — review, edit, or approve the research plan before execution begins

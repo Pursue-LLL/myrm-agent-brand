@@ -32,7 +32,7 @@ Both discover (default) and eager modes are covered by automated tests and real-
 
 ### Via GUI
 
-Navigate to **Settings > Scheduled Tasks** and click **Create** to use the visual configuration dialog with schedule picker, model selector, and delivery options. Choose from **11 blueprint templates** (morning briefing, weekly review, custom reminder, etc.) for one-click setup — the same templates the Agent uses via API. The `GET /cron/blueprints` API returns localized **title**, **description**, and **prompt_template** for **en, zh, ja, de, and ko**; the catalog loads exclusively from this API (retry on failure). Slot labels use frontend locale keys.
+Navigate to **Settings > Scheduled Tasks** and click **Create** to use the visual configuration dialog with schedule picker, model selector, and delivery options. Choose from **14 blueprint templates** (morning briefing, weekly review, wiki morning delta, read-it-later ingestion, etc.) for one-click setup — the same templates the Agent uses via API. The `GET /cron/blueprints` API returns localized **title**, **description**, and **prompt_template** for **en, zh, ja, de, and ko**; the catalog loads exclusively from this API (retry on failure). Slot labels use frontend locale keys.
 
 ## Task Types
 
@@ -350,8 +350,9 @@ Create common automation tasks in 3 clicks with pre-built templates. Navigate to
 | Daily Learning | Education | time, weekdays, subject | Get a curated learning topic each day |
 | **Social Media Watch** | Business | time, weekdays, brand, platforms, keywords (optional) | Monitor brand mentions and sentiment across social platforms |
 | **Read-it-Later Ingestion** | Productivity | time, weekdays | Auto-ingest saved articles into your knowledge base daily |
+| **Wiki Morning Delta** | Productivity | time, weekdays | Daily vault change digest (≤3 lines); skips delivery when nothing changed (`[SILENT]`) |
 
-### Social Media Watch Blueprint
+**Second Brain quick start (Settings → Wiki):** One click applies the preset agent plus **both** Read-it-Later (06:00) and Wiki Morning Delta (07:00) cron jobs — no manual blueprint wiring. Re-apply is idempotent if you applied an earlier preset version that only had one cron.
 
 Automated brand monitoring using browser automation — works on platforms without public APIs (Xiaohongshu, Weibo, Twitter/X, LinkedIn, Douyin).
 

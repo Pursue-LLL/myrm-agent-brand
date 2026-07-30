@@ -39,6 +39,20 @@ When **Wiki is enabled** on an agent profile, four automatic ingress paths land 
 
 **Tests:** 37 targeted pytest (Harness 18 + Server 19, Jul 2026).
 
+## Wiki vs Memory write boundary
+
+When **both Wiki and Memory** are enabled, Myrm keeps long-form knowledge out of compact memory storage:
+
+| Path | Guard | User effect |
+|------|-------|-------------|
+| Agent **`memory_save_tool`** | Hard reject document-like knowledge/event (>800 chars or ≥3 headings) | Agent is told to use **`wiki_ingest_tool`** instead |
+| **End-of-turn auto-extract** | Same heuristics at persist time + extraction prompt skip | Long article summaries do not pollute semantic memory |
+| **Save to Wiki** / **External Sources** | Product paths for long content | Gmail/RSS/chat → vault raw → optional compile |
+
+**vs Hermes:** flat MEMORY.md with a **2,200-character cap** — no compiled wiki vault or unified `corpus=all` search.
+
+**Tests:** 25 targeted pytest (Harness wiki boundary module, Jul 2026).
+
 ## Karpathy cognitive map trio (index / log / hot)
 
 After compile, maintain, import, or human review, the engine **deterministically** maintains three vault-root files (zero extra LLM cost):
@@ -117,7 +131,8 @@ When **Settings → Wiki** is open in the browser or desktop app:
 
 | Surface | What updates live | User benefit |
 |---------|-------------------|--------------|
-| **Queue tab** | SSE stream (`GET /wiki/ingest/stream`) pushes queue counts + compile circuit state (~5s). Failed-item list auto-resyncs if counts diverge. | See batch progress without clicking Refresh; API key expiry shows an amber pause banner with resume. |
+| **Queue tab** | SSE stream (`GET /wiki/ingest/stream`) pushes queue counts + compile circuit state (~5s). **Compile phase bar** shows structure survey → semantic compile → post-process (facet count / fast-path label when applicable). Failed-item list auto-resyncs if counts diverge. | See batch progress without clicking Refresh; API key expiry shows an amber pause banner with resume. |
+| **Overview compile actions** | Same SSE `compile_run.phase` drives a shared phase bar above Compile/Maintain while bulk ingest runs. | Primary compile path shows progress without switching to Queue tab. |
 | **Overview → Raw sources tree** | Ingest status dots refresh during bulk compile (`tree_sync_required` → silent `GET /wiki/raw/tree`). | Gray/green/amber dots track "not compiled / clean / modified" while files are still processing. |
 | **Concepts tab tree** | Same signal triggers concept-tree reload when that tab is mounted. | Amber dots on concepts with stale sources update as compile finishes. |
 
@@ -125,7 +140,47 @@ When **Settings → Wiki** is open in the browser or desktop app:
 Live updates require the Settings Wiki page to stay open (EventSource subscription). Closing Settings stops SSE — this is intentional GUI-scope visibility, not a background daemon. Competitors with CLI-only or file-tree-only wikis (Hermes SKILL, OpenClaw markdown folders) do not offer an equivalent Queue panel + live ingest badges.
 </Note>
 
-**Regression tests (2026-07-29 re-run):** Harness 6 raw_gate + 21 apply/canonical + 48 persistence/raw security + Server 9 wiki_apply/import raw_gate + Frontend 1 SaveToWiki vitest. Browser MCP E2E not run this round.
+## External source sync (Settings Overview)
+
+**Settings → Wiki → Overview → External sources** pulls saved mail and feeds into `wiki/raw/` on a schedule or on demand:
+
+| Source | What you configure | What happens |
+|--------|-------------------|--------------|
+| **Gmail label** | Connect Google in Integrations; enable Gmail sync; type the label name (case-insensitive) | Messages under that label become Markdown under `wiki/raw/gmail/` |
+| **RSS** | One URL per line | Entries land under `wiki/raw/rss/` |
+| **Integration mirror** | Toggle on when integrations sync | New integration items can mirror into raw |
+
+**Zero-LLM pull:** fetching Gmail/RSS does **not** call your chat model. Optional **Auto-compile after sync** only uses LLM when a model is configured.
+
+**Cron:** the **Read-it-later ingestion** blueprint runs daily (often paired with **Wiki morning delta** via Second Brain preset). Router job `__wiki_source_sync__` executes server-side with **no agent tools** — safe, deterministic automation.
+
+**Observability:** last sync time, published/skipped/failed counts, and the first error line (e.g. `Gmail label not found`) appear on the card.
+
+<Note>
+**Honest boundary:** Gmail labels are typed manually — there is no dropdown picker. Create a matching label in Gmail (default preset uses `ReadLater`). Misconfiguration is surfaced on sync, not silently ignored.
+</Note>
+
+**Tests (2026-07-30):** `test_source_sync_gmail` 3 + module batch 18 = **21 pytest passed** (mock Gmail API; no Chrome MCP this round).
+
+## Evolution synthesis at compile (CCSP)
+
+When you **Compile Wiki**, Step 2.5 runs a **Compile-Time Contradiction Synthesis Pass** after normal article generation:
+
+| Step | What happens | User benefit |
+|------|----------------|--------------|
+| **Pairing (zero LLM)** | Related concepts and shared slugs are paired | No extra token cost for obvious candidates |
+| **Detection (LLM, capped)** | Up to 3 high-confidence cross-concept factual conflicts per compile | Surfaces "these two pages disagree" without you reading every note |
+| **Staging (HITL)** | Draft evolution pages land in **Pending edits** — not auto-published | You choose priority before anything hits the vault (stronger than auto-write tutorials) |
+| **Approve → backlinks** | Both linked concepts get a Timeline entry pointing at `Comparisons/.../Evolution` | Trace conflicts from either side in Obsidian or the tree GUI |
+| **Overview badge** | Violet count on Overview when synthesis drafts exist; click → Pending with **Evolution synthesis** filter | No need to hunt the Pending tab after every compile |
+
+**Live count:** ingest SSE exposes `synthesis_pending_count`; Overview refreshes without a full page reload when Settings → Wiki stays open.
+
+**Honest differentiation vs OpenClaw:** OpenClaw writes `reports/contradictions.md` and expects CLI follow-up. Myrm keeps the same intelligence in **Settings Pending + GUI filters + bidirectional Timeline links** — better for Article 8-style "decide which definition wins" workflows.
+
+**Honest boundary:** Cross-concept only (same-batch name merges are skipped). This is Wiki compile synthesis, not the separate Memory **ConflictCard** notification path.
+
+**Tests (2026-07-29):** Harness 8 (`test_contradiction_synthesis`) + 12 (`test_linter_extended`) + Server 2 (stats/pending API) = **22 passed**. Browser MCP E2E not run this round.
 
 ## Manage concepts in the tree
 
@@ -260,6 +315,45 @@ The importer handles:
 - **Conflict-safe re-import** — if a raw file already exists with different content, it is **skipped by default**. A dialog lets you supersede with a reason (logged to `wiki/log.md`).
 
 After import completes, a toast notification shows the number of notes processed, tags extracted, and images migrated. The imported files enter the compilation queue and are automatically indexed.
+
+## Open in Obsidian & export pack (#22 + #22b)
+
+The **Obsidian Vault** card on **Settings → Wiki → Overview** complements import above with reverse open/export:
+
+| Action | Local / Tauri | Cloud |
+|--------|---------------|-------|
+| **Open in Obsidian** | When Obsidian is installed (`obsidian_launch_available`) — macOS `open -a`, Windows `%LocalAppData%`, Linux `obsidian` CLI | Hidden (not available) |
+| **Show in folder** | Reveal wiki directory in Finder / Explorer / file manager | Hidden |
+| **Copy vault path** | Copy `{harness_dir}/wiki/agents/{agent}/` | Hidden |
+| **Download Obsidian pack** | Full vault ZIP + `.obsidian/graph.json` (colorGroups by frontmatter `type`) + `README-OBSIDIAN.txt` | Same (open locally after download) |
+
+After unzip: **Obsidian → Open folder as vault** → Graph view shows nodes colored by page type.
+
+**Tests (Jul 2026):** 14 targeted pytest (cross-platform launch + reveal + export — no Chrome MCP E2E).
+
+<Note>
+**vs Project mount:** To keep editing on **your own disk** with Obsidian/Typora, use **Settings → Projects → Mount sync folder**. #22 is for **Myrm-hosted compiled vaults** — one-click open or snapshot export.
+</Note>
+
+<Note>
+**Honest limits:** Cloud cannot reveal local paths; Open button hidden when Obsidian is not installed (Show in folder + Download still work); Windows `%ProgramFiles%\Obsidian\Obsidian.exe` is not probed yet; no portable `obsidian://` deep links.
+</Note>
+
+## Local vault git snapshots (#23)
+
+When **version control** is enabled on a wiki vault (Local/Tauri defaults it on for session archive and similar paths), Myrm keeps a **real `.git` directory inside the vault** — not a shadow-git plugin:
+
+| What | When | User benefit |
+|------|------|--------------|
+| **Auto-commit** | Compile, import, apply, approve, delete, and other vault mutations (13 SSOT hook sites) | Auditable history without manual `git init` |
+| **Overview hint** | Settings → Wiki → Overview | Shows latest snapshot commit hash when git is active |
+| **Standard git tooling** | Any git client or Obsidian Git plugin | `git log` / `git blame` work on the same files Myrm compiles |
+
+**Tests (Jul 2026):** 5 targeted pytest for vault git (`test_wiki_vault_git_mutation` 2 + Harness `test_vault_git` 3 — no Chrome MCP E2E).
+
+<Note>
+**Honest limits:** No in-Settings commit list UI — use `git log` or Obsidian Git for deep history. Download Obsidian pack ZIP does **not** include `.git`. Cloud deployments do not promise vault git.
+</Note>
 
 ## Search imported images (Obsidian assets)
 

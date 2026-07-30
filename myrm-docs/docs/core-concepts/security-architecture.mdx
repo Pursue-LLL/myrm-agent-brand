@@ -754,7 +754,7 @@ Scheduled Agent jobs support a **dual-layer policy** independent of the bound Ag
 **Built-in safeguards:**
 - **Fail-closed by default** — jobs without explicit capability declarations deny dangerous operations (shell, code execution, MCP) automatically. A warning banner guides users to configure the capability fence or enable YOLO mode per-agent.
 - **Preset packs** (web-only / research / devops) dual-write capability fence + tool scope, aligned with blueprint SSOT.
-- **Read-it-Later blueprint** defaults to `file_ops` only — ingestion jobs cannot accidentally enable browser or code execution.
+- **Read-it-Later blueprint** uses **router mode** (`__wiki_source_sync__`) with **empty tools** — deterministic server-side pull, zero LLM agent turns, no browser or code execution.
 - **Lifecycle guard** rejects cron prompts/commands/**pre-flight probe scripts** containing Myrm restart/stop or `pkill myrm-agent` patterns — prevents self-inflicted outage loops.
 - **Restricted jobs do not silently gain baseline tools** — a file-only cron will not auto-enable `code_execute`; unrestricted jobs still inherit the Agent baseline.
 

@@ -42,7 +42,8 @@ Myrm 提供**编译型知识库（Wiki）**——不是让 Agent 解读的一堆
 
 | 区域 | 实时更新内容 | 用户收益 |
 |------|--------------|----------|
-| **队列 Tab** | SSE（`GET /wiki/ingest/stream`）推送 pending/processing/failed 计数与 compile 熔断状态（约 5s）；计数与失败列表不一致时自动 REST 对齐 | 批量入库无需点刷新；API Key 失效时出现 amber 暂停条，可一键恢复 |
+| **队列 Tab** | SSE（`GET /wiki/ingest/stream`）推送 pending/processing/failed 计数与 compile 熔断状态（约 5s）；**编译阶段条**显示结构扫描 → 语义编译 → 后处理（含 facet 数 / 快速路径标签）；计数与失败列表不一致时自动 REST 对齐 | 批量入库无需点刷新；API Key 失效时出现 amber 暂停条，可一键恢复 |
+| **概览 Compile 操作区** | 同一 SSE `compile_run.phase` 在 Compile/Maintain 按钮上方显示共享阶段条 | 主路径编译不必切 Queue Tab 也能看到进度 |
 | **概览 → 原始来源树** | bulk compile 中 `tree_sync_required` 触发 silent `GET /wiki/raw/tree`，三色 ingest 点 live 更新 | 文件从「未编译灰点」变「已入库绿点」可即时看见，建立迁移信任 |
 | **词条 Tab 树** | 同上信号在词条 Tab 挂载时刷新 concept 树 | 关联源过期的 amber 点随编译推进更新 |
 
@@ -50,7 +51,49 @@ Myrm 提供**编译型知识库（Wiki）**——不是让 Agent 解读的一堆
 实时推送仅在 Settings Wiki 页 EventSource 连接期间生效；关闭设置页即停止 SSE——这是 GUI 范围内的可见性设计，不是后台守护进程。Hermes SKILL / OpenClaw 纯 MD 文件夹等竞品无等价 Queue 面板 + compile 中树 badge live。
 </Note>
 
+## 外部来源同步（Settings 概览）
+
+**设置 → 知识库 → 概览 → 外部来源** 可将收藏邮件与 RSS 定时或手动拉入 `wiki/raw/`：
+
+| 来源 | 配置方式 | 结果 |
+|------|----------|------|
+| **Gmail 标签** | 集成里连接 Google；开启 Gmail 同步；填写标签名（大小写不敏感） | 该标签下邮件变为 `wiki/raw/gmail/` 下的 Markdown |
+| **RSS** | 每行一个 URL | 条目写入 `wiki/raw/rss/` |
+| **集成镜像** | 开启「镜像集成同步」 | 集成同步的新条目可写入 raw |
+
+**零 LLM pull：** 拉取 Gmail/RSS **不调用**对话模型。仅当配置了模型且开启 **同步后自动编译** 时才会消耗 LLM。
+
+**定时任务：** **稍后读知识内化** 蓝图每日运行（第二大脑预设常搭配 **知识库晨间摘要**）。Router 任务 `__wiki_source_sync__` 在服务端执行，**不挂载 Agent 工具** — 安全、确定性自动化。
+
+**可观测性：** 卡片展示上次同步时间、新增/跳过/失败计数，以及首条错误（如 `Gmail label not found`）。
+
+<Note>
+**诚实边界：** Gmail 标签需**手动输入**名称，无下拉选择器。请在 Gmail 中创建同名标签（预设默认 `ReadLater`）。配错会在同步结果中显示，不会静默忽略。
+</Note>
+
+**测试（2026-07-30）：** `test_source_sync_gmail` 3 + 模块批次 18 = **21 pytest 通过**（mock Gmail API；本轮未跑 Chrome MCP）。
+
 **回归测试（2026-07-29 复测）：** Harness 6 raw_gate + 48 persistence/raw security + 21 apply/canonical + Server 9 wiki_apply/import raw_gate + 40 obsidian_adapter pytest（分批 ~18s）。本轮未跑浏览器 MCP E2E。
+
+## 编译期演变合成（CCSP）
+
+**编译 Wiki** 时，Step 2.5 会在常规文章生成之后运行 **编译期矛盾合成（CCSP）**：
+
+| 步骤 | 行为 | 用户收益 |
+|------|------|----------|
+| **配对（零 LLM）** | 关联概念、共享 slug 自动配对 |  obvious 候选不额外消耗 token |
+| **检测（LLM，有上限）** | 每次 compile 最多 3 组高置信跨概念事实冲突 | 不用逐篇阅读也能发现「两页说法不一致」 |
+| **暂存（HITL）** | 演变草稿进入 **待审编辑** — **不自动发布** | 你决定优先级后再入库（比教程里 Agent 自动写页更可控） |
+| **批准 → 双向链接** | 两个关联概念的 Timeline 均追加指向 `Comparisons/.../Evolution` 的条目 | 在 Obsidian 或树 GUI 从任一侧追溯冲突 |
+| **概览 badge** | 有待审演变时 Overview 显示 violet 计数；点击 → 待审 Tab 并筛选 **演变合成** | 编译后不必自己找 Pending Tab |
+
+**实时计数：** ingest SSE 推送 `synthesis_pending_count`；保持 Settings → Wiki 打开时 Overview 可静默刷新。
+
+**相对 OpenClaw 的差异化：** OpenClaw 写 `reports/contradictions.md` 并依赖 CLI 跟进。Myrm 把同等 intelligence 放在 **Settings 待审队列 + GUI 筛选 + 双向 Timeline** — 更贴合 Article 8「请你决定哪条定义优先」。
+
+**诚实边界：** 仅 cross-concept（同 batch 同名 merge 跳过）。这是 Wiki 编译合成，与 Memory **ConflictCard** 通知是不同链路。
+
+**测试（2026-07-29）：** Harness 8 + 12 + Server 2 = **22 passed**。本轮未跑浏览器 MCP E2E。
 
 ## 在树中管理词条
 
@@ -143,6 +186,20 @@ Wiki 不是「写完就忘」的死水。Myrm 用 **12 条代码级路径** 把�
 **召回方向：** Wiki 内容通过 **`knowledge_recall_tool(corpus=wiki|all)`** 按需 pull 进对话（Wiki+Memory 双开时）— 非 OpenClaw 式每轮 push digest。
 
 **测试：** 37 项定向 pytest（Harness 18 + Server 19，2026-07）。
+
+## Wiki 与 Memory 写入边界
+
+智能体**同时启用 Wiki 与 Memory** 时，Myrm 防止长文污染紧凑记忆：
+
+| 路径 | 护栏 | 用户收益 |
+|------|------|----------|
+| Agent **`memory_save_tool`** | 硬拒 document-like 的 knowledge/event（>800 字或 ≥3 标题） | Agent 被引导使用 **`wiki_ingest_tool`** |
+| **回合结束 auto-extract** | persist 硬滤 + 提取 prompt 跳过 | 长文摘要不会进入 semantic memory |
+| **存入 Wiki** / **外部来源** | 产品化长文路径 | 邮件/RSS/聊天 → vault raw → 可选编译 |
+
+**对比 Hermes：** 扁平 MEMORY.md **2200 字符上限** — 无编译型 Wiki 与 `corpus=all` 统一检索。
+
+**测试：** 25 项定向 pytest（Harness wiki boundary 模块，2026-07）。
 
 ## Karpathy 认知地图三件套（index / log / hot）
 
@@ -256,6 +313,45 @@ Myrm 提供专用 **Obsidian Vault 导入器**，完整保留笔记、标签和�
 - **冲突安全 re-import** — raw 已存在且内容不同时**默认跳过**；弹窗可填 reason 覆盖（记入 `wiki/log.md`）。
 
 导入完成后弹出 toast 通知，显示已处理笔记数、提取标签数和迁移图片数。导入的文件自动进入编译队列并被索引。
+
+## 在 Obsidian 中打开与导出（#22 + #22b）
+
+Settings → Wiki → Overview 的 **Obsidian Vault** 卡片提供反向打开与导出（与上方「导入」互补）：
+
+| 动作 | Local / Tauri | Cloud |
+|------|---------------|-------|
+| **在 Obsidian 中打开** | 已安装 Obsidian 时可用（`obsidian_launch_available`）— macOS `open -a`、Windows `%LocalAppData%`、Linux `obsidian` CLI | 不可用（UI 隐藏） |
+| **在文件夹中显示** | Finder / Explorer / 文件管理器定位 wiki 目录 | 不可用 |
+| **复制 vault 路径** | 一键复制 `{harness_dir}/wiki/agents/{agent}/` | 不可用 |
+| **下载 Obsidian 包** | 完整 vault ZIP + `.obsidian/graph.json`（按 frontmatter `type` 预着色）+ `README-OBSIDIAN.txt` | 同左（下载后在本地 Obsidian 打开） |
+
+解压后：**Obsidian → 打开文件夹作为库** → 打开 Graph 视图即可看到按页面类型着色的节点。
+
+**回归测试（2026-07-29）：** 14 项定向 pytest（跨平台启动 + reveal + 导出 · 无 Chrome MCP E2E）。
+
+<Note>
+**与 Project 挂载的分工：** 若你在 **自有磁盘** 用 Obsidian/Typora 双向编辑，请用 **设置 → 项目 → 挂载同步目录**。#22 针对 **Myrm 托管的编译库** 一键打开或快照导出。
+</Note>
+
+<Note>
+**诚实边界：** Cloud 无法本地 reveal；未安装 Obsidian 时隐藏「在 Obsidian 中打开」（「在文件夹中显示」+ 下载包仍可用）；Windows 尚未探测 `%ProgramFiles%\Obsidian\Obsidian.exe`；不提供 `obsidian://` 深链。
+</Note>
+
+## Vault 本地 git 快照（#23）
+
+开启 **版本控制** 后（Local/Tauri 在 session archive 等路径会默认开启），Myrm 在 vault 内维护 **真实 `.git` 目录**（非 shadow-git 插件）：
+
+| 能力 | 时机 | 用户收益 |
+|------|------|----------|
+| **自动 commit** | 编译、导入、apply、审批、删除等 vault 变更（13 处 SSOT hook） | 无需手工 `git init` 即可审计历史 |
+| **Overview 提示** | 设置 → Wiki → Overview | git 激活时显示最近快照 commit |
+| **标准 git 工具链** | 任意 git 客户端或 Obsidian Git 插件 | 对 Myrm 编译的同一份文件做 `git log` / `git blame` |
+
+**回归测试（2026-07-29）：** 5 项 #23 定向 pytest（`test_wiki_vault_git_mutation` 2 + Harness `test_vault_git` 3 · 无 Chrome MCP E2E）。
+
+<Note>
+**诚实边界：** Settings 无提交列表 UI — 深度历史请用 `git log` 或 Obsidian Git。下载 Obsidian 包 ZIP **不含** `.git`。Cloud 不承诺 vault git。
+</Note>
 
 ## 搜索已导入图片（Obsidian assets）
 
