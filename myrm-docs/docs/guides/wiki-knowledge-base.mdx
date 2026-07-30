@@ -47,7 +47,7 @@ When **both Wiki and Memory** are enabled, Myrm keeps long-form knowledge out of
 |------|-------|-------------|
 | Agent **`memory_save_tool`** | Hard reject document-like knowledge/event (>800 chars or ≥3 headings) | Agent is told to use **`wiki_ingest_tool`** instead |
 | **End-of-turn auto-extract** | Same heuristics at persist time + extraction prompt skip | Long article summaries do not pollute semantic memory |
-| **Save to Wiki** / **External Sources** | Product paths for long content | Gmail/RSS/chat → vault raw → optional compile |
+| **Save to Wiki** / **External Sources** | Product paths for long content | Gmail/Drive/RSS/chat → vault raw → optional compile |
 
 **vs Hermes:** flat MEMORY.md with a **2,200-character cap** — no compiled wiki vault or unified `corpus=all` search.
 
@@ -147,6 +147,7 @@ Live updates require the Settings Wiki page to stay open (EventSource subscripti
 | Source | What you configure | What happens |
 |--------|-------------------|--------------|
 | **Gmail label** | Connect Google in Integrations; enable Gmail sync; type the label name (case-insensitive) | Messages under that label become Markdown under `wiki/raw/gmail/` |
+| **Google Drive folder** | Connect Google in Integrations; enable Drive sync; paste folder ID (`root` = My Drive) | Docs/Sheets/Slides/PDFs export to Markdown under `wiki/raw/gdrive/` |
 | **RSS** | One URL per line | Entries land under `wiki/raw/rss/` |
 | **Integration mirror** | Toggle on when integrations sync | New integration items can mirror into raw |
 
@@ -157,10 +158,10 @@ Live updates require the Settings Wiki page to stay open (EventSource subscripti
 **Observability:** last sync time, published/skipped/failed counts, and the first error line (e.g. `Gmail label not found`) appear on the card.
 
 <Note>
-**Honest boundary:** Gmail labels are typed manually — there is no dropdown picker. Create a matching label in Gmail (default preset uses `ReadLater`). Misconfiguration is surfaced on sync, not silently ignored.
+**Honest boundary:** Gmail labels and Drive folder IDs are typed manually — there is no label dropdown or Drive Picker. Create a matching label in Gmail (default preset uses `ReadLater`). If Google is connected but Drive read scope is missing, the card shows a **reconnect hint** (`google_drive_authorized: false`). **OneDrive is not supported** (no Microsoft OAuth infra). Misconfiguration is surfaced on sync, not silently ignored.
 </Note>
 
-**Tests (2026-07-30):** `test_source_sync_gmail` 3 + module batch 18 = **21 pytest passed** (mock Gmail API; no Chrome MCP this round).
+**Tests (2026-07-30):** gdrive 3 + gmail/rss/status/oauth 12 + state/config/defaults/blueprint/hygiene/second_brain 15 + gmail_html 2 = **32 pytest passed** (mock Gmail/Drive API; no Chrome MCP this round).
 
 ## Evolution synthesis at compile (CCSP)
 
@@ -290,6 +291,8 @@ This closes the loop: **conversation → one-click archive → searchable knowle
 - **Query Wiki** (Overview tab) — natural-language answers with **zero LLM** on the query path: seeds from the cognitive index, sidecar summaries, FTS5, and keywords converge through a budgeted best-first graph expansion before assembling L0/L1/L2 snippets and claim/evidence cards.
 - **Retrieval mode** (Overview → Query Wiki) — choose **General** (balanced across index, directories, and articles) or **Claims first** (boost concepts with structured frontmatter claims and linked evidence; falls back to General when no claim match). OpenClaw offers similar `raw-claim` behavior via CLI only; Myrm exposes it in Settings without memorizing flags.
 - **Citation trust** — answer cards include claim text, evidence paths, and `snapshot_status` so you can see whether cited content still matches the vault on disk.
+- **Evidence citation Drawer (Closure v2)** — tap a citation chip in Chat or Settings: claim status badges (contested/unsupported only, to reduce noise), **compile confidence %** when explicitly set, and **raw excerpt** blocks. Retrieval ranks fresh supported claims ahead of stale contested ones with zero LLM cost.
+- **Settings retrieval path trace** — below Query results, a card shows index hits, seeds, sidecar directories, and selected concepts so power users can debug “why this concept matched.”
 - **Compile / Maintain** — incremental compile (SHA256 change detection), parallel batch ingestion (Semaphore-limited concurrency for ~40% faster multi-document processing), visual element guidance (the compiler prompts the LLM to produce Mermaid diagrams, GFM tables, and fenced code blocks where appropriate), and linter-driven health fixes (broken links, drift, stale content, knowledge-gap detection for isolated/bridge concepts).
 - **Structural health stats** (Overview tab) — zero-LLM scan counts broken markdown links, broken Obsidian `[[wikilink]]` targets (path + unique title alias), and missing frontmatter `type` values. Amber badges update after compile, import, concept edits, pending approvals, and folder deletes — no CLI `wiki lint` required. CI runs a 4-case retrieval regression gate on every harness change.
 - **Library / Brain views** — 3D knowledge graph with community detection and concept exploration (product navigation may vary by deployment).

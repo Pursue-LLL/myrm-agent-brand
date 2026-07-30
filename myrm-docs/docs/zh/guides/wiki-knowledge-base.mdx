@@ -58,6 +58,7 @@ Myrm 提供**编译型知识库（Wiki）**——不是让 Agent 解读的一堆
 | 来源 | 配置方式 | 结果 |
 |------|----------|------|
 | **Gmail 标签** | 集成里连接 Google；开启 Gmail 同步；填写标签名（大小写不敏感） | 该标签下邮件变为 `wiki/raw/gmail/` 下的 Markdown |
+| **Google Drive 文件夹** | 集成里连接 Google；开启 Drive 同步；填写文件夹 ID（`root` = 我的云端硬盘） | 文档/表格/幻灯片/PDF 导出为 `wiki/raw/gdrive/` 下的 Markdown |
 | **RSS** | 每行一个 URL | 条目写入 `wiki/raw/rss/` |
 | **集成镜像** | 开启「镜像集成同步」 | 集成同步的新条目可写入 raw |
 
@@ -68,10 +69,10 @@ Myrm 提供**编译型知识库（Wiki）**——不是让 Agent 解读的一堆
 **可观测性：** 卡片展示上次同步时间、新增/跳过/失败计数，以及首条错误（如 `Gmail label not found`）。
 
 <Note>
-**诚实边界：** Gmail 标签需**手动输入**名称，无下拉选择器。请在 Gmail 中创建同名标签（预设默认 `ReadLater`）。配错会在同步结果中显示，不会静默忽略。
+**诚实边界：** Gmail 标签与 Drive 文件夹 ID 均需**手动输入**，无标签下拉或 Drive Picker。请在 Gmail 中创建同名标签（预设默认 `ReadLater`）。若已连接 Google 但缺少 Drive 只读 scope，卡片会显示**重连提示**（`google_drive_authorized: false`）。**不支持 OneDrive**（无 Microsoft OAuth 基建）。配错会在同步结果中显示，不会静默忽略。
 </Note>
 
-**测试（2026-07-30）：** `test_source_sync_gmail` 3 + 模块批次 18 = **21 pytest 通过**（mock Gmail API；本轮未跑 Chrome MCP）。
+**测试（2026-07-30）：** gdrive 3 + gmail/rss/status/oauth 12 + state/config/defaults/blueprint/hygiene/second_brain 15 + gmail_html 2 = **32 pytest 通过**（mock Gmail/Drive API；本轮未跑 Chrome MCP）。
 
 **回归测试（2026-07-29 复测）：** Harness 6 raw_gate + 48 persistence/raw security + 21 apply/canonical + Server 9 wiki_apply/import raw_gate + 40 obsidian_adapter pytest（分批 ~18s）。本轮未跑浏览器 MCP E2E。
 
@@ -195,7 +196,7 @@ Wiki 不是「写完就忘」的死水。Myrm 用 **12 条代码级路径** 把�
 |------|------|----------|
 | Agent **`memory_save_tool`** | 硬拒 document-like 的 knowledge/event（>800 字或 ≥3 标题） | Agent 被引导使用 **`wiki_ingest_tool`** |
 | **回合结束 auto-extract** | persist 硬滤 + 提取 prompt 跳过 | 长文摘要不会进入 semantic memory |
-| **存入 Wiki** / **外部来源** | 产品化长文路径 | 邮件/RSS/聊天 → vault raw → 可选编译 |
+| **存入 Wiki** / **外部来源** | 产品化长文路径 | 邮件/Drive/RSS/聊天 → vault raw → 可选编译 |
 
 **对比 Hermes：** 扁平 MEMORY.md **2200 字符上限** — 无编译型 Wiki 与 `corpus=all` 统一检索。
 
@@ -288,6 +289,8 @@ Settings **概览** 自动展示三件套就绪状态；无需 CLI。
 - **查询 Wiki**（概览标签）— 自然语言问答走 **零 LLM** 检索路径：从认知 index、sidecar 摘要、FTS5 与关键词种子出发，经有预算的 best-first 图扩展收敛后，组装 L0/L1/L2 片段与声明/证据卡片。
 - **检索模式**（概览 → 查询 Wiki）— 可选 **综合检索**（索引、目录与文章均衡召回）或 **声明优先**（优先含 frontmatter claims 与关联证据的概念；无匹配时自动回退综合检索）。OpenClaw 有类似 `raw-claim` 但仅 CLI；Myrm 在 Settings 下拉即可切换。
 - **引用可信度** — 回答卡片展示 claim 文本、evidence 路径与 `snapshot_status`，便于判断引用内容是否仍与 vault 磁盘一致。
+- **证据引用 Drawer（Closure v2）** — Chat 或 Settings 点 citation chip：展示 claim 状态 badge（仅 contested/unsupported 降噪）、**编译置信度百分比**（显式设置时）与 **raw 摘录**；检索侧 fresh supported claim 优先于 stale contested。
+- **Settings 检索路径 trace** — Query 结果下方卡片展示 index 命中、seeds、sidecar 目录与最终概念，便于排障「为何命中这条」。
 - **编译 / 维护** — 增量编译、并发批量摄入（Semaphore 限流并行处理，多文档编译提速约40%）、视觉化指导（编译器自动引导 LLM 在合适位置产出 Mermaid 图表、GFM 表格和代码块，提升信息密度）与 linter 驱动健康修复（断链、漂移、孤立概念/桥接节点知识盲区检测等）。
 - **结构健康 Stats**（Overview 页）— 零 LLM 扫描：markdown 断链、Obsidian `[[wikilink]]` 断链（路径 + 唯一 title 别名）、缺 frontmatter `type`；amber badge 在编译、导入、词条编辑、待审审批、文件夹删除后即时刷新；Harness CI 跑 4 case 检索回归门。无需 CLI `wiki lint`。
 - **图书馆 / Brain 视图** — 3D 知识图谱与词条探索（因部署而异）。

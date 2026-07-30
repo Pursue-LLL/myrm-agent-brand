@@ -15,6 +15,31 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-07-30 · ChatExecutionPrewarm Turn1 · Roadmap #29）
+
+- **Turn1 冷启动预热（vs Hermes CLI 并行 init / OpenClaw TUI 发送前 prewarm）：** coordinator **4/4** + prewarm API **3/3** + CDP log helper **2/2** = **9 pytest，0 失败**（~10s，server lane）。Chrome E2E 另断言 `Turn prewarm requested` 日志 ≥1，再接既有 **2msg1build** execution-cache 证明（`test_execution_cache_chrome_e2e.py`）。
+- **已验证：** EmptyChat 挂载 + MessageInput focus + AgentConfigPanel 切换 → `POST /agents/chats/{id}/prewarm`；发送路径 `join_for_turn(0.3s)` + `coalesced_acquire`；SSE ProgressSteps `turn_prewarm_agent` / `turn_prewarm_memory` + `brief_pending` 时无条件 `turn_prewarm_memory_clear`；FE 模块级 inflight 去重；autoOnMount **不在** unmount 时 DELETE（首条发送 EmptyChat→ChatWindow 安全）。
+- **对用户可见的竞品优势：** Hermes v0.19 并行 init **仅 CLI**；OpenClaw prewarm **仅 TUI 首条发送前** — 均无 GUI EmptyChat/focus/换 Agent 触发 + ProgressSteps 等待 UX。Turn2+ 仍走 per-chat `execution_cache_reuse`（Chrome E2E 2msg1build）。
+- **诚实边界：** join 窗口 0.3s — 极慢 memory 仍可能 Turn1 miss brief（与旧 250ms 串行同类）；prewarm 失败无 GUI toast（send 冷路径 fallback）。前端 vitest 4 cases 未在 agent 环境跑（无 bun/node）— 本地签收：`bun run test src/hooks/chat/__tests__/useChatTurnPrewarm.test.ts`。
+- **Material SSOT：** `temp-docs/materials/COMPETITIVE_HERMES_ADVANTAGE.md` §31 · `USER_EXPERIENCE_ADVANTAGE.md` §22 Turn1 小节 · `prewarm/_ARCH.md`
+
+## 最新验证快照（2026-07-30 · Hermes 八篇系列 + OpenClaw 对比总结 · Article 13）
+
+- **系列结论（庄码收官文 · 无评论）**：OpenClaw = 稳定工具 · Hermes = 成长搭档。Myrm = **GUI-first 成长搭档** + OpenClaw 级 Channel/Skill/Tool 骨架，三端（Local/Tauri/云 CP）同构。
+- **迁移用户实得（诚实）**：
+  - **Myrm ≫**：GUI 迁移向导（5 源 dry-run/confirm/rollback）vs `hermes claw migrate` CLI；Onboarding 4 步 vs 纯终端；8 类记忆+Wiki vs Hermes 2200 字 MEMORY.md；HITL 写入审批 vs Hermes 直写。
+  - **Myrm ≥**：Cron+Nudge 类能力（Cron GUI+push+situation_report+HeartbeatEvaluator）；FTS5 跨会话（`conversation_search`）；云 sleep/wake（CP `sleep_sandbox`）；子代理（SubagentDashboard）；国产模型 Provider GUI。
+  - **进行中（不隐瞒）**：Vision Fallback **WebUI 已≥** · **飞书/渠道/cron 未注入 vision_fallback** → roadmap `hermes_auxiliary_vision_*` 2 项 P1；`/learn` 工作流 → `hermes_learn_skill_*` 2 项 P0；Hermes sessions 导入 → memory #3 扩展。
+- **WORTH:NO（系列提及但不立项）**：Python RPC 子代理模式（sandbox code-as-action ≥）；Nous Portal 五合一 API；RL 批量轨迹研究管线（非 GUI 主用户）。
+- **材料 SSOT**：`temp-docs/materials/COMPETITIVE_HERMES_ADVANTAGE.md` §30 · `temp-docs/roadmap/hermes_openclaw_series_summary_cross_reference_roadmap.md`
+
+## 最新验证快照（2026-07-30 · Wiki Evidence Closure v2 #4+#5）
+
+- **证据引用 GUI（vs OpenClaw / Hermes / deer-flow / LobsterAI / CoPaw / jiuwenclaw）**：`test_query_closure_v2` **4/4** + `test_best_first` **5/5** + `test_source_citations` **6/6** + `test_wiki_recall_benchmark_gate` **1/1** = **16 tests, 0 failures**（约 6s、2 批、harness-only、**无 Chrome MCP** — 本环境无 Node 未跑 vitest）。
+- **已验证**：Chat/Settings citation Drawer 展示 claim 状态 + 编译置信度 + raw 摘录；fresh supported claim 检索优先于 stale contested；Settings Query 检索路径 trace（index/seeds/concepts）；citation score 非硬编码 1.0。
+- **对比竞品**：OpenClaw 有 CLI `raw-claim`/`source-evidence` + claim confidence rerank（`query.test.ts:602`）**无 GUI Drawer**；Hermes llm-wiki skill / deer-flow / LobsterAI / CoPaw / jiuwenclaw **无** claim-level citation GUI；6 家均无 Settings 检索 trace 卡片。
+- **诚实边界**：无 route-question 模式（OpenClaw 有 · frontmatter schema 待办）；Chat 无 retrieval trace（Settings 调试面）；无 Trust card/SSE lineage。
+
 ## 最新验证快照（2026-07-30 · Wiki ↔ Memory 边界 #27）
 
 - **Wiki 与 Memory 写入边界（vs Hermes / OpenClaw / Mem0 概念）**：`test_wiki_memory_boundary` **7/7** + save 护栏 **3/3** + extract prompt **2/2** + agent 接线 **1/1** = **25 tests, 0 failures**（约 5s、3 批、harness-only、**无 Chrome MCP** — 后端护栏无浏览器交互路径）。
@@ -24,10 +49,10 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 ## 最新验证快照（2026-07-30）
 
-- **Wiki 外部来源 GUI 同步（vs OpenClaw / Hermes / deer-flow / LobsterAI / CoPaw / jiuwenclaw / OpenWiki）**：`test_source_sync_gmail` **3/3** + 模块批次（config/state/defaults/rss/blueprint/hygiene/gmail_html）**18/18** = **21 tests, 0 failures**（约 21s、2 批、harness-only lane、**无 Chrome MCP**）。
-- **已验证**：Settings **外部来源**面板（Gmail 标签 + RSS + 集成镜像 → wiki `raw/` · `publish_raw`）；**零 LLM pull**；OAuth 自动开启 Gmail `ReadLater`；持久化同步状态 + **`syncIssue` 错误回显**；Cron 蓝图 **`read_it_later`** router（`__wiki_source_sync__` · 空 tools）。
-- **相对竞品的用户收益**：GUI 完整 **摄入→编译→检索** 闭环（收藏邮件/RSS）——OpenClaw 为 Gmail **Pub/Sub 聊天 hook**（非 wiki vault 管道）；Hermes 为 **手动 google-workspace CLI skill**；deer-flow / LobsterAI / CoPaw / jiuwenclaw 参考仓 **无对等能力**；OpenWiki Gmail 为 **env 配置**，非 Settings+Cron 一体。
-- **诚实边界**：Gmail 标签在 Settings **手打**（大小写不敏感）；配错显示 `Gmail label not found`——**不做标签下拉**（终极扣问 WORTH:NO）。本轮未跑 Chrome MCP E2E；行为由 mock Gmail API 单测证明。
+- **Wiki 外部来源 GUI 同步 + Google Drive（vs OpenClaw / Hermes / deer-flow / LobsterAI / CoPaw / jiuwenclaw / OpenWiki）**：gdrive **3/3** + gmail/rss/status/oauth **12/12** + state/config/defaults/blueprint/hygiene/second_brain **15/15** + gmail_html **2/2** = **32 tests, 0 failures**（约 45s、3 批、server lane、**无 Chrome MCP**）。
+- **已验证**：Settings **外部来源**面板（Gmail 标签 + **Google Drive 文件夹** + RSS + 集成镜像 → wiki `raw/` · `publish_raw`）；**零 LLM pull**；OAuth 自动开启 Gmail `ReadLater`；缺 Drive read scope 时 **`google_drive_authorized` 重连提示**；持久化同步状态 + **`syncIssue` 错误回显**；Cron 蓝图 **`read_it_later`** router（`__wiki_source_sync__` · 空 tools）。
+- **相对竞品的用户收益**：GUI 完整 **摄入→编译→检索** 闭环（收藏邮件 + **Drive 文档** + RSS）——OpenClaw 为 Gmail **Pub/Sub 聊天 hook**（非 wiki vault 管道）；Hermes/OpenClaw **google-workspace CLI** 可读 Drive 但**非**编译 wiki raw 管道 + Settings GUI + cron；deer-flow / LobsterAI / CoPaw / jiuwenclaw 参考仓 **无对等能力**；OpenWiki Gmail 为 **env 配置**且**无 Drive connector**。
+- **诚实边界**：Gmail 标签与 Drive 文件夹 ID **手填**——**不做标签下拉 / Drive Picker**（终极扣问 WORTH:NO）；**无 OneDrive**（broken stub 已删）；Integrations API `drive_read_enabled` 对称字段 **WORTH:NO**（OAuth scope 已暴露）。本轮未跑 Chrome MCP E2E；行为由 mock Gmail/Drive API 单测证明。
 
 ## 最新验证快照（2026-07-27）
 

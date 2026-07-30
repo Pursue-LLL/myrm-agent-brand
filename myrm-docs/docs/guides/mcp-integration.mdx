@@ -515,3 +515,38 @@ For enterprise customers whose MCP servers run on private networks (behind firew
 1. **Register a tunnel** in the org admin panel (**Settings → Organization → MCP → Add Tunnel**)
 2. Deploy `myrm-tunnel-agent` with the provided token and internal MCP server endpoint
 3. The tunnel appears as an org-level MCP server — assign it to agents like any other MCP server
+
+## Enterprise Managed Auth — IdP Group-Based MCP Access (Cloud Only)
+
+:::info Cloud deployment only
+This feature is available exclusively for **cloud-hosted** Myrm deployments with OIDC SSO configured. Local and Tauri users manage MCP access directly in their local settings.
+:::
+
+For enterprise customers using Identity Providers (Okta, Entra ID, Google Workspace, etc.), Myrm automatically maps **IdP group memberships** to **org MCP server access** — so IT administrators can control which teams see which tools, with zero manual per-user configuration.
+
+### How It Works
+
+1. **OIDC groups claim** — When a user logs in via SSO, Myrm extracts the `groups` claim from the OIDC response and stores it on the user's org membership record
+2. **Per-MCP group whitelist** — Org admins configure an optional `acl_groups` list on each org MCP server (empty = visible to all members)
+3. **Automatic filtering** — When MCP configurations are pushed to a user's sandbox, only servers where the user's IdP groups intersect with the server's ACL groups are included
+4. **Login refresh** — Group memberships are automatically refreshed on every OIDC login — no manual sync needed
+
+### Configuring Group-Based Access
+
+1. Navigate to **Settings → Organization → MCP Servers**
+2. When creating or editing an MCP server, enter IdP group names in the **Access Groups** field (comma-separated)
+3. Leave the field empty to make the server visible to all organization members
+4. Members whose IdP groups match at least one configured group will see and use the server
+
+### Offboarding
+
+When an employee is offboarded via the org admin panel, Myrm immediately pushes an empty MCP server list to their sandbox — revoking all org MCP access instantly. No manual cleanup required.
+
+### Security
+
+| Feature | Description |
+|---------|-------------|
+| **Zero-touch provisioning** | New employees see the right MCP tools automatically based on their IdP groups — no IT tickets needed |
+| **Least-privilege by default** | Servers with ACL groups are invisible to non-matching members |
+| **Instant revocation** | Offboarding cuts MCP access immediately |
+| **Audit-friendly** | Group memberships are visible in the org members API for compliance review |
