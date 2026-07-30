@@ -165,6 +165,8 @@ Myrm automatically optimizes MCP tool schemas for LLM compatibility:
 
 Each MCP server runs on a single, persistent session that stays warm for the entire agent lifetime. Tool calls are serialized onto the session through an internal queue — no subprocess is spawned per call, and no re-initialization handshake is needed between calls.
 
+Myrm uses **MCP SDK 2.0** natively with an in-house `tool_converter` module for converting MCP tool schemas to LangChain tool instances — zero third-party adapter dependencies. This ensures full compatibility with the latest MCP protocol features while maintaining a minimal dependency footprint.
+
 ### Execution Timeout Protection
 
 Every MCP tool call is protected by a dual-layer timeout mechanism:
