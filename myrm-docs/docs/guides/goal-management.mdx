@@ -353,6 +353,21 @@ Completed: Technical Research
 
 This happens automatically — no commands needed.
 
+### Assessment Import (One-Click Report → Tasks)
+
+When your agent produces assessment reports or review documents (as artifacts), you can convert them into milestones and tasks in one click:
+
+1. **Expand the Milestone panel** in the sidebar
+2. **Recent candidates appear automatically** — the system probes each artifact to verify it contains importable tasks (semantic validation using the same parser as the import engine)
+3. **Click a candidate** to import, or type an artifact ID manually
+4. **Instant feedback** — success shows a receipt (milestones + tasks created); failure shows a clear reason (e.g., "already imported", "no actionable tasks")
+
+**Key guarantees:**
+- **Idempotent** — the same artifact version cannot be imported twice into the same project (immutable ledger)
+- **Atomic** — if import fails midway, all partially-created milestones/tasks are rolled back
+- **Observable** — import funnel metrics (attempts, successes, failures by reason and trigger) are tracked for product analytics
+- **Value closure** — the panel shows post-import task completion rate, so you can see the real impact of imported work
+
 ### Goals vs Milestones
 
 | Aspect | Goal | Milestone |

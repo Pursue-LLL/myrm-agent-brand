@@ -13,18 +13,18 @@ MCP 是开放标准，让 AI Agent 通过统一协议连接外部数据源与工
 
 ## 服务目录（一键连接）
 
-连接主流服务的最快方式。进入 **设置 > 通信与集成 > 服务目录**，浏览 9 大类别 29 项预配置集成：
+连接主流服务的最快方式。进入 **设置 > 通信与集成 > 服务目录**，浏览 9 大类别 35 项预配置集成：
 
 | 类别 | 服务 |
 |------|------|
-| **API 工具** | Postman |
+| **API 工具** | Postman, 企查查 |
 | **浏览器** | Playwright, Browserbase |
-| **通信协作** | Gmail, Slack, 飞书, 钉钉 |
+| **通信协作** | Gmail, Slack, 飞书, 钉钉, QQ 邮箱 |
 | **数据存储** | PostgreSQL, 本地文件系统, Google Drive, Supabase |
-| **设计** | Figma（描述性输出，优化代码生成） |
+| **设计** | Figma, Unreal Engine, Blender |
 | **开发工具** | GitHub, GitLab, Gitee, Gitee 企业版, Sentry, 代码审查图谱, CodeGraph |
 | **文档** | Context7, Microsoft Learn, AWS 文档 |
-| **效率工具** | Notion, Todoist, Google 日历, Linear |
+| **效率工具** | Notion, Todoist, Google 日历, Linear, 腾讯文档, WPS 文档 |
 | **网页搜索** | Firecrawl（Keyless 免费层一键连接）, Exa, Brave Search |
 
 每个服务包含：
@@ -167,6 +167,15 @@ Myrm 自动优化 MCP 工具 Schema 以兼容 LLM：
 
 Myrm 原生使用 **MCP SDK 2.0**，通过自研 `tool_converter` 模块将 MCP 工具 Schema 转换为 LangChain 工具实例 — 零第三方适配器依赖。确保完全兼容最新 MCP 协议特性，同时保持最小化的依赖足迹。
 
+### 无状态 HTTP 与云负载均衡
+
+对于云部署的 MCP 服务器，Myrm SDK 2.0 原生支持**无状态 HTTP** 模式 — 仅当服务器返回 session ID 时才发送该头。这意味着：
+
+- **Round-robin 负载均衡**开箱即用，无需 session affinity
+- **协议自动协商**：通过 `server/discover` 探测自动检测服务器能力
+- **路由头**（`Mcp-Method`、`Mcp-Name`、`MCP-Protocol-Version`）每次请求自动注入，支持网关层智能请求路由
+- **本地/桌面会话**继续使用持久热连接以获得最佳性能（两全其美）
+
 ### 执行超时保护
 
 每次 MCP 工具调用均受双层超时机制保护：
@@ -237,6 +246,21 @@ MCP 工具与内置工具相同审批流：
 - 只读工具自动执行
 - 写/破坏性工具需用户审批（YOLO 模式除外）
 - 可按 MCP 服务配置自定义审批策略
+
+### MCP 服务器交互确认（Elicitation）
+
+部分 MCP 服务器在工具执行过程中可能需要你提供额外信息。例如，支付类 MCP 服务器可能需要你确认退款金额后才能继续。
+
+当这种情况发生时，Myrm 会在聊天中弹出**审批卡片**：
+- 显示服务器的确认消息
+- 60 秒倒计时
+- **批准** / **拒绝** 按钮
+
+Agent 会暂停等待你的响应。如果倒计时结束，请求将被自动取消，Agent 会继续寻找替代方案。
+
+:::info
+这是 MCP 协议的 [Elicitation](https://modelcontextprotocol.io/specification/2025-06-18/server/utilities/elicitation) 功能。Myrm 将其桥接到与工具权限审批相同的可视化流程中，为你提供一致的审批体验。
+:::
 
 ## 单工具粒度过滤
 

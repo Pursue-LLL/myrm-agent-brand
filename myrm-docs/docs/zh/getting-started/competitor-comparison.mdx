@@ -15,6 +15,30 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-07-31 · 评估导入闭环 · 项目里程碑路线图）
+
+- **评估工件智能导入链路（vs OpenClaw / Hermes Agent / Deer Flow / LobsterAI / CoPaw / JiuwenClaw）**：后端 artifact API **7/7** + milestone API **15/15** + assessment service **6/6** + statistics API **4/4** = **32 pytest, 0 failures**；前端 import candidates **7/7** + metrics **5/5** + error mapping **9/9** = **21 vitest, 0 failures**。总计 **53 tests, 0 failures**（< 30s、5 batch、**无 Chrome MCP**）。
+- **已验证**：`GET /files/artifacts?project_id=` 项目维度候选过滤 + 语义候选探测（`assessment_import_candidate_probe` 复用 `parse_assessment_markdown`）；`POST /projects/{id}/milestones/import-assessment` 幂等台账 + 失败回滚 + 结构化 `import_reason`；`POST /statistics/assessment-import/events` 漏斗埋点（attempt/success/fail/dropped）+ `GET summary` 聚合；前端 `ProjectMilestonePanel` 候选列表（importable 优先排序）+ 一键导入 + 手输兜底 + 结构化错误 i18n 映射（6 reason）+ 埋点缓冲与丢样回补。
+- **对用户可见的竞品优势**：竞品 6 仓均无"评估工件 → 项目里程碑/任务"导入链路；无候选语义探测（验证可导入性再展示）；无导入幂等台账（重复导入拦截）；无失败自动回滚；无结构化错误反馈；无漏斗观测。Myrm 独家实现完整「评估产出 → 候选探测 → 一键导入 → 幂等保障 → 失败回滚 → 结构化反馈 → 漏斗观测」闭环。
+- **诚实边界**：候选排序当前优先按"是否可导入"分层 + 时间倒序，尚无基于内容相关性的语义排名（下一优化项）；`dropped_report` 统一为 global context（项目粒度排障需后续补 bucket）；前端 summary 最大 90 天 vs 后端 365 天口径差异（低频场景，可接受）。
+- **Material SSOT：** `temp-docs/materials/PROJECT_MILESTONE_ROADMAP_ADVANTAGE.md` · `app/api/files/artifact_api.py` · `app/api/statistics/assessment_import.py` · `ProjectMilestonePanel.tsx` · `assessmentImportMetrics.ts`
+
+## 最新验证快照（2026-07-31 · MCP Elicitation HITL 桥接 · Roadmap #6）
+
+- **MCP Elicitation → GUI HITL 桥接（vs Hermes / OpenClaw / deer-flow / LobsterAI / CoPaw / jiuwenclaw）**：harness `TestBuildElicitationCallback` **13/13** + server `test_mcp_elicitation_handler` **16/16** = **29 tests, 0 failures**（约 4s、2 batch、**无 Chrome MCP**）。
+- **已验证**：Harness `MCPSessionActor._build_elicitation_callback` 将 MCP SDK `ElicitRequest` 桥接至业务层 handler，5 路安全路径（accept→accept、decline→decline、timeout→cancel、exception→decline、unexpected→decline）；URL-mode 明确拒绝；server `build_mcp_elicitation_handler` 通过 `ApprovalRegistry` 创建审批记录 + `asyncio.Event` 挂起 + SSE 推送前端；`_normalize_decision` 将 8 种决策变体映射为 3 种 MCP action（accept/decline/cancel）；前端 `PolymorphicApprovalCard` 渲染 `mcp_elicitation` 审批卡（amber 警告头 + 服务器名 + `ExpiryCountdown` 倒计时）。
+- **对用户可见的竞品优势**：Myrm 提供 **GUI 审批卡 + 倒计时 + 持久化审计** — Hermes 使用 CLI `readline` 阻塞（无超时、无审计、无 GUI）；OpenClaw 的 elicitation bridge 仅限 Codex 插件（自动填充启发式，非通用用户确认）；deer-flow / LobsterAI / CoPaw / jiuwenclaw **无** elicitation 支持。
+- **诚实边界**：`ElicitResult.content`（表单数据收集）未实现 — 无竞品支持通用用户表单输入；`edited_payload` 基础设施支持未来集成。URL-mode 已拒绝（浏览器跳转不适用于服务端托管架构）。
+- **Material SSOT：** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `toolkits/mcp/session_actor.py` · `services/agent/backends/mcp_elicitation_handler.py` · `PolymorphicApprovalCard.tsx`
+
+## 最新验证快照（2026-07-30 · Wiki 维护 Cron + SCHEMA + 编译 Index + Query Log · Roadmap #31–#33+R1+W36）
+
+- **Wiki 维护 Cron + 编译 index 种子 + SCHEMA + query log 定向（vs Hermes llm-wiki / OpenClaw / deer-flow / LobsterAI / CoPaw / jiuwenclaw）**：maintain server **6/6** + schema writer **5/5** + compile index R1 **2/2** + `test_query` **29/29** + second_brain/cron router **4/4** = **46 pytest, 0 failures**（约 45s、harness + server lane、**无 Chrome MCP**）。
+- **已验证**：Cron blueprint **`wiki_maintain`**（`structural` 快扫 vs `full` 漂移/backlink）经 router `__wiki_maintain__:{mode}` → `maintain_runner` SSOT；Settings 维护模式下拉 + compile 进行中 409 skip；Second Brain preset 新增 **周末 03:00 `mode: full`**（与稍后读 + 晨间 delta 三闹钟）；编译 `_extract_concepts_from_doc` 注入 **`read_index_context()`**；自动 **`wiki/SCHEMA.md`** + preset vault seed；零 LLM query 前缀追加 **`Recent activity log`**（`log.md` ≤1.5k，与 hot 并列）。
+- **对用户可见的竞品优势**：Hermes llm-wiki 依赖 **SKILL 手工 lint/定向 + 手工扫 log** — 无 GUI Cron 维护、无编译 index 种子、无自动 SCHEMA 契约文件。六家参考 claw 均无 Settings 维护模式 + 定时 vault 卫生 + query log 定向 parity。
+- **诚实边界**：hot 与 log 可能重复展示最新事件（已接受低成本 tradeoff）；Hermes 式完整 tag taxonomy 写入 SCHEMA 对 GUI-first 用户仍为 **WORTH:NO**（R3/W37 已否决）。
+- **Material SSOT：** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `services/wiki/maintain_runner.py` · `pipeline/cognitive_map/schema_writer.py` · `retrieval/query.py`
+
 ## 最新验证快照（2026-07-30 · Chat Wiki Knowledge Quick Lane · Roadmap #30）
 
 - **Chat Wiki 知识快路径（vs Hermes llm-wiki / OpenClaw memory-wiki / deer-flow / LobsterAI / CoPaw / jiuwenclaw）**：intent **+** knowledge_query_service **+** wiki_knowledge_lane **+** API query = **16 pytest, 0 failures**（约 6s、server lane、**Chrome MCP E2E 待签收**）。
@@ -36,10 +60,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **系列结论（庄码收官文 · 无评论）**：OpenClaw = 稳定工具 · Hermes = 成长搭档。Myrm = **GUI-first 成长搭档** + OpenClaw 级 Channel/Skill/Tool 骨架，三端（Local/Tauri/云 CP）同构。
 - **迁移用户实得（诚实）**：
   - **Myrm ≫**：GUI 迁移向导（5 源 dry-run/confirm/rollback）vs `hermes claw migrate` CLI；Onboarding 4 步 vs 纯终端；8 类记忆+Wiki vs Hermes 2200 字 MEMORY.md；HITL 写入审批 vs Hermes 直写。
-  - **Myrm ≥**：Cron+Nudge 类能力（Cron GUI+push+situation_report+HeartbeatEvaluator）；FTS5 跨会话（`conversation_search`）；云 sleep/wake（CP `sleep_sandbox`）；子代理（SubagentDashboard）；国产模型 Provider GUI。
-  - **进行中（不隐瞒）**：Vision Fallback **WebUI 已≥** · **飞书/渠道/cron 未注入 vision_fallback** → roadmap `hermes_auxiliary_vision_*` 2 项 P1；`/learn` 工作流 → `hermes_learn_skill_*` 2 项 P0；Hermes sessions 导入 → memory #3 扩展。
+  - **Myrm ≥**：Cron+Nudge 类能力（Cron GUI+push+situation_report+HeartbeatEvaluator）；FTS5 跨会话（`conversation_search`）；云 sleep/wake（CP `sleep_sandbox`）；子代理（SubagentDashboard）；国产模型 Provider GUI；**`/learn` GUI 工作流**（Settings 学习向导 + 五场景 chip + 草稿审阅 + `[use skill]` 引导 + server SSOT — **2026-07：35 FE vitest + server learn pytest**）。
+  - **已交付（2026-07-31）**：Vision Fallback epic **#1+#2+ABC ✅** — 全 ExecutionSurface + Settings 视觉链路自检 + 一键推荐 + 聊天 gap CTA；**40 项定向测试通过**（19 harness + 5 health + 6 config_parsers + 10 FE vitest）。Hermes sessions 导入 → memory **#3** 仍待办。
 - **WORTH:NO（系列提及但不立项）**：Python RPC 子代理模式（sandbox code-as-action ≥）；Nous Portal 五合一 API；RL 批量轨迹研究管线（非 GUI 主用户）。
 - **材料 SSOT**：`temp-docs/materials/COMPETITIVE_HERMES_ADVANTAGE.md` §30 · `temp-docs/roadmap/hermes_openclaw_series_summary_cross_reference_roadmap.md`
+
+## 最新验证快照（2026-07-31 · Vision Fallback GUI 闭环）
+
+- **辅助视觉容量（vs Hermes auxiliary_client / OpenClaw media runner）**：`./myrm test` **19+5+6 通过** + `bun run test` visionCapability/visionConfigGap **10 通过** = **40 tests, 0 failures**（约 40s，最小定向集）。
+- **已验证**：有序 provider failover（402/限流/过载；AUTH/MODEL_NOT_FOUND 不切换）· 全 ExecutionSurface 共用 `resolve_vision_fallback_chain_for_agent` · Settings **测试视觉链路** + `resolved_model` · **使用此模型** 推荐卡片 · 聊天 attach toast **前往设置** → `/settings/models?sub=default`。
+- **诚实边界**：不做 Hermes 式零配置 Provider 自动扫描（by design — 账单/合规）；无 per-agent visionFallback 槽位（独立 epic）；无 SSE 逐步 failover 可见性（永久拒绝）。
 
 ## 最新验证快照（2026-07-30 · Wiki Evidence Closure v2 #4+#5）
 
@@ -145,7 +175,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **输出净化** | ✅ 双层防护（流式+投递前），覆盖全角管道符和 DeepSeek token | ⚠️ 单层，仅 ASCII 管道符（近期修复） | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **MCP 工具参数智能修复** | ✅ required+nullable 缺失自动补 null + mixed-union 对象/数组解析（含类型守卫）+ schema 规范化保障 Prompt Cache 稳定 | ⚠️ 部分/旧式 coercion 路径 | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **智能路由与模型自动升级** | ✅ 六层体系: ComplexityRouter 三档路由（40+ 中英关键词 + 20 种异常正则 + 多维信号评分）+ LLM 裁判(256条TTL缓存) + 会话动量(长度加权衰减) + 隐私感知路由 + PenaltyTracker误路由反馈学习(24h衰减) + ESCALATION_CONTRACT (模型自主升级合约) + EscalationScrubber + 11模块降级链 + 10模块Token经济学(成本溯源+工具归因+延迟统计+多维预算) + 17+维度路由透明度（tier badge+成本+缓存+隐私+工具归因+路由分析面板）+ 6级推理强度GUI控件(off/low/medium/high/xhigh/max+自定义值+per-model持久化+reasoning模型自动检测) + **25+ 内置提供商**（OpenRouter、Moonshot/Kimi 双端点、DeepSeek、Xiaomi MiMo 等 — 粘贴 API Key 即用）+ **session/daily/per-call 三维预算守卫** — 3,926 项测试 | ⚠️ 仅 Sonnet→Opus 单维度 | ❌ | ⚠️ 手动三档 | ❌ | ⚠️ 未知 | ❌ |
-| **后台任务托盘** | ✅ GUI-first 闭环 v1（2026-07）：统一 `bash_process_tool`（list/output/kill）Turn1 eager（Prefix Cache 稳定，不 mutate bind_tools）→ 自然结束写入 i18n 聊天 + **单次** SSE toast + 自动刷新；Navbar **Activity Panel** — 分区 **耗时任务 / Long-running tasks**（failed/running 列表 + 一键 Cancel `data-testid`）+ Tauri 托盘 running 数；kill/cancel/流取消静默 — **9 条集成 + 120+ 项自动化测试全绿** + **Chrome MCP E2E R23 Dev Gate**（2026-07-21：Panel READ **9/9** 连跑 3 轮 + LIVE spawn **3/3** 连跑 3 轮，mux 分 lane） | ⚠️ 仅运行+取消 | ❌ | ❌ | ⚠️ Background Agent（无转向） | ⚠️ 未知 | ❌ |
+| **后台任务托盘** | ✅ GUI-first 闭环 v1（2026-07）+ **R04B 媒体后台韧性（2026-07-31）**：shell Turn1 eager → i18n 聊天 + SSE toast；Navbar **Activity Panel** — **耗时任务** + **媒体生成**（进行中进度/Cancel）+ 可折叠 **近期** terminal 媒体（成功/失败+错误摘要）+ 任务 SSE 单路复用 + Web/Tauri 通知 + 托盘 badge；**27 vitest + 2 integration + Chrome MCP smoke** + R23 shell Panel E2E **9/9** | ⚠️ 仅运行+取消 | ❌ | ❌ | ⚠️ Background Agent（无 Panel 近期媒体 E2E） | ⚠️ 未知 | ❌ |
 | **错误恢复** | ✅ 8层纵深防护(LoopGuard 7种模式+ToolStuck→GraphInterrupt+FrequencyGuard+E-Stop+4层熔断器+僵尸自动回收+Gateway超时+内存压力熔断) + **工具调用四层自主修正**(7+种JSON修复策略适配弱/本地模型+错误→ToolMessage自动回传LLM自修正+LoopGuard防死循环+CorrectionLearning审批修正持久化记忆) + 14类自愈 + 9层纵深降级 — 3,276项测试 | try/catch | 基础 | 基础 | ⚠️ 上下文溢出恢复 | ⚠️ 未知 | ❌ |
 | **企业可靠性** | ✅ xdist 锁、EventBus 截断、OTEL 安全、路径边界 + TOCTOU 审批测试；聊天 SSE 状态机回归；**521 份分形 `_ARCH` 模块文档 + 296 项架构 CI 门禁**；**Eval 引擎：4 类 12+ 种断言体系（Tool+State+Sandbox+Semantic LLM 裁判，支持自定义 judge_prompt/model/threshold）+ 多轮评测（MultiTurnEvalCase）+ 一键 chat→eval 捕获（GUI Flywheel 闭环）+ AdaptiveEvalManager 智能算力让步 + GUI 集成 + 多数据集 CRUD + A/B 历史报告 + SSE 流式进度 + 6 项 IR 指标（Recall/Precision/NDCG/MRR/HitRate/Latency）+ ModelTier 自动调优 + 评测工作空间物理防污染隔离 + 记忆检索质量评测子系统 + EvalManifest 10 维环境快照（模型/工具/提示词指纹/数据集哈希/推理深度——自动嵌入每份报告确保 A/B 对比公平，竞品无此能力）+ **Benchmark Headless Profile**（一键 GUI 开关：空 System Prompt + 仅 CORE 工具 + 禁用 MCP/技能/子 Agent/记忆/搜索/Replan/上下文压缩 — Terminal-Bench/SWE-bench 标准化公平评测；Eval Lab 仪表盘内 A/B 对比）— 142 项 eval 测试验证，唯一具备完整评测 GUI+AI 裁判+并发执行+一键捕获闭环+环境可复现快照+标准化 Benchmark 模式的 Agent 框架**（2026-07-25） | ⚠️ 仅快乐路径测试 | ⚠️ 易竞态（ClawEval: CLI 59 角色基准测试，无 GUI） | ⚠️ 未知 | ⚠️ 未知 | ⚠️ 未知 | ❌ |
 | **模块文档地图** | ✅ **521** 份 `_ARCH.md` + CI 防漂移（`check_fractal_docs`） | ❌ 仅集中式 docs | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -324,6 +354,22 @@ Agent 对话可能涉及敏感个人信息。竞品（如 ClawVault）仅在对�
 
 **结论：Myrm 用确定性软件工程模式取代「提示并祈祷」式多 Agent。流水线每次可靠、安全、在预算内执行。1,680 项编排测试通过，0 失败（2026 年 7 月）。**
 
+:::tip vs JiuwenSwarm — 从 workflow.py 到自然语言编排
+JiuwenSwarm 的 Plan/Performance/Swarm 三模式 + Swarmflow 仍常依赖预写 `workflow.py` 静态 DAG，主形态为 CLI/TUI（`:5173` Web 为辅）。Myrm 用 **Leader 自然语言 + 8 模式确定性引擎**（含 Swarm Fission / DAG / Council）替代脚本编排，并支持 **运行时 steer/cancel**、**批量/委员会成本预检** 与 **AgentWorkMap GUI**（Local/Tauri/云三部署）。Jiuwen 用户的 Skill Hub / 团队演进 → Myrm **TemplateMarket + 8 源 Skill Market + 4D 进化 GUI**（338+1008 项测试）。**迁移阻断：0**（2026-07-31 README 22 点封板）。
+:::
+
+:::tip vs「万能 Agent」叙事 — Dan Shipper Context Rot
+Dan Shipper（Every CEO）指出：**context rot** 使「一个 Agent 包揽一切」必然质量衰减；专业化分工与层级结构在 AI 时代依然必要。Myrm 产品哲学一致：**单 Agent 默认**（简单任务零噪音）+ **按需专家团**（TemplateMarket + 8 模式编排）+ **fork 隔离上下文**（11 步 pipeline 抗 rot）。你仍是编辑/经理/制片人 — Goal/Kanban/IFM 做最终决策。**0 新增 Roadmap**（2026-07-31 思想文封板）。
+:::
+
+:::tip vs 豆包搜索 — Agent-Ready 结构化命中 + 多引擎 Failover
+豆包搜索（火山引擎）面向 Agent 返回 **权威分级、发布时间、问题导向摘要、Markdown 节选**——不只给 URL。Myrm 已接入 **Volcengine Provider MVP**（Settings 可选 · NeedSummary 长摘要），并 **显著更强**：**11 引擎 Priority Chain**（额度耗尽自动 hop）+ **RSG 充分性验证** + **Completion Guard 时效门控** + **全模型 grounding 规则** + **Domain 多样性排序**。豆包用户迁移待补齐 6 项（字段 Schema / 显式控参 / Onboarding / 交叉验证 / Sources Drawer / skip fetch）——见 Roadmap v5。**无需 OpenClaw CLI 安装 Skill**。
+:::
+
+:::tip vs Hermes「强 10 倍」— Memory·Skill·Cron 复利闭环
+One 用法文核心：**Memory 记事实 · Skill 记做法 · Cron 定时 · Self-verify 防垃圾自动化**。Myrm **全面 ≥**：结构化 Memory（非 flat MEMORY.md）· Settings `/learn` 向导 · Cron **acceptance_criteria + VerificationGatekeeper** · SkillCurator+Pin · `/journey` GrowthDashboard · Wiki **≥** Obsidian。**MSC Gate Closure（2026-07-31）**：Settings「复利闭环」四行 checklist · Cron **6 字段创建审计**（pause→confirm→resume 真门禁 · 运行历史验收标准编辑 · `/settings/cron?job=` 深链）· Chat 审计卡片。**Hermes 迁移阻断：0 项**。**无需 VPS+CLI** — 云沙箱+IM 三端。
+:::
+
 :::tip vs AWS Codex Agent Team — 代码级编排
 AWS 的 sample-codex-agent-team 通过 6 个纯 Prompt 的 `SKILL.md` 模板（头脑风暴→规格→协调→评审→文档→项目管理）指导多 Agent 协作——完全依赖 LLM 自律。Myrm 用代码级原语替代每一步：`run_council` 多专家交叉审查、`execute_dag_plan` 确定性 DAG、`run_with_verification` 对抗验证自动重试、31 组件看板 GUI 实时项目管理。LLM 无法绕过任何一环。
 
@@ -418,7 +464,8 @@ Hermes `web_extract` 看似「零配置」因用 LLM 摘要而非本地 embeddin
 
 | From | After migrating to Myrm |
 |------|-------------------------|
-| Hermes | Drop Firecrawl dependency; local 3-tier fetch; GUI search engine config |
+| Hermes | Drop Firecrawl dependency; local 3-tier fetch; GUI search engine config; **no wigolo MCP needed** — built-in search/fetch/research/corpus |
+| Hermes + wigolo MCP | **Uninstall npx wigolo** — same session search+work in WebUI; corpus=web for free re-query; Cron for page watch |
 | OpenClaw | No manual Tavily/baidu Skill; 7-engine fallback; BM25/Reranker filtering |
 | Claude Code | Self-hosted + 100+ models; auditable filter pipeline; PTC-native web tools |
 
@@ -1158,7 +1205,7 @@ Coze 将项目锁在生态内；Lobster 擅长公开静态链但非从 Agent 工
 
 **测试覆盖（2026-07-29）**：**109** 项 hosting pytest（**104** 项模块测试 + **5** 项新 artifact_publish 测试含 **3** 项条件加载集成场景），覆盖多 target CRUD、webhook 全链、SSRF、redeploy upsert、WebSocket 状态、凭证边界及 Agent tool factory；真实 DB/vault/preflight/orchestrator，仅在外部 provider HTTP egress 边界 mock。
 
-**不止部署——完整的产物编辑生命周期**：Myrm 的 Artifact Portal 不只是查看器。代码产物在 **Monaco Editor**（VS Code 内核）中直接编辑。**SelectionToolbar** 支持选中代码后一键 修改 / 解释 / 优化 / 加注释——精准 AI 编辑无需离开预览面板。你的编辑会静默跟踪并自动注入到下条消息，Agent 从你修改后的版本继续工作。React 产物通过 **Sandpack** 实时渲染并热重载。版本 Diff 对比、SHA-256 完整性校验和快照回滚完善了整个生命周期。竞品如 WorkBuddy 依赖外部文档集成（如腾讯文档）而非自建编辑系统。
+**不止部署——完整的产物编辑生命周期**：Myrm 的 Artifact Portal 不只是查看器。代码产物在 **Monaco Editor**（VS Code 内核）中直接编辑。**SelectionToolbar** 支持选中代码后一键 修改 / 解释 / 优化 / 加注释——精准 AI 编辑无需离开预览面板。你的编辑会静默跟踪并自动注入到下条消息，Agent 从你修改后的版本继续工作。React 产物通过 **Sandpack** 实时渲染并热重载。**版本 Diff View（独家）**——点击 Diff 按钮即可通过 VS Code 级 Monaco DiffEditor 精准查看 AI 改了什么，支持 Inline/Side-by-side 一键切换、移动端自动 Inline、版本标签（V2→V3）、生成过程中实时 Diff。SHA-256 完整性校验和快照回滚完善了整个生命周期。竞品如 WorkBuddy 依赖外部文档集成（如腾讯文档）而非自建编辑系统。
 
 **诚实限制**：尚无分享撤销/分享码 UI；长期公开站点应用 Deploy + 自有域名；纯 `code` 产物须先导出为 `html`（预检 + UI 门控一致）。
 

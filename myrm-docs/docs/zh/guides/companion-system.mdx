@@ -28,11 +28,20 @@ description: 游戏化 AI 伴侣：15 物种、情感感知、社区精灵图画
   <Card title="动态精灵图兼容" icon="puzzle-piece">
     `resolveAnimRow` 引擎使用别名映射系统，自动适配 Codex 9 行、Legacy 8 行及任意行数精灵图。社区素材"即装即用"。
   </Card>
+  <Card title="抗疲劳 UX" icon="shield-heart">
+    常规错误映射为安静的"审查"动画而非惊恐的失败表情。审批请求触发友好的挥手而非加载圈。
+  </Card>
   <Card title="跨设备配置同步" icon="cloud">
     伴侣配置（含精灵图选择）通过 `/companion/config` API 服务端持久化，多设备切换不丢失个性化选择。
   </Card>
-  <Card title="抗疲劳 UX" icon="shield-heart">
-    常规错误映射为安静的"审查"动画而非惊恐的失败表情。审批请求触发友好的挥手而非加载圈。
+  <Card title="会话 /pet 命令" icon="terminal">
+    在聊天输入 `/pet` 即可打开 Pet Palette。提交拦截在本地处理，**零 LLM 消耗**，无需 Agent 回合。
+  </Card>
+  <Card title="已安装宠物管理" icon="trash">
+    画廊上方 chip 行展示已安装宠物。通过菜单移除并确认；若移除当前激活精灵，会自动清空选择并同步服务端配置。
+  </Card>
+  <Card title="离线 fail-open" icon="wifi-slash">
+    petdex.dev 图鉴不可用时，已安装宠物仍可切换使用，无需等待 manifest 恢复。
   </Card>
 </CardGroup>
 
@@ -41,8 +50,10 @@ description: 游戏化 AI 伴侣：15 物种、情感感知、社区精灵图画
 1. 进入 **设置 > 伴侣** 启用系统
 2. 从 15 种物种和 9 种帽子中选择
 3. 切换到 **画廊** 标签页浏览 petdex.dev 社区精灵图 — 搜索、预览、一键安装
-4. 选中的精灵图配置通过服务端 API 自动跨设备同步
-5. 伴侣自动关联当前活跃 Agent 的外观
+4. 在 chip 行管理已安装宠物 — 切换激活精灵或通过菜单移除
+5. 聊天输入 `/pet` 随时打开 Pet Palette，零 LLM 消耗
+6. 选中的精灵图配置通过服务端 API 自动跨设备同步
+7. 伴侣自动关联当前活跃 Agent 的外观
 
 ## 工作原理
 
@@ -63,10 +74,11 @@ description: 游戏化 AI 伴侣：15 物种、情感感知、社区精灵图画
 
 ## 质量验证
 
-伴侣系统通过 **229 项单元测试**，覆盖 9 个测试文件：
+伴侣全模块 **229 项单元测试**（9 个测试文件）。**Petdex 安装/列表/切换/移除生命周期**（R02）另含 **137 项 vitest** + **2 项 server pytest**（DELETE 同步清 config）：
 
 - PetStateMachine：**100%** 行覆盖率
 - CompanionSprite：**91.83%** 行覆盖率
 - tauriPetBridge：**100%** 行覆盖率
 - companionGenerator：**99.13%** 行覆盖率
 - petStateMapping：Codex/Legacy/边界 **18 项测试全通过**
+- 宠物卸载 API：DELETE 移除当前激活精灵时同步清空 `companion_config.sprite`

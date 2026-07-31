@@ -370,9 +370,9 @@ Zero new storage is required — the journal aggregates data from 6 existing sou
 In a multi-agent sandbox, skills are perfectly isolated yet securely shareable.
 
 - **Scope Isolation**: Skills natively belong to the agent that learned them. They don't pollute a global pool like in OpenClaw or Hermes.
-- **Cross-Agent Mounting**: Users can mount a skill from Agent A to Agent B with a single click in the GUI, complete with a visual origin badge.
-- **Copy-on-Write (CoW) Forking**: If Agent B evolves a skill mounted from Agent A, Myrm automatically forks a localized variant for Agent B. Agent A's original skill remains untouched and pristine.
-- **1-Click Rollback**: Undo an evolution on a CoW fork, and the system intelligently restores the cross-agent mount mapping, retaining complete semantic history.
+- **Per-Agent Instance Binding**: Create multiple named instances of the same skill (e.g. work vs personal GitHub tokens) in Settings, then pick the instance per Agent in Chat or Settings — saved as `skill_configs.instance_name` with server-side validation.
+- **Copy-on-Write (CoW) on Evolution**: When evolution rewrites a shared skill lineage, Myrm forks a localized variant so other agents stay untouched (evolution layer still tracks `mounted_skill_ids` for CoW; the mount UI was removed from the product).
+- **Stale Binding UX**: If an instance is deleted, the Agent editor shows an amber warning with one-click clear.
 - **Robust Garbage Collection**: Deleting an agent cascade-deletes its exclusive skills (both database records and physical `rmtree` wipe with path boundary protection), leaving zero orphan data or "ghost" skills.
 
 ### Zero-Overhead Global Registry

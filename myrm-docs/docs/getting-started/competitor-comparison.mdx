@@ -15,6 +15,30 @@ For memory specifically, Myrm now ships a full **diagnostic + telemetry integrit
 
 For per-turn capability control, Myrm supports **one-turn Skill/MCP override chips** with full observability (submit/apply/noop/queue/busy/final outcome + failure reasons). Focused validation (2026-07-29): frontend 29/29 passed, server 10/10 passed; targeted coverage reached 62.47% lines on core frontend files and 72% total on server telemetry modules. This gives teams migration-safe proof for cost/reliability tuning, not guesswork.
 
+## Latest Validation Snapshot (2026-07-31 · Assessment Import Pipeline · Project Milestones)
+
+- **Assessment Artifact Smart Import (vs OpenClaw / Hermes Agent / Deer Flow / LobsterAI / CoPaw / JiuwenClaw)**: backend artifact API **7/7** + milestone API **15/15** + assessment service **6/6** + statistics API **4/4** = **32 pytest, 0 failures**; frontend import candidates **7/7** + metrics **5/5** + error mapping **9/9** = **21 vitest, 0 failures**. Total **53 tests, 0 failures** (< 30s, 5 batches, **no Chrome MCP**).
+- **Verified**: `GET /files/artifacts?project_id=` project-scoped candidate filtering + semantic candidate probe (reuses `parse_assessment_markdown`); `POST /projects/{id}/milestones/import-assessment` idempotent ledger + failure rollback + structured `import_reason`; `POST /statistics/assessment-import/events` funnel metrics (attempt/success/fail/dropped) + `GET summary` aggregation; frontend `ProjectMilestonePanel` candidate list (importable-first ordering) + one-click import + manual ID fallback + structured error i18n mapping (6 reasons) + telemetry buffer with drop recovery.
+- **User-visible competitive advantage**: All 6 competitor repos lack "assessment artifact → project milestone/task" import pipeline; no semantic candidate probe (verify importability before display); no idempotent ledger (duplicate import rejection); no failure auto-rollback; no structured error feedback; no funnel observability. Myrm exclusively delivers the full "assessment output → candidate probe → one-click import → idempotent guarantee → failure rollback → structured feedback → funnel observability" closed loop.
+- **Honest boundaries**: Candidate ordering currently splits by "importable yes/no" + recency; no content-relevance semantic ranking yet (next optimization); `dropped_report` uses global context (project-level troubleshooting needs future bucket); frontend summary max 90 days vs backend 365 days (low-frequency scenario, acceptable).
+- **Material SSOT:** `temp-docs/materials/PROJECT_MILESTONE_ROADMAP_ADVANTAGE.md` · `app/api/files/artifact_api.py` · `app/api/statistics/assessment_import.py` · `ProjectMilestonePanel.tsx` · `assessmentImportMetrics.ts`
+
+## Latest Validation Snapshot (2026-07-31 · MCP Elicitation HITL Bridge · Roadmap #6)
+
+- **MCP Elicitation → GUI HITL bridge (vs Hermes / OpenClaw / deer-flow / LobsterAI / CoPaw / jiuwenclaw):** harness `TestBuildElicitationCallback` **13/13** + server `test_mcp_elicitation_handler` **16/16** = **29 tests, 0 failures** (~4s, 2 batches, **no Chrome MCP**).
+- **Verified:** Harness `MCPSessionActor._build_elicitation_callback` bridges MCP SDK `ElicitRequest` to business-layer handler with 5-path safety (accept→accept, decline→decline, timeout→cancel, exception→decline, unexpected→decline); URL-mode elicitation explicitly declined; server `build_mcp_elicitation_handler` creates `ApprovalRecord` via `ApprovalRegistry` + `asyncio.Event` suspension + SSE push to frontend; `_normalize_decision` maps 8 decision variants to 3 MCP actions (accept/decline/cancel); frontend `PolymorphicApprovalCard` renders `mcp_elicitation` with amber alert header + server name + `ExpiryCountdown`.
+- **User-visible win vs competitors:** Myrm provides **GUI approval card with countdown + persistent audit trail** — Hermes uses CLI `readline` blocking (no timeout, no audit, no GUI); OpenClaw's elicitation bridge is Codex-plugin-specific (auto-fill heuristics, not general-purpose user confirmation); deer-flow / LobsterAI / CoPaw / jiuwenclaw have **no** elicitation support.
+- **Honest scope note:** `ElicitResult.content` (form data collection) not implemented — no competitor supports general-purpose user form input; `edited_payload` infrastructure supports future integration if needed. URL-mode elicitation declined (browser redirect not applicable in server-hosted architecture).
+- **Material SSOT:** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `toolkits/mcp/session_actor.py` · `services/agent/backends/mcp_elicitation_handler.py` · `PolymorphicApprovalCard.tsx`
+
+## Latest Validation Snapshot (2026-07-30 · Wiki Maintain Cron + SCHEMA + Compile Index + Query Log · Roadmap #31–#33+R1+W36)
+
+- **Wiki maintain cron + compile index seed + SCHEMA + query log orientation (vs Hermes llm-wiki / OpenClaw / deer-flow / LobsterAI / CoPaw / jiuwenclaw):** maintain server **6/6** + schema writer **5/5** + compile index R1 **2/2** + `test_query` **29/29** + second_brain/cron router **4/4** = **46 pytest, 0 failures** (~45s, harness + server lanes, **no Chrome MCP**).
+- **Verified:** Cron blueprint **`wiki_maintain`** (`structural` fast lint vs `full` drift/backlink) via router `__wiki_maintain__:{mode}` → `maintain_runner` SSOT; Settings maintain mode Select + compile-busy 409 skip; Second Brain preset adds **weekend 03:00 `mode: full`** (triple cron with read-it-later + morning delta); compile `_extract_concepts_from_doc` injects **`read_index_context()`**; auto **`wiki/SCHEMA.md`** + preset vault seed; zero-LLM query prefix adds **`Recent activity log`** from `log.md` (≤1.5k) alongside hot context.
+- **User-visible win vs competitors:** Hermes llm-wiki relies on **manual SKILL lint/orientation + manual log scanning** — no GUI cron maintain, no compile index seed, no auto SCHEMA contract file. Six reference claw repos lack Settings maintain mode + scheduled vault hygiene + query log orientation parity.
+- **Honest scope note:** latest hot event may appear in both hot and log sections (accepted low-cost tradeoff); Hermes-style full tag taxonomy in SCHEMA remains **WORTH:NO** for GUI-first users (R3/W37 rejected).
+- **Material SSOT:** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `services/wiki/maintain_runner.py` · `pipeline/cognitive_map/schema_writer.py` · `retrieval/query.py`
+
 ## Latest Validation Snapshot (2026-07-30 · Chat Wiki Knowledge Quick Lane · Roadmap #30)
 
 - **Chat Wiki knowledge quick lane (vs Hermes llm-wiki / OpenClaw memory-wiki / deer-flow / LobsterAI / CoPaw / jiuwenclaw):** intent **+** knowledge_query_service **+** wiki_knowledge_lane **+** API query = **16 pytest, 0 failures** (~6s, server lane, **Chrome MCP E2E pending sign-off**).
@@ -36,10 +60,16 @@ For per-turn capability control, Myrm supports **one-turn Skill/MCP override chi
 - **Series takeaway** (vendor blog finale, no comments): OpenClaw = stable tool · Hermes = growing partner. Myrm = **GUI-first growing partner** plus OpenClaw-grade Channel/Skill/Tool skeleton, same on Local / Tauri / Cloud CP.
 - **What migrators actually get (honest)**:
   - **Myrm ≫**: GUI Migration Wizard (5 sources, dry-run/confirm/rollback) vs `hermes claw migrate` CLI; 4-step onboarding vs terminal-only; 8-type memory + Wiki vs Hermes 2,200-char MEMORY.md; HITL write approval vs Hermes direct writes.
-  - **Myrm ≥**: Cron + proactive nudges (Cron GUI + push + situation_report + HeartbeatEvaluator); FTS5 cross-session search (`conversation_search`); cloud sleep/wake (CP `sleep_sandbox`); subagents (SubagentDashboard); domestic models via Provider GUI.
-  - **In progress (not hidden)**: Vision Fallback **WebUI already ≥** · **Feishu/channel/cron paths missing vision_fallback injection** → roadmap `hermes_auxiliary_vision_*` (2 P1 items); `/learn` workflow → `hermes_learn_skill_*` (2 P0 items); Hermes sessions import → memory #3 extension.
+  - **Myrm ≥**: Cron + proactive nudges (Cron GUI + push + situation_report + HeartbeatEvaluator); FTS5 cross-session search (`conversation_search`); cloud sleep/wake (CP `sleep_sandbox`); subagents (SubagentDashboard); domestic models via Provider GUI; **`/learn` GUI workflow** (Settings Learn wizard + 5 scenario chips + draft review + `[use skill]` invoke guide + server SSOT rewrite — **Jul 2026: 35 FE vitest + server learn pytest**).
+  - **Delivered (2026-07-31)**: Vision Fallback epic **#1+#2+ABC ✅** — all ExecutionSurfaces + Settings chain health check + one-click recommend + chat gap CTA; **40 directed tests passed** (19 harness + 5 health + 6 config_parsers + 10 FE vitest). Hermes sessions import → memory **#3** still pending.
 - **WORTH:NO from series**: Python RPC subagent pattern (sandbox code-as-action ≥); Nous Portal bundled API; RL batch-trajectory research pipeline (not GUI-primary).
 - **Material SSOT**: `temp-docs/materials/COMPETITIVE_HERMES_ADVANTAGE.md` §30 · `temp-docs/roadmap/hermes_openclaw_series_summary_cross_reference_roadmap.md`
+
+## Latest Validation Snapshot (2026-07-31 · Vision Fallback GUI closure)
+
+- **Vision auxiliary capacity (vs Hermes auxiliary_client / OpenClaw media runner):** `./myrm test` **19+5+6 passed** + `bun run test` visionCapability/visionConfigGap **10 passed** = **40 tests, 0 failures** (~40s total, minimal directed set).
+- **Verified:** Ordered provider failover (402/rate-limit/overload; AUTH/MODEL_NOT_FOUND no switch) · all ExecutionSurfaces share `resolve_vision_fallback_chain_for_agent` · Settings **Test vision chain** + `resolved_model` · **Use this model** recommend card · chat attach toast **Go to Settings** → `/settings/models?sub=default`.
+- **Honest scope:** No Hermes-style zero-config Provider auto-scan (by design — billing/compliance); no per-agent visionFallback slot (separate epic); no SSE step-by-step failover visibility (permanent reject).
 
 ## Latest Validation Snapshot (2026-07-30 · Wiki Evidence Closure v2 #4+#5)
 
@@ -145,7 +175,7 @@ For per-turn capability control, Myrm supports **one-turn Skill/MCP override chi
 | **Output Sanitization** | ✅ Dual-layer (streaming + pre-delivery) with full-width pipe and DeepSeek token coverage | ⚠️ Single-layer, ASCII pipes only until recent fix | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **MCP Tool Param Auto-Fix** | ✅ required+nullable missing args auto-completed to null + mixed-union object/array parsing with type guards + cache-stable schema canonicalization | ⚠️ Partial/legacy coercion path | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Smart Routing & Auto-Upgrade** | ✅ 6-layer: ComplexityRouter 3-Tier (40+ keywords + 20 exception regex + multi-signal scoring) + LLM Judge (256-entry cache) + Session Momentum (length-weighted decay) + PrivacyRouter + PenaltyTracker (24h decay feedback learning) + ESCALATION_CONTRACT (model self-upgrade) + EscalationScrubber + 11-module Fallback chain + 10-module Token Economics (cost provenance + tool attribution + latency stats + multi-dim budget) + 17+ dimension routing transparency (tier badge + cost + cache + privacy + tool attribution + analytics panel) + 6-level Thinking Intensity GUI (off/low/medium/high/xhigh/max + custom values + per-model persistence + reasoning auto-detection) + **25+ built-in providers** (OpenRouter, Moonshot/Kimi dual-endpoint, DeepSeek, Xiaomi MiMo, etc. — paste API key and go) + **session/daily/per-call 3-dim budget guard** — 3,926 tests | ⚠️ Single-dimension Sonnet→Opus | ❌ | ⚠️ Manual 3-tier | ❌ | ⚠️ Unknown | ❌ |
-| **Background Tasks** | ✅ GUI-first closure v1 (2026-07): unified `bash_process_tool` (list/output/kill) Turn1 eager (stable prefix cache, no mid-thread bind_tools mutate) → natural exit persists i18n chat + **single** SSE toast + reload; Navbar **Activity Panel** — section **Long-running tasks / 耗时任务** (list failed/running + one-click Cancel via `data-testid`) + Tauri tray running count; kill/cancel/session-cancel silent — **9 integration + 120+ automated tests green** + **Chrome MCP E2E R23 Dev Gate** (2026-07-21: Panel READ **9/9** 3× stress + LIVE spawn **3/3** 3× stress, mux lanes) | ⚠️ exec+process in-memory (OpenClaw docs); CLI poll | ❌ | ❌ | ⚠️ `/background` CLI + status bar (Hermes); no dedicated Panel e2e | ⚠️ Unknown | ❌ |
+| **Background Tasks** | ✅ GUI-first closure v1 (2026-07) + **R04B media resilience (2026-07-31)**: shell `bash_process_tool` Turn1 eager → i18n chat + SSE toast; Navbar **Activity Panel** — **Long-running tasks** + **Media generation** (active progress/Cancel) + collapsible **Recent** terminal media (succeeded/failed, error summary) + shared task SSE + Web/Tauri notify + tray badge; **27 vitest + 2 integration + Chrome MCP smoke** + R23 shell Panel E2E **9/9** | ⚠️ exec+process in-memory (OpenClaw docs); CLI poll | ❌ | ❌ | ⚠️ `/background` CLI + status bar (Hermes); no Panel recent-media E2E | ⚠️ Unknown | ❌ |
 | **Error Recovery** | ✅ 8-layer defense (LoopGuard 7 patterns + ToolStuck→GraphInterrupt + FrequencyGuard + E-Stop + 4-layer CircuitBreaker + zombie auto-reclaim + Gateway timeout + memory pressure fuse) + **4-layer tool call self-correction** (7+ JSON repair strategies for weak/local models + error→ToolMessage auto-feedback + LoopGuard anti-deadloop + CorrectionLearning persistent memory from HITL edits) + **3-layer HITL co-piloting** (frontend PolymorphicApprovalCard + EditModeView + GoalControlPlane + MobileStatusBoard / Harness 7-layer LoopGuard + CancellationToken 5-reason / Server approval middleware + 30+ IM channel approval) + 14 self-healing types + 9-layer deep degradation — 3,276 + 913 HITL tests (Jul 2026) | try/catch | Basic | Basic | ⚠️ Context overflow recovery | ⚠️ Unknown | ❌ |
 | **Enterprise Reliability** | ✅ xdist locks, EventBus truncate, OTEL safe, path-boundary + TOCTOU approval tests; chat SSE state machine regression tests; **521 fractal `_ARCH` module docs + 296 architecture CI gates**; **Eval framework: 4-type 12+ assertion engine (Tool+State+Sandbox+Semantic LLM-Judge with custom judge_prompt/model/threshold) + multi-turn eval (MultiTurnEvalCase) + one-click chat→eval capture (GUI Flywheel) + AdaptiveEvalManager (smart resource yielding) + GUI integration + multi-dataset CRUD + A/B historical reports + SSE streaming + 6 IR metrics (Recall/Precision/NDCG/MRR/HitRate/Latency) + ModelTier auto-tune + eval workspace physical anti-contamination isolation + memory retrieval quality eval subsystem + EvalManifest 10-dim environment snapshot (model/tools/prompt fingerprint/dataset hash/reasoning depth — auto-embedded in every report for fair A/B comparison, no competitor has this) + **Benchmark Headless Profile** (one-click GUI toggle: auto-clear system prompt, CORE-only tools, disable MCP/Skills/SubAgents/Memory/WebSearch/Replan/Compression — fair reproducible scoring for Terminal-Bench/SWE-bench style benchmarks; A/B comparison in Eval Lab dashboard) — 142 eval tests verified, the only Agent framework with full eval GUI + AI judge + concurrent execution + one-click capture flywheel + environment reproducibility snapshots + standardized benchmark mode** (2026-07-28) | ⚠️ Happy-path tested only | ⚠️ Race conditions likely (ClawEval: CLI 59-role benchmark, no GUI) | ⚠️ Unknown | ⚠️ Unknown | ⚠️ Unknown | ❌ |
 | **Module Documentation Map** | ✅ **521** `_ARCH.md` + CI anti-drift (`check_fractal_docs`) | ❌ Central docs only | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -324,6 +354,22 @@ While competitors rely on single-mode orchestration (e.g., Hermes' Kanban Swarm,
 
 **Result: Myrm replaces the "prompt and pray" multi-agent paradigm with deterministic software engineering patterns. Your multi-agent pipelines execute reliably, securely, and within budget every single time. 1,680 orchestration tests passed, 0 failures (Jul 2026).**
 
+:::tip vs JiuwenSwarm — Natural Language Over workflow.py
+JiuwenSwarm's Plan/Performance/Swarm modes and Swarmflow often rely on pre-written `workflow.py` static DAGs, with CLI/TUI as the primary experience (Web on `:5173` is secondary). Myrm replaces script orchestration with **Leader natural language + an 8-mode deterministic engine** (including Swarm Fission / DAG / Council), plus **runtime steer/cancel**, **batch/council cost preflight**, and **AgentWorkMap GUI** across Local/Tauri/cloud. Jiuwen Skill Hub / team evolution maps to **TemplateMarket + 8-source Skill Market + 4D evolution GUI** (338+1008 tests). **Migration blockers: 0** (Jul 2026 README 22-point seal).
+:::
+
+:::tip vs "Universal Agent" Narrative — Dan Shipper Context Rot
+Dan Shipper (Every CEO) argues **context rot** makes a single do-everything agent degrade in quality; specialization and hierarchy remain essential. Myrm matches this philosophy: **single-agent default** (zero orchestration noise for simple tasks) + **on-demand specialist teams** (TemplateMarket + 8-mode engine) + **fork-isolated context** (11-step pipeline against rot). You stay editor/manager/producer — Goal/Kanban/IFM for final decisions. **0 new Roadmap items** (Jul 2026 narrative seal).
+:::
+
+:::tip vs Doubao Search — Agent-Ready Structured Hits + Multi-Engine Failover
+Volcengine Doubao Search returns **authority tier, publish time, query-focused summary, and Markdown excerpts** for agents—not just URLs. Myrm ships a **Volcengine Provider MVP** (Settings-selectable · NeedSummary long summaries) and is **stronger overall**: **11-engine priority chain** (auto hop on quota exhaustion) + **RSG sufficiency guard** + **Completion Guard freshness gate** + **all-model grounding rules** + **domain diversity ranking**. Doubao migration has 6 pending items (field schema / explicit params / onboarding / cross-verify / Sources drawer / skip fetch)—see Roadmap v5. **No OpenClaw CLI skill install required**.
+:::
+
+:::tip vs Hermes "10x" — Memory·Skill·Cron Compounding Loop
+One's usage guide: **Memory for facts · Skills for procedures · Cron for schedule · Self-verify against bad automation**. Myrm is **≥ on all engines**: structured memory (not flat MEMORY.md) · Settings `/learn` wizard · Cron **acceptance_criteria + VerificationGatekeeper** · SkillCurator+Pin · `/journey` GrowthDashboard · Wiki **≥** Obsidian. **MSC Gate Closure (2026-07-31)**: Settings "Compounding Loop" four-row checklist · Cron **6-field create audit** (real pause→confirm→resume gate · run-history acceptance editor · `/settings/cron?job=` deep link) · in-chat audit card. **Hermes migration blockers: 0**. **No VPS+CLI** — cloud sandbox + IM on three deployments.
+:::
+
 :::tip vs AWS Codex Agent Team — Code-Enforced Orchestration
 AWS's sample-codex-agent-team uses 6 Prompt-only `SKILL.md` templates (brainstorm → spec → coordination → review → documentation → project management) to guide multi-agent collaboration — entirely relying on LLM compliance. Myrm replaces every step with code-enforced primitives: `run_council` for multi-expert brainstorming with cross-review, `execute_dag_plan` for deterministic task DAGs, `run_with_verification` for adversarial verification with automatic retries, and 31-component Kanban GUI for real-time project management. None of these can be bypassed by the LLM.
 
@@ -418,7 +464,8 @@ Hermes `web_extract` appears "zero-config" because it uses LLM summarization ins
 
 | From | After migrating to Myrm |
 |------|-------------------------|
-| Hermes | Drop Firecrawl dependency; local 3-tier fetch; GUI search engine config; Schema-Driven extraction saves 97% tokens |
+| Hermes | Drop Firecrawl dependency; local 3-tier fetch; GUI search engine config; **no wigolo MCP needed** — built-in search/fetch/research/corpus |
+| Hermes + wigolo MCP | **Uninstall npx wigolo** — same-session search+work in WebUI; corpus=web for free re-query; Cron for page watch |
 | OpenClaw | No manual Tavily/baidu Skill; 7-engine fallback; BM25/Reranker filtering; built-in structured data extraction |
 | Claude Code | Self-hosted + 100+ models; auditable filter pipeline; PTC-native web tools; JSON Schema → validated output |
 
@@ -649,7 +696,7 @@ Some competitors use CLI config files to bind skills to agents. Myrm's approach 
 | Layer | Mechanism | What It Does |
 |-------|-----------|-------------|
 | L1: DB Scope Isolation | `scope_agent_id` in environment JSON | Skills can be global or agent-exclusive, with all 3 query functions supporting scope filtering |
-| L2: Cross-Agent Mount + CoW | `mounted_skill_ids` + Copy-on-Write | Agent A can mount Agent B's skills; evolution auto-forks to protect originals |
+| L2: Per-Agent Instance Binding | `skill_configs.instance_name` + server validation | Each agent binds named skill instances (e.g. work vs personal); invalid bindings rejected at save time |
 | L3: Runtime Dynamic Binding | `task.extra_skill_ids` | Kanban tasks can append extra skills at runtime without changing agent config |
 
 Additional advantages:
@@ -1684,13 +1731,15 @@ If you switch from Codex, you gain:
 
 ### AI Companion & Desktop Pet Status Visualization (vs Codex)
 
-While Codex offers a basic floating pet showing ~4 states, Myrm provides a full AI companion system verified by **229 tests across 9 files**:
+While Codex offers a basic floating pet showing ~4 states, Myrm provides a full AI companion system verified by **229 tests across the full module** (plus **137 vitest + 2 pytest** for Petdex install/switch/remove lifecycle):
 
 | Capability | Codex | Myrm | User Benefit |
 |------------|-------|------|-------------|
 | **Animation States** | ~4 | **23 step_key mappings** with transient/sticky/release modes | See exactly what the Agent is doing at a glance |
 | **Agent Appearance Sync** | ❌ | **Auto-changes species + hat per agent** (5 builtin + custom emoji avatar) | One glance tells you which Agent is active |
 | **Platform Support** | App only | **Web + SaaS + Tauri Desktop** | Your companion follows you everywhere |
+| **Petdex Lifecycle GUI** | ❌ | **Gallery install + chip switch + remove + `/pet` 0-token palette** | Full pet lifecycle without CLI |
+| **Offline Installed Pets** | ❌ | **fail-open when catalog offline** | Keep using installed sprites without manifest |
 | **Tauri Native Pet** | ❌ | **Rust-native** transparent always-on-top window with drag + 5 sizes | Lightweight desktop mascot, always visible |
 | **Customization** | ❌ | Name / 15 species / 9 hats / spritesheet / 5 sizes + Codex 467+ community assets | Make the companion yours |
 | **Evolution System** | ❌ | 5 rarity tiers + XP + stat growth + shiny variants | Grow your companion over time |
@@ -1874,7 +1923,7 @@ While this semi-manual mode prevents LLM context pollution, it should **never** 
 
 - **检索证据三层可视化 (Retrieval Evidence UI)**：每条 AI 回复显示"引用了 X 条记忆"药丸标签 + 记忆预算百分比；点击展开详情面板可查看每条引用的类型、相关度分数、内容摘要、命名空间和溯源聊天跳转；用户还可直接评分反馈，评分回流到 7 维检索系统。双通道后端架构（LLM 主动 citation + 系统级 tool lifecycle 追踪）确保引用数据完整。ChatGPT 仅显示一行"✨Using memory"无详情，Hermes/Mem0 完全没有 GUI——**51 项验证测试确认**
 
-- **情感化 AI 伙伴系统 (Companion System)**：完全自建的 GUI 宠物系统（25 文件）——Hermes 代码库中不含任何 pet 代码，仅依赖外部 petdex.dev CLI 安装。Myrm 提供 PetGallery 内置画廊（2900+ 社区宠物搜索+懒加载+一键安装）、9 种情感动画状态 + 15 种 SSE 事件实时映射、Observer 智能观察（根据 AI 回复启发式分类生成个性化反应）、Goal 状态共鸣、完整 RPG 进化系统（5 稀有度+5 属性+生成式宠物+零食互动+生日纪念）、Codex/Legacy 双布局兼容引擎——**229 项验证测试确认**
+- **情感化 AI 伙伴系统 (Companion System)**：Web + Tauri 同构 GUI 宠物系统 — **Hermes 有 Desktop Petdex + CLI**（`pet-settings.tsx` / `hermes pets remove`），但 **无 Web GUI 移除与 `/pet` 0-token 会话入口**。Myrm 提供 PetGallery 内置画廊（2900+ 社区宠物搜索+懒加载+一键安装+chip 切换+GUI 移除）、会话 `/pet` 命令（零 LLM 打开 Pet Palette）、manifest 离线 fail-open、DELETE 卸载同步 `companion_config`、23 态 SSE 动画映射、完整 RPG 进化系统、Codex/Legacy 双布局兼容 — **229 项全模块测试 + 137 vitest（Petdex 生命周期）+ 2 pytest（DELETE config SSOT）**
 
 **用户迁移收益**：从竞品迁移过来，你将获得一个不会“越用越笨”、不会丢失关键细节、不会被 AI 悄悄改回你的修正、且完全保护隐私的超级大脑。
 

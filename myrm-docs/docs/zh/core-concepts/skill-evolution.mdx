@@ -318,9 +318,9 @@ Myrm 不等你发现问题 — 六种独立后台机制让 Agent 24/7 持续学�
 ## 多 Agent 技能作用域与共享
 
 - **作用域隔离**：技能归属学习它的 Agent，不污染全局池
-- **跨 Agent 挂载**：GUI 一键挂载并显示来源徽章
-- **写时复制（CoW）分叉**：B 进化 A 挂载的技能时自动为 B 分叉，A 原技能不变
-- **一键回滚**：CoW 分叉上撤销进化可恢复跨 Agent 挂载映射
+- **Per-Agent 实例绑定**：Settings 为同一 skill 创建多套命名实例（如工作/私人 GitHub Token），在 Chat 或 Settings 编辑 Agent 时为每个 skill 选择实例，写入 `skill_configs.instance_name`，服务端 save 时校验
+- **进化写时复制（CoW）**：进化改写共享 skill 谱系时自动分叉，其它 Agent 不受影响（进化层仍用 `mounted_skill_ids` 做 CoW；产品 UI 已移除跨 Agent 挂载入口）
+- **失效绑定提示**：实例被删后，Agent 编辑器显示 amber 警告并可一键清除绑定
 - **垃圾回收**：删 Agent 级联删专属技能（DB + 物理 `rmtree`，路径边界保护）
 
 ### 零开销全局注册

@@ -205,6 +205,11 @@ If you prefer a relay/forwarding service (e.g., one-api, new-api), simply set ea
 
 When your **main model does not support vision**, set a **Vision Fallback** model in Settings → Models. Myrm automatically converts attached images into text descriptions before sending them to the main model — with live progress in chat and session-level caching for duplicate images.
 
+**GUI tools (2026-07-31):**
+- **Test vision chain** — probes the full ordered provider chain and shows which model answered (or which step failed).
+- **Use this model** — when your main model is text-only, one-click recommend from enabled vision-capable providers.
+- **Chat attach warning** — if vision is missing, a toast with **Go to Settings** deep-links to the Default Models tab.
+
 See the [Vision & Image Understanding](/docs/guides/vision-interaction) guide for setup and usage.
 
 ## Multi-Model Consensus (MoA)
@@ -226,6 +231,24 @@ Multiple models generate answers in parallel, and an aggregator model synthesize
 - Aggregator output is never truncated — user-visible answers stay complete
 - Compatible with reasoning model output formats (DeepSeek-R1, etc.) with independent reasoning effort control
 - Full multi-turn conversation context preserved
+
+## Agent-Loop Advisor Overlay
+
+Enhance any Agent Profile with lightweight reference models that advise the **acting model before each tool-loop iteration** — without switching the session to Consensus mode or changing the main model binding.
+
+**How to use:** Go to **Settings > Agent > Capabilities > Agent-Loop Advisor Overlay**, enable it, and select 1–3 **fast/cheap** reference models.
+
+**Distinct from standalone Consensus:** Consensus mode replaces the reply lane with an aggregator synthesis. Overlay keeps your main model as the actor; advisors inject transient context only (Prompt Cache safe — no SystemMessage mutation).
+
+**Key parameters:**
+- **Fan-out Policy** — `Once per user turn` (default, cheapest), `Every model call`, or `Every N model calls`
+- **Advisor Privacy Filter** — `Off` / `Display only` (SSE redaction) / `Full` (SSE + prompt redaction)
+- **Reference Output Limit** — Default 600 tokens (same cost rationale as Consensus)
+
+**Smart safeguards:**
+- No reference models selected → overlay skipped (amber warning, no silent fake MoA)
+- Budget pressure / unattended runs / Consensus mode → overlay auto-skipped
+- Progressive `ConsensusThinkingPanel` shows each advisor completing in real time
 
 ## Cost Visualization
 

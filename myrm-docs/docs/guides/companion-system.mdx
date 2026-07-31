@@ -37,6 +37,15 @@ The companion system transforms your agent into a virtual companion with persona
   <Card title="Cross-Device Config Sync" icon="cloud">
     Companion preferences including selected sprite are persisted server-side via the `/companion/config` API. Switch devices or browsers without losing your personalization.
   </Card>
+  <Card title="Session /pet Command" icon="terminal">
+    Type `/pet` in chat to open the Pet Palette instantly. Submit interception handles the slash locally with **zero LLM tokens** — no agent round-trip required.
+  </Card>
+  <Card title="Installed Pet Management" icon="trash">
+    Installed pets appear as chips above the gallery. Use the chip menu to remove a pet with confirmation. Uninstalling the active sprite clears selection and syncs server config automatically.
+  </Card>
+  <Card title="Offline Fail-Open" icon="wifi-slash">
+    When the petdex.dev catalog is unavailable, already-installed pets remain usable. Switch sprites without waiting for manifest recovery.
+  </Card>
 </CardGroup>
 
 ## Configuration
@@ -44,8 +53,10 @@ The companion system transforms your agent into a virtual companion with persona
 1. Navigate to **Settings > Companion** to enable the system
 2. Select a species and hat from 15 + 9 options
 3. Switch to the **Gallery** tab to browse community SpriteSheets from petdex.dev — search, preview, and install with one click
-4. Your selected sprite and configuration are automatically synced across devices via the server API
-5. The companion automatically syncs with your active agent's avatar
+4. Manage installed pets from the chip row — switch active sprite or remove with confirmation
+5. Type `/pet` in chat anytime to open the Pet Palette without consuming LLM tokens
+6. Your selected sprite and configuration are automatically synced across devices via the server API
+7. The companion automatically syncs with your active agent's avatar
 
 ## How It Works
 
@@ -66,9 +77,10 @@ All state is managed via Zustand with localStorage persistence. Companion prefer
 
 ## Verified Quality
 
-The companion system is backed by **229 unit tests** across 9 test files, with core module coverage:
+The companion system is backed by **229 unit tests** across the full companion module (9 test files). The **Petdex install/list/switch/remove lifecycle** (R02) adds **137 focused vitest** cases plus **2 server pytest** cases for DELETE config sync:
 
 - PetStateMachine: **100%** line coverage
 - CompanionSprite: **91.83%** line coverage
 - tauriPetBridge: **100%** line coverage
 - companionGenerator: **99.13%** line coverage
+- Pet install/uninstall API: DELETE clears matching `companion_config.sprite` when removing the active pet

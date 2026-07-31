@@ -21,9 +21,15 @@ The same pipeline applies to **video**: native video-capable models receive the 
 1. Open **Settings → Models**.
 2. Pick your **Main** chat model (any provider).
 3. Set **Vision Fallback** to a vision-capable model (e.g. GPT-4o, Gemini Flash, Qwen-VL).
-4. Optional: use the capability icons in the model picker — models with the eye icon support vision natively.
+4. Click **Test vision chain** to verify the full ordered fallback chain (shows `resolved_model` and endpoint on failure).
+5. If your main model is text-only and no fallback is set, Myrm may offer **Use this model** — one click to pick the first vision-capable model from your enabled providers.
+6. Optional: use the capability icons in the model picker — models with the eye icon support vision natively.
 
 Myrm auto-detects model capabilities via LiteLLM and models.dev. You can override per model in the model card if needed.
+
+## When Vision Is Not Configured
+
+If you attach an image or video but neither your main model nor Vision Fallback can analyze it, Myrm shows a **warning toast** with **Go to Settings** — deep-linking to **Settings → Models → Default** so you can set Vision Fallback in one click. Upload is not blocked (same philosophy as web search config gap): you can still send files, but analysis requires configuration.
 
 ## What You Can Do
 

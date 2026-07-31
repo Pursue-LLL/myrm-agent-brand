@@ -13,18 +13,18 @@ MCP is an open standard that lets AI agents connect to external data sources and
 
 ## Service Catalog (One-Click Connect)
 
-The fastest way to connect popular services. Navigate to **Settings > Integrations > Service Catalog** to browse 29 prebuilt integrations across 9 categories:
+The fastest way to connect popular services. Navigate to **Settings > Integrations > Service Catalog** to browse 35 prebuilt integrations across 9 categories:
 
 | Category | Services |
 |----------|----------|
-| **API Tools** | Postman |
+| **API Tools** | Postman, QiChaCha |
 | **Browser** | Playwright, Browserbase |
-| **Communication** | Gmail, Slack, Feishu, DingTalk |
+| **Communication** | Gmail, Slack, Feishu, DingTalk, QQ Mail |
 | **Data Storage** | PostgreSQL, Local File System, Google Drive, Supabase |
-| **Design** | Figma (descriptive output for better code generation) |
+| **Design** | Figma, Unreal Engine, Blender |
 | **Dev Tools** | GitHub, GitLab, Gitee, Gitee Enterprise, Sentry, Code Review Graph, CodeGraph |
 | **Docs** | Context7, Microsoft Learn, AWS Documentation |
-| **Productivity** | Notion, Todoist, Google Calendar, Linear |
+| **Productivity** | Notion, Todoist, Google Calendar, Linear, Tencent Docs, WPS Docs |
 | **Web Search** | Firecrawl (Keyless free tier), Exa, Brave Search |
 
 Each entry includes:
@@ -167,6 +167,15 @@ Each MCP server runs on a single, persistent session that stays warm for the ent
 
 Myrm uses **MCP SDK 2.0** natively with an in-house `tool_converter` module for converting MCP tool schemas to LangChain tool instances — zero third-party adapter dependencies. This ensures full compatibility with the latest MCP protocol features while maintaining a minimal dependency footprint.
 
+### Stateless HTTP & Cloud Load Balancing
+
+For cloud-deployed MCP servers, Myrm SDK 2.0 supports **stateless HTTP** mode natively — the session ID header is only sent if the server provides one. This means:
+
+- **Round-robin load balancing** works out of the box with no session affinity required
+- **Protocol auto-negotiation** via `server/discover` probe detects server capabilities automatically
+- **Routing headers** (`Mcp-Method`, `Mcp-Name`, `MCP-Protocol-Version`) are injected on every request, enabling intelligent request routing at the gateway layer
+- **Local/desktop sessions** continue to use persistent warm connections for optimal performance (best of both worlds)
+
 ### Execution Timeout Protection
 
 Every MCP tool call is protected by a dual-layer timeout mechanism:
@@ -247,6 +256,21 @@ MCP tools follow the same approval flow as built-in tools:
 - Read-only tools execute automatically
 - Write/destructive tools require user approval (unless in YOLO mode)
 - Custom approval policies can be configured per MCP server
+
+### MCP Server Elicitation (User Confirmation)
+
+Some MCP servers may request additional information from you during tool execution. For example, a payment MCP server might ask you to confirm a refund amount before proceeding.
+
+When this happens, Myrm shows an **approval card** in the chat with:
+- The server's confirmation message
+- A 60-second countdown timer
+- **Approve** / **Reject** buttons
+
+The agent pauses until you respond. If the timer expires, the request is automatically cancelled and the agent continues with an alternative approach.
+
+:::info
+This is part of the MCP protocol's [Elicitation](https://modelcontextprotocol.io/specification/2025-06-18/server/utilities/elicitation) feature. Myrm bridges it to the same visual approval flow used for tool permissions, so you get a consistent experience across all approval types.
+:::
 
 ## Per-Tool Filtering
 
