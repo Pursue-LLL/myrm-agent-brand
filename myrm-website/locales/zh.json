@@ -406,7 +406,7 @@
         "subAgent": {
           "feature": "多 Agent 协作 · P2P 通信 · DAG 编排 · 对抗式验证",
           "hermes": "Kanban + Batch Tasks",
-          "openclaw": "展示型看板",
+          "openclaw": "展示型看板 · JiuwenSwarm：workflow.py 静态 DAG + CLI/TUI",
           "myrmAgent": "8种编排（链式/批量/DAG/竞速/验证/蜂群/多方案竞争/委员会辩论）+ 批量/委员会/多方案三种多Agent模式均有成本预检（≥$0.50自动审批卡），非浅层 LLM fan-out + 按需注入 6 个 LLM 委派工具（默认 0 tok 不占 Prompt Cache）+ 双控制面：Agent 工具 + REST Dashboard（cancel/steer/list/session pause/token+model）+ Session 级委派暂停（优于 Hermes 全局 spawn_paused）+ Fork 子代理 + Auto Vault（vault:// 协议 + SSE 前端推送）+ 级联取消 + P2P 邮箱 + 对抗验证（**代码级角色分离**：Expert→CouncilOpinion + Chair→CouncilResult 含交叉辩论——竞品仅靠 Prompt 指示角色分工，LLM 可违反；**防伪验证**：未实际执行代码声称 PASS → 自动 FAIL，系统级 `has_executed_code` 追踪）+ COW 隔离 + 10+ GUI + 12 态生命周期 + ACP/A2A + 默认无墙钟超时 + 四层安全网（max_turns/停滞检测/budget_tokens/max_cost_usd）+ 可选双层超时（非致命wait + 3x硬安全网，输入校验≤0→禁用，最小30s下限）+ 前端 isNodeOvertime 多策略卡死检测 + 事件驱动**停滞探测**（零额外开销，工具执行中 4x 容忍，Dashboard 告警 + IM 推送 + 桌面通知）+ **实时工作证明**（SUBAGENT_LOG 工具流 + FILE_DIFF 含完整 diff + SUBAGENT_PROGRESS token/成本/ETA + ARTIFACT_CONTENT——全程实时推送，非竞品事后提取）+ **Dashboard 高级可视化**（HeaderSummary 总代理/成本/模型分布 + SortFilterBar 4排序×4过滤 + AggregateBadge 子树成本/tokens/后代数 + MiniGantt CSS 时间线——GUI 原生，碾压 Hermes CLI TUI）+ 4层模型解析链 + **失败时保留部分进展**（4条失败路径全覆盖：LLM错误/预算耗尽/超时/运行时异常均返回已完成工作，父Agent可复用80%结果仅补做剩余——竞品子Agent失败后工作全部丢失） + **SCIP 2026-07：核心 preset SSOT fail-fast + L3 父工具集合并 session browser 工具（开 Browser 即可委派，无 Not in parent toolkit）+ browser/analysis YAML 对齐 canonical 工具**（API Live E2E example_domain_seen ~6.5s · 10864 项编排+安全+恢复+UI+多路复用+共识+协议+预算+可视化+Goal引擎+Webhook全链路测试通过 0 失败 · 核心模块覆盖率 90.1% · **Dashboard Chrome LIVE E2E 3/3（2026-07-20）**）+ **外部 Agent 通用委派**（delegate_to_agent_tool 支持任意 CLI/ACP/SDK Agent——Claude Code、Codex、Gemini CLI、自定义——竞品仅支持单一厂商 Codex；RuntimePool 三后端 + MCP passthrough + per-chat 会话复用 + AcpCallbackHandler 安全回调；377项委派/运行时测试验证 2026-07）"
         },
         "dynamicWorkflow": {
@@ -611,13 +611,13 @@
           "feature": "MCP 架构 · 持久连接 + Prompt 缓存稳定",
           "hermes": "会话级冷重连",
           "openclaw": "会话级冷重连，无执行超时（工具卡死永久等待），基础错误透传（无分类、无熔断、无注入防护）",
-          "myrmAgent": "MCP SDK 2.0 原生（自研 tool_converter 零第三方依赖）+ 持久热连接池（零每次调用开销）+ 事件驱动动态工具发现（list_changed 自动刷新）+ 冻结 prompt 代理（90% 缓存命中）+ 双层超时（SDK+wrapper）+ 3次自动重试 + Transport 自愈重连（bounded backoff）+ 运行时 prompt-injection 扫描（每次 freeze/refresh 扫描 tool description，MCPRuntimePostureError 阻断恶意服务器）+ OAuth 热更新（refresh_server_auth + EventBus 认证过期通知前端）+ 大响应 Vault 溢出（100K+ 响应自动持久化至 ArtifactVault，返回摘要+指针）+ 按服务器可配（tool_include/exclude 白黑名单 + host_serial + keepalive_interval + max_output_chars）+ 多层错误架构（分类+熔断+脱敏+i18n诊断）+ 本地集成 probe reasonCode 契约 + shouldBlockConnect 硬阻断 + 625 项 MCP 测试全通过（2026-07-30）"
+          "myrmAgent": "MCP SDK 2.0 原生（自研 tool_converter 零第三方依赖）+ 持久热连接池（零每次调用开销）+ 事件驱动动态工具发现（list_changed 自动刷新）+ 冻结 prompt 代理（90% 缓存命中）+ 双层超时（SDK+wrapper）+ 3次自动重试 + Transport 自愈重连（bounded backoff）+ 运行时 prompt-injection 扫描（每次 freeze/refresh 扫描 tool description，MCPRuntimePostureError 阻断恶意服务器）+ OAuth 热更新（refresh_server_auth + EventBus 认证过期通知前端）+ 大响应 Vault 溢出（100K+ 响应自动持久化至 ArtifactVault，返回摘要+指针）+ 按服务器可配（tool_include/exclude 白黑名单 + host_serial + keepalive_interval + max_output_chars）+ 多层错误架构（分类+熔断+脱敏+i18n诊断）+ 本地集成 probe reasonCode 契约 + shouldBlockConnect 硬阻断 + 625 项 MCP 测试全通过（2026-07-31）"
         },
         "unifiedToolGateway": {
           "feature": "统一工具网关",
           "hermes": "硬切换 (易报错)",
           "openclaw": "无",
-          "myrmAgent": "四合一网关 + 双技能路径：discover_capability（已绑定库） vs skill_discovery（外部市场安装）+ MCP 渐进加载 + **三层信任衰减**（信任基线→26类113种威胁安全扫描→allowed_tools限制）+ 7种运行时权限（文件读/写/删、Shell、代码解释器、网络、环境变量）+ per-Agent per-MCP per-Tool 三级粒度控制 + HMAC-SHA256 Marketplace 包签名 + 自动蓬忘策略（active→stale→archived）+ 弹性 BYOK · 534+ 技能安全测试 · Chrome LIVE 市场 E2E 全绿"
+          "myrmAgent": "四合一网关 + 双技能路径：discover_capability（已绑定库） vs skill_discovery（外部市场安装）+ MCP 渐进加载 + **Per-Agent 技能实例绑定**（工作/私人等多套凭据 — Chat 与 Settings 下拉选择，服务端拒绝无效实例）+ **三层信任衰减**（信任基线→26类113种威胁安全扫描→allowed_tools限制）+ 7种运行时权限（文件读/写/删、Shell、代码解释器、网络、环境变量）+ per-Agent per-MCP per-Tool 三级粒度控制 + HMAC-SHA256 Marketplace 包签名 + 自动蓬忘策略（active→stale→archived）+ 弹性 BYOK · 534+ 技能安全测试 · Chrome LIVE 市场 E2E 全绿"
         },
         "externalAgentAcp": {
           "feature": "外部 Agent 集成 · 一个平台调度 Claude Code / Codex / Gemini",
@@ -638,10 +638,10 @@
           "myrmAgent": "零引擎选择——仅开启 Browser 工具，Stealth Ladder 自动 Patchright → Camoufox · 双引擎隐身浏览器（Patchright + Camoufox）+ 跨会话指纹持久化 · 三级拟人化交互（高斯延迟 + 贝塞尔鼠标轨迹，自动匹配防护等级）· 扩展复用你已登录的 Chrome · **直接用日常 Chrome，保留登录态**——无需第二个浏览器窗口或空配置 · 隐私优先：不读取浏览器历史或书签——已登录站点通过 Extension Bridge + 加密 Session Vault 实现 · 侧边栏沉浸式对话：AI 伴随浏览（自动附带页面上下文、选中文本转发、工具审批内嵌）· 零配置自动发现本地浏览器（5 浏览器 × 3 平台）· 过 Cloudflare · 域名记忆自动学习哪些站需隐匿 · 站点经验库：自动记忆每个域名的陷阱、模式与成功流程——重复访问提速 30-50% · AES-256-GCM 加密会话保险箱（登录一次长期有效）· **OAuth 弹窗自动捕获**——Google/GitHub/微软等第三方登录弹窗自动捕获、焦点切换、关闭后自动回到原页面（竞品均不支持）· 后台无感执行（不抢焦点）· 混合路由：云端 Agent 通过扩展访问你的内网服务 · 4 大云浏览器 GUI 配置 + 热更新免重启 · **全自治会话生命周期**——三层 CrashWatchdog（实时断连检测 + 页面崩溃 + 定期健康巡检），崩溃自动恢复且登录态不丢失，弹性伸缩，MemoryGuard 防 OOM——零手动会话管理（竞品需 CLI 手动 session list/close）· 三层自适应路由（70%页面免启浏览器）· **智能工具分工：只读页面优先 web_fetch，点击/表单走 browser**（Dynamic Hints，不耦合 System Prompt）· 四层网络防御全通道封锁追踪器 · 3500 广告域名拦截 · **Settings + 按 Agent 的 URL 黑名单 GUI——三层联网前 DENY；Live 聊天可见拦截原因（E2E 已验收）** · **Browser Doctor GUI**（Settings 一键诊断启动/池/扩展桥）· 结构化页面理解 + 语义/视觉 diff + 浏览器事件遥测基线（**127 项定向测试 + 真实 Chrome MCP snapshot/evaluate 验证**）· 三层可视化监控：每步截图 + Inspector 点选元素发指令 → 桌面 VNC 实时流 → 遇阻一键接管 · **Extension HITL：日常 Chrome 聊天内 ExtensionTakeoverBanner（完成/跳过），无需 VNC；托管沙箱保留 VNC 路径** · Chrome MCP E2E 已验收（READ ×3 + LIVE ×1，2026-07）· 5D 自愈定位器 · 视觉验证确认操作成功 · 域级断路器 + 智能代理恢复 · CAPTCHA 自动识别与解决，必要时人工兜底 · **高风险操作先审批再执行**——看清预览后 Agent 继续 · **可委派专业浏览 Agent** 处理专注的网页任务"
         },
         "webFetch": {
-          "feature": "网页抓取 · 正文、全站、视频字幕一次到位",
-          "hermes": "LLM摘要费Token",
+          "feature": "网页抓取 · 正文、批量抓取、语料复用、视频字幕",
+          "hermes": "LLM摘要费Token · 常外挂 wigolo MCP",
           "openclaw": "单层HTTP",
-          "myrmAgent": "HTTP→浏览器→隐身三层自动降级（用户无感）· 自学习路由 · 反爬绕过主流 WAF · 可选 L4 远程兜底（Jina/Firecrawl v2 **Keyless 免费层**——无需 Key 即用，1000次/月免费 + 自定义 api_base 自托管，**默认关闭**+会话次数上限，本地优先）· 全站爬取+充分性校验 · YouTube 字幕 · 3500+ 广告拦截 · **智能分工：只读内容优先 web_fetch，少开浏览器**（Dynamic Hints + Loop Guard，不耦合 System Prompt）· 44+ 项 WFEL 测试验证"
+          "myrmAgent": "HTTP→浏览器→隐身三层自动降级（用户无感）· 自学习路由 · 反爬绕过主流 WAF · 可选 L4 远程兜底（Jina/Firecrawl v2 **Keyless 免费层**——无需 Key 即用，1000次/月免费 + 自定义 api_base 自托管，**默认关闭**+会话次数上限，本地优先）· **语料库复用+批量抓取**（查过的页 corpus=web 免费再查）· YouTube 字幕 · 3500+ 广告拦截 · **智能分工：只读内容优先 web_fetch，少开浏览器**（Dynamic Hints + Loop Guard，不耦合 System Prompt）· 44+ 项 WFEL 测试验证 · **无需 Hermes 式 wigolo MCP 外挂**"
         },
         "desktopApp": {
           "feature": "桌面客户端 · 25+项原生OS能力",
@@ -797,7 +797,7 @@
           "feature": "联网搜索 · 搜得准、答有据",
           "hermes": "API 直通原文",
           "openclaw": "DDG 网页抓取",
-          "myrmAgent": "8 搜索引擎 + 中文全网搜索（百度/搜狗/360/夸克自托管零成本）+ 7类意图零LLM路由 · 不确定即搜索（全模型防幻觉） · 双层智能去重（同URL保留最丰富内容+镜像站哈希去重）· 同源衰减排序（自动打散相同域名，确保来源多样）· Autocut 智能截断 · 充分性验证再回答 · 4 类来源可追溯"
+          "myrmAgent": "11 引擎 + Volcengine 豆包 Provider MVP（Settings GUI · 非 CLI Skill）+ Priority Chain 额度 hop + 7类意图路由 · 全模型 grounding · RSG 充分性 · Domain 多样性 · 双层去重 · 中文全网自托管 — 整体强于豆包单引擎；agent-ready 权威/控参/Sources 见 Roadmap 6 项"
         },
         "steerToken": {
           "feature": "中途纠偏 · 无需等待即刻纠正",
@@ -887,7 +887,7 @@
           "feature": "结果交付 · 富媒体产物与一键部署",
           "hermes": "纯文本",
           "openclaw": "纯文本",
-          "myrmAgent": "原生 Artifacts 系统（14种类型）· React/HTML/PDF/电子表格 高保真预览 · **Word/PPT 同屏高保真预览**（docx-preview 客户端渲染 .docx + pptx-renderer 渲染 .pptx，无需安装 Office，旧格式安全降级为下载；实测可直接查看文档正文与幻灯片翻页）· 交互式 DataGrid 查看 CSV/XLSX（虚拟滚动万行数据、排序、搜索、导出）· HMAC 安全分享短链 · 多平台发布（Vercel、Cloudflare Pages、Netlify、Webhook）Settings 配置、零 Git、零 LLM Token · 企业工件库（5 语言 + 版本审计时间线 + SHA256 防篡改）· Portal 三模式布局（浮层/并排/全屏一键切换，宽屏自动并排，偏好持久化）+ 多标签页管理 + 版本历史回滚 + **版本 Diff 对比**（Monaco DiffEditor 行内/并排对比任意版本差异 — 业界独家，竞品无此能力） · 键盘快捷键 + 移动端手势 + 选中文本操作栏 · Wiki 知识库归档 · 交付可运行的工程级产物 · **Office 文档技能**（Excel/PPT/Word 原生生成，6字标题 + 公式优先 + 视觉规范）· **沙箱预装 PDF 工具链**（pdfkit+reportlab+pdfplumber+pdf2image，Agent 零安装生成专业 PDF）· **8个报告Skill全场景覆盖**（简报/深研/竞品/数据/学术/Office/多主题/数据管道）· **零点击成果交付**：Agent生成文件→ArtifactRegistry自动注册→SSE事件触发→Portal自动弹出预览（竞品仅调用OS Open打开文件）· **4647项报告+Artifact全栈测试通过**"
+          "myrmAgent": "原生 Artifacts 系统（14种类型）· React/HTML/PDF/电子表格 高保真预览 · **Word/PPT 同屏高保真预览**（docx-preview 客户端渲染 .docx + pptx-renderer 渲染 .pptx，无需安装 Office，旧格式安全降级为下载；实测可直接查看文档正文与幻灯片翻页）· 交互式 DataGrid 查看 CSV/XLSX（虚拟滚动万行数据、排序、搜索、导出）· HMAC 安全分享短链 · 多平台发布（Vercel、Cloudflare Pages、Netlify、Webhook）Settings 配置、零 Git、零 LLM Token · 企业工件库（5 语言 + 版本审计时间线 + SHA256 防篡改）· Portal 三模式布局（浮层/并排/全屏一键切换，宽屏自动并排，偏好持久化）+ 多标签页管理 + 版本历史回滚 + **版本 Diff 对比**（Monaco DiffEditor 行内/并排对比任意版本差异 — 业界独家，竞品无此能力） · 键盘快捷键 + 移动端手势 + 选中文本操作栏 · Wiki 知识库归档 · 交付可运行的工程级产物 · **Office 文档技能**（Excel/PPT/Word 原生生成，6字标题 + 公式优先 + 视觉规范）· **沙箱预装 PDF 工具链**（pdfkit+reportlab+pdfplumber+pdf2image，Agent 零安装生成专业 PDF）· **8个报告Skill全场景覆盖**（简报/深研/竞品/数据/学术/Office/多主题/数据管道）· **零点击成果交付**：Agent生成文件→ArtifactRegistry自动注册→SSE事件触发→Portal自动弹出预览（竞品仅调用OS Open打开文件）· **4647项报告+Artifact全栈测试通过** · **vs 千问办公(Article15)**：看板/选品/拉片/播客/早报 **能力≥** · 发布访问密码→Roadmap #3 · 不追随 SaaS DB 报名托管"
         },
         "workflowIntegration": {
           "feature": "工作流集成 · 外部 SaaS 原生挂载",
@@ -1325,7 +1325,7 @@
         "multiAgent": {
           "label": "多 Agent",
           "title": "默认简洁，按需释放团队力量",
-          "desc": "默认以单 Agent 快速响应，零编排开销。一键 toggle 即可解锁 8 种编排模式、看板自治认领与实时拓扑看板。代码级 DAG/Council/Verification 编排取代脆弱的纯 Prompt 工作流——1,680 项测试，0 失败。",
+          "desc": "默认以单 Agent 快速响应，零编排开销。一键 toggle 即可解锁 8 种编排模式、看板自治认领与实时拓扑看板。代码级 DAG/Council/Verification 编排取代脆弱的纯 Prompt 工作流——1,680 项测试，0 失败。JiuwenSwarm 用户：无需 workflow.py，手机也能管全队。**Dan Shipper context rot 论点**：长任务用 fork 专家团，而非一个窗口硬扛。",
           "stat": "8",
           "statLabel": "种编排模式",
           "tag1": "单 Agent 默认 · 零噪音",
