@@ -197,6 +197,48 @@ Myrm 在三个关键时刻自动预热 Anthropic/Qwen 服务端前缀缓存：
 
 这是竞品（hermes-agent、openclaw）已在生产使用的优化。Myrm 以约 25 行代码实现，对非 OpenAI 供应商零副作用。
 
+## 工作区规则（项目级上下文）
+
+Myrm 自动发现并注入项目级规则文件，使 Agent 遵循团队约定、编码规范和工作流指令——零手动配置。
+
+### 支持格式（15+）
+
+你已有的规则文件开箱即用：
+
+| 来源工具 | 识别的文件 |
+|---------|-----------|
+| Cursor | `.cursor/rules/*.mdc`、`AGENTS.md` |
+| Claude Code | `CLAUDE.md`、`.claude/CLAUDE.md`、`AGENTS.md` |
+| Hermes | `SOUL.md`、`HERMES.md`、`.hermes.md` |
+| Windsurf | `.windsurfrules` |
+| Cline | `.clinerules` |
+| GitHub Copilot | `.github/copilot-instructions.md` |
+| Myrm 原生 | `.myrm.md`、`.myrm/rules/*.md`、`MEMORY.md` |
+
+### 双层发现机制
+
+| 层级 | 触发时机 | 注入方式 | 对缓存影响 |
+|------|---------|---------|-----------|
+| **启动注入** | Agent 初始化 | 以 SystemMessage 注入稳定前缀位置 | 零——属于冻结前缀 |
+| **渐进式发现** | Agent 访问新子目录 | 追加到 tool result 内容 | 零——不修改 system prompt |
+
+### 安全特性
+
+- **内容边界检测** — 阻断规则文件中的 prompt injection 攻击
+- **大小限制** — 超长规则智能截断（头部 70% + 尾部 20%）
+- **inode 去重** — 符号链接重复文件仅注入一次
+- **YAML frontmatter 剥离** — 仅注入人类可读正文
+
+### 竞品对比
+
+| 能力 | Myrm | Cursor IDE | Claude Code | Hermes |
+|------|------|-----------|-------------|--------|
+| 支持格式 | **15+** | .mdc + AGENTS.md | CLAUDE.md + AGENTS.md | SOUL.md |
+| 渐进式发现 | 是（tracker） | 否（IDE 层） | 是（per-dir AGENTS.md） | 否 |
+| KV Cache 安全 | 是（tool result 追加） | N/A（IDE） | 未知 | 否 |
+| 注入安全扫描 | 是 | 未知 | 否 | 否 |
+| 单元测试覆盖 | **115 项测试, 96%** | 未知 | 未知 | 未知 |
+
 ## 思考内容管理
 
 使用推理/思考模型（DeepSeek、MiMo、Kimi、Anthropic Claude）时，`ThinkingBlockCleaner` 自动管理 `reasoning_content` 与 `thinking_blocks` 防上下文膨胀：

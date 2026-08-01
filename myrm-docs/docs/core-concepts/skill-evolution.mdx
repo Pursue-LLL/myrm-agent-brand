@@ -14,10 +14,11 @@ The evolution engine follows a **Retrieve-Before-Generate** strategy: before cre
 1. **Discovery** — Agent identifies a recurring task pattern or detects a failure signal
 2. **Evidence Aggregation** — Collects success and failure cases across multiple executions
 3. **Variant Generation** — Creates 3 candidate variants in parallel (cost-efficient vs competitors' 50-500 LLM calls)
-4. **Scoring** — LLM-as-Judge evaluation with four dimensions (Function / Quality / Safety / Compatibility)
-5. **Improvement Gate** — The original skill competes as a baseline candidate; only variants that genuinely outperform it survive
-6. **Approval** — GUI-based human approval workflow with diff preview
-7. **Deployment** — A/B tested with automatic rollback on regression
+4. **Regression Gate** — Auto-generated EvalCase tests run against each variant before LLM scoring; variants with regressions receive score penalties (non-blocking design prevents false rejections)
+5. **Scoring** — LLM-as-Judge evaluation with four dimensions (Function / Quality / Safety / Compatibility)
+6. **Improvement Gate** — The original skill competes as a baseline candidate; only variants that genuinely outperform it survive
+7. **Approval** — GUI-based human approval workflow with diff preview
+8. **Deployment** — A/B tested with automatic rollback on regression
 
 ## Directed Skill Learning: `/learn`
 

@@ -120,6 +120,20 @@ Precision 用语义重排（阈值 **0.6**）— 低相关块丢弃。
 
 这些字段在去重、同源衰减排序、多查询合并后依然完整保留——由 `combine_search_results_unified` metadata 保留管线保障。竞品（Hermes、OpenClaw、DeerFlow）均丢弃搜索引擎返回的结构化 metadata 或拼接为纯文本字符串。
 
+### 引用悬浮卡片（Citation Hover UI）
+
+在对话中，Agent 回答文本中的引用标记（如 `【1】`）可以 hover/点击查看来源详情。悬浮卡片展示：
+
+| 信息 | 效果 |
+|------|------|
+| **站名** | 显示 "GitHub"、"Wikipedia" 而非裸 URL |
+| **权威标签** | 彩色 badge（如"官方"、"媒体"）帮助快速判断来源可信度 |
+| **相对时效** | "3 天前"、"2 周前" 等国际化时间，一眼看出信息新鲜度 |
+
+触屏设备（iPad/手机）点击即可查看，不依赖 hover。支持 5 种语言（中/英/日/韩/德）。
+
+竞品 DeerFlow 仅显示 URL + 摘要片段，无权威标签和时效信息；其余 6 竞品无 citation hover UI。
+
 ### Agent 显式检索参数
 
 Agent 可通过 `web_search` 的两个参数显式控制搜索行为：
