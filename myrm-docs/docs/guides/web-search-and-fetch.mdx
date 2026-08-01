@@ -108,6 +108,43 @@ Multi-query results are automatically reordered to prevent any single domain fro
 
 This ensures the Agent sees diverse sources rather than multiple pages from one website. No configuration needed — enabled by default in `combine_search_results_unified`.
 
+### Structured Hit Fields
+
+Search results from providers that expose rich metadata (e.g. Volcengine Doubao) carry **structured fields** through the entire pipeline:
+
+| Field | Example | Benefit |
+|-------|---------|---------|
+| `site_name` | "GitHub", "Wikipedia", "StackOverflow" | LLM sees source identity, not just a URL |
+| `authority_description` | "官方", "媒体", "个人" | Authority signal for answer prioritization |
+| `date` | "2026-07-30" | Recency-aware reasoning; outdated sources deprioritized |
+
+These fields survive deduplication, domain-diversity sort, and multi-query fusion — guaranteed by the `combine_search_results_unified` metadata-preservation pipeline. Competitors (Hermes, OpenClaw, DeerFlow) discard provider metadata or flatten it into snippet strings.
+
+### Agent Explicit Search Parameters
+
+The Agent can explicitly control search behavior through two parameters on `web_search`:
+
+| Parameter | Values | Effect |
+|-----------|--------|--------|
+| `time_range` | `day`, `week`, `month`, `year`, or `YYYY-MM-DD..YYYY-MM-DD` | Restricts results to the specified time window |
+| `source_authority` | `any` (default), `high` | Filters for authoritative sources (official sites, mainstream media) |
+
+**Three-layer parameter priority fusion:**
+
+1. **Agent explicit** (highest) — parameters the Agent passes directly
+2. **Intent auto-detection** — zero-cost keyword-based inference (News → 1 day, Finance → 1 week)
+3. **Config defaults** (lowest) — provider-level `extra_params`
+
+**Parameter normalization** (`_normalize_explicit_params`) translates semantic parameters into provider-specific formats:
+
+| Semantic | Volcengine | SearxNG | Tavily |
+|----------|-----------|---------|--------|
+| `time_range="week"` | `TimeRange="OneWeek"` | `time_range="week"` | `days=7` |
+| `source_authority="high"` | `AuthInfoLevel=1` | (ignored) | (ignored) |
+| `time_range="2026-01-01..2026-07-30"` | Direct passthrough | Graceful fallback | Graceful fallback |
+
+**Strategy D (Parameter Escalation):** When the Retrieval Sufficiency Guard reports insufficient results, the Agent autonomously retries with adjusted parameters (e.g., narrower time range, authority filter) — no RSG code changes needed.
+
 ### Visual references (no dedicated image search tool)
 
 When reference images are needed, the agent uses **web_search → web_fetch / browser** to obtain image URLs from pages, then **image_tool** for generation — same pattern as OpenClaw / Hermes; no separate DuckDuckGo image-search dependency.

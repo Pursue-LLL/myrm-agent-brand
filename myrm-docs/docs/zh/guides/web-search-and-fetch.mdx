@@ -108,6 +108,43 @@ Precision 用语义重排（阈值 **0.6**）— 低相关块丢弃。
 
 确保 Agent 看到多样化的信息来源，而非同一网站的多个页面。无需配置，`combine_search_results_unified` 中默认启用。
 
+### 结构化搜索命中字段
+
+支持丰富 metadata 的搜索引擎（如火山引擎豆包搜索）返回的结构化字段，会在整个处理管线中完整保留：
+
+| 字段 | 示例 | 用途 |
+|------|------|------|
+| `site_name` | "GitHub"、"Wikipedia"、"StackOverflow" | LLM 直接看到来源站名，不仅仅是 URL |
+| `authority_description` | "官方"、"媒体"、"个人" | 权威性信号，辅助优先级排序 |
+| `date` | "2026-07-30" | 时效感知推理，过时来源可被降级 |
+
+这些字段在去重、同源衰减排序、多查询合并后依然完整保留——由 `combine_search_results_unified` metadata 保留管线保障。竞品（Hermes、OpenClaw、DeerFlow）均丢弃搜索引擎返回的结构化 metadata 或拼接为纯文本字符串。
+
+### Agent 显式检索参数
+
+Agent 可通过 `web_search` 的两个参数显式控制搜索行为：
+
+| 参数 | 取值 | 效果 |
+|------|------|------|
+| `time_range` | `day`、`week`、`month`、`year`、或 `YYYY-MM-DD..YYYY-MM-DD` | 将结果限制在指定时间窗口 |
+| `source_authority` | `any`（默认）、`high` | 过滤高权威来源（官方站点、主流媒体） |
+
+**三层参数优先级融合：**
+
+1. **Agent 显式**（最高）— Agent 直接传递的参数
+2. **意图自动检测** — 零 LLM 成本关键词推断（新闻 → 1 天、金融 → 1 周）
+3. **配置默认值**（最低）— Provider 级 `extra_params`
+
+**参数归一化**（`_normalize_explicit_params`）将语义参数转换为引擎特定格式：
+
+| 语义 | 火山引擎 | SearxNG | Tavily |
+|------|---------|---------|--------|
+| `time_range="week"` | `TimeRange="OneWeek"` | `time_range="week"` | `days=7` |
+| `source_authority="high"` | `AuthInfoLevel=1` | 忽略 | 忽略 |
+| `time_range="2026-01-01..2026-07-30"` | 直接传递 | 优雅降级 | 优雅降级 |
+
+**策略 D（参数递进）：** 当充分性守卫（RSG）报告结果不足时，Agent 自主决策重试并调整参数（如缩窄时间范围、开启权威过滤），无需修改 RSG 内部逻辑。
+
 ### 视觉参考（无独立 image search 工具）
 
 需要找参考图时，Agent 使用 **web_search → web_fetch / browser** 从页面获取图片 URL，再配合 **image_tool** 生图。与 OpenClaw / Hermes 等通用助手一致，不维护单独的 DuckDuckGo 搜图依赖。
