@@ -13,11 +13,11 @@ description: 游戏化 AI 伴侣：15 物种、情感感知、社区精灵图画
   <Card title="15 物种 + 9 帽子" icon="paw">
     15 种伴侣物种和 9 种帽子，各有独特 SVG 图标与稀有度光效。支持 Agent 外观自动关联（开发者🤖🔥、研究员🦉🎓、写手🦊🌸等）。
   </Card>
-  <Card title="23 态动画引擎" icon="wand-magic-sparkles">
-    精灵覆盖层由状态机驱动，映射 23 种 step_key。三种动画模式：transient（短暂反应）、sticky（持续状态）、release（回归空闲）。心跳超时自动恢复防卡死。
+  <Card title="Hermes 7 态 Petdex 引擎" icon="wand-magic-sparkles">
+    精灵层采用 **7 态 Petdex 语义**（idle/run/review/jump/wave/failed/**waiting**）。审批/澄清/桌面与浏览器接管等 HITL 阻塞时显示 **waiting**，不再误挥手。SSE 工作流事件配合 transient/sticky/release 与心跳防卡死。
   </Card>
   <Card title="桌面端原生桌宠" icon="desktop">
-    Tauri 桌面端：透明 always-on-top 浮窗 + 拖拽 + 5 种尺寸 + 位置记忆 + 右键菜单。WebUI/SaaS：内嵌组件。
+    Tauri 桌面端：默认在主窗口内嵌精灵；右键 **「弹出到桌面」** 或 **Shift+点击** 可打开透明置顶外置窗（PSUA），主窗最小化后仍可见状态。外置窗支持拖拽、状态气泡、单击 mini-composer 发消息、双击切换主窗、Shift 收回、透明区域点击穿透、离屏完成 mail 提醒。WebUI/SaaS：页内可拖拽覆盖层（无 OS 外置窗）。
   </Card>
   <Card title="成长与进化" icon="arrow-up">
     5 级稀有度（Common→Legendary）+ 属性进化 + XP 经验值 + 每日零食互动 + 生日检测。
@@ -60,25 +60,23 @@ description: 游戏化 AI 伴侣：15 物种、情感感知、社区精灵图画
 伴侣系统在两个视觉层面运作：
 
 - **SVG 层**（默认）：轻量图标渲染，嵌入聊天输入区附近。自动反映活跃 Agent 的物种和帽子。
-- **精灵层**（可选）：Canvas 2D 动画引擎，支持 Codex 8×9 标准精灵图（1536×1872px）。`resolveAnimRow` 引擎自动检测行数并通过别名映射确保所有社区精灵图正确播放。桌面端渲染为原生透明窗口，WebUI 渲染为可拖拽覆盖层。
+- **精灵层**（可选）：Canvas 2D 动画引擎，支持 Codex 8×9 标准精灵图（1536×1872px）。Tauri 桌面端默认主窗嵌入，可 **Pop Out** 至 OS 外置窗（主窗 SSOT + 傀儡窗 event 同步）；WebUI 为页内可拖拽覆盖层。`resolvePetSheetRow()` 自动检测 Codex（9 行）/ Legacy（8 行）布局，映射 **Hermes 对齐的 7 态**。状态气泡 **仅在外置桌面窗** 显示。
 
-状态机从 Agent 的 SSE 流接收事件并映射到动画：
+精灵状态机 = **SSE 工作流事件** + **GUI 阻塞信号**：
 
-- `workflow_planning` → 思考（sticky）
-- `workflow_execution` → 运行（sticky）
-- `approval_waiting` → 挥手（sticky）
-- `consensus_reference_done` → 庆祝（transient）
-- `model_failover` → 失败（transient）
+- **工作流 SSE**（`stepKeyToPetEvent`）：规划→review、执行→run、失败→failed、里程碑→jump/review（transient）
+- **HITL 阻塞**（`deriveBlockedOnUser` 聚合审批/澄清/桌面/浏览器 store）：**waiting** — 需你操作时优先于 run/wave；Codex 第 6 行（Legacy 回退 idle）
+- **流式活跃**：busy→review；回合结束→wave（未被阻塞时）
 
 所有状态通过 Zustand + localStorage 管理。伴侣配置通过 `/companion/config` API 同步到服务端。
 
 ## 质量验证
 
-伴侣全模块 **229 项单元测试**（9 个测试文件）。**Petdex 安装/列表/切换/移除生命周期**（R02）另含 **137 项 vitest** + **2 项 server pytest**（DELETE 同步清 config）：
+伴侣全模块 **202 项单元测试**（2026-07-31 实测：**188** 组件 + **14** 服务 vitest）。**Petdex 安装/卸载** 含 **2 项 server pytest**（DELETE 同步清 config）；**R05** 精灵语义另含 **73 项** vitest（状态机、blocked 聚合、dispatch 清理）：
 
 - PetStateMachine：**100%** 行覆盖率
 - CompanionSprite：**91.83%** 行覆盖率
-- tauriPetBridge：**100%** 行覆盖率
+- petSurfaceBridge：**100%** 行覆盖率
 - companionGenerator：**99.13%** 行覆盖率
 - petStateMapping：Codex/Legacy/边界 **18 项测试全通过**
 - 宠物卸载 API：DELETE 移除当前激活精灵时同步清空 `companion_config.sprite`

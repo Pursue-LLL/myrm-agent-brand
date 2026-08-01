@@ -16,23 +16,23 @@ The companion system transforms your agent into a virtual companion with persona
   <Card title="Agent Appearance Sync" icon="shuffle">
     Companion automatically changes species and hat when you switch agents — robot for Developer, owl for Researcher, fox for Writer. Custom agents with emoji avatars are mapped automatically.
   </Card>
-  <Card title="23-State Animation Engine" icon="wand-magic-sparkles">
-    Sprite overlay driven by a state machine with 23 step_key mappings. Three animation modes: transient (brief reactions), sticky (persistent states), and release (return to idle). Heartbeat timeout auto-recovery prevents stuck animations.
+  <Card title="Hermes 7-State Petdex Engine" icon="wand-magic-sparkles">
+    Sprite overlay uses **seven Petdex-aligned states** (idle/run/review/jump/wave/failed/**waiting**). HITL blocked signals (approval, clarify, desktop/browser takeover) drive **waiting** — not false waving. SSE workflow events use transient/sticky/release modes with heartbeat auto-recovery.
   </Card>
   <Card title="Desktop Pet Overlay" icon="desktop">
-    On Tauri Desktop, the companion floats as a transparent always-on-top window with drag support, 5 size presets, position memory, and right-click context menu. On WebUI/SaaS, it renders as an inline widget.
+    On Tauri Desktop, the sprite renders **embedded in the main window** by default. Use **Pop Out to Desktop** (context menu) or **Shift+click** to open a transparent always-on-top puppet window (`/pet-overlay`) that stays visible while the app is minimized. The popped-out pet supports drag, status speech bubbles, a mini composer (single-click), double-click to toggle the main window, Shift+click to pop back in, alpha click-through, and a mail icon when a turn completes while you are away. On WebUI/SaaS, the sprite renders as an in-page draggable overlay (no OS pop-out).
   </Card>
   <Card title="Growth & Evolution" icon="arrow-up">
     5-tier rarity system (Common → Legendary) with stat evolution, XP progression, daily snack interactions, and birthday detection.
   </Card>
-  <Card title="Anti-Fatigue UX" icon="shield-heart">
-    Routine errors are mapped to silent "review" animations instead of distressing failure faces. Approval requests trigger a friendly waving animation, not a loading spinner.
+  <Card title="HITL Waiting UX" icon="shield-heart">
+    When the agent needs your approval or clarification, the desktop pet shows the **waiting** animation (Hermes-aligned). Routine errors use brief review/failed transients — not stuck distress loops.
   </Card>
   <Card title="Community Petdex Gallery" icon="store">
     Browse and install hundreds of community-created SpriteSheets from petdex.dev via a built-in gallery with Canvas thumbnails, lazy loading, search, and 1-click install. No manual URL entry required.
   </Card>
   <Card title="Dynamic Sprite Compatibility" icon="puzzle-piece">
-    The `resolveAnimRow` engine uses alias-based mapping to automatically adapt Codex 9-row, Legacy 8-row, and custom spritesheet formats. Any community sprite "just works" without manual configuration.
+    The `resolvePetSheetRow()` engine uses alias-based mapping to automatically adapt Codex 9-row, Legacy 8-row, and custom spritesheet formats. Any community sprite "just works" without manual configuration.
   </Card>
   <Card title="Cross-Device Config Sync" icon="cloud">
     Companion preferences including selected sprite are persisted server-side via the `/companion/config` API. Switch devices or browsers without losing your personalization.
@@ -63,24 +63,22 @@ The companion system transforms your agent into a virtual companion with persona
 The companion system operates on two visual layers:
 
 - **SVG Layer** (default): Lightweight icon-based rendering embedded near the chat input. Automatically reflects the active agent's identity through species and hat changes.
-- **Sprite Layer** (optional): Full Canvas 2D animation engine supporting Codex 8×9 standard SpriteSheets (1536×1872px). On Desktop, renders in a native transparent window; on WebUI, renders as a draggable overlay. The `resolveAnimRow` engine automatically detects Codex (9-row) vs Legacy (8-row) layouts and maps animation states via aliases, ensuring all community sprites display correctly.
+- **Sprite Layer** (optional): Full Canvas 2D animation engine supporting Codex 8×9 standard SpriteSheets (1536×1872px). On Desktop Tauri, renders embedded in the main window or in a popped-out transparent OS window (PSUA — main window owns state, puppet mirrors via events). On WebUI, renders as a draggable in-page overlay. `resolvePetSheetRow()` automatically detects Codex (9-row) vs Legacy (8-row) layouts and maps **seven Petdex states** (Hermes-aligned): idle, run, review, jump, wave, failed, and **waiting**. Status speech bubbles appear **only on the popped-out desktop window**.
 
-The state machine receives events from the agent's SSE stream and maps them to animations:
+The sprite state machine combines SSE workflow events with GUI blocked-on-user signals:
 
-- `workflow_planning` → Thinking (sticky)
-- `workflow_execution` → Running (sticky)
-- `approval_waiting` → Waving (sticky)
-- `consensus_reference_done` → Celebrating (transient)
-- `model_failover` → Failed (transient)
+- **Workflow SSE** (via `stepKeyToPetEvent`): planning → review (sticky), execution → run (sticky), failures → failed (transient), milestones → jump/review (transient)
+- **HITL blocked** (via `deriveBlockedOnUser` from approval/clarify/desktop/browser stores): **waiting** — overrides run/wave while you must act; maps to Codex row 6 (legacy sheets fall back to idle)
+- **Stream liveness**: busy → review; turn end → wave (unless blocked)
 
 All state is managed via Zustand with localStorage persistence. Companion preferences sync to the server via the `/companion/config` API.
 
 ## Verified Quality
 
-The companion system is backed by **229 unit tests** across the full companion module (9 test files). The **Petdex install/list/switch/remove lifecycle** (R02) adds **137 focused vitest** cases plus **2 server pytest** cases for DELETE config sync:
+The companion system is backed by **202 unit tests** across the companion module (2026-07-31 verified: **188** component + **14** service vitest). The **Petdex install/list/switch/remove lifecycle** adds **2 server pytest** cases for DELETE config sync; **R05** sprite semantics add **73** focused vitest (state machine, blocked aggregation, dispatch cleanup):
 
 - PetStateMachine: **100%** line coverage
 - CompanionSprite: **91.83%** line coverage
-- tauriPetBridge: **100%** line coverage
+- petSurfaceBridge: **100%** line coverage
 - companionGenerator: **99.13%** line coverage
 - Pet install/uninstall API: DELETE clears matching `companion_config.sprite` when removing the active pet

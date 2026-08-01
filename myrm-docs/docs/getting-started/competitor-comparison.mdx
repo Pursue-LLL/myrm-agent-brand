@@ -1243,7 +1243,7 @@ Myrm is a **GUI-first** application. The problems Claude Office Visualizer solve
 | Task Management | 12 PixiJS read-only whiteboard modes | **KanbanBoardView** — interactive drag/drop/filter/edit | Actionable, not just viewable |
 | Notifications | Screen flash (attentionStore) | **NotificationBell** — 4 severity levels + unread count + persistence + **OS popup on stream completion/clarification when tab hidden** (auto-suppress when visible, toast fallback on permission denied, 5 languages) + **Web Push VAPID** offline notifications (browser closed → still receive approval/goal/health alerts via Push Service; iOS PWA guided install; auto-cleanup expired subscriptions) | Structured alerts, not screen flashing; works even when browser is closed |
 | Onboarding | TourOverlay 7-step walkthrough | **4-step dynamic wizard** + auto-detect Ollama/LM Studio + **HardwareCookbook** (fit_score + MoE-aware ~tok/s speed + smart Best Fit recommendation + streaming download) + SearXNG 1-click Docker + 11-source competitor migration (199 dedicated tests, all passed) | Zero-config start: detect → activate → work |
-| Companion | Fixed pixel character | **15 species + 9 hats + Agent appearance sync + 23-state animation + evolution** | Full RPG companion with Agent identity |
+| Companion | Fixed pixel character | **15 species + 9 hats + Agent sync + Hermes 7-state Petdex + HITL waiting + evolution** | Full RPG companion with correct “your turn” animation |
 | Deployment | Docker front+back separate deployment | **Built into the app** — zero extra infrastructure | Zero additional setup |
 | Mobile | ❌ Desktop-only (PixiJS) | ✅ PWA + 35+ messaging channels | Monitor from anywhere |
 | Bundle Cost | +~200KB (PixiJS engine) | **0KB** extra (SVG vector rendering) | No performance penalty |
@@ -1731,22 +1731,22 @@ If you switch from Codex, you gain:
 
 ### AI Companion & Desktop Pet Status Visualization (vs Codex)
 
-While Codex offers a basic floating pet showing ~4 states, Myrm provides a full AI companion system verified by **229 tests across the full module** (plus **137 vitest + 2 pytest** for Petdex install/switch/remove lifecycle):
+While Codex offers a basic floating pet showing ~4 states, Myrm provides a full AI companion system with **65 sprite vitest cases** (7 files, incl. R06 PSUA bridge/bubble/away-completion; **run locally with bun to verify**) plus **2 companion pytest passed** (install/serve; Aug 2026 agent run):
 
 | Capability | Codex | Myrm | User Benefit |
 |------------|-------|------|-------------|
-| **Animation States** | ~4 | **23 step_key mappings** with transient/sticky/release modes | See exactly what the Agent is doing at a glance |
+| **Petdex Animation States** | ~4 | **7 Hermes-aligned states** (idle/run/review/jump/wave/failed/**waiting**) | See exactly what the Agent is doing — **waiting when you must approve or clarify** |
 | **Agent Appearance Sync** | ❌ | **Auto-changes species + hat per agent** (5 builtin + custom emoji avatar) | One glance tells you which Agent is active |
 | **Platform Support** | App only | **Web + SaaS + Tauri Desktop** | Your companion follows you everywhere |
 | **Petdex Lifecycle GUI** | ❌ | **Gallery install + chip switch + remove + `/pet` 0-token palette** | Full pet lifecycle without CLI |
+| **HITL waiting semantics** | ❌ | **5 GUI blocked sources → waiting row** (not false waving) | Glance at the pet — know it's your turn |
 | **Offline Installed Pets** | ❌ | **fail-open when catalog offline** | Keep using installed sprites without manifest |
-| **Tauri Native Pet** | ❌ | **Rust-native** transparent always-on-top window with drag + 5 sizes | Lightweight desktop mascot, always visible |
+| **Tauri pop-out overlay (PSUA)** | ❌ | **Transparent always-on-top puppet window** — status bubble, mini-composer, mail unread, alpha click-through; main window owns state | Keep working while minimized — glance or send a line without surfacing the app (**≥ Hermes pop-out**) |
 | **Customization** | ❌ | Name / 15 species / 9 hats / spritesheet / 5 sizes + Codex 467+ community assets | Make the companion yours |
 | **Evolution System** | ❌ | 5 rarity tiers + XP + stat growth + shiny variants | Grow your companion over time |
-| **Anti-Fatigue UX** | ❌ | Routine errors → silent review, approval → friendly waving | No anxiety-inducing failure animations |
 | **Interaction System** | ❌ | Snack feeding (3/day) + XP + birthday detection + mood system | Delightful micro-interactions |
 
-**Migration win**: From a simple 4-state icon to a 23-state animated companion with Agent identity sync, evolution, and cross-platform consistency.
+**Migration win**: From a simple 4-state icon to a Hermes-aligned 7-state Petdex companion with correct **waiting** on approvals, **Tauri pop-out desktop workflow**, Agent identity sync, evolution, and cross-platform consistency.
 
 ### Voice Input & Full-Duplex Voice Sessions (vs Codex / Claude / ChatGPT)
 
@@ -1923,7 +1923,7 @@ While this semi-manual mode prevents LLM context pollution, it should **never** 
 
 - **检索证据三层可视化 (Retrieval Evidence UI)**：每条 AI 回复显示"引用了 X 条记忆"药丸标签 + 记忆预算百分比；点击展开详情面板可查看每条引用的类型、相关度分数、内容摘要、命名空间和溯源聊天跳转；用户还可直接评分反馈，评分回流到 7 维检索系统。双通道后端架构（LLM 主动 citation + 系统级 tool lifecycle 追踪）确保引用数据完整。ChatGPT 仅显示一行"✨Using memory"无详情，Hermes/Mem0 完全没有 GUI——**51 项验证测试确认**
 
-- **情感化 AI 伙伴系统 (Companion System)**：Web + Tauri 同构 GUI 宠物系统 — **Hermes 有 Desktop Petdex + CLI**（`pet-settings.tsx` / `hermes pets remove`），但 **无 Web GUI 移除与 `/pet` 0-token 会话入口**。Myrm 提供 PetGallery 内置画廊（2900+ 社区宠物搜索+懒加载+一键安装+chip 切换+GUI 移除）、会话 `/pet` 命令（零 LLM 打开 Pet Palette）、manifest 离线 fail-open、DELETE 卸载同步 `companion_config`、23 态 SSE 动画映射、完整 RPG 进化系统、Codex/Legacy 双布局兼容 — **229 项全模块测试 + 137 vitest（Petdex 生命周期）+ 2 pytest（DELETE config SSOT）**
+- **情感化 AI 伙伴系统 (Companion System)**：Web + Tauri 同构 GUI 宠物 — **Hermes 有 Desktop Petdex + CLI**，但 **无 Web GUI 移除与 `/pet` 0-token**。Myrm：PetGallery 社区装宠、chip 切换、GUI 移除、manifest fail-open、DELETE↔config SSOT；**R05** Hermes 7 态 + **审批/澄清 waiting 行**（五源 GUI 阻塞）；独有 RPG 进化/Observer — **202 vitest + 2 pytest**（2026-07-31 实测）。详见 `COMPANION_PETDEX_ADVANTAGE.md`
 
 **用户迁移收益**：从竞品迁移过来，你将获得一个不会“越用越笨”、不会丢失关键细节、不会被 AI 悄悄改回你的修正、且完全保护隐私的超级大脑。
 
