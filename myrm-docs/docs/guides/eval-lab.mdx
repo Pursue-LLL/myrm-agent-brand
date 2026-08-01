@@ -90,6 +90,18 @@ Multi-turn cases chain turns with configurable failure strategies:
 }
 ```
 
+## Skill publish quality guard
+
+When a skill evolves through Myrm's Skill Evolution pipeline, it passes through **5 layers of defense** before reaching production:
+
+1. **EvolutionScreener** — 5-phase screening (locked → force retry → cooldown → rejection history → LLM confirmation) blocks invalid evolution attempts before they consume resources.
+2. **EvalCase Regression Gate** — Runs bound EvalCases against candidate variants. Applies score penalties proportional to failed cases; hard-filters variants that fail 100% of cases.
+3. **Improvement Gate** — Injects the original skill as a baseline competitor. Only variants that genuinely score higher than the original survive.
+4. **SandboxValidator** — Executes candidates in an isolated sandbox to verify they actually work.
+5. **ConfidenceApprovalFlow** — Multi-signal risk control (diff ratio, effective rate, confidence threshold). Red flags downgrade to human Diff Review in the GUI.
+
+After approval, **Shadow AB testing** validates the new version against real traffic before full rollout. If issues arise, **one-click rollback** restores the previous version instantly.
+
 ## History & degradation
 
 - Old reports (created before manifest tracking) display `-` for Profile and Model columns — no data loss.
