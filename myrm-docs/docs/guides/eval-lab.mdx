@@ -1,0 +1,97 @@
+---
+title: Eval Lab
+description: Evaluate agent quality across profiles, track regressions, and compare performance in a built-in GUI dashboard.
+---
+
+# Eval Lab
+
+Myrm's **Eval Lab** is a built-in evaluation dashboard that lets you run test cases against your agent, compare performance across different agent profiles, and track quality over time — all from the WebUI.
+
+## Key capabilities
+
+- **Single-profile eval** — Run a test suite against your current agent configuration and see pass/fail results in real time.
+- **Cross-profile matrix eval** — Run the same test cases across multiple agent profiles to detect regressions before switching models or prompts.
+- **Environment reproducibility** — Every eval run captures a frozen `EvalManifest` snapshot (model, tools, profile, benchmark mode) so results are always reproducible.
+- **Benchmark mode** — One-click toggle that strips user customizations (skills, MCPs, memory, web search) to produce a fair baseline score using only core tools.
+- **Historical trend tracking** — View pass-rate trends over time with interactive charts. History table shows Profile, Model, pass rate, average time, and token usage per run.
+- **Click-to-detail reports** — Click any historical run to load the full report with per-case results, environment snapshot, and diff view.
+
+## Getting started
+
+1. Navigate to **Eval Lab** from the sidebar (or go to `/eval-lab`).
+2. In the **Config** tab, select a dataset and optionally enable **Benchmark Mode**.
+3. Click **Run** to start evaluation. Progress updates in real time.
+4. View results in the **Report** tab — summary cards, per-case table, and environment snapshot.
+5. Switch to the **History** tab to compare across runs.
+
+## Cross-profile comparison
+
+To compare how different agent configurations handle the same tasks:
+
+1. Run an eval with **Profile A** (e.g., your default agent using GPT-4o).
+2. Switch to **Profile B** (e.g., a research agent using Claude) and run the same dataset.
+3. In the **History** tab, the **Profile** and **Model** columns let you compare results at a glance.
+4. For automated comparison, use the **Matrix Eval** API which runs cases across multiple profiles sequentially and classifies each case as **stable** (passes on all profiles) or **regression** (passes on some, fails on others).
+
+## Environment snapshot
+
+Every eval run records an `EvalManifest` with:
+
+| Field | Purpose |
+|-------|---------|
+| `model_provider` / `model_id` | Which LLM was used |
+| `profile_id` | Which agent profile was active |
+| `benchmark_mode` | Whether user customizations were stripped |
+| `harness_version` | Framework version for reproducibility |
+| `tool_policy` | Which tools were available |
+| `prompt_fingerprint` | SHA-256 of the system prompt |
+| `task_set_hash` | Hash of the test dataset |
+
+This snapshot appears in the Report tab under **Environment** and in the History table as the **Profile** and **Model** columns.
+
+## Benchmark mode
+
+Toggle **Benchmark Mode** in the Config tab to get a clean baseline:
+
+- System prompt → empty
+- Tools → core-only (no MCP, no skills, no sub-agents)
+- Memory, web search, replan, compression → disabled
+
+This lets you measure the raw model capability without your customizations, making scores comparable across setups.
+
+## Writing test cases
+
+Test cases are JSONL files where each line is a JSON object:
+
+```json
+{"message": "What is 2+2?", "expected": "4"}
+```
+
+For semantic assertions (LLM-as-Judge):
+
+```json
+{
+  "message": "Write a haiku about coding",
+  "assertions": [
+    {"type": "semantic", "criteria": "Output is a valid haiku with 5-7-5 syllable structure"}
+  ]
+}
+```
+
+Multi-turn cases chain turns with configurable failure strategies:
+
+```json
+{
+  "turns": [
+    {"message": "Create a file called test.txt", "assertions": [{"type": "tool", "tool_name": "write_file"}]},
+    {"message": "Read the file back", "expected_contains": "test.txt"}
+  ],
+  "on_turn_fail": "stop"
+}
+```
+
+## History & degradation
+
+- Old reports (created before manifest tracking) display `-` for Profile and Model columns — no data loss.
+- The history table supports horizontal scrolling on narrow screens.
+- Failed report loads show a toast notification instead of failing silently.
