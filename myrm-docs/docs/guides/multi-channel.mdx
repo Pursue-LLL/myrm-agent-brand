@@ -48,6 +48,8 @@ When the BlueBubbles Private API or its helper process is unavailable, all featu
 
 Navigate to **Settings > Channels** in the GUI to connect a platform. Each channel has its own configuration panel with connection status indicators.
 
+For channels that require API credentials (DingTalk, Slack, Discord, WeCom, etc.), a **developer portal link** is displayed below the configuration form — click it to jump directly to the platform's developer console where you create your bot/app and obtain credentials. 12 channels have direct links; 4 additional channels show text guidance.
+
 ### WeChat (via iLink)
 
 Connect your personal WeChat account in under a minute with QR code login:
@@ -473,6 +475,18 @@ When you start a background task via `/btw` in any IM channel, the result is aut
 - **Non-disruptive** — runs independently of your notification settings; this is a direct reply, not a broadcast
 
 Start a task in Discord, switch to something else, and come back to find the result waiting in your thread.
+
+## Goal Completion Auto-Reply
+
+When you start a Goal via `/goal set` in any IM channel, the completion result is automatically pushed back to your original conversation when the goal finishes:
+
+- **Thread-precise delivery** — replies land in the exact thread where you started the goal
+- **Localized notifications** — messages respect the language you used when creating the goal (English, Chinese, Japanese, Traditional Chinese)
+- **Deeplink button** — "Continue in browser" opens the full Goal detail with execution summary in WebUI
+- **Success & failure coverage** — both completed and failed goals trigger a notification
+- **Consistent infrastructure** — uses the same delivery pipeline as `/btw` background task notifications
+
+Start a Goal in Telegram, close the app, and come back hours later to find the structured result — with a one-click button to view the full detail in your browser.
 
 ## Long-Task Heartbeat (Edit-in-Place)
 

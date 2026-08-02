@@ -272,6 +272,34 @@ After completion, every goal produces a `GoalExecutionSummary` with:
 
 This summary is available in the GUI and via API.
 
+## IM Completion Notification
+
+When a Goal is initiated from an IM channel (via `/goal set`), the completion result is automatically pushed back to the original conversation thread — no polling required.
+
+| Feature | Details |
+|---------|---------|
+| Thread-precise delivery | Replies land in the exact IM thread where `/goal set` was issued |
+| Localized messages | Notification language matches the user's locale at goal creation time (en, zh-CN, ja, zh-TW) |
+| Deeplink button | "Continue in browser" button opens the full Goal detail in WebUI |
+| Success & failure coverage | Both completed and failed goals trigger a notification |
+| Consistent with `/btw` | Uses the same delivery infrastructure as background task notifications |
+
+### Example
+
+Start a Goal in Feishu:
+
+```
+/goal set Analyze Q3 sales data and generate a summary report
+```
+
+Hours later, in the same Feishu thread:
+
+```
+✅ Goal completed: "Analyze Q3 sales data and generate a summary report"
+8 turns · 31.2 min · 3 files changed
+[Continue in browser]
+```
+
 ## Deliverable Bundle
 
 When a goal completes and has produced **2 or more artifacts** (documents, spreadsheets, presentations, etc.), Myrm automatically aggregates them into a **Deliverable Bundle** card:
