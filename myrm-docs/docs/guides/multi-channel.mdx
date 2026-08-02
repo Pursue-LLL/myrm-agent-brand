@@ -355,6 +355,26 @@ Non-trigger messages in group chats are accumulated in a per-group ring buffer. 
 
 Rapid-fire messages from the same conversation are debounced (default 300ms window) and merged into a single request, preventing duplicate processing.
 
+## Deterministic Pre-LLM Processing
+
+Every inbound message passes through 5 layers of zero-LLM-cost processing before reaching the model. This means common operations respond in milliseconds without spending any tokens.
+
+| Layer | What it does | Latency |
+|-------|-------------|---------|
+| **Message Dedup** | TTL-based deduplication (`channel:message_id`) prevents Webhook retries from triggering duplicate processing | <0.1ms |
+| **Slash Commands** | 21 system commands + dynamic Skill bindings + Agent routing — O(1) registry lookup | <0.1ms |
+| **Risk Detection** | Compiled regex engine blocks or warns on sensitive content; ReDoS-safe with audit trail | <1ms |
+| **FAQ Semantic Cache** | Embedding similarity + score/gap dual verification — cache hits return template answers instantly (40–100× faster than LLM) | 5–20ms |
+| **Policy + Session Gate** | DM/Group policy enforcement, message debouncing (300ms), merge, and concurrency control | <1ms |
+
+### What this means for users
+
+- **Common questions answered instantly** — FAQ hits skip the LLM entirely, saving both time and money
+- **Sensitive content blocked automatically** — compliance-ready without manual moderation
+- **Fast commands with zero wait** — `/stop`, `/new`, `/status` execute immediately
+- **Rapid messages handled gracefully** — burst messages are merged, not processed redundantly
+- **No token waste** — only messages that genuinely need AI reasoning reach the model
+
 ## Agent-Initiated Notifications
 
 Your agent can proactively push notifications to configured channels — no manual polling needed.
