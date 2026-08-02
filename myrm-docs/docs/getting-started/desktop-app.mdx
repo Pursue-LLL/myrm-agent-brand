@@ -115,7 +115,29 @@ The desktop app enforces a three-tier permission model for agent actions:
 | **Ask** | Agent requests approval before any write or system operation |
 | **Auto** | Agent executes all approved tool categories without prompting |
 
-## Remote Access
+## Remote Server Gateway
+
+Connect your Desktop client to a remote Myrm server running on a VPS or NAS — manage your remote agent from the native desktop experience:
+
+1. Go to **Settings → System → Server Connection**
+2. Toggle from **Local** to **Remote**
+3. Enter the remote server URL (e.g., `https://your-vps.example.com`)
+4. Click **Test Connection** to verify the server is reachable
+5. Click **Connect** — the app reloads and all API calls now route to the remote server
+6. Log in with your remote server credentials (Setup Token + password)
+
+All features (chat, settings, skills, artifacts, notifications) work against the remote server. The local sidecar continues running so you can switch back instantly if the remote connection drops.
+
+**Status indicators:**
+- **NavBar plug icon** — visible when connected to a remote server, click to jump to connection settings
+- **Disconnect banner** — if the remote server becomes unreachable, an inline alert appears with a "Switch to Local Mode" button
+- **Token safety** — your local auth token is automatically backed up when switching to remote mode and restored when you disconnect
+
+<Note>
+The Remote Gateway is for connecting to your own self-hosted server (VPS, NAS, home server). For cloud-hosted deployments, use the browser-based MyrmAgent Cloud — no desktop gateway needed.
+</Note>
+
+## Remote Access (Mobile Hub)
 
 Enable remote access with your own tunnel tool, then control running agents from your phone:
 
@@ -124,6 +146,27 @@ Enable remote access with your own tunnel tool, then control running agents from
 3. Start a tunnel (Cloudflare Tunnel, cpolar, NATAPP, frp, etc.) against port `3000`
 4. Paste the **HTTPS** URL into **Public Ingress** and run **Test connectivity**
 5. Scan the **Mobile Hub QR** on your phone — pick an active session to open the **Status Board** (live progress, approvals, steer, **stop with confirmation toast**, **Browser/Desktop Live Preview** — real-time agent screen snapshots with Lightbox zoom and tab switching)
+
+### Remote Spawn
+
+Create new tasks directly from your phone without returning to the desktop:
+
+1. Open the **Mobile Hub** and tap **New Remote Task**
+2. Select an **Agent** and optionally a **Project** from the dropdowns
+3. Type your task message and tap **Send**
+4. The agent starts immediately — you are redirected to the **Status Board** to monitor progress
+
+The backend issues a scoped pair token for the new session and rate-limits spawns to 30/min. Your initial message is delivered via `autoStart` (sessionStorage) so the agent begins working the moment the Status Board loads.
+
+### Mobile Artifact Delivery
+
+When the agent finishes, generated files (documents, code, HTML pages, images, etc.) are displayed directly on your phone as **Artifact cards** in the Status Board:
+
+- **Icon + filename + type + size** at a glance
+- Tap the **preview** button to open the file in a new browser tab
+- Tap the **download** button to save it locally
+
+All 16 artifact types are supported. No backend changes are needed — the data is already present in the message stream. This means you can review, approve, or request changes to AI deliverables from your phone — no need to "go back to the desk."
 
 Pair tokens are scoped: the Hub list token cannot control chats until you open a session; control tokens bind to one `chat_id`. See [Tunnel Guide](/docs/guides/tunnel) for detailed configuration.
 

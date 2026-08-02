@@ -46,11 +46,17 @@ The companion system transforms your agent into a virtual companion with persona
   <Card title="Offline Fail-Open" icon="wifi-slash">
     When the petdex.dev catalog is unavailable, already-installed pets remain usable. Switch sprites without waiting for manifest recovery.
   </Card>
+  <Card title="Atlas Quality Pre-check" icon="magnifying-glass">
+    On install, spritesheets are validated against Codex 8×9 and Legacy 8×8 grids. Invalid dimensions are rejected before installation, preventing broken or pixelated sprites from entering your collection.
+  </Card>
+  <Card title="GUI Health Check Doctor" icon="stethoscope">
+    One-click diagnostics covering 6 checks: feature gate, configuration, disk presence, atlas format, SHA integrity, and local serve. Results are bilingual (EN/ZH) and accessible from the Gallery or automatically triggered when a sprite fails to load.
+  </Card>
 </CardGroup>
 
 ## Configuration
 
-1. Navigate to **Settings > Companion** to enable the system
+1. Navigate to **Settings > Companion** — the companion system is enabled by default
 2. Select a species and hat from 15 + 9 options
 3. Switch to the **Gallery** tab to browse community SpriteSheets from petdex.dev — search, preview, and install with one click
 4. Manage installed pets from the chip row — switch active sprite or remove with confirmation
@@ -75,10 +81,15 @@ All state is managed via Zustand with localStorage persistence. Companion prefer
 
 ## Verified Quality
 
-The companion system is backed by **202 unit tests** across the companion module (2026-07-31 verified: **188** component + **14** service vitest). The **Petdex install/list/switch/remove lifecycle** adds **2 server pytest** cases for DELETE config sync; **R05** sprite semantics add **73** focused vitest (state machine, blocked aggregation, dispatch cleanup):
+The companion system is backed by **251 tests all passed** (2026-08-02 verified):
 
+- **Backend pytest: 40/40 passed** — pet_store (7) + companion API (10) + feature gate (23)
+- **Frontend vitest: 211/211 passed** — companion service (21: petInstall/petSpritesheet/formatLabel/doctorI18n/slashCommand) + components (125: Gallery/Sprite/Icons/snack/generator/manifest/assets) + sprite (65: Engine/StateMachine/stateMapping/surfaceBridge/statusBubble/blockedOnUser/awayCompletion)
+
+Key coverage:
 - PetStateMachine: **100%** line coverage
 - CompanionSprite: **91.83%** line coverage
 - petSurfaceBridge: **100%** line coverage
 - companionGenerator: **99.13%** line coverage
-- Pet install/uninstall API: DELETE clears matching `companion_config.sprite` when removing the active pet
+- Atlas quality pre-check: Codex/Legacy/non-standard/invalid all validated
+- GUI Doctor: 6-item diagnostic chain with bilingual i18n

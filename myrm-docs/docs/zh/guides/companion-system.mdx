@@ -43,11 +43,17 @@ description: 游戏化 AI 伴侣：15 物种、情感感知、社区精灵图画
   <Card title="离线 fail-open" icon="wifi-slash">
     petdex.dev 图鉴不可用时，已安装宠物仍可切换使用，无需等待 manifest 恢复。
   </Card>
+  <Card title="Atlas 画质预检" icon="magnifying-glass">
+    安装时自动校验精灵图尺寸（Codex 8×9 / Legacy 8×8 / 非标准 / 不合格）。不合格素材在安装前即被拦截，避免模糊或损坏的精灵图进入你的收藏。
+  </Card>
+  <Card title="GUI 健康检查 Doctor" icon="stethoscope">
+    一键 6 项诊断：feature gate / 配置 / 磁盘 / atlas 格式 / SHA 完整性 / 本地 serve。结果中英双语 i18n，可从画廊手动触发或精灵加载失败时自动弹出。
+  </Card>
 </CardGroup>
 
 ## 配置
 
-1. 进入 **设置 > 伴侣** 启用系统
+1. 进入 **设置 > 伴侣** — 伴侣系统默认开启
 2. 从 15 种物种和 9 种帽子中选择
 3. 切换到 **画廊** 标签页浏览 petdex.dev 社区精灵图 — 搜索、预览、一键安装
 4. 在 chip 行管理已安装宠物 — 切换激活精灵或通过菜单移除
@@ -72,11 +78,15 @@ description: 游戏化 AI 伴侣：15 物种、情感感知、社区精灵图画
 
 ## 质量验证
 
-伴侣全模块 **202 项单元测试**（2026-07-31 实测：**188** 组件 + **14** 服务 vitest）。**Petdex 安装/卸载** 含 **2 项 server pytest**（DELETE 同步清 config）；**R05** 精灵语义另含 **73 项** vitest（状态机、blocked 聚合、dispatch 清理）：
+伴侣全模块 **251 项测试全部通过**（2026-08-02 实测）：
 
+- **后端 pytest：40/40 通过** — pet_store（7）+ companion API（10）+ feature gate（23）
+- **前端 vitest：211/211 通过** — companion service（21：petInstall/petSpritesheet/formatLabel/doctorI18n/slashCommand）+ 组件（125：Gallery/Sprite/Icons/snack/generator/manifest/assets）+ sprite（65：Engine/StateMachine/stateMapping/surfaceBridge/statusBubble/blockedOnUser/awayCompletion）
+
+关键覆盖率：
 - PetStateMachine：**100%** 行覆盖率
 - CompanionSprite：**91.83%** 行覆盖率
 - petSurfaceBridge：**100%** 行覆盖率
 - companionGenerator：**99.13%** 行覆盖率
-- petStateMapping：Codex/Legacy/边界 **18 项测试全通过**
-- 宠物卸载 API：DELETE 移除当前激活精灵时同步清空 `companion_config.sprite`
+- Atlas 画质预检：Codex/Legacy/非标准/无效均已验证
+- GUI Doctor：6 项诊断链 + 中英双语 i18n

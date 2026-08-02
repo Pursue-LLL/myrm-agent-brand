@@ -17,7 +17,7 @@ For per-turn capability control, Myrm supports **one-turn Skill/MCP override chi
 
 ## Latest Validation Snapshot (2026-07-31 · Assessment Import Pipeline · Project Milestones)
 
-- **Assessment Artifact Smart Import (vs OpenClaw / Hermes Agent / Deer Flow / LobsterAI / CoPaw / JiuwenClaw)**: backend artifact API **7/7** + milestone API **15/15** + assessment service **6/6** + statistics API **4/4** = **32 pytest, 0 failures**; frontend import candidates **7/7** + metrics **5/5** + error mapping **9/9** = **21 vitest, 0 failures**. Total **53 tests, 0 failures** (< 30s, 5 batches, **no Chrome MCP**).
+- **Assessment Artifact Smart Import (vs OpenClaw / Hermes Agent / Deer Flow / LobsterAI / CoPaw / JiuwenClaw)**: backend artifact API **8/8** + milestone API **15/15** + assessment service **6/6** + statistics API **4/4** = **33 pytest, 0 failures**; frontend import candidates **7/7** + metrics **5/5** + error mapping **9/9** = **21 vitest, 0 failures**. Total **54 tests, 0 failures** (< 12s, 4 batches, **no Chrome MCP**).
 - **Verified**: `GET /files/artifacts?project_id=` project-scoped candidate filtering + semantic candidate probe (reuses `parse_assessment_markdown`); `POST /projects/{id}/milestones/import-assessment` idempotent ledger + failure rollback + structured `import_reason`; `POST /statistics/assessment-import/events` funnel metrics (attempt/success/fail/dropped) + `GET summary` aggregation; frontend `ProjectMilestonePanel` candidate list (importable-first ordering) + one-click import + manual ID fallback + structured error i18n mapping (6 reasons) + telemetry buffer with drop recovery.
 - **User-visible competitive advantage**: All 6 competitor repos lack "assessment artifact → project milestone/task" import pipeline; no semantic candidate probe (verify importability before display); no idempotent ledger (duplicate import rejection); no failure auto-rollback; no structured error feedback; no funnel observability. Myrm exclusively delivers the full "assessment output → candidate probe → one-click import → idempotent guarantee → failure rollback → structured feedback → funnel observability" closed loop.
 - **Honest boundaries**: Candidate ordering currently splits by "importable yes/no" + recency; no content-relevance semantic ranking yet (next optimization); `dropped_report` uses global context (project-level troubleshooting needs future bucket); frontend summary max 90 days vs backend 365 days (low-frequency scenario, acceptable).
@@ -1786,7 +1786,7 @@ Myrm provides the most comprehensive voice integration among AI agents — **4,2
 | **Multi-Pane Workspace** | Single | Single | Single | ✅ Multi-pane OS Context Switching |
 | **Mobile Responsive** | Desktop only | Partial | ✅ | ✅ Full responsive + 44px touch targets |
 | **Backend API** | Basic | None | None | ✅ CRUD + move + batch-move + filter (32 tests) |
-| **Milestone Roadmap** | ❌ | ❌ | ❌ | ✅ GUI panel + Kanban progress tracking (7 tests) |
+| **Milestone Roadmap** | ❌ | ❌ | ❌ | ✅ GUI panel + Kanban progress tracking + Assessment Import (semantic probe + idempotent ledger + rollback + structured errors + funnel metrics) (54 tests) |
 | **Project Shared Memory** | ❌ | ❌ | ❌ | ✅ SharedContext auto-bound on creation |
 | **Auto Context Injection** | ❌ | ❌ | ❌ | ✅ ProjectRoadmapMiddleware (~100 tok/turn) |
 | **Multi-Agent Concurrency** | ❌ | ❌ | ❌ | ✅ ProjectOrchestrator async lock |

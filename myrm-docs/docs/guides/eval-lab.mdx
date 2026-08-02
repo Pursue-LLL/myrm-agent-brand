@@ -24,14 +24,28 @@ Myrm's **Eval Lab** is a built-in evaluation dashboard that lets you run test ca
 4. View results in the **Report** tab — summary cards, per-case table, and environment snapshot.
 5. Switch to the **History** tab to compare across runs.
 
-## Cross-profile comparison
+## Cross-profile matrix eval
 
 To compare how different agent configurations handle the same tasks:
 
-1. Run an eval with **Profile A** (e.g., your default agent using GPT-4o).
-2. Switch to **Profile B** (e.g., a research agent using Claude) and run the same dataset.
-3. In the **History** tab, the **Profile** and **Model** columns let you compare results at a glance.
-4. For automated comparison, use the **Matrix Eval** API which runs cases across multiple profiles sequentially and classifies each case as **stable** (passes on all profiles) or **regression** (passes on some, fails on others).
+1. In the **Config** tab, select **2 or more profiles** from the chip-based multi-selector.
+2. A **Matrix mode** badge appears automatically when 2+ profiles are selected.
+3. Click **Run Matrix** to start. The dashboard switches to the **Matrix** tab showing real-time progress:
+   - Which profile is currently being evaluated
+   - Profile progress (e.g., 2/3)
+   - Case completion progress bar
+4. When complete, the **Matrix** tab displays:
+   - **Summary cards** — total cases, stable rate, regression count, total time
+   - **Per-profile table** — pass rate, tokens, cost, and time for each profile
+   - **Case × Profile grid** — color-coded matrix showing each case's status on each profile (green = stable, amber = regression, red = all failed)
+5. Cases are classified as:
+   - **Stable** — passes on ALL selected profiles (safe to switch models)
+   - **Regression** — passes on some but fails on others (risky areas)
+   - **All failed** — fails on every profile (needs investigation regardless)
+
+:::tip
+If any evaluation fails (e.g., API key expired, model unavailable), a toast notification shows the error immediately — no silent failures.
+:::
 
 ## Environment snapshot
 

@@ -17,7 +17,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 ## 最新验证快照（2026-07-31 · 评估导入闭环 · 项目里程碑路线图）
 
-- **评估工件智能导入链路（vs OpenClaw / Hermes Agent / Deer Flow / LobsterAI / CoPaw / JiuwenClaw）**：后端 artifact API **7/7** + milestone API **15/15** + assessment service **6/6** + statistics API **4/4** = **32 pytest, 0 failures**；前端 import candidates **7/7** + metrics **5/5** + error mapping **9/9** = **21 vitest, 0 failures**。总计 **53 tests, 0 failures**（< 30s、5 batch、**无 Chrome MCP**）。
+- **评估工件智能导入链路（vs OpenClaw / Hermes Agent / Deer Flow / LobsterAI / CoPaw / JiuwenClaw）**：后端 artifact API **8/8** + milestone API **15/15** + assessment service **6/6** + statistics API **4/4** = **33 pytest, 0 failures**；前端 import candidates **7/7** + metrics **5/5** + error mapping **9/9** = **21 vitest, 0 failures**。总计 **54 tests, 0 failures**（< 12s、4 batch、**无 Chrome MCP**）。
 - **已验证**：`GET /files/artifacts?project_id=` 项目维度候选过滤 + 语义候选探测（`assessment_import_candidate_probe` 复用 `parse_assessment_markdown`）；`POST /projects/{id}/milestones/import-assessment` 幂等台账 + 失败回滚 + 结构化 `import_reason`；`POST /statistics/assessment-import/events` 漏斗埋点（attempt/success/fail/dropped）+ `GET summary` 聚合；前端 `ProjectMilestonePanel` 候选列表（importable 优先排序）+ 一键导入 + 手输兜底 + 结构化错误 i18n 映射（6 reason）+ 埋点缓冲与丢样回补。
 - **对用户可见的竞品优势**：竞品 6 仓均无"评估工件 → 项目里程碑/任务"导入链路；无候选语义探测（验证可导入性再展示）；无导入幂等台账（重复导入拦截）；无失败自动回滚；无结构化错误反馈；无漏斗观测。Myrm 独家实现完整「评估产出 → 候选探测 → 一键导入 → 幂等保障 → 失败回滚 → 结构化反馈 → 漏斗观测」闭环。
 - **诚实边界**：候选排序当前优先按"是否可导入"分层 + 时间倒序，尚无基于内容相关性的语义排名（下一优化项）；`dropped_report` 统一为 global context（项目粒度排障需后续补 bucket）；前端 summary 最大 90 天 vs 后端 365 天口径差异（低频场景，可接受）。
