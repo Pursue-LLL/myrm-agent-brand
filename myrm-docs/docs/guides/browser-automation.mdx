@@ -521,15 +521,13 @@ Combined with the **Engine Affinity Store** (remembers which sites need stealth 
 
 When the agent encounters a CAPTCHA or situation requiring human intervention, it handles it seamlessly:
 
-### Automatic CAPTCHA Detection
+### Automatic CAPTCHA Detection & Resolution
 
-10 CAPTCHA types are detected automatically (Cloudflare Turnstile, reCAPTCHA, hCaptcha, etc.). When detected:
+10 CAPTCHA types are detected automatically (Cloudflare Turnstile, reCAPTCHA, hCaptcha, DataDome, Akamai, etc.). Resolution happens in three tiers:
 
-1. Agent pauses execution via LangGraph `interrupt()`
-2. The VNC panel auto-opens showing the browser
-3. A notification appears with the reason for the pause
-4. You solve the CAPTCHA manually
-5. Agent resumes automatically and continues the task
+1. **Auto-solve** (CapSolver API): Cloudflare, reCAPTCHA, hCaptcha are solved automatically — no user action needed
+2. **Behavioral WAF bypass**: DataDome, Kasada, Akamai, Imperva, PerimeterX are instantly recognized and the engine silently upgrades to Camoufox (deep anti-detection) — completely transparent to you
+3. **Manual fallback**: Only truly unsolvable CAPTCHAs pause execution — VNC panel opens, you solve it, agent resumes automatically
 
 ### Agent-Triggered Human Takeover
 

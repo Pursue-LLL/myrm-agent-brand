@@ -486,15 +486,13 @@ Agent 每次浏览网站都在学习。**站点经验库**自动捕获域名级�
 
 Agent 在浏览网页时遇到验证码或需要人工介入的场景，系统自动处理：
 
-### 自动 CAPTCHA 检测
+### 自动 CAPTCHA 检测与解决
 
-系统自动识别 10 种验证码类型（Cloudflare Turnstile、reCAPTCHA、hCaptcha 等）。检测到时：
+系统自动识别 10 种验证码类型（Cloudflare Turnstile、reCAPTCHA、hCaptcha、DataDome、Akamai 等）。三层解决机制：
 
-1. Agent 通过 LangGraph `interrupt()` 暂停执行
-2. VNC 面板自动打开，展示浏览器画面
-3. 顶部显示暂停原因通知
-4. 你手动完成验证码
-5. Agent 自动恢复继续执行任务
+1. **自动解决**（CapSolver API）：Cloudflare、reCAPTCHA、hCaptcha 自动完成——无需任何操作
+2. **行为式 WAF 绕过**：DataDome、Kasada、Akamai、Imperva、PerimeterX 被即时识别，引擎静默升级至 Camoufox（深度反检测）——对你完全透明
+3. **人工兜底**：仅在自动解决失败时才暂停——VNC 面板打开，你完成验证，Agent 自动恢复
 
 ### Agent 主动请求人类接管
 
