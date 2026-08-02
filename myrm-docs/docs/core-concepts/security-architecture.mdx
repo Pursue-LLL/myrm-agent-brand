@@ -528,6 +528,24 @@ When sharing procedural memory rules (e.g., with teammates or the community), ad
 
 This ensures no personally identifiable file paths or credentials can leak through shared rules. See [Memory System → Privacy-safe Rule Sharing](/core-concepts/memory-system#privacy-safe-rule-sharing) for full details.
 
+### Password-Protected Sharing
+
+Artifact and conversation share links support **optional password protection** with a stateless, zero-database design:
+
+| What you get | How it works |
+|--------------|-------------|
+| **Password gate** | Password SHA-256 hash is mixed into the HMAC signing key — wrong password = invalid signature, no database lookup |
+| **Adjustable expiry** | Choose 1, 7, 14, or 30 day TTL when creating the link (server-side min/max clamping) |
+| **Rate limiting** | Public endpoints capped at 30 req/min (content) and 60 req/min (static assets) to prevent brute-force |
+| **Dark-mode gate page** | Self-contained HTML page with dark/light mode, error feedback, and no external dependencies |
+| **Salt isolation** | Artifact and conversation tokens use different HMAC salts — same password produces different signing keys |
+
+Password protection is fully optional. Links created without a password work exactly as before, with no UX changes or performance overhead.
+
+<Note>
+No competitors (Hermes, OpenClaw, LobsterAI, CoPaw, deer-flow, jiuwenclaw) offer artifact or conversation sharing, let alone password protection. Myrm is the only AI assistant with both capabilities.
+</Note>
+
 ### Agent Secret Management — Zero Plaintext Exposure
 
 Per-agent secrets (custom API keys, tokens, environment variables) use a **zero-plaintext-exposure architecture**:
