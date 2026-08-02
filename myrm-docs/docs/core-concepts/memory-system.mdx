@@ -153,6 +153,14 @@ Under the hood, Myrm's retrieval system exposes **33 tunable parameters** throug
 
 All parameters use frozen dataclasses for thread safety. Advanced users can override defaults via server configuration; most users never need to.
 
+### Retrieval Sufficiency Guard
+
+When enabled, the Retrieval Sufficiency Guard (RSG) evaluates whether search results adequately cover the user's query after retrieval completes. It detects missing information aspects, identifies negative-constraint violations (e.g., "everything except X"), and suggests follow-up search queries. The Agent then autonomously decides whether to re-search — no internal hardcoded loops, just intelligent judgment.
+
+This contrasts with pipeline-based approaches (e.g., MindMemOS's `AgenticLoop`) that mechanically iterate N rounds regardless of query complexity. Myrm's Agent-first approach means simple queries complete in one round at zero extra cost, while complex multi-entity queries benefit from Agent-driven follow-up searches that are contextually aware.
+
+The RSG is shared infrastructure (`toolkits/retriever/sufficiency/`) already used by web search tools and available to memory search through configuration. Default: off (opt-in for users who want maximum recall on complex queries).
+
 ## Knowledge Graph
 
 Relationships between memory entries are modeled as a knowledge graph with 4 semantic relation types (SUPPORTED, CONTRADICTED, SUPERSEDED, CONSTRAINED) and multi-hop traversal. Supports both SQLite CTE and Apache AGE backends with 3D visualization in the GUI.
@@ -271,6 +279,18 @@ When a user implicitly corrects the agent without saying "you're wrong" (e.g., "
 - **Background execution** — Runs as a session cleanup callback, never affecting main conversation latency or prompt cache
 
 This is the industry's only implementation that combines implicit signal detection with a Human-in-the-Loop governance queue — competitors either auto-write without approval (risky) or don't detect implicit corrections at all.
+
+### Explicit Memory Operations
+
+Users can directly manage memories through natural language in conversation — no CLI or special commands needed:
+
+- **5 action types** — `add` (new knowledge), `update` (modify existing), `delete` (remove), `correct` (demote old + link new version), `rate` (thumbs up/down for relevance tuning)
+- **Agent-native NL understanding** — The Agent itself acts as the natural language planner; say "update my address to 123 Main St" and the Agent calls the right tool automatically
+- **Correction chain** — The `correct` action demotes the old memory (lowering retrieval priority) while creating a new version with a back-link, preserving full history
+- **HITL approval** — Configurable per-agent `approval_required` flag routes modifications through a Governance approval queue before writing
+- **Cross-Agent sync** — Corrections propagate to SharedContext via policy-based auto-approve, ensuring all bound agents stay current
+
+This Agent-first approach eliminates the need for separate feedback pipelines — competitors require CLI tools (`memory feedback --text`) because they lack an integrated Agent.
 
 ### One-Click Rollback
 

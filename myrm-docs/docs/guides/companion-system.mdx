@@ -52,6 +52,9 @@ The companion system transforms your agent into a virtual companion with persona
   <Card title="GUI Health Check Doctor" icon="stethoscope">
     One-click diagnostics covering 6 checks: feature gate, configuration, disk presence, atlas format, SHA integrity, and local serve. Results are bilingual (EN/ZH) and accessible from the Gallery or automatically triggered when a sprite fails to load.
   </Card>
+  <Card title="Zero-Config Theme Sync" icon="palette">
+    Companion accent colors (rarity glow, ring shadow, status bubble borders) automatically follow your workspace Theme Profile via CSS variable token derivation. Change your theme in Appearance settings — the companion updates instantly, no separate configuration needed. The Tauri pop-out overlay (`/pet-overlay`) stays lightweight: it skips wallpaper/ArtLayer loading while still syncing accent tokens cross-window.
+  </Card>
 </CardGroup>
 
 ## Configuration
@@ -81,10 +84,10 @@ All state is managed via Zustand with localStorage persistence. Companion prefer
 
 ## Verified Quality
 
-The companion system is backed by **251 tests all passed** (2026-08-02 verified):
+The companion system is backed by **291 tests all passed** (2026-08-02 verified):
 
-- **Backend pytest: 40/40 passed** — pet_store (7) + companion API (10) + feature gate (23)
-- **Frontend vitest: 211/211 passed** — companion service (21: petInstall/petSpritesheet/formatLabel/doctorI18n/slashCommand) + components (125: Gallery/Sprite/Icons/snack/generator/manifest/assets) + sprite (65: Engine/StateMachine/stateMapping/surfaceBridge/statusBubble/blockedOnUser/awayCompletion)
+- **Backend pytest: 57/57 passed** — pet_store (7) + companion API (10) + feature gate (23) + companion config (17)
+- **Frontend vitest: 234/234 passed** — companion service (28: petInstall/petSpritesheet/formatLabel/doctorI18n/slashCommand/companionTheme) + components (147: Gallery/Sprite/Icons/snack/generator/manifest/assets) + sprite (65: Engine/StateMachine/stateMapping/surfaceBridge/statusBubble/blockedOnUser/awayCompletion)
 
 Key coverage:
 - PetStateMachine: **100%** line coverage
@@ -93,3 +96,10 @@ Key coverage:
 - companionGenerator: **99.13%** line coverage
 - Atlas quality pre-check: Codex/Legacy/non-standard/invalid all validated
 - GUI Doctor: 6-item diagnostic chain with bilingual i18n
+
+**#12 Companion ↔ Theme Profile SSOT** (2026-08-02):
+
+- Gate script `scripts/dev/e2e-companion-theme-ssot-gate.sh`: **14/14 vitest** (companionTheme + marketing-paths + ThemeProfileProvider pet-overlay)
+- Chrome MCP smoke: `/settings/preferences` theme swatches + Companion settings「follow workspace theme」read-only link
+- Optional: `COMPANION_THEME_SSOT_CHROME=1` runs pytest chrome_e2e against live stack
+- Honest boundary: Canvas sprite pixels are not theme-tinted (accent UI only)

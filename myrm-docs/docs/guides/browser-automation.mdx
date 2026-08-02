@@ -517,6 +517,47 @@ Every time the agent browses a website, it learns. The **Site Experience Store**
 
 Combined with the **Engine Affinity Store** (remembers which sites need stealth browsing) and **Session Vault** (preserves login state), the agent builds a comprehensive per-domain memory that improves with every interaction.
 
+## Domain Executable Skills — Reusable Automation Per Website
+
+Beyond prompt-level knowledge (Site Experience Store), Myrm supports **executable domain skills** — Python automation scripts that are automatically loaded and available as tools when the agent visits a matching domain.
+
+### How It Works
+
+1. **Manifest-based declaration** — Each domain skill has a `manifest.yaml` with domain match patterns and tool definitions
+2. **Auto-discovery** — When the agent navigates to `x.com`, all matching domain skills are automatically injected as available tools
+3. **Builtin + User-created** — Ships with builtin skills (e.g. X/Twitter timeline extraction); users can create their own via the distillation API or manually
+4. **GUI management** — Settings > System > Domain Skills shows all skills with builtin badges, add/remove user skills
+
+### Example: X (Twitter) Timeline Extraction
+
+Instead of the agent figuring out how to scrape X every time, a builtin domain skill provides a `get_timeline_posts` tool:
+
+```yaml
+domain: x.com
+tools:
+  - name: get_timeline_posts
+    description: Extract posts from the current X timeline
+    script: tools/get_timeline_posts.py
+```
+
+The agent sees this tool in its navigate hints and can call it directly — skipping the exploration phase entirely.
+
+### Semi-Automatic Distillation
+
+When an agent successfully completes a browser workflow, you can save it as a reusable domain skill:
+
+1. Review the successful run in the chat
+2. Call the distillation API (`POST /api/v1/browser/domain-skills/distill`) with tool definitions
+3. The skill is saved and automatically available on future visits to that domain
+
+### Impact
+
+| Without Domain Skills | With Domain Skills |
+|----------------------|-------------------|
+| Agent re-discovers site structure every visit | Proven automation scripts run instantly |
+| 5-10 LLM rounds for complex site interactions | 1-2 rounds (tool call + result) |
+| Each session starts from zero knowledge | Knowledge compounds across sessions |
+
 ## CAPTCHA Detection & Human Takeover
 
 When the agent encounters a CAPTCHA or situation requiring human intervention, it handles it seamlessly:

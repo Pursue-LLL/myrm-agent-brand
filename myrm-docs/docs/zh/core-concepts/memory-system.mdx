@@ -153,6 +153,14 @@ Myrm 检索器为每条情节/语义记忆注入人类可读的时间标签（�
 
 所有参数使用 frozen dataclass 确保线程安全。高级用户可通过服务端配置覆盖默认值；大多数用户无需任何调整。
 
+### 检索充分性守卫（Retrieval Sufficiency Guard）
+
+启用后，检索充分性守卫（RSG）在检索完成后评估搜索结果是否充分覆盖用户查询。它能检测遗漏的信息方面、识别负面约束违规（如"除了X之外的所有"），并建议补充搜索查询。Agent 随后自主决定是否需要再次搜索——无需硬编码的内部循环，靠的是智能判断。
+
+这与管道式方案（如 MindMemOS 的 `AgenticLoop`）形成对比，后者不论查询复杂度如何都机械地迭代 N 轮。Myrm 的 Agent-first 方式意味着：简单查询一轮完成，零额外成本；复杂多实体查询由 Agent 主动发起有上下文感知的补充搜索。
+
+RSG 是共享基础设施（`toolkits/retriever/sufficiency/`），已被 web search 工具使用，通过配置即可应用于 memory search。默认关闭（面向需要最大化复杂查询召回率的用户按需开启）。
+
 ## 知识图谱
 
 记忆条目间关系建模为知识图谱，4 种语义关系（SUPPORTED、CONTRADICTED、SUPERSEDED、CONSTRAINED）与多跳遍历。支持 SQLite CTE 与 Apache AGE 后端，GUI 3D 可视化。
@@ -271,6 +279,18 @@ Hash 匹配（0.18ms，节省 98% 嵌入成本）→ 向量相似度 → LLM 语
 - **后台执行** — 作为会话清理回调异步运行，不影响主对话延迟和 Prompt Cache
 
 这是行业唯一将隐式信号检测与 Human-in-the-Loop 治理队列结合的实现 — 竞品要么无审批直接写入（有误写风险），要么完全不检测隐式纠正。
+
+### 显式记忆操作
+
+用户可以直接在对话中用自然语言管理记忆 — 无需 CLI 或特殊命令：
+
+- **5 种操作** — `add`（新增知识）、`update`（修改内容）、`delete`（删除）、`correct`（降级旧记忆 + 链接新版本）、`rate`（评价相关性）
+- **Agent 原生 NL 理解** — Agent 本身即自然语言规划器；说"把我地址更新为XX"，Agent 自动调用对应工具
+- **纠正链** — `correct` 操作降级旧记忆（降低检索优先级）同时创建新版本并回链，保留完整历史
+- **HITL 审批** — 每个 Agent 可配置 `approval_required`，修改操作路由至 Governance 审批队列后才写入
+- **跨 Agent 同步** — 纠正自动通过策略审批传播至 SharedContext，确保所有绑定 Agent 保持最新
+
+这种 Agent-first 方式消除了独立反馈管道的需求 — 竞品因缺少集成 Agent 而需要 CLI 工具（`memory feedback --text`）。
 
 ### 一键回滚
 

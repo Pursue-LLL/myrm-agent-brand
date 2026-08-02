@@ -49,6 +49,9 @@ description: 游戏化 AI 伴侣：15 物种、情感感知、社区精灵图画
   <Card title="GUI 健康检查 Doctor" icon="stethoscope">
     一键 6 项诊断：feature gate / 配置 / 磁盘 / atlas 格式 / SHA 完整性 / 本地 serve。结果中英双语 i18n，可从画廊手动触发或精灵加载失败时自动弹出。
   </Card>
+  <Card title="零配置主题联动" icon="palette">
+    桌宠强调色（稀有度光效、ring 阴影、状态气泡边框）通过 Theme Profile CSS 变量 token 派生自动跟随工作区主题。在「外观」设置中切换主题，桌宠即时更新，无需额外配置。Tauri 外置窗（`/pet-overlay`）保持轻量：跳过壁纸/ArtLayer 加载，跨窗同步强调色 token。
+  </Card>
 </CardGroup>
 
 ## 配置
@@ -78,10 +81,10 @@ description: 游戏化 AI 伴侣：15 物种、情感感知、社区精灵图画
 
 ## 质量验证
 
-伴侣全模块 **251 项测试全部通过**（2026-08-02 实测）：
+伴侣全模块 **291 项测试全部通过**（2026-08-02 实测）：
 
-- **后端 pytest：40/40 通过** — pet_store（7）+ companion API（10）+ feature gate（23）
-- **前端 vitest：211/211 通过** — companion service（21：petInstall/petSpritesheet/formatLabel/doctorI18n/slashCommand）+ 组件（125：Gallery/Sprite/Icons/snack/generator/manifest/assets）+ sprite（65：Engine/StateMachine/stateMapping/surfaceBridge/statusBubble/blockedOnUser/awayCompletion）
+- **后端 pytest：57/57 通过** — pet_store（7）+ companion API（10）+ feature gate（23）+ companion config（17）
+- **前端 vitest：234/234 通过** — companion service（28：petInstall/petSpritesheet/formatLabel/doctorI18n/slashCommand/companionTheme）+ 组件（147：Gallery/Sprite/Icons/snack/generator/manifest/assets）+ sprite（65：Engine/StateMachine/stateMapping/surfaceBridge/statusBubble/blockedOnUser/awayCompletion）
 
 关键覆盖率：
 - PetStateMachine：**100%** 行覆盖率
@@ -90,3 +93,10 @@ description: 游戏化 AI 伴侣：15 物种、情感感知、社区精灵图画
 - companionGenerator：**99.13%** 行覆盖率
 - Atlas 画质预检：Codex/Legacy/非标准/无效均已验证
 - GUI Doctor：6 项诊断链 + 中英双语 i18n
+
+**#12 伴侣 ↔ Theme Profile SSOT**（2026-08-02）：
+
+- Gate 脚本 `scripts/dev/e2e-companion-theme-ssot-gate.sh`：**14/14 vitest**（companionTheme + marketing-paths + ThemeProfileProvider pet-overlay）
+- Chrome MCP smoke：`/settings/preferences` 主题预设可点选 + 伴侣设置「跟随工作区主题」只读引导
+- 可选：`COMPANION_THEME_SSOT_CHROME=1` 对 live 栈跑 pytest chrome_e2e
+- 诚实边界：Canvas 精灵像素不随主题 tint（仅强调色 UI）
