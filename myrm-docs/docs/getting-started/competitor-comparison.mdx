@@ -2000,3 +2000,16 @@ SDK frameworks like CopilotKit only provide a simple Promise hook for approvals 
 ### 11. Complete Developer Diagnostics Toolchain (Not a Simple Debug Panel)
 CopilotKit provides a simple floating debug panel + console.log; Myrm provides a complete product-grade diagnostic ecosystem.
 **Our Advantage**: 66+ SSE events all rendered as visual React UI + Browser/Desktop live view with element inspection + Eval Lab (8 assertion types + Recharts history) + distributed tracing (W3C traceparent) + session analytics + memory health dashboard + audit logs + session recording/replay + rate limit monitor + context health panels. **84 diagnostic tests verified.**
+
+### 12. Four-Mechanism Extensibility Without a Plugin SDK
+Hermes v0.19.1 introduced a Desktop Plugin SDK (`@hermes/plugin-sdk`) with ESM hot-reload and 10 contrib areas (panes, statusbar, titlebar, routes, etc.). However, it only works on Electron Desktop, has zero third-party plugins, and runs without sandboxing.
+**Our Advantage**: Instead of a monolithic Plugin SDK, Myrm provides four extension mechanisms that work across all three deployment modes (Local WebUI, Tauri Desktop, Cloud Control Plane):
+
+| Mechanism | Purpose | Coverage |
+|-----------|---------|----------|
+| **Skills** | Declarative capability extensions with `/learn` natural language authoring | Behavioral extensibility |
+| **MCP** | Industry-standard protocol (Anthropic-led) with 100s of community servers | External service integration |
+| **render_ui** | 23 typed UI components with server-driven rendering | Custom interactive UI in conversation |
+| **Agent Templates** | Shareable workflow configurations | Team collaboration reuse |
+
+Additionally, Myrm's global `⌘K` search dialog and Slash command palette provide the same quick-access UX as Hermes' `PALETTE_AREA`, while NavBar's four status components (Extension Bridge, Remote Gateway, Background Tasks Panel, Notification Bell) surpass Hermes' single Gateway Pill. **142+ extension tests verified.**

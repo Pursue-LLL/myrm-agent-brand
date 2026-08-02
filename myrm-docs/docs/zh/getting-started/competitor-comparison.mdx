@@ -1854,3 +1854,16 @@ CopilotKit 等 SDK 框架仅提供简单的 Promise hook 审批（respond 后继
 ### 11. 完整的开发者诊断工具链（非简单调试面板）
 CopilotKit 提供简单的浮动调试面板 + console.log；Myrm 提供完整的产品级诊断体系。
 **我们的优势**：66+ SSE 事件全部可视化渲染 + Browser/Desktop 实时视图与元素检查 + Eval Lab 评测实验室（8 种断言 + 图表历史）+ 分布式追踪（W3C traceparent）+ 会话统计分析 + 记忆健康仪表盘 + 审计日志 + 会话录制回放 + 配额监控 + 上下文健康面板。**84 项诊断测试验证通过。**
+
+### 12. 四机制扩展体系，无需 Plugin SDK
+Hermes v0.19.1 推出了 Desktop Plugin SDK（`@hermes/plugin-sdk`），支持 ESM 热重载和 10 个 contrib areas（面板、状态栏、标题栏、路由等）。但它仅限 Electron 桌面端、零第三方插件生态、且插件无沙箱运行。
+**我们的优势**：Myrm 不走单一 Plugin SDK 路线，而是提供四大扩展机制，覆盖全部三种部署模式（本地 WebUI、Tauri 桌面端、云控制面）：
+
+| 机制 | 用途 | 覆盖场景 |
+|------|------|----------|
+| **Skills** | 声明式能力扩展，支持 `/learn` 自然语言学习 | 行为扩展 |
+| **MCP** | Anthropic 牵头的行业标准协议，数百个社区 server | 外部服务集成 |
+| **render_ui** | 23 种类型化 UI 组件，server-driven rendering | 对话内自定义交互 UI |
+| **Agent 模板** | 可分享的完整工作流配置 | 团队协作复用 |
+
+此外，Myrm 的全局 `⌘K` 搜索对话框和 Slash 命令面板提供了与 Hermes `PALETTE_AREA` 同等的快捷访问体验，而 NavBar 的四个状态组件（Extension Bridge、Remote Gateway、Background Tasks Panel、Notification Bell）超越了 Hermes 单一的 Gateway Pill。**142+ 项扩展测试验证通过。**
