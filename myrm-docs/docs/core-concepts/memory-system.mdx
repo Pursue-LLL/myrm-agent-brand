@@ -260,6 +260,18 @@ When consolidation detects a high-importance contradiction (conflicting old/new 
 - **Four actions** — Keep old / Accept new / Free-edit merge (LLM pre-generates suggestion) / Discard both
 - **72h safe fallback** — Unresolved conflicts auto-retain the old value, preventing information loss
 
+### Implicit Feedback Detection
+
+When a user implicitly corrects the agent without saying "you're wrong" (e.g., "I left ByteDance last month, I'm at Google now"), the system automatically detects the contradiction and proposes a memory correction:
+
+- **Two-stage detection** — Zero-cost regex pre-filter catches explicit negation; LLM deep scan catches implicit contradictions that regex cannot detect
+- **Structured Action Planner** — Produces typed proposals (add/update/delete) with confidence scores and reasoning
+- **Dual-target routing** — Proposals route to both the Agent's personal PendingMemory (Governance HITL approval) and SharedContext (policy-based auto-approve for cross-Agent sync)
+- **Idempotency** — Content-hash based source IDs prevent duplicate proposals from the same conversation
+- **Background execution** — Runs as a session cleanup callback, never affecting main conversation latency or prompt cache
+
+This is the industry's only implementation that combines implicit signal detection with a Human-in-the-Loop governance queue — competitors either auto-write without approval (risky) or don't detect implicit corrections at all.
+
 ### One-Click Rollback
 
 Every consolidation operation is reversible with zero extra storage — the system uses existing `previous_content` metadata and soft-deletion flags. The GUI shows a dedicated Consolidation Rollback card with conflict warnings for memories modified by the user after consolidation.

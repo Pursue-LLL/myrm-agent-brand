@@ -54,7 +54,7 @@ const BENTO_STATS: Record<BentoKey, string> = {
   reliability: '6',
   costEfficiency: '86%',
   visualControl: '25+',
-  taskModes: '4+',
+  taskModes: '5+',
 };
 
 /** Six conversion-focused themes — narrative highlights live in HighlightsCarouselSection. */

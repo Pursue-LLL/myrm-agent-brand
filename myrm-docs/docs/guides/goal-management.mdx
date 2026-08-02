@@ -141,6 +141,41 @@ Enable **"Pause after each step"** in Advanced settings to activate per-todo che
 
 This is opt-in and defaults to off. When disabled, the agent runs uninterrupted as usual.
 
+## Kanban Goal Mode
+
+Goals are not limited to chat — you can enable Goal Mode on any **Kanban task card** for autonomous multi-turn execution:
+
+### Enabling Goal Mode
+
+1. When creating a new Kanban task, toggle **Goal Mode** in the task creation form
+2. Optionally set **Max Turns** (defaults to the system goal budget if not specified)
+3. The task description becomes the goal objective; the agent works toward it across multiple turns
+
+### How It Works
+
+When a Goal Mode task is dispatched:
+
+1. The `KanbanTaskRunner` creates a `GoalProvider` via the `GoalRegistry`, reusing the full Goal engine (same infrastructure as chat goals)
+2. The `StreamExecutor` drives the autonomous loop — semantic judge, 14-layer guard chain, budget control, convergence detection — all apply
+3. On completion: `GoalStatus.COMPLETE` → task marked `COMPLETED`; budget exhaustion → task marked `FAILED` with structured summary
+
+### Why Use It
+
+| Scenario | Without Goal Mode | With Goal Mode |
+|----------|------------------|----------------|
+| Research report | Single-turn partial output, manual re-run | Multi-turn deep research until acceptance criteria pass |
+| Code review audit | One pass, misses follow-up items | Iterative review → fix → verify cycle |
+| Data analysis | Incomplete if data is complex | Continues until all metrics extracted and validated |
+
+### Visual Indicators
+
+- **Task Card** — A "Goal Mode" badge appears on cards with goal mode enabled (shows max turns if set)
+- **Task Drawer** — The details section shows Goal Mode status
+
+### Budget & Safety
+
+All 4 budget dimensions (tokens, USD, time, turns) apply. The 14-layer dead-loop shield runs on every turn, preventing runaway execution, cost overruns, and goal drift — identical protections to chat goals.
+
 ## Priority Queue
 
 When you create multiple goals, they're automatically queued:
