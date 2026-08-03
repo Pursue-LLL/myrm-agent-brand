@@ -15,6 +15,14 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-08-03 · SaaS 计费透明面板 · 路线图 #1）
+
+- **SaaS 计费透明面板（vs TRAE / Cursor / Claude Code / Codex / OpenClaw / Maka）**：CP billing catalog **12/12 pytest**（tier_multipliers + topup_available + model_tier + burn_table 边界用例）+ 前端 TypeScript 编译验证 + Chrome E2E Account 页面渲染 = **12 tests, 0 failures**。
+- **已验证**：CP `burn_table.py` 公开 `TIER_MULTIPLIER`（LITE 1×/STANDARD 3×/FRONTIER 10×）+ `TIER_EXAMPLES`，通过 `catalog.py` `tier_multipliers` API 字段返回；前端 `QuotaDisplay.tsx` 渲染 5 维 SaaS 计费面板（订阅 WU 进度条 + 充值 WU 紧凑余额 + 每日刷新额度 + 免费模型列表 + 倍率公示卡片）+ 竞品定价解释器（6 语言 i18n：Claude Code 按会话 / Cursor 月费 / Codex 按补全 / Myrm BYOK 按 token）+ 可靠性信任条；`cp-billing.ts` 补全 `billing_provider` + `topup_available` + `yearly_checkout_available`；NaN 安全算术（`limit > 0` 守卫 + `StatCard` percentage 双重保护）。
+- **对用户可见的竞品优势**：Myrm 是唯一在 GUI 中公示模型倍率、每日刷新配额、免费模型列表和跨平台定价对比的 AI Agent 产品。TRAE 隐藏 WU 换算率；Cursor 月费打包不透明；Claude Code 按会话计费不公开模型权重；Codex 仅暴露单一 `rollout_budget` 维度；OpenClaw 仅展示 OAuth provider 级百分比窗口（无 WU 明细）；Maka 仅提供事后用量统计表（无实时配额无倍率）。
+- **诚实边界**：竞品定价解释器为静态 i18n 文本（非实时 API）；可靠性信任条链接至审批/PDV 文档（非实时 SLA 指标）；充值 WU 展示为条件渲染（仅 `topupWu > 0` 时显示）。
+- **Material SSOT：** `temp-docs/materials/USER_EXPERIENCE_ADVANTAGE.md` §30 · `QuotaDisplay.tsx` · `QuotaWidgets.tsx` · `burn_table.py` · `catalog.py`
+
 ## 最新验证快照（2026-08-03 · Humanize 双层 SSOT · 路线图 #6+#8）
 
 - **Humanize + 作用域 + 技能保存预览方言（vs OpenWorker / Hermes / OpenClaw / deer-flow / LobsterAI / CoPaw / jiuwenclaw）**：`humanize.test.ts` + `utils.humanize.test.ts` **12/12** + `PolymorphicApprovalCard` + `ToolCallApproval` + `SaveSkillApprovalPreview` **18/18** + `SingleApprovalCard.saveSkill` + `shellCommandDisplay` + `buildToolApprovalRequest` **19/19** = **49 vitest, 0 failures**（约 30s、3 batch、**无 Chrome MCP** — MCP 导航 10s 超时；`curl :3000` **200 OK**）。
