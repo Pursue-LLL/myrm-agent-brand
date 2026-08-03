@@ -1,0 +1,71 @@
+---
+title: 主题工作室
+description: 全工作区个性化 — 壁纸、预设、社区市场、零闪烁持久化。
+---
+
+# 主题工作室
+
+Myrm 主题工作室支持全工作区外观定制 — 壁纸、配色方案、字体、布局 — 提供四步编辑器、17 款内置精品预设、AI 生成技能和社区主题市场。
+
+## 核心能力
+
+<CardGroup cols={2}>
+  <Card title="17 款内置精品预设" icon="palette">
+    涵盖五大风格 — 护眼、自然、效率、温馨、彩色强调。每款通过 WCAG AA 对比度认证，配合字体与布局联动。
+  </Card>
+  <Card title="全窗壁纸" icon="image">
+    上传 PNG、JPEG、WebP 或 MP4 视频壁纸（最大 80 MB）。视频自动提取封面帧；手机和弱网环境自动降级为静态图片。
+  </Card>
+  <Card title="主题编辑器" icon="wand-magic-sparkles">
+    四步向导 — 选择壁纸 → 设置主题色（OKLCh 自动派生色板）→ 选择布局 → 导出为 `.myrmtheme` 便携包。DOM 实时预览，Apply 前零配置写入。
+  </Card>
+  <Card title="社区主题市场" icon="store">
+    浏览、购买、一键安装社区主题。创作者通过创作中心投稿，Stripe 结算收益。管理员审核投稿时必须填写驳回理由。
+  </Card>
+</CardGroup>
+
+## 路由感知可读性
+
+Myrm 自动将页面分为**沉浸式**（聊天页）和**功能性**（看板、设置、Brain 等 20+ 功能页）两种场景。功能页自动提升 surface 透明度下限 — 导航栏 0.92 / 侧边栏 0.90 / 主内容 0.94 / 卡片 0.96 — 即使壁纸色彩鲜艳，文字依然清晰可读。
+
+布局（你的审美选择）与场景（路由驱动的可读性）正交 — 切页自动适配，零配置。
+
+## 零闪烁持久化
+
+主题在刷新、新窗口、重启后通过三层机制持久保持：
+
+1. **预初始化脚本** — `beforeInteractive` 阻塞脚本在 React hydration 前从 `localStorage` 恢复所有主题 token，消除默认白屏闪烁。
+2. **ThemeProfileProvider** — Root Layout 级 React Context 实时编译激活的 theme profile 并同步 CSS 变量。
+3. **ConfigSync** — 主题配置元数据同步到服务端，切换设备后自动恢复（壁纸素材通过 `.myrmtheme` 重新导入）。
+
+## 便携 `.myrmtheme` 包
+
+导出为 `.myrmtheme` 文件 — 安全 ZIP 包，包含 `recipe.json` 清单、hero 图片、预览缩略图和媒体素材。Server 逐包校验：zip 炸弹检测、路径穿越防护、MIME 白名单、animated WebP 拒绝。
+
+在 Tauri 桌面端（Windows、macOS、Linux），双击 `.myrmtheme` 文件即可打开导入预览。
+
+## AI 主题生成
+
+内置 `generate-myrm-theme` 技能，从自然语言描述生成结构化 Recipe JSON。产出直接进入 Theme Studio 预览并一键应用 — 不注入任何原始 CSS 或 JavaScript。
+
+## 工件主题继承
+
+AI 生成的 HTML 工件（Artifact）和 MCP App iframe 自动继承工作区主题。widget-theme-bridge 映射 22 个 CSS 变量到语义化 widget token，内含 70+ Tailwind 风格工具类和表单预样式。
+
+桌宠稀有度光晕与状态气泡共用同一套宿主订阅 — Theme Studio 实时预览调色或切换 preset 时，工件与桌宠 accent 同步更新，无需刷新页面。
+
+## 三部署一致
+
+| 部署方式 | 主题能力 |
+|---|---|
+| **云沙箱** | 完整市场 + ConfigSync + Gallery |
+| **本地 Web UI** | 完整 Theme Studio + `.myrmtheme` 导入 + 所有预设 |
+| **Tauri 桌面端** | 以上全部 + `.myrmtheme` 文件关联 + 多窗口同步 |
+
+## 快速上手
+
+1. 打开 **设置 → 主题工作室**（或设置中的外观标签页）。
+2. 选择一款内置预设，或从头开始创作。
+3. 上传壁纸、调整主题色、选择布局。
+4. 点击 **应用** 保存，或 **导出** 生成 `.myrmtheme` 便携包。
+5. 在 **Gallery** 标签页浏览社区主题，或通过 **创作中心** 提交自己的作品。

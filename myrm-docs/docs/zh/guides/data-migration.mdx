@@ -56,6 +56,26 @@ Myrm 提供完整的数据迁移系统，支持从多个平台导入 AI 助手�
 
 **验证（2026-07-29）**：Chrome E2E **sequential 3-leg 签收 3/3 PASS**（mcp_warning · provider_critical · diagnostic_critical，8 路并行 wave 下未停其他 pytest）· 65+ 单元/集成测试 · 竞品多为导入后 silent fail 或无 GUI 引导。
 
+Hermes 迁移后，Readiness 还可能提示 **voice** 或 **consensus（MoA）** 功能门禁（Hermes 用过但 Myrm 侧未开启时）——各链对应设置页，不阻断聊天。
+
+## Hermes 定时任务导入（默认暂停）
+
+从 **Hermes** 迁移时，向导可导入 `cron/jobs.json` 中的定时任务：
+
+| 步骤 | 行为 |
+|------|------|
+| **Dry-run** | 预览将导入的任务与 skip 列表（如 `no_agent`、纯 script）及原因 |
+| **Confirm** | 可映射的 agent 类任务以 **PAUSED** 创建——需你在设置中 Resume 后才会运行 |
+| **Result** | 汇总计数 + **配置定时任务** 按钮深链至 **设置 → 定时任务** |
+| **Rollback** | 批次 `cron_rollback` 撤销该次导入创建的 cron |
+
+**诚实边界：**
+- 不迁移 Hermes **model** 字段——任务使用目标 Agent 默认模型
+- **Kanban** 看板**不**自动迁移（覆盖矩阵显示 `kanban_not_migrated`）
+- Cron 导入**尚无** Chrome MCP E2E 签收——后端由 **`test_hermes_cron_converter.py` 7/7 通过**（2026-08-03）覆盖
+
+竞品（Hermes CLI `claw migrate`、OpenClaw、deer-flow、LobsterAI、CoPaw、jiuwenclaw）均无 GUI 迁移向导 + Hermes cron 预览/暂停导入/回滚。
+
 ## 回滚
 
 每次导入都可完全撤销：
@@ -140,3 +160,4 @@ Myrm 在所有部署模式中使用 SQLite 作为单一数据存储。在本地 
 | Agent 配置导出/导入 | ✅ JSON | ❌ | ❌ | ❌ |
 | 对话导出含压缩状态 | ✅ | ❌ | ❌ | ❌ |
 | 对话分享（只读链接） | ✅（HMAC+TTL，可撤销） | ❌ | ❌ | ❌ |
+| Hermes 定时任务导入（暂停+回滚） | ✅ | ❌ 仅 CLI，无预览 | ❌ | ❌ |

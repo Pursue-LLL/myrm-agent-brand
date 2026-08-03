@@ -104,6 +104,53 @@ Configurable via parameters: `max_steps` (how far to scroll), `delay_ms` (wait t
 - Handle authentication flows
 - Handle browser dialogs intelligently
 
+## Canvas/Rich-Editor Visual Mode
+
+Web applications like Google Docs, Figma, Google Sheets, and Excalidraw render content on `<canvas>` elements or highly virtualized DOM — ARIA tree refs cannot map to visible text, buttons, or cells. Myrm automatically detects these pages and switches to **coordinate-based interaction**.
+
+### How It Works
+
+1. **Auto-detection**: When `browser_snapshot` runs, Myrm's content extractor checks for `<canvas>` elements and role-less visual regions. If significant visual content is detected, the snapshot result includes a `[VISUAL_CONTENT_DETECTED]` hint.
+
+2. **Mode switch**: The agent sees the hint and switches from ref-based to coordinate-based interaction — using a screenshot to identify element positions, then calling actions with `(x, y)` coordinates.
+
+3. **Humanized interaction**: Coordinate-mode actions share the same Bézier mouse trajectory engine as ref-based actions — clicks and drags follow natural curved paths, not instant teleports.
+
+### Supported Actions
+
+| Action | Parameters | Use Case |
+|--------|-----------|----------|
+| `click` | `x`, `y` | Click a canvas element (Bézier trajectory supported) |
+| `dblclick` | `x`, `y` | Double-click to enter edit mode |
+| `type` | `x`, `y`, `text` | Click to focus, then type with humanized delay |
+| `press` | `x`, `y`, `text` | Click to focus, then press key combo |
+| `hover` | `x`, `y` | Hover to trigger tooltips (Bézier supported) |
+| `scroll` | `x`, `y`, `text` (delta) | Scroll at position with signed pixel delta |
+| `drag` | `x`, `y`, `target_x`, `target_y` | Drag with Bézier trajectory |
+
+### Example
+
+```text
+# 1. Agent takes a snapshot and sees [VISUAL_CONTENT_DETECTED]
+browser_snapshot → "... [VISUAL_CONTENT_DETECTED: canvas-based content detected] ..."
+
+# 2. Agent requests a screenshot to identify coordinates
+browser_manage(action="screenshot")
+
+# 3. Agent clicks a cell in Google Sheets
+browser_interact(action="click", x=350, y=200)
+
+# 4. Agent types a value with visual verification
+browser_interact(action="type", x=350, y=200, text="Q3 Revenue",
+                 verify_goal="Cell shows 'Q3 Revenue'")
+```
+
+### Safety
+
+- **Viewport bounds validation**: Coordinates outside the visible viewport are rejected with a clear error message
+- **Mutual exclusion**: `ref` and `x/y` cannot be used together — prevents ambiguous actions
+- **Visual verification**: `verify_goal` works in coordinate mode too — the 3-layer vision pipeline (dHash → pixel diff → Vision LLM) confirms the action achieved its goal
+
 ## URL Domain Blocklist (Settings + Per-Agent)
 
 Block sensitive or unwanted domains **before the browser opens a connection** — not after a failed navigation.

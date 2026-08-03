@@ -56,6 +56,26 @@ After a successful import, Myrm **live-resolves** readiness before your first me
 
 **Verified (2026-07-29):** Chrome E2E **sequential 3-leg signoff 3/3 PASS** (`mcp_warning` · `provider_critical` · `diagnostic_critical`) under parallel wave (≤8 leases, no stopping other pytest) · 65+ unit/integration tests · competitors typically silent-fail or CLI-only with no post-import UX.
 
+Additional readiness checks after Hermes migration may surface **voice** or **consensus (MoA)** feature gates when those capabilities were used in Hermes but are disabled in your Myrm profile — each links to the relevant Settings page without blocking chat.
+
+## Hermes Cron Job Import (Paused by Default)
+
+When migrating from **Hermes**, the wizard can import scheduled jobs from `cron/jobs.json`:
+
+| Step | What happens |
+|------|----------------|
+| **Dry-run** | Preview lists jobs to import and skipped jobs (e.g. `no_agent`, script-only) with reasons |
+| **Confirm** | Matching agent-type jobs are created in **PAUSED** state — they do not run until you resume them |
+| **Result** | Summary counts + **Configure Cron** button deep-links to **Settings → Cron** |
+| **Rollback** | Batch `cron_rollback` removes jobs created in that import |
+
+**Honest boundaries:**
+- Hermes **model** fields are **not** migrated — jobs use the target Agent's default model
+- **Kanban** boards are **not** auto-migrated (coverage matrix shows `kanban_not_migrated`)
+- **No Chrome MCP E2E** sign-off for cron import yet — backend covered by **`test_hermes_cron_converter.py` 7/7 passed** (Aug 2026)
+
+No competitor (Hermes CLI `claw migrate`, OpenClaw, deer-flow, LobsterAI, CoPaw, jiuwenclaw) offers a GUI migration wizard with Hermes cron preview + paused import + rollback.
+
 ## Rollback
 
 Every import can be fully reversed:
@@ -144,3 +164,4 @@ Export conversation data in training-ready formats:
 | Agent Config Export/Import | ✅ JSON | ❌ | ❌ | ❌ |
 | Session Export with Compaction State | ✅ | ❌ | ❌ | ❌ |
 | Conversation Share (read-only link) | ✅ (HMAC+TTL, revocable) | ❌ | ❌ | ❌ |
+| Hermes Cron Import (paused + rollback) | ✅ | ❌ CLI only, no preview | ❌ | ❌ |

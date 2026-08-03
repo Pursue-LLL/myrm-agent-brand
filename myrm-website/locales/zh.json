@@ -443,7 +443,7 @@
           "feature": "纵深安全 · 隐私不泄露",
           "hermes": "3处拦截",
           "openclaw": "1层",
-          "myrmAgent": "22层纵深防御(5层洋葱架构+4安全维度) · 30000+安全测试全通过(2026年7月) · **架构级零遥测**：Metrics/OTEL 默认 opt-in 关闭（竞品 Claude Code 被曝 opt-out 隐秘追踪）· 输入侧：PromptGuard 7+2中英注入检测+ContentBoundary 5层结构防护 · 执行侧：ShellCommandAnalyzer 6层命令分析(二进制注入→ANSI-C绕过→危险命令→SQL守卫→可疑模式→递归shell wrapper分析)+Python 40+模块黑名单+PEP 578 C级审计钩子+OS沙箱(seatbelt/bwrap)+TaintTracker污点追踪+CapabilityFence deny-by-default · 输出侧：CanaryGuard确定性金丝雀令牌+LeakDetector 40+凭证模式+ToolOutputRedact 30+模式脱敏+PII 30+中英双语检测 · AES-256-GCM凭证保险库(三层：Vault+Session+DB) · E2EE视觉背书(NaCl Box Curve25519, 39测试) · 确定性安全审批(零Token/不可注入) · SQL语法级命令守卫(multi-statement注入+WITH CTE绕过防御) · SSRF盾(DNS Pinning+逐跳重定向+数据外泄检测+Domain HITL审批, 358项测试) · Per-Agent安全策略 · 3级PII敏感度+隐私感知路由 · 3档会话级安全预设一键切换（HITL/自动批准编辑+AI智能审查/只读模式，与YOLO双向互斥） · OAuth自动告警+/freeze全局急停 · CSP防护 · **Agent 配置安全审计**：实时 6 维度 HealthScoreCard（工具暴露/MCP 认证/技能信任/子代理风险/定时任务风险/策略缺口）——按 checker 分组展示 + 独立颜色标识 + 策略缺口一键 Fix/Configure 按钮——全球唯一 GUI 集成的 Agent Profile 级聚合安全审计（竞品 SafeAI 仅 CLI、LobsterAI 仅 Skill 级、其余均无）· 52 项审计测试全通过（后端 37 + 前端 15）· **智能意图守护出厂默认开启**：AI 智能审批开箱即用，无需任何配置。未配置专用审查模型时自动回退到用户默认模型。90% 安全命令自动放行，危险操作仍需人工确认（竞品 Hermes 仅 CLI 配置，其余 6 家均无智能审批）· **用户命令黑名单**：GUI glob 模式编辑器，永久拦截危险命令（git push --force*、rm -rf /*、DROP TABLE*）——YOLO 不可绕过的硬地板。全局 + Per-Agent 并集合并。竞品均无 GUI 命令黑名单配置"
+          "myrmAgent": "22层纵深防御(5层洋葱架构+4安全维度) · 30000+安全测试全通过(2026年7月) · **架构级零遥测**：Metrics/OTEL 默认 opt-in 关闭（竞品 Claude Code 被曝 opt-out 隐秘追踪）· 输入侧：PromptGuard 7+2中英注入检测+ContentBoundary 5层结构防护 · 执行侧：ShellCommandAnalyzer 6层命令分析(二进制注入→ANSI-C绕过→危险命令→SQL守卫→可疑模式→递归shell wrapper分析)+Python 40+模块黑名单+PEP 578 C级审计钩子+OS沙箱(seatbelt/bwrap)+TaintTracker污点追踪+CapabilityFence deny-by-default · 输出侧：CanaryGuard确定性金丝雀令牌+LeakDetector 40+凭证模式+ToolOutputRedact 30+模式脱敏+PII 30+中英双语检测 · AES-256-GCM凭证保险库(三层：Vault+Session+DB) · E2EE视觉背书(NaCl Box Curve25519, 39测试) · 确定性安全审批(零Token/不可注入) · SQL语法级命令守卫(multi-statement注入+WITH CTE绕过防御) · SSRF盾(DNS Pinning+逐跳重定向+数据外泄检测+Domain HITL审批, 358项测试) · Per-Agent安全策略 · 3级PII敏感度+隐私感知路由 · 3档会话级安全预设一键切换（HITL/自动批准编辑+AI智能审查/只读模式，与YOLO双向互斥） · OAuth自动告警+/freeze全局急停 · CSP防护 · **Agent 配置安全审计**：实时 6 维度 HealthScoreCard（工具暴露/MCP 认证/技能信任/子代理风险/定时任务风险/策略缺口）——按 checker 分组展示 + 独立颜色标识 + 策略缺口一键 Fix/Configure 按钮——全球唯一 GUI 集成的 Agent Profile 级聚合安全审计（竞品 SafeAI 仅 CLI、LobsterAI 仅 Skill 级、其余均无）· 52 项审计测试全通过（后端 37 + 前端 15）· **智能意图守护出厂默认开启**：AI 智能审批开箱即用，无需任何配置。未配置专用审查模型时自动回退到用户默认模型。90% 安全命令自动放行，危险操作仍需人工确认（竞品 Hermes 仅 CLI 配置，其余 6 家均无智能审批）· **用户命令黑名单**：GUI glob 模式编辑器，永久拦截危险命令（git push --force*、rm -rf /*、DROP TABLE*）——YOLO 不可绕过的硬地板。全局 + Per-Agent 并集合并。竞品均无 GUI 命令黑名单配置 · **会话目录 HITL**（本地/桌面）：Agent 访问 workspace 外文件夹前先询问——Composer 授权卡 + 输入框上方可撤销 chips；文件审批 path-ASK 勾选（默认关）；危险路径 grant 前拦截——**8 大竞品中仅 OpenWorker Cowork 有同类能力**（OpenClaw/Hermes/DeerFlow/LobsterAI/CoPaw/jiuwenclaw：均无）"
         },
         "goalMode": {
           "feature": "目标驱动 · 复杂项目全程管控",
@@ -509,7 +509,7 @@
           "feature": "零配置迁移 (OOBE) · 带着资产零成本入住 · 使用习惯不丢失",
           "hermes": "需手动配置",
           "openclaw": "无",
-          "myrmAgent": "首次启动自动扫描本机 Claude Code, Cursor, Codex, Hermes, OpenClaw, Windsurf, Trae, gbrain 等 14 种竞品配置（13 种 ready），一键导入记忆/技能/MCP/模型配置 + 自动映射 + 技能使用历史/偏好/Pin 状态同步迁移（零冷启动）。**OpenClaw vault 绑定闭环**：导入后在 GUI 一键绑 Obsidian vault 到 Project，首条消息即写 chat SSOT。**导入后 Readiness 首聊引导**：live-resolve 待完成项 → 首聊 toast 直达 MCP/模型/Memory 设置（软门禁不阻断回复，2026-07-29 Chrome E2E **3/3 sequential 签收**）"
+          "myrmAgent": "首次启动自动扫描本机 Claude Code, Cursor, Codex, Hermes, OpenClaw, Windsurf, Trae, gbrain 等 14 种竞品配置（13 种 ready），一键导入记忆/技能/MCP/模型配置 + 自动映射 + 技能使用历史/偏好/Pin 状态同步迁移（零冷启动）。**Hermes 定时任务迁移（默认暂停）**：dry-run 预览 skip 列表 + 确认后以 PAUSED 创建（不迁 model，用 Agent 默认）· 批次回滚 · 结果页直达设置→定时任务（**7 pytest 2026-08-03**）。**OpenClaw vault 绑定闭环**：导入后在 GUI 一键绑 Obsidian vault 到 Project，首条消息即写 chat SSOT。**导入后 Readiness 首聊引导**：live-resolve 待完成项（含 voice/consensus）→ 首聊 toast 直达 MCP/模型/Memory 设置（软门禁不阻断回复，2026-07-29 Chrome E2E **3/3 sequential 签收**）。**诚实边界**：Kanban 不自动迁移"
         },
         "webuiSecurity": {
           "feature": "WebUI 隧道安全 · 三层跨域防护 + DNS Rebinding 防护",
@@ -701,7 +701,7 @@
           "feature": "中文搜索+迁移 · 换平台不丢配置",
           "hermes": "hermes claw migrate CLI",
           "openclaw": "手动拷贝配置",
-          "myrmAgent": "5源 GUI 向导（Hermes+OpenClaw+Claude/Codex/ChatGPT 等）· dry-run 预览/确认/回滚 · 技能自动绑定 Agent · 14种适配器自动发现 + Mem0 兼容 API · 217项导入测试 — Article13：迁移体验 **Myrm ≫** Hermes CLI migrate"
+          "myrmAgent": "五车道 GUI 向导（Hermes+OpenClaw+Claude/Codex/ChatGPT 等）· dry-run 预览/确认/回滚 · Hermes 定时任务 PAUSED 导入+批次回滚（**7 pytest 2026-08-03**）· 技能自动绑定 Agent · 14种适配器自动发现 + Mem0 兼容 API · 217+ 项导入测试 — Article13：迁移体验 **Myrm ≫** Hermes CLI migrate（无 GUI cron 预览）"
         },
         "workspaceRulesCompat": {
           "feature": "项目规则兼容 · 你的 AGENTS.md / .cursorrules / CLAUDE.md 直接生效",

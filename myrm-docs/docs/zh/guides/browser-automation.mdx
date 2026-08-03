@@ -132,6 +132,53 @@ Agent 使用 `browser_extract(mode='media', selector='.product-gallery')` 获得
 - 处理认证流程
 - 智能处理浏览器弹窗
 
+## Canvas/富编辑器视觉交互模式
+
+Google Docs、Figma、Google Sheets、Excalidraw 等 Web 应用将内容渲染在 `<canvas>` 元素或高度虚拟化的 DOM 中——ARIA 树 ref 无法映射到可见的文本、按钮或单元格。Myrm 自动检测这些页面并切换到**坐标交互模式**。
+
+### 工作原理
+
+1. **自动检测**：`browser_snapshot` 运行时，Myrm 的内容提取器会检查 `<canvas>` 元素和无角色的视觉区域。如果检测到大面积视觉内容，快照结果会附加 `[VISUAL_CONTENT_DETECTED]` 提示。
+
+2. **模式切换**：Agent 看到提示后，自动从 ref 模式切换到坐标模式——通过截图识别元素位置，然后用 `(x, y)` 坐标执行操作。
+
+3. **拟人化交互**：坐标模式操作与 ref 模式共享同一个 Bézier 鼠标轨迹引擎——点击和拖拽沿自然曲线移动，而非瞬间传送。
+
+### 支持的操作
+
+| 操作 | 参数 | 用途 |
+|------|------|------|
+| `click` | `x`, `y` | 单击画布元素（支持 Bézier 轨迹） |
+| `dblclick` | `x`, `y` | 双击进入编辑模式 |
+| `type` | `x`, `y`, `text` | 先点击定位再输入文字（拟人化延迟） |
+| `press` | `x`, `y`, `text` | 先点击定位再按键组合 |
+| `hover` | `x`, `y` | 悬停触发提示信息（支持 Bézier） |
+| `scroll` | `x`, `y`, `text` (delta) | 定点滚动，带方向 |
+| `drag` | `x`, `y`, `target_x`, `target_y` | 拖拽（支持 Bézier 轨迹） |
+
+### 示例
+
+```text
+# 1. Agent 执行快照，看到 [VISUAL_CONTENT_DETECTED]
+browser_snapshot → "... [VISUAL_CONTENT_DETECTED: canvas-based content detected] ..."
+
+# 2. Agent 请求截图来识别坐标
+browser_manage(action="screenshot")
+
+# 3. Agent 点击 Google Sheets 中的单元格
+browser_interact(action="click", x=350, y=200)
+
+# 4. Agent 输入内容并视觉验证
+browser_interact(action="type", x=350, y=200, text="Q3 营收",
+                 verify_goal="单元格显示 'Q3 营收'")
+```
+
+### 安全保障
+
+- **视口边界校验**：超出可见视口的坐标会被拒绝并返回清晰的错误信息
+- **互斥校验**：`ref` 和 `x/y` 不能同时使用——防止歧义操作
+- **视觉验证**：坐标模式同样支持 `verify_goal`——3 层视觉管道（dHash → 像素对比 → Vision LLM）确认操作达到预期效果
+
 ## URL 域名黑名单（全局 Settings + 按 Agent）
 
 在浏览器**发起连接之前**拦截敏感或不允许的域名，而不是等导航失败后再报错。

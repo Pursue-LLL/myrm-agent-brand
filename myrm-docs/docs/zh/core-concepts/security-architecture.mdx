@@ -104,6 +104,19 @@ Myrm 六层纵深防御，确保 Agent 在广泛自主权下仍安全运行。
 
 这杜绝了 Agent 双重执行、重复 LLM 消耗和矛盾操作——这是大多数竞品框架存在的安全缺口。
 
+### 会话目录授权（本地与桌面）
+
+当 Agent 需要访问**当前工作区之外**的文件夹（例如 `~/Downloads` 或你口头提到的项目目录）时，Myrm 会弹出明确授权，而不是静默扩大访问范围：
+
+| 步骤 | 发生什么 | 用户收益 |
+|------|----------|----------|
+| **Agent 请求** | `request_directory_tool` 在输入区上方显示卡片（路径 + 读/写开关），或在文件审批卡上提供 **Grant directory**（默认未勾选） | 始终清楚**哪个目录**将被打开 |
+| **用户授权** | 权限写入会话记录，并在输入框上方以 chip 展示（RO/RW 标识） | 同一路径本会话内无需重复审批 |
+| **用户撤销** | 点击 chip 上的 × 立即收回该目录 | 误授权可逆，无需重启会话 |
+| **安全底线** | 危险路径（如 `~/.ssh`）在授权前即被拒绝；云沙箱在 workspace 已等于沙箱根时不挂载该工具 | 桌面有 HITL 体验，云端 fail-closed |
+
+**竞品对比：** OpenWorker Cowork 有类似的 `request_directory`；OpenClaw、Hermes、DeerFlow、LobsterAI、CoPaw、jiuwenclaw 的代码库中均无会话级目录 HITL。Myrm 额外提供文件审批上的 path-ASK 授权、持久化 revoke、六语界面与部署边界检查。
+
 ### 审批纠错学习
 
 当你编辑已审批动作的参数或拒绝工具调用时，系统自动学习你的偏好：
@@ -394,6 +407,10 @@ AI 分类器（`TranscriptClassifier`）审查工具调用是否符合用户原�
 - **sudo 前缀自动标注**，危险管道模式高亮
 - 用户无需 Shell 专业知识也能理解命令含义后做出审批决策
 - 纯规则引擎：不可被 prompt injection 操控（优于 LLM 方案）
+
+<Note>
+**前端 humanize SSOT（2026-08）** — 除 Harness 层 Shell 的 `humanize_command` 外，WebUI 模块 `lib/humanize/` 为 **进度步骤** 与 **三处审批出口**（Single / Polymorphic / ToolCall）生成 **同一套人话方言**。作用域提示（本地 vs 外部渠道）经 `resolveScopeNote` + `ApprovalScopeNoteLine` 六语展示；保存技能审批前提供结构化预览。定向验证：**49 vitest 通过，0 失败**（2026-08）。
+</Note>
 
 ### Install Slopcheck（防包名幻觉 / Anti-Slopsquatting）
 

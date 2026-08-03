@@ -1,0 +1,71 @@
+---
+title: Theme Studio
+description: Full-workspace personalization with wallpapers, presets, community marketplace, and zero-flash persistence.
+---
+
+# Theme Studio
+
+Myrm's Theme Studio lets you customize the entire workspace appearance — wallpapers, color palettes, fonts, and layouts — with a four-step editor, 17 built-in presets, an AI generation skill, and a community marketplace.
+
+## Features
+
+<CardGroup cols={2}>
+  <Card title="17 Built-in Presets" icon="palette">
+    Choose from 17 curated presets covering five moods — Eye-care, Natural, Efficiency, Warmth, and Colorful Accent. Every preset is WCAG AA contrast-certified and includes font/layout pairing.
+  </Card>
+  <Card title="Full-Window Wallpaper" icon="image">
+    Upload PNG, JPEG, WebP, or MP4 video backgrounds (up to 80 MB). Videos auto-extract poster frames; mobile and reduced-motion devices gracefully degrade to static images.
+  </Card>
+  <Card title="Theme Studio Editor" icon="wand-magic-sparkles">
+    Four-step wizard — pick a hero wallpaper, set the accent color (with AI-derived palette via OKLCh), choose a layout, then export as a portable `.myrmtheme` package. DOM-only live preview ensures zero config writes until you hit Apply.
+  </Card>
+  <Card title="Community Marketplace" icon="store">
+    Browse, purchase, and install themes from the community Gallery. Creators submit themes through Creator Center with Stripe-powered payouts. Admins review submissions with required rejection reasons.
+  </Card>
+</CardGroup>
+
+## Route-Aware Readability
+
+Myrm automatically classifies pages into **immersive** (Chat) and **functional** (Kanban, Settings, Brain, etc.) scenes. Functional pages apply higher surface opacity floors — nav 0.92, sidebar 0.90, main content 0.94, cards 0.96 — ensuring text remains legible even with vibrant wallpapers.
+
+Layout (your aesthetic choice) and Scene (route-driven readability) are orthogonal — page switches are automatic with zero configuration.
+
+## Zero-Flash Persistence
+
+Your theme persists across refreshes, new windows, and restarts through a three-layer mechanism:
+
+1. **Pre-init script** — A blocking `beforeInteractive` script restores theme tokens from `localStorage` before React hydrates, eliminating any flash of default theme.
+2. **ThemeProfileProvider** — Root-layout-level React context compiles your active profile and syncs CSS variables in real time.
+3. **ConfigSync** — Theme profile metadata syncs to the server, so switching devices restores your theme automatically (wallpaper assets use `.myrmtheme` re-import on new devices).
+
+## Portable `.myrmtheme` Packages
+
+Export your creations as `.myrmtheme` files — secure ZIP bundles containing a `recipe.json` manifest, hero image, preview thumbnail, and media assets. The server validates every package with zip-bomb detection, path-traversal prevention, MIME whitelist, and animated-WebP rejection.
+
+On Tauri Desktop (Windows, macOS, Linux), double-clicking a `.myrmtheme` file opens the import preview directly.
+
+## AI Theme Generation
+
+The built-in `generate-myrm-theme` skill produces structured Recipe JSON from a natural-language prompt. The output feeds directly into Theme Studio for preview and one-click apply — no raw CSS or JavaScript is ever injected.
+
+## Artifact Theme Sync
+
+AI-generated HTML widgets (Artifacts) and MCP App iframes automatically inherit the host workspace theme through the widget-theme-bridge. 22 CSS variables are mapped to semantic widget tokens, with 70+ Tailwind-like utility classes and pre-styled form elements included.
+
+Desk pet rarity glow and status bubbles use the same host subscription — when you tweak colors in Theme Studio live preview or switch presets, widgets and companion accents stay in sync without a page reload.
+
+## Three-Deployment Consistency
+
+| Deployment | Theme Capabilities |
+|---|---|
+| **Cloud sandbox** | Full marketplace + ConfigSync + Gallery |
+| **Local Web UI** | Full Theme Studio + `.myrmtheme` import + all presets |
+| **Tauri Desktop** | All of the above + `.myrmtheme` file association + multi-window sync |
+
+## Quick Start
+
+1. Open **Settings → Theme Studio** (or the Appearance tab in Settings).
+2. Pick a built-in preset or start from scratch.
+3. Upload a wallpaper, adjust the accent color, and choose a layout.
+4. Hit **Apply** to persist, or **Export** to save a `.myrmtheme` package.
+5. Browse the **Gallery** tab for community themes, or submit your own via **Creator Center**.

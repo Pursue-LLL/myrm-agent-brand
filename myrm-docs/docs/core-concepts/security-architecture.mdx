@@ -106,6 +106,19 @@ When an approval timeout fires and a user manually approves almost simultaneousl
 
 This prevents double agent execution, duplicate LLM costs, and contradictory operations — a gap present in most competing frameworks.
 
+### Session Directory Grants (Local & Desktop)
+
+When the agent needs files **outside** the current workspace (e.g. `~/Downloads`, a project folder you mentioned), Myrm asks for explicit permission instead of silently expanding access:
+
+| Step | What happens | User benefit |
+|------|----------------|--------------|
+| **Agent asks** | `request_directory_tool` shows a composer card (path + read/write toggle), or a file approval card offers **Grant directory** (unchecked by default) | You always know *which folder* is being opened |
+| **You grant** | Access is stored on the chat row and shown as chips above the input (RO/RW badge) | One grant lasts the session — no repeated popups for the same path |
+| **You revoke** | Click × on a chip to remove that root instantly | Mistakes are reversible without restarting the chat |
+| **Safety floor** | Dangerous paths (e.g. `~/.ssh`) are rejected **before** grant; cloud sandboxes skip this tool when the workspace already equals the sandbox root | Same HITL UX on desktop, fail-closed on cloud |
+
+**Compared to competitors:** OpenWorker Cowork has a similar `request_directory` flow; OpenClaw, Hermes, DeerFlow, LobsterAI, CoPaw, and jiuwenclaw do not offer session-scoped directory HITL in their codebases. Myrm adds path-ASK grants on file approvals, persisted revoke, six-locale UI, and deployment boundary checks.
+
 ### Correction Learning
 
 When you edit an approved action's arguments or reject a tool call, the system automatically learns your preferences:
@@ -396,6 +409,10 @@ Every command that triggers approval displays a human-readable bilingual explana
 - **sudo prefix auto-tagged**, dangerous pipe patterns highlighted
 - Users understand *what* the command does before approving, even without shell expertise
 - Entirely rule-based: cannot be manipulated via prompt injection unlike LLM-based alternatives
+
+<Note>
+**Frontend humanize SSOT (2026-08)** — Beyond harness `humanize_command` for shell, the WebUI module `lib/humanize/` generates the **same plain-language dialect** for ProgressSteps titles and all three approval surfaces (Single / Polymorphic / ToolCall). Scope hints (`local` vs `external` channel) use `resolveScopeNote` + `ApprovalScopeNoteLine` in six locales. Save-skill approvals show a structured preview before you approve. Validated: **49 focused vitest, 0 failures** (Aug 2026).
+</Note>
 
 ### Install Slopcheck (Anti-Slopsquatting)
 

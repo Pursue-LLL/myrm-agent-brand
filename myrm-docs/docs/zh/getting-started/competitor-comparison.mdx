@@ -15,6 +15,14 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-08-03 · Humanize 双层 SSOT · 路线图 #6+#8）
+
+- **Humanize + 作用域 + 技能保存预览方言（vs OpenWorker / Hermes / OpenClaw / deer-flow / LobsterAI / CoPaw / jiuwenclaw）**：`humanize.test.ts` + `utils.humanize.test.ts` **12/12** + `PolymorphicApprovalCard` + `ToolCallApproval` + `SaveSkillApprovalPreview` **18/18** + `SingleApprovalCard.saveSkill` + `shellCommandDisplay` + `buildToolApprovalRequest` **19/19** = **49 vitest, 0 failures**（约 30s、3 batch、**无 Chrome MCP** — MCP 导航 10s 超时；`curl :3000` **200 OK**）。
+- **已验证**：FE `lib/humanize/` SSOT 贯通 ProgressSteps + 三处审批出口（Single / Polymorphic / ToolCall）；`resolveScopeNote` 仅 `EXTERNAL_TOOLS` 判 external（修复 `about:blank` 等冒号目标误标）；`SaveSkillApprovalPreview` + `skill_manage` 归一化；`PtcHintBadges` 六语 PTC 提示；pretest 六语 `humanize.*` + `toolApproval.ptc.*` 校验通过。
+- **对用户可见的竞品优势**：vs OpenWorker 六语 humanize（OW 仅 EN）；三出口 scope 对齐（OW 另有 InboxItemCard — Myrm 无 Inbox 产品）；save-skill 预览 + PTC 徽章为 Myrm 独有 polish。vs 六 claw 仓：**无** FE 工具人话 SSOT。
+- **诚实边界**：无 HumanLine 加粗（OW 有 — ROI ~2/10）；无 Transcript 独立 declined ask 行（Progress cancelled→ask 已覆盖）；Chrome 实时审批 Drawer E2E 本轮未签收；Bun 下 vitest coverage API 报错 — 不引用覆盖率百分比。
+- **Material SSOT：** `temp-docs/materials/USER_EXPERIENCE_ADVANTAGE.md`（Humanize 双层 SSOT 小节）· `myrm-agent-frontend/src/lib/humanize/_ARCH.md` · `components/approval/_ARCH.md`
+
 ## 最新验证快照（2026-07-31 · 评估导入闭环 · 项目里程碑路线图）
 
 - **评估工件智能导入链路（vs OpenClaw / Hermes Agent / Deer Flow / LobsterAI / CoPaw / JiuwenClaw）**：后端 artifact API **8/8** + milestone API **15/15** + assessment service **6/6** + statistics API **4/4** = **33 pytest, 0 failures**；前端 import candidates **7/7** + metrics **5/5** + error mapping **9/9** = **21 vitest, 0 failures**。总计 **54 tests, 0 failures**（< 12s、4 batch、**无 Chrome MCP**）。
@@ -94,6 +102,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 ## 最新验证快照（2026-07-27）
 
+- **对话内可点交付路径（vs OpenWorker Cowork / Hermes）**（2026-08-03）：Harness `short_file_id` SSE **3/3** + Server processor/seed fixture **3/3** + 活 API seed **200**；聊天 `` `workspace/...` `` / `@file_NNN` → ArtifactPortal（`DeliverableReferenceLink` + `openWorkspaceFileInPortal` SSOT）。OpenWorker 需 `[Title](artifact:path)` + RightRail；Hermes `@file:` 仅 Agent 内部不可点。**Chrome MCP E2E 待 mux 恢复后补跑**（`test_deliverable_link_chrome_e2e.py`）。
 - **Office 文档管线（vs WPS 灵犀 / OpenClaw / Hermes / DeerFlow / LobsterAI / CoPaw / jiuwenclaw）**：file_parsers **213/213** + document_reader **26/26** + docx 读链 E2E **16/16** + 交付 Bundle **23/23** = **278 tests, 0 failures**（2026-07-28 分批实测）。**已验证**：LegacyFormatParser OLE2 + soffice 自动转换、docx.py cell_map 结构元数据、Goal 全链路交付 ZIP 打包。**写保真（in-place）**：Harness `OfficeBashAudit` bash 后 OPC/公式 diff + baseline-missing honest warn + 损坏 Office 包 warn + 可选 LibreOffice recalc 错误扫描 + layout QA（**18 pytest**, 2026-07-28）——OSS 六竞品无同类 harness 级 post-bash audit。灵犀在政府固定模板填表上仍领先（闭源内核）；Myrm 在 Legacy 格式、结构化解析、交付 Bundle、三端独立部署上已实测领先。
 - **前端 Agent 状态管理架构（vs CopilotKit AG-UI useAgent/useAgentEvents Hooks）**：multiplexChunkBridge **16/16** + SSE handlers (gap+clarification+completion) **24/24** + messageStreamHandler core **27/27** + Zustand store (snapshot+navigation+subagent+model config) **30/30** + integration & event dispatch **39/39** + UI data model merge **6/6** + state recovery (budget+memory+reasoning) **40/40** + plan lifecycle **13/13** = **195 tests, 0 failures**。修复预存在 bug 1 枚（日语 locale「必須」更新后测试断言未同步）。
 - **为何 CopilotKit SDK Hooks 在此过时**：CopilotKit 的 `useAgent()` / `useAgentEvents()` 是面向 SDK 嵌入场景（将 Agent 嵌入第三方 App）的简化封装；Myrm 作为独立 AI 产品，前端团队直接使用 Zustand store + 13 专职 Handler 模块 + `streamConsumer`（含断线重连 / Last-Event-ID 续流 / chunk 缓冲 / capability_gap 延迟重发 / missed HITL 恢复 / 历史状态水合）——66 种 SSE 事件类型对比 CopilotKit ~10 种抽象事件，粒度 6.6x，精确 re-render 无额外 Hook 开销。
@@ -1386,7 +1395,7 @@ Myrm 在 Local 与 Tauri 部署提供 **GUI 优先竞品迁移向导**，支持 
 
 | Source | What imports automatically | What you configure manually |
 |--------|---------------------------|----------------------------|
-| **Hermes** | Persona, global memory, skills (review queue) | Some MCP/channel extensions |
+| **Hermes** | Persona、全局记忆、技能（审核队列）、**定时任务（PAUSED 导入 + 回滚）** | 部分 MCP/渠道扩展；**Kanban 不自动迁移** |
 | **OpenClaw** | Memory MD, multi-workspace merge, `sessions.json` episodic | Channels, gateway keys |
 | **Claude Code** | Skills, persona; instruction-only dry-run when memory lane empty | MCP servers in Settings |
 | **Cursor** | Rules, skills, memory fragments | IDE-specific paths vary by OS |
@@ -1426,9 +1435,11 @@ Myrm 提供 **零成本热迁移与原子持久化引擎**：
 | Interface | Terminal | GUI with lane-level preview |
 | Rollback | Limited | Memory import batches rollback |
 | Skill governance | Copy folders | Review queue + Agent binding |
-| Breadth | Broader MCP auto hints | Narrower but explicit manual lanes for MCP/channels |
+| Breadth | Broader MCP auto hints | MCP/渠道显式手动车道；**Hermes cron PAUSED 导入 + dry-run skip 列表** |
 
-**诚实评分**：本地八源 GUI 迁移 **9.7/10** — 非「覆盖每个竞品工件」。**SaaS 云沙箱不可用**（无法访问用户主机文件系统）；请用 Local WebUI 或 Tauri 桌面端。
+**Hermes cron 导入（2026-08-03）**：`test_hermes_cron_converter.py` **7/7 通过**（约 5s）— schedule 映射、omit-model、skip no_agent/script、coverage 行、plan 构建。**未验证**：Cron 导入 UI 的 Chrome MCP E2E。
+
+**诚实评分**：本地八源 GUI 迁移 **9.2/10** — 非「覆盖每个竞品工件」。**SaaS 云沙箱不可用**（无法访问用户主机文件系统）；请用 Local WebUI 或 Tauri 桌面端。
 
 ### 实跑验证（2026-06-08）
 
@@ -1452,6 +1463,7 @@ Myrm 提供 **零成本热迁移与原子持久化引擎**：
 - **迁移前看清账单** — 预览阶段自动展示 Token 经济学对比卡：竞品全量注入 vs Myrm 按需加载，典型节省 **94%**（如 15 个技能：7,500 → 450 tokens/轮）。
 - **无静默偷 Key** — API Key 仅在你逐通道 opt-in 时导入。
 - **诚实后续** — MCP 与消息渠道在设置中引导（不宣称与 Hermes CLI 提示一键渠道对等）。
+- **Hermes 定时任务可控** — 任务 **暂停** 导入；预览显示 skip；结果页链至设置→定时任务；支持批次回滚。Kanban **不**自动迁移。
 
 **产品分层**：Local/Tauri 上开源 **myrm-agent-frontend**（向导 UI）+ **myrm-agent-server**（发现/预演/确认 API）；闭源 **harness** 仅提供导入类型契约 — 无独立迁移 UI。
 

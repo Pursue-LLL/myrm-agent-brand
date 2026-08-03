@@ -165,6 +165,20 @@ Each agent has:
 
 - **Agent-specific memory**: Knowledge unique to this agent
 - **Global shared memory**: Knowledge accessible by all agents
+- **Memory Decay**: Controls how quickly memories fade (Permanent / Normal / Fast)
+- **Memory Focus**: Domain-specific extraction guidance — configures what the agent prioritizes when learning about you
+
+### Memory Focus (Domain Extraction Preset)
+
+| Preset | Best for | What it prioritizes |
+|--------|----------|-------------------|
+| Auto Detect | Default — infers from your system prompt | Keyword matching decides automatically |
+| Personal Companion | Life assistant, friend | Location, relationships, health, hobbies, life events, daily routines |
+| Work Assistant | Productivity, coding, project work | Tech stack, deadlines, team context, blockers, code conventions |
+| Research | Academic, analysis | Research topics, sources, methodology, findings, contradictions |
+| Generic | General-purpose | No domain prioritization — standard extraction |
+
+Memory Focus adds zero LLM cost — it only guides what attributes to prioritize during standard extraction passes.
 
 Memory persists across sessions, enabling agents to learn and adapt. See [Memory System](/docs/core-concepts/memory-system) for details.
 
