@@ -53,7 +53,7 @@ curl -X POST https://your-myrm-host/api/cron/trigger/system-event \
 - **SSRF 防护**：每个出站 HTTP 请求都经过 `secure_request()` 处理，包含 DNS 固定和私网地址拦截。指向内网 IP（127.0.0.1、10.x、192.168.x 等）的 Webhook URL 会被自动拒绝。
 - **HMAC-SHA256 签名**：出站 Webhook 负载包含 `X-Webhook-Signature` 头（`sha256=...`），接收方可验证请求真实性。为每个 Webhook 配置独立密钥以获得最强验证。
 - **重定向验证**：出站请求的每一跳重定向都会进行 SSRF 检查——即使原始 URL 是公网地址，重定向到内网也会被拦截。
-- **指数退避重试**：临时故障（5xx、超时）自动指数退避重试；永久错误（4xx）立即失败。
+- **Fire-and-Forget 非阻塞模式**：通知类 Hook（如 `SessionEnd`）可配置为 fire-and-forget 模式——HTTP 调用异步执行，不阻塞主流程，失败仅记录日志不中断会话。
 
 ## GitHub 集成
 

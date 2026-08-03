@@ -136,12 +136,13 @@ Precision 用语义重排（阈值 **0.6**）— 低相关块丢弃。
 
 ### Agent 显式检索参数
 
-Agent 可通过 `web_search` 的两个参数显式控制搜索行为：
+Agent 可通过 `web_search_tool` 的 `time_range` 显式限制结果时间窗口：
 
 | 参数 | 取值 | 效果 |
 |------|------|------|
 | `time_range` | `day`、`week`、`month`、`year`、或 `YYYY-MM-DD..YYYY-MM-DD` | 将结果限制在指定时间窗口 |
-| `source_authority` | `any`（默认）、`high` | 过滤高权威来源（官方站点、主流媒体） |
+
+需要官方或权威来源时，在 query 中使用 `site:` 操作符（如 `site:gov.cn`、`site:github.com`），不再使用单独的 tool 参数。
 
 **三层参数优先级融合：**
 
@@ -154,10 +155,11 @@ Agent 可通过 `web_search` 的两个参数显式控制搜索行为：
 | 语义 | 火山引擎 | SearxNG | Tavily |
 |------|---------|---------|--------|
 | `time_range="week"` | `TimeRange="OneWeek"` | `time_range="week"` | `days=7` |
-| `source_authority="high"` | `AuthInfoLevel=1` | 忽略 | 忽略 |
 | `time_range="2026-01-01..2026-07-30"` | 直接传递 | 优雅降级 | 优雅降级 |
 
-**策略 D（参数递进）：** 当充分性守卫（RSG）报告结果不足时，Agent 自主决策重试并调整参数（如缩窄时间范围、开启权威过滤），无需修改 RSG 内部逻辑。
+**策略 D（参数递进）：** 当充分性守卫（RSG）报告结果不足时，Agent 自主决策重试并调整 query 或缩窄 `time_range`，无需修改 RSG 内部逻辑。
+
+**单轮搜索配额：** `ToolTurnBudgetGuard` 将每条用户消息内的 `web_search_tool` 调用上限设为 20 次（详见 harness `SECURITY_SYSTEM.md` §6.3），与 FrequencyGuard 的 60 秒滑动窗口限制互补。
 
 ### 视觉参考（无独立 image search 工具）
 

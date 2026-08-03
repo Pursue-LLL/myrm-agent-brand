@@ -136,12 +136,13 @@ Competitor DeerFlow shows URL + snippet only; the other 6 competitors have no ci
 
 ### Agent Explicit Search Parameters
 
-The Agent can explicitly control search behavior through two parameters on `web_search`:
+The Agent can explicitly restrict search results by time through `time_range` on `web_search_tool`:
 
 | Parameter | Values | Effect |
 |-----------|--------|--------|
 | `time_range` | `day`, `week`, `month`, `year`, or `YYYY-MM-DD..YYYY-MM-DD` | Restricts results to the specified time window |
-| `source_authority` | `any` (default), `high` | Filters for authoritative sources (official sites, mainstream media) |
+
+For official or authoritative sources, add `site:` operators in the query (e.g. `site:gov.cn`, `site:github.com`) instead of a separate tool parameter.
 
 **Three-layer parameter priority fusion:**
 
@@ -154,10 +155,11 @@ The Agent can explicitly control search behavior through two parameters on `web_
 | Semantic | Volcengine | SearxNG | Tavily |
 |----------|-----------|---------|--------|
 | `time_range="week"` | `TimeRange="OneWeek"` | `time_range="week"` | `days=7` |
-| `source_authority="high"` | `AuthInfoLevel=1` | (ignored) | (ignored) |
 | `time_range="2026-01-01..2026-07-30"` | Direct passthrough | Graceful fallback | Graceful fallback |
 
-**Strategy D (Parameter Escalation):** When the Retrieval Sufficiency Guard reports insufficient results, the Agent autonomously retries with adjusted parameters (e.g., narrower time range, authority filter) — no RSG code changes needed.
+**Strategy D (Parameter Escalation):** When the Retrieval Sufficiency Guard reports insufficient results, the Agent autonomously retries with adjusted queries or a narrower `time_range` — no RSG code changes needed.
+
+**Per-turn search budget:** `ToolTurnBudgetGuard` limits `web_search_tool` to 20 calls per user message (harness `SECURITY_SYSTEM.md` §6.3). This complements the 60s sliding-window limits in FrequencyGuard.
 
 ### Visual references (no dedicated image search tool)
 

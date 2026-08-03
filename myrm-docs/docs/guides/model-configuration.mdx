@@ -213,43 +213,31 @@ When your **main model does not support vision**, set a **Vision Fallback** mode
 
 See the [Vision & Image Understanding](/docs/guides/vision-interaction) guide for setup and usage.
 
-## Multi-Model Consensus (MoA)
+## Multi-Model Advisor Overlay (MoA)
 
-Multiple models generate answers in parallel, and an aggregator model synthesizes the most reliable result. Ideal for critical decisions, contract reviews, and technical assessments that require cross-validation.
+Lightweight reference models advise your **acting model before each tool-loop iteration** — without changing the main model binding. Ideal for contract review, architecture decisions, and cross-checking high-stakes answers.
 
-**How to use:** Go to **Settings > Agent > Capabilities > Multi-Model Consensus**, enable it, and select reference and aggregator models.
+**Setup (one time per Agent Profile):** **Settings → Agent → Capabilities → Agent-Loop Advisor Overlay** — enable, add 1+ reference models, tune fan-out / privacy / output limits.
 
-**Key parameters:**
-- **Reference Temperature** — Controls reference model output diversity (default 0.6, higher = more diverse)
-- **Aggregator Temperature** — Controls final synthesis precision (default 0.4, lower = more precise)
-- **Reference Output Limit** — Limits max output tokens per reference model (default unlimited, recommend 600-2000 for cost savings)
-- **Reference Reasoning Effort** — Controls reasoning depth for reference models (low/medium/high); recommend low to save reasoning token costs
-- **Aggregator Reasoning Effort** — Controls reasoning depth for the aggregator model; recommend high for synthesis quality
-- **Min Successful** — Minimum reference models that must succeed (default 1)
+**Per chat session:** Open the **model picker** next to the input → **Mixture of Agents** group → choose **Standard**, **Deep Review**, or **Fast** (or click again to turn off). MoA runs **only when a preset is selected** — no extra ref calls otherwise. Selection persists to `chats.active_moa_preset_id` (survives refresh and cross-device sync); incognito chats never read or write MoA preference.
 
-**Smart optimizations:**
-- Skips aggregation when only 1 reference succeeds — returns directly
-- Aggregator output is never truncated — user-visible answers stay complete
-- Compatible with reasoning model output formats (DeepSeek-R1, etc.) with independent reasoning effort control
-- Full multi-turn conversation context preserved
+**Preset intensity (same reference pool, different runtime params):**
+- **Standard** — profile defaults
+- **Deep Review** — higher reference reasoning effort
+- **Fast** — lower effort + tighter reference output cap
 
-## Agent-Loop Advisor Overlay
+**Key parameters (Settings):**
+- **Fan-out Policy** — `Once per user turn` (default), `Every model call`, or `Every N model calls`
+- **Advisor Privacy Filter** — `Off` / `Display only` / `Full`
+- **Reference Output Limit** — default 600 tokens (cost control)
 
-Enhance any Agent Profile with lightweight reference models that advise the **acting model before each tool-loop iteration** — without switching the session to Consensus mode or changing the main model binding.
+**Safeguards:**
+- No reference models → overlay skipped (amber warning, no silent fake MoA)
+- Budget pressure / unattended runs → overlay auto-skipped
+- `ConsensusThinkingPanel` shows each advisor via SSE `moa_ref_done`
+- Prompt Cache safe — advisors inject transient context only (no SystemMessage mutation)
 
-**How to use:** Go to **Settings > Agent > Capabilities > Agent-Loop Advisor Overlay**, enable it, and select 1–3 **fast/cheap** reference models.
-
-**Distinct from standalone Consensus:** Consensus mode replaces the reply lane with an aggregator synthesis. Overlay keeps your main model as the actor; advisors inject transient context only (Prompt Cache safe — no SystemMessage mutation).
-
-**Key parameters:**
-- **Fan-out Policy** — `Once per user turn` (default, cheapest), `Every model call`, or `Every N model calls`
-- **Advisor Privacy Filter** — `Off` / `Display only` (SSE redaction) / `Full` (SSE + prompt redaction)
-- **Reference Output Limit** — Default 600 tokens (same cost rationale as Consensus)
-
-**Smart safeguards:**
-- No reference models selected → overlay skipped (amber warning, no silent fake MoA)
-- Budget pressure / unattended runs / Consensus mode → overlay auto-skipped
-- Progressive `ConsensusThinkingPanel` shows each advisor completing in real time
+> **Note:** Standalone **Consensus** ActionMode was removed; legacy API `action_mode=consensus` maps to agent + default MoA preset.
 
 ## Cost Visualization
 

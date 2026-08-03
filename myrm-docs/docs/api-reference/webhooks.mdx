@@ -53,7 +53,7 @@ All outbound webhook requests are protected by multiple security layers:
 - **SSRF Protection**: Every outbound HTTP request passes through `secure_request()` with DNS pinning and private network blocking. Webhook URLs pointing to internal IPs (127.0.0.1, 10.x, 192.168.x, etc.) are automatically rejected.
 - **HMAC-SHA256 Signatures**: Outbound webhook payloads include an `X-Webhook-Signature` header (`sha256=...`) for receivers to verify request authenticity. Configure a secret per webhook for strongest verification.
 - **Redirect Validation**: Outbound requests follow redirects with per-hop SSRF validation — a redirect to an internal address is blocked even if the original URL is public.
-- **Exponential Backoff Retry**: Transient failures (5xx, timeouts) are retried with exponential backoff; permanent errors (4xx) fail immediately.
+- **Fire-and-Forget Mode**: Notification-type hooks (e.g., `SessionEnd`) can be configured as fire-and-forget — the HTTP call runs asynchronously without blocking the main agent flow, and failures are logged without interrupting the session.
 
 ## GitHub Integration
 
