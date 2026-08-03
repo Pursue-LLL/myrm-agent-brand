@@ -344,6 +344,17 @@ When a goal completes and has produced **2 or more artifacts** (documents, sprea
 - **Per-File Preview** — Click any individual deliverable to open it in the Artifact Portal with format-aware rendering
 - **Filename Deduplication** — If multiple artifacts share the same name, unique identifiers are appended automatically
 
+### Clickable deliverable paths in chat
+
+Beyond the Bundle card, when the agent cites deliverables with inline code in its reply, the WebUI renders them as **clickable links**:
+
+- `` `workspace/reports/brief.md` `` — workspace-relative path; one tap opens Artifact Portal preview
+- `` `@file_001` `` — harness short file ID (same alias the agent uses internally); clickable once the artifact SSE syncs
+
+**What you get:** no copying paths into Finder or Explorer. OpenWorker Cowork expects `[Title](artifact:path)` markdown plus a separate Right Rail; Myrm reuses the existing Portal — click the path in chat.
+
+> Note: the frozen `deliverable_discipline` prompt block teaches agents to write files and cite paths; file creation auto-registers artifacts and SSE may include `short_file_id`.
+
 ### Use Case: Full-Chain Office Delivery
 
 Use the pre-built **"Office Full-Chain Delivery"** agent template to generate complete document suites in one conversation:
@@ -397,7 +408,17 @@ In the sidebar, navigate to your project and find the **Milestones** section:
 
 - Click the `+` button to add a new milestone
 - Each milestone has a **title**, optional **description**, and **acceptance criteria**
+- **Double-click** a milestone title to rename it inline
 - Mark milestones as completed when objectives are met
+
+### Real-Time Progress Visualization
+
+Each milestone displays a compact progress bar showing the completion rate of linked Kanban tasks:
+
+- A **3px progress bar** appears below the title when the milestone has associated tasks
+- **Task count** is shown (e.g., "6/8") — no manual calculation needed
+- Progress updates automatically when tasks are completed
+- The `batch-progress` API fetches all active milestone completion rates in a single request (no N+1 queries)
 
 ### Automatic Context Injection
 
