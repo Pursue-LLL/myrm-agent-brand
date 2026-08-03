@@ -7,7 +7,7 @@ description: "Import your data from other AI assistants with a zero-risk, GUI-gu
 
 Myrm provides a complete data migration system that lets you transfer your AI assistant data from other platforms — including memories, skills, API keys, MCP configurations, and workspace rules — with full preview, conflict resolution, and one-click rollback.
 
-**Supported Sources (13 ready)**: Hermes, OpenClaw, Claude Code, Cursor, Codex, ChatGPT, gbrain, Windsurf, Trae, Mem0, native JSON, Myrm Archive, AgentMemory
+**Supported Sources (14 ready)**: Hermes, OpenClaw, **Pi**, Claude Code, Cursor, Codex, ChatGPT, gbrain, Windsurf, Trae, Mem0, native JSON, Myrm Archive, AgentMemory
 
 ## Migration Wizard (3-Step GUI)
 
@@ -74,7 +74,43 @@ When migrating from **Hermes**, the wizard can import scheduled jobs from `cron/
 - **Kanban** boards are **not** auto-migrated (coverage matrix shows `kanban_not_migrated`)
 - **No Chrome MCP E2E** sign-off for cron import yet — backend covered by **`test_hermes_cron_converter.py` 7/7 passed** (Aug 2026)
 
-No competitor (Hermes CLI `claw migrate`, OpenClaw, deer-flow, LobsterAI, CoPaw, jiuwenclaw) offers a GUI migration wizard with Hermes cron preview + paused import + rollback.
+No competitor (Hermes CLI `claw migrate`, OpenClaw, Pi, deer-flow, LobsterAI, CoPaw, jiuwenclaw) offers a GUI migration wizard with cron preview + paused import + rollback.
+
+## Pi Migration (5-Lane Mapping)
+
+When migrating from **Pi**, the wizard auto-scans `~/.pi/agent/` and provides five-lane mapping:
+
+| Pi Data | Import Lane | Description |
+|---------|-------------|-------------|
+| `AGENTS.md` | Agent persona | Pi system prompt imported as Agent instruction |
+| `settings.json` | Config supplement | Default provider, model, and other settings |
+| `sessions/*.jsonl` (v3) | Episodic memory | Chat history imported as memories with multi-turn messages, tool call filtering, and list content merging |
+| `skills/*/SKILL.md` | Skill review queue | Markdown + YAML frontmatter format is fully compatible — auto-discovered and imported |
+| `auth.json` | Credentials (env_keys) | API keys mapped to Myrm environment variable format (explicit confirmation required) |
+
+**Safety guards:**
+- Unknown session versions (≠ v3) are auto-skipped silently
+- Empty messages, invalid JSON, non-dict content blocks are safely skipped
+- Pi has no MCP configuration (tech stack difference) — does not affect migration completeness
+
+**Verified (2026-08-03):** `test_pi_migration.py` **25/25 PASS** (covering discovery / loading / session parsing / skills / credentials / edge cases — 6 categories, 25 scenarios)
+
+## Hermes MoA Reference Import (Wizard Confirm)
+
+When your Hermes `config.yaml` includes a `moa` block with reference models, the migration wizard can write them into the target Agent's **`engine_params.moa_overlay`** on confirm:
+
+| Step | What happens |
+|------|----------------|
+| **Dry-run** | Preview includes `hermes_moa` lane — shows default (or first enabled) preset name and reference model count |
+| **Confirm** | `hermes_moa_migrator` maps Hermes refs → Myrm overlay; skips refs that fail provider resolution |
+| **After import** | Open chat → model picker **Mixture of Agents** group → pick **Standard / Deep Review / Fast** to opt in per session |
+
+**Honest boundaries:**
+- Only the **default** Hermes preset's reference set is imported (multiple presets with **different** ref pools → create multiple Agent Profiles)
+- Hermes **aggregator** model is **not** migrated — Myrm primary model absorbs advisor output (by design)
+- Provider keys must be configured in Myrm before refs resolve; unresolvable refs are skipped with logging
+
+**Verified (2026-08-03):** **`test_hermes_moa_migrator.py` 19/19** + confirm integration path in import archive — part of **30/30** MoA server pytest suite.
 
 ## Rollback
 
@@ -145,23 +181,24 @@ Export conversation data in training-ready formats:
 
 ## Comparison with Competitors
 
-| Feature | Myrm | Hermes | OpenClaw | Claude Code |
-|---------|:----:|:------:|:--------:|:-----------:|
-| GUI Migration Wizard | ✅ | ❌ CLI only | ❌ | ❌ |
-| Dry-Run Preview | ✅ | ✅ (text) | ❌ | ❌ |
-| One-Click Rollback | ✅ | ❌ | ❌ | ❌ |
-| Multi-Source Discovery | ✅ (13 sources ready) | ❌ (1 source) | ❌ | ❌ |
-| Cloud ZIP Upload | ✅ | ❌ | ❌ | ❌ |
-| Deterministic Import Error Codes (`message + error_code`) | ✅ (preview + confirm) | ❌ | ❌ | ❌ |
-| Remote Backup (S3/WebDAV) | ✅ | ❌ | ❌ | ❌ |
-| Token Economics Comparison | ✅ | ❌ | ❌ | ❌ |
-| MCP Config Migration | ✅ | ✅ (overwrites) | ❌ | ❌ |
-| Skill Review Queue | ✅ | ❌ | ❌ | ❌ |
-| Target Agent Selection | ✅ | ❌ | ❌ | ❌ |
-| Full Archive Backup/Restore | ✅ | ❌ | ❌ | ❌ |
-| Section-Selective Restore | ✅ | ❌ | ❌ | ❌ |
-| Cross-Deployment Migration | ✅ (3 modes) | ❌ (single) | ❌ (single) | ❌ (CLI only) |
-| Agent Config Export/Import | ✅ JSON | ❌ | ❌ | ❌ |
-| Session Export with Compaction State | ✅ | ❌ | ❌ | ❌ |
-| Conversation Share (read-only link) | ✅ (HMAC+TTL, revocable) | ❌ | ❌ | ❌ |
-| Hermes Cron Import (paused + rollback) | ✅ | ❌ CLI only, no preview | ❌ | ❌ |
+| Feature | Myrm | Hermes | OpenClaw | Pi | Claude Code |
+|---------|:----:|:------:|:--------:|:--:|:-----------:|
+| GUI Migration Wizard | ✅ | ❌ CLI only | ❌ | ❌ | ❌ |
+| Dry-Run Preview | ✅ | ✅ (text) | ❌ | ❌ | ❌ |
+| One-Click Rollback | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Multi-Source Discovery | ✅ (14 sources ready) | ❌ (1 source) | ❌ | ❌ | ❌ |
+| Cloud ZIP Upload | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Deterministic Import Error Codes (`message + error_code`) | ✅ (preview + confirm) | ❌ | ❌ | ❌ | ❌ |
+| Remote Backup (S3/WebDAV) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Token Economics Comparison | ✅ | ❌ | ❌ | ❌ | ❌ |
+| MCP Config Migration | ✅ | ✅ (overwrites) | ❌ | ❌ | ❌ |
+| Skill Review Queue | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Target Agent Selection | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Full Archive Backup/Restore | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Section-Selective Restore | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Cross-Deployment Migration | ✅ (3 modes) | ❌ (single) | ❌ (single) | ❌ | ❌ (CLI only) |
+| Agent Config Export/Import | ✅ JSON | ❌ | ❌ | ❌ | ❌ |
+| Session Export with Compaction State | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Conversation Share (read-only link) | ✅ (HMAC+TTL, revocable) | ❌ | ❌ | ❌ | ❌ |
+| Hermes Cron Import (paused + rollback) | ✅ | ❌ CLI only, no preview | ❌ | ❌ | ❌ |
+| Pi 5-Lane Migration | ✅ | ❌ | ❌ | N/A | ❌ |

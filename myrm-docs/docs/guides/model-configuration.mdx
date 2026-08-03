@@ -237,9 +237,11 @@ Lightweight reference models advise your **acting model before each tool-loop it
 - `ConsensusThinkingPanel` shows each advisor via SSE `moa_ref_done`
 - Prompt Cache safe — advisors inject transient context only (no SystemMessage mutation)
 
-> **Note:** Standalone **Consensus** ActionMode was removed; legacy API `action_mode=consensus` maps to agent + default MoA preset.
+> **Note:** Standalone **Consensus** ActionMode was removed; legacy API `action_mode=consensus` returns **400** — use `action_mode=agent` with `active_moa_preset_id` instead.
 
-## Cost Visualization
+**Hermes migration:** On wizard confirm, default `moa.presets` reference models are written to the target Agent overlay (`hermes_moa_migrator`). See [Data Migration — Hermes MoA Reference Import](/docs/guides/data-migration#hermes-moa-reference-import-wizard-confirm).
+
+**Verified (2026-08-03, rerun 189):** MoA picker **54 targeted unit tests** (11 FE vitest + 43 server pytest, 0 failures) — PATCH rollback, org-policy MoA refs, consensus 400 reject, `active_moa_preset_id` serialization. Chrome MCP / API overlay E2E still pending (see materials doc). See `MULTI_MODEL_CONSENSUS_ADVANTAGE.md`.
 
 Complete token economics visualization pipeline from backend to frontend:
 

@@ -7,7 +7,7 @@ description: "通过 GUI 迁移向导，从其他 AI 助手零风险导入数据
 
 Myrm 提供完整的数据迁移系统，支持从多个平台导入 AI 助手数据——包括记忆、技能、API 密钥、MCP 配置和工作区规则——具备完整预览、冲突处理和一键回滚能力。
 
-**支持的数据源（13 种已就绪）**：Hermes、OpenClaw、Claude Code、Cursor、Codex、ChatGPT、gbrain、Windsurf、Trae、Mem0、原生 JSON、Myrm Archive、AgentMemory
+**支持的数据源（14 种已就绪）**：Hermes、OpenClaw、**Pi**、Claude Code、Cursor、Codex、ChatGPT、gbrain、Windsurf、Trae、Mem0、原生 JSON、Myrm Archive、AgentMemory
 
 ## 迁移向导（3 步 GUI）
 
@@ -74,7 +74,43 @@ Hermes 迁移后，Readiness 还可能提示 **voice** 或 **MoA 顾问叠加** 
 - **Kanban** 看板**不**自动迁移（覆盖矩阵显示 `kanban_not_migrated`）
 - Cron 导入**尚无** Chrome MCP E2E 签收——后端由 **`test_hermes_cron_converter.py` 7/7 通过**（2026-08-03）覆盖
 
-竞品（Hermes CLI `claw migrate`、OpenClaw、deer-flow、LobsterAI、CoPaw、jiuwenclaw）均无 GUI 迁移向导 + Hermes cron 预览/暂停导入/回滚。
+竞品（Hermes CLI `claw migrate`、OpenClaw、Pi、deer-flow、LobsterAI、CoPaw、jiuwenclaw）均无 GUI 迁移向导 + cron 预览/暂停导入/回滚。
+
+## Pi 迁移（五车道映射）
+
+从 **Pi** 迁移时，向导自动扫描 `~/.pi/agent/` 目录并提供五车道映射：
+
+| Pi 数据 | 导入车道 | 说明 |
+|---------|---------|------|
+| `AGENTS.md` | Agent 人设 (persona) | Pi 的系统提示词导入为 Agent 指令 |
+| `settings.json` | 配置补充 (supplement) | 默认 provider、模型等配置信息 |
+| `sessions/*.jsonl` (v3) | 情景记忆 (episodic) | 对话历史导入为记忆，支持多轮消息、工具调用过滤、list content 合并 |
+| `skills/*/SKILL.md` | 技能审核队列 | Markdown + YAML frontmatter 格式完全兼容，自动发现并导入 |
+| `auth.json` | 凭证 (env_keys) | API 密钥映射为 Myrm 环境变量格式（需显式确认） |
+
+**边界保护：**
+- 未知 session 版本（≠ v3）自动跳过，不报错
+- 空消息、非法 JSON、非 dict content 等异常行均安全跳过
+- Pi 无 MCP 配置（技术栈差异），不影响迁移完整性
+
+**验证（2026-08-03）：** `test_pi_migration.py` **25/25 PASS**（覆盖发现/加载/会话解析/技能/凭证/边界保护共 6 类 25 场景）
+
+## Hermes MoA 参考模型导入（向导 Confirm）
+
+Hermes `config.yaml` 含 `moa` 块时，迁移向导 confirm 可将参考模型写入目标智能体 **`engine_params.moa_overlay`**：
+
+| 步骤 | 行为 |
+|------|------|
+| **Dry-run** | 预览含 `hermes_moa` 链路 — 显示 default（或首个 enabled）preset 名称与 ref 数量 |
+| **Confirm** | `hermes_moa_migrator` 映射 Hermes refs → Myrm overlay；无法解析的 provider 跳过 |
+| **导入后** | 打开聊天 → 模型选择器 **多智能体混合** 分组 → 按会话选 **标准 / 深度审查 / 快速** |
+
+**诚实边界：**
+- 仅导入 **default** preset 的 ref 集（多个 preset **不同** ref 池 → 请建多个智能体 Profile）
+- **不**迁移 Hermes **aggregator** 模型 — Myrm 主模型吸收顾问输出（设计如此）
+- 须先在 Myrm 配置 provider；不可解析的 ref 会跳过并写日志
+
+**验证（2026-08-03）：** **`test_hermes_moa_migrator.py` 19/19** + import confirm 集成 — 属 **30/30** MoA server pytest 套件。
 
 ## 回滚
 
@@ -141,23 +177,24 @@ Myrm 在所有部署模式中使用 SQLite 作为单一数据存储。在本地 
 
 ## 竞品对比
 
-| 功能 | Myrm | Hermes | OpenClaw | Claude Code |
-|------|:----:|:------:|:--------:|:-----------:|
-| GUI 迁移向导 | ✅ | ❌ 仅 CLI | ❌ | ❌ |
-| Dry-Run 预览 | ✅ | ✅（文本） | ❌ | ❌ |
-| 一键回滚 | ✅ | ❌ | ❌ | ❌ |
-| 多源发现 | ✅（13 源已就绪） | ❌（1 源） | ❌ | ❌ |
-| 云端 ZIP 上传 | ✅ | ❌ | ❌ | ❌ |
-| 确定性导入错误码 | ✅（预览+确认） | ❌ | ❌ | ❌ |
-| 远程备份（S3/WebDAV） | ✅ | ❌ | ❌ | ❌ |
-| Token 经济性对比 | ✅ | ❌ | ❌ | ❌ |
-| MCP 配置迁移 | ✅ | ✅（直接覆盖） | ❌ | ❌ |
-| 技能审核队列 | ✅ | ❌ | ❌ | ❌ |
-| 目标 Agent 选择 | ✅ | ❌ | ❌ | ❌ |
-| 全量归档备份/恢复 | ✅ | ❌ | ❌ | ❌ |
-| 分区选择性恢复 | ✅ | ❌ | ❌ | ❌ |
-| 跨部署迁移 | ✅（3 种模式） | ❌（单一） | ❌（单一） | ❌（仅 CLI） |
-| Agent 配置导出/导入 | ✅ JSON | ❌ | ❌ | ❌ |
-| 对话导出含压缩状态 | ✅ | ❌ | ❌ | ❌ |
-| 对话分享（只读链接） | ✅（HMAC+TTL，可撤销） | ❌ | ❌ | ❌ |
-| Hermes 定时任务导入（暂停+回滚） | ✅ | ❌ 仅 CLI，无预览 | ❌ | ❌ |
+| 功能 | Myrm | Hermes | OpenClaw | Pi | Claude Code |
+|------|:----:|:------:|:--------:|:--:|:-----------:|
+| GUI 迁移向导 | ✅ | ❌ 仅 CLI | ❌ | ❌ | ❌ |
+| Dry-Run 预览 | ✅ | ✅（文本） | ❌ | ❌ | ❌ |
+| 一键回滚 | ✅ | ❌ | ❌ | ❌ | ❌ |
+| 多源发现 | ✅（14 源已就绪） | ❌（1 源） | ❌ | ❌ | ❌ |
+| 云端 ZIP 上传 | ✅ | ❌ | ❌ | ❌ | ❌ |
+| 确定性导入错误码 | ✅（预览+确认） | ❌ | ❌ | ❌ | ❌ |
+| 远程备份（S3/WebDAV） | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Token 经济性对比 | ✅ | ❌ | ❌ | ❌ | ❌ |
+| MCP 配置迁移 | ✅ | ✅（直接覆盖） | ❌ | ❌ | ❌ |
+| 技能审核队列 | ✅ | ❌ | ❌ | ❌ | ❌ |
+| 目标 Agent 选择 | ✅ | ❌ | ❌ | ❌ | ❌ |
+| 全量归档备份/恢复 | ✅ | ❌ | ❌ | ❌ | ❌ |
+| 分区选择性恢复 | ✅ | ❌ | ❌ | ❌ | ❌ |
+| 跨部署迁移 | ✅（3 种模式） | ❌（单一） | ❌（单一） | ❌ | ❌（仅 CLI） |
+| Agent 配置导出/导入 | ✅ JSON | ❌ | ❌ | ❌ | ❌ |
+| 对话导出含压缩状态 | ✅ | ❌ | ❌ | ❌ | ❌ |
+| 对话分享（只读链接） | ✅（HMAC+TTL，可撤销） | ❌ | ❌ | ❌ | ❌ |
+| Hermes 定时任务导入（暂停+回滚） | ✅ | ❌ 仅 CLI，无预览 | ❌ | ❌ | ❌ |
+| Pi 五车道映射迁移 | ✅ | ❌ | ❌ | N/A | ❌ |

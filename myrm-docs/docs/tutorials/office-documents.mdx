@@ -65,6 +65,14 @@ Every calculation uses Excel formula strings (e.g., `=SUM(B2:B5)`), so the sprea
   **In-app preview**: Myrm is the only open-source AI assistant that renders Word and PowerPoint files with high fidelity directly in the browser. No need to download and open in a separate application — preview your .docx and .pptx artifacts instantly in the Artifact Portal with original styling preserved.
 </Callout>
 
+<Callout type="tip">
+  **Excel live editing with full fidelity**: The built-in SpreadsheetEditor preserves formulas, styles, merged cells, and number formats during roundtrip editing — your `=SUM()` formulas won't silently become static values. When opening files with charts, macros, or pivot tables, a degradation warning appears so you know to back up first. Unsaved edits are auto-persisted to IndexedDB and can be recovered after a browser crash.
+</Callout>
+
+<Callout type="tip">
+  **Select & Edit with AI**: In Document and Code previews, select any text and a floating toolbar appears — click "Modify", "Explain", or "Optimize" to let the Agent operate on exactly what you selected. For HTML artifacts, an Element Picker lets you point at any DOM element and ask the Agent to change it. All selection actions automatically inject your unsaved edits (dirty state) into the context, so the Agent never overwrites your manual changes.
+</Callout>
+
 <Callout type="info">
   **Visual Quality Gate (Cloud Sandbox)**: When running in the cloud sandbox, Myrm automatically renders your generated document to images after creation, inspects every page for text overflow, element overlap, low contrast, excessive whitespace, and chart truncation. If any defects are found, it self-corrects up to 3 rounds — so the delivered document is visually polished, not just structurally correct. On local/desktop deployments, this step is gracefully skipped.
 </Callout>

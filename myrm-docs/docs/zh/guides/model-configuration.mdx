@@ -217,7 +217,11 @@ Myrm 在浏览器标签、桌面端与 SaaS 之间保持设置一致——**刷�
 - `ConsensusThinkingPanel` 通过 SSE `moa_ref_done` 渐进展示各顾问
 - Prompt Cache 安全 — 仅瞬态注入，不修改 SystemMessage
 
-> **说明：** 独立 **Consensus** ActionMode 已移除；旧 API `action_mode=consensus` 会映射为 agent + 默认 MoA preset。
+> **说明：** 独立 **Consensus** ActionMode 已移除；旧 API `action_mode=consensus` 返回 **400** — 请使用 `action_mode=agent` 并携带 `active_moa_preset_id`。
+
+**Hermes 迁移：** 向导 confirm 时，default `moa.presets` 参考模型写入目标智能体 overlay（`hermes_moa_migrator`）。见 [数据迁移 — Hermes MoA 参考模型导入](/docs/zh/guides/data-migration#hermes-moa-参考模型导入向导-confirm)。
+
+**验证（2026-08-03，189 轮复测）：** MoA picker **54 项定向单测**（11 FE vitest + 43 server pytest，0 失败）— 含 PATCH 回滚、org-policy MoA ref、consensus 400 拒绝、`active_moa_preset_id` 序列化。Chrome MCP / API overlay E2E 仍待补（见 materials 文档）。见 `MULTI_MODEL_CONSENSUS_ADVANTAGE.md`。
 
 ## 成本可视化
 
