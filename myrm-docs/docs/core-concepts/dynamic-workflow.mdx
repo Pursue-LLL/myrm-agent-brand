@@ -47,7 +47,18 @@ OpenAI's GPT-5.6 Sol introduced "Ultra Mode" — a one-click toggle that runs 4 
 
 The toggle automatically resets after sending to prevent accidental high-cost follow-up messages — a safety mechanism OpenAI Ultra lacks.
 
-### 9. Planning Guardrails: Focused Execution, Not Runaway Planning
+### 9. Plan Confirmation: Review Before You Spend
+
+Before executing a Dynamic Workflow that spawns multiple sub-agents, the system **pauses and presents the execution plan** for your review. You see exactly how many sub-agents will be spawned, what each one will do, and the estimated cost — then choose **Confirm**, **Edit**, or **Skip**.
+
+This is powered by the `PhaseWaiter` suspend/resume gate: the server emits an SSE `phase=plan_confirm` event with the full plan preview (sub-agent count, task descriptions, batch cost estimate), then suspends execution until you respond via the `/agents/plan-confirm-response` endpoint. No tokens are burned on sub-agent execution until you explicitly approve.
+
+**Why this matters:** Competing workflow systems (Claude Code, CrewAI, Dify) execute immediately — by the time you realize the plan is wrong, dozens of sub-agents have already consumed tokens. MyRM's plan confirmation is the difference between "I approved this $2 workflow" and "why did my agent just spend $50?"
+
+Combined with the `WorkflowRunGuard` (max 50 spawns, concurrency semaphore of 5), plan confirmation forms a two-layer safety net: structural limits prevent runaway execution, and human review prevents misguided execution.
+
+### 10. Planning Guardrails: Focused Execution, Not Runaway Planning
+
 
 When LLMs plan multi-step tasks, two failure modes are common: **over-planning** (generating 50+ trivial plan items, wasting tokens) and **multi-focus drift** (marking 3-5 tasks as "in progress" simultaneously, completing none).
 
@@ -59,7 +70,7 @@ MyRM's `todo_write` tool enforces hard guardrails at the code level:
 
 This is a code-enforced constraint, not a prompt-level suggestion — behavior is consistent regardless of which LLM model or provider is used.
 
-### 10. Single Agent Gatekeeping: Simple by Default, Powerful on Demand
+### 11. Single Agent Gatekeeping: Simple by Default, Powerful on Demand
 
 MyRM defaults to a focused single-agent experience — `suggestWorkflowMode` is **off by default**. The system silently handles most tasks with one agent, delivering fast, predictable responses with zero orchestration overhead. Users never see workflow suggestions unless they explicitly opt in.
 
