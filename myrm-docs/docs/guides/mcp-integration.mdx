@@ -508,7 +508,7 @@ For enterprise customers whose MCP servers run on private networks (behind firew
 
 ### How It Works
 
-1. **Deploy tunnel-agent** — Install the open-source `myrm-tunnel-agent` on any machine inside your private network
+1. **Deploy tunnel-agent** — Install the open-source `myrm-tunnel-agent` on any machine inside your private network (source: `myrm-control-plane/clients/myrm-tunnel-agent/`)
 2. **Register tunnel** — The agent registers with the control plane and receives a secure token
 3. **Outbound-only connection** — The tunnel-agent initiates an outbound long-poll connection to the control plane relay — no inbound ports required
 4. **Transparent relay** — When your cloud Myrm agent calls an internal MCP tool, the request is relayed through the tunnel to the internal MCP server and the response is returned transparently
@@ -518,7 +518,7 @@ For enterprise customers whose MCP servers run on private networks (behind firew
 | Feature | Description |
 |---------|-------------|
 | **Zero inbound exposure** | Enterprise network only makes outbound connections — no firewall ports, no VPN, no public IP needed |
-| **mTLS encryption** | End-to-end mutual TLS between tunnel-agent and control plane |
+| **HTTPS + Token auth** | TLS (HTTPS) between tunnel-agent and control plane, plus `X-Tunnel-Token` header |
 | **Token rotation** | Authentication tokens can be rotated at any time without service interruption |
 | **Heartbeat monitoring** | 60-second stale threshold with 30-second scan interval — offline tunnels are detected and marked within 90 seconds |
 | **Instant revocation** | IT administrators can revoke tunnel access immediately via the org admin panel |

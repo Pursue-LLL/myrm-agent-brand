@@ -491,7 +491,7 @@ Myrm 也可作为 **MCP 服务**，将记忆系统暴露给外部 AI Agent（Cla
 
 ### 工作原理
 
-1. **部署 tunnel-agent** — 在企业内网的任意机器上安装开源的 `myrm-tunnel-agent`
+1. **部署 tunnel-agent** — 在企业内网的任意机器上安装开源的 `myrm-tunnel-agent`（源码位于 `myrm-control-plane/clients/myrm-tunnel-agent/`）
 2. **注册隧道** — Agent 向控制平面注册并获取安全 Token
 3. **仅出站连接** — tunnel-agent 主动向控制平面发起出站 long-poll 连接，无需开放入站端口
 4. **透明中继** — 当云端 Myrm Agent 调用内网 MCP 工具时，请求通过隧道中继到内部 MCP 服务器，响应透明返回
@@ -501,7 +501,7 @@ Myrm 也可作为 **MCP 服务**，将记忆系统暴露给外部 AI Agent（Cla
 | 特性 | 说明 |
 |------|------|
 | **零入站暴露** | 企业网络仅发起出站连接——无需防火墙端口、VPN 或公网 IP |
-| **mTLS 加密** | tunnel-agent 与控制平面之间端到端双向 TLS |
+| **HTTPS + Token 认证** | tunnel-agent 与控制平面之间 TLS（HTTPS）+ `X-Tunnel-Token` |
 | **Token 轮换** | 认证 Token 可随时轮换，服务不中断 |
 | **心跳监控** | 60 秒过期阈值 + 30 秒扫描间隔——离线隧道在 90 秒内被检测并标记 |
 | **即时撤销** | IT 管理员可通过组织管理面板立即撤销隧道访问 |
