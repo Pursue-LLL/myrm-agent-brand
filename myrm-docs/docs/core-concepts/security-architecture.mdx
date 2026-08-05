@@ -45,6 +45,26 @@ Switch security posture per chat session from the input toolbar — no need to c
 - The `Read-Only` preset precisely denies 12 categories of write operations (file write/edit/delete, shell, code interpreter, browser automation, skill/cron management) while keeping reads and agent delegation open.
 - Available in Agent mode only; the selector hides automatically in Fast Search mode.
 
+### Plan Review
+
+Before executing a complex task, agents can propose a plan for user review. When **Plan Review** is enabled in Settings → Security:
+
+- The agent's first plan creation triggers a **PlanConfirmationCard** in the chat UI
+- Users can **Confirm** (proceed as-is), **Edit** (modify the plan before execution), or **Skip** (let the agent proceed without plan constraints)
+- Supports both Deep Research and General Agent workflows
+- Works alongside approval modes — even with YOLO enabled, plan review can still be required
+
+This provides a high-level checkpoint before the agent begins work, complementing the per-tool-call approval system.
+
+### Structured Clarification
+
+Agents can ask structured questions using the `ask_question_tool` before taking action:
+
+- Single-choice, multi-choice, and free-text question types
+- Frontend renders a dedicated **ClarificationInput** form — not plain text chat
+- Responses flow back into the agent loop as structured data
+- Particularly useful for ambiguous tasks where the agent needs user input to proceed correctly
+
 ### 10-Layer Progressive Approval Architecture
 
 Every tool call passes through up to 10 layers of deterministic and intelligent checks before reaching the user:
