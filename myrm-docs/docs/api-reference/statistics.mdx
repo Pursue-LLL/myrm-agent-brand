@@ -317,6 +317,10 @@ Each alert includes a `runbook_url` linking to the Enterprise Runbook for remedi
 
 A ready-to-import Grafana dashboard (`grafana-dashboard-sandbox.json`) provides real-time visualization of container pool status, hit rates, health check success rates, creation latency, and hot pool availability. Import via Grafana UI or provisioning directory mount.
 
+### Sandbox startup reliability (2026-08)
+
+Cloud sandboxes use a **two-phase volume permission init** (one-shot root container + main agent-server) so per-user persistent volumes are writable under hardened readonly-rootfs specs. The control plane **waits until the container is running** before returning a sandbox ID, and deep health checks retry transient Docker API gaps — reducing “sandbox created but immediately gone” failures. On macOS dev hosts, hot-slot bind mounts fall back to cold allocation when passwordless sudo is unavailable (same code path as production honesty checks).
+
 ### Smart Enable/Disable
 
 Metrics collection is automatically enabled or disabled based on deployment mode — local and desktop deployments run with zero overhead, while cloud deployments expose the full `/metrics` endpoint for Prometheus scraping.
