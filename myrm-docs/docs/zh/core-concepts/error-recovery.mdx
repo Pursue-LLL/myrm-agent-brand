@@ -7,6 +7,16 @@ description: 14 层自愈系统，故障时 Agent 仍持续运行。
 
 Myrm 错误恢复确保 Agent 在网络故障、模型宕机、限流与意外错误时**自动**持续运行，无需用户介入。
 
+## 并行工作区合并失败（GUI）
+
+当并行子代理使用隔离工作区（`ISOLATED_COPY`）且 **batch_merge** 或 **sync_back** 失败时，Myrm 不会在日志里悄悄吞掉：
+
+- 聊天界面展示 **warning 横幅** 与 **可折叠错误面板**（`WorkspaceMergeWarning`）
+- 失败信息写入消息 metadata（`workspaceMergeFailures`），**刷新页面后仍可见**
+- 本轮以 `completionStatus: warning` 结束，提示产出可能不完整
+
+Claude Code、OpenClaw 等竞品通常只在 CLI/终端输出合并错误，并行跑完后极易被忽略。
+
 ## 14 层恢复架构
 
 | 层 | 机制 | 处理场景 |

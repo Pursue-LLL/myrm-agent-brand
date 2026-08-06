@@ -7,6 +7,16 @@ description: 14-layer self-healing system that keeps agents running through fail
 
 Myrm's error recovery system ensures agents keep running through network failures, model outages, rate limits, and unexpected errors — automatically, without user intervention.
 
+## Parallel Workspace Merge Failures (GUI)
+
+When parallel sub-agents use isolated workspaces (`ISOLATED_COPY`) and a **batch merge** or **sync_back** fails, Myrm does not hide the failure in logs only:
+
+- A **warning banner** and **expandable panel** (`WorkspaceMergeWarning`) appear on the assistant message in chat
+- Failures are persisted in message metadata (`workspaceMergeFailures`) and **survive page reload**
+- The turn completes with `completionStatus: warning` so you know output may be incomplete
+
+Competitors such as Claude Code and OpenClaw typically surface merge errors only in CLI/terminal output — easy to miss after parallel runs.
+
 ## 14-Layer Recovery Architecture
 
 | Layer | Mechanism | What It Handles |
