@@ -249,6 +249,31 @@ All durable Wiki writes share the harness persistence scan SSOT (`core/security/
 
 **Honest boundary:** No security stats dashboard yet; Settings/chat import injection is warn-only; **agent `wiki_ingest` blocks high-confidence injection**. Agent blocked paths surface as tool errors, not a Settings dialog.
 
+## Raw corpus dedup governance (#7)
+
+After import or bulk ingest, Myrm scans `wiki/raw/` for duplicate evidence using a **three-tier fingerprint** stored in SQLite (`.raw_dedup.db`):
+
+| Tier | Match | Typical cause |
+|------|-------|---------------|
+| **exact** | SHA256 of raw bytes | Same file re-imported |
+| **normalized** | Whitespace-normalized hash | Copy-paste with different line endings |
+| **near** (optional) | Title/filename similarity | Multiple exports of the same article |
+
+**Settings → Wiki → Duplicate Review** lists open groups with tier badges, side-by-side diff snippets, and group actions:
+
+- **Trash / exclude / defer / dismiss** — resolve duplicates without losing audit history
+- **Vault hygiene restore** — re-link compiled pages when raw evidence moves
+
+**Compile hard gate:** If an **exact** or **normalized** group is still open, compile returns **409** — resolve duplicates before LLM compile runs.
+
+**Automation:** Post-import scan runs automatically; optional Cron blueprint `wiki_dedup` for scheduled hygiene.
+
+**Tests:** 67 targeted pytest (Harness corpus_dedup 27 + Server dedup_runner/API 40) + Chrome E2E (seed fixture → Duplicate Review tab → exact group panel).
+
+**Honest boundary:** No near-tier LSH at scale; dismiss is permanent (no undo); no Agent-facing dedup tool on Turn1.
+
+**vs competitors:** Hermes llm-wiki / OpenClaw / deer-flow / LobsterAI / CoPaw / jiuwenclaw — no raw-layer three-tier dedup + GUI review + compile gate loop; Obsidian plugins detect duplicates locally but do not integrate with Agent vault compile.
+
 <Note>
 Wiki files remain plain Markdown on disk. Obsidian and other editors can open the same vault; Myrm adds indexing, search, and GUI management on top.
 </Note>

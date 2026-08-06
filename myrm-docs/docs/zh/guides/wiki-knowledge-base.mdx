@@ -156,6 +156,31 @@ Myrm 提供**编译型知识库（Wiki）**——不是让 Agent 解读的一堆
 
 **诚实边界：** 尚无安全统计面板；Settings/chat 导入 injection 仅 warn；**agent `wiki_ingest` 拦截高置信 injection**。Agent 被拦路径以工具错误呈现，无 Settings 弹窗。
 
+## Raw 语料去重治理（#7）
+
+导入或批量 ingest 后，Myrm 用 SQLite 治理库（`.raw_dedup.db`）对 `wiki/raw/` 做 **三层指纹** 扫描：
+
+| 层级 | 匹配方式 | 常见原因 |
+|------|----------|----------|
+| **exact** | raw 字节 SHA256 | 同一文件重复导入 |
+| **normalized** | 空白规范化 hash | 换行/空格差异的复制粘贴 |
+| **near**（可选） | 标题/文件名相似 | 同一文章多次导出 |
+
+**设置 → Wiki → Duplicate Review（重复审阅）** 展示未决组：tier 徽章、并排 diff 片段、组级操作：
+
+- **Trash / exclude / defer / dismiss** — 消解重复且保留审计轨迹
+- **Vault hygiene 恢复** — raw 证据移动后重新锚定编译页
+
+**编译硬闸门：** 仍有未决 **exact** 或 **normalized** 组时，编译返回 **409** — 须先处理重复再跑 LLM 编译。
+
+**自动化：** 导入后自动扫描；可选 Cron blueprint `wiki_dedup` 做定期 hygiene。
+
+**测试：** 67 项定向 pytest（Harness corpus_dedup 27 + Server dedup_runner/API 40）+ Chrome E2E（seed fixture → Duplicate Review Tab → exact 组面板）。
+
+**诚实边界：** near 层不做大规模 LSH；dismiss 不可撤销；Turn1 无 Agent 侧去重工具。
+
+**对比竞品：** Hermes llm-wiki / OpenClaw / deer-flow / LobsterAI / CoPaw / jiuwenclaw — 均无 raw 层三级去重 + GUI 审阅 + 编译闸门闭环；Obsidian 插件仅本地重复检测，不与 Agent vault 编译集成。
+
 <Note>
 Wiki 文件在磁盘上仍为纯 Markdown。Obsidian 等编辑器可打开同一库；Myrm 在其上增加索引、检索与 GUI 管理。
 </Note>
