@@ -758,6 +758,25 @@ Extension Bridge 跨越 5 层：
 4. **Chrome 扩展** — MV3 Service Worker，具备 chrome.debugger 附加能力
 5. **前端面板** — React 设置组件，用于状态和域名管理
 
+### Wiki 网页剪藏 — 右键保存到 Agent 知识库
+
+在浏览器内将任意网页剪藏进智能体 Wiki **raw** 语料，无需打开 WebUI：
+
+1. **连接** — 与 Extension Bridge 同一扩展；在 popup 配置服务器 URL 与 token（设置 → 集成 可查看连接状态与**按智能体选库**）。
+2. **剪藏** — 右键页面或选中文字 → **Clip to Wiki**。扩展提取正文（Readability）、解析 **srcset** 最高清图片，并 POST 至 `POST /api/v1/wiki/clip`。
+3. **入库** — 服务端 harness `publish_clip_ingress`：安全扫描、可选图片本地化（Track B 服务端拉取）、去重指纹，写入 `raw/clips/{YYYY-MM}/`。默认**零 LLM**（`queue_compile=false`）；可在 Settings 中再触发编译。
+4. **反馈** — Chrome 系统通知（成功 / 重复 / 安全拦截），深链至 Settings（Wiki / 重复审核 / 安全对话框）。
+
+| 结果 | 行为 |
+| --- | --- |
+| **成功** | raw 新增剪藏；通知可打开 Wiki 设置 |
+| **重复** | 不覆盖；通知链至 Duplicate Review |
+| **安全拦截** | 凭证/注入被拒；通知链至 Security 对话框 |
+
+<Note>
+按智能体选库在 设置 → 集成 → Extension Bridge。同一 URL 再次剪藏为**冲突**（非静默覆盖），与 raw 发布闸门（#7）一致。
+</Note>
+
 ## Per-Agent 浏览器配置（3 轴控制）
 
 每个智能体有三个独立的浏览器配置轴，可在 WebUI 设置 → 智能体 → 能力配置中配置。**引擎由框架内 Stealth Ladder 自动决定**——开启 Browser 工具即可，无需 per-agent 引擎选择。

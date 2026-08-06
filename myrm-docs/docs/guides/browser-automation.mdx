@@ -830,6 +830,25 @@ The Chrome Extension includes a **Side Panel** that opens alongside any webpage,
 The Side Panel and Extension Bridge share the same extension. You get both capabilities with a single install.
 </Note>
 
+### Wiki Web Clipper — Right-Click Save to Agent Vault
+
+Clip any web page into your agent's Wiki **raw** corpus without leaving the browser:
+
+1. **Connect** — Same extension as Extension Bridge; configure server URL and token in the popup (Settings → Integration shows connection status and per-agent vault).
+2. **Clip** — Right-click the page or a selection → **Clip to Wiki**. The extension extracts readable content (Readability), resolves **srcset** images to the highest resolution, and POSTs to `POST /api/v1/wiki/clip`.
+3. **Ingest** — Server runs harness `publish_clip_ingress`: security scan, optional image localization (Track B server-side fetch), dedup fingerprint, and writes under `raw/clips/{YYYY-MM}/`. **Zero LLM** by default (`queue_compile=false`); compile from Settings when ready.
+4. **Feedback** — Chrome system notification on success, duplicate, or security block, with deep links to Settings (Wiki / Duplicate Review / Security).
+
+| Outcome | What happens |
+| --- | --- |
+| **Success** | New clip in raw; notification opens Wiki Settings |
+| **Duplicate** | No overwrite; notification links to Duplicate Review |
+| **Security block** | Credentials/injection blocked; notification links to Security dialog |
+
+<Note>
+Per-agent vault is selected in Settings → Integration → Extension Bridge. Re-clipping the same URL is a **conflict** (not silent overwrite) — align with raw publication gate (#7).
+</Note>
+
 ## Per-Agent Browser Configuration (3-Axis Control)
 
 Each agent has three independent browser configuration axes in WebUI Settings → Agents → Capability Config. **Stealth engine selection is automatic** — enable the Browser tool and the harness runs the Stealth Ladder (Patchright → Camoufox) with no per-agent engine picker.
