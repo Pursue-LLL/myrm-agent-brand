@@ -98,6 +98,23 @@ Myrm 补齐了这条可解释链路：
 - Control-plane ingest + 鉴权 + 指标回归：**55 passed**
 - Frontend 记忆解释与链路回归：**14 passed**
 
+## 消息级记忆生命周期（Turn Timeline）
+
+长对话里用户常问：「你刚才有没有记住我说的话？」大多数产品只能回答「有记忆功能」，无法指向**具体哪一条回复**做了什么。
+
+Myrm 在每条 Assistant 消息的 **Memory Insight Panel** 内嵌 **lifecycle 条**：
+
+| 阶段 | 用户看到什么 |
+|------|-------------|
+| **Recall** | 本轮是否从记忆库召回了相关内容 |
+| **Extract** | 是否正在/已经从新对话中提取候选记忆 |
+| **Store** | 成功写入几条（含耗时）；失败则显示原因 |
+| **Retry** | extract 失败时出现，一键重试（乐观 pending，无需重发消息） |
+
+**技术收益 → 用户收益**：SSE 实时更新 + 历史 trace 回填；`messageCreatedAtMs` 过滤避免旧事件污染新消息。竞品（OpenClaw、Hermes、CoPaw 等）无等效 per-message 可视化。
+
+**验证（2026-08-06）**：前端 vitest 42 + server API 10 + Chrome E2E 1 = **52 passed**（E2E log `myrm-test-62128`）。
+
 ## AMO 操作 — 全覆盖
 
 AMO 范式（2025-2026）定义完整记忆系统须支持的四种核心操作。Anthropic Dreaming 覆盖 1-2；Mem0 覆盖 Store 与部分 Retrieve。Myrm 以生产级深度实现全部四种：

@@ -98,6 +98,23 @@ Latest targeted verification (2026-07-19):
 - Control-plane ingest + auth + metrics regression: **55 passed**
 - Frontend memory explanation and flow regression: **14 passed**
 
+## Per-Message Memory Lifecycle (Turn Timeline)
+
+In long chats, users often ask: “Did you actually remember what I said?” Most products only answer “we have memory” — they cannot point to **which assistant reply** did what.
+
+Myrm embeds a **lifecycle strip** inside the **Memory Insight Panel** on each assistant message:
+
+| Phase | What you see |
+|-------|----------------|
+| **Recall** | Whether relevant memories were retrieved this turn |
+| **Extract** | Whether new candidate memories were extracted from the conversation |
+| **Store** | How many were saved (with duration); failures show the reason |
+| **Retry** | One-click retry when extract fails (optimistic pending — no need to resend the message) |
+
+**Engineering → user value**: live SSE updates plus historical trace hydration; `messageCreatedAtMs` filtering prevents stale events from polluting new messages. Competitors (OpenClaw, Hermes, CoPaw, etc.) offer no equivalent per-message visualization.
+
+**Verified (2026-08-06)**: frontend vitest 42 + server API 10 + Chrome E2E 1 = **52 passed** (E2E log `myrm-test-62128`).
+
 ## AMO Operations — Full Coverage
 
 The AMO paradigm (2025-2026) defines four core operations that a complete memory system must support. Anthropic's Dreaming covers steps 1-2; Mem0 covers Store and partial Retrieve. Myrm implements all four with production-grade depth:
