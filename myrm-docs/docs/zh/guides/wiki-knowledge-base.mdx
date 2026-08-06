@@ -290,12 +290,15 @@ Settings **概览** 自动展示三件套就绪状态；无需 CLI。
 
 ## 将聊天消息存入 Wiki
 
-任意**已完成的助手消息**，在消息操作栏用 **存入 Wiki**（书本图标）：
+任意**已完成的助手消息**，在消息操作栏用 **Compound to Wiki**（书本图标）：
 
 1. 在树选择器中选文件名与可选目标文件夹。
-2. 确认保存 — 经 `POST /wiki/apply` 的 **`create_note`** 写入（受管 Compiled Truth + Timeline 骨架）。
-3. 每次保存添加 YAML frontmatter：`source_chat`、`source_message`、`saved_at` 便于追溯。
-4. 若同 **canonical 主题** 的笔记已存在，会 toast **canonical 冲突**，而非静默重复建页。
+2. 确认 — 前端仅传 `source_chat` 与 `source_message`；服务端从数据库补全 Q&A 与可信度信号（不接受客户端正文）。
+3. 草稿进入 **设置 → Wiki → 待审编辑**，**不会**直接写入 vault。
+4. 审核通过后入库；可拒绝或内联编辑。同一消息重复 staging 返回 **409**，可跳转待审列表。
+5. **无痕会话**隐藏按钮；API 直调返回 **403**。
+
+未经验证的回答在待审 draft 中带 coverage 免责声明。聊天侧禁止绕过该路径直调 `create_note`（HTTP **403**）。
 
 ## 页面类型契约（frontmatter `type`）
 
@@ -311,9 +314,9 @@ Settings **概览** 自动展示三件套就绪状态；无需 CLI。
 | **Repair Page Types** | 设置 → Wiki → **Repair Page Types** 扫描 vault 并为历史笔记推断类型 |
 | **Obsidian 导入** | 按路径/内容启发式推断；写回保留 `type`、`sources`、`provenance` |
 
-**诚实边界：** 聊天「Save to Wiki」当前仅写溯源字段；可对这类笔记运行 **Repair Page Types** 或 **Maintain** 补全 `type`。Settings Advanced 整页 replace 未硬拦截 frontmatter — 下次 Maintain 时 Linter 自愈。
+**诚实边界：** 待审 draft 已含完整 Q&A，批准后才写入 vault。Settings Advanced 整页 replace 未硬拦截 frontmatter — 下次 Maintain 时 Linter 自愈。
 
-闭环：**对话 → 一键归档 → 可检索知识**。
+闭环：**对话 → 一键 staging → 人工审核 → 可检索知识**。
 
 ## 检索与维护
 

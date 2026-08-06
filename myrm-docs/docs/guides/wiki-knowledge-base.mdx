@@ -292,12 +292,15 @@ This gives you explicit, per-message control over which knowledge the Agent uses
 
 ## Save a chat message to Wiki
 
-On any **completed assistant message**, use **Save to Wiki** (book icon) in the message action bar:
+On any **completed assistant message**, use **Compound to Wiki** (book icon) in the message action bar:
 
 1. Choose a filename and optional target folder in the tree picker.
-2. Confirm save — content is written via **`create_note`** on `POST /wiki/apply` (managed Compiled Truth + Timeline skeleton).
-3. Each save adds YAML frontmatter: `source_chat`, `source_message`, `saved_at` for traceability.
-4. If a note with the same **canonical topic** already exists, you get a **canonical conflict** toast instead of silently creating a duplicate page.
+2. Confirm — the client sends only `source_chat` and `source_message` ids; the server loads Q&A and trust signals from the database (no client-supplied body).
+3. The draft lands in **Settings → Wiki → Pending edits** for human review — it is **not** published directly into the vault.
+4. Approve when ready; reject or edit inline if the answer was speculative. Duplicate staging of the same message returns **409** with a link to open Pending.
+5. **Incognito chats** hide the button and return **403** if called via API.
+
+Unverified answers include a coverage disclaimer in the pending draft. Chat callers cannot bypass this path with direct `create_note` (HTTP **403**).
 
 ## Page type contract (frontmatter `type`)
 
@@ -313,9 +316,9 @@ Every wiki page must declare a **page type** in YAML frontmatter. This is enforc
 | **Repair Page Types** | Settings → Wiki → **Repair Page Types** scans the vault and infers types for legacy notes |
 | **Obsidian import** | Types are inferred from path/content heuristics; writeback preserves `type`, `sources`, and `provenance` |
 
-**Honest boundary:** Save to Wiki from chat currently writes provenance fields only (`source_chat`, etc.); run **Repair Page Types** or **Maintain** to backfill `type` on those notes. Settings Advanced full-page replace is not hard-blocked on frontmatter — the linter heals drift on the next maintain pass.
+**Honest boundary:** Pending chat compounds include full Q&A in the draft preview; approve to publish into the vault. Settings Advanced full-page replace is not hard-blocked on frontmatter — the linter heals drift on the next maintain pass.
 
-This closes the loop: **conversation → one-click archive → searchable knowledge**.
+This closes the loop: **conversation → one-click staging → human review → searchable knowledge**.
 
 ## Search and maintain
 
