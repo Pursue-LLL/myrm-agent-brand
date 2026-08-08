@@ -25,6 +25,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'aiWorkstation',
   'agentSandbox',
   'memoryKnowsYou',
+  'memoryPoisonGuard',
   'deepResearch',
   'desktopComputerUse',
   'multiAgent',
