@@ -113,17 +113,29 @@ export const COMPARE_ROW_KEYS = [
   'longTaskOrchestration',
   'harnessUpgradeContract',
   'benchmarkProfile',
+  'gitPrPipeline',
+  'securePushCredential',
+  'autoCommitIdentity',
+  'webhookSelfService',
+  'worktreeIsolation',
 ] as const;
 
 export type CompareRowKey = (typeof COMPARE_ROW_KEYS)[number];
 
-export const COMPARE_TAB_KEYS = ['all', 'memory', 'security', 'automation', 'reliability', 'platform'] as const;
+export const COMPARE_TAB_KEYS = ['all', 'coding', 'memory', 'security', 'automation', 'reliability', 'platform'] as const;
 
 export type CompareTabKey = (typeof COMPARE_TAB_KEYS)[number];
 
 /** Rows shown per compare-table tab (`all` = every row). */
 export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> = {
   all: COMPARE_ROW_KEYS,
+  coding: [
+    'gitPrPipeline',
+    'securePushCredential',
+    'autoCommitIdentity',
+    'webhookSelfService',
+    'worktreeIsolation',
+  ],
   memory: [
     'memory',
     'knowledgeGraph',

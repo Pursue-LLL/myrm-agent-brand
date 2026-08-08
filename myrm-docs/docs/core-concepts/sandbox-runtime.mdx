@@ -128,6 +128,16 @@ Seven orchestration modes (Spawn / Chain / Batch / DAG / Verified / Swarm Fissio
 
 Unlike Claude Code's CLI-only `--worktree` flag, Myrm's workspace sandbox is available via a GUI toggle, can be enabled/disabled mid-session, and includes a complete merge/discard workflow with pre-approval integration.
 
+## Git & PR Delivery
+
+The sandbox makes Git workflows work **out of the box**, even in a brand-new environment:
+
+- **Host-scoped push credentials**: When a `GITHUB_TOKEN` is present and you push to an HTTPS `github.com` remote, Myrm injects an inline credential helper — but only if the sandbox has no existing credentials. The helper is **host-scoped**: it answers only for `github.com` / `www.github.com`, so the token is never handed to third-party Git servers (e.g. a self-hosted GitLab remote or a raw HTTPS URL). The token is referenced via environment variable, never inlined in commands.
+- **Automatic commit identity**: If the sandbox has no global `git config user.name/user.email`, Myrm resolves them from the connected GitHub account (`login@users.noreply.github.com`, cached in `TMPDIR` with a 5s timeout and a local fallback). `git commit` works on the first try — no "Please tell me who you are" blocks.
+- **One-click PR delivery**: Pair with the GitHub integration in **Settings > Integrations > GitHub** — the webhook URL is displayed with a copy button, and the webhook secret you configure must match the one set in GitHub (payloads are verified via `X-Hub-Signature-256`). PR opened / issue / push events land back in your chat with full context.
+
+The result: ask the agent to "push this and open a PR" and it works end-to-end — credentials, identity, and events — without any manual Git setup in the sandbox.
+
 ## Three-Tier Resource Management
 
 Sandboxes go through three resource stages to minimize cost while maximizing responsiveness:

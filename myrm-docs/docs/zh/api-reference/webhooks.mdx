@@ -66,6 +66,8 @@ curl -X POST https://your-myrm-host/api/cron/trigger/system-event \
 
 HMAC-SHA256 签名验证确保只有来自 GitHub 的真实请求被处理。
 
+**自助获取 Webhook URL**：GitHub 设置卡片会直接展示 Webhook URL，并带有一键复制按钮。在你的 GitHub 仓库 **Settings → Webhooks** 添加该 URL 时，务必填写与上方**完全一致**的 Webhook Secret——否则 GitHub 的签名校验（`X-Hub-Signature-256`）会以 401 静默拒绝事件，PR 事件将永远无法到达。
+
 ## 通过 GUI 配置
 
 1. 进入 **设置 > 自动化**（定时任务）

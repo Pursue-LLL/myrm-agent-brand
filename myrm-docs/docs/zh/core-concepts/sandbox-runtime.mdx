@@ -110,6 +110,16 @@ matplotlib 生成的图表自动捕获并内联显示在对话中，无需手动
 
 与 Claude Code 仅 CLI 可用的 `--worktree` 参数不同，Myrm 的工作区沙箱通过 GUI 按钮一键切换，可在会话进行中随时启用/禁用，并提供完整的合并/丢弃工作流与预审批集成。
 
+## Git 与 PR 交付
+
+沙箱让 Git 工作流**开箱即用**，即使在全新环境中也能直接工作：
+
+- **主机限定推送凭据**：当存在 `GITHUB_TOKEN` 且推送目标是 HTTPS `github.com` 远程仓库时，Myrm 会注入内联凭据助手——但仅在沙箱无现成凭据时触发。该助手是**主机限定**的：只对 `github.com` / `www.github.com` 应答，token 绝不会交给第三方 Git 服务器（例如自建 GitLab 远程或裸 HTTPS URL）。token 通过环境变量引用，从不内联在命令中。
+- **自动提交身份**：若沙箱没有全局 `git config user.name/user.email`，Myrm 会从已连接的 GitHub 账号解析（`login@users.noreply.github.com`，`TMPDIR` 缓存 + 5 秒超时 + 本地兜底）。`git commit` 一次成功——不再出现「Please tell me who you are」的阻塞。
+- **一键 PR 交付**：配合 **设置 > 集成 > GitHub** 的 GitHub 集成——webhook URL 带一键复制按钮显示，且你配置的 Webhook Secret 必须与 GitHub 中填写的一致（负载通过 `X-Hub-Signature-256` 校验）。PR 开启 / issue / push 事件带完整上下文回流到你的聊天。
+
+结果是：对 Agent 说「推送到 GitHub 并创建 PR」即可端到端完成——凭据、身份、事件全部就绪，无需任何手动 Git 配置。
+
 ## 休眠与唤醒
 
 沙箱空闲自动休眠，有请求时秒级唤醒，用户全程无感。

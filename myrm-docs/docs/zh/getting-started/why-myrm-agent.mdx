@@ -74,3 +74,14 @@ Myrm Agent 在 Agent 中间件栈中实现了透明的自愈机制：每次 LLM 
 
 **我们的优势**：
 每个 HTTP 请求自动注入唯一的 `trace_id` 和 `session_id`，通过零依赖的 ContextVar 注入所有日志。只需一个环境变量（`MYRM_LOG_FORMAT=json`）即可切换为 JSON 结构化日志，无缝对接 ELK、Loki 或任何企业日志平台。结合产品内嵌的 7 层 Trace 可视化、原生 OpenTelemetry 支持和 20+ 分析维度，Myrm 提供开源 Agent 生态中最完整的可观测性体系——全部零配置开箱即用。
+
+## 10. 第一天就能用的 Git 与 PR 交付
+
+多数编码 Agent 默认你已经配好了 Git 凭据、提交身份和 Webhook——一个全新环境里，「推送到 GitHub 并创建 PR」瞬间变成一场令人沮丧的配置马拉松。
+
+**我们的优势**：
+- **主机限定推送凭据**：当存在 GitHub token 时，Myrm 注入的凭据助手**只**对 `github.com` / `www.github.com` 应答——你的 token 永远不会到达第三方 Git 服务器，也从不内联在命令中。
+- **自动提交身份**：若沙箱没有 Git 身份，Myrm 会从已连接的 GitHub 账号解析 `user.name`/`user.email`（缓存 + 5 秒超时 + 本地兜底）——`git commit` 不会再报「Please tell me who you are」。
+- **自助 PR Webhook**：设置页直接展示 Webhook URL 并带复制按钮，签名校验（`X-Hub-Signature-256`）端到端打通，PR / issue / push 事件稳定回流到你的聊天。
+
+对 Agent 说「推送到 GitHub 并创建 PR」即可直接完成——凭据、身份、事件全包。

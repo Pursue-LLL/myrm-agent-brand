@@ -74,3 +74,14 @@ When something goes wrong, most competitors only offer raw log files with zero c
 
 **Our Advantage**:
 Every HTTP request is automatically tagged with a unique `trace_id` and `session_id`, injected into all logs via zero-dependency ContextVar. Switch to JSON structured logging with a single environment variable (`MYRM_LOG_FORMAT=json`) for seamless integration with ELK, Loki, or any enterprise log platform. Combined with our 7-layer in-product Trace visualization, OpenTelemetry native support, and 20+ analytics dimensions, Myrm delivers the most complete observability stack in the open-source Agent ecosystem — all with zero configuration.
+
+## 10. Git & PR Delivery That Works on Day One
+
+Most coding agents assume you have Git credentials, a commit identity, and a webhook already configured — a fresh environment turns "push this to GitHub and open a PR" into a frustrating setup session.
+
+**Our Advantage**:
+- **Host-scoped push credentials**: When a GitHub token is present, Myrm injects a credential helper that answers **only** for `github.com` / `www.github.com` — your token never reaches a third-party Git server, and it is never inlined in commands.
+- **Automatic commit identity**: If the sandbox has no Git identity, Myrm resolves `user.name`/`user.email` from the connected GitHub account (cached, 5s timeout, local fallback) — `git commit` never fails with "Please tell me who you are".
+- **Self-service PR webhooks**: The webhook URL is shown with a copy button in Settings, and the secret verification (`X-Hub-Signature-256`) is wired end-to-end, so PR / issue / push events reliably land back in your chat.
+
+Ask "push this and open a PR" and it just works — credentials, identity, and events included.
