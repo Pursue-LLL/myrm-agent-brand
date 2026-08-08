@@ -2019,7 +2019,7 @@ Among the numerous open-source AI Agent frameworks and products, Myrm Agent stan
 
 ### 1. Crash-Proof Underlying Self-Healing Mechanism
 When using APIs compatible with the OpenAI format, network jitter or frequent user cancellations often interrupt tool calls, leaving invalid `tool_call_id`s in the history and causing strictly validating models to crash.
-**Our Advantage**: Myrm Agent implements a transparent self-healing mechanism (`SafetyWrappedChatModel`) at the lowest level. Before every request to the LLM, the system automatically scans and cleans up orphan/invalid tool calls. The chat history remains pure, completely eliminating crashes caused by formatting errors.
+**Our Advantage**: Myrm Agent runs a transparent self-healing middleware stack before every LLM request. `tool_history_hygiene` deduplicates tool results and rewrites duplicate tool-call IDs; `dangling_tool_call` repair fixes orphaned calls after cancellations. On provider errors, stream recovery retries once and shows progress in the Web UI. Chat history stays valid under network jitter—no crashes from malformed tool history.
 
 ### 2. Exclusive 4-Level Progressive Skill Loading
 Equipping an Agent with a massive number of skills usually causes the context window to explode, increasing token consumption and degrading instruction-following capability.

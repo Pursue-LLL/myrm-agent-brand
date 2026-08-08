@@ -14,7 +14,7 @@ description: 深入了解 Myrm Agent 对比其他主流开源 Agent（如 Hermes
 在使用兼容 OpenAI 格式的 API（如 DeepSeek、Kimi 等）时，网络抖动或用户频繁取消往往会导致工具调用中断，历史记录残留无效的 `tool_call_id`，进而引发模型严格校验报错崩溃。
 
 **我们的优势**：
-Myrm Agent 在框架最底层实现了透明的自愈机制（`SafetyWrappedChatModel`）。在每次向大模型发起请求前，系统会自动扫描并清理孤儿/无效的工具调用。无论网络如何抖动，对话历史永远保持纯净。彻底告别因格式错误导致的崩溃，鲁棒性远超竞品。
+Myrm Agent 在 Agent 中间件栈中实现了透明的自愈机制：每次 LLM 请求前，`tool_history_hygiene` 去重工具结果并重写重复的 tool-call ID，`dangling_tool_call` 修复取消后的悬空调用；遇到 provider 错误时，流式恢复会自动重试一次并在 Web UI 显示进度。无论网络如何抖动，对话历史保持合法，彻底告别因格式错误导致的崩溃，鲁棒性远超竞品。
 
 ## 2. 独创的四级渐进式技能加载
 

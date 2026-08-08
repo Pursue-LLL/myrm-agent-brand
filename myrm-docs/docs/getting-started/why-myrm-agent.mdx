@@ -14,7 +14,7 @@ Here are our tangible advantages compared to mainstream competitors (such as Her
 When using APIs compatible with the OpenAI format (like DeepSeek, Kimi, etc.), network jitter or frequent user cancellations often interrupt tool calls. This leaves invalid `tool_call_id`s in the history, causing strictly validating models to crash with malformed history errors.
 
 **Our Advantage**:
-Myrm Agent implements a transparent self-healing mechanism (`SafetyWrappedChatModel`) at the lowest level of the framework. Before every request to the LLM, the system automatically scans and cleans up orphan/invalid tool calls. Regardless of network jitter, the chat history remains pure. We completely eliminate crashes caused by formatting errors, offering robustness far beyond competitors.
+Myrm Agent runs a transparent self-healing middleware stack before every LLM request. `tool_history_hygiene` deduplicates tool results and rewrites duplicate tool-call IDs; `dangling_tool_call` repair fixes orphaned calls after cancellations. On provider errors, stream recovery retries once and shows progress in the Web UI. Regardless of network jitter, chat history stays valid—we eliminate crashes caused by malformed tool history, offering robustness far beyond competitors.
 
 ## 2. Exclusive 4-Level Progressive Skill Loading
 
