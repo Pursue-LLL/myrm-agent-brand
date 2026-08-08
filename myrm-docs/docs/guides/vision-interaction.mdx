@@ -23,7 +23,8 @@ The same pipeline applies to **video**: native video-capable models receive the 
 3. Set **Vision Fallback** to a vision-capable model (e.g. GPT-4o, Gemini Flash, Qwen-VL).
 4. Click **Test vision chain** to verify the full ordered fallback chain (shows `resolved_model` and endpoint on failure).
 5. If your main model is text-only and no fallback is set, Myrm may offer **Use this model** — one click to pick the first vision-capable model from your enabled providers.
-6. Optional: use the capability icons in the model picker — models with the eye icon support vision natively.
+6. Optional: set **Video Fallback** separately when your main model is text-only but you upload `.mp4` files — Myrm routes video analysis through that slot before falling back to frame extraction.
+7. Optional: use the capability icons in the model picker — models with the eye icon support vision natively.
 
 Myrm auto-detects model capabilities via LiteLLM and models.dev. You can override per model in the model card if needed.
 
@@ -41,6 +42,8 @@ If you attach an image or video but neither your main model nor Vision Fallback 
 - **Non-vision main model** — use a cheap text model for reasoning while vision fallback handles images.
 - **Channel images** — Telegram, Discord, iMessage, and other channels deliver images into the same pipeline.
 - **PDF & documents** — scanned or image-heavy PDFs can route through vision when text extraction is sparse.
+- **Agent-active workspace vision** — enable the **`vision-toolkit`** prebuilt skill so the agent can call `vision_semantic_tool` on files already in the sandbox (OCR, region read, two-image compare) and `vision_geometry_tool` for pixel-level diffs — no manual re-upload from chat.
+- **Transparent downgrade badge** — when fallback runs, chat shows `vision_backend`: `vlm` (full vision model), `native_video` (model reads video directly), or `frame` (FFmpeg frame extraction).
 
 ## Status & Caching
 
