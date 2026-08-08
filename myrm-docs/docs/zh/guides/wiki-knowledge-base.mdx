@@ -213,6 +213,22 @@ Wiki 不是「写完就忘」的死水。Myrm 用 **12 条代码级路径** 把�
 
 **测试：** 37 项定向 pytest（Harness 18 + Server 19，2026-07）。
 
+## 换 embedding → 一键重建向量索引
+
+在 **设置 → 模型** 更换 **embedding 模型**或分块策略后，旧向量可能失效。请在 **设置 → Wiki → 概览** 使用 **重建向量索引**：
+
+| 会重建 | 会跳过 | 用户收益 |
+|--------|--------|----------|
+| **已发布**词条（L2） | 草稿（`publish_status: draft`） | 不为未完成笔记浪费 API |
+| **L0/L1 目录 sidecar** | 联邦只读挂载 | sidecar 优先路由与新区块策略一致 |
+| **可选 asset caption**（开启 asset 索引时） | — | 图片检索与新 embedder 对齐 |
+
+**超长 embed fail-loud：** 强制分块后仍超模型窗口时，编译会 **暂停** 并标记 embed-window 违规（非 silent drop）。重建 API 返回 **`errors[]`**，Settings 面板列出失败项便于修复。
+
+**对比竞品：** OpenClaw / Hermes / deer-flow / LobsterAI / CoPaw / jiuwenclaw **均无** Settings GUI 换 embedding 后全库 wiki 向量重建。
+
+**测试：** 34 项定向 pytest（2026-08）。
+
 ## Wiki 与 Memory 写入边界
 
 智能体**同时启用 Wiki 与 Memory** 时，Myrm 防止长文污染紧凑记忆：

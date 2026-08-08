@@ -53,6 +53,22 @@ When **both Wiki and Memory** are enabled, Myrm keeps long-form knowledge out of
 
 **Tests:** 25 targeted pytest (Harness wiki boundary module, Jul 2026).
 
+## Embedding model change → Rebuild Vector Index
+
+When you switch the **embedding model** or chunking policy in **Settings → Models**, existing wiki vectors can become stale. Myrm provides a one-click **Rebuild Vector Index** in **Settings → Wiki → Overview**:
+
+| What gets re-embedded | What is skipped | User benefit |
+|----------------------|-----------------|--------------|
+| **Published** concept articles (L2) | Draft pages (`publish_status: draft`) | No wasted API calls on unfinished notes |
+| **L0/L1 directory sidecars** (`.abstract.md` / `.overview.md`) | Federated read-only public mounts | Sidecar-first routing stays accurate after model change |
+| **Optional asset captions** (when asset index is enabled) | — | Image search stays aligned with the new embedder |
+
+**Fail-loud embed window:** If a chunk still exceeds the model window after force-split, compile **pauses** with an embed-window violation (not silent drop). The reindex API returns structured **`errors[]`**; the Settings panel lists failures so you can fix oversized pages.
+
+**vs competitors:** OpenClaw / Hermes / deer-flow / LobsterAI / CoPaw / jiuwenclaw have **no** Settings GUI to rebuild the full wiki vector index after changing embeddings. OpenViking-style stacks may split embed input, but lack Myrm’s **Brain Console compile pause + reindex button** loop.
+
+**Tests:** 34 targeted pytest (Harness 28 + Server 6, Aug 2026).
+
 ## Karpathy cognitive map trio (index / log / hot) + SCHEMA
 
 After compile, maintain, import, or human review, the engine **deterministically** maintains vault-root orientation files (zero extra LLM cost):
