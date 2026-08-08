@@ -24,6 +24,35 @@ Myrm's **Eval Lab** is a built-in evaluation dashboard that lets you run test ca
 4. View results in the **Report** tab — summary cards, per-case table, and environment snapshot.
 5. Switch to the **History** tab to compare across runs.
 
+## WorkBuddy Bench benchmark
+
+The Eval Lab ships with a built-in adapter for **WorkBuddy Bench** (Tencent's multi-domain coding-agent benchmark), covering all four official tracks with paper-aligned scoring:
+
+| Track | Tasks | Approx. size | Scoring mode |
+|-------|-------|--------------|--------------|
+| WBBench Code | 80 | ~196 MB | composite |
+| WBBench Web | 70 | ~22 MB | composite |
+| WBBench Office | 50 | ~10 MB | composite |
+| WBBench Security | 60 | ~479 MB | native (task-bundled scorer) |
+
+### Download a subset
+
+1. Open **Eval Lab** and switch to the **WorkBuddy Bench** tab.
+2. Each track shows its task count, approximate size, and local status (`Not downloaded` / `Downloaded`).
+3. Click **Download** to fetch the archive from Hugging Face in the background. Progress is streamed via SSE; the button disables while a download is running.
+4. Archives are verified against the official SHA-256 checksums and installed atomically — a corrupt or partial archive is never used.
+5. Use **Refresh** anytime to re-read local disk state; a just-finished download immediately flips the button to `Downloaded`.
+
+### Run a benchmark
+
+1. Click **Run** on a downloaded track to evaluate every task in that subset.
+2. A **Stop** control is available while the evaluation is running — abort is honored mid-run and mid-download.
+3. When finished, the run produces a reproducible report (model, tools, profile, scoring mode recorded in the manifest).
+
+:::tip
+Security tasks are graded by their own task-native `tests/scoring.py` (no LLM judge); Code/Web/Office use the composite verifier — matching the WBBench paper's acceptance layering.
+:::
+
 ## Cross-profile matrix eval
 
 To compare how different agent configurations handle the same tasks:
