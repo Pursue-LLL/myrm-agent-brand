@@ -1,0 +1,520 @@
+---
+
+title: 스킬 진화
+description: 5계층 안전, GUI 승인 및 증거 중심 학습을 갖춘 42개 모듈 기본 자체 진화 시스템입니다.
+---
+# 스킬 진화
+
+에이전트는 **42개 모듈로 구성된 기본 진화 시스템**을 통해 새로운 기술을 자율적으로 학습, 테스트 및 배포합니다. 외부 종속성, CLI 래퍼, AGPL 위험이 없습니다.
+
+## 작동 방식
+
+진화 엔진은 **생성 전 검색** 전략을 따릅니다. 즉, 새로운 솔루션을 만들기 전에 신뢰도가 높은 기존 수정 사항을 검색합니다. 이것만으로도 중복된 LLM 호출이 제거됩니다.
+
+1. **검색** - 에이전트가 반복 작업 패턴을 식별하거나 실패 신호를 감지합니다.
+2. **증거 집계** — 여러 실행에서 성공 및 실패 사례를 수집합니다.
+3. **변형 생성** - 3개의 후보 변형을 병렬로 생성합니다(경쟁업체의 50-500 LLM 호출에 비해 비용 효율적)
+4. **회귀 게이트** — 자동 생성된 EvalCase 테스트는 LLM 점수 매기기 전에 각 변형에 대해 실행됩니다. 회귀가 있는 변형은 점수 페널티를 받습니다(비차단 설계로 거짓 거부 방지).
+5. **점수** — 4가지 차원(기능/품질/안전성/호환성)을 통한 LLM-판사 평가
+6. **개선 관문** — 원래 기술이 기준 후보로 경쟁합니다. 실제로 성능을 능가하는 변종만이 살아남는다
+7. **승인** — 차이점 미리보기가 포함된 GUI 기반 인간 승인 워크플로우
+8. **배포** — 회귀 시 자동 롤백을 통해 A/B 테스트를 거쳤습니다.
+
+## 지도 기술 학습: `/learn`
+
+자동 기술 추출 외에도 모든 채팅에서 `/learn` 명령을 사용하여 필요에 따라 상담원에게 새로운 기술을 가르칠 수 있습니다.
+
+| Input | What Happens |
+|-------|-------------|
+| `/learn https://docs.stripe.com/webhooks` | Fetches the page, extracts procedures and config, creates a reusable skill |
+| `/learn ./scripts/deploy.sh` | Reads the file, analyzes the workflow, distills it into a SKILL.md |
+| `/learn the deployment workflow we just did` | Reviews the conversation history and captures the steps as a skill |
+| `/learn` (no arguments) | Automatically reviews the current conversation and distills it into a skill |
+
+`/learn` 명령은 WebUI, Telegram 및 연결된 모든 IM 플랫폼 등 모든 채널에서 작동합니다. 생성된 스킬은 엄격한 저작 표준(머리말, 8섹션 구조, 품질 기준)을 따르며 자동 캡처 스킬과 동일한 보안 파이프라인을 통해 저장됩니다.
+
+**경쟁업체 대비:** Hermes `/learn`에는 인수가 필요하며(빈 입력 시 오류) CLI에서만 작동합니다. Myrm의 `/learn`는 빈 인수를 정상적으로 처리하고 모든 채널에서 작동하며 전체 품질 파이프라인(10차원 점수 매기기, 중복 제거, 수명 주기 관리)에 공급됩니다.
+
+## 시연을 통한 학습
+
+에이전트에게 "이전 → 이후" 예를 보여주면 자동으로 변환 규칙을 추론합니다.
+
+1. 원본 파일과 예상 결과(Excel, CSV, 텍스트, 코드 등 모든 형식) **업로드**
+2. **에이전트는 차이점을 분석**하고 변환 로직을 추론한 후 스크립트를 작성합니다.
+3. 스크립트를 실행하고 출력을 예상 결과와 비교하여 **검증**합니다.
+4. `StructuredExtractor`을 통해 검증된 패턴을 재사용 가능한 기술로 **캡처**
+
+전체 흐름은 자연스러운 대화 내에서 이루어집니다. 마법사도, 템플릿 편집기도, 프로그래밍도 필요하지 않습니다. `StructuredExtractor`는 파괴적인 명령이나 자격 증명 노출을 감지하기 위해 내장된 `safety_analysis`을 사용하여 패턴이 `skill`, `cron_job`이 될 자격이 있는지 또는 캡처하기에 너무 사소한지(`skip`) 여부를 자동으로 분류합니다.
+
+**경쟁업체 대비:** 모든 경쟁업체에는 수동 템플릿 작성 또는 매크로 기록이 필요합니다. Myrm의 접근 방식은 완전한 대화식이며 LLM 이해를 활용합니다. 정확한 단계를 반복하기보다는 예를 통해 일반화합니다.
+
+## 인간 탈취로부터 배우기
+
+에이전트가 브라우저 작업 중에 멈추면 사용자에게 인계를 요청할 수 있습니다. 그러면 귀하의 행동이 자동으로 투명하게 학습 자료가 됩니다.
+
+1. **에이전트가 인수를 요청** — 제어권을 요청하는 메시지가 표시됩니다.
+2. **브라우저 작동** — 필요에 따라 탐색, 클릭, 양식 채우기
+3. **시스템이 변경 사항을 캡처합니다** - 사전/사후 페이지 스냅샷이 기록됩니다(픽셀이 아닌 의미론적 접근성 트리).
+4. **토스트 확인** — "행동이 기록됩니다. 에이전트가 데모를 통해 학습합니다"가 표시됩니다.
+5. **진화는 증거를 소비합니다** — 다음에 FIX 또는 DERIVED 파이프라인이 트리거되면 데모가 실행 추적과 함께 나타납니다.
+
+이는 추가 비용이 전혀 발생하지 않으며(녹음 중 LLM 호출 없음) 작업 흐름에 전혀 방해가 되지 않습니다. 에이전트는 정확한 클릭을 재생하려고 시도하지 않습니다. 대신 진화 LLM에서는 올바른 결과가 어떻게 나타나는지 이해하기 위해 상위 수준의 '이전 → 이후' 페이지 상태를 수신합니다.
+
+**경쟁사 대비:** 어떤 경쟁사(OpenClaw, Hermes, CoPaw, DeerFlow 또는 LobsterAI)도 기술 학습을 위해 인간 인수 작업을 포착하지 못합니다. 에이전트가 정체되면 사용자 개입은 단순히 무시됩니다.
+
+## 자동 다단계 작업 흐름 학습
+
+작업을 완료할 때마다 에이전트는 모든 도구 호출, 매개변수, 순서 및 컨텍스트를 포함한 전체 대화를 자동으로 분석하여 재사용 가능한 다단계 패턴을 식별합니다. 워크플로가 일반화 가능한 경우 **처음 발생 시** 새 기술로 캡처됩니다.
+
+| Aspect | Myrm | OpenSquilla (competitor) |
+|--------|------|------------------------|
+| Detection trigger | First completed session | Requires 3+ identical sessions |
+| Input signal | Full conversation trajectory (context-rich) | Only skill names + frequency count |
+| Output format | Flexible SKILL.md (Agent adapts at runtime) | Fixed DAG (rigid step ordering) |
+| Validation | SandboxValidator dry-run + safety pipeline | Static lint + smoke test |
+| New architecture required | None (reuses CAPTURED pipeline) | Entire DAG engine (6+ modules) |
+
+**중요한 이유:** 상담원이 패턴을 '알아차리기' 전에 세 번 반복할 필요는 없습니다. 잘 실행된 워크플로 하나로 충분합니다. 에이전트는 즉시 학습하고 지식을 향후 변형에 적용합니다.
+
+## 네 가지 진화 유형
+
+| Type | Trigger | What It Does |
+|------|---------|-------------|
+| **FIX** | 3 consecutive failures or success rate below 50% | Auto-repair failed skills using trace analysis |
+| **DERIVED** | User feedback or frustration signals | Optimize skill based on explicit or implicit feedback |
+| **CAPTURED** | Session anti-patterns detected during idle | Background extraction → 10-dim scoring → dedup → safety scan → Insights Inbox approval |
+| **OPTIMIZE_DESCRIPTION** | Low match rate | Refine skill description for better semantic matching |
+
+## 5중 안전
+
+모든 진화된 기술은 생산에 도달하기 전에 5개의 독립적인 안전 게이트를 통과합니다.
+
+| Layer | Mechanism | What It Prevents |
+|-------|-----------|-----------------|
+| **Sandbox** | Isolated execution environment | Runtime failures and side effects |
+| **AST Signature** | Function signature integrity check | Core API breakage |
+| **Size Guard** | Maximum 120% growth ratio | Code bloat and complexity creep |
+| **Anti-Loop** | TTL + attempt limits per skill | Infinite evolution cycles |
+| **A/B Testing** | Side-by-side performance comparison | Silent regressions |
+
+## 좌절 감지
+
+시스템은 **5개 카테고리와 38개 이중 언어 패턴**(중국어 + 영어)을 통해 사용자 불만을 감지하여 명시적인 사용자 피드백 없이 파생 진화를 촉발합니다.
+
+- **자세한 내용** — "답변을 알려주세요."
+- **스타일** — "더 간결하게"
+- **형식** — "대신 표를 사용하세요."
+- **워크플로** — "먼저 X 작업을 중지하세요."
+- **일반** — 좌절감 표현
+
+## 증거 중심의 진화
+
+단일 실패 신호에서 발전하는 경쟁업체와 달리 Myrm은(는) 여러 실행에 걸쳐 증거를 집계합니다.
+
+- **성공 사례** — 회귀 방지를 위해 보존됨
+- **실패 사례** — 근본 원인 패턴 분석
+- **최소 증거 임계값** — 진화를 트리거하려면 최소 3번의 실행과 1번의 실패가 필요합니다.
+
+## 가장 작은 적절한 형태
+
+에이전트가 행동 패턴을 포착하면 맹목적으로 스킬을 생성하지 않습니다. 대신 동일한 LLM 호출에서 **적절한 가장 작은 실행 형식**을 분류합니다. 추가 비용은 없습니다.
+
+| Classification | What Happens | Example |
+|----------------|--------------|---------|
+| **skill** | Normal skill approval flow | "Deploy with zero-downtime rolling update" |
+| **cron_job** | Purple card with schedule suggestion | "Check server load every Monday at 9am" |
+| **skip** | Silently discarded — too trivial to capture | "Rename a file" |
+
+즉, 받은 편지함에 시끄러운 제안이 줄어들고 주문형 기술보다 예약된 작업에 더 적합한 경우 명확한 지침이 제공됩니다.
+
+**경쟁사 대비:** 자동 양식 분류를 제공하는 경쟁사(Hermes, OpenClaw, Codex)는 없습니다. 모두 기술만 생산하므로 사용자가 수동으로 크론 작업을 생성할 수 있습니다.
+
+## 사전 예방적 기술 권장사항
+
+상담원이 현재 도구로는 처리할 수 없는 요청을 받으면 거절하기 전에 **자동으로 스킬 허브를 검색**합니다. 이 "아니오라고 말하기 전 검색" 동작은 두 가지 수준에서 시행됩니다.
+
+1. **시스템 규칙** — 전역 행동 규칙은 거부하기 전에 모든 모델에 검색 도구를 확인하도록 지시합니다.
+2. **도구 설명** - 검색 도구 자체는 MUST 수준 지침을 사용합니다.
+
+**이것이 당신에게 의미하는 것:** AI 비서가 단순히 "그건 할 수 없어요"라고 말하지 않습니다. 대신 사용 가능한 기술을 검색하고 한 번의 클릭으로 설치할 수 있는 기술을 제안합니다.
+
+**경쟁사 대비:** 8개의 경쟁사 코드베이스(Hermes, OpenClaw, CoPaw, LobsterAI, CodePilot, jiuwenclaw, deer-flow)에서 검증되었으며 사전 기술 추천을 구현하지 않았습니다. Hermes의 `tool_search`(735줄)은 기능 검색이 아닌 이미 등록된 도구에 대한 점진적 도구 공개입니다.
+
+## 품질 모니터링
+
+**슬라이딩 윈도우 통계를 사용한 3차원 성능 저하 감지**:
+
+- 구성 가능한 임계값을 통한 성공률 모니터링(기본값: 70%)
+- 자동 경고를 통한 P95 대기 시간 추적
+- 서버 오류율(5xx) 모니터링
+
+저하된 기술은 **1-스트라이크**(심각한 실패) 또는 **3-스트라이크**(점진적 성능 저하) 정책을 통해 자동으로 격리됩니다.
+
+## 손절매: 버전, 섀도우 A/B 및 배치 스냅샷
+
+**평범한 언어:** 발전된 기술로 인해 에이전트가 악화되는 경우 CLI 없이 설정에서 롤백할 수 있습니다. 먼저 **섀도우 모드**에서 변경 사항을 승인한 다음(백그라운드에서 비교하는 동안 프로덕션 동작은 이전 버전으로 유지됨) 측정항목이 좋아 보일 때 승격할 수도 있습니다. 많은 기술을 일괄 최적화하면 시작하기 전에 스냅샷이 저장됩니다. 결과가 옆으로 떨어지면 중간에 **취소하고 롤백**할 수 있습니다.
+
+**검증됨(2026년 6월 6일):** 34개의 자동화된 테스트에는 일괄 취소/롤백(다중 기술, 부분 실패 HTTP 디스크 복원 및 대기 시간 초과 건너뛰기 롤백 포함), 스케줄러 `cancel_batch_optimization` + `await_batch_optimization` 연결 및 `restore_skill_snapshot`(두 DB 분기 모두)에 대한 실제 디스크 복원이 포함됩니다. 취소는 롤백이 스냅샷을 복원하기 전에 하네스 취소 토큰을 통해 진행 중인 일괄 최적화를 중지합니다. 대기 시간이 초과되면 롤백을 건너뛰고 사용자는 세부 정보 페이지로 이동됩니다. 롤백 취소는 일괄 롤백 엔드포인트와 동일한 `rolled_back`/`failed`/`total_skills`/`error_message` 통계를 반환합니다. 웹 UI에는 성공, 부분(`cancelRollbackPartial` / `rollbackPartial`) 또는 실패 알림이 표시됩니다. 전체 GUI 클릭연결 E2E에는 실행 중인 백엔드가 필요합니다.
+
+| Capability | What you get |
+|------------|--------------|
+| **Versions panel** | One-click rollback to any saved snapshot (GUI) |
+| **Evolution history** | Full audit trail of all approved/rejected changes with inline Diff viewer |
+| **Inline revision** | Monaco DiffEditor for editing proposals in place (responsive: side-by-side on desktop, inline on mobile) |
+| **Approve + Shadow** | Growth inbox → shadow test → Guardian promote/stop |
+| **Batch optimization** | Auto snapshot on submit; cancel with optional full rollback |
+
+**경쟁업체 대비:** Hermes/OpenClaw는 CLI 또는 파일 기반 롤백을 제공합니다. 섀도우 검증과 일괄 비행 중 롤백을 위한 전체 GUI 루프를 제공하는 제품은 없습니다.
+
+## 알려진 함정: 실패로부터 자동 학습
+
+Myrm은(는) 스킬 실행 실패에서 구조화된 "함정"을 자동으로 추출하여 향후 프롬프트에 다시 제공합니다. 에이전트는 동일한 실수를 두 번 방지합니다.
+
+| Capability | What you get |
+|------------|--------------|
+| **Auto-extraction** | Deterministic errors are automatically captured as structured traps (severity + trigger condition + mitigation) |
+| **Deduplication** | Same error increments `occurrence_count` instead of creating duplicates |
+| **Prompt injection** | High-severity traps are injected into evolution prompts as "Known Traps (avoid these pitfalls)" constraints |
+| **GUI display** | `KnownPitfallsSection` renders traps with 4-level color-coded severity, trigger conditions, and mitigation steps |
+| **Template library** | 8 common trap templates (npm timeout, API rate limit, file permissions, memory overflow, encoding, Python version, Docker, Git conflicts) |
+
+**평범한 언어:** 알려진 문제(예: npm 시간 초과)로 인해 스킬이 실패하면 Myrm은(는) 이를 기억하고 다음 진화 시도 시 AI에 명시적으로 경고합니다. 시간이 지남에 따라 귀하의 기술은 자동으로 더욱 강력해지며 수동 문서가 필요하지 않습니다.
+
+**경쟁업체 대비:** Hermes 기술에 일반 텍스트 "함정" 단락이 포함되어 있습니다. Myrm은 심각도 수준의 구조화된 스토리지, 런타임 오류 자동 추출, 발생 횟수 계산을 통한 중복 제거, 신속한 엔지니어링 주입 등 완전한 폐쇄 루프 학습 시스템을 제공합니다.
+
+## 결정 내역: 이중 루프 학습
+
+모든 진화 결과(성공 또는 실패)는 영구적으로 기록되며 향후 진화 시도에 자동으로 반영됩니다. 에이전트는 시간이 지남에 따라 제도적 지식을 축적하여 효과적인 것과 그렇지 않은 것을 모두 기억합니다.
+
+| Source | What is recorded | When |
+|--------|-----------------|------|
+| **FIX success** | Error description + fix reasoning | After successful auto-repair (score ≥ 0.7) |
+| **User-driven optimization** | User feedback + optimization reasoning | After successful DERIVED evolution (score ≥ 0.7) |
+| **Evidence-driven repair** | Aggregated failure patterns + fix reasoning | After successful evidence-based evolution (score ≥ 0.7) |
+| **Screener rejection** | Rejection reasoning with confidence score | When an evolution proposal is rejected (confidence ≥ 0.7) |
+| **Manual rejection** | Human reviewer's rejection reasoning | When a user rejects a proposed change in the GUI |
+
+**작동 방식:** 가장 최근의 제약 조건 5개는 "역사적 제약 조건(반드시 따르거나 거부가 보장되어야 함)"으로 LLM 프롬프트에 자동으로 삽입됩니다. 따라서 다음 진화 시도는 처음부터 시작하는 대신 축적된 지혜를 기반으로 합니다.
+
+**평범한 표현:** 각 진화 주기마다 에이전트가 더욱 똑똑해집니다. 수정 사항이 제대로 작동하면 그 이유를 기억합니다. 제안이 거부되면 동일한 접근 방식을 다시 시도하지 않습니다. 몇 달 동안 사용하면 기술에 풍부한 교훈이 축적됩니다. 모두 자동으로 유지 관리가 필요하지 않습니다.
+
+**경쟁업체 대비:** SkillHone(Tencent)은 이슈/PR/Wiki가 포함된 Git 서버(Forgejo)를 사용하여 결정 내역을 기록합니다. 따라서 Docker Compose 설정 및 수동 탐색이 필요합니다. Myrm은 외부 종속성이 전혀 없는 SQLite에 모든 것을 저장하고 향후 프롬프트에 자동으로 학습 내용을 삽입합니다. 다른 어떤 경쟁업체도 이중 루프(성공 + 실패) 지속적인 학습을 제공하지 않습니다.
+
+## 큐레이터: 라이프사이클 거버넌스
+
+큐레이터 시스템을 통한 자동화된 기술 수명주기 관리:
+
+- **실제 사용량 기반 결정** — 스킬 선택 / `[use skill]`이 `.stats.json`을 씁니다. 큐레이터 스윕은 빈 사이드카가 아닌 실제 통화 데이터를 사용합니다.
+- **백그라운드 토큰 비용 없음** — 오래된/아카이브/LRU는 결정적입니다. 통합(우산 병합)은 귀하가 선택할 때까지 **기본적으로 꺼져 있습니다**.
+- **사전 내장된 면역** — `/prebuilt/`에 포함된 45개 이상의 내장 기술은 자동으로 보관되지 않습니다.
+- **이중 원클릭 스윕** — 설정 "지금 실행" + 토스트 피드백이 포함된 에이전트 구성 레이더 "Smart Prune"
+- **한 번도 사용되지 않은 보호** — 유예 기간 + 오래된 임계값; 새로 설치된 스킬은 즉시 유휴 상태로 표시되지 않습니다.
+- **클러스터 감지** — 접두사 + 임베딩을 통해 의미상 유사한 기술을 찾습니다.
+- **우산 병합** — GUI 미리보기 + 확인; 우발적인 통합 없음
+- **자동 복구** — 다음 사용 시 오래된 기술이 다시 활성화됩니다.
+- **Hermes 마이그레이션 사용량 보존** — 가져온 호출 수와 마지막으로 사용된 타임스탬프가 유지됩니다. 큐레이터는 유효하지 않은 활성 스킬을 사용하지 않습니다.
+- **역사 시각화** — GUI 타임라인; 모든 청소는 추적 가능합니다
+- **단일 위생 SSOT** — 오래된/보관 정리는 설정 큐레이터 및 Agent Smart Prune을 통해서만 실행됩니다. 채팅 검색에는 읽기 전용 분석 도구가 탑재되지 **않습니다**(7/7 피어 저장소에는 동등한 에이전트 도구가 없음)
+
+## 대화 스킬 관리
+
+채팅에서 직접 기술을 설치, 검색, 관리하세요. 설정 페이지가 필요하지 않습니다.
+
+### 채팅 명령
+
+에이전트에게 필요한 것을 자연어로 말하면 됩니다.
+
+| What You Say | What Happens |
+|-------------|-------------|
+| "Help me find a LinkedIn scraping skill" | Agent searches 7 sources, shows results with security scan summaries |
+| "Install this skill from GitHub" | Agent clones, scans, quarantine-isolates, and installs with one confirmation |
+| "Uninstall the web-scraper skill" | Agent removes the skill and cleans up dependencies |
+| "What tools do I have for data analysis?" | Unified capability discovery (BM25 + semantic hybrid search) across native tools and installed skills |
+
+### 7-소스 스킬 마켓플레이스
+
+단일 저장소에 고정되지 않고 다양한 생태계 소스에서 기술을 검색할 수 있습니다.
+
+- **GitHub** — 공개 기술 저장소
+- **ClawHub** — 커뮤니티 기술 허브
+- **LobeHub** — LobeChat 생태계 기술
+- **skills.sh** — 선별된 스킬 레지스트리
+- **ModelScope** — 80,000개 이상의 중국 AI 생태계
+- **Aliyun** — AgentExplorer 마켓플레이스
+- **사전 구축됨** — 45개 이상의 번들 스킬
+
+### 보안 우선 설치
+
+모든 기술은 활성화되기 전에 보안 파이프라인을 통과합니다.
+
+1. **격리 격리** — 샌드박스 디렉터리에 설치
+2. **AST 분석** — 위험한 패턴에 대한 정적 코드 분석(113개 규칙)
+3. **LLM 의미론적 감사** — AI가 스킬의 의도와 동작을 검토합니다.
+4. **패턴 스캐닝** — 알려진 악성 패턴에 대한 정규식 기반 탐지
+5. **신뢰 점수** — 시간 기반 감쇠를 사용한 초기 신뢰 수준
+
+### GUI 관리(33개 구성 요소)
+
+채팅 명령 외에도 설정에서 전체 시각적 관리 시스템을 사용할 수 있습니다.
+
+- **발견 및 검색** — 카테고리가 있는 필터링 가능한 기술 시장
+- **가져오기** — URL 가져오기, 일괄 가져오기, 파일 업로드
+- **내보내기 및 공유** — SHA-256 무결성 및 PII 자동 수정 기능을 갖춘 ZIP 패키징
+- **권한** — 세부적인 권한 승인 및 사용 모니터링
+- **버전** — 원클릭 롤백이 가능한 전체 버전 기록
+- **진화 추적** — 보류 중인 제안, 거부 감사, 품질 모니터링
+- **동기화** — iCloud/Dropbox/NAS를 통한 장치 간 동기화
+
+**경쟁업체 대비:** BrowserAct/OpenClaw에는 수동 `git clone` 및 YAML 구성이 필요합니다. 어떤 경쟁업체도 채팅 내 기술 검색, 보안 검사 설치 또는 33개 구성 요소로 구성된 시각적 관리 시스템을 제공하지 않습니다.
+
+## 스킬 라이브러리
+
+다중 소스 마켓플레이스 통합(GitHub, ClawHub, LobeHub, Skill.sh, ModelScope)을 통해 즉시 사용 가능한 45개 이상의 사전 구축된 기술. 흑요석 캔버스, 흑요석 베이스, 데이터 분석, 심층 연구, Unreal Engine MCP(장면 구축, 청사진 작성, 조명), Blender MCP(메시 생성, 재료, 애니메이션) 등을 위한 전문 기술이 포함되어 있으며 각각 구조화된 계약(단계, 트랩, 검증)이 있습니다.
+
+### 도구 세트 인식 기술
+
+기술은 배포 환경에 자동으로 적응됩니다. 각 기술은 필요한 도구 또는 도구 그룹을 선언할 수 있습니다.
+
+- **requires_tools / require_tool_groups** — 특정 도구를 사용할 수 있는 경우에만 스킬이 나타납니다.
+- **fallback_for_tools / fallback_for_tool_groups** — 기본 도구가 누락된 경우 튜토리얼/해결 방법으로 스킬이 자동 활성화됩니다.
+
+8개의 표준화된 도구 그룹(웹, 브라우저, file_ops, 쉘, 컴퓨터 사용, 메모리, 칸반, wiki)은 로컬 WebUI, Tauri 데스크톱 및 SaaS 클라우드 배포 전체에서 일관된 동작을 보장합니다.
+
+### 무왕복 스킬 주입
+
+기술을 명시적으로 호출하면(예: "코드 검토 사용") Myrm은 전체 SOP를 컨텍스트에 직접 삽입합니다. 추가 LLM 도구 호출은 필요하지 않습니다. 이는 기존의 "요청 → LLM 호출 선택 도구 → SOP 로드" 흐름에 비해 호출당 2~5초 및 500~2000개의 토큰을 절약합니다.
+
+주입된 페이로드에는 다음이 포함됩니다.
+- `${SKILL_DIR}` 템플릿 변수가 포함된 전체 SOP 콘텐츠가 해결되었습니다.
+- 파일 액세스용 `[Skill directory: /path/to/skill]`
+- 보조 파일 목록(스크립트, 참조, 템플릿)
+- `[IMPORTANT: The user has invoked...]` 모델 준수를 위한 강력한 신호 헤더
+
+### 3방향 해시 보호
+
+Myrm이 번들로 제공되는 사전 구축된 기술을 업그레이드하면 사용자 정의 내용이 자동으로 덮어쓰여지지 않습니다.
+
+| Scenario | What Happens |
+|----------|-------------|
+| User hasn't modified the skill | Upstream update applied silently |
+| User modified the skill & upstream changed | User version preserved; "Update Available" badge shown in GUI |
+| User accepts the upstream update | One-click apply via **Accept Upstream** button |
+| User rejects | Skill stays as-is; badge dismissed |
+
+내부적으로는 `origin_hash`(마지막 동기화 시 번들 소스의 SHA-256)이 현재 저장된 콘텐츠 해시와 비교됩니다. 서로 다를 경우 사용자가 스킬을 사용자 정의했으며 업그레이드가 강제되지 않고 연기됩니다.
+
+이는 사전 구축/템플릿 시스템의 일반적인 문제를 해결합니다. 기본값을 조정하는 사용자는 업데이트할 때마다 변경 사항을 잃게 됩니다.
+
+## 스킬 구성 핫 리로드
+
+WebUI에서 스킬, 에이전트 바인딩 또는 관련 설정을 편집하면 변경 사항은 **다음 채팅 메시지**에 적용됩니다. 서버를 다시 시작하거나 수동으로 다시 로드 명령을 수행하지 않아도 됩니다.
+
+**내부적으로 일어나는 일:**
+
+1. API 설정은 데이터 디렉터리(`MYRM_DATA_DIR/.skill_config_version`) 아래에 작은 파일로 저장된 **구성 버전**을 범프합니다.
+2. 다음 메시지를 처리하기 전에 에이전트는 캐시된 버전을 해당 파일과 비교합니다.
+3. 오래된 경우 스킬 로더 캐시를 지우고 변경된 내용만 다시 초기화합니다.
+
+**볼륨 지속성이 중요한 이유:** 클라우드 샌드박스 또는 다중 작업자 배포(Granian)에서 모든 프로세스는 공유 스토리지에서 동일한 버전의 파일을 읽습니다. OpenClaw는 유사한 카운터를 프로세스 메모리에만 유지하므로 작업자는 표류할 수 있습니다. Hermes에는 수동 `/reload-skills` CLI 단계가 필요합니다.
+
+**프롬프트 캐시:** 스킬이 실제로 변경되는 경우에만 다시 초기화가 발생하므로 관련 없는 대화에서도 캐시 이점이 유지됩니다.
+
+## 6 동시 자기 진화 메커니즘
+
+Myrm은 사용자가 문제를 알아차릴 때까지 기다리지 않습니다. 6개의 독립적인 백그라운드 메커니즘으로 에이전트가 연중무휴 학습할 수 있습니다.
+
+| Mechanism | What It Does | Trigger |
+|-----------|-------------|---------|
+| **MetricMonitor** | Scans for high-error-rate skills | Every 5 seconds |
+| **Sliding Window** | Extracts experience from tool call traces | Every 15 calls |
+| **SkillImmune** | Auto-quarantines failing skills, triggers repair | Runtime failure |
+| **Session-End** | Analyzes completed conversations for learnings | After each session |
+| **FrustrationDetector** | Detects user dissatisfaction in 38 bilingual patterns | Real-time |
+| **EvidenceEvolution** | Cross-session evidence aggregation | Every hour |
+
+모든 제안은 적용되기 전에 승인 파이프라인을 통과합니다. 에이전트는 지속적으로 학습하지만 귀하의 동의 없이는 변경되지 않습니다.
+
+## 성장 대시보드
+
+포괄적인 5개 탭 시각화 시스템을 통해 에이전트의 학습 진행 상황을 추적하세요.
+
+**개요** — 전체 그림을 한 눈에 살펴보기
+- **4개 KPI 카드** — 총 기억(주간 델타 포함), 학습한 기술(진화 수 포함), 활동 일수(연속 포함), 메모리 상태 점수
+- **비용 절감 카드** — 캐시 절감 + 라우팅 절감 + 총 비용
+- **84일 활동 히트맵** — GitHub 스타일의 사용 패턴 시각화
+- **다차원 상태 레이더** — 메모리 시스템 상태를 즉각적으로 확인
+- **주간 요약** — 대화, 메시지, 크론 실행, 주별 델타 화살표가 포함된 도구 호출
+- **기술 진화 타임라인** — 7가지 상태(검토 대기 중/자동 적용/스캔 실패/차단/승인/거부/적용 실패)가 있는 최근 제안
+
+**진화** — AI 행동 패턴 다이제스트 및 진화 승인 받은 편지함
+
+**그래프** — 2D 강제 지향 주장/증거 의미론적 관계 그래프(4개 관계 유형 + 검색/필터/포커스/전체 화면/범례)
+
+**추세** — 스킬 사용 효율성 추세(성공률, 평균 지속 시간, 호출 빈도)
+
+**일일** — 일일 상담원 활동 통합 보기
+
+### 일일 업무 일지
+
+**일일 저널** 탭은 특정 날짜에 상담원이 수행한 모든 작업에 대한 통합 보기를 제공합니다.
+
+- **개요 지표** — 세션, 토큰, 비용, 도구 호출, 승인, 크론 실행, 칸반 이벤트
+- **소스 분석** — 원본 채널(웹 UI, 텔레그램, API 등)별로 그룹화된 세션
+- **통합 타임라인** — 모든 이벤트(세션, 승인, 크론 실행, 칸반 이벤트)가 시간순으로 정렬됩니다.
+- **날짜 탐색** — 날짜 선택기로 지난 날을 찾아보세요.
+- **에이전트 필터링** — 여러 에이전트를 실행할 때 특정 에이전트별로 필터링
+
+새로운 스토리지가 필요하지 않습니다. 저널은 6개의 기존 소스(Chat, Message, ApprovalRecord, CronRunModel, KanbanTaskEventModel, EventLog)에서 실시간으로 데이터를 집계합니다.
+
+## 다중 상담원 기술 범위 지정 및 공유
+
+다중 에이전트 샌드박스에서는 기술이 완벽하게 격리되어 있으면서도 안전하게 공유할 수 있습니다.
+
+- **범위 격리**: 기술은 기본적으로 해당 기술을 학습한 에이전트에 속합니다. OpenClaw 또는 Hermes와 같은 전역 풀을 오염시키지 않습니다.
+- **에이전트별 인스턴스 바인딩**: 설정에서 동일한 스킬의 명명된 여러 인스턴스(예: 업무 대 개인 GitHub 토큰)를 만든 다음 채팅 또는 설정에서 에이전트별로 인스턴스를 선택합니다. 서버 측 검증을 통해 `skill_configs.instance_name`로 저장됩니다.
+- **Evolution의 CoW(기록 중 복사)**: 진화가 공유 스킬 계보를 다시 작성할 때 Myrm은 다른 에이전트가 영향을 받지 않도록 지역화된 변형을 포크합니다(진화 레이어는 CoW에 대해 계속 `mounted_skill_ids`을 추적하며 마운트 UI는 제품에서 제거되었습니다).
+- **오래된 바인딩 UX**: 인스턴스가 삭제되면 에이전트 편집기에 원클릭 삭제와 함께 황색 경고가 표시됩니다.
+- **강력한 가비지 수집**: 에이전트를 삭제하면 전용 기술(데이터베이스 레코드 및 경로 경계 보호를 통한 물리적 `rmtree` 삭제 모두)이 삭제되어 고아 데이터 또는 "고스트" 기술이 전혀 남지 않습니다.
+
+### 제로 오버헤드 글로벌 레지스트리
+
+"공유 기능을 한 번 유지"하기 위해 전용 데이터베이스 테이블(`shared_capability` + `shared_capability_version` + `agent_capability_binding`)과 구체화 계층이 필요한 경쟁업체와 달리 Myrm의 아키텍처는 이를 무료로 제공합니다.
+
+| Property | How It Works |
+|----------|--------------|
+| **Single-instance by default** | Skills exist once on the filesystem or database; agents reference them by ID |
+| **Per-agent configuration** | `SkillInstanceConfig` allows different env/config overrides per agent without duplicating the skill |
+| **CompositeSkillBackend routing** | Multiple skill sources (prebuilt, local, MCP) compose transparently with longest-prefix-match routing |
+| **Automatic deduplication** | "Last wins" strategy ensures user skills override bundled ones without manual conflict resolution |
+| **Dependency auto-check** | `SkillRequires` (bins, env, config) + `requires_tools` + `required_credential_files` auto-validate at load time |
+
+<Note>
+Competitors solve "shared capability deduplication" with 3 extra database tables and a runtime materialization query. Myrm's GUI-centric architecture eliminates the problem entirely — skills are naturally singletons referenced by ID.
+</Note>
+
+## 세션별 기술 범위
+
+상담사 수준 범위 지정 외에도 Myrm은 **세션별 기술 선택**을 지원합니다. 각 대화에 대해 활성화된 기술을 정확하게 선택하세요.
+
+- **시각적 토글**: 메시지 입력의 반짝임 아이콘(✦)은 활성화된 모든 스킬을 나열하는 팝오버를 엽니다. 현재 작업과 관련 없는 항목을 끄세요.
+- **토큰 절약**: 사용하지 않는 스킬을 비활성화하면 프롬프트 조각이 제거되어 일반적인 9개 스킬 설정에서 턴당 ~1800 토큰이 절약됩니다.
+- **더 날카로운 AI 초점**: 후보 기술이 적다는 것은 LLM 결정 잡음이 적다는 것을 의미합니다. 에이전트가 올바른 기술을 더 빨리 선택합니다.
+- **지속적 재정의**: 선택 사항은 서버 측(`session_loaded_skill_names`에) 저장되며 페이지 다시 로드, 컨텍스트 압축 및 대화 포크가 유지됩니다.
+- **에이전트 전환 시 자동 클리어**: 바인딩된 에이전트를 변경하면 스킬 범위가 자동으로 새 에이전트의 기본값으로 재설정됩니다.
+
+**경쟁업체 대비:** LobsterAI는 유사한 UI로 `active_skill_ids`을 제공합니다. OpenClaw에는 구성 수준 `skillFilter`(GUI 없음)이 있습니다. CoPaw는 런타임 필터링을 지원합니다(GUI 없음). Hermes, DeerFlow 및 jiuwenclaw에는 세션 수준 기술 범위 지정이 전혀 없습니다.
+
+## 기기 간 스킬 동기화 및 개인정보 보호
+
+Myrm은 **내보내기 시 PII 수정**을 통해 **양방향 기술 동기화**를 제공하는 유일한 AI 에이전트 플랫폼입니다. 어떤 경쟁업체도 두 기능을 구현하지 않습니다.
+
+**동기화 아키텍처**(프로토콜 기반, 백엔드에 구애받지 않음):
+- **가져오기 우선 전략**: 로컬 푸시 전에 원격 변경 사항이 적용되어 실수로 덮어쓰는 것을 방지합니다.
+- **SHA-256 증분 추적**: 변경된 기술 이전만 — 전체 스캔 오버헤드 없음
+- **품질 게이트**: 기술은 공유되기 전에 최소 임계값(예: 실행 ≥3회, 성공률 ≥70%)을 충족해야 합니다.
+- **백그라운드 자동 동기화**: IdleTask 시스템을 통해 유휴 시간 동안 실행됩니다. 활성 작업이 중단되지 않습니다.
+- **플러그 앤 플레이 백엔드**: iCloud Drive, Dropbox 또는 모든 NAS를 동기화 매체로 사용
+
+**내보내기 시 PII 자동 수정** — 10개 카테고리가 감지되어 마스킹되었습니다.
+- API 키(GitHub, Stripe, AWS, SendGrid, HuggingFace, Slack, Replicate 등)
+- 환경 변수, JSON 비밀 필드, 데이터베이스 연결 문자열
+- CLI 플래그, URL 매개변수, 텔레그램 봇 토큰, HTTP 인증 헤더
+- PEM 개인 키, 절대 파일 경로(스마트 시스템 경로 제외 포함)
+- 구조화된 diff 미리보기를 통해 사용자는 각 수정 사항을 검토하고 선택적으로 재정의할 수 있습니다.
+
+**가져오기 보안**: 가져온 모든 기술은 활성화 전에 `SandboxValidator`에 의해 검사됩니다. 악성 코드는 작업 공간에 절대 도달하지 않습니다.
+
+## 대안과 비교
+
+| Capability | Myrm | OpenClaw | Hermes | Generic LLM agents |
+|-----------|:----:|:--------:|:------:|:---:|
+| Integration | Native (42 modules) | Config-based (4 fields) | External CLI wrapper (AGPL) | None |
+| Evolution strategy | 4-level (balanced/innovate/harden/repair-only) | On/off toggle | None | None |
+| Approval mechanism | 2-phase screener + GUI panel | pending/auto binary | Auto-execute | None |
+| Per-skill lock | Yes (frontmatter + API) | No (global only) | No | None |
+| Safety layers | 5 | 0 | 0 | 0 |
+| Quarantine | 1-Strike/3-Strikes auto-quarantine | None | None | None |
+| Rejection learning | Permanent constraints | None | None | None |
+| Shadow approval | Test before promote | None | None | None |
+| GUI approval | Full dashboard + diff | None | No | No |
+| Evolution cost | 3 variants/run | N/A | 50-500 LLM calls/run | N/A |
+| Persistence | SQLite + Qdrant | File system | Pickle files | N/A |
+| Frustration detection | 38 bilingual patterns | None | None | None |
+| Quality monitoring | 3D degradation | None | None | None |
+| Audit dashboard | Pending + Rejection dashboards | None | None | None |
+
+### 대 Hermes 생태계 플러그인
+
+Hermes에는 Myrm이 기본적으로 제공하는 기능을 대략적으로 나타내기 위해 **5개의 별도 타사 플러그인**이 필요합니다.
+
+| Plugin | What It Does | Myrm Native Equivalent |
+|--------|-------------|----------------------|
+| **curator-evolver** | Auto-evolution via HTML comment managed blocks | 8-stage evolution pipeline with SkillLineage versioning |
+| **SkillClaw** | Cross-agent skill sync with 3-stage pipeline | Single-product native evolution + cloud sync |
+| **CaMeL Guard** | Trust boundary security (trusted/untrusted separation) | 6-layer onion defense-in-depth |
+| **lineworks** | LINE WORKS enterprise communication | 35+ channel adapters |
+| **agent-docker** | Minimal Docker packaging | PTC sandbox + Docker + Tauri multi-layer isolation |
+
+Myrm 기본 접근 방식의 주요 장점:
+
+- **종속성 조각화 없음** — 단일 제품과 관리자, 라이선스, 업데이트 주기가 서로 다른 5개의 별도 저장소
+- **심층 통합** — 진화 시스템은 보안, 컨텍스트 관리 및 GUI 레이어와 직접 대화합니다.
+- **GUI-첫 번째 경험** — 모든 기능에는 시각적 관리와 CLI 전용 도구가 있습니다.
+- **프로덕션 등급 안전성** — 5계층 진화 안전성 + 6계층 플랫폼 보안 및 임시 검사
+
+### 듀얼 뷰 리뷰 경험
+
+Myrm의 스킬 성장 대시보드는 한 번의 클릭으로 전환할 수 있는 두 가지 보기 모드를 지원합니다.
+
+| Mode | What You See | Best For |
+|------|-------------|----------|
+| **Simple** (default) | Natural language summary + confidence indicator (green/amber/red) + test status + large Approve/Reject buttons | Non-technical users, quick triage of multiple proposals |
+| **Detailed** | Full ReactDiffViewer code diff + Monaco editor for revisions + trajectory analysis | Developers reviewing code-level changes |
+
+단순 모드에서 각 카드에는 필요에 따라 차이를 확장하는 "변경 사항 보기" 링크가 포함되어 있습니다. 실제로 필요할 때까지 성능 저하가 없습니다. 귀하의 기본 설정은 세션 전반에 걸쳐 localStorage에 유지됩니다.
+
+### 성장센터 데이터 플레인(2026-07)
+
+설정 → 기술 → **보류 중인 진화**는 3계층 읽기 경로를 사용하므로 큰 차이로 인해 목록이 느려지는 일이 없습니다.
+
+| Capability | API | What you see |
+|------------|-----|--------------|
+| **Summary list** | `GET /skill-growth/cases` | Fast list without diff/trajectory bodies |
+| **Lazy detail** | `GET /skill-growth/cases/{id}` | Full diff only when you expand a card |
+| **Stats bar** | `GET /skill-growth/stats` | SQL-accurate Total/Pending/Auto/Blocked |
+| **Filter badges** | Same stats source | Badge counts match the full corpus, not just loaded rows |
+| **Scope hint** | Cases API `total` field | Shows “latest N of M” when M > loaded page |
+
+실제 `:3000` UI에서 **10+ pytest + Chrome MCP E2E**에 의해 확인됨: 시드 → API 어설션 → 통계 카드 → 필터 → 새로 고침 → 게으른 diff.
+
+어떤 경쟁업체도 GUI 기반 기술 검토 대시보드를 제공하지 않습니다. OpenClaw는 CLI 명령(`openclaw skills workshop apply <id>`)을 사용합니다. 다른 경쟁업체는 기술 발전 시스템이 없거나 전적으로 CLI/텍스트 기반 승인에 의존합니다.
+
+### 데이터 플라이휠 대시보드
+
+Myrm은 업계에서 가장 포괄적인 기술 분석인 **6패널 데이터 플라이휠 시각화 시스템**을 제공합니다.
+
+| Panel | What It Shows | Where |
+|-------|--------------|-------|
+| **Growth Dashboard** | 5-tab suite (Overview/Evolution/Graph/Trends/Daily) with 9 professional components: activity heatmap, health radar, KPI cards, cost savings, weekly summary, 2D Claim/Evidence knowledge graph, skill usage efficiency trends, pattern digest, daily journal | `/journey` page (former `/growth` auto-redirects) |
+| **Global Skill Quality** | Average quality score, execution count, optimization rate, quality distribution chart, trend chart, Top/Worst skill rankings, CSV/JSON export | Settings → AI Tools |
+| **Pending Evolutions** | Proposals awaiting review in Simple/Detailed dual views with approve/reject/revise actions | Skills page |
+| **Evolution Rejections** | Blocked proposals with rejection reasons for auditing | Skills page |
+| **Permission Usage** | Per-skill permission call frequency and usage patterns | Skill detail sheet |
+| **Skill Quality Section** | Real-time quality monitoring configuration and metrics | Settings → AI Tools |
+
+전체 플라이휠 루프는 자동으로 실행됩니다. **추적 캡처 → 기술 추출 → 품질 게이트 → 잘못된 제안 거부 → 개선을 위한 피드백**. 수동 구성이 필요하지 않습니다.
+
+## 복합 루프(MSC 플레이북)
+
+설정 → 기술 → **복합 루프** — 메모리, 기술, 예정된 작업 및 허용 기준을 연결하는 4줄 체크리스트입니다.
+
+| Row | Meaning | What you get |
+|-----|---------|--------------|
+| Memory baseline | Profile / semantic / claim memories exist | Agent reuses context — no re-explaining every session |
+| Reusable skills | At least one skill bound or enabled | Repeat workflows via skills, not retyping SOPs |
+| Scheduled automation | Cron jobs configured | Briefings, checks, read-later — **hands-off** |
+| Acceptance rules | Cron jobs with acceptance criteria | Auto-verify runs; failures surface immediately |
+
+아래의 **학습 마법사**(디렉터리/URL/메모 + 5개의 시나리오 칩)는 한 번의 클릭으로 `/learn`을 트리거하고 검토할 초안 기술을 생성합니다.
+
+**경쟁업체 대비**: Hermes 클래스 도구는 CLI를 왜곡합니다. Myrm은 '시간이 지남에 따라 더 똑똑해짐'을 위한 **GUI 체크리스트 + 딥 링크**를 제공합니다. 자동 오류 경험 조회 및 구조화된 실행 요약은 제품 로드맵에 있습니다(솔직히 말하면 일부 UX는 아직 배송 중입니다).

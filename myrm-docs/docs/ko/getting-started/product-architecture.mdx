@@ -1,0 +1,89 @@
+---
+
+title: 제품 아키텍처
+description: 개방형 프런트엔드 + 서버와 하네스 런타임이 어떻게 조화를 이루는지.
+---
+
+# 제품 아키텍처
+
+Myrm은 **두 개의 제품 레이어**와 선택적인 클라우드 제어 영역으로 제공됩니다. 분할을 이해하면 다른 에이전트에서 배포, 디버깅 및 마이그레이션하는 데 도움이 됩니다.
+
+## 레이어
+
+| 계층 | 저장소 / 패키지 | 라이선스 | 역할 |
+|------|----------------|----------|------|
+| **Product UI & API** | `myrm-agent-frontend` + `myrm-agent-server` | 오픈 소스 | WebUI, REST/SSE API, 인증, 과금 훅 |
+| **Agent harness** | `myrm-agent-harness` | 독점 런타임(번들) | 도구 실행, 메모리, 브라우저, 서브 Agent, 압축 |
+| **Control plane**(선택) | `myrm-control-plane` | SaaS / 자체 호스팅 | LLM 릴레이, WU, 통합 도구 게이트웨이 |
+| **Desktop shell**(선택) | `myrm-agent-desktop` | 오픈 소스(Tauri) | WebUI + 로컬 백엔드 네이티브 앱 |
+
+**한 줄 요약:** 프론트엔드는 UI, 서버는 워크스페이스 게이트웨이, harness는 샌드박스 안의 두뇌와 손입니다.
+
+## Harness public API(통합 계약)
+
+오픈 소스 **서버** 코드는 `myrm_agent_harness.api`을 통해 통합되어야 하며, 개인 하네스 모듈로 심층적으로 가져오는 것이 아닙니다.
+
+| Package area | Purpose |
+|--------------|---------|
+| `factory` | Create agents (`create_skill_agent`, `SkillAgent`) |
+| `types` / `config` | Streaming DTOs and LLM/agent configuration |
+| `protocols` | Extension-point Protocol definitions |
+| `hooks` | Session, skill-agent context, memory extraction, bash registry integration |
+| `skills` | Skill frontmatter parse and metadata builders |
+
+`myrm-agent-server`의 아키텍처 CI는 `from myrm_agent_harness.*._*` 가져오기를 차단하므로 공용 `api.__all__`이 안정적으로 유지되는 동안 하네스 내부가 발전할 수 있습니다. 릴리스 휠은 읽을 수 있는 `.py` 스텁과 컴파일된 코어 확장을 제공합니다.
+
+**SaaS에 중요한 이유:** 제어 플레인은 사용자 샌드박스(이미지에 번들로 제공되는 서버 + 하네스)별로 새로운 **런타임 Docker 이미지 태그**를 롤링합니다. 서버 글루는 `api.hooks` / `api.skills`만 가져오므로 글루 레이어는 이미지 롤 전체에서 안정적으로 유지됩니다. 이는 대부분의 모놀리식 오픈 소스 에이전트가 지원하지 않는 패턴입니다.
+
+## 요청 흐름(일반적인 채팅)
+
+1. 사용자는 **프런트엔드**(또는 서버를 통한 IM 채널)에서 메시지를 보냅니다.
+2. **서버**는 인증하고 에이전트 프로필을 로드하며 이벤트를 UI로 스트리밍합니다.
+3. **Harness**는 도구, 메모리 회수, 하위 에이전트, 컨텍스트 압축 등 에이전트 루프를 실행합니다.
+4. 결과는 서버 → UI(및 선택적 채널 알림)를 통해 다시 스트리밍됩니다.
+
+## 무엇을 어디에 구성해야 할까요?
+
+| Task | Where |
+|------|--------|
+| Models, API keys, agent personality | Frontend **Settings** → persisted by server |
+| Skills, MCP, cron, goals | Frontend UI + server APIs |
+| Memory browse / approve / delete | Frontend **Memory** panel |
+| Sandbox files & code execution | Harness inside per-user sandbox (not raw SSH) |
+| SaaS billing & gateway tools | Control plane (when `DEPLOY_MODE` is SaaS) |
+
+## 배포 모드(동일한 기능, 다른 패키징)
+
+| Mode | Best for | You get |
+|------|----------|---------|
+| **Local WebUI** | Developers, BYOK | Full GUI on `localhost`, data stays on your machine |
+| **Tauri desktop** | Daily driver on Mac/Win/Linux | App icon in dock, deep links, no browser tab clutter |
+| **SaaS** | Teams without ops burden | Managed sandboxes, Work Units, optional tool gateway |
+| **PWA** | Mobile add-to-home | Install from browser after building `myrm-agent-frontend` (see [Development Setup](/docs/contributing/development-setup)) |
+
+## 다른 에이전트에서 마이그레이션
+
+- **구성:** Hermes / OpenClaw 스타일 내보내기를 위한 가져오기 경로입니다(**빠른 시작** 참조).
+- **메모리:** Myrm은 단일 `MEMORY.md` 파일이 아닌 구조화된 DB 메모리 + GUI을 사용합니다.
+- **기술:** 사전 구축 + 커뮤니티 검색; 진화는 승인을 통해 이루어집니다.
+- **채널:** 35개 이상의 내장 공급자 — 설정에서 OAuth/ 토큰을 다시 연결하세요.
+
+OpenClaw, Hermes, Claude Code 등과 비교한 정직한 기능 매트릭스는 [경쟁사 비교](/docs/getting-started/competitor-comparison)를 참조하세요.
+개방형 제품 레이어와 폐쇄형 하네스 런타임 전반에 걸쳐 재현 가능한 저부하 검증을 위해 [계층화된 검증 플레이북](/docs/guides/layered-verification-playbook)을 사용하세요.
+
+## 다음
+
+<CardGroup cols={2}>
+  <Card title="빠른 시작" icon="rocket" href="/docs/getting-started/quickstart">
+몇 분 안에 로컬로 실행하세요.
+  </Card>
+  <Card title="메모리 시스템" icon="brain" href="/docs/core-concepts/memory-system">
+교차 세션 메모리 작동 방식
+  </Card>
+  <Card title="샌드박스 런타임" icon="server" href="/docs/core-concepts/sandbox-runtime">
+도구가 실제로 실행되는 곳.
+  </Card>
+  <Card title="데스크탑 앱" icon="desktop" href="/docs/getting-started/desktop-app">
+Tauri 패키징 및 업데이트.
+  </Card>
+</CardGroup>

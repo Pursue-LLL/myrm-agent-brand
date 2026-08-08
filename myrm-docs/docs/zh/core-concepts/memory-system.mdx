@@ -34,6 +34,17 @@ Myrm 记忆系统是 Agentic Memory Operations（AMO）范式最完整的实现�
 
 检测为规则驱动（确定性、零 LLM 成本、毫秒级）；刻意混淆或高度语义化的攻击由后续 LLM 审计层补充覆盖。
 
+## 提取重试队列（Cognify 失败不静默丢失）
+
+记忆**提取**失败（限流、数据库瞬时锁、网络抖动）时，Myrm 不会让用户猜状态：
+
+- **对话内生命周期时间线** — 最后一条助手消息展示 memory lifecycle 条带、明确错误态与 **重试提取** 按钮（多语言）
+- **SQLite 持久重试队列** — 失败任务入队并指数退避；后台 worker 跨重启继续重试
+- **Trace 水合韧性** — Web UI 最多 4 次重拉 session trace，后端慢恢复后时间线仍可见
+- **Chrome E2E 验证** — 全 WebUI 流程：seed → attach 聊天 → 时间线 + Retry 控件
+
+竞品多为单行报错或要求重跑对话；Myrm 让失败**可见**，并在后台**自动重试**。
+
 ## 辩证偏好推理（Cognitive Deriver）
 
 对话结束后，**Cognitive Deriver** 在后台运行，对响应延迟零影响：

@@ -1,0 +1,39 @@
+---
+
+title: 데이터베이스 구성
+description: 데이터 저장을 위해 SQLite 및 Qdrant를 구성합니다.
+---
+
+# 데이터베이스 구성
+
+## SQLite(기본)
+
+Myrm은(는) SQLite를 기본 데이터베이스로 사용합니다. 기본 사용에는 추가 설정이 필요하지 않습니다.
+
+데이터는 기본적으로 `./data/myrm.db`에 저장됩니다. `DATABASE_URL`으로 구성합니다.
+
+## Qdrant (벡터 스토어)
+
+Qdrant는 메모리 시스템에 대한 벡터 검색 기능을 제공합니다.
+
+### Docker 작성(기본값)
+
+Qdrant는 기본 Docker Compose 구성에 포함되어 있으며 자동으로 시작됩니다.
+
+### 외부 Qdrant
+
+기존 Qdrant 인스턴스를 사용하려면:
+
+```env
+QDRANT_URL=http://your-qdrant-host:6333
+```
+
+## 백업
+
+```bash
+# SQLite backup
+cp ./data/myrm.db ./backups/myrm-$(date +%Y%m%d).db
+
+# Qdrant snapshot
+curl -X POST http://localhost:6333/collections/myrm/snapshots
+```

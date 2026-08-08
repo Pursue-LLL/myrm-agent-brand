@@ -1,0 +1,47 @@
+---
+
+title: 환경 변수
+description: 자체 호스팅을 위한 환경 변수에 대한 전체 참조입니다.
+---
+
+# 환경 변수
+
+환경 변수를 사용하여 Myrm 인스턴스를 구성합니다. `.env.example`을 `.env`에 복사하고 사용자 정의합니다.
+
+## 필수의
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `OPENAI_API_KEY` | OpenAI API key (or any one LLM key) | `sk-...` |
+
+## LLM 제공업체
+
+| Variable | Description |
+|----------|-------------|
+| `OPENAI_API_KEY` | OpenAI |
+| `ANTHROPIC_API_KEY` | Anthropic Claude |
+| `DEEPSEEK_API_KEY` | DeepSeek |
+| `GOOGLE_API_KEY` | Google Gemini |
+
+## 애플리케이션
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PORT` | `3000` | HTTP server port |
+| `DATABASE_URL` | `sqlite:./data/myrm.db` | Database connection |
+| `QDRANT_URL` | `http://localhost:6333` | Vector store URL |
+
+## Docker 작성
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MYRM_BIND_HOST` | `127.0.0.1` | Host IP for port bindings. Set to `0.0.0.0` for LAN/remote access |
+| `MYRM_PORT` | `25808` | Server API port |
+| `FRONTEND_PORT` | `3000` | Frontend port |
+
+## 보안
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `JWT_SECRET` | (auto-generated) | JWT signing secret |
+| `ENCRYPTION_KEY` | (auto-generated) | AES-256 encryption key |

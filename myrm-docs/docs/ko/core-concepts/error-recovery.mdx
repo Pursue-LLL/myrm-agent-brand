@@ -1,0 +1,353 @@
+---
+
+title: 오류 복구
+description: 장애가 발생해도 에이전트를 계속 실행하는 14계층 자가 복구 시스템입니다.
+---
+
+# 오류 복구
+
+Myrm의 오류 복구 시스템은 네트워크 장애, 모델 중단, 속도 제한 및 예상치 못한 오류가 발생하더라도 사용자 개입 없이 자동으로 에이전트가 계속 실행되도록 보장합니다.
+
+## 병렬 작업공간 병합 실패(GUI)
+
+병렬 하위 에이전트가 격리된 작업 영역(`ISOLATED_COPY`)을 사용하고 **일괄 병합** 또는 **sync_back**이 실패하면 Myrm은 로그에서만 실패를 숨기지 않습니다.
+
+- 채팅의 어시스턴트 메시지에 **경고 배너** 및 **확장 패널**(`WorkspaceMergeWarning`)이 나타납니다.
+- 메시지 메타데이터(`workspaceMergeFailures`) 및 **페이지 다시 로드 생존**에서 오류가 지속됩니다.
+- 턴은 `completionStatus: warning`로 완료되므로 출력이 불완전할 수 있음을 알 수 있습니다.
+
+Claude Code 및 OpenClaw과 같은 경쟁업체는 일반적으로 CLI/터미널 출력에서만 병합 오류를 표시하므로 병렬 실행 후에는 놓치기 쉽습니다.
+
+## 14레이어 복구 아키텍처
+
+| Layer | Mechanism | What It Handles |
+|-------|-----------|-----------------|
+| **L1** | Stream Recovery | Network interruptions and stalls during LLM streaming — dual-phase stall detection (first-event 60s + inter-chunk 180s) + token-level precise resume + auto-failover on silent provider hangs |
+| **L2** | Continuation Recovery | Consecutive stream failures — maintains context across multiple interruptions |
+| **L3** | Circuit Breaker | Model provider outages — 3-tier cooldown (auth 30min / permanent 10min / transient 1min) with half-open probe |
+| **L4** | Smart Deferred Failover | Provider failover with intelligence — rate-limit (429) never triggers model switch (always retries same model); overload (529) requires 3 consecutive failures before switching to backup model. Saves primary model quota and avoids unnecessary degradation |
+| **L5** | Agent Recovery | Tool execution failures — automatic re-planning with alternative strategies |
+| **L6** | Truncation Recovery | Response cutoff — local JSON repair (stack-based nesting, literal/numeric completion, dangling key fill) + progressive output budget boost (2x → 3x → 4x) with auto-retry |
+| **L7** | Aux Model Guard | Small model safety — dynamic message truncation before summarization to prevent aux model crashes |
+| **L8** | Deterministic Fallback | LLM-free safety net — rule-based summary generation when all LLM options fail, preventing deadlocks |
+| **L9** | Image Auto-Resize | Oversized images that exceed model limits — automatic re-encoding and compression |
+| **L10** | Media Rejection Recovery | Model rejects media content (unsupported format) — removes media and retries with text only |
+| **L11** | Thinking Signature Recovery | Model thinking mode signature errors — disables thinking mode and retries |
+| **L12** | Long Context Tier Switch | Context exceeds standard window — auto-switches to long-context model variant |
+| **L13** | Empty Response Recovery | Model returns blank — retries with adjusted parameters |
+| **L14** | Grace-Call Summary | Iteration limit reached — one final toolless LLM call generates a structured summary, ensuring users never see a blank response |
+
+## 회로 차단기
+
+회로 차단기는 모델 공급자가 다운될 때 계단식 오류를 방지합니다.
+
+### 주
+
+```
+CLOSED (normal) → OPEN (failures detected) → HALF-OPEN (probe) → CLOSED (recovered)
+```
+
+### 오류 분류
+
+| Error Type | Cooldown | Recovery Strategy |
+|------------|----------|-------------------|
+| `auth` | 30 minutes | Check credentials, try alternative keys |
+| `permanent` | 10 minutes | Switch to fallback model |
+| `transient` | 1 minute | Retry with backoff |
+
+### 자격 증명 풀
+
+하나의 API 키가 비율 제한에 도달하면 시스템은 자동으로 사용 가능한 다음 키로 순환합니다.
+
+- 4가지 파견 전략(라운드 로빈, 최소 사용, 무작위, 우선 순위)
+- 키별 오류 인식 쿨다운
+- 키당 지수 백오프
+- 쿨타임이 만료되면 자동 프로브
+
+## 오류 진단
+
+오류가 발생하면 시스템은 체계적이고 실행 가능한 피드백을 제공합니다.
+
+### 9개의 오류 카테고리
+
+| Category | Example | Recovery Hint |
+|----------|---------|---------------|
+| `FileNotFoundError` | Missing file reference | Suggest searching for correct path |
+| `PermissionError` | Insufficient access | Suggest requesting approval |
+| `ConnectionError` | Network failure | Auto-retry with backoff |
+| `TimeoutError` | LLM response timeout | Increase timeout or simplify request |
+| `RateLimitError` | API quota exceeded | Switch key or wait |
+| `ContextOverflow` | Window exceeded | Trigger compression |
+| `AuthError` | Invalid credentials | Rotate to next key |
+| `ToolError` | Tool execution failed | Try alternative tool |
+| `ModelError` | Model capability gap | Escalate to stronger model |
+
+각 오류에는 `error_hint`, `error_category`(`ToolErrorCategory` StrEnum을 통한 28개의 표준 카테고리, 4개 언어로 완전히 i18n 번역됨) 및 제안된 `RecoveryAction`이 포함된 구조화된 컨텍스트가 포함되어 있으며 GUI에서 클릭 가능한 버튼으로 표시됩니다. 크로스 레이어 동기화 테스트 모음(46개 테스트)은 하네스 열거형 및 프런트엔드 i18n 키가 절대 표류하지 않도록 보장합니다.
+
+### 대화형 복구 버튼
+
+일반적인 LLM 오류의 경우 오류 카드에는 올바른 설정 페이지로 바로 이동할 수 있는 원클릭 수정 버튼이 포함되어 있습니다.
+
+| Error | Button | Action |
+|-------|--------|--------|
+| API key invalid/expired | "Update API Key" | Opens Settings page |
+| Billing quota exceeded | "Top Up Balance" | Opens Settings page |
+| Model not found | "Change Model" | Opens Settings page |
+
+버튼 라벨은 5개 언어(영어, 중국어, 일본어, 한국어, 독일어)로 현지화되어 있으며 인터페이스 언어와 자동으로 일치합니다. 진단 엔진에 예기치 않은 오류가 발생하면 정상적으로 성능이 저하됩니다. 기본 오류 메시지는 복구 버튼 없이 계속 표시됩니다.
+
+### 코드 실행 자동 진단
+
+에이전트가 Python 코드 또는 Bash 명령을 실행하면 실행 엔진이 자동으로 오류를 분류하고 실행 가능한 힌트를 생성합니다.
+
+| Category | Trigger | Auto-generated Hint |
+|----------|---------|---------------------|
+| `import` | `ModuleNotFoundError` | Smart install command with PyPI name mapping (e.g. `cv2` → `pip install opencv-python`) |
+| `not_found` | Command not found | Platform-specific install command via tool discovery |
+| `permission` | Permission denied | `chmod` suggestion with the exact path |
+| `timeout` | Execution timed out | Guidance to reduce input or split task |
+| `oom` | Out of memory | Guidance to process data in chunks |
+| `sandbox_ro` | Read-only filesystem | Redirect writes to `/workspace` |
+| `network_blocked` | Network access blocked | Tells agent to avoid retrying with different HTTP libraries |
+| `syntax` | Syntax error | No hint (agent should fix the code) |
+
+엔진에는 내장된 PyPI로 가져오기 매핑 테이블(PIL → Pillow, sklearn → scikit-learn, yaml → PyYAML 등)이 포함되어 있으며 `uv pip` 사용 가능 여부를 자동 감지합니다. 모든 코드는 VenvManager가 관리하는 격리된 공유 가상 환경에서 실행되므로 사용자가 설치한 패키지가 시스템 Python을 오염시키지 않습니다.
+
+## 모델 자체 에스컬레이션
+
+경량 모델이 작업을 완료할 수 있는 기능이 부족하다는 것을 감지하면 다음과 같습니다.
+
+1. 모델은 특별한 `<<<NEEDS_PRO>>>` 마커를 출력합니다.
+2. `EscalationScrubber`은 마커(사용자에게 숨겨짐)를 가로챕니다.
+3. 에이전트는 구성된 강력한 모델로 자동 전환됩니다.
+4. 작업이 원활하게 계속됩니다.
+
+이를 통해 비용 효율적인 라우팅이 가능합니다. 간단한 작업은 저렴한 모델을 사용하고, 복잡한 작업은 자동으로 에스컬레이션됩니다.
+
+## 루프 감지
+
+7개의 독립적인 감지기가 다양한 유형의 에이전트 루프를 식별합니다.
+
+| Detector | Pattern | Action |
+|----------|---------|--------|
+| **Repetition** | Same tool called with identical parameters | Warning → Break |
+| **Ping-Pong** | Alternating A→B→A→B pattern | Warning → Break |
+| **No Progress** | Output content unchanged across turns | Warning → Break |
+| **Divergence** | Tool calls increasingly off-topic (adaptive threshold: Exploration 60% / Execution 30% / Recovery 15%) | Warning → Break |
+| **Output Diminishing** | Response quality declining | Warning → Break |
+| **Consecutive Failures** | Multiple tool calls failing in a row | Warning → Break |
+| **Cross-tool Error Signature** | Same error pattern repeated across different tools (line/path normalized) | ToolStuckException |
+
+감지는 점진적인 응답을 따릅니다. 먼저 상황 인식 제안이 포함된 경고가 에이전트의 상황에 주입된 다음 패턴이 지속되면 강제 중단됩니다(심각도: 경고 3-5x → 오류 6-9x → 위험 10+x).
+
+### 압축 후 루프 보호
+
+컨텍스트 오버플로가 긴급 압축을 트리거하면 LoopGuard는 전환을 정확하게 처리합니다.
+
+- **루프 감지 상태는 그대로 유지됩니다** — 슬라이딩 창(패턴 감지) 및 오류 서명은 `ContextVar`에서 작동하며 압축을 수정하는 메시지 목록에서 완전히 분리됩니다.
+- **반복 예산은 지능적으로 재설정됩니다** — `notify_compaction()`은 `total_calls`를 재설정하여 사전 압축 호출 기록으로 인해 에이전트가 조기 종료되지 않도록 하고 교차 압축 실패 추적을 위해 `error_signatures`을 보존합니다.
+- **에이전트 단계가 보존됩니다** — 현재 실행 단계(탐색, 실행 등)가 이어지며 상황 인식 감지 임계값이 유지됩니다.
+
+에이전트에 새로운 예산을 제공하면서 더 민감하게 루프를 감지하는 이 이중 접근 방식은 "압축 후 둠 루프"와 "압축 후 조기 종료" 실패 패턴을 근본적으로 제거합니다. 이러한 압축×예산 교차점을 다루는 경쟁 시스템은 없습니다.
+
+### 압축 후 메모리 보호
+
+컨텍스트 압축 후에도 에이전트의 메모리 검색은 5계층 메모리 보호 아키텍처 덕분에 지연이나 데이터 손실 없이 완전히 그대로 유지됩니다.
+
+1. **SystemMessage는 압축에 면역**: 사용자 프로필과 규칙은 위치 0에 SystemMessage로 삽입되며 압축 프로세서에 의해 절대 건드리지 않습니다.
+2. **학습된 컨텍스트는 압축에 면역**: 학습된 컨텍스트는 도구 호출 쌍이 아닌 HumanMessage로 주입되므로 압축을 위해 선택되지 않습니다.
+3. **PreCompactProcessor 사전 리콜**: 압축하기 전에 시스템은 자동으로 벡터 데이터베이스 의미론적 검색을 트리거하고 관련 메모리를 독립형 메시지 블록으로 주입하여 압축 후 LLM이 중요한 메모리에 대한 액세스를 유지하도록 보장합니다.
+4. **실시간 벡터 인덱스**: Qdrant 벡터 데이터베이스 항목은 쓰기 후 즉시 검색 가능 — 인덱스 지연 없음
+5. **독립 메모리 추출**: 세션 종료 메모리 추출은 세션 내 압축의 영향을 받지 않고 원래 대화를 사용합니다.
+
+이 아키텍처 설계는 경쟁업체가 강제 인덱스 새로 고침 메커니즘을 사용하여 패치해야 하는 문제인 "압축 후 메모리 손실"을 근본적으로 제거합니다.
+
+## 반복 예산
+
+에이전트에는 그래프 재귀 제한을 기반으로 동적으로 계산된 임계값을 사용하여 구성 가능한 반복 제한(기본값: 50)이 있습니다.
+
+| Threshold | Action |
+|-----------|--------|
+| ~70% budget | First warning: "Review your original goal and prioritize" |
+| ~90% budget | Critical warning: "Finalize your work immediately" |
+| 100% budget | ToolStuckException → Hard stop with grace summary |
+
+임계값은 `graph_recursion_limit`에서 자동으로 파생되고 도구 호출 수로 변환되므로 구성에 관계없이 예산 규모가 올바르게 조정됩니다. 유예 요약은 완료된 작업, 남은 작업 및 지속을 위한 제안에 대한 구조화된 요약을 제공합니다.
+
+## 자동 도구 재시도
+
+일시적인 오류(네트워크 시간 초과, 속도 제한, 일시적인 사용 불가능)로 인해 도구 호출이 실패하면 시스템이 자동으로 재시도합니다. 사용자에게는 하트비트 타이머가 작동하는 모습만 표시되며 실패는 표시되지 않습니다.
+
+### 6계층 재시도 아키텍처
+
+| Layer | Mechanism | User Experience |
+|-------|-----------|-----------------|
+| **Tool Executor** | 2 automatic retries + exponential backoff + `Retry-After` header respect + circuit breaker | TOOL_HEARTBEAT updates elapsed time in real-time |
+| **Planner 3-Strike** | Per-error retry counting + structured attempt history + auto-escalation | Silent for 3 attempts, then escalates to user approval |
+| **Goal Verification** | Automatic verification retries with counter reset on success | Invisible to user |
+| **Stream Recovery** | 10+ recovery strategies (overflow/failover/escalation/transient retry) | Brief pause, then seamless continuation |
+| **File Snapshot** | Shadow Git + per-operation snapshots for sandbox state recovery | One-click rollback in GUI |
+| **Frontend Heartbeat** | SSE TOOL_HEARTBEAT events with real-time elapsed_ms updates | User sees "Tool running... 15s" instead of a frozen screen |
+
+### 경쟁사와 다른 점
+
+- **프롬프트 기반이 아님**: 재시도 논리는 무시될 수 있는 LLM 명령어가 아닌 결정론적 코드(Pydantic 스키마 + 카운터)입니다.
+- **개발자 전용 아님**: 프레임워크 수준 재시도 구성(예: LangGraph의 `RetryPolicy`)과 달리 하트비트 UI는 최종 사용자에게 가시성을 제공합니다.
+- **시끄럽지 않음**: 재시도가 자동으로 진행됩니다. 오류 팝업이 표시되지 않으며 일시적인 오류에 대해 사용자 결정이 필요하지 않습니다.
+
+## 파일 체크포인트
+
+파괴적인 파일 작업 전에 `AutoSnapshotInterceptor`은 자동으로 스냅샷을 찍습니다.
+
+- 6가지 도구 범주를 다룹니다: `write_file`, `patch_file`, `delete_file`, `move_file`, `execute_terminal`, `code_execute`
+- 턴당 중복 제거로 중복된 스냅샷을 방지합니다.
+- 스냅샷을 사용하면 GUI에서 한 번의 클릭으로 롤백이 가능합니다.
+
+## 데이터베이스 안전
+
+5계층 보호 시스템은 데이터(대화, 예약된 작업, 추억)가 어떤 장애에서도 살아남도록 보장합니다.
+
+| Layer | Protection | When |
+|-------|-----------|------|
+| **Pre-migration snapshot** | Automatic backup before every schema migration | App startup |
+| **3-tier disaster recovery** | Rescue (`.dump`) → restore from backup → in-memory degradation | DB init failure |
+| **Periodic hot backup** | SQLite backup API every 6 hours + shutdown snapshot | Runtime |
+| **Framework BackupManager** | SHA-256 verification, manifest, retention, quarantine | Harness layer |
+| **Health checker** | Dual-layer probes with auto-repair | Continuous |
+
+다단계 테이블 재구축 마이그레이션(예: `CREATE TABLE AS SELECT → DROP → RENAME`)은 완벽하게 보호됩니다. 마이그레이션 도중 프로세스가 중단되면 마이그레이션 전 백업이 깨끗한 복원 지점을 제공합니다.
+
+## 하위 에이전트 오류 압축
+
+긴 추적으로 인해 하위 에이전트가 충돌하는 경우 상위 에이전트의 컨텍스트에 도달하기 전에 오류 메시지가 자동으로 압축되어 상위 에이전트의 추론 품질을 저하시키는 오염을 방지합니다.
+
+| Aspect | Implementation |
+|--------|---------------|
+| **Strategy** | Head + truncation marker + tail (preserves error type at head, recent stack frames at tail) |
+| **Default limit** | 2000 characters (~500 tokens) — configurable via `SubagentConfig.max_error_chars` |
+| **Defense-in-depth** | Dual-layer: executor error path + notifications formatting layer |
+| **Savings** | Typical 8000-char traceback → 2000 chars (75% reduction, ~1500 tokens saved per failure) |
+| **Disable** | Set `max_error_chars=0` to pass raw errors through |
+
+이는 일반적인 다중 에이전트 실패 패턴, 즉 하위 에이전트의 자세한 충돌 출력이 상위 컨텍스트 창을 소비하여 에이전트 계층 전체에 걸쳐 계단식 추론 성능 저하를 일으키는 것을 방지합니다.
+
+## 실패 시 하위 에이전트 부분 진행
+
+하위 에이전트가 실행 중에 실패하면(LLM 오류, 예산 초과, 시간 초과 또는 런타임 예외) 누적된 모든 작업이 보존되어 상위 에이전트에 반환되며 손실되지 않습니다.
+
+| Failure Path | What Happens | Parent Agent Receives |
+|---|---|---|
+| **LLM Error** (MyrmLLMError) | Provider returns error after partial work | `SubAgentResult(success=False, result="80% completed work...")` |
+| **Budget Exceeded** | Token/cost limit hit mid-task | `SubAgentResult(success=False, result="work done before budget hit...")` |
+| **Timeout** | Task exceeds deadline | `SubAgentResult(success=False, result="progress before timeout...")` |
+| **Runtime Exception** | Unexpected crash | `SubAgentResult(success=False, result="all output accumulated...")` |
+
+### 이것이 중요한 이유
+
+부분적인 진행률 보존이 없으면 속도 제한에 도달하기 전에 복잡한 작업의 80%를 완료한 하위 에이전트는 **모든** 작업을 잃게 됩니다. 상위 에이전트는 처음부터 시작해야 합니다. 즉, 이미 소비된 토큰을 낭비하고 비용이 두 배로 늘어납니다.
+
+Myrm의 접근 방식:
+- 부모는 완료된 모든 작업을 구조화된 출력으로 받습니다.
+- 상위 에이전트는 하위 에이전트가 중단된 지점부터 다시 시작할 수 있습니다.
+- 성공한 부분에 대한 토큰 비용이 낭비되지 않습니다.
+- 너무 긴 부분 출력은 자동으로 잘립니다(`max_error_chars * 2`을 통해 구성 가능).
+
+### 경쟁사 비교
+
+| Feature | Myrm | Claude Code | OpenClaw | Hermes |
+|---------|:----:|:-----------:|:--------:|:------:|
+| Partial progress on failure | 4 paths | None | None | None |
+| Structured error status | 12 states | Exit code only | tool_error | Timeout/crash |
+| Truncation protection | Auto | None | None | None |
+
+
+
+Myrm은 에이전트 계층 구조의 모든 수준에서 연속적인 오류에 대한 심층 방어를 제공합니다.
+
+| Layer | Mechanism | Scope |
+|-------|-----------|-------|
+| **Infrastructure** | Circuit breaker (CLOSED → OPEN → HALF_OPEN) | Per-model, per-browser pool |
+| **Terminal Error** | Hard circuit breaker for network/sandbox failures | Session-wide |
+| **Behavior Pattern** | LoopGuard (7 pattern types) + FrequencyGuard (sliding window rate limit) | Per-session |
+| **Sub-Agent** | `_cascade_cancel_descendants` — recursive cancellation of all descendant agents | Agent hierarchy |
+| **Emergency** | E-Stop (KILL_ALL) — immediately halts all tool execution | Global |
+
+기존 마이크로서비스 종속성 체인과 달리 LLM 에이전트에는 명시적인 도구 DAG가 없습니다. LLM은 런타임에 호출 순서를 결정합니다. Myrm은 존재하지 않는 도구 종속성을 모델링하려고 시도하는 대신 인프라 수준 회로 차단, 동작 패턴 감지 및 계층적 취소 등 올바른 추상화 수준에서 연쇄 오류를 해결합니다.
+
+**검증됨**: 모든 계단식 오류 보호 모듈(LoopGuard, FrequencyGuard, E-Stop, ToolCallBroadcaster, SubagentExecutor, CircuitBreaker, ToolGuards)에 걸쳐 604개의 테스트를 통과했습니다.
+
+## 폭풍 및 예산 보호 재시도
+
+Myrm은 폭주 재시도 루프를 적극적으로 방지하고 API 예산을 보호합니다.
+
+| Guard | What It Does | Response |
+|-------|-------------|----------|
+| **LoopGuard** | Detects 7 loop patterns (repetition, ping-pong, no-progress, divergence, diminishing output, consecutive-failures, cross-tool error-signature) | WARN → BREAK |
+| **FrequencyGuard** | Sliding-window rate limit (100 global / 30 per-tool per minute) | WARN at 80% → BREAK at 100% |
+| **MultidimensionalBudgetGuard** | Per-session, daily, and per-call USD limits | OK → WARNING → FINALIZATION → EXCEEDED |
+| **Iteration Budget** | Dynamic tool-call budget derived from recursion limit | 70% warn → 90% critical → 100% ToolStuckException |
+
+이는 수동적 모니터링(로그 및 경고만)이 아닌 **활성 잘림**(즉시 실행 중지)입니다. 재시도 폭주가 감지되면 에이전트는 강제로 중지되고 어떤 결과가 나오든 최선의 답변을 제공해야 합니다. 즉, 클라우드 컴퓨팅 비용과 로컬 API 키 밸런스를 모두 보호합니다.
+
+**검증됨**: 모든 재시도 보호 모듈(LoopGuard, FrequencyGuard, BudgetGuard, MultiDimensionBudgetGuard, BudgetBoundaryMiddleware)에 걸쳐 330개의 테스트를 통과했습니다.
+
+## 예산 보호
+
+Myrm은 모든 배포 모드에 걸쳐 포괄적인 예산 제어 기능을 제공합니다.
+
+- **MultiDimensionalBudgetGuard**: 4단계 점진적 응답으로 세션당, 일일 및 호출당 USD 한도(확인 → 경고 → 마무리 → 초과)
+- **동적 예산 힌트**: 예산이 WARNING(경고) 또는 FINALIZATION(확정) 상태로 떨어지면 정확히 남은 USD가 LLM 프롬프트에 주입됩니다. AI는 지출할 수 있는 금액을 정확히 알고 그에 따라 행동을 자체 조정합니다.
+- **BudgetBadge**: 색상으로 구분된 상태와 함께 사용 비율을 표시하는 채팅 입력 영역의 실시간 예산 표시기
+- **BudgetExceededDialog**: 예산 초과 시 원클릭 충전 또는 계획 업그레이드
+- **ChannelBudget**: 각 IM 채널(Telegram, WeChat 등)에 대한 독립적인 예산 한도
+- **BudgetPolicySection**: 확정 예비비로 예산 정책을 구성하기 위한 전체 UI
+- **DailyChart**: 캐시 적중률 오버레이를 통한 30일간의 사용 추세
+
+**검증됨**: 모든 예산 보호 모듈에 걸쳐 181개의 테스트가 통과되었습니다(하네스 프레임워크: 102개 통과, 서버 비즈니스 계층: 79개 통과).
+
+## 데이터 수명주기 관리
+
+Myrm은 모든 스토리지 엔진에서 데이터 보존을 자동으로 관리하므로 수동 정리가 필요하지 않습니다.
+
+- **9개의 자동 스케줄러**: 컨텍스트 파일(3계층: 30d/14d/7d), 인증 로그(보존 구성 가능), 채팅 휴지통(30일 자동 제거), SQLite WAL 체크포인트(6시간마다), 데이터베이스 순환 백업, Qdrant 세그먼트 최적화, 브라우저 좀비 감지(48시간 임계값), Kanban GC, 시크릿 자동 삭제(1시간)
+- **MemoryGuardian**: 적응형 유지 관리 빈도 — 정상일 때는 6시간마다, 성능이 저하되면 2시간마다. 상태 점수(70개 정상/35개 심각)는 2회 연속 비정상 검사 후 자동 강제 유지 관리를 구동합니다.
+- **파일 액세스 추적**: `file_access_tracker`을 통해 참조된 컨텍스트 파일이 실수로 삭제되는 것을 방지합니다.
+- **스케줄러 상태 API**: 모든 백그라운드 스케줄러에 대한 실시간 녹색/노란색/빨간색 상태 모니터링
+- **핫 백업**: 유지 관리 주기마다 자동 SQLite 핫 백업
+
+**검증됨**: 모든 데이터 수명 주기 모듈에서 413개의 테스트가 통과되었습니다(서버 수명 주기: 265회 통과, 하네스 수명 주기: 90회 통과, cron + 메모리: 58회 통과).
+
+## 스킬 진화 — 자기 개선 에이전트
+
+Myrm의 에이전트는 실패로부터 학습하고 자율적으로 기술을 발전시킵니다.
+
+- **자동 진화**: 스킬이 실패하거나 부정적인 피드백을 받으면 시스템은 임시 프롬프트 패치가 아닌 스킬 자체를 업데이트하는 진화 제안을 생성합니다.
+- **수명 주기 검토**: 안전한 변경 사항이 자동으로 적용됩니다. 위험한 항목은 승인/거부 워크플로를 통해 검토 가능한 성장 사례가 됩니다.
+- **의미적 중복 제거**: 유사성 검사 기능으로 스킬 엔트로피를 방지합니다. 중복되거나 거의 동일한 스킬을 저장하기 전에 잡아냅니다.
+- **경험 원장**: 모든 진화 이벤트(14종)는 감사 및 분석을 위해 영구적으로 기록됩니다.
+- **품질 경고**: 기술 품질이 저하되면 Webhook 알림을 보내 사전 유지 관리가 가능합니다.
+
+**검증됨**: 모든 기술 발전 모듈에 걸쳐 489개의 테스트를 통과했습니다(서버: 107개 통과, 하네스 프레임워크: 382개 통과).
+
+## 사용자가 경험하는 것
+
+모든 복구는 투명하게 이루어집니다.
+
+- **모델이 다운되나요?** — 밀리초 단위로 백업으로 자동 전환
+- **네트워크 중단?** — 스트림이 중지된 정확한 토큰에서 다시 시작됩니다.
+- **속도가 제한되어 있나요?** — 키 순환 또는 백오프 후 재시도
+- **API 키가 만료되었습니까?** — 오류 카드에서 바로 버튼을 클릭하여 업데이트할 수 있습니다.
+- **에이전트 루프?** — 예산이 낭비되기 전에 조기에 감지됩니다.
+- **응답이 잘렸나요?** — 텍스트 잘림: 점진적인 출력 부스트(2x/3x/4x, cap 32768)로 원활한 유지+계속; 도구 잘림: 유효하지 않은 삭제 + 자동 재시도; JSON 잘림: 로컬 복구. 5가지 공급자 형식(Anthropic, OpenRouter, LM Studio, vLLM, DashScope)에 대한 출력 한도 자동 복구. SSE 5개 언어로 상태 알림. **388개 출력 한도 + 294개 잘림/복구 테스트 확인(2026년 7월)**
+- **업그레이드가 중단되었나요?** — 마이그레이션 전 스냅샷이 데이터를 자동으로 복원합니다.
+- **하위 에이전트가 충돌합니까?** — 오류가 자동으로 압축되고, 상위가 명확한 요약을 받고 추론이 오염되지 않은 상태로 유지됩니다.
+- **도구 호출이 실패합니까?** — 하트비트 타이머를 사용한 자동 재시도; 오류 대신 "실행 중... 15초"가 표시됩니다.
+- **실행 가능한 복구가 포함된 스트림 오류?** — 오류에는 채팅 UI에 직접 있는 `recovery_actions` 버튼(재시도, 모델 전환, 종속성 설치)과 i18n 오류 메시지 및 단계별 해결 가이드가 포함된 `diagnostic_result`이 포함됩니다. 추측할 필요가 없습니다. 제안된 작업을 클릭하기만 하면 됩니다.
+- **반복적인 실패?** — 3-Strike 프로토콜은 도움을 요청하기 위해 자동으로 에스컬레이션됩니다. 무한 루프가 없습니다.
+- **환경이 손상되었나요?** — Doctor Dashboard는 9개의 병렬 진단 프로브(Python 버전, 종속성, LLM 연결, 네트워크, 작업 공간 저장소, 데이터베이스, 브라우저, 후크, 데스크톱 제어)를 실행하고 원클릭 복구 작업으로 상태를 한눈에 보여줍니다. 터미널 액세스가 필요한 CLI 전용 경쟁업체와 달리 GUI 건강 카드는 실행 가능한 수정 버튼을 통해 실시간 상태를 표시합니다.
+- **SSE 작업 중간에 연결이 끊어지나요?** — 목표 진행률 패널은 다시 연결할 때 오래된 표시기를 자동으로 지우고 서버에서 다시 동기화하며 완료된 단계를 보존합니다. 고스트 스피너가 없고 에이전트가 중지된 후 오해의 소지가 있는 "진행 중"이 없습니다.
+- **실행 중인 작업을 취소하시겠습니까?** — 엔드투엔드 취소는 0.5초(CancellationMonitor 폴링 간격) 내에 전체 실행 체인을 통해 전파됩니다. 백그라운드 작업 종료, 하위 에이전트 계단식 취소, 리소스 정리, 토큰 레지스트리 등록 취소
+- **장기 작업 중에 연결이 끊어지나요?** — 유예 기간 허용 범위는 작업을 활성 상태로 유지합니다. 연결 끊김이 지속되면 OfflineDurableTask는 완료 시 사용자 알림과 함께 백그라운드 완료 작업을 등록합니다. 백그라운드 프로세스(npm install, webpack watch, 테스트 스위트)는 SSE 스트림에서 완전히 분리된 프로세스 수준 싱글톤 레지스트리에 의해 관리됩니다. 페이지를 새로 고치거나 다시 연결해도 라이브 데몬 세션이 종료되지 않습니다. SSE 재연결에서는 무손실 이벤트 재생을 위해 5MB 슬라이딩 창 버퍼가 있는 Last-Event-ID를 사용합니다. **4개 배치(레지스트리, 스트리밍, 재연결)에 걸쳐 검증된 108개 테스트**
+- **서버가 목표 중간에 다시 시작됩니까?** — 고아 목표는 명확한 이유에 따라 자동으로 일시 중지됩니다. 다음 시작 시 LangGraph 체크포인트에서 내구성 있는 작업이 재개됩니다. 반복 작업이 전혀 없습니다.
+- **일반 대화 중 프로세스 충돌이 발생합니까?** — InterruptedTurnMarker는 모든 에이전트 스트림 전에 내구성 있는 미리 쓰기 레코드를 작성합니다. 다시 시작하면 채팅 기록 다시 로드, 메시지 지속성, 충돌 루프 차단기(최대 2회 시도), 15분 새로 고침 창 및 성공 또는 실패에 대한 사용자 알림을 통해 백그라운드 지속을 위해 적합한 마커가 스캔되고 자동으로 전달됩니다. `autoContinueInterruptedTurns` 설정을 통해 사용자가 제어 가능(기본값: 활성화됨)
+- **긴급 정지가 필요합니까?** — E-Stop API(`/freeze`)은 한 번의 호출로 전역적으로 모든 활성 에이전트 스트림을 취소합니다. — 생산 사고에 대한 패닉 버튼

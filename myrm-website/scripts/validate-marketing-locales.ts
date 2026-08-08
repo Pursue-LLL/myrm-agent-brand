@@ -37,7 +37,7 @@ const CP_BILLING_ROOT = join(ROOT, '../../myrm-control-plane/src/myrm_control_pl
 const CP_BILLING_CONTRACT_PATH = join(import.meta.dir, 'cp-billing-contract.json');
 const CP_CATALOG_PATH = join(CP_BILLING_ROOT, 'catalog.py');
 const CP_PLANS_PATH = join(CP_BILLING_ROOT, 'plans.py');
-const LOCALES = ['zh', 'en'] as const;
+const LOCALES = ['zh', 'en', 'ko'] as const;
 const HIGHLIGHT_TAG_COUNT = 3;
 const HIGHLIGHT_DESC_MAX_CHARS = 1500;
 /** Max chars per Integrations chip segment (` · ` split); keeps mobile pills scannable. */

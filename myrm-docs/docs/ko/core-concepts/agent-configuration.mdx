@@ -1,0 +1,384 @@
+---
+
+title: 에이전트 구성
+description: 모델, 도구, 기술, 행동 매개변수를 사용하여 AI 에이전트를 구성하고 맞춤화하세요.
+---
+
+# 에이전트 구성
+
+에이전트는 Myrm의 핵심 작업 단위입니다. 각 에이전트는 특정 모델, 사용자 정의 시스템 프롬프트, 도구, 기술, 메모리 및 행동 매개변수를 사용하여 독립적으로 구성될 수 있습니다.
+
+## 에이전트 생성
+
+1. **에이전트 > 새 에이전트**로 이동합니다.
+2. 이름과 설명을 선택하세요
+3. 모델 선택(또는 스마트 라우팅 결정)
+4. 도구, 기술, 권한 구성
+5. 저장 - 에이전트를 사용할 준비가 되었습니다.
+
+기본 범용 에이전트는 처음 실행 시 자동으로 생성됩니다.
+
+## 편집-테스트 제로 탐색
+
+Myrm은 에이전트 구성 패널을 채팅 페이지 내부에 직접 포함하여 페이지 탐색이 필요 없는 "구성 수정 → 메시지 보내기 → 결과 보기" 워크플로를 활성화합니다.
+
+- **인라인 구성 패널**: 입력 상자 옆에 있는 에이전트 표시기 버튼을 클릭하여 구성 패널을 확장합니다. 시스템 프롬프트, 기술 및 MCP 도구에 대한 변경 사항은 바로 다음 메시지에 적용됩니다.
+- **스마트 축소**: 패널은 메시지를 보낸 후 자동으로 축소되므로 대화를 방해하지 않습니다. 한 번의 클릭으로 다시 확장
+- **탐색 시 자동 저장**: 편집기 페이지에서 "채팅 시작"을 클릭하면 채팅 페이지로 이동하기 전에 저장되지 않은 변경 사항이 자동으로 저장됩니다.
+- **일관된 탐색**: 모든 진입점(사이드바, 설정, 템플릿 마켓, 조직 마켓플레이스)은 동일한 탭 내에서 탐색하며 새 브라우저 탭을 열지 않습니다.
+
+## 턴당 능력 칩 (스킬/MCP)
+
+에이전트 수준 기본값 외에도 Myrm은 채팅 입력에서 직접 **원턴 기능 재정의**를 지원합니다.
+
+- **다음 메시지에만 해당**에 대한 임시 스킬/MCP 하위 집합을 선택하세요.
+- 빼기 우선 동작: 현재 에이전트에서 이미 활성화된 기능으로 선택이 제한됩니다.
+- 대기열 안전 의미: 직접 보내기, 대기 중인 보내기 및 바쁜 다시 대기열 모두 동일한 1회 무시 의도를 유지합니다.
+- 즉각적인 캐시 안전 정규화: 전체 세트를 선택하면 시끄러운 구성 이탈을 생성하는 대신 무작동 재정의로 축소됩니다.
+
+### 이것이 실제 사용에서 중요한 이유
+
+- **우발적인 도구 지출 감소**: 사용자는 장기 상담원 프로필을 변경하지 않고도 위험한 방향으로 도구 범위를 좁힐 수 있습니다.
+- **더 깔끔한 공동 작업**: 팀원이 집중 회전을 실행하고 즉시 기본 프로필로 돌아갈 수 있습니다.
+- **추측이 아닌 운영 증명**: 원격 분석으로 제출/적용/noop/큐/바쁨/최종 결과 및 실패 이유를 추적합니다.
+
+다음에서 요약 측정항목을 검사할 수 있습니다.
+
+- `GET /api/v1/statistics/turn-capability/summary`
+
+## 모델 선택
+
+Myrm은 LiteLLM 통합을 통해 100개 이상의 모델을 지원합니다.
+
+| Provider | Models |
+|----------|--------|
+| **OpenAI** | GPT-4o, GPT-4.1, o4-mini |
+| **Anthropic** | Claude Sonnet 4, Claude 3.5 |
+| **Google** | Gemini 2.5, Gemini 2.0 |
+| **DeepSeek** | DeepSeek V3, DeepSeek R1, DeepSeek V4 Flash, DeepSeek V4 Pro |
+| **Local Models** | Ollama, LM Studio, vLLM |
+| **Custom** | Any OpenAI-compatible API |
+
+### 스마트 라우팅
+
+복잡성 라우터는 최적의 모델 계층을 자동으로 선택합니다. **기본적으로 활성화됨** - 구성이 필요하지 않습니다. 조명/추론 모델이 명시적으로 설정되지 않은 경우 시스템은 활성화된 모델 중에서 비용을 기준으로 자동 선택합니다(가장 저렴함 → 가볍음, 가장 비쌈 → 추론).
+
+| Tier | When Used | Cost |
+|------|-----------|------|
+| **SIMPLE** | Quick questions, simple lookups | Cheapest |
+| **STANDARD** | General tasks, moderate complexity | Moderate |
+| **REASONING** | Complex analysis, multi-step planning | Highest |
+
+라우터는 세션 추진력이 있는 2단계 평가(무료 규칙 기반 채점 + 모호한 사례에 대한 LLM 판단)를 사용합니다. 짧은 후속 메시지는 세션의 설정된 계층을 상속합니다.
+
+**불만사항**: 수정 지침을 추가하지 않고 재생성을 클릭하면 시스템은 이를 불만족으로 해석하고 자동으로 라우팅 계층을 업그레이드합니다(SIMPLE→STANDARD→REASONING). PenaltyTracker는 이 피드백을 기록하므로 향후 유사한 쿼리가 더 정확하게 라우팅됩니다. 지침을 추가하는 경우(예: "보다 공식적인 어조로 다시 작성") 불만 사항이 아닌 방향 변경으로 처리되어 계층 업그레이드가 발생하지 않습니다.
+
+**에이전트별 라우팅 전략**: 각 에이전트는 전역 설정과 관계없이 자체 라우팅 구성을 가질 수 있습니다. 에이전트 기능 탭에서 다음을 설정할 수 있습니다.
+
+- **Inherit Global**(기본값): 전역 스마트 라우팅 구성을 따릅니다.
+- **사용자 정의**: 이 에이전트에 대해 독립적인 조명 및 추론 모델을 지정합니다.
+- **비활성화됨**: 이 에이전트는 항상 기본 모델(라우팅 없음, 계층 분류 없음)을 사용합니다.
+
+사용 사례: 메시징 채널에 연결된 고객 서비스 에이전트는 라우팅을 비활성화하여 항상 저렴한 모델(월 200달러 이상 절약)을 사용할 수 있으며, 연구 에이전트는 라우팅을 비활성화하여 품질 보증을 위해 항상 가장 강력한 모델을 사용할 수 있습니다.
+
+### 다중 슬롯 모델 아키텍처
+
+각 에이전트는 다양한 작업 유형에 대해 11개 이상의 독립 모델 슬롯으로 구성될 수 있습니다.
+
+| Slot | Purpose | Example |
+|------|---------|---------|
+| **Main** | Primary conversation model | Claude Sonnet 4 |
+| **Lite** | Title generation, quick summaries | GPT-4o-mini |
+| **Light** | Lightweight auxiliary tasks | DeepSeek V4 Flash |
+| **Reasoning** | Complex analysis, planning | o4-mini |
+| **Vision** | Image understanding, visual QA | GPT-4o |
+| **Research** | Deep research, web browsing | Gemini 2.5 Pro |
+| **Safety** | Content moderation, risk assessment | Claude Haiku |
+| **Fallbacks** | Auto-switches on failure per slot | Configurable |
+
+각 슬롯은 에이전트별 재정의(상속 또는 사용자 정의)를 지원하며 설정 해제 시 기본 모델로 자동 대체됩니다. 모델 규율 시스템은 약한 모델을 감지하고 동작 제약 조건을 주입하여 모델 계층에 관계없이 품질 출력을 보장합니다.
+
+### 사고강도
+
+6단계 추론 깊이, 대화별로 조정 가능:
+
+`off` → `low` → `medium` → `high` → `xhigh` → `max`
+
+각 모델은 localStorage를 통해 선호하는 사고 수준을 기억합니다.
+
+## 프롬프트 모드
+
+세 가지 프롬프트 모드 제어 시스템 프롬프트 구성:
+
+| Mode | Description | Token Cost |
+|------|-------------|------------|
+| **Minimal** | Essential instructions only | ~1,765 tokens |
+| **Standard** | Full capabilities with tools | ~2,200 tokens |
+| **Extended** | All features + context injection | Variable |
+
+Myrm의 최적화된 시스템 프롬프트는 최소 모드에서 최대 1,765개의 토큰만 사용합니다. 이는 동급 플랫폼(Hermes: ~15,520, OpenClaw: ~18,000)보다 **86% 적습니다**.
+
+## 사용자 정의 시스템 프롬프트
+
+각 상담원은 성격, 전문성, 행동 규칙을 정의하는 사용자 정의 시스템 프롬프트를 가질 수 있습니다. 이는 런타임 시 Myrm의 핵심 규칙(안전, 도구 사용 등)과 결합됩니다.
+
+## 도구 구성
+
+상담원은 다음에 액세스할 수 있습니다.
+
+- **내장 도구**: 파일 작업, 터미널, 브라우저, 검색, 코드 실행, 작업 공간 `@codebase` 개요 + grep/glob 탐색
+- **MCP 도구**: Model Context Protocol 서버를 통한 외부 도구
+- **기술**: 재사용 가능한 작업별 기능
+
+승인 정책을 개별적으로 구성하여 에이전트별로 도구를 활성화/비활성화할 수 있습니다.
+
+### 진행 평면
+
+에이전트 구성 패널은 진행 모드를 제공합니다(기본적으로 꺼져 있으며 비활성화되면 Turn1 토큰 비용이 0임).
+
+| Mode | Built-in Tool | Best For |
+|------|---------------|----------|
+| **Planning** | `todo_write` | Multi-step task breakdown and live progress (deer-flow / Cursor TodoWrite style) |
+| **Kanban** | kanban_* | Cross-session board and DAG orchestration (chat: orchestrator 5 tools; task worker: 6 tools) |
+
+Planning을 활성화하면 할 일이 `{sandbox}/.myrm/progress/todos.json` 아래의 채팅 샌드박스에 유지됩니다. CompletionGuard는 파일 쓰기가 존재하지만 할 일이 불완전한 경우 조기 완료를 차단합니다. 프런트엔드는 반복되는 SSE `tasks_steps` 이벤트를 `step_key`별로 병합하므로 ProgressSteps는 다시 내보낼 때 중복되지 않습니다. 계획은 **기본적으로 꺼져 있습니다**(활성화된 경우 최대 150개 토큰) — 간단한 Q&A에는 진행 도구 세금이 전혀 부과되지 않습니다.
+
+### 지연된 도구 로딩
+
+모든 도구가 항상 LLM 프롬프트를 차지할 필요는 없습니다. Myrm은 도구를 두 계층으로 나눕니다.
+
+| Tier | Behavior | Examples |
+|------|----------|---------|
+| **Immediate** | Always available in the prompt when enabled | File ops, terminal, search, browser, **image/video/TTS when you toggle them in Agent config** (AgentDeclared eager mount) |
+| **Deferred** | Loaded on demand when intent is detected | UI rendering (`render_ui`), **cron management (default)**, computer use, optional integrations |
+
+**미디어 도구 및 자격 증명**: 에이전트 내장 도구 패널에서 이미지/비디오/TTS를 활성화하면 이러한 도구는 **제공자 API 키 또는 미디어 게이트웨이가 설정 → 모델 서비스에 구성된 **경우에만** 1단계에 나타납니다. 자격 증명이 누락된 경우 UI에는 설정 링크와 함께 인라인 황색 경고가 표시됩니다. 에이전트는 충돌을 일으키거나 손상된 도구 스키마를 노출하지 않습니다.
+
+이렇게 하면 많은 *지연* 도구가 구성된 에이전트의 경우 턴당 약 4,000개의 토큰이 절약되며, 명시적으로 선택한 미디어 도구는 추가 검색 단계 없이 즉시 호출할 수 있습니다.
+
+### 스킬 핫 리로드
+
+스킬 구성을 수정하면(GUI 또는 API을 통해) 실행 중인 에이전트가 변경 사항을 감지하고 세션 중을 다시 초기화합니다. 다시 시작하거나 다시 연결할 필요가 없습니다. 업데이트된 기술이 즉시 적용됩니다.
+
+## 메모리
+
+각 에이전트에는 다음이 포함됩니다.
+
+- **에이전트별 메모리**: 해당 에이전트에 고유한 지식
+- **글로벌 공유 메모리**: 모든 에이전트가 액세스할 수 있는 지식
+- **Memory Decay**: 기억이 사라지는 속도를 제어합니다(영구/보통/빠름).
+- **Memory Focus**: 도메인별 추출 지침 — 에이전트가 귀하에 대해 학습할 때 우선순위를 구성합니다.
+
+### 메모리 포커스(도메인 추출 프리셋)
+
+| Preset | Best for | What it prioritizes |
+|--------|----------|-------------------|
+| Auto Detect | Default — infers from your system prompt | Keyword matching decides automatically |
+| Personal Companion | Life assistant, friend | Location, relationships, health, hobbies, life events, daily routines |
+| Work Assistant | Productivity, coding, project work | Tech stack, deadlines, team context, blockers, code conventions |
+| Research | Academic, analysis | Research topics, sources, methodology, findings, contradictions |
+| Generic | General-purpose | No domain prioritization — standard extraction |
+
+Memory Focus는 LLM 비용을 추가하지 않습니다. 표준 추출 단계에서 우선순위를 정할 속성만 안내합니다.
+
+메모리는 세션 전반에 걸쳐 지속되므로 상담원이 학습하고 적응할 수 있습니다. 자세한 내용은 [메모리 시스템](/docs/core-concepts/memory-system)을 참조하세요.
+
+## 성격
+
+16가지 기본 제공 성격 사전 설정(8개 전문 + 8개 창의적):
+
+- 중국어, 영어 이중언어 지원
+- 이모티콘 + 톤 맞춤 설정
+- GUI의 카테고리 기반 갤러리
+- 맞춤형 성격 생성
+
+## 하위 에이전트 오케스트레이션
+
+복잡한 작업은 7가지 오케스트레이션 패턴을 사용하여 분해할 수 있습니다.
+
+| Pattern | Description |
+|---------|-------------|
+| **Chain** | Sequential execution A → B → C with structured handover state |
+| **DAG** | Directed acyclic graph with dependency resolution and concurrency limits |
+| **Batch** | Parallel independent tasks with aggregated results |
+| **Race** | Multiple agents compete, fastest correct result wins |
+| **Verified** | Worker + independent Verifier cross-validation in sandbox |
+| **Swarm** | Autonomous multi-agent fission and merge |
+| **Alternatives** | N agents generate competing solutions, user picks the best |
+
+### 역할 경계 및 도구 안전 격리
+
+모든 하위 에이전트는 책임, 권한 및 리소스 제한을 정의하는 21개 필드 선언적 프로필인 `SubagentConfig`을 상속합니다.
+
+| Control Layer | Fields | Effect |
+|---------------|--------|--------|
+| **Responsibility** | `system_prompt`, `display_name`, `description` | Declares what the agent does and doesn't do |
+| **Tool Access** | 4-layer isolation: type admission → global blocklist → per-config allow/blocklist → parent superset constraint | Prevents privilege escalation — child can never exceed parent's toolset |
+| **Data Scope** | `workspace_policy` (3 levels) + `memory_isolation` (3 levels) | Controls which files and memories each agent can access |
+| **Model Strategy** | `model_selection` with 3-level resolution chain (config → model → parent fallback) | Per-agent model assignment with safety fallbacks. Toolbar model switch is **memory-sticky** (not auto-persisted); refresh reverts to saved profile. Explicit **Update** in Config Panel to persist changes. |
+| **Resource Budget** | `budget_tokens` + `max_cost_usd` + `max_children` + `max_descendants` | 4-dimensional budget guard with progressive response |
+| **Orchestration Role** | `delegation_role` (LEAF / ORCHESTRATOR) + `max_spawn_depth` | Controls delegation hierarchy depth |
+| **Context Isolation** | `context_mode` (isolated / fork) + `max_fork_tokens` | Prevents context leakage between agents |
+
+GUI 에이전트 구성 편집기는 AI 지원 프롬프트 생성 및 적용 범위 분석을 위한 ActionSpace Accuracy Radar와 함께 시각적 구성을 위한 5개의 전용 패널(기술 / MCP / 내장 도구 / 하위 에이전트 / 지침)을 제공합니다.
+
+### 외부 에이전트 위임(ACP)
+
+ACP 프로토콜을 통해 외부 코딩 에이전트에 작업을 위임합니다.
+
+- **Claude Code** — Anthropic의 코딩 에이전트
+- **Codex CLI** — OpenAI의 코딩 에이전트
+- **Gemini CLI** — Google의 코딩 에이전트
+- **모든 ACP 호환 에이전트** — RuntimePool을 통해 확장 가능
+
+`delegate_to_agent` 도구를 사용하면 전체 컨텍스트 주입, 영구/원샷 세션 모드 및 자동 재시도를 통해 원활한 핸드오프가 가능합니다.
+
+**웹 채팅 이점:** 동일한 대화 내에서 외부 CLI 에이전트는 해당 세션(`--resume`)을 재사용하므로 다중 전환 위임은 콜드 스타트 ​​없이 컨텍스트를 유지합니다. 채팅별 차례 잠금은 여러 탭 또는 빠른 클릭의 동시 요청을 직렬화합니다. 취소는 응답 상태를 유지하므로(잠금 면제) 실행이 교착 상태에 빠지지 않습니다. 직접 전용 에이전트는 기본 제공 시각적 CLI 경로만 필요한 경우 토큰을 저장하기 위해 위임 도구 탑재를 건너뜁니다.
+
+**에이전트별 `external_cli` 스위치(2026년 7월):** **설정 → 개발자 → 외부 에이전트**에서 Myrm은 로컬 모드의 PATH에서 CLI를 자동 감지합니다. Claude Code가 이미 타사 모델로 구성된 경우 Anthropic 구독 자격 증명이 **필요하지 않습니다**. 바이너리를 사용할 수 있으면 설정 배지에 **CLI 준비됨**("로그인 안 됨"이라는 무서운 표시 아님)이 표시됩니다. 런타임 시 `delegate_to_agent`을 호출해야 하는 에이전트(예: 일반 보조자, 코드 개발자)에서만 **외부 CLI**를 활성화하세요. 작성자/연구 사전 설정은 기본적으로 OFF 상태로 유지됩니다. 최대 216개의 Turn1 스키마 토큰을 건너뛰고 즉시 RuntimePool 초기화를 방지합니다. 설정과 에이전트 내장 도구 패널 모두 교차 힌트를 표시합니다. 자동 감지로 CLI가 발견되면 채팅 패널에서 더 이상 "백엔드 없음"을 경고하지 않습니다.
+
+**확인됨(2026년 7월 10일):** 108개 이상의 백엔드 통합/단위 테스트 녹색(`test_external_cli_live_e2e.py` 직접 클로드 코드 PONG 포함); `:3000`의 Chrome E2E는 작성자/연구 사전 설정이 칩을 숨기고 일반/개발자가 칩을 표시하고 개발자 → 에이전트 추가 → Claude Code가 **CLI 준비됨**을 표시하고 라이브 `mimo-v2.5-pro` → 위임 → Claude Code가 작업 단계 + 채팅 UI의 도구 추적과 함께 **PONG**을 반환함을 확인합니다.
+
+**Hermes 또는 AionUi 스타일 도구에서 마이그레이션:** 설치된 Claude Code / Codex / Gemini CLI를 유지합니다. — Myrm은 설정에서 이를 자동 감지합니다. 외부 CLI 장점을 포기하지 않고도 Myrm의 자체 에이전트 엔진, MCP 에코시스템, 5계층 승인 및 SubAgent 오케스트레이션을 기반으로 선택적 위임을 얻을 수 있습니다. 채팅을 삭제하면 풀링된 외부 CLI 프로세스가 즉시 중지됩니다. 분리된 백그라운드 에이전트는 없습니다.
+
+### Google A2A 프로토콜
+
+표준 Google Agent-to-Agent 프로토콜을 통해 타사 에이전트를 검색하고 통합합니다. AgentCard 해상도에는 SSRF 보호 및 TTL 캐싱이 포함됩니다.
+
+자세한 내용은 [칸반 및 오케스트레이션](/docs/core-concepts/kanban-orchestration)을 참조하세요.
+
+## 에이전트 프로필: 혼선 없는 정밀도
+
+각 상담원 프로필은 단순한 기술 그룹화를 훨씬 넘어서는 전체 차원의 구성 단위입니다.
+
+| Dimension | Configurable |
+|-----------|:---:|
+| **Skills** | `skill_ids[]` — exact set of skills this agent can use |
+| **Model** | Per-agent model selection (different agents, different models) |
+| **Built-in Tools** | `enabled_builtin_tools[]` — whitelist of 15 canonical tool IDs (py↔ts contract; legacy IDs like `image_gen` rejected with 422) |
+| **MCP Tools** | `mcp_tool_selections{}` — per-server tool selection |
+| **Security** | `security_overrides{}` — independent security policy |
+| **Sub-Agents** | `subagent_ids[]` — opt-in multi-layer collaboration. Multiple agents in a unified sandbox natively share files and browser with zero sync cost. When enabled, agents can delegate sub-tasks to specialists automatically |
+| **Notifications** | `notify_targets[]` — proactive push; dynamic running-channel picker + pairing recipient whitelist + workspace-bounded attachments; tool loads only when configured (zero token otherwise) |
+| **Browser Config** | 4-axis: engine (Chromium/Firefox), source (auto/extension/launch), dialog policy, session recording |
+| **System Prompt** | Custom personality and behavioral rules |
+| **Memory** | Independent memory + global shared memory |
+
+### 스킬 크로스톡을 방지하는 방법
+
+에이전트에 로드된 기술이 너무 많으면 LLM이 관련 없는 기술을 호출할 수 있습니다. 이 문제를 '혼선'이라고 합니다. Myrm은 5개 레이어로 이 문제를 해결합니다.
+
+1. **에이전트 프로필** — 각 에이전트는 `skill_ids[]`을 통해 지정된 기술만 로드합니다.
+2. **도구 조건 활성화** — `requires_tools` / `fallback_for_tools`를 통해 사용 가능한 도구에 따라 스킬 자동 표시/숨기기
+3. **점진적 공개(L0–L3)** — 관련 기술 세부정보만 전체 콘텐츠로 확장됩니다.
+4. **노이즈 게이지** - 소음 임계값을 초과하는 스킬은 자동으로 감쇠됩니다.
+5. **하이브리드 검색** — Qdrant 벡터 검색은 각 쿼리에 가장 관련성이 높은 기술을 선택합니다.
+
+### 내장 도구 SSOT(2026년 7월)
+
+- **15개의 정식 ID** — 14개의 UI 토글 가능 ID 및 **에이전트 기준** `file_ops` / `code_execute`(항상 Turn1 열망, 패널 토글 없음).
+- **27개의 사전 설정된 에이전트 매트릭스** — 시작 시 이니셜라이저가 동기화됩니다. 갤러리 및 설정 목록에는 27개의 내장 기능이 모두 표시됩니다(`AGENT_LIST_BUILTIN_PAGE_SIZE=50` 기본값, `enabled_builtin_tools`의 칩).
+- **단일 쓰기 경로** — `persist_enabled_builtin_tools`는 DB 쓰기 전에 유효성을 검사합니다. 레거시 ID는 자동 실패 대신 422를 반환합니다.
+- **기본 프로필** — UI 기본값은 `web_search` + `memory` + **`structured_clarify`**(구조화된 다중 질문 양식)입니다. 파일/셸 기능은 에이전트 기준을 통해 항상 켜져 있습니다. 양식 페이로드는 **`requires_confirmation: bool`**(경쟁사 스타일 5형 열거형 대체)을 사용합니다. `true`인 경우 WebUI는 호박색 위험 확인 강조를 렌더링합니다.
+- **사용자 스위치 ON → Turn1 직접 사용** — 기본 또는 수동으로 활성화된 내장 기능(선택한 경우 **cron**, **structured_clarify**, render_ui, 컴퓨터_use, x_search, Delegate_to_agent 포함) 및 바인딩된 기술 도구는 `discover_capability`을 먼저 호출하지 않고 첫 번째 턴 LLM 스키마에 나타납니다. **Cron 기본값은 OFF(검색 가능)** — 이를 활성화한 사용자만 ~827 토크 열망 스키마를 지불합니다. OpenClaw/Hermes은 항상 에이전트별 선택 해제 없이 Turn1에 cron을 마운트합니다. **`structured_clarify` 꺼짐 → 0 `ask_question_tool` 스키마** — 영구적인 메시지에 설명을 추가하는 경쟁업체와는 다릅니다. 하네스 **`ClarificationGuardMiddleware`**는 회전당 최대 하나의 `ask_question_tool`을 적용하고 병렬 도구를 차단합니다(Hermes 단일 회전 `clarify` 제약 조건에 맞춰 조정됨).
+- **active_tool_groups SSOT** — `derive_active_tool_groups()`은 활성화된 그룹을 한 곳에서 파생시켜 render_ui 또는 미디어 그룹이 이미 켜져 있을 때 거짓 `capability_gap`을 방지합니다.
+- **전체 행렬 회귀** — `CAPABILITY_GAP_REGISTRY`은 **14 GUI-togglable** 내장 기능(web_search, memory, cron, Answer_tool, browser, render_ui, Computer_use, wiki, kanban, Planning, **structured_clarify**, 미디어 트리오)을 다룹니다. 에이전트 기준 `file_ops` / `code_execute`은 런타임에 강제되며 간격 힌트에서 제외됩니다. 편집 가능한 화이트보드: [MCP을 통한 다이어그램](/docs/guides/diagram-via-mcp).
+- **자격 공백** — **실행 전**은 에이전트 루프 전에 각 사용자 메시지를 검색합니다(Turn1 스키마를 변경하지 않고 SSE `capability_gap` / `skill_gap`). 발견 미스는 동일한 레지스트리를 사용합니다. WebUI는 **`/api/v1/workspace/stream` 멀티플렉스**(POST 전에 등록된 리스너이므로 초기 청크가 버퍼링됨)를 통해 프리플라이트 이벤트를 수신합니다. Toast는 원클릭 활성화/바인딩을 제공합니다. 스트림이 로드되는 동안 클릭하면 `pendingGapRetry`는 **MESSAGE_END**, **ERROR** 또는 **CANCEL**(두 번째 수동 전송 없음) 후에 자동으로 다시 전송됩니다.
+- **세션 도구 패널** — 채팅 입력 **렌치** 아이콘은 SSE `tools_snapshot`(레이어 배지 포함)를 통해 라이브 **Turn1-bound** 도구를 표시하며, 이는 설정에서 전환된 것뿐만 아니라 에이전트가 지금 바로 호출할 수 있는 것을 반영합니다.
+- **제어판 도구(기본 Turn1 토큰 없음)** — 오케스트레이션 신호(Deep Research), CompletionGuard(`_completion_check`), Verifier(`submit_verdict`) 및 워크플로 PTC(`spawn_subagent`/`notify`)는 감사를 위해 등록되지만 **기본 채팅 바인드에서 제외** — 일반 채팅은 생성/오케스트레이션 스키마 세금을 지불하지 않습니다. 측정된 기본 프로필: **15개 도구 / ~8,354개의 톡 도구 레이어**(2026년 7월 SSOT).
+
+### 대 경쟁업체 접근 방식
+
+일부 플랫폼에서는 슬래시 명령으로 기술을 그룹화하는 YAML 파일인 "기술 번들"을 사용합니다. Myrm의 상담원 프로필은 완전한 상위 집합입니다.
+
+| Capability | Skill Bundles | Agent Profile |
+|------------|:---:|:---:|
+| Multi-skill grouping | YAML `skills[]` | GUI-configurable `skill_ids[]` |
+| Model selection | No | Per-agent model |
+| Tool-level control | No | Whitelist per agent |
+| Security policy | No | Per-agent overrides |
+| Anti-crosstalk | Single layer (fewer skills) | 5-layer defense |
+| Configuration | CLI + YAML files | Visual GUI editor |
+
+## 에이전트 바인딩
+
+에이전트는 다양한 컨텍스트에 바인딩될 수 있습니다.
+
+| Context | Description |
+|---------|-------------|
+| **Web Sessions** | Default agent for new chat conversations |
+| **Scheduled Tasks** | Agent used for cron job execution |
+| **Channels** | Agent assigned to specific messaging channels |
+| **IM Topics** | `/bind` command assigns agent to a chat topic |
+
+바인딩되지 않은 컨텍스트는 기본 범용 에이전트를 사용합니다. 메시징 채널에서 GUI 또는 `/bind` / `/unbind` 명령을 통해 언제든지 에이전트를 전환할 수 있습니다.
+
+## 슬래시 명령 바인딩
+
+각 에이전트는 한 차례에 하나 이상의 기술을 트리거하는 사용자 정의 슬래시 명령을 정의할 수 있습니다.
+
+### 싱글 스킬
+
+`/deploy`과 같은 명령을 하나의 기술에 매핑합니다.
+
+```yaml
+command_name: deploy
+skill_ids: [deploy_skill]
+description: Deploy to production
+```
+
+### 멀티 스킬 번들
+
+선택적 지침을 사용하여 여러 기술을 단일 명령으로 결합합니다.
+
+```yaml
+command_name: daily-report
+skill_ids: [data_collector, report_generator, email_sender]
+instruction: Collect today's metrics, generate a summary, and email it to the team.
+```
+
+트리거되면 모든 SOP가 병합되어 자동 토큰 예산 보호(12K 문자 소프트 캡)를 통해 단일 LLM 턴에 주입됩니다.
+
+### 작동 방식
+
+1. **구성** — 에이전트 편집기의 드롭다운에서 여러 기술을 선택하고 선택적으로 지침을 추가합니다.
+2. **트리거** — 슬래시 팔레트(WebUI), 데스크톱 앱 또는 IM 채널에 `/daily-report`을 입력합니다.
+3. **실행** — 하네스는 모든 SOP를 로드하고 토큰 예산을 시행하며 하나의 조정된 턴으로 실행합니다.
+
+### 에이전트별 격리
+
+각 에이전트에는 고유한 명령 바인딩 세트가 있습니다. "Code Assistant" 에이전트의 `/review`은 "Ops Assistant" 에이전트의 `/deploy`과 완전히 독립적입니다. 누화나 충돌이 없습니다.
+
+## 프로필 스냅샷 및 롤백
+
+구성이 변경될 때마다 자동 스냅샷이 생성됩니다. 원클릭 실행 취소로 걱정 없이 실험해 보세요.
+
+| Feature | Description |
+|---------|-------------|
+| **Auto-snapshot** | Each update creates a versioned snapshot (up to 10 retained) |
+| **One-click rollback** | Revert to any previous configuration state instantly |
+| **Pre-rollback protection** | Rolling back auto-saves the current state first, so you can always undo the undo |
+| **Selective history** | Cosmetic changes (avatar-only) do not pollute the snapshot timeline |
+| **Cache-safe** | Rollback invalidates the profile resolver cache immediately — the agent uses the restored config on the very next turn |
+
+**에이전트 설정 > 버전 기록**에서 스냅샷 기록에 액세스하세요.
+
+<Tip>
+어떤 경쟁업체도 롤백이 포함된 자동 다중 버전 프로필 스냅샷을 제공하지 않습니다. Hermes, OpenClaw 및 ChatGPT는 변경하기 전에 수동 백업이 필요합니다. 한 번 잘못 클릭하면 구성을 영구적으로 덮어쓰게 됩니다.
+</Tip>
+
+## 내보내기, 가져오기 및 복제
+
+팀 전체에 에이전트 구성을 공유하거나 외부에 백업하세요.
+
+| Operation | Description |
+|-----------|-------------|
+| **Export** | Downloads the full agent profile as JSON (credential fields auto-stripped for safety) |
+| **Import** | Creates a new agent from any exported JSON (supports both individual and team formats) |
+| **Clone** | One-click duplicate within your workspace — new UUID, same configuration |
+
+팀 에이전트의 경우 리더와 모든 구성원 프로필을 단일 버전 패키지로 번들로 내보냅니다.
+
+<Warning>
+중요한 필드(API 키, OAuth 토큰, 게이트웨이 자격 증명)는 공유 시 실수로 자격 증명이 유출되는 것을 방지하기 위해 내보내기 중에 자동으로 제거됩니다.
+</Warning>

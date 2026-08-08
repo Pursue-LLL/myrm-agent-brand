@@ -83,17 +83,18 @@
 - 分形文档门禁：`myrm-website/scripts/check-fractal-docs.ts`（`bun run test` / `validate:fractal-docs`）；`myrm-docs/scripts/check-fractal-docs.ts`（`cd myrm-docs && bun run validate:fractal-docs` / `bun run test`）
 - `public/desktop-release.json`：构建链 `bake:release` 产物（CF Pages / 本地 build），静态 export 首屏用；**不入库**（见 `myrm-website/.gitignore`），本地 dev 可选 `bun run bake:release` 或依赖 live GitHub fetch
 
-## 文档 i18n（en + zh）
+## 文档 i18n（en + zh + ko）
 
 | 项 | 约定 |
 |----|------|
-| Mintlify | `docs.json` → `navigation.languages[en, zh]` |
-| URL | EN：`/getting-started/...`；ZH：`/zh/getting-started/...` |
+| Mintlify | `docs.json` → `navigation.languages[en, zh, ko]` |
+| URL | EN：`/getting-started/...`；ZH：`/zh/getting-started/...`；KO：`/ko/getting-started/...` |
 | 官网跳转 | `getDocsUrl(path, locale)`、`localizedDocsPath()`、`useDocsLocale` |
 | App locale 接力 | `getAppUrl(path, locale)` → **主产品** `myrm-agent/myrm-agent-frontend` 的 `middleware.ts` 写 cookie → 登录后 `locale-personal-sync` 写 `personalSettings` |
-| 营销契约 | `MARKETING_DOC_PATHS` + `validate-docs-slugs` 双 locale（`bun run build` 门禁） |
-| zh MDX 内链 | `/zh/...`（非 `/docs/...`） |
-| 脚本 | `myrm-docs/package.json`：`validate:fractal-docs` / `test` / `apply-i18n` / `build-zh-nav`；`check-fractal-docs.ts`（分形 `_ARCH` + 导航页 + EN/zh 分区）；`apply-i18n-docs-json.ts`（导航 + zh footer）、`build-zh-navigation.ts` |
+| 营销站首访 locale | 静态 export 无 middleware；`detectBrowserLocale.ts` 优先级 `?locale=` > localStorage > navigator；`LocaleRootProvider` 首 render 同步读取 |
+| 营销契约 | `MARKETING_DOC_PATHS` + `validate-docs-slugs` 三 locale（`bun run build` 门禁） |
+| zh/ko MDX 内链 | `/zh/...`、`/ko/...`（非 `/docs/...`） |
+| 脚本 | `myrm-docs/package.json`：`validate:fractal-docs` / `test` / `apply-i18n` / `apply-ko` / `translate:ko` / `build-zh-nav`；`check-fractal-docs.ts`（分形 `_ARCH` + 导航页 + EN/zh/ko 分区）；`apply-i18n-docs-json.ts`（导航 + zh footer）、`apply-ko-docs-json.ts`（ko 导航块）、`docs-ko-bulk-translate.py`（EN→ko MDX） |
 
 ## 约束
 

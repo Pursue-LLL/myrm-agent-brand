@@ -1,0 +1,192 @@
+---
+
+title: 스킬 진화
+description: AI는 모든 상호 작용에서 학습하여 재사용 가능한 기술을 자동 추출하고, 샌드박스에서 검증하고, 승인 후에만 배포합니다.
+---
+
+# 스킬 진화
+
+Myrm의 Skill Evolution 엔진은 **성공적인 상호작용을 재사용 가능한 스킬로 자동 전환**합니다. 단순한 프롬프트 저장과 달리 엔진은 추적 분석 → 추출 → 스크리닝 → 샌드박스 유효성 검사 → LLM 검토 → GUI을 통한 인간 승인 등 전체 파이프라인을 실행합니다.
+
+## 작동 방식
+
+1. **추적 분석** — 각 대화 후 `TraceAnalyzer`은 5단계 점진적 공개를 사용하여 실행 궤적을 추출하여 기술로 전환할 가치가 있는 패턴을 식별합니다.
+2. **구조적 추출** — `StructuredExtractor`은 LLM을 사용하여 신뢰도 점수로 기술 정의를 캡처하여 고품질 패턴만 승격되도록 합니다.
+3. **자동 스크리닝** — 품질이 낮거나 중복된 추출은 사용자에게 도달하기 전에 필터링됩니다.
+4. **샌드박스 검증** — 후보 기술이 안전한 샌드박스 환경에서 실행되어 실제로 작동하는지 확인합니다.
+5. **LLM 검토** — 자동화된 검토자가 극단적인 사례, 보안 문제 및 정확성을 확인합니다.
+6. **회귀 게이트** — 자동 생성된 테스트 사례(EvalCases)는 원래 기술의 알려진 양호한 동작과 비교하여 모든 후보를 검증합니다. 기존 기능을 손상시키는 변경 사항은 사용자에게 도달하기 전에 불이익을 받거나 필터링됩니다.
+7. **개선 관문** — 원래 기술이 기준 후보로 주입되고 제안된 모든 변형과 정면으로 경쟁합니다. 실제로 원본보다 점수가 더 높은 변형만 살아남습니다. 즉, 모든 변형이 별도로 "좋아 보이는" 경우에도 품질 회귀를 방지합니다.
+8. **사람의 승인** — 귀하의 승인 없이는 아무것도 배포되지 않습니다. **보류 중인 진화 대시보드**에서 검토하세요.
+
+## 모든 소스에서 기술을 가르칩니다(`/learn`)
+
+에이전트가 디렉터리, URL 또는 워크플로 메모를 가리키도록 하면 채팅에서 소스를 수집하고 검토할 초안을 저장합니다. WebUI, 채널 및 클라우드 샌드박스에 대한 동일한 서버 작성 표준.
+
+**설정 → 스킬 → 설치됨 → 스킬 배우기**
+
+1. **디렉터리**, **URL** 및/또는 **자유 텍스트**(조합)를 입력합니다.
+2. 지침을 미리 작성하려면 **시나리오 칩**(SDK/API, 최근 배포, 디버그 경로, 작성 가이드, 릴리스 SOP)을 선택하세요.
+3. **자세히 알아보기**를 클릭하세요. — Myrm은(는) 자동으로 채팅 차례를 시작합니다(먼저 대화를 열 필요가 없습니다).
+4. 초안이 준비되면 **보류 중인 초안**에서 이를 승인합니다.
+5. 승인 후 **`[use skill-name]`** 접두사를 복사하거나 **에이전트 설정**에서 슬래시 명령을 바인딩합니다.
+
+채팅에서 `/learn`을 실행할 수도 있습니다(슬래시 명령 또는 어시스턴트 메시지의 **Extract as Skill**).
+
+## 대기 중인 기술 검토
+
+1. **설정 → 스킬 → 보류 중인 진화**로 이동합니다.
+2. **목록** 또는 **그리드** 보기에서 제안서를 찾아보세요.
+3. 각 제안에 대해:
+   - **승인** — 스킬을 즉시 배포합니다.
+   - **거부** — 제안을 폐기합니다.
+   - **수정** — 승인하기 전에 Monaco diff 편집기에서 스킬을 편집하세요.
+4. 승인된 기술은 에이전트가 향후 대화에서 사용할 수 있게 됩니다.
+
+## 변형 테스트
+
+Myrm은(는) 기술이 향상될 수 있다고 감지하면 변형을 생성하고 A/B 비교를 실행합니다. 변형을 프로덕션으로 승격하기 전에 **Shadow GUI** 패널에서 변형 결과를 검토할 수 있습니다.
+
+## 버전 기록 및 롤백
+
+모든 기술 변경 사항이 추적됩니다.
+
+- **기록 패널** — 차이점이 포함된 전체 진화 타임라인.
+- **버전 패널** — 두 버전을 나란히 비교합니다.
+- **원클릭 롤백** — 즉시 이전 버전으로 되돌립니다.
+
+## 일괄 최적화
+
+대규모 기술 라이브러리의 경우:
+
+1. **설정 → 스킬 → 일괄 최적화**로 이동합니다.
+2. **Run Optimization**을 클릭합니다. 엔진은 개선 기회를 찾기 위해 모든 기술을 평가합니다.
+3. 배치 스냅샷을 검토하고 변경 사항을 개별적으로 승인/거부합니다.
+4. 문제가 발생할 경우 중간 배치 롤백이 지원됩니다.
+
+## 배경 검토
+
+Myrm은 유휴 세션 중에 4가지 유형의 백그라운드 비동기 작업을 실행합니다.
+
+- 성공적인 상호작용에서 자동 기술 추출
+- 토큰 사용량을 줄이기 위해 장황한 기술을 압축합니다.
+- 좌절감지 → 자동 수정 변종 생성
+- 품질이 낮은 스킬의 가지치기
+
+모든 백그라운드 변경 사항은 배포 전에 승인이 필요합니다.
+
+## 세션별 기술 범위
+
+상담원 프로필에 많은 기술이 바인딩되어 있으면 모든 기술이 모든 대화와 관련이 있는 것은 아닙니다. 세션별 ​​기술 범위 지정을 통해 **현재 채팅에 로드할 기술을 시각적으로 선택**하여 토큰 소비를 줄이고 AI 집중력을 향상할 수 있습니다.
+
+1. **에이전트 모드**에서 채팅을 엽니다.
+2. 메시지 입력 옆에 있는 **반짝 아이콘**(✦)(세션 스킬 토글)을 클릭합니다.
+3. 팝오버에는 전역적으로 활성화된 모든 기술이 나열됩니다. 이 대화에 필요하지 않은 기술을 **선택 취소**하세요.
+4. 선택 사항은 서버 측에 유지되며 페이지 다시 로드, 대화 압축 및 대화 포크 후에도 유지됩니다.
+5. 모든 스킬을 복원하려면 팝오버 상단의 **Clear Override**를 클릭하세요.
+
+<Tip>
+다른 에이전트로 전환하면 세션 스킬 재정의가 자동으로 지워지므로 항상 새 에이전트의 전체 스킬 세트로 새로 시작할 수 있습니다.
+</Tip>
+
+## 내장된 사전 구축된 기술
+
+자체 진화하는 기술 외에도 Myrm에는 즉시 사용할 수 있는 **36개 이상의 사전 구축된 기술**이 포함되어 있습니다. 주목할만한 예:
+
+- **데이터 분석** — 자동 데이터 품질 검사 및 위험 경고를 포함하는 6단계 워크플로(수집 → 정리 → 탐색 → 분석 → 시각화 → 보고)입니다. CSV, JSON, Excel 및 데이터베이스 쿼리를 지원합니다.
+- **데이터 분석 파이프라인** — 다중 에이전트 버전: 4개의 전문 역할(수집기 → 분석가 → 시각화 장치 → 보고자)이 동시에 공동 작업합니다. HTML 보고서, PDF, Jupyter Notebook, Markdown 또는 PPT 개요를 출력합니다.
+- **심층 조사** — 소스 확인을 통한 다단계 웹 조사입니다.
+- **코드 검토** — 보안 및 성능 검사를 통한 자동 코드 검토.
+- **프런트엔드 개발**, **테스트 중심 개발**, **체계적인 디버깅** — 개발 워크플로 기술.
+
+사전 구축된 기술은 시작 시 자동으로 동기화되며 설정 GUI을 통해 사용자 정의, 비활성화 또는 기본값으로 재설정할 수 있습니다.
+
+<Note>
+Matplotlib 차트는 복사가 없는 Vault:// 포인터를 사용하여 인라인으로 렌더링됩니다. Jupyter 서버가 필요하지 않습니다. 이를 통해 인프라 오버헤드 없이 Jupyter 품질의 시각화를 제공합니다.
+</Note>
+
+## 주요 번호
+
+| Metric | Value |
+|--------|-------|
+| Total skill ecosystem tests | **3,906 passed** (Jul 2026) |
+| Core skill engine tests | **929 passed** (select 17 + meta_tools 34 + packaging/optimization/sync/history 249 + evolution 173 + curator 43 + market/mcp 99 + root 314) |
+| Cron/Blueprints tests | **937 passed** (harness 662 + server 275) |
+| Channel system tests | **1,991 passed** (core 246 + security 104 + providers 639 + bridge 545 + cron API 455) |
+| Backends framework tests | **408 passed** |
+| Evolution engine tests | **437 passed** |
+| Review pipeline tests | **250 passed** (10-dim rubric + approval security + batch E2E) |
+| ConfidenceApprovalFlow + lifecycle tests | **168 passed** (risk signals + quarantine + evidence + forgetting + stats) |
+| Safety layers | **15** (Harness 6 + Server 6 + Service 3) |
+| Review layers | **4** (10-dim semantic rubric + LLM-as-Judge + ExecutionMetrics pre-screening + audit lifecycle) |
+| Quality metrics | **6 indicators** (selections / applied / completed / success / failures / corrections) |
+| Patch formats | **3** (fuzzy match with 8-level progressive + Unicode normalization) |
+| Routing strategies | **4** (including Correction Propagation) |
+| Background task types | **4** |
+
+## 스킬 마켓플레이스
+
+Myrm은 통합 GUI에 **7개의 검색 소스**를 통합합니다. 검색, 태그별 필터링, 별표/다운로드별 정렬, 보안 검색으로 미리보기 및 클릭 한 번으로 설치:
+
+| Source | Coverage |
+|--------|----------|
+| ClawHub | Largest open skill marketplace |
+| GitHub | Public skill repositories |
+| LobeHub | LobeChat plugin ecosystem |
+| ModelScope | 80K+ Chinese AI community models/skills |
+| Aliyun | Alibaba Cloud Agent Explorer |
+| skills.sh | Curated skill directory |
+| Prebuilt | 36+ built-in skills shipped with Myrm |
+
+추가 마켓플레이스 기능:
+
+- **URL 가져오기** — 모든 URL(GitHub 저장소, ZIP 아카이브 등)에서 설치합니다.
+- **Monorepo 자동 검색** — GitHub monorepo URL을 붙여넣으면 Myrm이 내부에 설치 가능한 모든 기술을 자동으로 검색하므로 하위 디렉터리를 수동으로 지정할 필요가 없습니다.
+- **자동 업데이트** — 격리 기반의 안전한 업데이트 흐름을 통해 업스트림 업데이트를 확인합니다.
+- **3방향 해시 보호** — 사전 구축된 기술에 대한 사용자 수정 사항은 업그레이드 중에도 유지됩니다. 업스트림 업데이트는 사용자가 기술을 사용자 정의하지 않은 경우에만 자동으로 적용됩니다.
+- **스킬 동기화** — 장치 간 푸시/풀 동기화
+- **큐레이터** — 자동 수명 주기 관리(오래된 감지, 보관, 정리)
+- **통합** — 중복되거나 겹치는 기술을 자동으로 병합합니다.
+- **수정으로 내보내기** — 자동 비밀 제거 기능을 사용하여 ZIP로 스킬을 다운로드합니다.
+
+## 경쟁사 대비
+
+| Capability | Myrm | Hermes |
+|-----------|:----:|:------:|
+| Auto-extract skills | Full pipeline | Single CLI command |
+| Sandbox validation | Yes | No |
+| GUI review dashboard | Yes | No (auto-applies) |
+| Confidence scoring | Yes | No |
+| Variant A/B testing | Yes | No |
+| Regression-safe evolution | Yes (auto-generated EvalCases) | No |
+| Version rollback GUI | Yes | CLI only |
+| Background optimization | Yes (4 types) | Basic |
+| Cross-agent experience sharing | Yes | No |
+| One-click extract from chat | Yes (message-level button) | No |
+| Skill retrieval layers | 3-layer (semantic+env hybrid, deterministic scorer, progressive loading) | 2-layer (semantic search, playbook synthesis) |
+| Execution transparency | Full (skill badges + reason + tool chain + error diagnostics) | Partial (tool list only) |
+| Marketplace sources | **7 integrated sources** | 3 (ClawHub + GitHub + custom tap) |
+| Marketplace UI | **Full GUI** (search/filter/sort/install) | CLI only |
+| Auto lifecycle management | **Curator** (stale/archive/cleanup via Settings + Smart Prune — not chat-only text suggestions) | Manual |
+| Skill consolidation | **Auto-merge duplicates** | No |
+| Per-session skill scope | **Visual toggle** (pick skills per chat, ~1800 tokens/turn saved) | No |
+
+## AI 기반 기술이 결정적 스크립트를 능가하는 이유
+
+기존 브라우저 자동화 도구는 웹사이트의 레이아웃이 변경되면 중단되는 **결정적 코드**를 생성합니다. 파손을 감지하고 스크립트를 재생성하려면 "자체 테스트 루프"가 필요합니다.
+
+Myrm은 근본적으로 다른 접근 방식을 취합니다.
+
+| Aspect | Deterministic Scripts | Myrm SKILL.md |
+|--------|:---------------------:|:-------------:|
+| Format | Python/JS code with CSS selectors | Natural language guide |
+| When site changes | Script breaks, manual re-forge | Agent adapts in real-time |
+| Element location | Brittle `#id` / `.class` selectors | SelfHealingLocator (ARIA + visual + semantic) |
+| Failure recovery | Re-run forge pipeline | FIX evolution auto-patches |
+| Maintenance | Manual | Zero-maintenance |
+
+이 아키텍처는 다음을 의미합니다.
+
+- **"자체 테스트" 단계가 필요하지 않습니다** — 현재 페이지 상태에 적응하는 AI가 기술을 해석합니다.
+- **재설계 시 재단조 없음** — SelfHealingLocator는 레이아웃 변경 후에도 요소를 찾습니다.
+- **자동 복구** — 스킬이 실패하면 FIX 진화 유형이 사용자 개입 없이 해당 스킬을 패치합니다.

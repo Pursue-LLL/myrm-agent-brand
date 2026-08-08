@@ -1,0 +1,114 @@
+---
+
+title: 연구실
+description: 리소스 풀, AI 채팅, 아티팩트 출력을 단일 보기에 결합하는 3열 연구 워크벤치입니다.
+---
+
+# 연구실
+
+Research Studio는 하나의 인터페이스에서 연구 자료를 선별하고, AI와 대화하고, 생성된 아티팩트를 미리 볼 수 있는 **3열 작업대**입니다. **로컬 WebUI**, **Tauri 데스크톱** 및 **SaaS 클라우드**에서 작동합니다.
+
+## 레이아웃
+
+| Column | Purpose |
+|--------|---------|
+| **Left — Resource Pool** | Curate sources from the Wiki knowledge base and uploaded files. |
+| **Center — Chat** | Talk to any configured agent with selected resources automatically injected as context. |
+| **Right — Output** | Preview generated artifacts (documents, presentations, reports) with download and save-to-wiki options. |
+
+모바일 장치(뷰포트 768픽셀 이하)에서는 세 개의 열이 **탭 탐색**으로 축소되어 휴대폰과 태블릿에서 편안하게 사용할 수 있습니다.
+
+## 오픈리서치스튜디오
+
+사이드바 또는 브라우저 URL 표시줄에서 **/research**로 이동합니다. 페이지는 왼쪽에 리소스 풀, 중앙에 채팅, 오른쪽에 출력과 함께 로드됩니다.
+
+## 연구자료 추가
+
+### 위키에서
+
+1. 리소스 풀 헤더에서 **Wiki에서**를 클릭합니다.
+2. 키워드로 지식베이스 개념을 검색하세요.
+3. 개념을 클릭하여 풀에 추가합니다. 중복은 자동으로 방지됩니다.
+
+### 파일 업로드
+
+1. 리소스 풀 헤더에서 **업로드**를 클릭합니다.
+2. 하나 이상의 파일(PDF, DOCX, TXT, MD, CSV, XLSX, PPTX)을 선택합니다. 한 번에 최대 20개 파일, 파일당 50MB입니다.
+3. 업로드된 파일은 리소스 풀에 선택 가능한 항목으로 나타납니다.
+4. 대용량 문서(> 100KB)는 지능형 RAG 검색을 위해 지식 기반에 자동으로 색인화되어 LLM 토큰을 절약합니다.
+5. 중복 파일은 SHA-256 해싱을 통해 감지되고 자동으로 건너뜁니다.
+
+## 선택 및 선택 취소
+
+각 리소스에는 **체크박스**가 있습니다. 선택한 리소스는 `@wiki_concept` 또는 `@wiki_raw_file` 멘션 참조로 AI 채팅 컨텍스트에 자동으로 삽입됩니다.
+
+- **모두 선택 / 모두 선택 취소** — 모든 리소스를 한 번에 전환합니다.
+- **개별 토글** — 자원 행을 클릭하여 선택을 토글합니다.
+
+위키 유형 참조만 동기화로 관리됩니다. 채팅 입력에 수동으로 추가한 다른 멘션 참조(예: `@file.pdf`)는 유지됩니다.
+
+## 상황에 맞는 채팅
+
+중앙 열은 전체 채팅 인터페이스입니다. 풀에서 리소스를 선택하면 해당 콘텐츠가 보내는 다음 메시지에 삽입됩니다. 에이전트는 선택한 모든 자료를 참조하고 추론할 수 있습니다.
+
+전문적인 연구 작업을 위해 내장된 `builtin-researcher` 에이전트 또는 맞춤형 에이전트를 사용하세요.
+
+## 아티팩트 보기 및 내보내기
+
+에이전트가 아티팩트(보고서, 슬라이드 데크, 문서, 마인드 맵, 오디오)를 생성하면 오른쪽 열에 표시됩니다.
+
+- **미리보기** — 구문 강조, 대화형 다이어그램 및 미디어 재생 기능을 갖춘 렌더링된 콘텐츠입니다.
+- **다운로드** — 아티팩트를 로컬 장치에 저장합니다.
+- **Wiki에 저장** — 나중에 참조할 수 있도록 아티팩트를 지식 기반에 직접 유지합니다.
+- **탭 전환** — 여러 아티팩트가 생성되면 탭 표시줄을 사용하여 아티팩트 간에 전환합니다.
+
+### 지원되는 출력 유형
+
+| Type | Rendering | Example prompt |
+|------|-----------|----------------|
+| **Mind map** | Interactive Mermaid SVG — zoom, fullscreen, SVG download, legend filtering | "Draw a mind map of key findings" |
+| **Audio** | Built-in audio player with controls | "Read the summary out loud" |
+| **Document** | Formatted Markdown with code highlighting | "Write a research report" |
+| **Presentation** | PPTX preview and download | "Create a PPT from this report" |
+| **HTML** | Sandboxed iframe preview | "Build an interactive dashboard" |
+| **Chart** | Mermaid diagram (flowchart, sequence, Gantt, etc.) | "Create a timeline diagram" |
+| **Code** | Syntax-highlighted code with language detection | "Write a Python analysis script" |
+| **Spreadsheet** | CSV/Excel with table view | "Export the data as CSV" |
+
+## 조사 → 메모 → 프레젠테이션 워크플로
+
+Research Studio는 워크벤치를 떠나지 않고도 완전한 연구에서 결과물까지의 파이프라인을 지원합니다.
+
+1. **연구** — 자원 풀에서 자료를 선택하고 에이전트에게 심층적인 연구를 수행하도록 요청합니다. `builtin-researcher` 에이전트는 실행 전에 연구 계획을 검토하고 편집할 수 있는 HITL 계획 확인을 지원합니다.
+2. **메모로 저장** — 상담원이 보고서를 생성하면 메시지 작업 표시줄에서 **Wiki에 저장** 버튼을 클릭합니다. 메모는 출처 메타데이터(소스 채팅, 메시지 ID, 타임스탬프)와 함께 저장되므로 언제든지 원래 대화를 추적할 수 있습니다.
+3. **편집** — Wiki 지식 베이스 패널에 저장된 노트를 열고 Markdown 콘텐츠를 직접 편집합니다.
+4. **프레젠테이션 생성** — 채팅에서 상담원에게 "이 보고서에서 PPT를 만들어 보세요"라고 요청합니다. `office-document` 기술은 샌드박스 환경에서 `python-pptx`을 사용하여 완전히 편집 가능한 `.pptx` 파일을 생성합니다. 상담원은 고정된 템플릿 제약 없이 슬라이드 콘텐츠, 레이아웃, 차트, 스타일을 완벽하게 제어할 수 있습니다.
+5. **다운로드** — 생성된 프레젠테이션이 다운로드할 준비가 된 오른쪽 출력 열에 나타납니다.
+
+이 대화 워크플로는 **고정된 파이프라인 엔진보다 더 유연**합니다. 자연스러운 대화를 통해 어느 단계에서든 개입하고, 에이전트에게 특정 섹션을 수정하도록 요청하고, 프레젠테이션 스타일을 변경하고, 어느 시점에서든 다시 시작할 수 있습니다.
+
+## 문서 간 분석
+
+여러 파일을 리소스 풀에 업로드하고(또는 Wiki로 가져오고) 모두 선택하고 다음과 같은 분석 질문을 해보세요.
+
+- "이 보고서는 어떤 합의된 견해를 공유합니까?"
+- "이 문서들은 어디에서 서로 모순됩니까?"
+- "AI가 일자리의 30%를 대체할 것이라고 원래 언급한 보고서는 무엇입니까?"
+
+에이전트는 선택된 모든 문서를 읽고 합의, 모순 및 인용문을 식별하고 구조화된 분석 보고서를 생성합니다. 주요 기능:
+
+- **클릭 가능한 인용** — 모든 인용문은 인용 소스 점프를 통해 원본 소스 텍스트로 다시 연결됩니다. 인용문을 클릭하면 강조 표시된 구절을 맥락에서 볼 수 있습니다.
+- **병렬 분석** — 대용량 문서 세트의 경우 에이전트는 개별 문서의 분석을 하위 에이전트에 병렬로 위임한 후 결과를 종합할 수 있습니다.
+- **정보 무결성** — 내장된 무결성 규칙을 통해 주장이 증거 기반이고 소스 간의 모순이 명시적으로 표시되도록 보장합니다.
+- **유연한 각도** — 미리 설정된 분석 템플릿이 없습니다. 추세, 타임라인, 정서, 위험 요소 등 어떤 질문이라도 하면 에이전트가 동적으로 분석을 조정합니다.
+
+## 반응형 디자인
+
+워크벤치는 화면에 맞게 조정됩니다.
+
+| Screen | Layout |
+|--------|--------|
+| Desktop (> 768 px) | Three resizable columns with drag handles. |
+| Mobile (≤ 768 px) | Tab navigation: Resources, Chat, Output. |
+
+열 너비는 패널 사이의 드래그 핸들을 통해 조정할 수 있습니다.

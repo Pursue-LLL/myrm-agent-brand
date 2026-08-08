@@ -10,8 +10,7 @@
  */
 'use client';
 
-import { useTranslations } from 'next-intl';
-import { useDocsLocale } from '@/hooks/useDocsLocale';
+import { useLocale, useTranslations } from 'next-intl';
 import {
   ArrowRight02Icon,
   Brain02Icon,
@@ -24,6 +23,7 @@ import {
 import type { ComponentType } from 'react';
 import { TiltCard } from './interactive';
 import { marketingHas } from './marketing-i18n';
+import type { Locale } from '@/i18n/config';
 import {
   APP_MIGRATION_WIZARD_PATH,
   getAppLoginRedirectUrl,
@@ -142,9 +142,9 @@ function BentoCard({ item, index }: { item: BentoItem; index: number }) {
 
 export default function AdvantagesSection() {
   const t = useTranslations('marketing');
-  const docsLocale = useDocsLocale();
+  const appLocale = useLocale() as Locale;
   const migrationDownloadHref = getDesktopDownloadPath();
-  const migrationAppHref = getAppLoginRedirectUrl(APP_MIGRATION_WIZARD_PATH, docsLocale);
+  const migrationAppHref = getAppLoginRedirectUrl(APP_MIGRATION_WIZARD_PATH, appLocale);
 
   return (
     <section className="ed-advantages-section ed-section-alt py-20 sm:py-40">

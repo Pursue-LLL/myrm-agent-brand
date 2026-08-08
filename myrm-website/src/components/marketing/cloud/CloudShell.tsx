@@ -2,7 +2,7 @@
  * [INPUT]
  * - lib/cloud-marketing-nav.ts (POS: 云页 Nav DRY 定义)
  * - lib/cloud-paths.ts (POS: 云页 App 跳转助手)
- * - hooks/useDocsLocale.ts (POS: App locale → docs locale)
+ * - hooks/useLocale (POS: 营销站应用 locale)
  *
  * [OUTPUT]
  * - CloudShell: SaaS 页顶栏 + 页脚壳层（editorial 视觉）
@@ -14,13 +14,13 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { ArrowRight02Icon, Cancel01Icon, Menu01Icon } from 'hugeicons-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils/classnameUtils';
+import type { Locale } from '@/i18n/config';
 import { buildCloudNavLinks } from '@/lib/cloud-marketing-nav';
 import { getCloudLoginHref, getCloudRegisterHref } from '@/lib/cloud-paths';
-import { useDocsLocale } from '@/hooks/useDocsLocale';
 import BrandLogo from '../BrandLogo';
 import LocaleSwitcher from '../LocaleSwitcher';
 
@@ -31,7 +31,7 @@ interface CloudShellProps {
 
 export default function CloudShell({ children, scrollProgress }: CloudShellProps) {
   const t = useTranslations('cloud');
-  const docsLocale = useDocsLocale();
+  const appLocale = useLocale() as Locale;
   const [mobileOpen, setMobileOpen] = useState(false);
   const navLinks = buildCloudNavLinks(t);
 
@@ -77,11 +77,11 @@ export default function CloudShell({ children, scrollProgress }: CloudShellProps
 
           <div className="hidden items-center gap-4 md:flex">
             <LocaleSwitcher />
-            <a href={getCloudLoginHref(docsLocale)} className="text-[13px] font-light" style={{ color: 'var(--ed-dim)' }}>
+            <a href={getCloudLoginHref(appLocale)} className="text-[13px] font-light" style={{ color: 'var(--ed-dim)' }}>
               {t('nav.login')}
             </a>
             <Button asChild size="sm" className="ed-cta rounded-full border-0 px-5 text-xs font-medium text-white" style={{ background: 'var(--ed-accent)' }}>
-              <a href={getCloudRegisterHref(docsLocale)}>
+              <a href={getCloudRegisterHref(appLocale)}>
                 {t('nav.getStarted')}
                 <ArrowRight02Icon className="ml-1 h-4 w-4" />
               </a>
@@ -129,12 +129,12 @@ export default function CloudShell({ children, scrollProgress }: CloudShellProps
           <div className="flex flex-col gap-3 px-6 pb-10">
             <LocaleSwitcher variant="shell" />
             <Button asChild variant="outline" size="lg" className="ed-secondary-cta w-full rounded-2xl">
-              <a href={getCloudLoginHref(docsLocale)} onClick={() => setMobileOpen(false)}>
+              <a href={getCloudLoginHref(appLocale)} onClick={() => setMobileOpen(false)}>
                 {t('nav.login')}
               </a>
             </Button>
             <Button asChild size="lg" className="ed-cta w-full rounded-2xl border-0 text-white" style={{ background: 'var(--ed-accent)' }}>
-              <a href={getCloudRegisterHref(docsLocale)} onClick={() => setMobileOpen(false)}>
+              <a href={getCloudRegisterHref(appLocale)} onClick={() => setMobileOpen(false)}>
                 {t('nav.getStarted')}
               </a>
             </Button>

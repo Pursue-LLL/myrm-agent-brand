@@ -34,6 +34,17 @@ Every memory write passes a deterministic security scan **before** it touches du
 
 Detection is rule-driven and deterministic (zero LLM cost, millisecond latency); intentionally obfuscated or highly semantic attacks are additionally covered by the LLM audit layer.
 
+## Extract Retry Queue (Cognify failures never silently lost)
+
+When memory **extraction** fails (rate limits, transient DB locks, network blips), Myrm does not leave you guessing:
+
+- **Lifecycle timeline in chat** — the last assistant message shows a memory lifecycle strip with explicit error state and a **Retry extraction** button (localized)
+- **Persistent SQLite retry queue** — failed extract jobs are enqueued with exponential backoff; a background worker drains the queue across restarts
+- **Trace hydrate resilience** — the Web UI re-fetches session trace up to 4 times so the timeline appears even after slow backend recovery
+- **Chrome E2E verified** — full WebUI flow: seed fixture → attach chat → timeline + retry control (not API-only shortcuts)
+
+Competitors typically surface a one-line error or require you to re-run the conversation; Myrm keeps the failure visible **and** retries automatically in the background.
+
 ## Dialectic Preference Reasoning (Cognitive Deriver)
 
 When a conversation ends, the **Cognitive Deriver** runs in the background with zero impact on response latency:

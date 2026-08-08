@@ -1,0 +1,385 @@
+---
+
+title: 통계
+description: 분석, 성장 지표, 일일 활동 저널 및 AI 기반 일일 요약 요약을 위한 엔드포인트입니다.
+---
+
+# 통계 API
+
+에이전트 활동 분석, 성장 지표, 일일 작업 일지 및 AI 생성 일일 요약을 쿼리하기 위한 엔드포인트입니다.
+
+## 데일리 저널
+
+특정 날짜의 모든 상담원 활동에 대한 통합 보기를 검색합니다.
+
+```
+GET /api/v1/statistics/daily-journal?date=YYYY-MM-DD&agent_id=optional
+```
+
+### 매개변수
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `date` | string | Yes | Date in `YYYY-MM-DD` format |
+| `agent_id` | string | No | Filter by specific agent ID |
+
+### 응답
+
+```json
+{
+  "code": 0,
+  "data": {
+    "date": "2026-05-31",
+    "overview": {
+      "total_sessions": 5,
+      "total_tokens": 42000,
+      "total_cost": 0.35,
+      "tool_call_count": 28,
+      "approval_count": 2,
+      "cron_run_count": 1,
+      "kanban_event_count": 3,
+      "sessions_by_source": {
+        "web": 3,
+        "telegram": 1,
+        "api": 1
+      }
+    },
+    "sessions": [
+      {
+        "id": "abc-123",
+        "title": "Code review session",
+        "source": "web",
+        "started_at": "2026-05-31T09:15:00Z",
+        "total_tokens": 12000,
+        "total_cost": 0.10
+      }
+    ],
+    "approvals": [],
+    "cron_runs": [],
+    "kanban_events": [],
+    "timeline": [
+      {
+        "type": "session",
+        "time": "2026-05-31T09:15:00Z",
+        "title": "Code review session",
+        "detail": { "source": "web", "tokens": 12000 }
+      }
+    ]
+  }
+}
+```
+
+### 데이터 소스
+
+저널은 추가 저장 공간 없이 6개의 기존 소스에서 데이터를 집계합니다.
+
+| Source | Data |
+|--------|------|
+| Chat | Session metadata (title, source, timestamps) |
+| Message | Token counts and cost per session |
+| ApprovalRecord | Human approval events |
+| CronRunModel | Scheduled task executions |
+| KanbanTaskEventModel | Kanban board events |
+| EventLog | Tool call counts (file-based) |
+
+### 오류 응답
+
+| Code | Description |
+|------|-------------|
+| 400 | Invalid date format (must be `YYYY-MM-DD`) |
+| 400 | Missing `date` parameter |
+
+## 일일 요약(AI 요약)
+
+키워드 및 다음 날 제안을 포함하여 AI가 생성한 하루 활동의 자연어 요약을 받아보세요. 결과는 LLM 비용을 최소화하기 위해 SQLite에 캐시됩니다.
+
+```
+GET /api/v1/statistics/daily-wrap?date=YYYY-MM-DD
+```
+
+### 매개변수
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `date` | string | Yes | Date in `YYYY-MM-DD` format |
+
+### 응답
+
+```json
+{
+  "code": 0,
+  "data": {
+    "date": "2026-06-27",
+    "summary": "Productive day focused on code review and bug fixes. Completed 5 sessions across web and Telegram channels.",
+    "keywords": ["code review", "bug fix", "telegram"],
+    "suggestions": ["Continue the refactoring started in session #3", "Review pending approvals"],
+    "generated_at": "2026-06-27T23:05:00Z",
+    "cached": true
+  }
+}
+```
+
+### 재생성
+
+캐시를 우회하여 새로운 AI 요약을 강제합니다.
+
+```
+POST /api/v1/statistics/daily-wrap/regenerate?date=YYYY-MM-DD
+```
+
+`cached: false`을 사용하여 GET 엔드포인트와 동일한 응답 구조를 반환합니다.
+
+### 요구 사항
+
+- 설정에서 **라이트 모델**을 구성해야 합니다(저비용 요약 생성에 사용됨).
+- 해당 날짜에 활동이 없으면 `summary: null`과 함께 `reason: "no_activity"`을 반환합니다.
+- Lite 모델이 구성되지 않은 경우 `summary: null`과 함께 `reason: "lite_model_not_configured"`를 반환합니다.
+
+### 작동 방식
+
+1. Daily Journal과 동일한 6개 소스(세션, 토큰, 승인, 크론 실행, 칸반 이벤트, 비용)에서 데이터를 집계합니다.
+2. 구조화된 프롬프트를 구축하고 이를 구성된 Lite 모델로 보냅니다.
+3. LLM 응답을 구문 분석합니다(JSON 및 일반 텍스트 대체 지원)
+4. 전용 `daily_wrap_cache` SQLite 테이블에 결과를 캐시합니다(날짜당 한 행).
+
+## 에이전트별 사용량 분석
+
+개별 에이전트별로 토큰 소비 및 비용을 분류합니다. 7일 추세 스파크라인을 통해 어떤 에이전트가 가장 많은 리소스를 소비하는지 확인하세요.
+
+```
+GET /api/v1/statistics/usage/by-agent?days=7
+```
+
+### 매개변수
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `days` | integer | No | Number of days for sparkline data (default: 7, max: 30) |
+
+### 응답
+
+```json
+{
+  "success": true,
+  "data": {
+    "agents": [
+      {
+        "agentId": "builtin-general",
+        "name": "General Assistant",
+        "avatar": "icon:general",
+        "totalTokens": 125000,
+        "totalUsd": 1.25,
+        "totalCalls": 42,
+        "sessions": 15,
+        "percentTokens": 65,
+        "percentUsd": 72,
+        "sparkline": [
+          { "date": "2026-06-03", "tokens": 18000, "usd": 0.18 },
+          { "date": "2026-06-04", "tokens": 22000, "usd": 0.22 }
+        ]
+      }
+    ],
+    "total_agents": 3,
+    "grand_total_tokens": 192000,
+    "grand_total_usd": 1.74
+  }
+}
+```
+
+### 주요 기능
+
+- 총 USD 비용을 기준으로 정렬된 결과(가장 높은 항목부터)
+- 백분율 분석은 총 소비에서 각 에이전트의 점유율을 보여줍니다.
+- 스파크라인 데이터를 사용하면 UI에서 7일간의 SVG 추세 시각화가 가능합니다.
+- 에이전트 레지스트리에서 에이전트 이름과 아바타를 자동으로 확인합니다.
+- 에이전트가 1개만 있는 경우 `AgentUsageCard` 구성 요소가 자동으로 숨겨집니다(비교 값 없음).
+
+## 세션 실행 추적
+
+타임라인 재생을 위해 구성된 세션(도구 호출, LLM 호출, 오류, 인간 피드백 이벤트 및 메모리 작업)에 대한 전체 실행 추적을 검색합니다.
+
+```
+GET /api/v1/statistics/session/{session_id}/trace
+```
+
+### 응답
+
+```json
+{
+  "code": 0,
+  "data": {
+    "session_id": "sess-abc123",
+    "metadata": {
+      "user_id": "user-1",
+      "agent_id": "builtin-general",
+      "task_type": "chat",
+      "trace_id": "trace-xyz"
+    },
+    "outcome": "success",
+    "start_time": 1720000000.0,
+    "end_time": 1720000030.0,
+    "duration_ms": 30000,
+    "task_input": "Help me refactor this module",
+    "output": "Done! I've refactored the module into 3 files.",
+    "tool_calls": [
+      {
+        "sequence": 1,
+        "tool_name": "read_file",
+        "start_time": 1720000002.0,
+        "end_time": 1720000003.5,
+        "duration_ms": 1500,
+        "success": true,
+        "error": null,
+        "input_data": { "path": "/src/module.py" },
+        "output_summary": "Read 200 lines"
+      }
+    ],
+    "llm_calls": [
+      {
+        "sequence": 1,
+        "start_time": 1720000001.0,
+        "end_time": 1720000005.0,
+        "model_name": "claude-sonnet-4-20250514",
+        "prompt_preview": "[user] Help me refactor...",
+        "message_count": 3,
+        "duration_ms": 4000,
+        "ttft_ms": 180,
+        "prompt_tokens": 1200,
+        "completion_tokens": 800,
+        "total_tokens": 2000
+      }
+    ],
+    "errors": [],
+    "human_feedback": [],
+    "memory_events": [
+      {
+        "id": "mem-1",
+        "phase": "extraction",
+        "status": "completed",
+        "timestamp": 1720000028.0,
+        "title": "Working Memory Extract",
+        "summary": "Learned user prefers small focused modules",
+        "target_kind": "memory",
+        "target_id": "mem-target-1",
+        "influence_count": 2
+      }
+    ],
+    "total_events": 12,
+    "total_tokens": 2000
+  }
+}
+```
+
+### 주요 기능
+
+- **제로 스토리지 재생**: 추가 전용 이벤트 로그에서 요청 시 추적이 재구성됩니다. 추가 데이터베이스나 비디오 파일이 필요하지 않습니다.
+- **7가지 이벤트 유형**: tool_start, tool_end, llm_call, human_feedback, memory, error, message
+- **프런트엔드 세션 리플레이 플레이어**: WebUI는 스크러버, 재생 속도 제어, 키보드 탐색 및 오류 점프 기능을 갖춘 3개 창 대화형 플레이어(Chat View / Mind View / Inspector)를 제공합니다.
+- **데이터 세트 내보내기**: 추적은 `dataset_export` 파이프라인을 통한 미세 조정을 위해 ShareGPT/Alpaca/OpenAI JSONL 형식으로 일괄 내보낼 수 있습니다.
+
+## 성장 통계
+
+성장 대시보드 지표는 통합 **학습 여정** 페이지(`/journey`, 이전 `/growth` 자동 리디렉션)를 통해 제공되며 다음을 제공합니다.
+
+- 스킬 KPI 요약(전체, 성공률, 진화 횟수)
+- 스마트 절감 요약(캐싱 및 라우팅을 통한 비용 절감)
+- 84일 활동 히트맵 및 다차원 건강 레이더 차트
+- 주간 추세 분석 및 AI 기반 일일 요약 요약
+- 기술 수명주기 이벤트를 통한 진화 타임라인
+- **지식 그래프** — 네임스페이스 필터링을 사용한 대화형 주장/증거 2D 강제 지향 시각화
+- **스킬 사용 효율성 추세** — 시간 경과에 따른 스킬별 성공률, 평균 지속 시간 및 통화 빈도(일일 단위)
+
+## 하네스 관찰 가능성 지표(Prometheus)
+
+Myrm 엔진은 심층 DevOps 및 SRE 모니터링을 위한 기본 Prometheus 원격 측정 지표를 공개합니다. 이러한 측정항목은 `/metrics` 엔드포인트에서 실행되며 운영 오버헤드가 전혀 발생하지 않습니다.
+
+### 고급 상담원 지표
+
+- `myrm_time_to_first_action_seconds`(히스토그램): 정확한 TTFA(Time-To-First-Action)를 캡처하여 사용자의 지시를 받은 후 에이전트가 첫 번째 도구를 호출할 때까지 정확한 시간을 계산합니다.
+- `myrm_policy_denial_total`(카운터): 보안 가드레일 및 경로 정책에 의해 에이전트 작업이 차단, 수정 또는 거부된 횟수를 추적합니다.
+- `myrm_tool_execution_total` & `myrm_tool_execution_failed_total`(카운터): 모든 개별 스킬에 대한 실행 결과를 모니터링하여 Grafana 대시보드에서 전체 "도구 효율성 비율"을 계산하기 위한 실시간 데이터를 제공합니다.
+
+### 프로덕션 경고 규칙(클라우드 배포)
+
+클라우드 호스팅 배포의 경우 Myrm에는 샌드박스 상태 및 안정성을 다루는 12개의 프로덕션 등급 Prometheus 알림 규칙이 제공됩니다.
+
+| Alert | Severity | Trigger |
+|-------|----------|---------|
+| ContainerPoolExhausted | Critical | Pool available = 0 for 5 min |
+| ContainerPoolLow | Warning | Pool available < 2 for 10 min |
+| HealthCheckFailureRateHigh | Critical | Failure rate > 20% for 5 min |
+| ContainerCreationSlow | Warning | P99 creation > 10s for 5 min |
+| ContainerOOMKills | Critical | Any OOM kill detected |
+| HotPoolExhausted | Critical | Hot pool = 0 for 5 min |
+
+각 경고에는 수정 단계를 위해 Enterprise Runbook에 연결되는 `runbook_url`이 포함되어 있습니다.
+
+### 그라파나 대시보드
+
+즉시 가져올 수 있는 Grafana 대시보드(`grafana-dashboard-sandbox.json`)는 컨테이너 풀 상태, 적중률, 상태 확인 성공률, 생성 대기 시간 및 핫 풀 가용성에 대한 실시간 시각화를 제공합니다. Grafana UI 또는 프로비저닝 디렉터리 마운트를 통해 가져옵니다.
+
+### 샌드박스 시작 안정성(2026-08)
+
+클라우드 샌드박스는 **2단계 볼륨 권한 초기화**(원샷 루트 컨테이너 + 기본 에이전트-서버)를 사용하므로 강화된 readonly-rootfs 사양에 따라 사용자별 영구 볼륨에 쓸 수 있습니다. 컨트롤 플레인은 샌드박스 ID를 반환하기 전에 **컨테이너가 실행될 때까지 기다립니다**. 심층 상태 확인은 일시적인 Docker API 간격을 재시도하여 "샌드박스가 생성되었지만 즉시 사라지는" 오류를 줄입니다. macOS 개발 호스트에서 비밀번호 없는 sudo를 사용할 수 없는 경우 핫 슬롯 바인드 마운트는 콜드 할당으로 대체됩니다(프로덕션 정직성 검사와 동일한 코드 경로).
+
+### 스마트 활성화/비활성화
+
+지표 수집은 배포 모드에 따라 자동으로 활성화되거나 비활성화됩니다. 로컬 및 데스크톱 배포는 오버헤드 없이 실행되는 반면, 클라우드 배포는 Prometheus 스크래핑을 위해 전체 `/metrics` 엔드포인트를 노출합니다.
+
+## 에이전트 활성 SSOT
+
+A single aggregated endpoint that tells you whether your agent is busy, idle, or degraded — no need to poll multiple APIs.
+
+```
+GET /api/v1/health/liveness
+```
+
+### 응답
+
+```json
+{
+  "state": "busy",
+  "agents": {
+    "activeCount": 2,
+    "maxConcurrent": 3,
+    "availableSlots": 1,
+    "sessions": [
+      {
+        "sessionId": "abc-123",
+        "chatId": "chat-456",
+        "agentType": "general",
+        "elapsedSeconds": 12.5
+      }
+    ]
+  },
+  "channels": {
+    "wechat": { "status": "connected" },
+    "telegram": { "status": "connected" }
+  },
+  "memory": {
+    "level": "NORMAL",
+    "percent": 42.3
+  },
+  "uptimeSeconds": 3600.5
+}
+```
+
+### 상태 논리
+
+| State | Condition |
+|-------|-----------|
+| `busy` | At least one agent session is actively running |
+| `degraded` | No active sessions, but a channel is disconnected or memory pressure is elevated |
+| `idle` | No active sessions, all channels healthy, memory normal |
+
+### 사용 사례
+
+- **전면 트레이/애완동물 표시기**: 이 끝점을 폴링하여 3가지 상태 아이콘을 표시합니다(회전 = 사용 중, 녹색 = 유휴, 황색 = 성능 저하)
+- **클라우드 모니터링**: `curl /api/v1/health/liveness | jq .state`은 Prometheus/Grafana 알림과 통합됩니다.
+- **다중 창 작업공간**: 설정을 열지 않고도 브라우저 탭 전체에 에이전트 가용성 표시
+
+### 주요 속성
+
+- **순수한 읽기 전용 집계**: I/O 없음, 데이터베이스 쿼리 없음 — 모든 데이터는 인메모리 게이트웨이 상태에서 나옵니다.
+- **밀리초 미만의 응답 시간**: 빈번한 폴링(2~5초마다)에 적합합니다.
+- **모든 배포 모드에서 작동**: 로컬 WebUI, Tauri 데스크톱 및 클라우드 호스팅

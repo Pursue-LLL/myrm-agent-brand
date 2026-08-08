@@ -12,10 +12,10 @@
  */
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils/classnameUtils';
-import { useDocsLocale } from '@/hooks/useDocsLocale';
+import type { Locale } from '@/i18n/config';
 import { getCloudBillingHref, getCloudRegisterHref } from '@/lib/cloud-paths';
 import {
   CLOUD_PLAN_KEYS,
@@ -29,8 +29,8 @@ function readPlanFeatures(raw: unknown): string[] {
 
 export default function CloudPricingSection() {
   const t = useTranslations('cloud');
-  const docsLocale = useDocsLocale();
-  const registerHref = getCloudRegisterHref(docsLocale);
+  const appLocale = useLocale() as Locale;
+  const registerHref = getCloudRegisterHref(appLocale);
 
   return (
     <section id="pricing" className="py-20 sm:py-32">
@@ -116,7 +116,7 @@ export default function CloudPricingSection() {
 
         <p className="ed-reveal mt-10 text-center text-sm" style={{ color: 'var(--ed-dim)' }}>
           {t('pricingPreview.billingNote')}{' '}
-          <a href={getCloudBillingHref(docsLocale)} className="font-medium transition-colors hover:text-[var(--ed-accent)]" style={{ color: 'var(--ed-accent)' }}>
+          <a href={getCloudBillingHref(appLocale)} className="font-medium transition-colors hover:text-[var(--ed-accent)]" style={{ color: 'var(--ed-accent)' }}>
             {t('pricingPreview.billingLink')} →
           </a>
         </p>

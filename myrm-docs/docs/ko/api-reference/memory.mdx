@@ -1,0 +1,93 @@
+---
+
+title: 메모리 API
+description: 프로그래밍 방식으로 에이전트 메모리에 액세스하고 관리합니다.
+---
+
+# 메모리 API
+
+## 메모리 항목 나열
+
+```bash
+GET /api/memory?type=semantic&page=1&page_size=20&sort_by=created_at&sort_order=desc&tag=python
+```
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `type` | string | all | Memory type filter: `semantic`, `episodic`, `procedural`, `conversation`, `task_digest` |
+| `page` | int | 1 | Page number (1-indexed) |
+| `page_size` | int | 20 | Items per page (max 100) |
+| `sort_by` | string | `created_at` | Sort field: `created_at`, `updated_at`, `importance` |
+| `sort_order` | string | `desc` | Sort direction: `asc` or `desc` |
+| `tag` | string | — | Filter by tag (case-insensitive) |
+| `search` | string | — | Semantic search query (uses vector similarity) |
+
+응답:
+
+```json
+{
+  "items": [...],
+  "total": 91,
+  "page": 1,
+  "page_size": 20,
+  "has_next": true,
+  "has_prev": false
+}
+```
+
+## 메모리 태그 가져오기
+
+```bash
+GET /api/memory/tags?limit=20
+```
+
+모든 메모리 유형에서 가장 자주 사용되는 태그를 해당 개수와 함께 반환합니다.
+
+## 메모리 검색
+
+```bash
+POST /api/memory/search
+```
+
+```json
+{
+  "query": "user preferences for coding style",
+  "limit": 10
+}
+```
+
+## 메모리 항목 생성
+
+```bash
+POST /api/memory
+```
+
+```json
+{
+  "type": "semantic",
+  "content": "User prefers TypeScript with strict mode",
+  "importance": 0.8
+}
+```
+
+## 메모리 항목 삭제
+
+```bash
+DELETE /api/memory/:id
+```
+
+## 메모리 명령 센터
+
+설정 UI에 대한 전체 메모리 시스템 상태 및 진단 스냅샷을 가져옵니다.
+
+```bash
+GET /api/v1/memory/command-center?project_id=<optional>
+```
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `project_id` | string | — | Optional project ID to scope the snapshot to a single project's memory spaces |
+
+응답에는 개요 통계, 메모리 공간, 거버넌스 항목, 상태 진단, 타임라인 이벤트, 마이그레이션 상태, 런타임 구성 등이 포함됩니다.
+
+`project_id`이 제공되면 `spaces`, `governance` 및 `timeline` 섹션이 필터링되어 해당 프로젝트의 SharedContext 바인딩과 관련된 데이터만 표시됩니다. 빈 문자열은 전역 보기로 정규화됩니다.

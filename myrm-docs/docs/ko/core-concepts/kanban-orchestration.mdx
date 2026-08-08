@@ -1,0 +1,403 @@
+---
+
+title: 칸반 및 하위 에이전트 오케스트레이션
+description: 다중 에이전트 워크플로를 위한 DAG 종속성과 7가지 오케스트레이션 패턴이 포함된 시각적 작업 보드입니다.
+---
+
+# 칸반 및 하위 에이전트 오케스트레이션
+
+Myrm은 복잡한 다단계 작업을 추적하기 위한 시각적 Kanban 보드와 7가지 오케스트레이션 패턴을 갖춘 강력한 하위 에이전트 시스템을 제공합니다.
+
+## 칸반 작업 보드
+
+Kanban 보드는 7개 열에 걸쳐 에이전트 작업을 관리할 수 있는 드래그 앤 드롭 인터페이스를 제공합니다.
+
+### 작업 상태
+
+| State | Description |
+|-------|-------------|
+| **Triage** | Rough idea just added — use AI Specify to refine into actionable description |
+| **Backlog** | Tasks waiting to be scheduled |
+| **Ready** | Dependencies met, available for pickup |
+| **Running** | Currently being executed by an agent |
+| **Completed** | Successfully finished and verified |
+| **Failed** | Execution failed (auto-retry or manual review) |
+| **Blocked** | Waiting on external input or a dependency |
+| **Archived** | Completed tasks moved out of the active board |
+
+### 주요 기능
+
+<CardGroup cols={2}>
+  <Card title="DAG 종속성" icon="diagram-project">
+작업 종속성을 방향성 비순환 그래프로 정의합니다. 모든 업스트림 종속성이 완료되면 작업이 자동으로 시작됩니다. 주기 감지는 교착 상태를 방지합니다.
+  </Card>
+  <Card title="우선순위 스케줄링" icon="arrow-up-1-9">
+4가지 우선순위 수준(긴급/높음/보통/낮음)으로 다음 사용 가능한 작업자에게 자동으로 파견됩니다.
+  </Card>
+  <Card title="좀비 감지" icon="ghost">
+하트비트 모니터링은 중단된 작업을 감지합니다. 작업이 진행 상황 보고를 중지하면 자동으로 회수되고 재할당됩니다.
+  </Card>
+  <Card title="일시적인 오류 복구" icon="rotate">
+429/503 API 속도 제한이 스마트 백오프를 트리거합니다. 작업이 15분 동안 일시 중지된 후 자동으로 다시 시도됩니다. 수동 개입이 필요하지 않습니다.
+  </Card>
+  <Card title="즉시 취소" icon="circle-stop">
+작업을 취소하면 LLM 실행이 밀리초 내에 중지됩니다. 토큰 낭비가 없습니다. 실행 중인 작업과 대기 중인 작업 모두에서 작동합니다.
+  </Card>
+  <Card title="즉각적인 충돌 복구" icon="power">
+서버를 다시 시작하면 분리된 작업이 1초 이내에 회수되므로 시간 초과 주기를 기다리지 않아도 됩니다. 영구 스토리지와 결합하면 장기 실행 작업이 충돌 시에도 데이터 손실 없이 살아남습니다.
+  </Card>
+  <Card title="목표 모드" icon="bullseye">
+자율적인 다중 회전 실행을 위해 모든 작업 카드에서 목표 모드를 활성화합니다. 에이전트는 채팅 목표와 동일한 4D 예산 제어, 의미 체계 검증 및 14계층 데드 루프 보호를 통해 작업 목표를 향해 반복적으로 작업합니다. [목표관리](/ko/guides/goal-management#kanban-goal-mode)를 참고하세요.
+  </Card>
+</CardGroup>
+
+### 역할 기반 칸반 LLM 도구
+
+Kanban 도구는 **선택** 및 **역할 지정**을 통해 토큰을 저장하고 오용을 줄입니다.
+
+| Context | Tools bound | Count |
+|---------|-------------|------:|
+| Default chat (Kanban off) | None | 0 |
+| Chat with Kanban enabled | Orchestrator set (add, list with optional stats, unblock) | 3 |
+| Kanban task worker | Worker set (show, complete, block, heartbeat, comment, attach) | 6 |
+
+보드 생성/목록 CRUD는 **REST/GUI만** 유지되며 LLM 도구 슬롯이 낭비되지 않습니다. DAG 에지에는 `kanban_add_task.depends_on`을 사용하세요. `kanban_list_tasks`은 단일 작업 조회의 경우 선택적인 `task_id`를 허용하고 보드 수의 경우 `include_stats=true`을 허용합니다. 더 많은 행이 존재하는 경우 보드 목록은 기본적으로 `truncated` 메타데이터를 사용하여 **50개 작업**(최대 200개)으로 설정되며 REST API 및 Hermes에 맞춰 정렬됩니다.
+
+Myrm로 마이그레이션하는 Hermes 사용자는 동일한 **작업자 대 오케스트레이터** 분할과 시각적 Kanban GUI, DAG 예약 및 CompletionVerifier를 얻습니다. OpenClaw에는 **0** LLM 도구가 있는 디스플레이 전용 워크보드가 있습니다. deer-flow / LobsterAI / CoPaw / jiuwenclaw는 **제로** 기본 Kanban LLM 도구를 노출합니다.
+
+### 아키텍처 수준 거짓말 방지
+
+Hermes은 런타임 `_verify_created_cards` + `_scan_prose_for_phantom_ids`을 구현하여 에이전트가 하위 작업을 생성했다고 허위로 주장하는 경우를 감지합니다. Hermes은 **모든** 에이전트에 `kanban_create` 및 `kanban_complete` 도구를 모두 제공하기 때문에 이는 필요합니다.
+
+Myrm은 이 문제를 구조적으로 해결합니다. **작업자는 작업을 생성할 수 없습니다**(근로자에게는 6개의 도구가 있는데 그 중 어느 것도 `kanban_add_task`이 아닙니다). 오케스트레이터만 작업을 생성할 수 있고 작업자만 작업을 완료할 수 있습니다. 이러한 도구 표면 분리로 인해 작업자가 하위 작업 생성에 대해 거짓말을 하는 것이 구조적으로 불가능해지며 런타임 DB 확인이 필요하지 않습니다.
+
+기존 **CompletionVerifier**(Shell + Semantic 이중 레이어 품질 게이트) 및 **TaskEdge를 통한 DAG 종속성**(다운스트림 프로모션은 요약 구문을 구문 분석하지 않음)과 결합된 Myrm은 런타임 패치가 아닌 아키텍처를 통해 더 강력한 환각 방지 보장을 제공합니다.
+
+### 채팅 ← 게시판 폐쇄 (Lean CORE)
+
+Chat에서 Kanban을 활성화하면 성공적인 `kanban_add_task`은 스레드(제목, 보드, 상태, 작업 ID)에서 **`KanbanTaskCreatedCard`**을 렌더링하고 `extra_data.kanban_tasks_created`에서 유지하므로 카드가 새로 고침 및 재개 후에도 유지됩니다.
+
+**온보드 보기**는 `source_chat_id`으로 범위가 지정된 필터링된 Kanban 보기를 엽니다. Pipeline/Decompose의 하위 작업은 원래 채팅의 `source_chat_id`을 상속합니다.
+
+| Capability | Hermes | OpenClaw | Myrm |
+|------------|--------|----------|------|
+| Chat-side Kanban tools | ✅ modular @tools | ❌ none | ✅ orchestrator 3 (opt-in) |
+| GUI success receipt card | ❌ CLI output | ❌ none | ✅ KanbanTaskCreatedCard |
+| One-click filtered board jump | ❌ | ❌ | ✅ source_chat deep link |
+| Large-board list token guard | ⚠️ config-dependent | N/A | ✅ auto scope + 50/200 limit |
+
+**인증됨(2026-07-21)**: Chrome E2E #4(시드 픽스처 → 성공 카드 → 딥 링크) + Vitest TOOL_END 단위 테스트 + 라이브 에이전트 스트림 e2e 2/2.
+
+### 자율파견(자칭근로자)
+
+인기 있는 에이전트 팀 튜토리얼에서는 **리드가 모든 작업을 수동으로 할당**, 작업자가 **5초마다 폴링**, 경쟁이 발생하기 쉬운 주장이 포함된 파일 기반 작업 보드에 대해 설명합니다. Myrm은 프로덕션 등급 대안을 제공합니다.
+
+| Tutorial pain | What you get in Myrm |
+|---------------|----------------------|
+| Lead assigns task-by-task | **Workers self-claim** — create the DAG once; dispatch is automatic |
+| 5s idle polling | **Event-driven wake** — tasks start in milliseconds, near-zero idle CPU |
+| Ghost claims / file locks | **SQL atomic claim** — one worker wins, others fail cleanly |
+| Lead watches CLI `[Inbox]` logs | **Live Activity Feed** — promoted/completed/failed events over SSE + optional IM alerts |
+| Shared folder write conflicts | **Per-task Git worktree** — parallel agents on the same repo without overwriting each other |
+
+**마이그레이션 요점:** 튜토리얼 스타일의 상담원 팀을 사용한 경우 "계획을 주도하면 직원이 실행합니다"라는 정신 모델을 유지하되 파견 담당자 역할을 중단하세요. 보드는 지점 간 명령이 아닌 공유 상태를 통해 조정합니다.
+
+**인증됨(2026-07-10)**: 429개의 하네스 테스트(96% 적용 범위) + 20개의 서버 바인딩 테스트 + 라이브 에이전트 스트림 e2e + Chrome 보드/채팅 UI E2E — 모두 녹색입니다.
+
+**PTC 대 기본 도구:** 일회성 호출에는 **기본** `web_search_tool` / `grep_tool`을 사용합니다. 동일한 스크립트가 많은 도구를 RPC하고 하나의 요약을 반환해야 하는 경우에만 **PTC**(`bash_code_execute_tool`의 Python)를 사용하십시오. bash 명령어는 더 이상 웹 검색을 PTC 예로 사용하지 않습니다(Hermes과 일치: 오용을 방지하기 위해 비활성화된 도구를 스키마에서 생략).
+
+### 작업 결과 편집
+
+완료, 실패 또는 취소된 작업은 프런트엔드의 작업 서랍에서 직접 `result` 및 `metadata` 필드를 편집할 수 있습니다.
+
+- 작업 카드 클릭 → 서랍 열기 → 결과 인라인 편집
+- 작업 실행에 방해가 되지 않도록 터미널 상태의 작업(완료/실패/취소)에만 사용할 수 있습니다.
+- 각 편집은 변경된 필드를 나열하는 페이로드와 함께 `EDITED` 이벤트를 내보내 활동 피드에 전체 감사 추적을 제공합니다.
+- 메타데이터는 추가로 병합됩니다. 명시적으로 덮어쓰지 않는 한 기존 키는 유지됩니다.
+
+### 이벤트 타임라인 및 실행 내역
+
+작업 서랍에는 작업 수준 추적성을 위한 전체 **이벤트 타임라인** 및 **실행 기록** 패널이 포함되어 있습니다.
+
+- **실행 기록**: 각 실행 시도에는 결과(성공/실패/취소), 기간, 작업자 ID 및 에이전트 생성 요약이 표시됩니다. 실패한 실행에는 오류 메시지가 포함됩니다.
+- **이벤트 타임라인**: 사용자 댓글, 하트비트 메모, 분기 전환, 확인 실패, 시간 초과 등 색상으로 구분된 배지가 포함된 시간별로 정렬된 작업 수명 주기 이벤트 스트림입니다. 각 이벤트에는 타임스탬프와 페이로드 세부정보가 표시됩니다.
+- **진단**: 상태 규칙(죽은 종속성, 장기 실행, 오래된 작업)이 평가되어 작업 카드에 심각도 배지로 표시됩니다.
+
+### 파이프라인 마법사
+
+복잡한 워크플로의 경우 **파이프라인 마법사**를 사용하여 템플릿에서 작업 DAG를 만듭니다.
+
+1. **칸반 > 새 파이프라인**으로 이동합니다.
+2. 템플릿 선택(7개 내장: 코드 리뷰, 데이터 분석, 연구 논문, 영상 제작, 다주제 연구, 콘텐츠 배포, 경쟁 분석)
+3. 검색 질문에 답변 — 다중 선택 답변은 **repeat_for fan-out**(0 LLM 호출, 결정적)을 통해 자동으로 병렬 작업을 생성합니다.
+4. 검토 및 실행 - 작업은 20개의 병렬 작업의 안전 상한선을 사용하여 종속 순서로 실행됩니다.
+
+사용자 정의 템플릿은 스킬 파일에서 YAML 머리말로 정의되어 재사용이 가능하고 버전 관리가 가능합니다. 작업 시드의 `repeat_for` 필드는 사용자 다중 선택 입력을 기반으로 단일 템플릿 노드를 N개의 병렬 작업으로 전환합니다.
+
+### Git 작업 트리 격리
+
+각 Kanban 작업은 선택적으로 격리된 Git 작업 트리에서 실행될 수 있습니다.
+
+- 병렬 작업자는 충돌 없이 동일한 저장소를 편집합니다.
+- 각 작업은 자체 분기를 갖습니다.
+- 완료 시 변경 사항을 작업별 PR로 병합할 수 있습니다.
+
+---
+
+## 하위 에이전트 오케스트레이션
+
+단일 에이전트로는 충분하지 않은 경우 Myrm의 하위 에이전트 시스템을 사용하면 6가지 패턴과 동적 검색 기능을 통해 다중 에이전트 협업이 가능합니다.
+
+### 동적 에이전트 검색 및 @멘션
+
+Myrm은 직관적이고 Coze와 같은 동적 검색 및 위임 메커니즘을 지원합니다.
+
+- **동적 명단:** `allow_discovery`이 활성화된 에이전트는 시스템의 동적 카탈로그에 자동으로 등록됩니다. 주 에이전트(기획자/리더)는 이 명단을 동적으로 가져오고 시스템 지시문을 통해 사용 가능한 팀원의 능력에 대해 알아봅니다.
+- **명시적 @ 멘션:** 채팅 UI에서 사용자는 간단히 `@`을 입력하여 ReferenceMentionPopover를 표시하고 상담원 이름을 자동 완성하고 메시지에 명시적으로 태그를 지정할 수 있습니다. 
+- **Forced Attention:** 에이전트에 태그가 지정되면 백엔드는 Forced Attention 지시문을 주입하여 주 에이전트가 요청을 환각하거나 무시하는 대신 태그된 하위 에이전트에 작업을 위임하도록 보장합니다.
+- **화자 신원:** `memory_context_middleware`는 AI 메시지에 `[Agent: {Name}]` 접두사를 삽입하여 에이전트가 누가 무슨 말을 했는지 잊어버리는 "분할 두뇌" 환각을 완전히 제거합니다.
+
+### 오케스트레이션 패턴
+
+| Pattern | Description | Use Case |
+|---------|-------------|----------|
+| **Spawn** | Single child agent delegation | Offload a side task without blocking the parent |
+| **Chain** | Sequential A → B → C | Multi-step pipelines where order matters |
+| **Batch** | Parallel independent tasks | Research across multiple topics simultaneously |
+| **DAG** | Directed graph with dependencies | Complex workflows with prerequisites |
+| **Verified** | Worker + independent Verifier | Critical tasks requiring cross-validation |
+| **Swarm Fission** | Autonomous fission/merge | Exploratory tasks that may spawn sub-tasks dynamically |
+| **Alternatives** | N agents produce competing solutions | Generate multiple approaches, user picks the best one |
+
+### 검증된 패턴(적대적 검증 및 제로 트러스트)
+
+확인된 패턴은 에이전트가 "자체 등급 지정" 또는 성공 환각을 방지합니다.
+
+1. **Worker** 에이전트가 작업을 실행합니다.
+2. **작업 공간 차이 주입**: 시스템은 작업자 실행 전후에 작업 공간의 통계 기반 스냅샷을 자동으로 찍은 다음 사람이 읽을 수 있는 파일 변경 차이를 검증기의 프롬프트에 주입합니다. 즉 작업자가 보고한 내용에 관계없이 수정, 추가 및 제거된 모든 파일을 노출합니다.
+3. **물리적 증거 필요**: 작업자는 자연어 요약 대신 구조적 `verifiable_credentials`(예: 파일 경로, CLI 종료 코드)을 반환해야 합니다. 물적 증거 없이 PASS를 주장하면 FAIL이 됩니다.
+4. **검증자** 에이전트는 읽기 전용 샌드박스에서 결과, 작업공간 차이, 물리적 증거를 독립적으로 검토합니다.
+5. 검증에 실패하면 작업자는 검증자의 피드백을 받아 재시도합니다.
+6. **실시간 판정 이벤트**: 각 검증 라운드는 구조화된 `VERIFICATION_VERDICT` SSE 이벤트를 프런트엔드에 내보내어 채팅 진행 단계에서 통과/실패 상태, 신뢰 수준 및 조사 결과 요약을 표시합니다.
+7. 최대 재시도 횟수를 구성할 수 있습니다.
+
+이는 중요한 작업에 대한 고품질 출력을 보장하고 "환각적인 성공"을 완전히 근절합니다.
+
+### 예산 통제 및 회로 차단기
+
+하위 에이전트는 엄격한 예산 및 논리 제한에 따라 운영됩니다.
+
+| Dimension | Description |
+|-----------|-------------|
+| `max_descendants` | Maximum total sub-agents spawned (default: 20) |
+| `max_children_per_agent` | Maximum direct children per agent (default: 5) |
+| `max_spawn_depth` | Maximum nesting depth |
+| `context_budget` | Independent token budget per sub-agent |
+| `budget_tokens` / `max_cost_usd` | Hard spending limits |
+| `max_agent_iterations` | **Circuit Breaker:** Physical iteration steps limit to prevent infinite loops |
+
+**스마트 모델 다운그레이드**: 예산이 거의 소진되거나 특정 한도가 발생하면 Myrm은(는) 값비싼 추론 모델에서 더 저렴하고 빠른 모델로 하위 에이전트를 자동으로 다운그레이드하여 작업을 완료하려고 시도하는 동안 예산 소모를 방지할 수 있습니다. 예산 소진은 소리 없는 실패가 아닌 분명한 이유가 있는 구조적 오류를 낳습니다.
+
+### 에이전트 간 통신(ATA)
+
+여러 에이전트가 관련 작업에 대해 협업하는 경우 상위 코디네이터를 통하지 않고 직접 통신할 수 있습니다.
+
+- **`kanban_comment`** — 모든 작업자는 자신의 작업 스레드뿐만 아니라 모든 작업 스레드에 댓글을 남기고 중간 결과를 공유하고 문제에 플래그를 지정하거나 형제 작업과 조정할 수 있습니다. 댓글은 Markdown을 지원하며 이벤트 타임라인에 작성자 ID와 함께 표시됩니다.
+- **`TeammateMailbox` P2P** — 에이전트 간 직접 메시징을 위한 JSONL 지속성을 갖춘 세션 범위 사서함입니다. 메시지는 프로세스를 다시 시작해도 유지됩니다. 내장된 속도 제한(60초당 발신자당 메시지 30개)은 에이전트 통신 폭풍을 방지합니다.
+- **에이전트 ID** — Kanban UI의 각 작업 카드에는 할당된 에이전트의 이름과 아바타가 표시됩니다. 작업 서랍에는 아바타 미리보기가 포함된 전체 상담원 할당 드롭다운이 포함되어 있어 팀 구성을 한눈에 볼 수 있습니다.
+- **다중 모드 컨텍스트** — 작업은 `TaskAttachment`를 통한 파일 첨부를 지원하며 컨텍스트 빌더는 비전 지원 모델에 대한 다중 모드 쿼리(텍스트 + 이미지)를 자동으로 조합합니다.
+- **보드에서 원클릭 첨부** — 작업자가 파일을 첨부하면 작업 카드에 클립 배지가 표시됩니다. 한 번의 클릭으로 작업 서랍이 열리고 미리 보거나 다운로드할 수 있습니다. 숨겨진 더블클릭 단축키가 필요하지 않습니다.
+
+### 작업 공간 격리 및 UI 블랙리스트
+
+각 하위 에이전트는 격리된 작업 공간과 시스템 샌드박스에서 실행됩니다.
+
+- **CoW 복제** — 기록 시 복사 작업 공간 복제
+- **정확한 동기화** — 수정된 파일만 다시 동기화됩니다.
+- **.git 보호** — Git 디렉터리가 작업에서 제외됩니다.
+- **자동 GC** — 3계층 가비지 수집(오래된 이벤트, 실행 레코드, 작업공간 디렉토리)이 6시간마다 및 시작 시 실행됩니다. 보관된 작업 작업 공간은 하네스-디렉터리 경계 검사를 통해 안전하게 삭제되고 DB 경로는 반복 검색을 방지하기 위해 null로 처리됩니다. 수동 유지 관리가 필요하지 않습니다.
+- **UI 상호 작용 블랙리스트** — 백그라운드에서 실행되는 하위 에이전트는 UI 상호 작용 인터페이스(예: `interactive_feedback` 또는 `send_message`)를 사용하는 것이 물리적으로 완전히 차단되어 예기치 않게 사용자를 방해하는 창이 팝업되지 않습니다.
+
+### 라인 레벨 충돌 감지
+
+여러 하위 에이전트가 동일한 코드베이스에서 동시에 작업하는 경우 Myrm은 라인 수준 충돌 감지를 통해 파일 손상을 방지합니다.
+
+- **쓰기 전 검사** — 파일을 쓰기 전에 시스템은 최근에 다른 에이전트가 동일한 파일에서 겹치는 줄 범위를 수정했는지 확인합니다.
+- **이중 심각도 응답** — 줄 범위가 겹치면 차단 오류가 발생하고(쓰기 방지) 동일한 파일의 다른 영역을 편집하면 비차단 경고가 생성됩니다.
+- **제로 네트워크 오버헤드** — 충돌 감지는 제어 평면 왕복 없이 하네스 계층 내에서 완전히 실행됩니다.
+- **자동 정리** — 하위 에이전트가 완료되면 해당 파일 활동 기록이 지워집니다.
+
+이 접근 방식은 일부 경쟁업체에서 사용하는 의미 거리 기반 충돌 감지보다 훨씬 더 정확합니다. 즉, 대략적인 의미 근접성이 아닌 정확한 라인 범위에서 작동합니다.
+
+### 원활한 인간 참여 루프(HITL)
+
+에이전트가 체크포인트에 도달하거나 승인(예: `PENDING_APPROVAL`)이 필요한 경우 사용자에게 UI 팝업이 표시됩니다. 
+단순한 수락/거부 외에도 Myrm의 HITL은 **컨텍스트 주입**을 지원합니다. 사용자는 명시적인 텍스트 지침("잠깐만요. 색상도 빨간색으로 변경하세요")을 제공할 수 있으며 에이전트는 이 주입된 컨텍스트를 원활하게 재개합니다.
+
+### 치명적이지 않은 시간 초과
+
+대부분의 에이전트 프레임워크는 시간 예산을 초과하는 하위 에이전트를 종료합니다. 모든 진행 상황이 손실되므로 처음부터 다시 시작해야 합니다.
+
+Myrm은 근본적으로 다른 접근 방식을 취합니다. **시간이 초과된 하위 에이전트는 백그라운드에서 계속 실행됩니다**.
+
+- 상위 에이전트는 `still_running: true`으로 부분 결과를 수신하므로 즉시 다른 작업을 계속할 수 있습니다.
+- 하위 에이전트가 완료되면 **이벤트 기반 콜백**이 상위 에이전트를 자동으로 깨웁니다. 폴링이나 수동 확인이 필요하지 않습니다.
+- 완료된 결과는 의미상 깨끗한 직렬화를 통해 상위 항목의 다음 차례에 사용할 수 있습니다(오해의 소지가 있는 완료 타임스탬프 없음).
+- **3가지 취소 전략**(즉시/정상/체크포인트)을 통해 하위 에이전트를 중지하려는 경우 세밀한 제어가 가능합니다.
+
+**이것이 의미하는 바:** 장기 실행 연구 작업, 코드 생성 또는 복잡한 분석은 임의의 시간 초과로 인해 진행 상황을 잃지 않습니다. 상담원은 실제 팀처럼 일합니다. 누군가 예상보다 오래 걸리는 경우 팀은 계속 움직이며 준비가 되면 결과를 가져옵니다.
+
+### 위임 하트비트 및 게이트웨이 Keepalive
+
+하위 에이전트가 몇 분 동안 실행되는 경우(대규모 코드 리팩터링, 심층 조사, 복잡한 분석) 상위 에이전트의 SSE 연결은 활성 상태로 유지되어야 합니다. 그렇지 않으면 프록시, 로드 밸런서 또는 게이트웨이 자체가 유휴 연결을 끊고 사용자에게 알 수 없는 연결 끊김이 표시됩니다.
+
+Myrm은 **3개의 보완적인 하트비트 레이어**를 사용하여 이 문제를 해결합니다.
+
+1. **도구 수준 하트비트** — 모든 도구 호출(`delegate_task` 자체 포함)은 경과 시간과 함께 3초마다 `TOOL_HEARTBEAT` SSE 이벤트를 발생시킵니다. 이렇게 하면 도구가 실행되는 동안 상위 스트림이 활성 상태로 유지됩니다.
+2. **이벤트 전달** — `SubagentEventForwarder`는 14개의 하위 이벤트 유형을 상위 표시 SSE 이벤트(진행률 %, 도구 로그, 상태)로 변환합니다. 전달된 각 이벤트는 자연스럽게 연결을 새로 고칩니다.
+3. **부실 감지** — 구성 가능한 임계값 내에서 효과적인 진행(토큰 증가 또는 도구 완료)이 발생하지 않으면 진단 컨텍스트(낭비된 토큰, 비용, 현재 도구)와 함께 `SUBAGENT_STALE` 이벤트가 발생합니다. 도구 내 실행에서는 긴 계산 중에 잘못된 긍정을 방지하기 위해 완화된 승수를 사용합니다.
+
+게이트웨이의 3계층 시간 제한 전략(목표 모드: 1시간, 핵분열: 2배 기본값, 표준: 5분)과 결합되어 30분 이상 실행되는 하위 에이전트의 경우에도 위임이 중단되지 않습니다.
+
+**대 경쟁사:** 다른 프레임워크(마케팅에서 "위임 하트비트"를 주장하는 프레임워크 포함)에는 실제 구현이 부족합니다. 장기 실행 하위 작업이 자동으로 연결 해제되어 사용자가 처음부터 다시 시도해야 합니다.
+
+---
+
+## 완료 확인
+
+Kanban이든 대화이든 모든 작업은 완료로 표시되기 전에 확인할 수 있습니다.
+
+### 완료 검증 프로토콜
+
+```python
+class CompletionVerifier(Protocol):
+    async def verify(self, task: KanbanTask, result: str) -> VerificationResult: ...
+```
+
+검증 결과는 다음과 같습니다.
+- `passed` — 작업이 승인 기준을 충족하는지 여부
+- `reason` — 판결 설명
+- `error_logs` — 발견된 특정 문제
+
+### 목표 수준 확인
+
+목표는 비용 최적화된 실행 순서로 계층화된 검증을 지원합니다.
+
+1. **쉘 검증(0 LLM 비용)** — 샌드박스에서 객관적인 명령을 실행합니다(예: `test -f /output.csv`, `curl -sf localhost:8080/health`). 오류가 발생하면 즉시 단락됩니다. LLM 호출이 필요하지 않습니다.
+2. **의미론적 검증(LLM 판단)** — 모든 쉘 기준을 통과한 경우에만 트리거됩니다. 독립적인 LLM은 주관적인 품질 문제를 파악하기 위해 승인 기준에 따라 결과를 평가합니다.
+
+이러한 계층적 접근 방식은 품질 평가를 위한 의미론적 깊이를 유지하면서 객관적으로 검증 가능한 기준에 대한 불필요한 LLM 비용을 제거합니다.
+
+---
+
+## 작업 진단
+
+Myrm에는 건강에 해로운 작업을 사전에 감지하고 실행 가능한 권장 사항을 제시하는 진단 엔진이 내장되어 있습니다.
+
+### 6가지 진단 규칙
+
+| Rule | Detects | Action |
+|------|---------|--------|
+| **Stranded in Ready** | Task sitting in READY too long without being picked up | Archive or check dispatcher |
+| **Repeated Failures** | High consecutive failure count (auto-blocked) | Review task description or archive |
+| **Stuck in Blocked** | Task blocked for too long without resolution | Add comment, unblock, or archive |
+| **Dead Dependency** | All parent tasks are in terminal failed/archived state | Archive the orphaned task |
+| **Stranded in Triage** | Rough idea sitting in TRIAGE without being specified | Run Specify or archive |
+| **Block→Unblock Cycling** | Task repeatedly blocked by agent after being unblocked — root cause not addressed | Review block reasons, try different intervention |
+
+### 심각도 자동 에스컬레이션
+
+각 규칙은 작업이 임계값을 얼마나 지나갔는지에 따라 심각도를 자동으로 높입니다.
+
+- **경고**(1×–2× 임계값) — 카드에 노란색 배지
+- **오류**(2×–7× 임계값) — 주황색 배지
+- **중요**(≥7× 임계값) — 긴급한 주의가 필요한 빨간색 배지
+
+### 카드 레벨 배지
+
+진단 결과는 카드당 O(1) 비용으로 평가되며 Kanban 카드에 직접 심각도 배지로 표시됩니다. 배지를 클릭하면 자세한 설명과 원클릭 작업 버튼(보관, 차단 해제, 댓글 추가 등)이 포함된 진단 서랍이 열립니다.
+
+### 작업 IM 알림
+
+작업이 완료되거나 실패하거나 **차단**되면 Myrm은(는) 구성된 모든 IM 채널(Feishu / DingTalk / WeCom / Telegram / Slack / Discord 등)에 작업 제목과 간략한 요약이 포함된 알림을 즉시 푸시합니다.
+
+- **완료됨** — 결과 요약과 함께 성공 알림
+- **실패** — 오류 컨텍스트가 포함된 실패 알림
+- **차단됨** — 즉시 개입할 수 있도록 차단 이유를 즉시 알려줍니다. 예약된 재시도 블록(예: "15분 후 재시도")은 알림 소음을 피하기 위해 자동으로 필터링됩니다.
+
+모든 알림 템플릿은 4가지 로케일(en / zh-CN / zh-TW / ja)을 지원하며 사용자의 언어 기본 설정에 자동으로 맞춰집니다.
+
+---
+
+## 하위 에이전트 대시보드 GUI
+
+Myrm은 단일 패널에서 모든 하위 에이전트를 모니터링하고 제어할 수 있는 전용 실시간 대시보드를 제공합니다.
+
+<CardGroup cols={3}>
+  <Card title="트리 토폴로지 보기" icon="sitemap">
+12가지 상태 유형(보류 중/실행 중/확인 중/완료/실패/timed_out/취소/cancelled_by_budget/pending_approval/yielded/중단/체크포인트)을 사용하여 생성된 모든 하위 에이전트의 계층적 트리 시각화. 특정 실행 체인에 집중하려면 분기를 확장하거나 축소하세요.
+  </Card>
+  <Card title="실시간 제어" icon="gamepad">
+대시보드에서 직접 실행 중인 하위 에이전트를 취소, 조정 또는 재개하세요. 실행 중에 에이전트 동작을 조정하려면 조종 입력을 통해 런타임 지침을 보내십시오. 다시 시작할 필요가 없습니다.
+  </Card>
+  <Card title="초과 근무 감지" icon="clock">
+이중 전략을 기반으로 한 지능형 시간 초과 알림: ETA 기반(예상 기간의 2배) 및 진행률 기반(>90초, <30% 진행률). 해제할 수 있는 경고는 차단하지 않고도 계속해서 정보를 제공합니다.
+  </Card>
+  <Card title="비용 추적" icon="dollar-sign">
+에이전트당 비용 표시에는 각 하위 에이전트에 대한 실시간 지출(cost_usd)이 표시되므로 전체 에이전트 전체에 걸쳐 정확한 예산 모니터링이 가능합니다.
+  </Card>
+  <Card title="군집 핵분열 진행" icon="chart-bar">
+부분 실패 감지와 함께 완료/실패/전체 수를 표시하는 Swarm Fission 작업에 대한 일괄 진행률 표시기입니다.
+  </Card>
+  <Card title="승인 탐색" icon="shield-check">
+간편한 시각적 추적을 위한 하이라이트 애니메이션을 통해 대시보드에서 채팅 흐름의 관련 승인 카드로 원클릭으로 이동할 수 있습니다.
+  </Card>
+</CardGroup>
+
+---
+
+## 대안과 비교
+
+| What you get | Myrm | Hermes Agent | OpenClaw |
+|--------------|------|--------------|----------|
+| **For users** | Drag-and-drop board, live progress, one-click fix for stuck tasks | Powerful CLI board, but mostly terminal-driven | Plugin/community boards; core product is messaging + cron |
+| **Scheduling** | Event-driven — tasks start immediately when ready | Polls every ~60s (`dispatch_once` tick) | Relies on cron jobs or external MCP boards |
+| **Completion quality** | LLM verification gate before marking done | Prompt-only; no built-in verifier | No first-class verifier |
+| **Token cost** | Kanban tools load only when enabled in agent profile (948–2,783 tokens by role) | Kanban guidance injected when tools are present | N/A (external tools) |
+| **Migration** | Hermes users keep familiar concepts (Triage, Specify, worktrees, worker tools) with a full GUI | — | OpenClaw users gain a native board instead of stitching JSON + cron + MCP |
+
+---
+
+1. **칸반 보드**: 사이드바에서 칸반 페이지로 이동합니다.
+2. **작업 만들기**: "새 작업"을 클릭하고 수행해야 할 작업을 설명합니다.
+3. **종속성 설정**: 작업 간 연결을 드래그하여 실행 순서 정의
+4. **실행**: 우선순위 및 종속성 순서에 따라 작업이 자동 실행됩니다.
+5. **모니터**: 하트비트 업데이트로 실시간 진행 상황을 확인하세요.
+
+하위 에이전트 오케스트레이션의 경우 복잡한 작업을 에이전트에 설명하기만 하면 적절한 패턴을 사용하여 자동으로 분해 및 위임됩니다.
+
+**검증됨**: Kanban 하네스 **429** 전용 테스트(목록 제한/잘림 포함), sub_agents **780**, 서버 Kanban 바인딩 통합 **10** + 라이브 에이전트 스트림 e2e **1** + 프런트엔드 **110** 총 1800개 이상. 19개 이벤트 유형(StrEnum 유형 안전)이 포함된 8가지 상태 수명 주기. 이벤트 기반 디스패치는 경쟁업체의 60년대 폴링에 비해 MS 수준 응답을 확인했습니다. 모든 테스트를 100% 통과했습니다(2026-07-10).
+
+## 외부 에이전트 위임
+
+내부 하위 에이전트 외에도 Myrm은 작업을 **모든 외부 AI 에이전트**(Claude Code, Codex CLI, Gemini CLI 또는 사용자 정의 CLI/ACP/SDK 호환 에이전트)에 위임할 수 있습니다.
+
+### 주요 기능
+
+| Feature | Description |
+|---------|-------------|
+| **3 Runtime Backends** | CLI (spawn process), ACP (protocol), SDK (direct integration) |
+| **MCP Tool Injection** | ACP/SDK runtimes pass Myrm tools (memory, web_search, skills) to external agents |
+| **Session Reuse** | `persistent` mode maintains state across delegations (CLI `--resume`) |
+| **Safety Callbacks** | Permission requests + file I/O safety boundary (AcpCallbackHandler) |
+| **Per-Chat Pool** | One RuntimePool per conversation with idle cleanup and turn serialization |
+| **Vendor-Agnostic** | Not locked to any single provider (competitors only support Codex) |
+
+### 용법
+
+어떤 대화에서든 `delegate_to_agent_tool`을 사용하세요.
+- **agent_name**: 구성된 백엔드(예: `claude-code`, `codex`, `gemini`)
+- **작업**: 필요한 모든 컨텍스트가 포함된 완전한 작업 설명
+- **모드**: `persistent`(재사용 세션) 또는 `oneshot`(매번 새로 고침)
+
+**검증됨**: 377개의 위임/런타임 테스트 통과(2026년 7월) — 하네스 ACP 332 + 서버 외부 에이전트 28 + 서버 마이그레이션 17.

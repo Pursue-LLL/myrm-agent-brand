@@ -1,0 +1,60 @@
+---
+
+title: 개발 설정
+description: Myrm(OSS 제품 + 하네스 모노레포)에 대한 개발 환경을 설정하세요.
+---
+
+# 개발 설정
+
+## 오픈소스 제품(`myrm-agent`)
+
+프런트엔드 + 서버 전용. 하네스는 `uv sync`을 통해 PyPI에서 설치됩니다.
+
+**전제 조건:** Git, [uv](https://docs.astral.sh/uv/), [Bun](https://bun.sh), Python 3.13(uv가 설치함).
+
+```bash
+git clone https://github.com/Pursue-LLL/myrm-agent.git
+cd myrm-agent
+myrm setup
+```
+
+| Terminal | Command |
+|----------|---------|
+| Backend | `myrm start` or `./scripts/dev/run_server.sh --webui` |
+| Frontend | `cd myrm-agent-frontend && bun run dev` |
+
+편집 가능한 하네스를 모노레포에 설치한 후 `uv run run.py` 대신 `.venv/bin/python run.py`(또는 `myrm start`)을 사용하십시오. — `uv run`은 잠금을 다시 해결하고 Windows 전용 휠이 잠금 파일에 있는 경우 macOS에서 실패할 수 있습니다.
+
+## 전체 모노레포(하네스 + 에이전트)
+
+하네스 프레임워크 작업의 경우 `myrm-agent` 및 `myrm-agent-harness` 형제를 사용하여 **vortexai** 모노레포(비공개)를 복제한 후 다음을 수행합니다.
+
+```bash
+./myrm setup            # editable harness into server venv (vortexai root)
+git pull && ./myrm ready  # harness self-heal + :8080/:3000 (same path as ./myrm start)
+./myrm test -n0 <paths>   # all pytest via gate; do not use uv run pytest in monorepo
+```
+
+실제 로그인된 Chrome에서 MCP UI 확인의 경우: `./myrm ready --chrome`(`MAINTAINER_QUICKSTART.md` 참조).
+
+## 테스트 실행
+
+```bash
+# Frontend (myrm-agent-frontend)
+bun test
+
+# Server (myrm-agent-server)
+cd myrm-agent-server
+.venv/bin/python -m pytest
+```
+
+해당 저장소를 체크아웃하면 하네스 단위 테스트가 `myrm-agent-harness` 내부에서 실행됩니다.
+
+## IDE 브라우저 E2E(관리자 전용)
+
+커서/chrome-devtools-mcp 설정, `:3000` 속도 저하 및 모노레포 개발 게이트는 최종 사용자 제품 문서가 **아닙니다**. 비공개 모노레포 **`scripts/dev/MAINTAINER_QUICKSTART.md`**(vortexai 루트)을 참조하세요.
+
+## 코드 품질
+
+- 프론트엔드: ESLint + Prettier
+- 백엔드: Ruff + 서버 및 하네스 패키지의 엄격한 입력

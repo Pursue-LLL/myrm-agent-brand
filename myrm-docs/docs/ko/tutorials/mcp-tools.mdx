@@ -1,0 +1,76 @@
+---
+
+title: "MCP 도구: 에이전트에게 초능력을 부여하세요"
+description: MCP 서버(데이터베이스, API, 설계 도구 등)를 통해 외부 서비스를 Myrm에 연결하여 에이전트가 수행할 수 있는 작업을 확장하세요.
+---
+
+# MCP 도구
+
+## 시나리오
+
+에이전트가 데이터베이스 쿼리, Figma 디자인 생성, GitHub 문제 관리, 회사 API 액세스 등 외부 서비스와 상호 작용하기를 원합니다. MCP(Model Context Protocol)을 사용하면 에이전트의 코어를 수정하지 않고도 호환되는 도구 서버를 연결할 수 있습니다.
+
+## 재료
+
+- MCP 서버 URL 또는 로컬에 설치된 MCP 서버(대부분 npm 패키지로 사용 가능)
+- 서버의 연결 세부정보(URL, 필요한 경우 인증 토큰)
+
+## 단계
+
+<Steps>
+  <Step title="MCP 설정 열기">
+WebUI에서 **설정 → MCP 서버**로 이동합니다. 연결된 서버 목록과 **서버 추가** 버튼이 표시됩니다.
+  </Step>
+  <Step title="서버 추가">
+**서버 추가**를 클릭하고 다음을 입력합니다.
+    - **이름**: 친숙한 라벨(예: "GitHub")
+    - **유형**: SSE(원격) 또는 Stdio(로컬 프로세스)
+    - **URL 또는 명령**: 서버 엔드포인트 또는 실행 명령
+
+**저장**을 클릭합니다. Myrm은 서버에 연결하고 사용 가능한 도구를 검색합니다.
+  </Step>
+  <Step title="연결 확인">
+저장 후 서버 상태는 검색된 도구 목록과 함께 **연결됨**으로 표시됩니다. 도구를 클릭하면 해당 설명과 매개변수를 볼 수 있습니다.
+  </Step>
+  <Step title="대화에 사용">
+새 채팅을 시작하고 상담원에게 도구를 사용하도록 요청하세요.
+
+> "myrm-agent 저장소에서 내 미해결 GitHub 문제를 나열합니다."
+
+에이전트는 적절한 MCP 도구를 선택하여 호출하고 결과를 제시합니다.
+  </Step>
+</Steps>
+
+<Note>
+**에이전트별 바인딩**: 특정 MCP 서버를 특정 에이전트에 바인딩할 수 있습니다. "Database Expert" 에이전트는 PostgreSQL MCP 서버에 액세스할 수 있는 반면 "Content Creator" 에이전트는 Figma에 연결합니다. **에이전트 설정 → MCP 서버**에서 이를 구성하세요.
+</Note>
+
+## 제공 가능
+
+모든 대화에서 에이전트가 도구를 사용할 수 있는 연결된 MCP 서버입니다.
+
+## 승인 기준
+
+- [ ] 서버가 설정에 **연결됨** 상태를 표시합니다.
+- [ ] 도구가 올바른 설명과 함께 나열됩니다.
+- [ ] 에이전트가 성공적으로 도구를 호출하고 결과를 반환할 수 있습니다.
+- [ ] 도구 사용법이 적절한 형식으로 대화에 나타납니다.
+
+## MCP 도구가 많나요? 스마트 라우팅(무차별 주입과 비교)
+
+Alibaba **SkillWeaver**와 같은 연구 프레임워크는 수천 개의 도구 설명을 하나의 프롬프트에 덤핑하면 정확성이 떨어지면서 턴당 ~884,000개의 토큰**을 소비할 수 있음을 보여줍니다. Myrm은 **귀하의** 상담원 프로필에 맞게 조정된 다른 GUI 우선 접근 방식을 취합니다.
+
+| What you get | Plain-language benefit |
+|--------------|------------------------|
+| **Token budget routing** (≤2,700 tok direct tools) | Frequently used MCP tools stay visible; oversized servers auto-switch to searchable skills—no manual tuning |
+| **discover → select** | Agent searches bound skills on demand (`skill_search_tool` → `skill_select_tool`) instead of loading every schema up front |
+| **Hybrid search** (BM25 + embeddings) | Finds the right skill even when your words don't match the tool name—works well in Chinese and English |
+| **Multi-skill workflows** | For "download → transform → report" style jobs, enable **Workflow Mode** or use **Kanban** pipelines—plan the full chain, not one tool at a time |
+| **Execution resilience** | Retries, verification gates, and error diagnostics—areas research prototypes often skip |
+
+FAISS 인덱스를 구축하거나 3단계 분해/검색/작성 스크립트를 실행할 필요는 **없습니다**. 설정에서 MCP을(를) 연결하고 에이전트에 연결한 후 채팅하세요.
+
+## 다음은 무엇입니까?
+
+- **MCP 생태계 살펴보기** → 전체 구성 참조 및 인기 있는 서버 권장 사항은 [MCP 통합](/docs/guides/mcp-integration)을 참조하세요.
+- **직접 구축** → 사용자 정의 MCP 서버를 생성하여 내부 회사 API을 에이전트에 노출

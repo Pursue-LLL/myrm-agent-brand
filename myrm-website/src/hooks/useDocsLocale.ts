@@ -4,7 +4,7 @@
  * - lib/docs-contract::appLocaleToDocsLocale (POS: 营销站 → Mintlify 路径契约)
  *
  * [OUTPUT]
- * - useDocsLocale(): Mintlify docs locale (`en` | `zh`) for outbound doc links
+ * - useDocsLocale(): Mintlify docs locale (`en` | `zh` | `ko`) for outbound doc links
  *
  * [POS]
  * Client hook bridging next-intl app locale to docs.myrmagent.ai URL locale prefix.

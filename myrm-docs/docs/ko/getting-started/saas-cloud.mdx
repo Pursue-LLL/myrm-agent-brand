@@ -1,0 +1,80 @@
+---
+
+title: SaaS 클라우드
+description: DevOps 없이 격리된 사용자별 샌드박스로 Myrm을 바로 사용하세요.
+---
+
+# SaaS 클라우드
+
+관리형 SaaS 옵션은 DevOps가 전혀 없는 격리된 사용자별 샌드박스를 제공합니다.
+
+## 시작하기
+
+1. [app.myrmagent.ai](https://app.myrmagent.ai/auth/login)에 접속합니다.
+2. 이메일 또는 OAuth로 계정을 만듭니다.
+3. 입력을 시작하면 Agent가 바로 응답합니다.
+
+<Tip>
+**제로 구성 첫 번째 채팅(Express Lane)**: 신규 사용자는 API 키를 구성하지 않고도 채팅을 시작할 수 있습니다. 플랫폼 호스팅 모델은 사전 프로비저닝됩니다. 무료 WU 잔액이 소진되면 UI는 무제한 사용을 위해 자신만의 키를 추가하도록 안내합니다.
+</Tip>
+
+## 작업 단위
+
+모든 SaaS 사용량은 통합 **작업 단위(WU)** 잔액을 통해 청구됩니다.
+
+| Plan | WU/month | Price |
+|------|----------|-------|
+| Free | 600 + 50/day refresh | $0 |
+| Companion | 6,000 | $19/mo |
+| Pro | 18,000 | $49/mo |
+| Max | 60,000 | $149/mo |
+
+WU 소비 방식은 [작업 단위](/ko/core-concepts/work-units) 문서를 참고하세요.
+
+### 청구 투명성 패널
+
+전체 청구 투명성 패널을 보려면 **설정 → 계정**으로 이동하세요.
+
+- **구독 WU 진행률 표시줄** — 월별 허용량이 얼마나 남았는지 실시간으로 보여줍니다.
+- **충전 잔액** — 구독 할당량과 별도로 구매한 WU 잔액을 표시합니다.
+- **일일 새로 고침 할당량** — 매일 새로 고쳐지는 WU의 양을 표시합니다(무료 등급: 50WU/일).
+- **무료 모델** — WU를 전혀 소비하지 않는 모델을 나열합니다.
+- **계층 승수 요율표** — 모델 계층별 WU 소비율 공개:
+  - **LITE** (예: DeepSeek-V3, Gemini Flash) — 토큰당 1× WU
+  - **표준**(예: GPT-4o, Claude Sonnet) — 토큰당 3× WU
+  - **FRONTIER** (예: Claude Opus, o3) — 토큰당 10× WU
+- **가격 모델 설명** — Myrm의 BYOK 토큰별 모델을 Claude Code(세션별), Cursor(월별 정액) 및 Codex(완료별)와 비교합니다.
+- **신뢰도 신뢰 표시줄** — 승인 워크플로, 계획-실행-검증 및 설명 기능에 대한 링크
+
+<Tip>
+AI 에이전트 시장에서 가장 투명한 과금 패널입니다. 숨겨진 승수나 갑작스러운 요금이 없습니다. 모든 WU 요율은 예시 모델과 함께 공개적으로 표시됩니다.
+</Tip>
+
+## 데이터 및 개인정보 보호
+
+- 각 사용자는 격리된 영구 샌드박스 볼륨을 얻습니다.
+- API 키는 암호화된 비밀 저장소(키 순환이 포함된 AES-256-GCM)에 저장됩니다.
+- 자세한 내용은 [개인정보취급방침](https://myrmagent.ai/privacy)을 참조하세요.
+
+## 엔터프라이즈급 인프라
+
+관리형 SaaS 플랫폼은 21개 계층의 엔터프라이즈 인프라를 기반으로 구축되었습니다.
+
+| Layer | Capability |
+|-------|-----------|
+| Isolation | Per-user sandbox with dedicated Volume (not shared-process multi-tenant) |
+| Quota | 3-tier resource quotas (per-user / per-sandbox / per-task) |
+| Rate limiting | Configurable per-resource, per-user rate limits |
+| Network | Egress control + command whitelist |
+| Secrets | AES-256-GCM encrypted vault with key rotation |
+| Auth | OAuth/OIDC + Enterprise JWT license validation |
+| Monitoring | Fleet health monitoring with failure threshold alerts |
+| Observability | Prometheus export + multi-tenant metric aggregation + inbound X-Trace-Id / W3C traceparent propagation (distributed traces never break across reverse proxies and API gateways) |
+| Recovery | State reconciler (DB/Container/WS three-way consistency check) |
+| Scale | Resource scaler (CPU throttle idle sandboxes) + sandbox recycler with dual-signal idle detection (proxy activity sync + WS connection guard) |
+| Audit | Full audit logging (24 event types) with query, stats, CSV/JSON export + visual dashboard (KPI cards, time-series chart, event distribution) |
+| Cost Control | Organization usage summary (member ranking + category breakdown) + configurable monthly budget with threshold alerts |
+| Org MCP | IT admin CRUD/Edit in Enterprise settings; HTTP fan-out to member sandboxes; auto replay after sleep/wake; cloud stdio MCP blocked; employees see read-only org-managed list |
+| Safety | Killswitch for emergency shutdown |
+
+940개 이상의 인프라 테스트는 모두 무실패로 통과되었습니다.

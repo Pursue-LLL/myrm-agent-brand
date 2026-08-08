@@ -1,0 +1,165 @@
+---
+title: 成本管理与预算控制
+description: 通过实时可观测性、主动预算防护与智能模型路由，掌控 LLM 支出。
+---
+
+# 成本管理与预算控制
+
+Myrm 提供多层成本控制系统，在通过智能路由保持任务质量的同时，避免 LLM 超支。
+
+## 预算策略
+
+### 配置（设置 → 系统 → 预算策略）
+
+可在三个独立维度设置 spending 上限：
+
+| 维度 | 范围 | 重置 |
+|------|------|------|
+| **单会话** | 单次对话 / 目标 | 手动或新会话 |
+| **每日** | 所有会话合计 | 午夜自动重置 |
+| **单次调用** | 单次 LLM 调用 | 无状态 |
+
+每个维度触发四级递进响应：
+
+```
+OK → WARNING（80%）→ FINALIZATION（85%）→ EXCEEDED（100%）
+```
+
+### 工作机制
+
+1. **WARNING** — Agent 通过 cache-safe 提示注入收到预算提示；Eco 模式激活（压缩阈值降低 20%）
+2. **FINALIZATION** — Agent 被指示立即输出最终结果；模型输出中的工具调用会被剥离
+3. **EXCEEDED** — 硬阻断，预算重置或扩容前不再发起 LLM 调用
+
+预算状态通过 SSE 实时推送到前端 `BudgetBadge` 与 Goal 状态卡片。
+
+## 实时成本可观测
+
+### 单条消息展示
+
+每条助手消息显示详细 Token 分解：
+
+- **7 类 Token**：prompt、completion、cached、cache_write、reasoning、citation、total
+- **USD 成本**及缓存节省百分比
+- **模型档位**（simple / standard / reasoning）
+- 缓存未命中时的 **cache break reason** 归因
+
+### Goal 面板（活跃目标）
+
+目标运行期间，展开的状态卡片显示：
+
+- **Burn rate** — 每分钟 Token 消耗
+- **Cost rate** — 每分钟美元花费
+- **ETA** — 预计预算耗尽时间
+- **进度条** — 已消耗预算百分比
+
+### 用量统计仪表盘（设置 → 系统）
+
+完整分析仪表盘，包含：
+
+- 每日支出图表（7/30/365 天）
+- 会话级下钻与 Token/成本分解
+- 模型分解面板（各模型成本）
+- 小时与 weekday 分布热力图
+- 各 Agent 用量卡片与 sparkline 趋势
+- 路由分析（各档位请求数量）
+
+## 智能成本路由
+
+### ComplexityRouter（自动）
+
+Myrm 自动将请求路由到最具成本效益的模型档位：
+
+- **SIMPLE** — 快速问答、问候 → 最便宜模型
+- **STANDARD** — 常规任务 → 均衡模型
+- **REASONING** — 复杂多步问题 → 高级模型
+
+特性：
+
+- 两阶段分类（规则打分 + LLM judge）
+- **Session momentum** — 后续消息继承近期对话档位，避免质量骤降
+- **Penalty feedback** — 记录误路由并在 24h 内衰减调整概率
+- **Min-tier floor** — 重新生成请求自动升档
+- **零配置** — 所有账户默认启用
+
+### 隐私感知路由
+
+根据 PII 检测级别，敏感内容自动路由到隐私合规模型。
+
+## 子 Agent 成本隔离
+
+### 委派预算
+
+每个根任务有 `max_descendants = 20` 防护，防止子 Agent 无限 spawn。
+
+### 按根任务预算范围
+
+预算跟踪按根 Agent 运行范围计 — 子 Agent 成本累加到父级预算维度，统一可见。
+
+### 多 Agent 成本预检
+
+当 Agent 需 spawn 多个子 Agent（批量委派、council 交叉评审或 alternatives 并行生成）时，Myrm 在**执行前**估算总 LLM 成本：
+
+- **Batch 模式** — 按任务数 × 单任务模型定价估算
+- **Council 模式** — 计入 `expert_count × (1 + cross_review_rounds) + 1`（主席综合）次 LLM 调用
+- **Alternatives 模式** — 按并行专家 Agent 数量估算
+
+若估算成本超过 **$0.50**，聊天中出现交互式审批卡片，展示：
+
+- 总估算成本（USD）
+- 将发起的 LLM 调用次数
+- 剩余预算
+
+可批准继续或拒绝取消 — 批准前不消耗 Token。避免复杂多 Agent 操作的意外账单。
+
+## 长任务韧性
+
+### Checkpoint 与恢复
+
+长任务期间若服务进程中断：
+
+1. **Signal-safe checkpoint** — 所有运行中子 Agent checkpoint 落盘（JSON + fcntl 文件锁）
+2. **Orphan recovery** — 重启时 orphan 扫描器检测中断 checkpoint 并向 UI 发布事件
+3. **Resume API** — 用户可从 checkpoint 恢复，完整还原状态（消息 + workspace）
+
+### Goal 续跑防护
+
+续跑引擎在每轮前评估 9+ 条件：
+
+- 剩余预算检查
+- 取消 / steering token
+- 收敛检测
+- 目标漂移检测（每 5 轮 trajectory 打分）
+- Per-todo checkpoint（可选每步后暂停）
+- 保护文件完整性校验
+
+## 输出压缩
+
+CLI 工具输出通过智能规则自动压缩，降低 Token 消耗：
+
+- 路径去重与摘要
+- 重复模式折叠
+- 二进制/噪声过滤
+- 大输出截断与摘要
+
+## 稳定前缀与缓存效率
+
+系统提示与工具 schema 经 careful 排序与规范化，最大化 prompt cache 命中率：
+
+- 确定性工具 schema 排序（SSOT）
+- Schema 规范化（去除非语义差异）
+- Cache breakpoint 检测与归因报告
+
+## 测试覆盖
+
+313 项测试验证成本管理系统：
+
+| 模块 | 测试数 |
+|------|--------|
+| token_economics（ledger、budget、cost engine） | 9 |
+| Checkpoint（save/resume/delete/orphan） | 47 |
+| ComplexityRouter（routing + momentum + penalty） | 70 |
+| Delegation budget（spawn limits） | 26 |
+| Budget middleware（injection + strip） | 14 |
+| Goal continuation（9-step guard chain） | 76 |
+| Output compressor（CLI compression） | 71 |

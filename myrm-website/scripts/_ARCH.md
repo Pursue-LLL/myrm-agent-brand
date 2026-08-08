@@ -6,8 +6,9 @@
 |------|------|------|-------|
 | `brand-url-patterns.ts` | 核心 | 禁止 legacy 域名/org 的正则；validate 脚本共用 | ✅ |
 | `cp-billing-contract.json` | 核心 | 独立仓 CI 云定价回退（对齐 CP catalog/plans） | — |
-| `validate-marketing-locales.ts` | 核心 | locales 键契约 + cloud 定价与 CP `catalog.py`/`plans.py` 数值对齐（本地优先读 CP，否则读 contract）+ legacy URL 扫描 | ✅ |
-| `validate-docs-slugs.ts` | 核心 | 营销 slug ↔ Mintlify nav ↔ MDX orphan | ✅ |
+| `validate-marketing-locales.ts` | 核心 | locales 键契约（zh/en/ko）+ cloud 定价与 CP `catalog.py`/`plans.py` 数值对齐（本地优先读 CP，否则读 contract）+ legacy URL 扫描 | ✅ |
+| `i18n-ko-bulk-translate.py` | 辅助 | 从 en SSOT 批量机翻 `locales/ko.json`（Google Translate + placeholder 保护；缓存 `locales/.ko-translate-cache.json`） | ✅ |
+| `validate-docs-slugs.ts` | 核心 | 营销 slug ↔ Mintlify nav ↔ MDX orphan（en/zh/ko 三语） | ✅ |
 | `bake-desktop-release.ts` | 核心 | 构建前写入 `public/desktop-release.json` | ✅ |
 | `release-website.ts` | 核心 | 本地应急：preflight + push tag（GHA POST Hook） | ✅ |
 | `check-fractal-docs.ts` | 核心 | 品牌仓 _ARCH 存在 + 核心文件 IOP 门禁 | ✅ |
@@ -17,6 +18,7 @@
 | `deploy-paths.test.ts` | 辅助 | deploy-paths 单测 | — |
 | `release-website.test.ts` | 辅助 | release-website 单测 | — |
 | `check-fractal-docs.test.ts` | 辅助 | fractal 门禁单测 | — |
+| `detect-browser-locale.test.ts` | 辅助 | 首访 navigator 语言检测单测 | — |
 
 ## 构建链
 

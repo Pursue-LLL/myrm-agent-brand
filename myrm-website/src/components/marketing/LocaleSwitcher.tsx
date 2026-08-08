@@ -3,12 +3,18 @@
 import { useLocale } from 'next-intl';
 import { cn } from '@/lib/utils/classnameUtils';
 import { useAppLocale } from '@/components/i18n/LocaleRootProvider';
-import type { Locale } from '@/i18n/config';
+import { locales, type Locale } from '@/i18n/config';
 
 interface LocaleSwitcherProps {
   className?: string;
   variant?: 'editorial' | 'shell';
 }
+
+const LOCALE_LABELS: Record<Locale, string> = {
+  en: 'EN',
+  ko: '한',
+  zh: '中',
+};
 
 export default function LocaleSwitcher({ className, variant = 'editorial' }: LocaleSwitcherProps) {
   const locale = useLocale() as Locale;
@@ -32,7 +38,7 @@ export default function LocaleSwitcher({ className, variant = 'editorial' }: Loc
       role="group"
       aria-label="Language"
     >
-      {(['zh', 'en'] as const).map((code) => {
+      {locales.map((code) => {
         const active = locale === code;
         return (
           <button
@@ -55,7 +61,7 @@ export default function LocaleSwitcher({ className, variant = 'editorial' }: Loc
                 : undefined
             }
           >
-            {code === 'zh' ? '中' : 'EN'}
+            {LOCALE_LABELS[code]}
           </button>
         );
       })}

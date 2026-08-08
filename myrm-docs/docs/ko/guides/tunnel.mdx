@@ -1,0 +1,114 @@
+---
+
+title: 대중 접근 및 터널 옵션
+description: 자신만의 NAT 통과 도구를 선택하고 URL을 Myrm에 붙여넣으세요.
+---
+
+# 공개 액세스 및 터널 옵션
+
+Myrm은(는) 터널 공급자를 번들로 묶지 **않습니다**. 해당 지역 및 네트워크에서 작동하는 도구를 선택하고 HTTPS 공개 URL을 얻은 다음 **설정 → 시스템 → 공개 수신**에 붙여넣습니다.
+
+## 공개 URL이 필요한 경우
+
+| Scenario | Need public Ingress? |
+| --- | --- |
+| Same Wi‑Fi / office LAN (phone or colleague) | No — use **LAN access** in System settings |
+| Outbound channels (Feishu WebSocket, DingTalk, Telegram WS, etc.) | No — server connects outbound |
+| Inbound channels (LINE, Teams, webhooks, QQ Bot, etc.) | **Yes** |
+| Cron webhook triggers | **Yes** |
+| Remote WebUI from cellular / another network | **Yes** (paste tunnel URL) |
+| Cloud-hosted Myrm (SaaS) | No — platform injects the URL |
+
+Myrm은 채널 카드에 **아웃바운드/인바운드 배지**를 표시하고 시스템 설정에는 `ingress-requirement`을 표시하므로 공개 URL이 필요한 시기를 알 수 있습니다.
+
+## 권장 도구(하나 선택)
+
+### 중국 / 기업 LAN
+
+| Tool | Notes |
+| --- | --- |
+| [cpolar](https://www.cpolar.com/docs) | Free tier, China nodes, `cpolar http 3000` |
+| [NATAPP](https://natapp.cn/) | Ngrok-style, domestic nodes (real-name may be required) |
+| [花生壳](https://hsk.oray.com/) | Common for home users |
+| **frp** (self-hosted) | Best control; needs a VPS with public IP |
+
+### 국제적인
+
+| Tool | Notes |
+| --- | --- |
+| **frp** / **nps** | Self-hosted on your VPS |
+| **ngrok** | Quick trials; URL may change on free tier |
+| **Cloudflare Named Tunnel** | Stable domain; edge connectivity varies by region |
+| **Reverse proxy** | nginx/Caddy on a cloud VM pointing to your WebUI port |
+
+## 설정 작업 흐름
+
+1. **WebUI 비밀번호 보호**(시스템 설정)를 활성화합니다.
+2. WebUI 포트(기본값 `3000`)에 대해 터널 도구를 실행합니다.
+3. **HTTPS** 공개 URL을 복사합니다(후행 슬래시 없음).
+4. **설정 → 시스템 → 공개 수신**에 붙여넣습니다.
+5. **연결 테스트**를 클릭합니다.
+6. 인바운드 채널 또는 크론 웹후크를 구성합니다. 웹훅 URL이 업데이트되도록 채널 페이지를 새로 고칩니다.
+
+### 예: cpole(중국)
+
+```bash
+# Install (see cpolar docs)
+curl -L https://www.cpolar.com/static/downloads/install-release-cpolar.sh | sudo bash
+cpolar authtoken <your-token>
+cpolar http 3000
+```
+
+`https://….cpolar….` URL을 Myrm Public Ingress에 복사합니다.
+
+## 빠른 터널 내장(원클릭)
+
+Myrm에는 외부 도구를 설치하지 않고도 즉각적인 원격 액세스를 위한 내장형 **Cloudflare Quick Tunnel**도 포함되어 있습니다.
+
+1. **설정 → 시스템 → 원격 액세스**를 엽니다.
+2. **터널 시작**을 클릭합니다. 약 5~15초 안에 임시 HTTPS URL이 생성됩니다.
+3. 휴대폰으로 **QR 코드**를 스캔하여 Mobile Hub를 엽니다.
+
+**중요**: Quick Tunnel은 매번 임의의 URL을 생성합니다. 영구 웹훅이 아닌 빠른 모바일 액세스를 위해 사용하세요. 안정적인 웹훅 URL을 위해서는 위의 자체 호스팅 도구를 사용하세요.
+
+### 모바일 허브
+
+터널이 실행되면 **모바일 세션 허브**를 통해 다음을 수행할 수 있습니다.
+
+- 전화기에서 모든 활성 에이전트 세션을 봅니다.
+- 푸시투톡 음성 입력으로 특정 세션 열기 및 제어
+- 실시간 SSE 진행 상황 업데이트 수신
+- HITL 요청 승인, 원격으로 작업 조정 또는 중지**(성공/실패 알림 포함 - 진행 중인 SSE 스트림에 다시 연결하는 경우에도 작동함)
+
+액세스는 **7단계 보안**으로 보호됩니다.
+
+1. **E2EE** — 모든 모바일 트래픽에 대한 엔드투엔드 암호화(NaCl Box: Curve25519 + XSalsa20-Poly1305)
+2. **HMAC 쌍 토큰** — 자동 TTL 갱신 및 목적 범위 인증을 갖춘 SHA-256 서명 토큰
+3. **신뢰 영역** — 3가지 신뢰 수준으로 자동 분류된 6가지 허용 경로; 원격 요청은 `REMOTE_EXPOSED`입니다.
+4. **도구 제한** — 원격 세션에서는 위험한 도구(shell, file_write, yolo_mode)가 자동으로 비활성화됩니다.
+5. **채팅 범위 바인딩** — 각 쌍 토큰은 특정 채팅 세션에 바인딩되어 세션 간 액세스를 방지합니다.
+6. **키 파일 보호** — 0600 권한으로 저장되는 암호화 키, 비밀번호 변경 시 자동 순환
+7. **세션 제거** — LRU + TTL(최대 세션 256개, 1시간 만료)로 세션 누적 방지
+
+## 보안
+
+- WebUI를 노출하기 전에 항상 비밀번호 보호를 활성화하십시오.
+- HTTPS 엔드포인트를 선호합니다. Myrm은 후행 슬래시를 정규화합니다.
+- 프로덕션 웹후크에 **안정적인 도메인**을 사용합니다(다시 시작할 때 무료로 임의의 URL이 변경됨).
+- 클라우드 호스팅 배포에서는 홈 터널링을 완전히 방지합니다.
+- 원격 연결은 **신뢰 영역** 보안으로 보호됩니다(위험한 도구는 자동으로 비활성화됩니다).
+- **DNS 리바인딩 보호**: 호스트 허용 목록 미들웨어는 스푸핑된 호스트 헤더를 거부합니다.
+- **페어 토큰 순환**: 비밀번호를 변경하면 모든 미결제 토큰이 자동으로 무효화됩니다.
+
+## 문제 해결
+
+### 연결 테스트 실패
+
+1. 터널 프로세스가 아직 실행 중인지 확인합니다.
+2. URL이 WebUI 포트와 일치하는지 확인하세요.
+3. 기업 네트워크에서는 일부 터널 도메인이 차단됩니다. 다른 공급자나 LAN 액세스를 시도해 보십시오.
+
+### 채널 웹훅에 여전히 `localhost`이 표시됩니다.
+
+1. **공개 수신**을 먼저 설정합니다.
+2. 확인된 웹훅 URL을 새로 고치려면 채널 설정 페이지를 다시 엽니다.

@@ -1,0 +1,113 @@
+---
+
+title: 아키텍처 개요
+description: Myrm 플랫폼의 상위 수준 아키텍처입니다.
+---
+
+# 아키텍처 개요
+
+Myrm은 5개의 독립적인 저장소로 구성되어 있으며 각각은 플랫폼에서 고유한 역할을 수행합니다.
+
+## 저장소 구조
+
+| Repository | Description | License |
+|------------|-------------|---------|
+| `myrm-agent-harness` | Python agent runtime engine | Closed Source |
+| `myrm-agent-server` | Backend API server (FastAPI) | Open Source |
+| `myrm-agent-frontend` | Next.js web application | Open Source |
+| `myrm-agent-desktop` | Tauri desktop client | Open Source |
+| `myrm-control-plane` | SaaS multi-tenant orchestrator | Closed Source |
+
+### 우려사항 분리
+
+```
+┌────────────────────────────────┐
+│     myrm-control-plane         │  SaaS only: sandbox allocation, tenant routing
+├────────────────────────────────┤
+│     myrm-agent-server          │  Business logic, API, single-machine deployment
+├────────────────────────────────┤
+│     myrm-agent-harness         │  Agent runtime engine (model-agnostic)
+└────────────────────────────────┘
+```
+
+- **하네스**는 모델 관리, 미들웨어 체인, 컨텍스트 파이프라인, 보안, 도구 등 프레임워크 계층입니다.
+- **서버**는 비즈니스 계층입니다 — 사용자 관리, 세션 지속성, API 엔드포인트, 단일 시스템 배포
+- **제어판**은 오케스트레이션 계층입니다 — 샌드박스 프로비저닝, 청구, 다중 테넌트 라우팅(SaaS만 해당)
+
+## 프론트엔드 아키텍처
+
+Next.js 앱 라우터:
+
+- 이중 테마 지원(밝음/어두움)을 사용한 스타일링을 위한 **Tailwind CSS v4**
+- 중국어/영어 국제화를 위한 **next-intl**
+- 클라이언트 측 상태 관리를 위한 **Zustand**
+- 실시간 스트리밍을 위한 **WebSocket + SSE**
+- 모바일 및 데스크톱을 위한 **반응형 디자인**
+
+## 백엔드 아키텍처
+
+다음을 갖춘 Python 비동기 서비스:
+
+- REST API 엔드포인트의 경우 **빠름API**
+- 통합 다중 모델 액세스를 위한 **LiteLLM**(100개 이상의 모델)
+- 에이전트 오케스트레이션 및 상태 관리를 위한 **LangGraph**
+- 기본 데이터 저장을 위한 **SQLite**(단일 머신, 분산 DB가 필요하지 않음)
+- 벡터 검색을 위한 **Qdrant**(메모리, 스킬, 위키)
+- 보안, 로깅, 승인 및 동작 제어를 위한 **38개 이상의 미들웨어** 체인
+
+## 주요 아키텍처 결정
+
+### PPAF(인식, 계획, 행동, 피드백) 루프
+
+Myrm은 핵심 실행 루프를 위해 PPAF 프레임워크를 수용합니다.
+- **인식**: 다중 모드 사용자 입력 및 메모리 컨텍스트 읽기에서 의도를 추출합니다.
+- **계획**: Planner 미들웨어 또는 `sequentialthinking` 하위 에이전트를 통해 복잡한 지침을 분석합니다.
+- **작업**: Tool Executor를 통해 격리된 샌드박스 도구 및 스크립트를 실행합니다.
+- **피드백**: 도구 실행 결과를 분석하고 동적 재계획 또는 오류 복구를 수행합니다.
+
+### 나머지. 엔지니어링 표준
+
+Myrm의 하네스 레이어는 R.E.S.T를 중심으로 구축되었습니다. 철학:
+- **신뢰성(可靠性)**: 14가지 동적 자가 치유 전략, 지수 백오프 및 회로 차단기.
+- **효율성(높음성)**: 컨텍스트 압축, 캐싱 최적화 및 프롬프트 접두사 보호.
+- **보안(안전성)**: 제로 트러스트 샌드박스 및 엄격한 정책 게이트웨이를 포함한 6계층 심층 방어.
+- **추적성(可追溯性)**: 고급 지표, 구조화된 감사 로그 및 세부적인 세션 디버깅.
+
+### 모듈형 미들웨어와 모놀리식 에이전트
+
+모든 에이전트 로직을 하나의 대규모 클래스에 배치하는 일부 프레임워크와 달리 Myrm은 각 문제(보안, 승인, 루프 감지, 완료 확인 등)가 독립적이고 테스트 가능한 모듈인 미들웨어 체인 아키텍처를 사용합니다.
+
+### 비동기 우선
+
+모든 I/O 작업은 `asyncio` 코루틴을 사용합니다. 이는 I/O 바인딩 작업(LLM API 호출, 파일 작업, 네트워크 요청)에 대한 스레드 풀보다 더 나은 리소스 활용도를 제공합니다.
+
+### 프레임워크-사업 분리
+
+하네스 엔진에는 비즈니스 로직이 없습니다. 모든 비즈니스 애플리케이션에서 사용할 수 있는 일반 에이전트 기능(도구 실행, 메모리, 보안, 스트리밍)을 제공합니다. 서버 계층은 사용자 관리, 세션 처리 및 API 계약을 맨 위에 추가합니다.
+
+### 프랙탈 자체 문서화(개방형 제품 레이어)
+
+오픈 소스 `myrm-agent` 트리는 **4계층 문서 스택**을 사용하므로 기여자와 LLM은 모듈 경계를 추측하지 않고도 코드를 탐색할 수 있습니다.
+
+| Layer | Artifact | Role |
+|-------|----------|------|
+| L1 | `ARCHITECTURE.md` | Whole-system map |
+| L2 | `*_SYSTEM.md` | Cross-module designs (memory, skills, etc.) |
+| L3 | `_ARCH.md` per folder | Module duty + file table |
+| L4 | File header `INPUT` / `OUTPUT` / `POS` | Single-file placement |
+
+**규모(2026년 6월 9일 확인):** 서버, 프런트엔드, 데스크톱 및 공유 패키지 전반에 걸쳐 **521** `_ARCH.md` 파일. CI는 `check_fractal_docs.py`(디렉터리 범위, 엄격한 헤더, `api/` 및 `channels/providers/`에 스텁 없음)과 **296** 아키텍처 pytest 게이트를 실행합니다. 일반적인 에이전트 경쟁업체는 중앙 집중식 `docs/`만 제공합니다. 모듈당 `_ARCH` 맵은 **0**입니다.
+
+**얻을 수 있는 이점:** 셀프 호스팅 업체 및 통합업체를 위한 더 빠른 온보딩; 병합 전에 문서 드리프트가 차단되었으며 프로덕션에서는 발견되지 않았습니다.
+
+## 보안 모델
+
+6레이어 심층 방어. 전체 모델은 [보안 아키텍처](/docs/core-concepts/security-architecture)를 참조하세요.
+
+## 배포 모드
+
+| Mode | Components | Use Case |
+|------|-----------|----------|
+| **Local WebUI** | Server + Frontend | Personal use, development |
+| **Tauri Desktop** | Desktop + embedded Server | Native app experience |
+| **SaaS Cloud** | Control Plane + Server + Frontend | Managed hosting, teams |

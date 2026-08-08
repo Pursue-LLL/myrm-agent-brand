@@ -11,6 +11,7 @@
  * [POS]
  * 营销站外部链接统一入口。默认文档域名为 docs.myrmagent.ai（Mintlify 子域，非 Next 同构部署）。
  */
+import type { Locale } from '@/i18n/config';
 import type { DocsLocale } from '@/lib/docs-contract';
 import {
   DESKTOP_RELEASE_REPO,
@@ -25,7 +26,7 @@ const DOCS_BASE_URL = process.env.NEXT_PUBLIC_DOCS_URL ?? 'https://docs.myrmagen
 export const DESKTOP_DOWNLOAD_PATH = '/download';
 
 /** Append `?locale=` so App login can seed NEXT_LOCALE from marketing site language. */
-export function getAppUrl(path: string = '/', appLocale?: DocsLocale): string {
+export function getAppUrl(path: string = '/', appLocale?: Locale): string {
   const base = `${APP_BASE_URL}${path}`;
   if (!appLocale) return base;
   const separator = base.includes('?') ? '&' : '?';
@@ -34,10 +35,12 @@ export function getAppUrl(path: string = '/', appLocale?: DocsLocale): string {
 
 export function getDocsUrl(path: string = '/', locale: DocsLocale = 'en'): string {
   const normalized = path.startsWith('/') ? path : `/${path}`;
-  const localized =
-    locale === 'zh' && !normalized.startsWith('/zh/')
-      ? `/zh${normalized}`
-      : normalized;
+  let localized = normalized;
+  if (locale === 'zh' && !normalized.startsWith('/zh/')) {
+    localized = `/zh${normalized}`;
+  } else if (locale === 'ko' && !normalized.startsWith('/ko/')) {
+    localized = `/ko${normalized}`;
+  }
   return `${DOCS_BASE_URL}${localized}`;
 }
 
@@ -56,7 +59,7 @@ export {
 export const APP_MIGRATION_WIZARD_PATH = '/settings/memory?sub=migration';
 
 /** Login URL that returns to an internal path after authentication. */
-export function getAppLoginRedirectUrl(returnPath: string, appLocale?: DocsLocale): string {
+export function getAppLoginRedirectUrl(returnPath: string, appLocale?: Locale): string {
   const normalized = returnPath.startsWith('/') ? returnPath : `/${returnPath}`;
   if (normalized.startsWith('//') || normalized.includes('://')) {
     return getAppUrl('/auth/login', appLocale);

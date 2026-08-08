@@ -1,0 +1,104 @@
+---
+
+title: 계층화된 검증 플레이북
+description: 개방형 제품 계층과 폐쇄형 하니스 런타임 전반에 걸쳐 낮은 부하, 재현 가능한 검사를 통해 안정성과 첫 번째 응답 속도를 입증합니다.
+---
+
+# 계층화된 검증 플레이북
+
+가정이 아닌 **증거**가 필요한 경우, 특히 "더 빠른 첫 번째 응답", "안정적인 장기 실행" 또는 "경쟁업체 기본값보다 우수함"과 같은 주장의 경우 이 가이드를 사용하세요.
+
+## 이 플레이북이 존재하는 이유
+
+대부분의 에이전트 제품에는 기능 목록이 표시되지만 재현 가능한 증거는 생략됩니다. Myrm은(는) 다음을 검증하여 배송이 임박한 시점에 증거를 보관합니다.
+
+1. **하네스 런타임 레이어**(서버에서 호출되는 비공개 소스 런타임)
+2. **제품 레이어 열기** (`myrm-agent-server` + `myrm-agent-frontend`)
+3. **사용자에게 표시되는 메시징 레이어**(문서 + 랜딩 문구)
+
+## 레이어 맵(테스트 대상)
+
+| Layer | Goal | Typical evidence |
+|---|---|---|
+| Harness runtime | Startup detection is stable and cache-safe | `backend_detector` tests + focused coverage |
+| Open server | TTFT is captured end-to-end and persisted | stream loop / collector / usage aggregation tests |
+| Frontend/docs | Benefits are understandable by real users | updated bilingual copy with honest scope notes |
+
+## 1단계: 시스템의 응답성을 유지하세요.
+
+**소규모 배치**로 확인을 실행하고 리소스 사용량을 기록합니다.
+
+```bash
+/usr/bin/time -l bash scripts/dev/run-pytest-safe.sh -- ./myrm test <target> -q
+```
+
+기록:
+
+- `/usr/bin/time -l`의 최고 RSS
+- 현재 머신 메모리 상태(`available`, `used_percent`)
+- 반복 실행이 단조로운 메모리 증가를 보이는지 여부
+
+## 2단계: 하네스 시작 경로 확인
+
+집중 테스트:
+
+```bash
+bash scripts/dev/run-pytest-safe.sh -- ./myrm test myrm-agent-harness/tests/toolkits/acp/test_backend_detector.py -q --cov=myrm_agent_harness.toolkits.acp.backend_detector --cov-report=term
+```
+
+예상되는 증거:
+
+- 테스트 통과
+- 집중된 적용 범위는 캐시/새로 고침 동작을 신뢰할 만큼 충분히 높습니다.
+- 재실행 중에 비정상적인 메모리 추세가 없습니다.
+
+## 3단계: 제품 TTFT 체인 검증
+
+집중 테스트:
+
+```bash
+bash scripts/dev/run-pytest-safe.sh -- ./myrm test myrm-agent/myrm-agent-server/tests/services/agent/stream_session/test_stream_loop_ttft.py myrm-agent/myrm-agent-server/tests/api/statistics/test_usage_aggregation_coverage.py -q --cov=app.services.agent.stream_session.stream_loop --cov=app.api.statistics.usage_aggregation --cov-report=term
+
+bash scripts/dev/run-pytest-safe.sh -- ./myrm test myrm-agent/myrm-agent-server/tests/api/agent/test_stream_collector_coverage.py -q --cov=app.services.agent.streaming_support.stream_collector --cov-report=term
+```
+
+예상되는 증거:
+
+- TTFT 캡처 로직은 눈에 보이는 페이로드를 전달합니다.
+- TTFT는 `message_end` 및 통계 집계에 지속됩니다.
+- 집중된 적용 범위는 중요한 경로가 간접적으로 조롱되었을 뿐만 아니라 테스트되었음을 입증합니다.
+
+## 4단계: 브라우저 현실성 확인(예산이 허용되는 경우)
+
+더 강력한 증명을 위해 가벼운 실제 브라우저 MCP 검사를 추가하세요.
+
+- `new_page` -> 라이브 WebUI 열기
+- `take_snapshot` -> 예상 UI 상태 확인
+- `evaluate_script` -> 예상되는 반응 동작 확인
+
+CPU/메모리를 보호하기 위해 건너뛴 경우 이를 명확하게 문서화하고 최근에 완료된 브라우저 스냅샷 실행을 참조하세요.
+
+## 5단계: 과도한 주장 없이 증거 게시
+
+세 개의 표면을 함께 업데이트합니다.
+
+1. `temp-docs/materials/*_ADVANTAGE.md` (완전한 증거)
+2. 문서 경쟁사 페이지(최신 검증 스냅샷)
+3. 랜딩 하이라이트(사용자 대상 가치 언어)
+
+규칙:
+
+- 경쟁업체의 주장을 테스트 증거와 연계하여 유지
+- 테스트된 내용과 테스트되지 않은 내용을 말하세요.
+- 랜딩 페이지에서는 낮은 수준의 전문 용어를 피하고 명시적으로 요구되지 않는 한 6개 코어 기능 섹션을 변경하지 않고 유지하세요.
+
+## 합격기준
+
+모두 참일 때 확인 배치는 "게시 가능"합니다.
+
+- 집중 테스트 통과
+- 측정된 자원 봉투가 허용 가능합니다.
+- TTFT/탐지 계약에 숨겨진 회귀가 없습니다.
+- 문서 및 랜딩카피는 실제 증거와 동기화됩니다.
+
+이는 "빠름 + 안정성 + 검증됨"을 주장하기 위한 최소 기준입니다.

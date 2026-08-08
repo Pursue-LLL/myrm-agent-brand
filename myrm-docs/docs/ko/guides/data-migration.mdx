@@ -1,0 +1,205 @@
+---
+
+title: "데이터 마이그레이션"
+description: "위험이 전혀 없는 GUI 안내 마이그레이션 마법사를 사용하여 다른 AI 보조자로부터 데이터를 가져오세요."
+---
+
+## 개요
+
+Myrm은 전체 미리 보기, 충돌 해결 및 원클릭 롤백을 통해 메모리, 스킬, API 키, MCP 구성 및 작업 공간 규칙을 포함하여 다른 플랫폼에서 AI 보조 데이터를 전송할 수 있는 완전한 데이터 마이그레이션 시스템을 제공합니다.
+
+**지원되는 소스(14개 지원)**: Hermes, OpenClaw, **Pi**, Claude Code, Cursor, Codex, ChatGPT, gbrain, Windsurf, Trae, Mem0, 기본 JSON, Myrm Archive, AgentMemory
+
+## 마이그레이션 마법사(3단계 GUI)
+
+### 1단계: 탐색
+
+**설정 → 메모리 센터 → 마이그레이션**으로 이동하여 마법사를 시작하세요.
+
+- **로컬/데스크톱**: **스캔**을 클릭하여 시스템에 설치된 AI 도우미를 자동 감지합니다.
+- **클라우드**: 이전 어시스턴트에서 `.zip` 내보내기 파일을 드래그 앤 드롭합니다.
+
+스캐너는 잘 알려진 디렉터리(macOS, Windows, Linux)를 확인하고 발견한 내용을 신뢰도 점수(높음/보통/낮음)와 함께 보고합니다.
+
+### 2단계: 미리보기(시험 실행)
+
+감지된 소스에서 **미리보기**를 클릭하면 아무 것도 쓰지 않고 가져올 내용을 정확히 확인할 수 있습니다.
+
+- **커버리지 매트릭스**: 어떤 데이터 카테고리가 준비되었는지, 검토가 필요한지 또는 수동 조치가 필요한지를 표시합니다.
+- **마이그레이션 레인**: 페르소나 → 에이전트, 사실 → 메모리, 기술 → 검토 대기열, 키 → 명시적 확인, MCP → 감사
+- **토큰 경제학**: 마이그레이션 전후의 토큰 사용량 비교
+- **MCP 서버 미리보기**: 가져온 후 어떤 MCP 도구를 사용할 수 있는지 확인하세요.
+- **충돌 감지**: 기존 데이터를 덮어쓰는 항목을 강조 표시합니다.
+
+### 3단계: 확인 및 가져오기
+
+대상 에이전트를 선택하거나 새 에이전트를 만든 다음 가져오기를 확인합니다.
+
+- 비밀은 명시적으로 동의한 경우에만 가져옵니다(자동으로 가져오지는 않음).
+- 기술은 검토 대기열로 이동합니다. 활성화되기 전에 각 기술을 승인해야 합니다.
+- 모든 수입에 대해 거래 배치 ID가 생성됩니다.
+- ZIP 스킬 마이그레이션은 미리 보기와 확인 모두에서 안정적인 2단계 오류 계약(`message + error_code`)을 사용하므로 UI 수정은 결정적으로 유지됩니다.
+
+## 수입 후 준비(첫번째 채팅 안내)
+
+가져오기가 성공적으로 완료되면 첫 번째 메시지 전에 Myrm **실시간 해결** 준비 상태가 유지되므로 채팅이 중단된 것 같은 이유를 추측할 수 없습니다.
+
+| Status | What you see | Where to fix |
+|--------|--------------|--------------|
+| **Warning** | Toast + in-stream notice: MCP imported but not enabled | **Settings → MCP** |
+| **Critical** | Toast: diagnostics failed or providers not ready | **Settings → Memory** or **Models** |
+
+**디자인 원칙:**
+- **소프트 게이트** — 어시스턴트는 여전히 응답할 수 있습니다. 하드 블록이 아닌 지침을 얻습니다.
+- **문제 인식 CTA** — 각 간격은 정확한 설정 페이지(`settings_path` SSOT)로 연결됩니다.
+- **마법사 재확인** — 마이그레이션 결과 단계에서 "채팅 시작" 전에 준비 상태를 다시 실행할 수 있습니다.
+- **큐 앵커** — 전달 상태는 첫 번째 채팅에서 사용할 때까지 탐색 상태를 유지합니다.
+
+**검증됨(2026-07-29):** Chrome E2E **순차적 3-leg 사인오프 3/3 PASS** (`mcp_warning` · `provider_critical` · `diagnostic_critical`) 병렬 웨이브(≤8 임대, 중지 없음 기타 pytest) · 65개 이상의 단위/통합 테스트 · 경쟁업체는 일반적으로 가져오기 후 UX가 없는 자동 실패 또는 CLI 전용입니다.
+
+Hermes 마이그레이션 후 추가 준비 확인에서는 해당 기능이 Hermes에서 사용되었지만 Myrm 에이전트 프로필에 구성되지 않은 경우 **음성** 또는 **MoA Advisor 오버레이** 설정 힌트가 표시될 수 있습니다. 각 링크는 채팅을 차단하지 않고 관련 설정 페이지로 연결됩니다.
+
+## Hermes 크론 작업 가져오기(기본적으로 일시 중지됨)
+
+**Hermes**에서 마이그레이션할 때 마법사는 `cron/jobs.json`에서 예약된 작업을 가져올 수 있습니다.
+
+| Step | What happens |
+|------|----------------|
+| **Dry-run** | Preview lists jobs to import and skipped jobs (e.g. `no_agent`, script-only) with reasons |
+| **Confirm** | Matching agent-type jobs are created in **PAUSED** state — they do not run until you resume them |
+| **Result** | Summary counts + **Configure Cron** button deep-links to **Settings → Cron** |
+| **Rollback** | Batch `cron_rollback` removes jobs created in that import |
+
+**정직한 경계:**
+- Hermes **모델** 필드는 마이그레이션되지 **않습니다** — 작업은 대상 에이전트의 기본 모델을 사용합니다.
+- **Kanban** 보드는 자동 마이그레이션되지 **않습니다**(커버리지 매트릭스에 `kanban_not_migrated`이 표시됨)
+- **Cron 가져오기를 위한 Chrome MCP E2E** 승인이 아직 없음 — **`test_hermes_cron_converter.py`이 적용되는 백엔드 7/7 통과**(2026년 8월)
+
+경쟁업체(Hermes CLI `claw migrate`, OpenClaw, Pi, deer-flow, LobsterAI, CoPaw, jiuwenclaw)는 크론 미리보기 + 일시 중지된 가져오기 + 롤백이 포함된 GUI 마이그레이션 마법사를 제공하지 않습니다.
+
+## Pi 마이그레이션(5레인 매핑)
+
+**Pi**에서 마이그레이션할 때 마법사는 `~/.pi/agent/`을 자동 스캔하고 5레인 매핑을 제공합니다.
+
+| Pi Data | Import Lane | Description |
+|---------|-------------|-------------|
+| `AGENTS.md` | Agent persona | Pi system prompt imported as Agent instruction |
+| `settings.json` | Config supplement | Default provider, model, and other settings |
+| `sessions/*.jsonl` (v3) | Episodic memory | Chat history imported as memories with multi-turn messages, tool call filtering, and list content merging |
+| `skills/*/SKILL.md` | Skill review queue | Markdown + YAML frontmatter format is fully compatible — auto-discovered and imported |
+| `auth.json` | Credentials (env_keys) | API keys mapped to Myrm environment variable format (explicit confirmation required) |
+
+**안전요원:**
+- 알 수 없는 세션 버전(≠ v3)은 자동으로 자동 건너뜁니다.
+- 빈 메시지, 잘못된 JSON, dict가 아닌 콘텐츠 블록을 안전하게 건너뜁니다.
+- Pi에는 MCP 구성이 없습니다(기술 스택 차이) — 마이그레이션 완성도에 영향을 미치지 않습니다.
+
+**인증됨(2026-08-03):** `test_pi_migration.py` **25/25 PASS**(검색/로딩/세션 구문 분석/기술/자격증명/에지 사례 포함 — 6개 카테고리, 25개 시나리오)
+
+## Hermes MoA 참조 가져오기(마법사 확인)
+
+Hermes `config.yaml`에 참조 모델이 있는 `moa` 블록이 포함된 경우 마이그레이션 마법사는 확인 시 이를 대상 에이전트의 **`engine_params.moa_overlay`**에 쓸 수 있습니다.
+
+| Step | What happens |
+|------|----------------|
+| **Dry-run** | Preview includes `hermes_moa` lane — shows default (or first enabled) preset name and reference model count |
+| **Confirm** | `hermes_moa_migrator` maps Hermes refs → Myrm overlay; skips refs that fail provider resolution |
+| **After import** | Open chat → model picker **Mixture of Agents** group → pick **Standard / Deep Review / Fast** to opt in per session |
+
+**정직한 경계:**
+- **기본** Hermes 프리셋의 참조 세트만 가져옵니다(**다른** 참조 풀이 있는 여러 프리셋 → 여러 에이전트 프로필 생성)
+- Hermes **집계자** 모델은 마이그레이션되지 **않음** — Myrm 기본 모델은 Advisor 출력을 흡수합니다(설계상).
+- 참조가 확인되기 전에 공급자 키를 Myrm에서 구성해야 합니다. 확인할 수 없는 참조는 로깅 시 건너뜁니다.
+
+**확인됨(2026-08-03):** **`test_hermes_moa_migrator.py` 19/19** + 가져오기 아카이브의 통합 경로 확인 — **30/30** MoA 서버 pytest 제품군의 일부입니다.
+
+## 롤백
+
+모든 가져오기는 완전히 되돌릴 수 있습니다.
+
+1. **설정 → 메모리 센터 → 최근 가져오기**로 이동합니다.
+2. 가져오기 배치에서 **롤백**을 클릭합니다.
+3. 취소할 내용 미리보기(롤백 연습 실행)
+4. 이전 상태 복원 확인
+
+## 백업 및 원격 동기화
+
+### 로컬 백업
+
+언제든지 모든 추억의 수동 백업을 만드세요:
+
+- **설정 → 시스템 → 백업** → 백업 생성
+- 저장: 모든 메모리 유형, 공유 컨텍스트, 대화 기록
+- 필요에 따라 백업을 나열, 복원 또는 삭제합니다.
+
+### 원격 백업(S3/WebDAV)
+
+클라우드 스토리지에 대한 자동 동기화를 구성합니다.
+
+- **S3 호환**: 모든 공급자(AWS S3, Cloudflare R2, MinIO 등)
+- **WebDAV**: NAS 장치, Nextcloud, ownCloud 등
+
+## 신규 사용자 온보딩
+
+Myrm을(를) 처음 실행하면 **온보딩 마법사**가 시스템에 있는 기존 AI 보조 데이터를 자동으로 확인합니다. 찾은 경우 원클릭 마이그레이션 경로를 제공하므로 첫 번째 대화에는 이미 귀하의 개성, 추억 및 도구가 있습니다.
+
+외부 데이터가 감지되면 채팅 창에 **검색 배너**도 나타나 마이그레이션 마법사에 빠르게 액세스할 수 있습니다.
+
+## 내보내다
+
+### 전체 아카이브 백업 및 복원
+
+전체 Myrm 작업공간을 모든 데이터 관계를 보존하는 구조화된 아카이브로 내보냅니다.
+
+- **대화**: 압축 상태(압축된 요약), 세션 메모, 도구 사용 통계 및 토큰 비용 요약을 포함한 전체 메시지 기록
+- **메모리**: 모든 메모리 유형(에피소드, 의미, 절차, 선호도, 공유 컨텍스트)
+- **에이전트 구성**: JSON 왕복 내보내기/가져오기를 통해 완전한 에이전트 프로필(모델, 프롬프트, 스킬, MCP 바인딩)
+- **섹션 선택 복원**: 전체 아카이브를 가져오거나 특정 섹션(대화만, 메모리만 등)을 선택합니다.
+
+이는 재해 복구, 인스턴스 간 복제 또는 팀 온보딩에 권장되는 경로입니다.
+
+### 교차 배포 마이그레이션(로컬 ← 클라우드)
+
+Myrm은(는) 모든 배포 모드에서 SQLite를 단일 데이터 저장소로 사용합니다. 로컬 WebUI, Tauri 데스크톱, 클라우드 호스팅 간 마이그레이션이 원활하게 이루어집니다.
+
+- **볼륨 복사**: 배포 간에 SQLite 데이터베이스 파일을 복사하기만 하면 됩니다. 데이터 손실이 없고 형식 변환도 없습니다.
+- **아카이브 경로**: 한 배포에서 전체 아카이브를 내보내고 섹션 선택을 통해 다른 배포에서 복원
+
+어떤 경쟁업체도 이 수준의 배포 이식성을 지원하지 않습니다. 대부분은 단일 배포 모드로 잠겨 있습니다.
+
+### 메모리 아카이브 내보내기
+
+Myrm 메모리를 다른 Myrm 인스턴스로 가져오거나 공유할 수 있는 구조화된 JSON 아카이브(`myrm_memory_archive` 형식)로 내보냅니다.
+
+### 데이터세트 내보내기
+
+훈련 가능한 형식으로 대화 데이터 내보내기:
+
+- **ShareGPT**: 표준 미세 조정 형식
+- **PII 수정**: 선택적으로 개인 정보 제거
+- **품질 필터링**: 최소 회전 수, 최소 콘텐츠 길이, 성공 전용
+- **증분**: 마지막 내보내기 이후 새 데이터만 내보내기
+
+## 경쟁사와 비교
+
+| Feature | Myrm | Hermes | OpenClaw | Pi | Claude Code |
+|---------|:----:|:------:|:--------:|:--:|:-----------:|
+| GUI Migration Wizard | ✅ | ❌ CLI only | ❌ | ❌ | ❌ |
+| Dry-Run Preview | ✅ | ✅ (text) | ❌ | ❌ | ❌ |
+| One-Click Rollback | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Multi-Source Discovery | ✅ (14 sources ready) | ❌ (1 source) | ❌ | ❌ | ❌ |
+| Cloud ZIP Upload | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Deterministic Import Error Codes (`message + error_code`) | ✅ (preview + confirm) | ❌ | ❌ | ❌ | ❌ |
+| Remote Backup (S3/WebDAV) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Token Economics Comparison | ✅ | ❌ | ❌ | ❌ | ❌ |
+| MCP Config Migration | ✅ | ✅ (overwrites) | ❌ | ❌ | ❌ |
+| Skill Review Queue | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Target Agent Selection | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Full Archive Backup/Restore | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Section-Selective Restore | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Cross-Deployment Migration | ✅ (3 modes) | ❌ (single) | ❌ (single) | ❌ | ❌ (CLI only) |
+| Agent Config Export/Import | ✅ JSON | ❌ | ❌ | ❌ | ❌ |
+| Session Export with Compaction State | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Conversation Share (read-only link) | ✅ (HMAC+TTL, revocable) | ❌ | ❌ | ❌ | ❌ |
+| Hermes Cron Import (paused + rollback) | ✅ | ❌ CLI only, no preview | ❌ | ❌ | ❌ |
+| Pi 5-Lane Migration | ✅ | ❌ | ❌ | N/A | ❌ |

@@ -4,7 +4,7 @@
  * - myrm-docs/docs.json, myrm-docs/docs 下全部 .mdx
  *
  * [OUTPUT]
- * - CI 校验：营销外链 slug 存在、MDX 文件存在、磁盘 MDX 无 orphan、禁止 legacy 域名、zh 关键页英文句门禁
+ * - CI 校验：营销外链 slug 存在、MDX 文件存在、磁盘 MDX 无 orphan、禁止 legacy 域名、zh/ko 关键页英文句门禁
  *
  * [POS]
  * 营销站与 Mintlify 文档导航一致性校验脚本；`bun run build` 前自动执行。
@@ -109,17 +109,31 @@ function collectDocsTextFiles(docsRoot: string): string[] {
   return files;
 }
 
-/** Zero-tolerance English prose gate for critical zh marketing MDX. */
+/** Zero-tolerance English prose gate for critical localized marketing MDX. */
 const ZH_ENGLISH_SENTENCE =
+  /\b(the|is|are|was|were|with|for|and|users|when|while|if you|this |that |from |offers|provides|implements|beyond |based on|myrm's|hermes'|don't|doesn't|can't|won't|honest scope|honest limits|what you get|key architectural|leader-worker|instant reply|visual agent|what mavis|migration wins)\b/i;
+
+const KO_ENGLISH_SENTENCE =
   /\b(the|is|are|was|were|with|for|and|users|when|while|if you|this |that |from |offers|provides|implements|beyond |based on|myrm's|hermes'|don't|doesn't|can't|won't|honest scope|honest limits|what you get|key architectural|leader-worker|instant reply|visual agent|what mavis|migration wins)\b/i;
 
 const ZH_CONTENT_ZERO_TOLERANCE = new Set([
   'docs/zh/getting-started/competitor-comparison.mdx',
 ]);
 
-function scanZhEnglishProse(docsRoot: string, errors: string[]): void {
-  const zhDir = join(docsRoot, 'docs', 'zh');
-  if (!existsSync(zhDir)) {
+const KO_CONTENT_ZERO_TOLERANCE = new Set([
+  'docs/ko/getting-started/competitor-comparison.mdx',
+]);
+
+function scanLocalizedEnglishProse(
+  docsRoot: string,
+  localeDir: string,
+  zeroTolerance: Set<string>,
+  englishPattern: RegExp,
+  label: string,
+  errors: string[],
+): void {
+  const localizedDir = join(docsRoot, 'docs', localeDir);
+  if (!existsSync(localizedDir)) {
     return;
   }
 
@@ -134,7 +148,7 @@ function scanZhEnglishProse(docsRoot: string, errors: string[]): void {
         continue;
       }
       const rel = relative(join(docsRoot, 'docs'), fullPath).replace(/\\/g, '/');
-      if (!ZH_CONTENT_ZERO_TOLERANCE.has(rel)) {
+      if (!zeroTolerance.has(rel)) {
         continue;
       }
       const lines = readFileSync(fullPath, 'utf8').split('\n');
@@ -157,14 +171,36 @@ function scanZhEnglishProse(docsRoot: string, errors: string[]): void {
         if (alpha < 12) {
           continue;
         }
-        if (ZH_ENGLISH_SENTENCE.test(line)) {
-          errors.push(`Zh English prose in ${rel}:${i + 1}: ${trimmed.slice(0, 80)}`);
+        if (englishPattern.test(line)) {
+          errors.push(`${label} English prose in ${rel}:${i + 1}: ${trimmed.slice(0, 80)}`);
         }
       }
     }
   }
 
-  walk(zhDir);
+  walk(localizedDir);
+}
+
+function scanZhEnglishProse(docsRoot: string, errors: string[]): void {
+  scanLocalizedEnglishProse(
+    docsRoot,
+    'zh',
+    ZH_CONTENT_ZERO_TOLERANCE,
+    ZH_ENGLISH_SENTENCE,
+    'Zh',
+    errors,
+  );
+}
+
+function scanKoEnglishProse(docsRoot: string, errors: string[]): void {
+  scanLocalizedEnglishProse(
+    docsRoot,
+    'ko',
+    KO_CONTENT_ZERO_TOLERANCE,
+    KO_ENGLISH_SENTENCE,
+    'Ko',
+    errors,
+  );
 }
 
 function scanLegacyUrls(docsRoot: string, errors: string[]): void {
@@ -192,7 +228,7 @@ function main(): void {
 
   const errors: string[] = [];
 
-  const marketingLocales: DocsLocale[] = ['en', 'zh'];
+  const marketingLocales: DocsLocale[] = ['en', 'zh', 'ko'];
   for (const locale of marketingLocales) {
     for (const marketingPath of MARKETING_DOC_PATHS) {
       const urlPath = localizedDocsPath(marketingPath, locale);
@@ -219,6 +255,7 @@ function main(): void {
 
   scanLegacyUrls(DOCS_ROOT, errors);
   scanZhEnglishProse(DOCS_ROOT, errors);
+  scanKoEnglishProse(DOCS_ROOT, errors);
 
   if (errors.length > 0) {
     console.error('Docs slug contract validation failed:\n' + errors.map((e) => `  - ${e}`).join('\n'));

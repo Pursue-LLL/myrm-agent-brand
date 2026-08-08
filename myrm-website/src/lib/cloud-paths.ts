@@ -8,7 +8,7 @@
  * [POS]
  * 云页 App 跳转助手。仅 `/cloud` 使用，与 deploy-paths 隔离。
  */
-import type { DocsLocale } from '@/lib/docs-contract';
+import type { Locale } from '@/i18n/config';
 import { getAppUrl } from '@/lib/deploy-mode';
 
 function withCloudUtm(base: string, medium: string): string {
@@ -16,14 +16,14 @@ function withCloudUtm(base: string, medium: string): string {
   return `${base}${separator}utm_source=website&utm_medium=${medium}&utm_campaign=cloud`;
 }
 
-export function getCloudLoginHref(appLocale: DocsLocale = 'en'): string {
+export function getCloudLoginHref(appLocale: Locale = 'en'): string {
   return withCloudUtm(getAppUrl('/auth/login', appLocale), 'cloud_nav');
 }
 
-export function getCloudRegisterHref(appLocale: DocsLocale = 'en'): string {
+export function getCloudRegisterHref(appLocale: Locale = 'en'): string {
   return withCloudUtm(getAppUrl('/auth/login', appLocale), 'cloud_cta');
 }
 
-export function getCloudBillingHref(appLocale: DocsLocale = 'en'): string {
+export function getCloudBillingHref(appLocale: Locale = 'en'): string {
   return withCloudUtm(getAppUrl('/pricing', appLocale), 'cloud_billing');
 }

@@ -9,9 +9,10 @@ Mintlify 文档站源码；导航与主题由 `docs.json` 定义。对外域名 
 | 文件 | 地位 | 职责 | I/O/P |
 |------|------|------|-------|
 | `package.json` | 配置 | Mintlify dev 与导航维护脚本入口 | — |
-| `docs.json` | 核心 | 站点配置、侧栏、主题色；`navigation.languages[en,zh]` | — |
+| `docs.json` | 核心 | 站点配置、侧栏、主题色；`navigation.languages[en,zh,ko]` | — |
 | `docs/**/*.mdx` | 核心 | 英文文档正文 | — |
 | `docs/zh/**/*.mdx` | 核心 | 中文文档（URL 前缀 `/zh/`） | — |
+| `docs/ko/` | 核心 | 韩文文档（URL 前缀 `/ko/`） | — |
 | `images/logo-icon.webp` | 辅助 | Mintlify nav logo（透明底，light/dark 共用，源自官网 brand） | — |
 | `images/favicon.png` | 辅助 | 站点 favicon | — |
 | `scripts/` | 辅助 | 导航维护脚本 + 分形门禁 | [scripts/_ARCH.md](scripts/_ARCH.md) |

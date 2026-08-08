@@ -14,18 +14,18 @@
 'use client';
 
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { ArrowRight02Icon } from 'hugeicons-react';
 import { Button } from '@/components/ui/button';
-import { useDocsLocale } from '@/hooks/useDocsLocale';
+import type { Locale } from '@/i18n/config';
 import { getCloudRegisterHref } from '@/lib/cloud-paths';
 import { MultilineHeading } from '../landing/HeroTypography';
 import { MagneticButton } from '../landing/interactive';
 
 export default function CloudFinalCtaSection() {
   const t = useTranslations('cloud');
-  const docsLocale = useDocsLocale();
-  const registerHref = getCloudRegisterHref(docsLocale);
+  const appLocale = useLocale() as Locale;
+  const registerHref = getCloudRegisterHref(appLocale);
 
   return (
     <section className="py-20 text-center sm:py-32" style={{ borderTop: '1px solid var(--ed-border)' }}>

@@ -1,0 +1,92 @@
+---
+
+title: 도구 API
+description: 프로그래밍 방식으로 도구를 관리하고 실행합니다.
+---
+
+# 도구 API
+
+## 사용 가능한 도구 목록
+
+```bash
+GET /api/tools
+```
+
+## 실행 도구
+
+```bash
+POST /api/tools/:name/execute
+```
+
+```json
+{
+  "parameters": {
+    "url": "https://example.com"
+  }
+}
+```
+
+## 내장 도구
+
+| Tool | Description |
+|------|-------------|
+| `browser` | Web browsing and scraping |
+| `file_system` | File read/write operations |
+| `terminal` | Shell command execution |
+| `code_execute` | Code execution in sandbox |
+| `grep_tool` | Ripgrep-powered regex content search (three-tier: ripgrep → mmap → Python), path-grouped densified output (auto-deduplicates paths when ≥5 matches, saving 18-39% tokens), ReDoS protection, non-code file auto-capping |
+| `glob_tool` | File path pattern search under the workspace |
+| `@codebase` mention | Lightweight workspace file/extension overview injected into the user message (use with grep/glob for exploration) |
+| `web_search` | Multi-engine search with BM25/Reranker filtering — returns cleaned, deduplicated snippets |
+| `render_ui` | Declarative in-chat UI (23 A2UI components). Turn1 ~223 tok; full props in `.agent/docs/A2UI_REFERENCE.md` (auto-seeded when enabled). Fail-closed on unknown types |
+| `update_ui_data` | Incremental `data_update` SSE for live panels (progress, metrics, task lists). Deep-merges `data` model — nested fields update without wiping sibling keys. Mounted with `render_ui` when Interactive UI is enabled |
+| `todo_write` | Structured task planning for multi-step objectives. Hard-enforced MAX_TODOS=20 limit prevents over-planning; single `in_progress` concurrency keeps execution focused. Violations auto-corrected with LLM feedback. Opt-in via Planning toggle or auto-enabled on resume when existing todos detected |
+
+### 기본 도구 그룹과 주문형 기능 비교
+
+| Scenario | Enabled by default | Opt-in |
+|----------|-------------------|--------|
+| General chat | `web_search` + `memory` | — |
+| Coding / files | Enable **file_ops** → `glob_tool` + `grep_tool` + file_* mount **immediately** (Claude Code–style eager, not discover-deferred) | `code_execute` (bash) |
+| MCP / bound skills | — | `discover_capability_tool` → `skill_select_tool` searches **already-bound** library (`<BoundSkills>`) |
+| External skill marketplace | — | `skill_discovery_tool` search/install from GitHub/skills.sh; Settings **Discover** tab also available |
+| Skill hygiene | WebUI **Curator** sweep | — |
+
+| `web_fetch` | 3-tier local fetch (HTTP/Browser/Stealth) with DOM pruning and Markdown extraction |
+| `github` | GitHub API integration |
+
+## MCP 도구
+
+[MCP](/docs/guides/mcp-integration)을 통해 연결된 외부 도구는 내장 도구와 함께 자동으로 등록됩니다. MCP 도구 이름은 네임스페이스 격리를 위해 내부적으로 `mcp__{server}__{tool}` 접두사가 붙습니다. API은 접두사가 붙은 이름과 원래 이름을 모두 허용합니다.
+
+### 2경로 MCP 라우팅
+
+MCP 서버를 여러 도구와 연결하면 Myrm은(는) 전체 도구 액세스를 유지하면서 토큰 사용을 최소화하는 최적의 라우팅 전략을 자동으로 선택합니다.
+
+| Route | Condition | Behavior | User Experience |
+|-------|-----------|----------|-----------------|
+| **Direct** | Server tools ≤ threshold AND within aggregate budget | Full tool schemas loaded upfront | Zero-latency tool calls |
+| **PTC / Skill** | Server tools > threshold OR aggregate budget exceeded | Wrapped as a Skill (`skill_search` → `skill_select` → PTC) | On-demand discovery via skill search |
+
+50개 도구 MCP 서버를 연결해도 Turn1 프롬프트가 부풀려지지 않습니다. 대규모 서버는 스킬로 강등되고 요청 시 검색됩니다. Direct MCP 도구는 UI에 실제 이름을 표시합니다.
+
+<Callout type="info">
+보안 규칙(ALLOW/ASK/DENY)은 직접 MCP 도구와 Skill/PTC 호출 모두에 적용됩니다. `mcp__gmail__send_email`에 대한 도구별 DENY 규칙은 기술 경로를 통해 우회할 수 없습니다.
+</Callout>
+
+```bash
+POST /api/tools/mcp__github__search_repos/execute
+```
+
+### 필터링
+
+에이전트별 도구 필터링은 MCP 서버 구성의 `tool_include` / `tool_exclude`을 통해 지원됩니다.
+
+```json
+{
+  "tool_include": ["search_repos", "get_issue"],
+  "tool_exclude": ["delete_repo"]
+}
+```
+
+자세한 내용은 [MCP 통합 > 도구 필터링](/docs/guides/mcp-integration#tool-filtering)을 참조하세요.

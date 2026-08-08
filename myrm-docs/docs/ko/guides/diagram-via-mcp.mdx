@@ -1,0 +1,33 @@
+---
+
+title: MCP을 통한 다이어그램
+description: 편집 가능한 화이트보드에는 Excalidraw 또는 tldraw MCP 서버를 사용하세요. 내장 캔버스가 필요하지 않습니다.
+---
+
+Myrm은(는) 내장형 무한 화이트보드를 제공하지 **않습니다**. 아키텍처 스케치, 순서도 및 협업 다이어그램의 경우 MCP 서버를 연결하고 핵심 제품을 간결하게 유지하세요.
+
+**이것이 도움이 되는 이유**: OpenClaw와 같은 경쟁업체는 종종 기본 제공 캔버스 플러그인을 번들로 제공하여 기본 도구 스키마와 유지 관리 비용을 부풀립니다. Myrm은 **Mermaid 인공물 + render_ui**(추가 설치 없음)를 통해 대부분의 다이어그램 요구 사항을 충족합니다. 협업 스케치 보드가 필요한 경우에만 **Excalidraw/tldraw MCP**를 설치하세요. 기본 토큰 오버헤드를 지불하지 않고도 기능을 유지할 수 있습니다.
+
+## 내장된 대안(MCP 없음)
+
+- 채팅의 **인어 아티팩트** — 마인드 맵, 순서도, 시퀀스 다이어그램, 간트 차트
+- **`render_ui`** — A2UI를 통한 구조화된 채팅 내 UI(양식, 표, 차트)
+- **HTML / SVG 아티팩트** — 내보내기 및 공유 가능한 문서
+
+## 권장 MCP 확장 프로그램
+
+| Use case | MCP | Notes |
+| --- | --- | --- |
+| Hand-drawn diagrams | [Excalidraw MCP App](https://github.com/excalidraw/excalidraw-mcp) | Official remote HTTP extension; also supported by Goose |
+| Programmatic `.tldr` files | [tldraw-mcp-server](https://github.com/AndresMuelas2004/tldraw-mcp-server) | Node.js; 30 tools, no browser required |
+| Codex-style widget canvas | [Cowart](https://github.com/zhongerxin/cowart) | Codex plugin + MCP widget (reference only) |
+
+## 설정(설정 → MCP)
+
+1. 원격 MCP 서버 URL(Excalidraw MCP 앱)을 추가하거나** 로컬 stdio 서버(tldraw / excalidraw-mcp-server)를 실행합니다.
+2. 상담원 프로필에서 MCP을 활성화합니다.
+3. 에이전트에게 MCP 도구를 통해 다이어그램을 생성하거나 편집하도록 요청하세요. 지속성은 Myrm 서버 저장소가 아닌 MCP 앱에 있습니다.
+
+## 레거시 캔버스에서 마이그레이션
+
+이전에 제거된 **캔버스** 내장 도구를 활성화한 경우 해당 도구는 저장된 프로필에서 자동으로 제거됩니다. 빠른 다이어그램을 위해 Mermaid를 사용하거나 편집 가능한 화이트보드를 위해 Excalidraw MCP을 설치하세요.

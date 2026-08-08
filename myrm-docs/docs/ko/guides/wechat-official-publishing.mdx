@@ -1,0 +1,91 @@
+---
+
+title: WeChat 공식 계정 게시
+description: 볼트 마크다운을 스타일이 지정된 HTML로 변환하고 인간 참여 확인을 통해 WeChat 공식 계정 초안 상자에 푸시합니다.
+---
+
+# 위챗 공식 계정 게시
+
+에이전트에게 원클릭 게시 도구를 제공하지 않고도 **작업 공간 저장소**에서 **WeChat 공식 계정 초안 상자**로 긴 형식의 기사를 게시할 수 있습니다.
+
+이 작업 흐름은 **파일 중심**입니다. Markdown은 Vault에 있고 포맷터는 그 옆에 `.wechat.html`을 쓰고 WebUI에서 미리 본 다음 준비가 되면 **WeChat Draft로 푸시**를 클릭합니다.
+
+<Note>
+**WeChat(iLink)**은 QR 로그인을 통한 **개인 WeChat**입니다. **WeChat 공식**은 **AppID + AppSecret** 및 공식 계정 초안 API을 사용합니다. 그들은 별도의 채널입니다.
+</Note>
+
+## 전제조건
+
+1. API 액세스가 활성화된 **WeChat 공식 계정**(구독 또는 서비스 계정).
+2. [mp.weixin.qq.com](https://mp.weixin.qq.com/) → 설정 → 기본 구성에서 **AppID** 및 **AppSecret**.
+3. 동일한 페이지에 서버 **공용 IP 화이트리스트**가 있습니다(`uploadimg` 및 `draft/add`에 필요함).
+4. 선택 사항: 인바운드 메시지에 대해 **설정 → 채널**에서 **WeChat 공식** 채널을 바인딩합니다(초안 푸시는 자격 증명만으로 작동함).
+
+## 자격 증명 구성
+
+1. **설정 → 채널 → WeChat 공식**을 엽니다.
+2. **AppID** 및 **AppSecret**을 입력합니다.
+3. **연결 테스트** - 테스트에 실패하면 IP 화이트리스트 수정을 클릭합니다.
+4. 저장합니다. 자격 증명은 `wechatOfficialCredentials`로 저장됩니다.
+
+## 작업 흐름: Vault → HTML → 초안
+
+### 1단계 - 볼트에 마크다운 쓰기
+
+Typora, Obsidian 또는 기타 편집자의 저자입니다. 작업공간 볼트 아래에 저장하세요. `articles/my-post.md`. 상대 이미지 사용:
+
+```markdown
+![](./images/cover.png)
+```
+
+### 2단계 — 사전 구축된 스킬로 포맷
+
+상담원에게 문의하세요(또는 **WeChat(微信公众号)** 브랜치로 Kanban을 실행하세요).
+
+> "`articles/my-post.md`을 WeChat 공식 HTML로 변환하세요."
+
+**wechat-article-formatter** 스킬은 `md_to_wechat_html.py`을 실행하고 블록 수준 인라인 CSS(제목, 단락, 코드 블록, 표, 이미지)를 사용하여 `articles/my-post.wechat.html`을 생성합니다.
+
+### 3단계 - HTML 아티팩트 미리보기
+
+채팅에서 HTML 아티팩트를 엽니다. **ArtifactCard**는 이를 인라인으로 렌더링합니다. 레이아웃과 이미지를 확인하세요.
+
+### 4단계 - HITL 초안 상자에 푸시
+
+1. HTML 아티팩트 카드에서 **WeChat Draft로 푸시**를 클릭합니다.
+2. **제목**을 설정합니다(필수).
+3. **표지 이미지**: 첫 번째 인라인 `<img>`이 있는 경우 자동으로 채워집니다. 또는 작업 공간 이미지 제안에서 선택하세요. 또는 작업공간 상대 경로를 수동으로 입력하세요.
+4. 푸시를 확인합니다.
+
+서버:
+
+- `relative_to`(작업 공간 알 수 없음 → **503 실패 시 닫힘**)을 사용하여 경로의 유효성을 검사합니다.
+- 표지 썸 **앞**에 WeChat CDN(`uploadimg`)에 인라인 이미지를 업로드합니다.
+- 본문 HTML + 내장 스타일을 사용하여 `draft/add`를 호출합니다.
+
+### 5단계 — WeChat에 게시(수동)
+
+[mp.weixin.qq.com](https://mp.weixin.qq.com/) → **초안 상자**를 열고 기사를 검토한 다음 게시하거나 예약하세요. Myrm은(HITL) 자동 게시를 **하지** 않습니다.
+
+## 보안 및 디자인 선택
+
+| Choice | Why |
+|--------|-----|
+| No Agent draft tool | Keeps tool schema stable for Prompt Cache; publishing is an explicit human action |
+| Path fail-closed | Prevents LLM-injected paths outside the workspace |
+| HITL only | You always review on WeChat before mass send |
+| Single theme | One SSOT inline-style table; head CSS generated from the same source |
+
+## 문제 해결
+
+| Symptom | Fix |
+|---------|-----|
+| Test connection fails | Add server egress IP to WeChat IP whitelist |
+| 503 on draft push | Workspace root not resolved — open the chat's workspace or retry after server ready |
+| Images missing in draft | Use workspace-relative paths; remote URLs must be reachable from the server |
+| Cover not applied | Provide a workspace image path or ensure first inline image uses a local path |
+
+## 관련된
+
+- [다중 채널](/docs/guides/multi-channel) — WeChat iLink 및 공식을 포함한 모든 메시징 채널
+- 사전 구축된 스킬: `myrm-agent-server/assets/prebuilt_skills/wechat-article-formatter/SKILL.md`

@@ -2,7 +2,7 @@
 
 ## 概述
 
-`myrm-website` 是 `myrm-agent-brand` 仓内的 Next.js 营销站（Cloudflare Pages → `myrmagent.ai`）。纯展示页；App CTA 经 `getAppUrl(path, docsLocale)` 跳转 `app.myrmagent.ai`；文档经 `getDocsUrl()` 跳转 `docs.myrmagent.ai`。双页技术方案见 [DUAL_PAGE_SYSTEM.md](../../DUAL_PAGE_SYSTEM.md)；Landing sections 见 [landing/_ARCH.md](landing/_ARCH.md)。
+`myrm-website` 是 `myrm-agent-brand` 仓内的 Next.js 营销站（Cloudflare Pages → `myrmagent.ai`）。纯展示页；App CTA 经 `getAppUrl(path, appLocale)` 跳转 `app.myrmagent.ai`（`appLocale` 为 `zh|en|ko`）；文档经 `getDocsUrl()` 跳转 `docs.myrmagent.ai`（zh/ko 用户分别路由 `/zh/`、`/ko/` 文档）。双页技术方案见 [DUAL_PAGE_SYSTEM.md](../../DUAL_PAGE_SYSTEM.md)；Landing sections 见 [landing/_ARCH.md](landing/_ARCH.md)。
 
 **双页面架构：**
 

@@ -1,0 +1,90 @@
+---
+
+title: 작업 공간 자동 구성
+description: 작업 영역 폴더를 스캔하고, WebUI에서 이동 계획을 검토하고, 자동 에이전트 mv 없이 롤백을 통해 배치 파일 이동을 적용합니다.
+---
+
+# 작업공간 자동 구성
+
+지저분한 채팅 작업 공간이나 볼트 폴더를 정리하세요. 에이전트가 **이동 계획**을 제안하면 사용자는 이를 테이블에서 검토한 다음 적용하거나 롤백합니다. **자동 자동 이동은 절대 사용하지 마세요**.
+
+이는 **파일 중심** 및 **HITL 우선**이며, WeChat 초안 게시와 정신이 유사합니다. 에이전트는 계획 아티팩트를 작성합니다. WebUI에서 확인합니다.
+
+<Note>
+**Turn Undo**는 대화/도구 스냅샷을 되돌립니다. 작업공간 파일 이동을 취소하지 **않습니다**. 대신 계획 정리 패널에서 **마지막 작업 롤백**을 사용하세요.
+</Note>
+
+## 언제 사용하는가
+
+- 오랜 조사 끝에 채팅이 한 폴더에 수십 개의 파일을 남겼습니다.
+- Obsidian Vault 폴더를 샌드박스에 동기화하기 전
+- 신뢰하는 작업 공간 범위 내에 다운로드 스타일의 혼란이 쌓이는 경우
+
+## 시작하는 방법
+
+### 옵션 A — 파일 트리(권장)
+
+1. 채팅 사이드바에서 **작업 공간 파일 브라우저**를 엽니다.
+2. **디렉터리** → **AI 정리 폴더**를 마우스 오른쪽 버튼으로 클릭합니다.
+3. 채팅 입력에는 정리 프롬프트가 미리 채워져 있습니다. 보내세요(원하는 경우 편집하세요(예: "프로젝트별 그룹화")).
+
+### 옵션 B - 채팅
+
+상담원에게 직접 물어보세요.
+
+> 작업 공간 자동 구성 도구를 사용하여 `my-folder/` 아래의 파일을 정리합니다. 내 검토를 위해 Organisation-plan.json을 작성하세요.
+
+## 작업흐름
+
+### 1단계 - 상담원이 계획을 스캔하고 작성합니다.
+
+**workspace-auto-organizer** 사전 구축된 스킬:
+
+- `glob_tool`을 사용하여 범위(최대 500개 파일)를 검사합니다.
+- 카테고리를 추론하기 위한 샘플 파일
+- 항목당 `src`, `dst`, `reason`와 함께 `{scope}.organize-plan.json`을 씁니다.
+- `mv` 또는 쉘 이동을 **실행하지 않음**
+
+### 2단계 - WebUI에서 검토
+
+계획이 채팅 아티팩트로 표시되는 경우:
+
+1. 아티팩트 카드에서 **구성 계획 검토**를 클릭합니다.
+2. 대상 경로를 편집하거나 동의하지 않는 행을 제거하세요.
+3. **검증**(시험 실행)을 클릭하여 충돌 및 범위 규칙을 확인합니다.
+
+### 3단계 - 신청
+
+**이동 적용**을 클릭합니다. 서버:
+
+- 작업공간 파일 작업과 동일한 보안 스택으로 경로의 유효성을 검사합니다.
+- 파일을 일괄 이동하고 롤백을 위해 **OrganizeJob**을 기록합니다.
+- 파일 이름이 변경되면 Markdown에서 `[[wikilink]]` 대상을 업데이트합니다.
+
+적용 또는 롤백(사이드바 보기 또는 구성 패널 새로 고침) 후에 파일 트리가 새로 고쳐집니다.
+
+### 4단계 - 필요한 경우 롤백
+
+동일한 패널에서 **마지막 작업 롤백**을 클릭합니다. 이렇게 하면 작업 로그에서 이동이 복원됩니다. 실행 취소가 **아닙니다**.
+
+롤백으로 모든 파일을 복원할 수 없는 경우(예: 파일이 수동으로 삭제된 경우) **부분 롤백** 경고가 표시됩니다. 파일 트리를 확인하고 나머지 경로를 직접 수정하세요.
+
+## 보안 및 디자인 선택
+
+| Choice | Why |
+|--------|-----|
+| No Harness organize meta tool | Keeps agent tool schema stable for Prompt Cache |
+| Skill forbids direct mv | Forces HITL; reduces accidental mass delete |
+| OrganizeJob rollback | Turn Undo only covers turn snapshots, not arbitrary moves |
+| Scope + depth limits | Plans cannot escape the folder you authorized |
+
+## 문제 해결
+
+| Symptom | Fix |
+|---------|-----|
+| Validate fails `dst_exists` | Destination already exists — edit the plan or remove the row |
+| Validate fails `mtime_mismatch` | Source changed after the plan was generated — regenerate the plan |
+| Rollback button missing | No applied job for this workspace, or job already rolled back |
+| Turn Undo did not restore files | Expected — use **Rollback last job** on the organize panel |
+| Validate fails `duplicate_src` | Plan lists the same source twice — remove or fix the duplicate row |
+| File tree looks stale | Switch to the workspace sidebar tab or refresh; Apply triggers an automatic tree update |

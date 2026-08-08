@@ -1,0 +1,51 @@
+---
+
+title: Google Workspace 통합
+description: 설정 OAuth을 통해 Gmail, 캘린더, 드라이브를 연결하세요. CLI 토큰이 필요하지 않습니다.
+---
+
+# Google Workspace 통합
+
+**설정 → 통합 → 사용자 인증 정보**에서 Google Workspace를 연결하세요. 승인 후에는 에이전트가 `google-workspace` 사전 구축된 기술을 사용할 수 있게 됩니다.
+
+## 당신이 얻는 것
+
+| Capability | User benefit |
+|------------|--------------|
+| **GUI OAuth** | Click to connect — no copying tokens into YAML or `.env` |
+| **Encrypted refresh tokens** | Credentials stored in the server database with AES-256-GCM |
+| **Skills Catalog hints** | If OAuth is missing, the skill shows as unavailable with a link back to Settings |
+| **Agent runtime guard** | Agents see a clear warning instead of failing mid-task with cryptic API errors |
+| **Read-only v1.5** | Calendar today, Gmail inbox metadata (subject/from/snippet), recent Drive files |
+
+## Google Workspace 연결
+
+1. **설정 → 통합 → 자격 증명**을 엽니다.
+2. **Google Workspace**를 찾아 **연결**을 클릭합니다.
+3. 브라우저에서 Google OAuth 완성
+4. 앱으로 돌아갑니다. 상태가 **연결됨**으로 표시됩니다.
+5. **라이브러리 → 스킬** 열기 — `google-workspace`을 사용할 수 있어야 합니다(이전에 비활성화하지 않은 한 자동으로 활성화됩니다).
+
+## 상담사 메시지 예시
+
+- "오늘 내 달력에 무슨 일 있어?"
+- "최근 받은 편지함 메시지 요약"
+- "최근에 수정된 드라이브 파일 목록"
+
+에이전트는 사전 구축된 기술 지침을 읽고 OAuth 토큰이 자동으로 삽입된 번들 도우미 스크립트를 실행합니다.
+
+## 문제 해결
+
+| Symptom | Fix |
+|---------|-----|
+| Skill shows unavailable (amber badge) | Reconnect Google in Settings → Credentials |
+| OAuth button disabled | Ask your admin to configure `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` on the server |
+| Empty calendar | Check timezone in user settings — day bounds follow `MYRM_USER_TIMEZONE` |
+
+## 대 MCP Gmail/캘린더 항목
+
+서비스 카탈로그에는 Gmail 및 Google 캘린더도 MCP 서버로 나열됩니다. 기본 **google-workspace** 기술은 다음과 같은 이유로 데스크톱 및 로컬 사용자에게 권장됩니다.
+
+- 하나의 OAuth 연결에 Gmail, 캘린더, 드라이브가 포함됩니다.
+- 관리할 별도의 MCP 프로세스가 없습니다.
+- 카탈로그 및 에이전트 런타임은 동일한 가용성 검사를 공유합니다.
