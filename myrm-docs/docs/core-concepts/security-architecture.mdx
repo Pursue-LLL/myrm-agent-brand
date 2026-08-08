@@ -201,6 +201,16 @@ Data returned by third-party MCP tools is automatically passed through all 5 def
 - **Bilingual detection**: English and Chinese prompt injection patterns (e.g., "忽略之前的指令")
 - **Two-pass detection**: First on normalized text, then on Base64-decoded content
 
+### Memory Write-Path Scanning
+
+Unlike input-side guards (which protect the conversation), the write-path scanner protects **durable memory** — it runs deterministically on every memory write **before** persistence, so a prompt-injected agent cannot store malicious instructions, secrets, or forged system tags even if the injection succeeded upstream:
+
+- **Instruction-shape detection** — guardrail-bypass orders and untrusted-channel writes are blocked (bilingual attack library)
+- **Credential zero-retention** — API keys, passwords, PIN/OTP numeric credentials are redacted in place; years and phone numbers are excluded to avoid false positives
+- **Fake system-tag interception** — `System:`/`Assistant:` colon prefixes are treated as injection
+- **Every write path shares the guard** — manual stores, batch writes, updates, profile, rules, MCP tools, agent auto-extraction, and import recovery
+- **CI poisoning benchmark gate** — two-layer expectation tests (detection layer + extraction layer) run in CI to prevent regression
+
 ### Sub-Agent Security
 
 Multi-agent workflows introduce identity drift and privilege escalation risks. Myrm addresses this at every level:
