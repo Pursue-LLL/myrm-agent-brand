@@ -166,6 +166,19 @@ Agent 可以使用 `ask_question_tool` 在执行操作前向用户提出结构�
 | **实时推送** | 健康状态变更和内存指标通过 ServerEventBus 专用通道实时推送前端（与聊天工具进度 SSE 分轨） |
 | **部署感知** | Local 模式跳过网络审计（省资源），远程模式启用全量监控 |
 
+## 会话标识白名单（防路径穿越）
+
+用户可控的会话标识（`chat_id` / `session_id`）在被拼入文件系统路径时，绝不能逃逸事件日志目录。所有接受用户提供标识的 API 入口，都会在业务逻辑执行前通过共享白名单校验（`is_safe_session_id`，字符集 `[A-Za-z0-9:_-]`）**fail-fast**：
+
+| 入口 | 校验 |
+|------|------|
+| OpenAI 兼容 `/v1/chat/completions` | 非法 `chat_id` → HTTP 400 |
+| 语音 Realtime `/realtime-tool-exec` | 非法 `chat_id` → HTTP 400 |
+| 语音 WebSocket `/voice/session`（`type: config`） | 非法 `chat_id` → 拒绝连接 |
+| Web 对话 `/chats/{id}/turn` | DB 存在性校验 → 404（天然防护） |
+
+非字符串输入（例如发送到无 Pydantic 强制转换的 WebSocket 路径的整数）同样被拒绝——校验器对任何非 `str` 值返回 `False` 而非抛出 `TypeError`。这使路径穿越（`..`、反斜杠、空字节）防护在 REST、WebSocket、Realtime 全部入口保持统一，不存在异常处理不一致。
+
 ## 提示词注入防御
 
 ### 内容边界（输出侧）

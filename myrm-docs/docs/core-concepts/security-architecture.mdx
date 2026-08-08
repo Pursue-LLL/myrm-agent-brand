@@ -175,6 +175,19 @@ Real-time monitoring of credential validity and system health, with automatic al
 | **Real-time Push** | Health status changes and memory metrics streamed to the frontend via dedicated ServerEventBus channels (separate from chat tool progress) |
 | **Deployment-Aware** | Local mode skips network audit (saves resources), remote mode enables full monitoring |
 
+## Session-ID Whitelist (Path-Traversal Guard)
+
+User-controlled session identifiers (`chat_id` / `session_id`) must never escape the event-log directory when interpolated into filesystem paths. Every API entry that accepts a user-supplied identifier runs a shared whitelist check (`is_safe_session_id`, charset `[A-Za-z0-9:_-]`) **fail-fast** — before any business logic executes:
+
+| Entry | Validation |
+|-------|------------|
+| OpenAI-compatible `/v1/chat/completions` | Invalid `chat_id` → HTTP 400 |
+| Voice Realtime `/realtime-tool-exec` | Invalid `chat_id` → HTTP 400 |
+| Voice WebSocket `/voice/session` (`type: config`) | Invalid `chat_id` → connection rejected |
+| Web chat `/chats/{id}/turn` | DB existence check → 404 (naturally protected) |
+
+Non-string inputs (e.g. an integer sent to the WebSocket path where no Pydantic coercion exists) are rejected too — the validator returns `False` for any non-`str` value instead of raising `TypeError`. This keeps path-traversal (`..`, backslash, NUL byte) protection uniform across REST, WebSocket, and Realtime entries with no exception-handling divergence.
+
 ## Prompt Injection Defense
 
 Two complementary subsystems protect against prompt injection — one for untrusted external content flowing **into** the agent, and one guarding user/file **inputs**.
