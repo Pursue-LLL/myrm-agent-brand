@@ -34,6 +34,22 @@ Every memory write passes a deterministic security scan **before** it touches du
 
 Detection is rule-driven and deterministic (zero LLM cost, millisecond latency); intentionally obfuscated or highly semantic attacks are additionally covered by the LLM audit layer.
 
+## Fact Trust (inferences never masquerade as facts)
+
+Long-term memory only persists what is **true**, not what merely sounds plausible. Nine independent layers keep unproven inferences, guesses, and contested claims from being remembered as — or answered as — established facts:
+
+1. **Extraction rule** — the extractor only records what *was done*, never what *was requested* or speculated ("Record what WAS DONE, not what was requested")
+2. **Confidence threshold** — memories below `min_confidence=0.8` are filtered before storage; implied/inferred statements rarely qualify
+3. **Confidence grading** — extraction assigns semantic confidence (0.9 explicit / 0.7 implied / 0.5 inferred), so later retrieval can weigh facts by how directly they were stated
+4. **Human confirmation** — new memories default to a pending state that requires your approval before they become active (HITL, `memory_require_confirmation=True`)
+5. **Claim states & evidence snapshots** — wiki claims progress through raw → compiled → contested → retracted, with evidence pointers and `content_sha256` snapshots and a verified/stale/missing freshness flag
+6. **Claim graph** — evidence nodes linked by explicit relations (SUPPORTED_BY / CONTRADICTED_BY / SUPERSEDED_BY / CONSTRAINED_BY) so contradictions are visible, not silently overwritten
+7. **No silent injection** — learned (inferred) context is never auto-injected into the system prompt; only stable, confirmed preferences surface
+8. **Preference stability** — preferences must survive a CANDIDATE → PROVISIONAL → ACTIVE validation ladder before they influence future behavior
+9. **Retrieval down-weighting** — at recall time, stale (×0.6), missing-evidence (×0.75), contested (×0.7), and unsupported (×0.5) facts are automatically demoted in ranking so they don't mislead answers
+
+The result: your AI's long-term memory is a record of what actually happened, and its answers are grounded in verified facts — never in confident guesses.
+
 ## Extract Retry Queue (Cognify failures never silently lost)
 
 When memory **extraction** fails (rate limits, transient DB locks, network blips), Myrm does not leave you guessing:
