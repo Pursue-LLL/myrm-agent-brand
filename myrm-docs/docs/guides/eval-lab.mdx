@@ -53,6 +53,25 @@ The Eval Lab ships with a built-in adapter for **WorkBuddy Bench** (Tencent's mu
 Security tasks are graded by their own task-native `tests/scoring.py` (no LLM judge); Code/Web/Office use the composite verifier — matching the WBBench paper's acceptance layering.
 :::
 
+## Deterministic scoring: layered acceptance (CompositeVerifier)
+
+Every task's own test suite drives the score — no black-box LLM grading in the pass/fail path. The composite verifier runs the exact `tests/` code shipped inside each downloaded track inside a clean, seeded workspace and turns the result into a real per-turn score:
+
+- **Run the task's own tests** — the `test_suite` assertion executes the task-bundled tests against the agent's workspace output. Results are parsed from JUnit XML or a plain reward-script exit code.
+- **Per-turn `pass_rate`** — multi-turn conversations score each turn separately, so a task that passes on turn 1 but degrades later is caught early and stops wasting tokens (configurable `on_turn_fail` strategy).
+- **No hidden LLM judge** — parsing is deterministic: pass/fail comes from the test runner, not from a model reading the output. This keeps scores reproducible and immune to judge-prompt drift.
+- **Partial credit, not binary** — `skipped` tests are excluded from the denominator so an uncollectable flaky test can't tank a real pass; reward-script outputs map to graduated scores.
+- **Test-level visibility** — each track card shows both the run pass rate and the **test pass rate** (`avg_pass_rate` over turns), and every report carries the aggregated test-level average.
+
+| Acceptance layer | What it verifies |
+|------------------|------------------|
+| Tool-call assertions | Did the agent call the required tools |
+| State assertions | Did filesystem/state match expectations |
+| Sandbox assertions (`test_suite`) | Did the task's own tests pass in the real workspace |
+| Semantic judge (optional) | LLM check only where the task has no native tests |
+
+The `test_suite` timeout defaults to 600s and is configurable per case, so long-running task tests (e.g. compile + run) finish instead of being killed early.
+
 ## Cross-profile matrix eval
 
 To compare how different agent configurations handle the same tasks:
