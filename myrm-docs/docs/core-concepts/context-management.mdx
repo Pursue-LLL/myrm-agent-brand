@@ -440,3 +440,35 @@ Switching models or adjusting context parameters takes effect on the next messag
 | Error handling | `hygiene_timeout_seconds` + cooldown | Circuit breaker with half-open auto-recovery |
 
 **409 hot-reload tests verified** (execution_cache 21 + context_management 312 + config/hot-reload 17 + frontend 59).
+
+## Model-Switch Preflight (Compression Warning)
+
+Switching to a model with a smaller context window mid-session can silently trigger immediate context compression on the very next message — truncating working context and making the conversation "suddenly dumber." Myrm warns about this **before** you switch.
+
+### How It Works
+
+When the user opens the model picker, Myrm sends a preflight request (`POST /integrations/llm/model-switch-preflight`) for each candidate model with the current session's real state (estimated tokens, prompt mode, turn count, chat ID). The server computes — using the **same harness compression formula as the runtime** (no frontend-hardcoded drift):
+
+1. **Target window resolution** — `_resolve_target_max_input_tokens` prefers the explicit frontend capability value, falling back to LiteLLM model info. Unknown windows skip the warning (never a false alarm).
+2. **Compression threshold** — derived from harness `ContextConfig(max_context_tokens=window)`, the exact formula the runtime uses to decide when to compress.
+3. **Tier-aware compression start** — in full prompt mode, the threshold is inferred from the target model's tier (WEAK=30% / MEDIUM=50%), matching `_apply_small_model_tuning`.
+4. **Dynamic tightening** — when a `turn_count` is supplied, harness `ContextBudget` recalculates the threshold for long sessions (tighter threshold as pressure grows).
+5. **Anti-thrash awareness** — when a `chat_id` is supplied, the server consumes the compression-ineffective streak: streak ≥ 2 with tokens below 90% of the window means runtime already skips ineffective compression, so the preflight does **not** warn (matching `should_block_automatic_compression`); streak ≥ 2 at ≥90% (OOM safety net) still warns.
+
+The picker then shows an amber "will compress" badge on affected models with the exact threshold in the tooltip. The same model is only warned twice per session (acknowledged-count guard) — after that the UI stays quiet.
+
+### Honest Boundaries
+
+- The verdict uses "may compress" wording, not a deterministic assertion.
+- Transient runtime states are not simulated: `eco_mode` (budget-pressure threshold ×0.80) and hot-cache bypass (5-minute activity skip) are unknowable pre-switch — these only cause **under-reporting** (a compression the preflight misses), never false alarms.
+
+### vs. Competitors
+
+| Aspect | Myrm | Hermes | CoPaw |
+|--------|------|--------|-------|
+| Pre-switch compression warning | **Yes — GUI badge per candidate model** | No (only an **expensive-model price** gate on `/model`; a session-start check for the *auxiliary* compression model) | No (only a `CONTEXT_UNFIT` error after compaction already failed) |
+| Reuses runtime compression formula | Yes (harness `ContextConfig` + `ContextBudget`) | No (independent implementation) | Partially (static window catalog) |
+| Long-session dynamic threshold | Yes (`ContextBudget` turn_count) | No | No |
+| Anti-thrash false-alarm guard | Yes (streak consumption) | No | No |
+
+**Dedicated tests**: `test_model_switch_preflight.py` (server) + `model-picker-popover.preflight.test.tsx` (frontend) cover window resolution, tier inference, dynamic thresholds, anti-thrash consumption, and the acknowledged-count UI guard.

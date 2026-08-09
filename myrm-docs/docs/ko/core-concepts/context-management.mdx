@@ -441,3 +441,35 @@ LLM 기반 요약기가 실패하는 경우(네트워크 오류, 시간 초과, 
 | Error handling | `hygiene_timeout_seconds` + cooldown | Circuit breaker with half-open auto-recovery |
 
 **409개의 핫 리로드 테스트가 검증되었습니다**(execution_cache 21 + context_management 312 + config/hot-reload 17 + frontend 59).
+
+## 모델 전환 사전 점검(압축 경고)
+
+세션 중간에 더 작은 컨텍스트 창을 가진 모델로 전환하면 다음 메시지에서 즉시 컨텍스트 압축이 발생하여 작업 컨텍스트가 잘리고 대화가 "갑자기 멍청해질" 수 있습니다. Myrm은 **전환하기 전에** 이를 경고합니다.
+
+### 작동 방식
+
+모델 선택기를 열면 Myrm은 각 후보 모델에 대해 현재 세션의 실제 상태(추정 토큰, 프롬프트 모드, 턴 수, 채팅 ID)를 담은 사전 점검 요청(`POST /integrations/llm/model-switch-preflight`)을 보냅니다. 서버는 **런타임과 동일한 harness 압축 공식을 사용하여**(프론트엔드 하드코딩 드리프트 없음) 계산합니다:
+
+1. **대상 창 해석** — `_resolve_target_max_input_tokens`는 프론트엔드 기능 값을 우선하고 LiteLLM 모델 정보로 폴백합니다. 창을 알 수 없으면 경고를 건너뜁니다(오탐 없음).
+2. **압축 임계값** — 런타임이 압축 시점을 결정할 때 사용하는 정확한 공식인 harness `ContextConfig(max_context_tokens=window)`에서 파생됩니다.
+3. **계층 인식 압축 시작** — 전체 프롬프트 모드에서 임계값은 대상 모델의 계층(WEAK=30% / MEDIUM=50%)에서 추론되며 `_apply_small_model_tuning`과 일치합니다.
+4. **동적 강화** — `turn_count`가 제공되면 harness `ContextBudget`이 긴 세션에 대해 임계값을 재계산합니다(압력 증가에 따라 더 엄격해짐).
+5. **Anti-thrash 인식** — `chat_id`가 제공되면 서버는 압축 무효 연속 횟수를 소비합니다: 연속 ≥2이고 토큰이 창의 90% 미만이면 런타임이 이미 무효 압축을 건너뛰므로 경고하지 않습니다(`should_block_automatic_compression`과 일치); 연속 ≥2이고 ≥90%(OOM 안전망)이면 계속 경고합니다.
+
+선택기는 영향받는 모델에 앰버색 "압축 발생" 배지를 표시하고 툴팁에 정확한 임계값을 보여줍니다. 같은 모델은 세션당 두 번만 경고합니다(승인 횟수 가드) — 이후 UI는 조용히 유지됩니다.
+
+### 정직한 경계
+
+- 판정은 "압축이 발생할 수 있음"이라는 표현을 사용하며 확정적 단언이 아닙니다.
+- 일시적 런타임 상태는 시뮬레이션하지 않습니다: `eco_mode`(예산 압박 임계값 ×0.80)와 핫 캐시 우회(5분 활동 스킵)는 전환 전에 알 수 없습니다 — 이로 인해 **미보고**(사전 점검이 놓치는 압축)만 발생하며 오탐은 없습니다.
+
+### 대 경쟁사
+
+| Aspect | Myrm | Hermes | CoPaw |
+|--------|------|--------|-------|
+| 전환 전 압축 경고 | **예 — 후보 모델별 GUI 배지** | 아니요(`/model`에서 **비싼 모델 가격** 게이트만, *보조* 압축 모델에 대한 세션 시작 검사만) | 아니요(압축 실패 후 `CONTEXT_UNFIT` 오류만) |
+| 런타임 압축 공식 재사용 | 예(harness `ContextConfig` + `ContextBudget`) | 아니요(독립 구현) | 부분적으로(정적 창 카탈로그) |
+| 긴 세션 동적 임계값 | 예(`ContextBudget` turn_count) | 아니요 | 아니요 |
+| Anti-thrash 오탐 가드 | 예(연속 횟수 소비) | 아니요 | 아니요 |
+
+**전용 테스트**: `test_model_switch_preflight.py`(서버) + `model-picker-popover.preflight.test.tsx`(프론트엔드)가 창 해석, 계층 추론, 동적 임계값, anti-thrash 소비 및 승인 횟수 UI 가드를 다룹니다.
