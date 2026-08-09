@@ -115,9 +115,10 @@ export const COMPARE_ROW_KEYS = [
   'benchmarkProfile',
   'gitPrPipeline',
   'securePushCredential',
-  'autoCommitIdentity',
-  'webhookSelfService',
-  'worktreeIsolation',
+    'autoCommitIdentity',
+    'webhookSelfService',
+    'worktreeIsolation',
+    'parallelE2eSignoff',
 ] as const;
 
 export type CompareRowKey = (typeof COMPARE_ROW_KEYS)[number];
@@ -193,6 +194,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'datasetsExport',
     'agentSkills',
     'benchmarkProfile',
+    'parallelE2eSignoff',
   ],
   platform: ['gui', 'chatHistoryManagement', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'harnessUpgradeContract', 'codeGraph', 'crossPlatformHandoff', 'configSync', 'taskResilience', 'localIotBridge', 'steerToken', 'threeDGraph', 'chatOpsIM', 'serverless'],
 };
