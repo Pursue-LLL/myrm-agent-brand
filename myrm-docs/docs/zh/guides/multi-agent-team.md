@@ -8,7 +8,7 @@ Myrm Agent 原生提供了业内领先的 **全可视化多智能体编排系统
 
 ### 1. 人机同屏的 GUI 任务看板 (Kanban)
 再也不用盯着滚动且难懂的终端日志（CLI）。
-Myrm 拥有原生的 **31 组件 GUI 任务看板**，每个任务包含 `backlog`、`ready`、`running`、`completed` 等精确的 8 态生命周期。你和你的多个 AI 员工在同一块看板上协同工作。看板状态毫秒级实时推送（SSE），并且支持一键深链跳转，真正做到所见即所得。
+Myrm 拥有原生的 **31 组件 GUI 任务看板**，每个任务包含 `backlog`、`ready`、`running`、`in_review`、`completed` 等精确的 9 态生命周期（含任务级人工审批门 IN_REVIEW）。你和你的多个 AI 员工在同一块看板上协同工作。看板状态毫秒级实时推送（SSE），并且支持一键深链跳转，真正做到所见即所得。
 
 ### 2. 自动化的依赖图与上下文接力 (Automated Context Routing)
 拒绝“人肉信息搬运工”。

@@ -15,6 +15,14 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 턴당 기능 제어를 위해 Myrm은 완전한 관찰 가능성(제출/적용/noop/큐/바쁨/최종 결과 + 실패 이유)을 갖춘 **원턴 스킬/MCP 재정의 칩**을 지원합니다. 집중 검증(2026-07-29): 프런트엔드 29/29 통과, 서버 10/10 통과; 목표 적용 범위는 핵심 프런트엔드 파일의 라인 62.47%, 서버 원격 측정 모듈의 전체 라인 72%에 도달했습니다. 이는 팀에게 추측이 아닌 비용/신뢰성 조정에 대한 마이그레이션 안전 증거를 제공합니다.
 
+## 최신 검증 스냅샷 (2026-08-09 · Kanban IN_REVIEW 인간 승인 게이트 · 9상태 수명주기)
+
+- **작업 수준 인간 승인 게이트 엔드투엔드(vs Hermes / OpenClaw / deer-flow / LobsterAI / CoPaw / jiuwenclaw):** 하네스 `test_in_review.py` **11/11** + 서버 `test_in_review_api.py` **14/14** = **테스트 25개, 실패 0개**(2026-08-09 실측, `scripts/dev/run-pytest-safe.sh`).
+- **검증됨:** `require_approval=true` 작업은 디스패처 검증 후 **IN_REVIEW**에 도달합니다(절대 COMPLETED가 아님). `/approve` → COMPLETED + 종속 항목 승격; `/reject` → READY 재작업, reason이 `error`에 기록됨. IN_REVIEW에서 수동 이동은 **409**를 반환(승인 게이트 우회 불가). 비 IN_REVIEW 상태에서 approve/reject는 멱등. 동시 approve는 정확히 한 번만 성공. reject reason + review 기록은 worker 컨텍스트에 주입. `REVIEW_REQUESTED` 알림은 `BACKGROUND_TASK_DONE`으로 소스 채팅에 라우팅(`suppress_web_push`). orchestrator의 `kanban_add_task`는 `require_approval` 지원.
+- **사용자에게 보이는 경쟁 우위:** Kanban 수명주기가 **9상태 + 23개 이벤트**로 확장됨(`IN_REVIEW` 상태 + `REVIEW_REQUESTED`/`APPROVED`/`REJECTED` 이벤트). 경쟁사에는 작업 수준 인간 승인 게이트가 없습니다. Hermes는 작업을 직접 완료(승인 상태 없음), OpenClaw Workboard는 표시 전용(LLM 도구 0개), deer-flow/LobsterAI/CoPaw/jiuwenclaw는 기본 Kanban이 없음. Myrm은 검증된 장기 작업을 '검토 대기'에 두고 운영자가 명시적으로 승인/거부해야 하는 유일한 Agent 워크스테이션입니다. 승인은 REST/GUI로 구동되며 우회 가능한 LLM 도구가 없습니다.
+- **정직한 범위:** 승인은 동기식 REST/GUI입니다(아직 IM 인라인 승인 버튼 없음). review 기록은 도구 출력을 통해 worker 컨텍스트에 표시됩니다(아직 전용 GUI 패널 없음). 게이트는 작업 단위 opt-in(`require_approval`)이며 전역 강제가 아닙니다.
+- **재료 SSOT:** `temp-docs/materials/KANBAN_TASK_SCHEDULING_ADVANTAGE.md` §IN_REVIEW · `toolkits/kanban/dispatcher.py` · `services/kanban/review_ops.py` · `api/kanban/routes/tasks.py`
+
 ## 최신 검증 스냅샷 (2026-08-03 · Wiki Compile Protection Chain · Wiki Roadmap #6)
 
 - **7계층 컴파일 보호 체인 무결성(대 Hermes / OpenClaw / deer-flow / LobsterAI / CoPaw / jiuwenclaw):** 하네스 compile_resilience **12/12** + 대기열 **13/13** + 컴파일러 코어+확장 **52/52** + 설문조사 **10/10** + 서버 wiki_queue_resilience **2/2** + wiki_api+ingest **47/47** + import_raw_gate **4/4** + 프런트엔드 wikiQueuePoll **7/7** + WikiSection.evidence **1/1** = **테스트 148개, 실패 0개**(~2분, 배치 8개, 하네스 + 서버 + 프런트엔드).

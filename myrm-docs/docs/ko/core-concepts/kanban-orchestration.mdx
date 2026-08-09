@@ -20,10 +20,24 @@ Kanban 보드는 7개 열에 걸쳐 에이전트 작업을 관리할 수 있는 
 | **Backlog** | Tasks waiting to be scheduled |
 | **Ready** | Dependencies met, available for pickup |
 | **Running** | Currently being executed by an agent |
+| **In Review** | Verified task awaiting human approval (`require_approval=true`) — approve → Completed, reject → Ready for rework |
 | **Completed** | Successfully finished and verified |
 | **Failed** | Execution failed (auto-retry or manual review) |
 | **Blocked** | Waiting on external input or a dependency |
 | **Archived** | Completed tasks moved out of the active board |
+
+### 인간 승인 게이트 (IN_REVIEW)
+
+`require_approval=true`로 생성된 작업은 디스패처 검증 후 직접 Completed가 아니라 **In Review**에 대기합니다. 운영자가 승인하면(→ Completed, 종속 작업 해제) 또는 사유와 함께 거부하면(→ Ready 재작업, 사유는 작업 `error`에 기록) 진행됩니다. In Review에서 수동 상태 이동은 **409**로 거부됩니다 — 승인 게이트는 LLM 도구로 우회할 수 없습니다.
+
+- **멱등**: In Review 외부의 approve/reject는 no-op(중복 제출 안전)
+- **레이스 안전**: 동시 approve는 정확히 한 번만 성공
+- **알림**: `REVIEW_REQUESTED`는 `BACKGROUND_TASK_DONE`으로 소스 채팅에 라우팅
+- **추적 가능**: 거부 사유 + 검토 기록이 worker 컨텍스트에 표시
+
+경쟁사(Hermes / OpenClaw / deer-flow / LobsterAI / CoPaw / jiuwenclaw)에는 작업 수준 인간 승인 게이트가 없습니다. Kanban 수명주기는 이제 **9상태 + 23개 이벤트**입니다.
+
+**검증(2026-08-09)**: 하네스 `test_in_review.py` 11/11 + 서버 `test_in_review_api.py` 14/14 = 테스트 25개, 실패 0개.
 
 ### 주요 기능
 
@@ -376,7 +390,7 @@ Myrm은 단일 패널에서 모든 하위 에이전트를 모니터링하고 제
 
 하위 에이전트 오케스트레이션의 경우 복잡한 작업을 에이전트에 설명하기만 하면 적절한 패턴을 사용하여 자동으로 분해 및 위임됩니다.
 
-**검증됨**: Kanban 하네스 **429** 전용 테스트(목록 제한/잘림 포함), sub_agents **780**, 서버 Kanban 바인딩 통합 **10** + 라이브 에이전트 스트림 e2e **1** + 프런트엔드 **110** 총 1800개 이상. 19개 이벤트 유형(StrEnum 유형 안전)이 포함된 8가지 상태 수명 주기. 이벤트 기반 디스패치는 경쟁업체의 60년대 폴링에 비해 MS 수준 응답을 확인했습니다. 모든 테스트를 100% 통과했습니다(2026-07-10).
+**검증됨**: Kanban 하네스 **429** 전용 테스트(목록 제한/잘림 포함), sub_agents **780**, 서버 Kanban 바인딩 통합 **10** + 라이브 에이전트 스트림 e2e **1** + 프런트엔드 **110** 총 1800개 이상. 23개 이벤트 유형(StrEnum 유형 안전, IN_REVIEW 인간 승인 게이트 포함)이 포함된 9가지 상태 수명 주기. 이벤트 기반 디스패치는 경쟁업체의 60년대 폴링에 비해 MS 수준 응답을 확인했습니다. 모든 테스트를 100% 통과했습니다(2026-07-10; IN_REVIEW는 2026-08-09에 25개 테스트로 검증됨).
 
 ## 외부 에이전트 위임
 

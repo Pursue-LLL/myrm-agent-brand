@@ -19,10 +19,24 @@ The Kanban board gives you a drag-and-drop interface to manage agent tasks acros
 | **Backlog** | Tasks waiting to be scheduled |
 | **Ready** | Dependencies met, available for pickup |
 | **Running** | Currently being executed by an agent |
+| **In Review** | Verified task awaiting human approval (`require_approval=true`) — approve → Completed, reject → Ready for rework |
 | **Completed** | Successfully finished and verified |
 | **Failed** | Execution failed (auto-retry or manual review) |
 | **Blocked** | Waiting on external input or a dependency |
 | **Archived** | Completed tasks moved out of the active board |
+
+### Human Approval Gate (IN_REVIEW)
+
+For tasks created with `require_approval=true`, the dispatcher parks a successfully verified task in **In Review** instead of completing it directly. An operator then approves it (→ Completed, releasing dependent tasks) or rejects it with a reason (→ Ready for rework, with the reason written back to the task's `error`). Manual status moves out of In Review are rejected with **409** — the gate cannot be bypassed by an LLM tool.
+
+- **Idempotent**: approve/reject outside In Review are no-ops (double-submit safe)
+- **Race-safe**: concurrent approvals succeed exactly once
+- **Notified**: `REVIEW_REQUESTED` routes to the source chat via `BACKGROUND_TASK_DONE`
+- **Traceable**: rejected reason + review history appear in the worker's context
+
+No competitor (Hermes, OpenClaw, deer-flow, LobsterAI, CoPaw, jiuwenclaw) offers a task-level human approval gate. Kanban lifecycle is now **9 states + 23 events**.
+
+**Verified (2026-08-09)**: harness `test_in_review.py` 11/11 + server `test_in_review_api.py` 14/14 = 25 tests, 0 failures.
 
 ### Key Features
 
@@ -375,7 +389,7 @@ Myrm provides a dedicated real-time dashboard for monitoring and controlling all
 
 For sub-agent orchestration, simply describe a complex task to any agent — it will automatically decompose and delegate using the appropriate pattern.
 
-**Verified**: Kanban harness **429** dedicated tests (incl. list limit/truncated), sub_agents **780**, plus server Kanban binding integration **10** + live agent-stream e2e **1** + frontend **110** totaling 1800+. 8-state lifecycle with 19 event types (StrEnum type-safe). Event-driven dispatch confirmed ms-level response vs competitor 60s polling. All tests 100% pass (2026-07-10).
+**Verified**: Kanban harness **429** dedicated tests (incl. list limit/truncated), sub_agents **780**, plus server Kanban binding integration **10** + live agent-stream e2e **1** + frontend **110** totaling 1800+. 9-state lifecycle with 23 event types (StrEnum type-safe, incl. IN_REVIEW human approval gate). Event-driven dispatch confirmed ms-level response vs competitor 60s polling. All tests 100% pass (2026-07-10; IN_REVIEW verified 2026-08-09, 25 tests).
 
 ## External Agent Delegation
 

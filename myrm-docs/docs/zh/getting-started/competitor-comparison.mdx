@@ -15,6 +15,14 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-08-09 · Kanban IN_REVIEW 人工审批门 · 9 态生命周期）
+
+- **任务级人工审批闸端到端（vs Hermes / OpenClaw / deer-flow / LobsterAI / CoPaw / jiuwenclaw）**：harness `test_in_review.py` **11/11** + server `test_in_review_api.py` **14/14** = **25 tests, 0 failures**（2026-08-09 实测，`scripts/dev/run-pytest-safe.sh`）。
+- **已验证**：`require_approval=true` 的任务经 Dispatcher 验证后落入 **IN_REVIEW**（绝不直接 COMPLETED）；`/approve` → COMPLETED 并 promote 依赖；`/reject` → READY 返工且 reason 回写 `error`；手工 move 出 IN_REVIEW 返回 **409**（审批门不可绕过）；approve/reject 在非 IN_REVIEW 态幂等；并发 approve 恰好成功一次；reject reason + review-history 注入 worker context；`REVIEW_REQUESTED` 通知经 `BACKGROUND_TASK_DONE` 路由到源会话（`suppress_web_push`）；orchestrator 的 `kanban_add_task` 支持 `require_approval`。
+- **对用户可见的竞品优势**：Kanban 生命周期升级为 **9 态 + 23 种事件**（新增 `IN_REVIEW` 状态与 `REVIEW_REQUESTED`/`APPROVED`/`REJECTED` 事件）。竞品均无任务级人工审批门：Hermes 任务直接 complete（无审批态）；OpenClaw Workboard 纯展示（0 个 LLM 工具）；deer-flow/LobsterAI/CoPaw/jiuwenclaw 无原生看板。Myrm 是唯一能让已验证的长任务停在「待审批」、必须由操作员显式 approve/reject 的 Agent 工作台——审批由 REST/GUI 驱动，不存在可绕过的 LLM 工具。
+- **诚实边界**：审批为同步 REST/GUI（暂无 IM 内联审批按钮）；review-history 通过工具输出注入 worker context（暂无独立 GUI 面板）；审批门为任务级 opt-in（`require_approval`），非全局强制。
+- **Material SSOT：** `temp-docs/materials/KANBAN_TASK_SCHEDULING_ADVANTAGE.md` §IN_REVIEW · `toolkits/kanban/dispatcher.py` · `services/kanban/review_ops.py` · `api/kanban/routes/tasks.py`
+
 ## 最新验证快照（2026-08-03 · Wiki 编译保护链路 · Wiki 路线图 #6）
 
 - **7 层编译保护链路完整性（vs Hermes / OpenClaw / deer-flow / LobsterAI / CoPaw / jiuwenclaw）**：Harness compile_resilience **12/12** + queue **13/13** + compiler 核心+扩展 **52/52** + survey **10/10** + Server wiki_queue_resilience **2/2** + wiki_api+ingest **47/47** + import_raw_gate **4/4** + 前端 wikiQueuePoll **7/7** + WikiSection.evidence **1/1** = **148 tests, 0 failures**（约 2min，8 批，harness + server + 前端）。

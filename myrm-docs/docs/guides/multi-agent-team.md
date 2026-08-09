@@ -8,7 +8,7 @@ Myrm Agent offers an industry-leading **Fully Visual Multi-Agent Orchestration S
 
 ### 1. Human-AI Co-pilot Visual Kanban
 Stop staring at scrolling, incomprehensible terminal logs.
-Myrm features a native **31-component GUI Task Kanban**, tracking tasks across 8 precise lifecycle states (e.g., `backlog`, `ready`, `running`, `completed`). You and your AI team collaborate on the same visual board. Status changes are pushed in real-time (SSE), providing a true WYSIWYG experience.
+Myrm features a native **31-component GUI Task Kanban**, tracking tasks across 9 precise lifecycle states (e.g., `backlog`, `ready`, `running`, `in_review`, `completed`) with a task-level human approval gate. You and your AI team collaborate on the same visual board. Status changes are pushed in real-time (SSE), providing a true WYSIWYG experience.
 
 ### 2. Automated DAG & Context Routing
 Refuse to be a "human copy-paste machine."
