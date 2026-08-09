@@ -187,6 +187,22 @@ When you create multiple goals, they're automatically queued:
 
 Set `auto_approve: true` to skip the approval step for queued goals, enabling fully unattended execution of goal chains.
 
+## Saved Agent Profile on Continuation
+
+When a goal auto-continues (queue dequeue, background WAIT resume, or loop restart), Myrm does **not** fall back to a generic headless agent. The continuation path loads the **chat-bound Saved Agent profile** and injects the same runtime context as your first turn:
+
+| Field | Why it matters |
+|-------|----------------|
+| `agent_id` | Preserves the agent you selected in chat |
+| `user_instructions` | System prompt + team Leader protocol (when `agent_type=team`) + output locale suffixes |
+| `subagent_ids` | Keeps delegation tools bound on team leaders |
+| `agent_skill_ids` | Keeps skill-scoped tools available |
+| Tool mount + security | Builtin tool flags and `enable_web_fetch` follow the saved agent's security profile |
+
+This means long-running goals keep formal tone (e.g., Korean **합니다体** via `builtin-ko-office` or a custom `response_locale_policy`), team roster text, and tool scope across every unattended turn — not just turn 1.
+
+Implementation entry point: `goal_stream_trigger.py` (`trigger_goal_stream` / `_resolve_goal_stream_agent_context`).
+
 ## Adaptive Convergence & Loop-on-Pause
 
 Goals can automatically detect when the agent has finished its work and handle continuous execution without human intervention.

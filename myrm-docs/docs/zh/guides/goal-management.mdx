@@ -152,6 +152,20 @@ Keep all changes backward compatible
 
 `auto_approve: true` 跳过审批，支持目标链完全无人值守。
 
+## 续跑时保留 Saved Agent 配置
+
+目标自动续跑（队列 dequeue、后台 WAIT 恢复、loop restart）时，Myrm **不会**退化为通用 headless Agent，而是从 chat 绑定的 Saved Agent profile 注入与首轮一致的运行时上下文：
+
+| 字段 | 作用 |
+|------|------|
+| `agent_id` | 保留你在聊天中选择的智能体 |
+| `user_instructions` | 系统提示 + Team Leader 协议（`agent_type=team` 时）+ 输出 locale 后缀 |
+| `subagent_ids` | Team Leader 续跑时保持 delegate 工具绑定 |
+| `agent_skill_ids` | 保持技能范围工具 |
+| 工具挂载与安全 | builtin 工具与 `enable_web_fetch` 跟随 Saved Agent 安全策略 |
+
+长 Goal 的每一轮无人值守续跑都会保持正式语体（如 `builtin-ko-office` 的韩国 **합니다体**）、Team 名册与工具范围。入口：`goal_stream_trigger.py`。
+
 ## 自适应收敛与自动续跑
 
 目标能自动检测 Agent 是否已完成工作，支持无人值守的持续执行。

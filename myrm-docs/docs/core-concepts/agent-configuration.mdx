@@ -45,6 +45,17 @@ You can inspect summary metrics from:
 
 - `GET /api/v1/statistics/turn-capability/summary`
 
+## Response Locale & Formality (SSOT)
+
+Saved Agents can declare an output locale policy in `engine_params.response_locale_policy` (locale + formality). Myrm appends a compact suffix to `user_instructions` at **every production entry point** — Web chat, channels, cron, Kanban, and Goal continuation — so the model keeps the same tone across turns.
+
+| Capability | Myrm | OpenClaw | Hermes |
+|------------|------|----------|--------|
+| Agent output honorific SSOT | Yes (profile + guard) | Docs translation prompts only | UI strings only |
+| Goal turn 2+ keeps profile | Yes (`goal_stream_trigger`) | — | — |
+
+Built-in preset **`builtin-ko-office`** ships with Korean formal polite (**합니다体**). Use the chat **Formality** switch for per-session overrides; both flow through the same suffix pipeline (tail append, cache-friendly).
+
 ## Model Selection
 
 Myrm supports 100+ models through LiteLLM integration:

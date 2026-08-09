@@ -45,6 +45,17 @@ Myrm 在聊天页中直接内嵌了 Agent 配置面板，实现「修改配置 �
 
 - `GET /api/v1/statistics/turn-capability/summary`
 
+## 输出 Locale 与敬语（SSOT）
+
+Saved Agent 可在 `engine_params.response_locale_policy` 声明输出 locale 与 formality。Myrm 在 **全部生产入口**（Web 聊天、渠道、Cron、Kanban、Goal 续跑）向 `user_instructions` 追加紧凑后缀，保证多轮语气一致。
+
+| 能力 | Myrm | OpenClaw | Hermes |
+|------|------|----------|--------|
+| Agent 输出敬语 SSOT | 有（profile + guard） | 仅文档翻译 prompt | 仅 UI 文案 |
+| Goal 第 2 轮起保留 profile | 有（`goal_stream_trigger`） | — | — |
+
+内置预设 **`builtin-ko-office`** 默认韩国正式敬语（**합니다体**）。聊天 **Formality** 开关可会话级覆盖；均走同一后缀管道（尾部追加，cache 友好）。
+
 ## 模型选择
 
 Myrm 通过 LiteLLM 支持 100+ 模型：
