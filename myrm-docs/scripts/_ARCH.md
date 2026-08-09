@@ -13,7 +13,7 @@ Mintlify 文档站维护脚本；非常规开发路径，仅在导航结构或�
 | `apply-i18n-docs-json.ts` | 辅助 | 一次性将 `docs.json` 改写为 `navigation.languages[en,zh]` 双语结构 | — |
 | `apply-ko-docs-json.ts` | 辅助 | 向 `docs.json` 追加 `navigation.languages[ko]` 导航块 | — |
 | `seed-ko-docs.ts` | 辅助 | 从 EN 复制并改写 `/ko/` 内链，满足 orphan 门禁 | — |
-| `docs-ko-bulk-translate.py` | 辅助 | EN/zh→ko MDX 批量机器翻译（`.venv` + deep-translator） | — |
+| `docs-ko-bulk-translate.py` | 辅助 | EN/zh→ko MDX 批量机器翻译（`.venv` + deep-translator）；`PROTECTED_KO_MDX` 跳过已手工韩文化的页面（如 Compare 主表） | — |
 | `build-zh-navigation.ts` | 辅助 | 从 EN 导航生成 zh 页面路径列表 | — |
 
 ## 运行方式

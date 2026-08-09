@@ -58,6 +58,9 @@ BRANDS = [
 
 SKIP_LINE_PREFIXES = ("|", "---", ":::", "<", "```")
 
+# Hand-maintained ko pages: bulk regen must not overwrite (e.g. Compare main table).
+PROTECTED_KO_MDX = frozenset({"getting-started/competitor-comparison.mdx"})
+
 
 def load_cache() -> dict[str, str]:
     if not CACHE_PATH.exists():
@@ -364,6 +367,11 @@ def translate_one(
     rel = src.relative_to(DOCS_DIR)
     dest = KO_DIR / rel
     dest.parent.mkdir(parents=True, exist_ok=True)
+
+    rel_posix = rel.as_posix()
+    if rel_posix in PROTECTED_KO_MDX and dest.exists():
+        return f"[{index}/{total}] skip protected manual ko {rel}"
+
     if not force and not needs_translation(dest):
         return f"[{index}/{total}] skip translated {rel}"
 
