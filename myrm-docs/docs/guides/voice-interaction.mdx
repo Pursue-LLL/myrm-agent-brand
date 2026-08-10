@@ -64,6 +64,15 @@ During a voice conversation, you can say things like "research XXX for me" and t
 - **Durable persistence**: Tasks are persisted via the Kanban system with restart recovery and zombie detection
 - **Completion notification**: Results are automatically pushed to the originating chat when the task finishes
 
+### Background Task Completion Announcement
+
+When a voice-dispatched background task finishes, your agent **proactively speaks up** during your next voice session — across all four voice modes symmetrically (Audio Only / Agent Bridge / OpenAI Realtime / Gemini Live):
+
+- **Speak, walk away, hear the result**: Dispatch a long task by voice, leave the computer, and the agent announces the result summary when you're back in a voice session. No need to poll the panel or ask "is it done yet?"
+- **Never interrupts current speech**: If the agent is mid-sentence when the task completes, the announcement queues safely in the TTS pipeline and plays the moment it finishes speaking — queue-safe insertion, no abrupt cut-offs
+- **Announcement is part of the conversation**: The announcement is spoken as a natural continuation of the chat, and the chat timeline refreshes in real time so you can immediately follow up with details and the agent answers with full context
+- **No duplicate announcements across windows**: With multiple windows or devices open, only the active voice session announces — session-scoped deduplication, exactly once
+
 ## Full-Duplex & Barge-in Awareness
 
 Myrm Agent supports **full-duplex voice conversations** — you can interrupt the Agent at any time while it's speaking (Barge-in). When you do:
