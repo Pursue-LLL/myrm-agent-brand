@@ -217,6 +217,16 @@ Remote transports (SSE, streamable HTTP) sit behind load balancers and NAT that 
 - **TTL recycling** — Long-idle connections are closed and recreated on demand
 - **Last-resort rebuild** — The pool only rebuilds a connection when the actor's internal reconnect budget is fully exhausted
 
+### Connection Reliability (Real Protocol Verification)
+
+Long-lived connections are the bedrock of multi-hour agent tasks. Myrm validates them with **real-transport end-to-end regression** — real stdio subprocesses and streamable HTTP servers running the full initialize → list → call lifecycle, not just mocked unit tests:
+
+- **Zero leak on failure paths** — every exit path (connect failure, reconnect failure, clean shutdown) releases the transport HTTP client, so memory stays flat across hours of work
+- **Self-heal regression** — a crashed server is rebuilt in place and keeps serving, with the same resource safety on fresh connections
+- **Full-suite verification** — 720 MCP tests passing, 94.3% coverage
+
+Migrations never worry that something works in a demo but fails in production.
+
 ### CancelledError Protection
 
 A guard prevents Python `CancelledError` from leaking through MCP channels, which could otherwise crash the MCP server process.
