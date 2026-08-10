@@ -72,6 +72,14 @@ Every task's own test suite drives the score — no black-box LLM grading in the
 
 The `test_suite` timeout defaults to 600s and is configurable per case, so long-running task tests (e.g. compile + run) finish instead of being killed early.
 
+### Scoring diagnostics: failures never go silent
+
+A grading run can fail before any test produces output — the scoring command may be blocked by the sandbox security policy, hit the timeout, or crash. These failures are now attributed precisely and surfaced with real evidence:
+
+- **Attributed failures** — execution-level failures (security block, timeout, crash) are reported as such, instead of being misreported as an "unreadable reward file". You can immediately tell *why* a grade failed: the policy blocked it, it timed out, or the command itself errored.
+- **stdout tail attached** — every "command failed", "reward file unreadable", and "JUnit file unreadable" message carries up to 800 characters of the grading command's real stdout, so you see what actually happened instead of guessing.
+- **Counts-based reward fallback** — reward payloads that only carry `tests_passed`/`tests_total` counters (or a `tests[]` array), rather than the full `score.json`/`reward.json` schema, are now parsed and scored correctly instead of being rejected as unreadable. This mirrors the official WBBench runner's counting semantics while staying compatible with lightweight scorer scripts.
+
 ## Cross-profile matrix eval
 
 To compare how different agent configurations handle the same tasks:
@@ -94,6 +102,42 @@ To compare how different agent configurations handle the same tasks:
 :::tip
 If any evaluation fails (e.g., API key expired, model unavailable), a toast notification shows the error immediately — no silent failures.
 :::
+
+## Memory A/B: prove memory's value with numbers
+
+Is enabling memory actually making your agent better? **Memory A/B** answers this with a side-by-side experiment instead of marketing claims.
+
+### How it works
+
+1. Open **Eval Lab** → **WorkBuddy Bench** and pick a downloaded track.
+2. Click **Memory A/B** on a track card — a confirmation dialog shows exactly what will run.
+3. The dialog **probes your embedding model first**: memory retrieval depends on embeddings, so a missing or unreachable embedding model is reported before you waste a run.
+4. Myrm runs the *same* tasks twice — once with `enable_memory=True`, once with `enable_memory=False` — everything else identical.
+5. Live progress streams over SSE; the header **Stop** button aborts the run and cleans up mid-run.
+
+:::note
+The dialog honestly notes that WBBench tasks are single-turn, so memory gains show more clearly in long multi-turn sessions. We'd rather you interpret results correctly than oversell.
+:::
+
+### The report
+
+The matrix report shows both arms side by side:
+
+- **Pass rate** — task completion rate with vs without memory
+- **Tokens & cost** — the price of remembering
+- **`memory_tool_calls`** — how many times memory tools were actually invoked. If memory helped, you can see it was really used — no false positives from "enabled but never used" memory.
+
+### History
+
+Every Memory A/B run lands in the **Run History** table (timestamp, dataset, both arms' pass rates and `memory_tool_calls`). Click **View** to reopen any past report — track whether memory's value changes as your product evolves.
+
+### Isolation & safety
+
+Memory A/B runs use **temporary, isolated memory storage** that is discarded after the run — your real memory data is never touched or polluted.
+
+### Test coverage
+
+Full-link Chrome E2E coverage (real browser, real backend): card entry + confirmation dialog, seeded dual-arm report + history rendering, and a real run start + abort — 3 E2E tests, plus 12 frontend unit tests.
 
 ## Environment snapshot
 
