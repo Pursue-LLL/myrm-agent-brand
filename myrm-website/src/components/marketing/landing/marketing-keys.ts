@@ -31,6 +31,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'multiAgent',
   'omniChannel',
   'tokenSmart',
+  'evalLab',
 ] as const;
 
 export type HighlightSlideKey = (typeof HIGHLIGHT_SLIDE_KEYS)[number];

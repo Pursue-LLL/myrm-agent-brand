@@ -744,7 +744,7 @@
           "feature": "基准评测 Headless Profile · 公平标准化评测",
           "hermes": "_no",
           "openclaw": "_no",
-          "myrmAgent": "一键 GUI 开关：空 System Prompt + 仅 CORE 工具 + 禁用 MCP/技能/子 Agent/记忆/搜索/Replan/上下文压缩 · 跨次评测结果可复现 · Eval Lab 仪表盘内 A/B 对比（Benchmark vs 常规模式）· **内置 WorkBuddy Bench 四赛道**（Code 80 / Web 70 / Office 50 / Security 60）：UI 下载 + SHA-256 校验 + 原子安装 · SSE 实时进度 · 运行/下载可中止 · 对齐论文的 native/composite 双评分 · **确定性分层验收引擎（CompositeVerifier）**：在种子工作区内运行任务自带测试，解析 JUnit/reward 得每轮 pass_rate（排除 skipped，部分通过按比例计分而非非黑即白，零 LLM 判分成本），赛道卡片双口径徽标（通过率/测试通过率）+ 报告 avg_pass_rate 聚合 · **跨配置矩阵评测**：同一用例集在多个 Agent Profile 上运行，自动检测稳定/回归边界 · **环境可复现性**：EvalManifest 快照 profile_id + benchmark_mode + model + tools（frozen dataclass）· 历史表格含 Profile/Model 列 + 点击查看完整报告 · **5层 Skill 发布质量防线**（L1 EvolutionScreener 5阶段筛选 + L2 EvalCase 回归惩罚 + L3 Improvement Gate 原版 baseline + L4 SandboxValidator + L5 ConfidenceApprovalFlow GUI）+ Shadow AB 灰度 + 一键 rollback — 远超 skill-up 单层 CLI exit code · 21 项单元 + 5 项 API + 5 项 Chrome E2E 全绿"
+          "myrmAgent": "一键 GUI 开关：空 System Prompt + 仅 CORE 工具 + 禁用 MCP/技能/子 Agent/记忆/搜索/Replan/上下文压缩 · 跨次评测结果可复现 · Eval Lab 仪表盘内 A/B 对比（Benchmark vs 常规模式）· **内置 WorkBuddy Bench 四赛道**（Code 80 / Web 70 / Office 50 / Security 60）：UI 下载 + SHA-256 校验 + 原子安装 · SSE 实时进度 · 运行/下载可中止 · 对齐论文的 native/composite 双评分 · **确定性分层验收引擎（CompositeVerifier）**：在种子工作区内运行任务自带测试，解析 JUnit/reward 得每轮 pass_rate（排除 skipped，部分通过按比例计分而非非黑即白，零 LLM 判分成本），赛道卡片双口径徽标（通过率/测试通过率）+ 报告 avg_pass_rate 聚合 · **跨配置矩阵评测**：同一用例集在多个 Agent Profile 上运行，自动检测稳定/回归边界 · **环境可复现性**：EvalManifest 快照 profile_id + benchmark_mode + model + tools（frozen dataclass）· 历史表格含 Profile/Model 列 + 点击查看完整报告 · **一键记忆 A/B**：同一批任务分别跑记忆开/关，报告并排对比通过率与成本 + 独家 `memory_tool_calls` 行为指标 + embedding 前置探测 + 诚实提示单轮任务收益有限 + 临时记忆卷评测后清理（绝不污染真实记忆）· **5层 Skill 发布质量防线**（L1 EvolutionScreener 5阶段筛选 + L2 EvalCase 回归惩罚 + L3 Improvement Gate 原版 baseline + L4 SandboxValidator + L5 ConfidenceApprovalFlow GUI）+ Shadow AB 灰度 + 一键 rollback — 远超 skill-up 单层 CLI exit code · 21 项单元 + 5 项 API + 5 项 Chrome E2E 全绿"
         },
         "cacheObservability": {
           "feature": "缓存可观测 · 知道 Token 花在哪",
@@ -1392,6 +1392,16 @@
           "tag1": "12 步渐进降载 · 对话永不崩溃",
           "tag2": "切换模型前预检——压缩风险，先看到再决定",
           "tag3": "同预算约 7× 任务量"
+        },
+        "evalLab": {
+          "label": "Eval Lab 评测与记忆 A/B",
+          "title": "记忆的价值，用数字证明，不靠营销话术",
+          "desc": "Eval Lab 把「我的 Agent 有没有变强」变成可度量、可复现的分数。内置 WorkBuddy Bench 四大赛道（代码 / 网页 / 办公 / 安全），数据集下载带校验、SSE 实时推送进度，Agent 在种子工作区里执行任务自带的真实测试，通过率由测试结果判定——零 LLM 自评，杜绝「模型给自己放水」。杀手锏是一键记忆 A/B：同一批任务分别跑「记忆开 / 记忆关」，报告并排对比通过率、Token 成本，以及记忆工具到底被真实调用了多少次。不用再猜「开记忆值不值」——给你一个真实数字；我们甚至诚实承认单轮任务下记忆收益有限，因为我们宁愿讲真话，也不想过度营销。",
+          "stat": "270",
+          "statLabel": "内置真实基准任务",
+          "tag1": "一键记忆 A/B——开 vs 关实测对比",
+          "tag2": "真实测试判分 · 零 LLM 自评",
+          "tag3": "SSE 实时进度 · 可中止 · 历史可回看"
         }
       }
     }
