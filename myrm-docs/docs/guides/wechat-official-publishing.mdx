@@ -24,8 +24,9 @@ This workflow is **file-centric**: Markdown lives in the vault, the formatter wr
 
 1. Open **Settings → Channels → WeChat Official**.
 2. Enter **AppID** and **AppSecret**.
-3. Click **Test connection** — fix IP whitelist if the test fails.
-4. Save. Credentials are stored as `wechatOfficialCredentials`.
+3. Copy the **server public IP** shown on the card (auto-detected egress IP) into the WeChat IP whitelist (mp.weixin.qq.com → Settings → Basic configuration).
+4. Click **Test connection** — fix IP whitelist if the test fails.
+5. Save. Credentials are stored as `wechatOfficialCredentials`.
 
 ## Workflow: vault → HTML → draft
 
@@ -49,12 +50,15 @@ The **wechat-article-formatter** skill runs `md_to_wechat_html.py` and produces 
 
 Open the HTML artifact in chat. **ArtifactCard** renders it inline. Confirm layout and images.
 
+If you paste an `mp.weixin.qq.com/s/...` article URL in the composer, a hint suggests the **wechat-article-formatter** skill to read and format it.
+
 ### Step 4 — HITL push to draft box
 
-1. On the HTML artifact card, click **Push to WeChat Draft**.
-2. Set the **title** (required).
+1. On the HTML artifact card, click **Push to WeChat Draft** to open **WeChatDraftPanel**.
+2. Set **title** (required), **author** (required, max 8 chars, no default placeholder), and optional **summary** (auto-generated when empty).
 3. **Cover image**: auto-filled from the first inline `<img>` when present; or pick from workspace image suggestions; or enter a workspace-relative path manually.
-4. Confirm push.
+4. **Compliance scan**: high-risk patterns (e.g. like-for-reward funnels) return **422 block** with hits in the panel; medium-risk terms (e.g. medical efficacy claims) warn but allow push.
+5. Confirm stays disabled until author is filled; then confirm push.
 
 The server:
 
@@ -73,6 +77,8 @@ Open [mp.weixin.qq.com](https://mp.weixin.qq.com/) → **Draft box**, review the
 | No Agent draft tool | Keeps tool schema stable for Prompt Cache; publishing is an explicit human action |
 | Path fail-closed | Prevents LLM-injected paths outside the workspace |
 | HITL only | You always review on WeChat before mass send |
+| Compliance scan | High-risk blocks push; medium-risk warns but you decide |
+| Author required | API and UI reject empty author — no placeholder names in draft box |
 | Single theme | One SSOT inline-style table; head CSS generated from the same source |
 
 ## Troubleshooting
@@ -83,6 +89,7 @@ Open [mp.weixin.qq.com](https://mp.weixin.qq.com/) → **Draft box**, review the
 | 503 on draft push | Workspace root not resolved — open the chat's workspace or retry after server ready |
 | Images missing in draft | Use workspace-relative paths; remote URLs must be reachable from the server |
 | Cover not applied | Provide a workspace image path or ensure first inline image uses a local path |
+| Compliance 422 block | Edit HTML and retry; review hit category and terms in the panel |
 
 ## Related
 

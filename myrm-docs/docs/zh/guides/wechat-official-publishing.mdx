@@ -24,8 +24,9 @@ description: 将 vault 内 Markdown 转为公众号风格 HTML，经 WebUI 人�
 
 1. 打开 **设置 → 渠道 → 微信公众号**。
 2. 填写 **AppID**、**AppSecret**。
-3. 点击 **测试连接** — 若失败，先补全 IP 白名单。
-4. 保存。凭证键名为 `wechatOfficialCredentials`。
+3. 复制卡片上显示的 **服务器公网 IP**（自动探测出口 IP）到微信 IP 白名单（mp.weixin.qq.com → 设置与开发 → 基本配置）。
+4. 点击 **测试连接** — 若失败，先补全 IP 白名单。
+5. 保存。凭证键名为 `wechatOfficialCredentials`。
 
 ## 工作流：vault → HTML → 草稿
 
@@ -49,12 +50,15 @@ description: 将 vault 内 Markdown 转为公众号风格 HTML，经 WebUI 人�
 
 在对话中打开 HTML 工件，**ArtifactCard** 内联渲染，检查版式与图片。
 
+若在输入框粘贴 `mp.weixin.qq.com/s/...` 文章链接，Composer 会提示使用 **wechat-article-formatter** Skill 读取并排版。
+
 ### 步骤 4 — HITL 推送到草稿箱
 
-1. 在 HTML 工件卡片点击 **推送到公众号草稿**。
-2. 填写 **标题**（必填）。
+1. 在 HTML 工件卡片点击 **推送到公众号草稿**，打开 **WeChatDraftPanel**。
+2. 填写 **标题**（必填）、**作者**（必填，最多 8 字，无默认占位）、**摘要**（可选，留空自动提取）。
 3. **封面**：文内首张 `<img>` 会自动预填；或从工作区图片建议中选择；或手动输入工作区相对路径。
-4. 确认推送。
+4. 若正文触发 **合规扫描**：高风险（如集赞诱导）会 **422 阻断** 并展示命中项；中风险（如医疗功效表述）允许推送但显示警告。
+5. 作者未填时确认按钮禁用；填写完整后确认推送。
 
 服务端会：
 
@@ -73,6 +77,8 @@ description: 将 vault 内 Markdown 转为公众号风格 HTML，经 WebUI 人�
 | 无 Agent draft 工具 | 保持 Prompt Cache 友好的工具 schema；发布必须人工点击 |
 | 路径 fail-closed | 防止 LLM 注入工作区外路径 |
 | 仅 HITL | 群发前必在微信后台人工审阅 |
+| 合规扫描 | 高风险阻断推送；中风险警告但仍可人工决定 |
+| 作者必填 | API 与 UI 均拒绝空作者，避免草稿箱显示占位名 |
 | 单主题 CSS | 块级 inline style 单表 SSOT，head CSS 同源生成 |
 
 ## 故障排查
@@ -83,6 +89,7 @@ description: 将 vault 内 Markdown 转为公众号风格 HTML，经 WebUI 人�
 | 推送返回 503 | 工作区根路径未解析 — 确认当前会话工作区或等待服务就绪 |
 | 草稿内缺图 | 使用工作区相对路径；远程 URL 需服务器可访问 |
 | 封面未生效 | 手动指定工作区图片路径，或确保文内首图为本机相对路径 |
+| 合规阻断 422 | 修改正文 HTML 后重新推送；查看面板命中类别与术语 |
 
 ## 相关文档
 
