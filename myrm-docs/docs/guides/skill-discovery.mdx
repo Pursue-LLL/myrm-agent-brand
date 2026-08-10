@@ -35,6 +35,21 @@ description: Search ClawHub-compatible registries, switch China/international mi
   **Explicit allowlist**: If an agent uses a non-empty skill allowlist, Discover install automatically adds the new skill to that allowlist so it is available in chat on the next message. Set `mount_to_agent: false` on the install API to skip catalog enable and allowlist adoption.
 </Note>
 
+## Configure skill environment variables
+
+Skills that call external services declare their secrets via `primary_env` / `requires.env` (e.g. `GOOGLE_API_KEY`). To fill them in:
+
+1. Open **Settings → Skills**, click a skill to open its **detail sheet**.
+2. Fill in the **Environment variables** section and save.
+
+Your config is stored in a central **skill configuration** — not inside the SKILL.md file. On every agent build, Myrm **automatically reconciles** the saved config against the currently installed skills:
+
+- **Installed skill** → its env vars are injected at runtime.
+- **Uninstalled / removed skill** → its env vars are cleaned up automatically — no stale or orphaned secrets.
+- **Renamed skill** → the config follows the new runtime name automatically.
+
+Secrets are injected as environment variables and never appear in chat context.
+
 ## Related
 
 - [Skill Creation](/docs/tutorials/skill-creation) — turn a conversation into a reusable skill
