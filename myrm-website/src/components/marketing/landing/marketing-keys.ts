@@ -32,6 +32,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'omniChannel',
   'tokenSmart',
   'evalLab',
+  'voiceBgDone',
 ] as const;
 
 export type HighlightSlideKey = (typeof HIGHLIGHT_SLIDE_KEYS)[number];
