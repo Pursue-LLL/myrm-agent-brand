@@ -1003,6 +1003,39 @@ Myrm separates browser management concerns into purpose-specific locations rathe
 - **BBox Element Selection** — Click any element to send natural language instructions about it
 - **Action Recording** — Record browser workflows for later replay
 
+## Browser Action Recording — Record Once, Automate Forever
+
+Turn a manual browser workflow into a reusable skill without writing a single line of code. Open the **Recording Panel**, click through the flow once, and Myrm converts the trace into an executable skill your agent can replay anytime.
+
+### How It Works
+
+1. **Start recording** — Open the Recording Panel and start a session. Myrm injects a lightweight capture engine into the page.
+2. **Perform the workflow** — Click, type, select, scroll, hover, and navigate exactly as you would manually. Every meaningful action is captured live.
+3. **Generate the skill** — Stop recording, review the step list, and generate a skill. Myrm distills the trace into a readable, executable skill definition.
+4. **Replay anytime** — Ask your agent to run the skill in any future session. No scripting, no CSS selector hand-writing.
+
+### Semantic Recording Quality
+
+Recording is **semantic, not raw** — every step is captured with enough context that the generated skill works the first time, even on complex forms:
+
+| Capability | What it means for you |
+|------------|----------------------|
+| **Select value + label** | A `<select>` captures both the chosen value and its human-readable label (e.g. `Departure city: Tokyo`), not just an opaque option code |
+| **Multi-select complete** | Multi-select fields keep every selected option, not just the last one |
+| **Field-name disambiguation** | Form controls are described by their real label — `aria-label`, `label[for]`, wrapping `<label>`, placeholder — so a three-dropdown ticket form never confuses the agent about which dropdown to fill |
+| **Label text de-pollution** | Field names never leak option text or nested control text — a `<select>` wrapped inside a label can't pollute the label wording |
+| **IME-safe input** | Chinese / Japanese / Korean input-method composition never fragments into garbage keystrokes |
+| **Navigation folding** | Redirect chains and SPA route changes collapse into one clean navigate step |
+| **Noise removal** | Hover noise and duplicate Enter-submit clicks are automatically deduplicated |
+
+### The Recording Panel
+
+The panel shows the captured step list live — pause, resume, delete a mistake, or reset anytime. When you're done, give the skill a name and description, preview the generated steps, and save it to your skill library. The skill is immediately available across sessions.
+
+### Verified Scenarios
+
+28 recording scenarios are covered by automated browser integration tests, spanning select labels, multi-selects, input/textarea wrapping labels, placeholder fallback, special-character IDs, long-label truncation, and button aria-label capture — all green.
+
 ### Three-Layer Visual Verification
 
 1. **DOM Mutation Detection** — Automatically compares DOM changes after actions
