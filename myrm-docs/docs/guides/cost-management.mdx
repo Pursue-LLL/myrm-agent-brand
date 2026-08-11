@@ -64,6 +64,16 @@ Full analytics dashboard with:
 - Per-agent usage cards with sparkline trends
 - Routing analytics (how many requests used each tier)
 
+### Full-Chain Accounting — No Blind Spots
+
+Every LLM call, streaming or not, lands in the same token ledger:
+
+- **Unified recording** — streaming and non-streaming calls are counted in one place (the adapter layer), so sub-agent spawns, dynamic workflows, background summaries, memory extraction, context compression and wiki compilation are all attributed correctly
+- **Honest failure paths** — a failed LLM call never fabricates usage, so the ledger never inflates
+- **End-of-run accuracy** — `message_end` events are back-filled with real usage from the tracker, so per-run totals match the sum of individual calls
+
+For hosted / metered-billing users this means the bill you see is the bill you can trust — background work is never hidden, and nothing is double-counted.
+
 ## Intelligent Cost Routing
 
 ### ComplexityRouter (Automatic)
