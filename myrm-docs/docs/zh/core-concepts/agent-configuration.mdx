@@ -251,6 +251,8 @@ GUI 配置编辑器提供 5 个独立面板（技能 / MCP / 内置工具 / 子�
 
 **Web 聊天体验：** 同一对话内复用外部 CLI Agent 会话（`--resume`），多轮委派无需重复冷启动。单对话 turn-lock 串行化多标签/连点并发；取消操作免锁，避免运行卡死。Direct-only 路径不挂载 delegate 工具，节省 token。
 
+**可靠性加固（2026-08）：** 外部委派全链路防御真实故障。超时或崩溃的外部进程会被**自动终止**（SIGTERM，宽限期后 SIGKILL 兜底）——后台不会残留孤儿 CLI 进程占用资源。若 `--resume` 会话崩溃且无任何输出，系统会丢弃失效的 session id，下一次调用**自动自愈降级为全新会话**，绝不永久卡死。委派失败**永远不会被静默当作成功**：统一转为结构化 `ERROR` 事件（含 `retryable` 分类），调用方可准确重试或上报——CLI / SDK / ACP 三种后端行为完全一致。
+
 **按 Agent 的 `external_cli` 开关（2026-07）：** 本地模式下 **设置 → 开发者 → 外部 Agent** 会自动检测 PATH 中的 CLI —— 若 Claude Code 已配置三方模型，**无需** Anthropic 官方订阅凭据也可委派；Settings 徽章显示「**CLI 可用**」（而非误导性的「未登录」）。仅在需要 `delegate_to_agent` 的 Agent 上开启「外部 CLI」（如 General Assistant、Code Developer）。Writer/Research 预设默认关闭，省约 216 Turn1 schema token。Settings 与内置工具面板双向交叉提示；聊天面板在 auto-detect 成功时不再误报「尚未配置 CLI 后端」。
 
 **验收（2026-07-10）：** 108+ 项后端集成/单测全绿（含 `test_external_cli_live_e2e.py` 直连 claude-code PONG）；Chrome E2E（`:3000`）确认 Writer/Research 无 external_cli chip、General/Developer 有；Developer → 添加 Agent → Claude Code 显示「CLI 可用」；真实 `mimo-v2.5-pro` → 委派 → Claude Code 返回 **PONG**，聊天页含任务步骤与工具执行轨迹。
