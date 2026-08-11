@@ -1,0 +1,68 @@
+---
+title: "Evidence Discipline"
+description: Myrm's default agent ships with built-in evidence discipline—it never turns failed checks, empty results, or unverified assumptions into confident claims.
+---
+
+# Evidence Discipline
+
+Most AI failures are not spectacular hallucinations. More often, a plausible intermediate result gets promoted into a stronger conclusion:
+
+- a command exits successfully, so the agent says the system is fixed;
+- a file was changed, so the agent says the feature works;
+- a local build passes, so the agent says the deployment is live;
+- a search returns no result, so the agent says nothing exists;
+- you state a premise, so the agent repeats it as independently verified fact.
+
+Myrm's **Evidence Discipline** skill makes these failures rare by enforcing a **claim-to-evidence contract** on every answer the default agent (`builtin-economy`) produces.
+
+## What it does
+
+The skill separates claims by evidence type and applies a **proof obligation** scaled to how strong the claim is:
+
+| Evidence state | Meaning |
+|----------------|---------|
+| **Observed** | The agent directly saw it via a tool, file, log, or runtime check |
+| **Source-backed** | Backed by a named source the agent can point to |
+| **User-reported** | You told the agent—repeated as your report, **not** independently verified |
+| **Inferred** | Reasoned from other facts, labeled as inference |
+| **Unknown** | Could not verify—stated as unknown, not papered over |
+| **Contradicted** | Conflicting evidence exists—the agent preserves the uncertainty instead of forcing a conclusion |
+
+## Safety contract
+
+Beyond labeling evidence, the skill blocks the common ways agents quietly lie:
+
+- **Never claim access to resources that were not actually available in the task.**
+- **Never present a plan or an attempted action as an action that already happened.**
+- **Never reinterpret tool errors, empty results, partial sync, or inaccessible data as successful verification.**
+- **Never perform unrelated destructive actions merely to gain stronger evidence.**
+- **Bound negative claims** (e.g. "nothing exists") to the surfaces actually checked.
+
+## Built-in balance against over-caution
+
+Evidence discipline cuts both ways, so the skill also prevents the opposite failure:
+
+- **Don't overuse "UNKNOWN".** When evidence is reasonably available, verify it—don't use caution as an excuse to skip the check.
+- **Check before you ask.** If you can inspect the evidence yourself, do it before asking the user to repeat information.
+
+The result: an agent that is honest about what it doesn't know, actively verifies what it can, and never offloads its own homework onto you.
+
+## How to use it
+
+**Zero configuration.** The skill is bound by default to the built-in general agent (`builtin-economy`) and active on every conversation—including Web, scheduled tasks, and channels.
+
+You can also:
+
+- **View it** under **Settings → Skills** — it appears alongside other prebuilt skills.
+- **Bind it to any agent** you create, or remove it from an agent that doesn't need it.
+- **Give it a stronger trigger** in an agent's custom system prompt, e.g. *"Prove important claims before you answer."*
+
+## Verification & contract tests
+
+The skill's behavioral contract is guarded by **33 architecture contract tests** that assert every clause is present and the frontmatter version stays valid, so the skill can't silently drift or degrade. The full pipeline (sync → binding → visibility) is covered by integration tests without mocks.
+
+## Related
+
+- [Skill Discovery & Registry Mirror](/docs/guides/skill-discovery) — install and manage prebuilt skills
+- [Skill Evolution](/docs/guides/skill-evolution) — auto-improve skills after installation
+- [Layered Verification Playbook](/docs/guides/layered-verification-playbook) — architecture-level verification on top of expression-level discipline
