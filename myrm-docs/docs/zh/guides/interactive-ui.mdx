@@ -59,6 +59,10 @@ OpenClaw、Hermes、jiuwenclaw 等竞品无此「预检 + 延迟自动重发」�
 
 **用户收益**：部署清单、批处理进度、监控面板类 UI 可实时刷新，不闪烁、不丢用户已填字段。
 
+### 数据绑定（`bindings`）
+
+组件可声明 `bindings`（**prop 名 → 数据路径**的映射，如 `{"text": "$.status"}`）。前端每次渲染时**从 `data` 模型解析被绑定的 prop 并覆盖静态值**，让展示与表单组件完全数据驱动。配合 `update_ui_data`，Agent 只需推送变化的数据切片，绑定 prop（进度百分比、状态徽章、表格行、表单值）原地更新——无需整份 artifact 重绘，也无 Markdown 再生成。
+
 ## JSON 结构（邻接表）
 
 ```json

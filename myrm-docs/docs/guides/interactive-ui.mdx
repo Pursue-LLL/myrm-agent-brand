@@ -59,6 +59,10 @@ Long-lived UIs (progress bars, task lists, live metrics) should not require a fu
 
 **User benefit**: deployment checklists, batch progress, and monitoring panels update live without flicker or wiping fields the user already filled.
 
+### Data bindings (`bindings`)
+
+Components can declare `bindings` — a map of **prop name → data path** (e.g. `{"text": "$.status"}`). On every render the frontend **resolves each bound prop from the `data` model and overrides the static value**, so display and form components become fully data-driven. Combined with `update_ui_data`, the agent only sends the changed data slice; bound props (progress percent, status badges, table rows, form values) update in place — no full artifact redraw, no Markdown regeneration.
+
 ## JSON shape (adjacency list)
 
 ```json

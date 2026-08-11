@@ -38,6 +38,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'reasoningModel',
   'browserRecording',
   'skillGrowth',
+  'interactiveUi',
 ] as const;
 
 export type HighlightSlideKey = (typeof HIGHLIGHT_SLIDE_KEYS)[number];
