@@ -84,7 +84,17 @@ OpenClaw、Hermes、jiuwenclaw 等竞品无此「预检 + 延迟自动重发」�
 | CopilotKit AG-UI | Web 协议 catalog（约 19 基础控件）；无 workspace spec seed + 枚举门禁 |
 | Hermes | 文本建议为主；无结构化 chat UI 工件 |
 
-简单澄清问题请优先 `ask_question_tool`，不必搭完整 UI。
+简单澄清问题请优先 `ask_question_tool`，不必搭完整 UI。在**桌面端**，提问通过**独立反馈窗口**呈现——一个不阻塞聊天流的聚焦对话框。
+
+| 能力 | Myrm |
+|------|------|
+| 反馈形态 | 独立桌面 GUI 窗口，聊天流永不阻塞 |
+| 多个待答问题 | 队列逐窗呈现，不覆盖、不遗漏 |
+| 超时 | 自动提交默认反馈，工作流继续推进 |
+| 草稿生命周期 | 关闭 / 提交即清零，半成品答案绝不泄漏到下一次提问 |
+| 热重载 | 升级后进行中与已关闭问题的记录完整保留，且只恢复一次 |
+
+OpenClaw 用浏览器 question-prompt 组件呈现同一确认；Hermes / deer-flow / CoPaw / LobsterAI 仅有终端文本 prompt，无队列、无超时、无草稿生命周期。
 
 ## 大文件内联预览保护
 

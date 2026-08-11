@@ -84,7 +84,17 @@ Long-lived UIs (progress bars, task lists, live metrics) should not require a fu
 | CopilotKit AG-UI | Web protocol catalog (~19 basic widgets); no Myrm-style workspace spec seed + enum gate |
 | Hermes | Text suggestions; no structured chat UI artifact |
 
-For simple clarifying questions, prefer `ask_question_tool` instead of building a full UI.
+For simple clarifying questions, prefer `ask_question_tool` instead of building a full UI. On the **desktop app**, the question is delivered through a **dedicated feedback window** — a focused dialog that pops up without blocking the chat flow.
+
+| Capability | Myrm |
+|------------|------|
+| Feedback surface | Independent desktop GUI window; the chat stream is never blocked |
+| Multiple pending questions | Queued and shown one window at a time — no overwrite, no missed confirmations |
+| Timeout | Auto-submits the default feedback and the workflow continues |
+| Draft lifecycle | Cleared on close / submit — a half-finished answer never leaks into the next question |
+| Hot reload | Pending and closed-question records survive an app upgrade and are restored exactly once |
+
+OpenClaw renders the same confirmation as a browser question-prompt component; Hermes / deer-flow / CoPaw / LobsterAI only offer plain terminal prompts with no queue, timeout, or draft lifecycle.
 
 ## Large-file inline preview protection
 

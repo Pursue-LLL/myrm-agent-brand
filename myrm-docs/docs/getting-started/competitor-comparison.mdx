@@ -328,6 +328,52 @@ OpenClacky markets itself as a cost-efficient local AI agent, claiming 1/6 the t
 
 **Compression cost**: OpenClacky calls LLM to generate compression summaries — every compression incurs API cost. Myrm uses a deterministic rule engine (Dedup → Truncate → Remove) with zero LLM overhead.
 
+## vs Tokenomics Lite — Per-Turn Invalid Token Cleanup (2026-08-11 · Article 53)
+
+Tokenomics (closed-source blog series, no GitHub) describes a **Lite** engine as layer 3 of a 12-engine stack: per-turn cleanup of whitespace in JSON/Markdown, data-URI removal, and external image URL → `[image]` placeholders — claimed **8–15% savings per turn**, **&lt;1ms**, on by default.
+
+### Where Myrm Already Goes Further
+
+| Area | Tokenomics Lite | Myrm | User Benefit |
+|------|-----------------|------|--------------|
+| Cross-turn dedup | Assumed upstream (Session-Dedup) | `deduplicate_tool_results` reverse-reference dedup | Duplicate tool outputs never billed twice |
+| Checkpoint archive | Assumed upstream (CCR) | `archive_checkpoint/` + cache_ttl_prune | Old context offloaded without hard rollover |
+| Per-turn compression | Whitespace/URI/image strip (8–15%) | `output_compressor` command-aware semantic compression **68–99%** | Far more aggressive savings on dev command output |
+| Image strip | data URI → placeholder | `strip_images_from_content` + vault full-data retention | Same UX goal, data never lost |
+| GUI visibility | Debug toggle | `ContextUsageIndicator` dedup savings + strategy detail panel | See exactly what was saved |
+| Turn1 overhead | Not addressed | **~2,167 tokens** vs Hermes ~15,520 / OpenClaw ~18,000 | 86% less fixed cost before Lite even matters |
+
+**Honest boundary**: Lite’s sub-ms JSON minify has marginal ROI once Myrm’s dedup + semantic compression + archive pipeline is active. No separate “Lite mode” productization needed — the harness 11-step context pipeline covers and exceeds it on Local, Tauri, and Cloud.
+
+**Migration pitch**: If you liked Tokenomics Lite’s “clean invalid tokens every turn” idea, Myrm ships a **deeper multi-layer equivalent by default** — plus Turn1 token CI gates, cache observability, and zero-LLM rule compression that competitors charge LLM tokens for.
+
+## vs WorkBuddy / Codex / QoderWork — Interactive Study Apps (2026-08-11 · Article 52)
+
+Community benchmark: same bare prompt (formula sheet → junior-high physics review web app). Ranking **WorkBuddy Plan &gt; Codex Goal &gt; QoderWork Chat** (63 comments, closed source).
+
+### Where Myrm Is Stronger (Engine)
+
+| Area | WorkBuddy / Codex | Myrm | User Benefit |
+|------|-------------------|------|--------------|
+| Goal + acceptance | Codex Goal; WB Plan gate | Goal + `acceptance_criteria` + VerificationGatekeeper | Same verification philosophy, BYOK any model |
+| Live preview | In-app preview | `HtmlPreview` iframe sidebar preview | 0-export instant preview |
+| Anti fake-done | WB script checks | `completion_guard` + semantic AC | Empty UI cannot pass as “done” |
+| Eval regression | WBBench community | Eval Lab + WBBench adapter | Re-run benchmarks in-product |
+| Token / budget | Codex burned ~60% monthly free tier (comments) | Multidimensional budget GUI + real-time token ring | Cost visible and controllable |
+
+### Where Myrm Is Weaker Today (Product UX — honest)
+
+| Gap | WorkBuddy / Codex winner UX | Myrm status |
+|-----|----------------------------|-------------|
+| Plan confirmation gate | WB 2-round Plan + star difficulty | Composer Plan gate **not productized** (roadmap #89) |
+| Tutoring HTML preset | Star difficulty + in-page quiz + mistake tips | `builtin-tutor` is **chat-only**; no KaTeX-in-iframe quiz scaffold yet (roadmap **#168**) |
+| Knowledge-card IA | Codex best UX for flashcards | Chat KaTeX yes; HtmlPreview iframe KaTeX **partial** |
+
+**Migration pitch (honest)**:
+- From **Codex Goal**: You keep Goal + acceptance + preview; gain BYOK, context pipeline, and budget transparency. Tutoring page polish catches up via #168 preset — not a blocker for power users today.
+- From **WorkBuddy Plan**: Engine ≥; one-click “Plan → starred difficulty review app” UX is the gap (#89 + #168). Use Goal + acceptance_criteria + HtmlPreview until preset ships.
+- From **QoderWork**: Strict upgrade on preview, verification, memory, channels, and sandbox.
+
 **Cache intelligence**: OpenClacky's dual cache marking is a static pattern (always mark last 2 messages). Myrm's ExplicitCacheProcessor dynamically calculates breakpoints based on content blocks, token distances, and compression boundaries, with full validation pipeline.
 
 **Idle utilization**: OpenClacky's idle timer only compresses messages. Myrm's idle pipeline runs 3 tasks: cognitive memory consolidation, session evidence extraction (learning from failures), and prefix cache preheating — all coordinated by a capacity-aware scheduler with circuit breaker protection. Additionally, `CacheKeepAliveManager` sends lightweight probes every 4 minutes during idle to prevent the Anthropic/Qwen 5-minute cache TTL from expiring, ensuring consistent TTFT when users resume (0.5-1s vs 2-5s cold restart).

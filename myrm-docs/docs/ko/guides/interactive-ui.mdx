@@ -85,7 +85,17 @@ Turn1 비용은 슬림 도구 문서 문자열의 **~223개 토큰**입니다. �
 | CopilotKit AG-UI | Web protocol catalog (~19 basic widgets); no Myrm-style workspace spec seed + enum gate |
 | Hermes | Text suggestions; no structured chat UI artifact |
 
-간단하고 명확한 질문의 경우 전체 UI를 구축하는 대신 `ask_question_tool`을 선호합니다.
+간단하고 명확한 질문의 경우 전체 UI를 구축하는 대신 `ask_question_tool`을 선호합니다. **데스크톱 앱**에서는 질문이 **전용 피드백 창**을 통해 전달됩니다 — 채팅 흐름을 차단하지 않는 포커스된 다이얼로그입니다.
+
+| 기능 | Myrm |
+|------|------|
+| 피드백 형태 | 독립 데스크톱 GUI 창, 채팅 스트림 차단 없음 |
+| 대기 중인 다중 질문 | 대기열로 창을 하나씩 표시 — 덮어쓰기나 누락 없음 |
+| 타임아웃 | 기본 피드백 자동 제출, 워크플로 계속 진행 |
+| 초안 수명주기 | 닫기/제출 시 초기화 — 미완성 답변이 다음 질문에 유출되지 않음 |
+| 핫 리로드 | 업그레이드 후 진행 중/닫힌 질문 기록이 그대로 유지되며 정확히 한 번만 복원 |
+
+OpenClaw는 동일한 확인을 브라우저 question-prompt 컴포넌트로 렌더링하며, Hermes / deer-flow / CoPaw / LobsterAI는 대기열·타임아웃·초안 수명주기 없이 터미널 프롬프트만 제공합니다.
 
 ## 대용량 파일 인라인 미리보기 보호
 
