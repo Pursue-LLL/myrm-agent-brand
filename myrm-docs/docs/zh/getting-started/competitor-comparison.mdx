@@ -15,6 +15,14 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-08-11 · LLM 结构化 JSON 输出解析鲁棒性 · 六竞品代码级实证）
+
+- **一套自修复提取层，17+ 模块统一复用（vs OpenClaw / Hermes / deer-flow / LobsterAI / CoPaw / jiuwenclaw）**：harness robust 解析器 `parse_llm_json_object` / `parse_llm_json_list`（`utils/chat_utils.py`）现已支撑 **17+ 业务模块**——skill 进化、wiki 编译、矛盾检测、记忆抽取（implicit feedback / cognitive deriver / staleness review / proactive extraction）、sidecar 摘要、browser 会话结构化提取、semantic judge、DW 编排等。单元 **4899 passed**；真实 LLM 集成 **13 passed**（`tests/integration/llm_extraction/` + staleness reviewer + wiki reindex，全程无 mock）；harness 架构 gate 全绿。
+- **已验证，逐竞品代码级（2026-08）**：OpenClaw 生产代码直接 `JSON.parse`（`agent-run-control-shared.ts:267`、`state/openclaw-state-ownership.ts:79`）——LLM 输出夹带一个 fence 或一句散文即抛错。Hermes `extract_json_candidate`（`tools/delegation_output_schema.py:80`）仅剥离 fence + 首尾括号切片后裸 `json.loads`；其 `jiter_preload.py` 只是 OpenAI SDK 的 Rust 加速解析器，不修复任何语法。deer-flow **完全没有** LLM 自由文本 JSON 提取器（全仓 `json.loads` 只解析自有文件/消息数据）。LobsterAI `parseJsonObject`（`sessionDiagnostics/archive.ts:63`）裸 `JSON.parse` + catch→null。CoPaw `extract_json_payload`（`utils/structured_output.py:59`）fence + 平衡扫描但取**第一个** JSON，且不转义控制字符、不剥离尾逗号；`json_repair` 仅用于配置文件。jiuwenclaw `extract_json_from_response`（`server/hooks/executor.py:270`）按「直接→正则 fence→`{}` 切片」3 级回退，全失败返回 `{}` 静默吞错。
+- **四个竞品均无的能力**：① 取**最后一个**（而非第一个）有效 JSON 块——抗推理模型「草稿 JSON → 最终答案」污染；② 字符串字面量内杂散控制字符转义（`_escape_control_chars_in_strings`）；③ 尾逗号剥离（`_strip_trailing_commas`）；④ `require_key` schema 感知过滤——数组/对象歧义时只认含目标键的对象。这是 M1-M17 系列加固的成果：把 17 个模块手工脆弱解析全部收敛到统一容错层。
+- **对用户可见的收益**：skill/wiki/记忆/judge 流水线不再因模型把 JSON 夹在散文里、加围栏、先吐草稿或字符串里塞裸 `\n`/`\t` 而静默失败——无需手动重试，无「重试一轮」死循环。
+- **Material SSOT：** `temp-docs/materials/REASONING_MODEL_COMPATIBILITY_ADVANTAGE.md` §LLM 结构化 JSON 输出解析鲁棒性 · `myrm-agent-harness/src/myrm_agent_harness/utils/chat_utils.py`
+
 ## 最新验证快照（2026-08-09 · Kanban IN_REVIEW 人工审批门 · 9 态生命周期）
 
 - **任务级人工审批闸端到端（vs Hermes / OpenClaw / deer-flow / LobsterAI / CoPaw / jiuwenclaw）**：harness `test_in_review.py` **11/11** + server `test_in_review_api.py` **14/14** = **25 tests, 0 failures**（2026-08-09 实测，`scripts/dev/run-pytest-safe.sh`）。
@@ -195,6 +203,35 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **验证过程中修复的预存缺陷**：`mode=running` seed fixture 因 `UnboundLocalError` 导致 500，已修复 API fixture 路由并补齐集成回归测试。
 - **资源安全边界**：本轮验证期间系统可用内存保持在 **36%-40%**，未出现高压（已用 >80%）状态。
 - **已知环境前提（诚实说明）**：captcha coordinator 测试仍依赖本机 `patchright`，但不影响本次浏览器语义快照/遥测基线结论。
+
+## vs 六大竞品 — LLM 结构化 JSON 输出解析鲁棒性
+
+**一句话：模型把 JSON 夹在散文里、包进代码围栏、先吐一版草稿再给最终答案、字符串里塞裸换行——这些场景下，Myrm 的结构化流水线照样一次跑通，多数竞品要么抛错要么静默吐空。**
+
+| 解析能力（LLM 自由文本 → JSON） | **Myrm** | OpenClaw | Hermes | deer-flow | LobsterAI | CoPaw | jiuwenclaw |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| markdown fence 剥离 | ✅ | ❌ 直接 `JSON.parse` | ✅ 简单 | ❌ | ❌ | ✅ | ✅ |
+| prose 包裹中找 JSON | ✅ | ❌ | ✅ 首尾切片 | ❌ 无提取器 | ❌ | ✅ 平衡扫描 | ✅ 首尾切片 |
+| **多重 JSON 块取「最后（最新）」** | ✅ **取最后有效** | ❌ | ❌ | ❌ | ❌ | ❌ 取第一个 | ❌ 取第一个成功 |
+| 字符串内裸控制字符转义 | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| 尾逗号剥离 | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| 数组/对象歧义 schema 感知（require_key） | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| reasoning content 空值回退 | ✅ 统一提取层 | ⚠️ per-model wrapper | ❌ | ❌ | ❌ | ❌ | ❌ |
+| 失败处理 | 多级回退→None，上层恢复 | 抛错 | 报错重试 | N/A | catch→null | 平衡扫描兜底 | 3 级回退→`{}` 静默 |
+| 消费方覆盖 | **17+ 模块统一复用** | 特定路径 | 仅 delegation | N/A | 仅归档 | 仅子应用 | 分散不一致 |
+
+**逐竞品证据（2026-08 代码级）：**
+
+- **OpenClaw**：生产代码直接 `JSON.parse`（`src/talk/agent-run-control-shared.ts:267`、`src/state/openclaw-state-ownership.ts:79`）——LLM 输出夹带一句话或一个 fence 即抛错。
+- **Hermes**：`extract_json_candidate`（`tools/delegation_output_schema.py:80`）剥离 fence + 首尾括号切片后裸 `json.loads`，失败报错转重试；`agent/jiter_preload.py` 只是 OpenAI SDK 的 Rust 加速解析器，不修复语法。
+- **deer-flow**：backend 全仓 `json.loads` 仅解析自有文件/消息数据（`app/channels/*.py`），没有面向 LLM 自由文本的 JSON 提取器。
+- **LobsterAI**：`parseJsonObject`（`src/main/sessionDiagnostics/archive.ts:63`）裸 `JSON.parse` + catch 返回 null，输出稍脏即丢。
+- **CoPaw**：`extract_json_payload`（`plugins/apps/qwenpaw-creator/backend/utils/structured_output.py:59`）fence + 平衡扫描但取**第一个** JSON；`json_repair` 仅用于配置文件（`src/qwenpaw/config/utils.py:18`）。
+- **jiuwenclaw**：`extract_json_from_response`（`jiuwenswarm/server/hooks/executor.py:270`）3 级回退（直接→正则 fence→`{}` 切片）全失败返回 `{}` 静默吞错；`json_repair` 仅 JSON5/特定场景。
+
+**为什么「取最后」是关键**：推理模型长输出常先给「思考草稿 JSON」再给最终答案，取第一个会拿到废稿。Myrm 取最后一个**有效**对象 + `require_key`（只认含目标键的对象）天然抗草稿污染，skill 进化 / wiki 编译 / 记忆抽取 / judge 判卷全部受益。
+
+**Myrm 实现**：`myrm-agent-harness/src/myrm_agent_harness/utils/chat_utils.py` — `parse_llm_json_object` / `parse_llm_json_list` → `_iter_json_blocks` 平衡块迭代 → `_escape_control_chars_in_strings` → `_strip_trailing_commas`。判卷另走 `max_tokens=600` 防思考截断。
 
 ## 一览
 

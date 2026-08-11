@@ -1455,16 +1455,16 @@
           "tag2": "Tap notification to land in review",
           "tag3": "Approve completes · reject sends back with reason"
         },
-        "reasoningModel": {
-          "label": "Any model, stable answers",
-          "title": "Reasoning models included — answers survive, thinking stays out",
-          "desc": "DeepSeek-R1, Qwen-QwQ, OpenAI o-series, minimax M3 — models that put the final answer in reasoning_content instead of content are a silent trap for most agent frameworks: scripts, tool results, and UI end up empty or printing 'None'. Myrm extracts the user-visible answer through a model-agnostic layer that also strips <think> blocks and tolerates Anthropic block lists, so generated scripts, wiki articles, and structured results stay clean no matter which provider you plug in. No per-model whitelist to wait for — new models just work.",
-          "stat": "0",
-          "statLabel": "model whitelists to maintain",
-          "tag1": "Auto-fallback from reasoning_content",
-          "tag2": "Strips <think> blocks everywhere",
-          "tag3": "Works for any OpenAI / Anthropic provider"
-        },
+ "reasoningModel": {
+  "label": "Any model, stable answers",
+  "title": "Reasoning models included — answers survive, thinking stays out",
+  "desc": "DeepSeek-R1, Qwen-QwQ, OpenAI o-series, minimax M3 — models that put the final answer in reasoning_content instead of content are a silent trap for most agent frameworks: scripts, tool results, and UI end up empty or printing 'None'. Myrm extracts the user-visible answer through a model-agnostic layer that also strips <think> blocks and tolerates Anthropic block lists, so generated scripts, wiki articles, and structured results stay clean no matter which provider you plug in. It also parses structured JSON from raw model output — fenced code, prose-wrapped, even with stray control characters or trailing commas — through one self-repairing extraction layer shared by every skill, wiki, and memory pipeline, so nothing needs a manual retry. No per-model whitelist to wait for — new models just work.",
+  "stat": "0",
+  "statLabel": "model whitelists to maintain",
+  "tag1": "Auto-fallback from reasoning_content",
+  "tag2": "Robust JSON extraction (fences, prose, stray chars)",
+  "tag3": "Strips <think> blocks everywhere"
+ },
         "browserRecording": {
           "label": "Record & replay browser work",
           "title": "Record a browser flow once — replay it as a reusable skill",

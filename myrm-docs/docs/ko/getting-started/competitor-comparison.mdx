@@ -15,6 +15,14 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 턴당 기능 제어를 위해 Myrm은 완전한 관찰 가능성(제출/적용/noop/큐/바쁨/최종 결과 + 실패 이유)을 갖춘 **원턴 스킬/MCP 재정의 칩**을 지원합니다. 집중 검증(2026-07-29): 프런트엔드 29/29 통과, 서버 10/10 통과; 목표 적용 범위는 핵심 프런트엔드 파일의 라인 62.47%, 서버 원격 측정 모듈의 전체 라인 72%에 도달했습니다. 이는 팀에게 추측이 아닌 비용/신뢰성 조정에 대한 마이그레이션 안전 증거를 제공합니다.
 
+## 최신 검증 스냅샷 (2026-08-11 · LLM 구조화 JSON 파싱 견고성 · 6대 경쟁사 코드 수준 실증)
+
+- **하나의 자가 복구 추출 레이어, 17+ 모듈 공용 (vs OpenClaw / Hermes / deer-flow / LobsterAI / CoPaw / jiuwenclaw)**: harness 견고 파서 `parse_llm_json_object` / `parse_llm_json_list` (`utils/chat_utils.py`)이 **17+ 비즈니스 모듈**을 지원합니다 — skill 진화, wiki 컴파일, 모순 탐지, 메모리 추출(implicit feedback / cognitive deriver / staleness review / proactive extraction), sidecar 요약, 브라우저 세션 구조화 추출, semantic judge, DW 오케스트레이션 등. 유닛 **4899 passed**; 실제 LLM 통합 **13 passed** (`tests/integration/llm_extraction/` + staleness reviewer + wiki reindex, 전 구간 무목업); harness 아키텍처 게이트 전부 통과.
+- **검증 완료, 경쟁사별 코드 수준 (2026-08)**: OpenClaw는 프로덕션 코드에서 직접 `JSON.parse` 호출(`agent-run-control-shared.ts:267`, `state/openclaw-state-ownership.ts:79`) — 펜스 하나나 산문 한 문장이면 바로 실패. Hermes의 `extract_json_candidate`(`tools/delegation_output_schema.py:80`)는 펜스 제거 + 앞뒤 괄호 슬라이싱 후 그대로 `json.loads`; `jiter_preload.py`는 OpenAI SDK의 Rust 가속 파서일 뿐 문법을 고치지 않습니다. deer-flow는 LLM 자유 텍스트용 JSON 추출기가 **아예 없습니다**(전체 `json.loads`는 자체 파일/메시지 데이터 전용). LobsterAI `parseJsonObject`(`sessionDiagnostics/archive.ts:63`)는 그대로 `JSON.parse` + catch→null. CoPaw `extract_json_payload`(`utils/structured_output.py:59`)는 펜스 + 균형 괄호 스캔이지만 **첫 번째** JSON만 취하고 제어 문자 이스케이프·끝 쉼표 제거는 없음; `json_repair`는 설정 파일 전용. jiuwenclaw `extract_json_from_response`(`server/hooks/executor.py:270`)는 직결→정규식 펜스→`{}` 슬라이스 3단 폴백, 전부 실패 시 `{}` 반환으로 조용히 삼킴.
+- **어떤 경쟁사도 없는 4가지 능력**: ① (첫 번째가 아닌) **마지막** 유효 JSON 블록 선택 — 추론 모델의 '초안 JSON → 최종 답변' 오염에 강함; ② 문자열 리터럴 내 잡음 제어 문자 이스케이프(`_escape_control_chars_in_strings`); ③ 끝 쉼표 제거(`_strip_trailing_commas`); ④ `require_key` 스키마 인식 필터 — 배열/객체 모호 시 대상 키를 가진 객체만 인정. 이는 17개 모듈의 수동 취약 파싱을 하나의 공용 안전 레이어로 통합한 M1-M17 하드닝의 성과입니다.
+- **사용자에게 보이는 이점**: skill/wiki/메모리/judge 파이프라인이 모델이 JSON을 산문에 끼워 넣거나, 펜스를 붙이거나, 초안을 먼저 출력하거나, 문자열에 날것 `\n`/`\t`를 넣어도 조용히 실패하지 않습니다 — 수동 재시도나 '다시 한 번' 루프 불필요.
+- **Material SSOT:** `temp-docs/materials/REASONING_MODEL_COMPATIBILITY_ADVANTAGE.md` §LLM 구조화 JSON 파싱 견고성 · `myrm-agent-harness/src/myrm_agent_harness/utils/chat_utils.py`
+
 ## 최신 검증 스냅샷 (2026-08-09 · Kanban IN_REVIEW 인간 승인 게이트 · 9상태 수명주기)
 
 - **작업 수준 인간 승인 게이트 엔드투엔드(vs Hermes / OpenClaw / deer-flow / LobsterAI / CoPaw / jiuwenclaw):** 하네스 `test_in_review.py` **11/11** + 서버 `test_in_review_api.py` **14/14** = **테스트 25개, 실패 0개**(2026-08-09 실측, `scripts/dev/run-pytest-safe.sh`).

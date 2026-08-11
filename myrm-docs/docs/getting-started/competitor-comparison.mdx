@@ -15,6 +15,14 @@ For memory specifically, Myrm now ships a full **diagnostic + telemetry integrit
 
 For per-turn capability control, Myrm supports **one-turn Skill/MCP override chips** with full observability (submit/apply/noop/queue/busy/final outcome + failure reasons). Focused validation (2026-07-29): frontend 29/29 passed, server 10/10 passed; targeted coverage reached 62.47% lines on core frontend files and 72% total on server telemetry modules. This gives teams migration-safe proof for cost/reliability tuning, not guesswork.
 
+## Latest Validation Snapshot (2026-08-11 · LLM 结构化 JSON 输出解析鲁棒性 · 六竞品代码级实证)
+
+- **One self-repairing extraction layer, 17+ modules (vs OpenClaw / Hermes / deer-flow / LobsterAI / CoPaw / jiuwenclaw):** harness robust parsers `parse_llm_json_object` / `parse_llm_json_list` (`utils/chat_utils.py`) now back **17+ business modules** — skill evolution, wiki compilation, contradiction detection, memory extraction (implicit feedback / cognitive deriver / staleness review / proactive extraction), sidecar summaries, browser session structured extraction, semantic judge, and delegation orchestration. Unit **4899 passed**; integration with **real LLM 13 passed** (`tests/integration/llm_extraction/` + staleness reviewer + wiki reindex, no mock); harness architecture gates green.
+- **Verified, code-level per competitor (2026-08):** OpenClaw production code calls `JSON.parse` directly (`agent-run-control-shared.ts:267`, `state/openclaw-state-ownership.ts:79`) — a fence or one prose sentence breaks it. Hermes `extract_json_candidate` (`tools/delegation_output_schema.py:80`) only strips fences + first/last bracket slicing then bare `json.loads`; its `jiter_preload.py` is just the OpenAI SDK's Rust accelerator, it repairs nothing. deer-flow has **no LLM-text JSON extractor at all** (all `json.loads` are on its own file/message data). LobsterAI `parseJsonObject` (`sessionDiagnostics/archive.ts:63`) is bare `JSON.parse` + catch→null. CoPaw `extract_json_payload` (`utils/structured_output.py:59`) does fence + balanced-bracket scan but takes the **first** JSON and never escapes control chars or strips trailing commas; `json_repair` is only used for config files. jiuwenclaw `extract_json_from_response` (`server/hooks/executor.py:270`) tries direct→regex-fence→`{}` slice then silently returns `{}`.
+- **Four capabilities no competitor has:** ① pick the **last** (not first) valid JSON block — survives reasoning-model draft-then-final outputs; ② escape stray control characters inside JSON string literals (`_escape_control_chars_in_strings`); ③ strip trailing commas (`_strip_trailing_commas`); ④ `require_key` schema-aware filtering so an array vs object ambiguity resolves to the object carrying the target key. This is the M1-M17 hardening that replaced fragile hand-rolled parsing across the harness.
+- **User-visible win:** skill/wiki/memory/judge flows stop silently failing when a model wraps JSON in prose, adds a fence, prints a draft block first, or emits `\n`/`\t` bare inside strings — no manual retries, no "retry once" loops.
+- **Material SSOT:** `temp-docs/materials/REASONING_MODEL_COMPATIBILITY_ADVANTAGE.md` §LLM 结构化 JSON 输出解析鲁棒性 · `myrm-agent-harness/src/myrm_agent_harness/utils/chat_utils.py`
+
 ## Latest Validation Snapshot (2026-08-09 · Kanban IN_REVIEW Human Approval Gate · 9-State Lifecycle)
 
 - **Task-level human approval gate end-to-end (vs Hermes / OpenClaw / deer-flow / LobsterAI / CoPaw / jiuwenclaw):** harness `test_in_review.py` **11/11** + server `test_in_review_api.py` **14/14** = **25 tests, 0 failures** (2026-08-09 live run, `scripts/dev/run-pytest-safe.sh`).
@@ -204,6 +212,35 @@ For per-turn capability control, Myrm supports **one-turn Skill/MCP override chi
 - **Pre-existing bug fixed during validation:** `mode=running` seed fixture returned 500 due to `UnboundLocalError`; fixed in API fixture route and covered by integration regression.
 - **Resource envelope during verification:** memory free percentage stayed in the **36%-40%** range in this run (no high-pressure >80% used state observed).
 - **Known environment caveat (honest):** captcha coordinator tests still depend on local `patchright` availability; this does not block the browser snapshot/telemetry baseline verification above.
+
+## vs 六大竞品 — LLM 结构化 JSON 输出解析鲁棒性
+
+**一句话：模型把 JSON 夹在散文里、包进代码围栏、先吐一版草稿再给最终答案、字符串里塞裸换行——这些场景下，Myrm 的结构化流水线照样一次跑通，多数竞品要么抛错要么静默吐空。**
+
+| 解析能力（LLM 自由文本 → JSON） | **Myrm** | OpenClaw | Hermes | deer-flow | LobsterAI | CoPaw | jiuwenclaw |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| markdown fence 剥离 | ✅ | ❌ 直接 `JSON.parse` | ✅ 简单 | ❌ | ❌ | ✅ | ✅ |
+| prose 包裹中找 JSON | ✅ | ❌ | ✅ 首尾切片 | ❌ 无提取器 | ❌ | ✅ 平衡扫描 | ✅ 首尾切片 |
+| **多重 JSON 块取「最后（最新）」** | ✅ **取最后有效** | ❌ | ❌ | ❌ | ❌ | ❌ 取第一个 | ❌ 取第一个成功 |
+| 字符串内裸控制字符转义 | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| 尾逗号剥离 | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| 数组/对象歧义 schema 感知（require_key） | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| reasoning content 空值回退 | ✅ 统一提取层 | ⚠️ per-model wrapper | ❌ | ❌ | ❌ | ❌ | ❌ |
+| 失败处理 | 多级回退→None，上层恢复 | 抛错 | 报错重试 | N/A | catch→null | 平衡扫描兜底 | 3 级回退→`{}` 静默 |
+| 消费方覆盖 | **17+ 模块统一复用** | 特定路径 | 仅 delegation | N/A | 仅归档 | 仅子应用 | 分散不一致 |
+
+**逐竞品证据（2026-08 代码级）：**
+
+- **OpenClaw**：生产代码直接 `JSON.parse`（`src/talk/agent-run-control-shared.ts:267`、`src/state/openclaw-state-ownership.ts:79`）——LLM 输出夹带一句话或一个 fence 即抛错。
+- **Hermes**：`extract_json_candidate`（`tools/delegation_output_schema.py:80`）剥离 fence + 首尾括号切片后裸 `json.loads`，失败报错转重试；`agent/jiter_preload.py` 只是 OpenAI SDK 的 Rust 加速解析器，不修复语法。
+- **deer-flow**：backend 全仓 `json.loads` 仅解析自有文件/消息数据（`app/channels/*.py`），没有面向 LLM 自由文本的 JSON 提取器。
+- **LobsterAI**：`parseJsonObject`（`src/main/sessionDiagnostics/archive.ts:63`）裸 `JSON.parse` + catch 返回 null，输出稍脏即丢。
+- **CoPaw**：`extract_json_payload`（`plugins/apps/qwenpaw-creator/backend/utils/structured_output.py:59`）fence + 平衡扫描但取**第一个** JSON；`json_repair` 仅用于配置文件（`src/qwenpaw/config/utils.py:18`）。
+- **jiuwenclaw**：`extract_json_from_response`（`jiuwenswarm/server/hooks/executor.py:270`）3 级回退（直接→正则 fence→`{}` 切片）全失败返回 `{}` 静默吞错；`json_repair` 仅 JSON5/特定场景。
+
+**为什么「取最后」是关键**：推理模型长输出常先给「思考草稿 JSON」再给最终答案，取第一个会拿到废稿。Myrm 取最后一个**有效**对象 + `require_key`（只认含目标键的对象）天然抗草稿污染，skill 进化 / wiki 编译 / 记忆抽取 / judge 判卷全部受益。
+
+**Myrm 实现**：`myrm-agent-harness/src/myrm_agent_harness/utils/chat_utils.py` — `parse_llm_json_object` / `parse_llm_json_list` → `_iter_json_blocks` 平衡块迭代 → `_escape_control_chars_in_strings` → `_strip_trailing_commas`。判卷另走 `max_tokens=600` 防思考截断。
 
 ## At a Glance
 
