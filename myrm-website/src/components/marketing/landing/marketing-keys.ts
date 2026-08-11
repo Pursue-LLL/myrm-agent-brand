@@ -37,6 +37,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'humanReview',
   'reasoningModel',
   'browserRecording',
+  'skillGrowth',
 ] as const;
 
 export type HighlightSlideKey = (typeof HIGHLIGHT_SLIDE_KEYS)[number];
