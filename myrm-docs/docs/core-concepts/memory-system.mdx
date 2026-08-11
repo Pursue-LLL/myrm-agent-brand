@@ -423,6 +423,12 @@ A comprehensive 40+ component interactive GUI replaces the traditional plain-tex
 
 The diagnostic system monitors memory quality with quantified health scores and provides actionable repair recommendations. Includes memory import/export for 14 formats, archive management, and recall benchmarking with IR metrics (NDCG, MRR, precision).
 
+**Memory Doctor (write-read conformance benchmark)** — one click runs a real consistency check: the agent actually writes and re-reads 16 scenarios across 8 memory categories, then scores recall quality (recall@5 / NDCG@5 / MRR) and retrieval latency (P50/P95). Every run is archived in an audit ledger and rendered as a historical trend panel:
+
+- **Latency P50/P95 trend (unique)** — as memory grows, retrieval can get slower; P50/P95 plotted over time is the only performance signal that catches an agent "silently getting slower" while quality metrics stay flat. Per-run deltas are colored (faster = green, slower = red) so regressions surface at a glance.
+- **Category pass rates** — regressions are localized to the exact memory category (profile, workflow, knowledge update, …) instead of a single aggregate score.
+- **Model-switch drift hints** — if the embedding model changed between runs, the panel warns that older scores may not be comparable.
+
 ## Dataset Export
 
 Export your conversation traces as industry-standard fine-tuning datasets — directly from the Settings page.

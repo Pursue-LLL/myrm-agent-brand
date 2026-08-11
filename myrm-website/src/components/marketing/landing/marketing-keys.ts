@@ -32,6 +32,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'omniChannel',
   'tokenSmart',
   'evalLab',
+  'memoryDoctor',
   'voiceBgDone',
   'i18nLocalization',
   'humanReview',
