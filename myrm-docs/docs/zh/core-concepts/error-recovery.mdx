@@ -112,6 +112,32 @@ CLOSED（正常）→ OPEN（检测到失败）→ HALF-OPEN（探测）→ CLOS
 
 引擎内置 import-to-PyPI 映射表（PIL → Pillow, sklearn → scikit-learn, yaml → PyYAML 等），并自动检测是否可用 `uv pip`。所有代码在 VenvManager 管理的共享虚拟环境中运行，确保用户安装的包不会污染系统 Python。
 
+## Shell 会话自愈
+
+Myrm 在**长驻交互式 bash 会话**中执行命令（而非每次调用新开一次性进程），因此 `cd`、`export` 与环境状态跨命令持久。长驻会话会引入一次性方案永远不会遇到的两种故障类——Myrm 以确定性方式解决：
+
+### 环境变量逐字节保真注入
+
+环境变量通过 **ANSI-C 引号（`$'…'`）** 注入 bash，含 `$`、反引号、双引号、换行、tab、回车等特殊字符的值被**逐字节**原样保留——永不被二次展开、永远无法拆断初始化批次。Naive 转义（如把 `"` 转成 `\\"`）会在值含奇数个 `"` 时提前闭合双引号上下文，令 bash 卡死在 PS2 续行提示，导致**后续所有命令全部超时**。已通过 20 组真实 `bash -c` 往返参数化测试验证（引号奇偶、反斜杠、`$HOME`、反引号、换行/tab/CR、Unicode、`%`、`!`、空值）。
+
+### 卡死自愈
+
+阻塞或吞 stdin 的命令（`cat`、`ssh`、`python -c "input()"`、`tail -f`）会永久毒化长驻 shell——后续输出与标记全被吞掉。Myrm 检测并透明恢复：
+
+- **超时自愈**：超时命令 kill 整个进程组并标记会话为 `TERMINATED`；下一条 execute/stream 调用**透明重建**会话（env/cwd 重新注入）
+- **边界损坏检测**：吞 stdin 命令把输出标记回显成原始文本时，exit-code 字段解析失败 → 触发 `parse_failed` 标志 → 走同一 kill + 重建路径，绝不把错乱半截输出返回给 LLM
+- **双路径一致**：`execute` 与 `execute_stream`（实时 SSE）均触发自愈
+
+### 会话级防线
+
+- **随机命令标记**（`secrets.token_hex`）分隔输出，用户输出永不碰撞固定分隔符——杜绝截断误判
+- **`bash -n` 语法预检**：未闭合 heredoc/括号在触碰长驻进程前拦截
+- **`exit()` 拦截函数**：尾部 `exit N` 从命令块返回而非终止 shell——cwd/env 不丢
+- **块内 rc 捕获 + `EXIT` trap**：即使 `set -e` errexit 崩溃也输出完整标记对与真实退出码
+- **实时 PII 脱敏**：主机路径与凭证 token 在 `execute` 与 SSE 流双路径掩码一致
+
+**已验证**：110 项 persistent-session/shell-flavor 测试 + 32 项 PII/models/exit 测试全通过（2026-08）。采用一次性进程的竞品（Hermes `env.execute`、jiuwenclaw sandbox daemon）因不携带状态而无需面对引号或卡死问题——但它们每次调用都丢失 `cd`/`export` 状态，且无法在任务中途自愈。
+
 ## 模型自升级
 
 轻量模型发现无法完成任务时：

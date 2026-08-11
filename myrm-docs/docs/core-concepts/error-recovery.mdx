@@ -112,6 +112,32 @@ When the agent runs Python code or Bash commands, the execution engine automatic
 
 The engine includes a built-in import-to-PyPI mapping table (PIL → Pillow, sklearn → scikit-learn, yaml → PyYAML, and more) and auto-detects whether `uv pip` is available. All code runs in an isolated shared virtual environment managed by VenvManager, ensuring user-installed packages never pollute the system Python.
 
+## Shell Session Self-Healing
+
+Myrm runs commands in a **long-lived interactive bash session** (not a fresh one-shot process per call) so `cd`, `export`, and environment state persist across commands. Long-lived sessions introduce two failure classes that one-shot designs never face — Myrm solves both deterministically:
+
+### Byte-Exact Environment Injection
+
+Env values are injected into bash using **ANSI-C quoting (`$'…'`)**, so a value containing `$`, backticks, double quotes, newlines, tabs, or carriage returns is preserved **byte-for-byte** — never re-expanded and never able to break the initialization batch. A naive `\"` escaping of a value with an odd number of `"` would prematurely close the double-quote context and leave bash stuck on the PS2 continuation prompt, timing out **every subsequent command**. Verified by 20-parameter round-trip tests that run real `bash -c` subprocesses (quote parity, backslash, `$HOME`, backticks, newline/tab/CR, Unicode, `%`, `!`, empty value).
+
+### Wedge Self-Healing
+
+A blocking or stdin-swallowing command (`cat`, `ssh`, `python -c "input()"`, `tail -f`) can permanently poison a long-lived shell — later output and markers are all swallowed. Myrm detects and recovers transparently:
+
+- **Timeout self-heal**: a timed-out command kills the whole process group and marks the session `TERMINATED`; the very next execute/stream **transparently rebuilds** the session with env/cwd re-injected
+- **Boundary corruption detection**: when stdin-swallowing echoes the output marker back as raw text, the exit-code field fails to parse → `parse_failed` flag → same kill-and-rebuild path, never returning garbled half-output to the LLM
+- **Dual-path consistency**: both `execute` and `execute_stream` (real-time SSE) trigger self-healing
+
+### Session-Level Defenses
+
+- **Random per-command markers** (`secrets.token_hex`) separate output so user output can never collide with a fixed delimiter — no truncation misjudgment
+- **`bash -n` syntax pre-check** intercepts unterminated heredocs/parens before touching the long-lived process
+- **`exit()` interceptor**: a trailing `exit N` returns from the command block instead of killing the shell — cwd/env survive
+- **Block-level RC capture + `EXIT` trap**: even `set -e` errexit crashes emit a complete marker pair and the real exit code
+- **Real-time PII scrubbing**: host paths and credential tokens are masked identically on both the `execute` and SSE stream paths
+
+**Verified**: 110 persistent-session/shell-flavor tests + 32 PII/models/exit tests passing (Aug 2026). Competitors using one-shot processes (Hermes `env.execute`, jiuwenclaw sandbox daemon) never face the quoting or wedging problem because they carry no state — but they also lose `cd`/`export` state on every call and cannot self-recover mid-task.
+
 ## Model Self-Escalation
 
 When a lightweight model detects it lacks the capability to complete a task:
