@@ -38,6 +38,17 @@ Myrm 提供可视化看板跟踪复杂多步任务，以及强大的子 Agent �
 
 **验证（2026-08-09）**：harness `test_in_review.py` 11/11 + server `test_in_review_api.py` 14/14 = 25 tests, 0 failures。
 
+### 待审可见与直达
+
+任务进入 **In Review** 后，无需任何寻找成本：
+
+- **全局待审聚合**——所有等待你审批的任务（跨项目）聚合进全局数字：导航徽标 + Fleet 概览的 **Pending** 卡片，随时知道有几件事等你拍板，绝无遗漏。
+- **一点直达**——点击 Web Push / IM 待审通知，直接落到对应看板的 **In Review** 列；全局 Pending 卡片点击同样直达。即使任务属于当前筛选项目之外，深链也能自动定位目标板。
+- **状态过滤**——任意看板可一键只看 in-review 任务。
+- **抽屉内审批**——approve 完成并自动推进依赖；reject 回写 reason 返回 Ready，计数实时回落。
+
+**验证（2026-08-11）**：Chrome E2E 完整驱动真实流程（seed → 抽屉 approve/reject → 全局 KPI +1/-1 → KPI 点击直达 in_review 列 → 状态过滤）——1 passed in 153s。
+
 ### 关键特性
 
 <CardGroup cols={2}>
