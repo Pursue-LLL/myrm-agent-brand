@@ -1,0 +1,62 @@
+---
+title: Artifact Sharing & External Delivery
+description: Turn any Agent output into a read-only share link — zero signup for recipients, optional password gate, TTL expiry, and immutable version snapshots.
+---
+
+# Artifact Sharing & External Delivery
+
+When your Agent finishes a web page, report, PDF, or a multi-file site, Myrm can turn it into a **read-only share link** that anyone can open in a browser — no account, no install, no login. It is the final step of the "say → do → see → share" delivery loop.
+
+## One-Click Share Links
+
+From the artifact card, click **Share** to generate a public link instantly:
+
+- **Zero signup for recipients** — the link opens directly in any browser
+- **Read-only by design** — recipients can view, not edit; editing happens inside Myrm
+- **Optional password gate** — protect sensitive content (weekly reports, contract drafts) behind a password
+- **TTL auto-expiry** — links live from 1 to 30 days (configurable) and then stop working automatically
+
+## Immutable Version Snapshots
+
+A share link is always locked to a **specific immutable version** of the artifact:
+
+- The content never drifts — later edits to the artifact do not pollute a link you already sent
+- Each snapshot is fingerprinted by SHA-256, so shared content is provably the exact bytes at share time
+- If the materialized bundle is removed, it is automatically re-materialized from the immutable snapshot on next access
+
+## Multi-File Bundles
+
+Myrm automatically collects everything a page needs into a single share bundle:
+
+- **HTML + CSS + JavaScript + images** discovered from the real reference chain — not just the entry file
+- **Nested directories** are preserved, so sub-resources resolve correctly
+- **Inline styles with single-quoted URLs** are handled correctly
+- **Lockfiles and build artifacts** (`package-lock.json`, `node_modules`) are excluded from bundles
+- **Documents and PDFs** are served with correct media types even when the vault object has no filename extension — a Chinese-named document renders as Markdown, a PDF opens as a PDF
+
+## Security Design
+
+| Dimension | Implementation |
+|-----------|----------------|
+| Tamper-proof | Stateless HMAC-SHA256 signature — any byte change invalidates the link (404) |
+| Traversal-safe | Materialized paths are strictly contained with `Path.is_relative_to`; `../` and `%2e%2e` encodings are rejected |
+| Credential isolation | Password-unlock cookies are named per-token (SHA-256 fingerprint), so concurrent password-protected shares never collide |
+| HTTPS defense | Unlock cookies set `Secure` over HTTPS, plus `HttpOnly` + `SameSite=Strict` |
+| Sub-resource auth | After unlocking, a short-lived signed cookie authorizes CSS/JS/image sub-requests — no repeated password prompts |
+| Content safety | HTML responses carry CSP + `X-Content-Type-Options`; non-HTML files get precise media types |
+| Expiry recovery | Expired links fail closed; expired unlock credentials automatically fall back to the password gate |
+| Malformed payloads | Signed but type-malformed tokens are rejected defensively instead of crashing |
+
+## Deployment Modes
+
+Artifact sharing works identically across all three deployment modes — the shared bundle is served from **your own sandbox**, so data never leaves your instance:
+
+- **Local WebUI** — self-hosted, links served from your machine
+- **Tauri Desktop** — served from your desktop instance
+- **Cloud-hosted** — served from your dedicated sandbox via the control plane
+
+## Honest Boundaries
+
+- **Read-only sharing** is a deliberate choice: external recipients view only, and collaborative editing is out of scope for the single-user sandbox architecture
+- **No revoke API yet** — links expire by TTL; active revocation is on the roadmap
+- **Password gate is single-factor** — it prevents accidental leakage, not enterprise-grade access control

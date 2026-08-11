@@ -44,6 +44,7 @@ export const COMPARE_ROW_KEYS = [
   'smartForgetting',
   'incognitoMode',
   'privacySafeShare',
+  'shareLink',
   'cascadeDeletion',
   'sandbox',
   'subAgent',
@@ -151,7 +152,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'searchIntelligence',
     'agentTemplates',
   ],
-  security: ['sandbox', 'securityLayers', 'toolSecurity', 'credentialVault', 'fileEditSafety', 'privacySafeShare', 'cascadeDeletion', 'toolIntegration', 'toolProfileSsot', 'unifiedToolGateway'],
+  security: ['sandbox', 'securityLayers', 'toolSecurity', 'credentialVault', 'fileEditSafety', 'privacySafeShare', 'shareLink', 'cascadeDeletion', 'toolIntegration', 'toolProfileSsot', 'unifiedToolGateway'],
   automation: [
     'subAgent',
     'kanbanUI',
