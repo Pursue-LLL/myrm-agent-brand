@@ -76,6 +76,20 @@ The selected intensity is passed through the full pipeline — frontend `model_k
 
 **Thinking Headroom (automatic):** All major reasoning models (Claude 4.6+, DeepSeek R1, OpenAI o-series, Gemini 2.5+) count thinking tokens against the `max_tokens` budget. If `max_tokens` is too small, the thinking phase exhausts the budget before the response starts — causing truncation. Myrm automatically raises `max_tokens` to a safe floor based on the selected thinking intensity (8K for low, 16K for medium, 32K for high, 65K for xhigh/max). When no intensity is explicitly set, a conservative 16K default floor is applied since all thinking models default to thinking-on. This works alongside stream recovery as a dual-layer defense — proactive prevention plus reactive fallback. The adjustment is completely transparent and does not increase API costs (providers bill actual tokens used, not the `max_tokens` ceiling).
 
+## Reasoning Model Answer Extraction
+
+DeepSeek-R1, Qwen-QwQ, OpenAI o-series, minimax M3 and other reasoning models put their final answer in `reasoning_content` instead of `content`. For most agent frameworks this is a silent trap — generated scripts, tool results, and UI output end up empty or printing `None`.
+
+Myrm extracts the user-visible answer through a model-agnostic extraction layer that automatically:
+
+- **Falls back to `reasoning_content`** when `content` is empty — reasoning models work out of the box, no per-model whitelist to wait for
+- **Strips `<think>…</think>` blocks** everywhere in the pipeline — answers stay clean, no raw thinking leaking into scripts, wiki articles, or structured results
+- **Tolerates Anthropic block lists** and plain-string responses — one extraction path for every provider
+
+Judge-style outputs (task completion verdicts, semantic comparisons, goal evaluations) go through the same robust parsing: markdown fences, prose framing around JSON, and unescaped newlines inside string literals are all handled, so reasoning models can't break your kanban or goal pipeline either.
+
+The result: new models just work — plug in any OpenAI-compatible or Anthropic-compatible reasoning model and the whole product (chat, agents, kanban, wiki, scripts) keeps returning clean, stable answers.
+
 ## Per-Model Prompt Adaptation
 
 Different AI models have different behavioral tendencies. Myrm automatically adapts its system prompt for each model family to get the best results:
