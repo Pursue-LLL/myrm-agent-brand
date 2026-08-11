@@ -50,6 +50,22 @@ Navigate to **Settings > Channels** in the GUI to connect a platform. Each chann
 
 For channels that require API credentials (DingTalk, Slack, Discord, WeCom, etc.), a **developer portal link** is displayed below the configuration form — click it to jump directly to the platform's developer console where you create your bot/app and obtain credentials. 12 channels have direct links; 4 additional channels show text guidance.
 
+### Public Ingress Guidance
+
+Some channels receive messages by letting the platform **push** webhook callbacks to a public URL — LINE, Teams, WeChat Official, Zalo, SMS (Twilio) and GitHub all need a reachable public address. Others connect **outbound** — Feishu WebSocket, Telegram long-polling, Email IMAP, IRC/Matrix — and never need one.
+
+Myrm tells you which is which **before you configure**:
+
+| Capability | What you get |
+|-----------|--------------|
+| Automatic mode detection | The Settings → Channels page shows an **inbound / outbound badge** per channel, computed server-side from a transport profile covering all built-in channels |
+| Setup-time warning | Configuring an inbound channel without a public Ingress URL raises a **WARNING** with a one-click fix-it link to Settings → System → Public Ingress |
+| Tunnel guide | No public IP? Follow the [Tunnel guide](/docs/guides/tunnel) to expose your local agent through cpolar / NATAPP / frp |
+
+This eliminates the classic "webhook never arrives" debugging session — you know before connecting whether the channel needs a public address and exactly where to configure it.
+
+> **Honest boundary**: Ingress guidance is per-channel transport classification, not a live connectivity test. Webhook delivery still depends on your tunnel/proxy being reachable from the platform.
+
 ### WeChat (via iLink)
 
 Connect your personal WeChat account in under a minute with QR code login:
