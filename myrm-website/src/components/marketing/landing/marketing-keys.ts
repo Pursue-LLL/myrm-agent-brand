@@ -33,6 +33,8 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'tokenSmart',
   'evalLab',
   'voiceBgDone',
+  'i18nLocalization',
+  'humanReview',
 ] as const;
 
 export type HighlightSlideKey = (typeof HIGHLIGHT_SLIDE_KEYS)[number];

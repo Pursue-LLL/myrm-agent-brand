@@ -450,7 +450,7 @@
           "feature": "纵深安全 · 隐私不泄露",
           "hermes": "3处拦截",
           "openclaw": "1层",
-          "myrmAgent": "22层纵深防御(5层洋葱架构+4安全维度) · 30000+安全测试全通过(2026年7月) · **架构级零遥测**：Metrics/OTEL 默认 opt-in 关闭（竞品 Claude Code 被曝 opt-out 隐秘追踪）· 输入侧：PromptGuard 7+2中英注入检测+ContentBoundary 5层结构防护 · 执行侧：ShellCommandAnalyzer 6层命令分析(二进制注入→ANSI-C绕过→危险命令→SQL守卫→可疑模式→递归shell wrapper分析)+Python 40+模块黑名单+PEP 578 C级审计钩子+OS沙箱(seatbelt/bwrap)+TaintTracker污点追踪+CapabilityFence deny-by-default · 输出侧：CanaryGuard确定性金丝雀令牌+LeakDetector 40+凭证模式+ToolOutputRedact 30+模式脱敏+PII 30+中英双语检测 · AES-256-GCM凭证保险库(三层：Vault+Session+DB) · E2EE视觉背书(NaCl Box Curve25519, 39测试) · 确定性安全审批(零Token/不可注入) · SQL语法级命令守卫(multi-statement注入+WITH CTE绕过防御) · SSRF盾(DNS Pinning+逐跳重定向+数据外泄检测+Domain HITL审批, 358项测试) · Per-Agent安全策略 · 3级PII敏感度+隐私感知路由 · 3档会话级安全预设一键切换（HITL/自动批准编辑+AI智能审查/只读模式，与YOLO双向互斥） · OAuth自动告警+/freeze全局急停 · CSP防护 · **Agent 配置安全审计**：实时 6 维度 HealthScoreCard（工具暴露/MCP 认证/技能信任/子代理风险/定时任务风险/策略缺口）——按 checker 分组展示 + 独立颜色标识 + 策略缺口一键 Fix/Configure 按钮——全球唯一 GUI 集成的 Agent Profile 级聚合安全审计（竞品 SafeAI 仅 CLI、LobsterAI 仅 Skill 级、其余均无）· 52 项审计测试全通过（后端 37 + 前端 15）· **智能意图守护出厂默认开启**：AI 智能审批开箱即用，无需任何配置。未配置专用审查模型时自动回退到用户默认模型。90% 安全命令自动放行，危险操作仍需人工确认（竞品 Hermes 仅 CLI 配置，其余 6 家均无智能审批）· **用户命令黑名单**：GUI glob 模式编辑器，永久拦截危险命令（git push --force*、rm -rf /*、DROP TABLE*）——YOLO 不可绕过的硬地板。全局 + Per-Agent 并集合并。竞品均无 GUI 命令黑名单配置 · **会话目录 HITL**（本地/桌面）：Agent 访问 workspace 外文件夹前先询问——Composer 授权卡 + 输入框上方可撤销 chips；文件审批 path-ASK 勾选（默认关）；危险路径 grant 前拦截——**8 大竞品中仅 OpenWorker Cowork 有同类能力**（OpenClaw/Hermes/DeerFlow/LobsterAI/CoPaw/jiuwenclaw：均无） · **API 全入口会话标识白名单 fail-fast**：REST/WebSocket/Realtime 任意入口的用户可控 chat_id/session_id 在业务逻辑执行前即被拒（400/拒绝连接）——路径穿越防护在所有输入通道零死角"
+          "myrmAgent": "22层纵深防御(5层洋葱架构+4安全维度) · 30000+安全测试全通过(2026年7月) · **架构级零遥测**：Metrics/OTEL 默认 opt-in 关闭（竞品 Claude Code 被曝 opt-out 隐秘追踪）· 输入侧：PromptGuard 7+2中英注入检测+ContentBoundary 5层结构防护 · 执行侧：ShellCommandAnalyzer 6层命令分析(二进制注入→ANSI-C绕过→危险命令→SQL守卫→可疑模式→递归shell wrapper分析)+Python 40+模块黑名单+PEP 578 C级审计钩子+OS沙箱(seatbelt/bwrap)+TaintTracker污点追踪+CapabilityFence deny-by-default · 输出侧：CanaryGuard确定性金丝雀令牌+LeakDetector 40+凭证模式+ToolOutputRedact 30+模式脱敏+PII 30+中英双语检测 · AES-256-GCM凭证保险库(三层：Vault+Session+DB) · E2EE视觉背书(NaCl Box Curve25519, 39测试) · 确定性安全审批(零Token/不可注入) · SQL语法级命令守卫(multi-statement注入+WITH CTE绕过防御) · SSRF盾(DNS Pinning+逐跳重定向+数据外泄检测+Domain HITL审批, 358项测试) · Per-Agent安全策略 · 3级PII敏感度+隐私感知路由 · 3档会话级安全预设一键切换（HITL/自动批准编辑+AI智能审查/只读模式，与YOLO双向互斥） · **预设生命周期管理**：每个 Agent 携带默认预设——绑定/切换 Agent 自动重置为默认（fail-closed，聊天间不串预设）；异步配置加载下 YOLO 互斥仍闭环执行（就绪重放 + 快路径持久化，零安全假象；经 live Chrome E2E 6 大场景 + 3766 项前端测试验证） · OAuth自动告警+/freeze全局急停 · CSP防护 · **Agent 配置安全审计**：实时 6 维度 HealthScoreCard（工具暴露/MCP 认证/技能信任/子代理风险/定时任务风险/策略缺口）——按 checker 分组展示 + 独立颜色标识 + 策略缺口一键 Fix/Configure 按钮——全球唯一 GUI 集成的 Agent Profile 级聚合安全审计（竞品 SafeAI 仅 CLI、LobsterAI 仅 Skill 级、其余均无）· 52 项审计测试全通过（后端 37 + 前端 15）· **智能意图守护出厂默认开启**：AI 智能审批开箱即用，无需任何配置。未配置专用审查模型时自动回退到用户默认模型。90% 安全命令自动放行，危险操作仍需人工确认（竞品 Hermes 仅 CLI 配置，其余 6 家均无智能审批）· **用户命令黑名单**：GUI glob 模式编辑器，永久拦截危险命令（git push --force*、rm -rf /*、DROP TABLE*）——YOLO 不可绕过的硬地板。全局 + Per-Agent 并集合并。竞品均无 GUI 命令黑名单配置 · **会话目录 HITL**（本地/桌面）：Agent 访问 workspace 外文件夹前先询问——Composer 授权卡 + 输入框上方可撤销 chips；文件审批 path-ASK 勾选（默认关）；危险路径 grant 前拦截——**8 大竞品中仅 OpenWorker Cowork 有同类能力**（OpenClaw/Hermes/DeerFlow/LobsterAI/CoPaw/jiuwenclaw：均无） · **API 全入口会话标识白名单 fail-fast**：REST/WebSocket/Realtime 任意入口的用户可控 chat_id/session_id 在业务逻辑执行前即被拒（400/拒绝连接）——路径穿越防护在所有输入通道零死角"
         },
         "goalMode": {
           "feature": "目标驱动 · 复杂项目全程管控",
@@ -1418,6 +1418,26 @@
           "tag1": "完成即主动开口 · 结果摘要播报",
           "tag2": "队列安全插入 · 绝不打断当前播报",
           "tag3": "多窗口去重 · 时间线实时刷新"
+        },
+        "i18nLocalization": {
+          "label": "六语全覆盖",
+          "title": "每个内置智能体都说你的语言",
+          "desc": "25 个内置智能体的名称与职责描述全部本地化为 6 种语言（中 / 英 / 繁 / 日 / 韩 / 德），聊天、看板、记忆、设置以及每个下拉、选择器、@提及都一致呈现，绝不泄漏生硬英文。CI 工业级 i18n 门禁自动拦截「未翻译泄漏」与「翻译漂移」，每次发布本地化质量都不掉队。",
+          "stat": "25×6",
+          "statLabel": "内置智能体 × 语言",
+          "tag1": "名称+描述全链路本地化",
+          "tag2": "CI 门禁拦截英文泄漏与漂移",
+          "tag3": "40+ 界面一致呈现"
+        },
+        "humanReview": {
+          "label": "待审直达",
+          "title": "任务要过审？全局待审一眼看到，一点直达",
+          "desc": "需要人工确认的任务（后台任务、定时任务、长任务交付物）进入「待审核」状态，绝不自动冒充完成。无论任务属于哪个项目，导航与舰队概览的全局待审数字，随时告诉你还有几件事等你拍板。点击通知或待审数字，直接落到对应看板的待审列表；批准即完成并自动推进后续依赖任务，驳回带原因打回返工，计数实时回落——「数字 → 动作 → 结果」完整闭环，任何一次人工把关都不会被遗漏。",
+          "stat": "3",
+          "statLabel": "个入口直达待审（通知 / 全局数字 / 看板过滤）",
+          "tag1": "全局待审聚合 · 跨项目不遗漏",
+          "tag2": "通知点击直达待审列",
+          "tag3": "批准即完成 · 驳回带因返工"
         }
       }
     }
