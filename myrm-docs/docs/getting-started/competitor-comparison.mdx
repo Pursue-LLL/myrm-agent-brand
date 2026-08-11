@@ -1417,7 +1417,7 @@ Codex recently showcased Linear MCP integration and automated PM workflows. Myrm
 |-----------|-------|------|
 | MCP config | CLI only | GUI dialog + JSON batch import/export + security scan |
 | MCP security | None | SSRF defense + DNS Pinning + OSV malware detection + safety annotations |
-| Service catalog | None | 37 prebuilt services / 9 categories / search & filter / one-click connect |
+| Service catalog | None | 35 prebuilt services / 9 categories / search & filter (EN+ZH names/tags) / one-click connect / zero-config device-code auth (e.g. Microsoft To Do) |
 | Per-Agent MCP | Shared globally | Each Agent has independent mcp_ids + tool_selections |
 | MCP status | None | Real-time connection status + health checks |
 | Reverse MCP | None | Stateless HTTP memory endpoint for external IDEs (Claude Code / Cursor / Gemini CLI) — per-request Bearer auth, no session tracking needed |
@@ -1427,7 +1427,11 @@ Codex recently showcased Linear MCP integration and automated PM workflows. Myrm
 | Kanban | None (depends on external Linear) | Built-in Kanban + Pipeline templates + SSE events |
 | Deployment | CLI only | WebUI + Tauri desktop + SaaS |
 
-**Key takeaway**: Codex's "Linear MCP" is simply connecting an external MCP server — something Myrm already supports with a full GUI, security scanning, and 37 prebuilt service integrations. The "PM Agent" workflow requires no new platform features; Myrm's existing template system + channel monitoring + Kanban pipeline already enables this with one-click setup.
+**Key takeaway**: Codex's "Linear MCP" is simply connecting an external MCP server — something Myrm already supports with a full GUI, security scanning, and 35 prebuilt service integrations. The "PM Agent" workflow requires no new platform features; Myrm's existing template system + channel monitoring + Kanban pipeline already enables this with one-click setup.
+
+### Microsoft To Do connector — zero-config where competitors require app registration
+
+The built-in Integration Catalog ships a pre-configured **Microsoft To Do** entry (`npx -y microsoft-todo-mcp`), so users connect through a **device-code sign-in that reuses the public Microsoft client ID** — no Azure App registration, no Client ID/Secret, no API key. The connect dialog inlines the guidance plus a "Learn more" link. Chinese users find the entry by its official Chinese name **微软待办** or the tags 待办/微软 — a discoverability layer no competitor (OpenClaw / CoPaw / LobsterAI / jiuwenclaw) implements. Verified end-to-end: backend catalog + API tests, frontend Vitest, and live Chrome E2E.
 
 ## vs Codex (OpenAI) — Appshots & /goal GA
 
