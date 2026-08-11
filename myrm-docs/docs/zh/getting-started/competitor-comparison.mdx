@@ -1273,7 +1273,7 @@ Codex 近期展示了 Linear MCP 连接与自动化 PM 工作流。MyrmAgent 的
 |------|-------|------|
 | MCP 配置方式 | 仅 CLI | GUI 引导式对话框 + JSON 批量导入 + 安全扫描 |
 | MCP 安全 | 无 | SSRF 防护 + DNS Pinning + OSV 恶意包检测 + 安全注解 |
-| 服务目录 | 无 | 27 个预配置服务 / 9 大类别 / 搜索过滤 / 一键连接 |
+| 服务目录 | 无 | 35 个预配置服务 / 9 大类别 / 搜索过滤（中英文名称与标签）/ 一键连接 / 零配置设备码授权（如 Microsoft To Do） |
 | Per-Agent MCP | 全局共享 | 每个 Agent 独立 mcp_ids + tool_selections |
 | MCP 状态监控 | 无 | 实时连接状态 + 健康检查 |
 | 反向 MCP | 无 | 无状态 HTTP 记忆端点供外部 IDE 连接（Claude Code / Cursor / Gemini CLI）— 每请求 Bearer 认证，无需 session 跟踪 |
@@ -1283,7 +1283,11 @@ Codex 近期展示了 Linear MCP 连接与自动化 PM 工作流。MyrmAgent 的
 | 看板 | 无（依赖外部 Linear） | 内置看板 + Pipeline 模板 + SSE 实时事件 |
 | 部署模式 | 仅 CLI | WebUI + Tauri 桌面端 + SaaS |
 
-**关键结论**：Codex 的 "Linear MCP" 只是连接了一个外部 MCP 服务器——MyrmAgent 早已支持且有完整 GUI、安全扫描和 37 个预置服务集成。"PM Agent" 工作流无需新的平台功能；MyrmAgent 现有的模板系统 + 渠道监听 + Kanban 管道已可一键实现。
+**关键结论**：Codex 的 "Linear MCP" 只是连接了一个外部 MCP 服务器——MyrmAgent 早已支持且有完整 GUI、安全扫描和 35 个预置服务集成。"PM Agent" 工作流无需新的平台功能；MyrmAgent 现有的模板系统 + 渠道监听 + Kanban 管道已可一键实现。
+
+### Microsoft To Do 连接器——竞品要注册应用，我们零配置
+
+内置集成目录预置了 **Microsoft To Do** 条目（`npx -y microsoft-todo-mcp`），用户通过**复用公开 Microsoft Client ID 的设备码登录**完成授权——无需 Azure 应用注册、无需 Client ID/Secret、无需 API 密钥。连接对话框内联引导说明并附「了解更多」链接。中文用户可通过官方中文名 **微软待办** 或标签 **待办/微软** 直接发现该服务——这是 OpenClaw / CoPaw / LobsterAI / jiuwenclaw 等竞品都没有的可发现性能力。已通过后端 catalog + API 测试、前端 Vitest、真实 Chrome E2E 全链路验证。
 
 ## vs Codex (OpenAI) — Appshots 与 /goal GA
 
