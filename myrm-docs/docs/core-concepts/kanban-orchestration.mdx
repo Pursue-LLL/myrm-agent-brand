@@ -75,6 +75,18 @@ Once a task enters **In Review**, you never have to hunt for it:
   </Card>
 </CardGroup>
 
+### Task-Level Skill Configuration
+
+Each task carries its own `extra_skill_ids` — a per-task skill overlay merged into the worker's tool set at startup (`agent_skill_ids = profile.skill_ids + task.extra_skill_ids`). Three safeguards make this configurable, validated, and honest:
+
+| Safeguard | Behavior |
+|-----------|----------|
+| **GUI skill picker** | The create form and task drawer use a searchable multi-select backed by the same skill library as the agent panel — no more typing skill ids from memory. Removed ids stay visible labeled "unknown" instead of being silently dropped |
+| **API existence validation** | `extra_skill_ids` are validated against the full discoverable set (PREBUILT + LOCAL + WORKSPACE). Unknown ids are rejected with `400` plus a hint listing available skills — a task can never be silently "configured but not applied" |
+| **Running-task semantics** | Editing skills on a `running` task shows "takes effect on next run". Skills are bound when the worker starts (keeping the prompt cache maximized), so mid-run edits never silently no-op |
+
+Internal task-creation paths (decompose/specify, pipeline instantiation) bypass the user-facing validation by construction — decompose does not emit skill ids and pipelines only inject template-defined skills.
+
 ### Role-Based Kanban LLM Tools
 
 Kanban tools are **opt-in** and **role-gated** to save tokens and reduce misuse:

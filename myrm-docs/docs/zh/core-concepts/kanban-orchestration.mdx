@@ -69,6 +69,18 @@ Myrm 提供可视化看板跟踪复杂多步任务，以及强大的子 Agent �
   </Card>
 </CardGroup>
 
+### 任务级技能配置
+
+每个任务可携带自己的 `extra_skill_ids` —— 任务级技能叠加，在 worker 启动时合并进工具集（`agent_skill_ids = profile.skill_ids + task.extra_skill_ids`）。三重保障让配置**可选、可校验、语义清晰**：
+
+| 保障 | 行为 |
+|------|------|
+| **GUI 技能选择器** | 创建表单与任务抽屉均使用可搜索多选器，数据源与 agent 配置面板同源技能库——无需手输技能 id；已失效技能 id 保留显示标「未知」，不静默丢弃 |
+| **API 存在性校验** | `extra_skill_ids` 校验于全量可发现技能集（PREBUILT + LOCAL + WORKSPACE）。未知 id 返回 `400` + 可用技能提示——任务不可能「配了却不生效」 |
+| **运行中语义** | 编辑 `running` 任务技能时显示「下次运行生效」。技能在 worker 启动时绑定（保持 Prompt Cache 最大化），运行中编辑不会静默无效 |
+
+内部创建路径（decompose/specify、pipeline 实例化）按构造天然绕过用户面校验——decompose 不产出技能 id，pipeline 仅注入模板预置技能。
+
 ### 角色化 Kanban LLM 工具
 
 看板工具**默认不加载**，按场景 **Role Gate** 绑定，省 Token、降误调用：
