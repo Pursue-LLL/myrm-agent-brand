@@ -28,3 +28,54 @@ description: Hardware and software requirements for self-hosting.
 
 - **Qdrant** — Vector database for advanced memory search (included in Docker Compose)
 - **Redis** — For caching and rate limiting (optional)
+
+## Deployment Modes at a Glance
+
+The same codebase runs in three modes, each with its own resource profile. Models are always reached through an API (BYOK, relay, or an optional local Ollama), so **no GPU is required in any mode**.
+
+| Mode | Where it runs | Resource footprint | What you manage |
+|------|---------------|--------------------|-----------------|
+| **Local WebUI** | Your own machine or NAS (Docker) | CPU + RAM of your box | Server, upgrades, backups |
+| **Tauri Desktop** | Native app on your laptop/desktop | Lightweight native shell | Install and run |
+| **Cloud (managed)** | Control-plane sandbox | Handled for you | Nothing — bring your own model API keys |
+
+## Choosing a Spec by Usage Intensity
+
+Most self-hosted setups land in the light tier. Reserve the heavy tier for team use or sustained multi-agent workloads.
+
+| Tier | Workload | Recommended spec |
+|------|----------|------------------|
+| **Light** | Personal assistant, daily chat, single agent | 2 CPU / 4 GB / 10 GB |
+| **Medium** | Coding and browser tasks, scheduled jobs | 4 CPU / 8 GB / 50 GB |
+| **Heavy** | Team use, multiple agents, sustained load | 8 CPU / 16 GB / 100 GB+ |
+
+## Resource Limits (Preventing OOM)
+
+The Docker Compose stack ships with configurable resource limits to protect low-end hosts (NAS, older PCs):
+
+| Variable | Default | Meaning |
+|----------|---------|---------|
+| `MYRM_MEM_LIMIT` | `0` (unlimited) | Max memory for the Myrm container, e.g. `3g` |
+| `MYRM_CPU_LIMIT` | `0` (unlimited) | Max CPUs for the Myrm container, e.g. `2.0` |
+
+Set them before starting the stack:
+
+```bash
+MYRM_MEM_LIMIT=3g MYRM_CPU_LIMIT=2.0 docker compose up -d
+```
+
+On a NAS or shared host, always set `MYRM_MEM_LIMIT` so the agent can never take down the whole machine.
+
+See the [Environment Variables](/docs/self-hosting/environment-variables) reference for the full variable list.
+
+## Honest Comparison with Competitors
+
+Official self-hosted minimum specs (browser automation raises RAM demands roughly equally for all platforms):
+
+| Platform | Minimum spec | Notes |
+|----------|--------------|-------|
+| **Myrm** | 2 CPU / 4 GB / 10 GB | No GPU; models via API; resource limits configurable |
+| **MonkeyCode** | console 2C/4G/40G + dev-host 8C/16G/100G | Dev-host scales with team size; local inference may need a GPU |
+| **OpenClaw** | 2 vCPU / 4 GB / 20 GB+ | Browser automation: 4C/8G; local models need 16 GB+ RAM |
+
+Sources: [MonkeyCode README](https://github.com/chaitin/MonkeyCode) and [OpenClaw documentation](https://docs.openclaw.ai/install).

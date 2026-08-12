@@ -54,6 +54,14 @@ Eval Lab에는 **WorkBuddy Bench**(Tencent의 멀티 도메인 코딩 에이전�
 Security 작업은 자체 내장 `tests/scoring.py`로 채점됩니다(LLM 판정 없음). Code/Web/Office는 합성 검증기(CompositeVerifier)를 사용합니다 — WBBench 논문의 수용 계층과 일치합니다.
 :::
 
+## 국제 권위 벤치마크(BrowseComp)
+
+WorkBuddy Bench 외에도 Eval Lab은 **BrowseComp**를 통합합니다 — OpenAI 공식 벤치마크로, 다중 홉 증거 검색과 웹 브라우징이 필요한 1,266개의 실제 연구 질문으로 구성됩니다. 여기서 나온 점수는 최고 AI 연구소가 인용하는 작업 형식과 동일하므로 릴리스나 제안에서 인용할 수 있는 권위 있는 성적입니다.
+
+- **샘플 먼저 실행** — 대형 벤치마크는 작은 샘플을 자동 제안합니다(예: 1,266문제 중 20문제). 전체 실행 전에 토큰 비용의 일부로 전체 파이프라인을 검증할 수 있습니다. 샘플을 비우면 전체 세트를 실행합니다. 보고서는 실제로 샘플링한 실행만 `sampled` 배지로 정직하게 표시합니다.
+- **공정한 기준선** — 벤치마크 모드는 스킬/MCP/메모리를 제거하여 점수가 '모델 + 핵심 도구'만 반영하게 합니다.
+- **사전 점검** — 실행 전에 벤치마크가 필요로 하는 검색/임베딩 서비스가 구성되고 도달 가능한지 확인하여 토큰을 낭비하지 않습니다.
+
 ## 결정적 채점: 계층형 수용(CompositeVerifier)
 
 모든 작업의 채점은 작업 자체 테스트 스위트가 주도합니다 — 통과/실패 경로에 블랙박스 LLM 판정이 없습니다. 합성 검증기는 다운로드된 트랙 내부에 포함된 `tests/` 코드를 깨끗한 시드 워크스페이스에서 실행하고 결과를 실제 턴별 점수로 변환합니다.
@@ -72,6 +80,10 @@ Security 작업은 자체 내장 `tests/scoring.py`로 채점됩니다(LLM 판�
 | Semantic 판정(선택) | 작업에 네이티브 테스트가 없는 경우에만 LLM 검사 |
 
 `test_suite` 타임아웃은 기본 600초이며 케이스별로 구성 가능하므로, 오래 걸리는 작업 테스트(예: 컴파일 + 실행)가 조기 종료되지 않고 완료됩니다.
+
+### 판정 모델 구성
+
+Semantic(LLM-as-a-judge) 어설션은 특정 벤더 판정 모델을 하드코딩하지 않습니다. 판정 모델은 사용자 구성에서 해석됩니다 — 실행 시 명시적 재정의, 어설션 수준 필드, 기본 모델 구성 순으로 — 이미 사용 중인 어떤 모델 공급자로도 채점할 수 있습니다. 모든 보고서는 실제 채점한 판정 모델(`judge_model`)을 기록하며, 작업 네이티브 벤치마크는 LLM 판정이 없다는 의미로 `none`을 정직하게 표시합니다.
 
 ### 채점 진단: 실패가 조용히 지나가지 않습니다
 
@@ -147,6 +159,7 @@ Security 작업은 자체 내장 `tests/scoring.py`로 채점됩니다(LLM 판�
 | Field | Purpose |
 |-------|---------|
 | `model_provider` / `model_id` | Which LLM was used |
+| `agent_model` / `judge_model` | Which agent model was scored and which model judged it — `none` for task-native benchmarks (no LLM judge). Every report and history row records both, so score drift after switching models is traceable |
 | `profile_id` | Which agent profile was active |
 | `benchmark_mode` | Whether user customizations were stripped |
 | `harness_version` | Framework version for reproducibility |

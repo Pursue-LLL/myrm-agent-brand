@@ -53,6 +53,14 @@ The Eval Lab ships with a built-in adapter for **WorkBuddy Bench** (Tencent's mu
 Security tasks are graded by their own task-native `tests/scoring.py` (no LLM judge); Code/Web/Office use the composite verifier — matching the WBBench paper's acceptance layering.
 :::
 
+## International authority benchmarks (BrowseComp)
+
+Beyond WorkBuddy Bench, the Eval Lab integrates **BrowseComp** — OpenAI's official benchmark of 1,266 real-world research questions that require multi-hop evidence retrieval and web browsing. Scores produced here use the same task format top AI labs cite, so you get an authority-grade number you can point to in releases or proposals.
+
+- **Sampled runs first** — big benchmarks auto-suggest a small sample (e.g. 20 of 1,266) so you validate the whole pipeline at a fraction of the token cost before committing to a full run. Clear the sample to run the full set. Reports badge runs that truly sampled (`sampled`), so the label is never a guess.
+- **Fair baseline by design** — benchmark mode strips your skills, MCPs and memory, so the score reflects the model plus core tools only.
+- **Pre-flight checks** — the run verifies the search / embedding services the benchmark needs are configured and reachable before spending any tokens.
+
 ## Deterministic scoring: layered acceptance (CompositeVerifier)
 
 Every task's own test suite drives the score — no black-box LLM grading in the pass/fail path. The composite verifier runs the exact `tests/` code shipped inside each downloaded track inside a clean, seeded workspace and turns the result into a real per-turn score:
@@ -71,6 +79,10 @@ Every task's own test suite drives the score — no black-box LLM grading in the
 | Semantic judge (optional) | LLM check only where the task has no native tests |
 
 The `test_suite` timeout defaults to 600s and is configurable per case, so long-running task tests (e.g. compile + run) finish instead of being killed early.
+
+### Judge model configuration
+
+Semantic (LLM-as-a-judge) assertions never hard-code a vendor judge. The judge model resolves from your own configuration — explicit per-run override, then assertion-level fields, then your default model config — so scoring works with whatever model provider you already use. Every report records which judge model scored the run (`judge_model`), and task-native benchmarks honestly mark it `none` (no LLM judge involved).
 
 ### Scoring diagnostics: failures never go silent
 
@@ -146,6 +158,7 @@ Every eval run records an `EvalManifest` with:
 | Field | Purpose |
 |-------|---------|
 | `model_provider` / `model_id` | Which LLM was used |
+| `agent_model` / `judge_model` | Which agent model was scored and which model judged it — `none` when the task is graded natively (no LLM judge). Every report and history row records both, so score drift after you switch models is traceable |
 | `profile_id` | Which agent profile was active |
 | `benchmark_mode` | Whether user customizations were stripped |
 | `harness_version` | Framework version for reproducibility |
