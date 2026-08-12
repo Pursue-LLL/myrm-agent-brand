@@ -15,6 +15,14 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 턴당 기능 제어를 위해 Myrm은 완전한 관찰 가능성(제출/적용/noop/큐/바쁨/최종 결과 + 실패 이유)을 갖춘 **원턴 스킬/MCP 재정의 칩**을 지원합니다. 집중 검증(2026-07-29): 프런트엔드 29/29 통과, 서버 10/10 통과; 목표 적용 범위는 핵심 프런트엔드 파일의 라인 62.47%, 서버 원격 측정 모듈의 전체 라인 72%에 도달했습니다. 이는 팀에게 추측이 아닌 비용/신뢰성 조정에 대한 마이그레이션 안전 증거를 제공합니다.
 
+## 최신 검증 스냅샷 (2026-08-12 · 마켓플레이스 Agent 패키지 원클릭 설치 + 클라우드 안전 업그레이드)
+
+- **마켓플레이스 Agent 패키지 설치 → 안전 force-push 업그레이드 → 롤백 → 동적 명단 (vs Claude Code/Cursor / Coze 3.0 / OpenClaw)**: `test_marketplace_import_full_chain.py` 통합 **14 passed**(실제 인메모리 SQLite + 실제 스킬 디스크 쓰기 + 인프로세스 ASGI HTTP 전체 체인, 핵심 경로 제로 목업) + 유닛 회귀 **70 passed**; `import_agent_profile.py` **100% 라인 커버리지**(2026-08-12 실측).
+- **엔드투엔드 검증 완료**: ① 단일 패키지 원자 설치(모델+프롬프트+번들 스킬+서브 Agent+MCP+안전 프로필), publisher→로컬 ID 재매핑, 어느 단계든 실패 시 전체 롤백; ② force-push 업그레이드는 패키지에서 `None`으로 직렬화된 필드를 '변경 안 함'으로 처리 — NOT NULL 컬럼에 빈 값을 쓰지 않으며, 로컬 스킬/서브 Agent 바인딩이 업그레이드 후 그대로 유지(사용자 커스터마이징 덮어쓰기 금지); ③ 모든 force-push는 먼저 `pre-force-push` 스냅샷을 쓰고 `AGENT_CONFIG_UPDATED` 이벤트를 발행 — `rollback_profile`로 업그레이드 전 설정을 원클릭 복원; ④ `allow_discovery` 에이전트별 독립 스위치로 동적 명단 가입을 제어, `update_agent`로 실시간 전환(켬→명단 등록, 끔→숨김, 다시 켬→재등록); ⑤ CP 안전 채널: 토큰 누락/오류 → 403, `target_agent_id` 없음 → 404 fail-closed, 샌드박스 배포는 번들 스킬 거부.
+- **사용자에게 보이는 경쟁사 대비 장점**: Claude Code/Cursor는 subagent YAML + 플러그인 + MCP + 스킬 바인딩을 네 단계로 수동 조립해야 함; Coze는 팀 목록이 플랫폼 고정(로컬 프라이빗 Agent 없음, 에이전트별 발견 스위치 없음); OpenClaw는 고정 설정 파일뿐. Myrm은 '한 패키지로 Agent 전체 설치, 업그레이드가 로컬 커스터마이징을 절대 덮어쓰지 않음, 모든 업그레이드 원클릭 실행 취소, 프라이빗 Agent가 팀 발견 명단에 자유롭게 출입' 가능한 유일한 워크스페이스.
+- **정직한 범위**: force-push/롤백은 현재 Agent 구성 레이어(스킬, 서브 Agent, MCP 바인딩, 도구, 메모리 정책, 워크스페이스 정책, cron 검증)를 대상으로 함; 업그레이드 GUI가 스킬별 파일 내용 diff를 아직 렌더링하지 않음 — 스냅샷 복원은 현재 API 기반.
+- **Material SSOT:** `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md` §시장 Agent 패키지 원클릭 설치 · `app/api/internal/import_agent_profile.py` · `app/services/agent/marketplace/import_.py` · `tests/integration/test_marketplace_import_full_chain.py`
+
 ## 최신 검증 스냅샷 (2026-08-11 · LLM 구조화 JSON 파싱 견고성 · 6대 경쟁사 코드 수준 실증)
 
 - **하나의 자가 복구 추출 레이어, 17+ 모듈 공용 (vs OpenClaw / Hermes / deer-flow / LobsterAI / CoPaw / jiuwenclaw)**: harness 견고 파서 `parse_llm_json_object` / `parse_llm_json_list` (`utils/chat_utils.py`)이 **17+ 비즈니스 모듈**을 지원합니다 — skill 진화, wiki 컴파일, 모순 탐지, 메모리 추출(implicit feedback / cognitive deriver / staleness review / proactive extraction), sidecar 요약, 브라우저 세션 구조화 추출, semantic judge, DW 오케스트레이션 등. 유닛 **4899 passed**; 실제 LLM 통합 **13 passed** (`tests/integration/llm_extraction/` + staleness reviewer + wiki reindex, 전 구간 무목업); harness 아키텍처 게이트 전부 통과.

@@ -78,6 +78,15 @@ When you publish an agent to the org marketplace:
 New team members can get productive in minutes by installing proven agent configurations from the marketplace instead of building from scratch.
 </Tip>
 
+#### Safe upgrades & one-click rollback
+
+Force-push updates are designed to never break what you customized locally:
+
+- **`None` fields never overwrite** — package fields serialized as empty are treated as "leave untouched", so your local settings (memory policy, workspace policy, tool bindings) survive the update
+- **Local skill/subagent bindings are preserved** — publisher-side IDs were remapped to your local store at install time and are never replaced by force-push
+- **Snapshot before every push** — each update writes a `pre-force-push` snapshot and emits an `AGENT_CONFIG_UPDATED` event; if the new version misbehaves, roll back with one click to the exact pre-upgrade configuration
+- **Secure channel** — the Control Plane authenticates every push (token + package signature); a missing or wrong token is rejected with `403`, and pushing to a non-existent target returns `404` (fail-closed)
+
 ## Export, Import & Clone
 
 Share agent configurations across instances or back them up.

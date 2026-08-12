@@ -41,6 +41,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'skillGrowth',
   'interactiveUi',
   'evidenceDiscipline',
+  'marketplaceAgentInstall',
 ] as const;
 
 export type HighlightSlideKey = (typeof HIGHLIGHT_SLIDE_KEYS)[number];

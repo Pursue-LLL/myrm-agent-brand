@@ -15,6 +15,14 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-08-12 · 市场 Agent 包一键安装 + 云端安全升级）
+
+- **市场 Agent 包安装 → 安全 force-push 升级 → 回滚 → 动态名册（vs Claude Code/Cursor / Coze 3.0 / OpenClaw）**：`test_marketplace_import_full_chain.py` 集成 **14 passed**（真实 in-memory SQLite + 真实技能写盘 + 进程内 ASGI HTTP 全链路，关键路径零 mock）+ 单元回归 **70 passed**；`import_agent_profile.py` **100% 行覆盖**（2026-08-12 实测）。
+- **端到端已验证**：① 单包原子安装（模型+提示词+自带技能+子代理+MCP+安全策略），publisher→本地 ID 重映射，任一步失败整包回滚；② force-push 升级把包中序列化为 `None` 的字段视为「保持不变」——NOT NULL 列永不写入空值，本地技能/子代理绑定在升级后原样保留（不再覆盖用户定制）；③ 每次 force-push 先写 `pre-force-push` 快照并发出 `AGENT_CONFIG_UPDATED` 事件——`rollback_profile` 一键恢复升级前配置；④ `allow_discovery` 每 Agent 独立开关控制动态名册，可经 `update_agent` 实时切换（开→入册、关→隐藏、再开→重新入册）；⑤ CP 安全通道：缺失/错误 token → 403，`target_agent_id` 不存在 → 404 fail-closed，沙箱部署拒绝自带技能包。
+- **对用户可见的竞品优势**：Claude Code/Cursor 需四步手工拼装 subagent YAML + 插件 + MCP + 技能绑定；Coze 团队列表平台固定（无本地私有 Agent、无逐 Agent 发现开关）；OpenClaw 仅固定配置文件。Myrm 是唯一「一个包装下整个智能体、升级永不破坏本地定制、每次升级一键可撤销、私有 Agent 可自由进出团队发现名册」的工作台。
+- **诚实边界**：force-push/回滚当前覆盖 Agent 配置层（技能、子代理、MCP 绑定、工具、记忆策略、工作区策略、cron 校验）；升级 GUI 尚未渲染逐 skill 文件内容 diff——快照恢复目前由 API 驱动。
+- **Material SSOT：** `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md` §市场 Agent 包一键安装 · `app/api/internal/import_agent_profile.py` · `app/services/agent/marketplace/import_.py` · `tests/integration/test_marketplace_import_full_chain.py`
+
 ## 最新验证快照（2026-08-11 · LLM 结构化 JSON 输出解析鲁棒性 · 六竞品代码级实证）
 
 - **一套自修复提取层，17+ 模块统一复用（vs OpenClaw / Hermes / deer-flow / LobsterAI / CoPaw / jiuwenclaw）**：harness robust 解析器 `parse_llm_json_object` / `parse_llm_json_list`（`utils/chat_utils.py`）现已支撑 **17+ 业务模块**——skill 进化、wiki 编译、矛盾检测、记忆抽取（implicit feedback / cognitive deriver / staleness review / proactive extraction）、sidecar 摘要、browser 会话结构化提取、semantic judge、DW 编排等。单元 **4899 passed**；真实 LLM 集成 **13 passed**（`tests/integration/llm_extraction/` + staleness reviewer + wiki reindex，全程无 mock）；harness 架构 gate 全绿。
