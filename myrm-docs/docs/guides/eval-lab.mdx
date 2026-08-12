@@ -151,6 +151,16 @@ Memory A/B runs use **temporary, isolated memory storage** that is discarded aft
 
 Full-link Chrome E2E coverage (real browser, real backend): card entry + confirmation dialog, seeded dual-arm report + history rendering, and a real run start + abort — 3 E2E tests, plus 12 frontend unit tests.
 
+## Eval workspace lifecycle: isolated sandboxes that self-clean
+
+Every eval case runs in a **physically isolated workspace** (`.myrm/eval_workspaces/{case_id}`), so concurrent cases never race on the same files and an agent can only touch its own sandbox. The lifecycle is fully automatic:
+
+- **Destroyed after every run** — success, failure, abort, or crash all land in the same cleanup path (`create_session` and `execute`-only runs alike), so long-running servers never accumulate disk.
+- **Crash self-healing** — any workspace left behind by a dead process is swept automatically at the next server startup; nothing to clean by hand.
+- **Failure-proof cleanup** — each teardown step (memory-volume eviction, directory removal, per-profile workspace cleanup) is independently guarded, so one failing step can never leak the rest.
+
+The same isolation extends to Memory A/B: both arms get throwaway memory volumes that are evicted and deleted after the run.
+
 ## Environment snapshot
 
 Every eval run records an `EvalManifest` with:
