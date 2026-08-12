@@ -162,6 +162,9 @@ For B2B teams, the Control Plane provides full organization lifecycle management
 - **One-click offboarding**: When an employee leaves, admin freezes their sandbox, backs up the volume, and transfers it to the successor — all in one operation
 - **Immutable audit trail**: Every offboarding action is logged for compliance
 - **Cross-org protection**: A user cannot silently belong to two organizations
+- **3-way revocation symmetry**: Removing a member instantly clears their org MCP servers, managed approval policy, and model whitelist (fire-and-forget fan-out). If the sandbox is sleeping, residual governance is automatically cleared on wake — no permission ghost window
+- **Archive retention auto-sweep**: Offboard archives are automatically purged after the organization's configured retention period (`archive_retention_days`, default 365), keeping compliance retention without disk bloat
+- **Transfer safety guards**: Explicit `backup_path` is validated to stay within the backup directory (out-of-bounds rejected with 409); self-transfer (`source == target`) is refused; the UI only lists members with completed archives as transfer sources
 
 This means enterprise data never leaves with a departing employee — it stays under organizational control with full traceability.
 
