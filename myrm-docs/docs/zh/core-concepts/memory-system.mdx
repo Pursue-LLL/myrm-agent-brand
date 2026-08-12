@@ -586,6 +586,19 @@ Myrm 开箱支持 7+ 家 Embedding 服务商。在**设置 → 检索 → Embedd
 
 **本地 Embedding（Ollama）** — 数据完全不出设备。安装 Ollama 后，执行 `ollama pull nomic-embed-text`（或 `bge-m3` 支持中英双语），然后按上表配置即可。
 
+## Embedding 窗口检测与动态分块预算
+
+在把任何文本送入 Embedding 模型之前，Myrm 会**自动检测模型的输入窗口**，并按模型族推导**匹配的分块预算**——长文档和多语言知识库永远不会被服务商静默截断。
+
+- **窗口自动检测** — 内置模型窗口表（`BAAI/bge-m3`、`bge-large-zh`、`nomic-embed-text`、MiniLM/E5/GTE、OpenAI/Voyage/Jina 等），provider 暴露 `input_token_limit` 时优先采用运行时值；未知模型回退保守 512 token 窗口。
+- **双轨预算** — BPE tokenizer 模型（OpenAI、Qwen 等）按 o200k token 预算；BERT/XLM 字级模型（BGE/BCE/Nomic/MiniLM/E5/GTE/Jina 等）按**字符数**预算，因为字级 tokenizer 1 个 CJK 字符 = 1 token，而 o200k 对 CJK 约低估 2 倍。
+- **字级模型识别** — 通过架构标记（`bge`、`minilm`、`e5`、`gte`、`jina`、`bert`、`roberta` 等）路由到字符预算路径；匹配刻意放宽——误判只是预算更保守，绝不产生截断。
+- **fail-loud 而非静默截断** — 分块后仍超窗口的文本，在任何 Embedding API 调用**之前**抛 `EmbedInputTooLargeError`；wiki 摄入路径在 upsert 前逐一校验分块。检索质量不再无征兆下降。
+- **多语言覆盖** — 保守字符估算覆盖 CJK 标点（。！？）、全角形式、日文假名、韩文音节，而不只是简体中文表意文字。
+- **字符级分块高性能** — O(n) 换行边界贪心打包 + Markdown 标题感知（代码块内注释不触发分块）；90KB 文本约 0.19ms，tiktoken 方案约 184ms。
+
+对用户而言：切换 Embedding 模型（API 或本地 Ollama）**零分块配置**，中/日/韩知识库不再有通用 RAG 工具常见的静默截断盲区。
+
 ## Embedding 模型迁移
 
 当你在设置中更换 Embedding 模型后，之前存储的记忆是以旧模型的向量编码的，新模型无法检索到它们。Myrm 透明地处理了这个问题：

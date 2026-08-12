@@ -586,6 +586,19 @@ Myrm supports 7+ embedding providers out of the box. Configure in **Settings →
 
 **Local embedding with Ollama** — Your data never leaves your device. After installing Ollama, run `ollama pull nomic-embed-text` (or `bge-m3` for multilingual), then configure as shown above.
 
+## Embedding Window Detection & Dynamic Chunk Budgeting
+
+Before any text is sent to an embedding model, Myrm **auto-detects the model's input window** and derives a **chunk budget matched to the model family** — so long documents and multi-language knowledge bases are never silently truncated by the provider.
+
+- **Automatic window detection** — a built-in model table (`BAAI/bge-m3`, `bge-large-zh`, `nomic-embed-text`, MiniLM/E5/GTE, OpenAI/Voyage/Jina, …) plus the provider's live `input_token_limit` when exposed; unknown models fall back to a conservative 512-token window.
+- **Two-track budgeting** — BPE-tokenizer models (OpenAI, Qwen, …) budget in o200k tokens; BERT/XLM wordpiece models (BGE/BCE/Nomic/MiniLM/E5/GTE/Jina/…) budget in **characters**, because they count one CJK char as one token while o200k undercounts CJK ~2×.
+- **Wordpiece detection** — architecture markers (`bge`, `minilm`, `e5`, `gte`, `jina`, `bert`, `roberta`, …) route a model to the character-budget path; matching is deliberately broad so a false positive only wastes window, never truncates.
+- **Fail-loud instead of silent truncation** — if a text still exceeds the window after splitting, `EmbedInputTooLargeError` is raised **before** any embedding API call; the wiki ingest path validates every chunk before upsert. No more silent quality loss on retrieval.
+- **Multi-language coverage** — the conservative character estimate covers CJK punctuation (。！？), fullwidth forms, Japanese kana, and Korean syllables — not just Simplified Chinese ideographs.
+- **Fast character-level splitting** — O(n) line-boundary packing with Markdown header awareness (code-fence comments never trigger splits); ~0.19 ms vs ~184 ms for tiktoken on a 90 KB text.
+
+For users this means: switching embedding models (API or local Ollama) needs zero chunk-size configuration, and Chinese/Japanese/Korean knowledge bases retrieve without the silent truncation blind spots common in generic RAG tooling.
+
 ## Embedding Model Migration
 
 When you change the embedding model in Settings, previously stored memories are encoded with the old model's vectors and cannot be retrieved by the new model. Myrm handles this transparently:
