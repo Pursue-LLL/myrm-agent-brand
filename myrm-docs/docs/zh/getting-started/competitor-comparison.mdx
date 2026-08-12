@@ -136,11 +136,17 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **WORTH:NO（系列提及但不立项）**：Python RPC 子代理模式（sandbox code-as-action ≥）；Nous Portal 五合一 API；RL 批量轨迹研究管线（非 GUI 主用户）。
 - **材料 SSOT**：`temp-docs/materials/COMPETITIVE_HERMES_ADVANTAGE.md` §30 · `temp-docs/roadmap/hermes_openclaw_series_summary_cross_reference_roadmap.md`
 
+## 最新验证快照（2026-08-12 · 模型 Failover 进度 UI）
+
+- **聊天 failover 可见性（vs Hermes / OpenClaw / DeerFlow）**：Frontend Vitest **7/7** + Chrome E2E `test_model_failover_chrome_e2e.py` **PASSED**（约 93s，2026-08）。
+- **已验证**：`MODEL_FAILOVER` + `STATUS model_failover` SSE 在首个 MESSAGE 前自动占位 assistant；ProgressSteps 展示备用模型切换（`model_failover_*`）；Harness failover 后重绑 `StreamContext.agent`，回复在 fallback LLM 上继续。
+- **用户收益**：竞品多为静默切换或仅 toast；Myrm 在对话流内展示切换进度且对话不中断。
+
 ## 最新验证快照（2026-07-31 · Vision Fallback GUI 闭环）
 
 - **辅助视觉容量（vs Hermes auxiliary_client / OpenClaw media runner）**：`./myrm test` **19+5+6 通过** + `bun run test` visionCapability/visionConfigGap **10 通过** = **40 tests, 0 failures**（约 40s，最小定向集）。
 - **已验证**：有序 provider failover（402/限流/过载；AUTH/MODEL_NOT_FOUND 不切换）· 全 ExecutionSurface 共用 `resolve_vision_fallback_chain_for_agent` · Settings **测试视觉链路** + `resolved_model` · **使用此模型** 推荐卡片 · 聊天 attach toast **前往设置** → `/settings/models?sub=default`。
-- **诚实边界**：不做 Hermes 式零配置 Provider 自动扫描（by design — 账单/合规）；无 per-agent visionFallback 槽位（独立 epic）；无 SSE 逐步 failover 可见性（永久拒绝）。
+- **诚实边界**：不做 Hermes 式零配置 Provider 自动扫描（by design — 账单/合规）；无 per-agent visionFallback 槽位（独立 epic）。*（聊天模型 failover ProgressSteps 见上方 2026-08-12 快照。）*
 
 ## 最新验证快照（2026-07-30 · Wiki Evidence Closure v2 #4+#5）
 

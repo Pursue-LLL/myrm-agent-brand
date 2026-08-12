@@ -143,11 +143,17 @@ For per-turn capability control, Myrm supports **one-turn Skill/MCP override chi
 - **User-visible win vs competitors:** OpenClaw has passive media-understanding fallback but **no Agent workspace glance/ground/detect tools** or together/compare single-call; Hermes auxiliary is CLI/config-driven without Settings video slot + GUI badge; DeerFlow **`view_image` fails when main model lacks vision** — Myrm keeps text-primary agents productive via fallback pipe **and** explicit semantic tools on sandbox files.
 - **Honest scope:** No pre-upload H.264 transcode health probe; no vtracer SVG trace path; no Hermes-style zero-config provider auto-scan (by design — billing/compliance).
 
+## Latest Validation Snapshot (2026-08-12 · Model Failover Progress UI)
+
+- **Chat failover visibility (vs Hermes / OpenClaw / DeerFlow):** Frontend Vitest **7/7** + Chrome E2E `test_model_failover_chrome_e2e.py` **PASSED** (~93s, Aug 2026).
+- **Verified:** `MODEL_FAILOVER` + `STATUS model_failover` SSE auto-create assistant placeholder before first MESSAGE chunk; ProgressSteps show backup-model switch (`model_failover_*`); Harness rebinds `StreamContext.agent` after failover so reply continues on fallback LLM.
+- **User-visible win:** Competitors often silent-switch or toast-only; Myrm shows in-thread progress while the conversation keeps going.
+
 ## Latest Validation Snapshot (2026-07-31 · Vision Fallback GUI closure)
 
 - **Vision auxiliary capacity (vs Hermes auxiliary_client / OpenClaw media runner):** `./myrm test` **19+5+6 passed** + `bun run test` visionCapability/visionConfigGap **10 passed** = **40 tests, 0 failures** (~40s total, minimal directed set).
 - **Verified:** Ordered provider failover (402/rate-limit/overload; AUTH/MODEL_NOT_FOUND no switch) · all ExecutionSurfaces share `resolve_vision_fallback_chain_for_agent` · Settings **Test vision chain** + `resolved_model` · **Use this model** recommend card · chat attach toast **Go to Settings** → `/settings/models?sub=default`.
-- **Honest scope:** No Hermes-style zero-config Provider auto-scan (by design — billing/compliance); no per-agent visionFallback slot (separate epic); no SSE step-by-step failover visibility (permanent reject).
+- **Honest scope:** No Hermes-style zero-config Provider auto-scan (by design — billing/compliance); no per-agent visionFallback slot (separate epic). *(Chat model failover ProgressSteps — see 2026-08-12 snapshot above.)*
 
 ## Latest Validation Snapshot (2026-07-30 · Wiki Evidence Closure v2 #4+#5)
 
