@@ -260,6 +260,16 @@ Skills are assigned one of four trust levels that gate their runtime capabilitie
 
 The `quarantine_aware` decorator automatically filters rejected skills at runtime — a quarantined skill simply disappears from the agent's available tools without error.
 
+### Runtime Permission Boundary
+
+After a skill passes installation, sensitive runtime operations remain gated by the **skill permission gate** (`SkillBoundaryProvider`): file writes, command execution, network access, env-var reads and similar sensitive permission types must already be granted — otherwise the tool call is rejected at the engine layer (`skill_boundary.violation`, fail-loud, never silently downgraded).
+
+- **Single source of truth**: tool → permission type is resolved by the tool registry (`resolve_permission_type`), eliminating mapping drift that could turn a would-be denial into a silent allow.
+- **Grant once, execute unattended**: already-granted permissions pass through without per-call popups; revokes take effect in seconds via the cache-invalidation callback, no restart required.
+- **Granular separation**: sandboxed code execution (`code_interpreter`) and native shell (`shell_exec`) are authorized independently and cannot overstep each other.
+- **Full audit trail**: every permission decision (allow/deny + target) is written to the permission usage log.
+- **Verification**: 100% unit coverage of the skill boundary + real-DB end-to-end integration (grant → gate → execute → revoke → instant deny).
+
 ### GUI Security Review
 
 Three frontend components work together to present security scan results, each finding includes **precise line-number targeting** (e.g., `L42 Command injection: recursive delete`) to help developers jump directly to problematic code:

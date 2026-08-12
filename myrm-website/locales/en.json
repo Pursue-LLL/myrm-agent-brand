@@ -786,6 +786,12 @@
           "openclaw": "Env filter",
           "myrmAgent": "3-layer security (113-rule Regex across 26 threat categories + Python AST structural analysis + LLM semantic audit with only-escalate policy) · MCP config scan for 13 threat types (injection/concealment/exfiltration/supply-chain etc.) + Trust/Revoke mechanism + domain allowlist · GUI scan confirm + 4-tier trust badges (REJECT/UNTRUSTED/INSTALLED/TRUSTED) · runtime quarantine filter + tool attenuation · full-chain 5-layer content boundary defense (built-in + MCP + PTC tools all covered, third-party outputs auto-sandboxed) · 2,023 security tests verified"
         },
+        "skillPermissionGate": {
+          "feature": "Skill Permission Gate · sensitive actions pass security first",
+          "hermes": "Per-request approval suggestions · no skill permission boundary",
+          "openclaw": "Default bypass of permission layer · per-call popup approval",
+          "myrmAgent": "Skill-sensitive actions (file writes / command execution / network / env reads) require prior grant — otherwise **rejected at the engine layer** (skill_boundary gate, fail-loud, never silently downgraded) · tool→permission resolved from a single tool-registry SSOT, eliminating drift that could turn a would-be denial into a silent allow · **grant once, execute unattended without interruptions** (competitors pop dialogs per call) · **revoke takes effect in seconds** via cache-invalidation callback · sandboxed code execution and native shell authorized separately · full permission usage audit trail · **100% unit coverage of skill boundary + real-DB end-to-end integration (grant→gate→execute→revoke→instant deny)**"
+        },
         "credentialVault": {
           "feature": "Credential Vault · passwords stay out of chat",
           "hermes": "Plaintext type",

@@ -128,10 +128,11 @@ export const COMPARE_ROW_KEYS = [
   'benchmarkProfile',
   'gitPrPipeline',
   'securePushCredential',
-    'autoCommitIdentity',
-    'webhookSelfService',
-    'worktreeIsolation',
-    'parallelE2eSignoff',
+  'autoCommitIdentity',
+  'webhookSelfService',
+  'worktreeIsolation',
+  'parallelE2eSignoff',
+  'skillPermissionGate',
 ] as const;
 
 export type CompareRowKey = (typeof COMPARE_ROW_KEYS)[number];
@@ -162,7 +163,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'searchIntelligence',
     'agentTemplates',
   ],
-  security: ['sandbox', 'securityLayers', 'toolSecurity', 'credentialVault', 'fileEditSafety', 'privacySafeShare', 'shareLink', 'cascadeDeletion', 'toolIntegration', 'toolProfileSsot', 'unifiedToolGateway'],
+  security: ['sandbox', 'securityLayers', 'toolSecurity', 'skillPermissionGate', 'credentialVault', 'fileEditSafety', 'privacySafeShare', 'shareLink', 'cascadeDeletion', 'toolIntegration', 'toolProfileSsot', 'unifiedToolGateway'],
   automation: [
     'subAgent',
     'kanbanUI',

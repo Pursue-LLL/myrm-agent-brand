@@ -786,6 +786,12 @@
           "openclaw": "env 过滤",
           "myrmAgent": "三层安全(113规则覆盖26种威胁类别Regex + Python AST语法树结构分析 + LLM语义审计only-escalate策略) · MCP配置扫描13种威胁类型（注入/伪装/窃取/供应链等）+Trust/Revoke信任机制+域名白名单 · GUI扫描确认+信任四级徽章(REJECT/UNTRUSTED/INSTALLED/TRUSTED) · 运行时隔离过滤+工具衰减 · 全工具链5层内容边界防御(内置工具+MCP+PTC全覆盖，第三方工具输出自动安全隔离) · 2,023项安全测试验证"
         },
+        "skillPermissionGate": {
+          "feature": "技能权限门禁 · 敏感操作先过安检，未授权直接拒绝",
+          "hermes": "逐次审批建议（approvals_suggest）· 无技能权限边界",
+          "openclaw": "默认绕过权限层 · 仅逐次弹窗审批",
+          "myrmAgent": "技能敏感操作（文件写入/命令执行/联网/环境变量读取等）必须已授权，否则**引擎层直接拒绝**（skill_boundary 门禁，fail-loud 不静默降级）· 工具名→权限类型由工具注册表单点权威（SSOT）解析，杜绝映射漂移导致「以为拦截实则放行」· **授权一次即自动执行，无人值守不被打断**（竞品逐次弹窗打断）· **撤销秒级生效**（缓存失效回调实时落地）· 沙箱代码执行与原生 shell 分离授权 · 权限使用全程审计可追溯 · **技能边界 100% 单元覆盖 + 真实 DB 全链路集成验证（授权→门禁→执行→撤销→即时拒绝）**"
+        },
         "credentialVault": {
           "feature": "表单凭证金库 · 密码不进对话",
           "hermes": "明文 type",
