@@ -1,0 +1,55 @@
+---
+title: Batch Directory Runs
+description: Run one prompt across many directories at once — with artifact verification, failure retry, approval gates, and completion notifications.
+---
+
+# Batch Directory Runs
+
+Run a single prompt across **multiple working directories in parallel**. Perfect for auditing many repositories for security issues, applying the same migration across projects, or collecting a consistent report from every codebase you manage.
+
+## Creating a Batch Run
+
+Open **Batch Directories** in the sidebar and click **New Run**. Configure:
+
+| Setting | What it does |
+|---------|--------------|
+| **Name** | Identifier for the batch project |
+| **Prompt** | One instruction applied to every directory |
+| **Directories** | Workspaces to process (one Agent task per directory) |
+| **Concurrency** | How many directories are processed at once |
+| **Agent & Model** | Optional agent binding / per-run model override |
+| **Max runtime** | Per-directory timeout guard (seconds) |
+| **Require approval** | Gate every result behind a human approve/reject |
+| **Artifact patterns** | Glob patterns the agent must produce (e.g. `**/security-report.md`) |
+| **Notifications** | In-app + IM channel alerts on completion |
+
+Dangerous paths (home directory, `/etc`, filesystem root, `~`, `..` traversal) are rejected at creation, and duplicate directories are automatically deduplicated.
+
+## Monitoring Progress
+
+The detail page shows live status, per-directory chips, and aggregated counts. Directories whose task **failed** or **produced no required artifacts** are highlighted so you can spot problems at a glance. Total wall-clock duration is shown once the run finishes.
+
+## Handling Failures
+
+Instead of re-running everything, recover precisely:
+
+- **Retry failed directories** — resend tasks only for directories that failed or are missing artifacts
+- **Retry one directory** — re-run a single task
+- **Rerun all** — requeue every directory (terminal projects only, to avoid duplicates)
+
+Retries are tracked per directory generation, so a successful retry brings the whole project back to **completed** — even if earlier attempts failed.
+
+## Pausing & Approval
+
+- **Pause** halts running executions and freezes the queue; **resume** unfreezes exactly where you stopped.
+- With **Require approval** enabled, every verified task lands in *in review* and waits for your approve/reject. A one-click **Approve all** finalizes the whole batch.
+
+## Notifications
+
+When the batch reaches a terminal state you get an in-app notification **and** an IM channel message (if the bound agent has notify targets) summarizing results — totals, duration, and the failed directory list. Messages include a deep link straight to the project detail page, so you can jump from chat to the full run.
+
+## Typical Use Cases
+
+- Audit N repositories for security or license issues with one prompt
+- Apply the same refactor/migration across many projects
+- Generate a consistent status report for every directory you own
