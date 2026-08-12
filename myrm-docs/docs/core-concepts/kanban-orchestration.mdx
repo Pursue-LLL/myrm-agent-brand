@@ -87,6 +87,21 @@ Each task carries its own `extra_skill_ids` — a per-task skill overlay merged 
 
 Internal task-creation paths (decompose/specify, pipeline instantiation) bypass the user-facing validation by construction — decompose does not emit skill ids and pipelines only inject template-defined skills.
 
+### Task-Level Model Override
+
+Each task can carry its own `model_override` — a per-task model selection that lets you pick the right model for each job without touching the global agent profile. Resolution order is **task override → agent profile model → default**, applied when the worker starts.
+
+| Capability | Behavior |
+|-----------|----------|
+| **Create / edit in the drawer** | The task create form and drawer expose a model picker populated from enabled providers; the saved choice shows as a badge on the card |
+| **API validation** | `model_override` is validated against enabled providers (`validate_model_override`) — an unknown model returns `400` instead of silently running with the wrong model |
+| **Sub-task inheritance** | Decomposed sub-tasks inherit the parent task's `model_override` (`decompose/orchestrator.py`), so a per-task model choice applies across the whole task tree |
+| **Per-task cost control** | Run cheap tasks on a fast/cheap model and critical paths on a flagship model — cost governance at task granularity |
+
+Model selection is a genuine BYOK capability, not a subscription gate: local users and self-hosters freely choose any enabled provider's model, while enterprise orgs can additionally enforce a model allowlist at the control-plane layer.
+
+**Verified**: harness `test_model_override` 9 + server `test_model_override_api` 7 + `test_decompose_orchestrator` 5 + task-runner parameterized 3 + frontend Kanban Vitest 111, all green.
+
 ### Role-Based Kanban LLM Tools
 
 Kanban tools are **opt-in** and **role-gated** to save tokens and reduce misuse:

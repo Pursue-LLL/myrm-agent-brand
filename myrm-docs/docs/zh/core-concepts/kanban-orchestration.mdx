@@ -81,6 +81,21 @@ Myrm 提供可视化看板跟踪复杂多步任务，以及强大的子 Agent �
 
 内部创建路径（decompose/specify、pipeline 实例化）按构造天然绕过用户面校验——decompose 不产出技能 id，pipeline 仅注入模板预置技能。
 
+### 任务级模型覆盖
+
+每个任务可携带自己的 `model_override` —— 任务级模型选择，让你无需改动全局 Agent Profile 即可为每个任务挑选合适的模型。解析优先级为 **任务 override → Agent Profile 模型 → 默认**，在 worker 启动时生效。
+
+| 能力 | 行为 |
+|------|------|
+| **抽屉内创建/编辑** | 任务创建表单与任务抽屉提供模型选择器（数据源为已启用 provider）；保存后的选择以徽标显示在卡片上 |
+| **API 校验** | `model_override` 按已启用 provider 校验（`validate_model_override`）——未知模型返回 `400`，而非静默用错模型运行 |
+| **子任务继承** | 分解产生的子任务继承父任务的 `model_override`（`decompose/orchestrator.py`），任务级模型选择对整个任务树生效 |
+| **按任务成本治理** | 便宜快模型跑批量任务、旗舰模型跑关键路径——模型成本按任务粒度治理 |
+
+模型选择是真正的 BYOK 能力而非订阅门禁：本地用户与自托管用户可自由选择任意已启用 provider 的模型；企业组织可额外在控制平面层强制模型白名单，二者天然互补。
+
+**已验证**：harness `test_model_override` 9 + server `test_model_override_api` 7 + `test_decompose_orchestrator` 5 + task-runner 参数化 3 + 前端 Kanban Vitest 111，全部通过。
+
 ### 角色化 Kanban LLM 工具
 
 看板工具**默认不加载**，按场景 **Role Gate** 绑定，省 Token、降误调用：
