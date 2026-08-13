@@ -48,6 +48,18 @@ Myrm Harness 在执行层内置了严苛的 **Max-Iteration** 卡点强阻断逻
 - **无泄漏释放**——`lock_acquired` 标志保证只有真正持锁的请求才释放锁（取消的等待者绝不会偷走持有者的锁），预占 gateway 会话也会被清理，取消的 turn 永远不会让工作区永久卡死。
 - **确定性验证**——seed 端点真实持有项目锁，E2E 验证等待步骤出现、干净取消、重发重新排队，由 29 项后端 + 13 项前端测试与真实 Chrome E2E 背书。
 
+### 7. 后台子代理父流存活（派发即交付）
+
+竞品编排（如 Claude Code 的进程隔离、Hermes 的 session 绑定子代理）在父消息流结束时立即杀掉后台子任务——你刚看到“完成”，委派出去的异步深度任务就被取消了，结果再也看不到。
+
+Myrm 将后台子代理生命周期与父流解耦：
+
+- **`wait=false` 异步子代理在父 run 正常完成后继续运行**——`cleanup_run` 与 spawn finally 级联在正常完成时传 `include_detached=False`，只有用户显式取消或失败级联才清理后台任务。
+- **完成结果持续可查**——`COMPLETED_SUBAGENT_RESULTS` 强引用注册表（3600s TTL + LRU 上限），刷新后 Dashboard 树状图仍显示子代理最终状态（已完成 / 失败 / 取消），父会话早已结束也无妨。
+- **双轨可信指示**——Dashboard 同时呈现*执行进度*（实时步骤、token / 成本 / ETA）与*验证状态*（已完成 / 失败 / 取消 + 对抗验证结果），既知道“做到哪了”，也知道“可不可信”。
+
+由 **18/18 Chrome E2E**（UI 套件 + baseline 套件，含真实用户 textarea 输入路径）、**3 项 API 集成测试**、**70 项 harness 单测**（含 5 个 `include_detached` 专项断言）背书。
+
 ## 如何开始使用？
 
 1.  打开 **Myrm Agent WebUI**，进入工作流（Workflow）或看板（Kanban）界面。
