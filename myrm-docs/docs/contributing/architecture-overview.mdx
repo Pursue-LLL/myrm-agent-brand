@@ -95,9 +95,24 @@ The open-source `myrm-agent` tree uses a **four-layer doc stack** so contributor
 | L3 | `_ARCH.md` per folder | Module duty + file table |
 | L4 | File header `INPUT` / `OUTPUT` / `POS` | Single-file placement |
 
-**Scale (verified 2026-06-09):** **521** `_ARCH.md` files across server, frontend, desktop, and shared packages. CI runs `check_fractal_docs.py` (directory coverage, strict headers, no stubs on `api/` and `channels/providers/`) plus **296** architecture pytest gates. Typical agent competitors ship centralized `docs/` only — **zero** per-module `_ARCH` maps.
+**Scale (verified 2026-08-13):** **521+** `_ARCH.md` files across server, frontend, desktop, and shared packages. CI runs `check_fractal_docs.py` (directory coverage, strict headers, no stubs on `api/` and `channels/providers/`) plus **696** architecture pytest gates (`run_architecture_gates.sh`). Typical agent competitors ship centralized `docs/` only — **zero** per-module `_ARCH` maps.
 
-**What you get:** faster onboarding for self-hosters and integrators; doc drift blocked before merge, not discovered in production.
+### CI Gates & Cross-Language Contract Parity
+
+Beyond docs, the open product layer enforces **machine-checkable contracts** so frontend and backend can never silently drift apart:
+
+| Gate | What it enforces |
+|------|------------------|
+| Server `run_architecture_gates.sh` | Ruff lint + 4-way fractal docs + Prometheus rule semantics + **696 architecture pytest** |
+| Frontend `frontend-build.yml` | Oxlint (errors fail), `tsc` strict zero-regression, barrel-export whitelist, i18n completeness, >400-line module budget, Next.js build, Service Worker Push |
+| `test_memory_injection_contract_parity` | Frontend `MemoryBriefInjectionStatus` state/source/reason unions **must equal** the harness memory-injection contract |
+| `test_sse_event_type_parity` | Frontend SSE event manifest must cover every harness `AgentEventType` |
+| `test_ui_component_type_parity` | Frontend UI component unions match the Python `UIComponentType` |
+| `test_tool_group_factory_parity` | Tool-group factory keys align 1:1 with the tool-group map |
+
+These parity gates are **proven live**: on 2026-08-13 they caught and drove fixes for three real cross-language contract bugs (`load_timeout` reason missing from the TS union, `memory_retrieval_trace` missing from `ToolEndStreamEvent`, and a missing i18n mapping) — failures surfaced at CI time, before merge.
+
+**What you get:** faster onboarding for self-hosters and integrators; doc drift blocked before merge, not discovered in production; frontend/backend contract drift fails the build instead of shipping a phantom bug.
 
 ## Security Model
 

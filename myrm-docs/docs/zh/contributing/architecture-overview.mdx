@@ -95,9 +95,24 @@ Harness 引擎零业务逻辑，提供通用 Agent 能力（工具、记忆、�
 | L3 | 各目录 `_ARCH.md` | 模块职责 + 文件表 |
 | L4 | 文件头 `INPUT` / `OUTPUT` / `POS` | 单文件定位 |
 
-**规模（2026-06-09 实测）**：server、frontend、desktop、shared 合计 **521** 份 `_ARCH.md`。CI 运行 `check_fractal_docs.py`（目录覆盖、严格文件头、`api/` 与 `channels/providers/` 禁 stub）及 **296** 项架构 pytest。典型 Agent 竞品仅有集中式 `docs/`，**无**模块级 `_ARCH` 地图。
+**规模（2026-08-13 实测）**：server、frontend、desktop、shared 合计 **521+** 份 `_ARCH.md`。CI 运行 `check_fractal_docs.py`（目录覆盖、严格文件头、`api/` 与 `channels/providers/` 禁 stub）及 **696** 项架构 pytest（`run_architecture_gates.sh`）。典型 Agent 竞品仅有集中式 `docs/`，**无**模块级 `_ARCH` 地图。
 
-**你能得到什么**：自托管与二开 onboarding 更快；文档与代码脱节在合并前被 CI 拦住，而不是线上才发现。
+### CI 门禁与跨语言契约一致性
+
+除文档外，开源产品层还强制**机器可校验的契约**，保证前端与后端永远不会悄然漂移：
+
+| 门禁 | 强制内容 |
+|------|----------|
+| Server `run_architecture_gates.sh` | Ruff lint + 4 路分形文档 + Prometheus 规则语义 + **696 项架构 pytest** |
+| Frontend `frontend-build.yml` | Oxlint（error 即失败）、`tsc` 严格零回归、barrel 导出白名单、i18n 完整性、>400 行模块预算、Next.js 构建、Service Worker Push |
+| `test_memory_injection_contract_parity` | 前端 `MemoryBriefInjectionStatus` 的 state/source/reason union **必须逐字等于** harness 记忆注入契约 |
+| `test_sse_event_type_parity` | 前端 SSE 事件清单必须覆盖全部 harness `AgentEventType` |
+| `test_ui_component_type_parity` | 前端 UI 组件类型 union 与 Python `UIComponentType` 一致 |
+| `test_tool_group_factory_parity` | 工具分组 factory 键与 tool group map 1:1 对齐 |
+
+这些 parity 门禁**经过实战验证**：2026-08-13 它们真实抓出并驱动修复了 3 个跨语言契约漂移 bug（`load_timeout` reason 未同步进前端 TS union、`memory_retrieval_trace` 缺失于 `ToolEndStreamEvent`、i18n 映射遗漏）——失败全部在合并前的 CI 阶段暴露。
+
+**你能得到什么**：自托管与二开 onboarding 更快；文档与代码脱节在合并前被 CI 拦住，而不是线上才发现；前端/后端契约漂移会直接让构建失败，而不是带着「幽灵 bug」上线。
 
 ## 安全模型
 
