@@ -1045,3 +1045,33 @@ Myrm은 모든 것을 단일 메뉴에 집어넣는 대신 브라우저 관리 �
 대부분의 작업은 레이어 1에서만 확인되므로 수동 전환이 필요하지 않습니다.
 
 **2026년 7월 14일 확인됨**: 8개 배치에 걸쳐 388개의 브라우저 테스트를 통과했으며 실패는 0개입니다.
+
+## Web Vitals 인사이트 — 페이지가 실제로 얼마나 빠른지 한 번에 파악
+
+"이 페이지가 빠른가요?"라고 물어보면 실제 브라우저 원격 측정 데이터로 뒷받침된 명확한 답을 얻을 수 있습니다.
+
+### 작동 방식
+
+`browser_manage web_vitals` 한 번의 호출로 브라우저 세션에 실제로 로드된 페이지를 측정합니다. DevTools, 확장 프로그램, 외부 서비스가 필요 없습니다:
+
+- **Core Web Vitals** — LCP, CLS, INP, FCP, TTFB를 실시간 페이지에서 읽어 Google 공식 기준(`good` / `needs-improvement` / `poor`)으로 채점합니다
+- **느린 리소스 분석** — 가장 느린 리소스와 소요 시간, 크기, 유형을 표시합니다
+- **실행 가능한 수정 제안** — 리소스 압축, 폰트 프리로드, 해당 도메인을 CDN으로 이동 등 구체적인 조치를 제안해 에이전트가 바로 실행할 수 있습니다
+- **우아한 폴백** — 아직 로드 중인 페이지나 콘텐츠를 늦게 렌더링하는 SPA 앱은 재시도 후에도 측정이 불가하면 실패 대신 "아직 측정할 수 없음"이라는 명확한 답을 반환합니다
+
+출력 예시:
+
+```text
+Web Vitals for https://example.com (measured in the current network environment)
+LCP   2460ms   needs-improvement
+CLS   0.12     needs-improvement
+INP   n/a    —     not measurable yet — interact with the page and re-check
+FCP   1180ms   good
+TTFB  340ms    good
+Slow resources:
+  - https://cdn.example.com/hero.jpg — 812ms (img, 214KB)
+Suggestions:
+  - LCP is driven by https://cdn.example.com/hero.jpg — compress it, lazy-load below-the-fold content, or preload the critical image/font.
+```
+
+모든 지표는 현재 네트워크 환경을 반영한 실제 측정값이며, 보고서에 명시적으로 표기됩니다. 실험실 벤치마크를 사용자의 실제 네트워크 상태로 오인하지 않도록 하기 위함입니다.

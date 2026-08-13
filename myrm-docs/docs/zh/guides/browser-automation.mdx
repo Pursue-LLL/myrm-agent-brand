@@ -973,3 +973,34 @@ Myrm 将浏览器管理关注点分离到最合适的位置，而非塞入单一
 只有在页面确实发生了变化时才会触发更高级别的验证，大多数操作仅需第 1 层即可确认——无需手动关闭。
 
 **2026-07-14 验证**：388 项浏览器测试分 8 批运行全通过，0 失败。
+
+## Web Vitals 洞察 — 页面真实加载速度一览
+
+问你的智能体「这个页面快吗？」，它会基于真实浏览器遥测给出确凿答案，而不是靠猜。
+
+### 工作原理
+
+一条 `browser_manage web_vitals` 命令即可测量浏览器会话中真实加载的页面——不需要 DevTools、扩展或外部服务：
+
+- **Core Web Vitals** — LCP、CLS、INP、FCP、TTFB 从实时页面读取，并按谷歌官方阈值打分（`good` / `needs-improvement` / `poor`）
+- **慢资源归因** — 最慢的若干资源及其耗时、体积、类型
+- **可执行的修复建议** — 报告直接给出具体动作（压缩该资源、预加载字体、把该域名迁到 CDN），智能体可以直接照着做
+- **优雅降级** — 仍在加载的页面、以及延迟渲染内容的 SPA 应用会先重试，若仍不可测则给出明确的「暂不可测」提示，而不是报错失败
+
+输出示例：
+
+```text
+Web Vitals for https://example.com (measured in the current network environment)
+LCP   2460ms   needs-improvement
+CLS   0.12     needs-improvement
+INP   n/a    —     not measurable yet — interact with the page and re-check
+FCP   1180ms   good
+TTFB  340ms    good
+Slow resources:
+  - https://cdn.example.com/hero.jpg — 812ms (img, 214KB)
+Suggestions:
+  - LCP is driven by https://cdn.example.com/hero.jpg — compress it, lazy-load below-the-fold content, or preload the critical image/font.
+```
+
+所有指标都是真实、反映当前网络环境的实测值——报告会明确标注这一点，避免把实验室基准误当成用户真实网络状况。
+

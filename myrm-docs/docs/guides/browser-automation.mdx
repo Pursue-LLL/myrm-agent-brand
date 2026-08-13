@@ -1046,3 +1046,34 @@ The panel shows the captured step list live — pause, resume, delete a mistake,
 Most actions are confirmed at Layer 1 alone — no manual toggle needed.
 
 **Verified 2026-07-14**: 388 browser tests passed across 8 batches, 0 failures.
+
+## Web Vitals Insight — Know How Fast Pages Really Load
+
+Ask your agent "is this page fast?" and get a definitive answer backed by real browser telemetry.
+
+### How It Works
+
+One `browser_manage web_vitals` call measures the page that is actually loaded in the browser session — no DevTools, no extensions, no external services:
+
+- **Core Web Vitals** — LCP, CLS, INP, FCP and TTFB are read from the live page and graded against Google's official thresholds (`good` / `needs-improvement` / `poor`)
+- **Slow-resource attribution** — the top slow resources with their duration, size and type
+- **Actionable fixes** — the report suggests concrete actions (compress this resource, preload this font, move this domain to a CDN) so the agent can act on the verdict
+- **Graceful degradation** — pages still loading, and SPA apps that render content late, get a retry plus a clear "not measurable yet" answer instead of a failure
+
+Example output:
+
+```text
+Web Vitals for https://example.com (measured in the current network environment)
+LCP   2460ms   needs-improvement
+CLS   0.12     needs-improvement
+INP   n/a    —     not measurable yet — interact with the page and re-check
+FCP   1180ms   good
+TTFB  340ms    good
+Slow resources:
+  - https://cdn.example.com/hero.jpg — 812ms (img, 214KB)
+Suggestions:
+  - LCP is driven by https://cdn.example.com/hero.jpg — compress it, lazy-load below-the-fold content, or preload the critical image/font.
+```
+
+Measurements are always real, environment-specific readings — the report states this explicitly, so nobody mistakes a lab benchmark for the user's actual network conditions.
+
