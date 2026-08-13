@@ -38,6 +38,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'humanReview',
   'reasoningModel',
   'browserRecording',
+  'browserHealthOps',
   'skillGrowth',
   'interactiveUi',
   'evidenceDiscipline',
