@@ -48,6 +48,18 @@ Multiple agents sharing the same project can race on files, memory, and task sta
 - **Leak-proof release** — a `lock_acquired` flag guarantees the lock is released only by the request that truly holds it (cancelled waiters never steal the holder's lock), and reserved gateway sessions are cleaned up so a cancelled turn never leaves the workspace permanently busy.
 - **Deterministic verification** — a seed endpoint holds a real lock and E2E tests verify the waiting step appears, cancels cleanly, and re-sends re-queue correctly, backed by 29 backend + 13 frontend tests and real-Chrome E2E.
 
+### 7. Background Sub-agents Survive the Parent Turn (Fire-and-Deliver)
+
+Competitor orchestration (e.g., Claude Code's process isolation, Hermes' session-bound children) kills background subtasks the moment the parent message stream ends — a delegated async deep task can be cancelled right after you see "done", and you never see its result.
+
+Myrm decouples background sub-agent lifetime from the parent stream:
+
+- **`wait=false` async sub-agents keep running** after the parent run completes normally — `cleanup_run` and the spawn finally-cascade use `include_detached=False` for normal completion, only a user cancel or a failure cascade tears down background tasks.
+- **Completed results stay queryable** via the `COMPLETED_SUBAGENT_RESULTS` strong-reference registry (3600s TTL, LRU-capped), so the Dashboard tree still shows final state (completed / failed / cancelled) after refresh, long after the parent session is gone.
+- **Dual-trust indicator** — the Dashboard shows both *execution progress* (live steps, token / cost / ETA) and *verified state* (completed / failed / cancelled plus adversarial-verifier results), so you know both "how far along" and "how trustworthy".
+
+Backed by 18/18 Chrome E2E (UI suite + baseline suite, including a real-user textarea input path), 3 API integration tests, and 70 harness unit tests with 5 dedicated `include_detached` assertions.
+
 ## How to Get Started
 
 1.  Open the **Myrm Agent WebUI**, and navigate to the Workflow or Kanban section.
