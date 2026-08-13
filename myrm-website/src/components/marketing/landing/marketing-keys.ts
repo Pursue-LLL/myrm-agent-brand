@@ -45,6 +45,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'evidenceDiscipline',
   'marketplaceAgentInstall',
   'filePreview',
+  'pdfSmartReading',
   'mcpEcosystem',
   'permissionUsageStats',
 ] as const;
