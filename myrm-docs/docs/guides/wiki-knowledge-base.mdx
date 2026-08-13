@@ -438,7 +438,7 @@ Users simply share a link with the Agent and say "import this" — the system au
 When ingesting documents into the Wiki, Myrm automatically selects the optimal parsing strategy:
 
 - **Text-rich PDFs** — extracted via pdfplumber with parallel processing, bookmark injection, and font-based heading detection.
-- **Scanned PDFs** — auto-detected when text content is sparse (< 200 characters). Pages are rendered as PNG images and sent to your vision model (VLM) for understanding.
+- **Scanned PDFs** — auto-detected when text content is sparse (< 200 characters). Pages are rendered as PNG images and read by the **local PaddleOCR engine** (CJK-native, no cloud or vision-model dependency), then reassembled into searchable text. A vision model becomes a fallback option only when OCR is unavailable.
 - **Hybrid PDFs** — text is extracted normally while embedded charts and photos are also captured and filtered through the smart image ablation filter (removes UI noise, logos, decorative elements).
 - **Images** — local PaddleOCR engine supports Chinese, Japanese, Korean, and English with no cloud dependency. Results include confidence scores and bounding boxes.
 - **Office files** — native parsers for DOCX, XLSX, PPTX without external dependencies like MarkItDown.
