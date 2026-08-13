@@ -48,6 +48,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'pdfSmartReading',
   'mcpEcosystem',
   'permissionUsageStats',
+  'governanceGate',
 ] as const;
 
 export type HighlightSlideKey = (typeof HIGHLIGHT_SLIDE_KEYS)[number];

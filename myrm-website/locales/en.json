@@ -1418,12 +1418,12 @@
         "evalLab": {
           "label": "Eval Lab & Memory A/B",
           "title": "Memory's value, proven with numbers, not hype",
-          "desc": "Eval Lab turns 'is my agent getting better?' into measurable, reproducible scores. Run the built-in WorkBuddy Bench — four realistic tracks (Code, Web, Office, Security) that download with checksum verification and stream live progress — and watch the agent execute each task's real tests, with pass rates scored from actual test results, never an LLM judging itself. The killer proof: one-click Memory A/B. Run the same tasks twice — once with memory on, once off — and the report shows side-by-side pass rates, token cost, and exactly how many times the memory tools were actually called. No more guessing whether memory earns its keep: you get a real number, honest enough to admit that on single-turn tasks memory matters less, because we'd rather tell you the truth than oversell. International benchmarks plug straight in too — OpenAI's BrowseComp (1,266 real-world questions) joins the same Eval Lab, so you can cite an authority-grade score; and every report records which agent model was scored and which judge model scored it, keeping numbers audit-proof. Each eval case runs in its own isolated sandbox destroyed after the run — no cross-case file races, no disk buildup, and leftover workspaces are swept on next startup. To answer 'what is our framework actually worth?', Layered Evaluation runs the same tasks across an ascending harness chain — bare model, core harness, plus skills, plus memory — and reports each layer's measured gain.",
+          "desc": "Eval Lab turns 'is my agent getting better?' into measurable, reproducible scores. Run the built-in WorkBuddy Bench — four realistic tracks (Code, Web, Office, Security) that download with checksum verification and stream live progress — and watch the agent execute each task's real tests, with pass rates scored from actual test results, never an LLM judging itself. The killer proof: one-click Memory A/B. Run the same tasks twice — once with memory on, once off — and the report shows side-by-side pass rates, token cost, and exactly how many times the memory tools were actually called. No more guessing whether memory earns its keep: you get a real number, honest enough to admit that on single-turn tasks memory matters less, because we'd rather tell you the truth than oversell. International benchmarks plug straight in too — OpenAI's BrowseComp (1,266 real-world questions) joins the same Eval Lab, so you can cite an authority-grade score; and every report records which agent model was scored and which judge model scored it, keeping numbers audit-proof. Each eval case runs in its own isolated sandbox destroyed after the run — no cross-case file races, no disk buildup, and leftover workspaces are swept on next startup. To answer 'what is our framework actually worth?', Layered Evaluation runs the same tasks across an ascending harness chain — bare model, core harness, plus skills, plus memory — and reports each layer's measured gain. Integrity is engineered into every score: the agent is barred from Hugging Face and other repos holding reference answers, so no benchmark can be gamed by quietly downloading the answer key; each benchmark declares its own tool-call and iteration budget, so stuck tasks stop automatically with the reason marked; and every report shows how many tools were called, how many attempts were blocked, and which limit stopped the run — a score you can actually defend.",
           "stat": "260",
           "statLabel": "real benchmark tasks built in",
           "tag1": "One-click Memory A/B — memory on vs off",
           "tag2": "Scores from real tests, zero LLM judging · per-case isolated sandbox, destroyed after run",
-          "tag3": "Layered eval quantifies each harness layer's gain · international benchmarks (OpenAI BrowseComp)"
+          "tag3": "Layered eval quantifies each harness layer's gain · contamination-proof runs with declared budgets"
         },
         "memoryDoctor": {
           "label": "Memory Doctor",
@@ -1584,6 +1584,16 @@
           "tag1": "Per-permission totals · allowed / denied / reasons",
           "tag2": "Last 10 operations · 1/7/30/90-day windows",
           "tag3": "One-click revoke · next call refused instantly"
+        },
+        "governanceGate": {
+          "label": "Tool governance",
+          "title": "Every tool declared — no silent security bypass",
+          "desc": "Other frameworks govern tools with manually maintained lists, so a newly added tool can silently fall back to 'ask every time' — or quietly lose capability. Myrm enforces a registration-level governance gate: every built-in tool must carry an explicit declaration (auto-allow for read-only, ask for risky, explicit fallback for high-risk) or the build fails. The gate cross-checks declarations against the real tool universe in both directions, so the security report can never contradict the code. High-risk tools keep an explicit human-confirmation baseline — nothing flips to auto-allow by accident.",
+          "stat": "57",
+          "statLabel": "built-in tools · 0 governance blind spots",
+          "tag1": "CI-enforced: undeclared tool fails the build",
+          "tag2": "Explicit ask, never implicit fallback",
+          "tag3": "Audit matrix matches code, or CI fails"
         }
       }
     }
