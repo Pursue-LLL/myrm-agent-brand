@@ -362,6 +362,18 @@ When an MCP server adds or removes tools at runtime (via `tools/list_changed` no
 
 Different agents can enable different MCP tools from the same server — a "Code Reviewer" agent sees only read-only tools, while a "DevOps" agent sees all. Tools with `destructiveHint` annotations are disabled by default in the safe set.
 
+### Built-in Tool Governance Gate
+
+Every built-in tool must carry an explicit governance declaration before it ships — there is no implicit default. The harness enforces this with a **registration-level CI gate** that scans the real registered tool universe (core, common, extended layers plus server-vendor tools), not a hand-maintained allowlist:
+
+- **Zero silent bypass** — a newly added built-in tool with no permission mapping, no dynamic-resolution declaration, no auto-approval entry, and no explicit `mcp_invoke` fallback fails the build. It can never quietly fall back to an ambiguous runtime default.
+- **Explicit three-state model** — each tool is either explicitly auto-approved (read-only), explicitly mapped to a permission type (governed by the ruleset), or explicitly declared as an `mcp_invoke` fallback that keeps the ask-by-default baseline (high-risk tools such as `browser_execute_script_tool` and `send_teammate_message_tool`).
+- **Bidirectional consistency** — declarations are cross-checked both ways: `BUILTIN_TOOL_NAMES` must be a subset of the registered universe (a declaration without an anchor fails), and permission-type whitelist entries must not be stale (now covered by `DEFAULT_RULESET`) or orphaned (no tool maps to them). The audit report can never contradict the code.
+- **Dynamic-resolution SSOT** — tools whose permission type is resolved per-action (browser interaction, desktop control) declare their dynamic branches from a single source of truth, and the gate consumes that source instead of a duplicated list.
+- **Module-load safety gate** — every built-in tool must declare safety metadata (read-only / destructive / concurrent-safe); a missing declaration is flagged at import time, not discovered in production.
+
+The result: adding a new capability can never silently weaken governance, and the CI-reported coverage matrix is a truthful, machine-readable audit of what every tool is allowed to do.
+
 ## Operation-Level Semantic Risk Detection
 
 Instead of labeling entire websites as "high risk" (a brittle, high-maintenance approach), Myrm detects risk at the **individual operation level** — every click, form submit, and command is analyzed in real-time.

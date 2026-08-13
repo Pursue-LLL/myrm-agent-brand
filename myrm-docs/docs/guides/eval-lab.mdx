@@ -189,6 +189,38 @@ Every eval case runs in a **physically isolated workspace** (`.myrm/eval_workspa
 
 The same isolation extends to Memory A/B: both arms get throwaway memory volumes that are evicted and deleted after the run.
 
+## Evaluation integrity: decontamination, budgets & trajectory disclosure
+
+A benchmark score is only worth trusting if the run can't be gamed and the report can be audited. Eval Lab makes both structural.
+
+### Contamination-proof runs (HF leakage protection)
+
+During benchmark runs the agent is barred from the repositories that hold reference answers — most importantly **Hugging Face**, where WBBench tracks and countless answer keys live. Defense in depth:
+
+- **Web fetch** — any hostname on the benchmark's blocklist raises a `benchmark_blocked` tool error the moment it's hit.
+- **Web search** — results from blocklisted hosts are silently dropped before ranking/formatting, and queries matching blocklisted terms fail fast.
+- **Shell / code execution** — the network policy defaults to no outbound access (or a strict allowlist without Hugging Face), so there is no side channel to exfiltrate the answer key.
+- Reports record whether decontamination was active (`decontam_active`), and the Report tab shows it as a badge — so a "clean" score is provable, not assumed.
+
+### Declared run budgets
+
+Every third-party benchmark declares its own **tool-call and iteration budgets** (`max_tool_calls` / `max_iterations`):
+
+- A stuck agent can't burn tokens forever — the tool-call middleware and the engine's recursion budget enforce the caps.
+- The moment a cap is hit, the run stops and the per-case report records exactly which limit stopped it (`limit_reached`, e.g. `max_tool_calls` or `max_iterations`). Truncated cases are never silently indistinguishable from finished ones.
+- The manifest records the declared budget, and the Report tab shows it as **Budget · N calls / M iterations**.
+
+### Trajectory disclosure
+
+Every report exposes the execution evidence behind each score:
+
+- **Tool call details** — how many tool calls the agent made (`N×` badge with tooltip).
+- **Blocked count** — how many attempts the contamination guard intercepted (`Blocked N` badge).
+- **Limit reached** — which budget stopped the run (`Limit` badge with the specific type in the tooltip).
+- **Judge transparency** — semantic (LLM-as-a-judge) assertions accept a configurable `judge_prompt`, recorded in the report; `agent_model` / `judge_model` are disclosed for every run (task-native grades honestly mark `none`). Exact-match answers short-circuit the judge entirely, so trivial hits never spend judge tokens.
+
+Together these make a score **auditable down to every tool call** — you can explain not just what the number is, but under what protection, budget, and trajectory it was produced.
+
 ## Environment snapshot
 
 Every eval run records an `EvalManifest` with:
