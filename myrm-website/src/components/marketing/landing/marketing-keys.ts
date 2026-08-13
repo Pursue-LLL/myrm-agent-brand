@@ -44,6 +44,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'evidenceDiscipline',
   'marketplaceAgentInstall',
   'filePreview',
+  'mcpEcosystem',
 ] as const;
 
 export type HighlightSlideKey = (typeof HIGHLIGHT_SLIDE_KEYS)[number];
