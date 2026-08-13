@@ -229,7 +229,7 @@ Myrm 原生使用 **MCP SDK 2.0**，通过自研 `tool_converter` 模块将 MCP 
 
 ### CancelledError 防护
 
-防止 Python `CancelledError` 穿透 MCP 通道导致服务进程崩溃。
+防止 Python `CancelledError` 穿透 MCP 通道导致服务进程崩溃。关闭（`close()`）时若会话宽限期到期触发取消，正在执行中的工具调用与资源读取会**确定性失败**（返回明确的 `RuntimeError`，如 "closed during call"），调用方永远不会无限等待一个正在消失的会话——Agent 在连接重建、配置更新、连接池关闭时不会卡死，对话始终能得到响应。
 
 ### 指标
 

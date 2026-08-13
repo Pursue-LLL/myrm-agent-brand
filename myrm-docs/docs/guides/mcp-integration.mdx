@@ -229,7 +229,7 @@ Migrations never worry that something works in a demo but fails in production.
 
 ### CancelledError Protection
 
-A guard prevents Python `CancelledError` from leaking through MCP channels, which could otherwise crash the MCP server process.
+A guard prevents Python `CancelledError` from leaking through MCP channels, which could otherwise crash the MCP server process. On `close()`, when the session's grace window expires and cancellation fires, any **in-flight tool call or resource read fails deterministically** (a clear `RuntimeError` such as "closed during call") — the caller never waits forever on a session that is going away. The agent cannot freeze during connection rebuild, config updates, or pool shutdown: the conversation always gets a response.
 
 ### Metrics
 
