@@ -39,6 +39,15 @@ When the estimated cost exceeds **$0.50**, an interactive approval card appears 
 
 This means you'll never get a surprise bill from a complex multi-agent operation.
 
+### 6. Shared Workspace Concurrency Lock (Turn Lock)
+
+Multiple agents sharing the same project can race on files, memory, and task state. Myrm serializes turns within a project via a **project-level Turn Lock** while keeping different projects fully parallel:
+
+- **Fair queueing with visible feedback** — a queued turn emits a `waiting_for_turn` progress step in real time ("Waiting for other agents in the project to finish..."), so you always know why a turn is paused.
+- **Cancellable waiting** — the lock acquire loop polls the cancel token in short slices, so clicking Stop interrupts the wait within ~1 second instead of staying blocked behind another agent.
+- **Leak-proof release** — a `lock_acquired` flag guarantees the lock is released only by the request that truly holds it (cancelled waiters never steal the holder's lock), and reserved gateway sessions are cleaned up so a cancelled turn never leaves the workspace permanently busy.
+- **Deterministic verification** — a seed endpoint holds a real lock and E2E tests verify the waiting step appears, cancels cleanly, and re-sends re-queue correctly, backed by 29 backend + 13 frontend tests and real-Chrome E2E.
+
 ## How to Get Started
 
 1.  Open the **Myrm Agent WebUI**, and navigate to the Workflow or Kanban section.
