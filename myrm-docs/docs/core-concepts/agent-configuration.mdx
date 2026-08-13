@@ -257,6 +257,8 @@ The `delegate_to_agent` tool allows seamless handoff with full context injection
 
 **Verified (Jul 10 2026):** 108+ backend integration/unit tests green (including `test_external_cli_live_e2e.py` direct claude-code PONG); Chrome E2E on `:3000` confirms Writer/Research presets hide the chip, General/Developer show it, Developer → Add Agent → Claude Code shows **CLI ready**, and live `mimo-v2.5-pro` → delegate → Claude Code returns **PONG** with task steps + tool trace in the chat UI.
 
+**MCP governance stays unified (Aug 2026):** when a host client (IDE, GUI, or chat) hands session-level MCP servers to an external agent, Myrm's ACP bridge **ignores that injection and keeps MCP management under Myrm's own pipeline** — the server logs a clear warning (`acp_host_mcp_ignored reason=myrm_manages_mcp`) instead of silently binding them. No MCP tool can bypass Myrm's 7-layer policy chain, connection-pool self-healing, or runtime prompt-injection scanning just because a delegate runs. SDK bridges also forward the full `mcp_servers` env (name/command/args/env) into the child process, so third-party MCP credentials (API keys, internal endpoints) survive delegation instead of being silently dropped.
+
 **Migrating from Hermes or AionUi-style tools:** keep your installed Claude Code / Codex / Gemini CLI — Myrm auto-detects them in Settings. You gain optional delegation on top of Myrm's own agent engine, MCP ecosystem, 5-layer approvals, and SubAgent orchestration without giving up external CLI strengths. Deleting a chat immediately stops any pooled external CLI process—no orphaned background agents.
 
 ### Google A2A Protocol

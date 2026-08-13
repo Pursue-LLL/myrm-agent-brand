@@ -12,7 +12,7 @@
  */
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import Autoplay from 'embla-carousel-autoplay';
 import { ArrowLeft02Icon, ArrowRight02Icon } from 'hugeicons-react';

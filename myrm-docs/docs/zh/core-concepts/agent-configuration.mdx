@@ -257,6 +257,8 @@ GUI 配置编辑器提供 5 个独立面板（技能 / MCP / 内置工具 / 子�
 
 **验收（2026-07-10）：** 108+ 项后端集成/单测全绿（含 `test_external_cli_live_e2e.py` 直连 claude-code PONG）；Chrome E2E（`:3000`）确认 Writer/Research 无 external_cli chip、General/Developer 有；Developer → 添加 Agent → Claude Code 显示「CLI 可用」；真实 `mimo-v2.5-pro` → 委派 → Claude Code 返回 **PONG**，聊天页含任务步骤与工具执行轨迹。
 
+**MCP 治理统一收敛（2026-08）：** 当宿主客户端（IDE、GUI 或聊天界面）把 session 级 MCP 服务器塞给外部 Agent 时，Myrm 的 ACP 桥接会**忽略该注入并把 MCP 管理统一收敛到 Myrm 自身管线**——服务端记录明确的告警（`acp_host_mcp_ignored reason=myrm_manages_mcp`），而非静默绑定。任何 MCP 工具都无法因为「委派给外部 Agent 执行」就绕过 Myrm 的 7 层策略链、连接池自愈或运行时 prompt-injection 扫描。SDK 桥接同样把 `mcp_servers` 的完整 env（name/command/args/env）透传给子进程，第三方 MCP 凭据（API Key、内网地址）在委派过程中完整保留，绝不静默丢失。
+
 **从 Hermes / AionUi 迁移：** 保留已安装的 Claude Code / Codex / Gemini CLI（Settings 自动检测），在自有 Agent 引擎与 MCP 生态之上可选委派，并额外获得 5 层审批与 SubAgent 编排。删除对话会立即释放已池化的外部 CLI 进程，不留后台僵尸任务。
 
 ### Google A2A 协议
