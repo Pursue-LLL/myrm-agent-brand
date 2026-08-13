@@ -1,0 +1,42 @@
+---
+title: Workspace File Preview
+description: Click any file in the workspace browser — PDFs, images, audio, video — and preview it in-app with smart text/binary detection, streaming downloads, and safe headers.
+---
+
+# Workspace File Preview
+
+The workspace file browser is where your Agent's sandbox files live. Click a file and Myrm decides how to show it — **text renders as text, and rich media renders in-app without leaving the workspace**.
+
+## What previews in-app
+
+| File type | Behavior |
+|-----------|----------|
+| PDF | Rendered inline with react-pdf, scrollable and zoomable |
+| Image (PNG/JPEG/WebP/…) | Full-size in-app render |
+| Video / Audio | In-app players over a streaming URL |
+| SVG | Inline vector render |
+| Markdown / code / plain text | Text viewer with the existing code/editing surface |
+| Unknown or unsupported binary | Download fallback — never garbled text |
+
+## Smart text vs binary detection
+
+Myrm does not guess. The backend marks every file entry with an authoritative `is_text` flag (zero-IO extension detection during the scan), and the frontend routes on that flag:
+
+- **Text files** are served with a size cap so a huge log never freezes the page.
+- **Binary files** stream in full over HTTP Range — the whole PDF, not a truncated fragment — so previews and downloads stay intact.
+
+Unknown extensions are safe too: if the backend cannot classify a file as text, it is treated as binary and offered for download instead of rendering as mojibake.
+
+## Safe downloads
+
+Download responses protect against header injection (CR/LF stripped) and encode non-ASCII filenames per RFC 5987, so files with Chinese, Korean, or emoji names download correctly on any platform.
+
+## Preview kinds
+
+Artifact renderers are reused across the chat and the workspace browser: PDF, document, spreadsheet, image, video, audio, SVG, and interactive UI previews all share one rendering pipeline. The workspace path adds the binary streaming and safe-header behavior on top.
+
+## Related
+
+- [Workspace Auto-Organize](./workspace-organize)
+- [File Checkpoints](./file-checkpoints)
+- [Artifact Sharing](./artifact-sharing)
