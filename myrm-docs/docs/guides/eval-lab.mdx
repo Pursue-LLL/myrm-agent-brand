@@ -92,6 +92,34 @@ A grading run can fail before any test produces output — the scoring command m
 - **stdout tail attached** — every "command failed", "reward file unreadable", and "JUnit file unreadable" message carries up to 800 characters of the grading command's real stdout, so you see what actually happened instead of guessing.
 - **Counts-based reward fallback** — reward payloads that only carry `tests_passed`/`tests_total` counters (or a `tests[]` array), rather than the full `score.json`/`reward.json` schema, are now parsed and scored correctly instead of being rejected as unreadable. This mirrors the official WBBench runner's counting semantics while staying compatible with lightweight scorer scripts.
 
+## Layered evaluation: how much does each harness layer actually contribute?
+
+"Does the framework really help, or is it just a smarter model?" **Layered evaluation** answers this with a single run: the same task set runs across an ascending capability chain — from a fair stripped baseline to the full agent configuration — and the report shows the **incremental gain of each layer** (harness core, skills, memory) as measured deltas instead of marketing claims.
+
+### The layer chain
+
+| Layer | Benchmark mode | Skills | Memory | What it measures |
+|-------|:---:|:---:|:---:|------------------|
+| `bare` | ✅ | ❌ | ❌ | Fair baseline — model + core tools only |
+| `core` | ❌ | ❌ | ❌ | Harness core (rules, replan, MCP, tool policy) |
+| `skills` | ❌ | ✅ | ❌ | `skills` − `core` = the skill layer's real gain |
+| `memory` | ❌ | ✅ | ✅ | `memory` − `skills` = the memory layer's real gain |
+
+### How to run
+
+1. Open **Eval Lab** → **Matrix** tab.
+2. Pick a downloaded benchmark and start a **Layered** run.
+3. Progress streams live (download bytes → per-layer case progress), the report renders in the familiar matrix view, and every run lands in history for later comparison.
+
+### Why you can trust the numbers
+
+- **Fingerprints pin the exact switches** — each layer's `benchmark_mode` / `skills_enabled` / `memory_enabled` combination is locked by a SHA-256 fingerprint in the report, so the layer definitions stay comparable across harness upgrades.
+- **Full model disclosure** — reports record `agent_model`, `judge_model`, and `harness_version` (same honesty contract as Memory A/B and benchmark manifests), so a score curve can only drift when real capability changed — never because the ruler moved.
+- **Behavior evidence, not just scores** — each layer reports how many times the agent actually called memory tools (`memory_tool_calls`), so "memory didn't help" is never confused with "memory was never used".
+- **Isolated measurement** — all layers run with shared contexts disabled and throwaway memory volumes (SQLite + embedded Qdrant) that are evicted and deleted after the run; the memory layer's gain reflects the memory mechanism itself, not your real shared memory.
+
+This is the **Harness Leverage Ratio (HLR)** idea made practical: instead of telling you "our framework is strong", Myrm measures *how much each capability layer moves task completion* — a number you can cite in proposals, releases, and migration decks.
+
 ## Cross-profile matrix eval
 
 To compare how different agent configurations handle the same tasks:
