@@ -607,8 +607,8 @@
         "mcpToolCoercion": {
           "feature": "MCP Tool Param Auto-Fix · Connect & Use, Zero Config",
           "hermes": "_no",
-          "openclaw": "Basic JSON.parse only",
-          "myrmAgent": "Framework-level strict-host compatibility: required nullable auto-null completion + safe union object/array parsing + prompt-cache-stable schema canonicalization"
+          "openclaw": "Number coercion limited by double precision (≥2^53 loses digits)",
+          "myrmAgent": "Framework-level strict-host compatibility: required nullable auto-null completion + safe union object/array parsing + prompt-cache-stable schema canonicalization · Decimal-exact numeric parsing keeps 2^53+ integers lossless"
         },
         "errorRecovery": {
           "feature": "Self-healing · 4-layer auto-recovery · 7 loop detectors · completion guard",
@@ -1390,7 +1390,7 @@
         "memoryStorageResilience": {
           "label": "Memory resilience",
           "title": "No matter how full, slow or fragile the disk gets, memory never breaks",
-          "desc": "Memory persists in a local embedded vector store—zero Docker dependency, works out of the box. When disk space runs out, a directory is occupied, or permissions tighten, memory automatically switches to in-memory mode and keeps reading and writing—no interruption, returning to persistence automatically once the disk recovers. Retrieval never hangs either: if any memory corpus stalls or slows down, the search times out on schedule and degrades gracefully, and the agent is honestly told \"search timed out — try a more specific query or retry\" across both the GUI and MCP surfaces—a failed retrieval is never disguised as \"no memory\", so it never fabricates answers. Every path is a process-wide singleton, so concurrent agents never hit file-lock conflicts or corruption; throwaway memory volumes for evals and workspaces are burned after use with zero leaked file handles. Isolated volumes never cross-contaminate each other's data—your memory stays yours, never mixed, never leaked.",
+          "desc": "Memory persists in a local embedded vector store—zero Docker dependency, works out of the box. When disk space runs out, a directory is occupied, or permissions tighten, memory automatically switches to in-memory mode and keeps reading and writing—no interruption, returning to persistence automatically once the disk recovers. Retrieval never hangs either: if any memory corpus stalls or slows down, the search times out on schedule and degrades gracefully, and the agent is honestly told \"search timed out — try a more specific query or retry\" across both the GUI and MCP surfaces—a failed retrieval is never disguised as \"no memory\", so it never fabricates answers. Every path is a process-wide singleton, so concurrent agents never hit file-lock conflicts or corruption; throwaway memory volumes for evals and workspaces are burned after use with zero leaked file handles. Isolated volumes never cross-contaminate each other's data—your memory stays yours, never mixed, never leaked. And you can always see, at a glance in the Memory Command Center, whether memory is stored persistently, has fallen back to in-memory mode, or is unavailable—so \"memory will be lost on restart\" is never a silent surprise.",
           "stat": "0",
           "statLabel": "memory lost on disk failure — zero leaks",
           "tag1": "Auto-degrade keeps memory running on disk failure",
