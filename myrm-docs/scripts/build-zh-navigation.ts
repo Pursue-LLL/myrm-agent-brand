@@ -8,7 +8,10 @@ import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const doc = JSON.parse(readFileSync(join(root, 'docs.json'), 'utf8')) as {
-  navigation: { tabs: Array<{ tab: string; groups: Array<{ group: string; pages: string[] }> }> };
+  navigation: {
+    tabs?: Array<{ tab: string; groups: Array<{ group: string; pages: string[] }> }>;
+    languages?: Array<{ tabs: Array<{ tab: string; groups: Array<{ group: string; pages: string[] }> }> }>;
+  };
 };
 
 const TAB_ZH: Record<string, string> = {
@@ -26,7 +29,7 @@ const GROUP_ZH: Record<string, string> = {
   Contributing: '贡献指南',
 };
 
-const zhTabs = doc.navigation.tabs.map((tab) => ({
+const zhTabs = (doc.navigation.tabs ?? doc.navigation.languages?.[0]?.tabs ?? []).map((tab) => ({
   tab: TAB_ZH[tab.tab] ?? tab.tab,
   groups: tab.groups.map((group) => ({
     group: GROUP_ZH[group.group] ?? group.group,

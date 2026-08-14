@@ -450,6 +450,10 @@ Memory persistence runs on an **embedded vector store** with zero Docker depende
 
 This is what keeps memory reliable in containers, read-only mounts, and capacity-limited sandboxes — the environments where competing memory systems typically fail at startup.
 
+### Persistence Visibility
+
+Myrm never lets "memory will be lost on restart" be a silent surprise. The **Memory Command Center** runtime panel exposes the actual vector-store persistence state as a three-state status — **Persistent** (stored on disk), **Memory fallback** (degraded to in-memory; memory survives this session but not a restart), or **Unavailable** (no vector store active). When the store has fallen back to memory, the row is highlighted with an alert so you know to fix disk/permissions before restarting. The same snapshot feeds the Doctor panel's vector-index check, which explains the impact and next steps. Persistence is contractually defined at the framework layer (`is_persistent` on the vector-store abstraction), so every backend — embedded Qdrant, remote, or in-memory — reports truthfully rather than guessing from storage mode.
+
 ## Dataset Export
 
 Export your conversation traces as industry-standard fine-tuning datasets — directly from the Settings page.

@@ -12,12 +12,23 @@ const docsJsonPath = join(root, 'docs.json');
 type Tab = { tab: string; groups: Array<{ group: string; pages: string[] }> };
 
 const doc = JSON.parse(readFileSync(docsJsonPath, 'utf8')) as {
-  navigation: { tabs: Tab[] };
+  navigation: { tabs?: Tab[]; languages?: Array<{ tabs: Tab[] }> };
   topbar?: { links?: Array<{ name: string; url: string }> };
   footer?: unknown;
 };
 
-const enTabs = doc.navigation.tabs;
+// Support both the legacy single-language `navigation.tabs` shape and the
+// current `navigation.languages[].tabs` shape (en first).
+const enTabs: Tab[] =
+  doc.navigation.tabs ?? doc.navigation.languages?.[0]?.tabs ?? [];
+
+if (!doc.navigation.tabs && doc.navigation.languages?.length) {
+  console.error(
+    'docs.json already uses navigation.languages[] (en/zh/ko). ' +
+      'This one-shot en+zh migration tool is obsolete; refusing to overwrite.',
+  );
+  process.exit(1);
+}
 
 const TAB_ZH: Record<string, string> = {
   Documentation: '文档',
