@@ -80,6 +80,30 @@ Some tools (like OpenCLI) scan every element with `elementFromPoint` to prune oc
 
 Net result: 5-10ms snapshots that are 60-80% smaller than DOM-based approaches, with zero accuracy trade-offs.
 
+## Humanized Interaction
+
+Every input Myrm sends to a real browser is replayed as a physical human gesture — never an instant programmatic jump. Three humanization levels (`FAST` / `DEFAULT` / `CAREFUL`) auto-match the protection level of the site you are on.
+
+### Wheel-Inertia Scrolling
+
+One logical scroll is delivered as a burst of small `mouse.wheel` events — 20–40px notches separated by 8–20ms pauses, following an **accelerate → cruise → decelerate** rhythm. CDP traces show human wheel notches; anti-bot scripts that hook `window.scrollTo` / `scrollBy` see nothing. Negative deltas scroll up naturally, and a scroll that actually moved nothing reports the honest outcome instead of a fake success.
+
+### Bézier Mouse Trajectory
+
+Before every click / dblclick / hover / drag / canvas input, the cursor travels a cubic Bézier curve with eased acceleration, perpendicular wobble, and occasional overshoot past the target before settling — the exact profile of a human hand. Clicks are never a mousedown with no preceding hover path.
+
+### Humanized Timing
+
+Click and per-character typing delays follow a Gaussian distribution (click ≈120±30ms) rather than a constant, so no two interactions look alike to timing-based detectors.
+
+### CAREFUL Pre-Scroll Centering
+
+When a click target is outside the viewport, Myrm first humanized-wheels it into the center band, then clicks. This works through nested scroll containers and same-origin iframes. On locked-scroll pages (e.g. `overflow: hidden`) it either lands via a native fallback or fails loudly — it never silently clicks empty space and reports success.
+
+### Canvas / Rich-Editor Visual Mode
+
+For pages where DOM refs do not map to visible elements (Google Docs, Figma, Sheets), coordinate-based interaction (`interact_at`) clicks, double-clicks, types, presses, hovers, scrolls and drags at explicit viewport positions using the same humanized Bézier + wheel stack — see [Canvas/Rich-Editor Visual Mode](#canvasrich-editor-visual-mode) below.
+
 ## Smart Infinite Scroll
 
 Pages with lazy-loading content (social feeds, e-commerce catalogs, news sites) normally require 10-20+ scroll-and-check loops. Each loop costs one LLM call.
