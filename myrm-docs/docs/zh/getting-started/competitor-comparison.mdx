@@ -15,6 +15,14 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-08-14 · Hermes 热帖分析链 · Cloud  egress vs IronProxy）
+
+- **Hermes IronProxy（#284 @NousResearch · 740🔖）vs Myrm 云沙箱凭证防火墙（2026-08-14 实码终裁）**：Hermes `hermes egress setup` = 仅 Docker · TLS MITM iron-proxy · stand-in bearer token · CLI 向导 · 宿主机 LLM 仍用 `.env` 真钥 · Modal/Daytona/SSH 未接。Myrm **Cloud/SaaS >> Hermes iron-proxy**：`virtual_key.py` HMAC 虚拟密钥（出 relay 无效）+ `llm_relay/relay.py` 原位注入 + `egress_control.py` iptables 阻断直连 LLM + `secrets_vault` 隔离 — **196 项凭证安全测试通过**，**无本地 MITM CA 攻击面**。**诚实 Local gap**：bash `credential_env_overrides` 仍可能向本地沙箱注入真 OAuth/API token — Doctor 透明提示（**#9 P1**）；**否决** clone iron-proxy CLI/MITM CA。
+- **GAIA 营销转帖（#283 @REMIX_KSA · dedupe #313）**：Atomic GAIA L1 **37:31** 为社区 headline，**非** Myrm 已验收 receipt。Eval Lab **广度已 land**（WBBench 四赛道 + BrowseComp + Matrix + EvalManifest）— **GAIA adapter 尚未接入**（roadmap **#72 P1**）。官网/文档**禁止**无 receipt 贴 GAIA 分数 chip。
+- **Opus 5 可用性（#285/#281 @Teknium）**：BYOK 三路径 **≥ Hermes** · 无 Portal 锁-in · UsageModelBreakdown **已 land** — 零新 roadmap（纯 dedupe）。
+- **对用户可见的迁移收益**：同样跑 Agent，从「CLI + YAML + 猜密钥是否泄漏」升级为「GUI 工作台 + 可审计 Eval Lab + 云沙箱零密钥 + 35 渠道 ChatOps + Agent 整包一键安装」— 且**明确标注**尚未达标项，不靠 benchmark 转帖忽悠。
+- **Material SSOT：** `temp-docs/materials/COMPETITIVE_HERMES_ADVANTAGE.md` §35 · `SECURITY_ADVANTAGE.md`（2026-08-14 首段）· `EVAL_LAB_BENCHMARK_ADVANTAGE.md` §GAIA 诚实边界
+
 ## 最新验证快照（2026-08-12 · 市场 Agent 包一键安装 + 云端安全升级）
 
 - **市场 Agent 包安装 → 安全 force-push 升级 → 回滚 → 动态名册（vs Claude Code/Cursor / Coze 3.0 / OpenClaw）**：`test_marketplace_import_full_chain.py` 集成 **14 passed**（真实 in-memory SQLite + 真实技能写盘 + 进程内 ASGI HTTP 全链路，关键路径零 mock）+ 单元回归 **70 passed**；`import_agent_profile.py` **100% 行覆盖**（2026-08-12 实测）。
@@ -1742,6 +1750,8 @@ DeerFlow 1.x 作为专业 Deep Research 框架广受好评，但 2.0 已完全�
 - **绝对成本可预测**：Agent 死循环不会让你醒来面对巨额 API 账单。
 - **真实执行证据**：Myrm 称任务完成时，有 OS 级执行日志支撑，非 LLM 想象。
 - **无瑕 UI 体验**：后台 Agent 严格留后台；人工介入可注入纠正语境，非二元是/否。
+- **Meta-Harness 无需自建**：社区流行的「Dynamic Workflows / meta-harness / 多 backend 编排」（如 DAIR.AI 537🔖 叙事）在 Myrm 中对应 **Dynamic Workflow PTC 引擎 + External Agents + Workflow 模板库**——引擎已落地，GUI 一键 preset 持续完善中。
+- **廉价推理 BYOK**：engy.ai、OpenRouter 等 OpenAI-compatible 端点可在 Settings **粘贴 URL 即发现模型**（`LocalCapabilitiesSetup`），无需 Bittensor 链 SDK；子代理 Dashboard + DW 费用预检帮你看见 **long tool loop 的真实账单**。
 
 ## 视觉审批、Artifact 全链路与智能模板复用（vs Codex）
 

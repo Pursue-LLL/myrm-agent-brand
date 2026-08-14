@@ -414,9 +414,9 @@
         },
         "sandbox": {
           "feature": "沙箱隔离 · 危险操作不影响本机",
-          "hermes": "外部 Codex Server",
+          "hermes": "Docker iron-proxy（CLI · MITM CA · 仅 bearer）",
           "openclaw": "_no",
-          "myrmAgent": "全平台原生 OS 级沙箱隔离（macOS Seatbelt / Linux bubblewrap / Windows AppContainer），无需 Docker 即可获得进程级安全隔离。云端部署支持 Serverless 挂起与按需唤醒，离线时自动休眠，收到消息瞬间唤醒。新增 Cloud/Sandbox Loopback Guard：在保存前拦截仅 localhost 可用的 MCP 连接（显式 deployment_scope + probe `shouldBlockConnect` 契约），并直接引导用户切换到 Local/Tauri，避免任务中途才失败。内置回收站软删除机制，彻底消除数据丢失焦虑。"
+          "myrmAgent": "全平台原生 OS 级沙箱隔离（macOS Seatbelt / Linux bubblewrap / Windows AppContainer），无需 Docker 即可获得进程级安全隔离。云端：HMAC 虚拟密钥 + LLM Relay，真 API Key 永不进沙箱（无 MITM CA 攻击面 · 196 项凭证测试）。Cloud/Sandbox Loopback Guard 保存前拦截 localhost MCP。Serverless 挂起与按需唤醒。内置回收站软删除。"
         },
         "subAgent": {
           "feature": "多 Agent 协作 · P2P 通信 · DAG 编排 · 对抗式验证",
