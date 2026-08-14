@@ -156,6 +156,7 @@ Myrm 自动优化 MCP 工具 Schema 以兼容 LLM：
 | **Anthropic Schema 自适应** | 自动剥离 Claude 不支持的 JSON Schema 关键字（`minimum`、`maximum`、`pattern`、`format`、`default`、`title` 等），约束语义折叠到 `description` 保留 LLM 理解能力，无需手动配置 |
 | **描述长度安全阀** | 超长第三方描述自动截断至 2048 字符，防止 Token 浪费 |
 | **Schema 缓存稳定** | Key 递归排序 + set 类字段排序，消除 MCP 服务器重启导致的序列化随机性，确保 Prompt Cache 命中 |
+| **数值精度保真** | 数值参数 Decimal 精确解析——2^53+ 大整数（雪花/64 位 ID）经任意精度 `int` 不丢精度；浮点形式整数（`"25.0"`/`"1e10"`）精确强转；`inf`/`nan`/超长指数保持字符串（防内存 DoS） |
 | **Coercion 可观测** | 运行时计数器追踪每种修复类型的触发频次，支持 DEBUG 日志排查 |
 | **内容边界防御** | 所有 MCP 返回值经 5 层 `wrap_untrusted` 防御链处理，防止 Prompt Injection |
 
