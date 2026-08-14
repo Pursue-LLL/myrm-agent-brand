@@ -318,6 +318,17 @@ On any **completed assistant message**, use **Compound to Wiki** (book icon) in 
 
 Unverified answers include a coverage disclaimer in the pending draft. Chat callers cannot bypass this path with direct `create_note` (HTTP **403**).
 
+### Provenance trace closure
+
+Every knowledge item keeps a **trace back to the exact source message** it came from:
+
+- **Conversation → raw** — chat messages saved via *Compound to Wiki*, and long replies auto-archived at session end, both record `source_chat` (and `source_message` where available) into the raw file's YAML frontmatter.
+- **raw → compiled concept** — the compiler preserves provenance when regenerating an article, re-attaching it if the LLM output drops the field; a first-time compile lifts provenance from the concept's raw source files (only when all sources agree, so a merged concept never claims a misleading single origin).
+- **Concept → conversation jump** — the concept detail panel and pending-edit list show a **"Source conversation"** link. With a `source_message` it deep-links to the **exact message** (`?highlight=…`); without one it falls back to the chat itself. If the source chat was deleted, the page shows its natural empty state instead of a broken link.
+- **Raw gate hardening** — the raw publication gate rejects path traversal (`..`, drive prefixes, overlong paths) so provenance never becomes a file-system escape vector.
+
+This traceability chain is unique among agent knowledge-base products: competitors offer at most thread-level jumps (deer-flow), line-level data with no UI (openclaw/jiuwenclaw), or a bare `session_id` without any jump (CoPaw). None of them link a knowledge entry to a precise conversation message in the UI.
+
 ## Page type contract (frontmatter `type`)
 
 Every wiki page must declare a **page type** in YAML frontmatter. This is enforced at compile time, on pending-edit approval, and by the linter — not just a prompt suggestion.

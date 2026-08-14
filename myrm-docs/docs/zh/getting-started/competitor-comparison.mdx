@@ -15,6 +15,12 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-08-14 · Wiki 溯源闭环 · 消息级深链）
+
+- **全链路溯源闭环（vs Hermes / OpenClaw / deer-flow / LobsterAI / CoPaw / jiuwenclaw）**：每条知识都保留回到**来源精确消息**的溯源链——自动归档回合把 `source_chat` 写入 raw frontmatter；编译器在重生成时保留溯源（首次编译从 raw 源提取，多源一致才注入）；概念详情与待审面板提供 **「来源对话」** 深链直达精确消息（`?highlight=…`，无消息级时降级会话级，来源对话删除后自然空态）；raw 闸门拒绝路径穿越，溯源永不成为文件系统逃逸向量。**验证**：harness `test_raw_gate`+`test_compiler` **27 passed** · `test_skill_agent_review`+`test_skill_agent_wiki` **45 passed** · server `test_wiki_api` **38 passed** · 前端 vitest 11 文件 **43 passed** · live API 集成闭环（compound→approve→publish→`get_concept`）+ 真实 Chrome E2E **PASSED**（WebUI 概念详情跳转端到端断言，无 mock，2026-08-14）。
+- **用户可感知优势**：deer-flow 仅线程级跳转；openclaw/jiuwenclaw 有行级数据（`*.jsonl#L<line>`）但零 UI；CoPaw 仅存 `session_id` 无跳转；hermes-agent 无溯源字段。**没有任何竞品在 UI 里把知识条目链接到对话中的精确消息**——这是 Myrm 独自填补的品类空白。
+- **Material SSOT：** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md`（2026-08-14 首段）· `toolkits/wiki/pipeline/compiler_provenance.py` · `raw_gate/service.py` · `app/api/wiki/router.py` · `tests/e2e/test_wiki_concept_provenance_jump_chrome_e2e.py`
+
 ## 最新验证快照（2026-08-14 · Hermes 热帖分析链 · Cloud  egress vs IronProxy）
 
 - **Hermes IronProxy（#284 @NousResearch · 740🔖）vs Myrm 云沙箱凭证防火墙（2026-08-14 实码终裁）**：Hermes `hermes egress setup` = 仅 Docker · TLS MITM iron-proxy · stand-in bearer token · CLI 向导 · 宿主机 LLM 仍用 `.env` 真钥 · Modal/Daytona/SSH 未接。Myrm **Cloud/SaaS >> Hermes iron-proxy**：`virtual_key.py` HMAC 虚拟密钥（出 relay 无效）+ `llm_relay/relay.py` 原位注入 + `egress_control.py` iptables 阻断直连 LLM + `secrets_vault` 隔离 — **196 项凭证安全测试通过**，**无本地 MITM CA 攻击面**。**诚实 Local gap**：bash `credential_env_overrides` 仍可能向本地沙箱注入真 OAuth/API token — Doctor 透明提示（**#9 P1**）；**否决** clone iron-proxy CLI/MITM CA。
