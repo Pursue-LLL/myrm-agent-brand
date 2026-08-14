@@ -86,6 +86,8 @@ When compression alone isn't sufficient, an LLM generates a structured summary w
 
 **Incremental merge intelligence**: When a new summary is merged with an existing one, resolved blockers are automatically removed and completed steps are discarded, keeping the handoff context current without manual intervention.
 
+**Orphan-block clearance + lossless persistence**: Every rebuild clears orphaned summary blocks — exactly one summary block survives, so duplicate summaries never pile up as the conversation grows. The 14-field summary is persisted to the DB as strict JSON and deserialized through a hard parse-layer contract (not a soft "please preserve" prompt that LLMs forget): field set and values round-trip byte-exact across sessions. LLM output is normalized through a three-way converger (plain dict from JSON-mode providers / Pydantic models / native dataclasses) before any field access — provider output-format differences can never crash compression or silently degrade it to a deterministic fallback. Legacy model prefixes (e.g. `openai-like/xxx`) are auto-normalized so hand-written configs keep working.
+
 ### Layer 4.5: Post-Compaction Reread
 
 After summarization, the `PostCompactionRereadProcessor` automatically re-reads the top 5 most recently modified/created files from the `ArtifactTracker`, injecting their latest content into the context as a `HumanMessage`. This ensures the agent has fresh file contents immediately after compaction — not stale snapshots from before compression occurred.

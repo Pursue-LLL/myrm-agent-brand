@@ -84,6 +84,8 @@ Myrm 上下文管理确保 Agent 在 200+ 轮对话中不丢信息，并通过�
 
 **增量合并智能**：新摘要与已有摘要合并时，已解决的阻塞项自动移除，已完成的步骤自动丢弃，保持交接上下文始终最新。
 
+**孤儿块清零 + 无损持久化**：每次压缩重建都会清除孤儿摘要块——恒剩 1 个摘要块，重复摘要不会随对话增长而堆积。14 字段摘要以严格 JSON 持久化到 DB，反序列化走解析层硬契约（而非依赖 LLM「记得保留」的软性 prompt）：字段集合与值跨会话逐字无损往返。LLM 输出经三路收敛器统一规范化（JSON-mode provider 的裸 dict / Pydantic 模型 / 原生 dataclass）后再访问字段——provider 输出格式差异永远不会导致压缩崩溃或静默降级为 deterministic fallback。legacy 模型前缀（如 `openai-like/xxx`）自动规范化，手填配置也能正常使用。
+
 ### 第 4.5 层：压缩后热恢复
 
 摘要完成后，`PostCompactionRereadProcessor` 自动从 `ArtifactTracker` 查询最近修改/创建的 top-5 文件，读取最新内容以 `HumanMessage` 注入上下文。确保 Agent 压缩后立即拥有最新文件内容，而非压缩前的过期快照。
