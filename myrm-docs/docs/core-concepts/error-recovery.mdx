@@ -7,6 +7,20 @@ description: 14-layer self-healing system that keeps agents running through fail
 
 Myrm's error recovery system ensures agents keep running through network failures, model outages, rate limits, and unexpected errors — automatically, without user intervention.
 
+## Interrupted Turn Auto-Continue (Crash Recovery)
+
+When the server process crashes mid-turn, Myrm does not leave you guessing:
+
+- A **write-ahead marker** is persisted before each normal stream starts and cleared on successful completion
+- After **server restart**, a startup scan resumes eligible turns within a **15-minute freshness window**
+- A **crash-loop breaker** stops after **2 failed attempts** per marker
+- Resumed turns persist **`token_economics`** on the assistant message (same cost accounting as the main path)
+- You can disable the feature in **Settings → Preferences → Advanced → Auto-continue interrupted turns**
+
+<Note>
+**Honest parity note vs Hermes v0.19:** Hermes also triggers auto-continue when you **reopen a chat session**. Myrm currently resumes on **server restart/warmup**; chat-reopen + live SSE trigger is on the roadmap (not yet shipped). We document only what is live today.
+</Note>
+
 ## Parallel Workspace Merge Failures (GUI)
 
 When parallel sub-agents use isolated workspaces (`ISOLATED_COPY`) and a **batch merge** or **sync_back** fails, Myrm does not hide the failure in logs only:

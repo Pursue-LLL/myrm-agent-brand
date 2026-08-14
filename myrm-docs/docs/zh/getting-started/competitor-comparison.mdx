@@ -15,6 +15,13 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-08-14 · Hermes 热帖 #242/#243 · 崩溃续跑 + Petdex GUI）
+
+- **服务崩溃后中断回合自动续跑（vs Hermes v0.19 #242 @tonysimons_）**：Myrm 已上线 **write-ahead `InterruptedTurnMarker`**（每轮正常流开始前写入、成功完成清理）、**启动扫描** `auto_continue_interrupted_turns()`（15 分钟 freshness、crash-loop 上限 2 次）、Settings 开关 `autoContinueInterruptedTurns`、resume 时 **`token_economics` 持久化**。进程崩溃/重启场景 **≥ Hermes**。**诚实缺口**：Hermes 还会在 **重开聊天 session** 时触发；Myrm 尚未实现「重开聊天页 + live SSE」自动续跑（roadmap topic_13 **#55 P1**）——官网只宣传已上线能力。
+- **Petdex GUI parity（vs Hermes #243 Nous Girl）**：**PetGallery 一键安装 + `/pet` 零 LLM 调色板** 已在 WebUI/Tauri/云 **land** —— 日常用户 **≥ Hermes CLI `npx petdex install`**。**诚实缺口**：EmptyChat 伴侣发现 chip **0%**（roadmap topic_12 **#85 P1**）——宣传指向 Settings → Companion → Gallery，不写虚假 chip。
+- **纯社交帖（#241）**：两字品牌帖 **零产品信号** —— 不立项；社区发现缺口由既有 **#83 Hub** / **#327 Masterclass** SSOT 覆盖，不靠社交复读。
+- **Material SSOT：** `temp-docs/materials/ERROR_RECOVERY_ROBUSTNESS_ADVANTAGE.md`（2026-08-14 首段）· `COMPANION_PETDEX_ADVANTAGE.md`（2026-08-14 首段）· `app/lifecycle/auto_continue.py` · `tests/lifecycle/test_auto_continue.py`
+
 ## 最新验证快照（2026-08-14 · Wiki 溯源闭环 · 消息级深链）
 
 - **全链路溯源闭环（vs Hermes / OpenClaw / deer-flow / LobsterAI / CoPaw / jiuwenclaw）**：每条知识都保留回到**来源精确消息**的溯源链——自动归档回合把 `source_chat` 写入 raw frontmatter；编译器在重生成时保留溯源（首次编译从 raw 源提取，多源一致才注入）；概念详情与待审面板提供 **「来源对话」** 深链直达精确消息（`?highlight=…`，无消息级时降级会话级，来源对话删除后自然空态）；raw 闸门拒绝路径穿越，溯源永不成为文件系统逃逸向量。**验证**：harness `test_raw_gate`+`test_compiler` **27 passed** · `test_skill_agent_review`+`test_skill_agent_wiki` **45 passed** · server `test_wiki_api` **38 passed** · 前端 vitest 11 文件 **43 passed** · live API 集成闭环（compound→approve→publish→`get_concept`）+ 真实 Chrome E2E **PASSED**（WebUI 概念详情跳转端到端断言，无 mock，2026-08-14）。
