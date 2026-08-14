@@ -147,6 +147,16 @@ IM channels: `/undo` removes the last turn and reverts linked files; if some pat
 
 After a successful Turn Undo (message, session, or IM), the Agent receives a **restore_inbox** notification on its next turn—the same mechanism as Shadow Git restore—so it re-reads affected files instead of relying on stale chat memory.
 
+### Reliable undo after page reload
+
+Turn undo is not tied to the in-memory session. Snapshots are persisted to disk and keyed by a stable request-level message ID, so the **Undo** control keeps working after a page reload, a browser restart, or even on a different device:
+
+- **Request-level message identity** — file snapshots are bound to the same request `message_id` used across the conversation, so the assistant message and its snapshot stay linked after reload (competitor rewinds are typically session-memory-scoped and break once the page closes).
+- **Stable workspace binding** — each chat resolves and pins its own workspace root, so snapshots from container-abstract paths (`/workspace/...`) map back to the real files regardless of how the sandbox was launched.
+- **Cloud sandbox parity** — the same snapshot store and revert service run inside the sandbox, giving identical undo behavior in Local, Tauri, and cloud deployments.
+
+Verified by live Chrome E2E: a real LLM agent turn modifies files → page reload → message-level file revert still restores the exact pre-turn content.
+
 ### Empty write rejection & failure banner
 
 If the Agent calls `file_write_tool` with **empty, whitespace-only, or invisible-only content (ZWSP/BOM)**, Myrm **does not** create a misleading file on disk. Instead:
