@@ -26,6 +26,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'agentSandbox',
   'memoryKnowsYou',
   'memoryPoisonGuard',
+  'memoryStorageResilience',
   'deepResearch',
   'desktopComputerUse',
   'multiAgent',

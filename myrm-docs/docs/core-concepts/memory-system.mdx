@@ -439,6 +439,17 @@ The diagnostic system monitors memory quality with quantified health scores and 
 - **Category pass rates** — regressions are localized to the exact memory category (profile, workflow, knowledge update, …) instead of a single aggregate score.
 - **Model-switch drift hints** — if the embedding model changed between runs, the panel warns that older scores may not be comparable.
 
+## Storage Resilience
+
+Memory persistence runs on an **embedded vector store** with zero Docker dependency. The storage layer keeps working under real-world disk conditions instead of failing:
+
+- **Automatic degradation** — if the disk is full, a directory is read-only, or a path is locked, the store falls back to in-memory mode instantly: memory writes and searches keep working, and persistence resumes automatically once the disk recovers.
+- **Per-path singletons** — every storage path maps to exactly one process-wide store instance, so concurrent agents can never hit file-lock conflicts or corrupt the store.
+- **Isolated fallback instances** — even in degraded in-memory mode, each path keeps its own isolated store; separate volumes never cross-contaminate each other's data.
+- **Burn-after-use volumes** — throwaway memory volumes for evaluation runs and isolated workspaces are explicitly evicted (client closed, file handles released) so the directory can be removed cleanly with zero residual handles or leaks.
+
+This is what keeps memory reliable in containers, read-only mounts, and capacity-limited sandboxes — the environments where competing memory systems typically fail at startup.
+
 ## Dataset Export
 
 Export your conversation traces as industry-standard fine-tuning datasets — directly from the Settings page.

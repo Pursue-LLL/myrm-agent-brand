@@ -5,7 +5,7 @@
  * - ui/carousel (Embla)
  *
  * [OUTPUT]
- * - HighlightsCarouselSection: 8-slide editorial split tour (left rail + Embla vertical carousel)
+ * - HighlightsCarouselSection: editorial split tour (left rail + Embla vertical carousel)
  *
  * [POS]
  * 落地页亮点轮播；与 Advantages Bento 解耦，讲故事而非重复六能力。
