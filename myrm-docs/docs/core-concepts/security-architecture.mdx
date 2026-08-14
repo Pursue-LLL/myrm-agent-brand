@@ -224,6 +224,21 @@ Unlike input-side guards (which protect the conversation), the write-path scanne
 - **Every write path shares the guard** — manual stores, batch writes, updates, profile, rules, MCP tools, agent auto-extraction, and import recovery
 - **CI poisoning benchmark gate** — two-layer expectation tests (detection layer + extraction layer) run in CI to prevent regression
 
+### File Lock Symlink Defense
+
+Even with upstream content guards in place, a prompt-injected agent could still be coaxed into planting a **symlink** inside a framework directory that points at a sensitive file (e.g. `~/.env`, SSH keys). Any later code that opens that lock path with "create/truncate" semantics would then silently destroy the file it points at — a real data-loss path for a framework-level public API.
+
+The harness `FileLock` (used by the delivery queue) opens lock files with `O_NOFOLLOW` (guarded by `hasattr` on Windows), so a planted symlink is **rejected instead of followed**:
+
+| Behavior | Result |
+|----------|--------|
+| Symlink planted in lock dir → `acquire()` | Returns `False` (lock not granted), **victim file untouched** |
+| Lock file permissions | `0o600` — private to the sandbox owner |
+| Platform without `O_NOFOLLOW` (e.g. Windows) | Graceful degradation to plain `O_CREAT\|O_RDWR`, locking still works |
+| After symlink removed | Resource immediately re-acquirable — rejection never poisons the lock path |
+
+This is one more defense-in-depth layer: even if a prompt-injection attack succeeds at the filesystem level, arbitrary file truncation through the lock path is structurally impossible.
+
 ### Sub-Agent Security
 
 Multi-agent workflows introduce identity drift and privilege escalation risks. Myrm addresses this at every level:
