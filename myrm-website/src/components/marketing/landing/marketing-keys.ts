@@ -135,6 +135,7 @@ export const COMPARE_ROW_KEYS = [
   'harnessUpgradeContract',
   'benchmarkProfile',
   'gitPrPipeline',
+  'codeReviewDiscipline',
   'securePushCredential',
   'autoCommitIdentity',
   'webhookSelfService',
@@ -154,6 +155,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
   all: COMPARE_ROW_KEYS,
   coding: [
     'gitPrPipeline',
+    'codeReviewDiscipline',
     'securePushCredential',
     'autoCommitIdentity',
     'webhookSelfService',

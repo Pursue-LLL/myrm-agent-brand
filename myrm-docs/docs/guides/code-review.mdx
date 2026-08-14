@@ -1,0 +1,60 @@
+---
+title: Code Review Discipline
+description: Myrm's code-review skill reviews without overreach—it reports findings instead of silently editing code, rejects speculative risks, attributes every issue to the right change, and escalates out-of-scope blockers to you.
+---
+
+# Code Review Discipline
+
+Most AI code reviewers fail not by reviewing too little, but by **overreaching**: an agent rewrites code it was asked only to review, counts legacy bugs as new problems, invents speculative risks to look thorough, or quietly fixes a cross-module issue that deserves a human decision.
+
+Myrm's **code-review** skill makes the reviewer behave like a disciplined senior engineer:
+
+- **It reviews. It doesn't fix.** Applying fixes is a separate step, done by you or a dedicated fix pipeline.
+- **Every finding is attributed.** Each issue is labeled `Introduced-in-change`, `Pre-existing`, or `Unknown`, backed by `git diff` / `git blame` evidence—never guessed.
+- **Speculative risks are rejected.** Findings must ground in the actual diff; unrealistic edge cases and hypothetical failures are dropped, not padded.
+- **Out-of-scope blockers escalate to you.** A real risk that crosses a module boundary or ownership line is reported and marked **Needs user decision** instead of being silently expanded into the change.
+
+## The four discipline layers
+
+| Discipline | What it prevents | How it's enforced |
+|------------|------------------|-------------------|
+| **Review-only** | Agents editing code during review | Explicit "report only" contract in the skill body |
+| **Attribution** | Legacy bugs blamed on your change | `git diff`/`git blame` evidence + conservative `Unknown` fallback |
+| **Anti-speculation** | Fake bugs padding the report | Findings must reference the actual diff and surrounding code |
+| **Stop-and-escalate** | Reviewers self-authorizing cross-module fixes | Findings marked **Needs user decision**, never auto-applied |
+
+## Multi-agent pipeline closure
+
+When the review runs as a **code-review-pipeline** (analyzer → security reviewer → logic reviewer → verifier), the closure is explicit at the last mile:
+
+- The **verifier** role confirms fixes and runs regression tests, **but does not auto-fix items marked `Needs user decision`**—those are handed back to you.
+- The pipeline's success criteria require **out-of-scope blockers escalated to user decision**, so a real risk can't vanish into an agent's fix list.
+
+This matters because Myrm's pipeline is agent-automated end-to-end. In competitor products the human is always in the loop at the PR interface, so they never needed to teach a verifier agent when to stop. Myrm must—and does.
+
+## Requirements traceability
+
+Beyond finding defects, the skill maps every requirement from the task/PR description to a verification result:
+
+| Requirement | Status |
+|-------------|--------|
+| e.g. "OAuth login via Google and GitHub" | Satisfied / Partially / Not-met |
+
+If no explicit requirements existed, it states the inferred purpose and confirms whether the code achieves it—so the review answers *"did this change deliver what it promised?"*, not just *"is the code clean?"*.
+
+## How to use it
+
+**Zero configuration.** The skill is available as a prebuilt skill under **Settings → Skills**.
+
+- **Review a change directly:** enable the `code-review` skill and ask the agent to review a PR, a file, or a module.
+- **Run a full review pipeline:** use the `code-review-pipeline` skill (Kanban → Pipelines → Code Review) to fan out security + logic passes and end with fix verification and regression tests.
+
+## Verification & contract tests
+
+The skill's behavioral contract is guarded by contract tests that assert every discipline clause is present and the frontmatter stays valid, plus integration tests covering the full pipeline (instantiation → task graph → verifier task description) without mocks. Review pipeline parsing and the `Needs user decision` closure are covered end-to-end.
+
+## Related
+
+- [Evidence Discipline](/docs/guides/evidence-discipline) — expression-level honesty for every answer
+- [Layered Verification Playbook](/docs/guides/layered-verification-playbook) — architecture-level verification on top of review discipline
+- [Skill Discovery & Registry Mirror](/docs/guides/skill-discovery) — install and manage prebuilt skills
