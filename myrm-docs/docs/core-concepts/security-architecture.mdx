@@ -239,6 +239,18 @@ The harness `FileLock` (used by the delivery queue) opens lock files with `O_NOF
 
 This is one more defense-in-depth layer: even if a prompt-injection attack succeeds at the filesystem level, arbitrary file truncation through the lock path is structurally impossible.
 
+Beyond symlink defense, the harness `FileLock` hardens the entire lock lifecycle against misuse and silent failure:
+
+| Guard | Behavior |
+|-------|----------|
+| **Mode whitelist** | Only `exclusive` / `shared` are accepted; a typo such as `exclusiv` fails fast instead of silently degrading to a shared lock and breaking mutual exclusion |
+| **Blocking fail-fast** | Synchronous `blocking=True` (which would freeze the asyncio event loop) raises `TypeError` instead of hanging |
+| **Lock-key sanitization** | Resource IDs are filtered to a safe charset, capped at 128 characters, and SHA-256-hashed — no path injection, no hidden files |
+| **No exception swallowing** | Business exceptions raised while the lock is held propagate as-is instead of being masked into a misleading error |
+| **Crash self-heal** | Locks are OS-level (`fcntl.flock`), so the kernel releases them the instant a process exits — no heartbeat, TTL, or manual cleanup; delivery dedup keeps messages at-most-once even across restarts |
+
+Cross-process mutual exclusion is verified in CI via subprocess tests (macOS) alongside the asyncio concurrency integration suite.
+
 ### Sub-Agent Security
 
 Multi-agent workflows introduce identity drift and privilege escalation risks. Myrm addresses this at every level:
