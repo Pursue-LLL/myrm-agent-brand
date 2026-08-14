@@ -80,6 +80,7 @@ export const COMPARE_ROW_KEYS = [
   'multimodel',
   'tokenEfficiency',
   'costRouting',
+  'usageLedgerAccuracy',
   'promptMode',
   'contextPipeline',
   'extremeAntiExplosion',
@@ -143,6 +144,7 @@ export const COMPARE_ROW_KEYS = [
   'worktreeIsolation',
   'parallelE2eSignoff',
   'skillPermissionGate',
+  'perAgentIterationBudget',
 ] as const;
 
 export type CompareRowKey = (typeof COMPARE_ROW_KEYS)[number];
@@ -203,6 +205,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
   reliability: [
     'tokenEfficiency',
     'costRouting',
+    'usageLedgerAccuracy',
     'modelArenaRanking',
     'promptMode',
     'contextPipeline',
@@ -221,6 +224,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'agentSkills',
     'benchmarkProfile',
     'parallelE2eSignoff',
+    'perAgentIterationBudget',
   ],
   platform: ['gui', 'chatHistoryManagement', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'harnessUpgradeContract', 'codeGraph', 'crossPlatformHandoff', 'configSync', 'taskResilience', 'localIotBridge', 'steerToken', 'threeDGraph', 'chatOpsIM', 'serverless'],
 };
