@@ -1,0 +1,36 @@
+---
+title: Agent Plugins 记忆插件
+description: 让任何支持 Agent Plugins 标准的客户端（VS Code、Copilot、Kiro、Cursor 等）获得由 Myrm 支撑的长期记忆。
+---
+
+# Agent Plugins 记忆插件
+
+Myrm 提供一份符合 [Agent Plugins](https://agent-plugins.org) 标准的便携插件，可将长期记忆接入任何支持该标准的客户端 —— VS Code、GitHub Copilot、Kiro、Cursor、ChatGPT、Codex 等。插件仅负责传输层：它将 MCP 客户端指向 Myrm 的记忆服务，并教会接入的 agent 何时、如何使用记忆，无需逐客户端手工编辑配置文件。
+
+## 插件包含
+
+| 文件 | 作用 |
+|------|------|
+| `plugin.json` | 插件清单（名称、版本、描述）。 |
+| `mcp.json` | 指向 Myrm `/mcp` 端点的 Streamable HTTP MCP 服务配置。 |
+| `skills/myrm-memory/SKILL.md` | 给接入 agent 的操作指引：何时回忆、存储、审计与修正记忆。 |
+
+## 生成插件
+
+1. 打开 **设置 → 记忆 → 连接**（连接向导）。
+2. 选择要对外暴露记忆的 Myrm 智能体。
+3. 在 **Agent Plugins** 卡片中，选择将 token 写入插件文件，或从 `MYRM_MCP_TOKEN` 环境变量读取。
+4. 点击 **生成 Agent Plugins 插件**，将各文件复制到客户端的插件目录并启用即可。
+
+将 token 写入插件文件模式开箱即用，但会把凭据写进 `mcp.json`，请勿将此类插件提交到版本库。默认的环境变量模式保持插件无凭据、可安全提交：多数客户端替换 `${MYRM_MCP_TOKEN}`，部分客户端（VS Code、Cursor）使用 `${env:MYRM_MCP_TOKEN}`。若客户端不支持插值，可在向导中开启 token 写入模式——token 随时可撤销。
+
+## 管理访问
+
+- 生成的 token 与所选 Myrm 智能体绑定，通过插件只能访问该智能体的记忆。
+- 在向导中**重新生成**插件即可签发新 token —— 旧 token 立即失效，使用旧插件的客户端需重新配置。
+- 在向导中**撤销**连接可立即吊销 token。
+- 依赖前可先通过向导的**健康检查**验证连接。
+
+## 自托管
+
+插件仅负责传输层，因此同样适用于自托管实例 —— 本地 Web UI、桌面端或云沙箱。将 `mcp.json` 中的 `url` 指向你实例的 `/mcp` 端点，并到对应实例的连接向导生成 token 即可。

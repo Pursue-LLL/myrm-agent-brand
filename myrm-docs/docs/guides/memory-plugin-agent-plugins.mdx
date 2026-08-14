@@ -1,0 +1,36 @@
+---
+title: Agent Plugins Memory Bundle
+description: Give any Agent Plugins client (VS Code, Copilot, Kiro, Cursor, and more) persistent long-term memory backed by Myrm.
+---
+
+# Agent Plugins Memory Bundle
+
+Myrm ships a portable [Agent Plugins](https://agent-plugins.org) bundle that attaches its long-term memory to any client supporting the standard — VS Code, GitHub Copilot, Kiro, Cursor, ChatGPT, Codex, and others. The bundle is transport-only: it points an MCP client at Myrm's memory server and teaches the consuming agent when and how to use it, with no per-client config files to edit.
+
+## What you get
+
+| File | Purpose |
+|------|---------|
+| `plugin.json` | Bundle manifest (name, version, description). |
+| `mcp.json` | Streamable HTTP MCP server config pointing at Myrm's `/mcp` endpoint. |
+| `skills/myrm-memory/SKILL.md` | Operating guidance for the consuming agent: when to recall, store, audit, and correct memories. |
+
+## Generate a bundle
+
+1. Open **Settings → Memory → Connect** (the Connect wizard).
+2. Pick the Myrm agent whose memory you want to expose.
+3. In the **Agent Plugins** card, choose whether to embed the token in the bundle or read it from the `MYRM_MCP_TOKEN` environment variable.
+4. Click **Generate Agent Plugins bundle**, then copy each file into your client's plugin directory and enable the plugin.
+
+Embedding the token works out of the box but writes the credential into `mcp.json`, so keep such bundles out of version control. The default environment-variable mode keeps the bundle credential-free and safe to commit: most clients substitute `${MYRM_MCP_TOKEN}`, while some (VS Code, Cursor) use `${env:MYRM_MCP_TOKEN}`. For clients that cannot interpolate, turn on token embedding in the wizard — the token stays revocable at any time.
+
+## Managing access
+
+- The generated token is bound to the Myrm agent you selected. Only that agent's memory is reachable through the bundle.
+- **Regenerate** the bundle in the wizard to mint a fresh token — the previous token is revoked immediately, so re-configure any client that still uses the old bundle.
+- **Revoke** the connection in the wizard to invalidate the token immediately.
+- **Test** the connection with the wizard's health check before relying on it.
+
+## Self-hosting
+
+The bundle is transport-only, so it also works against your own Myrm instance — local Web UI, desktop app, or cloud sandbox. Just point the `url` in `mcp.json` at your instance's `/mcp` endpoint and generate a token from its Connect wizard.

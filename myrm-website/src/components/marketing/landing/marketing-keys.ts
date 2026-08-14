@@ -175,6 +175,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'workspaceRulesCompat',
     'searchIntelligence',
     'agentTemplates',
+    'agentPluginMemory',
   ],
   security: ['sandbox', 'securityLayers', 'toolSecurity', 'skillPermissionGate', 'credentialVault', 'fileEditSafety', 'privacySafeShare', 'shareLink', 'cascadeDeletion', 'toolIntegration', 'toolProfileSsot', 'unifiedToolGateway'],
   automation: [
