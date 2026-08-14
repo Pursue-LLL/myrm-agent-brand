@@ -214,8 +214,8 @@ All parameters use frozen dataclasses for thread safety. Advanced users can over
 Every memory recall is wall-clock time-guarded so a slow or hung backend can never stall the conversation. The unified `_run_with_timeout` helper wraps **all four search corpora** — long-term memory (vector), Wiki knowledge base, conversation sessions, and web search — under the same `retrieval.timeout_seconds` budget (default 10s):
 
 - **Fail open by design** — when a corpus exceeds its budget, the search returns promptly with whatever partial results are available plus a `degraded` notice, instead of blocking the Agent's main loop indefinitely or silently dropping results.
-- **Transparent degradation** — the LLM is told which corpus timed out, so it can adapt (e.g., answer from remaining corpora or search again) rather than hallucinate from missing context.
-- **Coverage everywhere** — the memory context middleware (`get_context`), the MCP `memory_recall` endpoint, and the `memory_search_tool` all share the same fail-open guarantee.
+- **Transparent degradation** — the LLM is told which corpus timed out, so it can adapt (e.g., answer from remaining corpora or search again) rather than hallucinate from missing context. When a degraded recall yields **no results at all**, the tool says so explicitly — *"Memory search timed out. Try a more specific query or retry."* — instead of the neutral "no memories found", so the model never mistakes a retrieval failure for a genuinely empty memory.
+- **Coverage everywhere** — the memory context middleware (`get_context`), the MCP `memory_recall` endpoint, and the `memory_search_tool` all share the same fail-open guarantee with identical degradation semantics, and the MCP adapter also accepts `categories`/`tags` as a raw list, a JSON array, or a comma-separated string (with `null`/blank entries dropped) so any LLM calling shape parses reliably.
 
 Most competitors either have no retrieval timeout at all (a hung backend freezes the Agent) or apply a timeout to a single corpus only. Myrm's uniform, transparent fail-open across the entire recall path keeps answers fast and honest even when infrastructure degrades.
 

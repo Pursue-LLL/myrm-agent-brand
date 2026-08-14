@@ -214,8 +214,8 @@ Myrm 检索器为每条情节/语义记忆注入人类可读的时间标签（�
 所有记忆召回均受墙钟超时保护，后端变慢或挂起时对话永不被卡住。统一 `_run_with_timeout` 助手为**全部四类检索语料**——长期记忆（向量）、Wiki 知识库、会话历史、Web 搜索——共用同一个 `retrieval.timeout_seconds` 预算（默认 10s）：
 
 - **按设计失败放开（Fail open）** — 某语料超过预算时，检索会及时返回已获得的局部结果并附带 `degraded` 降级提示，而不是无限阻塞 Agent 主循环或静默丢弃结果。
-- **降级透明化** — 明确告知 LLM 哪个语料超时，使其可基于剩余语料作答或重新检索，避免因上下文缺失而产生幻觉。
-- **覆盖所有入口** — 记忆上下文中间件（`get_context`）、MCP `memory_recall` 端点、`memory_search_tool` 均共享同一 fail-open 保证。
+- **降级透明化** — 明确告知 LLM 哪个语料超时，使其可基于剩余语料作答或重新检索，避免因上下文缺失而产生幻觉。当降级召回**完全无结果**时，工具会显式返回 *「Memory search timed out. Try a more specific query or retry.」* 而非中性的「未找到相关记忆」，让模型绝不会把「检索失败」误判为「记忆本就为空」。
+- **覆盖所有入口** — 记忆上下文中间件（`get_context`）、MCP `memory_recall` 端点、`memory_search_tool` 均共享同一 fail-open 保证且降级语义完全一致；MCP 适配器同时支持 `categories`/`tags` 以原始列表、JSON 数组、逗号分隔字符串三种形态传入（自动过滤 `null`/空白项），任何 LLM 调用形态都能被可靠解析。
 
 多数竞品要么完全没有检索超时（后端挂起会冻结 Agent），要么仅对单一语料做超时。Myrm 在整条召回链路上的统一、透明 fail-open，让基础设施降级时回答依然快速且真实。
 
