@@ -304,6 +304,23 @@ Compression thresholds adapt automatically based on context utilization:
 | 70% | Full compression (priority-aware removal) |
 | 90% | Emergency compression (safety net) |
 
+## Zero-Threshold Emergency Compaction
+
+When the context window is truly exhausted (e.g., a model returns `CONTEXT_OVERFLOW` and recovery retries are exhausted), Myrm forces compaction with **zeroed thresholds** — not a best-effort pass:
+
+- **`emergency_compact`** builds a `ContextConfig(max_context_tokens=1, compress_min_save=0, keep_recent_calls=2)` with `dynamic_min_save=0`, forcing every compactable tool call to be compressed immediately.
+- This guarantees the conversation never stalls on an overflow error — the exact semantics competing frameworks (e.g., browser-use's `compact_every_n_steps`) only achieved after bug-fix issue #5401, and Myrm has it built-in from the start.
+- Because the same priority-aware pipeline runs underneath, even forced compaction preserves protected head context, active tool results, and recent calls.
+
+### vs. Fixed-Step Competitor Triggers
+
+| Aspect | Myrm | browser-use (fixed-step) |
+|--------|------|--------------------------|
+| Trigger | Real token usage + progress-aware dynamic thresholds | Fixed `compact_every_n_steps` |
+| Zero-threshold overflow | Always works (built-in) | Required issue #5401 to fix |
+| Token waste when context is healthy | None — skips compression when unnecessary | Compacts every N steps regardless, burning tokens & breaking cache |
+| Prompt cache protection | Hot-cache bypass + anti-thrashing + min_save floor | None |
+
 ## Auxiliary Model Guard
 
 When using a smaller LLM for summarization, Myrm dynamically detects the aux model's context window and truncates messages before sending. This prevents small models from crashing during compression — they gracefully handle any input size.

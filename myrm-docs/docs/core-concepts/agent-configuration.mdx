@@ -208,6 +208,23 @@ Memory persists across sessions, enabling agents to learn and adapt. See [Memory
 - Category-based gallery in the GUI
 - Custom personality creation
 
+## Iteration Budget (Per-Agent Max Iterations)
+
+Each agent controls its own **tool-call budget** (`max_iterations`, 5–500) independently — a deep-research agent can be given enough rounds to finish, while a lightweight assistant is capped to save tokens. No single global value applies to every agent.
+
+Configure it visually in **Agent Settings → Capabilities → Max Iterations** (WebUI, desktop, and API).
+
+| Capability | Myrm | Competitors |
+|------------|------|-------------|
+| Per-agent iteration budget | Yes — every agent (built-in search/deep-research/custom/sub-agent) configures its own (5–500), GUI-editable | Global limits only (Claude Code subagent `maxTurns` via YAML, no GUI) |
+| Budget semantics | Honored literally — internally maps `max_iterations × 2` to LangGraph's model+tools node pair, so 100 rounds = real 100 rounds (never silently halved) | — |
+| Sub-agent independence | Sub-agent budgets derive from `max_turns × 2` alone — a parent's low limit never throttles a deep sub-task | Parent limits can implicitly cap child budgets |
+| Hitting the cap | **Graceful summary** — auto-generates a wrap-up, keeps completed work, and surfaces an `ITERATION_LIMIT_REACHED` badge | Hard stop, completed work lost |
+| Boundary validation | UI clamps 5–500 live + backend rejects out-of-range values (422) | — |
+| Clearing the field | Empty input resets to the system default (DB `NULL`) — one click to restore | — |
+
+The budget is enforced at runtime by the harness recursion limit, so a runaway agent can never burn tokens past the configured ceiling.
+
 ## Sub-Agent Orchestration
 
 Complex tasks can be decomposed using 7 orchestration patterns:

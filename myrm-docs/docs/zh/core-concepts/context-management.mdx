@@ -300,6 +300,23 @@ Agent 可在会话中创建结构化笔记 — 零 API 成本持久于上下文�
 | 70% | 全压缩（优先级移除） |
 | 90% | 紧急压缩（安全网） |
 
+## 零阈值紧急压缩
+
+当上下文窗口真正耗尽（例如模型返回 `CONTEXT_OVERFLOW` 且恢复重试已用尽）时，Myrm 以**归零阈值**强制压缩——而非尽力而为：
+
+- **`emergency_compact`** 构建 `ContextConfig(max_context_tokens=1, compress_min_save=0, keep_recent_calls=2)` + `dynamic_min_save=0`，强制立即压缩所有可压缩工具调用。
+- 对话绝不会因溢出报错卡死——这正是竞品（如 browser-use 的 `compact_every_n_steps`）需要修 bug #5401 才达到的「零阈值仍压缩」语义，Myrm **一开始就内置正确实现**。
+- 因为底层仍是同一套优先级感知管线，即使强制压缩也保留受保护头部、活跃工具结果与最近调用。
+
+### vs 竞品固定步数触发
+
+| 维度 | Myrm | browser-use（固定步数） |
+|--------|------|--------------------------|
+| 触发依据 | 真实 token 占用 + 进度感知动态阈值 | 固定 `compact_every_n_steps` |
+| 零阈值溢出兜底 | 内置始终可用 | 需 #5401 修复 |
+| 上下文健康时的浪费 | 无——不需要就不压缩 | 每 N 步照压，白烧 token + 破坏缓存 |
+| Prompt cache 保护 | hot cache bypass + 防抖 + min_save 下限 | 无 |
+
 ## 辅助模型防护
 
 用小 LLM 做摘要时，Myrm 动态检测辅助模型上下文窗口并在发送前截断消息，防小模型压缩时崩溃 — 任意输入规模均可优雅处理。

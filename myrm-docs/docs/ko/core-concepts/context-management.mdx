@@ -305,6 +305,21 @@ Myrm은(는) 수동 구성 없이 에이전트가 팀의 규칙, 코딩 표준 �
 | 70% | Full compression (priority-aware removal) |
 | 90% | Emergency compression (safety net) |
 
+## Zero-Threshold Emergency Compaction
+
+When the context window is truly exhausted (e.g., a model returns `CONTEXT_OVERFLOW` and recovery retries are exhausted), Myrm forces compaction with **zeroed thresholds** — not a best-effort pass:
+
+- **`emergency_compact`** builds a `ContextConfig(max_context_tokens=1, compress_min_save=0, keep_recent_calls=2)` with `dynamic_min_save=0`, forcing every compactable tool call to be compressed immediately.
+- The conversation never stalls on an overflow error — the "still compress at zero threshold" semantics that competitors (e.g., browser-use's `compact_every_n_steps`) only achieved after bug-fix #5401, built-in from the start in Myrm.
+- The same priority-aware pipeline runs underneath, so even forced compaction preserves protected head context, active tool results, and recent calls.
+
+| Aspect | Myrm | browser-use (fixed-step) |
+|--------|------|--------------------------|
+| Trigger | Real token usage + progress-aware dynamic thresholds | Fixed `compact_every_n_steps` |
+| Zero-threshold overflow | Always works (built-in) | Required issue #5401 to fix |
+| Waste when context is healthy | None — skips compression when unnecessary | Compacts every N steps regardless, burning tokens & breaking cache |
+| Prompt cache protection | Hot-cache bypass + anti-thrashing + min_save floor | None |
+
 ## 보조모델 가드
 
 요약을 위해 더 작은 LLM을 사용하는 경우 Myrm은 보조 모델의 컨텍스트 창을 동적으로 감지하고 보내기 전에 메시지를 자릅니다. 이렇게 하면 압축 중에 작은 모델이 충돌하는 것을 방지할 수 있습니다. 즉, 모든 입력 크기를 원활하게 처리합니다.
