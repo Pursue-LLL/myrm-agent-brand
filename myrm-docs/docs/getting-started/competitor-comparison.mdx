@@ -289,7 +289,7 @@ For per-turn capability control, Myrm supports **one-turn Skill/MCP override chi
 
 | Capability | Myrm | Hermes Agent (v0.15) | OpenClaw | 360 Security OpenClaw | OpenClacky | MiniMax Mavis | MemPalace |
 |------------|:----:|:------------:|:--------:|:---------:|:---------:|:-----:|:---------:|
-| **Memory System** | ✅ 8 types + knowledge graph + 27 integrations (9 categories) + 14 import adapters + cross-task SharedContext + archive auto-restore + 15 diagnostics + 9-layer auto-extraction (ZeroCost + feedback signals + Deep PII) + conflict auto-detect & GUI arbitration (4 resolutions + 72h safe fallback) + 3-engine behavior inference (CognitiveDeriver + PreferenceStability + FrustrationDetector→skill evolution) + BM25/Vector/RRF tri-channel retrieval (7-Signal + MMR) + Protocol-first SDK (3,100+ tests) | ⚠️ 2,200 chars | ⚠️ 3 types | ⚠️ 3 types | ❌ Session-only | ⚠️ Basic update | ⚠️ Flat drawers |
+| **Memory System** | ✅ 8 types + knowledge graph + 27 integrations (9 categories) + 14 import adapters + cross-task SharedContext + archive auto-restore + 15 diagnostics + 9-layer auto-extraction (ZeroCost + feedback signals + Deep PII) + conflict auto-detect & GUI arbitration (4 resolutions + 24h graded auto-resolve: low-risk auto KEEP_OLD / high-risk ≥0.9 manual-only + duplicate dedup) + 3-engine behavior inference (CognitiveDeriver + PreferenceStability + FrustrationDetector→skill evolution) + BM25/Vector/RRF tri-channel retrieval (7-Signal + MMR) + Protocol-first SDK (3,100+ tests) | ⚠️ 2,200 chars | ⚠️ 3 types | ⚠️ 3 types | ❌ Session-only | ⚠️ Basic update | ⚠️ Flat drawers |
 | **Conversation Search** | ✅ FTS5 + Qdrant hybrid | ⚠️ v0.15 local text only | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Code Search** | ✅ ripgrep grep/glob + `@codebase` overview + path-grouped densification (18-39% token savings) | ❌ grep only | ⚠️ tree-sitter exact match | ❌ | ❌ grep only | ❌ | ❌ |
 | **GUI Interface** | ✅ Web-native | ❌ CLI (v0.15 TUI multi-session) | CLI | ✅ Web/App | ⚠️ Basic WebUI | ⚠️ Lark-embedded | ❌ CLI only |
@@ -2107,7 +2107,7 @@ While this semi-manual mode prevents LLM context pollution, it should **never** 
 - **物理级无痕模式 (Incognito Mode)**：独家支持阅后即焚，底层记忆引擎彻底卸载，确保敏感项目数据绝对零泄漏。
 - **全景可视化与零配置**：提供豪华的记忆指挥中心 GUI，打破黑盒；且内置 SQLite+Qdrant，无需配置 Docker 或 API Key，断网 100% 可用。
 
-- **记忆冲突自动裁决 (Conflict Arbitration)**：当 AI 学到的新知识与已有记忆矛盾时，自动检测并路由至用户裁决（保留旧值 / 采用新值 / 自由编辑合并 / 双弃），72h 未处理安全降级保留旧值。竞品 Cognee/Mem0 静默覆盖导致用户无感知、Hermes 只能手动编辑文件——**56 项验证测试确认**
+- **记忆冲突自动裁决 (Conflict Arbitration)**：当 AI 学到的新知识与已有记忆矛盾时，自动检测并路由至用户裁决（保留旧值 / 采用新值 / 自由编辑合并 / 双弃），低风险冲突 24h 自动保留旧值（KEEP_OLD，json_set 合并保留字段）；高风险（重要度 ≥0.9）强制人工裁决；重复冲突去重。竞品 Cognee/Mem0 静默覆盖导致用户无感知、Hermes 只能手动编辑文件——**56 项验证测试确认**
 
 - **7 维热门记忆浮顶 (Hot Memory Floating)**：通过 `frequency_factor` 对数衰减追踪每条记忆的访问频率，结合 semantic/recency/importance/preference/rating/confidence 共 7 维加权几何均值评分，常用的偏好和规则自动在检索中排名更高。零配置、零延迟。竞品 OpenSquilla 的 Memory Dream 仅是单一 24h 定时任务且无频率评分——**6 项验证测试确认**
 

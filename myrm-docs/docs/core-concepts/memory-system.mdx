@@ -332,7 +332,8 @@ When consolidation detects a high-importance contradiction (conflicting old/new 
 - **Real-time notification** — SSE push + sidebar badge pulse alert
 - **Visual comparison** — ConflictCard displays old/new content side-by-side with importance percentage and accuracy score
 - **Four actions** — Keep old / Accept new / Free-edit merge (LLM pre-generates suggestion) / Discard both
-- **72h safe fallback** — Unresolved conflicts auto-retain the old value, preventing information loss
+- **24h graded auto-resolution** — Low-risk conflicts are auto-resolved after 24h by the Guardian keeping the old value (KEEP_OLD, metadata merged via `json_set` preserving existing fields); high-risk conflicts (importance ≥ 0.9) never auto-resolve — they always require your explicit decision
+- **Duplicate deduplication** — Repeated conflicts over the same pair are deduplicated, so you are never spammed by the same old/new pair
 
 ### Implicit Feedback Detection
 
