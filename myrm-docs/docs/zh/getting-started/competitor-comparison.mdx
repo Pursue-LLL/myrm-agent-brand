@@ -15,6 +15,13 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-08-15 · 记忆链路 PRIVATE 隔离后端端到端验证 · Chrome E2E 8/8 全通过）
+
+- **记忆链路在真实隔离后端 + 真实 LLM 下端到端闭环验证**：每个 PRIVATE 记忆测试启动**独立后端实例**（独立 SQLite + 独立模型配置），LIVE 测试跑真实模型完整流程，SHARED 测试复用共享后端。本轮覆盖：语音记忆 ACL 双开关（Settings→Memory 打开「历史会话搜索」→ 端到端持久化到 `/config/personalSettings`，开/关两向验证）、Memory A/B 模型披露（真实 WBBench 采样评测 + 本地 OpenAI 兼容 embedding server，run-history 披露真实 agent 模型 + judge 占位）、Memory A/B 报告矩阵 + 历史渲染、memory lifecycle/citations/command center/vector persistence——**8/8 Chrome E2E 全部通过**。
+- **隔离验证的诚实价值（vs OpenManus/OpenClaw/Hermes/Claude Code 系）**：PRIVATE 测试每次冷启动独立后端，任何 server→harness 装配断裂都会立即暴露。本轮正是靠它发现并修复了 harness `session/` 子包化重构（`session_activity`/`session_context_pins`/`session_continuity` 迁至 `runtime/context/session/`）遗留的 **server 10 处 import 断裂**——`ModuleNotFoundError` 使每个私有后端启动即崩溃。修复后 **22 项 server 单测 + 8 项 memory Chrome E2E 全绿**。依赖无头浏览器或全 mock 测试的竞品无法发现这类真实装配故障。
+- **验证数据**：`test_voice_memory_acl_chrome_e2e` **2/2 passed**（PRIVATE，真实后端 + 浏览器开关持久化到 API）· `test_memory_ab_model_disclosure_chrome_e2e` **1 passed**（520s 真实 LLM 评测）· `test_memory_ab_report_and_history_render` **1 passed** · memory lifecycle/citations/command-center/vector-persistence 全部通过（2026-08-15 实跑）。
+- **Material SSOT：** `temp-docs/materials/MEMORY_ADVANTAGE.md`（2026-08-15 首段「记忆链路 PRIVATE 隔离后端端到端全量验证」）· `ENTERPRISE_RELIABILITY_AND_TESTING_ADVANTAGE.md` · `myrm-agent-server/tests/e2e/test_voice_memory_acl_chrome_e2e.py`
+
 ## 最新验证快照（2026-08-14 · 回合结束保证释放 · 控制权永不残留）
 
 - **所有终止路径确定性归还控制权（vs KimiCU / Codex / DeepSeek）**：桌面/浏览器 Agent 回合结束时——无论正常 `MESSAGE_END`、用户停止、`ERROR`、`AGENT_CANCELLED`、上下文溢出还是预算耗尽——Inspector 的「控制中」状态都经共享 `releaseTurnInspectorControls(chatId)` **立即确定性释放**。竞品依赖 LLM 主动调 `turn_ended` 工具（KimiCU 实证缺陷：Agent 已停但「屏幕一直显示正在使用电脑」），弱模型忘记调用即失效。Myrm **零依赖模型自觉**——后端终止事件到达前端即触发清理。
