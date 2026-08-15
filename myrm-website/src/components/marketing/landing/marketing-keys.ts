@@ -145,6 +145,8 @@ export const COMPARE_ROW_KEYS = [
   'parallelE2eSignoff',
   'skillPermissionGate',
   'perAgentIterationBudget',
+  'agentPluginMemory',
+  'smartCommandInput',
 ] as const;
 
 export type CompareRowKey = (typeof COMPARE_ROW_KEYS)[number];
@@ -227,7 +229,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'parallelE2eSignoff',
     'perAgentIterationBudget',
   ],
-  platform: ['gui', 'chatHistoryManagement', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'harnessUpgradeContract', 'codeGraph', 'crossPlatformHandoff', 'configSync', 'taskResilience', 'localIotBridge', 'steerToken', 'threeDGraph', 'chatOpsIM', 'serverless'],
+  platform: ['gui', 'chatHistoryManagement', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'harnessUpgradeContract', 'codeGraph', 'crossPlatformHandoff', 'configSync', 'taskResilience', 'localIotBridge', 'steerToken', 'threeDGraph', 'chatOpsIM', 'serverless', 'smartCommandInput'],
 };
 
 export function highlightSlideBasePath(slideKey: HighlightSlideKey): string {
