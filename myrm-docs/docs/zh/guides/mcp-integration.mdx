@@ -156,6 +156,8 @@ Myrm 自动优化 MCP 工具 Schema 以兼容 LLM：
 | **Anthropic Schema 自适应** | 自动剥离 Claude 不支持的 JSON Schema 关键字（`minimum`、`maximum`、`pattern`、`format`、`default`、`title` 等），约束语义折叠到 `description` 保留 LLM 理解能力，无需手动配置 |
 | **描述长度安全阀** | 超长第三方描述自动截断至 2048 字符，防止 Token 浪费 |
 | **Schema 缓存稳定** | Key 递归排序 + set 类字段排序，消除 MCP 服务器重启导致的序列化随机性，确保 Prompt Cache 命中 |
+| **模糊 Schema 保真** | 第三方 MCP schema 往往不规范：悬空 `$ref`（未解析的外部引用）降级为宽松 object，缺失 `type` 自动补齐，`anyOf`/`oneOf`/`allOf` 复合折叠为单一 properties 集（互斥组折叠进 description），const-union 折叠为 enum，非规范键名（如 Cloudflare `issue_class~neq`）确定性重命名并在调用时还原为 wire 名——**字段端到端永不丢失** |
+| **保留名参数安全** | 部分流行 MCP server 的参数恰好叫 `config`/`run_manager`（Stripe/Unreal/GitHub）。LangChain `StructuredTool` 会把这类值静默吸收进内部参数槽，导致参数从调用载荷消失、server 报 `Field required`。Myrm 内置 `SafeStructuredTool` 子类，在同步 `invoke` 与异步 `ainvoke` 双路径纯透传每个参数——官方 `langchain-mcp-adapters` 与 deer-flow 至今仍踩此坑 |
 | **数值精度保真** | 数值参数 Decimal 精确解析——2^53+ 大整数（雪花/64 位 ID）经任意精度 `int` 不丢精度；浮点形式整数（`"25.0"`/`"1e10"`）精确强转；`inf`/`nan`/超长指数保持字符串（防内存 DoS） |
 | **Coercion 可观测** | 运行时计数器追踪每种修复类型的触发频次，支持 DEBUG 日志排查 |
 | **内容边界防御** | 所有 MCP 返回值经 5 层 `wrap_untrusted` 防御链处理，防止 Prompt Injection |

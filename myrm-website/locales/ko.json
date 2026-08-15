@@ -608,7 +608,7 @@
           "feature": "MCP 도구 매개변수 자동 수정 · 연결 및 사용, 제로 구성",
           "hermes": "_아니요",
           "openclaw": "Number 강제 변환은 배정밀도 한계(≥2^53 큰 정수 정밀도 손실)",
-          "myrmAgent": "프레임워크 수준 strict-host 호환: required nullable 자동 null 보완 + union 객체/배열 안전 파싱 + Prompt Cache 안정적인 스키마 정규화 · 숫자 무손실: 큰 정수/금액/ID 마지막 자리까지 정확, 2^53 이상도 정밀 유지 · **MCP·OpenAPI 통합 강제 변환**: REST API 매개변수 스키마 자동 파싱($ref 인라인 포함), LLM이 잘못된 타입을 전달해도 자동 수정 — 연결 즉시 사용 가능, 타입 오류로 400 반환 없음"
+          "myrmAgent": "프레임워크 수준 strict-host 호환: required nullable 자동 null 보완 + union 객체/배열 안전 파싱 + Prompt Cache 안정적인 스키마 정규화 · 숫자 무손실: 큰 정수/금액/ID 마지막 자리까지 정확, 2^53 이상도 정밀 유지 · **MCP·OpenAPI 통합 강제 변환**: REST API 매개변수 스키마 자동 파싱($ref 인라인 포함), LLM이 잘못된 타입을 전달해도 자동 수정 — 연결 즉시 사용 가능, 타입 오류로 400 반환 없음 · **퍼지 스키마 보전·필드 무손실**: 연결 끊긴 $ref / type 누락 / anyOf-oneOf-allOf 복합 / 비표준 키(예: `issue_class~neq`) / 깊은 중첩 스키마 모두 정규화, 필드 종단간 절대 유실 없음 · **예약어 매개변수 안전**: 매개변수 이름이 정확히 `config`/`run_manager`인 도구(Stripe/Unreal/GitHub MCP 등 공통)가 프레임워크에 의해 조용히 삼켜지지 않음 — 공식 langchain-mcp-adapters와 deer-flow는 아직 이 함정을 그대로 갖고 있음"
         },
         "errorRecovery": {
           "feature": "자가 치유 · 4계층 자동 복구 · 7개의 루프 감지기 · 완료 가드",

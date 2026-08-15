@@ -608,7 +608,7 @@
           "feature": "MCP 工具参数智能修复 · 连接即用零配置",
           "hermes": "_no",
           "openclaw": "Number 强转受双精度限制（≥2^53 大整数丢精度）",
-          "myrmAgent": "框架层 strict-host 兼容：required+nullable 缺失自动补 null + union 对象/数组安全解析 + schema 规范化保障 Prompt Cache 稳定 · 数值参数零丢失：大整数/金额/ID 精确到每一位，2^53 以上也不丢精度 · **MCP 与 OpenAPI 双入口统一强转**：任意 REST API 的参数定义自动解析（含 $ref 指针内联），LLM 传错类型也自动修正——接上就能用，不因参数类型错误返回 400"
+          "myrmAgent": "框架层 strict-host 兼容：required+nullable 缺失自动补 null + union 对象/数组安全解析 + schema 规范化保障 Prompt Cache 稳定 · 数值参数零丢失：大整数/金额/ID 精确到每一位，2^53 以上也不丢精度 · **MCP 与 OpenAPI 双入口统一强转**：任意 REST API 的参数定义自动解析（含 $ref 指针内联），LLM 传错类型也自动修正——接上就能用，不因参数类型错误返回 400 · **模糊 schema 保真·字段零丢失**：悬空 $ref / 缺 type / anyOf-oneOf-allOf 复合 / 非规范键名（如 `issue_class~neq`）/ 深嵌套 schema 全部归一化，字段端到端永不丢 · **保留名参数安全**：参数恰好叫 `config`/`run_manager` 的工具（Stripe/Unreal/GitHub 等 MCP 常见）不再被框架静默吞掉——官方 langchain-mcp-adapters 与 deer-flow 至今仍踩此坑"
         },
         "errorRecovery": {
           "feature": "4层自愈体系 · 7种循环检测 · 完成验证守卫 · 10种流恢复策略",
