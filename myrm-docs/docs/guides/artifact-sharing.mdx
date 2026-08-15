@@ -1,6 +1,6 @@
 ---
 title: Artifact Sharing & External Delivery
-description: Turn any Agent output into a read-only share link — zero signup for recipients, optional password gate, TTL expiry, and immutable version snapshots.
+description: Turn any Agent output into a read-only share link — zero signup for recipients, optional password gate, TTL expiry, immutable version snapshots, and one-click revocation.
 ---
 
 # Artifact Sharing & External Delivery
@@ -34,6 +34,18 @@ Myrm automatically collects everything a page needs into a single share bundle:
 - **Lockfiles and build artifacts** (`package-lock.json`, `node_modules`) are excluded from bundles
 - **Documents and PDFs** are served with correct media types even when the vault object has no filename extension — a Chinese-named document renders as Markdown, a PDF opens as a PDF
 
+## Share Lifecycle — Revoke, Status & Audit
+
+Share links are fully manageable and **revocable at any time** — for both artifacts and conversations:
+
+- **One-click revoke** — revoking a link makes it return `404 Link Revoked` immediately, with no grace period and no cache bypass
+- **Revoked password-protected links** — lifecycle checks run *before* the password gate, so a revoked protected link shows the dead-link page to fresh visitors, never a password prompt
+- **Revoked tokens never resurrect** — the current `share_token_fingerprint` and a persisted `share_revoked_fingerprints` set ensure a revoked link stays 404 forever, even if you share the same conversation again later
+- **Search-engine blocking** — every public share response carries `X-Robots-Tag: noindex, nofollow` + `Cache-Control: no-store` + `Referrer-Policy: no-referrer`, so a revoked link cannot be reached through cached or indexed copies
+- **Live status in the UI** — the share dialog shows the current state (`unshared` / `revoked` / `active` / `password_protected`), the link URL, and remaining expiry every time you open it; after revoking, the dialog stays open showing "revoked"
+- **Revocation audit log** — every revoke is recorded for traceability
+- **Conversation deletion cascades** — deleting the source conversation immediately invalidates its share (`404 Content Unavailable`)
+
 ## Security Design
 
 | Dimension | Implementation |
@@ -46,6 +58,8 @@ Myrm automatically collects everything a page needs into a single share bundle:
 | Content safety | HTML responses carry CSP + `X-Content-Type-Options`; non-HTML files get precise media types |
 | Expiry recovery | Expired links fail closed; expired unlock credentials automatically fall back to the password gate |
 | Malformed payloads | Signed but type-malformed tokens are rejected defensively instead of crashing |
+| Revoke-proof tokens | `share_revoked_fingerprints` persisted set — revoked links stay 404 even after re-sharing |
+| Anti-indexing | `noindex, nofollow` + `Cache-Control: no-store` on all public share responses |
 
 ## Deployment Modes
 
@@ -58,5 +72,6 @@ Artifact sharing works identically across all three deployment modes — the sha
 ## Honest Boundaries
 
 - **Read-only sharing** is a deliberate choice: external recipients view only, and collaborative editing is out of scope for the single-user sandbox architecture
-- **No revoke API yet** — links expire by TTL; active revocation is on the roadmap
+- **Revocation is final, not live-collaborative** — `noindex`/`no-store` stop indexing at the source, but copies already downloaded by recipients cannot be recalled
 - **Password gate is single-factor** — it prevents accidental leakage, not enterprise-grade access control
+- **Password-protected links require a new password after re-sharing** — passwords are never stored (HMAC-derived), so after revoking, a fresh share needs a new password; this is deliberate so old passwords cannot rebuild old links

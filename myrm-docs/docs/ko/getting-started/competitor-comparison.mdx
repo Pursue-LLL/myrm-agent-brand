@@ -1373,7 +1373,7 @@ Coze는 생태계 내에서 프로젝트를 유지합니다. Lobster는 공개 �
 |-----------|----------|---------|-----------|------|
 | Entry point | Stay in Coze | Export/share flow | Dev-oriented generator | **Deploy or Link from artifact preview** |
 | Formal deploy | Platform-hosted | Not core | Vercel-native | **One-click Vercel** + preflight gate |
-| Read-only link | Platform-dependent | Public link (often gated) | N/A for chat artifacts | **서명된 공유 링크** (1~30일 TTL) · 선택적 비밀번호 게이트 · 불변 버전 스냅샷 · 다중 파일 번들 — Vercel 불필요 |
+| Read-only link | Platform-dependent | Public link (often gated) | N/A for chat artifacts | **서명된 공유 링크** (1~30일 TTL) · 선택적 비밀번호 게이트 · 불변 버전 스냅샷 · 다중 파일 번들 · **언제든 취소 → 즉시 404, 취소 후 토큰 영구 폐기** — Vercel 불필요 |
 | Multi-file HTML | Varies | Strong directory share | Often single-page | **Same bundle as deploy**; trailing-slash for css/js |
 | Lock-in | Closed hosting | Subscription walls on some tiers | Vercel account | **Open** — Local BYOK or sandbox platform token |
 
@@ -1385,7 +1385,7 @@ Coze는 생태계 내에서 프로젝트를 유지합니다. Lobster는 공개 �
 
 **배포 그 이상 - 전체 아티팩트 편집 수명 주기**: Myrm의 Artifact Portal은 단순한 뷰어가 아닙니다. 코드 아티팩트는 직접 편집할 수 있는 **Monaco Editor**(VS Code 코어)에서 열립니다. **SelectionToolbar**를 사용하면 코드를 강조 표시하고 수정/설명/최적화/설명 작업을 호출할 수 있습니다. 즉, 미리보기를 종료하지 않고도 외과적 AI 편집이 가능합니다. 편집 내용은 자동으로 추적되어 다음 메시지에 자동으로 삽입되므로 에이전트는 해당 버전을 계속 사용할 수 있습니다. React 아티팩트는 핫 리로드 기능이 있는 **Sandpack**을 통해 라이브로 렌더링됩니다. **버전 차이 보기(독점)** — 인라인/병렬 토글, 모바일 반응형 자동 인라인, 버전 레이블(V2→V3) 및 생성 중 실시간 차이를 통해 VS Code급 Monaco DiffEditor를 통해 AI가 변경한 내용을 정확하게 보려면 Diff 버튼을 클릭하세요. SHA-256 무결성 검사 및 스냅샷 롤백이 수명주기를 마무리합니다. WorkBuddy와 같은 경쟁 도구는 자체 구축된 편집 시스템보다는 외부 문서 통합(예: Tencent Docs)에 의존합니다.
 
-**정직한 제한**: 아직 공유 취소/공유 코드 UI가 없습니다. 장기 공개 사이트는 Deploy + 도메인을 사용해야 합니다. 순수 `code` 아티팩트는 먼저 `html`로 내보내야 합니다(프리플라이트 + UI 게이트 정렬).
+**정직한 제한**: 장기 공개 사이트는 Deploy + 도메인을 사용해야 합니다. 순수 `code` 아티팩트는 먼저 `html`로 내보내야 합니다(프리플라이트 + UI 게이트 정렬). 공유 **취소 기능은 완전히 구현되었습니다**(원클릭 취소 → 즉시 `404 Link Revoked`, 취소 후 토큰 지문 영구 폐기, 취소된 비밀번호 링크는 절대 비밀번호 게이트를 표시하지 않으며, 취소 감사 로그 기록) — chat과 artifact 양쪽 모두 지원됩니다.
 
 ## 대 Codex — MCP 생태계, 에이전트 템플릿 및 다중 채널 자동화
 

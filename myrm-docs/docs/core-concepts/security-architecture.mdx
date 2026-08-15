@@ -652,8 +652,24 @@ Artifact and conversation share links support **optional password protection** w
 
 Password protection is fully optional. Links created without a password work exactly as before, with no UX changes or performance overhead.
 
+#### Revoke anywhere, instantly — and it stays revoked
+
+Share links are **revocable at any time**, for both artifacts and conversations:
+
+| Capability | Behavior |
+|-----------|----------|
+| **One-click revoke** | Revoking a link makes it return `404 Link Revoked` **immediately** — no grace period, no cache bypass |
+| **Revoked password-protected links** | Lifecycle checks run *before* the password gate — a revoked protected link shows the dead-link page to fresh visitors, never a password prompt |
+| **Revocation cannot be bypassed by caching** | All public share responses carry `X-Robots-Tag: noindex, nofollow` + `Cache-Control: no-store` + `Referrer-Policy: no-referrer` (shared `share_headers` helper for chat & artifact) |
+| **Revoked tokens never resurrect** | The current `share_token_fingerprint` and the `share_revoked_fingerprints` set are persisted; the public entry first checks the revoked set — re-sharing later always issues a brand-new token, the old one stays 404 forever |
+| **Status always honest** | `GET /chats/{id}/share` reports four states — `unshared` / `revoked` / `active` / `password_protected`; expired links (password-protected or not) correctly report `unshared` |
+| **Revocation audit log** | Every revoke operation is recorded, giving you a trace of when access was withdrawn |
+| **Conversation deletion cascades** | Deleting the source conversation immediately invalidates its share (`404 Content Unavailable`) |
+
+The web UI share dialog shows the live status (link URL, remaining expiry, revoke button) every time you open it — matching the ChatGPT/Notion share-dialog baseline — and stays open showing a "revoked" state after you revoke, so the control is never unreachable.
+
 <Note>
-No competitors (Hermes, OpenClaw, LobsterAI, CoPaw, deer-flow, jiuwenclaw) offer artifact or conversation sharing, let alone password protection. Myrm is the only AI assistant with both capabilities.
+No competitors (Hermes, OpenClaw, LobsterAI, CoPaw, deer-flow, jiuwenclaw) offer artifact or conversation sharing, let alone password protection or revocation. Myrm is the only AI assistant with both capabilities. Even mainstream products (ChatGPT Shared Links, Claude Shared Chats) lack TTL auto-expiry, password protection, and search-engine blocking — Myrm adds all three on top of the immediate-revoke baseline they share.
 </Note>
 
 ### Agent Secret Management — Zero Plaintext Exposure

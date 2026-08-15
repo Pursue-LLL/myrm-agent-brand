@@ -627,8 +627,24 @@ Myrm 提供 8 层 PII 纵深防御，具备 57+ 种检测能力 — 市场上隐
 
 密码保护完全可选。不设置密码时行为与普通分享完全一致，无额外性能开销。
 
+#### 随时撤销、即时生效、永不复活
+
+工件与对话分享链接**支持随时主动撤销**：
+
+| 能力 | 行为 |
+|------|------|
+| **一键撤销** | 撤销后链接**立即**返回 404「Link Revoked」——无宽限期、缓存不可绕过 |
+| **已撤销密码链接** | 生命周期校验（撤销/删除）**前置干密码门**——已撤销密码链接对新访客直接显示失效页，绝不弹出密码框 |
+| **撤销后缓存不可绕过** | 所有公开分享响应统一携带 `X-Robots-Tag: noindex, nofollow` + `Cache-Control: no-store` + `Referrer-Policy: no-referrer`（chat/artifact 双端共享 `share_headers`） |
+| **撤销过的 token 永不复活** | 持久化 `share_token_fingerprint`（活跃）+ `share_revoked_fingerprints`（已撤销集合）；公开入口先查已撤销集合——撤销后重新分享永远签发全新 token，旧链接永久 404 |
+| **状态始终诚实** | `GET /chats/{id}/share` 返回四态：`unshared` / `revoked` / `active` / `password_protected`；已过期链接（无论是否密码保护）一律返回 `unshared`，不误报生效中 |
+| **撤销审计日志** | 每次撤销操作均记入审计日志，随时可追溯访问撤回轨迹 |
+| **删除会话级联失效** | 删除源会话立即令其分享失效（404「Content Unavailable」） |
+
+WebUI 分享对话框每次打开都展示实时状态（链接地址、剩余有效期、撤销按钮），与 ChatGPT/Notion 分享对话框基线一致；撤销后对话框保持打开显示「已撤回」状态，控制入口永不失联。
+
 <Note>
-所有竞品（Hermes、OpenClaw、LobsterAI、CoPaw、deer-flow、jiuwenclaw）均无工件或对话分享功能，更无密码保护。Myrm 是唯一同时具备双通道分享和密码门的 AI 助手产品。
+所有竞品（Hermes、OpenClaw、LobsterAI、CoPaw、deer-flow、jiuwenclaw）均无工件或对话分享功能，更无密码保护与撤销。Myrm 是唯一同时具备双通道分享、密码门和完整撤销生命周期的 AI 助手产品。即便是主流产品（ChatGPT Shared Links、Claude Shared Chats）也缺少 TTL 自动过期、密码保护与防搜索引擎收录——Myrm 在与其共享「撤销即时失效」基线之上，额外补齐了这三项能力。
 </Note>
 
 ### Agent 密钥管理——零明文暴露架构

@@ -1475,7 +1475,7 @@ Coze keeps projects inside its ecosystem; Lobster excels at public static links 
 |-----------|----------|---------|-----------|------|
 | Entry point | Stay in Coze | Export/share flow | Dev-oriented generator | **Deploy or Link from artifact preview** |
 | Formal deploy | Platform-hosted | Not core | Vercel-native | **One-click Vercel** + preflight gate |
-| Read-only link | Platform-dependent | Public link (often gated) | N/A for chat artifacts | **Signed share link** (1–30 day TTL) · optional password gate · immutable version snapshot · multi-file bundle — no Vercel required |
+| Read-only link | Platform-dependent | Public link (often gated) | N/A for chat artifacts | **Signed share link** (1–30 day TTL) · optional password gate · immutable version snapshot · multi-file bundle · **revoke anytime → instant 404, revoke-proof tokens** — no Vercel required |
 | Multi-file HTML | Varies | Strong directory share | Often single-page | **Same bundle as deploy**; trailing-slash for css/js |
 | Lock-in | Closed hosting | Subscription walls on some tiers | Vercel account | **Open** — Local BYOK or sandbox platform token |
 
@@ -1487,7 +1487,7 @@ Coze keeps projects inside its ecosystem; Lobster excels at public static links 
 
 **Beyond deploy — the full artifact editing lifecycle**: Myrm's Artifact Portal isn't just a viewer. Code artifacts open in a **Monaco Editor** (VS Code core) where you can edit directly. The **SelectionToolbar** lets you highlight code and invoke Modify / Explain / Optimize / Comment actions — surgical AI edits without leaving the preview. Your edits are silently tracked and auto-injected into your next message so the Agent continues from your version. React artifacts render live via **Sandpack** with hot-reload. **Version Diff View (exclusive)** — click the Diff button to see exactly what AI changed via VS Code-grade Monaco DiffEditor, with Inline/Side-by-side toggle, mobile-responsive auto-inline, version labels (V2→V3), and real-time diffing during generation. SHA-256 integrity checks and snapshot rollback round out the lifecycle. Competing tools like WorkBuddy rely on external document integrations (e.g. Tencent Docs) rather than a self-built editing system.
 
-**Honest limits**: No share revoke/share-code UI yet; long-term public sites should use Deploy + your domain; pure `code` artifacts must be exported as `html` first (preflight + UI gates align).
+**Honest limits**: Long-term public sites should use Deploy + your own domain; pure `code` artifacts must be exported as `html` first (preflight + UI gates align). Share **revocation is fully implemented** (one-click revoke → instant `404 Link Revoked`, revoke-proof token fingerprints, revoked password links never show the password gate, revocation audit log) — chat and artifact shares both covered.
 
 ## vs Codex — MCP Ecosystem, Agent Templates & Multi-Channel Automation
 
