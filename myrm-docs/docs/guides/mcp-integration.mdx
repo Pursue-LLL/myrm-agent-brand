@@ -118,6 +118,38 @@ Add MCP servers to `mcp_servers.json`:
 }
 ```
 
+## Agent Plugins 1.0.0 Standard Plugins
+
+[Agent Plugins](https://agent-plugins.org) is the open plugin standard that lets one portable bundle (`plugin.json` + `skills/` + `mcp.json` + bundled executables) work across clients. Myrm imports these bundles end-to-end — including the runtime wiring that most products skip.
+
+### Import a bundle
+
+1. Go to **Settings > Skills** and open the plugin manager
+2. Import a standard Agent Plugins bundle (`.zip` or directory)
+3. Myrm parses the manifest, persists the bundled file tree, and registers the plugin's MCP servers automatically
+
+### Runtime: PLUGIN_ROOT / PLUGIN_DATA (spec §9)
+
+Every plugin subprocess launched by Myrm receives two reserved environment variables:
+
+- `PLUGIN_ROOT` — the plugin's install directory (where bundled executables live)
+- `PLUGIN_DATA` — the plugin's persistent data directory, which **survives updates**
+
+Plugin scripts can simply read them:
+
+```python
+import os
+
+root = os.environ["PLUGIN_ROOT"]
+data = os.environ["PLUGIN_DATA"]
+```
+
+Myrm also expands `${PLUGIN_ROOT}` / `${PLUGIN_DATA}` placeholders in the plugin's `cwd`, `args`, and `env` at spawn time, and `./`-relative commands run from the plugin root automatically — bundled scripts work with zero path guesswork, and a broken plugin is skipped per spec instead of blocking every other MCP server.
+
+### Uninstall
+
+Removing a plugin deletes its bundled files **and** clears its data directory and agent bindings in one click — no leftovers on disk.
+
 ## Building Custom MCP Servers (AI-Guided)
 
 Don't want to write an MCP server from scratch? Activate the **mcp-builder** skill and ask the agent to build one for you.
