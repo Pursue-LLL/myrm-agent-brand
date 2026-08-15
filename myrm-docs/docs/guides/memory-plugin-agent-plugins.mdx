@@ -20,9 +20,9 @@ Myrm ships a portable [Agent Plugins](https://agent-plugins.org) bundle that att
 1. Open **Settings → Memory → Connect** (the Connect wizard).
 2. Pick the Myrm agent whose memory you want to expose.
 3. In the **Agent Plugins** card, choose whether to embed the token in the bundle or read it from the `MYRM_MCP_TOKEN` environment variable.
-4. Click **Generate Agent Plugins bundle**, then download (or copy) each file into your client's plugin directory and enable the plugin.
+4. Click **Generate Agent Plugins bundle**, then download the whole bundle as **Download All (.zip)**, or copy each file individually. Unzip the archive — it already contains the correct layout — and place it into your client's plugin directory, then enable the plugin.
 
-Keep the bundle structure above — `plugin.json` and `mcp.json` in the plugin root, `SKILL.md` under `skills/myrm-memory/`. Clients only load the skill file from its `skills/<name>/` subdirectory; a `SKILL.md` sitting flat in the root is silently ignored.
+Keep the bundle structure above — `plugin.json` and `mcp.json` in the plugin root, `SKILL.md` under `skills/myrm-memory/`. The zip keeps this layout automatically; if you copy files one by one, recreate it by hand. Clients only load the skill file from its `skills/<name>/` subdirectory; a `SKILL.md` sitting flat in the root is silently ignored.
 
 Embedding the token works out of the box but writes the credential into `mcp.json`, so keep such bundles out of version control. The default environment-variable mode keeps the bundle credential-free and safe to commit: most clients substitute `${MYRM_MCP_TOKEN}`, while some (VS Code, Cursor) use `${env:MYRM_MCP_TOKEN}`. For clients that cannot interpolate, turn on token embedding in the wizard — the token stays revocable at any time.
 
