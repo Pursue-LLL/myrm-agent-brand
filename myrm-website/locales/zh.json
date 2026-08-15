@@ -1024,6 +1024,12 @@
           "openclaw": "_no",
           "myrmAgent": "符合 Agent Plugins 1.0.0 标准的便携插件（plugin.json + mcp.json + 记忆 SKILL.md），将 Myrm 长期记忆接入任意 Agent Plugins 客户端 —— VS Code、Copilot、Kiro、Cursor、ChatGPT、Codex。Streamable HTTP + Bearer token，支持内联或环境变量两种 token 模式，一键撤销。**一键生成 + 「下载全部 (.zip)」**：zip 内自动保持 `skills/myrm-memory/` 标准目录结构，文件名含 Agent 标识（`myrm-memory-<agent>.zip`）多 Agent 不混淆；**Tauri 桌面端走系统保存对话框**，Web/桌面一套下载入口。"
         },
+        "agentPluginRuntime": {
+          "feature": "Agent Plugins 1.0.0 标准插件运行时 · 导入 → 持久化 → 注入 → 卸载",
+          "hermes": "仅 CLI portable runtime（注入 PLUGIN_ROOT/PLUGIN_DATA，无文件持久化与 GUI 生命周期）",
+          "openclaw": "_no",
+          "myrmAgent": "GUI 向导导入标准 Agent Plugins 1.0.0 bundle（plugin.json + skills/ + mcp.json + 自带可执行文件），自带文件持久化到隔离的 `plugins/<name>/` 目录，外加一个**跨更新保留的数据目录**（`<name>_data/`），并向每个插件子进程注入保留环境变量 `PLUGIN_ROOT` / `PLUGIN_DATA`（§9.1）—— 插件自带程序开箱定位文件，升级数据不丢。`${PLUGIN_ROOT}`/`${PLUGIN_DATA}` 占位符在 cwd/args/env 三处展开，`./` 相对命令自动以插件根为工作目录，单个坏插件按规范跳过（不拖垮其余），卸载一键删除文件并解绑 Agent。"
+        },
         "smartCommandInput": {
           "feature": "智能指令输入 · 任意位置斜杠命令，@引用永不泄漏",
           "hermes": "仅保存提示词库，无对话内斜杠菜单",
