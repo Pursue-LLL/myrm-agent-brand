@@ -15,6 +15,14 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 턴당 기능 제어를 위해 Myrm은 완전한 관찰 가능성(제출/적용/noop/큐/바쁨/최종 결과 + 실패 이유)을 갖춘 **원턴 스킬/MCP 재정의 칩**을 지원합니다. 집중 검증(2026-07-29): 프런트엔드 29/29 통과, 서버 10/10 통과; 목표 적용 범위는 핵심 프런트엔드 파일의 라인 62.47%, 서버 원격 측정 모듈의 전체 라인 72%에 도달했습니다. 이는 팀에게 추측이 아닌 비용/신뢰성 조정에 대한 마이그레이션 안전 증거를 제공합니다.
 
+## 최신 검증 스냅샷 (2026-08-14 · 턴 종료 시 제어권 보장 반환 · 잔상 없음)
+
+- **모든 종료 경로에서 제어권 결정적 반환 (vs KimiCU / Codex / DeepSeek)**：데스크톱/브라우저 에이전트 턴이 끝날 때 — 정상 `MESSAGE_END`, 사용자 중단, `ERROR`, `AGENT_CANCELLED`, 컨텍스트 오버플로, 예산 소진 — Inspector의 '제어 중' 상태가 공유 헬퍼 `releaseTurnInspectorControls(chatId)`를 통해 **즉시 결정적으로 해제**됩니다. 경쟁사는 LLM이 `turn_ended` 툴을 스스로 호출하도록 의존하며(KimiCU 실증 결함: 에이전트가 이미 멈췄는데 '화면에 계속 컴퓨터 사용 중으로 표시'), 약한 모델이 잊어버리면 해제가 실패합니다. Myrm은 **모델 자율성에 전혀 의존하지 않습니다** — 백엔드 종료 이벤트가 프런트엔드에 도달하면 정리가 트리거됩니다.
+- **다중 패널 격리 + 수동 패널 보호**：`engagedChatId`가 정리를 턴 소유 채팅으로 한정하여 병렬 채팅 패널이 서로의 Inspector를 닫지 않습니다. `isTurnView`가 에이전트 생성 뷰와 사용자 수동 스냅샷을 구분하여 사용자가 직접 연 패널은 절대 강제로 닫히지 않습니다. 멱등(미엥게이지/채팅 불일치 시 no-op).
+- **사용자가 보는 이점**：'AI는 이미 멈췄는데 화면은 계속 컴퓨터 사용 중'이라는 잔상이 사라지고, 병렬 세션 간 제어 상태가 섞이지 않습니다.
+- **검증**：프런트엔드 Vitest **76 passed**(13개 파일: turn engagement ×22, teardown/clearActivePlan ×13, view-update ×6, streamConsumer ×18, scoped 선택자 ×8, release 헬퍼 ×2, resolveStreamChatId ×5) + Chrome E2E Inspector 패널 라이프사이클 **5/5**(`test_inspector_panel_lifecycle_turn_end_releases_engaged_view`, 2026-08).
+- **Material SSOT:** `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md`(2026-08-14 헤더 '回合结束保证释放' 섹션) · `BROWSER_AUTOMATION_ADVANTAGE.md`(BLCV · Multi-Chat Isolation) · `src/lib/inspector/releaseTurnInspectorControls.ts` · `useDesktopInspectorStore.ts` · `useBrowserInspectorStore.ts`
+
 ## 최신 검증 스냅샷 (2026-08-12 · 마켓플레이스 Agent 패키지 원클릭 설치 + 클라우드 안전 업그레이드)
 
 - **마켓플레이스 Agent 패키지 설치 → 안전 force-push 업그레이드 → 롤백 → 동적 명단 (vs Claude Code/Cursor / Coze 3.0 / OpenClaw)**: `test_marketplace_import_full_chain.py` 통합 **14 passed**(실제 인메모리 SQLite + 실제 스킬 디스크 쓰기 + 인프로세스 ASGI HTTP 전체 체인, 핵심 경로 제로 목업) + 유닛 회귀 **70 passed**; `import_agent_profile.py` **100% 라인 커버리지**(2026-08-12 실측).

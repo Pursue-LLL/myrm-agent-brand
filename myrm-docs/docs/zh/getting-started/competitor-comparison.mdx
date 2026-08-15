@@ -15,6 +15,14 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-08-14 · 回合结束保证释放 · 控制权永不残留）
+
+- **所有终止路径确定性归还控制权（vs KimiCU / Codex / DeepSeek）**：桌面/浏览器 Agent 回合结束时——无论正常 `MESSAGE_END`、用户停止、`ERROR`、`AGENT_CANCELLED`、上下文溢出还是预算耗尽——Inspector 的「控制中」状态都经共享 `releaseTurnInspectorControls(chatId)` **立即确定性释放**。竞品依赖 LLM 主动调 `turn_ended` 工具（KimiCU 实证缺陷：Agent 已停但「屏幕一直显示正在使用电脑」），弱模型忘记调用即失效。Myrm **零依赖模型自觉**——后端终止事件到达前端即触发清理。
+- **多 pane 隔离 + 手动面板保护**：`engagedChatId` 把清理限定到回合所属 chat，并行聊天 pane 互不误关对方 Inspector；`isTurnView` 区分 Agent 驱动的视图与用户手动快照，用户自己打开的面板永不被强制关闭。幂等（未 engaged / chat 不匹配时 no-op）。
+- **用户可感知收益**：不再出现「AI 早停了、屏幕还一直显示正在使用电脑」的诡异残留；并行多会话时控制状态互不串扰。
+- **验证**：前端 Vitest **76 passed**（13 个文件：turn engagement ×22、teardown/clearActivePlan ×13、view-update ×6、streamConsumer ×18、scoped 选择器 ×8、release helper ×2、resolveStreamChatId ×5）+ Chrome E2E Inspector 面板生命周期 **5/5**（`test_inspector_panel_lifecycle_turn_end_releases_engaged_view`，2026-08）。
+- **Material SSOT：** `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md`（2026-08-14 首段「回合结束保证释放」章节）· `BROWSER_AUTOMATION_ADVANTAGE.md`（BLCV · Multi-Chat Isolation）· `src/lib/inspector/releaseTurnInspectorControls.ts` · `useDesktopInspectorStore.ts` · `useBrowserInspectorStore.ts`
+
 ## 最新验证快照（2026-08-14 · Hermes 热帖 #242/#243 · 崩溃续跑 + Petdex GUI）
 
 - **服务崩溃后中断回合自动续跑（vs Hermes v0.19 #242 @tonysimons_）**：Myrm 已上线 **write-ahead `InterruptedTurnMarker`**（每轮正常流开始前写入、成功完成清理）、**启动扫描** `auto_continue_interrupted_turns()`（15 分钟 freshness、crash-loop 上限 2 次）、Settings 开关 `autoContinueInterruptedTurns`、resume 时 **`token_economics` 持久化**。进程崩溃/重启场景 **≥ Hermes**。**诚实缺口**：Hermes 还会在 **重开聊天 session** 时触发；Myrm 尚未实现「重开聊天页 + live SSE」自动续跑（roadmap topic_13 **#55 P1**）——官网只宣传已上线能力。
