@@ -160,6 +160,30 @@ Myrm은 LLM 호환성을 위해 MCP 도구 스키마를 자동으로 최적화�
 | **Coercion Observability** | Runtime counters track each fix type's trigger frequency, with DEBUG logging for diagnostics |
 | **Content Boundary Defense** | All MCP return values pass through 5-layer `wrap_untrusted` defense chain to prevent Prompt Injection |
 
+## OpenAPI Bridge (모든 REST API 연결)
+
+MCP 외에도 Myrm은 **모든 OpenAPI/Swagger 사양**을 호출 가능한 Agent 도구로 변환합니다 — 코드 작성 없이. MCP 서버가 아직 없는 GitHub, Stripe 또는 내부 REST 서비스에 적합합니다.
+
+### 작동 방식
+
+1. **서비스 추가** — OpenAPI spec URL(또는 Swagger 2.0 문서) 제공
+2. **자동 도구 생성** — 모든 엔드포인트가 완전한 LLM 판독 가능 매개변수 스키마를 가진 Agent 도구가 됩니다
+3. **연결 즉시 사용** — Agent가 올바른 타입, 올바른 라우팅, 무손실 숫자 정밀도로 API를 호출합니다
+
+### 내장 보장
+
+| 기능 | 설명 |
+|------|------|
+| **매개변수 스키마 완전 가시성** | path + query + request-body 매개변수가 모두 파싱되어 LLM에 노출됩니다(path 매개변수만이 아님) — 모델은 모든 필드/타입/필수 표시를 볼 수 있습니다 |
+| **`$ref` 자동 인라인** | 로컬 참조가 자동 해결됩니다 — OpenAPI 3.x `#/components/schemas`/`#/components/parameters`/`#/components/requestBodies`, Swagger 2.0 `#/definitions`/최상위 `#/parameters` — 모델은 절대 원시 포인터를 보지 못합니다 |
+| **통합 타입 강제 변환** | MCP와 동일한 프로덕션 강제 변환 엔진이 잘못된 타입 인수를 수정합니다(문자열 숫자→int/float, 1/0↔bool, 스칼라→배열, 중첩 객체) — 엄격한 API의 400 오류가 중단됩니다 |
+| **숫자 무손실** | 큰 정수/ID/금액이 마지막 자리까지 정확합니다(MCP와 동일한 Decimal 정밀 파싱) — snowflake ID와 금융 값이 절대 변하지 않습니다 |
+| **정확한 요청 라우팅** | 객체/배열 요청 본문은 본문 자체로 전송되고(래핑 없음), query 매개변수는 컴팩트 JSON 직렬화, 부울은 소문자로 전송됩니다 — wire 페이로드가 API 계약과 일치합니다 |
+
+### 이것이 중요한 이유
+
+CLI/curl 워크플로우에서 마이그레이션: Agent가 수동 도구 정의 없이 REST API 매개변수를 이해합니다; 큰 숫자를 문자열화하는 약한 모델도 400 또는 정밀도 손실을 일으키지 않습니다; 스키마 인식 라우팅으로 모든 요청이 계약에 부합합니다.
+
 ## 연결 관리
 
 ### 영구 세션

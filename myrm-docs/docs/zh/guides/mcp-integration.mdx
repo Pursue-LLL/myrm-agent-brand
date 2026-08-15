@@ -160,6 +160,30 @@ Myrm 自动优化 MCP 工具 Schema 以兼容 LLM：
 | **Coercion 可观测** | 运行时计数器追踪每种修复类型的触发频次，支持 DEBUG 日志排查 |
 | **内容边界防御** | 所有 MCP 返回值经 5 层 `wrap_untrusted` 防御链处理，防止 Prompt Injection |
 
+## OpenAPI Bridge（连接任意 REST API）
+
+除 MCP 之外，Myrm 还能把**任意 OpenAPI / Swagger 规范**变成可调用的 Agent 工具——无需写代码。适合 GitHub、Stripe 或还没有 MCP server 的内部 REST 服务。
+
+### 工作方式
+
+1. **添加服务**——提供 OpenAPI spec 地址（或 Swagger 2.0 文档）
+2. **自动生成工具**——每个端点都变成一个 Agent 工具，带完整、LLM 可读的参数 schema
+3. **连接即用**——Agent 以正确的类型、正确的路由、无损的数值精度调用你的 API
+
+### 内置保障
+
+| 能力 | 说明 |
+|------|------|
+| **参数 schema 完整可见** | path + query + request-body 参数全部解析并暴露给 LLM（不只是 path 参数）——模型能看到每个字段、类型与必填标记 |
+| **`$ref` 自动内联** | 本地引用自动解析——OpenAPI 3.x `#/components/schemas`/`#/components/parameters`/`#/components/requestBodies`、Swagger 2.0 `#/definitions`/顶层 `#/parameters`——模型永远不会看到裸指针 |
+| **统一类型强转** | 与 MCP 同一套生产级强转引擎修复错误类型参数（字符串数字→int/float、1/0↔bool、标量→数组、嵌套对象）——严格 API 不再返回 400 |
+| **数值无损** | 大整数/ID/金额精确到每一位（与 MCP 相同的 Decimal 精确解析）——雪花 ID 与财务数值永不漂移 |
+| **请求路由精确** | 对象/数组请求体作为 body 本体直发（不包裹）、query 参数紧凑 JSON 序列化、布尔小写发送——线上载荷与 API 契约一致 |
+
+### 为什么重要
+
+从 CLI/curl 工作流迁移：Agent 无需手写工具定义即可理解你的 REST API 参数；弱模型字符串化大数的场景不再引发 400 或精度丢失；schema 感知路由让每次请求都符合契约。
+
 ## 连接管理
 
 ### 持久会话

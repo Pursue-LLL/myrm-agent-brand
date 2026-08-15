@@ -160,6 +160,30 @@ Myrm automatically optimizes MCP tool schemas for LLM compatibility:
 | **Coercion Observability** | Runtime counters track each fix type's trigger frequency, with DEBUG logging for diagnostics |
 | **Content Boundary Defense** | All MCP return values pass through 5-layer `wrap_untrusted` defense chain to prevent Prompt Injection |
 
+## OpenAPI Bridge (Connect Any REST API)
+
+Beyond MCP, Myrm can turn **any OpenAPI / Swagger specification** into callable agent tools — no code required. Perfect for GitHub, Stripe, or internal REST services that don't yet have an MCP server.
+
+### How It Works
+
+1. **Add a service** — provide the OpenAPI spec URL (or Swagger 2.0 doc)
+2. **Auto tool generation** — every endpoint becomes an agent tool with a complete, LLM-readable parameter schema
+3. **Connect & use** — the agent calls your API with correct types, correct routing, and lossless numeric precision
+
+### Built-in Guarantees
+
+| Capability | Description |
+|-----------|-------------|
+| **Full parameter schema visibility** | Path + query + request-body parameters are parsed and exposed to the LLM (not just path params) — the model sees every field, type, and required flag |
+| **`$ref` auto-inlining** | Local references are resolved automatically — OpenAPI 3.x `#/components/schemas`, `#/components/parameters`, `#/components/requestBodies` and Swagger 2.0 `#/definitions` / top-level `#/parameters` — so the model never sees raw pointers |
+| **Unified type coercion** | The same production coercion engine as MCP fixes wrong-typed arguments (string numbers → int/float, 1/0 ↔ bool, scalar → array, nested objects) — strict APIs stop returning 400 |
+| **Lossless numerics** | Big integers/IDs/amounts stay exact to the last digit (same Decimal-exact parsing as MCP), so snowflake IDs and financial values never drift |
+| **Exact request routing** | Object/array request bodies are sent as the body itself (not wrapped), query params are compact-JSON serialized, booleans sent lowercase — the wire payload matches the API contract |
+
+### Why This Matters
+
+Migrating from CLI/curl workflows: the agent understands your REST API's parameters without handwritten tool definitions, weak models that stringify big numbers no longer cause 400s or precision loss, and schema-aware routing keeps every request on-contract.
+
 ## Connection Management
 
 ### Persistent Sessions
