@@ -33,6 +33,26 @@ Myrm 提供一份符合 [Agent Plugins](https://agent-plugins.org) 标准的便�
 - 在向导中**撤销**连接可立即吊销 token。
 - 依赖前可先通过向导的**健康检查**验证连接。
 
+## 运行 Doctor 检查
+
+向导的 **Doctor** 按钮比在线 token 测试更进一步：它会读取你机器上 MCP 客户端的**真实配置文件**，从客户端侧确认插件是否正确接入。
+
+| 诊断码 | 含义 | 严重度 |
+|--------|------|--------|
+| `verified` | 找到配置文件、`myrm-memory` 条目存在、Bearer Token 哈希匹配 | 健康 |
+| `token_valid` | Token 存在且与存储哈希匹配（无文件可校验） | 健康 |
+| `token_env` | 条目使用 `${MYRM_MCP_TOKEN}` —— 本机无法校验最终值 | 需注意 |
+| `config_file_missing` | 配置路径不存在（请检查 `~/.claude.json` 等） | 失败 |
+| `entry_missing` | 文件存在但预期键下没有 `myrm-memory` 条目 | 失败 |
+| `token_missing` | 条目存在但缺少 `Authorization: Bearer <token>` 头 | 失败 |
+| `token_mismatch` | 文件中的 Token 与存储哈希不匹配 —— 请重新复制配置片段 | 失败 |
+| `file_unreadable` | 文件存在但不是合法 JSON/TOML | 失败 |
+
+- 同时支持 JSON（`json_mcp`）与 TOML（`toml_mcp`）两种客户端格式，路径中的 `~` 自动展开。
+- Token 仅以 SHA-256 哈希存储 —— 绝不落明文。
+- 诊断消息支持 6 种语言（EN / 中文 / 繁體 / 日本語 / 한국어 / DE），每个诊断码都附可执行的修复指引。
+- Doctor 只读不写 —— 绝不修改你客户端的配置文件。
+
 ## 自托管
 
 插件仅负责传输层，因此同样适用于自托管实例 —— 本地 Web UI、桌面端或云沙箱。将 `mcp.json` 中的 `url` 指向你实例的 `/mcp` 端点，并到对应实例的连接向导生成 token 即可。

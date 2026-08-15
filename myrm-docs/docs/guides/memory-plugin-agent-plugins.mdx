@@ -33,6 +33,26 @@ Embedding the token works out of the box but writes the credential into `mcp.jso
 - **Revoke** the connection in the wizard to invalidate the token immediately.
 - **Test** the connection with the wizard's health check before relying on it.
 
+## Running the Doctor
+
+The wizard's **Doctor** button goes one step further than a live token test: it reads the MCP client's **actual config file on your machine** and verifies the bundle is wired correctly on the client side too.
+
+| Diagnosis | Meaning | Severity |
+|-----------|---------|----------|
+| `verified` | Config file found, `myrm-memory` entry present, Bearer token hash matches | Healthy |
+| `token_valid` | Token exists and matches the stored hash (no file to verify) | Healthy |
+| `token_env` | Entry uses `${MYRM_MCP_TOKEN}` — the effective value can't be checked locally | Needs attention |
+| `config_file_missing` | The configured path doesn't exist (check `~/.claude.json` etc.) | Failed |
+| `entry_missing` | File exists but no `myrm-memory` entry under the expected key | Failed |
+| `token_missing` | Entry present but has no `Authorization: Bearer <token>` header | Failed |
+| `token_mismatch` | Token in the file doesn't match the stored hash — re-copy the snippet | Failed |
+| `file_unreadable` | File exists but isn't valid JSON/TOML | Failed |
+
+- Both JSON (`json_mcp`) and TOML (`toml_mcp`) client formats are supported; `~` in paths is expanded automatically.
+- Tokens are stored only as SHA-256 hashes — never in plaintext.
+- Diagnoses are localized in 6 languages (EN / 中文 / 繁體 / 日本語 / 한국어 / DE) with an actionable fix hint for every code.
+- The doctor only reads — it never modifies your client's config file.
+
 ## Self-hosting
 
 The bundle is transport-only, so it also works against your own Myrm instance — local Web UI, desktop app, or cloud sandbox. Just point the `url` in `mcp.json` at your instance's `/mcp` endpoint and generate a token from its Connect wizard.
