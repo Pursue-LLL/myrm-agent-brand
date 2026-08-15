@@ -62,6 +62,12 @@ Myrm 使用**语义无障碍树**而非原始 DOM 来理解页面。Agent 像屏
 
 每个可交互元素获得稳定的 **ref ID**，Agent 用于精确定位 — 告别脆弱的 CSS 选择器。
 
+### 自适应紧凑快照与 ContentVault 防爆落盘
+
+- **导航即就绪（自适应 1500 Tokens 预算）**：在 `browser_navigate` 完成后，系统自动装配 1500 Tokens 预算内的视口核心可交互树（带 `@ref` 标签），Agent 打开网页后无需额外调用快照即可直接发起点击/输入，交互往返轮次降低 50%。
+- **大文本防爆保护（30,000 字符门限）**：文本提取超过 30,000 字符时自动物化落盘至本地 ContentVault 并返回锚点引用，彻底杜绝超长页面塞爆 LLM 上下文。
+- **Code-as-Action 安全脚本执行**：除 8 大标准语义工具外，支持通过 `browser_execute_script_tool` 编写批量 Python 脚本，内置 AST 特权 API 静态扫描与 HITL 审批，兼顾极致执行效率与沙箱安全。
+
 ### 内建韧性
 
 - **Shadow DOM 穿透** — 自动穿越 Web Components
