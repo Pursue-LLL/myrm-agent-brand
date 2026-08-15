@@ -382,6 +382,13 @@ When triggered, all SOPs are merged and injected into a single LLM turn with aut
 2. **Trigger** — Type `/daily-report` in the slash palette (WebUI), desktop app, or any IM channel
 3. **Execute** — The harness loads all SOPs, enforces the token budget, and runs them as one coordinated turn
 
+### Input Interaction Details
+
+- **Trigger anywhere in your input** — the slash menu is anchored to the token right before the cursor, so `fix it /systematic-d` opens the palette just as well as a command typed at the very start. Competitors (e.g. OpenClaw) only show the menu when the whole input starts with `/`.
+- **Hyphenated command names work** — `/code-review`, `/systematic-debugging` are recognized live; the regex includes `-`, consistent with the skill-name pattern in the harness.
+- **Your surrounding text is preserved** — selecting, executing, or pressing `Esc` removes only the command token and keeps everything before and after it as your instruction. `fix it /systematic-d` → `fix it ` stays as the prompt while the skill activates.
+- **`@` mentions never leak** — references added via the `@` menu are alive-checked against your input before sending. Delete the `@text` and the reference is dropped from the request — you can't accidentally delegate to another agent or inject a wiki/chat reference. Typed/pasted inline tokens (`@wiki:Concept`, `@file:12-20`, `@folder:path`, `@url:…`, `@staged`, `@diff`, `@codebase`) are parsed on the fly without opening the picker.
+
 ### Per-Agent Isolation
 
 Each agent has its own set of command bindings. A "Code Assistant" agent's `/review` is completely independent from an "Ops Assistant" agent's `/deploy` — no crosstalk, no conflicts.
