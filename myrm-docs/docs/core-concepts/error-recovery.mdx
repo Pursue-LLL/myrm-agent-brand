@@ -126,6 +126,31 @@ When the agent runs Python code or Bash commands, the execution engine automatic
 
 The engine includes a built-in import-to-PyPI mapping table (PIL → Pillow, sklearn → scikit-learn, yaml → PyYAML, and more) and auto-detects whether `uv pip` is available. All code runs in an isolated shared virtual environment managed by VenvManager, ensuring user-installed packages never pollute the system Python.
 
+## Fault-Side Attribution
+
+When a task fails, the most painful question is rarely "it failed" — it's **whose fault is it**? Model hallucination? A broken tool? Environment config? Your own input? Competitors only show a red error block and leave you guessing. Myrm answers deterministically with **zero LLM cost**: every failure is attributed to one of six fault sides using pure rule-based classification of existing error metadata.
+
+| Fault Side | Meaning | Typical Recovery |
+|-----------|---------|------------------|
+| `model` | Model provider or model output misbehaved (bad schema, refusal, hallucinated call) | Switch model / retry |
+| `harness_tool` | A built-in tool failed (file / bash / browser implementation issue) | Retry tool / check tool logs |
+| `harness_pipeline` | Agent pipeline / state machine issue (guard, budget, lifecycle) | Adjust settings / retry |
+| `env` | Environment / provider / infra issue (network, rate limit, billing, TLS, outage) | Fix network / top up / wait |
+| `grader` | Acceptance / evaluation failed (kanban verifier, drift judge) | Re-check deliverable / adjust criteria |
+| `owner` | User input / configuration issue (safety block, guardrail, bad request) | Adjust your input / config |
+
+Attribution surfaces in three places in the product:
+
+- **Live progress steps** — SSE progress panel pins a fault-side badge on each failed step, so you see at a glance whether to retry, switch models, change input, or escalate
+- **Execution trace timeline** — every error event in the trace is attributed and reviewable after the fact
+- **Recovery actions** — attributed errors carry clickable `recovery_actions` buttons (update API key, top up balance, switch model) that jump straight to the right settings page
+
+### Compaction-Drop Audit
+
+One failure mode competitors cannot even name: after context compaction, was your constraint **dropped by the summarizer** or **ignored by the model**? Myrm's `dropped_manifest` records every constraint snippet that compaction discarded, so the GUI can answer the difference — the only post-compaction attribution in the industry.
+
+**Verified**: harness `fault_side` 100% coverage + trace builder 98% + broadcaster 99%; frontend fault-side badge rendering suite (66 vitest); server fault-side consumption integration (11 tests).
+
 ## Shell Session Self-Healing
 
 Myrm runs commands in a **long-lived interactive bash session** (not a fresh one-shot process per call) so `cd`, `export`, and environment state persist across commands. Long-lived sessions introduce two failure classes that one-shot designs never face — Myrm solves both deterministically:

@@ -51,6 +51,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'mcpEcosystem',
   'permissionUsageStats',
   'governanceGate',
+  'failureFaultSide',
 ] as const;
 
 export type HighlightSlideKey = (typeof HIGHLIGHT_SLIDE_KEYS)[number];
@@ -87,6 +88,7 @@ export const COMPARE_ROW_KEYS = [
   'outputSanitization',
   'mcpToolCoercion',
   'errorRecovery',
+  'failureAttribution',
   'toolIntegration',
   'toolProfileSsot',
   'unifiedToolGateway',
@@ -216,6 +218,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'outputSanitization',
     'mcpToolCoercion',
     'errorRecovery',
+    'failureAttribution',
     'multimodel',
     'multiModelConsensus',
     'ptcEngine',
