@@ -15,6 +15,13 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 턴당 기능 제어를 위해 Myrm은 완전한 관찰 가능성(제출/적용/noop/큐/바쁨/최종 결과 + 실패 이유)을 갖춘 **원턴 스킬/MCP 재정의 칩**을 지원합니다. 집중 검증(2026-07-29): 프런트엔드 29/29 통과, 서버 10/10 통과; 목표 적용 범위는 핵심 프런트엔드 파일의 라인 62.47%, 서버 원격 측정 모듈의 전체 라인 72%에 도달했습니다. 이는 팀에게 추측이 아닌 비용/신뢰성 조정에 대한 마이그레이션 안전 증거를 제공합니다.
 
+## 최신 검증 스냅샷 (2026-08-16 · 세션 수준 성능 구성 · 모델별 LLM 소요 + 첫 토큰 지연)
+
+- **한 세션의 시간과 비용이 실제로 어디에 갔는지 (vs Hermes / deer-flow / CoPaw / LobsterAI / OpenClaw):** Myrm의 세션 분석 패널은 모든 세션을 모델별로 분해합니다 — 각 모델이 몇 번 호출됐고 누적 소요 시간은 얼마인지(LLM 구성), 여기에 응답 속도 요약(첫 토큰 지연의 평균·P95)까지 제공합니다. 경쟁사는 사용자 대상 동일 집계가 없습니다: Hermes는 이벤트 수준 `duration_seconds`만 노출(모델별 세션 합계 없음, TTFT 패널 없음), deer-flow / CoPaw / LobsterAI는 LLM 소요 시간 집계가 아예 없으며, OpenClaw의 diagnostics는 성능 대시보드가 아닌 보안 정리 유틸리티에 불과합니다.
+- **정직한 범위:** 이 기능은 '사후·세션 단위'로 "어느 모델이 병목인가"를 답합니다. 실시간 턴별 지연은 메시지 수준 Token Economics + 모델 속도 테스트 대시보드가 계속 담당합니다(같은 화면에서 상호 보완, 중복 아님).
+- **검증:** server 통계 스위트 **170 passed**(`_build_llm_duration_breakdown` 3 버킷 집계 + legacy 이벤트 필터 + API 엔드투엔드 전달 포함), 프런트엔드 vitest **328 passed**(SessionAnalyticsDialog + DailyJournal의 i18n 알려진/미지 모드 폴백 포함), `tsc`/`oxlint`/`verify:i18n` 모두 통과, **Chrome E2E 1 passed in 70.81s**(실제 브라우저 `/journey` 전체 페이지 렌더링).
+- **자료 SSOT:** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md`(2026-08-16 헤더) · `myrm-agent/myrm-agent-server/app/api/statistics/session_analytics.py` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/system/SessionAnalyticsDialog.tsx`
+
 ## 최신 검증 스냅샷 (2026-08-14 · 턴 종료 시 제어권 보장 반환 · 잔상 없음)
 
 - **모든 종료 경로에서 제어권 결정적 반환 (vs KimiCU / Codex / DeepSeek)**：데스크톱/브라우저 에이전트 턴이 끝날 때 — 정상 `MESSAGE_END`, 사용자 중단, `ERROR`, `AGENT_CANCELLED`, 컨텍스트 오버플로, 예산 소진 — Inspector의 '제어 중' 상태가 공유 헬퍼 `releaseTurnInspectorControls(chatId)`를 통해 **즉시 결정적으로 해제**됩니다. 경쟁사는 LLM이 `turn_ended` 툴을 스스로 호출하도록 의존하며(KimiCU 실증 결함: 에이전트가 이미 멈췄는데 '화면에 계속 컴퓨터 사용 중으로 표시'), 약한 모델이 잊어버리면 해제가 실패합니다. Myrm은 **모델 자율성에 전혀 의존하지 않습니다** — 백엔드 종료 이벤트가 프런트엔드에 도달하면 정리가 트리거됩니다.
