@@ -96,6 +96,20 @@ Myrm 提供可视化看板跟踪复杂多步任务，以及强大的子 Agent �
 
 **已验证**：harness `test_model_override` 9 + server `test_model_override_api` 7 + `test_decompose_orchestrator` 5 + task-runner 参数化 3 + 前端 Kanban Vitest 111，全部通过。
 
+### 验收契约机器化（机器可核验）
+
+LLM 细化 Triage 任务（Specify / Decompose）时，它写下的验收标准不只是文档——会被自动解析为结构化 `completion_criteria` 契约并存入任务元数据：
+
+- **Prompt 强制清单格式**——中英文细化 prompt 均要求「验收条件」以 `- [ ]` 清单呈现，LLM 按契约输出可解析结构。
+- **Section 感知解析**——`parse_markdown_criteria` 只提取「验收条件」标题**之后**（到下一标题为止）的清单行。LLM 在「方案」区顺手写的过程步骤（`- [ ] 安装依赖`）绝不会被误当验收条件——零假门禁。
+- **出生即机器可核验**——解析出的契约（`{"type":"semantic","criteria":...}`）正是 `CompletionVerifier` 与 Goal Mode 执行后判定的依据——不只是写给人看的字。
+- **可视化且可编辑**——任务抽屉通过 `completionCriteriaToText` 以清单形式展示验收标准，可直接查看或编辑。
+- **首尾采样防截断盲区**——超长 Agent 结果裁剪时同时保留头部与尾部，语义裁判不会因截断丢失尾部关键证据（测试通过行、文件确认输出）。
+
+**为什么重要**：竞品（OpenClaw / Hermes）的 plan 模板虽有 `acceptance_criteria` 字段，但执行后**无人核验**——完成全靠自报。Myrm 的契约由独立双层裁判（零成本 Shell 检查 + LLM 语义判定）强制执行，不达标自动重试——你收到的任务一定是**被验证过的成品**，而非半成品声明。
+
+**已验证（2026-08-16）**：`criteria_parser.py` section 感知解析 17 tests + `test_kanban_verifier` 43 tests（parser + verifier 100% 覆盖率）+ `test_kanban_criteria_integration` 真实 DB 全格式往返。
+
 ### 角色化 Kanban LLM 工具
 
 看板工具**默认不加载**，按场景 **Role Gate** 绑定，省 Token、降误调用：

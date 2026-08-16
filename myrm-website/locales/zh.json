@@ -261,7 +261,7 @@
         "tools": "工具与能力"
       },
       "llmList": "OpenAI · Anthropic · Google Gemini · DeepSeek · Qwen · Kimi (Moonshot) · MiniMax · 零一万物 · 智谱 · 百川 · SiliconFlow · xAI · Groq · Mistral · OpenRouter · Ollama · LM Studio · vLLM 等 26+",
-      "toolsList": "MCP 会话复用（断线自愈） · MCP 协议 · MCP 设置 GUI · MCP 交互确认（HITL） · Agent/Team 模板市场 · Mermaid 图表 · render_ui 交互 · 反向 MCP Server · OpenAI 兼容代理 · 集成记忆 · OpenAPI · Microsoft To Do（微软待办，零配置） · Google Workspace OAuth · xAI SuperGrok OAuth · Gitee/GitHub/GitLab 一键集成 · 微信公众号草稿（HITL） · 工作区智能整理（HITL） · 工作区主题与壁纸（根级持久预设 + MP4 poster 降级） · **主题工作室**（四步向导 + 本地 `.myrmtheme` 导入） · **首装选肤**（Onboarding 3 款精选，可跳过） · **Agent Widget 主题同步**（工件随 preset 实时变色） · **桌宠 accent 主题同步**（光晕随 Studio 预览更新） · **社区主题市场**（Gallery + Stripe） · 同步目录挂载 + OpenClaw 迁移 vault 绑定 · 浏览器 · 文件系统 · 终端 · 定时任务 · 代码执行 · @codebase 概览 · Web Search + Fetch · X (Twitter) 搜索 · 数据库 · Claude Code · Codex CLI · Gemini CLI（外部 Agent）",
+      "toolsList": "MCP 会话复用（断线自愈） · MCP 协议 · MCP 设置 GUI · 插件 MCP 启停可视化（默认不激活，失败隔离） · MCP 交互确认（HITL） · Agent/Team 模板市场 · Mermaid 图表 · render_ui 交互 · 反向 MCP Server · OpenAI 兼容代理 · 集成记忆 · OpenAPI · Microsoft To Do（微软待办，零配置） · Google Workspace OAuth · xAI SuperGrok OAuth · Gitee/GitHub/GitLab 一键集成 · 微信公众号草稿（HITL） · 工作区智能整理（HITL） · 工作区主题与壁纸（根级持久预设 + MP4 poster 降级） · **主题工作室**（四步向导 + 本地 `.myrmtheme` 导入） · **首装选肤**（Onboarding 3 款精选，可跳过） · **Agent Widget 主题同步**（工件随 preset 实时变色） · **桌宠 accent 主题同步**（光晕随 Studio 预览更新） · **社区主题市场**（Gallery + Stripe） · 同步目录挂载 + OpenClaw 迁移 vault 绑定 · 浏览器 · 文件系统 · 终端 · 定时任务 · 代码执行 · @codebase 概览 · Web Search + Fetch · X (Twitter) 搜索 · 数据库 · Claude Code · Codex CLI · Gemini CLI（外部 Agent）",
       "more": "更多集成持续扩展中"
     },
     "testimonials": {
@@ -940,6 +940,12 @@
           "openclaw": "不支持并发",
           "myrmAgent": "全局异步写入队列门面 (AsyncDB Offload Facade) · 内存无锁合并落盘，企业级千Agent吞吐不冻结"
         },
+        "acceptanceContract": {
+          "feature": "验收契约机器化 · AI 交活前先过机器验收，杜绝半成品",
+          "hermes": "计划字段，无执行验证",
+          "openclaw": "仅计划模板，无验证",
+          "myrmAgent": "LLM 细化任务时自动把验收清单转成机器可核验契约（prompt 强制 \"- [ ]\" · section 感知解析，方案区的过程步骤不会被误当验收）· 执行后双层独立裁判——Shell 客观命令（零 LLM 成本）+ LLM 语义判定（长结果首尾采样不丢尾部证据）——不达标自动返工重跑 · 前端抽屉可视化展示/编辑验收标准 · 竞品验收标准只是写给人看的字，我们交回的一定是被机器验证过的成品"
+        },
         "taskSkillConfig": {
           "feature": "任务级技能配置 · 技能选择器 + 存在性校验 + 运行中生效语义",
           "hermes": "自由文本输入技能，无校验",
@@ -1028,7 +1034,7 @@
           "feature": "Agent Plugins 1.0.0 标准插件运行时 · 导入 → 持久化 → 注入 → 卸载",
           "hermes": "仅 CLI portable runtime（注入 PLUGIN_ROOT/PLUGIN_DATA，无文件持久化与 GUI 生命周期）",
           "openclaw": "_no",
-          "myrmAgent": "GUI 向导导入标准 Agent Plugins 1.0.0 bundle（plugin.json + skills/ + mcp.json + 自带可执行文件），自带文件持久化到隔离的 `plugins/<name>/` 目录，外加一个**跨更新保留的数据目录**（`<name>_data/`），并向每个插件子进程注入保留环境变量 `PLUGIN_ROOT` / `PLUGIN_DATA`（§9.1）—— 插件自带程序开箱定位文件，升级数据不丢。`${PLUGIN_ROOT}`/`${PLUGIN_DATA}` 占位符在 cwd/args/env 三处展开，`./` 相对命令自动以插件根为工作目录，单个坏插件按规范跳过（不拖垮其余），卸载一键删除文件并解绑 Agent。"
+          "myrmAgent": "GUI 向导导入标准 Agent Plugins 1.0.0 bundle（plugin.json + skills/ + mcp.json + 自带可执行文件），自带文件持久化到隔离的 `plugins/<name>/` 目录，外加一个**跨更新保留的数据目录**（`<name>_data/`），并向每个插件子进程注入保留环境变量 `PLUGIN_ROOT` / `PLUGIN_DATA`（§9.1）—— 插件自带程序开箱定位文件，升级数据不丢。`${PLUGIN_ROOT}`/`${PLUGIN_DATA}` 占位符在 cwd/args/env 三处展开，`./` 相对命令自动以插件根为工作目录，单个坏插件按规范跳过（不拖垮其余），卸载一键删除文件并解绑 Agent。 导入的插件 MCP 服务默认不自动激活（安全默认）；「插件管理」对话框绿点/琥珀点一眼看清每个服务的启停状态并附引导提示；运行时只加载已启用服务——某个服务坏了不会拖垮插件其余部分，也不阻塞 Agent 启动。"
         },
         "smartCommandInput": {
           "feature": "智能指令输入 · 任意位置斜杠命令，@引用永不泄漏",

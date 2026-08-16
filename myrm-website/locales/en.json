@@ -261,7 +261,7 @@
         "tools": "Tools & Capabilities"
       },
       "llmList": "OpenAI · Anthropic · Google Gemini · DeepSeek · Qwen · Kimi (Moonshot) · MiniMax · Yi · Zhipu · Baichuan · SiliconFlow · xAI · Groq · Mistral · OpenRouter · Ollama · LM Studio · vLLM & 26+",
-      "toolsList": "MCP Session Reuse (self-healing) · MCP Protocol · MCP Settings GUI · MCP Elicitation (HITL) · Agent/Team template market · Mermaid charts · render_ui widgets · Reverse MCP Server · OpenAI Compatible Proxy · Integration Memory · OpenAPI · Microsoft To Do (zero-config) · Google Workspace OAuth · xAI SuperGrok OAuth · Gitee/GitHub/GitLab One-Click · WeChat Official draft (HITL) · Workspace auto-organize (HITL) · Workspace theme & wallpaper (persistent presets) · **Theme Studio** (4-step wizard, local import) · **first-run theme pick** (onboarding, 3 presets) · **Agent widget theme sync** (follows preset) · **Desk pet accent sync** (glow follows Studio) · **Community Theme Market** (Gallery + Stripe) · Sync-folder mount + OpenClaw vault binding · Browser · File System · Terminal · Cron Jobs · Code Execution · @codebase Overview · Web Search + Fetch · X (Twitter) Search · Database · Claude Code · Codex CLI · Gemini CLI (external agents)",
+      "toolsList": "MCP Session Reuse (self-healing) · MCP Protocol · MCP Settings GUI · Plugin MCP toggle (off by default, isolated) · MCP Elicitation (HITL) · Agent/Team template market · Mermaid charts · render_ui widgets · Reverse MCP Server · OpenAI Compatible Proxy · Integration Memory · OpenAPI · Microsoft To Do (zero-config) · Google Workspace OAuth · xAI SuperGrok OAuth · Gitee/GitHub/GitLab One-Click · WeChat Official draft (HITL) · Workspace auto-organize (HITL) · Workspace theme & wallpaper (persistent presets) · **Theme Studio** (4-step wizard, local import) · **first-run theme pick** (onboarding, 3 presets) · **Agent widget theme sync** (follows preset) · **Desk pet accent sync** (glow follows Studio) · **Community Theme Market** (Gallery + Stripe) · Sync-folder mount + OpenClaw vault binding · Browser · File System · Terminal · Cron Jobs · Code Execution · @codebase Overview · Web Search + Fetch · X (Twitter) Search · Database · Claude Code · Codex CLI · Gemini CLI (external agents)",
       "more": "More integrations coming soon"
     },
     "testimonials": {
@@ -910,6 +910,12 @@
           "openclaw": "No concurrency",
           "myrmAgent": "Global AsyncDB Offload Facade · Lock-free memory queue batching for enterprise-grade 1000+ Agent throughput"
         },
+        "acceptanceContract": {
+          "feature": "Machine-Verifiable Acceptance Contracts · no more half-finished AI deliveries",
+          "hermes": "Plan field only, no post-run verification",
+          "openclaw": "Plan template only, no verification",
+          "myrmAgent": "When the LLM refines a task it auto-parses the acceptance checklist into a machine-checkable contract (prompt-enforced \"- [ ]\" list · section-aware parser so process steps in the approach section are never mistaken for acceptance) · after execution a two-layer independent judge — zero-cost shell checks + LLM semantic verdict (head-and-tail sampling keeps tail evidence in long results) — auto-retries on failure · acceptance criteria are visualized and editable in the task drawer · competitors' criteria are words for humans; ours is a gate that guarantees verified deliverables"
+        },
         "taskSkillConfig": {
           "feature": "Per-task Skill Config · Skill picker + validation + running-task semantics",
           "hermes": "Free-text skill input, no validation",
@@ -1028,7 +1034,7 @@
           "feature": "Agent Plugins 1.0.0 standard plugin runtime · import → persist → inject → uninstall",
           "hermes": "CLI-only portable runtime (PLUGIN_ROOT/PLUGIN_DATA injected, but no file persistence or GUI lifecycle)",
           "openclaw": "_no",
-          "myrmAgent": "Imports a standard Agent Plugins 1.0.0 bundle (plugin.json + skills/ + mcp.json + bundled executables) via a **GUI wizard**, persists bundled files to an isolated `plugins/<name>/` root plus a **data directory that survives updates** (`<name>_data/`), and injects the reserved `PLUGIN_ROOT` / `PLUGIN_DATA` env vars (§9.1) into every plugin subprocess — bundled scripts find their files out of the box and keep user data across upgrades. `${PLUGIN_ROOT}`/`${PLUGIN_DATA}` placeholders expand in cwd/args/env, `./`-relative commands run from the plugin root, a broken plugin is skipped per spec (never blocks the rest), and uninstall removes files + agent bindings in one click."
+          "myrmAgent": "Imports a standard Agent Plugins 1.0.0 bundle (plugin.json + skills/ + mcp.json + bundled executables) via a **GUI wizard**, persists bundled files to an isolated `plugins/<name>/` root plus a **data directory that survives updates** (`<name>_data/`), and injects the reserved `PLUGIN_ROOT` / `PLUGIN_DATA` env vars (§9.1) into every plugin subprocess — bundled scripts find their files out of the box and keep user data across upgrades. `${PLUGIN_ROOT}`/`${PLUGIN_DATA}` placeholders expand in cwd/args/env, `./`-relative commands run from the plugin root, a broken plugin is skipped per spec (never blocks the rest), and uninstall removes files + agent bindings in one click. Imported plugin MCP servers stay disabled by default (secure default); the Plugin Manager dialog shows a green/amber dot per server with a guiding hint so you can see which are active at a glance; only enabled servers load at runtime — a broken server never takes down the rest of the plugin or blocks agent startup."
         },
         "smartCommandInput": {
           "feature": "Smart command input · slash anywhere, mentions that never leak",
@@ -1710,6 +1716,16 @@
           "tag1": "Cross-session pattern discovery with evidence & confidence",
           "tag2": "High-confidence patterns auto-promote to rules (your approval)",
           "tag3": "WebUI evolution review panel — browse & trigger anytime"
+        },
+        "sessionPerfObservability": {
+          "label": "Per-response performance",
+          "title": "See where every second and every dollar of a session went",
+          "desc": "When a long task feels slow, other agents just make you wait — there is no way to tell whether the time went to thinking, tool calls, or a slow model, and no number for how long you actually waited for the first token. Myrm's session analytics breaks every session down by model: how many calls each model made and how long they took, plus a response-speed summary (average and P95 time-to-first-token). Open any session's analytics panel and you immediately see which model is your bottleneck and which reply was the slow one — data you can act on, instead of a feeling.",
+          "stat": "P95",
+          "statLabel": "time-to-first-token per session · LLM duration by model",
+          "tag1": "LLM calls grouped by model with total duration",
+          "tag2": "Response speed — avg & P95 first-token latency",
+          "tag3": "Per-session analytics panel, zero configuration"
         }
       }
     }

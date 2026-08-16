@@ -128,6 +128,18 @@ Add MCP servers to `mcp_servers.json`:
 2. Import a standard Agent Plugins bundle (`.zip` or directory)
 3. Myrm parses the manifest, persists the bundled file tree, and registers the plugin's MCP servers automatically
 
+### Manage plugin MCP servers (enabled state)
+
+Imported plugins never activate their bundled MCP servers without your consent — every server is persisted as **disabled by default** (secure default, so a plugin can't launch arbitrary external commands behind your back). Manage them in the plugin manager dialog, where each server shows its persisted `enabled` state at a glance:
+
+| State | Badge | Meaning |
+|-------|-------|---------|
+| **Active** | Green dot | The server is enabled; its tools are loaded at runtime |
+| **Disabled** | Amber dot | The server is off; the hint tooltip points to **MCP Settings** to enable it |
+
+- **Runtime filtering** — Only enabled servers are loaded during tool discovery. A disabled (or broken) server never enters the agent's tool set, so one bad server cannot take down the rest of the plugin or block agent startup.
+- **Per-server control** — Enable one server and leave another off, and flip any server on/off at any time without re-importing the plugin.
+
 ### Runtime: PLUGIN_ROOT / PLUGIN_DATA (spec §9)
 
 Every plugin subprocess launched by Myrm receives two reserved environment variables:

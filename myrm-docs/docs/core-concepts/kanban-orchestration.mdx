@@ -102,6 +102,20 @@ Model selection is a genuine BYOK capability, not a subscription gate: local use
 
 **Verified**: harness `test_model_override` 9 + server `test_model_override_api` 7 + `test_decompose_orchestrator` 5 + task-runner parameterized 3 + frontend Kanban Vitest 111, all green.
 
+### Acceptance Contract Automation (Machine-Verifiable)
+
+When the LLM refines a triage task (via Specify or Decompose), the acceptance criteria it writes become more than documentation — they are automatically parsed into a structured `completion_criteria` contract stored on the task metadata:
+
+- **Prompt-enforced checklist** — both the EN and ZH refine prompts require an "Acceptance criteria" section written as a `- [ ]` checklist, so the LLM emits a parseable shape by contract.
+- **Section-aware parsing** — `parse_markdown_criteria` extracts checklist lines only under the acceptance-criteria heading (up to the next heading). Process steps the LLM happens to write in the Approach section (`- [ ] install deps`) are never mistaken for acceptance — zero false gates.
+- **Machine-checkable from birth** — the parsed contract (`{"type":"semantic","criteria":...}`) is exactly what `CompletionVerifier` and Goal Mode judge against after execution — not just words for humans to read.
+- **Visible & editable** — the task drawer renders the acceptance criteria as a checklist via `completionCriteriaToText`; you can view or edit them directly.
+- **Head-and-tail sampling** — long agent results are trimmed keeping both head and tail for the semantic judge, so tail evidence (test-pass lines, file-confirmation output) is never lost to truncation.
+
+**Why it matters:** competitors (OpenClaw, Hermes) have `acceptance_criteria` fields in their plan templates but nothing verifies them after execution — completion is self-reported. Myrm's contracts are enforced by an independent two-layer judge (zero-cost shell checks + LLM semantic verdict) with automatic retry on failure, so the task you receive is a verified deliverable, not a half-finished claim.
+
+**Verified (2026-08-16)**: `criteria_parser.py` section-aware parsing 17 tests + `test_kanban_verifier` 43 tests (100% coverage of parser + verifier) + `test_kanban_criteria_integration` real-DB round-trips for all supported formats.
+
 ### Role-Based Kanban LLM Tools
 
 Kanban tools are **opt-in** and **role-gated** to save tokens and reduce misuse:
