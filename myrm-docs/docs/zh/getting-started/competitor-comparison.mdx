@@ -15,7 +15,17 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-08-16 · 图片发送压缩管线 · 真实 Chrome E2E）
+
+- **发超清大图/长截图再也不怕被拒（vs Hermes / OpenClaw / Claude Code / ChatGPT）：** Myrm 在**服务端**按 base64 空间 4MiB 阈值自动压缩图片——对齐 OpenAI/Claude/Groq 各家单图上限（原始字节与 base64 嵌入后膨胀 ~4/3，按 raw 判断会让超限图漏过去）。任意来源的图（上传 / 粘贴 / 拖拽 / 相机帧 / 渠道消息）都走同一压缩链路，2048px 保真下采样后视觉分析清晰度不打折。竞品多为浏览器端一次性压缩，无服务端防线、无 provider 上限对齐。
+- **80MP 解压炸弹防线（安全）：** `MAX_DECODE_PIXELS = 80_000_000` 有界保护——恶意小文件声明巨画布（decompression bomb）在 `Image.open` 阶段即抛 `DecompressionBombError`，**0 像素分配**，不占内存不炸端；同时不误伤合法大图（Anthropic 上限 8000px/边 ≈ 64MP 仍可解码）。
+- **字节 + 像素双向防线：** `stream_recovery_oneshot._shrink_oversized_images` 同时检查 base64 字节数（`SEND_COMPRESS_TRIGGER_BYTES`）与像素维度，PNG 重编码字节反增也不误判；不可压缩的图绝不重发拒绝载荷。
+- **诚实边界：** 视频/音频走各自的分级大小校验（100MB/25MB），本文只承诺图片压缩链路。
+- **验证：** Harness `stream_recovery_oneshot` **46 passed** + Server `model_resolver_enrich/enrich_model_capabilities` **21 passed** + `image_enrichment` 压缩链路 + **Chrome E2E 1 passed**（`test_image_upload_stream_chrome_e2e.py`，真实 WebUI 文件注入→multipart 上传→缩略图→发送→LLM 视觉回复→API 持久化校验，~3.9MiB 大图实跑压缩）。
+- **素材 SSOT：** `temp-docs/materials/MULTIMODAL_CAPABILITY_ADVANTAGE.md`（2026-08-16 头部）· `myrm-agent-harness/src/myrm_agent_harness/utils/media/image_compressor.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/streaming/recovery/stream_recovery_oneshot.py`
+
 ## 最新验证快照（2026-08-16 · 会话级性能构成 · 按模型的 LLM 耗时 + 首字延迟）
+
 
 - **一个会话的时间与金钱到底去了哪（对标 Hermes / deer-flow / CoPaw / LobsterAI / OpenClaw）：** Myrm 的会话分析面板按模型拆解每个会话——每个模型调用了几次、累计耗时多少（LLM 构成），外加响应速度总览（首字延迟的平均值与 P95）。竞品均无面向用户的同类聚合：Hermes 仅暴露事件级 `duration_seconds`（无按模型的会话汇总、无 TTFT 面板），deer-flow / CoPaw / LobsterAI 完全没有 LLM 耗时聚合，OpenClaw 的 diagnostics 只是安全脱敏工具而非性能看板。
 - **诚实边界：** 该能力补齐「事后、会话粒度」回答"哪个模型是瓶颈"；实时逐轮延迟仍由消息级 Token Economics + 模型速度测试看板覆盖（同屏互补、不重复）。

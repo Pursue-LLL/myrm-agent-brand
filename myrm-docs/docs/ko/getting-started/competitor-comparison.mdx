@@ -15,6 +15,15 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 턴당 기능 제어를 위해 Myrm은 완전한 관찰 가능성(제출/적용/noop/큐/바쁨/최종 결과 + 실패 이유)을 갖춘 **원턴 스킬/MCP 재정의 칩**을 지원합니다. 집중 검증(2026-07-29): 프런트엔드 29/29 통과, 서버 10/10 통과; 목표 적용 범위는 핵심 프런트엔드 파일의 라인 62.47%, 서버 원격 측정 모듈의 전체 라인 72%에 도달했습니다. 이는 팀에게 추측이 아닌 비용/신뢰성 조정에 대한 마이그레이션 안전 증거를 제공합니다.
 
+## 최신 검증 스냅샷 (2026-08-16 · 이미지 전송 압축 파이프라인 · 실제 Chrome E2E)
+
+- **초고화질 사진·긴 스크린샷도 항상 통과 (vs Hermes / OpenClaw / Claude Code / ChatGPT):** Myrm은 **서버 측**에서 base64 기준 4MiB 임계값으로 이미지를 자동 압축합니다 — OpenAI/Claude/Groq 각사의 단일 이미지 상한에 정렬됩니다(base64 임베드 시 raw 바이트가 ~4/3로 부풀기 때문에 raw 기준 판정은 초과 페이로드를 놓치게 됩니다). 모든 출처(업로드 / 붙여넣기 / 드래그앤드롭 / 카메라 프레임 / 채널 메시지)가 동일한 압축 파이프라인을 거치며, 2048px 충실도 다운샘플링으로 비전 분석 선명도는 유지됩니다. 경쟁사는 대부분 브라우저 일회성 압축뿐이며 서버 측 방어선·공급자 상한 정렬이 없습니다.
+- **80MP 압축 해제 폭탄 방어(보안):** `MAX_DECODE_PIXELS = 80_000_000` 경계 보호 — 거대 캔버스를 선언하는 악성 소형 파일(decompression bomb)은 `Image.open` 단계에서 `DecompressionBombError`를 던져 **픽셀 0개 할당**, 메모리 폭주 없음; 합법적인 대형 이미지는 정상 디코딩됩니다(Anthropic 상한 8000px/변 ≈ 64MP).
+- **바이트 + 픽셀 양방향 방어:** `stream_recovery_oneshot._shrink_oversized_images`는 base64 바이트 수(`SEND_COMPRESS_TRIGGER_BYTES`)와 픽셀 크기를 모두 검사하며, PNG 재인코딩 바이트 증가도 오판하지 않습니다; 압축 불가 이미지는 거부 페이로드를 재전송하지 않습니다.
+- **정직한 범위:** 영상/오디오는 자체 등급별 크기 제한(100MB/25MB)을 유지하며, 이 스냅샷은 이미지 경로만 다룹니다.
+- **검증:** Harness `stream_recovery_oneshot` **46 passed** + Server `model_resolver_enrich/enrich_model_capabilities` **21 passed** + `image_enrichment` 압축 경로 + **Chrome E2E 1 passed**(`test_image_upload_stream_chrome_e2e.py`: 실제 WebUI 파일 주입 → multipart 업로드 → 썸네일 → 전송 → LLM 비전 응답 → API 영속성 검증, ~3.9MiB 이미지로 실제 압축 실행).
+- **자료 SSOT:** `temp-docs/materials/MULTIMODAL_CAPABILITY_ADVANTAGE.md`(2026-08-16 헤더) · `myrm-agent-harness/src/myrm_agent_harness/utils/media/image_compressor.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/streaming/recovery/stream_recovery_oneshot.py`
+
 ## 최신 검증 스냅샷 (2026-08-16 · 세션 수준 성능 구성 · 모델별 LLM 소요 + 첫 토큰 지연)
 
 - **한 세션의 시간과 비용이 실제로 어디에 갔는지 (vs Hermes / deer-flow / CoPaw / LobsterAI / OpenClaw):** Myrm의 세션 분석 패널은 모든 세션을 모델별로 분해합니다 — 각 모델이 몇 번 호출됐고 누적 소요 시간은 얼마인지(LLM 구성), 여기에 응답 속도 요약(첫 토큰 지연의 평균·P95)까지 제공합니다. 경쟁사는 사용자 대상 동일 집계가 없습니다: Hermes는 이벤트 수준 `duration_seconds`만 노출(모델별 세션 합계 없음, TTFT 패널 없음), deer-flow / CoPaw / LobsterAI는 LLM 소요 시간 집계가 아예 없으며, OpenClaw의 diagnostics는 성능 대시보드가 아닌 보안 정리 유틸리티에 불과합니다.
