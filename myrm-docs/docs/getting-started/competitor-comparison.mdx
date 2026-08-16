@@ -528,6 +528,29 @@ Competitors treat tool calls as a black box: when the agent edits a file, runs a
 *   **Faster incident review**: when something goes wrong, pinpoint the exact instruction → tool call → decision chain instead of grepping logs.
 *   **Enterprise-ready**: step-level verdicts attached to the trace make compliance review straightforward — no separate audit tool to maintain.
 
+## Organization-Wide Agent Audit Timeline (vs Claude / Hermes / OpenClaw / any single-sandbox audit)
+
+When agents run across many team sandboxes, competitors give organizations no answer: no cross-sandbox ledger, no way to attribute a sensitive action to the right member or sandbox, and failed scans are silently skipped — so "audit coverage" is whatever happened to get collected, with gaps you cannot see. Myrm ships an **org-wide audit aggregation** where every member sandbox reports into one unified timeline.
+
+### Where Myrm Goes Further
+
+*   **Fan-out aggregation across all member sandboxes**: one query reaches every sandbox's local event ledger and merges tool calls, approvals, and security decisions into a single reverse-chronological timeline — attribution to member and sandbox included. Two data layers (`security_audit` events + `tool_start`/`tool_end` lifecycle) feed the same KPI set, so counts stay consistent end-to-end.
+*   **Exact security-deny accounting, not a vibe**: `security_deny_total` counts only true deny decisions (`BLOCK` / `DENY` / `REDACT` / `LEAK`) — the measurement can't be inflated by `ALLOW` decisions or by events that were never reviewed. The same deny predicate is enforced on the server aggregation layer and re-validated in the frontend rendering, so a red "security blocks" KPI always reflects a real denial.
+*   **Scan failures are surfaced, never silently skipped**: an `ACTIVE` sandbox without a container is explicitly reported as failed instead of vanishing from the audit — coverage gaps are visible so you never mistake "not collected" for "nothing happened". The same honesty applies to event grading: an audit event that can't be matched to a tool call logs a warning rather than disappearing.
+*   **1-N sandbox coverage regardless of status**: audit coverage is reported per sandbox, with unscannable or failed sandboxes counted separately — the audit view always tells you *how complete* the picture is.
+
+### Competitor Pain Points
+
+*   **Claude / Hermes / OpenClaw**: per-sandbox logs only — an admin has no org view, no cross-sandbox aggregation, and no way to see which member's sandbox produced a sensitive action.
+*   **All competitors**: deny counting is a per-session afterthought — no org-wide `BLOCK`/`DENY`/`REDACT`/`LEAK` total, and failed sandbox scans drop out of the picture with no warning.
+*   **SaaS bolt-ons** (external SIEM/audit product): extra cost, data leaves your sandbox boundary, and per-session granularity is lost in aggregation.
+
+### Migration Wins
+
+*   **One dashboard instead of N log bundles**: admins see the whole org's agent activity on a single timeline with member + sandbox attribution.
+*   **Prove coverage, not just activity**: failed and unscannable sandboxes are explicit — you know when the audit picture is incomplete.
+*   **Compliance-ready deny accounting**: exact org-wide deny counts with reasons are exportable and attributable per member and sandbox.
+
 ## WebUI Security & Local/Remote Separation
 
 Most competitor web interfaces are either dangerously exposed when bridged to the public internet (LAN/Tunnel naked exposure) or overly burdensome for single-user local development (forcing DBs and logins for `localhost`).
