@@ -912,6 +912,29 @@ When a user @mentions AI in a Feishu document comment:
    - `im:message` — Messaging
    - `contact:user.id:readonly` — User identification
 
+### Multi-App Concurrent Instances
+
+Beyond a single default app, Myrm keeps **multiple Feishu apps online at the same time** (up to 5 instances per channel type). Unlike CLI tools that switch between named profiles (only one app active at a time), every app instance sends and receives messages independently:
+
+| Capability | Myrm | lark-cli named profiles |
+|------------|:----:|:-----------------------:|
+| Multiple apps online concurrently | ✅ | ❌ (switch model) |
+| Per-instance encrypted credential persistence | ✅ | ⚠️ plaintext profile file |
+| Hot credential edit without restart | ✅ atomic `swap_channel` | ❌ requires restart |
+| Edit-failure auto-rollback to old instance | ✅ | ❌ |
+| QR-scan registration of a new app | ✅ | ❌ |
+| Delete confirmation (irreversible-action guard) | ✅ | ❌ |
+
+To add another app instance:
+
+1. In **Settings > Channels > Feishu**, click **Add App**
+2. Scan the QR code (or paste App ID/App Secret in the edit dialog)
+3. The new instance comes online immediately — both apps now answer messages concurrently
+
+**Editing credentials**: when an app secret expires, open the instance's **Edit Credentials** dialog and save — the new secret takes effect instantly via atomic channel replacement, with automatic rollback to the previous instance if the new credentials fail. No service restart needed.
+
+**Deleting an instance** is irreversible (stops the channel and cascades credential cleanup), so the delete action requires a confirmation dialog; if the deletion fails, the dialog stays open so you can retry or cancel.
+
 ### WeCom Dual Channels
 
 WeCom provides two integration modes:
