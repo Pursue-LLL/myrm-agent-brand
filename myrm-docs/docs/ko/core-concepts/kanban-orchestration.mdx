@@ -103,6 +103,20 @@ Kanban 보드는 7개 열에 걸쳐 에이전트 작업을 관리할 수 있는 
 
 **검증됨**: harness `test_model_override` 9 + server `test_model_override_api` 7 + `test_decompose_orchestrator` 5 + task-runner 파라미터화 3 + 프론트엔드 Kanban Vitest 111, 모두 통과.
 
+### 인수 계약 자동화 (머신 검증 가능)
+
+LLM이 Triage 작업을 세분화(Specify / Decompose)할 때 작성한 인수 기준은 단순 문서가 아닙니다 — 구조화된 `completion_criteria` 계약으로 자동 파싱되어 작업 메타데이터에 저장됩니다:
+
+- **프롬프트 강제 체크리스트** — 영문/중문 세분화 프롬프트 모두 "Acceptance criteria" 섹션을 `- [ ]` 체크리스트로 작성하도록 요구하므로, LLM은 파싱 가능한 형태를 계약으로 출력합니다.
+- **섹션 인식 파서** — `parse_markdown_criteria`는 인수 기준 제목 **이후**(다음 제목까지)의 체크리스트 행만 추출합니다. LLM이 접근(Approach) 섹션에 작성한 과정 단계(`- [ ] 의존성 설치`)는 절대 인수 기준으로 오인되지 않습니다 — 가짜 게이트 제로.
+- **태어날 때부터 머신 검증 가능** — 파싱된 계약(`{"type":"semantic","criteria":...}`)은 실행 후 `CompletionVerifier`와 Goal Mode가 판정하는 기준 그 자체입니다 — 사람이 읽는 글자에 그치지 않습니다.
+- **시각화 및 편집 가능** — 작업 서랍에서 `completionCriteriaToText`를 통해 인수 기준을 체크리스트로 표시하며, 직접 조회하거나 편집할 수 있습니다.
+- **앞뒤 샘플링으로 잘림 사각지대 방지** — 긴 Agent 결과를 잘라낼 때 머리와 꼬리를 모두 보존하므로, 의미 판정이 잘림으로 인해 꼬리 핵심 증거(테스트 통과 행, 파일 확인 출력)를 잃지 않습니다.
+
+**왜 중요한가**: 경쟁사(OpenClaw / Hermes)의 plan 템플릿에는 `acceptance_criteria` 필드가 있지만 실행 후 **검증이 없습니다** — 완료는 자가 보고에 의존합니다. Myrm의 계약은 독립 이중 판정(비용 없는 Shell 검사 + LLM 의미 판정)으로 강제되며, 불합격 시 자동 재시도합니다 — 받는 작업은 항상 **검증된 산출물**이지 반쪽짜리 주장이 아닙니다.
+
+**검증됨 (2026-08-16)**: `criteria_parser.py` 섹션 인식 파싱 17 tests + `test_kanban_verifier` 43 tests (parser + verifier 100% 커버리지) + `test_kanban_criteria_integration` 실제 DB 전 형식 왕복.
+
 ### 역할 기반 칸반 LLM 도구
 
 Kanban 도구는 **선택** 및 **역할 지정**을 통해 토큰을 저장하고 오용을 줄입니다.

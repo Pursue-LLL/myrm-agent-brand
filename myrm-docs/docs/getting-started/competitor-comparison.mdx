@@ -2140,6 +2140,32 @@ While this semi-manual mode prevents LLM context pollution, it should **never** 
 
 **Conclusion: Migrating to Myrm frees your hands completely. Say goodbye to the artificial workflows you imposed on yourself just to "keep the model from acting dumb." Let the machine do the orchestration it was meant to do.**
 
+## Session-Level Performance Observability (vs Hermes / DeerFlow / CoPaw / LobsterAI / OpenClaw)
+
+### Where Myrm Goes Further
+
+When a long task feels slow, competitors give you nothing to act on — no breakdown of where the time went and no number for how long you actually waited for the first token. Myrm's session analytics panel turns "the agent felt slow" into concrete, actionable data:
+
+- **LLM duration breakdown by model**: every session's LLM calls are aggregated per model (`call_count` + `total_duration_ms`), so you can see at a glance which model is your cost bottleneck and which one is your time bottleneck.
+- **Response speed summary**: time-to-first-token aggregated at the session level (average + P95 + sample count), so a single slow reply stands out against the session baseline instead of being lost in one big duration number.
+- **Zero configuration**: the panel is fed entirely by existing event data — no new instrumentation, no extra LLM calls, no prompt-cache impact.
+
+### Competitor Pain Points
+
+| Competitor | What they have | What's missing |
+|------------|---------------|----------------|
+| **Hermes** | Per-event `duration_seconds` in CLI output | No user-facing session panel; no per-model aggregation; no TTFT summary |
+| **DeerFlow / CoPaw** | Nothing | No LLM duration aggregation of any kind |
+| **LobsterAI / OpenClaw** | Nothing | No session analytics panel |
+
+None of the five competitors aggregates LLM call durations by model or exposes a time-to-first-token summary in a user-facing panel.
+
+### Migration Wins
+
+1. **Bottleneck identification in one glance** — open any session's analytics and immediately see which model consumed the most wall-clock time.
+2. **Slow replies are no longer invisible** — the P95 TTFT number and per-reply comparison tell you exactly which response was the slow one.
+3. **No extra cost** — the feature is derived from data Myrm already records, so it adds zero token spend and zero configuration.
+
 ## Ready to Start?
 
 <CardGroup cols={2}>
