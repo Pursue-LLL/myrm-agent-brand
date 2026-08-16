@@ -68,6 +68,7 @@ WU 消耗细则见 [Work Units](/zh/core-concepts/work-units)。
 | 密钥 | AES-256-GCM 加密保管库 + 密钥轮换 |
 | 认证 | OAuth/OIDC + 企业 JWT 许可证验证 |
 | 监控 | 舰队健康监控 + 失败阈值告警 |
+| 进程生命周期 | tini PID-1 治理：僵尸进程回收 + 信号规范转发；CAP_KILL 保障降权子进程干净终止；完整 seccomp 系统调用白名单（253 个 syscall，对齐 Docker 官方基线），沙箱永不因 PID 耗尽而卡死 |
 | 可观测 | Prometheus 导出 + 多租户指标聚合 + 入站 X-Trace-Id / W3C traceparent 自动传播（反向代理/API 网关的分布式链路不断裂） |
 | 恢复 | 状态和解器（DB/容器/WS 三方一致性校验） |
 | 伸缩 | 资源伸缩器（空闲 CPU 降频）+ 沙箱回收器（双信号空闲检测：代理活跃同步 + WS 连接防护） |

@@ -69,6 +69,7 @@ The managed SaaS platform is built on a 21-layer enterprise infrastructure:
 | Auth | OAuth/OIDC + Enterprise JWT license validation |
 | Enterprise SSO | Admin GUI to configure OIDC (issuer/client_id/secret encrypted at rest) per organization; first-login auto-provisioning of members via IdP group whitelist or email-domain matching; org-specific sign-in links; audit-logged config changes |
 | Monitoring | Fleet health monitoring with failure threshold alerts |
+| Process lifecycle | tini PID-1 governance with zombie reaping + signal forwarding; CAP_KILL for clean privilege-dropped child termination; full seccomp syscall whitelist (253 syscalls aligned to Docker baseline) so sandboxes never stall from PID exhaustion |
 | Observability | Prometheus export + multi-tenant metric aggregation + inbound X-Trace-Id / W3C traceparent propagation (distributed traces never break across reverse proxies and API gateways) |
 | Recovery | State reconciler (DB/Container/WS three-way consistency check) |
 | Scale | Resource scaler (CPU throttle idle sandboxes) + sandbox recycler with dual-signal idle detection (proxy activity sync + WS connection guard) |
