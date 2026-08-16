@@ -376,6 +376,14 @@ Cross-cycle behavioral pattern analysis (runs weekly) surfaces insights users ma
 
 Discoveries include actionable suggestions that the agent proactively surfaces via Heartbeat injection.
 
+**Maturity gate** — discovery only runs once the memory system is mature enough: at least 50 memories and 3+ consolidation cycles. A memory-set hash detects "nothing changed since the last run" and skips the LLM call entirely, so weekly analysis never wastes model credits on unchanged memory.
+
+**Promotion to behavioral rules** — patterns that are stable across 3+ cycles (durability `established`), highly confident (≥ 0.8), and carry a concrete suggestion are automatically promoted to `ProceduralRule` through the standard pending-approval queue. Your agent learns your implicit work preferences and applies them proactively in future conversations — memory that grows into behavior.
+
+**Evolution review panel** — the WebUI Growth Dashboard's evolution tab renders every discovery as a card (title, confidence, stability badge, actionable suggestion, evidence), with expand/collapse and an "analyze now" trigger. Discoveries are also persisted to the operation ledger for the Command Center timeline.
+
+**Model alignment** — the analysis LLM is built from your WebUI default chat model, so you control which model does the weekly analysis. Structured output is tolerant of LLM field-name drift via alias mapping (`title↔category`, `evidence_summary↔evidence`, `actionable_suggestion↔suggestion`), so a slightly-off field name never breaks a run.
+
 ## Shared Context — Cross-Agent Knowledge Sharing
 
 Shared Context lets you create curated knowledge spaces that multiple agents, channels, or conversations can access. Unlike file-based project context (PilotDeck's `MEMORY.md` approach), Myrm's Shared Context is a governed, multi-tier system:

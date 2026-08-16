@@ -55,6 +55,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'connectorDoctor',
   'toolLineageAudit',
   'enterpriseAgentAudit',
+  'patternDiscovery',
 ] as const;
 
 export type HighlightSlideKey = (typeof HIGHLIGHT_SLIDE_KEYS)[number];
