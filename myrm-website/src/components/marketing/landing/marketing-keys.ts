@@ -53,6 +53,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'governanceGate',
   'failureFaultSide',
   'connectorDoctor',
+  'toolLineageAudit',
 ] as const;
 
 export type HighlightSlideKey = (typeof HIGHLIGHT_SLIDE_KEYS)[number];

@@ -223,6 +223,8 @@ GET /api/v1/statistics/session/{session_id}/trace
     "tool_calls": [
       {
         "sequence": 1,
+        "tool_call_id": "call_3f9ab21c",
+        "message_id": "msg-88",
         "tool_name": "read_file",
         "start_time": 1720000002.0,
         "end_time": 1720000003.5,
@@ -230,7 +232,15 @@ GET /api/v1/statistics/session/{session_id}/trace
         "success": true,
         "error": null,
         "input_data": { "path": "/src/module.py" },
-        "output_summary": "读取 200 行"
+        "output_summary": "读取 200 行",
+        "security_labels": [
+          {
+            "decision": "ALLOW",
+            "reason": "工作区内只读路径",
+            "tainted": false,
+            "ts": 1720000003.0
+          }
+        ]
       }
     ],
     "llm_calls": [
@@ -273,7 +283,10 @@ GET /api/v1/statistics/session/{session_id}/trace
 
 - **零存储回放**：追踪从追加式事件日志按需重建 —— 无需额外数据库或视频文件
 - **七种事件类型**：tool_start, tool_end, llm_call, human_feedback, memory, error, message
-- **前端会话回放播放器**：WebUI 提供三窗格交互式播放器（对话视图 / 思维视图 / 检查器），支持进度条拖拽、变速播放、键盘导航、一键跳转错误
+- **工具调用指令血缘**：每次工具调用通过唯一 `tool_call_id` 关联回触发它的指令 —— 并发同名工具绝不串线，真实 LLM 流式 `tasks_steps` 事件按 id 合并进同一血缘
+- **步骤级安全标签**：`security_audit` 决策（放行 / 拦截 / 风险标记，含原因与时间戳）通过 `tool_call_id` 精确附加到对应工具调用；找不到匹配工具调用的审计决策会记录告警而不是静默丢失
+- **准确的成败语义**：正常完成的步骤 `success: true`；失败步骤保留 `error` 并在回放中标红，运行中步骤琥珀色
+- **前端会话回放播放器**：WebUI 提供三窗格交互式播放器（对话视图 / 思维视图 / 检查器），支持进度条拖拽、变速播放、键盘导航、一键跳转错误 —— 工具步骤带安全裁决徽章（DENY/污染玫瑰红，放行琥珀色）
 - **数据集导出**：追踪可通过 `dataset_export` 管道批量导出为 ShareGPT/Alpaca/OpenAI JSONL 格式用于微调
 
 ## 成长统计

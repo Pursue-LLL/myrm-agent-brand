@@ -504,6 +504,30 @@ While competitors often force users to manage dozens of API keys or rely on rigi
 *   **Zero Key Management**: Stop juggling API keys for OpenAI, Firecrawl, FAL, etc.
 *   **Peace of Mind**: The elastic fallback means you get the convenience of a managed gateway with the reliability of your own backup keys.
 
+## Tool-Call Lineage DAG & Step-Level Security Verdicts (vs Claude Code / Hermes / OpenClaw / DeerFlow)
+
+Competitors treat tool calls as a black box: when the agent edits a file, runs a command, or hits the network, you cannot tell which instruction caused it, whether the safety system reviewed it, or how it fits into the overall execution. Myrm ships a full **tool-call instruction-lineage DAG** with **step-level security verdicts** attached.
+
+### Where Myrm Goes Further
+
+*   **Precise instruction → tool-call lineage**: every `tool_start`/`tool_end` is paired by a unique `tool_call_id` — concurrent same-name tools (e.g. two parallel `bash` calls) never cross-wire, and legacy events without an id fall back safely. Real LLM streaming `tasks_steps` events merge into the same lineage by id, so nothing is lost between the lifecycle events and the live progress stream.
+*   **Step-level security verdicts**: every `security_audit` decision (allow / deny / risk-flagged, with reason and timestamp) is anchored to the exact tool call and surfaced on the execution timeline. A `DENY` or tainted step is painted rose in session replay; approved steps carry their reason too. No decision is ever silently dropped — an audit without a matching tool call logs a warning instead of disappearing.
+*   **Accurate success semantics**: a step that completed normally is `success=true` — competitors often paint "completed" steps as failures or conflate terminal status with errors. Failed steps keep their error detail and are painted red with the reason in the Inspector.
+*   **Session replay with verdicts**: scrub any past session and see every sensitive action — which instruction triggered it, what it did, and the security verdict with its reason. In-product, no external SaaS, no extra fees.
+*   **No internal leakage**: internal pairing metadata (`tool_call_id`, `message_id`) never leaks into the displayed tool input — the Inspector shows the real arguments, not framework plumbing. Verified end-to-end with a real-LLM Chrome E2E (2026-08-15: harness 187 passed, server integration 16 passed, frontend 10 passed, Chrome E2E 1 passed in 283.22s).
+
+### Competitor Pain Points
+
+*   **Claude Code**: conversational resume-level lineage only — no per-step tool-call lineage, no security verdicts attached to individual steps.
+*   **Hermes / OpenClaw / DeerFlow**: no tool-call lineage DAG, no step-level security label propagation, no verdict visualization in any UI.
+*   **All competitors**: no way to answer "which instruction caused this sensitive operation and did the safety system review it?" from a replay timeline.
+
+### Migration Wins
+
+*   **Auditability you can see**: replace "trust the logs" with a replay timeline that shows every sensitive action, its cause, and its verdict.
+*   **Faster incident review**: when something goes wrong, pinpoint the exact instruction → tool call → decision chain instead of grepping logs.
+*   **Enterprise-ready**: step-level verdicts attached to the trace make compliance review straightforward — no separate audit tool to maintain.
+
 ## WebUI Security & Local/Remote Separation
 
 Most competitor web interfaces are either dangerously exposed when bridged to the public internet (LAN/Tunnel naked exposure) or overly burdensome for single-user local development (forcing DBs and logins for `localhost`).
