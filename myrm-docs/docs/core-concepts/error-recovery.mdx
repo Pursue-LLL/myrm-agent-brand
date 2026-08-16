@@ -259,6 +259,20 @@ When a tool call fails due to transient errors (network timeouts, rate limits, t
 - **Not developer-only**: Unlike framework-level retry configs (e.g. LangGraph's `RetryPolicy`), the heartbeat UI provides end-user visibility
 - **Not noisy**: Retries are silent — no error popups, no user decisions required for transient failures
 
+## Tool Feedback Neglect Guard
+
+Weak models often **ignore tool feedback**: after a tool returns a clear, unrecoverable error, the model keeps retrying with variations, switches to unrelated tools, or fabricates an answer — burning tokens and shipping half-finished work. Academic work (Scale AI's Tool Feedback Neglect paper, Zhou et al. 2024) identifies this as a distinct failure mode, but every competitor has only research and no product. Myrm ships the runtime guard:
+
+| Capability | What it does | Competitors |
+|------------|--------------|-------------|
+| **First-failure terminal registration** | Structurally unrecoverable errors (dead API keys, browser launch failure) are registered on the **first** hit via a pure classifier (`classify_terminal_error`) | Loop detectors need **3-5 consecutive failures** before reacting — the model burns 3-5 retries first |
+| **Family-scoped circuit breaking** | A broken search key blocks only search-family tools; a broken browser never drags down search. Global categories (`network_blocked`, `sandbox_ro`, `any`) remain available for full stop | No competitor isolates circuit breaking per tool family |
+| **Guide, don't just block** | `[SYSTEM_ENFORCED]` constraints are injected into the LLM context, so the model consciously switches tools or strategy instead of hitting a hard error — respecting the LLM-as-decision-maker principle | Competitors either block blindly or keep retrying |
+| **God-Mode ops injection** | Ops can write `.myrm_terminal_errors.json` to force a global block (network / read-only sandbox / full stop) — no code change, no restart, survives resets and restarts | No competitor offers an ops-level circuit-break entry |
+| **Recoverable errors untouched** | 429/5xx, empty results and page-level failures are deliberately **not** classified as terminal, so legitimate retries are never blocked | — |
+
+**Verified**: terminal-guard unit suite (20), family-classification branch coverage (12), registry two-channel semantics (9), full-chain middleware integration (7), server E2E deterministic rewrite (8 consecutive passes), Chrome E2E real-session pass, and full regression **4116 passed, 2 skipped** (Aug 2026).
+
 ## File Checkpoint
 
 Before any destructive file operation, `AutoSnapshotInterceptor` automatically takes a snapshot:
