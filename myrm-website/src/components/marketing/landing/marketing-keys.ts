@@ -57,6 +57,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'enterpriseAgentAudit',
   'patternDiscovery',
   'sessionPerfObservability',
+  'streamResilient',
 ] as const;
 
 export type HighlightSlideKey = (typeof HIGHLIGHT_SLIDE_KEYS)[number];

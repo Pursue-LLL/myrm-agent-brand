@@ -1726,6 +1726,16 @@
           "tag1": "LLM calls grouped by model with total duration",
           "tag2": "Response speed — avg & P95 first-token latency",
           "tag3": "Per-session analytics panel, zero configuration"
+        },
+        "streamResilient": {
+          "label": "No character left behind",
+          "title": "Reconnect and resume — every character intact",
+          "desc": "Other agents stream with diffs or naive chunking, so a dropped connection means dropped characters and reconnection is a gamble; on weak networks a slow client can pin the entire stream for everyone. Myrm's built-in stream buffer resumes exactly where you lost the connection using the standard SSE Last-Event-ID protocol — duplicates, gaps and reordering never happen. The Aug 2026 concurrency hardening means slow consumers (weak-network mobile) can no longer stall other clients, so several devices can watch the same live session without blocking each other.",
+          "stat": "0",
+          "statLabel": "content lost on reconnect (zero duplicates/gaps/reordering)",
+          "tag1": "SSE Last-Event-ID standard reconnect protocol",
+          "tag2": "Sliding-window buffer — zero-loss, zero-dup resume",
+          "tag3": "Slow-consumer isolation — multi-client, zero blocking"
         }
       }
     }
