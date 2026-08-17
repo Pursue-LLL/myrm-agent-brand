@@ -16,6 +16,20 @@ Unlike ephemeral sandboxes, Myrm sandboxes retain:
 - Environment configuration
 - Running processes (with auto-restart)
 
+### Crash-Consistent Persistence (Atomic Writes)
+
+Persistence is only useful if the data survives a crash intact. Myrm writes every critical state file through a **crash-consistent atomic write primitive** (`infra/atomic_write`): write to a temp file → `fsync` → atomic `rename` → `fsync` the parent directory. The target file is therefore **always either the complete old version or the complete new version — never a half-written fragment**, no matter when a process crash, power loss, or sandbox restart happens.
+
+This guarantee covers the state that matters most:
+
+- **Context snapshots** — conversation snapshots written before each compression cycle survive restarts intact, so long sessions recover their full context
+- **Teammate mailbox JSONL** — inter-agent message history never corrupts mid-write, keeping multi-agent collaboration state consistent
+- **Skill instance & state files** — skill configuration and runtime state round-trip atomically
+- **Encryption keys** — written atomically with `0o600` permissions, so keys are never truncated (which would make all historical data undecryptable) and never exposed
+- **Usage ledger** — append-only writes guarded by a lock, so concurrent appends never interleave into a corrupt ledger
+
+Competitors typically use direct overwrite writes (`open(path, "w")`), which truncate the original file before writing — a crash mid-write leaves a corrupted, unparseable file and permanent data loss. Myrm's atomic writes make "crash = data loss" a non-event.
+
 ## Isolation
 
 Each sandbox runs in an isolated environment with:
