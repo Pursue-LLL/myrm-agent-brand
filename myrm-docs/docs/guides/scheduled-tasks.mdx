@@ -333,6 +333,20 @@ On Tauri desktop, scheduled tasks automatically acquire a **PowerLock** to preve
 
 The lock is RAII-guarded and auto-released when the task completes, even on failure.
 
+## Monitoring Scheduler Health
+
+Beyond per-job failure alerts, Myrm monitors whether the **scheduler engine itself** is alive:
+
+| Signal | Where you see it | What you get |
+|--------|------------------|--------------|
+| **SchedulerHealthBadge** | Settings → Scheduled Tasks header | Green / yellow / red status + last tick time |
+| **App-wide alert banner** | Chat and other pages (hidden on the Cron settings page) | Engine stopped or degraded — visible even if you never open Scheduled Tasks |
+| **Last run on each card** | Every CronJobCard | Relative time + error/skipped coloring so a "still active" job cannot hide silence |
+
+When creating a custom job, the **Custom** tab shows a **live schedule preview** in plain language (same SSOT as blueprint fill and job cards).
+
+**Test verification (2026-08-17):** 58 vitest + 6 API + 1 Chrome E2E (single-session anti-mux, ~15s body).
+
 ## Blueprint Templates (One-Click Setup)
 
 Create common automation tasks in 3 clicks with pre-built templates. Navigate to **Scheduled Tasks > Create > From Template** to browse available blueprints.
