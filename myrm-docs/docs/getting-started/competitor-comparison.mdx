@@ -17,7 +17,7 @@ For per-turn capability control, Myrm supports **one-turn Skill/MCP override chi
 
 ## Latest Validation Snapshot (2026-08-17 · Subagent HITL Approval Chain · Plan A)
 
-- **Subagent high-risk bash → parent approval card (vs Claude Code / OpenClaw / Hermes):** When a child agent calls `bash_code_execute_tool`, the approval interrupt propagates through `delegate_task_tool` to the parent SSE stream (`tool_approval_request` / `action_type=subagent_approval`); WebUI `PolymorphicApprovalCard` supports approve/edit/reject/allow-always; the child resumes from a shared checkpointer.**Verified:** TestClient interrupt_e2e ×3 passed; delegate_task_tool 106 passed; harness subagent 365+ passed.**Competitors:** Claude Code lacks an independent child checkpointer resume chain; OpenClaw/Hermes child HITL often dead-ends in CLI.
+- **Subagent high-risk bash → parent approval card (vs Claude Code / OpenClaw / Hermes):** When a child agent calls `bash_code_execute_tool`, the approval interrupt propagates through `delegate_task_tool` to the parent SSE stream (`tool_approval_request` / `action_type=subagent_approval`); WebUI `PolymorphicApprovalCard` supports approve/edit/reject/allow-always; the child resumes from a shared checkpointer. Real WebUI requires **two Approve clicks** (`subagent_approval` then bash `tool_approval`).**Verified:** Chrome LIVE E2E **5/5** (interrupt live ×4 + WebUI approval flow ×1, 168–483s, `PYTEST_SAFE exit=0`); TestClient interrupt_e2e ×3; delegate_task_tool 106; harness subagent 365+.**Competitors:** Claude Code lacks an independent child checkpointer resume chain; OpenClaw/Hermes child HITL often dead-ends in CLI.
 
 ## Latest Validation Snapshot (2026-08-17 · Mem0 Import + Skill Growth UX · Real Chrome E2E)
 

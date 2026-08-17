@@ -17,7 +17,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 ## 最新验证快照（2026-08-17 · 子 Agent HITL 审批链 · 方案 A）
 
-- **子 Agent 高风险 bash → 父对话审批卡（vs Claude Code / OpenClaw / Hermes）：** 子 agent 调用 `bash_code_execute_tool` 时，审批中断经 `delegate_task_tool` 传播到父 agent SSE（`tool_approval_request` / `action_type=subagent_approval`）；WebUI `PolymorphicApprovalCard` 支持批准/编辑/拒绝/始终允许；子 agent 从共享 checkpointer 恢复继续执行。**验证**：TestClient interrupt_e2e ×3 passed；delegate_task_tool 106 passed；harness 子 agent 365+ passed。**竞品**：Claude Code 子 agent 无独立 checkpointer 恢复链；OpenClaw/Hermes 子任务 HITL 多 CLI dead-end。
+- **子 Agent 高风险 bash → 父对话审批卡（vs Claude Code / OpenClaw / Hermes）：** 子 agent 调用 `bash_code_execute_tool` 时，审批中断经 `delegate_task_tool` 传播到父 agent SSE（`tool_approval_request` / `action_type=subagent_approval`）；WebUI `PolymorphicApprovalCard` 支持批准/编辑/拒绝/始终允许；子 agent 从共享 checkpointer 恢复继续执行。真实 WebUI 需 **两轮 Approve**（`subagent_approval` 后再点 bash `tool_approval`）。**验证**：Chrome LIVE E2E **5/5**（interrupt live ×4 + WebUI 审批流 ×1，168–483s，`PYTEST_SAFE exit=0`）；TestClient interrupt_e2e ×3；delegate_task_tool 106；harness 子 agent 365+。**竞品**：Claude Code 子 agent 无独立 checkpointer 恢复链；OpenClaw/Hermes 子任务 HITL 多 CLI dead-end。
 
 ## 最新验证快照（2026-08-17 · Mem0 导入 + 技能成长 UX · 真实 Chrome E2E）
 
