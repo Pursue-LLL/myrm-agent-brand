@@ -126,6 +126,17 @@ When the agent runs Python code or Bash commands, the execution engine automatic
 
 The engine includes a built-in import-to-PyPI mapping table (PIL → Pillow, sklearn → scikit-learn, yaml → PyYAML, and more) and auto-detects whether `uv pip` is available. All code runs in an isolated shared virtual environment managed by VenvManager, ensuring user-installed packages never pollute the system Python.
 
+### Transparent Command Auto-Repair
+
+Beyond hints, Myrm **deterministically auto-repairs** common fragile commands inside the sandbox before the agent ever sees a failure. A shell init layer (`resilience_init.sh`) wraps fallible commands and transparently degrades them so the task keeps running:
+
+| Command | When It Fails | Automatic Fallback |
+|---------|---------------|--------------------|
+| `git clone <url>` | Timeout | `git clone --depth 1` (shallow) → **zipball download** |
+| `npm install` | Timeout / failure | `bun install` → clean cache + retry `npm install` |
+
+Each fallback emits a `[System Note: ...]` line back to the LLM explaining "the framework automatically fell back to guarantee success", so the model just continues — no re-analysis, no extra tokens, no manual intervention. This is the deterministic equivalent of what competitor "failure-experience retrieval" attempts to achieve with runtime semantic search, but at **zero LLM cost, zero latency, and without touching the prompt cache** (the note rides the dynamic tool-output channel). Combined with the rule-based `error_hint` above and persisted repeated-failure rules (`tool_capture`), the agent both **fixes fragile commands automatically** and **learns how tools tend to fail** across sessions.
+
 ## Fault-Side Attribution
 
 When a task fails, the most painful question is rarely "it failed" — it's **whose fault is it**? Model hallucination? A broken tool? Environment config? Your own input? Competitors only show a red error block and leave you guessing. Myrm answers deterministically with **zero LLM cost**: every failure is attributed to one of six fault sides using pure rule-based classification of existing error metadata.
