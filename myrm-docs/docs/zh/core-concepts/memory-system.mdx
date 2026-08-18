@@ -114,6 +114,15 @@ Hermes 将语义记忆与会话搜索拆成独立工具；CoPaw 默认 auto-inje
 
 **验证（2026-07-20）**：factory 单元 38 项（99.6% 覆盖）、API memory/session e2e 8 项、Chrome citation e2e 4 项、前端 vitest 7 项 — 模型 mimo-v2.5-pro（`.env.test`）。
 
+## 品牌风格记忆板（Brand Studio）
+
+Myrm 是唯一把「品牌身份」做成**可编辑 GUI + 稳定注入 agent 上下文**的 Agent 产品——AI 生成的交付物（文案/设计/HTML/PPT）自动符合你的品牌。
+
+- **结构化品牌表单** — Settings→知识组→品牌风格：名称/标语/主色/辅色/强调色/字体/语气/禁忌，原生 color picker + 实时预览卡 + 空态引导 + hex 字段校验。
+- **以 `brand_*` 前缀存为 profile 记忆** — 复用 agent 已读取的 profile 记忆通道，经稳定层「Global User Profile」（priority 1）在每会话首帧注入，不破坏 prompt cache。
+- **破坏性清空护栏** — 清空表单为破坏性操作（清空后保存会删除已配置字段），经 `ConfirmDialog`（destructive）二次确认后才清空；空表单时清空按钮禁用。
+- **竞品缺口** — openclaw/hermes/deer-flow/LobsterAI/CoPaw/jiuwenclaw 及 WorkBuddy 源码均 **0 匹配** brand memory；竞品仅停留在设计文档、未开源未实现。Myrm 复用已注入链路，无独立看板/复杂预览引擎的过度设计。
+
 ## 记忆诊断可解释闭环
 
 很多产品只告诉你“有记忆”，但不会告诉你“这一轮到底有没有真正用上记忆”。
