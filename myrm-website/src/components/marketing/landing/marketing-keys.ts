@@ -46,6 +46,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'evidenceDiscipline',
   'marketplaceAgentInstall',
   'rewindUndo',
+  'threeCeilingRead',
   'filePreview',
   'pdfSmartReading',
   'mcpEcosystem',
