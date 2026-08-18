@@ -161,6 +161,21 @@ Prompt caching reduces input token costs by up to 90% when cache hits occur.
 4. **Only-Append Policy** — History messages are never modified in-place, preserving prefix stability
 5. **Cache-Safe Skill Attenuation** — After loading a skill, tool access is narrowed via `tool_choice.allowed_tools`; the bound tool schema list stays frozen so Prefix Cache is not invalidated mid-session
 
+### Read-Time Dedup (Re-reading Files Never Breaks the Cache)
+
+Long sessions frequently re-read the same file (config, docs, code) across turns. Each re-read emits a fresh `ToolMessage` with identical content, which wastes context tokens and — more importantly — **shifts the message sequence, lowering the Prompt Cache hit rate**. Post-compression dedup (`deduplicate_tool_results`) only cleans up *after* the fact, when the duplicate content already occupied context and compression itself broke the cache.
+
+Myrm's `ReadDedupGuard` works **before** the read:
+
+- **Stub on unchanged** — Before `file_read_tool` reads a local file, it checks `(path, view_range, mtime)`. If the file is unchanged since the last read of the same key, it returns a lightweight stub ("File unchanged since last read") instead of re-sending the content, keeping the message sequence stable and the cache hot.
+- **Write invalidation** — `file_write_tool` / `file_edit_tool` invalidate the file's dedup state after a write, so a just-edited file is always re-read fresh.
+- **Post-compaction reset** — After context compression, dedup state is reset globally so content that was summarised away can be re-read, avoiding a "stub hit but content already compacted" dead loop.
+- **Hard-block escalation** — After N consecutive unchanged reads, the guard hard-blocks to stop weak tool-followers from looping on the same file.
+- **Per-executor isolation** — Dedup state is isolated per sandbox executor and cleared when a sub-agent task completes (no memory leak, no state contamination).
+- **Env kill-switch** — `MYRM_READ_DEDUP_ENABLED` (default on) for emergencies.
+
+**Verification (2026-08-18)**: `read_dedup.py` unit coverage **100%**; 10 real full-chain integration tests passed (real `LocalExecutor`, real write/edit tools, zero mocking) covering the full lifecycle — MISS → STUB → BLOCKED → write invalidation → mtime change → view-range specificity → post-compaction reset → per-executor isolation.
+
 ### Cache Preheat & Idle KeepAlive (Zero Cold-Start)
 
 Myrm automatically pre-warms the Anthropic/Qwen server-side prefix cache at three key moments:
@@ -356,6 +371,26 @@ When tool outputs exceed the context window budget (e.g., a 200KB JSON response,
 **Full data preservation**: Unlike competitors that replace oversized outputs with brief instructions (losing original data) or apply simple character truncation, Myrm's vault mechanism retains 100% of the original content. The Agent can retrieve any portion via `file_read_tool(paths=["vault://..."], line_range="100:200")`.
 
 **vs. competitors**: nanobot uses a single-layer "in-flight context governor" that replaces tool output with a bounded instruction — the original data is lost. OpenClaw uses 2-layer truncation (per-result + aggregate budget) with file spill — functional but lacks vault protocol and frontend visualization. Myrm's 7-layer approach ensures every tool pathway (MCP, bash, browser, subagent, hooks) has dedicated protection with independent fallback chains.
+
+### Compiler-Grade File Read Guardrails (Three Ceilings)
+
+The 7-layer defense handles the aftermath once output already exceeds budget. **Source prevention** — keeping junk tokens out of the context while the Agent reads a file — is handled by three smart guardrails, each stopping one kind of hostile file:
+
+| Ceiling | Blocks | Config |
+|---------|--------|--------|
+| Char budget `max_read_chars` | MB-scale logs / oversized CSV | default 10,000 chars |
+| Line-count cap `max_read_lines` | hundreds-of-thousands-row data files | optional |
+| Per-line length `max_read_line_length` | minified JS / base64 / wide CSV rows | default 2,000 chars/line |
+
+All three ceilings apply **consistently across every read path** — full read, preview mode, stream mode, and `vault://` knowledge-base pointers — so there is no gap where one mode is protected and another leaks.
+
+**Complete-line-boundary truncation**: Content beyond the budget is cut at a full line boundary — never splitting a line of code, so the model always sees complete syntax units, never "half a line of garbage." It also returns a **precomputed continuation offset** (`file.txt:offset-`), so continuing a large file doesn't require guessing.
+
+**Display-layer truncation, disk untouched**: Myrm's per-line clamp happens at the display layer — the file on disk is left byte-for-byte unchanged. This is naturally compatible with the integrity gate (`FileIntegrityGuard`'s read-before-write / version-match): the disk hash the gate sees matches what the model "saw," so edit validation never misfires due to truncation. Competitors (e.g. Hermes) clamp at the content layer, rewriting what was read and polluting the read record.
+
+**Zero-config, works out of the box**: defaults align with industry best practice — no configuration needed to stop hostile files from blowing up the context window or the token bill.
+
+**Verification (2026-08-18)**: 13 integration tests passed on the real full chain (real `LocalExecutor`, zero mocking of the critical read path, covering all/preview/stream/vault/line-range/directory/batch/BOM); `file_read_truncation.py` unit coverage **100%**; file_ops full regression **637 passed** with zero regressions. The tests also surfaced and fixed two pre-existing bugs: double-slicing that dropped lines in range reads, and truncated filenames in directory listings.
 
 ## Real-Time Recovery Progress Feedback
 

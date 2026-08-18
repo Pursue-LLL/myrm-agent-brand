@@ -157,6 +157,21 @@ Prompt 缓存命中时输入 Token 成本最高可降 90%。
 4. **仅追加策略** — 历史消息就地不改，保持前缀稳定
 5. **技能收窄不破坏缓存** — 加载技能后通过 `tool_choice.allowed_tools` 收窄可选工具；绑定的 tools schema 列表不变，会话中 Prefix Cache 不被打断
 
+### 读取时去重（重复读文件不再破坏缓存）
+
+长会话中 Agent 经常跨轮次反复读取同一文件（配置、文档、代码），每次重读都会向 LLM 发送一条**内容完全相同**的 ToolMessage。这不仅浪费上下文 token，更关键的是——它**改变了消息序列**，导致 Prompt Cache 命中率下降。压缩阶段的事后去重（`deduplicate_tool_results`）只在重复内容已进入上下文、缓存已被破坏后才清理，压缩本身反而进一步打断缓存。
+
+Myrm 的 `ReadDedupGuard` 在**读取前**工作：
+
+- **未变返回 stub** — `file_read_tool` 读取本地文件前，基于 `(path, view_range, mtime)` 判定文件是否未变。未变则返回轻量 stub（"File unchanged since last read"），不重发重复内容，保持消息序列稳定、缓存热。
+- **写后失效** — `file_write_tool` / `file_edit_tool` 写入后自动失效该文件 dedup 状态，刚编辑的文件总是被重新读取。
+- **压缩后重置** — 上下文压缩后全局重置 dedup，被摘要/截断的内容可被重新读取，避免"stub 命中但内容已被压缩掉"的死循环。
+- **硬阻断防循环** — 连续 N 次未变重读后升级为硬阻断（BLOCKED），阻止弱工具遵循的模型陷入反复重读同一文件的循环。
+- **按 executor 隔离** — 每个沙箱独立维护 dedup 状态，子任务完成后自动清理，无内存泄漏、无状态串扰。
+- **env kill-switch** — `MYRM_READ_DEDUP_ENABLED`（默认开启）一键关闭，紧急兜底。
+
+**验证（2026-08-18）**：`read_dedup.py` 单元覆盖 **100%**；10 个真实全链路集成测试通过（真实 `LocalExecutor` + 真实 write/edit 工具，零 mock），覆盖 MISS→STUB→BLOCKED→写失效→mtime 变化→view_range 特异性→压缩重置→executor 隔离全生命周期。
+
 ### 缓存预热与空闲保活（零冷启动）
 
 Myrm 在三个关键时刻自动预热 Anthropic/Qwen 服务端前缀缓存：
@@ -352,6 +367,26 @@ Myrm 通过**架构级 correct-by-construction 保证**而非运行时检测来�
 **完整数据保留**：竞品替换超大输出为简短指令（原数据丢失）或仅做字符截断，Myrm 的 vault 机制保留 100% 原始内容。Agent 可通过 `file_read_tool(paths=["vault://..."], line_range="100:200")` 按需精确读取任意片段。
 
 **vs. 竞品**：nanobot 使用单层"in-flight context governor"，用 bounded instruction 替换工具输出——原始数据丢失。OpenClaw 使用 2 层截断（per-result + aggregate budget）+ 文件 spill——可用但缺乏 vault 协议和前端可视化。Myrm 的 7 层方案确保每条工具路径（MCP、bash、浏览器、子 Agent、hooks）都有专属防护和独立 fallback 链。
+
+### 编译器级文件读取护栏（三上限）
+
+7 层防护处理的是"输出已超预算"后的兜底。而**源头预防**——Agent 读文件时就把 junk tokens 挡在上下文之外——由三道智能护栏完成。三上限分别拦截一类 hostile 文件：
+
+| 上限 | 拦截对象 | 配置 |
+|------|---------|------|
+| 字符预算 `max_read_chars` | MB 级日志 / 超大 CSV | 默认 10,000 字符 |
+| 行数上限 `max_read_lines` | 几十万行数据文件 | 可选 |
+| 单行长度 `max_read_line_length` | minified JS / base64 / 宽 CSV 行 | 默认 2,000 字符/行 |
+
+三上限在**所有读路径一致生效**——全量读取、预览模式、流式模式、`vault://` 知识库指针——不会出现一种模式防得住、另一种却漏网的断层。
+
+**完整行边界截断**：超出预算的部分在完整行边界截断，绝不切开一行代码，模型看到的永远是完整语法单元，不会收到"半行垃圾"。同时返回**预计算的续读位置**（`file.txt:offset-`），大文件接着读不靠猜。
+
+**显示层截断，磁盘零改动**：Myrm 的 per-line clamp 发生在展示层——磁盘上的文件一字未动。这与完整性门禁（`FileIntegrityGuard` 的先读后写 / 版本匹配）天然兼容：门禁拿到的磁盘 hash 与模型"看到"的内容一致，编辑校验不会因截断而误判。竞品（如 Hermes）在内容层 clamp，读到的内容已被改写，会污染读记录。
+
+**零配置开箱即用**：默认值对齐业界最佳实践，无需任何配置即可拦截 hostile 文件，防止读文件撑爆上下文与 Token 账单。
+
+**验证（2026-08-18）**：三上限真实全链路集成测试 **13 passed**（真实 `LocalExecutor`，零 mock 关键读路径，覆盖 all/preview/stream/vault/行号范围/目录/批量/BOM）；`file_read_truncation.py` 单测 **100%** 覆盖；file_ops 全量回归 **637 passed** 零回归。测试还逼出并修复了两个既有 bug：行号范围读取的双重切片丢行、目录列表文件名被截断。
 
 ### 后台任务的极致降噪与 Token 优化
 
