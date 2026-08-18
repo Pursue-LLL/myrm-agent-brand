@@ -46,6 +46,7 @@ Myrm 提供**编译型知识库（Wiki）**——不是让 Agent 解读的一堆
 | **概览 Compile 操作区** | 同一 SSE `compile_run.phase` 在 Compile/Maintain 按钮上方显示共享阶段条 | 主路径编译不必切 Queue Tab 也能看到进度 |
 | **概览 → 原始来源树** | bulk compile 中 `tree_sync_required` 触发 silent `GET /wiki/raw/tree`，三色 ingest 点 live 更新 | 文件从「未编译灰点」变「已入库绿点」可即时看见，建立迁移信任 |
 | **词条 Tab 树** | 同上信号在词条 Tab 挂载时刷新 concept 树 | 关联源过期的 amber 点随编译推进更新 |
+| **Agent 编辑的词条** | 树指纹现已覆盖编译后的 `concepts/` 页（mtime+size，不读内容）。Agent 经 `wiki_apply`（或任意写路径）编辑词条后，约 5s SSE 轮询检测到变化并自动刷新树/详情——无需手动刷新 | Agent 的知识编辑自动出现在 GUI，即使改动来自 Agent 而非批量编译 |
 
 <Note>
 实时推送仅在 Settings Wiki 页 EventSource 连接期间生效；关闭设置页即停止 SSE——这是 GUI 范围内的可见性设计，不是后台守护进程。Hermes SKILL / OpenClaw 纯 MD 文件夹等竞品无等价 Queue 面板 + compile 中树 badge live。

@@ -157,6 +157,7 @@ When **Settings → Wiki** is open in the browser or desktop app:
 | **Overview compile actions** | Same SSE `compile_run.phase` drives a shared phase bar above Compile/Maintain while bulk ingest runs. | Primary compile path shows progress without switching to Queue tab. |
 | **Overview → Raw sources tree** | Ingest status dots refresh during bulk compile (`tree_sync_required` → silent `GET /wiki/raw/tree`). | Gray/green/amber dots track "not compiled / clean / modified" while files are still processing. |
 | **Concepts tab tree** | Same signal triggers concept-tree reload when that tab is mounted. | Amber dots on concepts with stale sources update as compile finishes. |
+| **Agent-edited concepts** | The tree fingerprint now also covers compiled `concepts/` pages (mtime+size, no content read). When the agent edits a concept via `wiki_apply` (or any write path), the ~5s SSE poll detects the change and auto-refreshes the tree/detail — no manual Refresh. | See agent's knowledge edits appear in the GUI automatically, even when the change came from the agent rather than a bulk compile. |
 
 <Note>
 Live updates require the Settings Wiki page to stay open (EventSource subscription). Closing Settings stops SSE — this is intentional GUI-scope visibility, not a background daemon. Competitors with CLI-only or file-tree-only wikis (Hermes SKILL, OpenClaw markdown folders) do not offer an equivalent Queue panel + live ingest badges.
