@@ -126,9 +126,12 @@ Missing an Extra surfaces a clear install hint at call time (not a silent mid-co
 Myrm handles dependencies automatically so you never need to manually install packages:
 
 - **Channel SDKs** — When you enable Matrix, Discord, or Feishu channels, the required Python packages are installed on-demand via an allowlist-secured mechanism. No restart needed.
+- **Optional skill extras** — Some prebuilt skills declare Python packages outside the default bundle. Example: WeChat article formatting (`wechat-article-formatter`) needs `markdown` + `pygments` — install with `uv sync --extra wechat-formatter` (included in Docker `--all-extras`; excluded from minimal Desktop bundles that skip GPL/heavy extras).
 - **MCP Servers** — External tools run via `npx`/`uvx` which manage their own environments automatically. Just add a server in the GUI and it works.
 - **Doctor diagnostics** — Run `myrm doctor` to check system health: Python version, core dependencies, browser availability, and more. Each failure includes a fix suggestion.
 - **Security by default** — Only pre-approved packages can be auto-installed. MCP servers are scanned for malware (OSV) and prompt injection before activation.
+
+**Agent stack SSOT:** `litellm` / `langchain` are pinned once in the harness package; the server consumes them transitively—no duplicate pins that drift out of sync during upgrades.
 
 ## Updating
 

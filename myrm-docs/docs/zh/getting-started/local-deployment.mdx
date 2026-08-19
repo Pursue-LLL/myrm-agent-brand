@@ -126,9 +126,12 @@ pip install 'myrm-agent-harness[fastapi,web,compiled-core]==0.1.0'
 Myrm 自动处理依赖安装，无需手动操作：
 
 - **渠道 SDK** — 启用 Matrix、Discord 或飞书渠道时，所需 Python 包通过安全允许列表机制按需安装，无需重启服务。
+- **可选 Skill 扩展** — 部分预置 Skill 需要额外 Python 包。例如微信公众号排版 Skill（`wechat-article-formatter`）需 `markdown` + `pygments`：`uv sync --extra wechat-formatter`（Docker `--all-extras` 已含；精简桌面包会排除 GPL/重型 optional）。
 - **MCP 服务器** — 外部工具通过 `npx`/`uvx` 运行，自动管理各自的环境。在 GUI 中添加服务器即可使用。
 - **Doctor 诊断** — 运行 `myrm doctor` 检查系统健康状态：Python 版本、核心依赖、浏览器可用性等。每项检查失败都附带修复建议。
 - **安全优先** — 仅预先批准的包可被自动安装。MCP 服务器在激活前会进行恶意软件（OSV）和提示注入扫描。
+
+**Agent 栈 SSOT：** `litellm` / `langchain` 仅在 harness 包 pin 一次，server 通过传递依赖消费，避免双 pin 升级漂移。
 
 ## 更新
 

@@ -256,6 +256,6 @@ export const USE_CASE_KEYS = ['research', 'coding', 'automation', 'content'] as 
 
 export type UseCaseKey = (typeof USE_CASE_KEYS)[number];
 
-export const FAQ_ITEM_KEYS = ['what', 'pronounce', 'local', 'data', 'embedWindow', 'cloudResources'] as const;
+export const FAQ_ITEM_KEYS = ['what', 'pronounce', 'local', 'data', 'embedWindow', 'cloudResources', 'optionalExtras'] as const;
 
 export type FaqItemKey = (typeof FAQ_ITEM_KEYS)[number];
