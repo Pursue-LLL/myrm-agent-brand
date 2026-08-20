@@ -50,6 +50,8 @@ The desktop app provides deep system integration that no browser-based AI tool c
 - **Python Sidecar** — Managed FastAPI backend process with health checks
 - **Next.js Sidecar** — Managed standalone frontend server for WebUI mode
 - **Agent Runner Sidecar** — Bun-compiled standalone binary for CLI agent integration
+- **Windows Process Tree Recursive Termination & Job Object Guard** — Eliminates Windows survivor process file locking during OTA updates, and utilizes kernel-level Job Objects ensuring all child processes exit cleanly
+- **Survivor Diagnosis & Port Self-Healing** — Automatically identifies old Myrm instances on port conflict, triggers intelligent Re-kill, and backs off until port is completely free
 - **Port Conflict Detection** — Pre-launch checks to prevent port collisions
 - **Out-of-the-box API alignment** — In default Desktop mode the UI talks to backend on `127.0.0.1:8080` automatically (no manual port hunting). Enable **WebUI mode** when you need remote access; the UI then reads your configured port (e.g. `25808`) from system config
 - **Boot screen backend gate** — On cold start, the boot animation waits until the Python backend `/health` succeeds before entering the main UI, avoiding connection-error floods; Rust also polls health for up to 30s
