@@ -143,9 +143,20 @@ Citations are **persisted to the database** and survive **page reload** — not 
 1. Go to **Settings → Wiki 知识库 (Wiki)**.
 2. Use the tabs:
    - **Overview** — purpose, stats, compile/maintain actions, ad-hoc query.
-   - **Concepts (词条管理)** — folder tree, CRUD, drag-and-drop.
-   - **Pending edits** — human-in-the-loop approve/reject for LLM drafts.
+   - **Concepts (词条管理)** — folder tree, CRUD, drag-and-drop, and **split-pane Markdown live-preview editing**.
+   - **Pending edits** — human-in-the-loop approve/reject for LLM drafts with **live-preview modifications**.
    - **Queue** — document ingestion pipeline status.
+
+## Split-Pane Markdown Live-Preview Editor & Draft Protection
+
+In **Concepts** (Compiled Truth / Advanced tabs) and **Pending Edits** (draft edit mode), Myrm offers a **Typora-grade split-pane Markdown editing surface**:
+
+| Feature | Design | User Benefit |
+|---------|--------|--------------|
+| **Source + Preview Split** | Monaco Editor on the left (code folding/shortcuts/dark-light theme sync) + MarkdownContent on the right (GFM/KaTeX/syntax highlighting/charts) | What-you-see-is-what-you-get layout; preview updates instantly without blind guessing. |
+| **Deferred Preview Rendering** | React 19 `useDeferredValue` decoupling source typing from DOM rendering | Silky-smooth typing responsiveness on long-form documents without input lag. |
+| **Unsaved Draft Guard** | Switching tree nodes or canceling edits with unsaved changes triggers a **"Discard unsaved changes?" confirmation dialog** | Eliminates accidental navigation and data loss. |
+| **Keybindings & Responsive** | Full `Cmd+S` / `Ctrl+S` quick save support; automatically switches to an "Edit / Preview" tabbed layout on mobile devices | Pro keyboard workflow on desktop, seamless touch inspection and editing on mobile. |
 
 ## Live compile visibility (Settings open)
 

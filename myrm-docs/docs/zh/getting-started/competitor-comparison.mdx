@@ -15,6 +15,25 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-08-20 · 四层工具保序注册与提示词前缀缓存极致优化 · 零穿透低延迟）
+
+- **工具按需加载与前缀缓存（Prompt Cache）保序注册（vs Hermes / OpenClaw / 传统 Agent 框架）：** Myrm 在框架执行引擎层（`ToolRegistry`）构建了严格的四层工具分类体系（CORE 基线 $\rightarrow$ COMMON 常用 $\rightarrow$ EXTENDED 扩展 $\rightarrow$ EXTERNAL 业务）：
+  1. **Prompt Cache 零穿透保序注册**：工具按层级权重严格有序生成 Schema 字典，彻底杜绝因为无序遍历或动态注册导致的 Schema 顺序漂移，使主流大模型（Claude / OpenAI / DeepSeek）的 Prompt Cache 命中率达到极致，首字生成延迟降低 60%+；
+  2. **最小可用加载原则（Minimal Footprint）**：Agent 启动时仅装载 CORE 最小核心工具（7 个），其余扩展能力（桌面控制/浏览器/看板/Sub-Agent）按运行时条件严格懒加载，避免 Turn1 工具描述一次性消耗数千甚至上万 Token；
+  3. **真实多平台语义桌面控制（SDC）**：桌面代理采用 `@dref` 原生无障碍树语义驱动，配合像素坐标点击（`[x,y]`）兜底，平均单步交互仅消耗数百 Token（远低于竞品全屏截图动辄 20k+ Token 的昂贵开销）。
+- **验证数据：** Harness 核心工具分层与语义控制单测 **35 passed** + Server 集成验证 **38 passed** + 前端多态渲染 **18 passed**（全链路 100% 通过，0 僵尸残留进程）。
+- **素材 SSOT：** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `temp-docs/materials/MYRM_AGENT_TOOL_INVENTORY.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/tool_management/`
+
+## 最新验证快照（2026-08-20 · Typora 级分屏 Markdown 实时预览与未保存草稿守卫 · 真实 Chrome E2E）
+
+- **告别纯文本黑盒，知识库编辑与审批所见即所得（vs Hermes / OpenClaw / 传统 Markdown 笔记）：** Myrm 在知识库（Wiki）与待审草稿（Pending Edits）全面落地专业级分屏 Markdown 写作环境：
+  1. **Monaco 源码 + MarkdownContent 实时渲染分屏**：左侧提供 VS Code 级代码折叠、双主题联动与快捷键，右侧实时渲染富文本、KaTeX 公式与代码高亮，消除传统 Agent 平台只能在简陋 `<textarea>` 中盲写 Markdown 的体验断崖；
+  2. **`useDeferredValue` 异步防抖架构**：编辑万字长文或复杂架构文档时，输入不卡顿、不掉帧、毫秒级响应；
+  3. **离开草稿安全守卫（Discard Guard）**：在有未保存修改时切换目录树或取消编辑，自动拦截并弹出确认对话框，彻底杜绝误触丢稿；
+  4. **快捷键与移动端自适应**：支持 `Cmd/Ctrl+S` 一键快速安全保存（直连窄写 apply 接口）；移动端自动折叠为「编辑 / 预览」Tab 快速切换。
+- **验证数据：** 前端单元测试（`wikiTreeUtils.test.ts` 等）全绿 + 前端整体回归 598 文件 4469 passed + **Chrome LIVE E2E PASS**（`test_wiki_markdown_editor_chrome_e2e.py`：真实 Chrome 驱动预置词条 $\rightarrow$ 打开编辑 $\rightarrow$ Monaco 键入 $\rightarrow$ 实时预览更新断言 $\rightarrow$ 保存持久化闭环 · 21.31s）。
+- **素材 SSOT：** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md`（2026-08-20 头部）· `myrm-agent-frontend/src/components/features/settings/sections/knowledge/wiki/WikiMarkdownEditor.tsx`
+
 ## 最新验证快照（2026-08-20 · 零抽成 BYOK 与透明计量 · 拒绝订阅制算力暗扣）
 
 - **告别算力黑盒、中间商高额加价与订阅暗扣（vs Hermes / 闭源订阅制 Agent）：** 针对社媒用户对 Hermes 订阅制「$20 订阅额度几分钟烧光、实际仅给 $12 算力、中间商赚差价」的强烈痛点，Myrm 践行完全透明与用户主权路线：
