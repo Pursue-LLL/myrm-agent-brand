@@ -283,16 +283,17 @@ Each sub-agent runs in an isolated workspace and system sandbox:
 - **Automatic GC** — Three-layer garbage collection (stale events, run records, workspace dirs) runs every 6 hours and on startup. Archived task workspaces are safely deleted with harness-dir boundary checks, and DB paths are nulled to prevent repeated scans — zero manual maintenance required
 - **UI Interaction Blacklisting** — Sub-agents running in the background are completely physically blocked from using UI interaction interfaces (like `interactive_feedback` or `send_message`), ensuring they never pop up windows to interrupt the user unexpectedly.
 
-### Line-Level Conflict Detection
+### Line-Level Conflict Detection & Workspace Concurrency Serialization
 
-When multiple sub-agents work on the same codebase concurrently, Myrm prevents file corruption through line-level conflict detection:
+When multiple sub-agents or Kanban tasks work on the same codebase or directories concurrently, Myrm prevents file corruption through multi-layered defenses:
 
+- **Per-Workspace Execution Lock** — Before running a task, the Kanban scheduler serializes tasks sharing the same normalized physical path (`os.path.realpath`), while tasks on separate Git Worktrees run in full parallel. While waiting for a contested workspace lock, the system automatically posts localized progress notes to the UI.
 - **Pre-write checking** — Before any file write, the system checks if another agent has recently modified overlapping line ranges in the same file
 - **Dual-severity response** — Overlapping line ranges trigger a blocking error (prevents the write), while edits to different regions of the same file produce a non-blocking warning
 - **Zero network overhead** — Conflict detection runs entirely within the harness layer, with no control-plane round-trips
-- **Automatic cleanup** — When a sub-agent completes, its file activity records are cleared
+- **Automatic cleanup** — When a sub-agent completes, its file activity records are cleared; idle workspace locks are freed immediately to avoid memory leaks
 
-This approach is strictly more precise than semantic-distance-based collision detection used by some competitors — it operates at exact line ranges rather than approximate semantic proximity.
+This approach is strictly more reliable and precise than competitor models (such as DeerFlow's unlocked shared sandbox leading to file corruption, or OpenClaw's tool-level path locks bypassable by bash scripts) — it provides rock-solid safety at both task scheduling and filesystem write layers.
 
 ### Seamless Human-in-the-Loop (HITL)
 

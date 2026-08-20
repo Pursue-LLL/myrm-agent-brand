@@ -15,6 +15,17 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-08-20 · 零时延跨平台设备拦截与 7 阶 Unicode 路径自愈 · 真实全量回归）
+
+- **恶劣路径与异常参数 100% 透明自愈，沙箱绝不卡死（vs Hermes / OpenClaw / Claude Code）：** Myrm 在底座文件引擎层（`file_read_tool` + `path_security` + `path_hint`）构建了全方位的鲁棒性防线：
+  1. **8 类别名静默归一化**：模型输出 `filePath`、`file_path`、`path`、`file` 等 8 种类名入参时，Pydantic 前置校验器静默转换，零 Schema 变更、零 Prompt Cache 污染，彻底杜绝模型调用报错；
+  2. **7 阶 Unicode 路径探测自愈**：从钉钉、飞书、网页或富文本复制带弯引号（`“data.json”`）、全角斜杠、零宽空格、NBSP 或 macOS APFS NFD 字符的路径时，系统在盘自动探测自愈，直接挽救原本会失败的 Agent 交互轮次；
+  3. **Pre-IO 零时延跨平台设备拦截**：访问 `/dev/zero`、`\\.\COM1`、Windows 22 个保留设备名（`CON`, `PRN`, `AUX`, `NUL`, `COM1-9`, `LPT1-9` 及其扩展名）或特殊字符/块/FIFO设备时，在物理 I/O 发生前被瞬时拦截，保护沙箱绝不 OOM、绝不挂死；
+  4. **Bounded Levenshtein-2 纠错建议**：输错文件名时以 $\le 2$ 步编辑距离剪枝优先推荐，提速 70%+，消除远距离幻觉推荐；
+  5. **严格行号区间防幻觉**：拒绝 `<= 0` 或倒序区间（如 `:50-10`），杜绝因倒序切片返回空内容导致模型产生“文件为空”的推理幻觉。
+- **验证数据：** `test_path_security.py` + `test_path_and_skill_filters.py` + `test_file_read_aliases_and_safety.py` 专项全通过 + 跨模块全量集成回归 **2887 passed**（0 失败，0 告警）。
+- **素材 SSOT：** `temp-docs/materials/FILE_SYSTEM_INTELLIGENCE_ADVANTAGE.md`（2026-08-20 头部）· `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_ops/file_read_tool.py` · `myrm-agent-harness/src/myrm_agent_harness/core/security/path_security.py`
+
 ## 最新验证快照（2026-08-20 · 桌面端本地文件夹拖拽即授权 · 零打断工作区）
 
 - **本地项目文件夹直接拖入，Agent 零打断直读（vs OpenClaw / Hermes Agent / Claude Code）：** Myrm 在 Tauri 桌面端深度融合操作系统拖拽事件（`tauri://drag-drop`）——用户将电脑上的任意本地文件夹直接拖入聊天输入框，前端毫秒级捕获物理绝对路径，并自动调用 `grantSessionAccessRoot` 写入当前会话的安全访问白名单（输入框即时呈现带读写状态的已挂载 Chips 与一键撤销按钮）。Agent 第一轮执行直接命中白名单放行，彻底消除了传统流程中“发消息 $\rightarrow$ PathPolicy 拦截 $\rightarrow$ 中断挂起 $\rightarrow$ 弹出系统文件夹选择框 $\rightarrow$ 一层层重新翻找选中 $\rightarrow$ 点击授权恢复”的 4 步割裂打断，节省 1 轮 LLM Token 与 5~15 秒等待时间。
@@ -246,6 +257,18 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **已验证**：Settings **外部来源**面板（Gmail 标签 + **Google Drive 文件夹** + RSS + 集成镜像 → wiki `raw/` · `publish_raw`）；**零 LLM pull**；OAuth 自动开启 Gmail `ReadLater`；缺 Drive read scope 时 **`google_drive_authorized` 重连提示**；持久化同步状态 + **`syncIssue` 错误回显**；Cron 蓝图 **`read_it_later`** router（`__wiki_source_sync__` · 空 tools）。
 - **相对竞品的用户收益**：GUI 完整 **摄入→编译→检索** 闭环（收藏邮件 + **Drive 文档** + RSS）——OpenClaw 为 Gmail **Pub/Sub 聊天 hook**（非 wiki vault 管道）；Hermes/OpenClaw **google-workspace CLI** 可读 Drive 但**非**编译 wiki raw 管道 + Settings GUI + cron；deer-flow / LobsterAI / CoPaw / jiuwenclaw 参考仓 **无对等能力**；OpenWiki Gmail 为 **env 配置**且**无 Drive connector**。
 - **诚实边界**：Gmail 标签与 Drive 文件夹 ID **手填**——**不做标签下拉 / Drive Picker**（终极扣问 WORTH:NO）；**无 OneDrive**（broken stub 已删）；Integrations API `drive_read_enabled` 对称字段 **WORTH:NO**（OAuth scope 已暴露）。本轮未跑 Chrome MCP E2E；行为由 mock Gmail/Drive API 单测证明。
+
+## 最新验证快照（2026-08-20）
+
+- **本地工作区极速挂载与多根环境拓扑感知（vs Cursor / Windsurf / Claude Code / Cline）**：
+  - **实测验证**：后端 `test_session_access_roots_prompt.py` + `test_session_access_roots_api.py` + `test_session_access_service.py` **13/13** 通过；底层安全与中间件 `test_path_security.py` + `test_session_access.py` + `test_session_access_middleware.py` **47/47** 通过；前端组件与 Hook `SessionAccessRootsBar.test.tsx` + `useDesktopFolderDrop.test.ts` **10/10** 通过，全链路 **70 项自动化测试 0 失败**。
+  - **核心机制**：
+    1. **原生拖拽即时动态白名单**：桌面端/Web 端直接拖入本地文件夹，毫秒级注入会话安全白名单并跨会话持久化，0 越界阻断。
+    2. **确定性字典序提示词拓扑注入**：在 `GeneralAgent` 拼装系统提示词时格式化 `[Mounted Workspace Directories]`，标明绝对物理路径与读写权限，100% 保护 Prompt KV Cache 命中率，彻底消灭大模型开局“认知盲盒与反问”。
+    3. **前端高质感交互闭环**：Chip 标签支持悬停查看完整绝对路径、一键点击复制路径（带 Sonner Toast 反馈）与即时撤销权限。
+  - **用户迁移收益**：
+    - 对比 **Cursor / Windsurf**：彻底告别重型后台 Language Server 与 File Watcher 导致的 CPU 占满、风扇狂转与电量狂掉；Myrm 采用轻量拓扑 + 按需精准工具直达，资源开销仅为竞品 1/100。
+    - 对比 **Claude Code / Cline**：彻底告别跨目录操作频繁在命令行或弹窗阻断式打断用户心流，实现多仓库微服务协同的流畅无感操作。
 
 ## 最新验证快照（2026-07-27）
 

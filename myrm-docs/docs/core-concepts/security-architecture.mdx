@@ -958,3 +958,13 @@ The CaMeL Guard project implements a research-based trust boundary model (truste
 | Credential pool | 2 strategies (fill_first/round_robin) | **4 strategies** + exponential backoff + jitter anti-stampede |
 | Path security | Allowlist-based path checking | **PTC process-level sandbox isolation** |
 | Context management | Single-file compressor | **20+ module pipeline** (cache healer + anti-thrashing + session notes) |
+
+## Skill Quarantine Sandbox & Atomic Installation
+
+To guard against malicious third-party packages and partial installation failures, Myrm's execution harness integrates a quarantine and atomic installation pipeline:
+
+1. **Quarantine Sandbox Directory**: Remote skills (Git or ZIP) are extracted and staged in an isolated temporary directory before touching the active workspace.
+2. **Path Traversal Containment**: All relative paths inside skill packages are sanitized against the sandbox boundary, blocking Zip Slip and relative directory escape attempts.
+3. **Pre-Activation Security Gate**: Regex, AST, and LLM semantic security checks run entirely inside the quarantine directory. Rejected packages are purged without touching disk storage.
+4. **Atomic Replace with Automatic Rollback**: Installations and upgrades create a `.bak` backup and perform an atomic swap. File system IO errors trigger an instant rollback to the previous version.
+5. **Fault-Tolerant Multi-Source Search**: Aggregated skill registry queries run with per-source timeouts and fault isolation, preventing slow or failing registries from hanging the discovery UI.
