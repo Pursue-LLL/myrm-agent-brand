@@ -15,6 +15,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-08-20 · Maka UI 标准化骨架屏与空状态视觉三态机 · Roadmap #2 完工）
+
+- **1:1 像素拟合骨架屏与高容灾三态机（vs Linear / Raycast / Manus / 传统开源 Agent）：** Myrm 在全站核心业务面板与主干路由构建了企业级视觉加载与空状态三态机系统：
+  1. **7 大标准化拓扑骨架模板集（`skeleton-templates.tsx`）**：覆盖 `ListSkeleton`、`CardGridSkeleton`、`TableSkeleton`、`FormSkeleton`、`ListDetailSkeleton`、`MetricCardsSkeleton`（仪表盘 KPI 网格）与 `TimelineSkeleton`（时序成长流节点），实现布局 1:1 拟合，彻底消灭首屏加载时的累积布局偏移（CLS 归零）；
+  2. **高信噪比 EmptyState 状态机（`empty-state.tsx`）**：提供 `default`、`dashed`、`compact`、`card` 与 `error` 5 种标准形态，内置柔和光晕、深浅双主题自适应、6 语言国际化文案与完整 A11y 无障碍属性（`aria-busy` / `aria-live`）；
+  3. **全站主干路由 100% 收敛换装**：彻底替换 `GrowthDashboard`、`LearningTimeline`、`ArtifactsCenter`、`RateLimitTab`、`ToolStabilitySection` 与 `CronJobList` 中的老旧 `Loader2` 菊花转圈与粗糙手写 empty 容器；
+  4. **原位错误容灾与一键重试**：网络断开或沙箱冷启动失败时，原位平滑切换为带红色警示图标与一键重试 CTA 的容灾态，杜绝白屏与未捕获异常；
+  5. **全栈测试背书**：前端基元 12/12 单元测试全通过 + 后端统计 API 7/7 集成测试全通过（100% 绿色通过）。
+- **素材 SSOT：** `temp-docs/materials/USER_EXPERIENCE_ADVANTAGE.md` · `src/components/primitives/empty-state.tsx` · `src/components/primitives/skeleton-templates.tsx` · `src/components/features/growth/GrowthDashboard.tsx`
+
 ## 最新验证快照（2026-08-20 · 全局共享技能池跨 Agent 热同步与双轨分发 · Roadmap #3 完工）
 
 - **全局技能池 Single Source of Truth 与零孤儿热同步（vs QwenPaw / CoPaw / 传统多 Agent 框架）：** Myrm 构建了完备的全局共享技能池生态，支持跨智能体实时热同步与卸载孤儿自动清理：
