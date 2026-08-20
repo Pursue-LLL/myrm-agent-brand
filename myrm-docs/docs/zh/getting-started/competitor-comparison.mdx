@@ -15,6 +15,24 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-08-20 · 零抽成 BYOK 与透明计量 · 拒绝订阅制算力暗扣）
+
+- **告别算力黑盒、中间商高额加价与订阅暗扣（vs Hermes / 闭源订阅制 Agent）：** 针对社媒用户对 Hermes 订阅制「$20 订阅额度几分钟烧光、实际仅给 $12 算力、中间商赚差价」的强烈痛点，Myrm 践行完全透明与用户主权路线：
+  1. **零抽成 Bring-Your-Own-Key (BYOK)**：用户直接配置 OpenAI、Anthropic、DeepSeek 或 OpenRouter 原厂密钥，或者直接接入本地 Ollama / vLLM 算力端点，0 中间商溢价，算力账单降低 50%~80%；
+  2. **100% 透明 Token 经济学与成本分析看板**：前端 13 个独立 Usage 组件（`components/features/usage/`，2608 行代码），消息级精确展示每次交互的 Prompt/Completion/Cached Token 消耗与美元开销，杜绝计费黑盒；
+  3. **AST 级五层技能静态安全扫描**（`backends/skills/scanning/`）：在沙箱加载任何社区技能前，自动执行 Python AST 语法树分析、依赖漏洞审计与 LLM 语义威胁审计，全面超越简单的正则过滤；
+  4. **Shadow Git 文件快照与副作用探测（/rollback 时光倒流）**：在破坏性文件修改前自动打快照，支持单文件 Diff 还原，并自动探测外部数据库与网络调用不可逆副作用并向 Agent 发出警示。
+- **素材 SSOT：** `temp-docs/materials/COMPETITIVE_HERMES_ADVANTAGE.md`（2026-08-20 §38）· `myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/` · `myrm-agent-harness/src/myrm_agent_harness/agent/file_snapshot/shadow_git_store.py`
+
+## 最新验证快照（2026-08-20 · 零代码自动化盯盘与高危资产风控审批 · 极低成本部署）
+
+- **普通用户零代码跑通 24/7 盯盘、销售流水线与套利监控（vs Hermes / OpenClaw / 传统自动化脚本）：** 针对社媒热议的「无代码配置自动化销售与高频盯盘系统（如 Polymarket / 币安 / ERP 流水线）」场景，Myrm 展现出全方位的底座碾压优势：
+  1. **OpenAPI Bridge 零代码一键接入**（`openapi_bridge/`）：直接加载标准 OpenAPI JSON/YAML 规范，自动生成类型安全的工具集，无需开发者手写任何对接代码；
+  2. **高危动作 Human-in-the-Loop (HITL) 审批门禁**（`approval/` 中间件 + `delivery_guard.py`）：自动化流水线中的查询、分析动作自动静默执行，涉及真实交易、转账或关键数据写入时，自动触发 WebUI / IM 渠道审批卡片，阻断资产误操作风险；
+  3. **`[SILENT]` 智能静默过滤与去重防御**（`delivery_guard.py:46-98` · `executor.py:165-200`）：无实质行情变化或套利空间时不打扰用户，彻底杜绝无效 Token 消耗与通知轰炸；
+  4. **1-2GB 极低规格硬件稳定运行**：跨平台轻量底座支持在极低成本 VPS、本地 WebUI 或 Tauri 桌面端全天候静默驻留。
+- **素材 SSOT：** `temp-docs/materials/AUTOMATION_CRON_ADVANTAGE.md`（2026-08-20 头部）· `myrm_agent_harness/toolkits/openapi_bridge/` · `myrm_agent_harness/toolkits/cron/`
+
 ## 最新验证快照（2026-08-20 · 零时延跨平台设备拦截与 7 阶 Unicode 路径自愈 · 真实全量回归）
 
 - **恶劣路径与异常参数 100% 透明自愈，沙箱绝不卡死（vs Hermes / OpenClaw / Claude Code）：** Myrm 在底座文件引擎层（`file_read_tool` + `path_security` + `path_hint`）构建了全方位的鲁棒性防线：
