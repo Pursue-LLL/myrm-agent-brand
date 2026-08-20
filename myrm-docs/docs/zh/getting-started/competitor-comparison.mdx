@@ -15,6 +15,55 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-08-20 · 全局共享技能池跨 Agent 热同步与双轨分发 · Roadmap #3 完工）
+
+- **全局技能池 Single Source of Truth 与零孤儿热同步（vs QwenPaw / CoPaw / 传统多 Agent 框架）：** Myrm 构建了完备的全局共享技能池生态，支持跨智能体实时热同步与卸载孤儿自动清理：
+  1. **双轨分发模型（Dual-Track）**：通用 Agent 零配置直接继承全局技能池，专精 Agent 维持严苛显式白名单以捍卫 Prompt Cache 边界与防 Token 膨胀，同时支持 `/pool/sync` 一键批量同步；
+  2. **卸载孤儿自动清理（Orphan Reference GC）**：技能卸载或注销时，`remove_skill_from_all_agents` 自动遍历清理所有 Agent 白名单中的残留 ID，彻底杜绝死引用 Prompt 注入与运行时 LLM 报错；
+  3. **全链路端到端热同步广播（HotSync）**：通过服务端 `AppEventBus` + SSE 广播 `SKILL_POOL_UPDATED` 事件，前端 `useGlobalEvents.ts` 与 `useSkillStore` 配合 300ms 防抖响应，在 WebUI、桌面端与云托管环境下实现跨多会话实时无感刷新，无需手动重启服务；
+  4. **全生命周期来源溯源（Provenance）**：`Skill.installed_from` 完整记录来源渠道、上游 URL、版本及安装时间，并在详情抽屉中直观呈现；
+  5. **全链路测试背书**：核心技能测试 171 passed + 技能集成测试 62 passed + 技能 API 测试 150 passed（100% 绿色通过）。
+- **素材 SSOT：** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `app/core/skills/discovery/adopt.py` · `app/api/skills/discovery.py` · `components/features/skills/SkillDetailSheetContent.tsx`
+
+## 最新验证快照（2026-08-20 · 通用外部 Agent 协议接入矩阵与零代码配置生态 · 拒绝硬编码私有卡片）
+
+- **标准协议抽象取代碎片化私有卡片（vs deer-flow / OpenClaw / Hermes）：** Myrm 构建了全行业通用的外部 Agent 接入体系（`ExternalAgentsConfig.tsx` + `toolkits/acp/` + `delegate_to_agent_tool`），支持任意标准化 CLI/ACP/SDK 模式 Agent（Claude Code、Codex CLI、Gemini CLI 及用户自定义 Agent）的零门槛接入与参数配置：
+  1. **通用标准协议 vs 碎片化私有卡片**：坚决摒弃为无公开 CLI 标准或实验性小工具硬编码专用卡片的做法，避免引入代码膨胀与长期维护技术债，聚焦标准化协议抽象；
+  2. **三后端统一运行时（ACP/CLI/SDK）**：原生支持 Claude Code `--resume` 会话无缝复用、跨 Turn 上下文延续、超时进程 SIGTERM/SIGKILL 自动清理与异常结构化传播；
+  3. **Per-Backend 并发安全锁**：同 Agent 严格串行防 stdout 冲突，不同 Agent 真正安全并行；
+  4. **全链路测试背书**：ACP 模块 423 passed + 外部 Agent 安装/删除/认证 28 passed，100% 绿色通过。
+- **素材 SSOT：** `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/` · `myrm-agent-frontend/src/components/features/settings/sections/integration/ExternalAgentsConfig.tsx`
+
+## 最新验证快照（2026-08-20 · 企业微信进度气泡蜕变与超长文本防丢包 · 原地演化无感交付）
+
+- **企微长任务无感平滑蜕变与分片防丢包（vs MateClaw / OpenClaw / 传统 Webhook 机器人）：** Myrm 针对企业微信生态打造了双模自适应进度演化与流式分片投递引擎：
+  1. **首分片原地蜕变（Morph-into-Answer）+ 溢出分片主动补发**：彻底解决企业微信 2048 字符单条限制，超长结果切片后首 chunk 通过 `aibot_respond_msg(finish=True)` 将占位符平滑演化为最终答案，剩余分片自动顺序通过主动通道补发，做到万字长文 100% 完整交付，零截断、零丢包；
+  2. **自建应用短路降级（Zero-Zombie Downgrade）**：自动识别 Webhook 渠道无编辑消息能力（`capabilities.edit=False`），短路跳过占位符发送，彻底根除不可消除的“思考中...”死占位符污染；
+  3. **高信噪比 Stage 滚动叙事与思维链清洗**：实时过滤 `<think>` 思维链标签并剥离工具底层 JSON 参数，呈现清晰的动词阶段叙事，配合 800ms 视觉防抖，提供干净清爽的交互体验；
+  4. **断线重连流状态保护**：WebSocket 闪断时流状态置为 `is_force_closed` 保护，重连后安全兜底投递最终结果。
+- **验证数据：** 企微 Provider 套件与 Router 流式清洗测试 **200 passed**（100% 通过，0 僵尸残留）。
+- **素材 SSOT：** `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md` · `app/channels/providers/wecom/aibot_channel.py` · `app/channels/routing/router_stream_scrubber.py`
+
+## 最新验证快照（2026-08-20 · Profile Capability Escalation 防提权与 AST CI 门禁闭环）
+
+- **运行时单向收敛天花板与三层立体防线（vs mem0 / Hermes / OpenClaw / 传统 Agent 平台）：** Myrm 在底层执行引擎与服务端构建了全链路防越权与提权阻断机制：
+  1. **Least Privilege Ceiling 单向收敛算法**：`_merge_ruleset_with_ceiling` 算法保证 Agent 配置只能收紧安全策略（ALLOW $\rightarrow$ ASK / DENY），严禁单向放宽（DENY/ASK $\rightarrow$ ALLOW），杜绝 Agent 配置穿透用户安全设定的漏洞；
+  2. **YOLO 模式双锁控制**：Agent 无法单方面开启 YOLO 模式，必须由用户全局先开启方可生效；
+  3. **Marketplace 导入包安全脱敏**：`_sanitize_imported_security_overrides` 自动剥离第三方 Agent Package 中的 `yoloModeEnabled` 与通配符 `*` / 敏感执行提权规则；
+  4. **零依赖 AST CI 静态门禁**：`check_profile_capability_escalation.py` 纯 AST 静态解析 `_BUILTIN_PROFILES`，毫秒级拦截任何试图在 PR 中静默放宽内置策略的提权改动。
+- **验证数据：** Harness 单向收敛测试 **57 passed** + Server Marketplace 导入清洗测试 **22 passed** + CI AST 静态审计门禁 **exit 0**（100% 通过）。
+- **素材 SSOT：** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/security/channel_presets.py` · `myrm-agent/myrm-agent-server/app/services/agent/marketplace/import_.py` · `myrm-agent/myrm-agent-server/scripts/ci/check_profile_capability_escalation.py`
+
+## 最新验证快照（2026-08-20 · 白盒检索评测断言引擎与长文档深层穿透诊断）
+
+- **确定性 RAG/记忆检索评测与长文档深层穿透（vs Citadel / Hermes / OpenClaw / Mem0）：** Myrm 将白盒检索断言与深层 Span 穿透检测直接集成至评测工坊（Eval Lab）与记忆指挥中心（Memory Command Center Doctor）：
+  1. **零 LLM 成本确定性评测**：`RetrievalAssertion` 直接对检索命中正文、文档 ID、来源多样性与重复率进行无损断言，无需高昂且不稳定的 LLM-as-a-judge 账单；
+  2. **元数据与标题自动剥离**：`split_header_and_body` 自动过滤 YAML frontmatter 与 Markdown 标题行，防止元数据虚假命中；
+  3. **Collapse Hits 来源去重折叠**：`collapse_retrieval_hits` 将同一文档的多分块命中折叠为单一有效排名并合并正文，消除单文件刷榜挤出其他来源；
+  4. **长文档 Head vs Tail 附录穿透检测**：合成探针验证模型对长文档附录（如附录D路由算法）的深层检索穿透率，而非停留在文档标题表面。
+- **验证数据：** Harness 检索断言单测 **11 passed** + Server 诊断探针单测 **3 passed** + 评测全链路集成测试 **10 passed**（100% 绿灯）。
+- **素材 SSOT：** `temp-docs/materials/MEMORY_ADVANTAGE.md`（2026-08-20 头部）· `myrm-agent-harness/src/myrm_agent_harness/eval/retrieval_assertions.py` · `myrm-agent-server/app/services/memory/diagnostics/diagnostic/diagnostic_recall_benchmark.py`
+
 ## 最新验证快照（2026-08-20 · 会话模型自适应视觉路由与双轨降级引擎 · 全执行面架构守卫）
 
 - **原生多模态零损耗直通与纯文本模型自愈降级（vs mem/pi_agent / 传统网关与粗暴路由方案）：** Myrm 将视觉处理能力与当前活跃会话模型深度动态绑定，覆盖 Web 对话、IM 渠道、Goal 目标、Cron 定时任务与 Kanban 任务 5 大执行面：

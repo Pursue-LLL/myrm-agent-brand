@@ -15,6 +15,25 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 턴당 기능 제어를 위해 Myrm은 완전한 관찰 가능성(제출/적용/noop/큐/바쁨/최종 결과 + 실패 이유)을 갖춘 **원턴 스킬/MCP 재정의 칩**을 지원합니다. 집중 검증(2026-07-29): 프런트엔드 29/29 통과, 서버 10/10 통과; 목표 적용 범위는 핵심 프런트엔드 파일의 라인 62.47%, 서버 원격 측정 모듈의 전체 라인 72%에 도달했습니다. 이는 팀에게 추측이 아닌 비용/신뢰성 조정에 대한 마이그레이션 안전 증거를 제공합니다.
 
+## 최신 검증 스냅샷 (2026-08-20 · 범용 외부 Agent 프로토콜 통합 매트릭스 및 코드 없는 구성 생태계)
+
+- **하드코딩된 독점 카드를 대체하는 표준 프로토콜 추상화 (vs deer-flow / OpenClaw / Hermes):** Myrm은 업계에서 가장 범용적인 외부 Agent 통합 시스템(`ExternalAgentsConfig.tsx` + `toolkits/acp/` + `delegate_to_agent_tool`)을 구축하여 표준화된 CLI/ACP/SDK 모드 Agent(Claude Code, Codex CLI, Gemini CLI 및 사용자 지정 Agent)를 원클릭으로 연결하고 구성할 수 있도록 지원합니다:
+  1. **범용 표준 프로토콜 vs 파편화된 비공개 카드**: 공개 CLI 사양이 없는 실험적 도구를 위한 전용 카드를 하드코딩하여 발생하는 코드 팽창과 기술 부채를 방지하고 표준 프로토콜 추상화에 집중;
+  2. **통합 3-백엔드 런타임(ACP/CLI/SDK)**: Claude Code `--resume` 세션 재사용, 턴 간 컨텍스트 연속성, 타임아웃 프로세스 SIGTERM/SIGKILL 자동 정리 및 구조화된 오류 전파 기본 지원;
+  3. **백엔드별 동시성 안전 잠금**: 동일 Agent는 엄격하게 직렬화하여 stdout 충돌을 방지하고, 서로 다른 Agent는 안전하게 병렬 실행;
+  4. **전체 테스트 검증**: ACP 모듈 423 passed + 외부 Agent 설치/삭제/인증 28 passed (100% 통과).
+- **자료 SSOT:** `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/` · `myrm-agent-frontend/src/components/features/settings/sections/integration/ExternalAgentsConfig.tsx`
+
+## 최신 검증 스냅샷 (2026-08-20 · Profile Capability Escalation 권한 상승 방지 및 AST CI 게이트)
+
+- **런타임 단방향 수렴 천장 및 3단계 입체 방어선 (vs mem0 / Hermes / OpenClaw / 기존 Agent 플랫폼):** Myrm은 런타임 실행 엔진과 서버 전반에 걸쳐 포괄적인 권한 상승 및 정책 탈출 방지 체계를 구축했습니다:
+  1. **Least Privilege Ceiling 단방향 수렴 알고리즘**: `_merge_ruleset_with_ceiling` 알고리즘을 통해 에이전트 사전 설정은 보안 정책을 강화(ALLOW $\rightarrow$ ASK / DENY)할 수만 있고, 단방향 완화(DENY/ASK $\rightarrow$ ALLOW)는 엄격히 금지하여 사용자 보안 설정을 우회하는 취약점을 제거;
+  2. **YOLO 모드 이중 잠금 제어**: 에이전트가 단독으로 YOLO 모드를 활성화할 수 없으며 사용자가 전역 활성화해야만 적용;
+  3. **마켓플레이스 가져오기 패키지 보안 정제**: `_sanitize_imported_security_overrides`를 통해 외부 Agent Package에 포함된 `yoloModeEnabled` 및 와일드카드 `*` / 위험 실행 권한을 자동으로 `ask`로 강등;
+  4. **무의존 AST CI 정적 게이트**: `check_profile_capability_escalation.py` 순수 AST 정적 분석으로 PR에서 기본 정책을 임의로 완화하려는 변경을 즉시 차단.
+- **검증 데이터:** Harness 단방향 수렴 단위 테스트 **57 passed** + Server 마켓플레이스 정제 테스트 **22 passed** + CI AST 정적 감사 게이트 **exit 0** (100% 통과).
+- **자료 SSOT:** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/security/channel_presets.py` · `myrm-agent/myrm-agent-server/app/services/agent/marketplace/import_.py` · `myrm-agent/myrm-agent-server/scripts/ci/check_profile_capability_escalation.py`
+
 ## 최신 검증 스냅샷 (2026-08-20 · 4단계 도구 계층 순서 보존 및 프롬프트 캐시 극대화 · 캐시 스래싱 0)
 
 - **도구 온디맨드 로딩 및 프롬프트 캐시(Prompt Cache) 순서 보존 (vs Hermes / OpenClaw / 기존 Agent 프레임워크):** Myrm은 실행 엔진(`ToolRegistry`)에서 엄격한 4단계 도구 분류 체계(CORE $\rightarrow$ COMMON $\rightarrow$ EXTENDED $\rightarrow$ EXTERNAL)를 시행합니다:
@@ -23,6 +42,16 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
   3. **고정밀 시맨틱 데스크톱 제어(SDC)**: 네이티브 OS 접근성 트리(`@dref`) 기반 상호작용과 좌표 기반 클릭(`[x,y]`) 폴백을 결합하여 기존 스크린샷 기반 CV 방식 대비 토큰 비용 약 90% 절감.
 - **검증 데이터:** Harness 도구 관리 단위 테스트 **35 passed** + Server 통합 테스트 **38 passed** + 프런트엔드 다형성 렌더링 **18 passed** (전체 100% 통과, 좀비 프로세스 0).
 - **자료 SSOT:** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `temp-docs/materials/MYRM_AGENT_TOOL_INVENTORY.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/tool_management/`
+
+## 최신 검증 스냅샷 (2026-08-20 · 화이트박스 검색 평가 단언 엔진 및 긴 문서 심층 관통 진단)
+
+- **결정론적 RAG/메모리 검색 평가 및 긴 문서 심층 관통 (vs Citadel / Hermes / OpenClaw / Mem0):** Myrm은 화이트박스 검색 단언과 심층 Span 관통 테스트를 평가 실험실(Eval Lab)과 메모리 사령부(Memory Command Center Doctor)에 직접 통합했습니다:
+  1. **LLM 비용 0의 결정론적 평가**: `RetrievalAssertion`은 비싸고 불안정한 LLM-as-a-judge 없이 본문 span 재현율, 문서 ID 일치, 출처 다양성 및 중복률을 손실 없이 단언합니다;
+  2. **메타데이터 및 제목 자동 분리**: `split_header_and_body`는 YAML frontmatter와 Markdown 제목 라인을 자동 필터링하여 메타데이터 허위 일치를 방지합니다;
+  3. **Collapse Hits 출처 중복 제거 축약**: `collapse_retrieval_hits`는 동일 문서의 여러 청크 히트를 단일 유효 순위로 축약하고 본문을 병합하여 단일 파일 도배로 인한 타 출처 배제를 방지합니다;
+  4. **긴 문서 Head vs Tail 부록 관통 검사**: 합성 프로브는 모델이 문서 제목 표면에 머무르지 않고 문서 부록(예: 부록 D 라우팅 알고리즘)까지 깊이 있게 검색 관통하는지 검증합니다.
+- **검증 데이터:** Harness 검색 단언 단위 테스트 **11 passed** + Server 진단 프로브 단위 테스트 **3 passed** + 평가 전체 통합 테스트 **10 passed** (100% 통과).
+- **자료 SSOT:** `temp-docs/materials/MEMORY_ADVANTAGE.md`(2026-08-20 헤더) · `myrm-agent-harness/src/myrm_agent_harness/eval/retrieval_assertions.py` · `myrm-agent-server/app/services/memory/diagnostics/diagnostic/diagnostic_recall_benchmark.py`
 
 ## 최신 검증 스냅샷 (2026-08-20 · Typora급 분할 창 Markdown 실시간 미리보기 및 미저장 초안 보호 · 실제 Chrome E2E)
 
