@@ -25,6 +25,16 @@ For per-turn capability control, Myrm supports **one-turn Skill/MCP override chi
 - **Verified:** Frontend message-input-actions test suite **44 passed** (including AgentIndicator edge cases and multi-modal avatar variants) + Server Agent CRUD & Snapshot persistence **18 passed** (100% pass rate).
 - **Material SSOT:** `temp-docs/materials/USER_EXPERIENCE_ADVANTAGE.md` (§32) · `myrm-agent-frontend/src/components/features/message-input-actions/AgentIndicator.tsx`
 
+## Latest Validation Snapshot (2026-08-20 · Session-Aware Multimodal Routing & Dual-Track Vision Fallback Engine)
+
+- **Zero-Loss Multimodal Direct Channel & Self-Healing Text Fallback (vs mem/pi_agent / Traditional Agent Gateways):** Myrm dynamically binds vision execution to the active session model across all 5 execution surfaces (Web, IM Channels, Goal Agent, Cron, Kanban):
+  1. **Dual-Track Adaptive Execution**: When the session model natively supports multimodal input (e.g., GPT-4o / Claude 3.7 / Gemini 2.0), images are forwarded directly without transcription loss; for text-only models, `VisionFallbackEngine` transforms images into structured, injection-hardened text descriptions;
+  2. **Reactive Image Compression**: Integrated with `ImageCompressor` for automatic payload resizing upon 413 errors;
+  3. **Capacity Failover Chain**: Automatically switches auxiliary vision providers upon 429, timeout, or billing errors;
+  4. **SSOT Architecture Guard**: Enforced by `test_vision_fallback_execution_surfaces.py` across all execution surfaces.
+- **Verified:** Vision fallback engine tests **36 passed** + Surface architecture guards **6 passed** + Vision toolkit integration **2 passed** + Config parsers **37 passed** (81 tests 100% green).
+- **Material SSOT:** `temp-docs/materials/MULTI_MODEL_CONSENSUS_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/vision/fallback_engine.py`
+
 ## Latest Validation Snapshot (2026-08-20 · User-Configurable Multi-Tier Ordered Model Fallback & Streaming Graph Cascade Recovery)
 
 - **Uninterrupted Agent Execution via Multi-Tier Streaming Fallback (vs LiteLLM Router / OpenRouter / Traditional LLM Gateways):** Myrm brings model retry and fallback directly into the Agent streaming lifecycle:
