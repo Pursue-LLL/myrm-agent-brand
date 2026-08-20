@@ -42,7 +42,7 @@ If you attach an image or video but neither your main model nor Vision Fallback 
 - **Non-vision main model** — use a cheap text model for reasoning while vision fallback handles images.
 - **Channel images** — Telegram, Discord, iMessage, and other channels deliver images into the same pipeline.
 - **PDF & documents** — scanned or image-heavy PDFs can route through vision when text extraction is sparse.
-- **Agent-active workspace vision** — enable the **`vision-toolkit`** prebuilt skill so the agent can call `vision_semantic_tool` on files already in the sandbox (OCR, region read, two-image compare) and `vision_geometry_tool` for pixel-level diffs — no manual re-upload from chat.
+- **Agent 原生多模态看图与脚本处理** — Agent 直接通过 `file_read_tool` 读取工作区图片（大模型原生看图，纯文本主模型自动 Fallback），高级像素运算与图像裁切直接通过沙箱 Python 脚本完成 — 零学习成本，零 Prompt 冗余。
 - **Transparent downgrade badge** — when fallback runs, chat shows `vision_backend`: `vlm` (full vision model), `native_video` (model reads video directly), or `frame` (FFmpeg frame extraction).
 
 ## Status & Caching

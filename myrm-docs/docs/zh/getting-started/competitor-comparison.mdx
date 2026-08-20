@@ -15,6 +15,26 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-08-20 · 用户可配置多级有序模型回退与流式级联恢复 · 长任务零中断）
+
+- **在长程自主任务中提供多级流式无感模型回退（vs LiteLLM Router / OpenRouter / 传统网关与竞品）：** 面对云端大模型偶发的 429 RateLimit、503 服务宕机或配额耗尽，Myrm 将模型容错与降级深度下沉至 Agent 执行引擎与流式生命周期内部：
+  1. **原生流式图级联重建（StreamRecoveryMixin）**：突破了传统网关在流式输出中途失败导致 Token 脏写或状态机撕裂的痛点。发生故障时，Harness 引擎自动通过 `_fallback_index` 定向切换下一级备选模型并重构执行图，前端通过 SSE 接收透明降级事件；
+  2. **跨 Provider 容错过滤链**：用户可在前端直观配置 `主模型 -> 备选模型1 -> 备选模型2`，服务端自动跳过未启用或未填 Key 的无效节点，防止降级链单点卡死；
+  3. **备选模型上下文自适应保护**：自动感知目标候选模型的 `max_context_tokens`，当降级至较小上下文窗口模型时自动激活紧急压缩防护，杜绝二次溢出崩塌；
+  4. **安全拦截精准隔离**：发生 `SAFETY_BLOCK`（安全策略拦截）时，定向触发专用的 Safety Fallback 模型，绝不污染常规 API 容错降级链。
+- **验证数据：** Harness 流式恢复单测 **50 passed** + Server 配置解析单测 **37 passed** + LLM 工厂装配 **7 passed** + ManagedLLM 候选池单测 **14 passed**（全链路 100% 通过，0 失败）。
+- **素材 SSOT：** `temp-docs/materials/MULTI_MODEL_CONSENSUS_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/streaming/recovery/stream_recovery.py` · `myrm-agent/myrm-agent-server/app/core/channel_bridge/config_parsers.py`
+
+## 最新验证快照（2026-08-20 · Composer 输入区内联智能体 1 秒快切 · 零打断多角色工作流）
+
+- **在长对话与复杂任务中无缝热切智能体（vs Codex / Cursor / OpenClaw / Hermes）：** Myrm 将输入框底部的 Agent 指示器（`AgentIndicator.tsx`）全面升级为可交互的快切下拉矩阵：
+  1. **零打断上下文的即时角色切换**：在多轮活跃会话中，直接在输入框内一键切换内置预设（代码专家、调研助手等）或自定义专家智能体，无需重开对话、无需清理历史、无需弹出笨重模态窗口；
+  2. **原子化配置热换（buildAgentConfig）**：秒级同步更新底层绑定的 `agentId`、关联 Skill 列表、外部 MCP 服务、自定义提示词（System Prompt）、安全预设与工作区恢复策略，无状态泄漏与脏数据；
+  3. **流式生成并发锁护卫**：模型正在输出内容（`loading=true`）期间自动禁用下拉触发器，彻底杜绝状态竞争与 Prompt 缓存撕裂；
+  4. **渐进式功能披露**：菜单顶部聚合常用高频智能体，底部直通「详细微调面板」与「智能体管理中心」，兼顾 1 秒轻量快切与高阶深度定制。
+- **验证数据：** 前端 message-input-actions 整体测试套件 **44 passed**（含 AgentIndicator 10 项多模态头像与极限空态测试）+ Server 端 CRUD 与 Snapshot 快照持久化 **18 passed**（100% 通过率）。
+- **素材 SSOT：** `temp-docs/materials/USER_EXPERIENCE_ADVANTAGE.md`（§32）· `myrm-agent-frontend/src/components/features/message-input-actions/AgentIndicator.tsx`
+
 ## 最新验证快照（2026-08-20 · 四层工具保序注册与提示词前缀缓存极致优化 · 零穿透低延迟）
 
 - **工具按需加载与前缀缓存（Prompt Cache）保序注册（vs Hermes / OpenClaw / 传统 Agent 框架）：** Myrm 在框架执行引擎层（`ToolRegistry`）构建了严格的四层工具分类体系（CORE 基线 $\rightarrow$ COMMON 常用 $\rightarrow$ EXTENDED 扩展 $\rightarrow$ EXTERNAL 业务）：
@@ -401,7 +421,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **凭证库** | ✅ 标签注入 + TOTP（浏览器 + 桌面） | ❌ 工具参数明文 | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **WebUI 访问安全** | ✅ 零信任 WebSocket + 安全 Cookie | ⚠️ 仅 HTTP，WS 脆弱 | ⚠️ 基础 JWT | ⚠️ 未知 | ⚠️ 仅 HTTP | ⚠️ 闭源 SaaS | ❌ LAN 裸奔 |
 | **目标模式** | ✅ 8 状态 + 4D 预算 + 14层防死循环盾 + **逐步人工确认**（opt-in 每步自动暂停等待用户确认——6大竞品均无此能力）+ **看板 Goal Mode**（任务卡片多轮自治循环执行，复用完整 Goal 引擎——Hermes 仅 max_turns 单维） | /goal | ❌ | ❌ | ❌ | ⚠️ 计划审批 | ❌ |
-| **上下文管理** | ✅ 6 层 Prompt Cache + **读取时去重**（未变文件返回轻量 stub 而非重发相同内容——保持消息序列稳定、缓存热；写后失效 + 压缩后重置 + 硬阻断防循环 + 按 executor 隔离；单元覆盖 100% + 10 个真实全链路集成测试）+ 22+ 中间件 + 11 步压缩流水线 + **compression_intent 结构化 retain**（业务层自动提取 focus 文件/失败命令/目标提示 → Filter 与 Compress group 级对齐，结构裁剪替代 LLM 摘要，保留最近 5 组工具调用——竞品无此链路）+ 七层防鞭尸 + 数据库级会话压缩持久化 + 确定性回退 + **三层 tool_call 配对完整性防护** + **Human Anchor** + **7 层超大输出纵深防护** + **上下文健康环** + **压缩参数零配置热更新**（**1092+** 上下文管线 unit 测试 + 2 API E2E 长会话验证 + 209 Goal 守卫链测试） | ⚠️ system_and_3（4 断点）+ 8 层固定栈 + 单层 ContextCompressor（内存态，无 DB 持久化）+ 运行时 `_is_real_user_message` 检查（新增合成消息类型时有绕过风险）+ 强防误导 Prompt（但无 XML 边界和 U-curve 布局） | LCM | LCM | ⚠️ 空闲压缩 + 双缓存 | ⚠️ Worker 隔离 | ⚠️ 4 层栈 |
+| **上下文管理** | ✅ 6 层 Prompt Cache + **读取时去重**（未变文件返回轻量 stub 而非重发相同内容——保持消息序列稳定、缓存热；写后失效 + 压缩后重置 + 硬阻断防循环 + 按 executor 隔离；单元覆盖 100% + 10 个真实全链路集成测试）+ 22+ 中间件 + 11 步压缩流水线 + **OpenAI Responses API 原生服务端压缩桥接 (Native Server-Side Compaction Bridge)** + 双轨原子 Sidecar 检查点 + **compression_intent 结构化 retain**（业务层自动提取 focus 文件/失败命令/目标提示 → Filter 与 Compress group 级对齐，结构裁剪替代 LLM 摘要，保留最近 5 组工具调用——竞品无此链路）+ 七层防鞭尸 + 数据库级会话压缩持久化 + 确定性回退 + **三层 tool_call 配对完整性防护** + **Human Anchor** + **7 层超大输出纵深防护** + **上下文健康环** + **压缩参数零配置热更新**（**1098+** 上下文管线 unit 测试 + 2 API E2E 长会话验证 + 209 Goal 守卫链测试） | ⚠️ system_and_3（4 断点）+ 8 层固定栈 + 单层 ContextCompressor（内存态，无 DB 持久化）+ 运行时 `_is_real_user_message` 检查（新增合成消息类型时有绕过风险）+ 强防误导 Prompt（但无 XML 边界和 U-curve 布局） | LCM | LCM | ⚠️ 空闲压缩 + 双缓存 | ⚠️ Worker 隔离 | ⚠️ 4 层栈 |
 | **智能并发路由** | ✅ 五层守卫（会话互斥+用户级+全局信号量+内存压力熔断+分层超时）+ O(1) 路径锁 + **Busy Ack**（IM：即时 i18n 排队/满队回复，30s 防抖；Web：toast 携带队列位置）— 103项并发+busy测试通过 | ⚠️ 粗粒度写锁 + runtime-id 映射（双ID易出错） | ❌ 不安全 | ⚠️ 未知 | ❌ | ⚠️ 未知 | ❌ |
 | **无头无人值守** | ✅ 标签工具隔离（零死锁） | ⚠️ 易交互死锁 | ❌ 不支持 | ❌ | ❌ | ❌ | ❌ |
 | **极端防爆** | ✅ 4 层护城河（卫生/护盾/剥离/预算） | ⚠️ 大负载崩溃/丢失 | ⚠️ 单点失败 | ⚠️ 未知 | ⚠️ 基础限制 | ⚠️ 未知 | ❌ |
