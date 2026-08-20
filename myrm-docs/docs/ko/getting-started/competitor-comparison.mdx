@@ -15,6 +15,16 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 턴당 기능 제어를 위해 Myrm은 완전한 관찰 가능성(제출/적용/noop/큐/바쁨/최종 결과 + 실패 이유)을 갖춘 **원턴 스킬/MCP 재정의 칩**을 지원합니다. 집중 검증(2026-07-29): 프런트엔드 29/29 통과, 서버 10/10 통과; 목표 적용 범위는 핵심 프런트엔드 파일의 라인 62.47%, 서버 원격 측정 모듈의 전체 라인 72%에 도달했습니다. 이는 팀에게 추측이 아닌 비용/신뢰성 조정에 대한 마이그레이션 안전 증거를 제공합니다.
 
+## 최신 검증 스냅샷 (2026-08-20 · 전역 공유 스킬 풀 에이전트 간 핫싱크 및 이중 트랙 배포 · Roadmap #3 완료)
+
+- **전역 스킬 풀 Single Source of Truth 및 고아 참조 없는 실시간 핫싱크 (vs QwenPaw / CoPaw / 기존 다중 Agent 프레임워크):** Myrm은 에이전트 간 실시간 핫싱크와 고아 참조 자동 정리를 완벽하게 지원하는 공유 스킬 풀 생태계를 구축했습니다:
+  1. **이중 트랙 배포 모델(Dual-Track)**: 범용 Agent는 전역 스킬 풀을 즉시 상속(구성 오버헤드 제로)하며, 전문화된 Agent는 명시적 허용 목록을 유지하여 프롬프트 토큰 오염을 방지하고 `/pool/sync`를 통한 일괄 동기화 지원;
+  2. **고아 참조 자동 정리(Orphan Reference GC)**: 스킬 제거 시 `remove_skill_from_all_agents`가 모든 Agent의 허용 목록에서 유효하지 않은 스킬 ID를 자동으로 정리하여 런타임 오류 방지;
+  3. **엔드투엔드 실시간 핫싱크 브로드캐스트**: `AppEventBus` + SSE 및 프런트엔드 300ms 디바운스(`useGlobalEvents.ts`, `useSkillStore`)를 통해 WebUI, 데스크톱, 클라우드 인스턴스 전반에 걸쳐 수동 재시작 없이 실시간 무감각 동기화;
+  4. **전체 라이프사이클 출처 추적(Provenance)**: `Skill.installed_from`을 통해 설치 출처 채널, 업스트림 URL, 버전, 설치 날짜를 기록하고 상세 창에 직관적으로 렌더링;
+  5. **전체 테스트 검증**: 코어 스킬 테스트 171 passed + 스킬 통합 테스트 62 passed + 스킬 API 테스트 150 passed (100% 통과).
+- **자료 SSOT:** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `app/core/skills/discovery/adopt.py` · `app/api/skills/discovery.py` · `components/features/skills/SkillDetailSheetContent.tsx`
+
 ## 최신 검증 스냅샷 (2026-08-20 · 범용 외부 Agent 프로토콜 통합 매트릭스 및 코드 없는 구성 생태계)
 
 - **하드코딩된 독점 카드를 대체하는 표준 프로토콜 추상화 (vs deer-flow / OpenClaw / Hermes):** Myrm은 업계에서 가장 범용적인 외부 Agent 통합 시스템(`ExternalAgentsConfig.tsx` + `toolkits/acp/` + `delegate_to_agent_tool`)을 구축하여 표준화된 CLI/ACP/SDK 모드 Agent(Claude Code, Codex CLI, Gemini CLI 및 사용자 지정 Agent)를 원클릭으로 연결하고 구성할 수 있도록 지원합니다:

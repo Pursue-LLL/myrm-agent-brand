@@ -90,3 +90,75 @@ GET /api/v1/memory/command-center?project_id=<optional>
 Response includes: overview statistics, memory spaces, governance items, health diagnostics, timeline events, migration status, runtime configuration, and more.
 
 When `project_id` is provided, the `spaces`, `governance`, and `timeline` sections are filtered to show only data related to that project's SharedContext bindings. Empty strings are normalized to the global view.
+
+## Learning & Evolution Timeline API
+
+Unified memory and skill lifecycle chronological stream with inline governance.
+
+### Get Unified Learning Timeline
+
+```bash
+GET /api/v1/statistics/learning-timeline?kind=all&limit=30&before_timestamp=1724150400000
+```
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `kind` | string | `all` | Filter by node kind: `all`, `memory`, `skill`, `user_rule` |
+| `limit` | int | 30 | Batch limit (1-100) |
+| `before_timestamp` | int | — | Cursor timestamp in milliseconds for pagination |
+
+Response:
+
+```json
+{
+  "items": [
+    {
+      "id": "mem_123",
+      "kind": "fact",
+      "title": "TypeScript Preference",
+      "content": "User prefers strict TypeScript type checking",
+      "timestamp": 1724150400000,
+      "source": "memory",
+      "importance": 0.9,
+      "is_user_locked": true,
+      "confidence": 0.95
+    }
+  ],
+  "has_more": true,
+  "next_cursor": 1724140000000,
+  "total_count": 42
+}
+```
+
+### Update Timeline Memory Item
+
+```bash
+PUT /api/v1/statistics/learning-timeline/memory/:type/:id
+```
+
+```json
+{
+  "content": "Updated rule content",
+  "importance": 0.9,
+  "reasoning": "Explicit user correction via Timeline Editor",
+  "is_user_locked": true
+}
+```
+
+### Delete Timeline Memory Item
+
+```bash
+DELETE /api/v1/statistics/learning-timeline/memory/:id?memory_type=semantic
+```
+
+### Archive / Unarchive Timeline Skill Item
+
+```bash
+POST /api/v1/statistics/learning-timeline/skill/:id/archive
+```
+
+```json
+{
+  "archived": true
+}
+```

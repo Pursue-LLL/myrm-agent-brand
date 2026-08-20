@@ -90,3 +90,75 @@ GET /api/v1/memory/command-center?project_id=<可选>
 响应包含：概览统计、记忆空间、治理项、健康诊断、时间线事件、迁移状态、运行时配置等。
 
 提供 `project_id` 时，`spaces`、`governance` 和 `timeline` 部分仅显示与该项目 SharedContext 绑定相关的数据。空字符串会被自动归一化为全局视图。
+
+## 学习演化时间线 API
+
+记忆与技能生命周期融合时序流与行内即时治理接口。
+
+### 获取统一学习演化时间线
+
+```bash
+GET /api/v1/statistics/learning-timeline?kind=all&limit=30&before_timestamp=1724150400000
+```
+
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `kind` | string | `all` | 节点类型筛选：`all`, `memory`, `skill`, `user_rule` |
+| `limit` | int | 30 | 单次拉取数量（1-100） |
+| `before_timestamp` | int | — | 游标时间戳（毫秒），用于向前分页 |
+
+响应示例：
+
+```json
+{
+  "items": [
+    {
+      "id": "mem_123",
+      "kind": "fact",
+      "title": "TypeScript 编码偏好",
+      "content": "用户偏好使用严格的 TypeScript 类型检查与纯函数",
+      "timestamp": 1724150400000,
+      "source": "memory",
+      "importance": 0.9,
+      "is_user_locked": true,
+      "confidence": 0.95
+    }
+  ],
+  "has_more": true,
+  "next_cursor": 1724140000000,
+  "total_count": 42
+}
+```
+
+### 更新时间线记忆规则
+
+```bash
+PUT /api/v1/statistics/learning-timeline/memory/:type/:id
+```
+
+```json
+{
+  "content": "修改后的规则正文",
+  "importance": 0.9,
+  "reasoning": "用户在时间线编辑器中显式纠错",
+  "is_user_locked": true
+}
+```
+
+### 删除时间线记忆条目
+
+```bash
+DELETE /api/v1/statistics/learning-timeline/memory/:id?memory_type=semantic
+```
+
+### 归档 / 取消归档技能
+
+```bash
+POST /api/v1/statistics/learning-timeline/skill/:id/archive
+```
+
+```json
+{
+  "archived": true
+}
+```
