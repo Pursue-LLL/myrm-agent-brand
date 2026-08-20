@@ -84,3 +84,16 @@ MyRM 默认提供专注的单 Agent 体验——`suggestWorkflowMode` **默认�
 **为什么单 Agent 优先？** 正如 Sierra CEO Bret Taylor（前 Salesforce CEO）所阐述：最优秀的多 Agent 系统，对用户呈现为单 Agent。多 Agent 编排是实现细节，而非产品表面。MyRM 是唯一同时拥有完整多 Agent DAG 编排能力**且**默认抑制其曝光的平台——确保新用户获得最简洁、最快的体验，同时专家保留完全控制权。
 
 所有竞品——包括 Claude Code、OpenClaw、Hermes、DeerFlow、CoPaw、Lobe-Chat——均无法配置工作流建议策略。它们要么始终展示（增加噪音），要么从不提供（错失机会）。
+
+### 12. 为何不做「拖拽式工作流画布」而更强
+
+GUI AI 助手赛道（OpenClaw、Hermes、LobsterAI、CoPaw、JiuwenClaw）**均无** workflow 可视化编辑器——这不是 MyRM 的缺口。Deer-Flow 等低代码平台虽有可视化编排，但定位不同，不可直接对标。
+
+MyRM 用 **Code-as-Orchestrator** 保留 Python 编排的完整表达力（for/if/并发线程池），静态节点-连线 DAG 编辑器会阉割这一核心优势。您真正需要的是：
+
+- **运行时拓扑**：`AgentWorkMap`（ReactFlow + dagre）——看**正在跑**的子代理树，不是一张过期的静态流程图
+- **计划确认 HITL**：执行前审阅 LLM 生成的编排计划，避免盲目烧 Token
+- **模板库 Export/Import**：团队共享编排脚本，无需手工画板
+- **自然语言改编排**：改需求直接说一句话，比拖拽节点更快
+
+**迁移一句话**：从「想要可视化改 workflow」迁来——MyRM 用运行时拓扑 + 计划确认 + 自然语言，替代手工画 DAG。

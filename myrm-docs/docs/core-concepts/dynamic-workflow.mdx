@@ -85,3 +85,16 @@ For power users who want proactive multi-agent suggestions, a single toggle in *
 **Why single-agent first?** As Bret Taylor (Sierra CEO, former Salesforce CEO) articulated: the best multi-agent systems present as a single agent to the user. Multi-agent orchestration is an implementation detail, not a product surface. MyRM is the only platform that has full multi-agent DAG orchestration capability **and** deliberately suppresses it by default — ensuring new users get the simplest, fastest experience while experts retain full control.
 
 No competing product — including Claude Code, OpenClaw, Hermes, DeerFlow, CoPaw, or Lobe-Chat — offers configurable workflow mode suggestion. They either always show it (adding noise) or never offer it (missing opportunities).
+
+### 12. Why we skip a drag-and-drop workflow canvas — and what you get instead
+
+The GUI AI-assistant category (OpenClaw, Hermes, LobsterAI, CoPaw, JiuwenClaw) **does not ship** workflow visual editors — this is not a MyRM gap. Low-code platforms like Deer-Flow have visual orchestration, but they target a different product class.
+
+MyRM uses **Code-as-Orchestrator** so Python plans keep full expressiveness (for/if/thread pools). A static node-link DAG editor would **cut** that advantage. What you actually need:
+
+- **Runtime topology**: `AgentWorkMap` (ReactFlow + dagre) — see the **live** sub-agent tree, not a stale template diagram
+- **Plan confirmation HITL**: review the LLM-generated orchestration plan before spending tokens
+- **Template library Export/Import**: share orchestration scripts across the team without a drawing board
+- **Natural-language edits**: change requirements in one sentence — faster than dragging nodes
+
+**Migration one-liner**: Coming from “I want a visual workflow editor”? MyRM replaces manual DAG drawing with live topology + plan review + natural language.

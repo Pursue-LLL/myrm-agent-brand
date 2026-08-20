@@ -41,6 +41,7 @@ The desktop app provides deep system integration that no browser-based AI tool c
 - **Close-to-Tray** — Minimize to system tray instead of quitting, with macOS ActivationPolicy management
 
 ### Startup Experience
+- **Single-instance mutex & second-launch focus** — Native Rust process lock (< 15ms response) completely eliminates multi-instance Sidecar port conflicts; second launch automatically unminimizes, shows, and focuses the existing main window while broadcasting CLI args and cwd context to frontend via `app:second-instance` event
 - **Window position/size auto-restore** — Close and reopen — the window returns to its last position and size automatically, especially helpful for multi-monitor setups
 - **Zero white-flash cold start** — Dark background pre-rendered so you never see a jarring white flash on startup
 - **Tab route memory across restarts** — After a crash, update, or restart, the app automatically returns to the last page you were viewing (Chat/Work/Projects tabs remembered independently)
