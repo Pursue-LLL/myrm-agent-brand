@@ -244,21 +244,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **对比竞品**：OpenClaw 有 CLI `raw-claim`/`source-evidence` + claim confidence rerank（`query.test.ts:602`）**无 GUI Drawer**；Hermes llm-wiki skill / deer-flow / LobsterAI / CoPaw / jiuwenclaw **无** claim-level citation GUI；6 家均无 Settings 检索 trace 卡片。
 - **诚实边界**：无 route-question 模式（OpenClaw 有 · frontmatter schema 待办）；Chat 无 retrieval trace（Settings 调试面）；无 Trust card/SSE lineage。
 
-## 最新验证快照（2026-07-30 · Wiki ↔ Memory 边界 #27）
-
-- **Wiki 与 Memory 写入边界（vs Hermes / OpenClaw / Mem0 概念）**：`test_wiki_memory_boundary` **7/7** + save 护栏 **3/3** + extract prompt **2/2** + agent 接线 **1/1** = **25 tests, 0 failures**（约 5s、3 批、harness-only、**无 Chrome MCP** — 后端护栏无浏览器交互路径）。
-- **已验证**：`memory_save_tool` 在 wiki 开启时硬拒 document-like knowledge/event（>800 字或 ≥3 markdown 标题 → `wiki_ingest_tool`）；**`persist_extracted_memories` 硬滤** auto-extract semantic/episodic；提取 prompt `wiki_boundary_enabled`；Settings 中英文分工文案。
-- **对比竞品**：Hermes 扁平 MEMORY.md **2200 字符上限** — 无编译 Wiki + 无双路径代码 enforcement；OpenClaw MEMORY.md 文件 — 无 vector auto-extract 滤；Mem0 Wiki≠MemCon 概念 — Myrm 增加**写路径 enforcement** + compile + `corpus=all`。
-- **诚实边界**：拆条绕过未专门防；无独立 Boundary Card（终极扣问 WORTH:NO）。
-
-## 最新验证快照（2026-07-30）
-
-- **Wiki 外部来源 GUI 同步 + Google Drive（vs OpenClaw / Hermes / deer-flow / LobsterAI / CoPaw / jiuwenclaw / OpenWiki）**：gdrive **3/3** + gmail/rss/status/oauth **12/12** + state/config/defaults/blueprint/hygiene/second_brain **15/15** + gmail_html **2/2** = **32 tests, 0 failures**（约 45s、3 批、server lane、**无 Chrome MCP**）。
-- **已验证**：Settings **外部来源**面板（Gmail 标签 + **Google Drive 文件夹** + RSS + 集成镜像 → wiki `raw/` · `publish_raw`）；**零 LLM pull**；OAuth 自动开启 Gmail `ReadLater`；缺 Drive read scope 时 **`google_drive_authorized` 重连提示**；持久化同步状态 + **`syncIssue` 错误回显**；Cron 蓝图 **`read_it_later`** router（`__wiki_source_sync__` · 空 tools）。
-- **相对竞品的用户收益**：GUI 完整 **摄入→编译→检索** 闭环（收藏邮件 + **Drive 文档** + RSS）——OpenClaw 为 Gmail **Pub/Sub 聊天 hook**（非 wiki vault 管道）；Hermes/OpenClaw **google-workspace CLI** 可读 Drive 但**非**编译 wiki raw 管道 + Settings GUI + cron；deer-flow / LobsterAI / CoPaw / jiuwenclaw 参考仓 **无对等能力**；OpenWiki Gmail 为 **env 配置**且**无 Drive connector**。
-- **诚实边界**：Gmail 标签与 Drive 文件夹 ID **手填**——**不做标签下拉 / Drive Picker**（终极扣问 WORTH:NO）；**无 OneDrive**（broken stub 已删）；Integrations API `drive_read_enabled` 对称字段 **WORTH:NO**（OAuth scope 已暴露）。本轮未跑 Chrome MCP E2E；行为由 mock Gmail/Drive API 单测证明。
-
-## 最新验证快照（2026-08-20）
+## 最新验证快照（2026-08-20 · 多根工作区拓扑感知与拖拽挂载）
 
 - **本地工作区极速挂载与多根环境拓扑感知（vs Cursor / Windsurf / Claude Code / Cline）**：
   - **实测验证**：后端 `test_session_access_roots_prompt.py` + `test_session_access_roots_api.py` + `test_session_access_service.py` **13/13** 通过；底层安全与中间件 `test_path_security.py` + `test_session_access.py` + `test_session_access_middleware.py` **47/47** 通过；前端组件与 Hook `SessionAccessRootsBar.test.tsx` + `useDesktopFolderDrop.test.ts` **10/10** 通过，全链路 **70 项自动化测试 0 失败**。
@@ -269,6 +255,8 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   - **用户迁移收益**：
     - 对比 **Cursor / Windsurf**：彻底告别重型后台 Language Server 与 File Watcher 导致的 CPU 占满、风扇狂转与电量狂掉；Myrm 采用轻量拓扑 + 按需精准工具直达，资源开销仅为竞品 1/100。
     - 对比 **Claude Code / Cline**：彻底告别跨目录操作频繁在命令行或弹窗阻断式打断用户心流，实现多仓库微服务协同的流畅无感操作。
+
+## 最新验证快照（2026-07-30 · Wiki ↔ Memory 边界 #27）
 
 ## 最新验证快照（2026-07-27）
 
