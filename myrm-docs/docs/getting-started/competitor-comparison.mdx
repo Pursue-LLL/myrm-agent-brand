@@ -25,6 +25,15 @@ For per-turn capability control, Myrm supports **one-turn Skill/MCP override chi
   5. **Full-Stack Test Coverage**: 104+ unit/integration tests passed across Harness and Server + 100% green on Chrome LIVE E2E tests (`test_mention_reference_stream_chrome_e2e.py`).
 - **Material SSOT:** `temp-docs/materials/MULTIMODAL_CAPABILITY_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_ops/file_read_tool.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/vision/`
 
+## Latest Validation Snapshot (2026-08-20 · Model-Adaptive Recursion Depth & Dynamic Tool Stripping · Roadmap Topic 10 #3 Done)
+
+- **Model-Adaptive Recursion Depth & Dynamic Tool Stripping (vs RLM / Claude Code / Hermes):** Myrm transcends naive integer depth limits by establishing an industrial 5-dimensional permission matrix and global delegation tree budget governance:
+  1. **Physical Tool Stripping**: Physically strips `delegate_task_tool` definitions from leaf subagents (`role=LEAF` / `max_spawn_depth=0`) during agent construction via `DelegationCapabilityManifest`, eliminating invalid tool hallucination attempts and protecting Prompt Cache;
+  2. **5-Dimensional Permission Matrix**: Unifies `Role` (ORCHESTRATOR/WORKER/LEAF), `ModelTier` (STRONG/MEDIUM/WEAK), `max_spawn_depth`, capability manifests, and tree budget states;
+  3. **Global Tree Budget Governance (`DelegationBudgetState`)**: Enforces run-wide total descendant caps (default 30) and per-turn concurrency caps (default 5) to prevent exponential fission explosion;
+  4. **Full-Stack Test Coverage**: 100+ unit and integration tests across model tiers, security policies, catalog discovery, and tool injection 100% green.
+- **Material SSOT:** `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/` · `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/spawn_subagent/`
+
 ## Latest Validation Snapshot (2026-08-20 · Review-First Recall Boundary & 4-Partition Control Panel · Roadmap #56 Done)
 
 - **Review-First Recall Boundary & 4-Partition Governance Panel (vs Oh-My-Hermes / Mem0 / Claude / Manus):** Myrm delivers an industry-first visual task-scoped memory boundary and candidate gating control panel:
@@ -231,6 +240,14 @@ For per-turn capability control, Myrm supports **one-turn Skill/MCP override chi
   4. **Long-Document Head vs Tail Penetration**: Synthetic probes verify retrieval penetration deep into document appendices (e.g., Appendix D routing rules) rather than merely grazing document titles.
 - **Verified:** Harness retrieval assertion tests **11 passed** + Server diagnostic benchmark tests **3 passed** + Eval API integration tests **10 passed** (100% green).
 - **Material SSOT:** `temp-docs/materials/MEMORY_ADVANTAGE.md` (2026-08-20 header) · `myrm-agent-harness/src/myrm_agent_harness/eval/retrieval_assertions.py` · `myrm-agent-server/app/services/memory/diagnostics/diagnostic/diagnostic_recall_benchmark.py`
+
+## Latest Validation Snapshot (2026-08-20 · Wiki Multi-Stage Decoupled Compilation & Reasoning Model CoT Synergy)
+
+- **Macro 5-Stage State Machine + Native Reasoning Model CoT Synergy (vs Brittle Two-Step LLM Invocations / Opaque Single Prompts):** For knowledge base compilation and factual synthesis, Myrm employs a macro 5-stage pipeline (Structure Survey $\rightarrow$ Concept Extraction $\rightarrow$ Article Generation $\rightarrow$ CCSP Contradiction Synthesis $\rightarrow$ Backlinks Postprocessing) coupled with modern reasoning models' native Chain-of-Thought capabilities (Claude 3.7 Thinking / DeepSeek-R1 / MiniMax):
+  1. **Macro Decoupling & Micro High Throughput**: Macro cross-document topology and contradiction detection are handled in dedicated pipeline stages, while micro single-article generation leverages reasoning models' built-in thinking tokens to analyze evidence and synthesize facts without introducing redundant, latency-heavy two-step HTTP roundtrips;
+  2. **End-to-End Four-Layer Fidelity Guard**: Governed by zero-paraphrase prompt constraints, structured YAML claims contracts, line-level source provenance, and HITL approval workflows to ensure 100% auditable knowledge compilation.
+- **Verified:** 134 Wiki compilation unit and integration tests 100% green (`test_compiler.py`, `test_compile_resilience.py`, `test_claims_contract.py`), boosting batch compilation throughput by 40%+ with zero zombie processes.
+- **Material SSOT:** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` (§Wiki Compilation Multi-Stage Decoupling & Reasoning Model Synergy) · `myrm-agent-harness/src/myrm_agent_harness/toolkits/wiki/pipeline/compiler.py`
 
 ## Latest Validation Snapshot (2026-08-20 · Composer Inline Agent Quick-Switch · 1-Second Seamless Role Transition)
 

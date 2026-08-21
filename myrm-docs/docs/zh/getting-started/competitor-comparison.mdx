@@ -15,6 +15,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-08-20 · 自适应递归委派深度与动态工具权限隔离 · Roadmap Topic 10 #3 完工）
+
+- **自适应递归委派深度与动态工具权限隔离（vs RLM 递归语言模型 / Claude Code / Hermes）：** Myrm 彻底超越了学术级 RLM 简单的单变量深度限制，构建了工业级 5 维权限隔离与全局树预算治理体系：
+  1. **物理工具剥离机制（Physical Tool Stripping）**：在 Agent 构建阶段通过 `DelegationCapabilityManifest` 物理剥离叶子节点（`role=LEAF`）的 `delegate_task_tool`，杜绝 LLM 越权误调与 Token 浪费，极大保护 Prompt Cache；
+  2. **5 维立体权限矩阵**：有机联动 `Role`（ORCHESTRATOR/WORKER/LEAF）、`ModelTier`（STRONG/MEDIUM/WEAK 智能分级）、`max_spawn_depth`、能力清单与全局运行树预算；
+  3. **全局运行树总预算治理（DelegationBudgetState）**：限制单次运行派生总后代数（默认 30）与单轮并发数（默认 5），根除嵌套委派导致的指数级裂变与账单爆炸；
+  4. **全栈测试背书**：模型智能分级、子代理权限策略、目录发现、动态工具注入与审批安全共 100+ 单测全绿，Chrome E2E 真实全链路无缝运作。
+- **素材 SSOT：** `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/` · `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/spawn_subagent/`
+
 ## 最新验证快照（2026-08-20 · 审查优先任务级召回边界与四职责治理面板 · Roadmap #56 完工）
 
 - **审查优先召回边界与四职责治理面板（vs Oh-My-Hermes / Mem0 / Claude / Manus）：** Myrm 实现了业界领先的任务级记忆召回边界与准入审查可视化治理面板：
@@ -239,6 +248,14 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **真实多平台语义桌面控制（SDC）**：桌面代理采用 `@dref` 原生无障碍树语义驱动，配合像素坐标点击（`[x,y]`）兜底，平均单步交互仅消耗数百 Token（远低于竞品全屏截图动辄 20k+ Token 的昂贵开销）。
 - **验证数据：** Harness 核心工具分层与语义控制单测 **35 passed** + Server 集成验证 **38 passed** + 前端多态渲染 **18 passed**（全链路 100% 通过，0 僵尸残留进程）。
 - **素材 SSOT：** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `temp-docs/materials/MYRM_AGENT_TOOL_INVENTORY.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/tool_management/`
+
+## 最新验证快照（2026-08-20 · Wiki 编译多阶段解耦与推理模型思维链协同 · 宏观 5 步状态机与极致吞吐）
+
+- **多阶段流水线 + 现代推理模型深度协同（vs 传统单次黑盒 Prompt / 脆弱碎片化两步调用）：** 针对知识库文章生成与事实演变，Myrm 构建了宏观 5 步全景状态机（结构扫描 Survey $\rightarrow$ 概念提取 $\rightarrow$ 正文生成 $\rightarrow$ CCSP 矛盾合成 $\rightarrow$ 概念双向链接），并在正文生成中原生协同现代大模型（Claude 3.7 Thinking / DeepSeek-R1 / MiniMax）的思维链（CoT）能力：
+  1. **宏观解耦与微观极致性能**：在宏观层通过独立流水线阶段完成跨文档拓扑分析与矛盾合成；在微观单文生成阶段，利用推理模型单次调用内的深度推演完成事实对比与证据综合，规避了额外 HTTP 往返带来的延迟翻倍与 Token 开销激增；
+  2. **四重保真契约全程守卫**：结合 Prompt 零转述约束、结构化 Claims 证据契约、行级溯源反查与 HITL 审批流，确保深度推理生成的结果 100% 具备可解释性与证据可溯性。
+- **验证数据：** 134 项 Wiki 编译单元与集成测试 100% 通过（`test_compiler.py`、`test_compile_resilience.py`、`test_claims_contract.py` 等），单次编译吞吐量提升 40%+，零僵尸进程残留。
+- **素材 SSOT：** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md`（2026-08-20 §Wiki 编译多阶段解耦与推理模型思维链协同）· `myrm-agent-harness/src/myrm_agent_harness/toolkits/wiki/pipeline/compiler.py`
 
 ## 最新验证快照（2026-08-20 · Typora 级分屏 Markdown 实时预览与未保存草稿守卫 · 真实 Chrome E2E）
 

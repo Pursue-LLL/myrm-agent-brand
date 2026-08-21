@@ -25,6 +25,15 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
   5. **전체 스택 테스트 검증**: Harness 및 Server 전반에 걸쳐 104개 이상의 단위/통합 테스트 통과 + Chrome LIVE E2E 테스트 100% 정상 통과.
 - **자료 SSOT:** `temp-docs/materials/MULTIMODAL_CAPABILITY_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_ops/file_read_tool.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/vision/`
 
+## 최신 검증 스냅샷 (2026-08-20 · 모델 적응형 재귀 위임 깊이 및 동적 도구 권한 격리 · Roadmap Topic 10 #3 완료)
+
+- **모델 적응형 재귀 위임 깊이 및 동적 도구 격리 (vs RLM 재귀 언어 모델 / Claude Code / Hermes):** Myrm은 단순 정수 깊이 제한을 넘어 산업용 5차원 권한 격리 및 전역 위임 트리 예산 거버넌스를 구축했습니다:
+  1. **물리적 도구 박탈 메커니즘(Physical Tool Stripping)**: Agent 구축 시 `DelegationCapabilityManifest`를 통해 리프 노드(`role=LEAF`)에서 `delegate_task_tool`을 완전히 제거하여 권한 초과 호출 및 토큰 낭비를 100% 방지하고 프롬프트 캐시를 보호;
+  2. **5차원 입체 권한 매트릭스**: `Role`(ORCHESTRATOR/WORKER/LEAF), `ModelTier`(STRONG/MEDIUM/WEAK), `max_spawn_depth`, 기능 매니페스트, 전역 트리 예산 상태를 유기적으로 연동;
+  3. **전역 트리 총 예산 거버넌스(`DelegationBudgetState`)**: 실행당 총 자손 수(기본 30) 및 동시성(기본 5)을 제한하여 지수적 분열 폭발 방지;
+  4. **전체 스택 테스트 검증**: 모델 지능형 계층화, 서브 Agent 권한 정책, 도구 주입 및 승인 안전 등 100개 이상의 테스트 100% 통과.
+- **자료 SSOT:** `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/` · `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/spawn_subagent/`
+
 ## 최신 검증 스냅샷 (2026-08-20 · 검토 우선 작업별 회상 경계 및 4대 책임 거버넌스 패널 · Roadmap #56 완료)
 
 - **검토 우선 회상 경계 및 4대 책임 거버넌스 패널 (vs Oh-My-Hermes / Mem0 / Claude / Manus):** Myrm은 업계 최초로 시각화된 작업별 메모리 회상 경계 및 후보 게이팅 거버넌스 패널을 제공합니다:
@@ -231,6 +240,14 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 - **사용자에게 보이는 경쟁사 대비 장점**: Claude Code/Cursor는 subagent YAML + 플러그인 + MCP + 스킬 바인딩을 네 단계로 수동 조립해야 함; Coze는 팀 목록이 플랫폼 고정(로컬 프라이빗 Agent 없음, 에이전트별 발견 스위치 없음); OpenClaw는 고정 설정 파일뿐. Myrm은 '한 패키지로 Agent 전체 설치, 업그레이드가 로컬 커스터마이징을 절대 덮어쓰지 않음, 모든 업그레이드 원클릭 실행 취소, 프라이빗 Agent가 팀 발견 명단에 자유롭게 출입' 가능한 유일한 워크스페이스.
 - **정직한 범위**: force-push/롤백은 현재 Agent 구성 레이어(스킬, 서브 Agent, MCP 바인딩, 도구, 메모리 정책, 워크스페이스 정책, cron 검증)를 대상으로 함; 업그레이드 GUI가 스킬별 파일 내용 diff를 아직 렌더링하지 않음 — 스냅샷 복원은 현재 API 기반.
 - **Material SSOT:** `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md` §시장 Agent 패키지 원클릭 설치 · `app/api/internal/import_agent_profile.py` · `app/services/agent/marketplace/import_.py` · `tests/integration/test_marketplace_import_full_chain.py`
+
+## 최신 검증 스냅샷 (2026-08-20 · Wiki 다단계 디커플링 컴파일 및 추론 모델 CoT 시너지)
+
+- **거시 5단계 파이프라인 + 추론 모델 CoT 시너지(vs 취약한 2단계 LLM 호출 / 불투명 단일 프롬프트):** 지식 베이스 기사 컴파일 및 사실 통합을 위해 Myrm은 거시 5단계 파이프라인(구조 스캔 Survey $\rightarrow$ 개념 추출 $\rightarrow$ 기사 생성 $\rightarrow$ CCSP 모순 합성 $\rightarrow$ 양방향 링크 후처리)과 최신 추론 모델의 네이티브 사고 연쇄(CoT, Claude 3.7 Thinking / DeepSeek-R1 / MiniMax)를 결합합니다:
+  1. **거시적 디커플링 및 미시적 고처리량**: 문서 간 위상 분석과 모순 탐지는 독립 파이프라인 단계에서 처리하고, 단일 기사 생성은 추론 모델의 내장 사고 토큰을 활용하여 불필요한 HTTP 왕복 지연과 토큰 낭비 없이 완벽한 사실 비교 및 증거 종합을 완료합니다;
+  2. **4중 충실도 계약 보호**: 프롬프트 제로-패러프레이즈 제약, 구조화된 YAML Claims 계약, 줄 단위 출처 역추적 및 HITL 승인 워크플로우를 결합하여 생성 결과의 투명성과 검증 가능성을 100% 보장합니다.
+- **검증 완료:** Wiki 컴파일 단위 및 통합 테스트 134개 100% 통과(`test_compiler.py`, `test_compile_resilience.py`, `test_claims_contract.py` 등), 배치 컴파일 처리량 40%+ 향상, 좀비 프로세스 0개.
+- **Material SSOT:** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` (§Wiki 컴파일 다단계 디커플링 및 추론 모델 시너지) · `myrm-agent-harness/src/myrm_agent_harness/toolkits/wiki/pipeline/compiler.py`
 
 ## 최신 검증 스냅샷 (2026-08-11 · LLM 구조화 JSON 파싱 견고성 · 6대 경쟁사 코드 수준 실증)
 
