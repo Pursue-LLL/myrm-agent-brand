@@ -15,6 +15,22 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 턴당 기능 제어를 위해 Myrm은 완전한 관찰 가능성(제출/적용/noop/큐/바쁨/최종 결과 + 실패 이유)을 갖춘 **원턴 스킬/MCP 재정의 칩**을 지원합니다. 집중 검증(2026-07-29): 프런트엔드 29/29 통과, 서버 10/10 통과; 목표 적용 범위는 핵심 프런트엔드 파일의 라인 62.47%, 서버 원격 측정 모듈의 전체 라인 72%에 도달했습니다. 이는 팀에게 추측이 아닌 비용/신뢰성 조정에 대한 마이그레이션 안전 증거를 제공합니다.
 
+## 최신 검증 스냅샷 (2026-08-20 · 프로토콜 우선 프로덕션급 칸반 협업 vs 취약한 파일 JSONL 협업 · Roadmap Topic 16 완료)
+
+- **프로토콜 우선 프로덕션 칸반 협업 (vs MateClaw 순수 파일 JSONL 멀티 에이전트):** Myrm은 엔터프라이즈급 비동기 멀티 에이전트 협업 및 작업 추적 시스템을 제공합니다:
+  1. **프로토콜 우선 커널 및 결정론적 상태 머신**: `myrm-agent-harness`에 내장되어 원자적 트랜잭션, 의존성 해결, 인간 검토 승인(`in_review`), 환각 검증 게이트(`CompletionVerifier`), 타임아웃 자가 치유(`BlockKind`)를 완벽 지원하여 취약한 JSONL/Markdown 파일 폴링을 완전히 종식;
+  2. **다중 채널 및 다중 터미널 통합 스케줄링**: WebUI/데스크톱에서 네이티브 인터랙티브 칸반을 제공하고, Telegram, Slack, Feishu, WeCom 전 채널에서 `/kanban` 슬래시 명령으로 통합 제어;
+  3. **전체 스택 테스트 검증**: 480개 Harness 커널 단위 테스트 + 253개 Server/API/명령 통합 테스트 + 실제 Chrome MCP E2E 테스트 100% 통과.
+- **자료 SSOT:** `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/kanban/` · `myrm-agent/myrm-agent-server/app/channels/routing/commands/kanban_command.py`
+
+## 최신 검증 스냅샷 (2026-08-20 · 프로토콜 우선 프로덕션급 칸반 협업 vs 취약한 파일 JSONL 협업 · Roadmap Topic 16 완료)
+
+- **프로토콜 우선 프로덕션 칸반 협업 (vs MateClaw 순수 파일 JSONL 멀티 에이전트):** Myrm은 엔터프라이즈급 비동기 멀티 에이전트 협업 및 작업 추적 시스템을 제공합니다:
+  1. **프로토콜 우선 커널 및 결정론적 상태 머신**: `myrm-agent-harness`에 내장되어 원자적 트랜잭션, 의존성 해결, 인간 검토 승인(`in_review`), 환각 검증 게이트(`CompletionVerifier`), 타임아웃 자가 치유(`BlockKind`)를 완벽 지원하여 취약한 JSONL/Markdown 파일 폴링을 완전히 종식;
+  2. **다중 채널 및 다중 터미널 통합 스케줄링**: WebUI/데스크톱에서 네이티브 인터랙티브 칸반을 제공하고, Telegram, Slack, Feishu, WeCom 전 채널에서 `/kanban` 슬래시 명령으로 통합 제어;
+  3. **전체 스택 테스트 검증**: 480개 Harness 커널 단위 테스트 + 253개 Server/API/명령 통합 테스트 + 실제 Chrome MCP E2E 테스트 100% 통과.
+- **자료 SSOT:** `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/kanban/` · `myrm-agent/myrm-agent-server/app/channels/routing/commands/kanban_command.py`
+
 ## 최신 검증 스냅샷 (2026-08-20 · 5링 폐루프 학습 상태 센터 및 성장 디스커버리 칩 · Roadmap #55 완료)
 
 - **5링 폐루프 학습 상태 센터 및 성장 디스커버리 칩 (vs Hermes / Mem0 / Claude / Manus):** Myrm은 시각적 인지 자가 진화 5링 상태 허브 및 EmptyChat 디스커버리 시스템을 제공합니다:
@@ -241,6 +257,12 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 - **경쟁업체 대비 사용자 눈에 보이는 승리:** Myrm은 카운트다운 + 지속적인 감사 추적이 포함된 **GUI 승인 카드 제공** — Hermes는 CLI `readline` 차단(시간 초과 없음, 감사 없음, GUI 없음)을 사용합니다. OpenClaw의 유도 브리지는 Codex 플러그인 전용입니다(범용 사용자 확인이 아닌 자동 채우기 경험적 방법). deer-flow / LobsterAI / CoPaw / jiuwenclaw는 **아니요** 유도를 지원합니다.
 - **정직한 범위 참고 사항:** `ElicitResult.content`(양식 데이터 수집)이 구현되지 않음 — 범용 사용자 양식 입력을 지원하는 경쟁사는 없습니다. `edited_payload` 인프라는 필요한 경우 향후 통합을 지원합니다. URL 모드 추출이 거부되었습니다(서버 호스팅 아키텍처에서는 브라우저 리디렉션이 적용되지 않음).
 - **재료 SSOT:** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `toolkits/mcp/session_actor.py` · `services/agent/backends/mcp_elicitation_handler.py` · `PolymorphicApprovalCard.tsx`
+
+## 최신 검증 스냅샷 (2026-08-20 · Wiki 개념 팽창 거버넌스 및 컴파일 출력 토큰 예산 거버넌스)
+
+- **4계층 컴파일 출력 예산 및 벡터 윈도우 오버플로 가드 (대 OpenClaw / Hermes / deer-flow / LobsterAI / CoPaw / jiuwenclaw):** Myrm은 엄격한 지식 컴파일 출력 거버넌스를 구현합니다. `WikiCompileConfig.max_article_length` 하드 예산, 자동 마크다운/프런트매터 블록 닫기를 통한 적응형 자르기, `EmbedInputTooLargeError`의 자동 캡처 및 `resolve_embed_failure`를 통해 일괄 충돌 대신 단일 문서 일시 중지로 다운그레이드, 엔드투엔드 HITL Pending 승인. 130개 단위 테스트 및 실제 LLM 엔드투엔드 테스트에서 100% 통과되었습니다.
+- **고충실도 규정 준수 및 긴 문서 추출 아키텍처:** 4중 충실도 계약(무의역 프롬프트 + 구조화된 클레임 계약 + 행 수준 출처 + HITL 승인)과 기본 긴 컨텍스트(128k-1M) 및 디렉토리 수준 사이드카가 결합되어 엔티티 파편화를 완벽하게 제거합니다.
+- **재료 SSOT:** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` (2026-08-20 헤더) · `toolkits/wiki/pipeline/compiler.py` · `toolkits/wiki/pipeline/resilience/failure_policy.py`
 
 ## 최신 검증 스냅샷(2026-08-03 · Artifact + Wiki Ingest Pipeline · Wiki Roadmap #5)
 

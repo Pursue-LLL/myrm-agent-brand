@@ -15,6 +15,22 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-08-21 · 原地中断自愈元认知注记与脱壳后台孤儿进程守卫 · 错误恢复与鲁棒性加固）
+
+- **原地中断自愈注记与脱壳孤儿进程拦截（vs Claude Code / OpenHands / Devin / Hermes）：** Myrm 彻底解决了长程 Agent 会话中用户打断死循环与复合命令孤儿进程死锁端口的两大难题：
+  1. **原地自愈注记（In-place Semantic Annotation）**：用户打断耗时或失败的工具执行时，在原位合成的 ToolMessage 中注入元认知自愈提示，打破模型的盲目复读死锁，且 100% 保持 Prompt Cache 前缀稳定性；
+  2. **POSIX 流式词法状态机守卫**：针对前台命令中夹带的中间脱壳 `&` 运算符（如 `npm run dev & echo started`）实施精准拦截，强力引导模型改用 `run_in_background=True` 受控后台通道，从根本上防止脱壳孤儿进程逃逸与端口死锁；
+  3. **全栈测试背书**：底层 93 项单元测试 + 71 项模块集成测试 + 真实 LLM API 流式测试 + 真实 Chrome E2E 测试全部 100% 绿灯。
+- **素材 SSOT：** `temp-docs/materials/ERROR_RECOVERY_ROBUSTNESS_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/tooling/dangling_tool_call_middleware.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/bash/_security/preflight_checks.py`
+
+## 最新验证快照（2026-08-20 · 协议优先生产级看板协作 vs 脆弱文件 JSONL 协同 · Roadmap Topic 16 完工）
+
+- **协议优先生产级看板协作（vs MateClaw 纯文件 JSONL 多 Agent 协同）：** Myrm 构建了企业级异步多 Agent 协作与任务追踪体系：
+  1. **协议优先内核与确定性状态机**：内置于 `myrm-agent-harness`，支持原子事务、依赖解阻、人工审批流（`in_review`）、幻觉验收门禁（`CompletionVerifier`）与超时自愈（`BlockKind`），彻底终结脆弱的 JSONL/Markdown 文件轮询；
+  2. **多渠道与多终端统一调度**：在 WebUI/桌面端提供原生交互式看板，并在 Telegram、Slack、飞书、企微等全渠道通过 `/kanban` Slash 命令统一调度；
+  3. **全栈测试背书**：480 项 Harness 内核单测 + 253 项 Server/API/命令集成测试 + 真实 Chrome MCP E2E 测试 100% 绿色通过。
+- **素材 SSOT：** `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/kanban/` · `myrm-agent/myrm-agent-server/app/channels/routing/commands/kanban_command.py`
+
 ## 最新验证快照（2026-08-20 · 闭环学习五环状态中心与心智发现芯片 · Roadmap #55 完工）
 
 - **闭环学习五环状态中心与心智发现芯片（vs Hermes / Mem0 / Claude / Manus）：** Myrm 构建了业界首个全景自进化五环拓扑可观测中心与空态成长感知体系：
@@ -291,6 +307,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 ## 最新验证快照（2026-08-20 · Wiki 概念防膨胀与编译输出 Token 预算硬治理）
 
 - **四层编译输出预算与向量窗口溢出熔断机制（vs OpenClaw / Hermes / deer-flow / LobsterAI / CoPaw / jiuwenclaw）**：Myrm 实现了严密的知识编译输出治理体系：`WikiCompileConfig.max_article_length` 字符预算门禁、超限自动截断与语法结构闭合、`EmbedInputTooLargeError` 异常自动捕获并执行 `resolve_embed_failure` 降级为单文档暂停而非批次崩溃，以及全链路 HITL Pending 审批。经 130 项单元测试与真实 LLM 端到端测试全绿通过。
+- **高保真合规与长文提炼架构优势**：基于四重保真契约（Prompt 零转述约束 + 结构化 Claims 证据契约 + 细粒度行号反查 + HITL 审批流）与原生超长上下文 + 目录 Sidecars 渐进披露，完美规避暴力分块造成的实体关联切碎，无需引入冗余的合规 Profile。
 - **Material SSOT：** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md`（2026-08-20 首段）· `toolkits/wiki/pipeline/compiler.py` · `toolkits/wiki/pipeline/resilience/failure_policy.py`
 
 ## 最新验证快照（2026-08-15 · 记忆链路 PRIVATE 隔离后端端到端验证 · Chrome E2E 8/8 全通过）
@@ -503,7 +520,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **用户迁移收益**：使用 Matt skills 的开发者切换到 Myrm 后不丢失任何能力；他们获得的是 AI 自动任务路由和程序化验证，而非记忆斜杠命令。
 - **实时任务监控（vs mattpocock/skills GTE 工作台概念）**：GoalStatusCard+GoalControlPlane+GoalPlanStepsList **27/27** + SubagentDashboard **2/2** + Kanban DnD+Markdown **48/48** + Goal Engine **164/164** + Subagent Engine **179/179** + Kanban API **250/250** + Kanban Integration **100/100** = **770 tests, 0 failures**。Myrm 提供 9 层实时监控（GoalStatusCard fixed overlay + GoalPlanStepsList + GoalControlPlane + SubagentDashboard + ArtifactPortal + BrowserLiveView + DesktopLiveView + KanbanBoardView + MobileStatusBoard）——所有组件均可在 0-1 次点击内访问。Portal 支持三模式布局：overlay（快速预览）、side-by-side（宽屏 ≥1280px 自动并排，用户可手动切换）、fullscreen（沉浸式编辑），用户偏好通过 localStorage 持久化。
 - **智能运行时 HITL vs 任务级 AFK/HITL 声明（vs mattpocock/skills `/to-tickets`）**：Kanban task_runner **25/25** + unattended_mode **2/2** + approval_flow+yolo **111/111** + unattended_mode_guard **2/2** + approval_edge_cases+batch+ptc **38/38** + rate_limiter+denial+subagent_safety **22/22** + interception+correction+scheduler **104/104** + security_config+execution_policy+permission **169/169** + server approvals **67/67** + personality_yolo+payload **19/19** + HITL_resume+kanban_binding **11/11** + subagent_approval_integration **4/4** + batch_decisions+session **72/72** + workspace_boundary **12/12** = **658 tests, 0 failures**。Myrm 的设计哲学：Kanban=天然 AFK（yolo+unattended）、Chat=天然 HITL、Cron=天然 AFK、GoalMode=智能切换。运行时 ToolApproval 按操作粒度触发（而非按任务），配合 4 级 Allow-Always 学习。Matt 的任务级 AFK/HITL 标记是 CLI 能力缺失的补丁——它制造了语义冲突（AFK 任务执行危险操作时怎么办？），而 Myrm 的操作级方案优雅解决了这一问题。
-- **上下文管理 & 智能 Handoff（vs mattpocock/skills ask-matt Context Hygiene + `/handoff`）**：ContextBudgetGuard **24/24** + ConversationForkManager **24/24** + ContextUsageIndicator **25/25** + Context pipeline **111/111** + Filter+cache_ttl_prune+resume **68/68** + Handoff API **24/24** + SummarizeProcessor **49/49** = **325 tests, 0 failures**。Myrm 提供 6 层上下文管理：(1) ContextBudgetGuard 4 层溢出保护 (2) 50+ 文件自动压缩 pipeline (3) compactChat 手动压缩 API (4) ≥75% 时 checkpoint-based fork (5) ContextUsageIndicator 环形+CTA (6) HandoffDialog 跨渠道迁移。Matt 的 `/handoff` 是手动 CLI 命令，产生文本摘要会丢失上下文；Myrm 的 Fork 保留完整 LangGraph checkpoint 状态。修复预存在 bug：summarize_processor `_NoOpMetric` AttributeError。
+- **上下文管理 & 智能 Handoff（vs mattpocock/skills ask-matt Context Hygiene + `/handoff`）**：ContextBudgetGuard **24/24** + ConversationForkManager **24/24** + ContextUsageIndicator **25/25** + Context pipeline **111/111** + Filter+cache_ttl_prune+resume **68/68** + Handoff API **24/24** + SummarizeProcessor **49/49** + Split Turn Prefix Summary **46/46** = **371 tests, 0 failures**。Myrm 提供 7 层上下文管理：(1) ContextBudgetGuard 4 层溢出保护 (2) 50+ 文件自动压缩 pipeline (3) Split Turn 活跃轮次前缀提炼保护 (4) compactChat 手动压缩 API (5) ≥75% 时 checkpoint-based fork (6) ContextUsageIndicator 环形+CTA (7) HandoffDialog 跨渠道迁移。Matt 的 `/handoff` 是手动 CLI 命令，产生文本摘要会丢失上下文；Myrm 的 Fork 保留完整 LangGraph checkpoint 状态。修复预存在 bug：summarize_processor `_NoOpMetric` AttributeError。
 
 ## 最新验证快照（2026-07-23）
 
