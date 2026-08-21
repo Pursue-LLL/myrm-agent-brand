@@ -15,6 +15,26 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-08-20 · 统一认知演化时间线与行内即时治理 · Roadmap #54 完工）
+
+- **全域学习流融合时间线与行内即时治理（vs Hermes / Mem0 / Claude / Manus）：** Myrm 构建了业界首个认知演化全景时序流与行内即时治理体系：
+  1. **多态学习流与多维过滤（`LearningTimeline`）**：在 `/journey` 页面无缝汇聚事实记忆、用户偏好、行为流程、情景事件以及技能演化生命周期事件，支持多态色彩徽章、时间范围筛选与游标分页流式加载；
+  2. **行内即时治理与人工锁定（`is_user_locked`）**：支持就地直接编辑记忆规则内容、滑动微调重要度（0–10 分级）、删除过时条目，并可一键开启 **用户锁锁定（`is_user_locked=True`）**，彻底杜绝后续 Agent 自主会话模型反向覆盖已被人工核准的规则；
+  3. **技能生命周期热归档**：在时间线中一键归档或恢复过时技能，降低 Agent 运行期工具冲突风险；
+  4. **时空双向联动**：点击时间线卡片可一键跨页跳转并精准聚焦到 **记忆知识图谱（`MemoryKnowledgeGraph`）** 对应节点，可视化其关联拓扑；
+  5. **全栈测试背书**：后端 7 项契约/处理函数单测 + 5 项 HTTP API 集成测试全通过（`test_learning_timeline_integration.py`）+ 前端 0 Lint 错误。
+- **素材 SSOT：** `temp-docs/materials/MEMORY_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/api/statistics/learning_timeline.py` · `myrm-agent/myrm-agent-frontend/src/components/features/growth/LearningTimeline.tsx`
+
+## 最新验证快照（2026-08-20 · StorageCapabilities 显式契约与 Fail-Closed 启动自省门禁 · Roadmap #13 完工）
+
+- **显式存储契约与 Fail-Closed 启动防降级门禁（vs Hermes / OpenClaw / DeerFlow / 传统 Agent 存储）：** Myrm 构建了企业级存储能力显式声明与 Fail-Closed 启动自省安全体系：
+  1. **不可变存储能力契约（`StorageCapabilities`）**：定义 `schema_version`、`min_compatible_version`、`supports_atomic_batch`、`supports_concurrent_readers` 与 `required_tables`，在 SQLite 连接硬化工厂（`harden_connection_sync/async`）与上下文管理器（`connect_async`）原生校验；
+  2. **Fail-Closed 向上向下兼容阻断**：在启动阶段读取 `PRAGMA user_version`，若低版本客户端打开高版本数据库（如桌面端回退、容器镜像混用、多实例并发挂载同一 Volume），立即抛出 `SchemaVersionTooNewError` 强行阻断启动并给出精确升级指引，彻底杜绝静默读写导致的高版本数据毁损与状态破坏；
+  3. **表结构与最低兼容版本双重守卫**：启动前校验必要表结构完整性（`SchemaShapeMismatchError`）并拦截过旧版本（`SchemaVersionTooOldError`）；
+  4. **有状态迁移引擎原子版本同步**：`StatefulMigrationEngine` 在有状态迁移或基线初始化完成后，原子更新 `PRAGMA user_version`，并通过 `sync_user_version=False` 严格隔离索引子引擎；
+  5. **全栈测试背书**：Harness 框架层 80 项测试全通过（含连接硬化、完整性守卫、Profile 隔离、SchemaGate 单元测试与实时 SQLite/aiosqlite 生命周期集成测试）+ Server 端 1 项全量真实数据库启动拦截集成测试全通过（100% 绿色通过）。
+- **素材 SSOT：** `temp-docs/materials/STORAGE_CRASH_CONSISTENCY_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/utils/db/sqlite/schema_gate.py` · `myrm-agent/myrm-agent-server/app/database/connection.py`
+
 ## 最新验证快照（2026-08-20 · Maka UI 标准化骨架屏与空状态视觉三态机 · Roadmap #2 完工）
 
 - **1:1 像素拟合骨架屏与高容灾三态机（vs Linear / Raycast / Manus / 传统开源 Agent）：** Myrm 在全站核心业务面板与主干路由构建了企业级视觉加载与空状态三态机系统：

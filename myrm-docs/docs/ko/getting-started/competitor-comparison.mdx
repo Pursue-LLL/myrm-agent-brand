@@ -15,6 +15,16 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 턴당 기능 제어를 위해 Myrm은 완전한 관찰 가능성(제출/적용/noop/큐/바쁨/최종 결과 + 실패 이유)을 갖춘 **원턴 스킬/MCP 재정의 칩**을 지원합니다. 집중 검증(2026-07-29): 프런트엔드 29/29 통과, 서버 10/10 통과; 목표 적용 범위는 핵심 프런트엔드 파일의 라인 62.47%, 서버 원격 측정 모듈의 전체 라인 72%에 도달했습니다. 이는 팀에게 추측이 아닌 비용/신뢰성 조정에 대한 마이그레이션 안전 증거를 제공합니다.
 
+## 최신 검증 스냅샷 (2026-08-20 · StorageCapabilities 명시적 계약 및 Fail-Closed 시작 검증 게이트 · Roadmap #13 완료)
+
+- **명시적 스토리지 계약 및 시작 시 다운그레이드 방지 Fail-Closed 게이트 (vs Hermes / OpenClaw / DeerFlow / 기존 Agent 스토리지):** Myrm은 모든 SQLite 스토리지 계층에 걸쳐 엔터프라이즈급 스토리지 기능 명시적 선언 및 Fail-Closed 자체 검증 보안 체계를 구축했습니다:
+  1. **불변 스토리지 기능 프로토콜(`StorageCapabilities`)**: `schema_version`, `min_compatible_version`, `supports_atomic_batch`, `supports_concurrent_readers`, `required_tables`를 명시적으로 선언하고 SQLite 연결 강화 팩토리(`harden_connection_sync/async`) 및 `connect_async`에서 원시적으로 검증;
+  2. **Fail-Closed 상향/하향 호환성 가드**: 이전 빌드가 최신 데이터베이스를 발견할 경우 `PRAGMA user_version`을 읽어 즉시 `SchemaVersionTooNewError`로 시작을 차단하고 정확한 업그레이드 가이드를 제공하여 무음 데이터 손상을 원천 차단;
+  3. **테이블 구조 및 최소 호환 버전 이중 보호**: DDL 또는 쿼리가 실행되기 전에 필수 테이블 무결성(`SchemaShapeMismatchError`)과 최소 지원 스키마 버전(`SchemaVersionTooOldError`)을 검증;
+  4. **상태 저장 마이그레이션 엔진의 원자적 버전 동기화**: `StatefulMigrationEngine`이 마이그레이션 완료 시 `PRAGMA user_version`을 원자적으로 동기화하며, 인덱스 러너를 위한 격리(`sync_user_version=False`) 지원;
+  5. **전체 스택 테스트 검증**: Harness 프레임워크 계층 80개 테스트 통과 + Server 계층 1개 실제 데이터베이스 시작 차단 통합 테스트 통과 (100% 통과).
+- **자료 SSOT:** `temp-docs/materials/STORAGE_CRASH_CONSISTENCY_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/utils/db/sqlite/schema_gate.py` · `myrm-agent/myrm-agent-server/app/database/connection.py`
+
 ## 최신 검증 스냅샷 (2026-08-20 · Maka UI 표준 스켈레톤 및 빈 상태 3상태 시각 시스템 · Roadmap #2 완료)
 
 - **1:1 픽셀 맞춤형 스켈레톤 및 고회복성 빈 상태 머신 (vs Linear / Raycast / Manus / 기존 오픈소스 Agent):** Myrm은 핵심 비즈니스 대시보드와 여정 전반에 걸쳐 엔터프라이즈급 시각적 로딩 및 빈 상태 3상태 시스템을 구축했습니다:
