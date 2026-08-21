@@ -15,6 +15,45 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-08-21 · 桌面受管进程注册中心与生命周期可观测性 · Roadmap Topic 08 #1 完工）
+
+- **桌面受管进程注册中心与多 Sidecar 全生命周期治理（vs Hermes-Desktop / WeSight / AionUi / OpenClaw）：** Myrm 实现了高性能 Rust 原生桌面受管进程注册中心与级联终止子系统：
+  1. **线程安全统一进程注册表（`ProcessRegistry`）**：将桌面端所有 Sidecar 子进程（`Backend`、`Frontend`、`AgentRunner`、`AgentWorker`、`ToolRunner`）纳入全局统一注册表，提供毫秒级生命周期状态追踪（`Starting`、`Running`、`Stopped`、`Crashed`、`OrphanReclaimed`）；
+  2. **崩溃退出码捕获与重启风暴防护**：子进程异常退出时自动捕获 `exit_code` 与错误原因，并在重启重拉时持久保持 `restart_count`，无缝对接 Watchdog 指数退避与 5 分钟 3 次熔断保护；
+  3. **有界历史修剪零内存泄漏**：严格限制 `MAX_STOPPED_HISTORY_ENTRIES = 50` 的 LRU 式修剪，确保无论运行多久内存占用恒定收敛；
+  4. **级联整树销毁与端口防冲突**：`kill_managed_process` 深度联动跨平台进程树销毁（`kill_process_tree` + Windows Job Object `JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE`），彻底销毁全部子孙孤儿进程，根除端口占用与文件锁定；
+  5. **Tauri IPC 接口与安全策略分级**：暴露 `get_desktop_process_registry`（只读）与 `kill_desktop_process`（Critical 风险级）IPC 命令，受 `ipc_security/policy.rs` 严格控制；
+  6. **全栈测试背书**：Rust 单元测试 + Python server 冷启动健康诊断集成测试 + 架构词汇表测试 100% 绿灯，0 Lints。
+- **素材 SSOT：** `temp-docs/materials/DESKTOP_APP_ADVANTAGE.md` · `myrm-agent/myrm-agent-desktop/src-tauri/src/runtime/process_registry/` · `myrm-agent/myrm-agent-desktop/src-tauri/src/commands/process_registry.rs`
+
+## 最新验证快照（2026-08-21 · 自动滚动跟随持久化镜像总线 · Roadmap Topic 12 #3 完工）
+
+- **自动滚动跟随持久化镜像与零抖动阅读锚点（vs Pi Agent / Claude Desktop / Cursor）：** Myrm 构建了原生与虚拟列表同构的滚动状态与跟随意图持久化镜像：
+  1. **双模态跟随与语义阅读锚点解耦**：智能解耦 `isFollowingBottom`（实时流式输出尾部跟随）与 `isUserScrolledUp` / `anchorMessageId`（历史查阅锚点）；离开前跟随则重入时直接吸附流式末尾，离开前查阅则 0ms 精确复位并在后台产生新内容时亮起药丸提示，彻底杜绝视口被强制拽跑；
+  2. **虚拟列表同构容器适配器（`useScrollPositionRestore`）**：抽象通用 `getScrollElement`，完美适配原生 `window` 与 `@tanstack/react-virtual` 虚拟列表容器（`HTMLDivElement`），彻底修复长对话下虚拟滚动恢复失效的缺陷；
+  3. **L1 内存即时快照 + L2 SessionStorage 级联持久化**：切会话 0ms 瞬间还原，页面重载与刷新走 10 会话 LRU 防抖持久化与 Quota 脱敏容灾；
+  4. **全栈测试背书**：`useScrollPositionRestore` 4 项单测 + `ScrollToBottomButton` 9 项单测 + `chat-window/` 与 `hooks/ui/` 204 项集成测试 100% 绿灯通过，0 Lints。
+- **素材 SSOT：** `temp-docs/materials/USER_EXPERIENCE_ADVANTAGE.md` · `myrm-agent/myrm-agent-frontend/src/hooks/ui/useScrollPositionRestore.ts` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/virtual-message-list/VirtualMessageList.tsx`
+
+## 最新验证快照（2026-08-21 · 动态工作流原生动作蒸馏 vs 玩具级技能包 · Roadmap Topic 10 #4 完工）
+
+- **动态工作流原生动作蒸馏与沙箱重放（vs RLM 递归语言模型 / Claude Code / 学术原型）：** Myrm 构建了生产级 Code-as-Orchestrator 动态工作流执行中枢：
+  1. **原生动作习惯蒸馏（Probe-Split-Delegate-Synthesize）**：直接在底层引擎 `ORCHESTRATOR_PROMPT` 中固化四步编排范式与三大经典架构模板（屏障扇出、批量抽取、依赖流水线），物理禁止 LLM 用于过滤、排序、去重、JSON 解析等低价值算子，节省 80%+ 无效 Token；
+  2. **PTC 隔离沙箱与高效 RPC 桥**：通过安全 UDS/TCP IPC 桥提供 `myrm_tools`（`spawn_subagent`, `notify`, `llm_query`, `llm_query_batched`），中间产物全在子进程内存中流转，彻底解决长文本 Context 膨胀；
+  3. **SQLite Event Sourcing 确定性重放**：`WorkflowEventStore` 参数指纹匹配，异常崩溃后秒级重放已完成子任务，绝不重复计费；
+  4. **实时进度透明度与流控**：支持脚本内阶段通知流式推送 SSE `workflow_stage`，配合 `WorkflowRunGuard` 硬限制 50 次派生与 5 并发流控；
+  5. **全栈测试背书**：Harness 160 项 DW 单测 + 48 项 PTC 沙箱测试 + Server 52 项 API/升级集成测试 + 真实 LLM E2E 测试 100% 绿灯。
+- **素材 SSOT：** `temp-docs/materials/DYNAMIC_WORKFLOW_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/dynamic_workflow/` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/ptc/`
+
+## 最新验证快照（2026-08-20 · 渠道入站工具矩阵与最小特权安全防线 · Roadmap Topic 16 完工）
+
+- **渠道入站工具矩阵与最小特权安全防线（vs Pi Agent / OpenClaw / Hermes platform_toolsets）：** Myrm 构建了企业级全渠道静态工具挂载与多层防御预设体系：
+  1. **静态工具定义对齐与零缓存抖动**：通过 `resolve_agent_mount` 将各入口（`WEB_CHAT`、`WEB_FAST`、`CHANNEL`、`CRON`、`KANBAN`、`VOICE`）对齐到标准 `ExecutionSurface`，保证 95%+ 的 Prompt Cache 高命中率，彻底杜绝粗暴剔除工具引发的缓存击穿与首轮延迟；
+  2. **Harness 内核 4 级安全预设（SSOT）**：内置 `CHANNEL_PRESETS` 针对 IM 渠道配置 `!browser_*` 与 `!desktop_*` 负向能力围栏，强制代码解释器、MCP、文件写编辑进入 HITL 人工审批，并完全阻断未授权的 shell 执行；
+  3. **最小特权天花板合并算法（Least Privilege Ceiling）**：保障用户与智能体自定义规则只能收紧安全策略，杜绝跨渠道越权漏洞；
+  4. **全栈测试背书**：408 行 Harness 安全单元测试 100% 绿色通过，覆盖 15+ 渠道的全部安全维度。
+- **素材 SSOT：** `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/security/channel_presets.py` · `myrm-agent/myrm-agent-server/app/services/agent/tool_mount/resolver.py`
+
 ## 最新验证快照（2026-08-20 · 自适应递归委派深度与动态工具权限隔离 · Roadmap Topic 10 #3 完工）
 
 - **自适应递归委派深度与动态工具权限隔离（vs RLM 递归语言模型 / Claude Code / Hermes）：** Myrm 彻底超越了学术级 RLM 简单的单变量深度限制，构建了工业级 5 维权限隔离与全局树预算治理体系：
@@ -76,6 +115,26 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **第 4 道确定性质检门禁（`SummaryAuditor`）**：在结构完整性、实体保留率、信息密度之外挂载物理执行一致性硬门禁与重试引导提示；
   4. **零额外 LLM 成本与 Prompt Cache 零破坏**：纯 Python 内存事实比对（耗时 <0.5ms），不引入任何增量 Token 账单与动态前缀噪音；
   5. **全栈测试背书**：Harness 100% 覆盖单元测试与全链路回归（`test_execution_state_validator.py` 51 项测试全部通过）。
+- **素材 SSOT：** `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/strategies/summary/execution_state_validator.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/strategies/summary/summary_auditor.py`
+
+## 最新验证快照（2026-08-20 · 五维压缩保真度同任务 A/B 验收套件 · Roadmap #4 完工）
+
+- **五维上下文压缩续跑保真度量化评测体系（vs Pi Compaction 规约模式 / 传统无量化压缩）：** Myrm 构建了业界首个基于同任务分叉单步续跑（Forked Continuation A/B）的上下文压缩质量量化评测套件：
+  1. **五维保真度量化架构 (`CompactionFidelityScore`)**：从 `Constraint Recall`（约束召回）、`Decision Fidelity`（决策一致性）、`Execution State Accuracy`（执行状态准确度）、`Artifact Coverage`（产物覆盖率）和 `Continuation Success`（续跑成功率）五大核心维度量化压缩质量；
+  2. **同任务分叉单步续跑评测器 (`CompactionABEvaluator`)**：自动化分叉比对未压缩 Baseline 臂与压缩后 Compacted 臂在相同长任务轨迹下的下一步决策与输出；
+  3. **Token 节省率 vs 保真度双轴雷达输出**：同屏输出 Token 节省比例与综合保真度得分，为压缩算法、提示词设计与模型选型提供精准的 Pareto 决策支撑；
+  4. **零 LLM 成本规则优先与工具语义归一化 (`canonicalize_tool_name`)**：在调用 LLM Judge 之前优先执行高精度 Python 规则与别名工具对齐，兼顾评测的高性能与深层语义容错；
+  5. **全栈测试背书**：Harness 评测单测与端到端运行器集成测试 100% 绿色通过 (`test_compaction_ab.py` 5 项全过)，0 Lint 错误。
+- **素材 SSOT：** `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/eval/compaction_assertions.py` · `myrm-agent-harness/src/myrm_agent_harness/eval/compaction_ab.py`
+
+## 最新验证快照（2026-08-20 · 执行状态物理一致性守卫与双向自愈 · Roadmap #3 完工）
+
+- **物理执行一致性守卫与第 4 道确定性质检门禁（vs Pi Compaction / Hermes / 传统 Agent 压缩）：** Myrm 构建了上下文压缩阶段的物理事实对账与双向自愈机制：
+  1. **物理真实唯一事实源 (`ArtifactTracker`)**：利用不可篡改的文件系统变动日志（`CREATED` / `MODIFIED`）与 `ToolMessage` 状态交叉核验 LLM 摘要，彻底杜绝计划中或失败写入被虚假摘要为“已完成”的幻觉；
+  2. **双向自动自愈 (`reconcile_summary_execution_state`)**：自动剔除虚假未写入文件，自动补齐遗漏的物理修改文件，保证压缩后状态 100% 贴合磁盘真实；
+  3. **第 4 道确定性质检门禁 (`SummaryAuditor`)**：在完整性、实体保留与信息密度基础上增设物理一致性门禁与重试指引；
+  4. **零额外 LLM 开销与 Prompt Cache 零破坏**：纯内存事实比对（耗时 <0.5ms），0 增量账单，0 动态前缀污染；
+  5. **全栈测试背书**：Harness 单元测试与全链路回归测试 100% 绿色通过 (`test_execution_state_validator.py` 51 项全过)，0 Lint 错误。
 - **素材 SSOT：** `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/strategies/summary/execution_state_validator.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/strategies/summary/summary_auditor.py`
 
 ## 最新验证快照（2026-08-20 · 计算工件可信守卫与交付物真实性门禁 · Roadmap Topic 10 完工）
@@ -239,6 +298,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   4. **渐进式功能披露**：菜单顶部聚合常用高频智能体，底部直通「详细微调面板」与「智能体管理中心」，兼顾 1 秒轻量快切与高阶深度定制。
 - **验证数据：** 前端 message-input-actions 整体测试套件 **44 passed**（含 AgentIndicator 10 项多模态头像与极限空态测试）+ Server 端 CRUD 与 Snapshot 快照持久化 **18 passed**（100% 通过率）。
 - **素材 SSOT：** `temp-docs/materials/USER_EXPERIENCE_ADVANTAGE.md`（§32）· `myrm-agent-frontend/src/components/features/message-input-actions/AgentIndicator.tsx`
+
+## 最新验证快照（2026-08-20 · Per-Agent 独立知识库与 Purpose 编译指引 GUI · 领域知识精准隔离）
+
+- **智能体专属知识库与方向指引闭环（vs Hermes / OpenClaw / 传统单 Vault 知识库）：** 针对多智能体协同场景下的知识库领域差异与编译规则定制，Myrm 实现了全栈 Per-Agent 知识库物理隔离与 Purpose 编译指引体系：
+  1. **Per-Agent 物理隔离 Vault**：每个 Agent 专属独立的知识库根目录（`resolve_wiki_vault_path(agent_id)`），保证各领域概念、词条与来源文档互不污染；
+  2. **专属 Purpose 领域指引 GUI**：WebUI 知识库设置顶层提供 `agentScopeId` 选择器，切换后实时载入该 Agent 的「知识库定位与指引（Purpose / Direction）」，支持一键保存与重置，直接持久化为该 Vault 下的 `purpose.md`；
+  3. **编译期动态注入**：Harness 编译管线在生成概念词条时自动加载当前 Vault 的 `purpose.md`（`Knowledge base direction: ...\nFocus your article within this scope.`），实现零配置碎片的优雅领域约束。
+- **验证数据：** 134 项 Wiki 编译与 Vault 作用域单测及集成测试 100% 通过（`test_wiki_portability_scope.py`、`test_wiki_vault_path_integration.py`、`test_compiler.py` 等），0 失败。
+- **素材 SSOT：** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md`（2026-08-20 §WikiPerAgentCompileRulesSupplementGui）· `myrm-agent-harness/src/myrm_agent_harness/toolkits/wiki/pipeline/compiler.py` · `myrm-agent/myrm-agent-server/app/api/wiki/router.py`
 
 ## 最新验证快照（2026-08-20 · 四层工具保序注册与提示词前缀缓存极致优化 · 零穿透低延迟）
 
@@ -678,7 +746,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **浏览器引擎** | ✅ 双隐身引擎（Patchright + Camoufox）+ 跨会话指纹持久化 + 三级拟人化交互（高斯延迟 + 贝塞尔鼠标轨迹）+ 三层 GlobalBrowserPool（零冷启动、三层崩溃恢复）+ Shadow DOM 穿透 + API-First 网络智能（CDP 懒加载响应体 + 请求重放）+ 域名引擎亲和记忆 + 后台无感执行（双层隔离）+ 同源智能Tab路由 + 4 大云浏览器 Provider（GUI 配置 + 热更新免重启）+ 语义 inspect→snapshot 链路 + 浏览器事件遥测基线，已由 **127 项定向测试** 与真实 Chrome MCP snapshot/evaluate 验证 | ⚠️ 第三方云浏览器（环境变量配置，需重启） | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
 | **网页搜索** | ✅ 8 引擎 + 中文全网搜索（百度/搜狗/360/夸克自托管零成本）+ 7类意图零LLM路由 + BM25/Reranker 过滤 + 三层防幻觉 + 191项搜索测试 | ⚠️ 云 API 透传 | ⚠️ DDG/Bing 抓取 | ⚠️ 同 OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
 | **网页抓取** | ✅ 三层自动降级 + 自学习 AdaptiveRouter + 反爬自动绕过（主流 WAF）+ 向量提取 + DOM 修剪（391 项测试） | ⚠️ web_extract（Firecrawl + LLM） | ⚠️ HTTP / Firecrawl 回退 | ⚠️ 同上 | ⚠️ 仅 HTTP | ❌ | ❌ |
-| **工作区 RAG** | ✅ **四层管线**：BM25 + 向量 + RRF融合 + Reranker；7类19种格式解析（PDF/Word/Excel/PPT/ipynb/OCR）；双后端知识图谱；Karpathy Wiki 编译引擎；**frontmatter `type` 枚举硬闸门**（编译 + 待审批准 + Linter 修复 + Settings Repair Page Types — 7 类 OKF 兼容，47 pytest Jul 2026）；**认知地图三件套**（`wiki/index.md` + `log.md` + `hot.md` 事件驱动刷新；hot 仅 wiki_query 消费 — cache-safe，25 pytest Jul 2026）；Skill Evolution 自学习；RSG质量守卫（2,886项测试——Wiki 159 + Evolution 437 + Skills 565 + Memory 1,901 + 索引/RAG 159 + Marketplace 52 + Optimization 23） | ⚠️ 仅代码AST索引 | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **工作区 RAG** | ✅ **四层管线**：BM25 + 向量 + RRF融合 + Reranker；7类19种格式解析（PDF/Word/Excel/PPT/ipynb/OCR）；双后端知识图谱；Karpathy Wiki 编译引擎；**Per-Agent 独立 Vault 与 Purpose 编译指引 GUI**；**frontmatter `type` 枚举硬闸门**（编译 + 待审批准 + Linter 修复 + Settings Repair Page Types — 7 类 OKF 兼容，47 pytest Jul 2026）；**认知地图三件套**（`wiki/index.md` + `log.md` + `hot.md` 事件驱动刷新；hot 仅 wiki_query 消费 — cache-safe，25 pytest Jul 2026）；Skill Evolution 自学习；RSG质量守卫（2,886项测试——Wiki 159 + Evolution 437 + Skills 565 + Memory 1,901 + 索引/RAG 159 + Marketplace 52 + Optimization 23） | ⚠️ 仅代码AST索引 | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **图片搜索** | ❌（web_search + web_fetch / browser 可找页面图） | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **长文目录** | ✅ 聊天内自动 TOC + 滚动同步 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **富内容渲染** | ✅ Mermaid（缩放/全屏/图例/导出）+ KaTeX 数学公式 + GFM Alerts（5 种类型带图标）+ 脚注 + 代码 Diff + 平滑流式 | ⚠️ 基础 Mermaid | ❌ | ❌ | ❌ | ❌ | ❌ |

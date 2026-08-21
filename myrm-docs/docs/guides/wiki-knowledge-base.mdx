@@ -281,7 +281,7 @@ All durable Wiki writes share the harness persistence scan SSOT (`core/security/
 | Stage | Gate | User benefit |
 |-------|------|--------------|
 | **Import / ingest / session archive** | `publish_raw` pre-scan (`WIKI_RAW`) | API keys and credential-shaped text are **blocked** or **redacted** before landing in `wiki/raw/` |
-| **编译发布** | `publish_concept_article`（`WIKI_PUBLISH`） | 不可脱敏凭证不会静默成为 canonical 页 |
+| **编译发布** | `publish_concept_article`（`WIKI_PUBLISH`） | Redacted-proof credentials will not silently become canonical pages |
 | **Settings import feedback** | `WikiImportSecurityDialog` | Lists blocked/redacted paths after folder/ZIP/Obsidian import — no silent drops |
 | **Forget evidence** | Overview raw tree → reason → `DELETE /wiki/raw/{path}` | Remove mistaken imports; dependent compiled pages are re-anchored; event logged to `wiki/log.md` |
 | **Maintenance** | `wiki_maintain` scans existing raw vault | Catches legacy files; **blocked credentials are removed** from disk (not count-only) |
