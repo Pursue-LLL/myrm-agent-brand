@@ -15,6 +15,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-08-20 · 闭环学习五环状态中心与心智发现芯片 · Roadmap #55 完工）
+
+- **闭环学习五环状态中心与心智发现芯片（vs Hermes / Mem0 / Claude / Manus）：** Myrm 构建了业界首个全景自进化五环拓扑可观测中心与空态成长感知体系：
+  1. **五环闭环全景状态中心（`LearningLoopFiveRingHub`）**：在 `/journey` 页面以流动的环形拓扑呈现「战后自省 (Trace 挖掘) → 技能提炼 (FIX/DERIVED 提案) → 施用自进 (Improvement Gate 门禁) → 周期自警 (闲时记忆整理去噪) → 渐构画像 (FTS5 与跨会话召回)」全链路认知自进化生命周期；
+  2. **空会话成长发现芯片（`GrowingLoopDiscoveryChip`）**：在 EmptyChat 提供晶莹质感成长胶囊，让用户一眼感知 Agent 已经沉淀的记忆与技能资产，点击直达 `/journey`；
+  3. **去古德哈特化健康分体系**：健康分采用系统就绪性与无退化门禁拦截率衡量，杜绝盲目刷高演化次数造成的资源浪费；
+  4. **全栈测试背书**：后端 2 项契约与 HTTP 集成测试全绿（`test_learning_loop_integration.py`）+ 前端 0 Lint 错误。
+- **素材 SSOT：** `temp-docs/materials/MEMORY_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/api/statistics/learning_loop.py` · `myrm-agent/myrm-agent-frontend/src/components/features/growth/LearningLoopFiveRingHub.tsx`
+
 ## 最新验证快照（2026-08-20 · 计算工件可信守卫与交付物真实性门禁 · Roadmap Topic 10 完工）
 
 - **计算工件真实可信与交付物真实性门禁（vs Prime-Agent REPL / Manus / HappyCapy）：** Myrm 构建了业界首个从计算输出到交付物校验的全链路防幻觉与防虚假交付体系：

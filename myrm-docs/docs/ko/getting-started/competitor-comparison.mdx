@@ -15,6 +15,15 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 턴당 기능 제어를 위해 Myrm은 완전한 관찰 가능성(제출/적용/noop/큐/바쁨/최종 결과 + 실패 이유)을 갖춘 **원턴 스킬/MCP 재정의 칩**을 지원합니다. 집중 검증(2026-07-29): 프런트엔드 29/29 통과, 서버 10/10 통과; 목표 적용 범위는 핵심 프런트엔드 파일의 라인 62.47%, 서버 원격 측정 모듈의 전체 라인 72%에 도달했습니다. 이는 팀에게 추측이 아닌 비용/신뢰성 조정에 대한 마이그레이션 안전 증거를 제공합니다.
 
+## 최신 검증 스냅샷 (2026-08-20 · 5링 폐루프 학습 상태 센터 및 성장 디스커버리 칩 · Roadmap #55 완료)
+
+- **5링 폐루프 학습 상태 센터 및 성장 디스커버리 칩 (vs Hermes / Mem0 / Claude / Manus):** Myrm은 시각적 인지 자가 진화 5링 상태 허브 및 EmptyChat 디스커버리 시스템을 제공합니다:
+  1. **5링 토폴로지 상태 허브(`LearningLoopFiveRingHub`)**: 5개 상호 연결된 링(사후 반성 및 트레이스 마이닝 → 스킬 추출 및 제안 → 런타임 발전 및 개선 게이트 → 주기적 메모리 정리 및 노이즈 제거 → 점진적 프로파일링 및 교차 세션 회상)을 `/journey`에서 시각적으로 직관적이게 제공;
+  2. **EmptyChat 성장 디스커버리 칩(`GrowingLoopDiscoveryChip`)**: 빈 채팅 화면에서 사용자가 현재 통합된 메모리와 활성 스킬 수를 확인하고 원클릭으로 `/journey`로 이동할 수 있는 미려한 성장 캡슐 제공;
+  3. **안티 굿하트 건강 점수 시스템**: 무의미한 자가 진화 반복을 강제하지 않고 컴포넌트 준비 상태, 회귀 방지 게이트 유효성을 기준으로 건강 점수를 산출;
+  4. **전체 스택 테스트 검증**: 백엔드 2개 스키마/API 통합 테스트 통과(`test_learning_loop_integration.py`) + 프런트엔드 0 Lint 오류.
+- **자료 SSOT:** `temp-docs/materials/MEMORY_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/api/statistics/learning_loop.py` · `myrm-agent/myrm-agent-frontend/src/components/features/growth/LearningLoopFiveRingHub.tsx`
+
 ## 최신 검증 스냅샷 (2026-08-20 · 선언적 고품질 PDF 템플릿 레지스트리 및 렌더링 엔진 · Roadmap Topic 11 #4 완료)
 
 - **선언적 PDF 템플릿 레지스트리 및 고품질 인쇄 엔진 (vs PDFx / Puppeteer 스크립트 / 단순 Markdown 변환기):** Myrm은 엔터프라이즈급 구조화된 PDF 문서 생성 툴체인을 제공합니다:
