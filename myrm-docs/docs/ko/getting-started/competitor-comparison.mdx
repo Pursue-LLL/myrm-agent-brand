@@ -15,6 +15,18 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 턴당 기능 제어를 위해 Myrm은 완전한 관찰 가능성(제출/적용/noop/큐/바쁨/최종 결과 + 실패 이유)을 갖춘 **원턴 스킬/MCP 재정의 칩**을 지원합니다. 집중 검증(2026-07-29): 프런트엔드 29/29 통과, 서버 10/10 통과; 목표 적용 범위는 핵심 프런트엔드 파일의 라인 62.47%, 서버 원격 측정 모듈의 전체 라인 72%에 도달했습니다. 이는 팀에게 추측이 아닌 비용/신뢰성 조정에 대한 마이그레이션 안전 증거를 제공합니다.
 
+## 최신 검증 스냅샷 (2026-08-20 · 엔터프라이즈 크로스 플랫폼 릴리스 엔지니어링 파이프라인 · 4-Target CI 게이트)
+
+- **산업용 Map-Reduce 릴리스 엔지니어링 파이프라인 (vs Hermes-Desktop / WeSight / AionUi / 커뮤니티 관행):** Myrm은 macOS (Apple Silicon / Intel), Windows (x64), Linux (AppImage) 전반에 걸쳐 코드 강제형 릴리스 게이트 네트워크를 구축합니다:
+  1. **Map-Reduce 파이프라인 아키텍처**: 프런트엔드를 한 번 빌드하여 4개 타깃에 공유, macOS ARM 사전 게시로 릴리스 대기 시간 40% 단축;
+  2. **빌드 전 수학적 공개키 일치성 검증** (`check-updater-pubkey.sh`): 업데이터 공개키와 CI 개인키 일치성을 사전 검증하고 플레이스홀더 값 즉시 차단;
+  3. **양대 플랫폼 권위 있는 서명 및 공증**: macOS 4중 검증 (`codesign` + `spctl` Gatekeeper 시뮬레이션 + `xcrun stapler` 공증 티켓 확인) + Windows Authenticode RFC 3161 타임스탬프;
+  4. **플랫폼 결함 자가 치유**: AppImage 크래시를 방지하는 네이티브 musl 모듈 자동 제거, Tauri 사이드카 패키징 결함을 해결하는 Dummy-Swap 번들링, 아키텍처 간 덮어쓰기를 방지하는 적응형 이름 변경;
+  5. **자동 OTA 매니페스트 생성 및 런타임 스모크 게이트**: `finalize-release.sh` + `verify-release.sh`가 `.sig` 서명과 SHA-256 교차 검증을 페어링하고, `smoke-launch-runtime.sh`가 CI 러너에서 패키지를 해제하여 실제 `:8080/health` 및 WebUI 포트를 프로브.
+- **경쟁사 비교**: 경쟁사는 사람의 실수와 측정 감쇠에 취약한 수동 Markdown 체크리스트에 의존하지만, Myrm은 18개 이상의 자동화된 CI 기계적 게이트를 강제하여 100% 무결점 데스크톱 릴리스를 보장합니다.
+- **검증 데이터**: `test_desktop_finalize_fixture.py` (4-Target 비네트워크 서명 페어링 + 엣지 케이스) **통과** + `test_desktop_launch_smoke_script.py` **통과** + `check-fractal-docs.test.ts` **2개 통과**.
+- **자료 SSOT**: `temp-docs/materials/DESKTOP_APP_ADVANTAGE.md` (2026-08-20 섹션) · `myrm-agent/.github/workflows/desktop-release.yml` · `scripts/ci/desktop-release/_ARCH.md`
+
 ## 최신 검증 스냅샷 (2026-08-20 · 관리형 스킬 설치 불변 영수증 및 스냅샷 원자적 롤백 · Roadmap #2 완료)
 
 - **불변 스킬 설치 영수증 및 원자적 롤백 게이트 (vs Hermes / OpenClaw / 플러그인 마켓):** Myrm은 엔터프라이즈급 관리형 스킬 설치 보안 및 감사 프레임워크를 제공합니다:

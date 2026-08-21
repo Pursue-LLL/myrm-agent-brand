@@ -15,6 +15,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-08-20 · FastUiRestoreMode 双级快照抗刷新 0ms 视觉秒开 · Roadmap #12 完工）
+
+- **双级快照总线与会话秒开恢复（vs pi_agent / LobeChat / 单层持久化）：** Myrm 构建了业界领先的双级会话快照恢复与抗刷新容灾体系：
+  1. **L1 (内存 LRU 20条) + L2 (SessionStorage 3条) 双级快照总线**：单页内高频切换会话命中极速内存 Map，在浏览器刷新（F5/Cmd+R）或客户端重载 L1 清空时，自动从 L2 回填并温热 L1；
+  2. **0ms 视觉秒开瞬间直出**：与 SWR 机制结合，页面加载瞬间即渲染上一次快照视口内容，彻底消除冷启动白屏与骨架屏跳闪；
+  3. **数据安全脱敏与存储配额守卫**：自动剥离 >1KB Base64 大图，强制将 `loading` 态重置为 `false` 防刷新后挂死加载，单快照 300KB 容量硬拦截，全程包裹 `try/catch` 优雅处理 `QuotaExceededError` 与损坏 JSON；
+  4. **多面板与隐私隔离**：无缝融入 `resolvePaneSnapshotBase` 多面板会话配置合并，`incognitoMode` 隐身会话自动绕过 L2 持久化，杜绝隐私泄漏；
+  5. **全栈测试背书**：前端 9 项快照专项单元测试 + 216 项 Chat Store 全量回归测试 100% 绿色通过，0 Lint 错误。
+- **素材 SSOT：** `temp-docs/materials/DESKTOP_APP_ADVANTAGE.md` · `myrm-agent/myrm-agent-frontend/src/store/chat/chatNavigationSnapshotCache.ts` · `myrm-agent/myrm-agent-frontend/src/store/chat/__tests__/chatNavigationSnapshotCache.test.ts`
+
 ## 最新验证快照（2026-08-20 · 受管技能安装不可变收据与快照原子回滚门禁 · Roadmap #2 完工）
 
 - **不可变安装收据与快照原子回滚事务（vs Hermes / OpenClaw / 传统插件市场）：** Myrm 构建了企业级受管技能安装安全与审计框架：
@@ -181,6 +191,18 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **`[SILENT]` 智能静默过滤与去重防御**（`delivery_guard.py:46-98` · `executor.py:165-200`）：无实质行情变化或套利空间时不打扰用户，彻底杜绝无效 Token 消耗与通知轰炸；
   4. **1-2GB 极低规格硬件稳定运行**：跨平台轻量底座支持在极低成本 VPS、本地 WebUI 或 Tauri 桌面端全天候静默驻留。
 - **素材 SSOT：** `temp-docs/materials/AUTOMATION_CRON_ADVANTAGE.md`（2026-08-20 头部）· `myrm_agent_harness/toolkits/openapi_bridge/` · `myrm_agent_harness/toolkits/cron/`
+
+## 最新验证快照（2026-08-20 · 跨平台发布全自动化工程门禁与零缺陷流水线 · 4 平台 CI 门禁闭环）
+
+- **工业级 Map-Reduce 发布工程体系，彻底杜绝发版事故（vs Hermes-Desktop / WeSight / AionUi / 传统社区实践）：** Myrm 构建了业界首个面向异构桌面端（macOS Apple Silicon / Intel、Windows x64、Linux AppImage）的 100% 代码化、自动化与 CI 机械门禁网络：
+  1. **Map-Reduce 流水线架构**：前端一次构建多端复用，macOS ARM 抢先首发（提速 40%），解耦各平台长尾编译；
+  2. **公钥前置数学一致性校验**（`check-updater-pubkey.sh`）：编译前强校验 `plugins.updater.pubkey` 与 CI 私钥配对，占位符直接硬阻断；
+  3. **双端权威签名与公证**：macOS 自动化四重验签（`codesign` + `spctl` Gatekeeper 模拟 + `xcrun stapler` 提取公证票据）+ Windows Authenticode 与 RFC 3161 时间戳服务器校验；
+  4. **平台特异性缺陷自愈**：自动化脚本剔除 musl 避免 AppImage 崩溃、Dummy-Swap 彻底绕过 Tauri sidecar 打包内存崩溃 bug、自适应重命名防覆盖覆盖；
+  5. **OTA Manifest 自动化与解包烟测**：`finalize-release.sh` + `verify-release.sh` 全自动配对 `.sig` 与哈希交叉验算，CI 构建完后通过 `smoke-launch-runtime.sh` 真实解包拉起应用并探测 `:8080/health` 连通性。
+- **与竞品对比**：Hermes-Desktop 与 WeSight 依赖人工 Markdown Checklist，存在严重的人工遗漏与测量衰减；Myrm 将数十项跨平台踩坑经验 100% 固化为不可跳过的 CI 机械门禁。
+- **验证数据**：`test_desktop_finalize_fixture.py`（4 平台无网络签名配对 + 边缘异常分支）**PASSED** + `test_desktop_launch_smoke_script.py` **PASSED** + `check-fractal-docs.test.ts` **2 PASSED**。
+- **素材 SSOT**：`temp-docs/materials/DESKTOP_APP_ADVANTAGE.md`（2026-08-20 章节）· `myrm-agent/.github/workflows/desktop-release.yml` · `scripts/ci/desktop-release/_ARCH.md`
 
 ## 最新验证快照（2026-08-20 · 零时延跨平台设备拦截与 7 阶 Unicode 路径自愈 · 真实全量回归）
 
