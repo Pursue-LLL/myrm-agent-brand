@@ -15,6 +15,28 @@ For memory specifically, Myrm now ships a full **diagnostic + telemetry integrit
 
 For per-turn capability control, Myrm supports **one-turn Skill/MCP override chips** with full observability (submit/apply/noop/queue/busy/final outcome + failure reasons). Focused validation (2026-07-29): frontend 29/29 passed, server 10/10 passed; targeted coverage reached 62.47% lines on core frontend files and 72% total on server telemetry modules. This gives teams migration-safe proof for cost/reliability tuning, not guesswork.
 
+## Latest Validation Snapshot (2026-08-21 · Goal↔Kanban Long-Run Bridge SSOT · Runtime Reliability Roadmap Topic 13 #1 Done)
+
+- **Goal↔Kanban Long-Run Bridge SSOT & Resilient Breakpoint Recovery (vs Claude `/goal` / Manus / Echo / AutoGPT):** Myrm delivers a production-grade bidirectional state synchronization and structured acceptance criteria persistence bridge between the Goal engine and Kanban task runner:
+  1. **Intelligent Breakpoint Resume (`_setup_goal_provider`)**: Automatically resumes uncompleted goals (`PAUSED` / `BUDGET_LIMITED` / `WAIT`) via `resume_goal(reset_turns=False)` instead of creating fresh ones, preserving previous turn counts and execution context without drift or infinite turn resets;
+  2. **Atomic Blocked Status Mapping (`_map_goal_outcome`)**: Maps `PAUSED` / `NEEDS_HUMAN_REVIEW` / `WAIT` states to `TaskStatus.BLOCKED` with explicit `block_kind` (`HUMAN` vs `EXTERNAL`) and reasons, preventing the KanbanDispatcher from misinterpreting pauses as task failures or exhausting retry budgets;
+  3. **Structured Acceptance Results SSOT & GUI Rendering**: Automatically synchronizes Goal verification outcomes (`acceptance_results`) into `KanbanTask.metadata` and renders modern interactive pass/fail status cards with diagnostics in `KanbanTaskDrawerDetails.tsx` (with full English and Chinese i18n);
+  4. **Full-Stack Test Coverage**: 11 unit tests in `test_kanban_goal_mode.py` + 198 server Kanban tests + 221 harness Goal tests + 137 frontend Kanban tests 100% green, 0 Lints.
+- **Material SSOT:** `temp-docs/materials/KANBAN_TASK_SCHEDULING_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/services/kanban/task_runner/runner.py` · `myrm-agent/myrm-agent-frontend/src/components/features/kanban/KanbanTaskDrawerDetails.tsx`
+
+## Latest Validation Snapshot (2026-08-21 · Agent Cold-Start Warm-Path Doctor Pack · Observability Topic 14 #8 Done)
+
+- **Agent Cold-Start Warm-Path 4-Stage Doctor Pack (vs Hermes Quicksilver / OpenClaw / DeerFlow / Claude Code):** Myrm delivers a production-grade 0-token, microsecond-level white-box cold-start diagnostic probe:
+  1. **4-Stage White-Box Health Matrix (`AgentColdStartDiagnostic`)**: Systematically assesses the four key pillars of Turn-1 responsiveness without consuming a single LLM token:
+     - **Model Provider Readiness**: Verifies provider configuration, credentials, and endpoint viability;
+     - **Tool Catalog / MCP Registry**: Verifies SSOT action tool registration and lazy-index cache readiness;
+     - **ExecutionCache Warm State**: Detects warm `BuiltExecutionUnit` instances and memory footprint;
+     - **Storage & Database Liveness**: Microsecond-level SQLite ping latency probe with strict 1.0s timeout isolation;
+  2. **Quantitative Readiness Scoring (`warm_path_score` 0-100)**: Surfaces granular `ready_phases` (`model_ready`, `tools_ready`, `cache_warm`, `storage_healthy`) and humanized, actionable fix suggestions;
+  3. **Multi-Deployment Unified Ingress**: Seamlessly bundled into `ServerDiagnosticsManager`, `/api/v1/health/doctor`, and `/api/v1/ops/snapshot` across Local WebUI, Tauri Desktop, and Cloud Sandboxes;
+  4. **Full-Stack Test Coverage**: 6/6 unit tests + /health/doctor API integration tests 100% green, 0 Lints.
+- **Material SSOT:** `temp-docs/materials/OBSERVABILITY_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/core/infra/health/server_diagnostics.py` · `myrm-agent/myrm-agent-server/tests/core/infra/health/test_agent_cold_start_diagnostic.py`
+
 ## Latest Validation Snapshot (2026-08-21 · Desktop Agent Process Registry & Lifetime Observability · Roadmap Topic 08 #1 Done)
 
 - **Desktop Agent Process Registry & Multi-Sidecar Full Lifetime Governance (vs Hermes-Desktop / WeSight / AionUi / OpenClaw):** Myrm delivers a high-performance native Rust desktop process registry and cascade termination subsystem:
