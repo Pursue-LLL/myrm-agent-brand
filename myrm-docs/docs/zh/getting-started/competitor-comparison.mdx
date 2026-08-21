@@ -15,6 +15,17 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-08-20 · Wiki 概念防膨胀治理与沙箱 Git 快照审计 · Roadmap #2 & #3 完工）
+
+- **全链路多层概念防膨胀拦截与沙箱数据主权（vs Hermes / OpenClaw / deer-flow / Obsidian）：** Myrm 构建了企业级知识库概念防膨胀治理与沙箱数据审计架构：
+  1. **配置层源头硬约束（`max_concepts_per_doc = 20`）**：在配置层从源头截断单篇文档概念裂变与膨胀，防止批量文档摄入时生成大量琐碎碎片页面；
+  2. **既有概念目录注入复用（`read_index_context()`）**：在概念提取阶段将既有概念目录注入 Prompt，强迫模型优先归纳复用既有词条，杜绝同义词近义词分裂；
+  3. **批次控制与弹性熔断**：10 篇 batch 批次控制结合 `canonical_registry` 别名去重合并，配合 `evaluate_batch_pause` 在配额或速率异常时自动安全暂停；
+  4. **全流程 HITL 人工审批**：所有生成的新概念均进入 `WikiPendingEdits` 审核队列，由用户掌控最终知识资产；
+  5. **沙箱隔离原生 Git 快照**：13 处写路径 SSOT 钩子自动触发本地 Git 提交快照（`vault_git.py` + `git_snapshot.py`），杜绝 Web 层引入高危易死锁的 `git remote push/pull` 与凭据泄露风险；
+  6. **全栈测试背书**：Harness 140 项单元测试 + Server 52 项 API 集成测试 + 297+ 项全链路回归测试全部 100% 绿色通过。
+- **素材 SSOT：** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/wiki/` · `myrm-agent/myrm-agent-server/app/services/wiki/`
+
 ## 最新验证快照（2026-08-20 · 统一认知演化时间线与行内即时治理 · Roadmap #54 完工）
 
 - **全域学习流融合时间线与行内即时治理（vs Hermes / Mem0 / Claude / Manus）：** Myrm 构建了业界首个认知演化全景时序流与行内即时治理体系：
