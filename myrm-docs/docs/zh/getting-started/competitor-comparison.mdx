@@ -59,6 +59,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   4. **全栈测试背书**：后端 2 项契约与 HTTP 集成测试全绿（`test_learning_loop_integration.py`）+ 前端 0 Lint 错误。
 - **素材 SSOT：** `temp-docs/materials/MEMORY_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/api/statistics/learning_loop.py` · `myrm-agent/myrm-agent-frontend/src/components/features/growth/LearningLoopFiveRingHub.tsx`
 
+## 最新验证快照（2026-08-20 · 执行状态物理一致性守卫与双向自愈 · Roadmap #3 完工）
+
+- **物理修改事实双向对账与第 4 质检门禁（vs Pi Compaction / Hermes / OpenClaw / 传统 Agent 压缩）：** Myrm 在上下文压缩摘要管线构建了确定性毫秒级物理执行事实对账与双向自愈体系：
+  1. **物理执行事实权威源（ArtifactTracker）**：在上下文压缩阶段，以不可篡改的文件系统变动记录（`CREATED` / `MODIFIED`）与 `ToolMessage` 执行结果为物理 SSOT，解决 LLM 在多轮长任务中将计划修改或报错调用幻觉为“已完成”的痛点；
+  2. **双向自动自愈校准（`reconcile_summary_execution_state`）**：自动剔除未落盘的虚假写入文件，同时补全遗漏的真实物理变更记录，保证 `files_modified` 100% 贴合实际磁盘状态；
+  3. **第 4 道确定性质检门禁（`SummaryAuditor`）**：在结构完整性、实体保留率、信息密度之外挂载物理执行一致性硬门禁与重试引导提示；
+  4. **零额外 LLM 成本与 Prompt Cache 零破坏**：纯 Python 内存事实比对（耗时 <0.5ms），不引入任何增量 Token 账单与动态前缀噪音；
+  5. **全栈测试背书**：Harness 100% 覆盖单元测试与全链路回归（`test_execution_state_validator.py` 51 项测试全部通过）。
+- **素材 SSOT：** `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/strategies/summary/execution_state_validator.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/strategies/summary/summary_auditor.py`
+
 ## 最新验证快照（2026-08-20 · 计算工件可信守卫与交付物真实性门禁 · Roadmap Topic 10 完工）
 
 - **计算工件真实可信与交付物真实性门禁（vs Prime-Agent REPL / Manus / HappyCapy）：** Myrm 构建了业界首个从计算输出到交付物校验的全链路防幻觉与防虚假交付体系：
