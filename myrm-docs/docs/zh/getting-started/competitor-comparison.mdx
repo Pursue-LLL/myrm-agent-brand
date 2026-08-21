@@ -15,6 +15,25 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 在单轮能力控制上，Myrm 已提供 **一次性 Skill/MCP 覆写 Chips**，并具备完整可观测闭环（提交/生效/noop/排队/busy/终态 + 失败原因）。2026-07-29 定向验证：frontend 29/29、server 10/10 全通过；聚焦覆盖率达到 frontend 核心文件 lines 62.47%，server 遥测模块 total 72%。迁移团队可直接基于证据做成本与稳定性调优，而非凭经验猜测。
 
+## 最新验证快照（2026-08-20 · 审查优先任务级召回边界与四职责治理面板 · Roadmap #56 完工）
+
+- **审查优先召回边界与四职责治理面板（vs Oh-My-Hermes / Mem0 / Claude / Manus）：** Myrm 实现了业界领先的任务级记忆召回边界与准入审查可视化治理面板：
+  1. **任务级读取范围矩阵（Task Scope Boundary Matrix）**：严格限制全局、智能体、渠道、任务、共享 5 级可见性，彻底杜绝跨任务知识污染与因果盲区；
+  2. **候选记忆准入审查门禁（Candidate Review Gate）**：未验证推理出的记忆进入候选暂存池，支持用户一键批准或驳回，杜绝幻觉记忆永久污染；
+  3. **四职责分区（Mise en Place）**：将生效记忆严谨归纳为身份偏好、工作记忆、操作指令、可检索证据四大职责，职责清晰透明；
+  4. **单轮 6000 字符装载预算表（Per-Turn Budget Gauge）**：实时进度条与透明溢出风险等级（安全 / 临界 / 溢出），防止上下文爆炸；
+  5. **全栈测试背书**：2 项后端 Pydantic/API 集成测试 100% 通过（`test_recall_boundary_integration.py`）+ 前端 0 Lint 错误。
+- **素材 SSOT：** `temp-docs/materials/MEMORY_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/schemas/memory/command_center.py` · `myrm-agent/myrm-agent-frontend/src/components/features/memory/command-center/MemoryRecallBoundaryPanel.tsx`
+
+## 最新验证快照（2026-08-21 · 零摩擦项目工作区接纳与软门禁引导 · Roadmap Topic 18 #1 完工）
+
+- **零摩擦项目工作区接纳与软门禁引导（vs Claude Code CLI / Cursor / DeepSeek Harness）：** Myrm 提供了三部署同构的零摩擦项目接纳与工作区安全引导流：
+  1. **外部文件夹零摩擦接纳**：支持通过文件夹拖放或系统目录选择器快速创建 Myrm 项目，并自动完成工作目录绝对路径安全校验与绑定；
+  2. **温和非阻塞软门禁（WorkspaceSoftGatePill）**：在文件操作类 Agent 处于无工作区绑定状态时，在输入栏提供温和提示与一键绑定入口，绝不粗暴禁用输入框；
+  3. **只读架构探查专属示范**：项目接纳后提供开箱即用的只读架构扫描与代码探查示例 Prompt，确保新手探索期零写破坏；
+  4. **全栈测试背书**：Server 端接纳接口、前端交互弹窗与状态流 100% 通过，0 Lint 错误。
+- **素材 SSOT：** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/api/projects/router.py` · `myrm-agent/myrm-agent-frontend/src/components/features/project-workspace/ProjectWorkspaceAdoptDialog.tsx`
+
 ## 最新验证快照（2026-08-21 · 原地中断自愈元认知注记与脱壳后台孤儿进程守卫 · 错误恢复与鲁棒性加固）
 
 - **原地中断自愈注记与脱壳孤儿进程拦截（vs Claude Code / OpenHands / Devin / Hermes）：** Myrm 彻底解决了长程 Agent 会话中用户打断死循环与复合命令孤儿进程死锁端口的两大难题：
@@ -307,6 +326,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 ## 最新验证快照（2026-08-20 · Wiki 概念防膨胀与编译输出 Token 预算硬治理）
 
 - **四层编译输出预算与向量窗口溢出熔断机制（vs OpenClaw / Hermes / deer-flow / LobsterAI / CoPaw / jiuwenclaw）**：Myrm 实现了严密的知识编译输出治理体系：`WikiCompileConfig.max_article_length` 字符预算门禁、超限自动截断与语法结构闭合、`EmbedInputTooLargeError` 异常自动捕获并执行 `resolve_embed_failure` 降级为单文档暂停而非批次崩溃，以及全链路 HITL Pending 审批。经 130 项单元测试与真实 LLM 端到端测试全绿通过。
+- **自适应软截断 vs 脆弱硬失败**：带显式 `(truncated)` 标记的软截断与语法自愈机制，杜绝了大批量文档编译因单篇超长而引发的级联阻塞，确保高并发编译任务的连续性。
 - **高保真合规与长文提炼架构优势**：基于四重保真契约（Prompt 零转述约束 + 结构化 Claims 证据契约 + 细粒度行号反查 + HITL 审批流）与原生超长上下文 + 目录 Sidecars 渐进披露，完美规避暴力分块造成的实体关联切碎，无需引入冗余的合规 Profile。
 - **Material SSOT：** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md`（2026-08-20 首段）· `toolkits/wiki/pipeline/compiler.py` · `toolkits/wiki/pipeline/resilience/failure_policy.py`
 

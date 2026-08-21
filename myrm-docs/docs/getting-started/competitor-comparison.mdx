@@ -15,6 +15,35 @@ For memory specifically, Myrm now ships a full **diagnostic + telemetry integrit
 
 For per-turn capability control, Myrm supports **one-turn Skill/MCP override chips** with full observability (submit/apply/noop/queue/busy/final outcome + failure reasons). Focused validation (2026-07-29): frontend 29/29 passed, server 10/10 passed; targeted coverage reached 62.47% lines on core frontend files and 72% total on server telemetry modules. This gives teams migration-safe proof for cost/reliability tuning, not guesswork.
 
+## Latest Validation Snapshot (2026-08-21 · Unified Multimodal Direct Vision & Architecture Purification)
+
+- **Unified Native Multimodal Direct Vision & Architecture Purification (vs DeepSeek Harness / Claude Code / Hermes / DeerFlow):** Myrm delivers a streamlined, zero-prompt-overhead multimodal architecture:
+  1. **Single Entry Point (`file_read_tool`)**: Unified image, PDF, video, and Office document reading into the core `file_read_tool` with native `ImageBlock` direct transmission, completely eliminating redundant standalone vision tools and saving ~1500 tokens/turn for maximum KV cache hit rates;
+  2. **Adaptive Dynamic Fallback (`VisionFallbackEngine`)**: When text-only models are active, images are seamlessly transcribed into structured semantic text descriptions, preventing runtime hard crashes;
+  3. **Multi-Ladder Image Defense**: Built-in 5-ladder quality (0.95~0.20) and dimension (4096~1024) compression alongside `MAX_DECODE_PIXELS` pixel-bomb decompression defenses;
+  4. **Sandbox Python Geometry Execution**: Spatial cropping, pixel diffing, and image analysis are dynamically executed via sandbox Python scripts (PIL/OpenCV) rather than rigid, hardcoded tools;
+  5. **Full-Stack Test Coverage**: 104+ unit/integration tests passed across Harness and Server + 100% green on Chrome LIVE E2E tests (`test_mention_reference_stream_chrome_e2e.py`).
+- **Material SSOT:** `temp-docs/materials/MULTIMODAL_CAPABILITY_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_ops/file_read_tool.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/vision/`
+
+## Latest Validation Snapshot (2026-08-20 · Review-First Recall Boundary & 4-Partition Control Panel · Roadmap #56 Done)
+
+- **Review-First Recall Boundary & 4-Partition Governance Panel (vs Oh-My-Hermes / Mem0 / Claude / Manus):** Myrm delivers an industry-first visual task-scoped memory boundary and candidate gating control panel:
+  1. **Task Scope Boundary Matrix**: Strictly limits read visibility across 5 scoped tiers (Global, Agent, Channel, Task, Shared), completely eliminating cross-task knowledge pollution and causal blindness;
+  2. **Candidate Review Gate**: Segregates unverified inferred memories into an explicit candidate staging pool, allowing one-click review/rejection before permanent admission;
+  3. **Four Memory Partitions (Mise en Place)**: Categorizes active memories into Identity (preferences), Working Memory (task digests), Operating Instructions (rules), and Retrievable Evidence (facts);
+  4. **Per-Turn 6000-Char Budget Gauge**: Real-time progress bar with transparent overflow risk indicators (Safe / Approaching Limit / Overflow) to prevent context explosion;
+  5. **Full-Stack Test Coverage**: 2 backend Pydantic/API integration tests passed (`test_recall_boundary_integration.py`) + 0 frontend lint errors.
+- **Material SSOT:** `temp-docs/materials/MEMORY_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/schemas/memory/command_center.py` · `myrm-agent/myrm-agent-frontend/src/components/features/memory/command-center/MemoryRecallBoundaryPanel.tsx`
+
+## Latest Validation Snapshot (2026-08-21 · Zero-Friction Project Workspace Adoption & Soft Gate · Roadmap Topic 18 #1 Done)
+
+- **Zero-Friction Project Workspace Adoption & Soft Gate (vs Claude Code CLI / Cursor / DeepSeek Harness):** Myrm provides an intuitive zero-friction project onboarding and workspace protection flow across WebUI, Desktop, and Cloud:
+  1. **Folder Adoption Flow**: Seamlessly adopt local or external project folders via drag-and-drop or directory browser to create a Myrm Project with automatic `workspace_path` binding and security normalization;
+  2. **Non-Blocking Soft Gate**: Provides a gentle, non-intrusive `WorkspaceSoftGatePill` reminder in the message input area when file-writing agents are active without a bound workspace, avoiding rigid input disabling;
+  3. **Safe Read-Only Exploration Starter**: Suggests tailored read-only architecture exploration prompts upon project adoption to guarantee zero risk during onboarding;
+  4. **Full-Stack Test Coverage**: 100% green across server `POST /api/v1/projects/adopt` APIs, frontend components, and state stores with 0 lint errors.
+- **Material SSOT:** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/api/projects/router.py` · `myrm-agent/myrm-agent-frontend/src/components/features/project-workspace/ProjectWorkspaceAdoptDialog.tsx`
+
 ## Latest Validation Snapshot (2026-08-21 · In-place Interrupted Metacognitive Annotation & Detached Subshell Guard · Error Recovery & Robustness)
 
 - **In-place Interrupted Metacognitive Annotation & Detached Subshell Guard (vs Claude Code / OpenHands / Devin / Hermes):** Myrm eliminates LLM repetition deadlocks after user cancellation and prevents runaway background subprocesses from deadlocking sandbox ports:
@@ -256,6 +285,7 @@ For per-turn capability control, Myrm supports **one-turn Skill/MCP override chi
 ## Latest Validation Snapshot (2026-08-20 · Wiki Concept Explosion Governance & Compile Output Token Budget Governance)
 
 - **4-Layer Compile Output Budget & Vector Window Overflow Guard (vs OpenClaw / Hermes / deer-flow / LobsterAI / CoPaw / jiuwenclaw):** Myrm implements strict knowledge compile output governance: `WikiCompileConfig.max_article_length` hard budget, adaptive truncation with automatic markdown/frontmatter block closing, automatic capture of `EmbedInputTooLargeError` with `resolve_embed_failure` downgrading to single-doc pause instead of batch crash, and end-to-end HITL Pending approvals. Verified 100% green across 130 unit tests and real LLM end-to-end tests.
+- **Adaptive Truncation vs Brittle Hard Fail:** Soft truncation with explicit `(truncated)` markers and syntax repair prevents cascading batch blocks during massive bulk document ingestion, ensuring uninterrupted knowledge compilation.
 - **High-Fidelity Compliance & Long-Document Distillation Architecture:** Fourfold fidelity contract (Zero-paraphrase Prompt + Structured Claims Contract + Line-level Provenance + HITL Approval) combined with native long-context (128k-1M) and directory-level sidecars, completely eliminating the fragmentation of entities caused by naive chunk-digest pipelines.
 - **Material SSOT:** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` (2026-08-20 header) · `toolkits/wiki/pipeline/compiler.py` · `toolkits/wiki/pipeline/resilience/failure_policy.py`
 
