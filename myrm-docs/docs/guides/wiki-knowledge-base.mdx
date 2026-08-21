@@ -9,13 +9,15 @@ Myrm includes a **compiled knowledge base (Wiki)**—not a pile of markdown skil
 
 ## Concept Explosion Governance & Native Git Versioning
 
-When ingesting large books, complex documents, or hundreds of research files, raw LLM compilation often causes **concept explosion** (hundreds of tiny, fragmented sub-pages). Myrm implements a strict multi-layer defense:
+When ingesting large books, complex documents, or hundreds of research files, raw LLM compilation often causes **concept explosion** (hundreds of tiny, fragmented sub-pages) or context window overflows. Myrm implements a strict multi-layer defense:
 
 | Layer | Mechanism | Protection Benefit |
 |---|---|---|
 | **Config Ingress Cap** | `max_concepts_per_doc = 20` | Hard cap on concept extraction per source file, eliminating prompt-induced page explosions. |
 | **Catalog Injection** | Prompt `read_index_context()` | Injects existing canonical concepts, forcing the LLM to link/extend rather than spawn duplicate synonym pages. |
+| **Output Token Budget** | `max_article_length = 12000` + Auto-Repair | Strictly caps synthesized article lengths, auto-closing truncated Frontmatter and Markdown code fences. |
 | **Batch Resilience** | 10-doc batching + circuit breaker | Pauses compilation on rate limits or API credit exhaustion, preventing cascade failures. |
+| **Vector Overflow Failsafe** | `resolve_embed_failure` policy | Gracefully catches `EmbedInputTooLargeError` and pauses single documents without crashing the entire batch queue. |
 | **HITL Approval** | `WikiPendingEdits` queue | User audits and approves all synthesized concepts before permanent disk commit. |
 | **Sandbox Git Snapshot** | `vault_git.py` SSOT hook | 13 mutation points automatically commit local Git snapshots for complete time-travel auditing without remote credential risks. |
 

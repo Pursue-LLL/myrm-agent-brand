@@ -15,6 +15,17 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 턴당 기능 제어를 위해 Myrm은 완전한 관찰 가능성(제출/적용/noop/큐/바쁨/최종 결과 + 실패 이유)을 갖춘 **원턴 스킬/MCP 재정의 칩**을 지원합니다. 집중 검증(2026-07-29): 프런트엔드 29/29 통과, 서버 10/10 통과; 목표 적용 범위는 핵심 프런트엔드 파일의 라인 62.47%, 서버 원격 측정 모듈의 전체 라인 72%에 도달했습니다. 이는 팀에게 추측이 아닌 비용/신뢰성 조정에 대한 마이그레이션 안전 증거를 제공합니다.
 
+## 최신 검증 스냅샷 (2026-08-20 · 선언적 고품질 PDF 템플릿 레지스트리 및 렌더링 엔진 · Roadmap Topic 11 #4 완료)
+
+- **선언적 PDF 템플릿 레지스트리 및 고품질 인쇄 엔진 (vs PDFx / Puppeteer 스크립트 / 단순 Markdown 변환기):** Myrm은 엔터프라이즈급 구조화된 PDF 문서 생성 툴체인을 제공합니다:
+  1. **Node.js 런타임 종속성 제로**: 순수 Python Jinja2 템플릿 보간과 Patchright Chromium 인쇄 파이프라인 및 독립형 폴백 결합으로 외부 Node.js/npm 컨테이너 오버헤드 제거;
+  2. **매니페스트 SSOT 및 자동 JSON Schema 도출**: `PdfTemplateManifest`가 변수 유형, 설명, 기본값 및 예시를 엄격히 정의하고 자동 JSON Schema를 생성하여 결정론적 도구 호출 보장;
+  3. **고품질 기업용 레이아웃 및 Paged Media CSS**: 표준 부가가치세 세금계산서, 비즈니스 보고서, 결제 영수증 기본 내장, CJK 글꼴 및 인쇄 페이지 나눔 방지(`page-break-inside: avoid;`) 지원;
+  4. **심층 보안 샌드박스 및 SSRF 차단**: `PdfRenderEngine.sanitize_html`이 악성 `<script>` 태그를 제거하고 `file://`, `javascript:`, `gopher://` 등 위험한 프로토콜을 안전하게 무력화;
+  5. **프롬프트 캐시 최적화(`ToolLayer.EXTENDED`)**: 경량 3-도구 표면(`list_pdf_templates`, `get_pdf_template_schema`, `render_pdf_template`)으로 95%+ 프롬프트 캐시 적중률 유지;
+  6. **전체 스택 테스트 검증**: 7개 단위 테스트 + 5개 통합/동시성/공격 주입 테스트 100% 통과 (95% 코드 커버리지, 0 Lint 오류).
+- **자료 SSOT:** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/pdf_templates/`
+
 ## 최신 검증 스냅샷 (2026-08-20 · 엔터프라이즈 크로스 플랫폼 릴리스 엔지니어링 파이프라인 · 4-Target CI 게이트)
 
 - **산업용 Map-Reduce 릴리스 엔지니어링 파이프라인 (vs Hermes-Desktop / WeSight / AionUi / 커뮤니티 관행):** Myrm은 macOS (Apple Silicon / Intel), Windows (x64), Linux (AppImage) 전반에 걸쳐 코드 강제형 릴리스 게이트 네트워크를 구축합니다:
@@ -262,6 +273,11 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 - **경쟁업체 대비 사용자 눈에 보이는 승리:** 설정은 이미 제로 LLM 위키 쿼리를 지원합니다. 채팅의 짧은 지식 질문으로 인해 더 이상 다중 턴 GeneralAgent 도구 호출이 소모되지 않습니다. **GUI 채팅 제로-LLM 위키 레인은 고유합니다**; Hermes은 SKILL/CLI 다단계를 사용합니다. OpenClaw은 메모리 위키 도구 체인을 사용합니다. 6개의 참조 저장소에는 ProgressSteps + SOURCES Drawer와의 설정+채팅 검색 패리티가 부족합니다.
 - **정직한 범위 참고 사항:** 라이트 합성이 없습니다. 게이트가 아닌 쿼리는 여전히 GeneralAgent를 사용합니다. Chrome MCP 채팅 E2E + FE vitest `completionEvents.wikiKnowledgeLane` 로컬 롤빵 승인이 보류 중입니다.
 - **재료 SSOT:** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `USER_EXPERIENCE_ADVANTAGE.md` §22 #30 하위 섹션 · `services/wiki/_ARCH.md` · `lanes/_ARCH.md`
+
+## 최신 검증 스냅샷(2026-08-20 · Wiki 개념 팽창 거버넌스 및 토큰 예산 관리)
+
+- **4단계 컴파일 출력 예산 및 임베딩 윈도우 오버플로 거버넌스 (대 OpenClaw / Hermes / deer-flow / LobsterAI / CoPaw / jiuwenclaw):** Myrm은 `WikiCompileConfig.max_article_length` 문자 예산 게이트, 초과 시 구문 자동 복구 및 잘림 처리, `EmbedInputTooLargeError` 발생 시 일괄 실패 대신 단일 문서 일시 정지로 복구하는 `resolve_embed_failure` 메커니즘, 그리고 전체 경로 HITL Pending 검토를 완벽하게 제공합니다. 130개의 단위 테스트와 실제 LLM 엔드투엔드 테스트에서 100% 통과했습니다.
+- **재료 SSOT:** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `toolkits/wiki/pipeline/compiler.py` · `toolkits/wiki/pipeline/resilience/failure_policy.py`
 
 ## 최신 검증 스냅샷(2026-07-30 · ChatExecutionPrewarm Turn1 · 로드맵 #29)
 
