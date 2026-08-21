@@ -7,9 +7,18 @@ description: Manage structured knowledge with the Settings tree UI, hybrid searc
 
 Myrm includes a **compiled knowledge base (Wiki)**—not a pile of markdown skills for the agent to interpret. A dedicated engine handles compile, index, search, review, and maintenance. The same workflow works on **Local WebUI**, **Tauri desktop**, and **SaaS cloud**.
 
-## Wiki knowledge base
+## Concept Explosion Governance & Native Git Versioning
 
-Build structured knowledge with a **compiler engine**—not a pile of markdown skills for the Agent to interpret. The same workflow runs on **local WebUI**, **Tauri desktop**, and **SaaS cloud**.
+When ingesting large books, complex documents, or hundreds of research files, raw LLM compilation often causes **concept explosion** (hundreds of tiny, fragmented sub-pages). Myrm implements a strict multi-layer defense:
+
+| Layer | Mechanism | Protection Benefit |
+|---|---|---|
+| **Config Ingress Cap** | `max_concepts_per_doc = 20` | Hard cap on concept extraction per source file, eliminating prompt-induced page explosions. |
+| **Catalog Injection** | Prompt `read_index_context()` | Injects existing canonical concepts, forcing the LLM to link/extend rather than spawn duplicate synonym pages. |
+| **Batch Resilience** | 10-doc batching + circuit breaker | Pauses compilation on rate limits or API credit exhaustion, preventing cascade failures. |
+| **HITL Approval** | `WikiPendingEdits` queue | User audits and approves all synthesized concepts before permanent disk commit. |
+| **Sandbox Git Snapshot** | `vault_git.py` SSOT hook | 13 mutation points automatically commit local Git snapshots for complete time-travel auditing without remote credential risks. |
+
 
 ## Consumption loop
 

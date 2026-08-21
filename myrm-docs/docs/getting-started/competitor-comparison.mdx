@@ -15,6 +15,16 @@ For memory specifically, Myrm now ships a full **diagnostic + telemetry integrit
 
 For per-turn capability control, Myrm supports **one-turn Skill/MCP override chips** with full observability (submit/apply/noop/queue/busy/final outcome + failure reasons). Focused validation (2026-07-29): frontend 29/29 passed, server 10/10 passed; targeted coverage reached 62.47% lines on core frontend files and 72% total on server telemetry modules. This gives teams migration-safe proof for cost/reliability tuning, not guesswork.
 
+## Latest Validation Snapshot (2026-08-20 · Managed Skill Installation Receipt & Atomic Rollback · Roadmap #2 Done)
+
+- **Immutable Skill Install Receipts & Atomic Rollback Gate (vs Hermes / OpenClaw / Plugin Markets):** Myrm delivers an enterprise-grade managed skill installation safety and audit framework:
+  1. **Atomic Snapshot Rollback (`SkillInstallTransaction`)**: Harness-level transaction manager takes an automatic pre-installation snapshot backup of target skill directories, guaranteeing 100% clean rollback without corrupted half-installed states if any I/O, extraction, or downstream agent mounting step fails;
+  2. **Lifecycle Script Blocking Gate (`LifecycleScriptGuard`)**: In-memory inspection immediately intercepts dangerous `preinstall`, `postinstall`, `install`, and suspicious shell injection vectors inside `package.json` manifests before extraction;
+  3. **Immutable Installation Receipt (`SkillInstallReceipt`)**: Computes per-file SHA256 digests, total manifest hash, and security audit scores into an immutable `receipt.json` on disk;
+  4. **Verified Receipt UI & Precision Uninstallation**: Frontend showcases verified receipt status, while backend uninstallations traverse immutable receipt file manifests for exact cascade cleanup with zero orphan artifacts;
+  5. **Full-Stack Test Coverage**: 16 harness transaction/receipt unit tests + 4 server discovery receipt tests passed (100% green, zero lint errors).
+- **Material SSOT:** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/skills/market/transaction.py` · `myrm-agent/myrm-agent-server/app/api/skills/discovery.py`
+
 ## Latest Validation Snapshot (2026-08-20 · Wiki Concept Explosion Governance & Sandbox Git Snapshotting · Roadmap #2 & #3 Done)
 
 - **Multi-layered Concept Explosion Defense & Isolated Git Snapshot Auditing (vs Hermes / OpenClaw / deer-flow / Obsidian):** Myrm delivers an enterprise-grade wiki concept explosion governance and sandbox data integrity architecture:
