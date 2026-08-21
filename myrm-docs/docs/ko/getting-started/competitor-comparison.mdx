@@ -15,6 +15,16 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 턴당 기능 제어를 위해 Myrm은 완전한 관찰 가능성(제출/적용/noop/큐/바쁨/최종 결과 + 실패 이유)을 갖춘 **원턴 스킬/MCP 재정의 칩**을 지원합니다. 집중 검증(2026-07-29): 프런트엔드 29/29 통과, 서버 10/10 통과; 목표 적용 범위는 핵심 프런트엔드 파일의 라인 62.47%, 서버 원격 측정 모듈의 전체 라인 72%에 도달했습니다. 이는 팀에게 추측이 아닌 비용/신뢰성 조정에 대한 마이그레이션 안전 증거를 제공합니다.
 
+## 최신 검증 스냅샷 (2026-08-20 · 통합 인지 진화 타임라인 및 인라인 거버넌스 · Roadmap #54 완료)
+
+- **통합 학습 및 스킬 진화 타임라인과 인라인 거버넌스 (vs Hermes / Mem0 / Claude / Manus):** Myrm은 인지 진화 타임라인과 실시간 인라인 거버넌스 시스템을 업계 최초로 제공합니다:
+  1. **다형성 학습 스트림 및 다차원 필터링(`LearningTimeline`)**: `/journey` 페이지에서 사실 기억, 사용자 선호도, 절차적 규칙, 에피소드 이벤트 및 스킬 진화 라이프사이클 이벤트를 의미론적 색상 배지와 커서 페이지네이션을 통해 단일 시계열 스트림으로 통합;
+  2. **인라인 실시간 거버넌스 및 사용자 잠금(`is_user_locked`)**: 메모리 규칙 내용을 제자리에서 직접 편집하고, 중요도 점수(0–10)를 정밀 조절하며, **사용자 잠금(`is_user_locked=True`)**을 활성화하여 자율 에이전트 모델이 사람이 승인한 선호도를 덮어쓰는 것을 영구적으로 방지;
+  3. **스킬 라이프사이클 핫 아카이빙**: 타임라인에서 직접 스킬을 즉시 아카이브하거나 복원하여 도구 런타임 충돌을 방지;
+  4. **시공간 양방향 동기화**: 타임라인 카드를 클릭하면 **메모리 지식 그래프(`MemoryKnowledgeGraph`)**의 해당 노드로 자동 이동 및 포커싱;
+  5. **전체 스택 테스트 검증**: 백엔드 7개 단위 테스트 + 5개 HTTP API 통합 테스트 통과(`test_learning_timeline_integration.py`) + 프런트엔드 0 Lint 오류.
+- **자료 SSOT:** `temp-docs/materials/MEMORY_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/api/statistics/learning_timeline.py` · `myrm-agent/myrm-agent-frontend/src/components/features/growth/LearningTimeline.tsx`
+
 ## 최신 검증 스냅샷 (2026-08-20 · StorageCapabilities 명시적 계약 및 Fail-Closed 시작 검증 게이트 · Roadmap #13 완료)
 
 - **명시적 스토리지 계약 및 시작 시 다운그레이드 방지 Fail-Closed 게이트 (vs Hermes / OpenClaw / DeerFlow / 기존 Agent 스토리지):** Myrm은 모든 SQLite 스토리지 계층에 걸쳐 엔터프라이즈급 스토리지 기능 명시적 선언 및 Fail-Closed 자체 검증 보안 체계를 구축했습니다:
