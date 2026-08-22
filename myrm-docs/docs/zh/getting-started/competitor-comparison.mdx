@@ -89,6 +89,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   4. **全栈测试背书**：10 项 `test_agent_cold_start_diagnostic.py` 探针测试 + 3 项 `test_dlq.py` 渠道死信路由测试 100% 绿灯，0 Lints。
 - **素材 SSOT：** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/core/infra/health/server_diagnostics.py` · `myrm-agent/myrm-agent-server/app/channels/reliability/durable_outbound.py`
 
+## 最新验证快照（2026-08-22 · Item 46 全 provider 出站分块 invariant 关单 · 5984 pytest + 3 Chrome E2E）
+
+- **UniversalChannelSmartMessageChunker（对比 Hermes PR #56155 / OpenClaw chunk-text）：**
+  1. **唯一 SSOT**：`renderer.render()` → `splitter.split_message()`，删除 prepare 层 body 硬截断，保证 `"".join(chunks)==content`；
+  2. **CJK + fence**：全角标点优先断句 + HTML/CodeFence 状态机，Telegram 路径补裸 CJK 断点；
+  3. **全 provider invariant**：GitHub 逐 chunk comment、LINE 5-msg batch、MSTeams placeholder 首 chunk、OneBot 删 `[i/n]` fragment 等 4 处 Phase2 修复；
+  4. **测试背书**：Item46 聚焦 **845 passed** · 全量 channels **5984 passed** · Chrome E2E 渠道 3/3（routing/delete/liveness-outbound）。
+- **素材 SSOT：** `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/channels/rendering/splitter.py`
+
 ## 最新验证快照（2026-08-21 · 全渠道入站防抖、媒体富集与 CJK 标点分块 SSOT · 渠道集成 Roadmap ⑯ 达成）
 
 - **全渠道入站防抖、多模态媒体富集与 CJK 全角标点智能分块 SSOT（对比 Molio / Hermes / CoPaw / MateClaw）：** Myrm 在全部 35+ 支持渠道中提供了工业级的入站防抖与流式蜕变引擎：

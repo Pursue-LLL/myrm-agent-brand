@@ -11,6 +11,15 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Validation Snapshot (2026-08-22 · Item 46 Universal Outbound Chunking Invariant · 5984 pytest + 3 Chrome E2E)
+
+- **UniversalChannelSmartMessageChunker (vs Hermes PR #56155 / OpenClaw chunk-text):**
+  1. **Single SSOT:** `renderer.render()` → `splitter.split_message()`; removed prepare-layer body truncation; `"".join(chunks)==content` preserved;
+  2. **CJK + fences:** full-width punctuation breakpoints + HTML/code-fence state machine; Telegram bare CJK breakpoints;
+  3. **All-provider invariant:** GitHub per-chunk comments, LINE 5-msg batch, MSTeams placeholder first-chunk, OneBot removed `[i/n]` fragment UI;
+  4. **Test proof:** Item 46 focus **845 passed** · full channels **5984 passed** · Chrome E2E channel 3/3 (routing/delete/liveness-outbound).
+- **Material SSOT:** `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/channels/rendering/splitter.py`
+
 ## Latest Validation Snapshot (2026-08-22 · Multi-Shot Video Pipeline & Tool-Agnostic Sandbox Video Engine · Skill Roadmap Topic 08 #7 Evaluated)
 
 - **Multi-Shot Video Production Pipeline & Tool-Agnostic Sandbox Engine (vs TraeWork / Flova / Seedance):** Myrm delivers a complete industrial-grade video production architecture:
