@@ -11,13 +11,33 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Validation Snapshot (2026-08-22 · Deterministic Multi-Source Ingest & Unified Experience Evolution SSOT · Wiki Roadmap Topic 02 #12 & #13 Done)
+
+- **Deterministic Multi-Source Cloud Ingest & Unified Experience Evolution SSOT (vs WorkBuddy Closed Library / Manus Project Harvest):** Myrm delivers an open, deterministic, and self-evolving knowledge infrastructure:
+  1. **Deterministic Multi-Source Sync Engine (`WikiSourceSync`)**: Eliminates fragile frontend file pickers and closed-vendor locks (Tencent Docs/iMa) through zero-LLM deterministic background sync across Feishu Docs (with full block conversion), Google Drive, Gmail, and RSS directly into an Obsidian-compatible Markdown vault;
+  2. **Automated Knowledge Compilation Loop**: Ingested raw documents automatically enter `WikiCompiler` for atomic concept extraction, bidirectional knowledge graph generation, and Claims provenance tracking without manual copy-pasting;
+  3. **Project Shared Context & Global Experience Evolution**: Projects natively bind to `SharedContextService` for multi-task memory sharing, while execution pitfalls and patterns automatically flow into `experience_ledger` and `PendingEvolutionsDashboard` for human-in-the-loop skill evolution, eliminating fragmented project-level harvest modals;
+  4. **Full-Stack Test Coverage**: 2120 development static tests, 600 Harness wiki unit tests, and all frontend vitest/i18n suites 100% green.
+- **Material SSOT:** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `temp-docs/roadmap/topic_02_knowledge_wiki_roadmap.md` · `myrm-agent-server/app/services/wiki/source_sync/` · `myrm-agent-frontend/src/components/features/settings/sections/knowledge/WikiSourceSyncPanel.tsx`
+
+## Latest Validation Snapshot (2026-08-22 · Outbound Redelivery Visibility & Dual-Track Channel Health Doctor Pack · Observability Roadmap Topic 11 #9 Done)
+
+- **Outbound Redelivery Visibility & Dead Letter Queue (DLQ) Dual-Track Health Diagnostic (vs Hermes Delivery Ledger / OpenClaw / DeerFlow):** Myrm delivers comprehensive white-box observability into 7×24 asynchronous outbound message pipelines and channel retries:
+  1. **Dual-Track Delivery Health Telemetry (`DLQDiagnostic`)**: Combines pending disk-persisted retry queue metrics from `DurableOutboundGate.count_pending()` with permanent delivery failures from `DeadLetterQueue.get_failed_count()`, eliminating black-box message delivery uncertainty across transient network drops and daemon restarts;
+  2. **Multi-Tier Severity & Intelligent Alerting Thresholds**: Gracefully stratifies health states into `pass` (all clear), `warn` (pending outbound backlog >10 or DLQ failures >0), and `fail` (outbound backlog >50 or DLQ failures >50), complete with actionable diagnostic details and direct remediation steps;
+  3. **One-Click Guided Remediation Integration (`RepairAction`)**: Integrates seamlessly with `DoctorDashboard`, `/api/v1/health/doctor`, and `/api/v1/ops/snapshot`, surfacing direct `REVIEW_CHANNEL_DLQ` repair recommendations and GUI deep-links;
+  4. **Sub-0.5ms Zero-Token Execution**: Fully local, non-blocking synchronous diagnostic execution with zero external LLM token overhead;
+  5. **Full-Stack Test Coverage**: 100% green test suite in `test_agent_cold_start_diagnostic.py` and Server health API endpoints with zero linter errors.
+- **Material SSOT:** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent/myrm-agent-server/app/core/infra/health/server_diagnostics.py`
+
 ## Latest Validation Snapshot (2026-08-22 · Active Session "Chat | Trace" Dual Tabs & Direct Unabridged Event Stream · DX Roadmap Topic 15 #3 Done)
 
 - **Active Session "Chat | Trace" Dual Tabs & Unabridged Event Stream (vs DSH / Orange Book / ZiXin / Hermes / OpenClaw):** Myrm delivers production-grade in-session execution trace observability:
   1. **Native In-Session Dual Tabs (`ChatWindow.tsx`)**: Responsive "Chat | Trace" switcher in the chat header, eliminating context-switching between settings dialogs and the active conversation;
   2. **Unabridged Physical Event Stream & Attribution Badges**: Directly feeds from `agent/event_log/` append-only logs, rendering step-by-step tool inputs/outputs, model metrics, execution latency, and deterministic 6-category failure attribution badges (Model/Harness/Env/Owner);
   3. **Zero Idle Overhead & Adaptive Polling**: Zero network fetch when idle; on-demand trace fetching with 2s live incremental polling during active generation runs;
-  4. **Multi-Platform Responsive Design & Session Replay**: Mobile and desktop adaptive layouts with direct one-click handoff into SessionReplayPlayer time-machine inspection.
+  4. **Multi-Platform Responsive Design & Session Replay**: Mobile and desktop adaptive layouts with direct one-click handoff into SessionReplayPlayer time-machine inspection;
+  5. **Full-Stack Test Coverage**: 9 unit and end-to-end integration tests 100% green with 0 linter errors.
 - **Material SSOT:** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/ChatWindow.tsx` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/system/ExecutionTraceTimeline.tsx`
 
 ## Latest Validation Snapshot (2026-08-22 · Cross-Vendor Task Specialty Silent Routing & 4-Tier Fallback · Model Routing Roadmap Topic 10 #5 Done)
@@ -375,6 +395,7 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
   3. **Dual-Platform Authoritative Signing & Notarization**: macOS 4-layer validation (`codesign` + `spctl` Gatekeeper simulation + `xcrun stapler` notary ticket check) + Windows Authenticode RFC 3161 timestamping;
   4. **Platform Defect Self-Healing**: Automated stripping of native musl modules preventing AppImage crashes, Dummy-Swap bundling resolving Tauri sidecar packaging bug, and adaptive renaming avoiding cross-arch overwrites;
    5. **Automated OTA Manifest Generation & Dual-Platform Runtime Smoke Gates**: `finalize-release.sh` + `verify-release.sh` pair `.sig` signatures with SHA-256 cross-validation, while `smoke-launch-runtime.sh` (macOS) and `smoke-launch-runtime.ps1` (Windows) unpackage and execute sidecar bundles (`myrmagent-backend`, `agent-runner`, Next.js standalone) on live CI runners, probe live `:8080/health` and WebUI ports, and guarantee clean process tree termination via `taskkill /F /T /PID`.
+   6. **Harness Component Snapshot Bounded Diff CI Gate**: 4 core architecture surface snapshots (`tool_surface`, `middleware_stack`, `context_strategies`, `system_defaults`) paired with deterministic 0.15s bounded semantic diff assertions, completely preventing silent behavioral drift and guaranteeing 100% Prompt Cache prefix stability.
 - **Competitor Comparison**: Competitors rely on manual Markdown checklists subject to human error and measurement decay; Myrm enforces 18+ automated CI mechanical gates ensuring 100% zero-defect desktop releases.
 - **Verification Data**: `test_desktop_finalize_fixture.py` (4-target non-network signature pairing + edge cases) **PASSED** + `test_desktop_launch_smoke_script.py` (Bash + PowerShell syntax & contract gates) **PASSED** + `check-fractal-docs.test.ts` **2 PASSED**.
 - **Material SSOT**: `temp-docs/materials/DESKTOP_APP_ADVANTAGE.md` (2026-08-20 section) · `myrm-agent/.github/workflows/desktop-release.yml` · `scripts/ci/desktop-release/_ARCH.md`

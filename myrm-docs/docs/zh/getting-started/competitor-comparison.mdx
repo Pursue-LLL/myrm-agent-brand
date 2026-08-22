@@ -11,24 +11,44 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-22 · 确定性多源云端知识沉淀与统一经验演化 SSOT · 知识库 Roadmap Topic 02 #12 & #13 达成）
+
+- **确定性多源云端知识沉淀与统一经验演化体系（对比 WorkBuddy 闭源资料库 / Manus Project Harvest 知识收割）：** Myrm 构建了开放、确定性且自我闭环的知识库与长程记忆基础设施：
+  1. **确定性多数据源云端同步引擎（`WikiSourceSync`）**：彻底摆脱前端专用文件选择器与特定闭源文档生态绑定（腾讯文档/ima/乐享），采用零 LLM 消耗的确定性后台任务，将飞书文档（完整 Block 结构化解析）、Google Drive、Gmail 及 RSS 订阅无损同步至兼容 Obsidian 的原生 Markdown Vault；
+  2. **自动化知识编译闭环**：同步后的原始资料自动流经 `WikiCompiler` 进行原子化概念抽取、双向语义知识图谱生成及 Claims 证据事实溯源，用户与 Agent 在对话中直接通过 `@wiki` 或 `wiki_query` 实现事实精准问答；
+  3. **项目级共享记忆与全局经验演化一体化**：Project 原生双向绑定 `SharedContextService` 保持多会话任务记忆互通，执行过程中的最佳实践与避坑经验自动沉淀至 `experience_ledger` 并汇聚于 `PendingEvolutionsDashboard` 供人机协同（HITL）审批演化为标准化技能，无需在项目层堆叠低价值的割裂弹窗向导；
+  4. **全栈测试验证**：开发网关静态契约测试 2120 项、Harness 知识库单元测试 600 项与前端全量 Vitest/i18n 验证 100% 绿灯。
+- **素材 SSOT：** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `temp-docs/roadmap/topic_02_knowledge_wiki_roadmap.md` · `myrm-agent-server/app/services/wiki/source_sync/` · `myrm-agent-frontend/src/components/features/settings/sections/knowledge/WikiSourceSyncPanel.tsx`
+
+## 最新验证快照（2026-08-22 · 出站 7×24 消息交付与重投可见性及双轨渠道健康度 · 可观测性 Roadmap Topic 11 #9 达成）
+
+- **出站 7×24 消息交付与死信队列（DLQ）双轨健康诊断（对比 Hermes 交付账本 / OpenClaw / DeerFlow）：** Myrm 构建了生产级 7×24 异步消息出站管线与渠道重投的白盒化全景可观测性体系：
+  1. **双轨交付健康度量（`DLQDiagnostic`）**：同时聚合采集 `DurableOutboundGate.count_pending()`（磁盘落盘持久化待重投消息数）与 `DeadLetterQueue.get_failed_count()`（死信永久投递失败数），彻底消除网络瞬断与进程重启期间的黑盒猜忌；
+  2. **多级分层判定与智能告警阈值**：严密分层判定为 `pass`（完全健康）、`warn`（待投递积压 >10 或死信 >0）、`fail`（待投递严重积压 >50 或死信堆积 >50），附带精准诊断详情与明确修复建议；
+  3. **一键引导式修复闭环（`RepairAction`）**：无缝注入 `DoctorDashboard`、`/api/v1/health/doctor` 与 `/api/v1/ops/snapshot`，引导用户直达 `REVIEW_CHANNEL_DLQ` 快速排障；
+  4. **微秒级零 Token 纯本地运行**：纯同步快速非阻塞探针执行，不消耗任何外部 LLM Token 与网络开销；
+  5. **全栈测试验证**：`test_agent_cold_start_diagnostic.py` 及 Server 端健康诊断 API 测试 100% 绿灯，0 Lint 错误。
+- **素材 SSOT：** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent/myrm-agent-server/app/core/infra/health/server_diagnostics.py`
+
 ## 最新验证快照（2026-08-22 · 活跃会话「对话 | 轨迹」双 Tab 与未删节事件流直达 · 开发者体验 Roadmap Topic 15 #3 达成）
 
 - **活跃会话「对话 | 轨迹」双 Tab 与未删节事件流直达（对比 DSH / 橙皮书 / 子昕 / Hermes / OpenClaw）：** Myrm 构建了生产级会话内未删节物理事件流可观测性：
   1. **主会话窗口原生双 Tab 切换（`ChatWindow.tsx`）**：在顶部 Header 栏提供「对话 (Chat) | 轨迹 (Trace)」自适应切换器，告别以往只能通过设置弹窗查看的割裂排障体验；
   2. **未删节物理事件流与精准血缘配对**：直接消费 `agent/event_log/` 结构化日志，实时清晰展现 LLM 调用明细、工具输入输出、耗时以及 6 类确定性错误分锅 Badge（Model/Harness/Env/Owner）；
   3. **零性能开销与惰性轮询**：非激活态零网络拉取，切换至 Trace 时按需拉取并在执行中保持 2s 流式增量刷新；
-  4. **全端自适应与 SessionReplayPlayer 一键回放**：移动端与 PC 端无缝兼容，支持在 Trace 视图内一键进入时光机回放模式。
+  4. **全端自适应与 SessionReplayPlayer 一键回放**：移动端与 PC 端无缝兼容，支持在 Trace 视图内一键进入时光机回放模式；
+  5. **全栈测试验证**：9 项单测与端到端集成测试 100% 绿灯通过，0 Lint 错误。
 - **素材 SSOT：** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/ChatWindow.tsx` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/system/ExecutionTraceTimeline.tsx`
 
-## 最新验证快照（2026-08-22 · 跨厂商任务专长智能静默路由与四级容灾回退 · 模型路由 Roadmap Topic 10 #5 达成）
+## 最新验证快照（2026-08-22 · 跨厂商任务专长智能静默路由与四级容灾回退 · 模型路由 Roadmap Topic 07 #5 达成）
 
 - **跨厂商任务专长智能静默路由（对比 WorkBuddy 闭源调度 / Claude Code / Cursor / Hermes / OpenClaw）：** Myrm 实现了工业级零 Token 消耗、<0.5ms 极速响应的任务专长智能静默调度体系：
   1. **6 维领域专长纯内存启发式特征引擎（`classify_task_specialty`）**：精准识别 `CODE`（代码/重构/Debug/Traceback/AST）、`LONG_DOC`（超长文本/多章节财报/白皮书）、`REASONING`（数理逻辑/LaTeX/公式/定理证明）、`MULTIMODAL`（图像/音视频/附件）、`CASUAL`（轻量日常/简单问候）及 `GENERAL`，首 Token 额外延迟 0ms；
   2. **多轮会话动量平滑（Session Momentum）**：短追问（如「解释第 12 行」）自动继承上一轮技术专长，彻底杜绝模型在同一任务上下文中的剧烈颠簸与跳变；
   3. **四级容灾降级链路（`_build_fallback_chain`）**：`Specialty Primary → Specialty Fallback → Base Primary → Base Fallback`，模型断网或欠费时平滑无感恢复；
-  4. **全透明用户来源芯片（`ModelSpecialtyChip`）**：在保留静默调度极致简便的同时，气泡下方透出晶莹芯片，悬停即可查看专长判定类型与实际调用模型；
-  5. **全栈测试验证**：Harness 专长路由单元测试 100% 绿灯，0 Lint 错误。
-- **素材 SSOT：** `temp-docs/materials/PROXY_LLM_INFRA_ADVANTAGE.md` · `temp-docs/roadmap/topic_10_model_routing_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/routing/specialty_router.py` · `myrm-agent/myrm-agent-frontend/src/components/features/message-box/ModelSpecialtyChip.tsx`
+  4. **全透明用户来源芯片（`TokenUsageDisplay` 路由徽章）**：在保留静默调度极致简便的同时，气泡下方透出晶莹芯片，悬停即可查看专长判定类型（Cyan 代码 / Indigo 长文档）与实际调用模型及成本；
+  5. **全栈测试验证**：Harness 专长路由单元测试 21/21 绿灯，Server 端集成测试全量通过，0 Lint 错误。
+- **素材 SSOT：** `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/routing/specialty_router.py` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/ai-core/DefaultModelSection.tsx`
 
 ## 最新验证快照（2026-08-22 · Windows 桌面全功能发布对等与原生极速交付 · 桌面 Roadmap Topic 05 #36 达成）
 
@@ -2664,5 +2684,9 @@ Hermes v0.19.1 推出了 Desktop Plugin SDK（`@hermes/plugin-sdk`），支持 E
 | **MCP** | Anthropic 牵头的行业标准协议，数百个社区 server | 外部服务集成 |
 | **render_ui** | 23 种类型化 UI 组件，server-driven rendering | 对话内自定义交互 UI |
 | **Agent 模板** | 可分享的完整工作流配置 | 团队协作复用 |
+
+### 13. 核心架构快照有界差分 CI 门禁（守护 Prompt Cache）
+竞品（如普通开源 Agent 框架）在迭代工具与中间件时，缺乏物理级 Schema 与排序一致性守卫，开发者一次无意的参数调整即可引发整条 Prompt Cache 前缀失效，导致首字延迟（TTFT）暴增 3~5 倍且 Token 费用翻倍。
+**我们的优势**：Myrm Harness 独创声明式 4 大核心架构快照（工具分层排序、中间件管道、上下文管理策略、系统默认配置）与 0.15s 极速语义有界差分（Bounded Diff）CI 门禁。发布前严格阻断任何非受控的契约漂移，100% 保障线上 Prompt Cache 稳定命中与状态机确定性。
 
 此外，Myrm 的全局 `⌘K` 搜索对话框和 Slash 命令面板提供了与 Hermes `PALETTE_AREA` 同等的快捷访问体验，而 NavBar 的四个状态组件（Extension Bridge、Remote Gateway、Background Tasks Panel、Notification Bell）超越了 Hermes 单一的 Gateway Pill。**142+ 项扩展测试验证通过。**

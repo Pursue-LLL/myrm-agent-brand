@@ -50,6 +50,16 @@ Your config is stored in a central **skill configuration** — not inside the SK
 
 Secrets are injected as environment variables and never appear in chat context.
 
+## Supply Chain Security Rescan & Auto-Quarantine
+
+Third-party skill packages and their underlying dependencies (npm / PyPI) may expose newly discovered CVE vulnerabilities or fall victim to open-source supply chain poisoning over time.
+
+Myrm provides an automated **Installed Skill Supply Chain Rescan Engine**:
+
+1. **Dual-Track Detection**: Built-in known malicious package catalog (zero-latency offline matching, network-independent) + OSV.dev online CVE batch query with 24h local caching.
+2. **Auto-Quarantine & Global Event Broadcast**: When a critical vulnerability or poisoned package is detected, Myrm automatically **quarantines & disables** the compromised skill and broadcasts `SKILL_POOL_UPDATED` across the UI and runtime to prevent misuse.
+3. **Audit Acknowledgment & Governance (AdvisoryAck)**: Security teams can audit and acknowledge (dismiss) specific findings with recorded rationale for isolated sandboxes, or reinstate warnings at any time.
+
 ## Related
 
 - [Skill Creation](/docs/tutorials/skill-creation) — turn a conversation into a reusable skill
