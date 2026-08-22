@@ -15,6 +15,24 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 턴당 기능 제어를 위해 Myrm은 완전한 관찰 가능성(제출/적용/noop/큐/바쁨/최종 결과 + 실패 이유)을 갖춘 **원턴 스킬/MCP 재정의 칩**을 지원합니다. 집중 검증(2026-07-29): 프런트엔드 29/29 통과, 서버 10/10 통과; 목표 적용 범위는 핵심 프런트엔드 파일의 라인 62.47%, 서버 원격 측정 모듈의 전체 라인 72%에 도달했습니다. 이는 팀에게 추측이 아닌 비용/신뢰성 조정에 대한 마이그레이션 안전 증거를 제공합니다.
 
+## 최신 검증 스냅샷 (2026-08-21 · Goal 장기 목표 ↔ 칸반 양방향 강력한 일관성 SSOT · 런타임 신뢰성 Roadmap Topic 13 #1 완료)
+
+- **Goal 장기 목표 ↔ 칸반 양방향 강력한 일관성 브리지 및 지능형 중단점 복구 (vs Claude `/goal` / Manus / Echo / AutoGPT):** Myrm은 Goal 엔진과 Kanban 작업 스케줄러 간의 양방향 상태 강일관성 및 구조화된 승인 기준 지속성 루프를 구현했습니다:
+  1. **지능형 중단점 재개 (`_setup_goal_provider`)**: 작업 재실행 시 완료되지 않은 Goal(`PAUSED` / `BUDGET_LIMITED` / `WAIT`)을 감지하여 `resume_goal(reset_turns=False)`을 호출해 실행을 복구하고, 과거 턴 수와 컨텍스트를 엄격하게 보존하여 새 Goal 생성으로 인한 컨텍스트 손실 및 턴 드리프트를 원천 방지;
+  2. **일시중지 상태 원자적 BLOCKED 매핑 (`_map_goal_outcome`)**: `PAUSED` / `NEEDS_HUMAN_REVIEW` / `WAIT`를 `TaskStatus.BLOCKED`로 정밀 매핑하고 `BlockKind.HUMAN`(인간 개입/일시중지)과 `BlockKind.EXTERNAL`(외부 백그라운드 작업/CI 대기)을 구분하여 다운스트림 디스패처가 작업을 정상 보류하도록 보장(실패 오판 또는 재시도 횟수 소진 방지);
+  3. **구조화된 검수 결과 SSOT 및 GUI 시각화**: Goal 엔진 다차원 테스트 검수 결과(`acceptance_results`)를 Task `metadata`에 원자적으로 동기화하고 프런트엔드 작업 드로어 `KanbanTaskDrawerDetails.tsx`에 현대적인 카드 형태로 렌더링(다국어 지원);
+  4. **전체 스택 테스트 검증**: 11개 `test_kanban_goal_mode.py` 단위 테스트 + 198개 Server Kanban 테스트 + 221개 Harness Goal 엔진 테스트 + 137개 프런트엔드 Kanban 컴포넌트 테스트 100% 정상 통과, 0 Lint.
+- **자료 SSOT:** `temp-docs/materials/KANBAN_TASK_SCHEDULING_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/services/kanban/task_runner/runner.py` · `myrm-agent/myrm-agent-frontend/src/components/features/kanban/KanbanTaskDrawerDetails.tsx`
+
+## 최신 검증 스냅샷 (2026-08-21 · Magic Bytes 심층 포맷 감지 및 다중 포맷 통합 수집 파이프라인 · 지식 위키 Roadmap Topic 02 #9 완료)
+
+- **Magic Bytes 심층 감지 및 다중 포맷 파서 레지스트리 매트릭스 (vs Hermes / OpenClaw / 기존 RAG):** Myrm은 완전한 엔드투엔드 문서 수집 및 컴파일 아키텍처를 제공합니다:
+  1. **심층 파일 특성 감지 (`sniff_content_format`)**: 누락되거나 위조된 파일 확장자를 우회하여 Magic Bytes 및 Zip 컨테이너 구조에서 실제 MIME 유형을 직접 정확하게 감지;
+  2. **통합 다중 포맷 파서 레지스트리 (`file_parsers._PARSERS`)**: PDF(SmartPDFParser + 텍스트/표 추출 및 OCR 자동 강등), Word(.docx/.doc), Excel(.xlsx/.xls), PPT(.pptx/.ppt), RTF, EPUB, ODF, CSV, Jupyter Notebook(.ipynb) 및 이미지 OCR(PaddleOCR) 기본 지원;
+  3. **전체 Agent 수집 및 컴파일 파이프라인**: `wiki_ingest_tool`이 웹 URL(FetchEngine / secure_get / MarkdownGenerator), 바이너리 문서(`_parse_binary_document`), 일반 텍스트를 일관되게 라우팅하고 `publish_raw` 보안 필터링, 충돌 정책(OVERWRITE/SKIP/ERROR/VERSION), 적응형 분할(`_split_if_large`) 및 컴파일 대기열 스테이징을 적용;
+  4. **전체 스택 테스트 검증**: Harness `file_parsers` 단위 테스트 및 Wiki Ingest 통합 테스트 100% 정상 통과, 0 Lint 에러.
+- **자료 SSOT:** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `temp-docs/roadmap/topic_02_knowledge_wiki_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/file_parsers/` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/wiki/wiki_agent_tools.py`
+
 ## 최신 검증 스냅샷 (2026-08-21 · 음성 듀얼 트랙 패스트레인 및 15초 Supervisor 백그라운드 핸드오프 · 음성 미디어 Roadmap Topic 04 #3 완료)
 
 - **음성 듀얼 트랙 패스트레인 및 15초 Supervisor 백그라운드 핸드오프 (vs Qwen Audio Agent / ChatGPT Voice / Claude Voice):** Myrm은 산업용 듀얼 트랙 음성 실행 엔진과 긴 작업 감독자 상태 머신을 구축했습니다:
@@ -50,6 +68,20 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
   3. **5차원 충실도 동일 작업 A/B 인수 테스트 스위트 (`CompactionABEvaluator`)**: 압축 후 단일 단계 지속 실행을 위한 정량 평가 레이더(제약 조건 회수율, 결정 일치성, 실행 상태 정확도, 산출물 커버리지, 지속 성공률) 구축 및 도구 별칭 정규화 지원;
   4. **전체 스택 테스트 검증**: 1,285개 이상의 Harness 컨텍스트 관리 단위 테스트 및 Server 실제 LLM 압축 통합 테스트 100% 정상 통과, 0 Lints.
 - **자료 SSOT:** `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md` · `temp-docs/roadmap/topic_09_context_session_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/`
+
+## 최신 검증 스냅샷 (2026-08-21 · Outbound 메시지 재전송 가시성 및 이중 트랙 채널 헬스 Doctor 팩 · Topic 14 관찰 가능성 #9 완료)
+
+- **Outbound 메시지 재전송 가시성 및 이중 트랙 채널 헬스 Doctor 진단 팩 (vs Hermes / OpenClaw / Claude Code):** Myrm은 0 토큰 소모의 실시간 메시지 발송 신뢰성 진단 프로브를 구현했습니다:
+  1. **이중 트랙 헬스 상태 매트릭스 (`DLQDiagnostic`)**: `DurableOutboundGate`(발송 대기/재전송 큐)와 `_dlq`(데드 레터 큐)를 동시 감지하여 메시지 발송 인프라의 투명성을 대폭 강화:
+     - **Pending Outbound Redelivery**: 채널 네트워크 지연 또는 재시작 후 복구 대기 중인 메시지 수를 실시간 감지;
+     - **DLQ Failed Messages**: 재시도 횟수를 초과하여 보존된 실패 메시지 수를 정확히 추적;
+  2. **단계별 지능형 경보 임계치**:
+     - `failed_count > 100` 또는 `pending_count > 200`일 때 즉시 `ERR_DLQ_CRITICAL` 발생;
+     - `failed_count > 10`일 때 `WARN_DLQ_FAILED` 발생;
+     - `pending_count > 50`일 때 `WARN_OUTBOUND_PENDING_BACKLOG` 백로그 경보 발생;
+  3. **수리 가이드 및 액션 연동**: 웹 UI 및 데스크톱 Doctor 대시보드와 완벽 연동되어 DLQ 복구 및 채널 연결 점검 가이드 즉시 제공;
+  4. **전체 스택 테스트 검증**: DLQ 진단 단위 테스트 및 `/health/doctor` API 통합 테스트 100% 정상 통과, 0 Lints.
+- **자료 SSOT:** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/core/infra/health/server_diagnostics.py` · `myrm-agent/myrm-agent-server/tests/core/infra/health/test_agent_cold_start_diagnostic.py`
 
 ## 최신 검증 스냅샷 (2026-08-21 · Agent 콜드 스타트 Warm-Path 4단계 Doctor 팩 · Topic 14 관찰 가능성 #8 완료)
 
@@ -1706,7 +1738,7 @@ Myrm은 **GUI 우선** 애플리케이션입니다. Claude Office Visualizer가 
 | Context Usage | TrashCanSprite (filling trash can metaphor) | **ContextUsageIndicator** — exact percentage + multi-level color warnings | Numbers > metaphors |
 | Task Management | 12 PixiJS read-only whiteboard modes | **KanbanBoardView** — interactive drag/drop/filter/edit | Actionable, not just viewable |
 | Notifications | Screen flash (attentionStore) | **NotificationBell** — 4 severity levels + unread count + persistence + **OS popup on stream completion/clarification when tab hidden** (auto-suppress when visible, toast fallback on permission denied, 5 languages) + **Web Push VAPID** offline notifications (browser closed → still receive approval/goal/health alerts via Push Service; iOS PWA guided install; auto-cleanup expired subscriptions) | Structured alerts, not screen flashing; works even when browser is closed |
-| Onboarding | TourOverlay 7-step walkthrough | **4-step dynamic wizard** + auto-detect Ollama/LM Studio + **HardwareCookbook** (fit_score + MoE-aware ~tok/s speed + smart Best Fit recommendation + streaming download) + SearXNG 1-click Docker + 11-source competitor migration (199 dedicated tests, all passed) | Zero-config start: detect → activate → work |
+| Onboarding | TourOverlay 7-step walkthrough | **4-step dynamic wizard** + auto-detect Ollama/LM Studio + **Paste-URL llama-server/vLLM/TGI** (engine swap without agent rebuild) + **HardwareCookbook** (fit_score + MoE-aware ~tok/s speed + smart Best Fit recommendation + streaming download) + SearXNG 1-click Docker + 11-source competitor migration (199 dedicated tests, all passed) | Zero-config start: detect → activate → work; GUI path for Hermes community Ornith/llama-server recipes |
 | Companion | Fixed pixel character | **15 species + 9 hats + Agent sync + Hermes 7-state Petdex + HITL waiting + evolution** | Full RPG companion with correct “your turn” animation |
 | Deployment | Docker front+back separate deployment | **Built into the app** — zero extra infrastructure | Zero additional setup |
 | Mobile | ❌ Desktop-only (PixiJS) | ✅ PWA + 35+ messaging channels | Monitor from anywhere |

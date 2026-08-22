@@ -11,6 +11,15 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Validation Snapshot (2026-08-21 · Magic Bytes Deep Format Sniffing & Multi-Format Ingest Pipeline · Knowledge Wiki Roadmap Topic 02 #9 Done)
+
+- **Magic Bytes Deep Sniffing & Multi-Format Parser Registry Matrix (vs Hermes / OpenClaw / Traditional RAG):** Myrm delivers a complete end-to-end document ingestion and compilation architecture:
+  1. **Deep Content Sniffing (`sniff_content_format`)**: Bypasses missing or spoofed file extensions, sniffing true MIME types directly from Magic Bytes and Zip container signatures;
+  2. **Unified Multi-Format Parser Registry (`file_parsers._PARSERS`)**: Natively supports PDF (SmartPDFParser with text/table extraction and automatic OCR degradation), Word (.docx/.doc), Excel (.xlsx/.xls), PPT (.pptx/.ppt), RTF, EPUB, ODF, CSV, Jupyter Notebook (.ipynb), and Image OCR (PaddleOCR);
+  3. **Full Agent Ingestion & Compile Pipeline**: `wiki_ingest_tool` uniformly routes Web URLs (FetchEngine / secure_get / MarkdownGenerator), binary documents (`_parse_binary_document`), and plain text, applying `publish_raw` security scanning, conflict policies (OVERWRITE/SKIP/ERROR/VERSION), adaptive splitting (`_split_if_large`), and compiler queue staging;
+  4. **Full-Stack Test Coverage**: 100% test pass rate across Harness `file_parsers` unit tests and Wiki Ingest integration tests with 0 lints.
+- **Material SSOT:** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `temp-docs/roadmap/topic_02_knowledge_wiki_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/file_parsers/` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/wiki/wiki_agent_tools.py`
+
 ## Latest Validation Snapshot (2026-08-21 · Voice Fast-Lane Quick-Lookup & 15s Supervisor Background Handoff · Voice Media Capture Roadmap Topic 04 #3 Done)
 
 - **Voice Fast-Lane Quick-Lookup & 15s Supervisor Background Handoff (vs Qwen Audio Agent / ChatGPT Voice / Claude Voice):** Myrm delivers an industrial-grade dual-track voice execution engine and long-task supervisor:
@@ -37,6 +46,19 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
   3. **Five-Dimensional Fidelity A/B Acceptance Suite (`CompactionABEvaluator`)**: Quantifies Constraint Recall, Decision Fidelity, Execution State Accuracy, Artifact Coverage, and Continuation Success with canonical tool equivalence mapping;
   4. **Full-Stack Test Coverage**: 100% test pass rate across 1,285+ harness context management unit tests and server E2E compression integration tests with 0 lints.
 - **Material SSOT:** `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md` · `temp-docs/roadmap/topic_09_context_session_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/`
+
+## Latest Validation Snapshot (2026-08-21 · Outbound Redelivery Visibility Doctor Pack · Observability Topic 14 #9 Done)
+
+- **Outbound Redelivery Visibility & Dual-Track Channel Health Doctor Pack (vs Hermes delivery ledger / OpenClaw / DeerFlow / Claude Code):** Myrm delivers an industrial-grade, zero-token white-box channel delivery and dead-letter queue observability suite:
+  1. **Dual-Track Delivery & DLQ Health Matrix (`DLQDiagnostic`)**: Combines in-flight disk-persisted obligations (`DurableOutboundGate.count_pending()`) with Dead Letter Queue failed counts (`DeadLetterQueue.get_failed_count()`) to provide comprehensive delivery lifecycle visibility;
+  2. **Tiered Health & Backlog Alerting**:
+     - **Pass (`OK_DLQ_HEALTHY`)**: Normal operations with live pending redelivery counts clearly displayed;
+     - **Warn (`WARN_OUTBOUND_PENDING_BACKLOG`)**: Alerts operators when pending message counts exceed back-pressure thresholds (>50), suggesting network/rate limit verification;
+     - **Warn (`WARN_DLQ_FAILED`)**: Alerts on failed message accumulation with actionable fix suggestions;
+     - **Fail (`ERR_DLQ_CRITICAL`)**: Triggers critical intervention alerts when DLQ (>100) or pending backlogs (>200) breach safety thresholds;
+  3. **Seamless Repair Action & GUI Integration**: Seamlessly exposes metrics and metadata to WebUI `DoctorDashboard`, `/api/v1/health/doctor`, and `/api/v1/ops/snapshot`, maintaining 100% contract compatibility with `RepairAction: REVIEW_CHANNEL_DLQ` for 1-click remediation;
+  4. **Full-Stack Test Coverage**: 10 unit and API integration tests in `test_agent_cold_start_diagnostic.py` + 3 channel DLQ tests in `test_dlq.py` 100% green, 0 Lints.
+- **Material SSOT:** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/core/infra/health/server_diagnostics.py` · `myrm-agent/myrm-agent-server/app/channels/reliability/durable_outbound.py`
 
 ## Latest Validation Snapshot (2026-08-21 · Universal Channel Ingress & Chunking SSOT · Channel Integration Roadmap Topic 16 Done)
 
@@ -1978,7 +2000,7 @@ Myrm is a **GUI-first** application. The problems Claude Office Visualizer solve
 | Context Usage | TrashCanSprite (filling trash can metaphor) | **ContextUsageIndicator** — exact percentage + multi-level color warnings | Numbers > metaphors |
 | Task Management | 12 PixiJS read-only whiteboard modes | **KanbanBoardView** — interactive drag/drop/filter/edit | Actionable, not just viewable |
 | Notifications | Screen flash (attentionStore) | **NotificationBell** — 4 severity levels + unread count + persistence + **OS popup on stream completion/clarification when tab hidden** (auto-suppress when visible, toast fallback on permission denied, 5 languages) + **Web Push VAPID** offline notifications (browser closed → still receive approval/goal/health alerts via Push Service; iOS PWA guided install; auto-cleanup expired subscriptions) | Structured alerts, not screen flashing; works even when browser is closed |
-| Onboarding | TourOverlay 7-step walkthrough | **4-step dynamic wizard** + auto-detect Ollama/LM Studio + **HardwareCookbook** (fit_score + MoE-aware ~tok/s speed + smart Best Fit recommendation + streaming download) + SearXNG 1-click Docker + 11-source competitor migration (199 dedicated tests, all passed) | Zero-config start: detect → activate → work |
+| Onboarding | TourOverlay 7-step walkthrough | **4-step dynamic wizard** + auto-detect Ollama/LM Studio + **Paste-URL llama-server/vLLM/TGI** (engine swap without agent rebuild) + **HardwareCookbook** (fit_score + MoE-aware ~tok/s speed + smart Best Fit recommendation + streaming download) + SearXNG 1-click Docker + 11-source competitor migration (199 dedicated tests, all passed) | Zero-config start: detect → activate → work; GUI path for Hermes community Ornith/llama-server recipes |
 | Companion | Fixed pixel character | **15 species + 9 hats + Agent sync + Hermes 7-state Petdex + HITL waiting + evolution** | Full RPG companion with correct “your turn” animation |
 | Deployment | Docker front+back separate deployment | **Built into the app** — zero extra infrastructure | Zero additional setup |
 | Mobile | ❌ Desktop-only (PixiJS) | ✅ PWA + 35+ messaging channels | Monitor from anywhere |

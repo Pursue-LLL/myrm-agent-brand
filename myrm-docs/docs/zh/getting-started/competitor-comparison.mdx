@@ -11,6 +11,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-21 · Magic Bytes 格式深度嗅探与多格式统一入库解析 · 知识库 Roadmap Topic 02 #9 达成）
+
+- **Magic Bytes 深度嗅探与多格式统一解析矩阵（对比 Hermes / OpenClaw / 传统 RAG）：** Myrm 构建了全流程多格式文档安全入库与编译解析架构：
+  1. **深度文件特征嗅探（`sniff_content_format`）**：摆脱易被篡改或缺失的文件后缀，直接基于文件头 Magic Bytes 与 Zip 容器结构精准嗅探真实 MIME 类型；
+  2. **统一多格式解析器注册表（`file_parsers._PARSERS`）**：原生支持 PDF（SmartPDFParser + 文本/表格提取与 OCR 自动降级）、Word（.docx/.doc）、Excel（.xlsx/.xls）、PPT（.pptx/.ppt）、RTF、EPUB、ODF、CSV、Jupyter Notebook（.ipynb）及图片 OCR（PaddleOCR）；
+  3. **全流程 Agent 入库与编译管线**：`wiki_ingest_tool` 统一路由 Web URL（FetchEngine / secure_get / MarkdownGenerator）、二进制文档（`_parse_binary_document`）、纯文本，并在入库时接入 `publish_raw` 安全过滤与冲突治理（OVERWRITE/SKIP/ERROR/VERSION），长文自动切片（`_split_if_large`）并自动进入编译队列；
+  4. **全栈测试验证**：Harness `file_parsers` 单元测试与 Wiki Ingest 集成测试全部 100% 绿色通过，0 Lint 错误。
+- **素材 SSOT：** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `temp-docs/roadmap/topic_02_knowledge_wiki_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/file_parsers/` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/wiki/wiki_agent_tools.py`
+
 ## 最新验证快照（2026-08-21 · 语音双轨极速快车道与 15s Supervisor 长任务平缓脱困 · 语音媒体 Roadmap Topic 04 #3 达成）
 
 - **语音双轨极速快车道与 15s Supervisor 长任务平缓脱困（对比 Qwen Audio Agent / ChatGPT Voice / Claude Voice）：** Myrm 构建了工业级双轨语音执行引擎与长任务 Supervisor 状态机：
@@ -37,6 +46,19 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **五维保真度同任务 A/B 验收套件（`CompactionABEvaluator`）**：首创针对长会话压缩后单步续跑的量化评测雷达，涵盖约束召回、决策一致性、执行状态、产物覆盖与续跑成功率，配合工具别名语义归一化；
   4. **全栈测试验证**：1,285+ 项 Harness 上下文管理单元测试与 Server 真实端到端 LLM 压缩集成测试 100% 全绿，0 Lint 错误。
 - **素材 SSOT：** `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md` · `temp-docs/roadmap/topic_09_context_session_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/`
+
+## 最新验证快照（2026-08-21 · 出站 7×24 消息交付与重投可见性 Doctor 探针包 · Topic 14 可观测性 #9 完工）
+
+- **出站 7×24 消息交付与重投可见性双轨健康诊断（vs Hermes delivery ledger / OpenClaw / DeerFlow / Claude Code）：** Myrm 实现了工业级 0 Token 消耗、微秒级响应的出站消息可靠性与死信队列白盒健康诊断探针：
+  1. **双轨交付与死信健康度矩阵（`DLQDiagnostic`）**：深度整合底层 `DurableOutboundGate.count_pending()`（磁盘持久化待投递/待重投消息数）与 `DeadLetterQueue.get_failed_count()`（死信队列永久失败数），提供完整的出站生命周期全景可见性；
+  2. **多级健康与积压分层告警体系**：
+     - **正常运行 (`OK_DLQ_HEALTHY`)**：低负载或正常流转，实时透出待重投队列计数；
+     - **积压预警 (`WARN_OUTBOUND_PENDING_BACKLOG`)**：待重投消息超阈值 (>50) 触发告警，提示运维排查外部渠道网络抖动或限流；
+     - **死信告警 (`WARN_DLQ_FAILED`)**：死信堆积 (>10) 触发告警，并给出修复建议；
+     - **严重阻断 (`ERR_DLQ_CRITICAL`)**：死信 (>100) 或积压 (>200) 超越安全红线时触发严重阻断告警；
+  3. **修复链路与 GUI 大盘无缝集成**：指标与元数据统一注入 WebUI `DoctorDashboard`、`/api/v1/health/doctor` 与 `/api/v1/ops/snapshot`，并与 `RepairAction: REVIEW_CHANNEL_DLQ` 保持 100% 兼容，支持一键直达 Settings DLQ 进行重试与排障；
+  4. **全栈测试背书**：10 项 `test_agent_cold_start_diagnostic.py` 探针测试 + 3 项 `test_dlq.py` 渠道死信路由测试 100% 绿灯，0 Lints。
+- **素材 SSOT：** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/core/infra/health/server_diagnostics.py` · `myrm-agent/myrm-agent-server/app/channels/reliability/durable_outbound.py`
 
 ## 最新验证快照（2026-08-21 · 全渠道入站防抖、媒体富集与 CJK 标点分块 SSOT · 渠道集成 Roadmap ⑯ 达成）
 
@@ -1827,7 +1849,7 @@ Myrm 是 **GUI 优先** 应用。Claude Office Visualizer 要解决的「看不�
 | Context Usage | TrashCanSprite (filling trash can metaphor) | **ContextUsageIndicator** — exact percentage + multi-level color warnings | Numbers > metaphors |
 | Task Management | 12 PixiJS read-only whiteboard modes | **KanbanBoardView** — interactive drag/drop/filter/edit | Actionable, not just viewable |
 | Notifications | Screen flash (attentionStore) | **NotificationBell** — 4 severity levels + unread count + persistence + **切走标签页时流式完成/澄清自动 OS 弹窗**（前台自动静默、权限拒绝时 toast 降级、5 语言）+ **Web Push VAPID 离线推送**（浏览器关闭后仍收到审批/目标/健康告警；iOS PWA 引导安装；过期订阅自动清理） | 结构化告警，而非屏幕闪烁；关闭浏览器也能收到 |
-| Onboarding | TourOverlay 7步引导 | **4步动态向导** + 自动探测 Ollama/LM Studio + **HardwareCookbook**（反常识智能推荐 + MoE 精准 ~tok/s 速度 + 流式下载）+ SearXNG 一键 Docker + 14种竞品迁移适配器（276项测试验证） | 零配置启动：探测→激活→开始工作 |
+| Onboarding | TourOverlay 7步引导 | **4步动态向导** + 自动探测 Ollama/LM Studio + **Paste-URL 接入 llama-server/vLLM/TGI**（引擎与 Agent 解耦，换 endpoint 不重装）+ **HardwareCookbook**（反常识智能推荐 + MoE 精准 ~tok/s 速度 + 流式下载）+ SearXNG 一键 Docker + 14种竞品迁移适配器（276项测试验证） | 零配置启动：探测→激活→开始工作；Hermes 社区 Ornith/llama-server 路线 GUI 化 |
 | Companion | Fixed pixel character | **15 species + 9 hats + Agent sync + Hermes 7-state Petdex + HITL waiting + evolution** | Agent identity + correct “your turn” animation |
 | Deployment | Docker front+back separate deployment | **Built into the app** — zero extra infrastructure | Zero additional setup |
 | Mobile | ❌ Desktop-only (PixiJS) | ✅ PWA + 35+ messaging channels | Monitor from anywhere |
