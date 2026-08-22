@@ -11,6 +11,24 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-21 · 语音双轨极速快车道与 15s Supervisor 长任务平缓脱困 · 语音媒体 Roadmap Topic 04 #3 达成）
+
+- **语音双轨极速快车道与 15s Supervisor 长任务平缓脱困（对比 Qwen Audio Agent / ChatGPT Voice / Claude Voice）：** Myrm 构建了工业级双轨语音执行引擎与长任务 Supervisor 状态机：
+  1. **双轨快车道极速直出（`_is_fast_lane_query`）**：对简单问候与事实问答（`RoutingTier.SIMPLE`）绕过繁重的 Agent 编排与多余提示音，实现 TTFT <1.5s 极速直出，并具备自愈降级保障；
+  2. **15s Supervisor 超时托管（`_consume_agent_stream_supervised`）**：长任务超时自动播报口头过渡语（「已转入后台继续处理」），释放语音通道并派发持久化 Kanban 后台任务；
+  3. **任务完工主动语音播报**：无缝对接 `voice_background_task_done` 事件队列，长任务完成后在语音会话中排队主动开口播报结果摘要，绝不打断正在说话的 Agent；
+  4. **全栈测试验证**：173 项语音集成测试与 43 项单元测试 100% 全部通过，0 Lint 错误。
+- **素材 SSOT：** `temp-docs/materials/VOICE_BACKGROUND_TASK_ANNOUNCE_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md` · `myrm-agent/myrm-agent-server/app/api/voice/agent_bridge.py`
+
+## 最新验证快照（2026-08-21 · PLUR 跨工具 Engram 记忆导入与零冷启动迁移 · 记忆 Roadmap Topic 01 #58 达成）
+
+- **PLUR 跨工具 Engram 记忆导入与零冷启动迁移（对比 PLUR / Hermes / OpenClaw / Mem0）：** Myrm 构建了生产级 PLUR (Persistent, Open, Local-first, Unifying, Reusable) 专用导入适配器（`import_plur.py`）并无缝整合进迁移向导：
+  1. **无损多格式 Engram 解析**：基于 `yaml.safe_load` 机制安全解析从 PLUR 生态（Cursor、Claude Code、OpenClaw 等）导出的纯文本 YAML/JSON engrams，杜绝远程任意代码执行漏洞，并具备前置脏数据容错；
+  2. **智能 Scope 映射分桶**：自动将 `global` 作用域的用户偏好与指令映射至冻结的 Profile 分桶（100% 保护 Prompt Cache 命中率），并将 `project` 作用域的项目事实与经验映射至 Semantic 向量分桶，保留完整 domain 元数据；
+  3. **原子级 Dry-Run 与两阶段事务回滚**：全量接入迁移向导（`source_manifest.py`），提供导入前预检、结构化警告提示与可审计的两阶段事务确认/回滚保障；
+  4. **全栈测试验证**：8/8 项单元与端到端持久化集成测试 100% 绿灯（`test_import_plur.py`、`test_plur_import_integration.py`），0 Lint 错误。
+- **素材 SSOT：** `temp-docs/materials/MEMORY_ADVANTAGE.md` · `temp-docs/roadmap/topic_01_memory_roadmap.md` · `myrm-agent/myrm-agent-server/app/services/memory/imports/import_plur.py`
+
 ## 最新验证快照（2026-08-21 · 五维压缩保真度同任务 A/B 验收套件与 Prompt Cache 前缀无损保护 · 上下文 Roadmap Topic 09 #4 达成）
 
 - **五维压缩保真度同任务 A/B 验收套件与 Prompt Cache 前缀无损保护（对比 Pi Agent / Claude Code / Hermes / OpenClaw）：** Myrm 构建了生产级长会话上下文压缩质量防退化门禁与缓存友好型记忆布局：

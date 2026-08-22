@@ -15,6 +15,24 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 턴당 기능 제어를 위해 Myrm은 완전한 관찰 가능성(제출/적용/noop/큐/바쁨/최종 결과 + 실패 이유)을 갖춘 **원턴 스킬/MCP 재정의 칩**을 지원합니다. 집중 검증(2026-07-29): 프런트엔드 29/29 통과, 서버 10/10 통과; 목표 적용 범위는 핵심 프런트엔드 파일의 라인 62.47%, 서버 원격 측정 모듈의 전체 라인 72%에 도달했습니다. 이는 팀에게 추측이 아닌 비용/신뢰성 조정에 대한 마이그레이션 안전 증거를 제공합니다.
 
+## 최신 검증 스냅샷 (2026-08-21 · 음성 듀얼 트랙 패스트레인 및 15초 Supervisor 백그라운드 핸드오프 · 음성 미디어 Roadmap Topic 04 #3 완료)
+
+- **음성 듀얼 트랙 패스트레인 및 15초 Supervisor 백그라운드 핸드오프 (vs Qwen Audio Agent / ChatGPT Voice / Claude Voice):** Myrm은 산업용 듀얼 트랙 음성 실행 엔진과 긴 작업 감독자 상태 머신을 구축했습니다:
+  1. **듀얼 트랙 패스트레인 초고속 출력 (`_is_fast_lane_query`)**: 간단한 인사 및 사실 확인 질의(`RoutingTier.SIMPLE`)에 대해 무거운 Agent 프로필 로드와 불필요한 대기 음성을 건너뛰어 TTFT <1.5s 초고속 응답 실현 및 자동 자가 치유 폴백 지원;
+  2. **15초 Supervisor 시간 초과 핸드오프 (`_consume_agent_stream_supervised`)**: 15초 초과 긴 작업 감지 시 구두 전환 안내 음성을 출력하고, 활성 음성 채널을 즉시 해제하며 지속형 Kanban 백그라운드 작업으로 위임;
+  3. **백그라운드 작업 완료 능동 음성 안내**: 기존 `voice_background_task_done` 이벤트 대기열과 완벽 통합되어 작업 완료 시 현재 음성 발화를 방해하지 않고 결과 요약을 능동 안내;
+  4. **전체 스택 테스트 검증**: 173개 음성 통합 테스트 및 43개 단위 테스트 100% 정상 통과, 0 Lint 에러.
+- **자료 SSOT:** `temp-docs/materials/VOICE_BACKGROUND_TASK_ANNOUNCE_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md` · `myrm-agent/myrm-agent-server/app/api/voice/agent_bridge.py`
+
+## 최신 검증 스냅샷 (2026-08-21 · PLUR 크로스 툴 Engram 메모리 가져오기 및 제로 콜드 스타트 마이그레이션 · 메모리 Roadmap Topic 01 #58 완료)
+
+- **PLUR 크로스 툴 Engram 메모리 가져오기 및 제로 콜드 스타트 마이그레이션 (vs PLUR / Hermes / OpenClaw / Mem0):** Myrm은 프로덕션급 전용 가져오기 어댑터(`import_plur.py`) 및 마이그레이션 마법사 통합을 제공합니다:
+  1. **무손실 다중 포맷 Engram 파싱**: `yaml.safe_load` 메커니즘을 기반으로 PLUR 생태계(Cursor, Claude Code, OpenClaw 등)에서 내보낸 일반 텍스트 YAML/JSON engrams를 안전하게 파싱하여 원격 코드 실행 취약점을 원천 차단하고 비정상 선두 데이터에 대한 복원력 확보;
+  2. **지능형 Scope 매핑 및 버킷 분류**: `global` 범위의 사용자 선호도 및 지침을 동결된 Profile 버킷으로 자동 매핑하여 Prompt Cache 적중률을 100% 보호하고, `project` 범위의 프로젝트 팩트와 경험을 Semantic 벡터 버킷으로 매핑하여 완전한 도메인 메타데이터 보존;
+  3. **원자적 Dry-Run 및 2단계 트랜잭션 롤백 보장**: 마이그레이션 마법사(`source_manifest.py`)와 완벽히 통합되어 가져오기 전 사전 점검, 구조화된 경고 보고 및 감사 가능한 2단계 트랜잭션 커밋/롤백 원장 제공;
+  4. **전체 스택 테스트 검증**: 8/8개 단위 및 영구 저장 통합 테스트 100% 정상 통과(`test_import_plur.py`, `test_plur_import_integration.py`), 0 Lints.
+- **자료 SSOT:** `temp-docs/materials/MEMORY_ADVANTAGE.md` · `temp-docs/roadmap/topic_01_memory_roadmap.md` · `myrm-agent/myrm-agent-server/app/services/memory/imports/import_plur.py`
+
 ## 최신 검증 스냅샷 (2026-08-21 · Web 프로젝트 기술 SEO 최적화 및 정기 상태 점검 블루프린트 팩 · Roadmap Topic 11 #5 완료)
 
 - **Web 프로젝트 기술 SEO 최적화 및 정기 상태 점검 블루프린트 팩 (vs Trae Solo / Hermes SEO 스택):**

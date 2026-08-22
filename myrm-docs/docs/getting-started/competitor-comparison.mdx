@@ -11,6 +11,24 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Validation Snapshot (2026-08-21 · Voice Fast-Lane Quick-Lookup & 15s Supervisor Background Handoff · Voice Media Capture Roadmap Topic 04 #3 Done)
+
+- **Voice Fast-Lane Quick-Lookup & 15s Supervisor Background Handoff (vs Qwen Audio Agent / ChatGPT Voice / Claude Voice):** Myrm delivers an industrial-grade dual-track voice execution engine and long-task supervisor:
+  1. **Dual-Track Fast-Lane Quick Lookup (`_is_fast_lane_query`)**: Directly bypasses heavy Agent profile loading, dynamic MCP resolution, and working hint latency for simple greetings and factual queries (`RoutingTier.SIMPLE`), delivering sub-1.5s TTFT with self-healing fallback;
+  2. **15s Supervisor Long-Task Background Handoff (`_consume_agent_stream_supervised`)**: Automatically intercepts long-running tasks (>15s), speaks a smooth verbal transition phrase (`_HANDOFF_HINT`), releases the active voice channel, and delegates execution to persistent Kanban background workers;
+  3. **Proactive Voice Completion Broadcast**: Integrates with the existing `voice_background_task_done` event queue, proactively speaking task outcome summaries when long tasks complete without interrupting ongoing speech;
+  4. **Full-Stack Test Coverage**: 173/173 voice integration tests and 43/43 unit tests 100% passing (`test_agent_bridge.py`) with 0 lints.
+- **Material SSOT:** `temp-docs/materials/VOICE_BACKGROUND_TASK_ANNOUNCE_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md` · `myrm-agent/myrm-agent-server/app/api/voice/agent_bridge.py`
+
+## Latest Validation Snapshot (2026-08-21 · PLUR Engram Memory Import Adapter & Cross-Tool Zero Cold-Start Migration · Memory Roadmap Topic 01 #58 Done)
+
+- **PLUR Engram Memory Import Adapter & Cross-Tool Zero Cold-Start Migration (vs PLUR / Hermes / OpenClaw / Mem0):** Myrm delivers a production-grade dedicated import adapter (`import_plur.py`) and migration wizard integration:
+  1. **Lossless Multi-Format Engram Parsing**: Safely parses plain-text YAML/JSON engrams exported from PLUR ecosystem (Cursor, Claude Code, OpenClaw) using `yaml.safe_load` with zero remote code execution risk and leading-junk fault tolerance;
+  2. **Intelligent Scope-to-Bucket Mapping**: Automatically maps `global` user preferences/rules into the frozen Profile bucket (preserving Prompt Cache stability) and `project` facts into the vector Semantic bucket with full domain metadata;
+  3. **Atomic Dry-Run & Two-Phase Transaction Protection**: Full integration into Migration Wizard (`source_manifest.py`) with preflight dry-run preview, granular warning reports, and atomic rollback ledger integration;
+  4. **Full-Stack Test Coverage**: 8/8 unit and integration tests passing (`test_import_plur.py`, `test_plur_import_integration.py`) with 0 lints.
+- **Material SSOT:** `temp-docs/materials/MEMORY_ADVANTAGE.md` · `temp-docs/roadmap/topic_01_memory_roadmap.md` · `myrm-agent/myrm-agent-server/app/services/memory/imports/import_plur.py`
+
 ## Latest Validation Snapshot (2026-08-21 · 5D Compaction Fidelity A/B Harness & Prompt Cache Prefix Preservation · Context Roadmap Topic 09 #4 Done)
 
 - **5D Compaction Fidelity A/B Harness & Prompt Cache Prefix Preservation (vs Pi Agent / Claude Code / Hermes / OpenClaw):** Myrm delivers a production-grade context compression quality gate and cache-safe memory layout:
