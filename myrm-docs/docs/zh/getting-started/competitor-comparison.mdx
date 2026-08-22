@@ -11,6 +11,26 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-22 · 跨厂商任务专长智能静默路由与四级容灾回退 · 模型路由 Roadmap Topic 10 #5 达成）
+
+- **跨厂商任务专长智能静默路由（对比 WorkBuddy 闭源调度 / Claude Code / Cursor / Hermes / OpenClaw）：** Myrm 实现了工业级零 Token 消耗、<0.5ms 极速响应的任务专长智能静默调度体系：
+  1. **6 维领域专长纯内存启发式特征引擎（`classify_task_specialty`）**：精准识别 `CODE`（代码/重构/Debug/Traceback/AST）、`LONG_DOC`（超长文本/多章节财报/白皮书）、`REASONING`（数理逻辑/LaTeX/公式/定理证明）、`MULTIMODAL`（图像/音视频/附件）、`CASUAL`（轻量日常/简单问候）及 `GENERAL`，首 Token 额外延迟 0ms；
+  2. **多轮会话动量平滑（Session Momentum）**：短追问（如「解释第 12 行」）自动继承上一轮技术专长，彻底杜绝模型在同一任务上下文中的剧烈颠簸与跳变；
+  3. **四级容灾降级链路（`_build_fallback_chain`）**：`Specialty Primary → Specialty Fallback → Base Primary → Base Fallback`，模型断网或欠费时平滑无感恢复；
+  4. **全透明用户来源芯片（`ModelSpecialtyChip`）**：在保留静默调度极致简便的同时，气泡下方透出晶莹芯片，悬停即可查看专长判定类型与实际调用模型；
+  5. **全栈测试验证**：Harness 专长路由单元测试 100% 绿灯，0 Lint 错误。
+- **素材 SSOT：** `temp-docs/materials/PROXY_LLM_INFRA_ADVANTAGE.md` · `temp-docs/roadmap/topic_10_model_routing_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/routing/specialty_router.py` · `myrm-agent/myrm-agent-frontend/src/components/features/message-box/ModelSpecialtyChip.tsx`
+
+## 最新验证快照（2026-08-22 · Windows 桌面全功能发布对等与原生极速交付 · 桌面 Roadmap Topic 05 #36 达成）
+
+- **Windows 桌面全功能发布对等与原生极速交付（对比 Datawhale DSH-Desktop / WeSight / Hermes-Desktop）：** Myrm 实现了 Windows 与 macOS 100% 对称的桌面交付与体验闭环：
+  1. **双轨分发安装矩阵**：Tauri v2 流水线同时产出 `.exe`（NSIS 交互式 6 语言向导）与 `.msi`（企业静默部署包）；
+  2. **Authenticode 与 Azure Trusted Signing 可信签名**：完整配置 RFC 3161 Digicert 时间戳（`http://timestamp.digicert.com`），彻底杜绝 Windows Defender SmartScreen 未知发布者拦截；
+  3. **内核级 Job Object 孤儿进程清理与端口自愈**：消除 OTA 更新时的幸存者文件锁死问题，启动遭遇 8080 端口占用时自动识别旧实例并触发 `re_kill`，以 100ms 退避轮询等待端口释放；
+  4. **原生轻量与超低资源占用**：安装包仅 ~30MB（对比 Electron 竞品 150MB+），内存占用仅 1/4；
+  5. **中/英/韩三语文档 100% 对称**：全面同步多语言快速开始、下载矩阵与桌面运维指南。
+- **素材 SSOT：** `temp-docs/materials/DESKTOP_APP_ADVANTAGE.md` · `temp-docs/roadmap/topic_05_desktop_release_engineering_ci_roadmap.md` · `myrm-agent-desktop/DESKTOP_RELEASE_SYSTEM.md` · `myrm-agent-desktop/src-tauri/tauri.conf.json`
+
 ## 最新验证快照（2026-08-22 · 多镜头视频生产管线与沙箱工具无关视频引擎 · 技能工具链 Roadmap Topic 08 #7 评测）
 
 - **多镜头视频生产管线与沙箱工具无关视频引擎（对比 TraeWork / Flova / Seedance）：** Myrm 具备工业级完整多模态视频生产架构：

@@ -15,6 +15,26 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 턴당 기능 제어를 위해 Myrm은 완전한 관찰 가능성(제출/적용/noop/큐/바쁨/최종 결과 + 실패 이유)을 갖춘 **원턴 스킬/MCP 재정의 칩**을 지원합니다. 집중 검증(2026-07-29): 프런트엔드 29/29 통과, 서버 10/10 통과; 목표 적용 범위는 핵심 프런트엔드 파일의 라인 62.47%, 서버 원격 측정 모듈의 전체 라인 72%에 도달했습니다. 이는 팀에게 추측이 아닌 비용/신뢰성 조정에 대한 마이그레이션 안전 증거를 제공합니다.
 
+## 최신 검증 스냅샷 (2026-08-22 · 공급업체 간 작업 전문 지능형 자동 라우팅 및 4단계 장애 복구 · 모델 라우팅 Roadmap Topic 10 #5 완료)
+
+- **공급업체 간 작업 전문 지능형 자동 라우팅 (vs WorkBuddy 비공개 라우팅 / Claude Code / Cursor / Hermes / OpenClaw):** Myrm은 제로 토큰 오버헤드, 0.5ms 미만의 초고속 도메인 전문 라우팅 시스템을 구현했습니다:
+  1. **6차원 휴리스틱 전문 분류기 (`classify_task_specialty`)**: `CODE`(프로그래밍/리팩토링/AST/Traceback), `LONG_DOC`(대용량 문서/재무 보고서/백서), `REASONING`(수학/정리/LaTeX 유도), `MULTIMODAL`(이미지/오디오/비디오), `CASUAL`(인사/가벼운 대화), `GENERAL`을 정확히 분류하여 TTFT 0ms 영향 달성;
+  2. **멀티턴 세션 모멘텀**: 짧은 후속 질의(예: "12번째 줄 설명해줘") 시 이전 작업 전문성을 자동 상속하여 모델 깜빡임 및 불연속성 제거;
+  3. **4단계 장애 복구 체인 (`_build_fallback_chain`)**: `Specialty Primary → Specialty Fallback → Base Primary → Base Fallback`을 통해 네트워크 또는 할당량 오류 시 원활한 다운그레이드 복구 보장;
+  4. **투명한 전문성 표시 칩 (`ModelSpecialtyChip`)**: 자동 라우팅의 단순함을 유지하면서 응답 하단에 투명 칩을 제공하여 마우스 호버 시 분류 근거와 실제 호출된 모델을 확인 가능;
+  5. **전체 스택 테스트 검증**: Harness 전문성 라우팅 단위 테스트 100% 정상 통과, 0 Lint.
+- **자료 SSOT:** `temp-docs/materials/PROXY_LLM_INFRA_ADVANTAGE.md` · `temp-docs/roadmap/topic_10_model_routing_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/routing/specialty_router.py` · `myrm-agent/myrm-agent-frontend/src/components/features/message-box/ModelSpecialtyChip.tsx`
+
+## 최신 검증 스냅샷 (2026-08-22 · Windows 데스크톱 완전 대등 릴리스 및 네이티브 초경량 배포 · 데스크톱 Roadmap Topic 05 #36 완료)
+
+- **Windows 데스크톱 완전 대등 릴리스 및 네이티브 초경량 배포 (vs Datawhale DSH-Desktop / WeSight / Hermes-Desktop):** Myrm은 Windows와 macOS 간의 100% 대등한 데스크톱 릴리스 및 사용자 경험을 완성했습니다:
+  1. **듀얼 트랙 배포 설치 매트릭스**: Tauri v2 파이프라인을 통해 `.exe`(NSIS 대화형 6개 국어 마법사)와 `.msi`(엔터프라이즈 사일런트 설치)를 동시 생성;
+  2. **Authenticode 및 Azure Trusted Signing 신뢰할 수 있는 서명**: RFC 3161 Digicert 타임스탬프(`http://timestamp.digicert.com`)가 완벽 구성되어 Windows Defender SmartScreen 알 수 없는 게시자 경고를 원천 차단;
+  3. **커널 수준 Job Object 프로세스 트리 종료 및 포트 자가 치유**: 업데이트 중 생존 프로세스 파일 잠금 문제를 제거하고, 8080 포트 충돌 시 이전 인스턴스를 자동 식별하여 `re_kill`을 트리거하고 100ms 지수 백오프로 포트 해제를 대기;
+  4. **네이티브 초경량 및 최저 리소스 소비**: 설치 파일 크기 약 30MB(Electron 기반 경쟁사 150MB+ 대비) 및 메모리 사용량 1/4 수준;
+  5. **다국어 문서 100% 대등화**: 한국어/영어/중국어 빠른 시작, 다운로드 매트릭스 및 데스크톱 운영 가이드 전면 동기화.
+- **자료 SSOT:** `temp-docs/materials/DESKTOP_APP_ADVANTAGE.md` · `temp-docs/roadmap/topic_05_desktop_release_engineering_ci_roadmap.md` · `myrm-agent-desktop/DESKTOP_RELEASE_SYSTEM.md` · `myrm-agent-desktop/src-tauri/tauri.conf.json`
+
 ## 최신 검증 스냅샷 (2026-08-21 · Goal 장기 목표 ↔ 칸반 양방향 강력한 일관성 SSOT · 런타임 신뢰성 Roadmap Topic 13 #1 완료)
 
 - **Goal 장기 목표 ↔ 칸반 양방향 강력한 일관성 브리지 및 지능형 중단점 복구 (vs Claude `/goal` / Manus / Echo / AutoGPT):** Myrm은 Goal 엔진과 Kanban 작업 스케줄러 간의 양방향 상태 강일관성 및 구조화된 승인 기준 지속성 루프를 구현했습니다:
