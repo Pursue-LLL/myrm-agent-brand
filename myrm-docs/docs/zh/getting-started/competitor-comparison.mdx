@@ -49,6 +49,17 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   5. **全栈测试验证**：9 项单测与端到端集成测试 100% 绿灯通过，0 Lint 错误。
 - **素材 SSOT：** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/ChatWindow.tsx` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/system/ExecutionTraceTimeline.tsx`
 
+## 最新验证快照（2026-08-22 · 前端细节六项聚合工程闭环 · 前端 UX Roadmap Topic 09 #4 达成）
+
+- **前端六大交互细节与防御性韧性聚合工程（对比 Pi Agent / Claude Desktop / Cursor / OpenClaw）：** Myrm 完成了前端全栈关键交互细节的体系化加固与标准工具库封装：
+  1. **全平台多端输入法 IME 229 与 Process 状态上屏守卫（`imeUtils.ts`）**：彻底解决 Windows / macOS / 移动端在拼音/日文候选词敲击 Enter 上屏时误触发流式消息发送的业界普遍痛点，全站 MessageInput、ClarificationInput、ReviewPanel、AgentEditPanel、SmartPromptEditor 等输入场景 100% 覆盖；
+  2. **全局会话标题智能消歧自增器（`titleUtils.ts`）**：在生成或重命名会话标题碰撞时自动追加并计算最小可用序号（如 `方案讨论 (2)`），杜绝侧边栏同名会话混淆；
+  3. **全平台路径与 Windows UNC 规范化（`pathValidation.ts`）**：支持 POSIX、Windows 盘符、Windows UNC 共享网络路径（`\\\\server\\share`）及正斜杠统一转换，并提供 `formatPathForDisplay` 居中智能省略展示；
+  4. **Skill 缺省描述容灾守卫（`skillUtils.ts`）**：在技能卡片、发现页与详情页统一提供多语言回退，彻底消除空描述与排版塌陷；
+  5. **dict-like 安全解构与类型守卫（`typeUtils.ts`）**：提供 `isRecord`、`asRecord`、`safeGet` 工具，接入全局事件总线与审批流，杜绝非结构化响应导致的 WebUI 白屏崩溃；
+  6. **全栈测试验证与 6 语言 i18n 门禁**：新建 `frontendPolishUtils.test.ts` 11 项单元测试全绿，通过 `verify:i18n` 与 `verify:stable-mocks` 双重门禁，0 Lint 错误。
+- **素材 SSOT：** `temp-docs/materials/USER_EXPERIENCE_ADVANTAGE.md` · `temp-docs/roadmap/topic_09_frontend_ux_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/lib/utils/imeUtils.ts` · `myrm-agent/myrm-agent-frontend/src/lib/utils/titleUtils.ts`
+
 ## 最新验证快照（2026-08-22 · Agent 更换底层模型资产连续性保障与专属纪律适配 · 模型路由 Roadmap Topic 07 #6 达成）
 
 - **Agent 更换底层模型资产连续性保障与专属纪律适配（对比 WorkBuddy 闭源稳定工作台 / Claude Workbench / Dify / FastGPT）：** Myrm 实现了工业级模型中立与 Agent 资产连续性保障体系：
