@@ -15,6 +15,24 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 턴당 기능 제어를 위해 Myrm은 완전한 관찰 가능성(제출/적용/noop/큐/바쁨/최종 결과 + 실패 이유)을 갖춘 **원턴 스킬/MCP 재정의 칩**을 지원합니다. 집중 검증(2026-07-29): 프런트엔드 29/29 통과, 서버 10/10 통과; 목표 적용 범위는 핵심 프런트엔드 파일의 라인 62.47%, 서버 원격 측정 모듈의 전체 라인 72%에 도달했습니다. 이는 팀에게 추측이 아닌 비용/신뢰성 조정에 대한 마이그레이션 안전 증거를 제공합니다.
 
+## 최신 검증 스냅샷 (2026-08-21 · Web 프로젝트 기술 SEO 최적화 및 정기 상태 점검 블루프린트 팩 · Roadmap Topic 11 #5 완료)
+
+- **Web 프로젝트 기술 SEO 최적화 및 정기 상태 점검 블루프린트 팩 (vs Trae Solo / Hermes SEO 스택):**
+  1. **개방형 표준 Prebuilt Skill**: `agentskills.io` 표준을 준수하며, Recon / Plan / Audit / Remediate / Verify 5단계 표준 엔지니어링 SOP를 내장하고 표준화된 `SEO-OPTIMIZATION-ROADMAP.md` P0–P3 로드맵 아티팩트를 출력;
+  2. **5개 언어 자동 주간 점검 블루프린트**: `CronBlueprint` 핵심에 `seo_weekly_audit`을 등록하고, 5개 언어(`en`, `zh`, `ja`, `de`, `ko`) 다국어 및 엄격한 슬롯 검증을 기본 지원하여 24x7 무인 자동화 상태 점검을 실현;
+  3. **AI 검색 준비도 (LLMO) 및 현대적 프레임워크 보호**: `llms.txt`, 시맨틱 Markdown 제목, JSON-LD 구조화 데이터 감사를 심층 지원하며, Next.js (App Router/Pages)를 지능적으로 감지하여 타입 안전한 Metadata를 내보내 SSR 손상을 원천 방지;
+  4. **전체 스택 테스트 검증**: 48개 단위/슬롯 검증 테스트 + 41개 정적 Bash 계약 아키텍처 테스트 100% 통과.
+- **자료 SSOT:** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/assets/prebuilt_skills/web-project-seo-optimization/SKILL.md` · `myrm-agent/myrm-agent-server/app/core/cron/blueprints.py`
+
+## 최신 검증 스냅샷 (2026-08-21 · 5D 컨텍스트 압축 충실도 A/B 하네스 및 Prompt Cache 접두사 무손실 보호 · 컨텍스트 Roadmap Topic 09 #4 완료)
+
+- **5D 컨텍스트 압축 충실도 A/B 하네스 및 Prompt Cache 접두사 무손실 보호 (vs Pi Agent / Claude Code / Hermes / OpenClaw):** Myrm은 프로덕션급 장기 세션 컨텍스트 압축 품질 저하 방지 게이트와 캐시 친화적 메모리 레이아웃을 구축했습니다:
+  1. **Prompt Cache 접두사 100% 불변 보호**: 구출된 `<preserve_context>` 블록을 동적 `SystemMessage` 주입에서 구조화된 `HumanMessage` 요약 페이로드(`summary_builder.py` / `summarizer.py`)로 수렴 주입하여 Anthropic / OpenAI / DeepSeek 시스템 프롬프트 KV Cache 적중률을 원천 보호;
+  2. **물리적 파일 대조 2차 폴백 파싱 (`extract_physical_modified_files`)**: ToolMessage 메타데이터와 정규식 폴백을 강화하여 `ArtifactTracker`가 분리된 경우에도 `write`/`edit`/`save` 도구 반환값에서 파일 시스템 변경 경로를 정밀 대조;
+  3. **5차원 충실도 동일 작업 A/B 인수 테스트 스위트 (`CompactionABEvaluator`)**: 압축 후 단일 단계 지속 실행을 위한 정량 평가 레이더(제약 조건 회수율, 결정 일치성, 실행 상태 정확도, 산출물 커버리지, 지속 성공률) 구축 및 도구 별칭 정규화 지원;
+  4. **전체 스택 테스트 검증**: 1,285개 이상의 Harness 컨텍스트 관리 단위 테스트 및 Server 실제 LLM 압축 통합 테스트 100% 정상 통과, 0 Lints.
+- **자료 SSOT:** `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md` · `temp-docs/roadmap/topic_09_context_session_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/`
+
 ## 최신 검증 스냅샷 (2026-08-21 · Agent 콜드 스타트 Warm-Path 4단계 Doctor 팩 · Topic 14 관찰 가능성 #8 완료)
 
 - **Agent 콜드 스타트 Warm-Path 4단계 화이트박스 진단 팩 (vs Hermes Quicksilver / OpenClaw / DeerFlow / Claude Code):** Myrm은 0 토큰 소모, 마이크로초 수준 응답의 콜드 스타트 화이트박스 상태 진단 프로브를 구현했습니다:

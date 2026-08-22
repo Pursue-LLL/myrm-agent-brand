@@ -11,9 +11,24 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
-For memory specifically, Myrm now ships a full **diagnostic + telemetry integrity loop** end-to-end: stream-phase status, persist-phase status, control-plane aggregation/alerts, frontend source explanation (`preflight` vs `runtime_fallback`) including mobile non-hover copy, plus strict cloud fail-closed ingest (shared envelope idempotency + no silent local fallback when shared dedup backend is unavailable, with `dedup_reject` reason metrics). Latest focused regression run (2026-07-19): server 28 passed, control-plane 55 passed, frontend 14 passed.
+## Latest Validation Snapshot (2026-08-21 · 5D Compaction Fidelity A/B Harness & Prompt Cache Prefix Preservation · Context Roadmap Topic 09 #4 Done)
 
-For per-turn capability control, Myrm supports **one-turn Skill/MCP override chips** with full observability (submit/apply/noop/queue/busy/final outcome + failure reasons). Focused validation (2026-07-29): frontend 29/29 passed, server 10/10 passed; targeted coverage reached 62.47% lines on core frontend files and 72% total on server telemetry modules. This gives teams migration-safe proof for cost/reliability tuning, not guesswork.
+- **5D Compaction Fidelity A/B Harness & Prompt Cache Prefix Preservation (vs Pi Agent / Claude Code / Hermes / OpenClaw):** Myrm delivers a production-grade context compression quality gate and cache-safe memory layout:
+  1. **Prompt Cache Prefix Preservation (100% Invariant)**: Relocated rescued `<preserve_context>` blocks from dynamic `SystemMessage` injections into the structured `HumanMessage` summary payload (`summary_builder.py` / `summarizer.py`), completely preserving frozen System Prompt KV cache prefixes across LLM providers (Anthropic, OpenAI, DeepSeek);
+  2. **Secondary Fallback File Reconciliation (`extract_physical_modified_files`)**: Enriched ToolMessage metadata and regex extraction fallback for `write`/`edit`/`save` operations, enabling reliable physical filesystem reconciliation (`execution_state_validator.py`) even when ArtifactTracker is detached;
+  3. **Five-Dimensional Fidelity A/B Acceptance Suite (`CompactionABEvaluator`)**: Quantifies Constraint Recall, Decision Fidelity, Execution State Accuracy, Artifact Coverage, and Continuation Success with canonical tool equivalence mapping;
+  4. **Full-Stack Test Coverage**: 100% test pass rate across 1,285+ harness context management unit tests and server E2E compression integration tests with 0 lints.
+- **Material SSOT:** `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md` · `temp-docs/roadmap/topic_09_context_session_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/`
+
+## Latest Validation Snapshot (2026-08-21 · Universal Channel Ingress & Chunking SSOT · Channel Integration Roadmap Topic 16 Done)
+
+- **Universal Channel Ingress, Media Enrichment & CJK Punctuation Chunking SSOT (vs Molio / Hermes / CoPaw / MateClaw):** Myrm delivers an industrial-grade, full-channel ingress and stream evolution engine across all 35+ supported platforms:
+  1. **Session-Level Adaptive Debounce & Concurrency Gate (`SessionGate`)**: 300ms adaptive sliding window for burst message deduplication and atomic merging (text + attachments) + active session pending queue + non-disturbing busy ack notifications;
+  2. **Zero-Loss Media Download & Caching Subsystem (`app/channels/media/`)**: `MediaDownloader` with `SSRFValidator`, magic bytes file verification, strict size quotas, and automatic image compression (`image_enrichment.py`), eliminating broken multi-modal links;
+  3. **Lossless Markdown & CJK Full-Width Punctuation Chunking (`splitter.py`)**: Smart sentence-boundary splitting at CJK punctuation (`。！？；，`) with HTML tag balance and CodeFence recovery state machines, ensuring long messages are never torn apart awkwardly;
+  4. **Stable Prompt Cache Guarantee (95%+ Hit Rate)**: Static tool mounting (`tool_mount/resolver.py`) + runtime Layer-2 permission ceilings (`channel_presets.py`) ensure that IM channel restrictions never jitter LLM Tool Definitions;
+  5. **Full-Stack Test Coverage**: All 56 Channel Integration roadmap items 100% reviewed and covered with over 2,800 channel tests green, 0 Lints.
+- **Material SSOT:** `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md` · `temp-docs/roadmap/topic_16_channel_integration_roadmap.md` · `myrm-agent/myrm-agent-server/app/channels/routing/session_gate.py` · `myrm-agent/myrm-agent-server/app/channels/rendering/splitter.py`
 
 ## Latest Validation Snapshot (2026-08-21 · Goal↔Kanban Long-Run Bridge SSOT · Runtime Reliability Roadmap Topic 13 #1 Done)
 
@@ -36,6 +51,15 @@ For per-turn capability control, Myrm supports **one-turn Skill/MCP override chi
   3. **Multi-Deployment Unified Ingress**: Seamlessly bundled into `ServerDiagnosticsManager`, `/api/v1/health/doctor`, and `/api/v1/ops/snapshot` across Local WebUI, Tauri Desktop, and Cloud Sandboxes;
   4. **Full-Stack Test Coverage**: 6/6 unit tests + /health/doctor API integration tests 100% green, 0 Lints.
 - **Material SSOT:** `temp-docs/materials/OBSERVABILITY_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/core/infra/health/server_diagnostics.py` · `myrm-agent/myrm-agent-server/tests/core/infra/health/test_agent_cold_start_diagnostic.py`
+
+## Latest Validation Snapshot (2026-08-21 · Web Project Technical SEO Optimization & Scheduled Health Audit Pack · Roadmap Topic 11 #5 Done)
+
+- **Web Project Technical SEO Optimization & Scheduled Health Audit Pack (vs Trae Solo / Hermes SEO Stack):**
+  1. **Open Standard Prebuilt Skill**: Built on the `agentskills.io` standard, featuring a 5-phase SOP (Recon, Plan, Audit, Remediate, Verify) with standardized `SEO-OPTIMIZATION-ROADMAP.md` P0–P3 artifact generation;
+  2. **5-Locale Automated Weekly Audit Blueprint**: `CronBlueprint` registers `seo_weekly_audit` with native multi-language support (`en`, `zh`, `ja`, `de`, `ko`) and strict slot validation for 24x7 autonomous health checks;
+  3. **AI Search Readiness (LLMO) & Modern Framework Protection**: Comprehensive auditing for `llms.txt`, semantic headings, and JSON-LD structured data with intelligent Next.js App Router metadata preservation to prevent breaking SSR;
+  4. **Full-Stack Test Coverage**: 48 unit/parameter tests + 41 static Bash contract architecture tests 100% green.
+- **Material SSOT:** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/assets/prebuilt_skills/web-project-seo-optimization/SKILL.md` · `myrm-agent/myrm-agent-server/app/core/cron/blueprints.py`
 
 ## Latest Validation Snapshot (2026-08-21 · Desktop Agent Process Registry & Lifetime Observability · Roadmap Topic 08 #1 Done)
 
