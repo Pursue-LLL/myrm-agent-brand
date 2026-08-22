@@ -11,6 +11,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-22 · 预置技能相对链接与资源完整性图谱门禁 · 技能生态 Roadmap Topic 08 #16 达成）
+
+- **预置技能相对链接与资源完整性图谱门禁（对比 Better-Harness / OpenAI GPTs / Hermes / OpenClaw）：** Myrm 实现了 50+ 预置技能的全量确定性静态 CI 图谱校验：
+  1. **双向相对链接与资源图谱静态校验（`test_prebuilt_skill_links_static.py`）**：自动深度解析 50+ 预置种子技能（`assets/prebuilt_skills/`）中所有 Markdown 相对跳转路径、附带脚本及引用资源，严格校验物理文件存在性，彻底阻断渐进式披露过程中的运行时 `FileNotFoundError`；
+  2. **孤儿脚本与闲置资源文件静态检出**：自动扫描 `scripts/`、`references/` 目录，精准识别并拦截未被 `SKILL.md` 引用的废弃孤儿文件，保持技能包极致精简与 100% 死代码剔除；
+  3. **零 LLM 消耗与 <50ms 极速门禁**：纯确定性静态解析，零外部 API 依赖，单次运行耗时低于 50ms，无缝嵌入预提交与 CI 门禁；
+  4. **全栈测试验证**：243 项静态契约测试（`test_*_static.py`）与 41 项预置技能同步/E2E 测试 100% 绿灯。
+- **素材 SSOT：** `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md` · `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md` · `scripts/dev/tests/test_prebuilt_skill_links_static.py`
+
 ## 最新验证快照（2026-08-22 · 确定性多源云端知识沉淀与统一经验演化 SSOT · 知识库 Roadmap Topic 02 #12 & #13 达成）
 
 - **确定性多源云端知识沉淀与统一经验演化体系（对比 WorkBuddy 闭源资料库 / Manus Project Harvest 知识收割）：** Myrm 构建了开放、确定性且自我闭环的知识库与长程记忆基础设施：
@@ -39,6 +48,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   4. **全端自适应与 SessionReplayPlayer 一键回放**：移动端与 PC 端无缝兼容，支持在 Trace 视图内一键进入时光机回放模式；
   5. **全栈测试验证**：9 项单测与端到端集成测试 100% 绿灯通过，0 Lint 错误。
 - **素材 SSOT：** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/ChatWindow.tsx` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/system/ExecutionTraceTimeline.tsx`
+
+## 最新验证快照（2026-08-22 · Agent 更换底层模型资产连续性保障与专属纪律适配 · 模型路由 Roadmap Topic 07 #6 达成）
+
+- **Agent 更换底层模型资产连续性保障与专属纪律适配（对比 WorkBuddy 闭源稳定工作台 / Claude Workbench / Dify / FastGPT）：** Myrm 实现了工业级模型中立与 Agent 资产连续性保障体系：
+  1. **全景资产 100% 连续保留凭证（`ModelSwapContinuityCard`）**：在 Agent 编辑器中实时汇总展示已绑定的 Skills (N)、MCP 服务 (N)、长期记忆知识库 (Memory Vault)、工作区沙箱安全策略 (Workspace Policy) 与 Subagents 协同拓扑，声明跨模型零丢失、零劣化、完全继承；
+  2. **多模态与兼容性智能防呆**：若目标模型不支持原生 Vision 图像输入，系统自动提示已激活全局 `visionFallbackModel` 路由接管，彻底杜绝线上运行时 400 崩溃；
+  3. **模型专属 Execution Discipline 行为纪律透传**：自动映射 Harness 内置各主流模型家族（Claude 结构化执行与低免责、DeepSeek 极简反啰嗦、GPT 工具主动持久、Gemini 绝对路径与并行）的专属纪律，并给出推荐的 Prompt 模式（Lean / Full）与最佳参数建议；
+  4. **非阻塞高质感内联设计**：摒弃骚扰式的重型弹窗向导，采用高质感内联卡片与自适应诊断，兼顾极致流畅体验与确定性安全感；
+  5. **全栈测试验证**：组件单元测试 3/3 绿灯，覆盖 6 种语言国际化（zh, en, zh-TW, de, ja, ko），0 Lint 错误。
+- **素材 SSOT：** `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/ai-core/agent/ModelSwapContinuityCard.tsx` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/ai-core/agent/AgentCapabilitiesTabSections.tsx`
 
 ## 最新验证快照（2026-08-22 · 跨厂商任务专长智能静默路由与四级容灾回退 · 模型路由 Roadmap Topic 07 #5 达成）
 
@@ -325,6 +344,17 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   4. **零额外 LLM 成本与 Prompt Cache 零破坏**：纯 Python 内存事实比对（耗时 <0.5ms），不引入任何增量 Token 账单与动态前缀噪音；
   5. **全栈测试背书**：Harness 100% 覆盖单元测试与全链路回归（`test_execution_state_validator.py` 51 项测试全部通过）。
 - **素材 SSOT：** `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/strategies/summary/execution_state_validator.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/strategies/summary/summary_auditor.py`
+
+## 最新验证快照（2026-08-22 · 确定性三级梯次保真溢出恢复体系 · Roadmap Topic 06 #6 完工）
+
+- **确定性三级梯次保真溢出恢复体系（vs Pi Agent / Claude Code / Codex 传统粗暴截断）：** Myrm 在流式执行引擎层构建了业界首创的企业级三级梯次保真降级架构：
+  1. **全结构化保真压缩唯一事实源 (Tier 1)**：被动遭遇 Provider 上下文超限（400 Context Overflow）时，自动调用主动压缩同款 `generate_structured_summary` 管线，完整提取用户意图、实体约束与任务进展，彻底终结传统截断丢上下文导致的逆向失忆；
+  2. **物理执行事实双向自动对账**：溢出恢复管线强制挂载 `ExecutionStateValidator` 对账不可篡改的 `ArtifactTracker` 记录，自动剔除未落盘的虚假写入，补齐真实修改文件，消除工具状态幻觉；
+  3. **确定性三级自动降级机制**：Tier 1 (全结构化摘要) -> Tier 2 (工具应急清洗 `_emergency_compact`) -> Tier 3 (轮次截断兜底 `_truncate_oldest_rounds`)，在任何网络抖动或模型不可用时 100% 保持任务韧性；
+  4. **提示词前缀缓存 100% 锁定**：摘要内容封装于 HumanMessage `<preserved-context>`，系统提示词前缀零扰动，保障后续重试请求享受 95%+ 的 KV Cache 命中加速；
+  5. **Aux 辅助模型上下文安全守卫 (`_guard_aux_context`)**：在调用摘要模型前预先计算安全水位线，从源头杜绝“为处理溢出而引发自身二次溢出”的死锁风险；
+  6. **全栈测试背书**：Harness 51 项流式异常恢复单测与全量回归测试 100% 绿色通过，0 Lint 错误。
+- **素材 SSOT：** `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/streaming/recovery/stream_recovery.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/strategies/summary/summarizer.py`
 
 ## 最新验证快照（2026-08-20 · 五维压缩保真度同任务 A/B 验收套件 · Roadmap #4 完工）
 

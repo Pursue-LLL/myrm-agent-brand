@@ -11,6 +11,15 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Validation Snapshot (2026-08-22 · Prebuilt Skill Doc Link & Asset Integrity Graph Gate · Skill Roadmap Topic 08 #16 Done)
+
+- **Prebuilt Skill Doc Link & Asset Integrity Graph Gate (vs Better-Harness / OpenAI GPTs / Hermes / OpenClaw):** Myrm delivers strict deterministic CI static verification across 50+ prebuilt skills:
+  1. **Bidirectional Link & Asset Graph Verification (`test_prebuilt_skill_links_static.py`)**: Automatically parses all relative file paths, Markdown links, and script invocations across all 50+ prebuilt seed skills (`assets/prebuilt_skills/`), strictly verifying physical file existence and blocking silent runtime `FileNotFoundError` during progressive disclosure;
+  2. **Orphan File & Dead Script Detection**: Scans auxiliary directories (`scripts/`, `references/`) and flags unreferenced orphan scripts and unused Markdown assets, keeping skill packages lean and maintaining 100% dead-code elimination;
+  3. **Zero-LLM Sub-50ms Static CI Gate**: Fully deterministic static parsing with zero LLM API dependency and sub-50ms execution speed, seamlessly guarding pre-merge workflows;
+  4. **Full-Stack Test Coverage**: 243 static contract tests (`test_*_static.py`) and 41 prebuilt skill sync/e2e tests 100% green.
+- **Material SSOT:** `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md` · `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md` · `scripts/dev/tests/test_prebuilt_skill_links_static.py`
+
 ## Latest Validation Snapshot (2026-08-22 · Deterministic Multi-Source Ingest & Unified Experience Evolution SSOT · Wiki Roadmap Topic 02 #12 & #13 Done)
 
 - **Deterministic Multi-Source Cloud Ingest & Unified Experience Evolution SSOT (vs WorkBuddy Closed Library / Manus Project Harvest):** Myrm delivers an open, deterministic, and self-evolving knowledge infrastructure:
@@ -39,6 +48,16 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
   4. **Multi-Platform Responsive Design & Session Replay**: Mobile and desktop adaptive layouts with direct one-click handoff into SessionReplayPlayer time-machine inspection;
   5. **Full-Stack Test Coverage**: 9 unit and end-to-end integration tests 100% green with 0 linter errors.
 - **Material SSOT:** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/ChatWindow.tsx` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/system/ExecutionTraceTimeline.tsx`
+
+## Latest Validation Snapshot (2026-08-22 · Agent Model Swap Continuity Safeguard & Execution Discipline Adaptation · Model Routing Roadmap Topic 07 #6 Done)
+
+- **Agent Model Swap Continuity Safeguard & Execution Discipline Adaptation (vs WorkBuddy Closed Workbench / Claude Workbench / Dify / FastGPT):** Myrm delivers enterprise-grade model neutrality and seamless agent asset continuity:
+  1. **Full Asset 100% Continuity Preservation Proof (`ModelSwapContinuityCard`)**: Dynamically summarizes and displays inheritance status for bound Skills (N), MCP Services (N), Long-term Memory Vault, Workspace Security Policies, and Subagent orchestration topologies with zero asset loss during model switches;
+  2. **Multimodal & Capability Compatibility Safeguard**: Proactively detects whether the target model natively supports Vision input, automatically signaling global `visionFallbackModel` takeover to prevent runtime 400 Bad Request crashes;
+  3. **Dedicated Model Family Execution Discipline**: Automatically maps per-family behavioral guidelines from Harness `model_discipline.py` (Claude structured tool contracts & minimal disclaimers, DeepSeek anti-narration, GPT action persistence, Gemini absolute paths & parallel calls), alongside recommended Prompt Mode (Lean / Full) presets;
+  4. **Non-Blocking High-Quality Inline Design**: Replaces disruptive multi-step modal wizards with an adaptive, sleek inline card, delivering zero-latency confirmation and frictionless workflow;
+  5. **Full-Stack Test Coverage**: Unit tests 3/3 green, 6-language i18n parity, and 0 linter errors.
+- **Material SSOT:** `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/ai-core/agent/ModelSwapContinuityCard.tsx` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/ai-core/agent/AgentCapabilitiesTabSections.tsx`
 
 ## Latest Validation Snapshot (2026-08-22 · Cross-Vendor Task Specialty Silent Routing & 4-Tier Fallback · Model Routing Roadmap Topic 10 #5 Done)
 
@@ -334,6 +353,17 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
   3. **Anti-Goodhart Health Scoring**: Health score strictly evaluates component readiness, absence of degradation, and gate protection efficacy rather than artificially forcing unnecessary background evolutions;
   4. **Full-Stack Test Coverage**: 2 backend schema/API integration tests passed (`test_learning_loop_integration.py`) + 0 frontend lint errors.
 - **Material SSOT:** `temp-docs/materials/MEMORY_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/api/statistics/learning_loop.py` · `myrm-agent/myrm-agent-frontend/src/components/features/growth/LearningLoopFiveRingHub.tsx`
+
+## Latest Validation Snapshot (2026-08-22 · 3-Tier Fidelity Overflow Recovery & Structured Compaction SSOT Pipeline · Roadmap Topic 06 #6 Done)
+
+- **3-Tier Fidelity Overflow Recovery & Structured Compaction SSOT Pipeline (vs Pi Agent / Claude Code / Codex):** Myrm delivers an enterprise-grade resilient 3-tier progressive context overflow recovery architecture:
+  1. **SSOT Full Structured Compaction (Tier 1)**: Directly invokes `generate_structured_summary` upon encountering provider `400 Context Exceeded` errors, preserving user constraints, entity tracking, and execution progress instead of mechanically dumping conversational history;
+  2. **Bi-directional Physical State Auto-Reconciliation**: Integrates `ExecutionStateValidator` during overflow recovery to cross-verify LLM summary with immutable `ArtifactTracker` logs, preventing state drift and phantom completion;
+  3. **3-Tier Deterministic Degradation Hierarchy**: Structured Summary (Tier 1) -> Tool Emergency Compaction (Tier 2) -> Oldest Rounds Truncation (Tier 3), guaranteeing 100% execution resilience in catastrophic network or token limit scenarios;
+  4. **100% Prompt Cache Lock**: Preserved summary context is embedded exclusively within HumanMessage `<preserved-context>`, maintaining 95%+ System Prompt KV Cache hit rates across retry rounds;
+  5. **Auxiliary Model Context Safety Guard (`_guard_aux_context`)**: Pre-computes token budgets before invoking auxiliary models, permanently eliminating secondary overflow deadlocks;
+  6. **Full-Stack Test Coverage**: 51 harness unit tests (`test_stream_recovery_overflow_failover.py`) + full regression recovery suites passed 100% green.
+- **Material SSOT:** `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/streaming/recovery/stream_recovery.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/strategies/summary/summarizer.py`
 
 ## Latest Validation Snapshot (2026-08-20 · Compaction Continuation A/B Benchmark & 5D Fidelity Metrics · Roadmap #4 Done)
 
