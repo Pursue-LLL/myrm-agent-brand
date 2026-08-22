@@ -89,6 +89,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   4. **全栈测试背书**：10 项 `test_agent_cold_start_diagnostic.py` 探针测试 + 3 项 `test_dlq.py` 渠道死信路由测试 100% 绿灯，0 Lints。
 - **素材 SSOT：** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/core/infra/health/server_diagnostics.py` · `myrm-agent/myrm-agent-server/app/channels/reliability/durable_outbound.py`
 
+## 最新验证快照（2026-08-22 · Roadmap ⑬ 渠道集成 57/57 全量关单 · 企业 IM 内网直连已 production）
+
+- **渠道集成 Roadmap 全量审查结论（对比 AgentScope / deepseek-cowork / MateClaw / WorkBuddy 等 57 项提案）：**
+  1. **3 项新交付**：Ingress 工具矩阵 · Bang 命令诚实迁移 · Universal 智能分块（Item 46）；
+  2. **9 项现有已优于竞品**：SessionKey SSOT · 群聊续聊 · 入站媒体管线 · Webhook 信封 · 邮箱防抖 · 企微进度气泡 · 钉钉 Stream + 企微 AI Bot 长连接（**无需再包 Unified Gateway**）等；
+  3. **45 项伪需求弃掉**：跨沙箱 IM RPC、SSH 主机面板、IM 未读轮询、静默飞书建应用等 —— 安全/合规/定位不合；
+  4. **迁移收益**：35+ 渠道一致长回复 · Topic→Vault 绑定 · IM `/undo` 文件还原 · 5 层零 Token 前置 · **5984 channels pytest**。
+- **素材 SSOT：** `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md` § Roadmap ⑬ 全量关单
+
 ## 最新验证快照（2026-08-22 · Item 46 全 provider 出站分块 invariant 关单 · 5984 pytest + 3 Chrome E2E）
 
 - **UniversalChannelSmartMessageChunker（对比 Hermes PR #56155 / OpenClaw chunk-text）：**
@@ -98,15 +107,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   4. **测试背书**：Item46 聚焦 **845 passed** · 全量 channels **5984 passed** · Chrome E2E 渠道 3/3（routing/delete/liveness-outbound）。
 - **素材 SSOT：** `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/channels/rendering/splitter.py`
 
-## 最新验证快照（2026-08-21 · 全渠道入站防抖、媒体富集与 CJK 标点分块 SSOT · 渠道集成 Roadmap ⑯ 达成）
+## 最新验证快照（2026-08-21 · 全渠道入站防抖、媒体富集与 CJK 标点分块 SSOT · 渠道集成 Roadmap ⑬ 达成）
 
 - **全渠道入站防抖、多模态媒体富集与 CJK 全角标点智能分块 SSOT（对比 Molio / Hermes / CoPaw / MateClaw）：** Myrm 在全部 35+ 支持渠道中提供了工业级的入站防抖与流式蜕变引擎：
   1. **会话级自适应 Debounce 与并发门控（`SessionGate`）**：300ms 自适应滑动窗口实现突发消息幂等去重与文本/附件原子级合并 + 活跃会话排队队列 + 零干扰的忙碌防焦虑提示；
   2. **零丢失媒体安全下载与缓存子系统（`app/channels/media/`）**：集成 `MediaDownloader`、`SSRFValidator` 防内网探测、文件魔数真伪校验、严格文件大小配额与自动图片压缩（`image_enrichment.py`），杜绝因临时链接过期导致的多模态解析崩溃；
   3. **无损 Markdown 语法保护与 CJK 全角标点切片（`splitter.py`）**：优先在中文全角标点（`。！？；，`）处自然断句，内建 HTML 标签平衡与跨 Chunk CodeFence 恢复状态机，保证超长文本排版绝不撕裂；
   4. **95%+ Prompt Cache 命中率保障**：静态工具挂载（`tool_mount/resolver.py`）+ 运行时 Layer-2 权限天花板（`channel_presets.py`），确保 IM 渠道权限约束永不引起大模型工具定义振荡；
-  5. **全栈测试验证**：Roadmap ⑯ 渠道集成 56 个待办项 100% 深度审查完毕，超 2,800 项渠道核心测试全绿，0 Lint 错误。
-- **素材 SSOT：** `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md` · `temp-docs/roadmap/topic_16_channel_integration_roadmap.md` · `myrm-agent/myrm-agent-server/app/channels/routing/session_gate.py` · `myrm-agent/myrm-agent-server/app/channels/rendering/splitter.py`
+  5. **全栈测试验证**：Roadmap ⑬ 渠道集成 **57 项全量审查完毕**，**5984** 项 channels pytest 全绿，0 Lint 错误。
+- **素材 SSOT：** `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/channels/routing/session_gate.py` · `myrm-agent/myrm-agent-server/app/channels/rendering/splitter.py`
 
 ## 最新验证快照（2026-08-21 · Goal 长程目标 ↔ 看板双向强一致性 SSOT · 运行时可靠性 Roadmap Topic 13 #1 完工）
 
