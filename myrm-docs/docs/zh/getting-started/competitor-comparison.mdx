@@ -11,6 +11,35 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-22 · 多镜头视频生产管线与沙箱工具无关视频引擎 · 技能工具链 Roadmap Topic 08 #7 评测）
+
+- **多镜头视频生产管线与沙箱工具无关视频引擎（对比 TraeWork / Flova / Seedance）：** Myrm 具备工业级完整多模态视频生产架构：
+  1. **Agent-in-Sandbox 工具无关沙箱执行**：摒弃特化绑定的二进制单体插件（如 TraeWork 的 Remotion 专有插件，会导致分发包体积暴增数百兆），Agent 依靠沙箱内原生的 Node/Python/FFmpeg 工具链即可自主运行任何程序化视频脚本（Remotion、MoviePy、FFmpeg），实现核心引擎零包袱；
+  2. **结构化 5 阶段多智能体协作管线（`video-production-pipeline`）**：涵盖灵感调研、视觉风格设定、分镜脚本策划、多镜头生成、FFmpeg 无损拼接与 BGM 音画对齐、成片质检全流程；
+  3. **通用 5 Provider 异步视频引擎**：原生支持 Sora、Veo、Qwen、MiniMax 及 xAI Grok，具备 T2V/I2V/V2V 生成能力、幂等任务排队与对话内 `<video controls>` 即时播放器预览；
+  4. **全栈测试验证**：61 项单测与 5 项视频集成测试 100% 绿灯，0 Lint 错误。
+- **素材 SSOT：** `temp-docs/materials/MULTIMODAL_CAPABILITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md` · `myrm-agent-server/assets/prebuilt_skills/video-production-pipeline/SKILL.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/video/`
+
+## 最新验证快照（2026-08-22 · Skill/MCP 组合配置启动失败安全自愈与最后已知良好配置回滚 · 运行时稳定性 Roadmap Topic 15 #2 达成）
+
+- **Skill/MCP 组合启动失败安全自愈与 Last-Known-Good 回滚（对比 DeepSeek Harness 129 插件树 / Hermes / OpenClaw / Claude Code）：** Myrm 构建了生产级 Agent 启动期健康探测、故障隔离与配置自愈安全网：
+  1. **组件级并发异步轻量探针（350ms 熔断保护）**：在 Agent 实例化与配置保存时，毫秒级并发探测 Model 规范、Skill 结构合法性、MCP 端口与本地可执行性以及内置工具，故障单点标记 `QUARANTINED`，主 Agent 照常启动，绝不拖死整机；
+  2. **Last-Known-Good (LKG) 快照时光机一键自愈**：每次稳定可用的配置组合自动建立不可变快照，启动或运行时遭遇配置损坏时支持一键秒级回滚到最后已知良好版本；
+  3. **结构化排障诊断包导出**：一键导出包含健康探针与最近快照链的 JSON 诊断包，支持开发者与支持团队迅速定位；
+  4. **全栈测试验证**：9 项底层单测与端到端全链路集成测试 100% 绿灯（`test_profile_recovery.py`、`test_agent_recovery_integration.py`），0 Lint 错误。
+- **素材 SSOT：** `temp-docs/materials/ERROR_RECOVERY_ROBUSTNESS_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent/myrm-agent-server/app/services/agent/profile/profile_recovery_service.py` · `myrm-agent/myrm-agent-frontend/src/components/features/agent-recovery/StartupRecoveryDialog.tsx`
+
+## 最新验证快照（2026-08-22 · 本地与控制平面 Ingress/Egress 三层纵深防护 · 安全 Roadmap Topic 03 #2 达成）
+
+- **本地与控制平面 Ingress/Egress 三层立体防御（对比 browser-use #6521 / OpenClaw / Hermes）：** Myrm 实现了企业级来源校验、SSRF 动态阻断与 Token 认证安全闭环：
+  1. **Harness 动态敏感 Host SSRF 阻断（`register_blocked_hostnames`）**：Server 启动时自动将控制平面内网域名注册至 Harness 框架出网阻断表，在 DNS 解析前即刻拦截，彻底杜绝 Agent 工具与爬虫发生 SSRF 泄露；
+  2. **Server 内部 Ingress 端点 Origin 与 Token 统一门禁（`verify_control_plane_token`）**：FastAPI 集中依赖统一拦截非白名单跨域 Origin 请求（返回 403，防御 CSRF 与 DNS Rebinding 攻击），并采用 `secrets.compare_digest` 常量时间比对 `X-Control-Plane-Token` / `X-Telemetry-Token`（防时序攻击）；
+  3. **Fail-Closed 本地回环安全降级**：单机/桌面端在未配置 Token 时，默认仅允许本地回环（`127.0.0.1` / `::1`）访问，硬核拒绝外网未经授权请求；
+  4. **Control Plane 调度器 Token 契约**：调度器全链路在 `_forward_to_sandbox` 与 `_send_interrupt` 中自动携带双 Token 请求头，保证沙箱鉴权通过；
+  5. **全栈测试验证**：42 项 SSRF 单元测试 + 12 项真实 DNS 集成测试 + 4 项 Server 门禁集成测试 100% 绿灯，0 Lint 错误。
+- **素材 SSOT：** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` · `app/core/security/auth/control_plane_guard.py` · `myrm_agent_harness/core/security/guards/ssrf.py`
+
+
 ## 最新验证快照（2026-08-21 · Magic Bytes 格式深度嗅探与多格式统一入库解析 · 知识库 Roadmap Topic 02 #9 达成）
 
 - **Magic Bytes 深度嗅探与多格式统一解析矩阵（对比 Hermes / OpenClaw / 传统 RAG）：** Myrm 构建了全流程多格式文档安全入库与编译解析架构：

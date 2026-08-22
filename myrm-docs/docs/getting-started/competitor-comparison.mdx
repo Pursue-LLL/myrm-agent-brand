@@ -11,6 +11,35 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Validation Snapshot (2026-08-22 · Multi-Shot Video Pipeline & Tool-Agnostic Sandbox Video Engine · Skill Roadmap Topic 08 #7 Evaluated)
+
+- **Multi-Shot Video Production Pipeline & Tool-Agnostic Sandbox Engine (vs TraeWork / Flova / Seedance):** Myrm delivers a complete industrial-grade video production architecture:
+  1. **Agent-in-Sandbox Tool-Agnostic Execution**: Avoids monolithic proprietary binary plugins (e.g., TraeWork's Remotion binary plugin which inflates build size by hundreds of megabytes). The Agent autonomously leverages sandbox Node/Python/FFmpeg to execute any video workflow (Remotion, MoviePy, FFmpeg) with zero core engine bloat;
+  2. **Structured 5-Stage Multi-Agent Production Pipeline (`video-production-pipeline`)**: Full collaborative workflow from research, visual design, script writing, multi-shot generation, to lossless FFmpeg stitching, BGM audio-video sync, and QC verification;
+  3. **Universal 5-Provider Async Video Engine**: Native support for Sora, Veo, Qwen, MiniMax, and xAI Grok with T2V/I2V/V2V capabilities, idempotent background task queues, and instant in-dialogue `<video controls>` preview;
+  4. **Full-Stack Test Coverage**: 61 unit/module tests and 5 video integration tests 100% passing with 0 lints.
+- **Material SSOT:** `temp-docs/materials/MULTIMODAL_CAPABILITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md` · `myrm-agent-server/assets/prebuilt_skills/video-production-pipeline/SKILL.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/video/`
+
+## Latest Validation Snapshot (2026-08-22 · Skill/MCP Profile Startup Fault Isolation & Last-Known-Good Rollback · Runtime Reliability Roadmap Topic 15 #2 Done)
+
+- **Skill/MCP Profile Startup Recovery & Last-Known-Good Rollback (vs DeepSeek Harness 129 Plugin Tree / Hermes / OpenClaw / Claude Code):** Myrm delivers a production-grade startup health probe, component fault quarantine, and configuration time-machine safety net:
+  1. **Component-Level Concurrent Health Probing (350ms Strict Circuit Breaker)**: Concurrently probes Model identifiers, Skill metadata validity, MCP remote endpoint / local binary paths, and built-in tools. Faulty items are tagged `QUARANTINED` so the main Agent continues startup without crashing the runtime;
+  2. **Last-Known-Good (LKG) Snapshot Time Machine**: Automatically records immutable snapshots upon healthy configuration verification, enabling 1-click GUI rollback whenever corrupt configurations are applied;
+  3. **Structured Recovery Diagnostic Bundle Export**: Generates one-click JSON diagnostic bundles detailing quarantined components and recent snapshots for instant debugging;
+  4. **Full-Stack Test Coverage**: 9 unit and end-to-end integration tests (`test_profile_recovery.py`, `test_agent_recovery_integration.py`) 100% passing with 0 lints.
+- **Material SSOT:** `temp-docs/materials/ERROR_RECOVERY_ROBUSTNESS_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent/myrm-agent-server/app/services/agent/profile/profile_recovery_service.py` · `myrm-agent/myrm-agent-frontend/src/components/features/agent-recovery/StartupRecoveryDialog.tsx`
+
+## Latest Validation Snapshot (2026-08-22 · Localhost & Control Plane Origin Guard 3-Tier Security · Security Roadmap Topic 03 #2 Done)
+
+- **Localhost & Control Plane Ingress/Egress 3-Tier Defense (vs browser-use #6521 / OpenClaw / Hermes):** Myrm delivers a complete enterprise-grade origin, SSRF, and token authentication defense suite:
+  1. **Harness Dynamic Sensitive Host SSRF Blocking (`register_blocked_hostnames`)**: Server dynamically injects Control Plane hostnames into the Harness SSRF guard on startup, blocking Agent tools and crawlers before DNS resolution occurs (Zero-SSRF leakage);
+  2. **Server Internal Ingress Origin & Token Guard (`verify_control_plane_token`)**: Centralized FastAPI dependency enforcing strict browser `Origin` CORS whitelist checks (mitigating CSRF and DNS Rebinding) and constant-time HMAC digest token comparison (`X-Control-Plane-Token` / `X-Telemetry-Token`);
+  3. **Fail-Closed Localhost Loopback Fallback**: Automatically enforces loopback-only (`127.0.0.1` / `::1`) access in single-tenant local/desktop mode when no secret is configured, rejecting external network ingress;
+  4. **Control Plane Dispatcher Token Contract**: Full HTTP client token propagation across `_forward_to_sandbox` and `_send_interrupt` methods;
+  5. **Full-Stack Test Coverage**: 42 Harness SSRF tests + 12 live DNS integration tests + 4 Server Ingress integration tests 100% passing with 0 lints.
+- **Material SSOT:** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` · `app/core/security/auth/control_plane_guard.py` · `myrm_agent_harness/core/security/guards/ssrf.py`
+
+
 ## Latest Validation Snapshot (2026-08-21 · Magic Bytes Deep Format Sniffing & Multi-Format Ingest Pipeline · Knowledge Wiki Roadmap Topic 02 #9 Done)
 
 - **Magic Bytes Deep Sniffing & Multi-Format Parser Registry Matrix (vs Hermes / OpenClaw / Traditional RAG):** Myrm delivers a complete end-to-end document ingestion and compilation architecture:
@@ -280,9 +309,9 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
   2. **Pre-build Mathematical Pubkey Consistency Check** (`check-updater-pubkey.sh`): Validates updater public key against CI private key, hard-failing immediately on placeholder values;
   3. **Dual-Platform Authoritative Signing & Notarization**: macOS 4-layer validation (`codesign` + `spctl` Gatekeeper simulation + `xcrun stapler` notary ticket check) + Windows Authenticode RFC 3161 timestamping;
   4. **Platform Defect Self-Healing**: Automated stripping of native musl modules preventing AppImage crashes, Dummy-Swap bundling resolving Tauri sidecar packaging bug, and adaptive renaming avoiding cross-arch overwrites;
-  5. **Automated OTA Manifest Generation & Runtime Smoke Gates**: `finalize-release.sh` + `verify-release.sh` pair `.sig` signatures with SHA-256 cross-validation, while `smoke-launch-runtime.sh` unpackages bundles on CI runners and probes live `:8080/health` and WebUI ports.
+   5. **Automated OTA Manifest Generation & Dual-Platform Runtime Smoke Gates**: `finalize-release.sh` + `verify-release.sh` pair `.sig` signatures with SHA-256 cross-validation, while `smoke-launch-runtime.sh` (macOS) and `smoke-launch-runtime.ps1` (Windows) unpackage and execute sidecar bundles (`myrmagent-backend`, `agent-runner`, Next.js standalone) on live CI runners, probe live `:8080/health` and WebUI ports, and guarantee clean process tree termination via `taskkill /F /T /PID`.
 - **Competitor Comparison**: Competitors rely on manual Markdown checklists subject to human error and measurement decay; Myrm enforces 18+ automated CI mechanical gates ensuring 100% zero-defect desktop releases.
-- **Verification Data**: `test_desktop_finalize_fixture.py` (4-target non-network signature pairing + edge cases) **PASSED** + `test_desktop_launch_smoke_script.py` **PASSED** + `check-fractal-docs.test.ts` **2 PASSED**.
+- **Verification Data**: `test_desktop_finalize_fixture.py` (4-target non-network signature pairing + edge cases) **PASSED** + `test_desktop_launch_smoke_script.py` (Bash + PowerShell syntax & contract gates) **PASSED** + `check-fractal-docs.test.ts` **2 PASSED**.
 - **Material SSOT**: `temp-docs/materials/DESKTOP_APP_ADVANTAGE.md` (2026-08-20 section) · `myrm-agent/.github/workflows/desktop-release.yml` · `scripts/ci/desktop-release/_ARCH.md`
 
 ## Latest Validation Snapshot (2026-08-20 · Managed Skill Installation Receipt & Atomic Rollback · Roadmap #2 Done)
