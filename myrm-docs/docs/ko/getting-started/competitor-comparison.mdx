@@ -15,6 +15,15 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 턴당 기능 제어를 위해 Myrm은 완전한 관찰 가능성(제출/적용/noop/큐/바쁨/최종 결과 + 실패 이유)을 갖춘 **원턴 스킬/MCP 재정의 칩**을 지원합니다. 집중 검증(2026-07-29): 프런트엔드 29/29 통과, 서버 10/10 통과; 목표 적용 범위는 핵심 프런트엔드 파일의 라인 62.47%, 서버 원격 측정 모듈의 전체 라인 72%에 도달했습니다. 이는 팀에게 추측이 아닌 비용/신뢰성 조정에 대한 마이그레이션 안전 증거를 제공합니다.
 
+## 최신 검증 스냅샷 (2026-08-22 · 활성 세션 「대화 | 궤적」 듀얼 탭 및 원본 이벤트 스트림 직결 · DX Roadmap Topic 15 #3 완료)
+
+- **활성 세션 「대화 | 궤적」 듀얼 탭 및 무삭제 이벤트 스트림 (vs DSH / 주황색 책 / 자이신 / Hermes / OpenClaw):** Myrm은 세션 내 프로덕션 수준의 무삭제 물리 이벤트 가시성을 완성했습니다:
+  1. **기본 세션 창 내장 듀얼 탭 전환기 (`ChatWindow.tsx`)**: 채팅 상단 헤더에 「대화 (Chat) | 궤적 (Trace)」 반응형 탭을 제공하여, 별도 설정 창을 열 필요 없이 한 화면에서 즉시 전환 및 모니터링 가능;
+  2. **무삭제 물리 이벤트 스트림 및 귀인 배지**: `agent/event_log/` 추가 전용 로그와 직접 연동되어 도구 입출력, 모델 지표, 실행 지연 시간 및 6가지 결정론적 오류 귀인 배지(Model/Harness/Env/Owner)를 실시간 렌더링;
+  3. **유휴 시 제로 부하 및 적응형 폴링**: 비활성 시 네트워크 요청 0건, 활성 스트리밍 실행 중에만 2초 간격으로 실시간 증분 폴링 수행;
+  4. **멀티 플랫폼 반응형 디자인 및 SessionReplayPlayer 타임머신 연동**: 모바일 및 PC 반응형 레이아웃 완벽 지원 및 궤적 뷰 내에서 타임머신 재생 모드로 원클릭 진입 지원.
+- **자료 SSOT:** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/ChatWindow.tsx` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/system/ExecutionTraceTimeline.tsx`
+
 ## 최신 검증 스냅샷 (2026-08-22 · 공급업체 간 작업 전문 지능형 자동 라우팅 및 4단계 장애 복구 · 모델 라우팅 Roadmap Topic 10 #5 완료)
 
 - **공급업체 간 작업 전문 지능형 자동 라우팅 (vs WorkBuddy 비공개 라우팅 / Claude Code / Cursor / Hermes / OpenClaw):** Myrm은 제로 토큰 오버헤드, 0.5ms 미만의 초고속 도메인 전문 라우팅 시스템을 구현했습니다:

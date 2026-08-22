@@ -11,6 +11,15 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Validation Snapshot (2026-08-22 · Active Session "Chat | Trace" Dual Tabs & Direct Unabridged Event Stream · DX Roadmap Topic 15 #3 Done)
+
+- **Active Session "Chat | Trace" Dual Tabs & Unabridged Event Stream (vs DSH / Orange Book / ZiXin / Hermes / OpenClaw):** Myrm delivers production-grade in-session execution trace observability:
+  1. **Native In-Session Dual Tabs (`ChatWindow.tsx`)**: Responsive "Chat | Trace" switcher in the chat header, eliminating context-switching between settings dialogs and the active conversation;
+  2. **Unabridged Physical Event Stream & Attribution Badges**: Directly feeds from `agent/event_log/` append-only logs, rendering step-by-step tool inputs/outputs, model metrics, execution latency, and deterministic 6-category failure attribution badges (Model/Harness/Env/Owner);
+  3. **Zero Idle Overhead & Adaptive Polling**: Zero network fetch when idle; on-demand trace fetching with 2s live incremental polling during active generation runs;
+  4. **Multi-Platform Responsive Design & Session Replay**: Mobile and desktop adaptive layouts with direct one-click handoff into SessionReplayPlayer time-machine inspection.
+- **Material SSOT:** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/ChatWindow.tsx` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/system/ExecutionTraceTimeline.tsx`
+
 ## Latest Validation Snapshot (2026-08-22 · Cross-Vendor Task Specialty Silent Routing & 4-Tier Fallback · Model Routing Roadmap Topic 10 #5 Done)
 
 - **Cross-Vendor Task Specialty Silent Routing (vs WorkBuddy Closed Routing / Claude Code / Cursor / Hermes / OpenClaw):** Myrm achieves zero-Token overhead, sub-0.5ms intelligent domain routing:
@@ -48,6 +57,24 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
   3. **All-provider invariant:** GitHub per-chunk comments, LINE 5-msg batch, MSTeams placeholder first-chunk, OneBot removed `[i/n]` fragment UI;
   4. **Test proof:** Item 46 focus **845 passed** · full channels **5984 passed** · Chrome E2E channel 3/3 (routing/delete/liveness-outbound).
 - **Material SSOT:** `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/channels/rendering/splitter.py`
+
+## Latest Validation Snapshot (2026-08-22 · Standard Cross-Platform Agent Plugin 1.0.0 Export · Skill Roadmap Topic 08 #14 Done)
+
+- **Standard Cross-Platform Agent Plugin 1.0.0 Export (vs OpenAI Custom GPTs / Anthropic Projects / Hermes):** Myrm delivers an open-standard cross-host export and inter-operability pipeline:
+  1. **International Standard Compliance (`AgentPluginPacker`)**: Harness natively implements the open `Agent Plugins 1.0.0` specification (`plugin.json` + `skills/<canonical_name>/` + `mcp.json`), enabling seamless cross-platform sharing with Claude Code, Cursor, Codex, and Hermes;
+  2. **Multi-Format Export & Content Sanitizer**: Server-level `SkillPackagingService` supports both `agent_plugin` and `raw_skill` exports, automatically sanitizing embedded private credentials, syncing version lineage, and bundling `evals.json` test regression snapshots;
+  3. **Zero Dead Feature Path**: Replaces fragile, proprietary single-vendor adapters with an open industry standard;
+  4. **Full-Stack Test Coverage**: 100% test pass rate across `test_plugins.py`, `test_evals.py`, and Server skill packaging integration tests with 0 lints.
+- **Material SSOT:** `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md` · `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md` · `myrm_agent_harness/agent/plugins/exporter.py` · `myrm-agent/myrm-agent-server/app/core/skills/packaging/`
+
+## Latest Validation Snapshot (2026-08-22 · Multi-Tier Skill Evolution Safeguard & Anti-Regression Evaluator · Skill Roadmap Topic 08 #13 Evaluated)
+
+- **Multi-Tier Skill Evolution Safeguard & Anti-Regression Evaluator (vs OpenAI eval-skills / Better-Harness / skill-up):** Myrm delivers an industrial-grade self-evolution and quality assurance architecture:
+  1. **Progressive Regression Penalty & AST Dry-Run Guard**: Replaces rigid single-step hard-blocking gates (which suffer from high false-rejection rates due to synthetic negative trigger noise) with progressive penalty scoring (`eval_regression.py:10-14`), AST compilation checks, and import dry-runs (`_dry_run_validation`), preventing evolution pipeline deadlocks;
+  2. **Multi-Dimensional Class-First Rubric Scoring (`BatchEvaluator`)**: LLM-as-judge scores candidate variants on Accuracy (50%), Anti-Fragmentation (30%), and Redundancy/Length Penalties (20%), ensuring generalizability without skill code bloat;
+  3. **Server Semantic De-duplication & HITL Final Review**: In-flight evolution proposals pass semantic duplicate screening (`_check_semantic_duplicate`) and gracefully stage into `PENDING_REVIEW` draft status for human-in-the-loop review on the Growth Dashboard, completely preventing hallucinated skill releases;
+  4. **Full-Stack Test Coverage**: 93 Harness evolution, regression, and evaluator unit/integration tests 100% passing with 0 lints.
+- **Material SSOT:** `temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md` · `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/` · `myrm-agent/myrm-agent-server/app/services/skills/growth/`
 
 ## Latest Validation Snapshot (2026-08-22 · Multi-Shot Video Pipeline & Tool-Agnostic Sandbox Video Engine · Skill Roadmap Topic 08 #7 Evaluated)
 
