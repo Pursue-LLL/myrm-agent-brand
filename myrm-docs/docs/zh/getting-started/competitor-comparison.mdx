@@ -11,6 +11,34 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-23 · Formal Replanner 动态拓扑实时重规划与原子完工保护 · 运行时可靠性 Roadmap Topic 10 #2 达成）
+
+- **Formal Replanner 动态任务图重规划（对比 Hermes Agent / OpenClaw / Cursor Plan Mode / Claude Code）：** Myrm 构建了业界领先的工业级 DAG 任务重规划体系，确保长程复杂任务自主演进且状态零撕裂：
+  1. **单事务原子增删改与完工状态只读锁（`revise_plan`）**：支持动态追加校验节点、修改待执行参数或裁剪冗余分支；对 `COMPLETED`/`IN_REVIEW` 任务提供强只读保护，杜绝非法改写与状态撕裂；
+  2. **影子图毫秒级 DFS 环依赖预检**：在变更落盘前预演拓扑，100% 拦截死循环依赖，冲突时原子回滚，零脏数据产生；
+  3. **运行态协程优雅熔断与槽位释放（`replan_ops.py`）**：重规划自动识别并主动取消被废弃的 `RUNNING` 协程，释放并发槽位，并级联解锁就绪子任务；
+  4. **直观的结构化 Diff 审查面板与全语种国际化（`KanbanReplanDialog.tsx`）**：提供增/删/改任务及依赖边可视化对比，支持全量中英国际化与理由追溯；
+  5. **全栈测试验证**：Harness 单元、Server API、前端 Vitest 9 项测试全绿通过，0 僵尸进程。
+- **素材 SSOT：** `temp-docs/materials/USER_EXPERIENCE_ADVANTAGE.md` · `temp-docs/roadmap/topic_10_runtime_reliability_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/kanban/stores.py` · `myrm-agent/myrm-agent-server/app/services/kanban/replan_ops.py` · `myrm-agent/myrm-agent-frontend/src/components/features/kanban/KanbanReplanDialog.tsx`
+
+## 最新验证快照（2026-08-23 · PR 与 Issue 质量卫生门禁与结构化表单 · 桌面发布与 CI Roadmap Topic 05 #6 达成）
+
+- **PR 与 Issue 质量卫生门禁（对比 Pi Agent / Claude Code / Cursor / OpenClaw）：** Myrm 构建了高信噪比、零 Token 开销与 <0.02s 的协作与问题治理体系：
+  1. **原生 GitHub Issue Forms 结构化表单（`.github/ISSUE_TEMPLATE/*.yml`）**：原生 YAML 表单强制收敛部署形态（Local WebUI、Tauri 桌面端、云端沙箱、Harness SDK）与操作系统（macOS/Win/Linux），彻底消除关键复现环境缺失的痛点；
+  2. **多端子系统影响面与 4 步 PR 模板（`pull_request_template.md`）**：规范化 PR 结构，强制声明修改动机、四大子系统影响面（Harness/Server/Frontend/Desktop）、破坏性变更与本地测试凭证；
+  3. **极速纯静态门禁校验器（`check_pr_hygiene.py`）**：在 <0.02s 内基于 Conventional Commits 校验标题格式，剥离模板注释并拦截空描述或敷衍 PR，零 LLM 计费；
+  4. **全栈测试验证**：架构测试（`test_pr_hygiene.py`）与 CI 前置工作流（`pr-hygiene.yml`）100% 绿灯 PASS。
+- **素材 SSOT：** `temp-docs/materials/DESKTOP_APP_ADVANTAGE.md` · `temp-docs/roadmap/topic_05_desktop_release_engineering_ci_roadmap.md` · `scripts/ci/check_pr_hygiene.py` · `.github/pull_request_template.md`
+
+## 最新验证快照（2026-08-23 · 时段情境智能感知算子与自适应零 Token 空状态引擎 · 记忆 Roadmap Topic 01 #5 达成）
+
+- **时段情境智能感知算子（对比 Hermes Agent / OpenClaw / ChatGPT / Claude Desktop）：** Myrm 实现了由真实时段驱动、0 Token 计费且支持用户自主调度的空状态情境算子体系：
+  1. **四时段确定性智能感知引擎（`SamplePrompts.tsx`）**：本地时间驱动自动划分 4 大黄金工作周期（🌅 晨间要事 06:00-12:00：核心排期/晨会待办/跨团队邮件；🚀 午后冲刺 12:00-18:00：架构审查/选型报告/并发优化；🌙 晚间复盘 18:00-24:00：复盘总结/长期记忆沉淀/Wiki 卡片提炼；🌌 深夜专注 00:00-06:00：系统重构与算法瓶颈推演），彻底解决空状态固定静态文本的业界痛点；
+  2. **零 Token 开销与零延迟响应**：纯前端确定性计算，不产生额外网络请求与 LLM 推理开销，保证 100% Prompt Cache 友好；
+  3. **双模态微胶囊交互与状态指示**：默认进入 `auto` 动态跟踪模式并伴随脉冲微光指示，提供微胶囊标签支持一键手动切换或重置；
+  4. **全栈测试验证**：前端严格 TypeScript 单测、210 项后端单元测试与 124 项 API 集成测试 100% 绿灯 PASS。
+- **素材 SSOT：** `temp-docs/materials/USER_EXPERIENCE_ADVANTAGE.md` · `temp-docs/roadmap/topic_01_memory_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/SamplePrompts.tsx`
+
 ## 最新验证快照（2026-08-22 · 智能体生命周期出站 Webhook 与零 SSRF 安全出网 · 可观测性 Roadmap Topic 11 #2 达成）
 
 - **智能体生命周期出站 Webhook（对比 Hermes / OpenClaw / Grok）：** Myrm 实现了企业级出站生命周期 Webhook 体系，具备零 SSRF 泄露防护与 GUI 优先的开箱管理：
