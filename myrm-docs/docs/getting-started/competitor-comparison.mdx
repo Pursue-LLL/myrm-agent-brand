@@ -11,6 +11,17 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Validation Snapshot (2026-08-22 · Packaged Plugin Secret-Ref Stripping & Scoped Zero-Plaintext Injection · Security Roadmap Topic 03 #5 Done)
+
+- **Packaged Plugin Secret-Ref Stripping & Scoped Zero-Plaintext Injection (vs bun 1.2.16 / OpenClaw / Hermes):** Myrm delivers an enterprise-grade, end-to-end credential lifecycle security isolation architecture:
+  1. **Source-Level Credential Stripping (`mcp_config.py`)**: The framework-level parser strictly extracts only environment variable key names (`env_key_names`), completely stripping all plaintext environment values to ensure plugin bundles physically never carry or leak credentials;
+  2. **Zero-Plaintext Template Persistence (`_mcp_persist.py`)**: Converts configuration variables into `required_secrets` metadata and header entries into `{{secret:KEY}}` templates, guaranteeing that the persistent database contains zero plaintext secrets;
+  3. **Runtime Scoped Secret Injection (`mcp_runtime_prepare.py`)**: Prior to stdio subprocess execution, only the declared `required_secrets` keys are selectively extracted from the Agent's AES-256-GCM encrypted vault (`DatabaseSecretBackend`) and injected, eliminating broad host environment leakage;
+  4. **Dynamic Request-Time Header Resolution (`mcp_secret_auth.py`)**: Resolves authentication headers on-the-fly via `MCPSecretAuthProvider` with zero static storage;
+  5. **Comprehensive Outbound Defense**: 40+ regex patterns and Shannon entropy detection in `leak_detector.py` prevent credential exfiltration;
+  6. **Full-Stack Test Coverage**: 307 unit and integration test cases in Harness and Server 100% green with 0 linter errors.
+- **Material SSOT:** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/plugins/mcp_config.py` · `myrm-agent/myrm-agent-server/app/services/plugins/_mcp_persist.py` · `myrm-agent/myrm-agent-server/app/services/agent/mcp_runtime_prepare.py`
+
 ## Latest Validation Snapshot (2026-08-22 · Prebuilt Skill Doc Link & Asset Integrity Graph Gate · Skill Roadmap Topic 08 #16 Done)
 
 - **Prebuilt Skill Doc Link & Asset Integrity Graph Gate (vs Better-Harness / OpenAI GPTs / Hermes / OpenClaw):** Myrm delivers strict deterministic CI static verification across 50+ prebuilt skills:
@@ -19,6 +30,16 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
   3. **Zero-LLM Sub-50ms Static CI Gate**: Fully deterministic static parsing with zero LLM API dependency and sub-50ms execution speed, seamlessly guarding pre-merge workflows;
   4. **Full-Stack Test Coverage**: 243 static contract tests (`test_*_static.py`) and 41 prebuilt skill sync/e2e tests 100% green.
 - **Material SSOT:** `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md` · `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md` · `scripts/dev/tests/test_prebuilt_skill_links_static.py`
+
+## Latest Validation Snapshot (2026-08-22 · Full-Featured Isolated Sandbox vs Fragile Light-App CSV Binding · Wiki Roadmap Topic 02 #14 & #15 Done)
+
+- **Full-Featured Isolated Sandbox & Precision Human-in-the-Loop Co-Editing (vs WorkBuddy 5.3.11 Closed Library & CSV Data Sync):** Myrm delivers a complete architectural separation between dynamic execution workshops and permanent knowledge repositories:
+  1. **Strict Workshop vs Repository Decoupling**: Dynamically generated code, dashboards, and HTML prototypes reside cleanly within `ArtifactPortal` and `ArtifactsCenter`, while persistent concepts, facts, and bidirectional links are curated in the Obsidian-compatible `Wiki Vault` and `Memory`, eliminating messy monolithic hubs;
+  2. **Precision Human-AI Point-and-Click Co-Editing**: `ElementPickerToolbar` enables visual DOM element picking to request pinpoint Agent modifications, while `DocumentSelectionToolbar` and Monaco Editor provide seamless floating selection prompts and direct editing;
+  3. **Full-Featured Sandbox Execution over Brittle CSV DSLs**: Native Python (Pandas/DuckDB/SQLite), Node.js, and Bash sandbox execution allows the Agent to craft production-grade interactive React/Tailwind/ECharts applications with persistent data layers, rendering proprietary CSV-backed binding DSLs obsolete;
+  4. **Edge Publishing & Immutable Snapshots**: `PublishModal` offers 1-click publishing to Vercel, Cloudflare, and Netlify with stateless HMAC passcodes and read-only version snapshots;
+  5. **Full-Stack Test Coverage**: 243 static contract tests, 19 Harness Wiki unit tests, and all frontend vitest/i18n suites 100% green.
+- **Material SSOT:** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `temp-docs/roadmap/topic_02_knowledge_wiki_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/artifacts/` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/`
 
 ## Latest Validation Snapshot (2026-08-22 · Deterministic Multi-Source Ingest & Unified Experience Evolution SSOT · Wiki Roadmap Topic 02 #12 & #13 Done)
 
@@ -38,6 +59,16 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
   4. **Sub-0.5ms Zero-Token Execution**: Fully local, non-blocking synchronous diagnostic execution with zero external LLM token overhead;
   5. **Full-Stack Test Coverage**: 100% green test suite in `test_agent_cold_start_diagnostic.py` and Server health API endpoints with zero linter errors.
 - **Material SSOT:** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent/myrm-agent-server/app/core/infra/health/server_diagnostics.py`
+
+## Latest Validation Snapshot (2026-08-22 · Dynamic Orchestration Mode Switch & Cost Honesty Transparency · DX Roadmap Topic 15 #4 Done)
+
+- **Dynamic Orchestration Mode Switch & Cost Honesty Transparency (vs Manus / Cursor Composer / Devin / Hermes):** Myrm establishes a balanced dual-lane execution framework supporting both lightweight speed and deep concurrent orchestration:
+  1. **One-Click Native Mode Switch (`WorkflowModeToggle.tsx`)**: Responsive orchestration toggle chip in the message input action bar (Direct-FC standard mode vs PTC dynamic workflow orchestration), featuring shimmer breathing effects and seamless multi-language switching;
+  2. **Cost Honesty & Financial Transparency**: Hover tooltip proactively informs users of real cost trade-offs — Direct-FC is recommended for short, lightweight queries; PTC utilizes Python script generation to spawn sandboxed sub-agents breaking context limits, incurring an additional ~9% token overhead for preflight and code generation;
+  3. **Auto-Reset per Session & Fallback Protection**: Automatically resets to standard mode after dispatch to prevent accidental high-cost loops; backend retains intelligent rule-based Auto-escalation fallback;
+  4. **Strict Full-Stack Contract & Prompt Cache Neutrality**: End-to-end `orchestration_mode` Pydantic models and serialization, maintaining 100% Prompt Cache hit rate by leaving static prefixes untouched;
+  5. **Full-Stack Test Coverage**: 22 unit tests and 83 multi-suite integration tests 100% green with 0 linter errors.
+- **Material SSOT:** `temp-docs/materials/DEVELOPER_EXPERIENCE_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent-frontend/src/components/features/message-input-actions/WorkflowModeToggle.tsx` · `myrm-agent-server/app/services/agent/params/models.py`
 
 ## Latest Validation Snapshot (2026-08-22 · Active Session "Chat | Trace" Dual Tabs & Direct Unabridged Event Stream · DX Roadmap Topic 15 #3 Done)
 

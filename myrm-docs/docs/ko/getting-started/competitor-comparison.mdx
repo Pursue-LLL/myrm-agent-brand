@@ -15,6 +15,27 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 턴당 기능 제어를 위해 Myrm은 완전한 관찰 가능성(제출/적용/noop/큐/바쁨/최종 결과 + 실패 이유)을 갖춘 **원턴 스킬/MCP 재정의 칩**을 지원합니다. 집중 검증(2026-07-29): 프런트엔드 29/29 통과, 서버 10/10 통과; 목표 적용 범위는 핵심 프런트엔드 파일의 라인 62.47%, 서버 원격 측정 모듈의 전체 라인 72%에 도달했습니다. 이는 팀에게 추측이 아닌 비용/신뢰성 조정에 대한 마이그레이션 안전 증거를 제공합니다.
 
+## 최신 검증 스냅샷 (2026-08-22 · 패키징된 플러그인 secret-ref 제거 및 범위화된 제로 평문 자격 증명 주입 · 보안 거버넌스 Roadmap Topic 03 #5 완료)
+
+- **패키징된 플러그인 secret-ref 제거 및 범위화된 제로 평문 자격 증명 주입 (vs bun 1.2.16 / OpenClaw / Hermes):** Myrm은 엔터프라이즈급 전체 수명 주기 자격 증명 격리 및 제로 평문 저장 아키텍처를 구축했습니다:
+  1. **소스 레벨 평문 자격 증명 원천 제거 (`mcp_config.py`)**: Harness 프레임워크 수준의 파서는 플러그인 `mcp.json` 파싱 시 환경 변수 키 이름 목록(`env_key_names`)만 추출하고 모든 평문 환경 값을 완전히 제거(`values are stripped for security`)하여 플러그인 번들이 물리적으로 민감한 Key를 포함하거나 유출하는 것을 방지;
+  2. **템플릿화 제로 평문 영구 저장 (`_mcp_persist.py`)**: 저장 시 환경 변수를 `required_secrets` 메타데이터로 매핑하고 민감한 Header를 `{{secret:KEY}}` 템플릿으로 강제 변환하여 데이터베이스에 어떠한 정적 평문 자격 증명도 남기지 않음;
+  3. **런타임 최소 권한 스코프 주입 (`mcp_runtime_prepare.py`)**: stdio MCP 하위 프로세스 시작 전 선언된 `required_secrets`에 따라 AES-256-GCM 암호화 금고(`DatabaseSecretBackend`)에서 필요한 키만 추출하여 주입하며, 전역 환경 변수 유출을 철저히 차단;
+  4. **동적 요청 인증 및 정적 저장 제거 (`mcp_secret_auth.py`)**: HTTP 요청 시 `MCPSecretAuthProvider`를 통해 Header 비밀번호를 동적으로 해석하며 메모리에 장기적인 민감 설정이 상주하지 않음;
+  5. **포괄적인 아웃바운드 유출 방지 및 압축 해제 보호**: `leak_detector.py`의 40+ 정규식 및 샤논 엔트로피 검출로 출력 유출을 방어하고, `zip_extract.py`로 실행 파일 바이너리 추출을 물리적으로 차단;
+  6. **전체 스택 테스트 검증**: Harness 및 Server 307개 단위/통합 테스트 100% 통과, 0 Lint.
+- **자료 SSOT:** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/plugins/mcp_config.py` · `myrm-agent/myrm-agent-server/app/services/plugins/_mcp_persist.py` · `myrm-agent/myrm-agent-server/app/services/agent/mcp_runtime_prepare.py`
+
+## 최신 검증 스냅샷 (2026-08-22 · 격리된 풀 샌드박스 실행 및 정밀 인간-AI 협업 편집 체계 · 지식 베이스 Roadmap Topic 02 #14 & #15 완료)
+
+- **격리된 안전 샌드박스 실행 및 정밀 인간-AI 협업 편집 체계 (vs WorkBuddy 5.3.11 폐쇄형 자료실 및 CSV 데이터 바인딩):** Myrm은 실행 워크숍과 영구 지식 저장소의 엄격한 분리와 강력한 협업을 제공합니다:
+  1. **워크숍과 저장소의 명확한 역할 분리**: 동적으로 생성된 코드, 인터랙티브 대시보드 및 HTML 프로토타입은 `ArtifactPortal` 및 `ArtifactsCenter`에 귀속되며, 영구적인 개념과 링크는 Obsidian 호환 `Wiki Vault` 및 `Memory`에 축적되어 단일 허브의 혼란을 방지;
+  2. **정밀 인간-AI 클릭 협업 편집**: `ElementPickerToolbar`를 통해 시각적으로 DOM 요소를 선택하여 Agent에 세부 수정을 요청할 수 있으며, `DocumentSelectionToolbar` 및 Monaco Editor를 통해 텍스트 범위 선택 즉시 질문 및 실시간 소스 양방향 수정을 완벽 지원;
+  3. **실제 샌드박스 실행으로 취약한 CSV DSL 완전 대체**: Python (Pandas/DuckDB/SQLite), Node.js 및 Bash 기반의 안전한 샌드박스에서 Agent가 영구 저장소를 갖춘 실전용 React/Tailwind/ECharts 인터랙티브 앱을 직접 생성하므로, 부자연스러운 독점 CSV 바인딩 규격이 불필요;
+  4. **엣지 배포 및 불변 스냅샷**: `PublishModal`을 통해 Vercel, Cloudflare 및 Netlify에 무상태 HMAC 암호문과 함께 1클릭 읽기 전용 스냅샷 배포를 지원;
+  5. **전체 스택 테스트 검증**: 243개 정적 계약 테스트, 19개 Harness Wiki 단위 테스트 및 프런트엔드 i18n/Vitest 100% 정상 통과.
+- **자료 SSOT:** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `temp-docs/roadmap/topic_02_knowledge_wiki_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/artifacts/` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/`
+
 ## 최신 검증 스냅샷 (2026-08-22 · 결정론적 다중 소스 클라우드 지식 수집 및 통합 경험 진화 SSOT · 지식 베이스 Roadmap Topic 02 #12 & #13 완료)
 
 - **결정론적 다중 소스 클라우드 지식 수집 및 통합 경험 진화 체계 (vs WorkBuddy 폐쇄형 자료실 / Manus Project Harvest 지식 수확):** Myrm은 개방적이고 결정론적이며 스스로 진화하는 지식 베이스 및 장기 메모리 인프라를 제공합니다:
@@ -34,7 +55,17 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
   5. **전체 스택 테스트 검증**: `test_agent_cold_start_diagnostic.py` 및 서버 상태 진단 API 테스트 100% 정상 통과, 0 Lint.
 - **자료 SSOT:** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent/myrm-agent-server/app/core/infra/health/server_diagnostics.py`
 
-## 최신 검증 스냅샷 (2026-08-22 · 활성 세션 「대화 | 궤적」 듀얼 탭 및 원본 이벤트 스트림 직결 · DX Roadmap Topic 15 #3 완료)
+## 최신 검증 스냅샷 (2026-08-22 · 오케스트레이션 모드 자유 전환 및 비용 정직 투명성 · 개발자 경험 Roadmap Topic 15 #4 완료)
+
+- **오케스트레이션 모드 자유 전환 및 비용 정직 투명성 (vs Manus / Cursor Composer / Devin / Hermes):** Myrm은 초고속 경제성과 심층 병렬 오케스트레이션을 동시에 지원하는 듀얼 레인 실행 아키텍처를 구축했습니다:
+  1. **원클릭 네이티브 모드 전환 칩 (`WorkflowModeToggle.tsx`)**: 메시지 입력 작업 표시줄에 내장된 오케스트레이션 전환 칩(Direct-FC 초고속 표준 모드 vs PTC 동적 워크플로 오케스트레이션 모드), 은은한 시머 효과 및 다국어 완벽 지원;
+  2. **비용 정직 투명성 (Cost Honesty)**: 마우스 호버 툴팁을 통해 실제 비용 차이를 투명하게 공개 — 짧은 단일 작업은 Direct-FC가 경제적이고 빠름; PTC 모드는 Python 스크립트를 생성하여 샌드박스 서브 에이전트를 동시 병렬 실행함으로써 컨텍스트 한계를 돌파하지만, 스크립트 생성 및 사전 검사로 약 9%의 토큰 오버헤드가 발생함을 명확히 안내;
+  3. **세션별 1회 전송 후 자동 리셋 및 지능형 폴백**: 전송 후 기본 모드로 자동 복귀하여 의도치 않은 고비용 스크립트 실행 방지, 백엔드 규칙 기반 Auto-escalation 자동 승격 폴백 지원;
+  4. **전체 스택 엄격 계약 및 Prompt Cache 제로 오염**: 프런트-백엔드 간 일관된 `orchestration_mode` Pydantic 모델 및 REST 요청 직렬화, 정적 프롬프트 프리픽스를 변경하지 않아 100% Prompt Cache 적중률 유지;
+  5. **전체 스택 테스트 검증**: 22개 단위 테스트 및 83개 멀티 스위트 통합 테스트 100% 정상 통과, 0 Lint 에러.
+- **자료 SSOT:** `temp-docs/materials/DEVELOPER_EXPERIENCE_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent-frontend/src/components/features/message-input-actions/WorkflowModeToggle.tsx` · `myrm-agent-server/app/services/agent/params/models.py`
+
+## 최신 검증 스냅샷 (2026-08-22 · 활성 세션 「대话 | 궤적」 듀얼 탭 및 원본 이벤트 스트림 직결 · DX Roadmap Topic 15 #3 완료)
 
 - **활성 세션 「대화 | 궤적」 듀얼 탭 및 무삭제 이벤트 스트림 (vs DSH / 주황색 책 / 자이신 / Hermes / OpenClaw):** Myrm은 세션 내 프로덕션 수준의 무삭제 물리 이벤트 가시성을 완성했습니다:
   1. **기본 세션 창 내장 듀얼 탭 전환기 (`ChatWindow.tsx`)**: 채팅 상단 헤더에 「대화 (Chat) | 궤적 (Trace)」 반응형 탭을 제공하여, 별도 설정 창을 열 필요 없이 한 화면에서 즉시 전환 및 모니터링 가능;

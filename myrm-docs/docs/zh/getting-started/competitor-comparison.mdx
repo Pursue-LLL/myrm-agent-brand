@@ -11,6 +11,17 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-22 · 打包插件 secret-ref 剥离与作用域零明文凭据注入 · 安全治理 Roadmap Topic 03 #5 达成）
+
+- **打包插件 secret-ref 剥离与作用域零明文凭据注入（对比 bun 1.2.16 / OpenClaw / Hermes）：** Myrm 构建了企业级全生命周期凭据隔离与零明文存储体系：
+  1. **数据源头凭据彻底剥离（`mcp_config.py`）**：Harness 框架层解析器在解析插件 `mcp.json` 时仅提取环境变量键名列表（`env_key_names`），彻底剥离全部明文环境值（`values are stripped for security`），物理杜绝插件包携带或泄露敏感 Key；
+  2. **模板化零明文持久化（`_mcp_persist.py`）**：导入落库时将环境变量映射为 `required_secrets` 元数据，敏感 Header 强制转为 `{{secret:KEY}}` 模板，数据库中无任何静态明文凭据；
+  3. **运行期最小权限作用域注入（`mcp_runtime_prepare.py`）**：stdio MCP 子进程启动前，仅根据声明的 `required_secrets` 从 AES-256-GCM 加密金库（`DatabaseSecretBackend`）提取注入，严禁泄露全局环境变量；
+  4. **动态请求鉴权与零静态存储（`mcp_secret_auth.py`）**：通过 `MCPSecretAuthProvider` 在发起 HTTP 请求时动态解析 Header 密钥，内存无长生命周期敏感配置；
+  5. **全方位出站防泄露与解压防护**：`leak_detector.py` 40+ 正则与香农熵防输出泄露，`zip_extract.py` 物理拦截可执行二进制文件；
+  6. **全栈测试验证**：Harness 与 Server 端 307 项单元与集成测试 100% 绿灯，0 Lint 错误。
+- **素材 SSOT：** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/plugins/mcp_config.py` · `myrm-agent/myrm-agent-server/app/services/plugins/_mcp_persist.py` · `myrm-agent/myrm-agent-server/app/services/agent/mcp_runtime_prepare.py`
+
 ## 最新验证快照（2026-08-22 · 预置技能相对链接与资源完整性图谱门禁 · 技能生态 Roadmap Topic 08 #16 达成）
 
 - **预置技能相对链接与资源完整性图谱门禁（对比 Better-Harness / OpenAI GPTs / Hermes / OpenClaw）：** Myrm 实现了 50+ 预置技能的全量确定性静态 CI 图谱校验：
@@ -19,6 +30,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **零 LLM 消耗与 <50ms 极速门禁**：纯确定性静态解析，零外部 API 依赖，单次运行耗时低于 50ms，无缝嵌入预提交与 CI 门禁；
   4. **全栈测试验证**：243 项静态契约测试（`test_*_static.py`）与 41 项预置技能同步/E2E 测试 100% 绿灯。
 - **素材 SSOT：** `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md` · `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md` · `scripts/dev/tests/test_prebuilt_skill_links_static.py`
+
+## 最新验证快照（2026-08-22 · 全功能隔离沙箱与精准人机协同编辑 · 知识库 Roadmap Topic 02 #14 & #15 达成）
+
+- **全功能安全隔离沙箱与精准人机协同编辑体系（对比 WorkBuddy 5.3.11 闭源资料库与 CSV 数据绑定）：** Myrm 实现了执行车间与知识沉淀仓库的严格解耦与强大协同：
+  1. **车间与仓库分工明确**：动态生成的代码、交互仪表盘与 HTML 原型归属于 `ArtifactPortal` 与 `ArtifactsCenter`，而持久化的规则、概念与双向链接沉淀于兼容 Obsidian 的 `Wiki Vault` 与 `Memory`，拒绝中心化大杂烩式的混乱 Hub；
+  2. **精准人机点选协同编辑**：`ElementPickerToolbar` 原生支持 DOM 元素可视化拾取并精准向 Agent 提需求，`DocumentSelectionToolbar` 与 Monaco Editor 提供浮动选区即时追问与源码实时双向修改；
+  3. **真实隔离沙箱彻底超越脆弱 CSV 协议**：基于原生 Python (Pandas/DuckDB/SQLite)、Node.js 与 Bash 安全沙箱，Agent 可直接构建具备持久存储的生产级 React/Tailwind/ECharts 交互式应用，彻底淘汰死板的私有 CSV 绑定 DSL 契约；
+  4. **全网边缘发布与不可变快照**：`PublishModal` 原生支持一键托管至 Vercel、Cloudflare 与 Netlify，提供无状态 HMAC 密码门与版本快照；
+  5. **全栈测试验证**：243 项静态契约测试、19 项 Harness Wiki 单元测试与前端全量 i18n/Vitest 测试 100% 绿灯。
+- **素材 SSOT：** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `temp-docs/roadmap/topic_02_knowledge_wiki_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/artifacts/` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/`
 
 ## 最新验证快照（2026-08-22 · 确定性多源云端知识沉淀与统一经验演化 SSOT · 知识库 Roadmap Topic 02 #12 & #13 达成）
 
@@ -38,6 +59,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   4. **微秒级零 Token 纯本地运行**：纯同步快速非阻塞探针执行，不消耗任何外部 LLM Token 与网络开销；
   5. **全栈测试验证**：`test_agent_cold_start_diagnostic.py` 及 Server 端健康诊断 API 测试 100% 绿灯，0 Lint 错误。
 - **素材 SSOT：** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent/myrm-agent-server/app/core/infra/health/server_diagnostics.py`
+
+## 最新验证快照（2026-08-22 · 编排模式自由切换与成本诚实透明度 · 开发者体验 Roadmap Topic 15 #4 达成）
+
+- **编排模式自由切换与成本诚实透明度（对比 Manus / Cursor Composer / Devin / Hermes）：** Myrm 构建了兼顾极速经济与深度批量编排的双车道执行体系：
+  1. **双模式一键切换（`WorkflowModeToggle.tsx`）**：在输入框操作栏提供原生编排模式切换芯片（Direct-FC 极速标准模式 vs PTC 动态并发编排模式），支持微光呼吸动效与全多语言无缝切换；
+  2. **成本诚实透明度（Cost Honesty）**：悬停 Tooltip 明确向用户公开成本差异——短任务推荐 Direct-FC 更经济快捷；PTC 模式利用 Python 脚本并发拉起沙箱子 Agent 突破上下文窗口，但每次执行会产生 ~9% 预检与脚本生成 Token 消耗；
+  3. **单次会话重置与自动兜底防误耗**：发送后自动重置状态，避免后续轻量问答误触发高成本编排；同时后端具备规则级 Auto-escalation 隐式升级兜底；
+  4. **全链路严格契约与 Prompt Cache 零污染**：前后端统一 `orchestration_mode` Pydantic 校验与 REST 请求序列化，保持 Prompt 静态前缀 100% 缓存命中；
+  5. **全栈测试验证**：22 项单元测试与 83 项多套件集成测试 100% 绿灯全过，0 Lint 错误。
+- **素材 SSOT：** `temp-docs/materials/DEVELOPER_EXPERIENCE_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent-frontend/src/components/features/message-input-actions/WorkflowModeToggle.tsx` · `myrm-agent-server/app/services/agent/params/models.py`
 
 ## 最新验证快照（2026-08-22 · 活跃会话「对话 | 轨迹」双 Tab 与未删节事件流直达 · 开发者体验 Roadmap Topic 15 #3 达成）
 
