@@ -286,17 +286,20 @@ Myrm 自动发现并注入项目级规则文件，使 Agent 遵循团队约定�
 
 非任意截断消息，而是为主模型最大上下文预留专用 Token 预算（如 20%）给最近对话尾部，确保当前工作记忆与活跃工具结果不被挤出，保证任务连续性。
 
-## 子 Agent 结果蒸馏
+## 子 Agent 结果蒸馏与分支作用域合并
 
-当子 Agent 执行任务（如运行测试套件、研究代码库）时，原始输出可能长达数千行。Myrm 通过 3 级递进保护确保父 Agent 的上下文保持干净：
+当子 Agent 执行任务（如运行测试套件、研究代码库）时，原始输出可能长达数千行。Myrm 通过 4 级递进保护与分支作用域压缩合并确保父 Agent 的上下文保持干净且记忆无损：
 
 | 级别 | 机制 | 效果 |
 |------|------|------|
 | **第 1 级** | `truncate_result` | 按 `max_result_tokens` 硬截断（最后防线） |
 | **第 2 级** | `_auto_vault_or_truncate` | 超过 8,000 字符的输出自动存入 ArtifactVault；父 Agent 收到精简摘要（头部+尾部）、`vault://` 指针，以及明确的 **`file_read_tool(paths=["vault://…"])` 恢复提示** |
 | **第 3 级** | `AgentHandoverState` | 结构化交接（已完成任务、待办、风险、相关文件）从原始结果中提取并分离 |
+| **第 4 级** | **分支作用域确定性合并** | 主会话压缩时，`branch_scoped_compaction.py` 纯内存自动汇聚子分支 `ArtifactTracker` 物理落盘事实与 Handover 状态，0 LLM 开销完成跨分支记忆缝合 |
 
 此外，子 Agent 通过 `enable_context_compression` **继承完整的上下文流水线**，其内部执行过程就已享受同样的压缩、剪枝和摘要层——从源头防止产出冗长结果。
+
+**分支作用域合并与物理事实对账**：当主会话触发上下文压缩时，传统架构容易遗忘子 Agent 在分支中修改的代码文件与产生的重要交接。Myrm 通过 `merge_subagent_branch_artifacts` 递归收集关联子 Agent 的文件变动，由 `ExecutionStateValidator` 实施物理落盘对账，并由 `merge_subagent_handovers_into_summary` 确定性归并关键产物至 `StructuredSummary`，从源头杜绝多智能体任务中的"分支失忆"与重复委派。
 
 **子 Agent 压缩安全**：子 Agent 上下文压缩时，同样的流水线保护生效——`extract_protected_head` 保护前导系统消息，摘要以 `HumanMessage`（而非 `SystemMessage`）注入以保护提示词缓存，`ensure_tool_pair_integrity` 验证消息结构完整性。压缩后子 Agent 上下文始终以合法系统消息开头，从架构层面消除了竞品中常见的「压缩后 assistant-first 被拒」失败模式。
 

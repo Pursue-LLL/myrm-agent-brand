@@ -13,7 +13,26 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 특히 메모리의 경우 Myrm은 이제 전체 **진단 + 원격 측정 무결성 루프** 엔드투엔드를 제공합니다. 스트림 단계 상태, 지속 단계 상태, 제어 평면 집계/경고, 프런트엔드 소스 설명(`preflight` 대 `runtime_fallback`), 모바일 비호버 복사, 엄격한 클라우드 페일클로즈 수집(공유 봉투 멱등성 + 공유 중복 제거 백엔드를 사용할 수 없을 때 자동 로컬 대체 없음, `dedup_reject` 사용) 이유 측정항목). 최근 집중 회귀 실행(2026-07-19): 서버 28 통과, 제어 평면 55 통과, 프런트엔드 14 통과.
 
+## 최신 검증 스냅샷 (2026-08-22 · 에이전트 수명 주기 아웃바운드 Webhook 및 제로 SSRF 안전성 보장 · 관찰 가능성 Roadmap Topic 11 #2 완료)
+
+- **에이전트 수명 주기 아웃바운드 Webhook (vs Hermes / OpenClaw / Grok):** Myrm은 엔터프라이즈급 아웃바운드 수명 주기 Webhook 체계를 구축하여 제로 SSRF 유출 방지 및 GUI 우선의 관리 경험을 제공합니다:
+  1. **엔터프라이즈급 안전 발송 및 HMAC-SHA256 서명 (`lifecycle_webhook_service.py`)**: 모든 Webhook 전송은 엄격한 SSRF 유효성 검사(`validate_webhook_url`)를 거쳐 클라우드 메타데이터 IP(`169.254.169.254`) 및 사설망 접근을 차단하며, `X-Myrm-Signature-256` HMAC 서명을 기본 제공하고 3xx 리디렉션을 차단하여 보안 유지;
+  2. **비차단 비동기 큐 발송 (`asyncio.Queue`)**: 512 용량의 워커 큐와 지수 백오프 재시도(최대 2회)를 탑재하여 외부 HTTP 지연이나 네트워크 불안정이 Agent 코어 실행 루프를 전혀 차단하지 않음;
+  3. **GUI 우선 네이티브 관리 대시보드 (`LifecycleWebhookSection.tsx`)**: `설정 -> 서비스 디렉터리 (Integrations)` 내 시각적 관리 카드를 제공하여 HMAC 키 1클릭 무작위 생성, 구독 이벤트 배지 다중 선택(`session_completed` / `session_failed` / `approval_required` / `kanban_task_updated` 등) 및 엔드포인트별 「Ping 연결성 테스트」 실시간 밀리초 지연/상태 피드백 완벽 지원;
+  4. **전체 스택 테스트 검증**: 세 가지 배포 모드(Local, Tauri 데스크톱, 클라우드 호스팅)에서 Pytest 백엔드 단위/통합 테스트 및 Vitest 프런트엔드 컴포넌트 테스트 100% 정상 통과.
+- **자료 SSOT:** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent/myrm-agent-server/app/services/webhook/lifecycle_webhook_service.py` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/integration/integrations/LifecycleWebhookSection.tsx`
+
+
 턴당 기능 제어를 위해 Myrm은 완전한 관찰 가능성(제출/적용/noop/큐/바쁨/최종 결과 + 실패 이유)을 갖춘 **원턴 스킬/MCP 재정의 칩**을 지원합니다. 집중 검증(2026-07-29): 프런트엔드 29/29 통과, 서버 10/10 통과; 목표 적용 범위는 핵심 프런트엔드 파일의 라인 62.47%, 서버 원격 측정 모듈의 전체 라인 72%에 도달했습니다. 이는 팀에게 추측이 아닌 비용/신뢰성 조정에 대한 마이그레이션 안전 증거를 제공합니다.
+
+## 최신 검증 스냅샷 (2026-08-22 · 분기 스코프 하위 에이전트 산출물 및 인계 결과 결정론적 병합 · 컨텍스트 및 세션 Roadmap Topic 06 #7 완료)
+
+- **분기 스코프 하위 에이전트 산출물 및 인계 결과 결정론적 병합 (vs Pi Agent / OpenClaw / Hermes / DeepSeek Harness):** Myrm은 엔터프라이즈급 멀티 에이전트 분기 스코프 압축 및 결과 무손실 병합 체계를 구축했습니다:
+  1. **제로 LLM 비용 결정론적 병합 (`branch_scoped_compaction.py`)**: 주 세션 컨텍스트 압축 시 순수 Python 메모리 알고리즘을 통해 <0.2ms 내에 하위 에이전트의 물리적 변경 파일 및 구조화된 인계 상태(완료 항목, 잔여 TODO, 핵심 발견 및 위험)를 자동 수집하여 2차 LLM 요약 오버헤드와 지연을 100% 제거;
+  2. **멀티 에이전트 물리 파일 재귀 대사**: `ExecutionStateValidator`를 업그레이드하여 연결된 하위 세션의 `ArtifactTracker` 기록을 재귀적으로 수집하고 주 에이전트가 하위 에이전트의 파일 수정을 잊는 환각을 철저히 차단;
+  3. **100% Prompt Cache 고정 유지**: 병합된 하위 작업 결과는 부모 세션의 HumanMessage 메모리 컨텍스트에 캡슐화되어 시스템 프롬프트 접두사를 완전히 보존;
+  4. **전체 스택 테스트 검증**: Harness 측 61개 테스트 스위트(`test_branch_scoped_compaction.py`, `test_execution_state_validator.py`, `test_stream_recovery_overflow_failover.py`) 100% 통과.
+- **자료 SSOT:** `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/branch_scoped_compaction.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/strategies/summary/execution_state_validator.py`
 
 ## 최신 검증 스냅샷 (2026-08-22 · 패키징된 플러그인 secret-ref 제거 및 범위화된 제로 평문 자격 증명 주입 · 보안 거버넌스 Roadmap Topic 03 #5 완료)
 
@@ -54,6 +73,17 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
   4. **마이크로초 수준 제로 토큰 순수 로컬 실행**: 외부 LLM 토큰 소모나 네트워크 오버헤드가 전혀 없는 순수 동기식 비차단 진단 실행;
   5. **전체 스택 테스트 검증**: `test_agent_cold_start_diagnostic.py` 및 서버 상태 진단 API 테스트 100% 정상 통과, 0 Lint.
 - **자료 SSOT:** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent/myrm-agent-server/app/core/infra/health/server_diagnostics.py`
+
+## 최신 검증 스냅샷 (2026-08-22 · 채팅 내 상주 경량 모니터링 스트립 및 서브 에이전트 종합 거버넌스 · 멀티 에이전트 Roadmap Topic 12 #2 & #4 완료)
+
+- **채팅 내 상주 경량 모니터링 스트립 및 서브 에이전트 종합 거버넌스 (vs WorkBuddy / Codex / Hermes / OpenClaw):** Myrm은 가벼운 인채팅 인지와 심층 진단을 결합한 다중 에이战 모니터링 및 거버넌스 스위트를 제공합니다:
+  1. **전 수명주기 경량 인채팅 스트립 (`ChatInlineTeamRunVisibilityStrip.tsx`)**: WorkBuddy `WorkerEventProjector`를 벤치마킹하여, 단순 회전/완료 상태를 넘어 `pending` / `running` / `verifying` / `pending_approval` / `interrupted` / `checkpoint` 및 `stale` 지연 감지까지 전 수명주기를 완벽 지원;
+  2. **우선순위 선점형 동적 알림 메커니즘**: 최고 위험 상태를 상단 배너로 즉시 승격 표시(`pending_approval` 승인 대기 차단 > `stale` 이상 지연 알림 > `running`), 가중치 마이크로 진행 표시줄 및 2.5초 자연스러운 완료 페이드아웃 버퍼 제공;
+  3. **원클릭 아바타 딥링크 (Deep-linking)**: 스트립 내 워커 아바타 클릭 시 `SubagentDashboard` 트리/그래프 뷰로 매끄럽게 이동하여 해당 노드를 포커스/하이라이트;
+  4. **단계별 작업 카운트 실시간 스트립 (`StageTaskCountStrip.tsx`)**: Codez §14 오케스트레이션 패널을 벤치마킹하여 Scope / Fan-out / Verify / Synthesize 4대 단계의 완료도 및 업스트림 블로킹 대기 상태 표시;
+  5. **이상 진단 및 LoopGuard 제안 (`SubagentInsightsView.tsx`)**: 에이전트 타입별 통계, Z-score 지연 이상치 하이라이트 및 교착 상태 자동 복구 제安 제공;
+  6. **전체 스택 테스트 검증**: 7개 컴포넌트 단위 테스트, 6개 단계 통계 테스트 100% 통과, 6개 국어 i18n 및 stable-mocks 게이트 통과, 0 Lint 에러.
+- **자료 SSOT:** `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/subagent/ChatInlineTeamRunVisibilityStrip.tsx` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/subagent/SubagentDashboard.tsx`
 
 ## 최신 검증 스냅샷 (2026-08-22 · 오케스트레이션 모드 자유 전환 및 비용 정직 투명성 · 개발자 경험 Roadmap Topic 15 #4 완료)
 

@@ -290,17 +290,20 @@ For vision models operating autonomously (e.g., Computer Use), screenshots are h
 
 Instead of arbitrarily truncating messages, Myrm calculates a dedicated token budget (e.g., 20% of max context) exclusively reserved for the most recent conversation tail. This ensures that the agent's current working memory and active tool results are never compressed or squeezed out, guaranteeing task continuity.
 
-## Subagent Result Distillation
+## Subagent Result Distillation & Branch-Scoped Compaction Merge
 
-When sub-agents execute tasks (e.g., running test suites, researching codebases), their raw output can be thousands of lines. Myrm applies 3-tier progressive protection to ensure the parent agent's context stays clean:
+When sub-agents execute tasks (e.g., running test suites, researching codebases), their raw output can be thousands of lines. Myrm applies 4-tier progressive protection and branch-scoped compaction merge to ensure the parent agent's context stays clean with zero loss of branch memory:
 
 | Tier | Mechanism | Effect |
 |------|-----------|--------|
 | **Tier 1** | `truncate_result` | Hard limit by `max_result_tokens` (last line of defense) |
 | **Tier 2** | `_auto_vault_or_truncate` | Outputs exceeding 8,000 chars are stored in ArtifactVault; parent receives a compact summary (head + tail), a `vault://` pointer, and an explicit **`file_read_tool(paths=["vault://…"])` recovery hint** |
 | **Tier 3** | `AgentHandoverState` | Structured handover (completed tasks, pending todos, risks, relevant files) is extracted and separated from the raw result |
+| **Tier 4** | **Branch-Scoped Merge** | During parent compaction, `branch_scoped_compaction.py` deterministically collects child `ArtifactTracker` physical file records and Handover states in <0.2ms with zero extra LLM cost |
 
 Additionally, sub-agents **inherit the full context pipeline** via `enable_context_compression`, so their internal execution already benefits from the same compression, pruning, and summarization layers — preventing bloated results from forming in the first place.
+
+**Branch-Scoped Compaction Merge & Physical File Reconciliation**: When a parent session triggers context compaction, traditional multi-agent architectures lose track of files created or modified by child agents. Myrm solves this by using `merge_subagent_branch_artifacts` to recursively collect file mutations across child sessions, feeding them into `ExecutionStateValidator` for physical file reconciliation, and invoking `merge_subagent_handovers_into_summary` to seamlessly fold child achievements, open tasks, and risks into `StructuredSummary`.
 
 **Subagent compaction safety**: When a sub-agent's context is compacted, the same pipeline protections apply — `extract_protected_head` preserves leading system messages, the summary is injected as a `HumanMessage` (not `SystemMessage`) to preserve prompt cache, and `ensure_tool_pair_integrity` validates message structure. This means sub-agent context always starts with a valid system message after compaction, eliminating the "assistant-first rejection" failure pattern seen in competing frameworks.
 

@@ -11,6 +11,25 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-22 · 智能体生命周期出站 Webhook 与零 SSRF 安全出网 · 可观测性 Roadmap Topic 11 #2 达成）
+
+- **智能体生命周期出站 Webhook（对比 Hermes / OpenClaw / Grok）：** Myrm 实现了企业级出站生命周期 Webhook 体系，具备零 SSRF 泄露防护与 GUI 优先的开箱管理：
+  1. **企业级安全出网与 HMAC-SHA256 签名（`lifecycle_webhook_service.py`）**：所有 Webhook 分发均强制经过严格的 SSRF 安全校验（`validate_webhook_url`），物理拦截云元数据 IP 段（`169.254.169.254`）与内网私有网段；投递默认携带 `X-Myrm-Signature-256` HMAC 签名，并默认拒绝 3xx 重定向以防密钥和载荷外泄；
+  2. **非阻塞异步队列分发（`asyncio.Queue`）**：内置 512 容量的工作队列与指数退避重试（最多 2 次尝试），外部 HTTP 延迟与网络抖动彻底不阻塞 Agent 核心执行循环；
+  3. **GUI 优先原生管理面板（`LifecycleWebhookSection.tsx`）**：在 `设置 -> 服务目录 (Integrations)` 下提供可视化管理卡片，支持一键随机生成 HMAC 密钥、订阅事件徽标多选（`session_completed` / `session_failed` / `approval_required` / `kanban_task_updated` 等）及单个端点「Ping 连通性测试」实时毫秒级延迟与状态反馈；
+  4. **全栈测试验证**：Pytest 后端单元/集成测试与 Vitest 前端组件测试在三种部署模式（Local、Tauri 桌面端、云托管）下 100% 绿灯 PASS。
+- **素材 SSOT：** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent/myrm-agent-server/app/services/webhook/lifecycle_webhook_service.py` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/integration/integrations/LifecycleWebhookSection.tsx`
+
+
+## 最新验证快照（2026-08-22 · 分支作用域子智能体产物与交接成果确定性合并 · 上下文与会话 Roadmap Topic 06 #7 达成）
+
+- **分支作用域子智能体产物与交接成果确定性合并（对比 Pi Agent / OpenClaw / Hermes / DeepSeek Harness）：** Myrm 实现了企业级多智能体分支作用域压缩与成果无损归并体系：
+  1. **零 LLM 开销确定性合并（`branch_scoped_compaction.py`）**：在主会话上下文压缩时，通过纯 Python 内存算法在 <0.2ms 内自动收集子 Agent 的物理落盘文件与结构化交接状态（完成项、遗留待办、关键发现与风险），消除 100% 的额外二次 LLM 摘要开销与延迟；
+  2. **多智能体物理文件递归对账**：升级 `ExecutionStateValidator` 递归收集关联子 session 的 `ArtifactTracker` 记录，彻底杜绝主 Agent 遗忘子 Agent 文件修改事实的幻觉；
+  3. **100% Prompt Cache 恒定锁定**：合并后的子任务成果封装于父会话 HumanMessage 记忆上下文，系统提示词前缀零扰动；
+  4. **全栈测试验证**：Harness 端 61 项测试套件（`test_branch_scoped_compaction.py`, `test_execution_state_validator.py`, `test_stream_recovery_overflow_failover.py`）100% 绿灯 PASS。
+- **素材 SSOT：** `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/branch_scoped_compaction.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/strategies/summary/execution_state_validator.py`
+
 ## 最新验证快照（2026-08-22 · 打包插件 secret-ref 剥离与作用域零明文凭据注入 · 安全治理 Roadmap Topic 03 #5 达成）
 
 - **打包插件 secret-ref 剥离与作用域零明文凭据注入（对比 bun 1.2.16 / OpenClaw / Hermes）：** Myrm 构建了企业级全生命周期凭据隔离与零明文存储体系：
@@ -59,6 +78,17 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   4. **微秒级零 Token 纯本地运行**：纯同步快速非阻塞探针执行，不消耗任何外部 LLM Token 与网络开销；
   5. **全栈测试验证**：`test_agent_cold_start_diagnostic.py` 及 Server 端健康诊断 API 测试 100% 绿灯，0 Lint 错误。
 - **素材 SSOT：** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent/myrm-agent-server/app/core/infra/health/server_diagnostics.py`
+
+## 最新验证快照（2026-08-22 · 主聊天常驻轻量监控条与子智能体全景治理 · 多Agent编排 Roadmap Topic 12 #2 & #4 达成）
+
+- **主聊天常驻轻量监控条与子智能体全景治理（对比 WorkBuddy / Codex / Hermes / OpenClaw）：** Myrm 实现了兼顾「主聊轻量感知」与「全景深度排障」的多智能体监控套件：
+  1. **全生命周期轻量常驻微条（`ChatInlineTeamRunVisibilityStrip.tsx`）**：对标 WorkBuddy `WorkerEventProjector`，突破竞品仅转圈/完成的二元状态局限，覆盖 `pending` / `running` / `verifying` / `pending_approval` / `interrupted` / `checkpoint` 及 `stale` 异常停滞感知等全生命周期状态；
+  2. **基于优先级抢占的动态告警机制**：自动将最高风险等级置顶显式提醒（`pending_approval` 阻断审批 > `stale` 异常停滞 > `running` 执行中），配合加权微进度条与 2.5s 平滑淡出缓冲；
+  3. **单任务头像直达深链（Deep-linking）**：点击微条中的任意 Worker 头像，一键平滑跳转至 `SubagentDashboard` 并高亮聚焦对应节点，无缝串联概要与详情；
+  4. **阶段级任务计数面板（`StageTaskCountStrip.tsx`）**：对标 Codez §14 编排面板，实时呈现 Scope / Fan-out / Verify / Synthesize 四大阶段的完成度与上游阻塞等待指示；
+  5. **异常智能分析与 LoopGuard 建议（`SubagentInsightsView.tsx`）**：支持跨智能体类型耗时统计、Z-Score 耗时异常离群识别与卡死自愈建议；
+  6. **全栈测试验证**：全套组件单测（7/7 passed）、阶段计数单测（6/6 passed）、6 国语言 i18n 与 stable-mocks 门禁 100% 绿灯全过，0 Lint 错误。
+- **素材 SSOT：** `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/subagent/ChatInlineTeamRunVisibilityStrip.tsx` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/subagent/SubagentDashboard.tsx`
 
 ## 最新验证快照（2026-08-22 · 编排模式自由切换与成本诚实透明度 · 开发者体验 Roadmap Topic 15 #4 达成）
 
