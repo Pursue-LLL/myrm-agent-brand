@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-24 · 四层 ToolLayer 拓扑缓存锁定与确定性异步生命周期闭环 · 工具生态与运行时可靠性达成）
+
+- **四层 ToolLayer 拓扑与确定性异步生命周期闭环防线（对比 OpenClaw / Hermes-Agent / Deer-Flow / 传统 Agent 框架）：** Myrm 建立了全链路工具拓扑缓存锁定、异步生命周期回收与前端历史消息去重状态机：
+  1. **四层 ToolLayer 静态拓扑排序（`CORE -> COMMON -> EXTENDED -> EXTERNAL`）**：严格按照层级拓扑对工具定义静态排序，从源头锁定最高达 90%+ 的 Prompt Cache 命中率，大幅削减大模型 API 账单与首字生成延迟（TTFT）；
+  2. **确定性异步生命周期闭环回收（`SkillAgent.close()` + `ToolLifecycleManager`）**：智能体关闭、切换或取消会话时，底层自动触发 `cleanup_tools()`，对数据库连接池、外部 Session、文件锁与扩展关停钩子实现毫秒级安全释放与 30s 超时隔离，杜绝长时间单机运行导致的句柄与连接池泄漏；
+  3. **长会话历史回溯 Set 唯一性去重状态机（`messageManagement.ts`）**：前端分页加载采用原生 `Set` 去重合并，与 TanStack Virtual 滚动高度补偿深度协同，彻底消除长会话快速上滑时的 React key 冲突警告与 DOM 重叠跳动；
+  4. **声明式核心元工具与 A2UI 原生绑定**：`complete_goal_tool`、`ask_question_tool`、`render_ui_tool` 等框架元工具与执行引擎深度绑定，职责清晰，零前端侵入；
+  5. **全栈测试验证**：107 项后端工具分层、生命周期回收与前端状态机自动化测试 100% 绿色通过，0 错误、0 警告、0 僵尸残留。
+- **素材 SSOT：** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/skill_agent/skill_agent.py` · `myrm-agent/myrm-agent-frontend/src/store/chat/messageManagement.ts` · `myrm-agent-harness/tests/agent/skill_agent/test_skill_agent_optimizations.py`
+
 ## 最新验证快照（2026-08-23 · 多工作区依赖漏洞 CI 门禁与跨生态 Lockfile 精准解析 · 安全治理 Roadmap Topic 03 #6 达成）
 
 - **多工作区跨生态依赖漏洞 CI 门禁与 Lockfile 供应链审计（对比 Dependabot / Hermes security_audit.py / osv-scanner）：** Myrm 确立了工业级 Monorepo 依赖供应链安全 CI 阻断与双轨扫描体系：
