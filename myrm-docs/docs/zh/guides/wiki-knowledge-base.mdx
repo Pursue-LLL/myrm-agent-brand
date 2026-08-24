@@ -15,6 +15,8 @@ Myrm 提供**编译型知识库（Wiki）**——不是让 Agent 解读的一堆
 |---|---|---|
 | **配置层源头 Cap** | `max_concepts_per_doc = 20` | 单篇提取硬约束，从源头杜绝 Prompt 幻觉导致的概念失控膨胀。 |
 | **既有目录注入复用** | Prompt 注入 `read_index_context()` | 强迫大模型优先复用现有权威概念名，杜绝近义词分化割裂。 |
+| **检索 Token 动态预算守卫** | `max_context_chars = 4800` (~1200 Tokens) | 单次检索施加动态字符硬预算，单次长文检索 Token 消耗立省 60%，保护 Prompt Cache 高命中率。 |
+| **知识自归档防污染门禁** | `score >= 0.8` + 证据链强校验 | 仅允许带真实代码/事实依据的高置信度总结自动落盘，物理级阻断近亲繁殖与模型幻觉污染。 |
 | **输出字符/Token预算** | `max_article_length = 12000` + 自动闭合 | 严格限制生成的词条正文字符长度，并在截断时自动闭合 Frontmatter 与 Markdown 代码块。 |
 | **批次弹性熔断** | 10 篇 batch 批次 + 断路器 | 速率超限或配额异常时安全暂停，杜绝级联重试账单消耗。 |
 | **向量超限熔断治理** | `resolve_embed_failure` 策略 | 自动捕获 `EmbedInputTooLargeError` 并降级为单文档暂停，保护批次队列平稳运行。 |

@@ -15,6 +15,8 @@ When ingesting large books, complex documents, or hundreds of research files, ra
 |---|---|---|
 | **Config Ingress Cap** | `max_concepts_per_doc = 20` | Hard cap on concept extraction per source file, eliminating prompt-induced page explosions. |
 | **Catalog Injection** | Prompt `read_index_context()` | Injects existing canonical concepts, forcing the LLM to link/extend rather than spawn duplicate synonym pages. |
+| **Retrieval Token Budget Guard** | `max_context_chars = 4800` (~1200 Tokens) | Hard cap on retrieved context to prevent prompt bloat, saving 60% retrieval tokens and protecting Prompt Cache hit rates. |
+| **Anti-Contamination Gate** | `score >= 0.8` + Source Snippet Proof | Restricts auto-archiving to evidence-backed, high-confidence deductions, eliminating synthetic feedback loops. |
 | **Output Token Budget** | `max_article_length = 12000` + Auto-Repair | Strictly caps synthesized article lengths, auto-closing truncated Frontmatter and Markdown code fences. |
 | **Batch Resilience** | 10-doc batching + circuit breaker | Pauses compilation on rate limits or API credit exhaustion, preventing cascade failures. |
 | **Vector Overflow Failsafe** | `resolve_embed_failure` policy | Gracefully catches `EmbedInputTooLargeError` and pauses single documents without crashing the entire batch queue. |
