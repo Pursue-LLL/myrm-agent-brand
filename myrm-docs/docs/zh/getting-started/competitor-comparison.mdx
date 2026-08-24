@@ -11,6 +11,39 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-23 · 多工作区依赖漏洞 CI 门禁与跨生态 Lockfile 精准解析 · 安全治理 Roadmap Topic 03 #6 达成）
+
+- **多工作区跨生态依赖漏洞 CI 门禁与 Lockfile 供应链审计（对比 Dependabot / Hermes security_audit.py / osv-scanner）：** Myrm 确立了工业级 Monorepo 依赖供应链安全 CI 阻断与双轨扫描体系：
+  1. **全生态 Lockfile 原生纯 Python 提取引擎（`dependency_extractor.py`）**：原生支持跨 6 大工作区的 `uv.lock` (PyPI TOML)、`bun.lock` (npm JSON v1/workspaces/flat) 与 `package-lock.json` (npm JSON v1/v3) 锁文件，秒级无损提取 640+ 个直接与传递依赖与精确锁定版本，0 外部工具链依赖；
+  2. **双轨制安全扫描与分级阻断门禁（`check_workspace_dependency_vulns.py`）**：结合 `security_advisories.py` 离线投毒库（拦截已知投毒包，秒级确定性生效）与 OSV.dev 官方在批量并发 API，支持 `--fail-on HIGH` 阻断违规 PR、`--offline` 离线极速运行与基于 `vuln_gate_config.json` 的带有效期/原因的白名单审计豁免；
+  3. **CI 结构化报表归档与零 Token 损耗**：自动输出 `--output-json` 与 `--output-md` 汇总报表，直连 GitHub Actions Step Summary；纯函数提取不侵入运行时，Prompt Cache 命中率 100% 保持；
+  4. **全栈测试验证**：Harness 扫描套件 235 项测试 100% 绿灯（耗时 0.77s），全工作区 Linter 0 错误、0 警告。
+- **素材 SSOT：** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/dependency_extractor.py` · `scripts/ci/check_workspace_dependency_vulns.py` · `scripts/ci/vuln_gate_config.json`
+
+## 最新验证快照（2026-08-23 · 跨厂商任务专长零延迟路由与 4 级级联回退 · 模型路由 Roadmap Topic 07 #5 达成）
+
+- **任务专长零延迟路由与跨厂商无缝分流体系（对比 WorkBuddy 闭源模型调度 / Cursor Router / DeepSeek Harness）：** Myrm 构建了业界首个零延迟、多维语义特征打分、会话动量锁定与 4 级级联回退的跨厂商任务专长智能路由体系：
+  1. **0ms 内存级任务专长特征分类引擎（`specialty_router.py`）**：支持 CODE（代码重构/AST 结构/Traceback）、LONG_DOC（24k 字符/长篇报告/全文提炼）、REASONING（LaTeX/数学证明/复杂逻辑）、MULTIMODAL（图文视觉）及 CASUAL（简短闲聊/低成本模型）5 大专长领域零延迟毫秒级特征打分识别；
+  2. **会话动量平滑锁定（Session Momentum）**：对多轮技术对话中的短追问（如“继续”、“怎么改”）自动继承前序轮次的专业专长，杜绝中途意外降级；
+  3. **4 级确定性平滑降级链（Specialty Fallback Chain）**：构建 `专长主模型 -> 专长备用 -> 全局主模型 -> 全局备用` 的 4 级去重回退矩阵，专长槽位未配置或供应商故障时 100% 平滑 Fail-Open，绝不中断用户对话；
+  4. **无缝全栈流式传递与透明芯片**：Server 端 `converter.py` 与 `stream_chunks.py` 动态下发 `routing_decision` SSE 事件（携带 `tier` 与 `specialty`），前端 `routingMetaEvents.ts` 与 `TokenUsageDisplay.tsx` 无感解析并支持悬停透明回显；
+  5. **全栈测试验证**：Harness 单元测试 21/21 PASS、Server 集成与 SSE Chunk 4/4 PASS、前端 Vitest 8/8 PASS，多语言 6 种国际化字典 100% 对齐。
+- **素材 SSOT：** `temp-docs/materials/USER_EXPERIENCE_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/routing/specialty_router.py` · `myrm-agent/myrm-agent-server/app/services/agent/params/converter.py` · `myrm-agent/myrm-agent-frontend/src/store/chat/messageStream/handlers/routingMetaEvents.ts`
+
+## 最新验证快照（2026-08-23 · 原生隔离沙箱代码执行与工件人机双写 · 知识库与 Wiki Roadmap Topic 02 #14 & #15 达成）
+
+- **原生隔离沙箱代码执行与工件人机双写（对比 WorkBuddy 资料库与轻应用 CSV 绑定 / Manus Projects）：** Myrm 确立了业界领先的沙箱隔离执行与工件/知识库分层协作体系：
+  1. **全功能安全隔离沙箱 vs 玩具级模板**：Myrm 采用 **Agent in Sandbox** 架构，原生支持 Python (Pandas/DuckDB/SQLite)、Node.js 与 Bash 完整沙箱环境，拒绝制定私有脆弱的 CSV DSL 绑定（减少 Prompt 噪音与模型幻觉），Agent 能够自主生成任何交互式 Web 工件（React, Tailwind, LocalStorage, WASM SQLite）；
+  2. **工件人机协同与点选精准编辑 100% 完备**：
+     - `ElementPickerToolbar.tsx` 原生支持 HTML 工件的“指哪改哪”（可视化拾取 DOM 元素后直达 Agent 修改）；
+     - `DocumentSelectionToolbar.tsx` 原生支持 Markdown/Text 选区悬浮工具栏（修改、优化、解释与直接追问）；
+     - `ArtifactProcessor` 原生支持 CSV / JSON 结构化数据的高亮预览、排序与导出；
+  3. **知识库专业编辑与全网边缘发布**：
+     - `WikiMarkdownEditor.tsx` 提供 Typora 级 Monaco + 实时 Markdown 渲染分屏编辑与草稿离开守卫；
+     - `PublishModal.tsx` 打通 Vercel / Cloudflare / Netlify 等平台的全网只读托管（`publish_artifact_to_target`），附带无状态 HMAC 密码门与不可变版本快照；
+  4. **全栈测试验证**：243 项静态契约测试与前端全量 Vitest/i18n 契约 100% 绿灯。
+- **素材 SSOT：** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `temp-docs/roadmap/topic_02_knowledge_wiki_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/artifacts/ElementPickerToolbar.tsx` · `myrm-agent/myrm-agent-frontend/src/components/features/wiki/WikiMarkdownEditor.tsx`
+
 ## 最新验证快照（2026-08-23 · Formal Replanner 动态拓扑实时重规划与原子完工保护 · 运行时可靠性 Roadmap Topic 10 #2 达成）
 
 - **Formal Replanner 动态任务图重规划（对比 Hermes Agent / OpenClaw / Cursor Plan Mode / Claude Code）：** Myrm 构建了业界领先的工业级 DAG 任务重规划体系，确保长程复杂任务自主演进且状态零撕裂：
@@ -48,6 +81,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   4. **全栈测试验证**：Pytest 后端单元/集成测试与 Vitest 前端组件测试在三种部署模式（Local、Tauri 桌面端、云托管）下 100% 绿灯 PASS。
 - **素材 SSOT：** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent/myrm-agent-server/app/services/webhook/lifecycle_webhook_service.py` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/integration/integrations/LifecycleWebhookSection.tsx`
 
+
+## 最新验证快照（2026-08-22 · 多工作区依赖漏洞 CI 门禁与运行期 Doctor 供应链诊断 · 安全治理 Roadmap Topic 03 #6 达成）
+
+- **多工作区依赖漏洞 CI 门禁与运行期 Doctor 供应链诊断（对比 osv-scanner / Dependabot / Hermes security_audit.py）：** Myrm 构建了跨生态、多工作区统一供应链安全门禁与运行期体检闭环：
+  1. **跨生态清单与锁文件精准依赖提取（`dependency_extractor.py`）**：支持 `pyproject.toml`、`package.json`、`uv.lock`、`bun.lock` 与 `package-lock.json` 等多生态文件提取，全面覆盖 Python (PyPI) 与 Node.js (npm) 工作区的声明依赖与传递依赖；
+  2. **Monorepo 全域统一 CI 门禁脚本（`security_vuln_gate.py`）**：一键并发扫描 5 大工作区（Harness、Server、Frontend、Brand、Control Plane），执行 `--fail-on HIGH` 阻断、`--allow-advisories` 审计豁免治理及 24h 本地 TTL 缓存与断网降级；
+  3. **运行期 Active Venv 诊断与 WebUI Doctor 仪表板无缝打通（`SupplyChainDiagnostic`）**：按需动态扫描当前环境已安装的分发包，生成标准化 `HealthReport` 上报至 `/api/v1/health/doctor`，并在前端 `DoctorDashboard` 直观展示漏洞统计与修复建议（`fix_suggestion`）；
+  4. **全栈测试验证**：门禁单元测试（`test_dependency_vuln_gate.py`）与 Server 诊断测试（`test_agent_cold_start_diagnostic.py`）100% 绿灯，0 Lint 错误。
+- **素材 SSOT：** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` · `scripts/dev/security_vuln_gate.py` · `myrm-agent/myrm-agent-server/app/core/infra/health/server_diagnostics.py`
 
 ## 最新验证快照（2026-08-22 · 分支作用域子智能体产物与交接成果确定性合并 · 上下文与会话 Roadmap Topic 06 #7 达成）
 

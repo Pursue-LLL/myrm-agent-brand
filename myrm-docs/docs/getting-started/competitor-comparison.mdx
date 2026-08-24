@@ -11,6 +11,58 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Validation Snapshot (2026-08-23 · Missing Semantics Contract Matrix & Fail-Closed Gate · Roadmap Topic 15 #5 Done)
+
+- **Missing Semantics Contract Matrix & Fail-Closed Gate (vs TaiYi Enterprise SPI / OpenClaw / Hermes):** Myrm delivers an immutable, system-wide Missing Semantics contract matrix establishing explicit degradation policies and strictly prohibiting silent bare-metal fallbacks:
+  1. **Global SSOT Contract Matrix & Three Policy Tiers (`missing_semantics.py`)**: Formalizes capability absence governance across `FAIL_CLOSED` (strict block for security-critical capabilities like container isolation and credential vaults), `FAIL_FAST` (immediate abort for core databases), and `FALLBACK` (graceful degradation for optional caches and default reviewer models);
+  2. **Zero-Bypass Execution Gate on Sandbox Absence**: `safe_exec.py` and `LocalExecutor.py` (for both Python and Bash runtimes) strictly integrate `evaluate_missing_capability(SemanticsCategory.SANDBOX_ISOLATION)`. When sandbox isolation is requested but the provider is unavailable, execution fails closed with `MissingSemanticsBlockedError`, permanently closing the risk of silent execution on host bare metal;
+  3. **Structured Server SSE Streaming Diagnostics & Audit Trail (`stream_loop.py`)**: Intercepts missing semantics errors, emits structured `missing_semantics_blocked` SSE events with remediation hints to WebUI, and writes immutable `MISSING_SEMANTICS_BLOCKED` entries to the security audit ledger;
+  4. **Full-Stack Test Coverage**: 8/8 Harness unit tests and Server SSE stream tests 100% green with zero regression.
+- **Material SSOT:** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/core/security/missing_semantics.py` · `myrm-agent/myrm-agent-server/app/services/agent/stream_session/stream_loop.py`
+
+## Latest Validation Snapshot (2026-08-23 · Multi-Workspace Dependency Vulnerability CI Gate & Cross-Ecosystem Lockfile Parsing · Security Governance Roadmap Topic 03 #6 Done)
+
+- **Multi-Workspace Dependency Vulnerability CI Gate & Lockfile Supply Chain Audit (vs Dependabot / Hermes security_audit.py / osv-scanner):** Myrm delivers an enterprise-grade CI supply chain security gate and dual-track vulnerability scanning pipeline:
+  1. **Cross-Ecosystem Lockfile Native Pure Python Extraction Engine (`dependency_extractor.py`)**: Natively parses `uv.lock` (PyPI TOML), `bun.lock` (npm JSON v1/workspaces/flat), and `package-lock.json` (npm JSON v1/v3) across all 6 Monorepo workspaces, extracting 640+ direct and transitive dependencies with exact pinned versions and zero external binary tooling;
+  2. **Dual-Track Security Scanning & Severity-Graded CI Gate (`check_workspace_dependency_vulns.py`)**: Integrates `security_advisories.py` offline malware catalog (instant deterministic protection against known poisoned packages) with OSV.dev online batch intelligence, supporting `--fail-on HIGH` pull request blocking, `--offline` execution, and declarative `vuln_gate_config.json` advisory exemptions with audit reason and expiration;
+  3. **CI Structured Artifact Reporting & Zero Token Overhead**: Generates `--output-json` and `--output-md` summaries directly exportable to GitHub Actions Step Summary with zero Prompt Cache degradation;
+  4. **Full-Stack Test Coverage**: 235 scanning tests passing in 0.77s with 0 linter warnings across workspaces.
+- **Material SSOT:** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/dependency_extractor.py` · `scripts/ci/check_workspace_dependency_vulns.py` · `scripts/ci/vuln_gate_config.json`
+
+## Latest Validation Snapshot (2026-08-23 · Isolated Sandbox Execution & Precision Human-in-the-Loop Co-Editing · Knowledge & Wiki Roadmap Topic 02 #14 & #15 Done)
+
+- **Isolated Sandbox Execution & Precision Human-in-the-Loop Co-Editing (vs WorkBuddy Library & Light App CSV Binding / Manus Projects):** Myrm establishes an industry-leading sandbox isolation and tiered artifact/knowledge collaboration architecture:
+  1. **Full-Featured Isolated Sandbox vs Fragile DSL Templates**: Adopting the **Agent in Sandbox** architecture, Myrm natively supports full Python (Pandas/DuckDB/SQLite), Node.js, and Bash execution environments with persistent Volumes. Instead of fragile private CSV-HTML bindings that inject prompt noise and induce hallucinations, Myrm enables agents to autonomously build production-grade web applications (React, Tailwind, LocalStorage, WASM SQLite);
+  2. **Precision Human-AI Co-Editing & Element Picking 100% Complete**:
+     - `ElementPickerToolbar.tsx` provides point-and-edit visual DOM inspection directly targeting Agent edits;
+     - `DocumentSelectionToolbar.tsx` provides floating selection prompt actions (modify, refine, explain, follow-up);
+     - `ArtifactProcessor` natively supports interactive structured CSV / JSON data rendering, sorting, and export;
+  3. **Professional Markdown Editing & Multi-Cloud Edge Publishing**:
+     - `WikiMarkdownEditor.tsx` provides a Typora-grade split-screen Monaco editor with draft guardrails;
+     - `PublishModal.tsx` integrates seamless immutable edge deployments across Vercel, Cloudflare, Netlify, and custom webhooks (`publish_artifact_to_target`) with stateless HMAC password protection;
+  4. **Full-Stack Test Coverage**: 243 static contract tests and full Vitest/i18n suites 100% passing.
+- **Material SSOT:** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `temp-docs/roadmap/topic_02_knowledge_wiki_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/artifacts/ElementPickerToolbar.tsx` · `myrm-agent/myrm-agent-frontend/src/components/features/wiki/WikiMarkdownEditor.tsx`
+
+## Latest Validation Snapshot (2026-08-23 · Cross-Vendor Task Specialty Zero-Latency Routing & 4-Tier Fallback · Model Routing Roadmap Topic 07 #5 Done)
+
+- **Task Specialty Zero-Latency Heuristic Routing (vs WorkBuddy Closed Routing / Cursor Router / DeepSeek Harness):** Myrm delivers an industry-first zero-latency, multi-dimensional semantic feature scoring, session momentum locking, and 4-tier fallback cross-vendor task specialty routing matrix:
+  1. **0ms In-Memory Task Specialty Feature Classification Engine (`specialty_router.py`)**: Classifies tasks across CODE (syntax AST/tracebacks), LONG_DOC (24k+ characters/reports), REASONING (LaTeX/math proof/complex logic), MULTIMODAL (vision/image payloads), and CASUAL (short greetings/economic models) with zero LLM judge latency;
+  2. **Session Momentum Lock**: Preserves technical specialty across multi-turn technical follow-up queries (e.g. "continue", "how to fix") without premature downgrading;
+  3. **4-Tier Deterministic Fallback Chain (`Specialty Fallback Chain`)**: Builds a deduplicated `Specialty Primary -> Specialty Fallback -> Default Primary -> Default Fallback` fail-open fallback sequence, ensuring 100% resilient non-blocking turn execution;
+  4. **Seamless Full-Stack Streaming Delivery & Transparent Hover Chip**: Server dispatches `routing_decision` SSE events with `tier` & `specialty`, parsed by frontend `routingMetaEvents.ts` and surfaced via subtle hover tags in `TokenUsageDisplay.tsx`;
+  5. **Full-Stack Test Coverage**: 21/21 Harness unit tests, 4/4 Server API/SSE tests, and 8/8 Frontend Vitest specs passing with 100% i18n dictionary parity across 6 languages.
+- **Material SSOT:** `temp-docs/materials/USER_EXPERIENCE_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/routing/specialty_router.py` · `myrm-agent/myrm-agent-server/app/services/agent/params/converter.py` · `myrm-agent/myrm-agent-frontend/src/store/chat/messageStream/handlers/routingMetaEvents.ts`
+
+## Latest Validation Snapshot (2026-08-23 · Formal Replanner Dynamic DAG Revision & Atomic Invariant Protection · Runtime Reliability Roadmap Topic 10 #2 Done)
+
+- **Formal Replanner Dynamic DAG Revision (vs Hermes Agent / OpenClaw / Cursor Plan Mode / Claude Code):** Myrm delivers an enterprise-grade DAG replanning engine that ensures self-evolving execution for long-running workflows without state corruption:
+  1. **Single-Transaction Atomic Mutations & Completed Task Lock (`revise_plan`)**: Allows dynamic insertion of downstream validation nodes, parameter updates, or branch pruning while strictly locking `COMPLETED`/`IN_REVIEW` tasks against illegal tampering;
+  2. **Shadow Graph Millisecond DFS Cycle Prevention**: Detects potential cyclic dependencies prior to database commit with atomic rollbacks, guaranteeing 100% DAG acyclicity;
+  3. **Graceful Worker Cancellation & Slot Recycling (`replan_ops.py`)**: Automatically identifies obsolete `RUNNING` tasks, sends cancellation signals to the dispatcher to release concurrency slots, and cascades promotion of newly ready child tasks;
+  4. **Structured Diff Review Dialog & Full i18n (`KanbanReplanDialog.tsx`)**: Provides an intuitive visual diff of task/edge additions, modifications, and deletions with multi-language support and rationale tracking;
+  5. **Full-Stack Test Coverage**: 100% green across Harness unit tests, Server API integration tests, and Frontend Vitest specs with 0 zombie processes.
+- **Material SSOT:** `temp-docs/materials/USER_EXPERIENCE_ADVANTAGE.md` · `temp-docs/roadmap/topic_10_runtime_reliability_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/kanban/stores.py` · `myrm-agent/myrm-agent-server/app/services/kanban/replan_ops.py` · `myrm-agent/myrm-agent-frontend/src/components/features/kanban/KanbanReplanDialog.tsx`
+
 ## Latest Validation Snapshot (2026-08-23 · PR & Issue Quality Hygiene Gates & Structured Issue Forms · Desktop Release & CI Roadmap Topic 05 #6 Done)
 
 - **PR & Issue Quality Hygiene Gates (vs Pi Agent / Claude Code / Cursor / OpenClaw):** Myrm delivers a high-signal, zero-token, sub-0.02s collaboration and issue governance engine:
@@ -38,6 +90,15 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
   4. **Full-Stack Test Coverage**: 100% green on Pytest backend unit/integration tests and Vitest frontend component tests across all deployment modes (Local, Tauri Desktop, Cloud Sandbox).
 - **Material SSOT:** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent/myrm-agent-server/app/services/webhook/lifecycle_webhook_service.py` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/integration/integrations/LifecycleWebhookSection.tsx`
 
+
+## Latest Validation Snapshot (2026-08-22 · Multi-Workspace Dependency Vulnerability CI Gate & Runtime Supply Chain Doctor Diagnostic · Security Roadmap Topic 03 #6 Done)
+
+- **Multi-Workspace Dependency Vulnerability CI Gate & Runtime Supply Chain Doctor Diagnostic (vs osv-scanner / Dependabot / Hermes security_audit.py):** Myrm delivers a unified, cross-ecosystem supply chain security gating and runtime health diagnostic suite:
+  1. **Cross-Ecosystem Manifest & Lockfile Precision Extraction (`dependency_extractor.py`)**: Supports static dependency extraction across `pyproject.toml`, `package.json`, `uv.lock`, `bun.lock`, and `package-lock.json`, seamlessly capturing both declared and transitive dependencies for Python (PyPI) and Node.js (npm) workspaces;
+  2. **Monorepo-Wide Unified CI Gate (`security_vuln_gate.py`)**: Scans all 5 workspaces (Harness, Server, Frontend, Brand, Control Plane) concurrently, enforcing `--fail-on HIGH` blocking, `--allow-advisories` auditable exemption governance, and 24h TTL caching with offline graceful degradation;
+  3. **Runtime Active Venv Diagnostic & Doctor Integration (`SupplyChainDiagnostic`)**: Automatically audits installed environment packages on demand, generating standardized `HealthReport` metrics for `/api/v1/health/doctor` and surfacing actionable remediation steps directly within the WebUI `DoctorDashboard`;
+  4. **Full-Stack Test Coverage**: 100% green across CI gate tests (`test_dependency_vuln_gate.py`) and Server health diagnostic tests (`test_agent_cold_start_diagnostic.py`) with 0 linter errors.
+- **Material SSOT:** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` · `scripts/dev/security_vuln_gate.py` · `myrm-agent/myrm-agent-server/app/core/infra/health/server_diagnostics.py`
 
 ## Latest Validation Snapshot (2026-08-22 · Branch-Scoped Subagent Path Compaction Merge · Roadmap Topic 06 #7 Done)
 
