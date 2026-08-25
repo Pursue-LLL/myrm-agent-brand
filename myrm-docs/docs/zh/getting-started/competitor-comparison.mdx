@@ -11,6 +11,21 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-22 · 缺失语义契约矩阵与 Fail-Closed 严密门禁 · Roadmap Topic 15 #5 达成）
+
+- **MissingSemantics 缺失语义契约与底层沙箱 Fail-Closed 严密门禁（对比 Manus / Devin / Cursor Composer / Claude Code）：** Myrm 构建了业界首个形式化三级缺失语义契约治理体系与零侵入执行门禁：
+  1. **三大铁律降级策略（`MissingSemanticsPolicy`）**：
+     - `FAIL_CLOSED`（严格封闭）：针对沙箱隔离（`sandbox_isolation`）、凭据金库（`credential_vault`）与审计流水线，**绝对禁止**静默降级或在用户物理机宿主机裸跑命令，直接强类型阻断；
+     - `FAIL_FAST`（启动自爆）：核心数据库（`core_database`）或通信总线缺失时在启动/准入期立即报错退出，拒绝带病运行；
+     - `FALLBACK`（优雅降级）：辅助审查模型（`security_reviewer`）、专业领域路由（`specialty_router`）或只读缓存缺失时自动平滑回退至基础模型，保障会话不中断并输出警告追踪；
+  2. **底层安全执行阻断（`safe_exec.py`）**：`require_sandbox=True` 且沙箱未就绪时立即抛出 `MissingDependencyFailClosedError`，彻底堵死命令在物理宿主机裸跑的重大安全逃逸风险；
+  3. **标准结构化诊断导出与动态可扩展契约（`missing_semantics.py`）**：
+     - `to_diagnostic_dict()`：异常类自带标准化字典序列化方法，携带 `component_name`、`action`、`policy` 与关键 `repair_hint` 运维修复指引，杜绝死功能路径；
+     - `register_missing_semantics_contract()`：支持第三方插件与自定义 Skill 在运行时动态扩展注册契约；
+     - `@enforce_missing_semantics`：零侵入式装饰器，无缝统一支持同步与异步协程函数；
+  4. **全栈测试验证**：215 组全量安全与缺失语义单元测试 100% 绿灯（0.74s），0 Lint 错误、0 进程残留。
+- **素材 SSOT：** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/core/security/missing_semantics.py` · `myrm-agent-harness/src/myrm_agent_harness/core/security/safe_exec.py`
+
 ## 最新验证快照（2026-08-24 · 四层 ToolLayer 拓扑缓存锁定与确定性异步生命周期闭环 · 工具生态与运行时可靠性达成）
 
 - **四层 ToolLayer 拓扑与确定性异步生命周期闭环防线（对比 OpenClaw / Hermes-Agent / Deer-Flow / 传统 Agent 框架）：** Myrm 建立了全链路工具拓扑缓存锁定、异步生命周期回收与前端历史消息去重状态机：
