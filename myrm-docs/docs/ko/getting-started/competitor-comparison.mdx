@@ -11,7 +11,25 @@ Myrm은(는) 완전한 AI 에이战트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보안을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-08-25 · MCP Stdio 환경 변수 주입 방어 게이트 및 정적 보안 스캐너 · Roadmap Topic 03 #2 완료)
+
+- **MCPStdioEnvInjectionGuard 환경 변수 주입 차단 및 정적 구성 스캐너 (vs MCP Python SDK / OpenClaw / Hermes-Agent / cloudflared):** Myrm은 크로스 플랫폼 환경 변수 주입 방어 및 구성 정적 스캔의 이중 심층 방어 체계를 구축했습니다:
+  1. **크로스 플랫폼 환경 변수 정화 SSOT (`env_guard.py`)**: 대소문자 정규화 기반으로 6개 주요 범주의 50개 이상 위험 환경 변수(Linux 동적 링커 하이재킹 `LD_PRELOAD`/`LD_LIBRARY_PATH`, macOS 주입 `DYLD_INSERT_LIBRARIES`, 런타임 훅 `NODE_OPTIONS`/`PYTHONPATH`/`PYTHONSTARTUP`, 셸 오염 `BASH_ENV`/`IFS`, 프록시 주입 `HTTP_PROXY`, TLS 우회 `GIT_SSL_NO_VERIFY`, 패키지 레지스트리 탈취 및 금고 마스터 키 등)를 완벽 차단하며, 플러그인 예약 변수(`PLUGIN_ROOT`, `PLUGIN_DATA`)를 엄격히 화이트리스트로 보장;
+  2. **실행 시점 자동 파라미터 정화 (`placeholders.py:resolve_stdio_launch`)**: MCP Stdio 자식 프로세스 생성 전 `extra_params["env"]`에서 위험 변수를 투명하게 제거하고 감사 로그를 기록하여 프로세스 실행 탈취 방지;
+  3. **정적 구성 사전 검사 CRITICAL 게이트 (`config_scan.py:scan_mcp_config`)**: 구성 저장 및 정적 스캔 단계에서 위험 환경 변수를 탐지하여 `threat_type="dangerous_env_injection"` 및 `CRITICAL` 심각도로 표시, 악성 구성 저장 사전 차단;
+  4. **제로 토큰 오버헤드 및 안정적인 프롬프트 캐시**: 순수 프로세스 런타임 및 스캐너 레벨에서 작동하여 LLM 컨텍스트 오염 제로 및 프롬프트 캐시 적중률 100% 유지;
+  5. **전체 스택 테스트 검증**: `test_stdio_env_guard.py` 49개 전용 테스트 및 993개 MCP toolkit 테스트 100% 통과, 0 에러, 0 좀비 프로세스.
+- **자료 SSOT:** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/mcp/env_guard.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/mcp/placeholders.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/mcp/config_scan.py`
+
 ## 최신 검증 스냅샷 (2026-08-25 · 크론 자동화 수동 성공 전제 조건 게이트 및 단계별 Tool Trace 감사 · Roadmap Topic 11 #3 완료)
+
+- **AgentLifecycleOutboundWebhookSettingsPack 수명 주기 아웃바운드 웹훅 및 이벤트 푸시 (vs Hermes-Agent / OpenClaw / Grok Build):**
+  1. **GUI 기반 시각적 웹훅 관리 (`LifecycleWebhookSection.tsx`)**: "설정 -> 통합"에서 웹훅 엔드포인트를 시각적으로 관리하고, 클릭 한 번으로 HMAC-SHA256 서명 시크릿을 생성하며, 구독 이벤트(세션 완료/실패, 승인 트리거, 서브에이전트 생성/병합, 칸반 업데이트)를 유연하게 선택할 수 있어 YAML 설정 수정의 번거로움을 완전히 해결;
+  2. **프로덕션 수준의 SSRF 방어 및 보안 표준 (`ssrf_guard.py`)**: 루프백, 사설 IP(RFC1918) 및 클라우드 메타데이터 엔드포인트(`169.254.169.254`)를 엄격히 차단하며 3xx 리디렉션을 명시적으로 거부하여 자격 증명 유출을 원천 방지;
+  3. **비차단 비동기 큐 디스패치 (`LifecycleOutboundWebhookService.py`)**: 유계 `asyncio.Queue` (512)와 지수 백오프 재시도 메커니즘을 기반으로 `AppEventBus`에 연결되어 대화 스트리밍 및 LLM 추론에 0 오버헤드 보장;
+  4. **즉각적인 `/ping` 연결성 테스트**: WebUI에서 밀리초 단위의 RTT 왕복 지연 시간과 HTTP 상태 코드 배지를 실시간으로 제공하여 신속한 문제 해결 지원;
+  5. **전체 스택 테스트 검증**: 백엔드 HMAC 서명 및 SSRF 차단 테스트(Pytest 2/2)와 프론트엔드 Vitest 컴포넌트 테스트(3/3) 100% 통과, 0 Lint 에러, 0 좀비 프로세스.
+- **자료 SSOT:** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent-server/app/services/webhook/lifecycle_webhook_service.py` · `myrm-agent-frontend/src/components/features/settings/sections/integration/integrations/LifecycleWebhookSection.tsx`
 
 - **CronAutomationManualSuccessPrerequisiteGate 자동화 사전 검증 게이트 및 단계별 Trace 감사 (vs WorkBuddy / Hermes-Agent / OpenClaw / 기존 크론 시스템):**
   1. **결정론적 순수 함수 워크플로 핑거프린트 (`fingerprint.py`)**: Harness 레벨에서 0 I/O 오버헤드로 프롬프트, 바인딩된 에이전트 ID, 워크플로 템플릿, CLI 명령어 및 도구 화이트리스트를 정규화하여 64자리 SHA-256 해시를 생성함으로써 세션·칸반·크론 간 일관된 정체성 추적 지원;

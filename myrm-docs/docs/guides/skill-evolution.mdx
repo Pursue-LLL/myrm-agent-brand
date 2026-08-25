@@ -11,12 +11,13 @@ Myrm's Skill Evolution engine **automatically turns your successful interactions
 
 1. **Trace Analysis** — After each conversation, the `TraceAnalyzer` extracts execution trajectories using 5-level progressive disclosure, identifying patterns worth turning into skills.
 2. **Structured Extraction** — The `StructuredExtractor` uses an LLM to capture skill definitions with confidence scores, ensuring only high-quality patterns are promoted.
-3. **Automatic Screening** — Low-quality or duplicate extractions are filtered before reaching you.
-4. **Sandbox Validation** — Candidate skills are executed in a safe sandbox environment to verify they actually work.
-5. **LLM Review** — An automated reviewer checks for edge cases, security issues, and correctness.
-6. **Regression Gate** — Auto-generated test cases (EvalCases) validate every candidate against the original skill's known-good behavior. Changes that break existing functionality get penalized or filtered before reaching you.
-7. **Improvement Gate** — The original skill is injected as a baseline candidate and competes head-to-head against all proposed variants. Only variants that genuinely score higher than the original survive — preventing quality regression even when all variants "look good" in isolation.
-8. **Human Approval** — Nothing deploys without your say-so. Review in the **Pending Evolutions Dashboard**.
+3. **Two-Phase Admission Screening** — `EvolutionScreener` enforces strategy cooldowns and LLM FIX confirmations to filter noise and prevent unguided blind evolution.
+4. **AST Static Analysis & Sandbox Dry-Run** — `SandboxValidator` validates candidates inside isolated subprocess sandboxes, ensuring structural validity and crash-free execution.
+5. **Mandatory Security Write Interception** — `ScanningSkillWriteBackend` scans all candidate skills against prompt injections, privilege escalation, and destructive commands before persistence.
+6. **Multi-Dimension Rubric LLM Review** — `BatchEvaluator` automatically scores variants across accuracy, anti-fragmentation, and redundancy dimensions using an independent judge model.
+7. **Regression Gate** — Auto-generated test cases (EvalCases) validate every candidate against the original skill's known-good behavior. Changes that break existing functionality get penalized or filtered before reaching you.
+8. **Improvement Gate** — The original skill is injected as a baseline candidate and competes head-to-head against all proposed variants. Only variants that genuinely score higher than the original survive — preventing quality regression even when all variants "look good" in isolation.
+9. **Human Approval & Monaco Diff Review** — Nothing deploys without your say-so. Review, revise, and approve proposals with granular diffing in the **Pending Evolutions Dashboard**.
 
 ## Teach a skill from any source (`/learn`)
 

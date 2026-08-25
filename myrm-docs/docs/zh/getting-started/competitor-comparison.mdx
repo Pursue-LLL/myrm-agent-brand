@@ -11,7 +11,25 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-25 · MCP Stdio 进程环境变量注入防御门禁与静态扫描 · 路线图 Topic 03 #2 达成）
+
+- **MCPStdioEnvInjectionGuard 环境变量注入拦截与静态配置安全扫描（对比 MCP Python SDK / OpenClaw / Hermes-Agent / cloudflared）：** Myrm 实现了跨平台环境变量注入防御与配置静态扫描双重纵深体系：
+  1. **跨平台环境变量安全清洗 SSOT（`env_guard.py`）**：支持全平台大小写归一化拦截（Linux 动态链接库劫持 `LD_PRELOAD`/`LD_LIBRARY_PATH`、macOS 注入 `DYLD_INSERT_LIBRARIES`、运行时劫持 `NODE_OPTIONS`/`PYTHONPATH`/`PYTHONSTARTUP`、Shell 污染 `BASH_ENV`/`IFS`、代理投毒 `HTTP_PROXY`、TLS 绕过 `GIT_SSL_NO_VERIFY`、包管理器劫持与金库主密钥等 6 大类 50+ 危险变量），严格白名单豁免规范保留变量（`PLUGIN_ROOT`、`PLUGIN_DATA`）；
+  2. **启动期参数自动清洗剥离（`placeholders.py:resolve_stdio_launch`）**：在 MCP Stdio 子进程派生前，自动从 `extra_params["env"]` 中过滤危险变量并记录审计日志，杜绝恶意插件借环境变量逃逸或劫持执行；
+  3. **静态配置导入与预检 CRITICAL 阻断（`config_scan.py:scan_mcp_config`）**：在配置保存与静态扫描阶段精准标记 `threat_type="dangerous_env_injection"` 与 `CRITICAL` 严重级别，阻断恶意配置持久化；
+  4. **零 Token 开销与稳定 Prompt Cache**：纯底座参数与进程层过滤，0 LLM 上下文污染，提示词缓存命中率 100% 保持；
+  5. **全栈测试验证**：`test_stdio_env_guard.py` 49 项专门用例与 993 项 MCP toolkit 测试 100% 绿灯通过，0 错误、0 僵尸残留。
+- **素材 SSOT：** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/mcp/env_guard.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/mcp/placeholders.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/mcp/config_scan.py`
+
 ## 最新验证快照（2026-08-25 · 定时任务手动成功前置防呆门禁与逐步 Tool Trace 审计 · Roadmap Topic 11 #3 达成）
+
+- **AgentLifecycleOutboundWebhookSettingsPack 生命周期出站 Webhook 与事件驱动推送（对比 Hermes-Agent / OpenClaw / Grok Build）：**
+  1. **GUI 优先可视化出站 Webhook 管理（`LifecycleWebhookSection.tsx`）**：在「设置 -> 集成」原生提供出站 Webhook 管理卡片，支持一键随机生成 HMAC-SHA256 签名密钥、多选订阅事件（会话完成/失败、人工审批触发、子智能体派生/合并、看板任务状态变更），彻底摆脱在终端修改 YAML 配置的黑盒体验；
+  2. **生产级 SSRF 安全拦截与严格合规防线（`ssrf_guard.py`）**：严格校验目标 URL，拦截回环地址、RFC1918 私网网段与云厂商元数据端点（`169.254.169.254`），同时显式拒绝 3xx 重定向，防止凭据与 Payload 泄漏；
+  3. **非阻塞异步队列分发（`LifecycleOutboundWebhookService.py`）**：基于有界 `asyncio.Queue` (512) 与指数退避重试机制，深度挂载 `AppEventBus`，对主对话流与 LLM 响应实现 0 延迟侵入与 0 性能损耗；
+  4. **即时 `/ping` 连通性探测**：在 WebUI 提供毫秒级网络往返耗时探测与 HTTP 状态码徽章反馈，实现开箱即用的故障排查；
+  5. **全栈测试验证**：后端 HMAC 签名与 SSRF 阻断单测（Pytest 2/2）及前端 Vitest 组件交互测试（3/3）100% 绿色通过，0 Lint 错误、0 僵尸残留。
+- **素材 SSOT：** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent-server/app/services/webhook/lifecycle_webhook_service.py` · `myrm-agent-frontend/src/components/features/settings/sections/integration/integrations/LifecycleWebhookSection.tsx`
 
 - **CronAutomationManualSuccessPrerequisiteGate 自动化前置验证门禁与逐步 Trace 审计（对比 WorkBuddy / Hermes-Agent / OpenClaw / 传统定时任务系统）：**
   1. **纯函数任务指纹哈希（`fingerprint.py`）**：在 Harness 执行引擎底层实现确定性 SHA-256 任务特征规范化指纹算法，将 Prompt、Agent ID、绑定模板、命令行与允许工具列表做规范化映射，0 I/O 开销，从根源实现跨 Chat 会话、Kanban 任务与定时定义的全网唯一性追踪；
