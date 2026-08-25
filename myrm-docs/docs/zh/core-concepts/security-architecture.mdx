@@ -133,7 +133,8 @@ Agent 可以使用 `ask_question_tool` 在执行操作前向用户提出结构�
 | **透明内核拦截** | 当 Agent 尝试操作未授权路径或尝试向只读目录写入时，底核 PathPolicy 自动截获并返回 `ASK`，触发 HITL 动态提权审批卡片 | **Prompt Cache 零抖动**：工具定义静态冻结，LLM 无需学习申请目录工具；Prompt Cache 命中率提升；Action Space 干净纯粹 |
 | **只读到写入平滑升级** | 当一个目录被授权为只读，Agent 尝试写入时系统自动触发「写入权限升级审批」 | 无需重启会话或重置目录白名单，平滑完成动态提权 |
 | **用户主动预授权** | 用户可在 WebUI/桌面端随时通过文件选择器或拖拽一键添加授权目录（支持 RO 只读 / RW 读写） | 输入框上方实时展示授权目录 Chip，随时点击 × 撤销授权，误授权立即可逆 |
-| **部署感知安全底线** | 绝对高危目录（`~/.ssh`, `~/.aws`, `/etc` 等）在底核严格 DENY 且不可被用户覆写；云沙箱模式强制沙箱隔离 | 桌面/本地端拥有极致灵活的动态提权体验，云端 fail-closed 物理隔离 |
+| **部署感知安全底线** | 绝对高危目录（`~/.ssh`, `~/.aws`, `/etc` 等）与特殊系统设备（`CON`, `NUL`, `\\.\*`, `/dev/*`）由 `SandboxMountSecurityGate` 严格 DENY 且不可被用户覆写；云沙箱模式强制沙箱隔离 | 桌面/本地端拥有极致灵活的动态提权体验，云端 fail-closed 物理隔离 |
+| **沙箱挂载安全门禁** | 在进入 macOS Seatbelt、Linux Bwrap 或 Windows AppContainer 执行环境前，所有挂载源通过 `mount_security_gate.py` 执行 8 重 fail-closed 严苛判定（路径穿越、软链接逃逸、设备名注入、APFS/NTFS 大小写折叠、只读最小特权） | 彻底斩断恶意仓库通过软链接诱导沙箱挂载宿主机敏感目录的逃逸路径 |
 
 **竞品对比：** OpenWorker Cowork 仍在使用过时的 `request_directory` 占用 LLM Action Space 破坏 Prompt Cache；OpenClaw、Hermes、DeerFlow、LobsterAI、CoPaw、jiuwenclaw 的代码库中均无会话级目录 HITL。Myrm 率先实现内核透明拦截 + 动态提权 + 前端拖拽预授权 + Prompt Cache 保护。
 
