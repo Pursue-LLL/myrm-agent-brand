@@ -152,11 +152,21 @@ Additional marketplace capabilities:
 - **Consolidation** — Merges duplicate or overlapping skills automatically
 - **Export with Redaction** — Download skills as ZIP with automatic secret stripping
 
+## Browser Action Recording & Masked Skill Generation
+
+Beyond conversation extraction, Myrm allows transforming live browser interactions directly into agent skills (`SKILL.md`):
+
+- **Structured CDP DOM Capture** — Powered by Patchright/CDP, only capturing structured actions (clicks, inputs, selections) within the target page. Completely isolates desktop windows and third-party apps to prevent privacy leaks.
+- **HTML5 Sensitive Attribute Detection** — Automatically detects `type="password"` and standard tokens like `current-password` and `credit-card-number`, tagging steps as sensitive.
+- **Mandatory Masking in Serialization** — Enforces mask placeholders (`***`) across SSE streams, JSON payloads, and LLM prompts, blocking plaintext credentials from ever leaving the machine.
+- **Dynamic Credential Decoupling (`fill_credential`)** — Automatically translates recorded password fields into `fill_credential "<label>"` directives, enabling agents to securely fetch secrets from `CredentialVault` at runtime rather than hardcoding passwords into SOPs.
+
 ## vs competitors
 
 | Capability | Myrm | Hermes |
 |-----------|:----:|:------:|
 | Auto-extract skills | Full pipeline | Single CLI command |
+| Browser recording & redaction | **Structured CDP + credential decoupling** | None |
 | Sandbox validation | Yes | No |
 | GUI review dashboard | Yes | No (auto-applies) |
 | Confidence scoring | Yes | No |

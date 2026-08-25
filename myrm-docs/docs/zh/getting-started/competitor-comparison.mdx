@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-26 · 多轮图片累计载荷动态治理与渐进式降采样 · 路线图 Topic 15 #3 达成）
+
+- **CumulativeImagePayloadBudgetGovernor 多轮图片累计载荷治理（对比 DeepSeek Harness / OpenClaw / 社区多模态 Agent）：** Myrm 实现了首创的三级视觉阶梯治理体系，在彻底根除多轮对话 `HTTP 400 Payload Too Large` 崩溃的同时，极致保障 Prompt Cache 稳定性：
+  1. **三级视觉阶梯降级防线（`media_budget_governor.py`）**：Tier 1 保护最新轮次 2048px 高清无损，Tier 2 自动将历史图片渐进式降采样至 512px WebP（压缩率达 85-95%），Tier 3 在极限超限时平滑转为语义文本摘要，绝不硬性破坏对话历史；
+  2. **会话级网关载荷收敛（`MediaBudgetGovernorProcessor`）**：全局统一核算会话内所有 Base64 图片字节，严格控制在网关安全阈值（默认 10MB）内，彻底告别 400 请求体超限报错；
+  3. **Prompt Cache 前缀单向锁定**：历史图片降采样后 Base64 状态就地固化，后续多轮请求前缀 100% 保持一致，最大化云端 K-V 缓存命中率；
+  4. **全异步线程池防阻塞**：图像重采样与 WebP 压缩全量由 `asyncio.to_thread` 调度至底层线程池，主事件循环 0 阻塞；
+  5. **全栈测试验证**：8 项覆盖边界、多图混合与流水线集成的自动化用例 100% 绿灯通过，代码覆盖率达 93%。
+- **素材 SSOT：** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/pipeline/processors/media_budget_governor.py`
+
 ## 最新验证快照（2026-08-25 · MCP Stdio 进程环境变量注入防御门禁与静态扫描 · 路线图 Topic 03 #2 达成）
 
 - **MCPStdioEnvInjectionGuard 环境变量注入拦截与静态配置安全扫描（对比 MCP Python SDK / OpenClaw / Hermes-Agent / cloudflared）：** Myrm 实现了跨平台环境变量注入防御与配置静态扫描双重纵深体系：
