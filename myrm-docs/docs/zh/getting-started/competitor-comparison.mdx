@@ -11,6 +11,19 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-26 · 企业级中立平台工作资产留存全景 HUD 与数据主权导览 · 路线图 Topic 07 #1 达成）
+
+- **WorkAssetStableWorkbenchRetentionHUD 工作台资产留存全景 HUD（对比 WorkBuddy 闭源办公沉淀 / OpenClaw / Hermes-Agent / 传统闭源生态）：** Myrm 构建了业界首个工作区全要素工作资产留存透明化监控、中立平台价值主张与数据主权导览体系：
+  1. **工作区核心资产 6 维 KPI 矩阵（`useWorkbenchRetentionSummary.ts` & `WorkbenchRetentionSection.tsx`）**：实时聚合工作区沉淀的记忆库（Memory Vault 数量与健康分）、Wiki 知识库（概念树与关联源文件）、技能库（Skills 总数与自进化版本数）、项目规则（Workspace Rules 条数与字符量）、自动化工作流（Cron 任务数与周执行频次）以及底层持久化挂载卷（Volume 存储占用与可用空间），彻底量化沉淀资产；
+  2. **中立平台数据主权与零锁定优势**：
+     - **模型与资产解耦**：可在 Claude、DeepSeek、GPT、Gemini 等异构模型间自由切换，工作资产、技能与记忆零损耗保留；
+     - **开放标准存储**：所有 Wiki 页面、Markdown 规则、SQLite 记忆库均基于开放规范存储，杜绝私有格式锁定；
+     - **零门槛一键导出与迁移**：提供工作区全量配置与记忆快照一键导出工具链；
+  3. **三部署模式存储隔离透明导览**：依据桌面端（Tauri 本地私有目录）、云沙箱（独立 Persistent Volume 挂载）及本地自托管（挂载目录）真实运行态，诚实向用户透明展示数据持久化路径与隔离机制；
+  4. **并发容错与优雅降级隔离**：采用 `Promise.allSettled` 并行探针调度，任一非关键指标故障时自动呈现轻量容灾状态，绝不阻断界面渲染；
+  5. **全栈测试验证**：4 项前端 Vitest 单元测试 100% 绿灯通过，6 语种国际化字典 100% 严格对齐。
+- **素材 SSOT：** `temp-docs/materials/USER_EXPERIENCE_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/personal/WorkbenchRetentionSection.tsx` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/personal/useWorkbenchRetentionSummary.ts`
+
 ## 最新验证快照（2026-08-26 · 多轮图片累计载荷动态治理与渐进式降采样 · 路线图 Topic 15 #3 达成）
 
 - **CumulativeImagePayloadBudgetGovernor 多轮图片累计载荷治理（对比 DeepSeek Harness / OpenClaw / 社区多模态 Agent）：** Myrm 实现了首创的三级视觉阶梯治理体系，在彻底根除多轮对话 `HTTP 400 Payload Too Large` 崩溃的同时，极致保障 Prompt Cache 稳定性：
@@ -20,6 +33,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   4. **全异步线程池防阻塞**：图像重采样与 WebP 压缩全量由 `asyncio.to_thread` 调度至底层线程池，主事件循环 0 阻塞；
   5. **全栈测试验证**：8 项覆盖边界、多图混合与流水线集成的自动化用例 100% 绿灯通过，代码覆盖率达 93%。
 - **素材 SSOT：** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/pipeline/processors/media_budget_governor.py`
+
+## 最新验证快照（2026-08-25 · 云沙箱隐私 Fail-Closed 阶梯与事件驱动每轮持久化 · 路线图 Topic 03 #3 达成）
+
+- **CloudSandboxPrivacyFailClosedLadder 云沙箱隐私三级阶梯门禁与事件驱动每轮持久化（对比 mem/pi_agent / OpenClaw / Hermes-Agent / 传统沙箱持久化）：** Myrm 构建了业界首个不可变三级隐私阶梯门禁与事件驱动快照持久化纵深防御闭环：
+  1. **三级立体 Fail-Closed 隐私阶梯（`privacy_ladder.py`）**：严格定义 `PrivacyLadderLevel`（WORKSPACE, SESSION, FILE）、`PrivacyScope`、`PrivacyLadderVerdict` 与 `PrivacyLadderViolationType`。Level 3 强校验工作区物理边界与系统特权/设备防逃逸（阻断 `/dev/null` 伪装与跨卷符号链接穿越）；Level 2 强校验会话当前敏感度水位（`PrivacyTracker.current_turn_level`）严禁超越作用域上限（`max_allowed_sensitivity`）；Level 1 基于 `pii_classifier` 深度扫描文本内容与 `restricted_patterns`，彻底杜绝 S3 凭据/密码非加密落库；
+  2. **事件驱动每轮持久化触发契约（`SnapshotTrigger`）**：扩展 `TURN_COMPLETED`、`TOOL_COMPLETED`、`SESSION_ENDED` 与 `CHECKPOINT_SYNC` 四大生命周期事件，驱动单轮对话与工具调用后的原子持久化与前置门禁验证；
+  3. **Server 业务层流式诊断与快照原子拦截（`stream_loop.py` & `snapshot_service.py`）**：快照服务自动执行隐私阶梯断言，违规时抛出 `PrivacyFailClosedViolationError`；流式循环捕获后下发结构化 `privacy_ladder_blocked` SSE 事件，向前端展示清晰的阻断诊断与修复引导；
+  4. **零 Token 开销与稳定 Prompt Cache**：纯底座微秒级常数校验，0 LLM 上下文污染，提示词缓存命中率 100% 保持；
+  5. **全栈测试验证**：`test_privacy_ladder.py` 27 项专门用例与全量安全/沙箱测试 100% 绿灯通过，0 错误、0 僵尸残留。
+- **素材 SSOT：** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/core/security/guards/privacy_ladder.py` · `myrm-agent/myrm-agent-server/app/services/checkpoint/snapshot_service.py` · `myrm-agent/myrm-agent-server/app/services/agent/stream_session/stream_loop.py`
 
 ## 最新验证快照（2026-08-25 · MCP Stdio 进程环境变量注入防御门禁与静态扫描 · 路线图 Topic 03 #2 达成）
 

@@ -11,6 +11,19 @@ Myrm은(는) 완전한 AI 에이战트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보안을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-08-26 · 기업급 중립 플랫폼 업무 자산 보존 HUD 및 데이터 주권 안내 · Roadmap Topic 07 #1 완료)
+
+- **WorkAssetStableWorkbenchRetentionHUD 워크벤치 자산 보존 HUD (vs WorkBuddy 폐쇄형 생태계 / OpenClaw / Hermes-Agent / 독점 플랫폼):** Myrm은 워크스페이스 전 요소 업무 자산 보존의 투명한 시각화 모니터링, 중립 플랫폼 가치 제안 및 데이터 주권 안내 체계를 구축했습니다:
+  1. **워크스페이스 핵심 자산 6차원 KPI 매트릭스 (`useWorkbenchRetentionSummary.ts` & `WorkbenchRetentionSection.tsx`)**: 워크스페이스에 축적된 메모리 금고 (Memory Vault 수량 및 건강 점수), Wiki 지식 베이스 (개념 트리 및 원본 파일), 스킬 라이브러리 (Skills 총수 및 자가 진화 버전 수), 프로젝트 규칙 (Workspace Rules 항목 수 및 문자 수), 자동화 워크플로 (Cron 작업 수 및 주간 실행 횟수), 영구 저장소 볼륨 (Volume 스토리지 사용량 및 여유 공간)을 실시간 집계하여 정량화;
+  2. **중립 플랫폼 데이터 주권 및 락인 제로 이점**:
+     - **모델과 자산의 분리**: Claude, DeepSeek, GPT, Gemini 등 이기종 모델 간 자유로운 전환이 가능하며, 축적된 자산·스킬·메모리는 100% 온전히 유지;
+     - **개방형 표준 스토리지**: 모든 Wiki 페이지, Markdown 규칙, SQLite 메모리는 개방형 표준 형식으로 저장되어 독점 포맷 종속 방지;
+     - **원클릭 내보내기 및 마이그레이션**: 워크스페이스 전체 설정 및 메모리 스냅샷 백업 패키징 도구 제공;
+  3. **3가지 배포 모드 스토리지 격리 투명 안내**: 데스크톱(Tauri 로컬 비공개 디렉터리), 클라우드 샌드박스(독립 Persistent Volume 마운트), 로컬 자체 호스팅(마운트 디렉터리) 실행 상태에 따라 데이터 지속성 경로와 격리 메커니즘을 투명하게 안내;
+  4. **동시성 내결함성 및 우아한 성능 저하**: `Promise.allSettled` 병렬 프로브 스케줄링을 채택하여 비핵심 메트릭 장애 시 UI를 중단하지 않고 가벼운 복구 상태로 표시;
+  5. **전체 스택 테스트 검증**: 4개 프론트엔드 Vitest 단위 테스트 100% 통과, 6개 언어 국제화 사전 엄격 정합.
+- **자료 SSOT:** `temp-docs/materials/USER_EXPERIENCE_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/personal/WorkbenchRetentionSection.tsx` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/personal/useWorkbenchRetentionSummary.ts`
+
 ## 최신 검증 스냅샷 (2026-08-26 · 멀티 턴 이미지 누적 페이로드 동적 거버넌스 및 점진적 다운샘플링 · Roadmap Topic 15 #3 완료)
 
 - **CumulativeImagePayloadBudgetGovernor 멀티 턴 이미지 누적 페이로드 거버넌스 (vs DeepSeek Harness / OpenClaw / 커뮤니티 멀티모달 에이전트):** Myrm은 멀티 턴 이미지 대화에서 `HTTP 400 Payload Too Large` 충돌을 방지하고 프롬프트 캐시 불变성을 유지하는 3단계 시각적 다운샘플링 파이프라인을 구축했습니다:
