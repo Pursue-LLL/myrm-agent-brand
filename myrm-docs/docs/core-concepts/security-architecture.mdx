@@ -313,6 +313,34 @@ The security score uses a 100-point system, deducting per finding: CRITICAL −2
 
 ## MCP Tool Security
 
+### MCP Server Config Scanning
+
+Every MCP server configuration is scanned against 14 threat types before activation:
+
+| Threat Type | Detection Scope |
+|-------------|-----------------|
+| `dangerous_env_injection` | High-risk environment variable injection (LD_PRELOAD, PYTHONPATH, NODE_OPTIONS, etc.) |
+| `prompt_injection` | Malicious system prompts embedded in server configuration |
+| `name_injection` | Tool names designed to mislead LLM reasoning |
+| `concealment` | Hidden instructions in tool descriptions |
+| `exfiltration` | Attempts to exfiltrate data via external channels |
+| `credential_harvesting` | Attempts to collect user credentials |
+| `context_leak` | Leaking conversation context to external services |
+| `arbitrary_execution` | Unrestricted code execution capabilities |
+| `risky_profile` | Known high-risk server profiles |
+| `suspicious_url` | Non-HTTPS or suspicious server endpoints |
+| `sensitive_path` | Access to sensitive host paths |
+| `hardcoded_secret` | Hardcoded credentials in server config |
+| `supply_chain` | Supply chain vulnerability indicators |
+| `supply_chain_malware` | Known malicious package signatures |
+
+### Stdio Process Environment Variable Guard
+
+For stdio-based MCP servers, Myrm implements a double-layered defense:
+- **Static Pre-flight Blocking**: Flags `CRITICAL` findings when high-risk variables (dynamic linker hooks, runtime injectors, proxy hijackers, git hooks) are detected in extra env params.
+- **Runtime Automatic Sanitization**: Automatically strips dangerous keys before subprocess spawning (`resolve_stdio_launch`) with case-insensitive normalization across Linux/macOS/Windows, while exempting spec-reserved variables (`PLUGIN_ROOT`, `PLUGIN_DATA`).
+- **Zero Prompt Cache Impact**: Pure framework runtime execution with 0 token consumption.
+
 ### Tool Name Isolation
 
 When multiple MCP servers are enabled, tool names can collide (e.g., both a GitHub and GitLab server expose `search_repos`). Myrm prefixes every MCP tool name with double-underscore delimiters:

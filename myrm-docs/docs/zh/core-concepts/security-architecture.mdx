@@ -298,10 +298,11 @@ harness 的 `FileLock`（供投递队列使用）以 `O_NOFOLLOW` 打开锁文�
 
 ### 配置安全扫描
 
-每个 MCP 服务器在激活前会自动扫描 13 种威胁类型：
+每个 MCP 服务器在激活前会自动扫描 14 种威胁类型：
 
 | 威胁类型 | 检测内容 |
 |---------|---------|
+| `dangerous_env_injection` | 跨平台高危环境变量注入（LD_PRELOAD、PYTHONPATH、NODE_OPTIONS 等） |
 | `prompt_injection` | 配置中嵌入的恶意系统提示 |
 | `name_injection` | 设计用于误导 LLM 的工具名 |
 | `concealment` | 描述中隐藏的指令 |
@@ -317,6 +318,14 @@ harness 的 `FileLock`（供投递队列使用）以 `O_NOFOLLOW` 打开锁文�
 | `supply_chain_malware` | 已知恶意包签名 |
 
 扫描结果通过 `ScanConfirmDialog` 展示严重程度徽章，用户可信任、拒绝或强制启用（自担风险）。
+
+### Stdio 进程环境变量注入防御
+
+对于 Stdio 类型的 MCP 服务器，Myrm 构建了静态配置拦截与运行时参数清洗的双层纵深防御体系：
+- **静态预检阻断**：在解析配置时若包含 `LD_PRELOAD`、`DYLD_INSERT_LIBRARIES`、`NODE_OPTIONS`、`PYTHONPATH`、`HTTP_PROXY`、`GIT_SSH_COMMAND` 等 50+ 种危险变量，直接标记 `CRITICAL` 严重级别阻断安装。
+- **运行时自动剥离**：在子进程启动前（`resolve_stdio_launch`）自动清洗并剔除所有高危键值，同时基于大小写归一化（Case-Insensitive Normalization）免疫跨平台混淆注入，精准白名单放行规范保留变量（`PLUGIN_ROOT`, `PLUGIN_DATA`）。
+- **零 Prompt Cache 损耗**：纯框架底座运行时计算，0 Token 消耗，0 性能抖动。
+
 
 ### 基础安全
 
