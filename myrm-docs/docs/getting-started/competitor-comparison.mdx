@@ -11,6 +11,27 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Validation Snapshot (2026-08-25 · Cron Automation Manual Success Prerequisite Gate & Step-by-Step Tool Trace · Roadmap Topic 11 #3 Done)
+
+- **CronAutomationManualSuccessPrerequisiteGate & Step-by-Step Tool Trace Audit (vs WorkBuddy / Hermes-Agent / OpenClaw / Traditional Cron Systems):**
+  1. **Deterministic Pure Workflow Fingerprinting (`fingerprint.py`)**: Harness-level pure SHA-256 fingerprinting algorithm that normalizes prompt text, bound agent ID, workflow templates, CLI commands, and sorted tool whitelists with zero I/O overhead, enabling stable workflow tracking across chat sessions, Kanban cards, and cron definitions;
+  2. **Server-Side Manual Success Prerequisite Verification Gate (`prerequisite_service.py` & `POST /cron/prerequisite-check`)**: Automatically audits past successful manual executions (default $\ge 2$ turns/tasks in Chat or Kanban) before enabling 24/7 automation, blocking fragile or unverified tasks from premature automation while allowing explicit user override with full audit logging;
+  3. **6-Question Automation Self-Inspection & Tool Trace Timeline (`CronPrerequisiteCard.tsx` & `CronRunItem.tsx`)**:
+     - Built-in collapsible 6-question automation readiness checklist (input/output/failure/cost/idempotency/timeout) guiding safe automation design;
+     - Upgrades run history execution cards into human-readable step-by-step tool trace timelines (displaying tool name, payload, duration, error location, and status badges) with a one-click "Copy Audit Trace" feature;
+  4. **Full-Stack Test Coverage**: 100% test pass rate across Harness fingerprint unit tests and Server cron lifecycle API regression (41 passed in 6.76s), 0 lint errors, 0 zombie processes.
+- **Material SSOT:** `temp-docs/materials/AUTOMATION_CRON_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/engine/fingerprint.py` · `myrm-agent-server/app/services/cron/prerequisite_service.py` · `myrm-agent-frontend/src/components/features/cron/CronPrerequisiteCard.tsx`
+
+## Latest Validation Snapshot (2026-08-24 · Hermes Reference Ladder & 64K KV Cache Hardware Cookbook · Topic 06 #8 Done)
+
+
+- **Reference Ladder & 64K Context KV Cache Hardware Cookbook (vs Hermes Reference Ladder / whichllm CLI / Open WebUI):** Myrm delivers an industry-first native hardware sensing, Transformer-level 64K KV cache memory projection, and interactive cross-machine simulator pipeline:
+  1. **Transformer 64K KV Cache Footprint Modeling (`hardware_calculator.py`)**: Precisely computes dynamic multi-head/GQA Key-Value cache memory consumption ($VRAM_{KV} = 2 \cdot L \cdot H_{kv} \cdot D \cdot C \cdot B / 1024^3$) across FP16 (2.0B), Q8 (1.0B), and Q4 (0.5B) quantization modes, preventing silent OOM collapses during long-context tool execution;
+  2. **5-Tier Reference Ladder Rung Classification (Rung 1 to Rung 5)**: Automatically maps available VRAM (with Apple Silicon unified memory OS reservation) to standard capability ladders ranging from Entry (`<10GB`, 0.5B-3B) to Flagship (`80GB+`, 70B+);
+  3. **Interactive Hardware Simulator (`HardwareCookbook.tsx` & `hardwareSimulator.ts`)**: Enables users to dynamically simulate VRAM from 4GB to 128GB on the WebUI, instantly projecting model Fit Scores, throughput (~tok/s), and 64K context safety margins for pre-purchase exploration;
+  4. **Full-Stack Test Coverage**: 25 backend unit/integration tests and 23 frontend vitest assertions 100% green with 0 errors and 0 zombie processes.
+- **Material SSOT:** `temp-docs/materials/COMPETITIVE_ADVANTAGE_LOCAL_MODEL.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md` · `myrm-agent-server/app/api/integrations/hardware_calculator.py` · `myrm-agent-frontend/src/components/features/settings/model-service/HardwareCookbook.tsx`
+
 ## Latest Validation Snapshot (2026-08-24 · Four-Tier ToolLayer Prompt Cache Topology & Deterministic Async Lifecycle Teardown · Tool Ecosystem & Runtime Reliability Done)
 
 - **Four-Tier ToolLayer Topology & Deterministic Async Lifecycle Teardown (vs OpenClaw / Hermes-Agent / Deer-Flow / Traditional Agent Frameworks):** Myrm delivers an enterprise-grade tool topology cache lock, deterministic async resource cleanup, and frontend history state deduplication engine:

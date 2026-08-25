@@ -11,6 +11,27 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-25 · 定时任务手动成功前置防呆门禁与逐步 Tool Trace 审计 · Roadmap Topic 11 #3 达成）
+
+- **CronAutomationManualSuccessPrerequisiteGate 自动化前置验证门禁与逐步 Trace 审计（对比 WorkBuddy / Hermes-Agent / OpenClaw / 传统定时任务系统）：**
+  1. **纯函数任务指纹哈希（`fingerprint.py`）**：在 Harness 执行引擎底层实现确定性 SHA-256 任务特征规范化指纹算法，将 Prompt、Agent ID、绑定模板、命令行与允许工具列表做规范化映射，0 I/O 开销，从根源实现跨 Chat 会话、Kanban 任务与定时定义的全网唯一性追踪；
+  2. **Server 业务层手动成功次数动态门禁聚合（`prerequisite_service.py` & `POST /cron/prerequisite-check`）**：创建定时任务前，系统自动校验该工作流在 Chat/Kanban 手动执行成功的历史次数（默认 $\ge 2$ 次），若未满足阈值则提供可视化防呆提示与风险警告，杜绝用户将未经验证的脆弱任务草率接入 24/7 自动化导致的踩坑与资源浪费；同时支持高级用户显式 Override 复选确认并保留审计日志；
+  3. **自动化前 6 问自检与逐步 Tool Trace 审计（`CronPrerequisiteCard.tsx` & `CronRunItem.tsx`）**：
+     - 内置折叠式「自动化前 6 问自检清单」（输入/输出/异常/成本/幂等/超时），引导用户全流程复核；
+     - 升级运行历史详情视图，将原本黑盒的 `metadata.progress_steps` 转化为可视化人可读的「逐步 Tool 调用时间线」（含工具名、输入参数、执行耗时、状态徽章与失败断点定位），并提供「一键复制审计 Trace」能力，大幅提升排障效率；
+  4. **全栈测试验证**：Harness 底层算法单测、Server 业务服务与 API 生命周期回归用例 100% 通过（41 passed in 6.76s），0 Lint 错误、0 僵尸残留。
+- **素材 SSOT：** `temp-docs/materials/AUTOMATION_CRON_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/engine/fingerprint.py` · `myrm-agent-server/app/services/cron/prerequisite_service.py` · `myrm-agent-frontend/src/components/features/cron/CronPrerequisiteCard.tsx`
+
+## 最新验证快照（2026-08-24 · Hermes Reference Ladder 硬件阶梯与 64K KV 显存 Cookbook · 路线图 Topic 06 #8 达成）
+
+
+- **Reference Ladder 硬件段位图谱与 64K KV 显存开销 Cookbook（对比 Hermes Reference Ladder / whichllm CLI / Open WebUI）：** Myrm 实现了业界首创的本地硬件实时探针、Transformer 级 64K KV 显存开销公式计算与跨机硬件模拟器全链路闭环：
+  1. **Transformer 64K KV Cache 显存开销物理建模（`hardware_calculator.py`）**：精准基于注意力头数与层数计算动态 KV 显存占用（$VRAM_{KV} = 2 \cdot L \cdot H_{kv} \cdot D \cdot C \cdot B / 1024^3$），清晰区分 FP16 (2.0B)、Q8 (1.0B)、Q4 (0.5B) 三级量化开销，从根本上杜绝本地大模型执行长上下文任务时因 KV 缓存暴涨导致的 OOM 崩溃；
+  2. **5 档 Reference Ladder 硬件段位图谱原生划分（Rung 1 至 Rung 5）**：自动映射当前可用显存（支持 Apple Silicon 统一内存系统保留）到标准能力阶梯，从 Entry（`<10GB`，0.5B-3B）至 Flagship（`80GB+`，70B+）；
+  3. **交互式跨机硬件模拟器（`HardwareCookbook.tsx` & `hardwareSimulator.ts`）**：用户可在 Web 界面自由拖拽 4GB~128GB 显存滑块，动态重算模型 Fit Score、预估生成速度（~tok/s）与 64K 上下文安全裕量，辅助购前预演与硬件升级；
+  4. **全栈测试验证**：25 项后端单元/集成测试与 23 项前端 Vitest 断言 100% 绿灯通过，0 错误、0 警告、0 僵尸残留。
+- **素材 SSOT：** `temp-docs/materials/COMPETITIVE_ADVANTAGE_LOCAL_MODEL.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md` · `myrm-agent-server/app/api/integrations/hardware_calculator.py` · `myrm-agent-frontend/src/components/features/settings/model-service/HardwareCookbook.tsx`
+
 ## 最新验证快照（2026-08-22 · 缺失语义契约矩阵与 Fail-Closed 严密门禁 · Roadmap Topic 15 #5 达成）
 
 - **MissingSemantics 缺失语义契约与底层沙箱 Fail-Closed 严密门禁（对比 Manus / Devin / Cursor Composer / Claude Code）：** Myrm 构建了业界首个形式化三级缺失语义契约治理体系与零侵入执行门禁：

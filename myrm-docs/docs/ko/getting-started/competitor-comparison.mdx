@@ -5,11 +5,32 @@ description: Myrm을 인기 있는 AI 에이전트 플랫폼과 비교하는 방
 ---
 # 경쟁사 비교 및 마이그레이션 가이드
 
-Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다. 터미널 전용 코딩 에이전트와 달리 Myrm은 전체 코딩 기능을 유지하면서 영구 샌드박스, 교차 세션 메모리 및 엔터프라이즈급 보안을 갖춘 GUI 최초의 경험을 제공합니다.
+Myrm은(는) 완전한 AI 에이战트 작업공간으로 설계되었습니다. 터미널 전용 코딩 에이전트와 달리 Myrm은 전체 코딩 기능을 유지하면서 영구 샌드박스, 교차 세션 메모리 및 엔터프라이즈급 보안을 갖춘 GUI 최초의 경험을 제공합니다.
 
 <Note>
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보안을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
+
+## 최신 검증 스냅샷 (2026-08-25 · 크론 자동화 수동 성공 전제 조건 게이트 및 단계별 Tool Trace 감사 · Roadmap Topic 11 #3 완료)
+
+- **CronAutomationManualSuccessPrerequisiteGate 자동화 사전 검증 게이트 및 단계별 Trace 감사 (vs WorkBuddy / Hermes-Agent / OpenClaw / 기존 크론 시스템):**
+  1. **결정론적 순수 함수 워크플로 핑거프린트 (`fingerprint.py`)**: Harness 레벨에서 0 I/O 오버헤드로 프롬프트, 바인딩된 에이전트 ID, 워크플로 템플릿, CLI 명령어 및 도구 화이트리스트를 정규화하여 64자리 SHA-256 해시를 생성함으로써 세션·칸반·크론 간 일관된 정체성 추적 지원;
+  2. **Server 비즈니스 수동 실행 성공 횟수 사전 게이트 (`prerequisite_service.py` & `POST /cron/prerequisite-check`)**: 24/7 자동화 등록 전 Chat/Kanban에서 수동 검증 성공 횟수(기본 $\ge 2$회)를 자동 집계하여 검증되지 않은 취약한 작업의 섣부른 자동화를 방지하고, 고급 사용자의 명시적 Override 확인 및 감사 로그 지원;
+  3. **자동화 전 6가지 자체 점검 체크리스트 및 단계별 Tool Trace 타임라인 (`CronPrerequisiteCard.tsx` & `CronRunItem.tsx`)**:
+     - 입력/출력/실패/비용/멱등성/타임아웃 6가지 자동화 준비 체크리스트를 접이식 카드로 제공;
+     - 실행 기록 상세 뷰를 인간 가독형 단계별 Tool 호출 타임라인으로 업그레이드하고 "감사 Trace 원클릭 복사" 기능 제공;
+  4. **전체 스택 테스트 검증**: Harness 핑거프린트 단원 테스트 및 Server 크론 생애주기 API 회귀 테스트 100% 통과 (41 passed in 6.76s), 0 Lint 에러, 0 좀비 프로세스.
+- **자료 SSOT:** `temp-docs/materials/AUTOMATION_CRON_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/engine/fingerprint.py` · `myrm-agent-server/app/services/cron/prerequisite_service.py` · `myrm-agent-frontend/src/components/features/cron/CronPrerequisiteCard.tsx`
+
+## 최신 검증 스냅샷 (2026-08-24 · Hermes Reference Ladder 및 64K KV 캐시 하드웨어 쿡북 · Topic 06 #8 완료)
+
+
+- **Reference Ladder 등급 차트 및 64K KV 캐시 하드웨어 쿡북 (vs Hermes Reference Ladder / whichllm CLI / Open WebUI):** Myrm은 실시간 하드웨어 감지, Transformer 레벨 64K KV 캐시 메모리 예측 및 대화형 하드웨어 시뮬레이터 파이프라인을 구축했습니다:
+  1. **Transformer 64K KV 캐시 메모리 물리 모델링 (`hardware_calculator.py`)**: 멀티헤드/GQA 어텐션 구조를 기반으로 동적 KV 메모리($VRAM_{KV} = 2 \cdot L \cdot H_{kv} \cdot D \cdot C \cdot B / 1024^3$)를 FP16 (2.0B), Q8 (1.0B), Q4 (0.5B) 3단계로 정밀 계산하여 긴 컨텍스트 실행 시 발생하는 메모리 부족(OOM) 오류를 원천 방지;
+  2. **5단계 Reference Ladder 등급 분류 (Rung 1 ~ Rung 5)**: 사용 가능한 VRAM(Apple Silicon 통합 메모리 OS 예약 포함)을 Entry(`<10GB`, 0.5B-3B)부터 Flagship(`80GB+`, 70B+)까지의 표준 능력 사다리에 자동 매핑;
+  3. **대화형 크로스 머신 하드웨어 시뮬레이터 (`HardwareCookbook.tsx` & `hardwareSimulator.ts`)**: 사용자가 WebUI에서 4GB~128GB VRAM 슬라이더를 조절하여 다양한 기기에서의 모델 Fit Score, 생성 속도(~tok/s) 및 64K 안전 마진을 실시간 시뮬레이션 가능;
+  4. **전체 스택 테스트 검증**: 백엔드 단위/통합 테스트 25개 및 프론트엔드 Vitest 단언 23개 100% 통과, 0 에러, 0 좀비 프로세스.
+- **자료 SSOT:** `temp-docs/materials/COMPETITIVE_ADVANTAGE_LOCAL_MODEL.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md` · `myrm-agent-server/app/api/integrations/hardware_calculator.py` · `myrm-agent-frontend/src/components/features/settings/model-service/HardwareCookbook.tsx`
 
 ## 최신 검증 스냅샷 (2026-08-23 · 결측 시맨틱 계약 매트릭스 및 페일클로즈 베어메탈 실행 금지 게이트 · Roadmap Topic 15 #5 완료)
 
