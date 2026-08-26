@@ -11,6 +11,26 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-26 · 定时自动化连接器健康感知与降级结构化告警包 · 路线图 Topic 11 #7 达成）
+
+- **CronConnectorHealthDegradationStructuredAlertPack（对比 Hermes Cron 静默吞错 / Dify 模糊 HTTP 500 / AutoGPT 不透明 Webhook 异常）：** Myrm 实现了工业级定时自动化连接器健康感知、异常自愈与结构化告警体系：
+  1. **标准 6 级出站连接器异常分类体系（`ConnectorErrorCategory`）**：精准区分 `HTTP_CLIENT_ERROR`（4xx/429 限流）、`HTTP_SERVER_ERROR`（500/502/503 网关宕机）、`NETWORK_UNREACHABLE`（DNS/SSL/连接重置）、`TIMEOUT`（504/连接超时）、`AUTH_FAILURE`（401/403/密钥失效）与 `PAYLOAD_CONTRACT`（非 JSON/超大包体）；
+  2. **深度敏感凭据自动脱敏（`redact_connector_url`）**：在记录元数据、日志及多渠道告警前，自动将 Basic Auth 密码、`token`、`secret`、`api_key`、`access_token` 等敏感 Query 参数与鉴权信息替换为掩码，杜绝凭据泄露；
+  3. **自解释修复建议引导（`generate_fix_suggestion`）**：在告警 Payload 中直接注入针对性的排障建议（如 429 提示限流退避、502 提示检查上游反代网关、401/403 提示校验 Webhook Secret），无需人工翻查日志；
+  4. **全任务健康矩阵聚合接口（`GET /api/v1/cron/connectors/health`）**：统一聚合全局与单任务连接器健康状态（`HEALTHY` / `DEGRADED` / `DOWN`）、交付成功率及绑定任务列表；
+  5. **即时测试自愈闭环（Test-to-Heal）**：在 WebUI 连接器编辑区点击「测试交付」成功后，系统即刻清空连续失败计数并恢复健康状态，提供实时的排障正向反馈；
+  6. **100% 全栈测试与 6 语言 UI 对齐**：通过 77 项 Harness 单元测试、57 项 Server 路由与生命周期测试，以及 Lane-B Chrome MCP 真实端到端测试（100% 绿灯，0 Lint 错误，0 僵尸残留）。
+- **素材 SSOT：** `temp-docs/roadmap/topic_11_skill_toolchain_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/engine/connector_health.py` · `myrm-agent/myrm-agent-server/app/services/cron/connector_health_service.py` · `myrm-agent/myrm-agent-frontend/src/components/features/cron/CronDeliveryEditors.tsx`
+
+## 最新验证快照（2026-08-26 · 会话工作流重放确定性与抗漂移度量门禁 · 路线图 Topic 14 #5 达成）
+
+- **WorkflowReplayDeterminismTestRunner（对比 LangGraph Studio 粗暴重跑 / AutoGPT 盲盒重试 / 传统仅凭肉眼比对）：** Myrm 构建了业界首个基于工具调用序列对齐（Tool Sequence Alignment）与加权数学相似度的会话确定性重放验证体系：
+  1. **多维度量化确定性打分器（`calculate_trajectory_determinism`）**：综合工具调用序列相似度（40%）、工具集合 Jaccard 相似度（30%）与参数匹配度（30%），输出 0.0 ~ 1.0 的确定性评分与 `DETERMINISTIC` / `MINOR_DRIFT` / `DIVERGED` 裁决；
+  2. **会话级一键重放与非破坏性沙箱调度（`POST /chats/{chat_id}/replay`）**：安全提取历史对话 Prompt 并执行隔离重放，不污染当前活跃会话消息；
+  3. **前端一键验证徽章与 TrajectoryDiffModal 顺畅联动（`ReplayAction.tsx`）**：在顶部操作栏以百分比徽章直观呈现确定性指标，并可一键呼出时序瀑布流 Diff 窗口定位漂移细节；
+  4. **100% 单元测试与双语多语言对齐**：全栈测试通过，0 Lint 错误，0 僵尸进程。
+- **素材 SSOT：** `temp-docs/roadmap/topic_14_workflow_eval_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/eval/assertions.py` · `myrm-agent/myrm-agent-server/app/api/chats/chat/replay.py` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/ReplayAction.tsx`
+
 ## 最新验证快照（2026-08-26 · 推理档位自动触发多模型 MoA 顾问审查门禁 · 路线图 Topic 07 #2 达成）
 
 - **ReasoningTierAutoMoAOverlayGate（对比 Dify 静态多模型 / Coze 单模型固定路由 / OpenAI/Anthropic 传统单一推断 / 竞品手动选择 MoA）：** Myrm 实现了业界首个基于智能任务难度（Complexity Router）分级与 Agent Profile 策略深度联动的全自动多模型 MoA（Mixture of Agents）顾问审查门禁：

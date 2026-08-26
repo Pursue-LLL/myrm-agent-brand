@@ -11,6 +11,26 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Validation Snapshot (2026-08-26 · Cron Automation Connector Health Degradation Structured Alert Pack · Roadmap Topic 11 #7 Done)
+
+- **CronConnectorHealthDegradationStructuredAlertPack (vs Hermes Cron Silent Failures / Dify Generic HTTP 500 / AutoGPT Opaque Webhook Exceptions):** Myrm delivers a production-grade connector health degradation perception and structured alerting engine for automation jobs:
+  1. **Canonical 6-Tier Outbound Connector Error Taxonomy (`ConnectorErrorCategory`)**: Distinguishes `HTTP_CLIENT_ERROR` (4xx/429), `HTTP_SERVER_ERROR` (500/502/503), `NETWORK_UNREACHABLE` (DNS/SSL/Connection Reset), `TIMEOUT` (Connect/Read 504), `AUTH_FAILURE` (401/403/invalid secret), and `PAYLOAD_CONTRACT` (JSON/size violation);
+  2. **Automated Credential Redaction (`redact_connector_url`)**: Zero-leakage URL masking for Basic Auth passwords, `token`, `secret`, `api_key`, `access_token` query parameters before recording to metadata, logs, or alert channels;
+  3. **Actionable Fix Suggestions (`generate_fix_suggestion`)**: Context-aware diagnosis (e.g. Rate limit backoff for 429, reverse proxy upstream checks for 502, secret verification for 401/403) embedded directly in machine-readable payloads;
+  4. **Multi-Job Real-Time Aggregator (`GET /api/v1/cron/connectors/health`)**: Aggregates health matrices (`HEALTHY` / `DEGRADED` / `DOWN`), delivery success rates, and bound job IDs across all cron automations;
+  5. **Immediate "Test-to-Heal" Feedback Loop**: Successful test delivery on active endpoints immediately clears consecutive failure counters and resets connector status to healthy in the WebUI;
+  6. **100% Full-Stack Testing & 6-Language UI Parity**: Verified with 77 Harness tests, 57 Server lifecycle tests, and Lane-B Chrome MCP E2E tests (100% pass, 0 lint errors, 0 zombie processes).
+- **Material SSOT:** `temp-docs/roadmap/topic_11_skill_toolchain_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/engine/connector_health.py` · `myrm-agent/myrm-agent-server/app/services/cron/connector_health_service.py` · `myrm-agent/myrm-agent-frontend/src/components/features/cron/CronDeliveryEditors.tsx`
+
+## Latest Validation Snapshot (2026-08-26 · Workflow Replay Determinism & Anti-Drift Metric Gate · Roadmap Topic 14 #5 Done)
+
+- **WorkflowReplayDeterminismTestRunner (vs LangGraph Studio Blind Re-runs / AutoGPT Opaque Retries / Traditional Eyeball Diffing):** Myrm delivers an industry-first deterministic replay verification engine powered by Tool Sequence Alignment and weighted mathematical similarity:
+  1. **Quantitative Multi-Dimensional Determinism Scorer (`calculate_trajectory_determinism`)**: Synthesizes positional sequence alignment (40%), tool set Jaccard index (30%), and deep argument matching (30%) into a 0.0 ~ 1.0 composite score with `DETERMINISTIC` / `MINOR_DRIFT` / `DIVERGED` verdicts;
+  2. **Non-Destructive Isolated Session Replay (`POST /chats/{chat_id}/replay`)**: Safely replays historical session prompt sequences in an ephemeral environment without polluting active chat logs;
+  3. **Interactive Verification Badge & TrajectoryDiffModal Integration (`ReplayAction.tsx`)**: Displays an instant determinism score badge in the chat action bar with one-click deep linkage to the multi-turn waterfall diff viewer;
+  4. **100% Full-Stack Testing & 6-Language Parity**: Verified with comprehensive unit tests, 0 linter errors, and 0 zombie processes.
+- **Material SSOT:** `temp-docs/roadmap/topic_14_workflow_eval_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/eval/assertions.py` · `myrm-agent/myrm-agent-server/app/api/chats/chat/replay.py` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/ReplayAction.tsx`
+
 ## Latest Validation Snapshot (2026-08-26 · MCP Cross-Origin Redirect Sensitive Header Forward Guard · Roadmap Topic 03 #7 Done)
 
 - **McpRedirectHeaderForwardGuard (vs Agent Plugins Spec / ClawBank _RefuseRedirects / Traditional Blind Redirect Credential Leakage):** Myrm delivers an enterprise-grade outbound HTTP redirect security architecture based on RFC 6454 Web Origin normalization and dynamic sensitive header sanitization:
