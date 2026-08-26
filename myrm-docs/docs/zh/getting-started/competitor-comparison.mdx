@@ -112,16 +112,6 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   5. **全栈测试验证**：`test_streaming_cancel_prefix_retention.py` 6 项测试 100% 绿灯通过，0 错误、0 警告、0 僵尸残留。
 - **素材 SSOT：** `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent/myrm-agent-server/app/services/agent/streaming_support/stream_collector.py` · `myrm-agent/myrm-agent-server/app/services/agent/stream_session/stream_finalize.py`
 
-## 最新验证快照（2026-08-26 · 会话分支写时复制批量克隆与 SQLite 增量真空整理 · 路线图 Topic 15 #6 达成）
-
-- **SessionForkCopyOnWriteAndSqliteCompactionOptimizer（对比 DeepSeek Harness COW DAG / OpenClaw / Hermes-Agent / 传统分支复制）：** Myrm 构建了业界领先的对话分支批量克隆优化与数据库紧凑治理架构：
-  1. **单事务批量消息克隆（`conversation_fork_manager.py`）**：将对话分支时的逐条 ORM 对象创建与添加重构为一次性批量构建与 `db.add_all()` 提交，会话分支复制耗时与 DB 往返开销降低 >80%；
-  2. **多代分支 DAG 血缘全景溯源（`ForkInfoResponse`）**：在分支查询中自动递归溯源根会话 `root_chat_id` 与分支嵌套深度 `depth`，前端无需多次递归查询即可秒级渲染复杂的多级会话分支树；
-  3. **SQLite 增量真空紧凑原语（`integrity.py`）**：在 SQLite 工具包中新增安全有界的 `incremental_vacuum_sync` 与 `incremental_vacuum_async` 原语，在会话销毁或消息批量删除后主动释放 freelist 空间，彻底消除全量 VACUUM 导致的写锁震荡；
-  4. **自包含数据物理独立性保障**：彻底规避了虚拟指针式 COW DAG（如 DeepSeek Harness 设计）可能带来的悬空引用、级联删除破坏以及查询锁复杂化风险，确保每个分支绝对独立可控；
-  5. **全栈测试验证**：`test_conversation_fork_manager.py` 25 项测试与 `test_integrity.py` 29 项测试 100% 绿灯通过，0 错误、0 警告、0 僵尸残留。
-- **素材 SSOT：** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent/myrm-agent-server/app/services/chat/conversation_fork_manager.py` · `myrm-agent-harness/src/myrm_agent_harness/utils/db/sqlite/integrity.py`
-
 ## 最新验证快照（2026-08-26 · 外部 CLI 子代理非交互权限自动注入与多命名实例池编排 · 路线图 Topic 15 #5 达成）
 
 - **ClaudeCodeCodexMultiNamedSubagentInstanceAndAutoPermissionPreset（对比 DeepSeek Harness RC.8 / OpenClaw / Hermes-Agent / 独立外部 CLI 子代理）：** Myrm 构建了业界领先的多命名子代理实例池与非交互权限参数自适应注入引擎：

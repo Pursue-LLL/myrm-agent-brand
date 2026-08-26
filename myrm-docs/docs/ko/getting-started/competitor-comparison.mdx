@@ -72,16 +72,6 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
   5. **전체 스택 테스트 검증**: `test_streaming_cancel_prefix_retention.py` 6개 테스트 100% 통과, 0 오류, 0 경고, 0 좀비 프로세스.
 - **자료 SSOT:** `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent/myrm-agent-server/app/services/agent/streaming_support/stream_collector.py` · `myrm-agent/myrm-agent-server/app/services/agent/stream_session/stream_finalize.py`
 
-## 최신 검증 스냅샷 (2026-08-26 · 대화 분기 쓰기 시 복사 일괄 복제 및 SQLite 점진적 진공 정리 · Roadmap Topic 15 #6 완료)
-
-- **SessionForkCopyOnWriteAndSqliteCompactionOptimizer (vs DeepSeek Harness COW DAG / OpenClaw / Hermes-Agent / 기존 분기 복제):** Myrm은 업계 최고의 대화 분기 일괄 복제 최적화 및 데이터베이스 압축 정리 아키텍처를 구축했습니다:
-  1. **단일 트랜잭션 일괄 메시지 복제 (`conversation_fork_manager.py`)**: 대화 분기 시 개별 ORM 객체 순차 생성 및 추가를 일괄 구성 및 `db.add_all()` 커밋으로 리팩터링하여 분기 복제 지연 및 DB 왕복 오버헤드를 >80% 절감;
-  2. **다세대 분기 DAG 계보 전경 추적 (`ForkInfoResponse`)**: 분기 조회 시 루트 대화 `root_chat_id` 및 중첩 깊이 `depth`를 자동으로 재귀 추적하여 프론트엔드가 추가 재귀 호출 없이 복잡한 다단계 분기 트리를 즉각 렌더링 가능;
-  3. **SQLite 점진적 진공(Incremental Vacuum) 정리 원어 (`integrity.py`)**: SQLite 도구 세트에 안전하고 제한된 `incremental_vacuum_sync` 및 `incremental_vacuum_async` 원어를 추가하여 대화 파기나 대량 메시지 삭제 후 freelist 공간을 적극 반환하고 전체 VACUUM으로 인한 쓰기 잠금 지연을 완전 해소;
-  4. **자체 포함 물리적 독립성 보장**: 가상 포인터 기반 COW DAG(예: DeepSeek Harness 설계)에서 발생할 수 있는 댕글링 참조, 연쇄 삭제 손상 및 쿼리 잠금 복잡화 위험을 완벽 배제하여 각 분기의 절대적 격리를 보장;
-  5. **전체 스택 테스트 검증**: `test_conversation_fork_manager.py` 25개 테스트 및 `test_integrity.py` 29개 테스트 100% 통과, 0 오류, 0 경고, 0 좀비 프로세스.
-- **자료 SSOT:** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent/myrm-agent-server/app/services/chat/conversation_fork_manager.py` · `myrm-agent-harness/src/myrm_agent_harness/utils/db/sqlite/integrity.py`
-
 ## 최신 검증 스냅샷 (2026-08-26 · 외부 CLI 서브에이전트 비대화형 권한 자동 주입 및 다중 명명 인스턴스 풀 오케스트레이션 · Roadmap Topic 15 #5 완료)
 
 - **ClaudeCodeCodexMultiNamedSubagentInstanceAndAutoPermissionPreset (vs DeepSeek Harness RC.8 / OpenClaw / Hermes-Agent / 독립 외부 CLI 서브에이전트):** Myrm은 업계 최고의 다중 명명 서브에이전트 인스턴스 풀 및 비대화형 권한 파라미터 자동 주입 엔진을 구축했습니다:

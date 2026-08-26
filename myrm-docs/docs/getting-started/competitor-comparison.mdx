@@ -112,16 +112,6 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
   5. **100% Test Coverage**: Full suite in `test_streaming_cancel_prefix_retention.py` 100% green with 0 linter errors and 0 zombie processes.
 - **Material SSOT:** `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent/myrm-agent-server/app/services/agent/streaming_support/stream_collector.py` · `myrm-agent/myrm-agent-server/app/services/agent/stream_session/stream_finalize.py`
 
-## Latest Validation Snapshot (2026-08-26 · Session Fork Copy-On-Write Batch Cloning & SQLite Incremental Vacuum · Roadmap Topic 15 #6 Done)
-
-- **SessionForkCopyOnWriteAndSqliteCompactionOptimizer (vs DeepSeek Harness COW DAG / OpenClaw / Hermes-Agent / Traditional Forking):** Myrm delivers an enterprise-grade conversation forking optimization and database compaction architecture:
-  1. **Batch Message Cloning (`conversation_fork_manager.py`)**: Migrated message cloning from Python ORM object-level loop insertion to unified `db.add_all()` in a single transaction, reducing fork overhead and database round-trips by >80%;
-  2. **Multi-Generational Fork DAG Lineage Tracing (`ForkInfoResponse`)**: Enhanced fork information response with `root_chat_id` and recursive `depth` ancestor tracing, enabling instant multi-level branch hierarchy visualization without extra recursive API calls;
-  3. **SQLite Incremental Vacuum Primitives (`integrity.py`)**: Implemented safe, bounded `incremental_vacuum_sync` and `incremental_vacuum_async` primitives in the SQLite integrity toolkit, reclaiming freelist pages after fork drops or message deletions with zero operational lock thrashing;
-  4. **Self-Contained Isolation Guarantee**: Completely eliminates the dangerous dangling reference and cascade failure risks inherent in virtual COW pointers (e.g., DeepSeek Harness DAG approach), maintaining full branch independence;
-  5. **100% Test Coverage**: All unit tests in `test_conversation_fork_manager.py` (25 passed) and `test_integrity.py` (29 passed) 100% green with 0 linter errors and 0 zombie processes.
-- **Material SSOT:** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent/myrm-agent-server/app/services/chat/conversation_fork_manager.py` · `myrm-agent-harness/src/myrm_agent_harness/utils/db/sqlite/integrity.py`
-
 ## Latest Validation Snapshot (2026-08-26 · External CLI Subagent Auto-Permission Presets & Multi-Named Pool Orchestration · Roadmap Topic 15 #5 Done)
 
 - **ClaudeCodeCodexMultiNamedSubagentInstanceAndAutoPermissionPreset (vs DeepSeek Harness RC.8 / OpenClaw / Hermes-Agent / Standalone CLI Subagents):** Myrm delivers an enterprise-grade multi-named subagent instance pool and non-interactive permission auto-injection engine:
