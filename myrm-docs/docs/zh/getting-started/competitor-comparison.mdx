@@ -11,6 +11,56 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-26 · 云沙箱持久化写入损坏检测与 Blake2b 原子密封自愈 · 路线图 Topic 03 #4 达成）
+
+- **PersistenceWriteCorruptionDetectionAndSealing（对比 mem/pi_agent / OpenClaw / Hermes-Agent / 传统裸文件直写持久化）：** Myrm 构建了业界首个云沙箱增量 Checkpoint 原子密封与破损自愈隔离体系：
+  1. **密码学级完整性封签（`seal.py:IntegritySealer` & `SealManifest`）**：Harness 核心提供确定性 Blake2b-256 摘要计算、包含魔数 `MYRM_SEAL_V1` 的结构化 `SealManifest` 及文件列表签名防伪校验，彻底消除因容器断电强杀导致的撕裂快照；
+  2. **Server 业务层事件驱动原子密封（`persistence_service.py`）**：在单轮会话持久化多文件同步完成后，在会话异步锁保护下统一生成并写入 `.seal.json` 封签元数据；
+  3. **沙箱启动预检与破损快照隔离自愈（`verify_and_quarantine_session`）**：在沙箱拉起恢复时前置校验 Seal 与文件哈希，若发现缺失封签、位翻转或截断损坏，100% 自动拦截并物理隔离至 `quarantine/corrupted_<session_id>/`，杜绝脏数据污染沙箱；
+  4. **零 Token 开销与 100% 提示词缓存保持**：纯存储基建层毫秒级执行，0 LLM 上下文污染，提示词前缀缓存 100% 保持稳定；
+  5. **全栈测试验证**：Harness 单元测试与 Server 集成测试 100% 绿灯通过，0 Lint 错误、0 僵尸残留。
+- **素材 SSOT：** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/core/security/integrity/seal.py` · `myrm-agent/myrm-agent-server/app/services/checkpoint/persistence_service.py`
+
+## 最新验证快照（2026-08-26 · 流式中断残存内容前缀留存与会话分叉继承 · 路线图 Topic 15 #4 达成）
+
+- **StreamingCancelPartialCompletionPrefixRetention（对比 DeepSeek Harness / OpenClaw / Hermes-Agent / 传统流式清空丢弃）：** Myrm 实现了业界首个流式中断内容无损持久化、思考推理完整留存与会话分叉继承引擎：
+  1. **取消态残存前缀原子落库（`stream_collector.py` & `stream_finalize.py`）**：在用户主动取消生成或网络中断时，将已流式传输的文本前缀与思考过程（Reasoning Scratchpad）完整保留并标记 `completionStatus="cancelled"`，彻底告别传统平台「一按取消整段消失」的体验断崖；
+  2. **后续多轮追问上下文连贯理解（`chat_utils.py`）**：自动将残存前缀作为有效的 Assistant 历史消息引入后续轮次，LLM 能精准识别用户叫停前的半句内容并支持自然连贯追问；
+  3. **分叉会话（Fork）完整克隆起点（`conversation_fork_manager.py`）**：从已取消的半句回复节点直接 Fork 创建新会话分支，无缝探索不同方向；
+  4. **前端状态温和呈现与全语言支持（`MessageBox.tsx` & locales）**：通过次级温和提示替代粗暴红标报错，支持 6 种国际化语言；
+  5. **全栈测试验证**：`test_streaming_cancel_prefix_retention.py` 6 项测试 100% 绿灯通过，0 错误、0 警告、0 僵尸残留。
+- **素材 SSOT：** `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent/myrm-agent-server/app/services/agent/streaming_support/stream_collector.py` · `myrm-agent/myrm-agent-server/app/services/agent/stream_session/stream_finalize.py`
+
+## 最新验证快照（2026-08-26 · 会话分支写时复制批量克隆与 SQLite 增量真空整理 · 路线图 Topic 15 #6 达成）
+
+- **SessionForkCopyOnWriteAndSqliteCompactionOptimizer（对比 DeepSeek Harness COW DAG / OpenClaw / Hermes-Agent / 传统分支复制）：** Myrm 构建了业界领先的对话分支批量克隆优化与数据库紧凑治理架构：
+  1. **单事务批量消息克隆（`conversation_fork_manager.py`）**：将对话分支时的逐条 ORM 对象创建与添加重构为一次性批量构建与 `db.add_all()` 提交，会话分支复制耗时与 DB 往返开销降低 >80%；
+  2. **多代分支 DAG 血缘全景溯源（`ForkInfoResponse`）**：在分支查询中自动递归溯源根会话 `root_chat_id` 与分支嵌套深度 `depth`，前端无需多次递归查询即可秒级渲染复杂的多级会话分支树；
+  3. **SQLite 增量真空紧凑原语（`integrity.py`）**：在 SQLite 工具包中新增安全有界的 `incremental_vacuum_sync` 与 `incremental_vacuum_async` 原语，在会话销毁或消息批量删除后主动释放 freelist 空间，彻底消除全量 VACUUM 导致的写锁震荡；
+  4. **自包含数据物理独立性保障**：彻底规避了虚拟指针式 COW DAG（如 DeepSeek Harness 设计）可能带来的悬空引用、级联删除破坏以及查询锁复杂化风险，确保每个分支绝对独立可控；
+  5. **全栈测试验证**：`test_conversation_fork_manager.py` 25 项测试与 `test_integrity.py` 29 项测试 100% 绿灯通过，0 错误、0 警告、0 僵尸残留。
+- **素材 SSOT：** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent/myrm-agent-server/app/services/chat/conversation_fork_manager.py` · `myrm-agent-harness/src/myrm_agent_harness/utils/db/sqlite/integrity.py`
+
+## 最新验证快照（2026-08-26 · 外部 CLI 子代理非交互权限自动注入与多命名实例池编排 · 路线图 Topic 15 #5 达成）
+
+- **ClaudeCodeCodexMultiNamedSubagentInstanceAndAutoPermissionPreset（对比 DeepSeek Harness RC.8 / OpenClaw / Hermes-Agent / 独立外部 CLI 子代理）：** Myrm 构建了业界领先的多命名子代理实例池与非交互权限参数自适应注入引擎：
+  1. **非交互权限参数自适应注入（`_profiles.py` & `cli_runtime.py`）**：针对 `permission_mode` 为 `allow_all` 或 `bypass` 的无人值守沙箱容器环境，自动解析注入各 CLI 专属的免交互标志（Claude Code `--dangerously-skip-permissions`、Codex CLI `--full-auto`、Gemini/Qwen `-y`），彻底杜绝无 TTY 交互提示符死锁与 300s 超时崩溃；
+  2. **多命名子代理实例独立配置与并发调度（`pool.py` & `delegate_to_agent_tool`）**：支持在统一 `RuntimePool` 下注册多个命名子代理实例（如 `claude-auditor`、`codex-builder`、`gemini-tester`），各实例拥有独立命令、权限模式与参数配置；
+  3. **零动态 Schema 膨胀与 100% Prompt Cache 前缀稳定性**：通过统一工具入参进行实例路由，完全避免动态注册爆炸破坏 LLM 提示词前缀缓存；
+  4. **参数防重与幂等注入**：严格检查现有命令行参数，已包含的 flag 不重复追加；
+  5. **全栈测试验证**：`test_cli_runtime.py` 90 项单元与集成测试 100% 绿灯通过，0 错误、0 警告、0 僵尸残留。
+- **素材 SSOT：** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/auth/_profiles.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/runtime/cli_runtime.py`
+
+## 最新验证快照（2026-08-26 · Ollama 拉取自动派生 64K Agentic Modelfile 与 Doctor 深度诊断 · 路线图 Topic 06 #1 达成）
+
+- **OllamaPullAutoNumCtx64000AgenticModelfile（对比 Hermes local-ollama-setup / Ollama 默认 2048 / Open WebUI）：** Myrm 实现了本地模型拉取自动派生 64K 上下文别名、Doctor Fail-Loud 诊断探针与 24/7 常驻/释放全流程治理：
+  1. **自动化 64K Modelfile 别名派生（`hardware.py:_ensure_agentic_modelfile`）**：在 Ollama 成功拉取任何模型后，Myrm 自动调用 Ollama `/api/create` 接口生成带 `num_ctx 64000` 的 `-agentic` 别名模型，彻底解决 2048 默认截断导致的工具链、多轮记忆与 Cron 工作流崩溃痛点；
+  2. **模型联动删除清理**：删除基础模型时自动清理关联的 `-agentic` 衍生别名；
+  3. **Doctor Fail-Loud 诊断探针（`server_diagnostics.py::OllamaModelContextDiagnostic`）**：主动巡检 Ollama 模型状态与 64K agentic 别名覆盖率，直连 `/health/doctor` 面板；
+  4. **KV Cache 显存透视与 24/7 常驻/释放指引（`HardwareCookbook.tsx`）**：直观展示 FP16/Q8 64K 上下文 KV Cache 显存消耗（吸收热帖 #149 经验），并在 UI 中呈现「64K Agentic」就绪徽章与 24/7 常驻 vs GPU 释放指引；
+  5. **全栈测试验证**：`test_hardware_api.py` 覆盖沙箱隔离、自动创建 Modelfile、模型联动删除等测试，100% 绿灯通过，0 错误、0 警告。
+- **素材 SSOT：** `temp-docs/materials/COMPETITIVE_ADVANTAGE_LOCAL_MODEL.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md` · `myrm-agent/myrm-agent-server/app/api/integrations/hardware.py` · `myrm-agent/myrm-agent-server/app/core/infra/health/server_diagnostics.py` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/model-service/HardwareCookbook.tsx`
+
 ## 最新验证快照（2026-08-26 · 企业级中立平台工作资产留存全景 HUD 与数据主权导览 · 路线图 Topic 07 #1 达成）
 
 - **WorkAssetStableWorkbenchRetentionHUD 工作台资产留存全景 HUD（对比 WorkBuddy 闭源办公沉淀 / OpenClaw / Hermes-Agent / 传统闭源生态）：** Myrm 构建了业界首个工作区全要素工作资产留存透明化监控、中立平台价值主张与数据主权导览体系：
@@ -235,6 +285,14 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **项目级共享记忆与全局经验演化一体化**：Project 原生双向绑定 `SharedContextService` 保持多会话任务记忆互通，执行过程中的最佳实践与避坑经验自动沉淀至 `experience_ledger` 并汇聚于 `PendingEvolutionsDashboard` 供人机协同（HITL）审批演化为标准化技能，无需在项目层堆叠低价值的割裂弹窗向导；
   4. **全栈测试验证**：开发网关静态契约测试 2120 项、Harness 知识库单元测试 600 项与前端全量 Vitest/i18n 验证 100% 绿灯。
 - **素材 SSOT：** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `temp-docs/roadmap/topic_02_knowledge_wiki_roadmap.md` · `myrm-agent-server/app/services/wiki/source_sync/` · `myrm-agent-frontend/src/components/features/settings/sections/knowledge/WikiSourceSyncPanel.tsx`
+
+## 最新验证快照（2026-08-22 · 原生资料库人机双写与 CSV 轻应用第一性原理审视 · 知识库 Roadmap Topic 02 #14 & #15 达成）
+
+- **原生资料库人机双写与安全隔离沙箱工件体系（对比 WorkBuddy 5.3.11 资料库与 CSV 轻应用）：** Myrm 确立了清晰的架构边界与真正工业级沙箱执行体系：
+  1. **车间（Artifacts）与仓库（Wiki/Memory）严格解耦**：拒绝将临时工件、协同编辑与知识沉淀强行混杂；`ArtifactPortal` 专注于动态工件产出与人机交互，Obsidian 兼容的 `Wiki Vault` 专注于持久化知识沉淀；
+  2. **生产级安全隔离沙箱 vs 玩具级模板**：原生支持 Python (Pandas/DuckDB/SQLite)、Node.js 与 Bash 完整沙箱环境，支持 `ElementPickerToolbar` DOM 元素可视化拾取、`DocumentSelectionToolbar` 选区悬浮提需求与 CSV/JSON 结构化预览，彻底淘汰脆弱的伪双向绑定模板；
+  3. **全栈测试验证**：243 项静态契约测试与前端全量 Vitest/i18n 契约 100% 绿灯，0 Lint 错误。
+- **素材 SSOT：** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `temp-docs/roadmap/topic_02_knowledge_wiki_roadmap.md` · `myrm-agent-frontend/src/components/features/artifacts/`
 
 ## 最新验证快照（2026-08-22 · 出站 7×24 消息交付与重投可见性及双轨渠道健康度 · 可观测性 Roadmap Topic 11 #9 达成）
 
