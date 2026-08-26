@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-26 · Turn-1 默认工具集与系统提示词 Token 预算 CI 门禁 · 路线图 Topic 06 #9 达成）
+
+- **Turn1TokenCIGate（对比 Hermes / OpenClaw / DeepSeek Harness / 传统无门禁提示词膨胀）：** Myrm 构建了业界首个严密的首轮 Token 细粒度测量工具与 CI 架构预算门禁体系：
+  1. **细粒度 Tool Schema Token 测量工具（`measure_tool_schema_tokens.py`）**：支持对 Tool Description、JSON Schema Parameters 与 Wrapper Tokens 进行分层细粒度 tiktoken（`o200k_base`）测量与 JSON/表格格式化输出，彻底消除「测量衰减」风险；
+  2. **CI 架构预算硬性门禁（`TestPromptTokenBudgetGate`）**：在 Harness 架构门禁中严格锁定 Turn-1 默认工具集（CORE+COMMON 13个工具）Token 上限 ≤ 6,500 tokens，Full 模式系统提示词 ≤ 2,000 tokens，Lean 模式 ≤ 1,200 tokens 且压缩比 ≤ 0.70，有效防止团队多人协作过程中的提示词暗度陈仓与无序膨胀；
+  3. **Prompt Cache 前缀稳定性保障**：验证系统行为规则与边界规则的不可变性，确保跨轮次与跨用户的 KV Cache 命中率；
+  4. **Code-as-Action 批量脚本执行引导**：在 `browser_execute_script_tool` 中优化引导，在处理 ≥ 3 步连续交互时优先编写 Python 脚本执行，降低多轮交互 Round-trip 延迟与 Token 消耗；
+  5. **全栈测试验证**：`test_prompt_token_budget_gate.py`、`test_prompt_integrity.py`、`test_model_discipline.py` 等 100% 绿灯通过，0 错误、0 警告、0 僵尸残留。
+- **素材 SSOT：** `temp-docs/roadmap/topic_06_context_session_roadmap.md` · `myrm-agent-harness/scripts/measure_tool_schema_tokens.py` · `myrm-agent-harness/tests/architecture/test_prompt_token_budget_gate.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/tool_management/DEFAULT_AGENT_TOKEN_INVENTORY.md`
+
 ## 最新验证快照（2026-08-26 · 云沙箱持久化写入损坏检测与 Blake2b 原子密封自愈 · 路线图 Topic 03 #4 达成）
 
 - **PersistenceWriteCorruptionDetectionAndSealing（对比 mem/pi_agent / OpenClaw / Hermes-Agent / 传统裸文件直写持久化）：** Myrm 构建了业界首个云沙箱增量 Checkpoint 原子密封与破损自愈隔离体系：
