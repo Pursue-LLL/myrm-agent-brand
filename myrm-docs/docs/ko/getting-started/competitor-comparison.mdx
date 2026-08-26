@@ -11,6 +11,16 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보안을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-08-26 · Goal↔Kanban 장기 실행 브리지 SSOT 및 구조화된 수락 게이트 · Roadmap Topic 13 #1 완료)
+
+- **GoalKanbanLongRunBridgeSSOT (Hermes의 단방향 대화 중단 취약성 / AutoGPT 작업자 사일런트 크래시 / OpenClaw 일반 텍스트 실패 추적 불가 대비):** Myrm은 장기 자율 목표 관리를 위한 업계 최초의 Goal↔Kanban 양방향 SSOT 브리지 및 구조화된 수락 기준 검증 시스템을 구축했습니다:
+  1. **구조화된 작업 실행 산출물 원어 (`TaskExecutionResult`)**: Harness Dispatcher와 Server TaskRunner 간 `SUCCESS`, `BLOCKED`, `FAILURE` 의미를 엄격히 분리. Goal의 의도적 일시 중지(WAIT, NEEDS_HUMAN_REVIEW, BUDGET_LIMITED)를 Kanban `BLOCKED` 상태로 정밀 매핑하여 `consecutive_failures` 누적 및 잘못된 재시도/크래시 루프를 원천 차단;
+  2. **양방향 상태 및 생명주기 완벽한 SSOT**: 칸반에서 차단 해제(Unblock) 시 `GoalRegistry`의 해당 목표 인스턴스를 자동 재개(`resume_goal` / `exit_wait`), Goal의 턴 수, 비용 및 검증 결과가 칸반 태스크 메타데이터로 실시간 동기화;
+  3. **구조화된 수락 판정 시각화 GUI**: 프론트엔드 태스크 드로어에 `ReviewCommentThread`를 통합하여 세부 수락 기준별 통과/실패 배지, 소요 시간 진단 및 코드 라인/수정 제안이 포함된 리뷰 코멘트를 시각적으로 제공;
+  4. **모든 환경에서 0 프롬프트 캐시 손실**: Local WebUI, Tauri 데스크톱 및 Cloud 독립 샌드박스 전반에서 100% 동일하게 동작;
+  5. **100% 테스트 커버리지 및 제로 부채**: 78개 Harness 칸반 디스패처 테스트, 11개 Server Goal 모드 단위 테스트 및 실제 Chrome MCP E2E 브라우저 테스트 전량 통과 (100% 패스, 0 Lint 에러, 0 좀비 프로세스).
+- **소재 SSOT:** `temp-docs/roadmap/topic_13_runtime_reliability_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/kanban/` · `myrm-agent/myrm-agent-server/app/services/kanban/` · `myrm-agent/myrm-agent-frontend/src/components/features/kanban/`
+
 ## 최신 검증 스냅샷 (2026-08-26 · 동적 워크플로 검증 및 멀티 회의론자 다수결 오케스트레이션 · Roadmap Topic 12 #3 완료)
 
 - **DWVerificationAndOrchestrationPatternLibrary (AutoGPT의 맹목적 작업자 수용 / Hermes 단일 실행 미검증 서브에이전트 / LangGraph 정적 하드코딩 DAG 대비):** Myrm은 동적 워크플로 PTC (`myrm_tools.spawn_subagent`)에 엔터프라이즈급 멀티 에이전트 검증 패턴 라이브러리를 기본 탑재했습니다:

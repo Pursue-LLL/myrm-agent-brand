@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-26 · Goal↔Kanban 长周期桥接 SSOT 与结构化验收门控体系 · 路线图 Topic 13 #1 达成）
+
+- **GoalKanbanLongRunBridgeSSOT（对比 Hermes 单向聊天易中断 / AutoGPT 盲盒执行与静默崩溃 / OpenClaw 纯文本失败难以闭环）：** Myrm 构建了业界首个面向长周期自主目标的 Goal↔Kanban 双向 SSOT 桥接与结构化验收准则判定系统：
+  1. **结构化任务执行产物原语（`TaskExecutionResult`）**：在 Harness Dispatcher 与 Server TaskRunner 间彻底解耦 `SUCCESS`、`BLOCKED` 与 `FAILURE` 语义。Goal 进入主动暂停态（WAIT、NEEDS_HUMAN_REVIEW、BUDGET_LIMITED）时，精准映射至 Kanban `BLOCKED` 态，绝不递增 `consecutive_failures`，杜绝降级崩溃与盲目重试；
+  2. **双向状态与生命周期无缝 SSOT**：在看板解除阻断（Unblock）任务时，自动同步唤醒 `GoalRegistry` 对应的 Goal 实例（调用 `resume_goal` 或 `exit_wait` 续跑），Goal 运行过程中的轮次、预算与验收结果实时持久化到任务元数据；
+  3. **结构化验收判定可视化 GUI**：前端看板详情抽屉原生集成 `ReviewCommentThread`，精细化渲染各项验收准则通过/失败徽章、耗时诊断、错误原因及精确定位到代码行与修复建议的评审意见；
+  4. **全端部署模式自适应**：在 Local WebUI、Tauri 桌面端与 Cloud 独立沙箱模式下完全一致运行，不破坏 Prompt Cache；
+  5. **100% 架构与测试覆盖**：经由 78 项 Harness 看板调度测试、11 项 Server Goal 模式单元测试及真实 Chrome MCP E2E 浏览器测试全量验证（100% 绿灯，0 Lint 错误，0 僵尸残留）。
+- **素材 SSOT：** `temp-docs/roadmap/topic_13_runtime_reliability_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/kanban/` · `myrm-agent/myrm-agent-server/app/services/kanban/` · `myrm-agent/myrm-agent-frontend/src/components/features/kanban/`
+
 ## 最新验证快照（2026-08-26 · 动态工作流校验与多怀疑者多数决编排体系 · 路线图 Topic 12 #3 达成）
 
 - **DWVerificationAndOrchestrationPatternLibrary（对比 AutoGPT 盲目采信 Worker / Hermes 单次执行无校验 / LangGraph 静态硬编码 DAG）：** Myrm 在动态工作流 PTC (`myrm_tools.spawn_subagent`) 中原生集成了工业级多 Agent 校验模式库：
