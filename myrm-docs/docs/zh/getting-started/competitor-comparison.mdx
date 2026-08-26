@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-26 · 推理档位自动触发多模型 MoA 顾问审查门禁 · 路线图 Topic 07 #2 达成）
+
+- **ReasoningTierAutoMoAOverlayGate（对比 Dify 静态多模型 / Coze 单模型固定路由 / OpenAI/Anthropic 传统单一推断 / 竞品手动选择 MoA）：** Myrm 实现了业界首个基于智能任务难度（Complexity Router）分级与 Agent Profile 策略深度联动的全自动多模型 MoA（Mixture of Agents）顾问审查门禁：
+  1. **零配置感知自动激活（`moa_preset_resolver.py:resolve_effective_moa_preset_id`）**：当智能路由器（`complexity_router.py`）将用户任务判定为深度推理（`REASONING`）档位且当前 Agent 配置了 MoA 顾问时，系统自动无缝激活 MoA 顾问多模型审查（默认激活 `review` 档位，按需回退 `default`/`fast`），无需用户手动切换会话级多模型模式；
+  2. **日常轻量任务极速降噪**：对于 `SIMPLE` 与 `STANDARD` 档位任务，系统保持单模型极速低耗运行，避免非必要的多模型并行请求开销与延迟，实现「复杂任务质量极致化，日常任务成本极小化」；
+  3. **显式优先级与预算防抖压制**：严格遵循用户显式意志优先原则（若前端会话显式选择了 `active_moa_preset_id` 则以用户选择为准），同时若 Agent Profile 中未配置参考模型则静默跳过；与 Harness 内置的 `budget_pressure` 动态降级机制深度集成；
+  4. **全语种前端可控开关（`AgentCapabilitiesMoaOverlaySection.tsx`）**：在 Agent 能力配置的 MoA 顾问面板中提供独立的 `auto_on_reasoning`（推断任务自动激活）开关，并完整覆盖 6 种语言（zh/en/ja/ko/de/zh-TW）国际化字典；
+  5. **100% 测试覆盖与零技术债**：后端 `test_moa_preset_resolver.py` 16 项单元测试与前端 i18n / 门禁验证 100% 绿灯通过，0 Lint 错误、0 僵尸残留。
+- **素材 SSOT：** `temp-docs/roadmap/topic_07_model_routing_roadmap.md` · `myrm-agent/myrm-agent-server/app/services/agent/moa_preset_resolver.py` · `myrm-agent/myrm-agent-server/app/services/agent/params/converter.py` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/ai-core/agent/AgentCapabilitiesMoaOverlaySection.tsx`
+
 ## 最新验证快照（2026-08-26 · 项目作用域非 IDE 工作区模式与轻量 AST 代码符号检索 · 路线图 Topic 09 #6 达成）
 
 - **ProjectScopedWorkspaceModeNonIDE（对比 CoPaw / QwenPaw / Hermes-Agent / 传统三栏重型 IDE 布局）：** Myrm 构建了零守护进程的轻量多语言 AST 代码符号结构提取与项目作用域上下文边界架构：

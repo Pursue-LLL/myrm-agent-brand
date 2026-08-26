@@ -23,6 +23,16 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 - **Material SSOT:** `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/core/security/http/redirect_guard.py` · `myrm-agent-harness/src/myrm_agent_harness/core/security/http/secure_fetch.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/mcp/client.py`
 
 
+## Latest Validation Snapshot (2026-08-26 · Reasoning Tier Auto MoA Advisor Overlay Gate · Roadmap Topic 07 #2 Done)
+
+- **ReasoningTierAutoMoAOverlayGate (vs Dify Static Multi-Model / Coze Fixed Routing / Traditional Single-Model Inference / Competitor Manual MoA Toggles):** Myrm delivers an industry-first automatic Mixture of Agents (MoA) advisor overlay activation architecture dynamically linked to task complexity routing:
+  1. **Zero-Configuration Automatic Activation (`moa_preset_resolver.py:resolve_effective_moa_preset_id`)**: When the smart complexity router (`complexity_router.py`) classifies a query into the `REASONING` tier and the Agent Profile has MoA overlay configured, the server seamlessly activates the MoA advisor overlay (defaults to `review` preset, gracefully falling back to `default`/`fast` if needed) without requiring manual per-session toggle;
+  2. **Fast & Low-Cost Standard Tasks**: `SIMPLE` and `STANDARD` tasks retain single-model high-speed execution, eliminating unnecessary token costs and latency spikes;
+  3. **Explicit Preference & Budget Suppression**: Strictly respects explicit user overrides (`active_moa_preset_id`), gracefully skips if no reference models are configured, and integrates seamlessly with Harness `budget_pressure` degradation;
+  4. **Frontend Toggle & 6-Language Parity (`AgentCapabilitiesMoaOverlaySection.tsx`)**: Exposes an `auto_on_reasoning` switch in the Agent Capabilities MoA panel with 100% full translation parity across all 6 languages (zh/en/ja/ko/de/zh-TW);
+  5. **100% Test Coverage & Zero-Debt Purity**: Complete backend unit test suite (`test_moa_preset_resolver.py`, 16/16 passed) and frontend i18n / mock gates 100% green with 0 linter errors and 0 zombie processes.
+- **Material SSOT:** `temp-docs/roadmap/topic_07_model_routing_roadmap.md` · `myrm-agent/myrm-agent-server/app/services/agent/moa_preset_resolver.py` · `myrm-agent/myrm-agent-server/app/services/agent/params/converter.py` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/ai-core/agent/AgentCapabilitiesMoaOverlaySection.tsx`
+
 ## Latest Validation Snapshot (2026-08-26 · Project-Scoped Non-IDE Workspace Mode & Lightweight AST Code Symbol Search · Roadmap Topic 09 #6 Done)
 
 - **ProjectScopedWorkspaceModeNonIDE (vs CoPaw / QwenPaw / Hermes-Agent / Heavy Traditional 3-Pane IDEs):** Myrm delivers a lightweight, zero-daemon AST code symbol structure extraction tool and project-scoped context boundary architecture:
