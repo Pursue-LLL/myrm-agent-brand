@@ -30,6 +30,16 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
   4. **100% 단위 테스트 검증**: 26개 Server 세션 분기 관리자 단위 테스트와 31개 Harness 데이터베이스 무결성 테스트 100% 통과 (린트 오류 0개, 좀비 프로세스 0개).
 - **자료 SSOT:** `temp-docs/roadmap/topic_18_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/utils/db/sqlite/integrity.py` · `myrm-agent/myrm-agent-server/app/services/chat/conversation_fork_manager.py`
 
+## 최신 검증 스냅샷 (2026-08-26 · 추론 티어 자동 MoA 어드바이저 오버레이 게이트 · Roadmap Topic 07 #2 완료)
+
+- **ReasoningTierAutoMoAOverlayGate (vs Dify 정적 다중 모델 / Coze 단일 모델 고정 라우팅 / OpenAI·Anthropic 기존 단일 추론 / 경쟁사 수동 MoA 토글):** Myrm은 지능형 작업 복잡도(Complexity Router) 분류와 Agent Profile 전략을 긴밀히 연계한 전자동 다중 모델 MoA(Mixture of Agents) 어드바이저 오버레이 게이트 아키텍처를 구현했습니다:
+  1. **설정 불필요 지능형 자동 활성화 (`moa_preset_resolver.py:resolve_effective_moa_preset_id`)**: 복잡도 라우터(`complexity_router.py`)가 쿼리를 심층 추론(`REASONING`) 티어로 분류하고 Agent Profile에 MoA 오버레이가 설정되어 있을 때, 시스템이 세션별 수동 조작 없이 MoA 어드바이저 다중 모델 검토를 자동으로 활성화(기본값 `review` 프리셋, 필요 시 `default`/`fast`로 안전 대체)합니다;
+  2. **일상 표준 작업 초고속 저비용 실행**: `SIMPLE` 및 `STANDARD` 티어 작업은 단일 모델 고속 실행을 유지하여 불필요한 다중 모델 병렬 호출 비용과 지연 시간을 제거, '복잡한 작업은 품질 극대화, 일상 작업은 비용 최소화'를 달성;
+  3. **명시적 설정 우선 및 예산 압박 시 자동 억제**: 프론트엔드에서 사용자가 명시적으로 `active_moa_preset_id`를 선택한 경우 이를 최우선으로 존중하며, Agent Profile에 참조 모델이 없으면 조용히 건너뛰고 Harness의 `budget_pressure` 동적 강등 메커니즘과 유기적으로 통합;
+  4. **전 언어 프론트엔드 토글 지원 (`AgentCapabilitiesMoaOverlaySection.tsx`)**: Agent 기능 설정 패널에 독립적인 `auto_on_reasoning` 토글을 제공하며 6개 언어(zh/en/ja/ko/de/zh-TW) i18n 번역을 100% 완비;
+  5. **100% 테스트 커버리지 및 제로 부채**: 백엔드 `test_moa_preset_resolver.py` 16개 단위 테스트와 프론트엔드 i18n/단언 게이트 100% 통과, 린트 오류 0개, 좀비 프로세스 0개.
+- **자료 SSOT:** `temp-docs/roadmap/topic_07_model_routing_roadmap.md` · `myrm-agent/myrm-agent-server/app/services/agent/moa_preset_resolver.py` · `myrm-agent/myrm-agent-server/app/services/agent/params/converter.py` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/ai-core/agent/AgentCapabilitiesMoaOverlaySection.tsx`
+
 ## 최신 검증 스냅샷 (2026-08-26 · MCP 교차 오리진 리디렉션 민감 헤더 전달 방지 보안 게이트 · Roadmap Topic 03 #7 완료)
 
 - **McpRedirectHeaderForwardGuard (vs Agent Plugins 사양 / ClawBank _RefuseRedirects / 기존 무방비 리디렉션 자격증명 유출):** Myrm은 RFC 6454 Web Origin 정규화 비교 및 동적 민감 헤더 정제 기반의 엔터프라이즈급 아웃바운드 HTTP 리디렉션 보안 아키텍처를 구현했습니다:
