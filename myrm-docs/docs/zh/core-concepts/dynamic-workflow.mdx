@@ -107,3 +107,13 @@ MyRM 引入了基于 `identity_hash` 语义指纹的持久化执行恢复机制�
 - **写操作严格物理隔离**：具有副作用的写任务（修改文件、操作 API）物理禁止跨 Fork 复用，确保环境状态的一致性与绝对安全。
 - **工作区 Sidecar 镜像日志**：工作流执行事件会自动同步镜像至工作区 `.myrm/.workflow-journal.jsonl`，实现任务资产的自包含与离线审计追踪。
 
+### 14. 对抗式审计与多怀疑者无偏见验证库：DW Verification Pattern Library
+
+在长程多智能体协作与代码重构场景中，子智能体（Worker）完成任务后往往会输出“所有功能均已完美修复”等主观叙述，传统审查者（Verifier）极易受到误导产生确认偏误（Confirmation Bias）。此外，审查过程中编写的临时测试脚本往往污染代码库，且沙箱崩溃时缺乏硬拦截。
+
+MyRM 提供了工业级对抗审查与模式库：
+- **物理级 Auditor Blind 盲审脱敏**：算法级物理剥离 Worker 的自我吹嘘描述，审查者仅能依据真实工作区 Git Diff 与独立测试断言进行客观裁决。
+- **快照差分与文件自动无痕回退（Mutation Restore）**：审查启动前记录轻量工作区 Stat 快照，审查结束后在 `finally` 块中自动安全清除审查者产生的所有临时文件，保证用户代码库绝对纯净。
+- **Multi-Skeptic 并行怀疑者多数票决**：并发派生 3 个独立怀疑者智能体进行独立推演，实行 2/3 多数票决放行，彻底消除单点误判与幻觉。
+- **沙箱崩溃 Fail-Closed 熔断保护**：沙箱异常或崩溃时严格 Fail-Closed 将状态锁定为 `SubAgentStatus.BLOCKED`，拒绝任何未验证代码逃逸上线。
+- **PTC 原生暴露**：在动态 Python 脚本中通过 `spawn_subagent(..., verification_mode="auditor_blind" | "multi_skeptic")` 开箱即用。

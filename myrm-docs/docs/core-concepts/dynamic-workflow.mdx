@@ -108,3 +108,13 @@ MyRM introduces persistent execution resumption backed by `identity_hash` semant
 - **Strict Side-Effect Isolation**: Sub-tasks with side effects (`readonly=False`) are physically barred from cross-fork fallback, strictly protecting environment integrity.
 - **Workspace Sidecar Journaling**: Workflow execution traces are automatically mirrored to `.myrm/.workflow-journal.jsonl` in the workspace, ensuring full auditability and portability.
 
+### 14. Adversarial Audit & Multi-Skeptic Verification Library
+
+In complex multi-agent workflows and code refactoring tasks, worker sub-agents often produce subjective "self-praising" narratives, easily leading traditional verifiers into confirmation bias. Furthermore, temporary test scripts generated during verification often pollute the workspace, and traditional systems lack fail-closed mechanisms on sandbox crashes.
+
+MyRM delivers an industrial-grade adversarial verification library:
+- **Physical Auditor Blind Mode**: Strips worker subjective narrative at the engine level, forcing the verifier to inspect strictly against real workspace Git diffs and objective test assertions.
+- **Snapshot Diff & Automatic Mutation Restore**: Captures lightweight workspace stat snapshots before audit and automatically unlinks all verifier-created temporary files in a guaranteed `finally` block.
+- **Multi-Skeptic Parallel Majority Voting**: Concurrently spawns 3 independent skeptic agents and requires a 2/3 majority vote to pass, eliminating single-model hallucinations and false positives.
+- **Fail-Closed Protection on Sandbox Crash**: Strictly transitions the sub-agent status to `SubAgentStatus.BLOCKED` upon crash, preventing any unverified code from sneaking into production.
+- **Native PTC Exposure**: Easily callable in Python dynamic workflow scripts via `spawn_subagent(..., verification_mode="auditor_blind" | "multi_skeptic")`.

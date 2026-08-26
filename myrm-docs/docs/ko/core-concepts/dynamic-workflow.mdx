@@ -96,3 +96,13 @@ MyRM은 `identity_hash` 시맨틱 인덱싱 기반의 지속 실행 복구 메�
 - **엄격한 부작용 격리**: 쓰기 작업(`readonly=False`)은 포크 간 폴백이 엄격히 차단되어 환경 상태의 일관성을 보호합니다.
 - **워크스페이스 사이드카 저널링**: 워크플로 실행 추적은 워크스페이스의 `.myrm/.workflow-journal.jsonl`에 자동 미러링되어 완전한 감사 가능성을 제공합니다.
 
+### 14. 적대적 감사 및 다중 회의론자 무편향 검증 라이브러리 (DW Verification Pattern Library)
+
+복잡한 멀티 에이전트 협업 및 코드 리팩토링 시, 작업 하위 에이전트(Worker)는 주관적인 완료 설명을 생성하여 검증자(Verifier)에게 확증 편향(Confirmation Bias)을 유발하기 쉽습니다. 또한 검증 중 생성된 임시 테스트 스크립트가 작업 공간을 오염시키고 샌드박스 크래시 시 무단 통과 위험이 존재합니다.
+
+MyRM은 엔터프라이즈급 적대적 감사 패턴 라이브러리를 제공합니다:
+- **물리적 Auditor Blind 블라인드 감사**: Worker의 주관적 서술을 물리적으로 차단하고 실제 작업 공간 Git Diff와 테스트 실행 결과만을 기반으로 엄격히 감사.
+- **스냅샷 차분 및 파일 자동 무흔 복원 (Mutation Restore)**: 감사 전 `os.stat` 스냅샷을 기록하고 완료 후 `finally` 블록에서 검증자가 생성한 모든 임시 파일을 100% 자동 정리.
+- **Multi-Skeptic 병렬 회의론자 다수결 투표**: 3개의 독립적인 회의론자 에이전트를 병렬 실행하여 2/3 다수결로 판정함으로써 단일 모델 환각 방지.
+- **샌드박스 크래시 Fail-Closed 차단**: 감사 중 크래시 발생 시 상태를 `SubAgentStatus.BLOCKED`로 잠그고 배포를 차단.
+- **PTC 네이티브 지원**: 동적 워크플로 Python 스크립트에서 `spawn_subagent(..., verification_mode="auditor_blind" | "multi_skeptic")`로 즉시 사용 가능.
