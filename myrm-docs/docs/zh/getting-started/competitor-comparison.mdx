@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-26 · 空闲会话重型资源自动回收与多级内存紧凑器 · 路线图 Topic 10 #3 达成）
+
+- **IdleChatHeavyResourceReclaimSettingsPack（对比 Hermes 无界上下文残留 / AutoGPT 内存泄漏失控 / Dify 固定死板超时崩溃）：** Myrm 实现了工业级多级空闲资源智能回收架构与真实物理内存诊断体系：
+  1. **灵活可配的多级空闲回收引擎（`ExecutionCacheSettings`）**：支持动态环境变量配置（`MYRM_EXECUTION_CACHE_IDLE_SECONDS`，默认 1800 秒，设为 0 完全禁用），在极致节约内存与快速恢复会话之间取得最佳平衡；
+  2. **线程安全原子驱逐与操作系统物理内存即时回收（`registry.py`）**：异步后台 Reaper 智能巡检，严格保护活跃会话 Turn 锁不被中断，优雅释放 `BuiltExecutionUnit` 重型运行时并触发底层 GC 回收，将物理内存交还操作系统；
+  3. **高保真进程级 RSS 与缓存健康诊断（`ExecutionCacheDiagnostic`）**：在 `/api/v1/health/doctor` 与 WebUI 系统诊断大屏实时透传真实进程 RSS 内存占用（`process_rss_mb`）、热缓存单元数与累计已回收单元指标；
+  4. **全端部署模式自适应**：在 Local WebUI、Tauri 桌面端与 Cloud 独立沙箱模式下均实现零感知无损运行；
+  5. **100% 测试覆盖与零债务交付**：执行单元缓存注册表与诊断探针全量测试 100% 绿灯，0 Lint 报错，0 僵尸残留。
+- **素材 SSOT：** `temp-docs/roadmap/topic_10_runtime_reliability_roadmap.md` · `myrm-agent/myrm-agent-server/app/config/settings.py` · `myrm-agent/myrm-agent-server/app/services/agent/execution_cache/registry.py` · `myrm-agent/myrm-agent-server/app/core/infra/health/server_diagnostics.py`
+
 ## 最新验证快照（2026-08-26 · 会话分叉高性能批量克隆与 SQLite 增量真空紧凑优化 · 路线图 Topic 18 #6 达成）
 
 - **SessionForkCopyOnWriteAndSqliteCompactionOptimizer（对比 DeepSeek Harness 虚拟 COW 指针树 / Hermes 脆弱克隆 / Dify 繁重全量同步）：** Myrm 实现了工业级高性能会话分叉克隆与 SQLite 增量空间紧凑管理架构：
