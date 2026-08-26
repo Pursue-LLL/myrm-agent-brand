@@ -256,6 +256,23 @@ To ensure benchmark integrity and prevent LLM data contamination:
 - **Post-Episode Hidden Assertion Execution**: Scoring runs in a detached privilege gate after the agent turn concludes (`PostEpisodeAssertion`), eliminating prompt cheating and hardcoded solutions.
 - **Web Search Decontamination**: External web queries during benchmark runs automatically scrub canary tokens and block access to answer repositories.
 
+## 9-Class Trajectory Failure Root Cause & 7D Rubric Analysis
+
+Eval Lab provides automatic, zero-LLM trajectory failure diagnosis and Pareto aggregation for all failed runs:
+
+1. **Orthogonal 9-Class Taxonomy**:
+   - `intent_misunderstanding`: Semantic intent drift
+   - `tool_selection_error`: Wrong tool invocation or non-existent tool hallucination
+   - `tool_argument_malformed`: Invalid tool call parameters
+   - `hardcoded_tests`: Asserted passing claims while failing underlying code tests
+   - `execution_timeout`: Sandbox or command timeout
+   - `destructive_or_regressive`: Preexisting codebase corruption or broken files
+   - `decontam_violation`: Canary leak or hidden test access attempt
+   - `context_overflow_or_budget`: Budget exhausted or iteration limits hit
+   - `unhandled_runtime_exception`: Uncaught exceptions during execution
+2. **7D Weights Rubric (`WEIGHTS_RUBRIC_7D`)**: Aligned across Intent (20%), Tool Precision (15%), Execution Correctness (25%), Safety (15%), Robustness (10%), Efficiency (10%), and Context Discipline (5%).
+3. **Pareto Defect Charts**: Reports automatically surface failure distributions to guide immediate prompt, tool, and sandbox remediations.
+
 ## Writing test cases
 
 Test cases are JSONL files where each line is a JSON object:

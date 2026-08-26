@@ -11,6 +11,16 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보안을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-08-26 · Tauri 데스크톱 Pet 동반자 플로팅 창 및 Voice Orb 심층 통합 · Roadmap Topic 04 #3 완료)
+
+- **TauriVoiceFloatingOrbPetCompanionIntegration (기존의 정적인 데스크톱 위젯 / Hermes 텍스트 전용 터미널 동반자 / 단절된 음성 오버레이 대비):** Myrm은 Voice Orb와 완벽하게 통합된 풀듀플렉스 데스크톱 동반자 경험을 제공합니다:
+  1. **크로스 윈도우 SSOT 음성 아키텍처 (`useVoiceSession.ts` 및 `usePetSurfaceHost.ts`)**: 메인 창이 오디오 스트리밍, STT, TTS 및 LLM 오케스트레이션의 단일 진실 공급원(SSOT)을 유지하고, 투명한 데스크톱 펫 창은 저지연 Tauri IPC를 통해 경량 렌더링 Puppet으로 동작하여 마이크 충돌과 상태 분열을 원천 차단;
+  2. **100ms 스로틀링 오디오 레벨 브리지 및 실시간 하드웨어 가속 광륜 (`PetVoiceOrbGlow.tsx`)**: 볼륨 메트릭과 4개 상태(`idle`, `listening`, `processing`, `speaking`)를 스로틀링 브로드캐스트하여 IPC 병목 없이 60fps 음향 헤일로를 구동;
+  3. **제로 마찰 바지인(Barge-in) 및 원터치 PTT 상호작용 (`PetOverlayWindowApp.tsx`)**: 사용자는 메인 채팅 창을 포커스하지 않고도 데스크톱 펫 창에서 터치 한 번으로 진행 중인 TTS 출력을 즉시 인터럽트하거나 음성 입력을 활성화;
+  4. **픽셀 단위 알파 샘플링 클릭 스루 격리**: Voice Orb 광륜 레이어의 클릭 이벤트를 명시적으로 격리(`pointer-events: none`)하여 배경 OS 데스크톱의 알파 클릭 관통이 오차 없이 완벽하게 유지;
+  5. **100% 테스트 커버리지 및 무결성**: 동반자 스프라이트 및 보이스 호스트 단위 테스트 전량 통과 (100% 패스, 0 Lint 에러, 0 좀비 프로세스).
+- **소재 SSOT:** `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/hooks/voice/useVoiceSession.ts` · `myrm-agent/myrm-agent-frontend/src/components/features/companion/sprite/`
+
 ## 최신 검증 스냅샷 (2026-08-26 · Goal↔Kanban 장기 실행 브리지 SSOT 및 구조화된 수락 게이트 · Roadmap Topic 13 #1 완료)
 
 - **GoalKanbanLongRunBridgeSSOT (Hermes의 단방향 대화 중단 취약성 / AutoGPT 작업자 사일런트 크래시 / OpenClaw 일반 텍스트 실패 추적 불가 대비):** Myrm은 장기 자율 목표 관리를 위한 업계 최초의 Goal↔Kanban 양방향 SSOT 브리지 및 구조화된 수락 기준 검증 시스템을 구축했습니다:

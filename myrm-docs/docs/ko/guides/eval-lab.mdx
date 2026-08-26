@@ -252,6 +252,12 @@ Semantic(LLM-as-a-judge) 어설션은 특정 벤더 판정 모델을 하드코�
 }
 ```
 
+## 9가지 궤적 실패 근본 원인 및 7D 루브릭 분석 (Trajectory Failure Analysis)
+
+Eval Lab은 실패한 모든 평가에 대해 LLM 비용 없는 결정론적 실패 근본 원인 진단 및 파레토 분석을 제공합니다.
+- **9가지 실패 분류 체계**: 의도 왜곡(`intent_misunderstanding`), 도구 선택 오류(`tool_selection_error`), 도구 매개변수 오류(`tool_argument_malformed`), 하드코딩 테스트 치팅(`hardcoded_tests`), 샌드박스 실행 시간 초과(`execution_timeout`), 파괴적 변경(`destructive_or_regressive`), 오염 방지 위반(`decontam_violation`), 예산/컨텍스트 초과(`context_overflow_or_budget`), 런타임 예외(`unhandled_runtime_exception`).
+- **7D 가중치 루브릭 (`WEIGHTS_RUBRIC_7D`)**: 의도 이해(20%), 도구 정밀도(15%), 실행 정확성(25%), 코드 안전성(15%), 견고성(10%), 효율성(10%), 컨텍스트 규율(5%).
+
 ## 스킬 게시 품질 가드
 
 기술이 Myrm의 Skill Evolution 파이프라인을 통해 발전하면 프로덕션에 도달하기 전에 **5개 방어 계층**을 통과합니다.

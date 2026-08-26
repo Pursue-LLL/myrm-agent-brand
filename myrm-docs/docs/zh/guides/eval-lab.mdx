@@ -256,6 +256,23 @@ Semantic（LLM 裁判）断言从不硬编码某家判分模型。判分模型�
 - **Post-Episode 隔离评分断言（`PostEpisodeAssertion`）**：在 Agent 任务完成（Turn Complete）后，于独立特权环境中挂载并运行评测套件，消除模型应试硬编码与作弊可能；
 - **联网检索脱敏**：评测基准模式下，Agent 外部搜索自动对 Canary 签名进行脱敏清洗并拦截题解泄露源。
 
+## 9 类轨迹失败根因分解与 7 维加权质量评估（Trajectory Failure Analysis）
+
+在完成基准测试或日常用例评测后，Eval Lab 会自动对所有未通过用例进行 **零 LLM 开销的确定性失败根因归因与 Pareto 分布统计**：
+
+1. **9 类正交失败归因**：
+   - `intent_misunderstanding`：意图与需求偏差
+   - `tool_selection_error`：工具选择错误 / 幻觉不存在工具
+   - `tool_argument_malformed`：工具参数非法 / 校验失败
+   - `hardcoded_tests`：测试作弊（回答声称 100% 通过但底层真实断言失败）
+   - `execution_timeout`：沙箱执行超时
+   - `destructive_or_regressive`：破坏性变更或功能退化
+   - `decontam_violation`：去污染违规 / 尝试读取隐藏测试
+   - `context_overflow_or_budget`：上下文超限或单任务预算耗尽
+   - `unhandled_runtime_exception`：未捕获运行时异常
+2. **7 维加权质量评分（WEIGHTS_RUBRIC_7D）**：对齐意图理解（20%）、工具精度（15%）、执行正确性（25%）、代码安全（15%）、鲁棒性（10%）、执行效率（10%）与上下文纪律（5%）。
+3. **Pareto 缺陷直方图**：在评测报告中直观展示缺陷分布占比，辅助研发快速定位是 Prompt 意图不清还是沙箱超时，彻底消除「失败却不知为何失败」的黑盒困境。
+
 ## 编写测试用例
 
 测试用例为 JSONL 文件，每行一个 JSON 对象：

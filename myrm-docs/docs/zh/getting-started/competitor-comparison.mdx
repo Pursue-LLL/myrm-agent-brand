@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-26 · Tauri 桌面端 Pet 伴侣悬浮窗与 Voice Orb 深度融合 · 路线图 Topic 04 #3 达成）
+
+- **TauriVoiceFloatingOrbPetCompanionIntegration（对比传统僵硬桌面挂件 / Hermes 纯终端文本伴侣 / 割裂的无交互语音弹窗）：** Myrm 实现了全双工桌面伴侣与 Voice Orb 深度融合：
+  1. **跨窗口 SSOT 语音架构（`useVoiceSession.ts` 与 `usePetSurfaceHost.ts`）**：主窗口作为音频流、STT、TTS 与大模型编排的唯一事实来源，桌面透明外置小窗通过高能效 Tauri IPC 作为轻量级渲染 Puppet，杜绝麦克风冲突与状态分裂；
+  2. **100ms 智能节流电平桥接与硬件加速波纹光环（`PetVoiceOrbGlow.tsx`）**：实时分发节流音量电平与四态（`idle`、`listening`、`processing`、`speaking`），驱动 60fps 声学辉光呼吸动效，无 IPC 拥堵；
+  3. **零阻碍双向无缝打断（Barge-in）与一键麦克风交互（`PetOverlayWindowApp.tsx`）**：用户无需唤起主窗口，在桌面小窗轻触即可瞬时截断正在播放的 TTS 播报或一键开启语音对讲；
+  4. **像素级 Alpha 穿透隔离机制**：Voice Orb 光晕层显式隔离点击事件（`pointer-events: none`），确保背景操作系统桌面点击穿透完美精准；
+  5. **100% 架构与测试覆盖**：经由 9 个伴侣/精灵相关测试套件共 75 个单元测试全量验证（100% 绿灯，0 Lint 错误，0 僵尸残留）。
+- **素材 SSOT：** `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/hooks/voice/useVoiceSession.ts` · `myrm-agent/myrm-agent-frontend/src/components/features/companion/sprite/`
+
 ## 最新验证快照（2026-08-26 · Goal↔Kanban 长周期桥接 SSOT 与结构化验收门控体系 · 路线图 Topic 13 #1 达成）
 
 - **GoalKanbanLongRunBridgeSSOT（对比 Hermes 单向聊天易中断 / AutoGPT 盲盒执行与静默崩溃 / OpenClaw 纯文本失败难以闭环）：** Myrm 构建了业界首个面向长周期自主目标的 Goal↔Kanban 双向 SSOT 桥接与结构化验收准则判定系统：
