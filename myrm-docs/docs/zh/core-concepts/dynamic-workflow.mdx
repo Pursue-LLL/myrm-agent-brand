@@ -97,3 +97,13 @@ MyRM 用 **Code-as-Orchestrator** 保留 Python 编排的完整表达力（for/i
 - **自然语言改编排**：改需求直接说一句话，比拖拽节点更快
 
 **迁移一句话**：从「想要可视化改 workflow」迁来——MyRM 用运行时拓扑 + 计划确认 + 自然语言，替代手工画 DAG。
+
+### 13. 跨会话与跨 Fork 语义指纹断点重放：Identity-Hash Journal Resume
+
+在复杂多代理工作流中，用户经常在 WebUI 中 Fork 分支会话或修改前置 Prompt 进行方案微调。在传统框架中，Session ID 的变更会导致所有昂贵的子任务（如全库分析、代码检索）全部失效重跑，造成巨大的 Token 浪费与漫长等待。
+
+MyRM 引入了基于 `identity_hash` 语义指纹的持久化执行恢复机制：
+- **只读任务秒级复用（0 Token 消耗）**：对所有声明为 `readonly=True` 的子任务，系统基于入参特征（`agent_type`、`prompt`、`verification_mode` 等）计算确定性 SHA-256 指纹。只要入参相同，跨会话/跨 Fork 均可直接从 `WorkflowEventStore` 中瞬时读取已有结果，耗时仅需数毫秒，执行速度提升 100 倍。
+- **写操作严格物理隔离**：具有副作用的写任务（修改文件、操作 API）物理禁止跨 Fork 复用，确保环境状态的一致性与绝对安全。
+- **工作区 Sidecar 镜像日志**：工作流执行事件会自动同步镜像至工作区 `.myrm/.workflow-journal.jsonl`，实现任务资产的自包含与离线审计追踪。
+

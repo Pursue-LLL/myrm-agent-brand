@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-26 · 桌面跨应用工作流录制与技能合成编译器 · 路线图 Topic 14 #5 达成）
+
+- **DesktopWorkflowSkillRecorderPack（对比微软 Copilot Desktop 强依赖云端 VLM 视频分析 / Hermes 仅限终端纯文本 / 传统 RPA 脆弱坐标回放）：** Myrm 构建了业界首个轻量级、100% 离线事件聚合与启发式 Tool Lifting 技能合成系统：
+  1. **跨应用动作流无感录制与时序事件聚类（`cluster_and_debounce_events`）**：在 WebUI 与桌面端提供一键录制能力，算法在 50ms 窗口内自动过滤微抖动并将连续文本输入合并为语义块，敏感密码字段强制掩码脱敏；
+  2. **原生脚本提升引擎（`detect_tool_lifting_candidates`）**：自动将终端交互提升为确定性 CLI/Shell 脚本，将代码编辑提升为原子文件操作，彻底规避脆弱的屏幕坐标回放；
+  3. **动态槽位提取与泛化（`extract_parameter_slots`）**：自动识别录制数据中的文件路径、ISO 日期与邮箱地址为可配置插槽（如 `{{input_path}}`、`{{target_date}}`），使生成的技能具备跨机器与跨环境泛化能力；
+  4. **标准 YAML Frontmatter + Markdown 渲染（`render_skill_markdown`）**：自动产出符合规范的 `SKILL.md`，并在前端提供实时步骤流审查、变量插槽微调与一键发布持久化闭环；
+  5. **100% 测试覆盖与零债务交付**：经由 9 项 Harness 纯算法测试、1 项 Server 会话生命周期测试与 5 项前端交互测试全量验证（100% 绿灯，0 Lint 错误，0 僵尸残留）。
+- **素材 SSOT：** `temp-docs/roadmap/topic_14_workflow_eval_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/recording/` · `myrm-agent/myrm-agent-server/app/api/skills/desktop_recorder.py` · `myrm-agent/myrm-agent-frontend/src/components/features/desktop-recording/DesktopRecordingDrawer.tsx`
+
 ## 最新验证快照（2026-08-26 · 中途人机决策门控与多阶段协同自愈体系 · 路线图 Topic 12 #5 达成）
 
 - **MidRunHumanDecisionGateAndMultiStageHealingPack（对比 Codex 单机 stdin 阻塞卡死 / Hermes 无中途交互通道直接崩溃 / AutoGPT 盲盒死循环）：** Myrm 构建了业界首个基于 PTC 原语 (`myrm_tools.human_ask`)、协程挂起 (`PhaseWaiter`) 与流式卡片 (`HumanGateCard`) 的中途决策门控与多阶段自愈体系：

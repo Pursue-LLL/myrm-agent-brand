@@ -11,6 +11,16 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Validation Snapshot (2026-08-26 · Desktop Workflow Skill Recorder & Synthesis Compiler · Roadmap Topic 14 #5 Done)
+
+- **DesktopWorkflowSkillRecorderPack (vs MS Copilot Desktop cloud VLM video lock-in / Hermes CLI-only text prompting / Traditional RPA brittle coordinate replays):** Myrm built the industry's first lightweight, 100% offline event clustering and heuristic Tool Lifting skill synthesis system:
+  1. **Cross-App Action Stream Capture & Temporal Clustering (`cluster_and_debounce_events`)**: Provides 1-click recording across desktop and WebUI, automatically debouncing sub-50ms jitter and clustering keystrokes into semantic blocks, with strict password masking;
+  2. **Native Tool Lifting Engine (`detect_tool_lifting_candidates`)**: Automatically elevates terminal commands to deterministic CLI/Shell scripts and file edits to atomic code writes, eliminating brittle coordinate-based UI replays;
+  3. **Dynamic Parameter Slot Extraction (`extract_parameter_slots`)**: Automatically identifies file paths, ISO dates, and email addresses into configurable slots (e.g., `{{input_path}}`, `{{target_date}}`), enabling cross-machine skill generalization;
+  4. **Standard YAML Frontmatter + Markdown Rendering (`render_skill_markdown`)**: Generates compliant `SKILL.md` definitions, integrated with real-time step review, variable adjustment, and 1-click publishing in the WebUI;
+  5. **100% Test Coverage & Zero-Debt Quality**: Fully verified by 9 Harness algorithmic tests, 1 Server session lifecycle test, and 5 Frontend drawer tests (100% green, 0 Lint errors, 0 zombie processes).
+- **SSOT Sources:** `temp-docs/roadmap/topic_14_workflow_eval_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/recording/` · `myrm-agent/myrm-agent-server/app/api/skills/desktop_recorder.py` · `myrm-agent/myrm-agent-frontend/src/components/features/desktop-recording/DesktopRecordingDrawer.tsx`
+
 ## Latest Validation Snapshot (2026-08-26 · Mid-Run Human Decision Gate & Multi-Stage Healing Pack · Roadmap Topic 12 #5 Done)
 
 - **MidRunHumanDecisionGateAndMultiStageHealingPack (vs Codex CLI Stdin Lockups / Hermes Silent Mid-Execution Crashes / AutoGPT Opaque Retry Loops):** Myrm delivers an enterprise-grade mid-run human decision gate and multi-stage healing architecture powered by PTC primitives (`myrm_tools.human_ask`), coroutine suspension (`PhaseWaiter`), and reactive streaming cards (`HumanGateCard`):

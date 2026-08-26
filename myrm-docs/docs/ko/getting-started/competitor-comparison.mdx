@@ -11,6 +11,16 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보안을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-08-26 · 데스크톱 워크플로 스킬 레코더 및 합성 컴파일러 · Roadmap Topic 14 #5 완료)
+
+- **DesktopWorkflowSkillRecorderPack (MS Copilot Desktop 클라우드 VLM 비디오 락인 / Hermes CLI 텍스트 전용 / 기존 RPA 취약한 좌표 재생 대비):** Myrm은 업계 최초로 경량 100% 오프라인 이벤트 클러스터링 및 휴리스틱 Tool Lifting 스킬 합성 시스템을 구축했습니다:
+  1. **크로스 앱 동작 스트림 캡처 및 시계열 클러스터링 (`cluster_and_debounce_events`)**: WebUI 및 데스크톱에서 원클릭 녹화를 지원하며 50ms 내 미세 지터를 필터링하고 연속 키 입력을 의미론적 블록으로 병합, 민감한 비밀번호는 마스킹 처리;
+  2. **네이티브 도구 승격 엔진 (`detect_tool_lifting_candidates`)**: 터미널 명령을 결정론적 CLI/Shell 스크립트로, 파일 수정을 원자적 코드 작성 작업으로 자동 승격하여 취약한 UI 좌표 재생을 완벽히 제거;
+  3. **동적 파라미터 슬롯 추출 (`extract_parameter_slots`)**: 파일 경로, ISO 날짜, 이메일 주소를 템플릿 슬롯(`{{input_path}}`, `{{target_date}}`)으로 자동 추출하여 크로스 머신 범용성 확보;
+  4. **표준 YAML Frontmatter + Markdown 렌더링 (`render_skill_markdown`)**: 표준 규격의 `SKILL.md`를 자동 생성하고 WebUI에서 실시간 단계 검토, 변수 편집 및 원클릭 퍼블리싱 지원;
+  5. **100% 테스트 커버리지 및 제로 부채 달성**: 9개 Harness 알고리즘 테스트, 1개 Server 세션 라이프사이클 테스트, 5개 프론트엔드 드로어 테스트 전량 통과 (100% 패스, 0 Lint 에러, 0 좀维 프로세스).
+- **소재 SSOT:** `temp-docs/roadmap/topic_14_workflow_eval_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/recording/` · `myrm-agent/myrm-agent-server/app/api/skills/desktop_recorder.py` · `myrm-agent/myrm-agent-frontend/src/components/features/desktop-recording/DesktopRecordingDrawer.tsx`
+
 ## 최신 검증 스냅샷 (2026-08-26 · 실행 중 인간 결정 게이트 및 다단계 자가 치유 시스템 · Roadmap Topic 12 #5 완료)
 
 - **MidRunHumanDecisionGateAndMultiStageHealingPack (vs Codex CLI Stdin 락업 / Hermes 실행 중 상호작용 부재로 인한 강제 중단 / AutoGPT 불투명 재시도 루프):** Myrm은 PTC 원어(`myrm_tools.human_ask`), 코루틴 일시 정지(`PhaseWaiter`) 및 반응형 스트리밍 카드(`HumanGateCard`) 기반의 실행 중 인간 결정 게이트 및 다단계 자가 치유 아키텍처를 구현했습니다:

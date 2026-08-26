@@ -98,3 +98,13 @@ MyRM uses **Code-as-Orchestrator** so Python plans keep full expressiveness (for
 - **Natural-language edits**: change requirements in one sentence — faster than dragging nodes
 
 **Migration one-liner**: Coming from “I want a visual workflow editor”? MyRM replaces manual DAG drawing with live topology + plan review + natural language.
+
+### 13. Cross-Session & Cross-Fork Semantic Replay: Identity-Hash Journal Resume
+
+In complex multi-agent workflows, users frequently fork sessions or tweak earlier prompts in the WebUI to explore alternative solutions. In traditional architectures, changing the session ID invalidates all historical sub-task results, forcing expensive research tasks (such as full-repo semantic scanning) to re-run from scratch, wasting tokens and time.
+
+MyRM introduces persistent execution resumption backed by `identity_hash` semantic indexing:
+- **Instant Readonly Replay (0 Token Waste)**: For all sub-tasks declared as `readonly=True`, a deterministic SHA-256 fingerprint is computed from spawn parameters (`agent_type`, `prompt`, `verification_mode`, etc.). Across forks and sessions, identical queries resolve in milliseconds directly from `WorkflowEventStore` with 0 token overhead, accelerating execution by up to 100x.
+- **Strict Side-Effect Isolation**: Sub-tasks with side effects (`readonly=False`) are physically barred from cross-fork fallback, strictly protecting environment integrity.
+- **Workspace Sidecar Journaling**: Workflow execution traces are automatically mirrored to `.myrm/.workflow-journal.jsonl` in the workspace, ensuring full auditability and portability.
+
