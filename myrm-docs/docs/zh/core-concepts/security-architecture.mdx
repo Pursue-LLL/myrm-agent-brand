@@ -136,6 +136,7 @@ Agent 可以使用 `ask_question_tool` 在执行操作前向用户提出结构�
 | **部署感知安全底线** | 绝对高危目录（`~/.ssh`, `~/.aws`, `/etc` 等）与特殊系统设备（`CON`, `NUL`, `\\.\*`, `/dev/*`）由 `SandboxMountSecurityGate` 严格 DENY 且不可被用户覆写；云沙箱模式强制沙箱隔离 | 桌面/本地端拥有极致灵活的动态提权体验，云端 fail-closed 物理隔离 |
 | **沙箱挂载安全门禁** | 在进入 macOS Seatbelt、Linux Bwrap 或 Windows AppContainer 执行环境前，所有挂载源通过 `mount_security_gate.py` 执行 8 重 fail-closed 严苛判定（路径穿越、软链接逃逸、设备名注入、APFS/NTFS 大小写折叠、只读最小特权） | 彻底斩断恶意仓库通过软链接诱导沙箱挂载宿主机敏感目录的逃逸路径 |
 | **云沙箱三级隐私阶梯** | 沙箱快照与文件每轮事件驱动持久化时，通过 `privacy_ladder.py` 执行三级 Fail-Closed 判定（Tier 1 文件凭据/系统特权阻断、Tier 2 会话只读态熔断、Tier 3 工作区边界穿透与大小写折叠归一） | 彻底封死机密泄漏与软链接穿透持久化，保障企业云沙箱数据绝对纯净 |
+| **持久化写入损坏检测与密封** | 快照与状态持久化写入采用 `sealed_io.py` 三阶段原子密封写（Temp File -> Hardware fsync -> Atomic Replace）与 SHA-256 Checksum 完整性信封，非法篡改与断电截断数据自动进入 `.corrupted/` 隔离区 | 彻底杜绝断电损坏导致 Agent 启动崩溃，保障持久化状态 100% 具备工业级崩溃一致性 |
 
 **竞品对比：** OpenWorker Cowork 仍在使用过时的 `request_directory` 占用 LLM Action Space 破坏 Prompt Cache；OpenClaw、Hermes、DeerFlow、LobsterAI、CoPaw、jiuwenclaw 的代码库中均无会话级目录 HITL。Myrm 率先实现内核透明拦截 + 动态提权 + 前端拖拽预授权 + Prompt Cache 保护。
 

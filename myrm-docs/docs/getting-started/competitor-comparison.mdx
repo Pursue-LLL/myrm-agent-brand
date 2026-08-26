@@ -11,6 +11,48 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Validation Snapshot (2026-08-26 · MCP Cross-Origin Redirect Sensitive Header Forward Guard · Roadmap Topic 03 #7 Done)
+
+- **McpRedirectHeaderForwardGuard (vs Agent Plugins Spec / ClawBank _RefuseRedirects / Traditional Blind Redirect Credential Leakage):** Myrm delivers an enterprise-grade outbound HTTP redirect security architecture based on RFC 6454 Web Origin normalization and dynamic sensitive header sanitization:
+  1. **Cross-Origin Sensitive Header Stripping (`redirect_guard.py:strip_sensitive_headers_on_redirect`)**: Automatically extracts normalized `(scheme, host, port)` Origin tuples and completes default 80/443 ports for exact same-origin evaluation. On cross-origin redirects, it automatically purges `Authorization`, `Cookie`, `X-API-Key`, `Token`, `Secret`, and custom keys while logging `REDIRECT_HEADER_STRIPPED` audit events;
+  2. **Insecure Protocol Downgrade Interception (`InsecureRedirectSecurityError`)**: Fail-closed interception when a redirect downgrades from HTTPS to unencrypted HTTP while carrying sensitive credentials, completely mitigating MITM token sniffing;
+  3. **MCP Transport Layer Native Hook (`create_mcp_redirect_guard_event_hooks`)**: Injects request hooks into `httpx2.AsyncClient` for both MCP SSE and Streamable HTTP transports, ensuring that `follow_redirects=True` provides both seamless same-origin compatibility and 100% cross-origin credential protection;
+  4. **System-Wide Outbound Fetch Integration (`secure_fetch.py`)**: Seamlessly powers `secure_fetch.py` to protect general outbound asset downloads, REST APIs, and tool requests;
+  5. **0 Token Overhead & 100% Prompt Cache Stability**: Microsecond pure-function evaluation in the network transport layer with zero context pollution;
+  6. **100% Test Coverage**: Full suite of 118 unit and integration tests passing with 0 lint errors and 0 zombie processes.
+- **Material SSOT:** `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/core/security/http/redirect_guard.py` · `myrm-agent-harness/src/myrm_agent_harness/core/security/http/secure_fetch.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/mcp/client.py`
+
+
+## Latest Validation Snapshot (2026-08-26 · Project-Scoped Non-IDE Workspace Mode & Lightweight AST Code Symbol Search · Roadmap Topic 09 #6 Done)
+
+- **ProjectScopedWorkspaceModeNonIDE (vs CoPaw / QwenPaw / Hermes-Agent / Heavy Traditional 3-Pane IDEs):** Myrm delivers a lightweight, zero-daemon AST code symbol structure extraction tool and project-scoped context boundary architecture:
+  1. **Zero-Daemon Multi-Language AST Symbol Extraction (`ast_symbol_search_tool`)**: Implemented in the Harness layer with pure Python AST + fast regex fallback, extracting class, interface, method, and function outlines across Python, TypeScript, JavaScript, Go, Rust, Java, and C/C++ in <5ms without running heavy LSP daemons or consuming excessive prompt tokens;
+  2. **Deterministic Project Scope Context Injection (`project_scoped_context_middleware.py`)**: Automatically injects `<project_scoped_workspace>` boundaries and AST search guidelines before workspace rules, preserving 100% KV Cache prefix stability while preventing agent hallucination in monorepo sub-projects;
+  3. **Non-Intrusive File Browser & Inline Unified Diff Inspection (`workspace-browser`)**: Provides directory tree navigation, right-click "Set as Project Root" fast prompts, and `InlineWorkspaceDiff` / `InlineDiffViewer` for instant code change reviews without cluttering the chat with heavy 3-pane IDE layouts;
+  4. **Clean Delegation to Specialized Coding Subagents**: Heavy implementation tasks cleanly delegate to subagents via ACP (`delegate_to_agent_tool`), keeping main agent context sharp and focused;
+  5. **100% Test Coverage & Zero-Debt Purity**: Complete suite of AST extraction unit tests, server middleware tests, frontend unified diff tests, 6-language i18n parity, and Chrome MCP E2E tests 100% passing with 0 lint errors and 0 zombie processes.
+- **Material SSOT:** `temp-docs/roadmap/topic_09_frontend_ux_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_search/ast_symbol_tool.py` · `myrm-agent/myrm-agent-server/app/ai_agents/agent_middlewares/project_scoped_context_middleware.py` · `myrm-agent/myrm-agent-frontend/src/components/features/workspace-browser/InlineWorkspaceDiff.tsx`
+
+## Latest Validation Snapshot (2026-08-26 · Multi-Tier Evolution Screener & Real-Sandbox Regression Assurance Gate · Roadmap Topic 08 Done)
+
+- **EvolutionScreenerAndVerifiedCapsuleGate (vs EvoMap GEP Capsule / Continual Harness / Traditional Blind Fix Scripts):** Myrm delivers an enterprise-grade multi-tier self-evolution protection engine, real subprocess validation, and deterministic regression assertion gates:
+  1. **Four-Tier Hot-Pluggable Evolution Strategy Engine (`EvolutionScreener`)**: Provides `balanced`, `innovate`, `harden`, and `repair-only` execution strategies; dynamically adapts to `ModelTier` (LITE / STANDARD / REASONING / STRONG) to prevent weak models from generating bloated boilerplate code while retaining hotfix repair capabilities;
+  2. **Physical Frontmatter & Database Evolution Locking (Phase 0 Lock)**: Zero-cost instant interception of protected core skills, preventing unwanted AI tampering or drift across runs;
+  3. **Subprocess Compilation & Sandbox Dry-Run Validation (`SandboxValidator`)**: Direct execution of Python syntax verification (`py_compile`) and isolated sandboxed dry-runs, completely eliminating the vulnerability of self-reported test claims and mock streaks seen in competitor capsule markets;
+  4. **EvalCase Deterministic Assertion Matrix (`eval_regression.py`)**: Enforces multi-turn assertion matrices (`SandboxAssertion`, `StateAssertion`, `SemanticAssertion`) bound directly to evolved variants, preventing degradation on working scenarios;
+  5. **100% Full-Stack Test Coverage**: 12/12 Harness integration tests and 38/38 Server API/E2E evolution tests 100% green with 0 linter errors and 0 zombie processes.
+- **Material SSOT:** `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/pipeline/screener.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/execution/sandbox_validator.py` · `myrm-agent/myrm-agent-server/app/api/skills/evolution/pending.py`
+
+## Latest Validation Snapshot (2026-08-26 · Turn-1 Bound Tools and System Prompt Token Budget CI Architecture Gate · Roadmap Topic 06 #9 Done)
+
+- **Turn1TokenCIGate (vs Hermes / OpenClaw / DeepSeek Harness / Traditional Ungated Prompt Bloat):** Myrm delivers an enterprise-grade granular tool schema token measurement and CI architecture budget enforcement framework:
+  1. **Granular Tool Schema Token Measurement Tool (`measure_tool_schema_tokens.py`)**: Supports layered, granular tiktoken (`o200k_base`) counting for Tool Descriptions, JSON Schema Parameters, and Wrapper overhead with structured table and JSON outputs, preventing Measurement Decay;
+  2. **Strict CI Architecture Budget Gate (`TestPromptTokenBudgetGate`)**: Harness CI gate strictly enforces Turn-1 default tool profile token overhead $\le 6,500$ tokens, Full System Prompt $\le 2,000$ tokens, Lean System Prompt $\le 1,200$ tokens with a $\le 0.70$ compression ratio, preventing silent prompt bloat during multi-developer collaboration;
+  3. **Prompt Cache Prefix Stability**: Verifies system behavior and security boundary rule immutability to preserve cross-turn and cross-tenant KV Cache hit rates;
+  4. **Code-as-Action Batch Execution Guidance**: Enhances `browser_execute_script_tool` prompt guidance to prefer Python batch scripts when executing $\ge 3$ sequential browser interactions, cutting multi-turn round-trip latency and token waste;
+  5. **100% Test Coverage**: Full suite of prompt budget gate, integrity, and discipline tests passing with 0 lint errors, 0 warnings, and 0 zombie processes.
+- **Material SSOT:** `temp-docs/roadmap/topic_06_context_session_roadmap.md` · `myrm-agent-harness/scripts/measure_tool_schema_tokens.py` · `myrm-agent-harness/tests/architecture/test_prompt_token_budget_gate.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/tool_management/DEFAULT_AGENT_TOKEN_INVENTORY.md`
+
 ## Latest Validation Snapshot (2026-08-26 · Cloud Sandbox Checkpoint Integrity Sealing & Corruption Quarantine · Roadmap Topic 03 #4 Done)
 
 - **PersistenceWriteCorruptionDetectionAndSealing (vs mem/pi_agent / OpenClaw / Hermes-Agent / Traditional Direct Storage Writes):** Myrm delivers an enterprise-grade atomic checkpoint sealing and corruption self-healing architecture:

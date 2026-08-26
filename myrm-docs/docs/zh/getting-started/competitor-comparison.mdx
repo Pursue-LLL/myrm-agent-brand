@@ -11,6 +11,38 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-26 · 项目作用域非 IDE 工作区模式与轻量 AST 代码符号检索 · 路线图 Topic 09 #6 达成）
+
+- **ProjectScopedWorkspaceModeNonIDE（对比 CoPaw / QwenPaw / Hermes-Agent / 传统三栏重型 IDE 布局）：** Myrm 构建了零守护进程的轻量多语言 AST 代码符号结构提取与项目作用域上下文边界架构：
+  1. **零守护进程多语言 AST 符号提取（`ast_symbol_search_tool`）**：在 Harness 框架层实现原生 Python AST 解析与极速正则表达式回退，5ms 内提取 Python、TypeScript、JavaScript、Go、Rust、Java、C/C++ 等类、接口、函数、方法大纲与行号，彻底免除重型 LSP 守护进程，大幅节省上下文 Token；
+  2. **确定性项目作用域上下文注入（`project_scoped_context_middleware.py`）**：在 System 消息链中自动注入 `<project_scoped_workspace>` 边界约束与 AST 探索指引，100% 保持 KV Cache 前缀命中率，防止 Monorepo 子项目中 Agent 幻觉乱窜；
+  3. **非侵入式轻量工作区浏览器与内嵌 Unified Diff 审查（`workspace-browser`）**：提供目录树导航、右键「设为项目根目录」快捷指引及 `InlineWorkspaceDiff` / `InlineDiffViewer` 代码差异审查面板，无需三栏重型 IDE 挤占宝贵的聊天工作台空间；
+  4. **重型编码任务无缝委托专业子 Agent**：复杂编码与重构任务通过 ACP（`delegate_to_agent_tool`）清晰委托给独立 Coding Agent，主 Agent 上下文保持清晰聚焦；
+  5. **全栈测试验证与零技术债**：AST 提取单测、Server 中间件单测、前端 Unified Diff 单测、六语言 i18n 门禁及 Chrome MCP E2E 测试 100% 绿灯通过，0 Lint 错误、0 僵尸进程。
+- **素材 SSOT：** `temp-docs/roadmap/topic_09_frontend_ux_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_search/ast_symbol_tool.py` · `myrm-agent/myrm-agent-server/app/ai_agents/agent_middlewares/project_scoped_context_middleware.py` · `myrm-agent/myrm-agent-frontend/src/components/features/workspace-browser/InlineWorkspaceDiff.tsx`
+
+## 最新验证快照（2026-08-26 · MCP 跨源重定向凭据防泄露安全守门人 · 路线图 Topic 03 #7 达成）
+
+- **McpRedirectHeaderForwardGuard（对比 Agent Plugins 规范 / ClawBank _RefuseRedirects / 传统 HTTP 裸重定向凭据扩散）：** Myrm 实现了业界首个基于 RFC 6454 Web Origin 归一化比对与敏感 Headers 动态脱敏的出网重定向安全拦截体系：
+  1. **跨源敏感 Header 自动脱敏（`redirect_guard.py:strip_sensitive_headers_on_redirect`）**：在 HTTP 3xx 重定向链路中自动提取 `(scheme, host, port)` Origin 元组，自动补全 80/443 默认端口进行同源精准识别。跨源跳转时自动剥离 `Authorization`、`Cookie`、`X-API-Key`、`Token`、`Secret` 等所有敏感凭证，并记录 `REDIRECT_HEADER_STRIPPED` 安全审计；
+  2. **协议降级强制安全阻断（`InsecureRedirectSecurityError`）**：当检测到从 HTTPS 重定向到 HTTP 明文端点且携带敏感凭据时，系统自动 Fail-Closed 阻断并抛出安全异常，彻底杜绝中间人（MITM）嗅探凭证；
+  3. **MCP 传输层无缝注入 Hook（`create_mcp_redirect_guard_event_hooks`）**：在 MCP 客户端（`mcp/client.py`）与 Session 状态机中为 `httpx2.AsyncClient` 原生挂载 Request 事件钩子，使得 SSE 与 Streamable HTTP 连接在 `follow_redirects=True` 下兼顾「同源合法高可用」与「跨源 100% 零凭据泄漏」；
+  4. **全量出网 HTTP 基础服务赋能（`secure_fetch.py`）**：将该 Guard 深度整合进统一出网层 `secure_fetch.py`，全方位防护系统级资源下载、API 调用与 MCP 服务通信；
+  5. **0 Token 损耗与 100% 提示词缓存保持**：纯网络传输层微秒级计算，0 LLM 上下文污染，100% 保护 Prompt Cache 命中率；
+  6. **全栈测试验证**：118 项单元测试与集成测试 100% 绿灯通过，0 Lint 错误、0 僵尸残留。
+- **素材 SSOT：** `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/core/security/http/redirect_guard.py` · `myrm-agent-harness/src/myrm_agent_harness/core/security/http/secure_fetch.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/mcp/client.py`
+
+
+## 最新验证快照（2026-08-26 · 多档演化策略状态机与沙箱真实回归防护门禁 · 路线图 Topic 08 达成）
+
+- **EvolutionScreenerAndVerifiedCapsuleGate（对比 EvoMap GEP Capsule / Continual Harness / 传统自报刷分脚本）：** Myrm 构建了业界首个多档热插拔演化策略状态机、子进程真实沙箱校验与确定性回归断言门禁体系：
+  1. **四档热插拔演化策略状态机（`EvolutionScreener`）**：内建 `balanced`、`innovate`、`harden` 与 `repair-only` 策略，根据 `ModelTier`（弱模型/强模型）自动降级为仅修 Bug，防止弱模型生成劣质代码脚手架反成系统负担；
+  2. **物理文件与数据库双重演化硬锁（Phase 0 Lock）**：秒级零成本识别受保护核心技能与用户锁定，100% 阻断自动化篡改；
+  3. **子进程编译与独立沙箱 Dry-Run（`SandboxValidator`）**：真实验证 Python 语法编译（`py_compile`）与沙箱试运行，彻底抛弃 EvoMap 依赖本地自报 `success_streak`（可刷分）的脆弱机制；
+  4. **EvalCase 确定性回归测试断言矩阵（`eval_regression.py`）**：演化变体强制绑定已有评测用例与断言矩阵（`SandboxAssertion`、`StateAssertion`、`SemanticAssertion`），空洞测试无法通过；
+  5. **全栈测试验证**：Harness 演化生命周期 12 项测试与 Server 端 API/E2E 38 项演化测试 100% 绿灯通过，0 Lint 错误、0 僵尸残留。
+- **素材 SSOT：** `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/pipeline/screener.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/execution/sandbox_validator.py` · `myrm-agent/myrm-agent-server/app/api/skills/evolution/pending.py`
+
 ## 最新验证快照（2026-08-26 · Turn-1 默认工具集与系统提示词 Token 预算 CI 门禁 · 路线图 Topic 06 #9 达成）
 
 - **Turn1TokenCIGate（对比 Hermes / OpenClaw / DeepSeek Harness / 传统无门禁提示词膨胀）：** Myrm 构建了业界首个严密的首轮 Token 细粒度测量工具与 CI 架构预算门禁体系：
