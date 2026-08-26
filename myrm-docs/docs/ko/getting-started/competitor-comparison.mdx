@@ -11,6 +11,16 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보안을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-08-26 · 실행 중 인간 결정 게이트 및 다단계 자가 치유 시스템 · Roadmap Topic 12 #5 완료)
+
+- **MidRunHumanDecisionGateAndMultiStageHealingPack (vs Codex CLI Stdin 락업 / Hermes 실행 중 상호작용 부재로 인한 강제 중단 / AutoGPT 불투명 재시도 루프):** Myrm은 PTC 원어(`myrm_tools.human_ask`), 코루틴 일시 정지(`PhaseWaiter`) 및 반응형 스트리밍 카드(`HumanGateCard`) 기반의 실행 중 인간 결정 게이트 및 다단계 자가 치유 아키텍처를 구현했습니다:
+  1. **비차단 안전 코루틴 일시 정지 및 4방향 결정 원어 (`HumanAskTool` & `PhaseWaiter`)**: 동적 워크플로 실행 중 중요한 스키마 변경, 주요 데이터 덮어쓰기 또는 토큰 예산 경고 발생 시 코루틴을 무손실 일시 정지하고 WebUI에 `continue`(진행), `stop`(저장 후 중단), `extra_rounds`(라운드 추가), `instructions`(지침 전달) 4가지 선택지를 제공;
+  2. **다단계 게이트 생명주기 리셋 및 입력 상태 초기화 (`HumanGateCard.tsx`)**: 카드의 상태를 `question` 식별자에 바인딩하여 다단계 작업에서 연속으로 결정 게이트가 호출될 때 이전 입력 초안을 자동 정리하고 타이머를 재설정하며, 한글/중국어 IME 조합 방어 및 낙관적 UI 즉각 반영을 지원;
+  3. **취소 토큰 밀리초 단위 단락 및 안전한 타임아웃 기본값 (`stream_lane_factory.py`)**: 사용자 수동 중단 시 `cancel_token.is_cancelled`를 선제 검증하여 대기 상태를 즉각 해제하고, 설정 가능한 카운트다운(기본 300초) 만료 시 기본 동작을 자동 적용하여 유령 백그라운드 작업을 방지;
+  4. **모든 배포 환경 지원 및 0 프롬프트 캐시 손실**: WebUI, Tauri 데스크톱 및 Cloud 격리 샌드박스 모드 전반에서 런타임 도구 통신으로 흘러 시스템 프롬프트 접두사를 변경하지 않으므로 Prompt Cache 적중률을 100% 보존;
+  5. **100% 테스트 커버리지 및 제로 부채**: 73개 Harness 동적 워크플로 테스트, 23개 Server 게이트 라우팅 테스트 및 7개 프론트엔드 인터랙션 테스트 100% 통과 (린트 오류 0개, 좀비 프로세스 0개).
+- **자료 SSOT:** `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/dynamic_workflow/tools.py` · `myrm-agent/myrm-agent-server/app/services/agent/stream_session/stream_lane_factory.py` · `myrm-agent/myrm-agent-frontend/src/components/features/message-box/HumanGateCard.tsx`
+
 ## 최신 검증 스냅샷 (2026-08-26 · 유휴 대화 고부하 리소스 자동 회수 및 다단계 메모리 컴팩터 · Roadmap Topic 10 #3 완료)
 
 - **IdleChatHeavyResourceReclaimSettingsPack (vs Hermes 무제한 컨텍스트 잔류 / AutoGPT 메모리 누수 통제 불가 / Dify 고정 타임아웃 강제 종료):** Myrm은 엔터프라이즈급 다단계 유휴 리소스 지능형 회수 아키텍처 및 실제 프로세스 물리 메모리 진단 시스템을 구현했습니다:

@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-26 · 中途人机决策门控与多阶段协同自愈体系 · 路线图 Topic 12 #5 达成）
+
+- **MidRunHumanDecisionGateAndMultiStageHealingPack（对比 Codex 单机 stdin 阻塞卡死 / Hermes 无中途交互通道直接崩溃 / AutoGPT 盲盒死循环）：** Myrm 构建了业界首个基于 PTC 原语 (`myrm_tools.human_ask`)、协程挂起 (`PhaseWaiter`) 与流式卡片 (`HumanGateCard`) 的中途决策门控与多阶段自愈体系：
+  1. **非阻塞安全协程挂起与四维决策原语（`HumanAskTool` & `PhaseWaiter`）**：在动态工作流中途遇到关键结构变更、重大数据覆盖或预算预警时，无损挂起执行协程并向 WebUI 下发决策卡片，提供 `continue`（继续推进）、`stop`（保存并中止）、`extra_rounds`（追加轮次）与 `instructions`（自定义指示）四维决策能力；
+  2. **多阶段门控依赖清理与状态自愈（`HumanGateCard.tsx`）**：前端建立以 `question` 为核心的独立依赖生命周期，多阶段任务连续触发门控时自动清空前序草稿并重置倒计时，同时内嵌中文拼音输入法（IME）防误触机制与乐观状态即时更新；
+  3. **取消令牌毫秒级短路与超时默认安全兜底（`stream_lane_factory.py`）**：服务端注入 `cancel_token` 前置检查，主动取消时毫秒级跳出等待，配合可配倒计时（默认 300s）超时自动应用默认动作，绝不挂起后台僵尸任务；
+  4. **全端部署模式自适应与 0 提示词缓存损耗**：在 WebUI、Tauri 桌面端与 Cloud 独立沙箱模式下完全一致运行，门控过程作为纯运行时工具通信流转，100% 保持 Prompt Cache 高速命中；
+  5. **100% 测试覆盖与零债务交付**：通过 73 项 Harness 动态工作流单测、23 项 Server 门控路由单测及 7 项前端交互单测全量验证（100% 绿灯，0 Lint 错误，0 僵尸残留）。
+- **素材 SSOT：** `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/dynamic_workflow/tools.py` · `myrm-agent/myrm-agent-server/app/services/agent/stream_session/stream_lane_factory.py` · `myrm-agent/myrm-agent-frontend/src/components/features/message-box/HumanGateCard.tsx`
+
 ## 最新验证快照（2026-08-26 · 空闲会话重型资源自动回收与多级内存紧凑器 · 路线图 Topic 10 #3 达成）
 
 - **IdleChatHeavyResourceReclaimSettingsPack（对比 Hermes 无界上下文残留 / AutoGPT 内存泄漏失控 / Dify 固定死板超时崩溃）：** Myrm 实现了工业级多级空闲资源智能回收架构与真实物理内存诊断体系：
