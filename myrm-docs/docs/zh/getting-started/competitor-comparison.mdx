@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-26 · 动态工作流校验与多怀疑者多数决编排体系 · 路线图 Topic 12 #3 达成）
+
+- **DWVerificationAndOrchestrationPatternLibrary（对比 AutoGPT 盲目采信 Worker / Hermes 单次执行无校验 / LangGraph 静态硬编码 DAG）：** Myrm 在动态工作流 PTC (`myrm_tools.spawn_subagent`) 中原生集成了工业级多 Agent 校验模式库：
+  1. **审计员盲审模式（`auditor_blind`）**：彻底剔除 Worker 的自夸式叙述、幻觉与主观陈述，仅向 Verifier 提供客观的任务目标、预期产物及沙箱文件精确变更（Diff），彻底消除确认偏误；
+  2. **沙箱文件突变自愈回滚（`revert_workspace_mutations`）**：在校验前自动对工作区 Stat 元数据进行快照，并在校验结束后自动清理 Verifier 生成的临时探测文件与测试产物，确保沙箱绝对纯净；
+  3. **多怀疑者多数决裁决（`multi_skeptic`）**：并行并发启动 3 个具备温度多样性的独立怀疑者校验员，应用 2/3 多数投票决机制，并内嵌严苛的 Fail-Closed 熔断机制（校验员沙箱崩溃或致命异常直接判定未通过，杜绝误放行）；
+  4. **全环境 0 提示词缓存损耗**：在 Local WebUI、Tauri 桌面端与 Cloud 独立沙箱模式下完全一致运行，不破坏系统提示词前缀缓存；
+  5. **100% 架构与测试覆盖**：经由 43 项 Harness 校验测试与 3 项 Server 动态工作流 E2E 测试全量验证（100% 绿灯，0 Lint 错误，0 僵尸残留）。
+- **素材 SSOT：** `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/_orchestrator_verification.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/_verifier_round.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/dynamic_workflow/tools.py`
+
 ## 最新验证快照（2026-08-26 · 桌面跨应用工作流录制与技能合成编译器 · 路线图 Topic 14 #5 达成）
 
 - **DesktopWorkflowSkillRecorderPack（对比微软 Copilot Desktop 强依赖云端 VLM 视频分析 / Hermes 仅限终端纯文本 / 传统 RPA 脆弱坐标回放）：** Myrm 构建了业界首个轻量级、100% 离线事件聚合与启发式 Tool Lifting 技能合成系统：

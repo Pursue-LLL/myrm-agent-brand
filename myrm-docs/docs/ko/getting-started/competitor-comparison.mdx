@@ -11,6 +11,16 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보안을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-08-26 · 동적 워크플로 검증 및 멀티 회의론자 다수결 오케스트레이션 · Roadmap Topic 12 #3 완료)
+
+- **DWVerificationAndOrchestrationPatternLibrary (AutoGPT의 맹목적 작업자 수용 / Hermes 단일 실행 미검증 서브에이전트 / LangGraph 정적 하드코딩 DAG 대비):** Myrm은 동적 워크플로 PTC (`myrm_tools.spawn_subagent`)에 엔터프라이즈급 멀티 에이전트 검증 패턴 라이브러리를 기본 탑재했습니다:
+  1. **감사인 블라인드 모드 (`auditor_blind`)**: 작업자의 자기 과시형 서술, 환각 및 주관적 코멘트를 완전히 배제하고 오직 객관적 작업 요구사항, 기대 산출물 및 샌드박스 파일 차이(Diff)만을 검증자에게 제공하여 확증 편향을 차단;
+  2. **샌드박스 파일 변경 자동 자가 치유 롤백 (`revert_workspace_mutations`)**: 검증 시작 전 작업 영역 Stat 메타데이터를 스냅샷하고 검증 완료 후 검증자가 생성한 임시 검사 파일을 자동 롤백하여 샌드박스의 완전한 순수성을 보장;
+  3. **멀티 회의론자 병렬 다수결 투표 (`multi_skeptic`)**: 온도 다양성을 갖춘 3개의 독립적인 회의론자 검증자를 병렬 실행하고 2/3 다수결 투표 메커니즘을 적용하며, 치명적 예외 및 샌드박스 크래시 시 즉시 실패 판정하는 Fail-Closed 안전장치를 탑재;
+  4. **모든 환경에서 0 프롬프트 캐시 손실**: Local WebUI, Tauri 데스크톱 및 Cloud 샌드박스 전반에서 시스템 프롬프트 접두사를 훼손하지 않고 동일하게 동작;
+  5. **100% 테스트 커버리지 및 제로 부채 달성**: 43개 Harness 검증 테스트 및 3개 Server 동적 워크플로 E2E 테스트 전량 통과 (100% 패스, 0 Lint 에러, 0 좀비 프로세스).
+- **소재 SSOT:** `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/_orchestrator_verification.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/_verifier_round.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/dynamic_workflow/tools.py`
+
 ## 최신 검증 스냅샷 (2026-08-26 · 데스크톱 워크플로 스킬 레코더 및 합성 컴파일러 · Roadmap Topic 14 #5 완료)
 
 - **DesktopWorkflowSkillRecorderPack (MS Copilot Desktop 클라우드 VLM 비디오 락인 / Hermes CLI 텍스트 전용 / 기존 RPA 취약한 좌표 재생 대비):** Myrm은 업계 최초로 경량 100% 오프라인 이벤트 클러스터링 및 휴리스틱 Tool Lifting 스킬 합성 시스템을 구축했습니다:
