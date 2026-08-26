@@ -1000,3 +1000,14 @@ To guard against malicious third-party packages and partial installation failure
 3. **Pre-Activation Security Gate**: Regex, AST, and LLM semantic security checks run entirely inside the quarantine directory. Rejected packages are purged without touching disk storage.
 4. **Atomic Replace with Automatic Rollback**: Installations and upgrades create a `.bak` backup and perform an atomic swap. File system IO errors trigger an instant rollback to the previous version.
 5. **Fault-Tolerant Multi-Source Search**: Aggregated skill registry queries run with per-source timeouts and fault isolation, preventing slow or failing registries from hanging the discovery UI.
+
+## Anti-Contamination & Canary Protection Gate
+
+To ensure evaluation integrity and prevent benchmark dataset contamination:
+
+1. **Dynamic Canary Token & GUID Dual-Track Protection**: Automatically detects and injects benchmark Canary watermarks (`CANARY_GUID` and dataset-specific `canary_token`).
+2. **In-Episode Outbound Search Sanitization**: Intercepts and scrubs Canary watermarks in outbound search/fetch queries in real time, preventing benchmark prompt leaks to external search engines and training corpora.
+3. **Pre-Run Workspace Cleanliness Verification**: Recursively scans agent workspaces prior to evaluation turns to ensure ground-truth patches and hidden verification files are physically excluded from live environments.
+4. **Trajectory Anti-Cheating & Secret Probing Defense**: Scans agent tool execution trajectories for attempts to probe hidden verification paths (`/hidden_tests/`, `verifier.toml`) or dump shell environment variables/secrets (`printenv`, `export`, `/proc/*/environ`). Violations trigger an immediate FAIL with structured diagnostic reports.
+5. **End-to-End Visual Violation Transparency**: Surfaced directly in the WebUI with Canary verification status and detailed violation diagnostic cards.
+
