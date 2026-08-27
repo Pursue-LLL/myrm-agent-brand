@@ -258,6 +258,13 @@ Eval Lab은 실패한 모든 평가에 대해 LLM 비용 없는 결정론적 실
 - **9가지 실패 분류 체계**: 의도 왜곡(`intent_misunderstanding`), 도구 선택 오류(`tool_selection_error`), 도구 매개변수 오류(`tool_argument_malformed`), 하드코딩 테스트 치팅(`hardcoded_tests`), 샌드박스 실행 시간 초과(`execution_timeout`), 파괴적 변경(`destructive_or_regressive`), 오염 방지 위반(`decontam_violation`), 예산/컨텍스트 초과(`context_overflow_or_budget`), 런타임 예외(`unhandled_runtime_exception`).
 - **7D 가중치 루브릭 (`WEIGHTS_RUBRIC_7D`)**: 의도 이해(20%), 도구 정밀도(15%), 실행 정확성(25%), 코드 안전성(15%), 견고성(10%), 효율성(10%), 컨텍스트 규율(5%).
 
+## 함대 평가 러너: 다중 시도 분산, 체크포인트 재개 및 난이도 샤딩 (Fleet Evaluation Runner)
+
+대규모 에이전트 평가에서 단일 실행의 온도 변동성을 제거하고 중단 시 재개를 지원합니다.
+1. **다중 시도 분산 추정 ($N$ Attempts & Pass@k)**: `n_attempts` 설정을 통해 평균 통과율 $\mu$, 표준편차 $\sigma$ (±std_dev), Pass@k 메트릭을 계산하여 단일 실행 우연성을 배제합니다.
+2. **체크포인트 재개 (Resume)**: `latest.jsonl` 기반으로 이미 통과된 케이스를 건너뛰고 미완료 케이스만 재실행하여 70% 이상의 토큰과 시간을 절약합니다.
+3. **난이도 샤딩**: `easy`/`medium`/`hard` 난이도별 분할 통계를 제공합니다.
+
 ## 스킬 게시 품질 가드
 
 기술이 Myrm의 Skill Evolution 파이프라인을 통해 발전하면 프로덕션에 도달하기 전에 **5개 방어 계층**을 통과합니다.

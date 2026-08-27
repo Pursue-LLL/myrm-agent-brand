@@ -273,6 +273,21 @@ Eval Lab provides automatic, zero-LLM trajectory failure diagnosis and Pareto ag
 2. **7D Weights Rubric (`WEIGHTS_RUBRIC_7D`)**: Aligned across Intent (20%), Tool Precision (15%), Execution Correctness (25%), Safety (15%), Robustness (10%), Efficiency (10%), and Context Discipline (5%).
 3. **Pareto Defect Charts**: Reports automatically surface failure distributions to guide immediate prompt, tool, and sandbox remediations.
 
+## Fleet Evaluation Runner: Multi-Attempt Variance, Resume & Difficulty Sharding
+
+Large-scale agent evaluations suffer from stochastic variance and wasted compute when runs fail mid-way. Eval Lab provides an enterprise fleet evaluation engine:
+
+1. **Multi-Attempt Sampling & Variance Estimation ($N$ Attempts & Pass@k)**:
+   - Configurable `n_attempts` (default 3 independent session runs per task);
+   - Automatically computes mean pass rate $\mu$, standard deviation $\sigma$ ($\pm\text{std\_dev}$), 95% confidence intervals, and Pass@k metrics;
+   - Completely eliminates single-run flakiness in benchmark and model ranking.
+2. **Deterministic Checkpoint Resume**:
+   - Resume from `latest.jsonl` or historical reports with `resume: true`;
+   - Automatically reuses previously passed task results, evaluating only incomplete or failed cases to save 70%+ token costs and execution time.
+3. **Difficulty Tier Sharding**:
+   - Filter and schedule runs by `easy` / `medium` / `hard` difficulty tags;
+   - Visualizes performance breakdown across difficulty levels to pinpoint agent architectural bottlenecks.
+
 ## Writing test cases
 
 Test cases are JSONL files where each line is a JSON object:

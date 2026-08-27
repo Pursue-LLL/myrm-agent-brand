@@ -382,7 +382,7 @@ Settings **概览** 自动展示三件套就绪状态；无需 CLI。
 - **证据引用 Drawer（Closure v2）** — Chat 或 Settings 点 citation chip：展示 claim 状态 badge（仅 contested/unsupported 降噪）、**编译置信度百分比**（显式设置时）与 **raw 摘录**；检索侧 fresh supported claim 优先于 stale contested。
 - **Settings 检索路径 trace** — Query 结果下方卡片展示 index 命中、seeds、sidecar 目录与最终概念，便于排障「为何命中这条」。
 - **编译 / 维护** — 增量编译、并发批量摄入（Semaphore 限流并行处理，多文档编译提速约40%）、视觉化指导（编译器自动引导 LLM 在合适位置产出 Mermaid 图表、GFM 表格和代码块，提升信息密度）与 linter 驱动健康修复（断链、漂移、孤立概念/桥接节点知识盲区检测等）。
-- **维护模式（#31）** — Settings **概览 → 维护** 可选 **Structural**（快扫 lint + type 修复 + blocked raw 清理）或 **Full**（额外漂移检测与 backlink 刷新）。Cron 蓝图 **`wiki_maintain`** 经 router `__wiki_maintain__:{mode}` 定时执行相同模式；第二大脑 preset 在稍后读与晨间 delta 之外新增 **周末 03:00 full maintain** 闹钟。
+- **维护模式（#31）** — Settings **概览 → 维护** 可选 **Structural**（快扫 lint + type 修复 + blocked raw 清理）或 **Full**（额外漂移检测与 backlink 刷新）。Cron 蓝图 **`wiki_maintain`** 经 router `__wiki_maintain__:{mode}` 定时执行相同模式；第二大脑 preset 在稍后读与晨间 delta 之外新增 **周末 03:00 full maintain** 闹钟。此外新增 **`wiki_vault_weekly_health`（知识库每周健康巡检 · 只列不修）** 蓝图（默认周日 18:00），以零修改原则生成分类体检清单（断链/陈旧/格式异常）与 `/settings/knowledge` 治理深链。
 - **结构健康 Stats**（Overview 页）— 零 LLM 扫描：markdown 断链、Obsidian `[[wikilink]]` 断链（路径 + 唯一 title 别名）、缺 frontmatter `type`；amber badge 在编译、导入、词条编辑、待审审批、文件夹删除后即时刷新；Harness CI 跑 4 case 检索回归门。无需 CLI `wiki lint`。
 - **图书馆 / Brain 视图** — 3D 知识图谱与词条探索（因部署而异）。
 - **知识图谱** — 编译器自动抽取概念及其关联关系，构建加权边图谱（直接链接 + 来源重叠 + 共同邻居三维权重）。LPA 社区检测自动将相关概念分组；盲区分析高亮孤立节点和跨领域桥接概念。
