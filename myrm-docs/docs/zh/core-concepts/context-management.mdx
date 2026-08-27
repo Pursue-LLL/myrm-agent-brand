@@ -502,3 +502,17 @@ Myrm 对后台辅助任务（如自动生成会话标题）的 Token 消耗进�
 | **Pre-Compact Backup** | 压缩前完整备份原始上下文，超时/失败可 100% 恢复 |
 
 **vs. 竞品**：Hermes 仅提供 `hygiene_timeout_seconds`（固定单一超时 + 冷却期）。当本地模型生成速度慢（如 8B Q4 模型每秒仅几个 token）时，固定超时会误杀正常生成过程。Myrm 的 progress-aware 设计从根本上解决了「慢≠死」的区分问题。
+
+
+## 新建任务统一工作上下文（NewTask Unified Work Context）
+
+在开始一个新任务时，清晰定义工作空间边界与隔离级别是保障 Agent 稳定运行与上下文精准聚焦的前提。Myrm 在空会话界面提供了居中的统一工作上下文卡片（`UnifiedWorkContextCard`），支持三种工作模式：
+
+1. **本地工作区 (Local Workspace)**：
+   - 绑定用户本地或单机环境下的具体文件夹作为 Agent 操作上下文。
+   - WebUI 提供模糊路径过滤与 LRU 5 历史路径缓存；Tauri 桌面端无缝唤起系统原生文件选择器（`@tauri-apps/plugin-dialog`）。
+   - 内置**办公标准化脚手架**（一键创建 `00_原始资料/`、`01_参考/`、`02_生成结果/`、`03_历史版本/` 生产级目录规范）。
+2. **云端沙箱 (Cloud Sandbox)**：
+   - 针对云托管或远程环境，分配专有隔离沙箱实例与持久化存储挂载（Persistent Volume），免本地配置开箱即用。
+3. **极速对话 (Quick Chat)**：
+   - 面向免工作区的快速问答与通用咨询，不占用工作区存储资源。

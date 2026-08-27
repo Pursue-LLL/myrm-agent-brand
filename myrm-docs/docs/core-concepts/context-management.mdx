@@ -529,3 +529,18 @@ The picker then shows an amber "will compress" badge on affected models with the
 | Anti-thrash false-alarm guard | Yes (streak consumption) | No | No |
 
 **Dedicated tests**: `test_model_switch_preflight.py` (server) + `model-picker-popover.preflight.test.tsx` (frontend) cover window resolution, tier inference, dynamic thresholds, anti-thrash consumption, and the acknowledged-count UI guard.
+
+
+## New Task Unified Work Context
+
+When initiating a new task, clearly defining workspace boundaries and isolation levels is foundational for stable agent execution. Myrm introduces a centered Unified Work Context Card (`UnifiedWorkContextCard`) on the empty chat screen supporting three execution modes:
+
+1. **Local Workspace**:
+   - Binds a specific local directory on the host as the agent operating context.
+   - WebUI provides path filtering and LRU 5 recent directory history; Tauri desktop invokes the native OS folder dialog (`@tauri-apps/plugin-dialog`).
+   - One-click **Office Standardization Scaffold** (automatically creates `00_raw_sources/`, `01_references/`, `02_outputs/`, `03_revisions/`).
+2. **Cloud Sandbox**:
+   - Provisions an isolated computing sandbox with persistent volume storage for cloud-hosted environments.
+   - Out-of-the-box readiness with zero local configuration.
+3. **Quick Chat**:
+   - Lightweight Q&A and general assistance without requiring a bound workspace.
