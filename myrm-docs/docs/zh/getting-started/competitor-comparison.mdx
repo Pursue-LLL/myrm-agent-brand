@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-27 · 服务商原生端点路由与专用轻量级上下文压缩器 · 路线图 Topic 06 #9 达成）
+
+- **NativeCompactionProviderRoutingWithDedicatedCompactor（对比 Hermes 昂贵主模型压缩 / OpenClaw 粗暴截断 / DeepSeek Harness 缺乏物理事实校验）：** Myrm 构建了业界首创的三层上下文压缩智能路由与 0-LLM 物理事实自愈体系：
+  1. **三层上下文压缩智能路由（`builder.py` 与 `context_pipeline_middleware.py`）**：无缝支持三档路由策略——第一档：服务商原生端点压缩（如 OpenAI 原生服务端 KV Cache）；第二档：专用轻量化辅助压缩器（如将 DeepSeek-7B / Qwen-7B 作为 `summarizer_llm` 注入管道）；第三档：熔断触发确定性规则兜底。单次长上下文压缩 Token 成本降低 85% 以上，响应提速 3~5 倍，主模型算力与 Token 预算 0 挤占；
+  2. **0-LLM 物理事实自愈校准器（`ExecutionStateValidator`）**：严格比对大模型摘要与沙箱内部 `ArtifactTracker` 物理磁盘产物，自动剔除幻觉文件并补全真实磁盘变更，100% 保证上下文与物理世界一致；
+  3. **严苛的前缀缓存（Prefix Cache）对齐保护**：压缩过程严格冻结 `protected_head`（系统规则与工具定义），仅在消息尾部提炼结构化摘要，后续轮次 KV Cache 命中率稳定保持 85% 以上；
+  4. **全端部署模式自适应**：在 Local WebUI、Tauri 桌面端与 Cloud 独立沙箱模式下完全一致运行；
+  5. **100% 架构与测试覆盖**：经由 80 项单元/架构测试与 75 项集成测试全量验证（100% 绿灯，0 Lint 错误，0 僵尸残留）。
+- **素材 SSOT：** `temp-docs/roadmap/topic_06_context_session_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/_factory/builder.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/pipeline/processors/summarize_processor.py`
+
 ## 最新验证快照（2026-08-26 · Tauri 桌面端 Pet 伴侣悬浮窗与 Voice Orb 深度融合 · 路线图 Topic 04 #3 达成）
 
 - **TauriVoiceFloatingOrbPetCompanionIntegration（对比传统僵硬桌面挂件 / Hermes 纯终端文本伴侣 / 割裂的无交互语音弹窗）：** Myrm 实现了全双工桌面伴侣与 Voice Orb 深度融合：

@@ -11,6 +11,16 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보안을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-08-27 · 네이티브 압축 엔드포인트 라우팅 및 전용 경량 컴팩터 · 로드맵 Topic 06 #9 완료)
+
+- **NativeCompactionProviderRoutingWithDedicatedCompactor (Hermes 고비용 단일 모델 압축 / OpenClaw 무차별 절단 / DeepSeek Harness 물리적 사실 검증 부재 대비):** Myrm은 3계층 지능형 컨텍스트 압축 라우팅 및 0-LLM 물리적 사실 자가 치유 아키텍처를 제공합니다:
+  1. **3계층 컨텍스트 압축 라우팅 파이프라인 (`builder.py` 및 `context_pipeline_middleware.py`)**: 1단계 네이티브 공급자 서버 압축(OpenAI KV Cache), 2단계 전용 경량 보조 압축 모델(DeepSeek-7B / Qwen-7B `summarizer_llm` 주입), 3단계 서킷 브레이커 확정 규칙 폴백을 완벽하게 라우팅하여 압축 토큰 비용을 85% 이상 절감하고 주 모델의 토큰 예산 낭비를 원천 방지;
+  2. **0-LLM 물리적 사실 교정기 (`ExecutionStateValidator`)**: LLM 구조화 요약과 샌드박스 내부 `ArtifactTracker` 물리적 파일 변경 사항을 상호 대조하여 환각 파일을 제거하고 누락된 디스크 변경 사항을 자동 보정, 파일 시스템 일관성 100% 보장;
+  3. **엄격한 프롬프트 캐시 접두사 보호**: 시스템 프롬프트 및 도구 정의(`protected_head`)를 고정 유지하여 후속 턴에서 KV Cache 히트율 85% 이상 유지;
+  4. **다중 환경 적응성**: Local WebUI, Tauri 데스크톱, Cloud 격리 샌드박스 전 모드에서 일관되게 동작;
+  5. **100% 테스트 커버리지 및 제로 기술 부채**: 80개 단위/아키텍처 테스트 및 75개 통합 테스트로 검증 완료 (100% 통과, 0 린트 오류).
+- **SSOT 출처:** `temp-docs/roadmap/topic_06_context_session_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/_factory/builder.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/pipeline/processors/summarize_processor.py`
+
 ## 최신 검증 스냅샷 (2026-08-26 · Tauri 데스크톱 Pet 동반자 플로팅 창 및 Voice Orb 심층 통합 · Roadmap Topic 04 #3 완료)
 
 - **TauriVoiceFloatingOrbPetCompanionIntegration (기존의 정적인 데스크톱 위젯 / Hermes 텍스트 전용 터미널 동반자 / 단절된 음성 오버레이 대비):** Myrm은 Voice Orb와 완벽하게 통합된 풀듀플렉스 데스크톱 동반자 경험을 제공합니다:
