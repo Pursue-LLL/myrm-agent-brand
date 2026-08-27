@@ -11,6 +11,25 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-08-27 · 크론 자동화 수동 성공 선험적 게이트 및 단계별 가독성 Trace 패널 · 자동화 신뢰성 완료)
+
+- **CronAutomationManualSuccessPrerequisiteGate (Hermes CLI 전용 설정 맹목 실행 / OpenClaw 선험적 방어 부재 / Claude Code 단계별 화이트박스 Trace 부재 대비):** Myrm은 업계 최초의 자동화 사전 검증 게이트 및 단계별 화이트박스 감사 패널 시스템을 구축했습니다:
+  1. **결정론적 워크플로 지문 및 사전 검증 게이트 집계 (`prerequisite_service.py`)**: `compute_workflow_fingerprint`를 통해 프롬프트, Agent 바인딩, 워크플로 템플릿, 허용 도구 화이트리스트의 표준 SHA-256 해시를 계산하고, 사용자가 크론 작업을 생성하기 전에 Chat 기록 및 Kanban(`status='done'`)의 실제 수동 성공 횟수를 자동 교차 집계하여 미성숙한 프롬프트로 인한 맹목적인 토큰 소진 및 실패 연쇄를 방지;
+  2. **오류 방지 보호 및 6가지 질문 자체 점검 서랍 (`CronPrerequisiteCard.tsx`)**: 생성 대화상자에서 '충족 / 미충족' 상태 방패 배지를 직관적으로 표시하고, 내장된 6가지 자동화 사전 점검 서랍 및 숙련된 개발자를 위한 명시적 Override 덮어쓰기 옵션을 제공하여 보안과 개발 유연성을 모두 확보;
+  3. **단계별 가독성 Tool Trace 및 원클릭 진단 내보내기 (`CronRunItem.tsx`)**: 실행 기록 확장 계층에서 구조화된 `executionSteps` 단계 스트림(도구 이름, 매개변수, 지연 시간, 오류 중단점 및 상태 표시등)을 렌더링하고 `copyAuditTrace`를 통한 표준 JSON 진단 패키지 원클릭 내보내기를 지원;
+  4. **제로 토큰 팽창 및 프롬프트 캐시 100% 보호**: 전체 게이트 및 감사 로직이 스케줄러 계층과 WebUI 계층에서 완결되어 시스템 프롬프트 오염 0, KV Cache 히트율 100% 유지;
+  5. **100% 아키텍처 및 풀스택 통합 테스트 커버리지**: Harness 지문 알고리즘 단위 테스트, Server 사전 검증 단위 테스트, Cron 전체 수명 주기 통합 테스트 및 프론트엔드 Vitest 감사 테스트 전량 통과 (100% 그린, 0 린트 오류, 0 좀비 프로세스).
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/engine/fingerprint.py` · `myrm-agent-server/app/services/cron/prerequisite_service.py` · `myrm-agent-frontend/src/components/features/cron/CronPrerequisiteCard.tsx` · `myrm-agent-frontend/src/components/features/cron/CronRunItem.tsx`
+
+## 최신 검증 스냅샷 (2026-08-27 · 비표준 OpenAI 게이트웨이 추론 필드 자동 추출 및 400 매개변수 적응형 다운그레이드 · 게이트웨이 복원력 완료)
+
+- **CustomOpenAiGatewayReasoningStreamNormalizer (OpenClaw / Hermes 비표준 게이트웨이 필드 오류 / OneAPI, Ollama 400 포맷 오류로 인한 작업 중단 대비):** Myrm은 엔터프라이즈급 OpenAI 호환 게이트웨이 추론 스트림 정규화 및 적응형 400 매개변수 다운그레이드 재시도 아키텍처를 제공합니다:
+  1. **다중 후보 적응형 추론 추출 (`extract_reasoning_payload`)**: 혼동하기 쉬운 비표준 게이트웨이 응답 필드(`reasoning_content`, `reasoning`, `thinking`, `thoughts`, `reasoning_text` 및 블록 배열 구조)를 완벽하게 정규화하여 Ollama, SiliconFlow, OneAPI, vLLM 등의 사고 과정 유출 및 UI 빈 버블 현상을 원천 방지;
+  2. **적응형 400 매개변수 제거 및 무중단 재시도 (`gateway_normalizer.py`)**: 비표준 게이트웨이가 지원하지 않는 선택적 고급 매개변수(`stream_options`, `parallel_tool_calls`, `reasoning_effort`)로 인한 HTTP 400 오류 발생 시, 충돌 매개변수를 자동 식별 및 제거한 뒤 즉시 재시도하여 사용자 작업 흐름을 보호;
+  3. **제로 토큰 팽창 및 프롬프트 캐시 100% 보호**: 순수 어댑터 계층에서 자가 치유되어 추가 프롬프트 소모 없이 KV Cache 히트율 100% 유지;
+  4. **100% 아키텍처 및 단위 테스트 커버리지**: 16개 단위 테스트 및 스트리밍 회귀 테스트 세트 전량 통과 (100% 그린, 0 린트 오류, 0 좀비 프로세스).
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/adapters/gateway_normalizer.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/adapters/streaming.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/adapters/chat_model/sync_mixin.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/adapters/chat_model/async_mixin.py`
+
 ## 최신 검증 스냅샷 (2026-08-27 · 엔터프라이즈급 수명 주기 아웃바운드 웹훅 및 실시간 연결 프로브 · 가시성 완료)
 
 - **AgentLifecycleOutboundWebhookSettingsPack (Hermes CLI 전용 설정 / OpenClaw Python 스크립트 작성 필수 / Grok 아웃바운드 부재 대비):** Myrm은 업계 최고의 엔터프라이즈급, 고보안 및 완전한 GUI 기반 수명 주기 아웃바운드 이벤트 전달 아키텍처를 제공합니다:

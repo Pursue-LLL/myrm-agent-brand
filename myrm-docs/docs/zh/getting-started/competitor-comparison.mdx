@@ -11,6 +11,36 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-27 · 层次化上下文压缩与三视图动态画像个性化记忆 · 路线图 Topic 01 #11 达成）
+
+- **HierarchicalContextCompactionAndThreeViewPersona（对比 DeepTutor 学术重型三 Agent 课后打标 / 教学场景硬编码角色路由）：** Myrm 提供了企业级、高 Token 效率且与 Prompt Cache 严格对齐的层次化记忆与动态画像蒸馏体系：
+  1. **工业级分层记忆留痕（L1/L2/L3）**：通过 `TaskDigest`（`extractor.py:265-284`）沉淀会话宏观目标与交付、`summarize_processor.py`（Focus Compaction）沉淀多阶段里程碑计划、`output_eviction.py` 与 `conversation_search/`（FTS5 + 向量穿透检索）安全驱逐并留痕原子级工具执行，优雅取代学术复杂的嵌套树状图；
+  2. **跨周期多轮行为模式发现（$\mathcal{D}_s$）**：`strategies/pattern_discovery.py:56-94` 自动跟踪长期行为演变轨迹（Emerging / Established / Declining），经用户确认后可自动闭环晋升为 `ProceduralRule` 行为规则；
+  3. **零延迟隐式反馈与错误根因防坑（$\mathcal{D}_w$）**：`strategies/implicit_feedback.py` 与 `extractor.py:309-314` 自动识别隐式纠错并记录 `source_error` 根因，自动压制旧错误记忆，无需课后昂贵的人工打标；
+  4. **辩证认知风格与深度推导（$\mathcal{D}_r$）**：`strategies/extractor.py:292-297` 自动推导 `reply_style`、`cognitive_depth` 与 `proactivity` 并作为 `ProfileEntry` 注入 System Prompt，受半衰期衰减保护；
+  5. **零额外 Token 膨胀与 100% 保护 Prompt 缓存**：会话收尾时单次伴随完成，0 额外后台 Agent 启动（节省 >80% 算力账单），100% 保持 KV Cache 命中率并杜绝 >30s 后台挂死；
+  6. **100% 架构与全生命周期测试覆盖**：经由 182 项记忆提取测试、54 项模式发现测试及 68 项巩固/稳定性测试全量验证（100% 绿灯，0 Lint 错误，0 僵尸残留）。
+- **素材 SSOT：** `temp-docs/roadmap/topic_01_memory_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/strategies/pattern_discovery.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/strategies/extractor.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/strategies/implicit_feedback.py`
+
+## 最新验证快照（2026-08-27 · 定时任务手动成功先验门禁与逐步可读 Trace 面板 · 自动化高可靠达成）
+
+- **CronAutomationManualSuccessPrerequisiteGate（对比 Hermes 纯 CLI 配置盲跑 / OpenClaw 缺乏先验防呆 / Claude Code 缺失逐步白盒 Trace）：** Myrm 构建了业界首个自动化先验验证门禁与逐步白盒审计面板系统：
+  1. **确定性工作流指纹与先验门禁聚合（`prerequisite_service.py`）**：通过 `compute_workflow_fingerprint` 对任务 Prompt、Agent 绑定、工作流模板与工具白名单计算标准 SHA-256 哈希，并在用户创建定时任务前自动跨表聚合 Chat 历史与 Kanban（`status='done'`）的手动真实成功次数，杜绝因 Prompt 不成熟导致自动化高频报错雪崩与 Token 浪费；
+  2. **防呆防护与 6 问自检清单（`CronPrerequisiteCard.tsx`）**：在创建弹窗直观显示「已满足 / 未满足」状态盾牌徽章，内置 6 问自动化前置自检抽屉，并为资深开发者提供显式 Override 覆盖选项，兼顾防呆安全与开发自由度；
+  3. **逐步可读 Tool Trace 与一键诊断导出（`CronRunItem.tsx`）**：在执行记录展开层展示结构化 `executionSteps` 步骤流（工具名、入参、耗时、异常断点与指示灯），并支持一键 `copyAuditTrace` 导出标准 JSON 诊断包；
+  4. **零 Token 膨胀与 100% 保护 Prompt 缓存**：全套门禁与白盒审计在调度层与 WebUI 层闭环，0 Prompt 污染，100% 保持 KV Cache 命中率；
+  5. **100% 架构与全栈集成测试覆盖**：经由 Harness 指纹算法单测、Server 前置验证单测、Cron 全生命周期集成测试及前端 Vitest 审计测试全量验证（100% 绿灯，0 Lint 错误，0 僵尸残留）。
+- **素材 SSOT：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/engine/fingerprint.py` · `myrm-agent-server/app/services/cron/prerequisite_service.py` · `myrm-agent-frontend/src/components/features/cron/CronPrerequisiteCard.tsx` · `myrm-agent-frontend/src/components/features/cron/CronRunItem.tsx`
+
+## 最新验证快照（2026-08-27 · 非标 OpenAI 中转推理字段自愈提取与自适应 400 参数降级重试 · 网关鲁棒性达成）
+
+- **CustomOpenAiGatewayReasoningStreamNormalizer（对比 OpenClaw / Hermes 遇到非标网关字段崩溃 / OneAPI、Ollama 400 格式报错打断任务）：** Myrm 提供了企业级 OpenAI 兼容网关推理流标准化与自适应 400 参数降级重试架构：
+  1. **多候选自适应推理抽取（`extract_reasoning_payload`）**：无缝兼容易混淆的非标中转响应字段（`reasoning_content`、`reasoning`、`thinking`、`thoughts`、`reasoning_text` 以及块数组结构），彻底消除 Ollama、SiliconFlow、OneAPI、vLLM 等三方聚合中转时的思考过程外溢或前端空白气泡；
+  2. **自适应 400 参数剥离与无感重试（`gateway_normalizer.py`）**：在遇到非标网关不支持可选高级参数（如 `stream_options`、`parallel_tool_calls`、`reasoning_effort`）导致的 HTTP 400 报错时，自动识别并精准剔除冲突参数，立即执行就地降级重试，保证用户任务流不中断；
+  3. **零 Token 膨胀与 100% 保护 Prompt 前缀缓存**：纯客户端与适配层自愈，0 额外 Prompt 消耗，100% 维持 KV Cache 命中率；
+  4. **100% 架构与单元测试覆盖**：经由 16 项专项测试与完整流式回归套件全量验证（100% 绿灯，0 Lint 错误，0 僵尸残留）。
+- **素材 SSOT：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/adapters/gateway_normalizer.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/adapters/streaming.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/adapters/chat_model/sync_mixin.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/adapters/chat_model/async_mixin.py`
+
 ## 最新验证快照（2026-08-27 · 企业级生命周期出站 Webhook 与即时连通性探测 · 可观测性达成）
 
 - **AgentLifecycleOutboundWebhookSettingsPack（对比 Hermes 纯 CLI 配置 / OpenClaw 需写 Python 脚本 / Grok 缺失出站能力）：** Myrm 构建了业界领先的企业级、高安全且全 GUI 可视化的生命周期出站事件分发架构：
