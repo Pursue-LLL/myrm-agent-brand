@@ -11,6 +11,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-27 · 标准 Streamable HTTP MCP 记忆端点与 GUI 连接向导 · 路线图 Topic 01 #8 达成）
+
+- **ExternalAgentMemoryProxyLane（对比 TencentDB / Hermes 侵入式 Base URL 劫持与明文 Key 暴露）：** Myrm 提供了标准化、零摩擦且企业级安全的外部 Agent 记忆互联架构：
+  1. **标准 Streamable HTTP MCP 端点（`app/api/mcp/endpoint.py`）**：原生通过官方 Model Context Protocol (MCP) 暴露标准记忆工具（`memory_recall`、`memory_store`、`memory_list`、`memory_manage`），直接兼容 Claude Code、Cursor、Windsurf、Codex、Gemini CLI 等任意外部 IDE 与 CLI Agent，杜绝代理篡改请求流的安全隐患；
+  2. **零明文安全凭据与 Agent Profile 动态隔离**：Bearer Token 自动关联专属 `agent_id` 与 `SharedContext` 隔离边界，通过 ContextVar 隔离记忆与知识空间，杜绝跨 Agent 记忆污染；
+  3. **GUI 优先一键连接向导（`ConnectWizardDialog.tsx`）**：一键生成适配各种外部 Agent 的配置片段与符合 Agent Plugins 1.0.0 规范的即插即用包，内嵌 `ConnectDoctor` 实时连通性诊断；
+  4. **三端部署同构与动态 Ingress 穿透**：通过动态 Ingress 统一适配 Local、Tauri 桌面端与云端沙箱。
+- **素材 SSOT：** `temp-docs/roadmap/topic_01_memory_roadmap.md` · `myrm-agent-server/app/api/mcp/endpoint.py` · `myrm-agent-frontend/src/components/features/memory/dialogs/ConnectWizardDialog.tsx`
+
 ## 最新验证快照（2026-08-27 · 服务商原生端点路由与专用轻量级上下文压缩器 · 路线图 Topic 06 #9 达成）
 
 - **NativeCompactionProviderRoutingWithDedicatedCompactor（对比 Hermes 昂贵主模型压缩 / OpenClaw 粗暴截断 / DeepSeek Harness 缺乏物理事实校验）：** Myrm 构建了业界首创的三层上下文压缩智能路由与 0-LLM 物理事实自愈体系：

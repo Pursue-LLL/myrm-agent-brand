@@ -11,6 +11,15 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Validation Snapshot (2026-08-27 · Standard Streamable HTTP MCP Memory Endpoint & Connect Wizard · Roadmap Topic 01 #8 Done)
+
+- **ExternalAgentMemoryProxyLane vs TencentDB/Hermes Invasive Base URL Hijack & Plaintext API Key Exposure:** Myrm provides a standardized, zero-friction, and enterprise-secure memory interconnect architecture:
+  1. **Standardized Streamable HTTP MCP Endpoint (`app/api/mcp/endpoint.py`)**: Directly exposes canonical memory tools (`memory_recall`, `memory_store`, `memory_list`, `memory_manage`) over the official Model Context Protocol (MCP); works natively with Claude Code, Cursor, Windsurf, Codex, and Gemini CLI without brittle LLM proxy middleware or base URL interception;
+  2. **Zero-Plaintext Security & Dynamic Agent Binding**: Bearer Tokens dynamically resolve isolated `agent_id` and `SharedContext` spaces via thread-safe ContextVars, eliminating cross-agent memory contamination;
+  3. **GUI-First One-Click Connect Wizard (`ConnectWizardDialog.tsx`)**: Generates custom configuration snippets or compliant Agent Plugins 1.0.0 bundles with real-time connection diagnostics (`ConnectDoctor`);
+  4. **Tri-Deployment Parity with Dynamic Ingress**: Seamlessly functions across Local WebUI, Tauri Desktop, and Cloud Isolated Sandboxes via automatic public ingress resolution.
+- **SSOT Sources:** `temp-docs/roadmap/topic_01_memory_roadmap.md` · `myrm-agent-server/app/api/mcp/endpoint.py` · `myrm-agent-frontend/src/components/features/memory/dialogs/ConnectWizardDialog.tsx`
+
 ## Latest Validation Snapshot (2026-08-27 · Native Compaction Provider Routing & Dedicated Lightweight Compactor · Roadmap Topic 06 #9 Done)
 
 - **NativeCompactionProviderRoutingWithDedicatedCompactor (vs Hermes Single-Model Heavy Compaction / OpenClaw Hardcoded Truncation / DeepSeek Harness Hallucination Risk):** Myrm delivers an enterprise-grade 3-tier context compaction routing and zero-LLM physical truth self-healing architecture:

@@ -11,6 +11,15 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보안을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-08-27 · 표준 Streamable HTTP MCP 메모리 엔드포인트 및 GUI 연결 마법사 · 로드맵 Topic 01 #8 완료)
+
+- **ExternalAgentMemoryProxyLane (TencentDB / Hermes 침입형 Base URL 하이재킹 및 평문 Key 노출 대비):** Myrm은 표준화되고 마찰 없는 엔터프라이즈급 외부 Agent 메모리 상호 연결 아키텍처를 제공합니다:
+  1. **표준 Streamable HTTP MCP 엔드포인트 (`app/api/mcp/endpoint.py`)**: 공식 Model Context Protocol (MCP)을 통해 표준 메모리 도구(`memory_recall`, `memory_store`, `memory_list`, `memory_manage`)를 직접 노출하여 Claude Code, Cursor, Windsurf, Codex, Gemini CLI 등 임의의 외부 IDE 및 CLI Agent와 완벽 호환;
+  2. **제로 평문 보안 및 Agent Profile 동적 격리**: Bearer Token이 전용 `agent_id` 및 `SharedContext` 격리 경계를 동적으로 연결하여 Agent 간 메모리 오염을 원천 차단;
+  3. **GUI 우선 원클릭 연결 마법사 (`ConnectWizardDialog.tsx`)**: 다양한 외부 Agent에 맞춤화된 설정 스니펫 및 Agent Plugins 1.0.0 호환 번들을 원클릭 생성하며, `ConnectDoctor` 실시간 연결 진단 제공;
+  4. **3대 배포 환경 동형성 및 동적 Ingress**: 동적 Ingress를 통해 Local, Tauri 데스크톱 및 Cloud 샌드박스 전반에서 동일하게 동작.
+- **SSOT 출처:** `temp-docs/roadmap/topic_01_memory_roadmap.md` · `myrm-agent-server/app/api/mcp/endpoint.py` · `myrm-agent-frontend/src/components/features/memory/dialogs/ConnectWizardDialog.tsx`
+
 ## 최신 검증 스냅샷 (2026-08-27 · 네이티브 압축 엔드포인트 라우팅 및 전용 경량 컴팩터 · 로드맵 Topic 06 #9 완료)
 
 - **NativeCompactionProviderRoutingWithDedicatedCompactor (Hermes 고비용 단일 모델 압축 / OpenClaw 무차별 절단 / DeepSeek Harness 물리적 사실 검증 부재 대비):** Myrm은 3계층 지능형 컨텍스트 압축 라우팅 및 0-LLM 물리적 사실 자가 치유 아키텍처를 제공합니다:
