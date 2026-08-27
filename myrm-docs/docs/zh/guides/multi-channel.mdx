@@ -87,6 +87,20 @@ description: 将 Agent 连接到 35+ 消息平台，输出自动适配渠道。
 
 **Rich Message 渲染**：Telegram 通过 Bot API 10.1 支持原生 Rich Message — 表格、LaTeX 公式、嵌套列表均可原生渲染。
 
+### iMessage（通过 BlueBubbles）
+
+将 Agent 连接到 Apple 生态的 iMessage，支持 iPhone、iPad、Mac 及 **Apple Watch 手腕免 App 交互**。
+
+1. **设置 → 渠道 → iMessage**
+2. 填写 BlueBubbles Server 的 **API 地址**（如 `http://127.0.0.1:1234`）与 **密码**
+3. 填写 Webhook 接收地址并保存
+4. （可选）在「群聊唤醒词」中配置正则表达式（默认：`^@?(?:Myrm|myrm|小助手|助手)\b`）
+
+**核心优势与亮点**：
+- **Apple Watch 手腕交互**：无需安装第三方 Watch App，直接在系统「信息」中给 Agent 发消息，通过 Tapback 👍 反应表情即可秒级完成高危工具审批（HITL）。
+- **群聊智能唤醒与前缀清洗**：群聊中命中唤醒词后自动剥离前缀与标点，保障大模型 **Prompt Caching 命中率 100%**，降低 Token 开销。
+- **健康诊断与 Helper 连通感知**：配置页实时诊断 BlueBubbles Private API 与 Helper 插件状态，故障秒排查。
+
 ### Slack
 
 在 **设置 → 渠道 → Slack** 连接 — 粘贴 Bot Token（Socket Mode 还需 App Token），测试连接即可。无需 CLI 或改 env 文件。
