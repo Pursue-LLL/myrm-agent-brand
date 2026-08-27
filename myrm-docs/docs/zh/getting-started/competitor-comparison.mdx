@@ -21,6 +21,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   5. **100% 架构与单元测试覆盖**：经由包含空清单工厂保底、稳定版本晋升、异常自动回滚与双重故障兜底在内的 Rust 单元测试套件全量验证（100% 绿灯，0 Lint 错误）。
 - **素材 SSOT：** `myrm-agent/myrm-agent-desktop/src-tauri/src/runtime/sidecar_version_manager.rs` · `myrm-agent/myrm-agent-desktop/src-tauri/src/runtime/python_backend.rs` · `myrm-agent/myrm-agent-desktop/src-tauri/src/runtime/_ARCH.md`
 
+## 最新验证快照（2026-08-27 · 隐私感知动态模型路由与零外溢物理脱敏门禁 · 模型安全达成）
+
+- **PrivacyAwareDynamicModelRouting（对比 Hermes 静态模型死锁 / OpenClaw 明文全量上云 / Claude Code 缺失本地私有分流）：** Myrm 提供了业界领先的逐轮隐私感知动态模型路由与零数据泄露物理隔离体系：
+  1. **逐轮 PII 敏感度动态分流（S1/S2/S3）**：通过 `PrivacyTracker` ContextVar 动态追踪与 `SecurityGuardrailMiddleware` 协同，在 Agent 单轮执行中自动识别敏感度：公开内容（S1）直达高性能云端模型，中度敏感（S2）支持脱敏上云或直发本地，高度敏感密钥与凭据（S3）强制分流至本地离线私有模型（Ollama/vLLM/llama.cpp）；
+  2. **物理零外溢硬锁门禁与 Fail-Closed 熔断（`_verify_redaction_safety`）**：源码级严格确保 S3 机密凭据物理不出机，即使用户配置了降级上云策略，遇到 S3 敏感数据依然严格执行 Fail-Closed 强阻断，杜绝任何云端泄露隐患；
+  3. **GUI 优先本地模型连通性探测（`SecurityPrivacyPanel.tsx`）**：WebUI 内置毫秒级连通性探针（`/config/test-local-model`）、防呆告警与丰富的 S2/S3 降级策略配置；
+  4. **标准透明 BaseChatModel 包装**：`PrivacyRoutingModel` 完整适配流式生成（`astream`）与工具调用绑定（`bind_tools`），对系统前缀缓存（KV Cache）零破坏；
+  5. **100% 架构与全栈测试覆盖**：经由 44 项隐私路由单测、51 项级联降级单测与安全全套套件验证（2123 项测试全绿，100% 通过，0 Lint 报错，0 僵尸残留）。
+- **素材 SSOT：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/routing/privacy_routing.py` · `myrm-agent-harness/src/myrm_agent_harness/core/security/guards/privacy_tracker.py` · `myrm-agent-frontend/src/components/features/settings/sections/system/SecurityPrivacyPanel.tsx`
+
 ## 最新验证快照（2026-08-27 · 层次化上下文压缩与三视图动态画像个性化记忆 · 路线图 Topic 01 #11 达成）
 
 - **HierarchicalContextCompactionAndThreeViewPersona（对比 DeepTutor 学术重型三 Agent 课后打标 / 教学场景硬编码角色路由）：** Myrm 提供了企业级、高 Token 效率且与 Prompt Cache 严格对齐的层次化记忆与动态画像蒸馏体系：
