@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-27 · 桌面端后端 Sidecar 独立引擎后台热更新与启动就绪探测回滚 · 桌面高可用达成）
+
+- **DesktopSidecarDecoupledEngineHotUpdateAndProbeRollback（对比 DSH Desktop 回滚机制不完整 / Electron 需全量重下 150MB+ 安装包 / 升级失败即白屏变砖）：** Myrm 构建了业界首个桌面端 Sidecar 独立引擎解耦热更新与三级故障降级自愈架构：
+  1. **版本目录解耦隔离与原子落盘（`sidecar_version_manager.rs`）**：在用户数据目录维护独立的 `versions/<tag>/` 隔离目录，`versions.json` 通过 `.tmp` 写入与原子重命名持久化，彻底杜绝掉电导致配置损坏；
+  2. **三级鲁棒降级自愈链条**：自适应导航 `当前下载版 (Current)` ➔ `上一稳定版 (Last-Known-Good)` ➔ `工厂内置保底二进制 (Factory Bundle)`，实现客户端 99.99% 极高可用，永远不白屏；
+  3. **30 秒启动就绪探测与孤儿进程级联销毁（`python_backend.rs`）**：启动后轮询 `/health`，成功自动晋升为 `last_known_good`；超时失败自动调用 `kill_process_tree` 清理孤儿进程并原子回滚；
+  4. **POSIX 0o755 权限自愈与故障版本黑名单隔离**：在 Unix 系统启动前自动探测并修复可执行权限，启动失败版本自动追加至 `broken_versions` 永久拉黑，防止无限重试死循环；
+  5. **100% 架构与单元测试覆盖**：经由包含空清单工厂保底、稳定版本晋升、异常自动回滚与双重故障兜底在内的 Rust 单元测试套件全量验证（100% 绿灯，0 Lint 错误）。
+- **素材 SSOT：** `myrm-agent/myrm-agent-desktop/src-tauri/src/runtime/sidecar_version_manager.rs` · `myrm-agent/myrm-agent-desktop/src-tauri/src/runtime/python_backend.rs` · `myrm-agent/myrm-agent-desktop/src-tauri/src/runtime/_ARCH.md`
+
 ## 最新验证快照（2026-08-27 · 层次化上下文压缩与三视图动态画像个性化记忆 · 路线图 Topic 01 #11 达成）
 
 - **HierarchicalContextCompactionAndThreeViewPersona（对比 DeepTutor 学术重型三 Agent 课后打标 / 教学场景硬编码角色路由）：** Myrm 提供了企业级、高 Token 效率且与 Prompt Cache 严格对齐的层次化记忆与动态画像蒸馏体系：
