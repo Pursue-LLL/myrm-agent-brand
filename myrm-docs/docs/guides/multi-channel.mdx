@@ -969,3 +969,13 @@ Both modes support:
 |------|----------|----------|
 | iLink | Third-party protocol layer | Personal account messaging + group chat |
 | Official Account | Official API | Passive reply + template messages + draft box HITL |
+
+## Unified Cross-Channel Native Approvals
+
+When controlling your AI companion remotely from mobile IM channels, high-privilege operations (such as mutating cron schedules or sensitive tool invocations) are guarded by Myrm's unified native approval pipeline (`ApprovalRegistry`):
+
+- **Non-blocking Async Concurrency**: Completely immune to single-file `fcntl.flock` deadlocks common in CLI-based competitor daemons.
+- **Adaptive Multi-Modal Card Interfaces**:
+  - **Feishu / DingTalk / Telegram / Slack / Discord**: Delivers interactive cards with native `ActionButton` elements (`✅ Approve` / `❌ Deny`) directly in your chat stream;
+  - **WeChat / iMessage / SMS**: Seamlessly degrades to text command parsing (`/approve`) and Apple Watch Tapback 👍 emoji gestures.
+- **Multi-Client Real-Time Sync**: Approvals resolved on your phone instantly push updates to WebUI (`CronJobCard`) and Desktop via SSE/WebSocket without manual page refreshes.

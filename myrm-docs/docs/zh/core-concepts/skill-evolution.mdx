@@ -426,6 +426,13 @@ Myrm 技能成长看板支持两种视图模式，一键切换：
 - **沙箱物理执行与 VerificationProof**：真实执行测试并生成防伪凭证，记录连续成功次数（Streak）与变更影响爆炸半径（Blast Radius）；
 - **WebUI 审计面板**：Growth Center 卡片醒目展示绿色 Verified 盾牌或红色 Hollow Blocked 告警，展开即可查看完整的执行证据。
 
+### MAP-Elites 基因库与质量-多样性进化归档（2026-08）
+
+为根治大模型在长期自进化中的「单目标进化坍塌（Evolution Collapse）」（即模型倾向于只做微小保守的 Prompt 提示词修补，而放弃深层次 Tool 代码或规则演进），Myrm 构建了 **MAP-Elites Gene Bank 多维表型特征格归档**：
+- **双维正交解耦网格**：将修复变体按维度 1 **进化层级** (`PROMPT` / `TOOL_CODE` / `RUNTIME_CONFIG` / `KNOWLEDGE_RULE`) 与维度 2 **故障病理** (`PARAM_ERROR` / `TIMEOUT_RETRY` / `ENV_MISSING` / `SEMANTIC_MISUSE` 等) 离散分格；
+- **帕累托精英记忆保留**：每个特征格保留 Top 精英，在后续生成新变体时动态注入跨层级优秀先验范例（Few-shot Priors），维持变异多样性；
+- **零破坏 Prompt Cache**：仅在生成变体的单次独立 LLM 调用中组装先验，完全不污染主 Agent 对话前缀缓存。
+
 所有竞品均无 GUI 技能审核面板。OpenClaw 使用 CLI 命令（`openclaw skills workshop apply <id>`），其他竞品无技能进化系统或仅支持 CLI/文本审批。
 
 ### 数据飞轮仪表盘
