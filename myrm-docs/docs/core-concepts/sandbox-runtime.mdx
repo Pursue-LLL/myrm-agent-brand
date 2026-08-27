@@ -61,6 +61,15 @@ The sandbox provider is auto-detected at startup — no configuration needed. If
 - Native OS security primitives (kernel-enforced, not userspace emulation)
 - Works identically in Local WebUI, Tauri Desktop, and Cloud modes
 
+### Explicit Lifecycle & Anti-Leak Resource Teardown
+
+Long-running agent workflows and multi-turn sessions require deterministic cleanup of background execution processes and OS file descriptors. Myrm implements a **two-layer explicit asynchronous release protocol**:
+
+1. **`CodeExecutor` Lifecycle Contract**: Standardized `async def close(self) -> None:` and `__aenter__` / `__aexit__` context management across all executors and decorator middlewares.
+2. **Cascading Process Tree Termination**: `LocalExecutor.close()` idempotently terminates persistent Bash session subprocesses via `SIGTERM` / `SIGKILL` and closes stream pipes.
+3. **OS-Level ACL Revocation**: `SandboxProvider.cleanup()` automatically revokes platform security tokens (e.g., Windows AppContainer SID permissions), preventing resource and descriptor leaks across long-running sessions.
+4. **Session Stash Auto-Eviction**: Lifecycle hooks in `run_lifecycle` automatically evict and close cached executor instances in session `finally` blocks upon completion or failure.
+
 ### Zero-Latency Agent Startup
 
 Agent runs start producing tokens in under 30ms from request receipt:

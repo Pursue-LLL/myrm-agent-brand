@@ -404,6 +404,13 @@ Beyond agent-level scoping, Myrm supports **per-session skill selection** — ch
 
 **vs competitors:** LobsterAI offers `active_skill_ids` with a similar UI. OpenClaw has config-level `skillFilter` (no GUI). CoPaw supports runtime filtering (no GUI). Hermes, DeerFlow, and jiuwenclaw have no session-level skill scoping at all.
 
+## Verified Skill Capsules & Anti-Hollow Gate (2026-08)
+
+To address the major industry pathology where LLMs generate vacuous assertions (`assert True` / `echo 1`) to bypass evaluation gates (proven in 84% of cases by HKUST research):
+- **AST Static Hollow Test Detection (`HollowTestDetector`)**: Static AST analysis intercepts trivial boolean assertions, empty `pass` blocks, and unsafe dynamic execution before sandbox launch;
+- **Sandbox Execution & VerificationProof**: Real command execution captures exit codes and outputs, producing tamper-evident proofs with success streaks and blast radius metrics;
+- **WebUI Trust & Audit Panel**: Growth Center cards display clear `Verified` or `Hollow Blocked` badges with expandable proof inspection.
+
 ## Cross-Device Skill Sync & Privacy
 
 Myrm is the only AI agent platform offering **bidirectional skill synchronization** with **export-time PII redaction** — no competitor implements either capability.

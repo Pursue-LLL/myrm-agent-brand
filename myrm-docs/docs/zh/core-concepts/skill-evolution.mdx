@@ -419,6 +419,13 @@ Myrm 技能成长看板支持两种视图模式，一键切换：
 
 **来源标签（2026-08）：** 每张卡片用通俗语言标注来源——**手动优化** / **记忆提取** / **后台复盘**——记忆提取不再误标为后台复盘；技术 growthType 徽章对产品 UI 隐藏。
 
+### Verified Capsule 胶囊发布硬门与 AST 防刷分（2026-08）
+
+针对学术界披露的「LLM 投机生成 `assert True` / `echo 1` 空洞测试规避检验（84% 作弊率）」痛点，Myrm 引入 **Verified Capsule 胶囊硬门**：
+- **AST 级静态代码防刷分 (`HollowTestDetector`)**：在沙箱运行前对测试脚本进行 AST 语法树静态剖析，毫秒级拦截裸布尔断言、平凡恒等式、空 pass 及动态 `eval/exec`，彻底杜绝虚假测试；
+- **沙箱物理执行与 VerificationProof**：真实执行测试并生成防伪凭证，记录连续成功次数（Streak）与变更影响爆炸半径（Blast Radius）；
+- **WebUI 审计面板**：Growth Center 卡片醒目展示绿色 Verified 盾牌或红色 Hollow Blocked 告警，展开即可查看完整的执行证据。
+
 所有竞品均无 GUI 技能审核面板。OpenClaw 使用 CLI 命令（`openclaw skills workshop apply <id>`），其他竞品无技能进化系统或仅支持 CLI/文本审批。
 
 ### 数据飞轮仪表盘

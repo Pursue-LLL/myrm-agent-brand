@@ -59,6 +59,15 @@ description: 每用户持久化沙箱，用于代码执行与工具调用。
 - 使用 OS 原生安全原语（内核强制，非用户态模拟）
 - Local WebUI、Tauri 桌面端、云托管三种模式行为一致
 
+### 显式生命周期与防泄漏资源级联释放
+
+在长时间运行的 Agent 复杂工作流或多轮会话中，后台常驻进程与文件句柄的确定性释放至关重要。Myrm 实现了**双层显式异步释放协议**：
+
+1. **`CodeExecutor` 生命周期契约**：在抽象基类与中间件链路上规范 `async def close(self) -> None:` 与 `__aenter__` / `__aexit__` 异步上下文管理器。
+2. **进程树级联终止**：`LocalExecutor.close()` 幂等向常驻 Bash 子进程树发送 `SIGTERM` / `SIGKILL` 并安全关闭 I/O 管道。
+3. **OS 级 ACL 安全描述符撤销**：`SandboxProvider.cleanup()` 自动撤销平台安全令牌（如 Windows AppContainer SID 权限），防止句柄和安全描述符累积泄漏。
+4. **会话缓存自动解绑**：在 `run_lifecycle` 的 `finally` 钩子中自动出栈并异步关闭缓存的执行器实例。
+
 ## 代码执行
 
 Agent 可直接在沙箱内执行代码：
