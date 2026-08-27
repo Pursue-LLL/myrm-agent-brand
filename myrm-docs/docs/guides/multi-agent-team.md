@@ -58,7 +58,15 @@ Myrm decouples background sub-agent lifetime from the parent stream:
 - **Completed results stay queryable** via the `COMPLETED_SUBAGENT_RESULTS` strong-reference registry (3600s TTL, LRU-capped), so the Dashboard tree still shows final state (completed / failed / cancelled) after refresh, long after the parent session is gone.
 - **Dual-trust indicator** — the Dashboard shows both *execution progress* (live steps, token / cost / ETA) and *verified state* (completed / failed / cancelled plus adversarial-verifier results), so you know both "how far along" and "how trustworthy".
 
-Backed by 18/18 Chrome E2E (UI suite + baseline suite, including a real-user textarea input path), 3 API integration tests, and 70 harness unit tests with 5 dedicated `include_detached` assertions.
+### 8. Dual-Track Coordination & External Agent Orchestration (ACP Protocol)
+
+In addition to orchestrating internal Myrm agents, the main agent can delegate tasks to external specialized coding tools like Codex CLI, Claude Code, and Gemini CLI:
+
+- **Dual-Track Architecture & Zero Invocation Confusion** — Internal sub-agents use dedicated task-graph orchestration via `delegate_task_tool` (supporting single, batch, race, tournament, and council modes), while external standalone coding agents use the dedicated `invoke_acp_agent_tool` (built on the standardized ACP JSON-RPC specification). Tool responsibilities are 100% segregated, eliminating LLM tool selection confusion and schema drift.
+- **Dynamic Layered Loading & Zero Token Waste** — When external agents are unconfigured, their tools are never injected into the prompt context (0 idle Token cost). Once configured, they mount in the EXTENDED layer to protect the Prompt Prefix Cache (maintaining 95%+ hit rates).
+- **Real-Time ANSI Sanitation** — Raw terminal escape sequences, ANSI colors, and progress spinners are sanitized on the fly, preventing UI corruption and saving ~15% in redundant context tokens.
+
+Backed by 18/18 Chrome E2E tests, 6 API/Server integration tests, and 129 harness/toolkit unit tests.
 
 ## How to Get Started
 

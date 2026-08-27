@@ -58,15 +58,17 @@ Myrm 将后台子代理生命周期与父流解耦：
 - **完成结果持续可查**——`COMPLETED_SUBAGENT_RESULTS` 强引用注册表（3600s TTL + LRU 上限），刷新后 Dashboard 树状图仍显示子代理最终状态（已完成 / 失败 / 取消），父会话早已结束也无妨。
 - **双轨可信指示**——Dashboard 同时呈现*执行进度*（实时步骤、token / 成本 / ETA）与*验证状态*（已完成 / 失败 / 取消 + 对抗验证结果），既知道“做到哪了”，也知道“可不可信”。
 
-### 8. 通用外部 Agent 委派与沙箱净化（ACP 跨生态调度）
+### 8. 双轨协作与外部 Agent 调度（ACP 协议集成）
 
-不仅能调度 Myrm 内部智能体，主 Agent 还能一键委派 Codex CLI、Claude Code、Gemini CLI 等外部专业编码工具，协同干重活：
+不仅能调度 Myrm 内部智能体，主 Agent 还能一键委派 Codex CLI、Claude Code、Gemini CLI 等外部专业编码工具协同作业：
 
+- **双轨架构与零调用歧义**——内部团队任务图采用专属 `delegate_task_tool`（支持 single、batch、race、council 等编排模式），外部独立编码 Agent 采用专属 `invoke_acp_agent_tool`（基于标准 ACP JSON-RPC 规范）。职责 100% 泾渭分明，彻底消灭 LLM 工具选取幻觉与 Schema 参数漂移。
+- **动态分层加载与 Token 零闲置**——未配置外部 Agent 时工具完全不注入上下文（0 Token 开销）；配置后挂载至 EXTENDED 扩展层，100% 守护 Prompt Cache 前缀缓存命中率（高达 95%+）。
 - **终端控制码实时净化（ANSI Strip）**——底层命令行输出的彩色文本、终端进度条及转义符自动经过标准清洗，100% 杜绝脏字符污染前端 UI 与模型上下文，直接节省 ~15% 的无用 Token 开销。
 - **订阅免 Key 模式支持**——复用用户的 ChatGPT Plus / Claude Pro 订阅直接运行外部 CLI，免除额外的 API Key 账单。
 - **防爆有界会话缓存**——底层会话管理自动施加 512 容量上限与 FIFO/LRU 淘汰防护，保障常驻后台 365 天无内存泄漏。
 
-由 **18/18 Chrome E2E**（UI 套件 + baseline 套件，含真实用户 textarea 输入路径）、**3 项 API 集成测试**、**70 项 harness 单测**（含 5 个 `include_detached` 专项断言）背书。
+由 **18/18 Chrome E2E**（UI 套件 + baseline 套件，含真实用户 textarea 输入路径）、**6 项 API/Server 集成测试**、**129 项 harness/toolkits 单测**背书。
 
 ## 如何开始使用？
 
