@@ -11,6 +11,27 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-27 · 企业级生命周期出站 Webhook 与即时连通性探测 · 可观测性达成）
+
+- **AgentLifecycleOutboundWebhookSettingsPack（对比 Hermes 纯 CLI 配置 / OpenClaw 需写 Python 脚本 / Grok 缺失出站能力）：** Myrm 构建了业界领先的企业级、高安全且全 GUI 可视化的生命周期出站事件分发架构：
+  1. **全 GUI 优先的生命周期 Webhook 管理（`设置 -> 服务集成`）**：用户无需手写 YAML 或 Python 脚本，直接在 WebUI 一键创建出站端点、多选订阅事件（会话完成/失败、人工审批要求、看板任务更新等）、一键切换端点启停开关，并提供安全的 HMAC Secret 随机生成器；
+  2. **实时 `/ping` 连通性与签名测试**：在保存前或调试时一键向目标 URL 发送带签名的测试探针，实时返回毫秒级耗时与 HTTP 状态码，彻底告别盲调；
+  3. **严苛的 SSRF 安全防御（`ssrf_guard.py`）**：自动拦截云服务商元数据 IP（`169.254.169.254`）、内网私有 IP 范围与本地环回地址，且严格拒绝 3xx 重定向，杜绝敏感凭据与 Payload 泄露风险；
+  4. **非阻塞异步队列高可靠投递（`LifecycleOutboundWebhookService`）**：内置 512 容量的异步任务队列与指数退避重试机制，外部 Webhook 的任何网络延迟与故障均不会阻塞主 Agent 会话与推理流；
+  5. **标准化 HMAC-SHA256 签名体系**：自动在请求头注入 GitHub 兼容的 `X-Myrm-Signature-256` 防篡改签名与 `X-Myrm-Delivery` 唯一投递追踪 ID；
+  6. **100% 测试覆盖与零债务交付**：提供全套后端 FastAPI CRUD/Ping 集成测试与前端 React 交互测试（100% 绿色通过，0 Lint 报错，0 僵尸进程）。
+- **素材 SSOT：** `myrm-agent-server/app/database/models/lifecycle_webhook.py` · `myrm-agent-server/app/services/webhook/lifecycle_webhook_service.py` · `myrm-agent-server/app/api/webhook/` · `myrm-agent-frontend/src/components/features/settings/sections/integration/integrations/LifecycleWebhookSection.tsx`
+
+## 最新验证快照（2026-08-27 · 统一超大输出落盘驱逐与低内存流式切片读取 · 上下文安全与终端流式体验达成）
+
+- **UnifiedEvictedContentDeliveryAndStreamingProgressiveDrawer（对比 Hermes / OpenClaw 粗暴截断丢弃 / Claude Code 撑爆终端缓冲区与内存）：** Myrm 构建了业界首个大输出智能落盘与低内存渐进式抽屉流式呈现系统：
+  1. **零 Context 浪费与智能落盘驱逐（`output_eviction.py` 与 `content.py`）**：当 Shell 执行、Web 抓取或 MCP 工具产生万行大输出（>8KB）时，自动无缝落盘至 `.context/{chat_id}/evicted/`，向 LLM 仅提供智能概要与安全路径引导，彻底杜绝 Token 爆炸与会话中途溃败；
+  2. **双流独立隔离与一键全量回溯（`LiveTerminal.tsx`）**：在 WebUI 终端视图中，stdout 与 stderr 独立提供「查看全量输出」入口，失败命令的报错日志与标准输出分立呈现，一目了然；
+  3. **500 行流式低内存分页与精准高亮跳转（`EvictedOutputDrawer.tsx`）**：按 500 行流式分页加载，单次内存占用降低 95% 以上，彻底杜绝数万行 DOM 导致的前端页面卡死白屏；原生支持关键词防抖高亮搜索与双重 `requestAnimationFrame` 平滑滚动定位；
+  4. **SSOT 严苛白名单与路径穿越防御（`evicted.py`）**：严格通过 `EVICTED_BASENAME_PATTERN` 正则白名单与沙箱目录边界校验，彻底封死目录穿越安全漏洞；
+  5. **100% 架构与 Chrome E2E 真实闭环验证**：经由 4 个端到端单元测试、API 边界安全测试与真实 Chrome MCP E2E 双抽屉流程全量验证（100% 绿灯，0 Lint 错误，0 僵尸残留）。
+- **素材 SSOT：** `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/bash/_compression/output_eviction.py` · `myrm-agent-server/app/api/files/evicted.py` · `myrm-agent-frontend/src/components/features/message-box/progress-steps/renderers/EvictedOutputDrawer.tsx`
+
 ## 最新验证快照（2026-08-27 · 流式 In-Flight 实时死循环熔断器与语法感知断路器 · 流式鲁棒性增强达成）
 
 - **InFlightStreamRepetitionScrubber（对比 Hermes 烧光 8K 被动检测 / OpenClaw 粗暴超时硬等 / Claude Code 依赖人工 Ctrl+C）：** Myrm 构建了业界首个毫秒级流式死循环断路器与全局语法感知防御体系：

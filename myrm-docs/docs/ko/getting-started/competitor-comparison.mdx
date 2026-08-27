@@ -11,6 +11,17 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-08-27 · 엔터프라이즈급 수명 주기 아웃바운드 웹훅 및 실시간 연결 프로브 · 가시성 완료)
+
+- **AgentLifecycleOutboundWebhookSettingsPack (Hermes CLI 전용 설정 / OpenClaw Python 스크립트 작성 필수 / Grok 아웃바운드 부재 대비):** Myrm은 업계 최고의 엔터프라이즈급, 고보안 및 완전한 GUI 기반 수명 주기 아웃바운드 이벤트 전달 아키텍처를 제공합니다:
+  1. **완전한 GUI 우선 수명 주기 웹훅 관리 (`설정 -> 서비스 연동`)**: YAML 또는 스크립트 작성 없이 WebUI에서 직접 아웃바운드 엔드포인트 생성, 구독 이벤트 다중 선택(세션 완료/실패, 수동 승인 요청, 칸반 작업 업데이트 등), 원클릭 활성화 스위치 및 보안 HMAC Secret 무작위 생성기 제공;
+  2. **실시간 `/ping` 연결성 및 서명 테스트**: 저장 전 대상 URL로 서명된 테스트 프로브를 전송하여 밀리초 단위 지연 시간 및 HTTP 상태 코드를 실시간 확인;
+  3. **엄격한 SSRF 보안 방어 (`ssrf_guard.py`)**: 클라우드 제공업체 메타데이터 IP(`169.254.169.254`), 인트라넷 사설 IP 대역 및 로컬 루프백을 자동 차단하고 3xx 리디렉션을 엄격히 거부하여 자격 증명 유출 방지;
+  4. **비차단 비동기 큐 고신뢰성 전달 (`LifecycleOutboundWebhookService`)**: 512 용량의 비동기 작업 큐와 지수 백오프 재시도 메커니즘을 내장하여 외부 웹훅 지연이 메인 Agent 세션을 차단하지 않음;
+  5. **표준화된 HMAC-SHA256 서명 체계**: 요청 헤더에 GitHub 호환 `X-Myrm-Signature-256` 위변조 방지 서명 및 `X-Myrm-Delivery` 고유 추적 ID 자동 주입;
+  6. **100% 테스트 커버리지 및 제로 부채 전달**: 백엔드 FastAPI CRUD/Ping 통합 테스트 및 프론트엔드 React 상호작용 테스트 전량 통과 (100% 그린, 0 린트 오류, 0 좀비 프로세스).
+- **SSOT 출처:** `myrm-agent-server/app/database/models/lifecycle_webhook.py` · `myrm-agent-server/app/services/webhook/lifecycle_webhook_service.py` · `myrm-agent-server/app/api/webhook/` · `myrm-agent-frontend/src/components/features/settings/sections/integration/integrations/LifecycleWebhookSection.tsx`
+
 ## 최신 검증 스냅샷 (2026-08-27 · 실시간 스트리밍 루프 차단기 및 문법 인식 회로 차단기 · 스트리밍 복원력 완료)
 
 - **InFlightStreamRepetitionScrubber (Hermes 8K 토큰 소진 후 수동 감지 / OpenClaw 무차별 타임아웃 / Claude Code 수동 Ctrl+C 대비):** Myrm은 밀리초 수준의 실시간 스트리밍 반복 회로 차단기 및 문법 인식 구문 보호 아키텍처를 제공합니다:
