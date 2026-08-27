@@ -649,16 +649,16 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
   4. **전체 스택 테스트 검증**: 백엔드 2개 스키마/API 통합 테스트 통과(`test_learning_loop_integration.py`) + 프런트엔드 0 Lint 오류.
 - **자료 SSOT:** `temp-docs/materials/MEMORY_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/api/statistics/learning_loop.py` · `myrm-agent/myrm-agent-frontend/src/components/features/growth/LearningLoopFiveRingHub.tsx`
 
-## 최신 검증 스냅샷 (2026-08-20 · 선언적 고품질 PDF 템플릿 레지스트리 및 렌더링 엔진 · Roadmap Topic 11 #4 완료)
+## 최신 검증 스냅샷 (2026-08-20 · 엔터프라이즈급 문서 및 PDF 생성 워크플로 · office-document / pdf-generator 완료)
 
-- **선언적 PDF 템플릿 레지스트리 및 고품질 인쇄 엔진 (vs PDFx / Puppeteer 스크립트 / 단순 Markdown 변환기):** Myrm은 엔터프라이즈급 구조화된 PDF 문서 생성 툴체인을 제공합니다:
-  1. **Node.js 런타임 종속성 제로**: 순수 Python Jinja2 템플릿 보간과 Patchright Chromium 인쇄 파이프라인 및 독립형 폴백 결합으로 외부 Node.js/npm 컨테이너 오버헤드 제거;
-  2. **매니페스트 SSOT 및 자동 JSON Schema 도출**: `PdfTemplateManifest`가 변수 유형, 설명, 기본값 및 예시를 엄격히 정의하고 자동 JSON Schema를 생성하여 결정론적 도구 호출 보장;
-  3. **고품질 기업용 레이아웃 및 Paged Media CSS**: 표준 부가가치세 세금계산서, 비즈니스 보고서, 결제 영수증 기본 내장, CJK 글꼴 및 인쇄 페이지 나눔 방지(`page-break-inside: avoid;`) 지원;
-  4. **심층 보안 샌드박스 및 SSRF 차단**: `PdfRenderEngine.sanitize_html`이 악성 `<script>` 태그를 제거하고 `file://`, `javascript:`, `gopher://` 등 위험한 프로토콜을 안전하게 무력화;
-  5. **프롬프트 캐시 최적화(`ToolLayer.EXTENDED`)**: 경량 3-도구 표면(`list_pdf_templates`, `get_pdf_template_schema`, `render_pdf_template`)으로 95%+ 프롬프트 캐시 적중률 유지;
-  6. **전체 스택 테스트 검증**: 7개 단위 테스트 + 5개 통합/동시성/공격 주입 테스트 100% 통과 (95% 코드 커버리지, 0 Lint 오류).
-- **자료 SSOT:** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/pdf_templates/`
+- **엔터프라이즈급 문서 및 PDF 생성 워크플로 (vs 정적 템플릿 잠금 / 구조화되지 않은 스크립트):** Myrm은 엔터프라이즈급 다중 형식 문서 및 PDF 지능형 생성 툴체인을 제공합니다:
+  1. **Node.js 런타임 종속성 제로**: 순수 Python과 네이티브 LibreOffice / WeasyPrint / ReportLab / Chromium 인쇄 파이프라인 및 독립형 폴백 결합으로 외부 Node.js/npm 컨테이너 오버헤드 제거;
+  2. **계약 기반 워크플로 구동 (SSOT)**: `SKILL.md`가 생성 단계, 잠재적 함정 완화 및 검증 게이트를 엄격히 정의하여 결정론적이고 전문적인 문서 작성 보장;
+  3. **고품질 기업용 레이아웃 및 Paged Media CSS**: 표준 부가가치세 세금계산서, 비즈니스 보고서, 분석 대시보드 지원, CJK 글꼴 및 인쇄 페이지 나눔 방지(`page-break-inside: avoid;`) 지원;
+  4. **3단계 시각적 자체 교정 (Visual Self-Correction)**: PDF 페이지를 PNG 뷰포트 이미지로 자동 렌더링하고 멀티모달 LLM 시각적 검사를 수행하여 레이아웃 겹침, 텍스트 오버플로 및 서식 오류 방지;
+  5. **순수 Harness 엔진 및 프롬프트 캐시 최적화**: 서버 측 Prebuilt Skill로 완벽히 캡슐화되어 핵심 Harness 엔진의 도구 공간 오염이 없으며 95%+ 프롬프트 캐시 적중률 유지;
+  6. **전체 스택 테스트 검증**: 단위 테스트 + 샌드박스 실행 테스트 100% 통과, 0 Lint 오류.
+- **자료 SSOT:** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/assets/prebuilt_skills/office-document/`
 
 ## 최신 검증 스냅샷 (2026-08-20 · 엔터프라이즈 크로스 플랫폼 릴리스 엔지니어링 파이프라인 · 4-Target CI 게이트)
 

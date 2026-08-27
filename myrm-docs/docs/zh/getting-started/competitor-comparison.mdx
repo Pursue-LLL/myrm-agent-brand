@@ -853,17 +853,17 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   5. **全栈测试背书**：Harness 终态门禁单测、边界单测、Vault 存储单测、子代理自动转存及 Server 端端到端集成测试全部 100% 绿色通过。
 - **素材 SSOT：** `temp-docs/materials/AGENT_VERIFICATION_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/`
 
-## 最新验证快照（2026-08-20 · 声明式高保真 PDF 模板注册表与打印引擎 · Roadmap Topic 11 #4 完工）
+## 最新验证快照（2026-08-20 · 工业级文档与 PDF 生成技能工作流 · office-document / pdf-generator 完工）
 
 
-- **声明式 PDF 模板注册表与高保真打印引擎（vs PDFx / Puppeteer 脚本 / 简易 Markdown 转 PDF）：** Myrm 构建了企业级结构化 PDF 文档生成工具链：
-  1. **零 Node.js 运行时锁定**：纯 Python Jinja2 模板插值结合原生 Patchright Chromium 打印管线与独立优雅降级，彻底摆脱外部庞大 Node.js/npm 容器依赖与部署痛点；
-  2. **Manifest 驱动元数据契约 (SSOT)**：`PdfTemplateManifest` 强类型定义变量字段、描述、默认值与示例，自动导出规范 JSON Schema，供 Agent 严格按照结构化约束填报数据；
-  3. **企业级高保真排版与分页保护**：内置标准增值税发票、企业全景报告、极简收款收据三套生产级模板，原生支持 CJK 字体与 Paged Media CSS (`page-break-inside: avoid;`) 打印分页保护；
-  4. **深度安全沙箱与 SSRF 阻断防护**：`PdfRenderEngine.sanitize_html` 自动过滤恶意 `<script>` 注入，将 `file://`、`javascript:`、`gopher://` 等危险协议重写为安全占位，杜绝敏感文件泄露；
-  5. **提示词前缀缓存友好（`ToolLayer.EXTENDED`）**：轻量级三元工具表面（`list_pdf_templates`, `get_pdf_template_schema`, `render_pdf_template`），稳定前缀工具层，提示词缓存命中率高达 95%+；
-  6. **全栈测试背书**：7 项单元测试 + 5 项集成/并发压测/恶意攻击注入测试 100% 绿灯，覆盖率达 95%，0 Lint 错误。
-- **素材 SSOT：** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/pdf_templates/`
+- **工业级文档与 PDF 生成工作流（vs 静态模板锁定 / 传统无序脚本生成）：** Myrm 构建了企业级端到端多格式文档与 PDF 智能生成体系：
+  1. **零 Node.js 运行时锁定**：纯 Python 结合原生 LibreOffice / WeasyPrint / ReportLab / Chromium 打印管线与优雅降级，彻底摆脱外部庞大 Node.js/npm 容器依赖与部署痛点；
+  2. **契约化工作流驱动 (SSOT)**：`SKILL.md` 强类型定义生成步骤、关键陷阱防御与验证门禁，大模型严格遵循专业排版规范与样式约束；
+  3. **企业级高保真排版与分页保护**：内置专业商业发票、企业研报、数据报表生成逻辑，原生支持 CJK 字体与 Paged Media CSS (`page-break-inside: avoid;`) 打印分页保护；
+  4. **三轮视觉自纠错闭环 (Visual Self-Correction)**：生成 PDF 后自动截取首页 PNG 视口图像送入大模型多模态自检，自动纠正文字溢出、重叠排版与公式损坏；
+  5. **底座纯净与极速响应**：完全收敛于 Server 业务层 Prebuilt Skill，底层 Harness 保持 0 工具侵入与 0 动作空间污染，提示词缓存命中率高达 95%+；
+  6. **全栈测试背书**：单元测试 + 沙箱执行全链路测试 100% 绿灯，0 Lint 错误。
+- **素材 SSOT：** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/assets/prebuilt_skills/office-document/`
 
 ## 最新验证快照（2026-08-20 · FastUiRestoreMode 双级快照抗刷新 0ms 视觉秒开 · Roadmap #12 完工）
 

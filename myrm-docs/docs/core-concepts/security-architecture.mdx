@@ -1011,3 +1011,11 @@ To ensure evaluation integrity and prevent benchmark dataset contamination:
 4. **Trajectory Anti-Cheating & Secret Probing Defense**: Scans agent tool execution trajectories for attempts to probe hidden verification paths (`/hidden_tests/`, `verifier.toml`) or dump shell environment variables/secrets (`printenv`, `export`, `/proc/*/environ`). Violations trigger an immediate FAIL with structured diagnostic reports.
 5. **End-to-End Visual Violation Transparency**: Surfaced directly in the WebUI with Canary verification status and detailed violation diagnostic cards.
 
+## Channel & Operator Scoped Memory ACL (Anti-Poisoning & Anti-Leakage Gate)
+
+When external multi-user channels (Feishu, WeCom, Telegram, Discord, Slack) interact with agents:
+
+1. **Write-Plane Poisoning Prevention (`allow_shared_write=False`)**: Tool-layer physical intercept automatically downgrades any attempt to write to `shared` global memory into `bound` (current session scope), preventing untrusted channel participants from poisoning organizational shared knowledge.
+2. **Read-Plane Recall Isolation (`default_scope="same_source"`)**: Server-side conversation provider forcibly locks conversation history searches to the same source channel, blocking malicious prompt injection attacks from cross-recalling private WebUI conversations, credentials, or personal workflows.
+3. **Zero Prompt Token Overhead & 100% Cache Preservation**: Enforced entirely at the runtime execution layer with static tool descriptions, preserving full prompt cache hit rates.
+
