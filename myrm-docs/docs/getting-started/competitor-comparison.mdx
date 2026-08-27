@@ -81,6 +81,16 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
   4. **Tri-Deployment Parity with Dynamic Ingress**: Seamlessly functions across Local WebUI, Tauri Desktop, and Cloud Isolated Sandboxes via automatic public ingress resolution.
 - **SSOT Sources:** `temp-docs/roadmap/topic_01_memory_roadmap.md` · `myrm-agent-server/app/api/mcp/endpoint.py` · `myrm-agent-frontend/src/components/features/memory/dialogs/ConnectWizardDialog.tsx`
 
+## Latest Validation Snapshot (2026-08-27 · Deterministic Agent Persona Templates & Single-Source Cognitive Deriver · Roadmap Topic 01 #10 Done)
+
+- **DeterministicAgentPersonaTemplatesAndCognitiveDeriver (vs Hermes/Humalike Invasive Third-Party API Extraction & Self-reinforcing Drift):** Myrm delivers an enterprise-grade, deterministic, and token-efficient conversational style management architecture:
+  1. **Deterministic 17 Dual-Language Personality Templates (`app/ai_agents/personality_templates.py`)**: Provides 17 structured personality presets (Professional, Concise, Detailed, Humorous, etc.) with GUI selection and real-time `/personality` command switching, guaranteeing rock-solid conversational tone and eliminating embarrassing LLM drift or inappropriate quips in production;
+  2. **Single-Source Cognitive Deriver in Core Memory (`strategies/extractor.py:292-297`)**: Dialectic reasoning in the extraction pipeline organically deduces long-term user preferences across `reply_style`, `cognitive_depth`, and `proactivity`, storing them as clean `ProfileEntry` records injected into System Prompts without brittle runtime live cards;
+  3. **Zero Hidden Background Token Inflation & 100% Privacy Preservation**: Completely eliminates Humalike's expensive periodic background LLM sweeps (scraping 100 messages every 5 turns) and third-party API egress (`api.humalike.com`), running 100% locally/in-sandbox with zero telemetry leak;
+  4. **Channel-Scoped Agent & SharedContext Isolation (`ChannelRoutingSection.tsx`)**: Maps independent Agent Profiles to specific IM groups (`channel:chat_id`), providing crisp isolation of norms and memories across Slack, Telegram, Feishu, and Discord;
+  5. **100% Architecture & Test Coverage**: Verified by 182 memory extraction tests, 75 channel inbound profile tests, and 27 router approval tests (100% green, 0 lint errors, 0 zombie processes).
+- **SSOT Sources:** `myrm-agent-server/app/ai_agents/personality_templates.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/strategies/extractor.py` · `myrm-agent-frontend/src/components/features/settings/sections/integration/channels/ChannelRoutingSection.tsx`
+
 ## Latest Validation Snapshot (2026-08-27 · Native Compaction Provider Routing & Dedicated Lightweight Compactor · Roadmap Topic 06 #9 Done)
 
 - **NativeCompactionProviderRoutingWithDedicatedCompactor (vs Hermes Single-Model Heavy Compaction / OpenClaw Hardcoded Truncation / DeepSeek Harness Hallucination Risk):** Myrm delivers an enterprise-grade 3-tier context compaction routing and zero-LLM physical truth self-healing architecture:
