@@ -184,3 +184,11 @@ matplotlib 生成的图表自动捕获并内联显示在对话中，无需手动
 ### 企业 SSO 单点登录
 
 企业版支持 OIDC 协议（企微、飞书、钉钉、Google Workspace、Azure AD、Okta）。员工打开应用后通过企业 IdP 认证——无需单独注册，无需管理 API Key。
+
+## 显式资源生命周期与无锁防泄露运行时
+
+Myrm 采用双层显式异步释放协议与无锁 Actor 并发模型：
+
+1. **显式异步销毁契约**：代码执行器实现标准的 `close()` 异步协议，支持异步上下文管理器（`async with executor:`）。销毁链路通过中间件级联向下穿透到底层 OS 沙箱句柄（主动吊销 Windows AppContainer 权限、注销 Seatbelt 沙箱、关闭 bash 子进程）。
+2. **Session Stash 自动驱逐**：在每轮对话 Turn 结束时自动驱逐并清理暂存的执行器会话，在高并发与多 Agent 编排场景下彻底杜绝僵尸进程与文件描述符句柄泄漏。
+3. **无锁 MCP 会话 Actor**：不同于依赖传统互斥锁（Mutex）与易死锁同步机制的方案，Myrm 在持久化 `MCPSessionActor` 中通过单 Owner 串行 FIFO 队列调度工具执行与资源读取，从根本上杜绝并发竞态与死锁。

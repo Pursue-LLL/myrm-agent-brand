@@ -205,3 +205,11 @@ In cloud-hosted mode, API keys never enter the sandbox:
 ### Enterprise SSO
 
 Enterprise deployments support OIDC single sign-on (Google Workspace, WeCom, Feishu, DingTalk, Azure AD, Okta). Employees open the app and authenticate via corporate IdP — no separate registration, no API key management.
+
+## Explicit Lifecycle & Lock-Free Anti-Leak Runtime
+
+Myrm adopts a dual-layer explicit resource lifecycle and lock-free Actor concurrency model:
+
+1. **Explicit Async Teardown**: Code executors implement an explicit `close()` protocol with async context manager support (`async with executor:`). Teardown cascades through middleware down to native OS sandbox handles (revoking Windows AppContainer ACLs, releasing Seatbelt sandbox instances, closing background bash subprocesses).
+2. **Session Stash Eviction**: Stashed execution sessions are automatically evicted and cleaned up upon chat turn completion, completely eliminating orphaned processes and file descriptor leaks under heavy multi-agent workloads.
+3. **Lock-Free MCP Session Actor**: Unlike traditional implementations that rely on mutex locks and manual synchronization, Myrm coordinates all tool executions and resource reads via single-owner FIFO queues in persistent `MCPSessionActor` instances, guaranteeing deadlock-free, high-concurrency safety.
