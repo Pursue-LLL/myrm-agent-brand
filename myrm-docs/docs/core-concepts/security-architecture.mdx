@@ -209,6 +209,14 @@ Two complementary subsystems protect against prompt injection — one for untrus
 
 Data returned by third-party MCP tools is automatically passed through all 5 defense layers before entering the LLM context, preventing malicious MCP servers from injecting instructions via tool outputs.
 
+### Intake Dangerous-Intent Safety Router (Pre-LLM Gate)
+
+Before any LLM invocation or ReAct iteration, user prompts pass through the zero-latency Intake Safety Router (<0.15ms):
+
+- **Three High-Risk Dimensions**: Intercepts `MASS_DESTRUCTION` (e.g., `rm -rf /`, `DROP DATABASE`, `TRUNCATE TABLE`, disk wipe), `MASS_EXFILTRATION` (bulk export of keys/credentials/.env), and `PRIVILEGE_MUTATION` (disabling safety barriers, sandbox escape).
+- **Dual-Tier Zero False-Positive Funnel**: Strips Markdown code blocks and detects informational/code-generation syntax (e.g., "why drop table failed", "write a cleanup script") to guarantee 100% pass-through for benign software engineering questions.
+- **Multi-Environment Routing**: Automatically executes `fail_closed` in unattended channels (Cron/Webhook) and triggers interactive `hitl` confirmation in Desktop/WebUI sessions.
+
 ### Prompt Guard (Input-Side)
 
 113 detection patterns across 26 threat categories scan user messages, project rules, and skill files:
