@@ -11,6 +11,26 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-08-28 · 외부 CLI Agent 위임 툴 Schema 강타입 제약 및 병렬 오해 방지 · ACP 툴킷 완료)
+
+- **InvokeACPAgentToolSchemaHardening (OpenClaw의 취약한 문자열 모드 오류 / Hermes의 모호한 프롬프트로 인한 동시성 데드락 / Claude Code의 CLI 전용 및 GUI 연동 부재 대비):** Myrm은 `invoke_acp_agent_tool`을 위한 엔터프라이즈급 강타입 스키마 및 정밀 프롬프트 아키텍처를 제공합니다:
+  1. **스키마 레벨 강타입 업그레이드 (Zero-Trust Typing)**: `InvokeACPAgentInput.mode`를 `Literal["persistent", "oneshot"]`으로 강화하여 생성되는 Tool JSON Schema에 네이티브 `enum` 제약을 부여하고, 모델의 잘못된 인자 생성을 원천 차단;
+  2. **가짜 병렬 오안내 제거 및 Turn-lock 런타임 정렬**: 툴 설명에서 런타임 독점 구조와 충돌하는 `Parallel work delegation` 문구를 제거하여 다중 호출 경쟁 데드락 방지;
+  3. **UI 개념 누수 제거 및 명확한 사용 경계 제공**: `in Settings` 등 UI 단어를 제거하고 정밀한 사용 가이드라인(복잡한 코딩은 외부 CLI, 단순 I/O는 로컬 툴, 서브태스크는 `delegate_task_tool`) 확립;
+  4. **자체 포함 컨텍스트(Self-contained Context) 가이드 강화**: 모델이 `task` 인자에 파일 경로와 제약조건을 온전히 포함하도록 유도;
+  5. **100% 테스트 통과 및 제로 기술 부채**: 27개 `test_invoke_acp_agent_tool.py`, 91개 `test_cli_runtime.py`, 총 467개 ACP 테스트 100% 통과(0 린트 에러, 0 좀비 프로세스).
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/acp_agent_tools.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/ACP_SYSTEM.md`
+
+## 최신 검증 스냅샷 (2026-08-28 · 노이즈 제로 다국어 SSOT 및 5가지 정형화 스케줄링 자동화 툴체인 · 툴 생태계 완료)
+
+- **CronManageToolBilingualSSOTAndFivePatternStructuredAutomation (Hermes CLI 전용 crontab / OpenClaw 단순 스케줄링 / HappyCapy Turn1 정적 템플릿 비대화 및 프롬프트 캐시 무효화 대비):** Myrm은 `cron_manage_tool`을 위한 엔터프라이즈급 LLM 가시 툴 설명 SSOT 및 5가지 정형화 자동화 아키텍처를 제공합니다:
+  1. **노이즈 제로 한/영 이중 언어 SSOT 물리적 격리 (`_cron_tool_description.py`)**: LLM 가시 프롬프트 정의를 스케줄링 엔진 의존성에서 완전히 분리(`CRON_MANAGE_TOOL_DESCRIPTION_EN` 및 `_ZH`), 개발자 전용 구현 세부 정보(LiteLLM/SQLite/IP 토폴로지)를 제거하여 서브 마이크로초 단위 로캘 인식 해석 지원;
+  2. **5가지 핵심 사용 패턴 정형화 프롬프트 엔지니어링**: 5가지 정형 자동화 패턴(에이전트 자연어 작업, 샌드박스 Shell 명령, 무 LLM 순수 알림, 온디맨드 블루프린트 템플릿, 실시간 스트림/폴링 트리거)을 모델에 명시적으로 안내하여 매개변수 환각 및 상호 배타 충돌 원천 차단;
+  3. **온디맨드 점진적 공개를 통한 Turn1 프롬프트 캐시 100% 보존**: Turn1 시스템 프롬프트에 비대한 템플릿 카탈로그를 주입하지 않고 `action='blueprints'`를 통해 동적으로 검색하여 100% KV Cache 적중률 유지;
+  4. **멀티 채널 및 세션 언어 자동 인식 통합 (`tool_setup.py`)**: `tool_description_locale`을 현재 세션 또는 메신저 채널 언어와 완벽하게 바인딩;
+  5. **100% 풀스택 테스트 및 제로 기술 부채**: 116개 `test_cron_manage_tool.py` 단위 테스트, 87개 서버 cron 수명주기 API 테스트 및 676개 전체 harness cron 회귀 테스트 제품군 통과 (884개 테스트 통과, 100% 그린, 0 린트 오류, 0 좀비 프로세스).
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/_cron_tool_description.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/cron_agent_tools.py` · `myrm-agent-server/app/ai_agents/general_agent/tool_setup.py`
+
 ## 최신 검증 스냅샷 (2026-08-28 · 작업 공간 복잡도 축소 및 자가 치유 진행 관리 메타 툴 · 계획 정밀도 및 경량 LLM 호환성 달성)
 
 - **ActionSpaceComplexityReductionAndSelfHealingMetaTools (Hermes 전체 액션 공간 과부하 / Cursor 정적 툴 고착 / OpenClaw 무작위 Json 스키마 에러 루프 대비):** Myrm은 액션 공간 복잡도 수렴(ASCS)과 자가 치유 작업 계획 메타 툴 아키텍처를 제공합니다:

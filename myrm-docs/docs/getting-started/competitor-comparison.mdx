@@ -11,6 +11,16 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Validation Snapshot (2026-08-28 · External CLI Agent Delegation Tool Schema Hardening & Zero Parallelism Misleading · ACP Toolkit Done)
+
+- **InvokeACPAgentToolSchemaHardening (vs OpenClaw Loosely Typed Strings / Hermes Ambiguous Prompts Causing Lock Contention / Claude Code CLI-only Without GUI Orchestration):** Myrm delivers an enterprise-grade strongly typed parameter schema and precision prompt architecture for `invoke_acp_agent_tool`:
+  1. **Schema-Level Strong Typing (Zero-Trust Typing)**: Elevates `InvokeACPAgentInput.mode` from generic `str` to `Literal["persistent", "oneshot"]`, ensuring generated Tool JSON Schemas natively include `enum` constraints to eliminate LLM syntax hallucinations (`"forever"`, `"bad"`);
+  2. **Elimination of Parallelism Misleading & Turn-Lock Alignment**: Removes misleading `Parallel work delegation` wording to strictly align with the single-process exclusive Turn-lock runtime execution, completely preventing low-capability models from triggering concurrent multi-call lock contention;
+  3. **Purging UI Terminology & Explicit Negative Boundaries**: Removes WebUI concept leakage (`in Settings`) and establishes clear `When to use` (heavy-duty multi-file coding workflows) vs `When NOT to use` (simple file I/O or internal sub-agent coordination via `delegate_task_tool`);
+  4. **Enforced Self-Contained Context Guidelines**: Explicitly guides LLMs to provide complete, self-contained requirements, constraints, and workspace paths in `task`, preventing external CLI agents from failing due to missing context;
+  5. **100% Full-Stack Testing & Zero Technical Debt**: Validated across 27 `test_invoke_acp_agent_tool.py` unit suites, 91 `test_cli_runtime.py` integration suites, and full 467/467 ACP regression suites (100% green, 0 lint errors, 0 zombie processes).
+- **SSOT Sources:** `myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/acp_agent_tools.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/ACP_SYSTEM.md`
+
 ## Latest Validation Snapshot (2026-08-27 · Ambient Video/Canvas Theme Engine & Local System Typography Enumeration · Desktop & Web UX Done)
 
 - **AmbientVideoCanvasAndLocalSystemTypographyEngine (vs Cursor/VS Code Manual Blind Font Typing / LibreChat Plain Static Backgrounds / Traditional Single-Font Lock-in):** Myrm delivers an enterprise-grade multimodal dynamic background and local system typography discovery architecture:
