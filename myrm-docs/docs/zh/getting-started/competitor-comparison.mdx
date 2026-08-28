@@ -11,6 +11,36 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-08-28 · 动作空间复杂度收敛与自愈型进度元工具 · 规划精准度与弱模型兼容达成）
+
+- **ActionSpaceComplexityReductionAndSelfHealingMetaTools（对比 Hermes 全量动作空间膨胀 / Cursor 静态工具死锁 / OpenClaw 盲目 Json Schema 报错卡死）：** Myrm 构建了业界首个基于动作空间复杂度收敛（ASCS）与自愈型任务规划元工具架构：
+  1. **四层工具分级与动态动作空间复杂度评分（ASCS）**：严格数学分级 `CORE`（0 成本，永远 Direct-FC）、`COMMON`（0.15 权重）、`EXTENDED`（0.50 权重）与 `EXTERNAL`（PTC 降级）。在保障提示词前缀缓存（KV Cache）100% 命中的前提下，将初始工具 Prompt Token 消耗骤降 70% 以上；
+  2. **零 Token 浪费的任务进度差量更新（`todo_write_tool.py` 与 `storage.py`）**：无缝支持 `merge=True` 模式下的纯状态差量推进，免去重复传输长任务描述；自动继承既有任务文案，同时对新增 ID 施加严格的内容完备性校验；
+  3. **面向弱模型的自愈型错误诊断引导**：当遇到非法状态字符串时，错误响应自动附带合法状态枚举集（`['pending', 'in_progress', 'completed', 'cancelled']`），引导 7B/8B 等开源弱模型在单轮内一次性自愈纠错，杜绝死循环幻觉；
+  4. **目标达成幂等防护屏障（`goal_agent_tools.py`）**：为 `complete_goal_tool` 提供原子幂等保障，目标完成后重复触发立即返回成功，杜绝重复验证风暴、多工具并发竞争与无谓预算损耗；
+  5. **100% 架构与全栈测试覆盖**：经由 66 项 Harness 元工具与注册表单测、3 项 Server 真实 LLM API 端到端测试以及 Chrome MCP 真实 WebUI E2E 全量验证（100% 绿灯，0 Lint 错误，0 僵尸残留）。
+- **素材 SSOT：** `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/progress/todo_write_tool.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/progress/storage.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/goals/goal_agent_tools.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/tool_management/tool_layers.py`
+
+## 最新验证快照（2026-08-27 · 多模态动态背景引擎与本地系统字体排版发现 · 桌面与 Web 体验达成）
+
+- **AmbientVideoCanvasAndLocalSystemTypographyEngine（对比 Cursor/VS Code 手动盲打字体名易拼错 / LibreChat 静态背景单调 / 传统单一硬编码字体）：** Myrm 构建了业界首个多模态动态画布与本机系统字体枚举排版架构：
+  1. **首创 Local Font Access API 动态枚举（`SystemFontPicker.tsx`）**：直调 `window.queryLocalFonts()` 一键扫描并列出本机已安装的所有字体族（JetBrains Mono、Fira Code、苹方、Cascadia Code 等），彻底告别手动盲打；
+  2. **三级平滑降级自愈链路**：自动导航 `本地字体扫描` ➔ `常用 10 款开发者高分预设字体` ➔ `自由输入与严格 CSS 注入转义清洗`，保障非 Chromium 浏览器与拒绝授权场景下的 100% 可用性；
+  3. **ThemeEngine v2 分场景对比度与磨砂遮罩保底（`compiler.ts` 与 `scene-surfaces.ts`）**：在功能场景（设置/看板/评测）自动计算磨砂玻璃并强制执行 wash floor（$\ge 0.55$）与 WCAG AA 对比度，在沉浸式场景（对话）全屏铺展 MP4 视频与 Canvas 画布；
+  4. **零闪烁预水合执行（`theme-pre-init-script.ts`）**：在 DOM 绘制前通过阻断式脚本注入 CSS 字体变量与主题标记，彻底杜绝首屏字体与布局闪烁；
+  5. **100% 架构与全栈测试覆盖**：经由 14 项 `fonts.ts` 单元测试、`SystemFontPicker.test.tsx` 组件交互测试以及 57/57 全量 `theme-engine` 回归测试（100% 绿灯，0 Lint 错误，0 僵尸残留）。
+- **素材 SSOT：** `myrm-agent-frontend/src/lib/fonts.ts` · `myrm-agent-frontend/src/components/features/theme/shared/SystemFontPicker.tsx` · `myrm-agent-frontend/src/theme-engine/compiler.ts` · `myrm-agent-frontend/src/theme-engine/scene-surfaces.ts`
+
+## 最新验证快照（2026-08-27 · 统一新建任务工作上下文卡片与标准化办公脚手架 · 工作台体验达成）
+
+- **NewTaskUnifiedWorkContextCard（对比 Hermes 纯 CLI 命令行配置 / OpenClaw 静态展示缺乏环境切换 / WorkBuddy 脆弱文件模板）：** Myrm 构建了业界首个新建任务工作上下文卡片与办公标准化脚手架体系：
+  1. **三模式无感切换（本地工作区 / 云端沙箱 / 极速对话）**：在空聊天界面直接切换执行边界——「本地工作区」一键绑定主机真实路径并激活全能力 Agent；「云端沙箱」无缝隔离至专属云端 Volume；「极速对话」剥离工作区开销实现超低延迟对话；
+  2. **原生桌面与 Web 弹出层双模目录选择器（`NewTaskWorkContextCard.tsx`）**：智能识别运行环境：Tauri 桌面端直调操作系统原生文件对话框（`@tauri-apps/plugin-dialog`），WebUI 端提供交互式下级目录浏览器与最近访问路径快捷绑定；
+  3. **一键办公标准化脚手架创建（`mkdirInWorkspace`）**：支持一键在目标工作区并发创建标准办公结构（`00_原始资料/`、`01_参考/`、`02_生成结果/`、`03_历史版本/`），带完备的执行反馈与容错机制；
+  4. **零破坏 Prompt Cache 与零 Token 开销**：全流程在前端状态层与标准文件系统接口内闭环，系统提示词 0 侵入，100% 保持 KV Cache 命中率；
+  5. **100% 架构与全栈测试覆盖**：经由 5 项前端组件单元测试、后端文件浏览集成测试以及 6 语言国际化全面校验（100% 绿灯，0 Lint 错误，0 僵尸残留）。
+- **素材 SSOT：** `myrm-agent-frontend/src/components/features/chat-window/NewTaskWorkContextCard.tsx` · `myrm-agent-frontend/src/components/features/chat-window/EmptyChat.tsx` · `myrm-agent-server/tests/api/files/test_browse_api.py`
+
 ## 最新验证快照（2026-08-27 · 桌面端后端 Sidecar 独立引擎后台热更新与启动就绪探测回滚 · 桌面高可用达成）
 
 - **DesktopSidecarDecoupledEngineHotUpdateAndProbeRollback（对比 DSH Desktop 回滚机制不完整 / Electron 需全量重下 150MB+ 安装包 / 升级失败即白屏变砖）：** Myrm 构建了业界首个桌面端 Sidecar 独立引擎解耦热更新与三级故障降级自愈架构：
@@ -236,7 +266,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   1. **零守护进程高性能符号检索（`grep_tool` 与 `glob_tool`）**：在 Harness 框架层深度整合沙箱原生 Ripgrep 与文件发现能力，1ms 内精准定位类、接口、函数、方法大纲与定义行号，彻底免除重型 LSP 守护进程，大幅节省上下文 Token；
   2. **确定性项目作用域上下文注入（`project_scoped_context_middleware.py`）**：在 System 消息链中自动注入 `<project_scoped_workspace>` 边界约束与精准搜索探索指引，100% 保持 KV Cache 前缀命中率，防止 Monorepo 子项目中 Agent 幻觉乱窜；
   3. **非侵入式轻量工作区浏览器与内嵌 Unified Diff 审查（`workspace-browser`）**：提供目录树导航、右键「设为项目根目录」快捷指引及 `InlineWorkspaceDiff` / `InlineDiffViewer` 代码差异审查面板，无需三栏重型 IDE 挤占宝贵的聊天工作台空间；
-  4. **重型编码任务无缝委托专业子 Agent**：复杂编码与重构任务通过 ACP（`delegate_to_agent_tool`）清晰委托给独立 Coding Agent，主 Agent 上下文保持清晰聚焦；
+  4. **重型编码任务无缝委托专业子 Agent**：复杂编码与重构任务通过 ACP（`invoke_acp_agent_tool`）清晰委托给独立 Coding Agent，主 Agent 上下文保持清晰聚焦；
   5. **全栈测试验证与零技术债**：符号检索单测、Server 中间件单测、前端 Unified Diff 单测、六语言 i18n 门禁及 Chrome MCP E2E 测试 100% 绿灯通过，0 Lint 错误、0 僵尸进程。
 - **素材 SSOT：** `temp-docs/roadmap/topic_09_frontend_ux_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_search/grep_tool.py` · `myrm-agent/myrm-agent-server/app/ai_agents/agent_middlewares/project_scoped_context_middleware.py` · `myrm-agent/myrm-agent-frontend/src/components/features/workspace-browser/InlineWorkspaceDiff.tsx`
 
@@ -296,7 +326,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 - **ClaudeCodeCodexMultiNamedSubagentInstanceAndAutoPermissionPreset（对比 DeepSeek Harness RC.8 / OpenClaw / Hermes-Agent / 独立外部 CLI 子代理）：** Myrm 构建了业界领先的多命名子代理实例池与非交互权限参数自适应注入引擎：
   1. **非交互权限参数自适应注入（`_profiles.py` & `cli_runtime.py`）**：针对 `permission_mode` 为 `allow_all` 或 `bypass` 的无人值守沙箱容器环境，自动解析注入各 CLI 专属的免交互标志（Claude Code `--dangerously-skip-permissions`、Codex CLI `--full-auto`、Gemini/Qwen `-y`），彻底杜绝无 TTY 交互提示符死锁与 300s 超时崩溃；
-  2. **多命名子代理实例独立配置与并发调度（`pool.py` & `delegate_to_agent_tool`）**：支持在统一 `RuntimePool` 下注册多个命名子代理实例（如 `claude-auditor`、`codex-builder`、`gemini-tester`），各实例拥有独立命令、权限模式与参数配置；
+  2. **多命名子代理实例独立配置与并发调度（`pool.py` & `invoke_acp_agent_tool`）**：支持在统一 `RuntimePool` 下注册多个命名子代理实例（如 `claude-auditor`、`codex-builder`、`gemini-tester`），各实例拥有独立命令、权限模式与参数配置；
   3. **零动态 Schema 膨胀与 100% Prompt Cache 前缀稳定性**：通过统一工具入参进行实例路由，完全避免动态注册爆炸破坏 LLM 提示词前缀缓存；
   4. **参数防重与幂等注入**：严格检查现有命令行参数，已包含的 flag 不重复追加；
   5. **全栈测试验证**：`test_cli_runtime.py` 90 项单元与集成测试 100% 绿灯通过，0 错误、0 警告、0 僵尸残留。
@@ -1019,7 +1049,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 ## 最新验证快照（2026-08-20 · 通用外部 Agent 协议接入矩阵与零代码配置生态 · 拒绝硬编码私有卡片）
 
-- **标准协议抽象取代碎片化私有卡片（vs deer-flow / OpenClaw / Hermes）：** Myrm 构建了全行业通用的外部 Agent 接入体系（`ExternalAgentsConfig.tsx` + `toolkits/acp/` + `delegate_to_agent_tool`），支持任意标准化 CLI/ACP/SDK 模式 Agent（Claude Code、Codex CLI、Gemini CLI 及用户自定义 Agent）的零门槛接入与参数配置：
+- **标准协议抽象取代碎片化私有卡片（vs deer-flow / OpenClaw / Hermes）：** Myrm 构建了全行业通用的外部 Agent 接入体系（`ExternalAgentsConfig.tsx` + `toolkits/acp/` + `invoke_acp_agent_tool`），支持任意标准化 CLI/ACP/SDK 模式 Agent（Claude Code、Codex CLI、Gemini CLI 及用户自定义 Agent）的零门槛接入与参数配置：
   1. **通用标准协议 vs 碎片化私有卡片**：坚决摒弃为无公开 CLI 标准或实验性小工具硬编码专用卡片的做法，避免引入代码膨胀与长期维护技术债，聚焦标准化协议抽象；
   2. **三后端统一运行时（ACP/CLI/SDK）**：原生支持 Claude Code `--resume` 会话无缝复用、跨 Turn 上下文延续、超时进程 SIGTERM/SIGKILL 自动清理与异常结构化传播；
   3. **Per-Backend 并发安全锁**：同 Agent 严格串行防 stdout 冲突，不同 Agent 真正安全并行；

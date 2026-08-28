@@ -264,13 +264,13 @@ GUI 配置编辑器提供 5 个独立面板（技能 / MCP / 内置工具 / 子�
 - **Gemini CLI** — Google 编程 Agent
 - **任意 ACP 兼容 Agent** — 通过 RuntimePool 无限扩展
 
-`delegate_to_agent` 工具支持完整上下文注入、持久/一次性会话模式和自动重试。
+`invoke_acp_agent_tool` 工具支持完整上下文注入、持久/一次性会话模式和自动重试。
 
 **Web 聊天体验：** 同一对话内复用外部 CLI Agent 会话（`--resume`），多轮委派无需重复冷启动。单对话 turn-lock 串行化多标签/连点并发；取消操作免锁，避免运行卡死。Direct-only 路径不挂载 delegate 工具，节省 token。
 
 **可靠性加固（2026-08）：** 外部委派全链路防御真实故障。超时或崩溃的外部进程会被**自动终止**（SIGTERM，宽限期后 SIGKILL 兜底）——后台不会残留孤儿 CLI 进程占用资源。若 `--resume` 会话崩溃且无任何输出，系统会丢弃失效的 session id，下一次调用**自动自愈降级为全新会话**，绝不永久卡死。委派失败**永远不会被静默当作成功**：统一转为结构化 `ERROR` 事件（含 `retryable` 分类），调用方可准确重试或上报——CLI / SDK / ACP 三种后端行为完全一致。
 
-**按 Agent 的 `external_cli` 开关（2026-07）：** 本地模式下 **设置 → 开发者 → 外部 Agent** 会自动检测 PATH 中的 CLI —— 若 Claude Code 已配置三方模型，**无需** Anthropic 官方订阅凭据也可委派；Settings 徽章显示「**CLI 可用**」（而非误导性的「未登录」）。仅在需要 `delegate_to_agent` 的 Agent 上开启「外部 CLI」（如 General Assistant、Code Developer）。Writer/Research 预设默认关闭，省约 216 Turn1 schema token。Settings 与内置工具面板双向交叉提示；聊天面板在 auto-detect 成功时不再误报「尚未配置 CLI 后端」。
+**按 Agent 的 `external_cli` 开关（2026-07）：** 本地模式下 **设置 → 开发者 → 外部 Agent** 会自动检测 PATH 中的 CLI —— 若 Claude Code 已配置三方模型，**无需** Anthropic 官方订阅凭据也可委派；Settings 徽章显示「**CLI 可用**」（而非误导性的「未登录」）。仅在需要 `invoke_acp_agent_tool` 的 Agent 上开启「外部 CLI」（如 General Assistant、Code Developer）。Writer/Research 预设默认关闭，省约 216 Turn1 schema token。Settings 与内置工具面板双向交叉提示；聊天面板在 auto-detect 成功时不再误报「尚未配置 CLI 后端」。
 
 **验收（2026-07-10）：** 108+ 项后端集成/单测全绿（含 `test_external_cli_live_e2e.py` 直连 claude-code PONG）；Chrome E2E（`:3000`）确认 Writer/Research 无 external_cli chip、General/Developer 有；Developer → 添加 Agent → Claude Code 显示「CLI 可用」；真实 `mimo-v2.5-pro` → 委派 → Claude Code 返回 **PONG**，聊天页含任务步骤与工具执行轨迹。
 
@@ -317,7 +317,7 @@ GUI 配置编辑器提供 5 个独立面板（技能 / MCP / 内置工具 / 子�
 - **27 预置 Agent 工具矩阵**：服务启动时 initializer 幂等同步；Agent 画廊与设置页均展示完整 27 个 built-in（`AGENT_LIST_BUILTIN_PAGE_SIZE=50` 默认；画廊 chip 来自 `enabled_builtin_tools`）。
 - **写路径单入口**：`persist_enabled_builtin_tools` 校验后再落库；legacy ID 返回 422，避免 silent 失效。
 - **默认 profile**：UI 默认开启 `web_search` + `memory` + **`structured_clarify`（结构化多题澄清表单）**；**文件/代码执行能力始终可用**（Agent 基线，无需用户勾选）。表单 payload 使用 **`requires_confirmation: bool`**（替代竞品常见的 5 类枚举）；`true` 时 WebUI 以琥珀色强调风险确认。
-- **用户开关 ON → Turn1 直接可用**：默认或手动开启的内置工具（含 **cron（需手动开启）**、**structured_clarify**、render_ui、computer_use、x_search、delegate_to_agent 等）、已绑定 skill 对应工具，首轮即出现在 LLM schema，无需先调 `discover_capability`。**Cron 默认关闭（可发现加载）**——仅开启的用户承担约 827 tok eager schema；OpenClaw/Hermes 无 per-agent 开关，Turn1 始终挂载 cron。**`structured_clarify` 关闭时不暴露 `ask_question_tool` schema**——竞品多把澄清写死在常驻 Prompt 里。Harness **`ClarificationGuardMiddleware`** 保证每轮至多一次 `ask_question_tool`，且与并行工具互斥（对齐 Hermes `clarify` 单轮约束）。
+- **用户开关 ON → Turn1 直接可用**：默认或手动开启的内置工具（含 **cron（需手动开启）**、**structured_clarify**、render_ui、computer_use、x_search、invoke_acp_agent_tool 等）、已绑定 skill 对应工具，首轮即出现在 LLM schema，无需先调 `discover_capability`。**Cron 默认关闭（可发现加载）**——仅开启的用户承担约 827 tok eager schema；OpenClaw/Hermes 无 per-agent 开关，Turn1 始终挂载 cron。**`structured_clarify` 关闭时不暴露 `ask_question_tool` schema**——竞品多把澄清写死在常驻 Prompt 里。Harness **`ClarificationGuardMiddleware`** 保证每轮至多一次 `ask_question_tool`，且与并行工具互斥（对齐 Hermes `clarify` 单轮约束）。
 - **active_tool_groups SSOT**：`derive_active_tool_groups()` 统一推导已启用工具组，避免 render_ui / 媒体组已开仍误报 `capability_gap`。
 - **全矩阵回归**：`CAPABILITY_GAP_REGISTRY` 覆盖 **14 个 GUI 可切换** builtin（含 web_search、memory、cron、answer_tool、**structured_clarify** 及 browser/render_ui/computer_use/wiki/kanban/planning/三媒体）。Agent 基线 `file_ops` / `code_execute` 运行时强制，不参与 Gap 提示。可编辑白板见 [通过 MCP 绘制图表](/docs/zh/guides/diagram-via-mcp)。
 - **权限缺口（Entitlement Gap）**：每条用户消息在 Agent 循环前 **preflight** 扫描（SSE 推送 `capability_gap` / `skill_gap`，不改 Turn1 schema）；`discover_capability` miss 走同一 registry。WebUI 通过 **`/api/v1/workspace/stream` 多路复用**接收预检事件（POST 前注册监听器，早到 chunk 不丢），toast **一键开启/绑定**；若在 stream loading 中点击，**`pendingGapRetry`** 于 **MESSAGE_END / ERROR / CANCEL** 落盘后自动重发，无需再点发送。

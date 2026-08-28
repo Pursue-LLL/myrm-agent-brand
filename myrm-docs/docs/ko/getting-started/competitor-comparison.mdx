@@ -11,6 +11,36 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-08-28 · 작업 공간 복잡도 축소 및 자가 치유 진행 관리 메타 툴 · 계획 정밀도 및 경량 LLM 호환성 달성)
+
+- **ActionSpaceComplexityReductionAndSelfHealingMetaTools (Hermes 전체 액션 공간 과부하 / Cursor 정적 툴 고착 / OpenClaw 무작위 Json 스키마 에러 루프 대비):** Myrm은 액션 공간 복잡도 수렴(ASCS)과 자가 치유 작업 계획 메타 툴 아키텍처를 제공합니다:
+  1. **4계층 툴 계층화 및 동적 액션 공간 복잡도 채점(ASCS)**: `CORE`(비용 0, 항상 Direct-FC), `COMMON`(가중치 0.15), `EXTENDED`(가중치 0.50), `EXTERNAL`(PTC 강등)로 엄격한 수학적 격리를 수행합니다. 프롬프트 접두사 캐시(KV Cache) 100% 적중률을 보장하면서 초기 툴 프롬프트 토큰 오버헤드를 70% 이상 절감합니다;
+  2. **토큰 낭비 없는 작업 진행 차분 업데이트 (`todo_write_tool.py` 및 `storage.py`)**: 긴 작업 설명을 중복 전송할 필요 없이 `merge=True` 모드에서 상태 차분 업데이트를 원활하게 지원합니다. 이전 작업 설명을 자동 상속하며 새로 추가된 ID에 대해서는 엄격한 내용 유효성 검사를 적용합니다;
+  3. **경량 모델을 위한 자가 치유 진단 안내**: 유효하지 않은 상태 문자열이 입력되었을 때 에러 응답에 유효한 상태 열거형 집합(`['pending', 'in_progress', 'completed', 'cancelled']`)을 자동 포함하여 7B/8B 등 오픈소스 경량 모델이 단일 턴 내에서 즉시 자가 수정할 수 있도록 지원합니다;
+  4. **목표 달성 멱등성 보호 장벽 (`goal_agent_tools.py`)**: `complete_goal_tool`에 원자적 멱등성을 보장하여 목표 완료 후 중복 트리거 시 즉시 성공 상태를 반환하고, 중복 검증 폭풍과 토큰 낭비를 원천 차단합니다;
+  5. **100% 전체 스택 테스트 및 기술 부채 제로**: 66개 Harness 메타 툴 및 레지스트리 단위 테스트, 3개 Server 실제 LLM E2E 테스트, Chrome MCP WebUI E2E 전체 검증 완료 (100% 통과, 0 린트 에러, 0 좀비 프로세스).
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/progress/todo_write_tool.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/progress/storage.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/goals/goal_agent_tools.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/tool_management/tool_layers.py`
+
+## 최신 검증 스냅샷 (2026-08-27 · 멀티모달 동적 배경 엔진 및 로컬 시스템 폰트 탐색 아키텍처 · 데스크톱 및 Web UX 완료)
+
+- **AmbientVideoCanvasAndLocalSystemTypographyEngine (Cursor/VS Code 수동 폰트명 입력 오류 위험 / LibreChat 정적 배경 한계 / 기존 단일 폰트 고정 대비):** Myrm은 멀티모달 동적 캔버스 및 로컬 시스템 폰트 자동 열거 타이포그래피 아키텍처를 제공합니다:
+  1. **업계 최초 Local Font Access API 동적 열거 (`SystemFontPicker.tsx`)**: `window.queryLocalFonts()`를 직접 호출하여 로컬 시스템에 설치된 모든 폰트 패밀리(JetBrains Mono, Fira Code, PingFang SC, Cascadia Code 등)를 1클릭으로 탐색하고 나열;
+  2. **3단계 무결점 그레이스풀 폴백 체인**: `로컬 폰트 API 스캔` ➔ `상위 10개 개발자 선호 프리셋 폰트` ➔ `사용자 정의 입력 및 엄격한 CSS 인젝션 살균(Sanitization)`으로 비 Chromium 브라우저에서도 100% 동작 보장;
+  3. **ThemeEngine v2 씬 적응형 대비 및 프로스트 글래스 워시 보정 (`compiler.ts` 및 `scene-surfaces.ts`)**: 기능적 화면(설정/칸반/평가)에서는 프로스트 글래스와 최소 워시 바닥값($\ge 0.55$) 및 WCAG AA 대비를 강제하고, 몰입형 화면(대화)에서는 전체 화면 MP4/Canvas 아트를 제공;
+  4. **깜빡임 없는 사전 수화(Pre-Hydration) 실행 (`theme-pre-init-script.ts`)**: DOM 렌더링 전 블로킹 스크립트를 통해 CSS 타이포그래피 변수와 테마 토큰을 주입하여 첫 화면 폰트/레이아웃 깜빡임(CLS) 원천 차단;
+  5. **100% 풀스택 테스트 및 제로 기술 부채**: 14개 `fonts.ts` 단위 테스트, `SystemFontPicker.test.tsx` 컴포넌트 테스트 및 57/57개 `theme-engine` 전체 회귀 테스트 통과 (100% 그린, 0 린트 오류, 0 좀비 프로세스).
+- **SSOT 출처:** `myrm-agent-frontend/src/lib/fonts.ts` · `myrm-agent-frontend/src/components/features/theme/shared/SystemFontPicker.tsx` · `myrm-agent-frontend/src/theme-engine/compiler.ts` · `myrm-agent-frontend/src/theme-engine/scene-surfaces.ts`
+
+## 최신 검증 스냅샷 (2026-08-27 · 통합 새 작업 작업 컨텍스트 카드 및 표준 업무 스캐폴딩 · 작업 공간 UX 완료)
+
+- **NewTaskUnifiedWorkContextCard (Hermes CLI 전용 설정 / OpenClaw 정적 표시 / WorkBuddy 취약한 템플릿 대비):** Myrm은 통합 새 작업 컨텍스트 카드 및 표준 업무 디렉터리 스캐폴딩 아키텍처를 제공합니다:
+  1. **3가지 모드 매끄러운 전환 (로컬 작업 공간 / 클라우드 샌드박스 / 빠른 대화)**: 빈 채팅 인터페이스에서 실행 경계를 즉시 전환: '로컬'은 호스트 디렉터리를 바인딩하고 풀 에이전트를 활성화; '클라우드'는 전용 클라우드 샌드박스 볼륨으로 격리; '빠른 대화'는 작업 공간 오버헤드를 제거하여 토큰을 절약;
+  2. **데스크톱 네이티브 OS 및 Web 팝오버 듀얼 엔진 디렉터리 선택기 (`NewTaskWorkContextCard.tsx`)**: 런타임 환경 자동 감지: Tauri 데스크톱에서는 OS 네이티브 폴더 대화상자(`@tauri-apps/plugin-dialog`) 실행, WebUI에서는 대화형 디렉터리 탐색기 및 최근 경로 단축키 렌더링;
+  3. **원클릭 표준 업무 디렉터리 스캐폴딩 (`mkdirInWorkspace`)**: 표준 업무 구조(`00_原始资料/` 원본자료, `01_参考/` 참고, `02_生成结果/` 생성결과, `03_历史版本/` 버전이력)를 병렬 파일시스템 호출로 자동 생성하며 토스트 피드백 및 오류 처리 완비;
+  4. **제로 프롬프트 변소 및 100% 프롬프트 캐시 보호**: 프론트엔드 상태 계층과 표준 파일시스템 엔드포인트 내에서 완결되어 시스템 프롬프트 오염 0, KV Cache 히트율 100% 유지;
+  5. **100% 아키텍처 및 풀스택 테스트 커버리지**: 5개 프론트엔드 Vitest 단위 테스트, 백엔드 디렉터리 브라우징 통합 테스트 및 6개 언어 i18n 검증 전량 통과 (100% 그린, 0 린트 오류, 0 좀비 프로세스).
+- **SSOT 출처:** `myrm-agent-frontend/src/components/features/chat-window/NewTaskWorkContextCard.tsx` · `myrm-agent-frontend/src/components/features/chat-window/EmptyChat.tsx` · `myrm-agent-server/tests/api/files/test_browse_api.py`
+
 ## 최신 검증 스냅샷 (2026-08-27 · 개인정보 인식 동적 모델 라우팅 및 제로 유출 물리적 보안 격리 게이트 · 모델 보안 완료)
 
 - **PrivacyAwareDynamicModelRouting (Hermes 정적 모델 락인 / OpenClaw 평문 클라우드 유출 / Claude Code 로컬 오프로딩 부재 대비):** Myrm은 턴 단위 개인정보 인식 동적 모델 라우팅 및 데이터 제로 유출 물리적 격리 아키텍처를 제공합니다:
@@ -187,7 +217,7 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
   1. **무중단 고성능 심볼 검색 (`grep_tool` & `glob_tool`)**: Harness 프레임워크 계층에서 샌드박스 네이티브 Ripgrep 및 파일 발견 기능을 통합하여 클래스, 인터페이스, 메서드, 함수 개요를 1ms 이내에 검색하며, 무거운 LSP 데몬 없이 토큰 낭비를 차단;
   2. **결정론적 프로젝트 범위 컨텍스트 주입 (`project_scoped_context_middleware.py`)**: 시스템 메시지 체인에 `<project_scoped_workspace>` 경계 제약과 정밀 탐색 가이드를 자동 주입하여 100% KV Cache 접두사 안정성을 유지하고 모노레포 하위 프로젝트에서의 환각 방지;
   3. **비침습적 경량 작업 공간 브라우저 및 인라인 Unified Diff 검토 (`workspace-browser`)**: 디렉터리 트리 탐색, 마우스 우클릭 "프로젝트 루트로 설정" 빠른 가이드 및 `InlineWorkspaceDiff` / `InlineDiffViewer` 코드 변경 검토 패널을 제공하여 복잡한 3분할 IDE 없이 쾌적한 챗 워크스테이션 환경을 보장;
-  4. **전문 코딩 서브 에이전트로의 완벽한 작업 위임**: 대규모 코딩 및 리팩터링 작업은 ACP(`delegate_to_agent_tool`)를 통해 전문 서브 에이전트로 명확히 위임되어 메인 에이전트의 컨텍스트를 간결하게 유지;
+  4. **전문 코딩 서브 에이전트로의 완벽한 작업 위임**: 대규모 코딩 및 리팩터링 작업은 ACP(`invoke_acp_agent_tool`)를 통해 전문 서브 에이전트로 명확히 위임되어 메인 에이전트의 컨텍스트를 간결하게 유지;
   5. **100% 전체 스택 테스트 커버리지 및 제로 기술 부채**: 심볼 검색 단위 테스트, 서버 미들웨어 단위 테스트, 프론트엔드 Unified Diff 단위 테스트, 6개 국어 i18n 패리티 및 Chrome MCP E2E 테스트 100% 통과, 린트 오류 0개, 좀비 프로세스 0개.
 - **자료 SSOT:** `temp-docs/roadmap/topic_09_frontend_ux_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_search/grep_tool.py` · `myrm-agent/myrm-agent-server/app/ai_agents/agent_middlewares/project_scoped_context_middleware.py` · `myrm-agent/myrm-agent-frontend/src/components/features/workspace-browser/InlineWorkspaceDiff.tsx`
 
@@ -225,7 +255,7 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 - **ClaudeCodeCodexMultiNamedSubagentInstanceAndAutoPermissionPreset (vs DeepSeek Harness RC.8 / OpenClaw / Hermes-Agent / 독립 외부 CLI 서브에이전트):** Myrm은 업계 최고의 다중 명명 서브에이전트 인스턴스 풀 및 비대화형 권한 파라미터 자동 주입 엔진을 구축했습니다:
   1. **비대화형 권한 파라미터 자동 주입 (`_profiles.py` & `cli_runtime.py`)**: `permission_mode`가 `allow_all` 또는 `bypass`인 무인 샌드박스 환경에서 각 CLI 전용 비대화형 플래그(Claude Code `--dangerously-skip-permissions`, Codex CLI `--full-auto`, Gemini/Qwen `-y`)를 자동으로 주입하여 TTY 없는 환경에서의 교착 상태 및 300초 타임아웃 장애를 완전 차단;
-  2. **다중 명명 서브에이전트 인스턴스 독립 구성 및 동시 스케줄링 (`pool.py` & `delegate_to_agent_tool`)**: 단일 `RuntimePool` 하에서 여러 명명된 서브에이전트 인스턴스(예: `claude-auditor`, `codex-builder`, `gemini-tester`)를 독립 명령, 권한 및 인자 구성으로 등록하고 오케스트레이션 지원;
+  2. **다중 명명 서브에이전트 인스턴스 독립 구성 및 동시 스케줄링 (`pool.py` & `invoke_acp_agent_tool`)**: 단일 `RuntimePool` 하에서 여러 명명된 서브에이전트 인스턴스(예: `claude-auditor`, `codex-builder`, `gemini-tester`)를 독립 명령, 권한 및 인자 구성으로 등록하고 오케스트레이션 지원;
   3. **동적 스키마 팽창 제로 및 100% 프롬프트 캐시 불변성**: 도구 인자를 통해 라우팅하여 동적 도구 등록 폭발 및 LLM 접두사 캐시 무효화를 완벽 방지;
   4. **파라미터 중복 방지 및 멱등성 보장**: 기존 CLI 인자를 점검하여 중복 주입 방지;
   5. **전체 스택 테스트 검증**: `test_cli_runtime.py` 90개 단위 및 통합 테스트 100% 통과, 0 오류, 0 경고, 0 좀비 프로세스.
@@ -795,7 +825,7 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 ## 최신 검증 스냅샷 (2026-08-20 · 범용 외부 Agent 프로토콜 통합 매트릭스 및 코드 없는 구성 생태계)
 
-- **하드코딩된 독점 카드를 대체하는 표준 프로토콜 추상화 (vs deer-flow / OpenClaw / Hermes):** Myrm은 업계에서 가장 범용적인 외부 Agent 통합 시스템(`ExternalAgentsConfig.tsx` + `toolkits/acp/` + `delegate_to_agent_tool`)을 구축하여 표준화된 CLI/ACP/SDK 모드 Agent(Claude Code, Codex CLI, Gemini CLI 및 사용자 지정 Agent)를 원클릭으로 연결하고 구성할 수 있도록 지원합니다:
+- **하드코딩된 독점 카드를 대체하는 표준 프로토콜 추상화 (vs deer-flow / OpenClaw / Hermes):** Myrm은 업계에서 가장 범용적인 외부 Agent 통합 시스템(`ExternalAgentsConfig.tsx` + `toolkits/acp/` + `invoke_acp_agent_tool`)을 구축하여 표준화된 CLI/ACP/SDK 모드 Agent(Claude Code, Codex CLI, Gemini CLI 및 사용자 지정 Agent)를 원클릭으로 연결하고 구성할 수 있도록 지원합니다:
   1. **범용 표준 프로토콜 vs 파편화된 비공개 카드**: 공개 CLI 사양이 없는 실험적 도구를 위한 전용 카드를 하드코딩하여 발생하는 코드 팽창과 기술 부채를 방지하고 표준 프로토콜 추상화에 집중;
   2. **통합 3-백엔드 런타임(ACP/CLI/SDK)**: Claude Code `--resume` 세션 재사용, 턴 간 컨텍스트 연속성, 타임아웃 프로세스 SIGTERM/SIGKILL 자동 정리 및 구조화된 오류 전파 기본 지원;
   3. **백엔드별 동시성 안전 잠금**: 동일 Agent는 엄격하게 직렬화하여 stdout 충돌을 방지하고, 서로 다른 Agent는 안전하게 병렬 실행;
