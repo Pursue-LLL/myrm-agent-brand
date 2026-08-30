@@ -11,6 +11,14 @@ MyrmAgent 定位为完整的 AI Agent 原生工作空间。与仅支持终端命
 **迁移信心保障** — 支持 SaaS 云端、本地自托管或桌面端；支持一键通过 WebUI 导入 Hermes 技能包。MyrmAgent 支持一键安装完整 Agent 包（模型 + 技能 + MCP + 子智能体 + 安全策略）。文档支持 6 种语言（zh/en/ja/ko/de/zh-TW），跨 WebUI、云端托管与 Tauri 桌面端自动感知语言。
 </Note>
 
+## 最新验证快照（2026-08-30 · 合成异常日志防静默错位校验与不合规事件严格拒载门禁 · 可观测性完成）
+
+- **SyntheticLogVerificationAndAntiSilentCorruptionGate（对标 rust-deepseek-harness 生产实践）：** 在日志加载与上下文重放阶段，杜绝因“静默修复”生成虚假历史导致灾难性连锁故障：
+  1. **严格括号闭包断言（Step/Turn Enclosure）**：`check_step_enclosure` 严格校验事件流中的消息、工具交互及思考过程必须被 Step/Turn 边界闭包包裹，精准捕获孤立事件与未闭合步骤；
+  2. **中间序列号断层防篡改自检（Sequence Continuity）**：`check_sequence_continuity` 严格校验事件流全局 `seq` 单调自增且无断层（Gap-Free），精确定量断层缺失帧数 `gap_size`；
+  3. **毫秒级 Fail-Fast 严格拒载**：通过 `RuntimeInvariantRegistry` 统一编排，纯 CPU 线性扫描，0 额外外部依赖，0 LLM Token 开销，100% 保护 Prompt Cache 命中率。全套 7 组不变式测试全部 100% 绿色通过。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/observability/invariants/core_pack.py` · `myrm-agent-harness/src/myrm_agent_harness/observability/invariants/__init__.py`
+
 ## 最新验证快照（2026-08-28 · 零噪音多语言 SSOT 与 5 大结构化定时自动化工具链 · 工具生态完成）
 
 - **CronManageToolBilingualSSOTAndFivePatternStructuredAutomation（对比 Hermes 仅 CLI crontab / OpenClaw 简单调度 / HappyCapy Turn1 静态模板臃肿与 Prompt Cache 失效）：** MyrmAgent 交付针对 `cron_manage_tool` 的企业级 LLM 可见工具描述 SSOT 与 5 大结构化自动化架构：

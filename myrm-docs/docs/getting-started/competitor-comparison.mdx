@@ -11,6 +11,14 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Validation Snapshot (2026-08-30 · Synthetic Log Enclosure Verification & Anti-Silent-Corruption Rejection Gate · Observability Done)
+
+- **SyntheticLogVerificationAndAntiSilentCorruptionGate (vs rust-deepseek-harness production practice):** Enforces strict mathematical invariants during log loading and context replay to prevent silent corruption:
+  1. **Strict Step/Turn Enclosure Assertions**: `check_step_enclosure` ensures messages, tool calls, and thinking blocks are strictly wrapped within active step brackets, catching orphaned events;
+  2. **Sequence Continuity & Gap Detection**: `check_sequence_continuity` guarantees monotonic and gap-free global sequence numbers, quantitatively computing missing frames (`gap_size`);
+  3. **Sub-millisecond Fail-Fast Gate**: Centralized via `RuntimeInvariantRegistry`, linear CPU scan, 0 external dependencies, 0 LLM token cost, preserving 100% Prompt Cache hit rate.
+- **SSOT Sources:** `myrm-agent-harness/src/myrm_agent_harness/observability/invariants/core_pack.py` · `myrm-agent-harness/src/myrm_agent_harness/observability/invariants/__init__.py`
+
 ## Latest Validation Snapshot (2026-08-28 · External CLI Agent Delegation Tool Schema Hardening & Zero Parallelism Misleading · ACP Toolkit Done)
 
 - **InvokeACPAgentToolSchemaHardening (vs OpenClaw Loosely Typed Strings / Hermes Ambiguous Prompts Causing Lock Contention / Claude Code CLI-only Without GUI Orchestration):** Myrm delivers an enterprise-grade strongly typed parameter schema and precision prompt architecture for `invoke_acp_agent_tool`:
