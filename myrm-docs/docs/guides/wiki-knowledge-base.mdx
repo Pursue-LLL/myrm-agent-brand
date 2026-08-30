@@ -20,6 +20,7 @@ When ingesting large books, complex documents, or hundreds of research files, ra
 | **Output Token Budget** | `max_article_length = 12000` + Auto-Repair | Strictly caps synthesized article lengths, auto-closing truncated Frontmatter and Markdown code fences. |
 | **Batch Resilience** | 10-doc batching + circuit breaker | Pauses compilation on rate limits or API credit exhaustion, preventing cascade failures. |
 | **Vector Overflow Failsafe** | `resolve_embed_failure` policy | Gracefully catches `EmbedInputTooLargeError` and pauses single documents without crashing the entire batch queue. |
+| **Dual-Lane Ingest & Bounded Backpressure** | Object/Job Lane dual stream + bounded queue | Parallel atomic chunks and bottom-up directory DAG summaries with constant $O(1)$ memory, preventing OOM during massive repo ingest. |
 | **HITL Approval** | `WikiPendingEdits` queue | User audits and approves all synthesized concepts before permanent disk commit. |
 | **Sandbox Git Snapshot** | `vault_git.py` SSOT hook | 13 mutation points automatically commit local Git snapshots for complete time-travel auditing without remote credential risks. |
 
