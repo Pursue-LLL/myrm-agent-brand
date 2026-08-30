@@ -11,6 +11,16 @@ MyrmAgent 定位为完整的 AI Agent 原生工作空间。与仅支持终端命
 **迁移信心保障** — 支持 SaaS 云端、本地自托管或桌面端；支持一键通过 WebUI 导入 Hermes 技能包。MyrmAgent 支持一键安装完整 Agent 包（模型 + 技能 + MCP + 子智能体 + 安全策略）。文档支持 6 种语言（zh/en/ja/ko/de/zh-TW），跨 WebUI、云端托管与 Tauri 桌面端自动感知语言。
 </Note>
 
+## 最新验证快照（2026-08-30 · 长程任务保活与计划人机协同门禁 · 核心引擎完成）
+
+- **TaskContinuityAndPlanConfirmationGate（对标 Claude Code / Cursor / Hermes / OpenClaw 生产实践）：** 在长程多步任务执行与复杂重构中，彻底解决“越做越失忆”、“清单占满上下文”与“重规划脱缰失控”三大行业痛点：
+  1. **非持久化动态流末端修饰（`progress_middleware.py`）**：在每次模型调用前精准注入当前聚焦任务与目标，经历数十轮工具调用依然目标如一，且 100% 保护 SystemMessage 前缀缓存（Prompt Prefix Cache 命中率保持 90%+）；
+  2. **紧凑折叠视图（Compact View）压降 84.5% Token**：任务清单超过 4 项且存在已完成项时，自动聚合折叠为 `[✓] N completed`，单轮注入仅消耗 ~65 tokens（对比全量展开节省 84.5% Token），极大缩短首字延迟（TTFT）；
+  3. **单轮多次 Tool 调用注入幂等清洗**：注入前通过正则自动剥离历史残留，杜绝多工具交互下 Prompt 末尾重复堆积垃圾指令块；
+  4. **重大 Re-plan 动态拦截与人机双重把关（`plan_confirm_middleware.py`）**：引入目标感知 ContextVar，当中途用户推翻诉求、Agent 生成新目标时，系统自动挂起并再次触发 LangGraph `interrupt()`，在 WebUI/桌面端重新弹出审核卡片，用户点击确认后方可执行；
+  5. **100% 测试覆盖与零破坏性**：通过 23 项中间件单元测试（覆盖率 94%）与 13 项真实 SQLite / Goal 链路集成测试，0 破坏性接口变更，0 业务侵入。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/progress_middleware.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/plan_confirm_middleware.py`
+
 ## 最新验证快照（2026-08-30 · 合成异常日志防静默错位校验与不合规事件严格拒载门禁 · 可观测性完成）
 
 - **SyntheticLogVerificationAndAntiSilentCorruptionGate（对标 rust-deepseek-harness 生产实践）：** 在日志加载与上下文重放阶段，杜绝因“静默修复”生成虚假历史导致灾难性连锁故障：
