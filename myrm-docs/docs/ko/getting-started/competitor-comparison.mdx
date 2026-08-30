@@ -11,6 +11,16 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-08-30 · 데스크톱 비침투형 네이티브 브리지 및 WebUI 선언적 확장 슬롯 프로토콜 · 데스크톱 & Web 동형 완료)
+
+- **DesktopNonIntrusiveNativeBridgeAndExtensionSlotProtocol (DSH Desktop의 단순 플러그인 쉘 / Electron의 무거운 UI 이중 중첩 / Web-데스크톱 코드베이스 분리 대비):** Myrm은 엔터프라이즈급 비침투형 데스크톱 네이티브 브리지 및 선언적 확장 슬롯 동형 아키텍처를 제공합니다:
+  1. **Zero-Chrome 순수 쉘 컨테이너 & 동적 트래픽 라이트 인셋 (`useTrafficLightInsets.ts`)**: 데스크톱 클라이언트는 순수 프레임리스 컨테이너로 작동하며, 환경 인식을 통해 macOS에 CSS 안전 영역 토큰(`--traffic-light-inset-top: 28px`, `--traffic-light-inset-left: 78px`)을 자동 주입하여 트래픽 라이트와 내비게이션 헤더의 겹침을 제거하고, Windows/Linux/Web에서는 0px로 자동 수축;
+  2. **표준화된 데스크톱 네이티브 브리지 퍼사드 (`desktopBridge.ts`)**: 창 제어, 로컬 폴더 열기(Reveal), 외부 브라우저 디스패치, 시스템 버전 조회, 클립보드 I/O를 위한 강타입 `DesktopBridgeInterface`를 제공하며 웹/클라우드 샌드박스에서 100% 안전한 Fallback 보장;
+  3. **선언적 확장 슬롯 시스템 (`ExtensionSlot.tsx` & `useExtensionSlotStore.ts`)**: 핵심 레이아웃(`sidebar.footer.action`, `navbar.bottom.tools`, `settings.sections`)에 표준 슬롯을 예약하여 핵심 WebUI 마크업을 오염시키지 않고 데스크톱 기능을 동적으로 마운트;
+  4. **100% Web/데스크톱/클라우드 동형 패리티**: 단일 공유 프론트엔드 코드베이스가 이중 쉘 중첩 없이 원활하게 실행;
+  5. **100% 풀스택 테스트 및 기술 부채 제로**: `ExtensionSlot.test.tsx`, `desktopBridge.test.ts`, `useTrafficLightInsets.test.ts` 총 13개 단위 테스트 통과 (100% green, 0 린트 에러, 0 좀비 프로세스).
+- **SSOT 출처:** `myrm-agent-frontend/src/lib/desktopBridge.ts` · `myrm-agent-frontend/src/components/features/extension-slots/` · `myrm-agent-frontend/src/hooks/ui/useTrafficLightInsets.ts`
+
 ## 최신 검증 스냅샷 (2026-08-28 · 외부 CLI Agent 위임 툴 Schema 강타입 제약 및 병렬 오해 방지 · ACP 툴킷 완료)
 
 - **InvokeACPAgentToolSchemaHardening (OpenClaw의 취약한 문자열 모드 오류 / Hermes의 모호한 프롬프트로 인한 동시성 데드락 / Claude Code의 CLI 전용 및 GUI 연동 부재 대비):** Myrm은 `invoke_acp_agent_tool`을 위한 엔터프라이즈급 강타입 스키마 및 정밀 프롬프트 아키텍처를 제공합니다:

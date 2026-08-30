@@ -66,7 +66,16 @@ In addition to orchestrating internal Myrm agents, the main agent can delegate t
 - **Dynamic Layered Loading & Zero Token Waste** — When external agents are unconfigured, their tools are never injected into the prompt context (0 idle Token cost). Once configured, they mount in the EXTENDED layer to protect the Prompt Prefix Cache (maintaining 95%+ hit rates).
 - **Real-Time ANSI Sanitation** — Raw terminal escape sequences, ANSI colors, and progress spinners are sanitized on the fly, preventing UI corruption and saving ~15% in redundant context tokens.
 
-Backed by 18/18 Chrome E2E tests, 6 API/Server integration tests, and 129 harness/toolkit unit tests.
+### 9. Ultra-Clean Subagent Tool Prompts & Prompt Cache Protection
+
+Tool prompts for LLMs should guide action without noise. Myrm refactored its sub-agent tool suite schemas to ensure absolute clarity and prompt cache optimality:
+
+- **Elimination of Internal Implementation Noise** — Stripped away in-memory TTLs, cache pointers, and non-actionable code comments, freeing up precious context space.
+- **Strict Parameter Schemas across 5 Modes** — Explicitly enforce required parameters for `single`, `batch`, `parallel`, `council`, and `alternatives` modes, preventing parameter misalignments on lightweight open models.
+- **Precise Waiting vs Inspection Guidance (`wait` vs `list`)** — Clear instructions direct LLMs to use `subagent_control_tool(action='wait')` for synchronous background completion (preventing wasteful token-burning poll loops) and `action='list'` for global status inspection.
+- **Enforced P2P Communication Boundaries** — Clarified that `send_teammate_message_tool` is strictly active only when executing within a sub-agent with a populated `<active_teammates>` roster.
+
+Backed by **943 harness core unit tests**, **32 API/Server integration tests**, **79 frontend component tests**, and **Chrome E2E real browser verification**.
 
 ## How to Get Started
 

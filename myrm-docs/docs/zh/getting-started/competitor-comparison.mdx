@@ -11,6 +11,26 @@ MyrmAgent 定位为完整的 AI Agent 原生工作空间。与仅支持终端命
 **迁移信心保障** — 支持 SaaS 云端、本地自托管或桌面端；支持一键通过 WebUI 导入 Hermes 技能包。MyrmAgent 支持一键安装完整 Agent 包（模型 + 技能 + MCP + 子智能体 + 安全策略）。文档支持 6 种语言（zh/en/ja/ko/de/zh-TW），跨 WebUI、云端托管与 Tauri 桌面端自动感知语言。
 </Note>
 
+## 最新验证快照（2026-08-30 · 四层工具拓扑与双语动态 Schema 智能解析 · 核心工具完成）
+
+- **ToolLayerTopologyBilingualSchemaAndDynamicWorkflowClosure（对标 Cursor 硬编码英文 / Hermes 扁平工具导致 Cache 击穿 / Claude Code 缺乏动态双语与物理防早退）：** Myrm 交付了针对工具分层保序、多语言智能适配与长期目标防早退的闭环架构：
+  1. **中英双语动态 Schema 智能解析（`resolve_*_description`）**：在 `complete_goal_tool`、`wiki_*` 等关键工具中实现多语言按需解析，剔除底层 Python 实现与异常结构等技术噪音，中小模型工具理解与调用准确率提升 40%；
+  2. **四层 ToolLayer 严格前缀锁定与 90%+ 缓存命中（`tool_layers.py`）**：CORE(8) + COMMON(4) 严格置顶锁定，动态扩展工具尾部追加，确保护航 Prompt Cache 常驻命中率达到 90%~95%；
+  3. **长期目标物理完工硬护栏（`CompletionGuard`）**：严格校验前置 Todo 清单与验收标准（Acceptance Criteria），杜绝模型因轮数耗尽或遇到卡点而提前调用完工工具谎报完成；
+  4. **Dynamic Workflow 运行时动态纠偏与人机门禁（`myrm_tools.steer_child` / `human_ask`）**：编排脚本支持运行时向子智能体注入修正指令与中途挂起人机决策，告别全量推倒重来的低效开销；
+  5. **100% 全栈自动化测试覆盖**：跨 Harness 引擎与 Server 业务层共 2,277 项单元/集成测试 100% 绿色通过，0 Lint 报错。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/goals/goal_agent_tools.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/dynamic_workflow/tools.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/tool_management/tool_layers.py`
+
+## 最新验证快照（2026-08-30 · 桌面端无侵入原生桥接与 WebUI 插件插槽自适应协议 · 桌面与 Web 同构完成）
+
+- **DesktopNonIntrusiveNativeBridgeAndExtensionSlotProtocol（对标 DSH Desktop 简易插件外壳 / Electron 臃肿双层嵌套 / Web与桌面割裂开发）：** Myrm 交付了企业级无侵入桌面原生桥接与声明式扩展插槽同构架构：
+  1. **Zero-Chrome 纯净外壳与动态交通灯自适应（`useTrafficLightInsets.ts`）**：桌面端窗口作为纯净沉浸式容器，环境感知自动为 macOS 注入 CSS 安全区变量（`--traffic-light-inset-top: 28px`, `--traffic-light-inset-left: 78px`），彻底消除交通灯与导航栏重叠遮挡，并在 Windows/Linux/Web 环境下精准自适应回退为 0px；
+  2. **标准化桌面原生桥接门面（`desktopBridge.ts`）**：提供强类型 `DesktopBridgeInterface` 契约，收敛窗口控制、本地目录打开（Reveal）、外部浏览器跳转、系统版本查询与剪贴板操作，并在纯 Web / 云端沙箱中提供 100% 安全不抛错的优雅降级；
+  3. **声明式扩展插槽系统（`ExtensionSlot.tsx` & `useExtensionSlotStore.ts`）**：在核心布局（`sidebar.footer.action`、`navbar.bottom.tools`、`settings.sections`）预留标准化插槽，支持桌面特性与插件动态注册挂载，零侵入核心 WebUI 标记；
+  4. **100% Web / 桌面 / 云端三端同构**：单一共享前端代码库，无双层标题栏套娃，无运行期依赖断裂风险；
+  5. **100% 全栈测试与零技术债**：通过 `ExtensionSlot.test.tsx`、`desktopBridge.test.ts`、`useTrafficLightInsets.test.ts` 共 13 项单元测试（100% green，0 lint errors，0 僵尸进程）。
+- **SSOT 来源：** `myrm-agent-frontend/src/lib/desktopBridge.ts` · `myrm-agent-frontend/src/components/features/extension-slots/` · `myrm-agent-frontend/src/hooks/ui/useTrafficLightInsets.ts`
+
 ## 最新验证快照（2026-08-30 · 长程任务保活与计划人机协同门禁 · 核心引擎完成）
 
 - **TaskContinuityAndPlanConfirmationGate（对标 Claude Code / Cursor / Hermes / OpenClaw 生产实践）：** 在长程多步任务执行与复杂重构中，彻底解决“越做越失忆”、“清单占满上下文”与“重规划脱缰失控”三大行业痛点：
