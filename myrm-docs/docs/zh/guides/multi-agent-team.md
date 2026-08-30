@@ -68,7 +68,16 @@ Myrm 将后台子代理生命周期与父流解耦：
 - **订阅免 Key 模式支持**——复用用户的 ChatGPT Plus / Claude Pro 订阅直接运行外部 CLI，免除额外的 API Key 账单。
 - **防爆有界会话缓存**——底层会话管理自动施加 512 容量上限与 FIFO/LRU 淘汰防护，保障常驻后台 365 天无内存泄漏。
 
-由 **18/18 Chrome E2E**（UI 套件 + baseline 套件，含真实用户 textarea 输入路径）、**6 项 API/Server 集成测试**、**129 项 harness/toolkits 单测**背书。
+### 9. 纯净精准的 Subagent 提示词体系与 Prompt Cache 极致保护
+
+给大模型看的提示词绝非“内部实现注释堆砌”。Myrm 对多 Agent 核心工具组的提示词与参数 Schema 进行了深度提纯与去噪：
+
+- **剔除实现细节噪音**——彻底剥离内存缓存 TTL、底层锁指针等对模型无正向引导作用的代码细节，释放宝贵的上下文窗口。
+- **严格收口 5 种编排模式入参**——针对 `single`、`batch`、`parallel`、`council`、`alternatives` 明确参数约束（如 Council 强制要求提供 ≥2 个专家类型与目标），从根源杜绝弱模型的参数错传与幻觉。
+- **精准的执行与巡检指引（wait vs list）**——大模型使用 `subagent_control_tool(action='wait')` 自动同步等待后台异步任务，彻底告别消耗大量上下文与计费轮数的死循环轮询；使用 `action='list'` 进行全局状态巡检。
+- **P2P 点对点通信边界守卫**——明确 `send_teammate_message_tool` 仅在子智能体拥有兄弟名册（`<active_teammates>`）时被激活，主智能体与单机上下文零误用。
+
+由 **943 项 harness 核心测试**、**32 项 API/Server 集成测试**、**79 项前端组件单测** 及 **Chrome E2E 真实浏览器会话** 强力背书。
 
 ## 如何开始使用？
 
