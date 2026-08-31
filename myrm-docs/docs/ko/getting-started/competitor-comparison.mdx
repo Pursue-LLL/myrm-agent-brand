@@ -11,6 +11,16 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-08-31 · 팀 지식 복리 주간 보고서 및 풀스택 화이트박스 관찰성 스위트 · 관찰성 완료)
+
+- **TeamWeeklyDigestAndObservabilitySuite (엔터프라이즈 관찰성 및 AI 팀 지식 복리 모범 사례 대비):** Myrm은 기업 및 팀 지식 축적, 실행 비용 감사 및 크로스 플랫폼 안정성을 위한 종합 스위트를 제공합니다:
+  1. **팀 지식 복리 주간 보고서 (`TeamWeeklyDigestView.tsx` & `team_weekly_digest`)**: 멀티 Agent 대화 활동 순위, 스킬 축적 및 진화 트렌드를 자동으로 취합하여 웹 대화형 조회 및 원클릭 표준 마크다운 내보내기 지원;
+  2. **화이트박스 토큰 경제학 및 지연 폭포 다이어그램 (`token_economics` & `latency_waterfall`)**: Agent 턴 내 LLM 및 툴 실행 병목 구간을 밀리초 단위로 분해하고 프롬프트 캐시 재사용률 감사;
+  3. **연산자 에러 마스킹 (`operator_error_sanitizer.py`)**: 민감한 내부 스택 추적 및 절대 경로를 정제하여 자체 복구 능력을 유지하면서 사용자 측 세부 정보 누출 방지;
+  4. **데스크톱 절전 모드 방지 및 타이틀바 안전 영역 자동 적응 (`usePowerLock` & `useTrafficLightInsets`)**: 장기 작업 실행 중 시스템 절전 모드로 인한 중단을 방지하고 macOS에서 트래픽 라이트 안전 영역을 자동 적응;
+  5. **100% 풀스택 테스트 제품군 통과**: Harness, Server, Frontend 전반에 걸쳐 416개 이상의 테스트 100% 그린 통과.
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/observability/digest/` · `myrm-agent-frontend/src/components/features/growth/TeamWeeklyDigestView.tsx` · `myrm-agent-frontend/src/hooks/tauri/usePowerLock.ts`
+
 ## 최신 검증 스냅샷 (2026-08-30 · 데스크톱 비침투형 네이티브 브리지 및 WebUI 선언적 확장 슬롯 프로토콜 · 데스크톱 & Web 동형 완료)
 
 - **DesktopNonIntrusiveNativeBridgeAndExtensionSlotProtocol (DSH Desktop의 단순 플러그인 쉘 / Electron의 무거운 UI 이중 중첩 / Web-데스크톱 코드베이스 분리 대비):** Myrm은 엔터프라이즈급 비침투형 데스크톱 네이티브 브리지 및 선언적 확장 슬롯 동형 아키텍처를 제공합니다:
