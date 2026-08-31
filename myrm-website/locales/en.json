@@ -1116,7 +1116,7 @@
         },
         "liveValidation": {
           "title": "Live Browser Validation (Real Chrome)",
-          "desc": "Latest low-load proof run (2026-07-29): frontend 29/29 + server 10/10 focused tests passed for per-turn capability override observability, with targeted coverage at 62.47% lines (frontend files) and 72% total (server telemetry modules). Memory pressure checks stayed safe (61%-64% free memory), and Chrome MCP remains the final browser signoff path."
+          "desc": "Latest maintainer gate run (2026-08-31): monorepo dev tests 2151/2151 passed (mixed harness+server pytest split + DGEP domain repack static gates); gateway liveness vitals + citation SSE refresh covered by targeted server/frontend tests. Chrome MCP remains the final UI signoff path — not headless Playwright."
         },
         "traceVisualization": {
           "title": "7-Layer In-Product Trace Visualization",
@@ -1764,6 +1764,16 @@
           "tag1": "LLM calls grouped by model with total duration",
           "tag2": "Response speed — avg & P95 first-token latency",
           "tag3": "Per-session analytics panel, zero configuration"
+        },
+        "gatewayRuntimeVitals": {
+          "label": "Gateway health vitals",
+          "title": "Know when your agent engine is healthy — before users feel it",
+          "desc": "Long-running self-hosted agents often look \"online\" while the event loop is stalling or memory is climbing — you only notice when chats freeze. Myrm exposes zero-payload gateway vitals on the liveness endpoint and Prometheus: event-loop lag, RSS, active asyncio tasks, and OTLP posture. Ops can alert on degraded vs unhealthy without ever scraping chat content.",
+          "stat": "0",
+          "statLabel": "user prompts in health payloads (redacted by design)",
+          "tag1": "Liveness JSON: busy/idle/degraded/draining + gatewayRuntime",
+          "tag2": "Prometheus gauges for lag, RSS, tasks, health code",
+          "tag3": "Harness GatewayHealthInspector — no chat content leakage"
         },
         "streamResilient": {
           "label": "No character left behind",

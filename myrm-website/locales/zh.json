@@ -1116,7 +1116,7 @@
         },
         "liveValidation": {
           "title": "真实浏览器实测验证（Real Chrome）",
-          "desc": "最新低负载实证（2026-07-29）：围绕单轮能力覆写可观测闭环，frontend 定向 29/29、server 定向 10/10 全通过；聚焦覆盖率为 frontend 文件 62.47% lines、server 遥测模块 72% total。分批执行期间内存空闲率保持 61%-64%，并保留 Chrome MCP 作为最终浏览器签收链路。"
+          "desc": "最新维护者门禁跑分（2026-08-31）：monorepo dev 测试 2151/2151 通过（含 harness+server 混合 pytest 分拆契约 + DGEP 域重打包静态门禁）；网关 liveness 体征与引用 SSE 刷新由定向 server/frontend 测试覆盖。Chrome MCP 仍是最终 UI 签收路径——非 Playwright 无头流水线。"
         },
         "traceVisualization": {
           "title": "产品内嵌 7 层 Trace 可视化",
@@ -1764,6 +1764,16 @@
           "tag1": "LLM 调用按模型分组并统计总耗时",
           "tag2": "响应速度——首字延迟平均值与 P95",
           "tag3": "会话级分析面板，零配置开箱即用"
+        },
+        "gatewayRuntimeVitals": {
+          "label": "网关运行体征",
+          "title": "在用户感知卡顿之前，就知道引擎是否健康",
+          "desc": "自托管 Agent 7×24 运行时，常见情况是进程仍「在线」，但事件循环已在卡顿、内存持续攀升——往往等到聊天冻结才被发现。Myrm 在 liveness 端点与 Prometheus 导出零负载网关体征：事件循环延迟、RSS、asyncio 任务数与 OTLP 装配态。运维可对 degraded/unhealthy 告警，且健康载荷严格不含任何对话内容。",
+          "stat": "0",
+          "statLabel": "健康载荷中的用户 prompt（设计上完全脱敏）",
+          "tag1": "Liveness JSON：busy/idle/degraded/draining + gatewayRuntime",
+          "tag2": "Prometheus 指标：延迟、RSS、任务数、健康码",
+          "tag3": "Harness GatewayHealthInspector — 零聊天内容泄漏"
         },
         "streamResilient": {
           "label": "流式传输从不丢字",

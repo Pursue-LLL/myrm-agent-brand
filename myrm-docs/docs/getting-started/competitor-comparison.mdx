@@ -11,6 +11,12 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Validation Snapshot (2026-08-31 · Gateway Zero-Payload Runtime Vitals & Dev Gate Domain Repack · Observability + Reliability)
+
+- **GatewayZeroPayloadRuntimeVitals (vs Hermes CLI doctor / OpenClaw file polling / no unified liveness):** Myrm exposes **zero-payload** gateway health on `GET /api/v1/health/liveness` and Prometheus (`myrm_gateway_event_loop_lag_ms`, RSS, asyncio task count, health status code). Harness `GatewayHealthInspector` measures event-loop lag and OTLP posture **without ever including prompts or chat content** — ops can alert on degraded vs unhealthy before users feel freezes.
+- **DevGateDomainRepack (vs ad-hoc maintainer scripts):** Monorepo `scripts/dev/lib/` flat modules moved into domain subpackages (`phase_c/`, `dgep/`, `e2e_detach/`, …) with zero behavior change; legacy e2e marathon supervisor retired; **`scripts/dev/tests/` 2151 passed** including mixed harness+server pytest split contract.
+- **SSOT Sources:** `myrm-agent-harness/src/myrm_agent_harness/observability/diagnostics/gateway_health.py` · `myrm-agent/myrm-agent-server/app/api/health/liveness.py` · `scripts/dev/lib/DOMAIN_REPACK_PLAN.md`
+
 ## Latest Validation Snapshot (2026-08-31 · Team Weekly Digest & Full-Stack Observability Suite · Observability Done)
 
 - **TeamWeeklyDigestAndObservabilitySuite (vs Enterprise Observability & AI Team Knowledge Compounding Best Practices):** Myrm delivers a complete observability, cost auditing, and team knowledge compounding suite:

@@ -11,6 +11,12 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-08-31 · 게이트웨이 제로 페이로드 런타임 Vitals & Dev Gate 도메인 리팩 · 관찰성 + 신뢰성)
+
+- **GatewayZeroPayloadRuntimeVitals (Hermes CLI doctor / OpenClaw 파일 폴링 / 통합 liveness 부재 대비):** Myrm은 `GET /api/v1/health/liveness` 및 Prometheus(`myrm_gateway_event_loop_lag_ms`, RSS, asyncio 작업 수, 헬스 코드)에 **제로 사용자 콘텐츠** 게이트웨이 vitals를 노출합니다. Harness `GatewayHealthInspector`는 prompt/채팅 없이 이벤트 루프 지연과 OTLP 상태를 측정 — 사용자가 멈춤을 느끼기 전 degraded/unhealthy 알림 가능.
+- **DevGateDomainRepack (임시 유지보수 스크립트 대비):** monorepo `scripts/dev/lib/` flat 모듈을 도메인 서브패키지(`phase_c/`, `dgep/`, `e2e_detach/` 등)로 이전(동작 변경 없음); legacy e2e marathon supervisor 폐기; **`scripts/dev/tests/` 2151 passed**, harness+server 혼합 pytest 분할 계약 포함.
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/observability/diagnostics/gateway_health.py` · `myrm-agent/myrm-agent-server/app/api/health/liveness.py` · `scripts/dev/lib/DOMAIN_REPACK_PLAN.md`
+
 ## 최신 검증 스냅샷 (2026-08-31 · 팀 지식 복리 주간 보고서 및 풀스택 화이트박스 관찰성 스위트 · 관찰성 완료)
 
 - **TeamWeeklyDigestAndObservabilitySuite (엔터프라이즈 관찰성 및 AI 팀 지식 복리 모범 사례 대비):** Myrm은 기업 및 팀 지식 축적, 실행 비용 감사 및 크로스 플랫폼 안정성을 위한 종합 스위트를 제공합니다:

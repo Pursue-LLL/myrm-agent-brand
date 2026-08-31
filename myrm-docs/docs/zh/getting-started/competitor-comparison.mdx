@@ -11,6 +11,12 @@ MyrmAgent 定位为完整的 AI Agent 原生工作空间。与仅支持终端命
 **迁移信心保障** — 支持 SaaS 云端、本地自托管或桌面端；支持一键通过 WebUI 导入 Hermes 技能包。MyrmAgent 支持一键安装完整 Agent 包（模型 + 技能 + MCP + 子智能体 + 安全策略）。文档支持 6 种语言（zh/en/ja/ko/de/zh-TW），跨 WebUI、云端托管与 Tauri 桌面端自动感知语言。
 </Note>
 
+## 最新验证快照（2026-08-31 · 网关零负载运行体征 & Dev Gate 域重打包 · 可观测性 + 可靠性）
+
+- **GatewayZeroPayloadRuntimeVitals（对标 Hermes CLI doctor / OpenClaw 文件轮询 / 无统一 liveness）：** Myrm 在 `GET /api/v1/health/liveness` 与 Prometheus（`myrm_gateway_event_loop_lag_ms`、RSS、asyncio 任务数、健康码）导出**零用户内容**网关体征；Harness `GatewayHealthInspector` 测量事件循环延迟与 OTLP 装配态，**严格不含 prompt/聊天内容**——运维可在用户感知卡顿前对 degraded/unhealthy 告警。
+- **DevGateDomainRepack（对标零散维护脚本）：** monorepo `scripts/dev/lib/` flat 模块迁入域子包（`phase_c/`、`dgep/`、`e2e_detach/` 等），零行为变更；legacy e2e marathon supervisor 退役；**`scripts/dev/tests/` 2151 项通过**，含 harness+server 混合 pytest 分拆契约测。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/observability/diagnostics/gateway_health.py` · `myrm-agent/myrm-agent-server/app/api/health/liveness.py` · `scripts/dev/lib/DOMAIN_REPACK_PLAN.md`
+
 ## 最新验证快照（2026-08-31 · 团队知识复利周报与全链路白盒化可观测性套件 · 可观测性完成）
 
 - **TeamWeeklyDigestAndObservabilitySuite（对标 Enterprise Observability & AI Team Knowledge Compounding 最佳实践）：** Myrm 交付了针对企业与团队知识沉淀、执行成本审计与跨端稳定性的全链路套件：

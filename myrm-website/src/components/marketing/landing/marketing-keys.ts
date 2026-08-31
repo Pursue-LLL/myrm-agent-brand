@@ -58,6 +58,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'enterpriseAgentAudit',
   'patternDiscovery',
   'sessionPerfObservability',
+  'gatewayRuntimeVitals',
   'streamResilient',
 ] as const;
 

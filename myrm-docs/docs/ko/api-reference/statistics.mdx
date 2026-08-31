@@ -373,9 +373,19 @@ GET /api/v1/health/liveness
     "level": "NORMAL",
     "percent": 42.3
   },
+  "gatewayRuntime": {
+    "status": "HEALTHY",
+    "eventLoopLagMs": 2.1,
+    "processRssMb": 512.4,
+    "activeAsyncioTasks": 18,
+    "otlpTracingReady": true,
+    "otlpMetricsReady": true
+  },
   "uptimeSeconds": 3600.5
 }
 ```
+
+`gatewayRuntime`은 **제로 페이로드 마스킹**입니다 — prompt, 채팅 내용, 사용자 식별자를 포함하지 않습니다. 동일 vitals가 Prometheus gauge(`myrm_gateway_event_loop_lag_ms`, `myrm_gateway_process_rss_mb`, `myrm_gateway_active_asyncio_tasks`, `myrm_gateway_health_status_code`)로 `/metrics`에 노출되어 Grafana 알림에 사용됩니다.
 
 ### 상태 논리
 

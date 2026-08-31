@@ -372,9 +372,19 @@ GET /api/v1/health/liveness
     "level": "NORMAL",
     "percent": 42.3
   },
+  "gatewayRuntime": {
+    "status": "HEALTHY",
+    "eventLoopLagMs": 2.1,
+    "processRssMb": 512.4,
+    "activeAsyncioTasks": 18,
+    "otlpTracingReady": true,
+    "otlpMetricsReady": true
+  },
   "uptimeSeconds": 3600.5
 }
 ```
+
+`gatewayRuntime` is **zero-payload redacted** — no prompts, chat content, or user identifiers. The same vitals are exported as Prometheus gauges (`myrm_gateway_event_loop_lag_ms`, `myrm_gateway_process_rss_mb`, `myrm_gateway_active_asyncio_tasks`, `myrm_gateway_health_status_code`) on `/metrics` for Grafana alerting.
 
 ### State Logic
 

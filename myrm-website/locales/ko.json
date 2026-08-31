@@ -1112,7 +1112,7 @@
         },
         "liveValidation": {
           "title": "실시간 브라우저 유효성 검사(Real Chrome)",
-          "desc": "최신 저부하 증명 실행(2026-07-29): 턴당 기능 재정의 관찰성을 위해 프런트엔드 29/29 + 서버 10/10 집중 테스트를 통과했으며 목표 적용 범위는 62.47% 라인(프런트엔드 파일) 및 72% 전체(서버 원격 측정 모듈)입니다. 메모리 부족 검사는 안전하게 유지되었으며(61%-64% 여유 메모리) Chrome MCP는 최종 브라우저 사인오프 경로로 남아 있습니다."
+          "desc": "최신 유지보수 게이트 실행(2026-08-31): monorepo dev 테스트 2151/2151 통과(harness+server 혼합 pytest 분할 계약 + DGEP 도메인 리팩 정적 게이트); 게이트웨이 liveness vitals 및 인용 SSE 갱신은 대상 server/frontend 테스트로 검증. Chrome MCP가 최종 UI 사인오프 경로이며 Playwright 헤드리스가 아닙니다."
         },
         "traceVisualization": {
           "title": "7계층 제품 내 추적 시각화",
@@ -1760,6 +1760,16 @@
           "tag1": "LLM 호출을 모델별로 그룹화해 총 소요 시간 집계",
           "tag2": "응답 속도 — 첫 토큰 지연 평균과 P95",
           "tag3": "세션별 분석 패널, 설정 불필요"
+        },
+        "gatewayRuntimeVitals": {
+          "label": "게이트웨이 런타임 vitals",
+          "title": "사용자가 멈춤을 느끼기 전에 엔진 건강 상태를 파악",
+          "desc": "장기 자가 호스팅 Agent는 프로세스가 \"온라인\"으로 보이지만 이벤트 루프가 지연되거나 메모리가 계속 오를 수 있습니다 — 대화가 멈출 때까지 알기 어렵습니다. Myrm은 liveness 엔드포인트와 Prometheus에 제로 페이로드 게이트웨이 vitals를 노출합니다: 이벤트 루프 지연, RSS, 활성 asyncio 작업, OTLP 상태. 운영팀은 채팅 내용 없이 degraded/unhealthy를 알림할 수 있습니다.",
+          "stat": "0",
+          "statLabel": "헬스 페이로드의 사용자 prompt(설계상 완전 제거)",
+          "tag1": "Liveness JSON: busy/idle/degraded/draining + gatewayRuntime",
+          "tag2": "Prometheus: 지연, RSS, 작업 수, 헬스 코드",
+          "tag3": "Harness GatewayHealthInspector — 채팅 내용 유출 없음"
         },
         "streamResilient": {
           "label": "글자가 하나도 유실되지 않는 스트리밍",
