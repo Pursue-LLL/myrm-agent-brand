@@ -37,6 +37,7 @@ Competitors (OpenClaw, Hermes, jiuwenclaw) lack this preflight + deferred-retry 
 | Topic | Behavior |
 |-------|----------|
 | Component whitelist | **23** `UIComponentType` values (enum SSOT, front + back); includes dedicated **UIList** (`list` type, `bindings.data` array rendering — not a Container hack) |
+| Zero-hallucination skeleton | Prompt includes a direct **Minimal Example Structure** skeleton; explicitly prohibits object nesting in `children`; enforces strict reference closure between `actions` and `events` |
 | Progressive spec | Simple UIs (text + field + button) need no extra read; for **table / chart / tabs** or **3+ components**, the agent should `file_read_tool` `.agent/docs/A2UI_REFERENCE.md` first |
 | Validation | **Fail-closed** — unknown `type`, empty `components`, invalid graph (`root_ids`/`children`), or malformed `actions` return structured tool errors (no silent skip) |
 | User actions | Button / form submissions flow back as `UIActionEvent` and continue the agent loop |

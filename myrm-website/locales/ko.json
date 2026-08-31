@@ -682,6 +682,12 @@
           "openclaw": "Win Node(GUI 없음)",
           "myrmAgent": "Tauri+25 OS API+8080 자동 정렬 · 기본 알림+Dock 바운스+Appshot+PowerLock+크로스 탭 중복 제거+자동 롤백을 통한 원자 바로가기 등록+스트림 완료/설명 자동 OS 팝업+**작업 표시줄 진행 표시줄**(에이전트 실행 중 진행 상황을 표시하는 Dock 아이콘)+**추가 코드가 없는 데스크톱의 전체 SubagentDashboard**(WebView는 완전한 Next.js 프런트엔드를 렌더링합니다. — 취소/조향/간트/정렬/필터/부실 경고는 모두 작동함) · **다시 시작 시 창 위치/크기 자동 복원**(공식 플러그인, 크로스 플랫폼 — Hermes 120줄 사용자 정의→Myrm 2줄에 해당) · **제로 화이트 플래시 콜드 스타트**(어두운 배경 사전 설정, 즉각적인 편안함) · **다시 시작 시 탭 경로 메모리**(충돌/업데이트 복구가 마지막 페이지로 자동 반환, Myrm 독점) · **스레드별 초안 지속성**(localStorage+LRU 제거, 초안 손실 없이 스레드 전환) · **11개의 상황에 맞는 메뉴 작업**(핀/포크/핸드오프/내보내기 4개 형식/자동화/MoveToProject 등 — 경쟁업체는 4개만 있음) · **235개의 데스크톱 관련 테스트 통과** · **원격 서버 게이트웨이**: 데스크톱을 원격 VPS/NAS에 연결하기 위한 원클릭 토글 설정 서버 — 모든 API/SSE/알림은 원격으로 투명하게 리디렉션됩니다. 스위치에서 로컬 인증 토큰 자동 백업/복원; 인라인 배너 + 연결 해제 시 원클릭으로 로컬로 대체; NavBar 상태 표시기; 103개의 전체 스택 테스트 검증됨(프런트엔드 URL 라우팅 + 백엔드 보안: 호스트 허용 목록, 신뢰 영역, E2EE, 페어링, 모바일 게이트) · **교차 장치 명령 센터**: E2EE 암호화(Curve25519) + CF 터널 원클릭 공개 액세스 + 모바일 허브 제어 표면(SSE 실시간 스트림 + HITL 승인 + 조종 + 중지 + 실시간 미리 보기 + 음성) + QR 코드 스캔 후 연결 — 제로 설치, 제로 브랜드 잠금, 모든 브라우저/17개의 IM 앱이 에이전트를 원격으로 제어할 수 있음 · **401개의 교차 장치 전체 스택 테스트 통과**"
         },
+        "desktopNativeBridge": {
+          "feature": "Zero-Chrome 순수 셸 및 선언적 확장 슬롯 · Web/Desktop/Cloud 완벽 동형",
+          "hermes": "CLI 전용, 네이티브 셸 브리지 없음",
+          "openclaw": "기본 WebView 래퍼, 이중 타이틀바 중첩",
+          "myrmAgent": "Zero-Chrome 순수 컨테이너 + macOS 신호등 여백 자동 적응(`useTrafficLightInsets`)으로 헤더 중첩 제거 + 안전한 Web 폴백을 갖춘 강력한 타입의 `desktopBridge` 퍼사드 + 코드 중복 없는 선언적 `<ExtensionSlot />` 동적 플러그인 마운트"
+        },
         "tunnel": {
           "feature": "공개 액세스 + 엔터프라이즈 MCP 터널",
           "hermes": "문서/기술",
@@ -759,6 +765,12 @@
           "hermes": "수동 선택 · git pull",
           "openclaw": "_아니요",
           "myrmAgent": "원클릭 올바른 설치 프로그램 · 백그라운드 자동 업데이트 · Mac 칩 감지"
+        },
+        "desktopNativeBridge": {
+          "feature": "Zero-Chrome 순수 셸 및 선언적 확장 슬롯 · Web/Desktop/Cloud 완벽 동형",
+          "hermes": "CLI 전용, 네이티브 셸 브리지 없음",
+          "openclaw": "기본 WebView 래퍼, 이중 타이틀바 중첩",
+          "myrmAgent": "Zero-Chrome 순수 컨테이너 + macOS 신호등 여백 자동 적응(`useTrafficLightInsets`)으로 헤더 중첩 제거 + 안전한 Web 폴백을 갖춘 강력한 타입의 `desktopBridge` 퍼사드 + 코드 중복 없는 선언적 `<ExtensionSlot />` 동적 플러그인 마운트"
         },
         "configRuntime": {
           "feature": "Config = 런타임 · GUI에서 설정한 내용이 실행됩니다.",
@@ -1047,6 +1059,12 @@
           "hermes": "저장 프롬프트 라이브러리만, 채팅 내 슬래시 메뉴 없음",
           "openclaw": "입력이 `/`로 시작할 때만 슬래시 메뉴 표시(명령이 맨 앞에 있어야 함)",
           "myrmAgent": "슬래시 명령이 입력 **어디에서나** 트리거(`fix it /systematic-d`로 패널 열기) · 하이픈 명령 이름 지원(`/systematic-debugging`) · 선택/실행/Esc 닫기 시 명령 토큰만 제거하고 **주변 텍스트는 지시문으로 유지** · `@` 멘션은 전송 전 **활성 검사** — @텍스트를 삭제하면 참조가 요청에 절대 누출되지 않아 다른 에이전트로의 오위임이나 wiki/chat 참조 오삽입을 방지 · 입력/붙여넣기 인라인 토큰(`@wiki:개념`, `@파일:12-20`, `@folder:`, `@url:`, `@staged`, `@diff`, `@codebase`)은 패널 없이 즉시 파싱"
+        },
+        "newTaskWorkContextCard": {
+          "feature": "통합 작업 컨텍스트 카드 · 3가지 모드 전환 + 로컬 작업 공간 바인딩 + 사무용 스캐폴딩",
+          "hermes": "CLI 전용, 작업 공간 온보딩 가이드 없음",
+          "openclaw": "환경 격리 전환 없는 디스플레이 전용 UI",
+          "myrmAgent": "통합 새 작업 컨텍스트 카드(Local Workspace / Cloud Sandbox / Quick Chat 3개 모드 무중단 전환) · 네이티브 OS & Web 팝오버 듀얼 선택기와 최근 경로 기록 · 원클릭 표준 사무용 스캐폴딩(00_Source/01_Ref/02_Output/03_Versions) · 0 프롬프트 변이 및 100% Prompt Cache 보호 · WebUI & 데스크톱 동일한 UX"
         }
       }
     },

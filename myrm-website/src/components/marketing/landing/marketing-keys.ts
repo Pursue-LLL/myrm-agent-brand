@@ -123,6 +123,7 @@ export const COMPARE_ROW_KEYS = [
   'codeGraph',
   'searchIntelligence',
   'smartDesktopDistribution',
+  'desktopNativeBridge',
   'antiBlockingTitle',
   'steerToken',
   'threeDGraph',
@@ -159,6 +160,7 @@ export const COMPARE_ROW_KEYS = [
   'agentPluginRuntime',
   'smartCommandInput',
   'newTaskWorkContextCard',
+  'desktopNativeBridge',
 ] as const;
 
 export type CompareRowKey = (typeof COMPARE_ROW_KEYS)[number];
@@ -243,7 +245,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'parallelE2eSignoff',
     'perAgentIterationBudget',
   ],
-  platform: ['gui', 'chatHistoryManagement', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'harnessUpgradeContract', 'codeGraph', 'crossPlatformHandoff', 'configSync', 'taskResilience', 'localIotBridge', 'steerToken', 'threeDGraph', 'chatOpsIM', 'serverless', 'smartCommandInput', 'agentPluginRuntime', 'newTaskWorkContextCard'],
+  platform: ['gui', 'chatHistoryManagement', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'harnessUpgradeContract', 'codeGraph', 'crossPlatformHandoff', 'configSync', 'taskResilience', 'localIotBridge', 'steerToken', 'threeDGraph', 'chatOpsIM', 'serverless', 'smartCommandInput', 'agentPluginRuntime', 'newTaskWorkContextCard', 'desktopNativeBridge'],
 };
 
 export function highlightSlideBasePath(slideKey: HighlightSlideKey): string {
