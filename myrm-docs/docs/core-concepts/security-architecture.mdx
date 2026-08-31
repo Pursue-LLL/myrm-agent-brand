@@ -644,6 +644,21 @@ Myrm provides 8-layer PII defense with 57+ detection capabilities — the deepes
 
 **GUI Configuration**: Full privacy controls in Settings — enable/disable toggle, per-level action selection, deep scan toggle, local model connection test, custom keywords/regex/sensitive tools, and real-time test matching.
 
+### Data Flow & Privacy Disclosure (Settings)
+
+**Settings → Security Policy → Data Flow & Privacy Disclosure** gives a **live, configuration-driven map** of where your data goes — not a static vendor subprocessors page:
+
+| Domain | What you see |
+|--------|----------------|
+| **Local storage & processing** | Chat history, memory, workspace files, encrypted credentials — stays on device |
+| **Control plane** | Deploy-aware copy (standalone local vs hosted/sandbox metadata) |
+| **External egress** | Active LLM providers, MCP servers, OAuth integrations, agent connectors, and (Tauri desktop) messaging channels — each with manage links |
+| **Your data rights** | One-click **compliance export** (memories + privacy settings + egress snapshot; routing API keys redacted) + link to Memory settings |
+
+Provider training policies link to official docs where available. Cross-border routing hints appear when Privacy Routing is enabled with cloud egress.
+
+**Why it matters vs competitors:** Cursor and Claude publish static data-usage pages that do not reflect *your* enabled MCP tools or connectors. Myrm's panel updates from your live configuration (including SSE refresh when channels reconnect on desktop).
+
 ### Summary Path Protection
 
 When long conversations are compressed into structured summaries, PII and credentials can survive the summarization process. Myrm applies dual redaction (`redact_leaks` + `redact_pii`) to all summary fields before persistence — ensuring phone numbers, emails, API keys, and other sensitive data never persist in compressed conversation history.
