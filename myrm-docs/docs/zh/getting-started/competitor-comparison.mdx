@@ -11,6 +11,16 @@ MyrmAgent 定位为完整的 AI Agent 原生工作空间。与仅支持终端命
 **迁移信心保障** — 支持 SaaS 云端、本地自托管或桌面端；支持一键通过 WebUI 导入 Hermes 技能包。MyrmAgent 支持一键安装完整 Agent 包（模型 + 技能 + MCP + 子智能体 + 安全策略）。文档支持 6 种语言（zh/en/ja/ko/de/zh-TW），跨 WebUI、云端托管与 Tauri 桌面端自动感知语言。
 </Note>
 
+## 最新验证快照（2026-08-31 · 团队知识复利周报与全链路白盒化可观测性套件 · 可观测性完成）
+
+- **TeamWeeklyDigestAndObservabilitySuite（对标 Enterprise Observability & AI Team Knowledge Compounding 最佳实践）：** Myrm 交付了针对企业与团队知识沉淀、执行成本审计与跨端稳定性的全链路套件：
+  1. **团队知识复利周报（`TeamWeeklyDigestView.tsx` & `team_weekly_digest`）**：自动汇聚多 Agent 会话活跃度排行、技能沉淀与演进趋势，支持 Web 交互式查看与一键导出标准 Markdown，赋能团队周会与业务复盘；
+  2. **白盒化 Token 经济学与延迟瀑布流（`token_economics` & `latency_waterfall`）**：毫秒级拆解 Agent 回合内 LLM 与工具执行瓶颈，审计 Prompt Cache 复用率与单步成本回归；
+  3. **算子错误脱敏器（`operator_error_sanitizer.py`）**：统一清洗底层异常堆栈与敏感绝对路径，在保障模型自愈能力的同时杜绝工程细节向用户侧泄漏；
+  4. **桌面端防睡眠与红绿灯自适应（`usePowerLock` & `useTrafficLightInsets`）**：在长任务执行期间自动持有系统电源锁防止休眠中断，macOS 沉浸式窗口自适应留白杜绝控件遮挡；
+  5. **100% 全栈自动化测试覆盖**：跨 Harness 引擎、Server API 与前端 Vitest 共 416+ 项测试 100% 绿灯。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/observability/digest/` · `myrm-agent-frontend/src/components/features/growth/TeamWeeklyDigestView.tsx` · `myrm-agent-frontend/src/hooks/tauri/usePowerLock.ts`
+
 ## 最新验证快照（2026-08-30 · 四层工具拓扑与双语动态 Schema 智能解析 · 核心工具完成）
 
 - **ToolLayerTopologyBilingualSchemaAndDynamicWorkflowClosure（对标 Cursor 硬编码英文 / Hermes 扁平工具导致 Cache 击穿 / Claude Code 缺乏动态双语与物理防早退）：** Myrm 交付了针对工具分层保序、多语言智能适配与长期目标防早退的闭环架构：
