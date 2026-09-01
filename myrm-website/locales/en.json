@@ -594,7 +594,7 @@
           "feature": "Extreme Anti-Explosion · Never crashes on massive chats",
           "hermes": "Prone to crash/loss",
           "openclaw": "Single point failure",
-          "myrmAgent": "8-layer adaptive moat: AdaptiveScheduler auto-throttles render frequency by text length (16ms→100ms) + virtual message list renders only ~15 visible items + smooth character-by-character streaming + auto-vault for oversized output + tool output smart collapse + in-message TOC navigation + lazy-loaded diagrams & images (MarkdownImage: skeleton + lazy load + fade-in + Lightbox preview + error fallback + React.memo — Claude Code still has inline image rendering gaps per issue #61995) + code block triple optimization (memo + debounce + cache) + **server-side image guardrails: base64-space 4MiB auto-compression aligned to OpenAI/Claude/Groq per-image ceilings (ultra-HD photos & long screenshots always go through) + 80MP decompression-bomb guard (tiny malicious images declaring huge canvases are rejected before any pixel allocation) + 2048px fidelity downsampling (vision analysis stays sharp)** — 381+ tests passed"
+          "myrmAgent": "8-layer adaptive moat: AdaptiveScheduler auto-throttles render frequency by text length (16ms→100ms) + virtual message list renders only ~15 visible items + smooth character-by-character streaming + auto-vault for oversized output + tool output smart collapse + in-message TOC navigation + lazy-loaded diagrams & images (MarkdownImage: skeleton + lazy load + fade-in + Lightbox preview + error fallback + React.memo — Claude Code still has inline image rendering gaps per issue #61995) + code block triple optimization (memo + debounce + cache) + **server-side image guardrails: base64-space 4MiB auto-compression aligned to OpenAI/Claude/Groq per-image ceilings (ultra-HD photos & long screenshots always go through) + 80MP decompression-bomb guard (tiny malicious images declaring huge canvases are rejected before any pixel allocation) + 2048px fidelity downsampling (vision analysis stays sharp) + **React nested-update self-healing guard (#185 white-screen terminator): streaming wakeups coalesce at DefaultLane instead of preempting + precise identification / per-source rate-limited logging / circuit breaker with 5s→60s exponential backoff + global error-boundary absorption — worst case lags one frame, long replies never white-screen** — 4778 tests passed"
         },
         "selfCleanup": {
           "feature": "Self-Cleanup · Never bloats your disk",
@@ -1063,12 +1063,6 @@
           "hermes": "CLI-only, no workspace onboarding guide",
           "openclaw": "Display-only UI without environment isolation switching",
           "myrmAgent": "Unified new task context card (seamless switching between Local Workspace, Cloud Sandbox, and Quick Chat) · Native OS & Web popover dual picker with recent paths · One-click standard office scaffolding (00_Source/01_Ref/02_Output/03_Versions) · Zero prompt mutation & 100% Prompt Cache protection · Homogeneous WebUI & Desktop UX"
-        },
-        "desktopNativeBridge": {
-          "feature": "Zero-Chrome Shell & Declarative Extension Slots · Seamless Web/Desktop/Cloud Isomorphism",
-          "hermes": "CLI-only, no native shell bridge",
-          "openclaw": "Basic WebView wrapper with UI nesting",
-          "myrmAgent": "Zero-Chrome pure container + macOS traffic-light dynamic insets (`useTrafficLightInsets`) eliminating header collision + strongly-typed `desktopBridge` facade with safe Web fallbacks + declarative `<ExtensionSlot />` system for dynamic plugin mounting with zero code duplication"
         }
       }
     },
