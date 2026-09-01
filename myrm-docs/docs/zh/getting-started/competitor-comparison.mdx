@@ -11,6 +11,15 @@ MyrmAgent 定位为完整的 AI Agent 原生工作空间。与仅支持终端命
 **迁移信心保障** — 支持 SaaS 云端、本地自托管或桌面端；支持一键通过 WebUI 导入 Hermes 技能包。MyrmAgent 支持一键安装完整 Agent 包（模型 + 技能 + MCP + 子智能体 + 安全策略）。文档支持 6 种语言（zh/en/ja/ko/de/zh-TW），跨 WebUI、云端托管与 Tauri 桌面端自动感知语言。
 </Note>
 
+## 最新验证快照（2026-09-01 · DshCcTuiStreamingRenderLaneAndSelfHealingGuard · 流式渲染可靠性）
+
+- **DshCcTuiStreamingRenderLaneAndSelfHealingGuard（对标 Hermes #86581 单 Turn 6 万字符刷屏 / OpenClaw 压缩后循环检测缺失 / React #185 "Maximum update depth exceeded" 白屏顽疾）：** Myrm 交付了流式 UI 渲染车道与三层自愈守卫闭环：
+  1. **流式唤醒 DefaultLane 化（`useStoreSnapshot`）**：流式 Chunk 唤醒从 SyncLane 并发抢占改为 DefaultLane 可中断合并渲染——每个 Token 不再触发同步重渲染，长回复打字机永不掉帧，打字延迟与消息体量解耦；
+  2. **三层自愈守卫（`update-overflow-guard`）**：#185 错误精确识别（非 React 617 错误零误伤）→ 按源限频记录 → 熔断器指数退避（5s→60s，恢复后自动复位）+ `GlobalErrorBoundary` 吸收残余风险，极端异常最多滞后一帧自动恢复，长回复永不白屏；
+  3. **多实例安全**：熔断注册随最后一个实例卸载才释放，`useStoreSnapshot` 订阅者多开（多会话/多面板）零竞态。
+- **SSOT 来源：** `myrm-agent-frontend/src/hooks/shared/useStoreSnapshot.ts` · `myrm-agent-frontend/src/lib/rendering/update-overflow-guard.ts` · `myrm-agent-frontend/src/components/error-boundary/GlobalErrorBoundary.tsx`
+- **验证证据：** 前端 Vitest 4778/4778 全绿 · i18n 六语言校验通过 · Lane-B Chrome E2E（真实 Chrome :3000 全链路）通过。
+
 ## 最新验证快照（2026-08-31 · 网关零负载运行体征 & Dev Gate 域重打包 · 可观测性 + 可靠性）
 
 - **GatewayZeroPayloadRuntimeVitals（对标 Hermes CLI doctor / OpenClaw 文件轮询 / 无统一 liveness）：** Myrm 在 `GET /api/v1/health/liveness` 与 Prometheus（`myrm_gateway_event_loop_lag_ms`、RSS、asyncio 任务数、健康码）导出**零用户内容**网关体征；Harness `GatewayHealthInspector` 测量事件循环延迟与 OTLP 装配态，**严格不含 prompt/聊天内容**——运维可在用户感知卡顿前对 degraded/unhealthy 告警。

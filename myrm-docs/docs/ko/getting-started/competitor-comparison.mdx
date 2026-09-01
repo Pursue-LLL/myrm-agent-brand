@@ -11,6 +11,15 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-09-01 · DshCcTuiStreamingRenderLaneAndSelfHealingGuard · 스트리밍 렌더링 신뢰성)
+
+- **DshCcTuiStreamingRenderLaneAndSelfHealingGuard (Hermes #86581 단일 턴 6만자 스팸 / OpenClaw 압축 후 루프 감지 공백 / React #185 "Maximum update depth exceeded" 백색화면 고질병 대비):** Myrm은 스트리밍 UI 렌더 레인 + 3계층 자가 치유 가드 폐쇄 루프를 제공합니다:
+  1. **DefaultLane 스트리밍 웨이크업 (`useStoreSnapshot`)**: 스트리밍 청크 웨이크업을 SyncLane 선점에서 DefaultLane 인터럽트 가능 병합 렌더링으로 전환 — 토큰마다 동기 재렌더링이 발생하지 않고, 긴 응답 타이프라이터가 프레임을 드랍하지 않으며 타이핑 지연이 메시지 크기와 무관해집니다;
+  2. **3계층 자가 치유 가드 (`update-overflow-guard`)**: #185 오류 정밀 식별(비 React 617 오류 오탐 없음) → 소스별 제한 로깅 → 지수 백오프 서킷 브레이커(5s→60s, 복구 후 자동 리셋) + `GlobalErrorBoundary` 잔여 위험 흡수. 최악의 경우 한 프레임 지연 후 자동 복구, 긴 응답도 백색화면 없음;
+  3. **다중 인스턴스 안전**: 마지막 인스턴스가 언마운트될 때만 퀸치 등록 해제 — 다중 세션/다중 패널의 `useStoreSnapshot` 구독자도 제로 레이스.
+- **SSOT 출처:** `myrm-agent-frontend/src/hooks/shared/useStoreSnapshot.ts` · `myrm-agent-frontend/src/lib/rendering/update-overflow-guard.ts` · `myrm-agent-frontend/src/components/error-boundary/GlobalErrorBoundary.tsx`
+- **검증 증거:** 프론트엔드 Vitest 4778/4778 전부 통과 · i18n 6개 언어 검증 통과 · Lane-B Chrome E2E(실제 Chrome :3000 전체 체인) 통과.
+
 ## 최신 검증 스냅샷 (2026-08-31 · 게이트웨이 제로 페이로드 런타임 Vitals & Dev Gate 도메인 리팩 · 관찰성 + 신뢰성)
 
 - **GatewayZeroPayloadRuntimeVitals (Hermes CLI doctor / OpenClaw 파일 폴링 / 통합 liveness 부재 대비):** Myrm은 `GET /api/v1/health/liveness` 및 Prometheus(`myrm_gateway_event_loop_lag_ms`, RSS, asyncio 작업 수, 헬스 코드)에 **제로 사용자 콘텐츠** 게이트웨이 vitals를 노출합니다. Harness `GatewayHealthInspector`는 prompt/채팅 없이 이벤트 루프 지연과 OTLP 상태를 측정 — 사용자가 멈춤을 느끼기 전 degraded/unhealthy 알림 가능.

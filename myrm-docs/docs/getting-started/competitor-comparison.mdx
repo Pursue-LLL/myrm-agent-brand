@@ -11,6 +11,15 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Validation Snapshot (2026-09-01 · DshCcTuiStreamingRenderLaneAndSelfHealingGuard · Streaming Render Reliability)
+
+- **DshCcTuiStreamingRenderLaneAndSelfHealingGuard (vs Hermes #86581 single-turn 60k-character spam / OpenClaw post-compaction loop-detection gap / React #185 "Maximum update depth exceeded" white-screen plague):** Myrm ships a streaming-UI render-lane plus three-layer self-healing guard closed loop:
+  1. **DefaultLane streaming wakeups (`useStoreSnapshot`)**: streaming chunk wakeups move from SyncLane preemption to interruptible DefaultLane coalesced rendering — every token no longer forces a synchronous re-render; the long-reply typewriter never drops frames, and typing latency decouples from message size;
+  2. **Three-layer self-healing guard (`update-overflow-guard`)**: precise #185 error identification (zero false positives on non-React-617 errors) → per-source rate-limited logging → circuit breaker with exponential backoff (5s→60s, auto-reset after recovery) + `GlobalErrorBoundary` absorbing residual risk. Worst case lags a single frame and self-recovers; long replies never hit a white screen;
+  3. **Multi-instance safety**: quench registration releases only when the last instance unmounts — multiple `useStoreSnapshot` subscribers (multi-session / multi-panel) with zero races.
+- **SSOT sources:** `myrm-agent-frontend/src/hooks/shared/useStoreSnapshot.ts` · `myrm-agent-frontend/src/lib/rendering/update-overflow-guard.ts` · `myrm-agent-frontend/src/components/error-boundary/GlobalErrorBoundary.tsx`
+- **Verification evidence:** frontend Vitest 4778/4778 green · i18n six-language checks passed · Lane-B Chrome E2E (real Chrome :3000 full-chain) passed.
+
 ## Latest Validation Snapshot (2026-08-31 · Gateway Zero-Payload Runtime Vitals & Dev Gate Domain Repack · Observability + Reliability)
 
 - **GatewayZeroPayloadRuntimeVitals (vs Hermes CLI doctor / OpenClaw file polling / no unified liveness):** Myrm exposes **zero-payload** gateway health on `GET /api/v1/health/liveness` and Prometheus (`myrm_gateway_event_loop_lag_ms`, RSS, asyncio task count, health status code). Harness `GatewayHealthInspector` measures event-loop lag and OTLP posture **without ever including prompts or chat content** — ops can alert on degraded vs unhealthy before users feel freezes.
