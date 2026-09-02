@@ -1051,3 +1051,13 @@ When external multi-user channels (Feishu, WeCom, Telegram, Discord, Slack) inte
 2. **Read-Plane Recall Isolation (`default_scope="same_source"`)**: Server-side conversation provider forcibly locks conversation history searches to the same source channel, blocking malicious prompt injection attacks from cross-recalling private WebUI conversations, credentials, or personal workflows.
 3. **Zero Prompt Token Overhead & 100% Cache Preservation**: Enforced entirely at the runtime execution layer with static tool descriptions, preserving full prompt cache hit rates.
 
+## Agentic Code Security Scan & Verify-then-Report Goal Gatekeeper
+
+Myrm introduces an autonomous agentic vulnerability scanning and remediation verification pipeline:
+
+1. **Verify-then-Report Dynamic PoC Validation**: In contrast to traditional SAST tools that flood developers with false positives, `SecurityScanCriterion` executes Proof-of-Concept (PoC) exploits in an isolated shadow sandbox. Vulnerabilities are only confirmed and blocked when an exploit actually succeeds (`exit_code == 0`), eliminating alert fatigue.
+2. **Goal Acceptance Gatekeeper Integration**: Registered directly into the harness `VerificationGatekeeper`, preventing agents from falsely declaring tasks complete if high-severity vulnerabilities remain unmitigated.
+3. **Deterministic Finding Fingerprints**: Computes stable hashes across `CWE:rule_id:normalized_path:signature`, guaranteeing vulnerability identity remains intact across routine line number shifts and minor refactorings.
+4. **4-State Lifecycle Tracking & JSONL Persistence**: `ScanRunComparisonService` tracks findings across consecutive runs (`New`, `Persisting`, `Resolved`, `Regressed`) with automatic incremental JSONL persistence, preserving security baseline diffs across server restarts.
+5. **AST Incremental Slicing & Evidence Truncation**: Slices diff contexts to under 300 lines to maximize prompt cache hit rates, and strictly truncates sandbox PoC evidence to 4,096 characters to prevent SSE message channel overflows.
+
