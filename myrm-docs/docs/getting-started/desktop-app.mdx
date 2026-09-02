@@ -30,7 +30,7 @@ The desktop app provides deep system integration that no browser-based AI tool c
 - **Smart Power Lock** — Automatically prevents system sleep while agent tasks are executing (macOS IOKit, Linux systemd-inhibit, Windows SetThreadExecutionState)
 - **Screen Lock Management** — Detect lock state, unlock for Computer Use sessions, and store credentials securely in the system Keychain
 - **Native Elevation** — Request admin privileges when needed (e.g., quarantine removal on macOS)
-- **OTA Auto-Update** — Tauri updater with public-key safety validation to prevent supply-chain attacks
+- **OTA Auto-Update & Handoff Feedback** — Tauri updater with public-key safety validation to prevent supply-chain attacks, paired with cold-boot handoff verification for instant update feedback and automatic rollback protection
 
 ### Visual & Interaction
 - **System Tray** — Dynamic tooltip status (idle/busy/error) + quick-access menu (New Chat, Settings, Workspace). Hover the tray icon to see today's token usage and cost at a glance. Budget overruns trigger native OS notifications so you never miss a spending alert
@@ -99,6 +99,13 @@ When you refresh the Desktop Inspector panel, Myrm overlays **numbered badges [N
 - **Token-safe default** — Agent tool calls keep `include_screenshot=false` unless you need a visual turn; SOM runs on Inspector refresh and explicit screenshot requests only
 - **Semantic-first** — `@dref` references remain the primary control path; numbers are a human-readable translation layer, not a replacement
 - **Filtered labels** — Static text and non-interactive nodes are excluded so the overlay stays readable
+
+### Target Window Auto-Heal & Restore (Zero-Token Architecture)
+
+When operating target applications (such as Calculator, Excel, or WeChat), even if the window is **minimized** or **suspended** in the background:
+- **Transparent Awakening**: The underlying SDC engine automatically perceives `WindowVisualState.Minimized`, negative coordinate bounding boxes (Windows), or `AXMinimized` attributes (macOS), atomically unminimizing and restoring the window.
+- **Rendering Settle Guard**: Automatically waits 50ms for the XAML/Win32/Cocoa UI hierarchy to instantiate, completely eliminating empty tree crashes.
+- **Zero Token Overhead**: Eliminates extra application management tools, saving 4,000+ tokens per session and preventing model confusion.
 
 <Note>
 **Deploy-aware behavior:** On **local/Tauri/WebUI local**, Computer Use controls your real Mac/PC/Linux desktop. On **SaaS sandbox**, it only mounts when the sandbox runs a **Visual Desktop** (noVNC) **and** your plan includes the VNC entitlement—headless sandboxes keep the toggle off so marketing matches reality.

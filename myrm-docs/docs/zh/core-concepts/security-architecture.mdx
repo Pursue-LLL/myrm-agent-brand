@@ -104,6 +104,15 @@ Agent 可以使用 `ask_question_tool` 在执行操作前向用户提出结构�
 
 批量审批支持 `/batch a,d,aa`（批准、拒绝、永久允许）及 WebUI 批量按钮。
 
+### 批量高危二次确认与 Safe-Only 安全分流
+
+当多 Agent 协作或并发执行产生多个待审单据时，一键批量全放行可能引入误放行破坏性操作（如递归删除、格式化磁盘或删库）的严重风险。Myrm 构建了**端到端批处理风险守护体系**：
+
+- **深度破坏性参数静态识别**：Harness `batch_risk.py` 与前端 `batchRisk.ts` 穿透解包 `payload.command`、`payload.args` 及工具调用深层参数，对 `rm -rf`、`mkfs`、`DROP TABLE/DATABASE` 等高危模式毫秒级静态拦截，严防模型借通用 `bash` 工具伪装绕过；
+- **高危二次确认弹窗（BatchHighRiskConfirmDialog）**：当批量单据中包含高危指令、被智能否定（`smartDenied`）或禁止永久允许时，系统强制弹出警示对话框，清晰呈现风险原因与涉及单据列表；
+- **Safe-Only 精准分流与 Pre-Resume 根治**：提供「仅放行安全操作」选项，安全读取项秒级放行并恢复 Agent 执行流，高危操作继续安全挂起等待单独审查；客户端严格过滤恢复单据 ID，彻底杜绝高危流被提前唤醒的逻辑泄漏；
+- **服务端 HTTP 409 状态机防护**：全高危单据在 Safe-Only 模式下明确返回 409 Conflict（`NO_SAFE_ITEMS_TO_APPROVE`），防止空循环与假死。
+
 ### 侧边栏注意力指示
 
 当 Agent 暂停等待审批时，侧边栏会在对应会话旁显示实时琥珀色脉冲指示点 — 即使你正在查看其他会话也能一眼发现需要操作的对话：

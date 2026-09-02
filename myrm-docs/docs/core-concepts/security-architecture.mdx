@@ -106,6 +106,15 @@ Every approval surfaces the same four actions across all channels:
 
 Batch operations are supported via `/batch a,d,aa` (approve, deny, always) and UI bulk buttons.
 
+### Batch High-Risk Confirmation & Safe-Only Security Splitting
+
+When multi-agent orchestration or parallel executions produce multiple pending approvals, blindly bulk-approving all items can inadvertently allow destructive operations (such as recursive deletions, disk format, or database truncation). Myrm provides an **end-to-end batch risk safeguard system**:
+
+- **Deep Destructive Parameter Inspection**: Harness `batch_risk.py` and frontend `batchRisk.ts` deeply extract `payload.command`, `payload.args`, and nested tool-call arguments, intercepting patterns like `rm -rf`, `mkfs`, `DROP TABLE/DATABASE` at sub-millisecond latency to prevent escape via generic `bash` tool names;
+- **High-Risk Confirmation Dialog (`BatchHighRiskConfirmDialog`)**: When a batch contains high-risk commands, smart denials (`smartDenied`), or forbidden permanent approvals, a modal prompt displays the exact risk reasons and affected items;
+- **Safe-Only Precision Splitting & Pre-Resume Fix**: Users can choose "Approve Safe Only" — safe read-only operations resume immediately while high-risk destructive operations remain safely suspended for individual review. Client-side stream resume is strictly scoped to verified `safeItemIds`;
+- **Server HTTP 409 State-Machine Guard**: When a Safe-Only batch contains 0 safe items, the API returns HTTP 409 Conflict (`NO_SAFE_ITEMS_TO_APPROVE`), preventing empty response ambiguity.
+
 ### Sidebar Attention Indicator
 
 When an agent pauses for approval, the sidebar displays a real-time amber pulse indicator next to the affected chat — even if you're currently viewing a different conversation. This eliminates the need to manually check each session for pending approvals:
