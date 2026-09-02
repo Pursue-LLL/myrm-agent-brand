@@ -78,6 +78,16 @@ Messages are classified into four priority tiers:
 
 Three strategies are applied in order: **Dedup** (remove exact duplicates) → **Truncate** (shorten verbose outputs) → **Remove** (discard low-value turns).
 
+### Layer 3.5: Context Threshold Model Downshift & Handover (DownshiftGovernor)
+
+Long-running agent workflows (30+ turns) do not require expensive premium models (Claude 3.7 Sonnet / GPT-4.5) for straightforward mid-to-late phase mechanical tasks (e.g. updating test assertions or reformatting). Myrm provides a deterministic model downshift cost governor:
+
+- **Dual-Trigger Cost Governor**: Supports local single-machine `context_usage_pct` thresholds (default 60% dynamic watermark) and cloud `wu_consumed` (Work Unit) thresholds (OR triggered).
+- **Zero-API Session Notes Handover Memo**: Automatically extracts structured fields from persistent `SessionNotes` (goals, decisions, active files, and remaining steps) to generate a deterministic handover memo with 0 extra API cost.
+- **Prompt Cache Protection**: The handover memo is placed in the dynamic tail; the static System Prompt prefix is preserved byte-exact, maintaining 95%+ KV Cache hit rates.
+- **Fallback-Up Resilience**: If the economy model fails consecutively (>= 2 times), the system automatically triggers an emergency fallback-up to the primary model, preventing degraded loops.
+- **Frontend Transparency & Physical Revocation**: The UI displays a read-only model downshift badge; users can revoke the downshift with one click to lock the session back into the primary tier.
+
 ### Layer 4: Structured Summarization
 
 When compression alone isn't sufficient, an LLM generates a structured summary with 14 fields (user goal, active tasks, completed actions, errors, decisions, artifacts, blocked items, next steps, etc.) to replace the compressed history. A SummaryAuditor validates quality, and incremental merge ensures new information is folded into existing summaries without loss. Before persistence, all summary fields undergo dual redaction (credential leak detection + PII redaction) to ensure sensitive data from raw messages never survives into compressed history.
