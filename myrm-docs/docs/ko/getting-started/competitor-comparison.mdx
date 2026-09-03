@@ -11,6 +11,15 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-09-03 · 다중 채널 비동기 작업 위임 및 샌드박스 산출물 전달 허브 · 채널 생태계 완료)
+
+- **CrossPlatformTaskDelegationAndDeliveryHub (Hermes / OpenClaw / CoPaw / AstrBot이 모바일 IM에서 긴 작업 처리 시 504 게이트웨이 타임아웃 발생 대비):** Myrm은 멀티 채널 장기 작업 위임 및 결과 전달을 위한 산업용 폐쇄 루프 아키텍처를 제공합니다:
+  1. **초 단위 미만 즉각 회신 및 비동기 분리 (`DelegationReceipt`)**: 모바일 또는 외부 IM에서 작업 위임 의도를 자동 감지하여 1초 이내에 구조화된 접수 영수증 카드를 발행, 플랫폼 Webhook 3~15초 강제 타임아웃 방지;
+  2. **비행 중 동적 제어 주입 (In-Flight Steering)**: 작업이 백그라운드 샌드박스에서 실행되는 동안 사용자가 모바일 채팅방에서 추가 지침을 전송하면 실행 중인 컨텍스트에 동적으로 반영;
+  3. **자동 샌드박스 산출물 스캔 및 리치 카드 전달 (`DeliveryArtifact`)**: 완료 시 샌드박스 산출물(PPT, 마크다운, 리포트)을 스캔하여 포맷팅된 파일 크기와 함께 원본 채널로 인터랙티브 카드 전달;
+  4. **100% 테스트 통과**: 단위 및 통합 테스트 100% 그린 통과.
+- **SSOT 출처:** `myrm-agent-server/app/channels/delegation/` · `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md`
+
 ## 최신 검증 스냅샷 (2026-09-01 · DshCcTuiStreamingRenderLaneAndSelfHealingGuard · 스트리밍 렌더링 신뢰성)
 
 - **DshCcTuiStreamingRenderLaneAndSelfHealingGuard (Hermes #86581 단일 턴 6만자 스팸 / OpenClaw 압축 후 루프 감지 공백 / React #185 "Maximum update depth exceeded" 백색화면 고질병 대비):** Myrm은 스트리밍 UI 렌더 레인 + 3계층 자가 치유 가드 폐쇄 루프를 제공합니다:
