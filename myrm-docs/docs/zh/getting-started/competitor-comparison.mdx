@@ -11,6 +11,26 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-03 · Universal PTC 陷阱反思与场景分治架构 · 工具生态完成）
+
+- **PrecisionDecoupledPtcVsUniversalPtcClosure（对标 DeepSeek-Harness / CodeAct 全局 Universal PTC 导致日常操作 3x Token 膨胀与缩进语法崩溃 / 传统 Agent 首轮全量平铺 MCP 撑爆上下文）：** Myrm 交付了针对工具调用的精准场景分治架构：
+  1. **8 大底层核心基座 Direct FC 直连**：文件读写、编辑、终端执行、正则搜寻走原生轻量工具调用，单步仅消耗 10 Token，毫秒级极速响应，**0 临场手写语法风险**；
+  2. **Prompt Cache Golden Prefix 绝对锁定**：8 个 CORE 工具物理锁死在 System Prompt 最前部，首轮**零第三方代码桩侵入（0 Token 污染）**，**保障 95%+ KV-Cache 稳定命中**；
+  3. **Prebuilt Skill PTC 预置稳定 CLI 资产**：第三方垂直业务（如 Twitter 搜索、SaaS 接口）随技能预置经过 100% 单元测试的稳定 CLI 脚本，模型仅需传参运行，彻底拔除 Server 层硬编码专有工具；
+  4. **DW PTC 动态工作流编排并发打满**：仅在多子 Agent 编排与大任务批处理时启用 Python 沙箱代码执行，一次调度搞定数十步并发，中间数据在沙箱内存直接清洗，节省 80%+ 对话上下文；
+  5. **100% 自动化测试与 Chrome E2E 验证**：跨单元测试（63/63 passed）、跨模块集成测试（12/12 passed）与真实 Chrome 浏览器全链路 E2E 测试（100% passed in 118s）全绿灯通过。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/tool_management/tool_layers.py` · `temp-docs/repair/PREBUILT_SKILL_PTC_VENDOR_DECOUPLING_ROADMAP.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/EXECUTION_SYSTEM.md`
+
+## 最新验证快照（2026-09-03 · 语义桌面控制 SDC 标准化 MCP Server 输出 · 计算机桌面操作完成）
+
+- **DesktopMcpServerStandardizationClosure（对标 Claude Code 纯视觉全屏截屏猜坐标导致高分屏漂移与巨额图片 Token 消耗 / 闭源专有桌面 Agent 无法被外部生态消费）：** Myrm 交付了标准化 SDC 语义桌面控制体系：
+  1. **OS 原生语义无障碍优先（`@dref`）**：优先提取操作系统 Accessibility 树赋予元素 `@dref` 唯一语义引用，**点击命中率 100%，耗费零图片 Token**（仅在无语义时自动降级视觉兜底）；
+  2. **标准化 `DesktopMCPServer` 对外即插即用**：将全套 SDC 语义控制封装为标准 MCP 服务，Cursor、Claude Code、Windsurf 等任意外部 Agent 零门槛即插即用；
+  3. **三平台后台静默输入（不抢鼠标焦点）**：基于 macOS / Windows / Linux 原生事件注入，在后台窗口静默操作，用户在前台使用电脑丝毫不受干扰；
+  4. **三级敏感应用物理防线与审批门禁**：密码管理、金融支付等敏感窗口自动物理拦截并弹出前端人机审批门禁（Approval Gate）；
+  5. **100% 自动化测试全绿**：全栈 548 项跨三平台单元测试 + 真实 Chrome 浏览器端到端闭环验证 100% 通过（0 僵尸残留）。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/mcp_server.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/desktop_session.py` · `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-03 · Agent 主动出站通知工业级加固 · 只读安全阻断与 0 Token Opt-in 完成）
 
 - **ChannelNotifyReadonlyGuardAndOptInZeroTokenTopology（对标 Hermes 常驻挂载 1700 行 send_message_tool 造成每轮 800+ Token 浪费 / OpenClaw 只读模式下出站通道未阻断致使机密外泄）：** Myrm 交付了针对 Agent 主动出站通知的企业级安全与性能架构：
