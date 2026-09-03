@@ -34,6 +34,16 @@ Myrm 自动把一个页面需要的所有资源收集到单个分享 bundle：
 - **lockfile 与构建产物**（`package-lock.json`、`node_modules`）从 bundle 中排除
 - **文档与 PDF**即使 vault 对象无文件后缀也能正确输出媒体类型——中文命名文档按 Markdown 渲染，PDF 按 PDF 打开
 
+## 成套交付物清单与分发归档（Deliverable Bundle Manifest）
+
+针对多工件复合型任务（如营销宣发全案、竞品调研套件、商业计划全套资料），Myrm 提供工业级的**成套交付物清单（Deliverable Manifest）与结构化打包分发**：
+
+- **自动化业务分类目录**：自动将散落的交付物归集入 8 大标准子目录（`01_strategy_and_overview`、`02_copywriting_and_content`、`03_visual_and_media`、`04_data_and_sheets`、`05_fact_check_and_audit`、`06_schedule_and_plans`、`07_code_and_scripts`、`08_misc_deliverables`），杜绝平铺混乱。
+- **不可变完整性证明**：交付包根目录自动生成 `manifest.json`，内嵌全局 Bundle ID、智能体元数据及每个交付物的 SHA-256 哈希指纹，支持开箱即用的审计与防篡改核验。
+- **人类可读交付指南**：打包时自动注入 `README.md` 交付说明书，分门别类列出成果物清单、用途说明及分发指引。
+- **交互式交付物看板**：任务完成时自动在界面呈现成套看板，支持按分类 Tab 快速过滤、单项即时全屏预览、Checkbox 多选批量导出与一键 ZIP 打包。
+- **安全路径净化与去重**：物理打包过程中强制执行跨平台路径净化与防目录逃逸（Path Traversal）安全过滤，自动处理同名冲突，保障跨系统解压 100% 可用。
+
 ## 分享生命周期——撤销、状态与审计
 
 工件与对话分享链接**支持随时主动撤销与全生命周期管理**：
