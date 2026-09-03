@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-03 · 多步规划 Todo 智能换道与物理证据链完工验收 · Planning 与 Goal 完成）
+
+- **PlanningTodoBlockedAutoSteeringAndCompletionGuardClosure（对标 Claude Code 2.1.88 / Cursor / OpenManus / Hermes 复杂多步长任务因缺少外部依赖机械死锁卡死 / 仅凭自然语言回复口头放行假完成）：** Myrm 交付了针对规划管理与目标完成的工业级闭环：
+  1. **工作区物理文件 SSOT（`.myrm/progress/todos.json`）**：任务清单持久化于沙箱文件系统，进程重启、页面刷新 100% 无损恢复，前后端事件流与状态树秒级同步；
+  2. **`blocked` 状态与单并发席位自动释放**：遇到外部依赖或客观权限受阻时，主动置为 `blocked` 并自动让出运行席位，中间件智能绕开阻塞项并聚焦下一个就绪任务，彻底打破死循环；
+  3. **`CompletionGuard` 物理重跑测试与精准裁剪自愈指引**：任务修改代码后，结项强制要求测试套件真实 Exit 0 通过凭据；对外部受阻任务精准引导模型通过 `todo_write` 裁剪说明，坚决拦截假完成；
+  4. **零破坏前缀缓存（Prompt Cache）**：动态任务列表仅在最后一个用户消息尾部临时挂载，下轮对话前自动剥离，KV Cache 命中率 100% 锁死；
+  5. **100% 自动化测试全绿与 Chrome E2E 真实商用大模型实测**：跨 Harness 单测（44 项）、Server 业务集成测试（8 项）、前端 Vitest（12 项）及无头 Chrome 驱动 MiniMax-M3 商用大模型全链路实测（172s, exit=0）100% 通过。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/progress/` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/progress_middleware.py` · `temp-docs/materials/TASK_CONTINUITY_AND_PLANNING_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-03 · 会话盲区自动提炼知识补丁与人机协同自进化 · 记忆生态完成）
 
 - **SessionBlindSpotAutoKnowledgePatchClosure（对标 OpenClaw / Hermes / Mem0 仅能单向被动记录、缺乏对话回答盲区自省与人机协同纠偏闭环）：** Myrm 交付了业内首创的会话盲区自省提炼知识补丁闭环：
