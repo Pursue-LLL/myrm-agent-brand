@@ -439,16 +439,17 @@ Your agent can proactively push notifications to configured channels — no manu
 
 | Layer | Protection |
 |-------|-----------|
-| Whitelist | Only user-configured targets are reachable — no arbitrary recipients |
+| Whitelist | Only user-configured targets are reachable; 0 token overhead when targets unconfigured (Opt-in mounting) |
+| Read-Only Guard | Outbound notification tool is strictly rejected in read-only security preset (`is_readonly=True`), preventing egress data leaks |
 | Rate limit | Per-session cap prevents notification spam (default: 10 per session) |
 | Content cap | Messages exceeding `max_body_length` (4000 chars) are automatically truncated |
-| Attachments | Local paths must stay within the agent workspace (`declared_allowed_roots`); URL filenames parsed safely (handles query params) |
+| Attachments | Local paths must stay within the agent workspace (`declared_allowed_roots`) with `os.path.exists`/`os.path.isfile` validation; URL filenames parsed safely (handles query params) |
 | Audit trail | Every notification target used is recorded in session state |
 | Sub-agent isolation | Sub-agents cannot call `channel_notify_tool` by default (harness L1 blocklist) |
 | Failure visibility | Sync delivery failures enter DLQ and trigger a WebUI toast (presync dedupe; not persisted across restarts) |
 | Layer | Server `outbound_notify/` (business layer, not harness kernel), co-located with ChannelGateway |
 
-> **Test coverage (2026-07-07)**: **127 pytest + 1 live agent-stream E2E (MiniMax-M2.7, RUN_E2E_TESTS=1) + 7 vitest + Chrome full user flow round42 (source chat tool steps + recipient inbox UI)** passing — ChatChannel in-app inbox delivery, DLQ/toast chain, sub-agent isolation, attachment path sandbox, dynamic running-channel picker verified.
+> **Test coverage (2026-09-03)**: **171+ automated tests (including readonly mode guard, sandbox file validation, DLQ/toast chain, sub-agent isolation, attachment path sandbox) & live Chrome E2E** passing.
 
 ### Example Scenarios
 

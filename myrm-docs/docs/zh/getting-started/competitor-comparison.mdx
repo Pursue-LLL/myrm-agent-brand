@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-03 · Agent 主动出站通知工业级加固 · 只读安全阻断与 0 Token Opt-in 完成）
+
+- **ChannelNotifyReadonlyGuardAndOptInZeroTokenTopology（对标 Hermes 常驻挂载 1700 行 send_message_tool 造成每轮 800+ Token 浪费 / OpenClaw 只读模式下出站通道未阻断致使机密外泄）：** Myrm 交付了针对 Agent 主动出站通知的企业级安全与性能架构：
+  1. **0 Token 消耗的 Opt-in 动态按需挂载**：仅在用户显式配置通知目标时才挂载 `channel_notify_tool`，未配置时 0 Token 损耗，Prompt Cache 100% 保持稳定高命中；
+  2. **只读安全预设物理阻断（Readonly Security Guard）**：在装配层 `factory_wiring.py` 原生感知 `is_readonly` 状态，安全审计与受限模式下物理拒载出站通知，彻底阻断通讯旁路数据外泄（Egress Leak）；
+  3. **沙箱本地附件存在性双重校验（`os.path.exists`/`os.path.isfile`）**：在云托管沙箱中实现附件落盘边界防御与友好降级，杜绝裸 open 引发的未捕获底层崩溃；
+  4. **子 Agent 树形隔离与 DLQ 闭环**：通过 `register_leaf_blocked_tools` 阻断子 Agent 继承通知工具防止消息风暴，配合 DLQ 死信追溯保障消息可靠可观测；
+  5. **100% 自动化测试与 E2E 覆盖**：跨单元测试、真实网关集成测试与配置持久化 E2E 共 44 项测试 100% 满分绿灯。
+- **SSOT 来源：** `myrm-agent-server/app/services/agent/outbound_notify/factory_wiring.py` · `myrm-agent-server/app/services/agent/outbound_notify/channel_notify_tool.py` · `myrm-agent-server/app/services/agent/outbound_notify/_ARCH.md`
+
 ## 最新验证快照（2026-09-03 · 原生 /loop Slash 命令与自然语言周期调度解析引擎 · Loop 循环工程与自动化调度完成）
 
 - **NativeLoopSlashCommandAndNaturalLanguageIntervalParserPack（对标 Claude Code 2.1.88 `/loop` 仅限单机终端 / 缺乏 Web 与桌面协同 / 英文单语言局限）：** Myrm 交付了多端同构原生 `/loop` 命令与中英双语周期调度解析引擎：

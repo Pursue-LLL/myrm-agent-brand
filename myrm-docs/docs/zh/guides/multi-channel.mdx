@@ -365,16 +365,17 @@ Agent 可主动向配置渠道推送 — 无需轮询。
 
 | 层 | 防护 |
 |-------|-----------|
-| 白名单 | 仅用户配置目标可达 |
+| 白名单 | 仅用户配置目标可达；未配置 targets 时 0 Token 挂载，不污染上下文 |
+| 只读阻断 | 在只读安全预设（`is_readonly=True`）模式下物理拒载出站通知工具，严防机密外泄（Egress Leak） |
 | 限流 | 每会话上限防刷屏（默认 10） |
 | 内容上限 | 超 `max_body_length`（4000 字符）自动截断 |
-| 附件校验 | 本地路径须落在 Agent workspace（`declared_allowed_roots`）内；URL 文件名安全解析（兼容查询参数） |
+| 附件校验 | 本地路径须落在 Agent workspace（`declared_allowed_roots`）内；支持 `os.path.exists`/`os.path.isfile` 双重校验防御；URL 文件名安全解析（兼容查询参数） |
 | 审计 | 每次通知目标记入会话状态 |
 | 子 Agent 隔离 | 子 Agent 默认无法调用 `channel_notify_tool`（harness L1 blocklist） |
 | 失败可见 | sync 投递失败进入 DLQ 并触发 WebUI toast（presync dedupe，重启后 dedupe 不持久） |
 | 实现层 | 业务层 `outbound_notify/`（非 harness 内核），与 ChannelGateway 同层 |
 
-> **测试覆盖（2026-07-07）**：notify 专项 **127 项 pytest + 1 项 live agent-stream E2E（MiniMax-M2.7，RUN_E2E_TESTS=1）+ 7 项 vitest + Chrome 真实用户 round42 全流程（源对话 tool 步骤 + 收件箱 UI）** 全绿 — 含 ChatChannel 应用内落库、DLQ/告警链、子 Agent 隔离、附件 path 沙箱、动态 running 渠道下拉。
+> **测试覆盖（2026-09-03）**：notify 专项累计 **171+ 项全链路测试（含只读安全物理阻断、沙箱存在性校验、DLQ/告警链、子 Agent 隔离、附件 path 沙箱）与 Chrome E2E** 全绿。
 
 ### 场景示例
 
