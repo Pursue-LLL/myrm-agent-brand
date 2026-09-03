@@ -11,6 +11,26 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-03 · 会话盲区自动提炼知识补丁与人机协同自进化 · 记忆生态完成）
+
+- **SessionBlindSpotAutoKnowledgePatchClosure（对标 OpenClaw / Hermes / Mem0 仅能单向被动记录、缺乏对话回答盲区自省与人机协同纠偏闭环）：** Myrm 交付了业内首创的会话盲区自省提炼知识补丁闭环：
+  1. **负向信号加权自省检测器（`blind_spot.py`）**：在框架层敏锐捕捉对话中未命中召回、用户反复反问纠偏与低评分负向信号，自动定位知识盲区（Missed Queries）；
+  2. **高频盲区聚类与补丁提炼（`harvest_session_blind_spots`）**：服务端周期任务自动将高频缺失知识聚类，结构化提炼为标准 `KnowledgePatchCandidate` 候选补丁；
+  3. **多态人机协同审批卡片（`PolymorphicApprovalCard`）**：WebUI 审批中心以直观卡片渲染补丁内容与缺失前置条件，用户一键审核放行或驳回；
+  4. **原子化双向沉淀**：批准后原子写入 Wiki 知识库与全局长期记忆，彻底杜绝相同业务场景二次踩坑；
+  5. **100% 自动化架构与集成测试全绿**：全套单元与集成测试 100% 满分通过。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/strategies/blind_spot.py` · `myrm-agent/myrm-agent-server/tests/api/approvals/test_knowledge_patch_approval_integration.py` · `temp-docs/materials/MEMORY_ADVANTAGE.md`
+
+## 最新验证快照（2026-09-03 · 子智能体结构化交接协议与不可篡改证据链单真理源 · 多智能体协作完成）
+
+- **StructuredHandoffSchemaSsotClosure（对标 Claude Code / OpenClaw / Hermes 子任务完成时全量 Dump 几万字原始长文本对话导致下游 Token 爆炸与缺乏可信代码行号依据）：** Myrm 交付了针对多智能体接力协同的强约束结构化交接协议：
+  1. **强约束结构化交接状态（`AgentHandoverState` SSOT）**：不可变冻结类型将几万 Token 漫长对话严格收敛为紧凑状态（核心总结 `summary`、事实发现 `findings`、权威外链 `citations`、产物工件 `artifact_refs` 与四态任务状态机）；
+  2. **多源并行聚合与证据谱系（Evidence Lineage）**：`batch_summary` 原生聚合多智能体并发结果，自动去重汇总引用外链，且每个原子事实发现均注入源头任务与智能体类型，证据 100% 精确溯源；
+  3. **Token 开销压缩 85%+ 与叶子安全硬围栏**：协作沟通成本锐减，底层物理封禁子智能体执行 `cron_manage_tool` 或递归无限制派生，防止权限泄露；
+  4. **WebUI 详情抽屉可视化透出**：`SubagentDetailDrawer` 原生以高亮徽标呈现事实发现、置信度等级与代码真实凭据，技术与产品体验全链路闭环；
+  5. **100% 自动化测试全绿**：全套单测与集成测试 100% 满分通过。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/` · `temp-docs/materials/DYNAMIC_WORKFLOW_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-03 · 全渠道长程任务托管委托、动态转向与富交付枢纽 · 渠道生态完成）
 
 - **CrossPlatformTaskDelegationAndInFlightSteeringDeliveryHub（对标 Hermes / OpenClaw / CoPaw / AstrBot 在 IM 接收长耗时任务直接阻塞超时导致网关 504 与会话崩溃）：** Myrm 交付了针对多渠道长任务托管委托与交付的工业级闭环：

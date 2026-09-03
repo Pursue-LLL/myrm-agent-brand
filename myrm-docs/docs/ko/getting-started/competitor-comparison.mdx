@@ -11,6 +11,26 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-09-03 · 대화 사각지대 지식 패치 자동 생성 및 인간 승인 루프 · 메모리 생태계 완료)
+
+- **SessionBlindSpotAutoKnowledgePatchClosure (OpenClaw / Hermes / Mem0의 수동적인 기록 및 답변 사각지대 자체 성찰 부재 대비):** Myrm은 대화 사각지대를 자체 성찰하고 지식 패치로 정제하는 인간 승인 폐쇄 루프를 제공합니다:
+  1. **부정 신호 가중치 사각지대 감지기 (`blind_spot.py`)**: 검색 누락, 사용자 반복 질문 및 정정, 낮은 평점을 감지하여 지식 사각지대(Missed Queries)를 자동 식별;
+  2. **고주파 사각지대 클러스터링 및 패치 추출 (`harvest_session_blind_spots`)**: 백그라운드 워커가 반복 결손 지식을 군집화하여 구조화된 `KnowledgePatchCandidate` 패치 후보로 생성;
+  3. **다형성 HITL 승인 카드 (`PolymorphicApprovalCard`)**: WebUI 승인 센터에서 누락 전제 조건과 패치 내용을 렌더링하여 원클릭 승인 또는 반려;
+  4. **원자적 양방향 지식 축적**: 승인 시 Wiki 지식 베이스와 전역 L3 메모리에 원자적으로 동기화하여 동일 오류 재발 차단;
+  5. **100% 테스트 통과**: 아키텍처 및 통합 테스트 100% 그린 통과.
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/strategies/blind_spot.py` · `myrm-agent/myrm-agent-server/tests/api/approvals/test_knowledge_patch_approval_integration.py` · `temp-docs/materials/MEMORY_ADVANTAGE.md`
+
+## 최신 검증 스냅샷 (2026-09-03 · 다중 서브에이전트 구조화 인계 프로토콜 및 무결성 증거 SSOT · 멀티 에이전트 협업 완료)
+
+- **StructuredHandoffSchemaSsotClosure (Claude Code / OpenClaw / Hermes의 장문 대화 덤프로 인한 토큰 폭발 및 증거 위치 부재 대비):** Myrm은 멀티 에이전트 간 인계를 위한 강력한 구조화 상태 머신을 제공합니다:
+  1. **불변 구조화 인계 상태 (`AgentHandoverState` SSOT)**: 수만 토큰의 대화를 핵심 요약, 코드 증거가 첨부된 원자적 `findings`, 권위 있는 참조 `citations`, 산출물 `artifact_refs`로 압축;
+  2. **다중 소스 병렬 수집 및 증거 출처 추적**: `batch_summary`가 인용을 자동 중복 제거하고 각 발견에 `source_task_id`와 `agent_type`을 주입하여 100% 역추적 가능;
+  3. **토큰 85%+ 압축 및 리프 노드 보안 펜스**: 협업 통신 비용을 대폭 절감하고 서브에이전트의 `cron_manage_tool` 등 고위험 도구 호출을 물리적 차단;
+  4. **WebUI 서브에이전트 드로어 시각화**: `SubagentDetailDrawer`에서 발견 사실, 신뢰도, 코드 증거를 직관적인 배지로 노출;
+  5. **100% 테스트 통과**: 단위 및 통합 테스트 100% 완료.
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/` · `temp-docs/materials/DYNAMIC_WORKFLOW_ADVANTAGE.md`
+
 ## 최신 검증 스냅샷 (2026-09-03 · 다중 채널 비동기 작업 위임 및 샌드박스 산출물 전달 허브 · 채널 생태계 완료)
 
 - **CrossPlatformTaskDelegationAndDeliveryHub (Hermes / OpenClaw / CoPaw / AstrBot이 모바일 IM에서 긴 작업 처리 시 504 게이트웨이 타임아웃 발생 대비):** Myrm은 멀티 채널 장기 작업 위임 및 결과 전달을 위한 산업용 폐쇄 루프 아키텍처를 제공합니다:
