@@ -50,6 +50,16 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
   4. **100% 테스트 통과**: 단위 및 통합 테스트 100% 그린 통과.
 - **SSOT 출처:** `myrm-agent-server/app/channels/delegation/` · `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md`
 
+## 최신 검증 스냅샷 (2026-09-03 · 입력창 인라인 통합 컨텍스트 칩 스트립 및 과부하 거버넌스 · 프론트엔드 인터랙션 완료)
+
+- **ComposerInlineContextChipStripClosure (기존 채팅 입력창의 플로팅 뱃지 혼란 / 전송 전 통합 컨텍스트 검토 및 능력 가지치기 부재 대비):** Myrm은 채팅 입력 영역을 위한 통합 인라인 컨텍스트 칩 스트립 엔지니어링 폐쇄 루프를 제공합니다:
+  1. **전체 컨텍스트 단일 진실 공급원 집계 (`useComposerContextChips`)**: 워크플로 템플릿, 슬래시 명시적 스킬, 턴 능력 범위(Turn Capability) 및 `@` 멘션 인용을 단일 추상화로 통합하고, 리치 미디어 첨부 파일은 전용 썸네일로 분리하여 중복 렌더링 및 시각적 충돌을 완전히 제거;
+  2. **반응형 중단점 및 오버플로 접기 (`ComposerContextChipStrip`)**: 데스크톱에서는 최대 4개, 모바일에서는 최대 2개의 칩을 노출하고 초과 항목은 `+N` 오버플로 Popover 메뉴로 원활하게 접으며, 메뉴 내에서 개별 삭제 및 독립 작업을 지원;
+  3. **Amber Overload 경고 및 원클릭 능력 가지치기 루프**: 턴에 마운트된 도구 및 컨텍스트 부하를 실시간 정량화하여 과부하 시 Amber 경고 뱃지를 표시하고, 클릭 시 턴 능력 편집 패널로 즉시 이동하여 토큰 낭비 방지;
+  4. **직관적인 키보드 인터랙션 및 안전 보호**: 입력창이 비어 있을 때 Backspace 키로 마지막 칩을 빠르게 제거할 수 있으며, 텍스트가 있을 때는 우발적 삭제를 엄격하게 방지;
+  5. **100% 풀스택 자동화 테스트 및 실제 Chrome 브라우저 E2E 검증**: 프론트엔드 Vitest 단위 테스트(11/11 통과), i18n 검증, 실제 Chrome 브라우저 Task Flow E2E(실제 슬래시 호출, 입력창 타이핑, 프로토콜 접두사 검증, 실제 LLM MiniMax-M3 추론 및 스트리밍 완료) 3/3 통과, 잔여 결함 제로.
+- **SSOT 출처:** `myrm-agent-frontend/src/components/features/chat-window/context-strip/` · `myrm-agent-frontend/src/hooks/message-input/useComposerContextChips.ts` · `myrm-agent-server/tests/e2e/test_composer_context_chip_strip_chrome_e2e.py`
+
 ## 최신 검증 스냅샷 (2026-09-01 · DshCcTuiStreamingRenderLaneAndSelfHealingGuard · 스트리밍 렌더링 신뢰성)
 
 - **DshCcTuiStreamingRenderLaneAndSelfHealingGuard (Hermes #86581 단일 턴 6만자 스팸 / OpenClaw 압축 후 루프 감지 공백 / React #185 "Maximum update depth exceeded" 백색화면 고질병 대비):** Myrm은 스트리밍 UI 렌더 레인 + 3계층 자가 치유 가드 폐쇄 루프를 제공합니다:
