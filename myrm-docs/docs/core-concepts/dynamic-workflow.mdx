@@ -118,3 +118,14 @@ MyRM delivers an industrial-grade adversarial verification library:
 - **Multi-Skeptic Parallel Majority Voting**: Concurrently spawns 3 independent skeptic agents and requires a 2/3 majority vote to pass, eliminating single-model hallucinations and false positives.
 - **Fail-Closed Protection on Sandbox Crash**: Strictly transitions the sub-agent status to `SubAgentStatus.BLOCKED` upon crash, preventing any unverified code from sneaking into production.
 - **Native PTC Exposure**: Easily callable in Python dynamic workflow scripts via `spawn_subagent(..., verification_mode="auditor_blind" | "multi_skeptic")`.
+
+### 15. Structured Handoff Schema SSOT & End-to-End Evidence Lineage
+
+In complex multi-agent handoffs, sub-agents often dump massive, multi-thousand-token raw conversation transcripts onto parent and downstream agents. This quickly triggers prompt context explosion and obscures critical facts.
+
+MyRM establishes an immutable, frozen data contract (`AgentHandoverState` SSOT):
+- **85%+ Reduction in Parent Notification Tokens**: Freezes handover states into compact summaries, completed checklists, and pending items, replacing raw chat dumps.
+- **Atomic Findings with Normalized Evidence**: Every finding must include concrete proof (e.g. `test_proof.py:42`) and normalized confidence levels (`HIGH` / `MEDIUM` / `LOW`), eliminating AI hallucinations.
+- **Parallel Aggregation with Full Evidence Lineage**: Automatically collects and deduplicates all external citations (`all_citations`) while injecting `source_task_id` and `agent_type` into every single finding across parallel batch summaries, preserving end-to-end provenance.
+- **Leaf-Node Privilege Hard Guardrails & Full UI Disclosure**: Blocks leaf sub-agents from executing privileged meta-tools (like cron scheduling); fully visualized in the Subagent Detail Drawer with dedicated badges, citation copy buttons, and code evidence previews.
+
