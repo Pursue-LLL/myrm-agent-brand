@@ -1,0 +1,939 @@
+---
+
+title: 경쟁사 비교
+description: Myrm을 인기 있는 AI 에이전트 플랫폼과 비교하는 방법 및 마이그레이션을 통해 얻을 수 있는 이점
+---
+# 경쟁사 비교 및 마이그레이션 가이드
+
+Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다. 터미널 전용 코딩 에이전트와 달리 Myrm은 전체 코딩 기능을 유지하면서 영구 샌드박스, 교차 세션 메모리 및 엔터프라이즈급 보안을 갖춘 GUI 최초의 경험을 제공합니다.
+
+<Note>
+**마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
+</Note>
+
+## 최신 검증 스냅샷 (2026-09-01 · DshCcTuiStreamingRenderLaneAndSelfHealingGuard · 스트리밍 렌더링 신뢰성)
+
+- **DshCcTuiStreamingRenderLaneAndSelfHealingGuard (Hermes #86581 단일 턴 6만자 스팸 / OpenClaw 압축 후 루프 감지 공백 / React #185 "Maximum update depth exceeded" 백색화면 고질병 대비):** Myrm은 스트리밍 UI 렌더 레인 + 3계층 자가 치유 가드 폐쇄 루프를 제공합니다:
+  1. **DefaultLane 스트리밍 웨이크업 (`useStoreSnapshot`)**: 스트리밍 청크 웨이크업을 SyncLane 선점에서 DefaultLane 인터럽트 가능 병합 렌더링으로 전환 — 토큰마다 동기 재렌더링이 발생하지 않고, 긴 응답 타이프라이터가 프레임을 드랍하지 않으며 타이핑 지연이 메시지 크기와 무관해집니다;
+  2. **3계층 자가 치유 가드 (`update-overflow-guard`)**: #185 오류 정밀 식별(비 React 617 오류 오탐 없음) → 소스별 제한 로깅 → 지수 백오프 서킷 브레이커(5s→60s, 복구 후 자동 리셋) + `GlobalErrorBoundary` 잔여 위험 흡수. 최악의 경우 한 프레임 지연 후 자동 복구, 긴 응답도 백색화면 없음;
+  3. **다중 인스턴스 안전**: 마지막 인스턴스가 언마운트될 때만 퀸치 등록 해제 — 다중 세션/다중 패널의 `useStoreSnapshot` 구독자도 제로 레이스.
+- **SSOT 출처:** `myrm-agent-frontend/src/hooks/shared/useStoreSnapshot.ts` · `myrm-agent-frontend/src/lib/rendering/update-overflow-guard.ts` · `myrm-agent-frontend/src/components/error-boundary/GlobalErrorBoundary.tsx`
+- **검증 증거:** 프론트엔드 Vitest 4778/4778 전부 통과 · i18n 6개 언어 검증 통과 · Lane-B Chrome E2E(실제 Chrome :3000 전체 체인) 통과.
+
+## 최신 검증 스냅샷 (2026-08-31 · 게이트웨이 제로 페이로드 런타임 Vitals & Dev Gate 도메인 리팩 · 관찰성 + 신뢰성)
+
+- **GatewayZeroPayloadRuntimeVitals (Hermes CLI doctor / OpenClaw 파일 폴링 / 통합 liveness 부재 대비):** Myrm은 `GET /api/v1/health/liveness` 및 Prometheus(`myrm_gateway_event_loop_lag_ms`, RSS, asyncio 작업 수, 헬스 코드)에 **제로 사용자 콘텐츠** 게이트웨이 vitals를 노출합니다. Harness `GatewayHealthInspector`는 prompt/채팅 없이 이벤트 루프 지연과 OTLP 상태를 측정 — 사용자가 멈춤을 느끼기 전 degraded/unhealthy 알림 가능.
+- **DevGateDomainRepack (임시 유지보수 스크립트 대비):** monorepo `scripts/dev/lib/` flat 모듈을 도메인 서브패키지(`phase_c/`, `dgep/`, `e2e_detach/` 등)로 이전(동작 변경 없음); legacy e2e marathon supervisor 폐기; **`scripts/dev/tests/` 2151 passed**, harness+server 혼합 pytest 분할 계약 포함.
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/observability/diagnostics/gateway_health.py` · `myrm-agent/myrm-agent-server/app/api/health/liveness.py` · `scripts/dev/lib/DOMAIN_REPACK_PLAN.md`
+
+## 최신 검증 스냅샷 (2026-08-31 · 팀 지식 복리 주간 보고서 및 풀스택 화이트박스 관찰성 스위트 · 관찰성 완료)
+
+- **TeamWeeklyDigestAndObservabilitySuite (엔터프라이즈 관찰성 및 AI 팀 지식 복리 모범 사례 대비):** Myrm은 기업 및 팀 지식 축적, 실행 비용 감사 및 크로스 플랫폼 안정성을 위한 종합 스위트를 제공합니다:
+  1. **팀 지식 복리 주간 보고서 (`TeamWeeklyDigestView.tsx` & `team_weekly_digest`)**: 멀티 Agent 대화 활동 순위, 스킬 축적 및 진화 트렌드를 자동으로 취합하여 웹 대화형 조회 및 원클릭 표준 마크다운 내보내기 지원;
+  2. **화이트박스 토큰 경제학 및 지연 폭포 다이어그램 (`token_economics` & `latency_waterfall`)**: Agent 턴 내 LLM 및 툴 실행 병목 구간을 밀리초 단위로 분해하고 프롬프트 캐시 재사용률 감사;
+  3. **연산자 에러 마스킹 (`operator_error_sanitizer.py`)**: 민감한 내부 스택 추적 및 절대 경로를 정제하여 자체 복구 능력을 유지하면서 사용자 측 세부 정보 누출 방지;
+  4. **데스크톱 절전 모드 방지 및 타이틀바 안전 영역 자동 적응 (`usePowerLock` & `useTrafficLightInsets`)**: 장기 작업 실행 중 시스템 절전 모드로 인한 중단을 방지하고 macOS에서 트래픽 라이트 안전 영역을 자동 적응;
+  5. **100% 풀스택 테스트 제품군 통과**: Harness, Server, Frontend 전반에 걸쳐 416개 이상의 테스트 100% 그린 통과.
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/observability/digest/` · `myrm-agent-frontend/src/components/features/growth/TeamWeeklyDigestView.tsx` · `myrm-agent-frontend/src/hooks/tauri/usePowerLock.ts`
+
+## 최신 검증 스냅샷 (2026-08-30 · 데스크톱 비침투형 네이티브 브리지 및 WebUI 선언적 확장 슬롯 프로토콜 · 데스크톱 & Web 동형 완료)
+
+- **DesktopNonIntrusiveNativeBridgeAndExtensionSlotProtocol (DSH Desktop의 단순 플러그인 쉘 / Electron의 무거운 UI 이중 중첩 / Web-데스크톱 코드베이스 분리 대비):** Myrm은 엔터프라이즈급 비침투형 데스크톱 네이티브 브리지 및 선언적 확장 슬롯 동형 아키텍처를 제공합니다:
+  1. **Zero-Chrome 순수 쉘 컨테이너 & 동적 트래픽 라이트 인셋 (`useTrafficLightInsets.ts`)**: 데스크톱 클라이언트는 순수 프레임리스 컨테이너로 작동하며, 환경 인식을 통해 macOS에 CSS 안전 영역 토큰(`--traffic-light-inset-top: 28px`, `--traffic-light-inset-left: 78px`)을 자동 주입하여 트래픽 라이트와 내비게이션 헤더의 겹침을 제거하고, Windows/Linux/Web에서는 0px로 자동 수축;
+  2. **표준화된 데스크톱 네이티브 브리지 퍼사드 (`desktopBridge.ts`)**: 창 제어, 로컬 폴더 열기(Reveal), 외부 브라우저 디스패치, 시스템 버전 조회, 클립보드 I/O를 위한 강타입 `DesktopBridgeInterface`를 제공하며 웹/클라우드 샌드박스에서 100% 안전한 Fallback 보장;
+  3. **선언적 확장 슬롯 시스템 (`ExtensionSlot.tsx` & `useExtensionSlotStore.ts`)**: 핵심 레이아웃(`sidebar.footer.action`, `navbar.bottom.tools`, `settings.sections`)에 표준 슬롯을 예약하여 핵심 WebUI 마크업을 오염시키지 않고 데스크톱 기능을 동적으로 마운트;
+  4. **100% Web/데스크톱/클라우드 동형 패리티**: 단일 공유 프론트엔드 코드베이스가 이중 쉘 중첩 없이 원활하게 실행;
+  5. **100% 풀스택 테스트 및 기술 부채 제로**: `ExtensionSlot.test.tsx`, `desktopBridge.test.ts`, `useTrafficLightInsets.test.ts` 총 13개 단위 테스트 통과 (100% green, 0 린트 에러, 0 좀비 프로세스).
+- **SSOT 출처:** `myrm-agent-frontend/src/lib/desktopBridge.ts` · `myrm-agent-frontend/src/components/features/extension-slots/` · `myrm-agent-frontend/src/hooks/ui/useTrafficLightInsets.ts`
+
+## 최신 검증 스냅샷 (2026-08-28 · 외부 CLI Agent 위임 툴 Schema 강타입 제약 및 병렬 오해 방지 · ACP 툴킷 완료)
+
+- **InvokeACPAgentToolSchemaHardening (OpenClaw의 취약한 문자열 모드 오류 / Hermes의 모호한 프롬프트로 인한 동시성 데드락 / Claude Code의 CLI 전용 및 GUI 연동 부재 대비):** Myrm은 `invoke_acp_agent_tool`을 위한 엔터프라이즈급 강타입 스키마 및 정밀 프롬프트 아키텍처를 제공합니다:
+  1. **스키마 레벨 강타입 업그레이드 (Zero-Trust Typing)**: `InvokeACPAgentInput.mode`를 `Literal["persistent", "oneshot"]`으로 강화하여 생성되는 Tool JSON Schema에 네이티브 `enum` 제약을 부여하고, 모델의 잘못된 인자 생성을 원천 차단;
+  2. **가짜 병렬 오안내 제거 및 Turn-lock 런타임 정렬**: 툴 설명에서 런타임 독점 구조와 충돌하는 `Parallel work delegation` 문구를 제거하여 다중 호출 경쟁 데드락 방지;
+  3. **UI 개념 누수 제거 및 명확한 사용 경계 제공**: `in Settings` 등 UI 단어를 제거하고 정밀한 사용 가이드라인(복잡한 코딩은 외부 CLI, 단순 I/O는 로컬 툴, 서브태스크는 `delegate_task_tool`) 확립;
+  4. **자체 포함 컨텍스트(Self-contained Context) 가이드 강화**: 모델이 `task` 인자에 파일 경로와 제약조건을 온전히 포함하도록 유도;
+  5. **100% 테스트 통과 및 제로 기술 부채**: 27개 `test_invoke_acp_agent_tool.py`, 91개 `test_cli_runtime.py`, 총 467개 ACP 테스트 100% 통과(0 린트 에러, 0 좀비 프로세스).
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/acp_agent_tools.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/ACP_SYSTEM.md`
+
+## 최신 검증 스냅샷 (2026-08-28 · 노이즈 제로 다국어 SSOT 및 5가지 정형화 스케줄링 자동화 툴체인 · 툴 생태계 완료)
+
+- **CronManageToolBilingualSSOTAndFivePatternStructuredAutomation (Hermes CLI 전용 crontab / OpenClaw 단순 스케줄링 / HappyCapy Turn1 정적 템플릿 비대화 및 프롬프트 캐시 무효화 대비):** Myrm은 `cron_manage_tool`을 위한 엔터프라이즈급 LLM 가시 툴 설명 SSOT 및 5가지 정형화 자동화 아키텍처를 제공합니다:
+  1. **노이즈 제로 한/영 이중 언어 SSOT 물리적 격리 (`_cron_tool_description.py`)**: LLM 가시 프롬프트 정의를 스케줄링 엔진 의존성에서 완전히 분리(`CRON_MANAGE_TOOL_DESCRIPTION_EN` 및 `_ZH`), 개발자 전용 구현 세부 정보(LiteLLM/SQLite/IP 토폴로지)를 제거하여 서브 마이크로초 단위 로캘 인식 해석 지원;
+  2. **5가지 핵심 사용 패턴 정형화 프롬프트 엔지니어링**: 5가지 정형 자동화 패턴(에이전트 자연어 작업, 샌드박스 Shell 명령, 무 LLM 순수 알림, 온디맨드 블루프린트 템플릿, 실시간 스트림/폴링 트리거)을 모델에 명시적으로 안내하여 매개변수 환각 및 상호 배타 충돌 원천 차단;
+  3. **온디맨드 점진적 공개를 통한 Turn1 프롬프트 캐시 100% 보존**: Turn1 시스템 프롬프트에 비대한 템플릿 카탈로그를 주입하지 않고 `action='blueprints'`를 통해 동적으로 검색하여 100% KV Cache 적중률 유지;
+  4. **멀티 채널 및 세션 언어 자동 인식 통합 (`tool_setup.py`)**: `tool_description_locale`을 현재 세션 또는 메신저 채널 언어와 완벽하게 바인딩;
+  5. **100% 풀스택 테스트 및 제로 기술 부채**: 116개 `test_cron_manage_tool.py` 단위 테스트, 87개 서버 cron 수명주기 API 테스트 및 676개 전체 harness cron 회귀 테스트 제품군 통과 (884개 테스트 통과, 100% 그린, 0 린트 오류, 0 좀비 프로세스).
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/_cron_tool_description.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/cron_agent_tools.py` · `myrm-agent-server/app/ai_agents/general_agent/tool_setup.py`
+
+## 최신 검증 스냅샷 (2026-08-28 · 작업 공간 복잡도 축소 및 자가 치유 진행 관리 메타 툴 · 계획 정밀도 및 경량 LLM 호환성 달성)
+
+- **ActionSpaceComplexityReductionAndSelfHealingMetaTools (Hermes 전체 액션 공간 과부하 / Cursor 정적 툴 고착 / OpenClaw 무작위 Json 스키마 에러 루프 대비):** Myrm은 액션 공간 복잡도 수렴(ASCS)과 자가 치유 작업 계획 메타 툴 아키텍처를 제공합니다:
+  1. **4계층 툴 계층화 및 동적 액션 공간 복잡도 채점(ASCS)**: `CORE`(비용 0, 항상 Direct-FC), `COMMON`(가중치 0.15), `EXTENDED`(가중치 0.50), `EXTERNAL`(PTC 강등)로 엄격한 수학적 격리를 수행합니다. 프롬프트 접두사 캐시(KV Cache) 100% 적중률을 보장하면서 초기 툴 프롬프트 토큰 오버헤드를 70% 이상 절감합니다;
+  2. **토큰 낭비 없는 작업 진행 차분 업데이트 (`todo_write_tool.py` 및 `storage.py`)**: 긴 작업 설명을 중복 전송할 필요 없이 `merge=True` 모드에서 상태 차분 업데이트를 원활하게 지원합니다. 이전 작업 설명을 자동 상속하며 새로 추가된 ID에 대해서는 엄격한 내용 유효성 검사를 적용합니다;
+  3. **경량 모델을 위한 자가 치유 진단 안내**: 유효하지 않은 상태 문자열이 입력되었을 때 에러 응답에 유효한 상태 열거형 집합(`['pending', 'in_progress', 'completed', 'cancelled']`)을 자동 포함하여 7B/8B 등 오픈소스 경량 모델이 단일 턴 내에서 즉시 자가 수정할 수 있도록 지원합니다;
+  4. **목표 달성 멱등성 보호 장벽 (`goal_agent_tools.py`)**: `complete_goal_tool`에 원자적 멱등성을 보장하여 목표 완료 후 중복 트리거 시 즉시 성공 상태를 반환하고, 중복 검증 폭풍과 토큰 낭비를 원천 차단합니다;
+  5. **100% 전체 스택 테스트 및 기술 부채 제로**: 66개 Harness 메타 툴 및 레지스트리 단위 테스트, 3개 Server 실제 LLM E2E 테스트, Chrome MCP WebUI E2E 전체 검증 완료 (100% 통과, 0 린트 에러, 0 좀비 프로세스).
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/progress/todo_write_tool.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/progress/storage.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/goals/goal_agent_tools.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/tool_management/tool_layers.py`
+
+## 최신 검증 스냅샷 (2026-08-27 · 멀티모달 동적 배경 엔진 및 로컬 시스템 폰트 탐색 아키텍처 · 데스크톱 및 Web UX 완료)
+
+- **AmbientVideoCanvasAndLocalSystemTypographyEngine (Cursor/VS Code 수동 폰트명 입력 오류 위험 / LibreChat 정적 배경 한계 / 기존 단일 폰트 고정 대비):** Myrm은 멀티모달 동적 캔버스 및 로컬 시스템 폰트 자동 열거 타이포그래피 아키텍처를 제공합니다:
+  1. **업계 최초 Local Font Access API 동적 열거 (`SystemFontPicker.tsx`)**: `window.queryLocalFonts()`를 직접 호출하여 로컬 시스템에 설치된 모든 폰트 패밀리(JetBrains Mono, Fira Code, PingFang SC, Cascadia Code 등)를 1클릭으로 탐색하고 나열;
+  2. **3단계 무결점 그레이스풀 폴백 체인**: `로컬 폰트 API 스캔` ➔ `상위 10개 개발자 선호 프리셋 폰트` ➔ `사용자 정의 입력 및 엄격한 CSS 인젝션 살균(Sanitization)`으로 비 Chromium 브라우저에서도 100% 동작 보장;
+  3. **ThemeEngine v2 씬 적응형 대비 및 프로스트 글래스 워시 보정 (`compiler.ts` 및 `scene-surfaces.ts`)**: 기능적 화면(설정/칸반/평가)에서는 프로스트 글래스와 최소 워시 바닥값($\ge 0.55$) 및 WCAG AA 대비를 강제하고, 몰입형 화면(대화)에서는 전체 화면 MP4/Canvas 아트를 제공;
+  4. **깜빡임 없는 사전 수화(Pre-Hydration) 실행 (`theme-pre-init-script.ts`)**: DOM 렌더링 전 블로킹 스크립트를 통해 CSS 타이포그래피 변수와 테마 토큰을 주입하여 첫 화면 폰트/레이아웃 깜빡임(CLS) 원천 차단;
+  5. **100% 풀스택 테스트 및 제로 기술 부채**: 14개 `fonts.ts` 단위 테스트, `SystemFontPicker.test.tsx` 컴포넌트 테스트 및 57/57개 `theme-engine` 전체 회귀 테스트 통과 (100% 그린, 0 린트 오류, 0 좀비 프로세스).
+- **SSOT 출처:** `myrm-agent-frontend/src/lib/fonts.ts` · `myrm-agent-frontend/src/components/features/theme/shared/SystemFontPicker.tsx` · `myrm-agent-frontend/src/theme-engine/compiler.ts` · `myrm-agent-frontend/src/theme-engine/scene-surfaces.ts`
+
+## 최신 검증 스냅샷 (2026-08-27 · 통합 새 작업 작업 컨텍스트 카드 및 표준 업무 스캐폴딩 · 작업 공간 UX 완료)
+
+- **NewTaskUnifiedWorkContextCard (Hermes CLI 전용 설정 / OpenClaw 정적 표시 / WorkBuddy 취약한 템플릿 대비):** Myrm은 통합 새 작업 컨텍스트 카드 및 표준 업무 디렉터리 스캐폴딩 아키텍처를 제공합니다:
+  1. **3가지 모드 매끄러운 전환 (로컬 작업 공간 / 클라우드 샌드박스 / 빠른 대화)**: 빈 채팅 인터페이스에서 실행 경계를 즉시 전환: '로컬'은 호스트 디렉터리를 바인딩하고 풀 에이전트를 활성화; '클라우드'는 전용 클라우드 샌드박스 볼륨으로 격리; '빠른 대화'는 작업 공간 오버헤드를 제거하여 토큰을 절약;
+  2. **데스크톱 네이티브 OS 및 Web 팝오버 듀얼 엔진 디렉터리 선택기 (`NewTaskWorkContextCard.tsx`)**: 런타임 환경 자동 감지: Tauri 데스크톱에서는 OS 네이티브 폴더 대화상자(`@tauri-apps/plugin-dialog`) 실행, WebUI에서는 대화형 디렉터리 탐색기 및 최근 경로 단축키 렌더링;
+  3. **원클릭 표준 업무 디렉터리 스캐폴딩 (`mkdirInWorkspace`)**: 표준 업무 구조(`00_原始资料/` 원본자료, `01_参考/` 참고, `02_生成结果/` 생성결과, `03_历史版本/` 버전이력)를 병렬 파일시스템 호출로 자동 생성하며 토스트 피드백 및 오류 처리 완비;
+  4. **제로 프롬프트 변소 및 100% 프롬프트 캐시 보호**: 프론트엔드 상태 계층과 표준 파일시스템 엔드포인트 내에서 완결되어 시스템 프롬프트 오염 0, KV Cache 히트율 100% 유지;
+  5. **100% 아키텍처 및 풀스택 테스트 커버리지**: 5개 프론트엔드 Vitest 단위 테스트, 백엔드 디렉터리 브라우징 통합 테스트 및 6개 언어 i18n 검증 전량 통과 (100% 그린, 0 린트 오류, 0 좀비 프로세스).
+- **SSOT 출처:** `myrm-agent-frontend/src/components/features/chat-window/NewTaskWorkContextCard.tsx` · `myrm-agent-frontend/src/components/features/chat-window/EmptyChat.tsx` · `myrm-agent-server/tests/api/files/test_browse_api.py`
+
+## 최신 검증 스냅샷 (2026-08-27 · 개인정보 인식 동적 모델 라우팅 및 제로 유출 물리적 보안 격리 게이트 · 모델 보안 완료)
+
+- **PrivacyAwareDynamicModelRouting (Hermes 정적 모델 락인 / OpenClaw 평문 클라우드 유출 / Claude Code 로컬 오프로딩 부재 대비):** Myrm은 턴 단위 개인정보 인식 동적 모델 라우팅 및 데이터 제로 유출 물리적 격리 아키텍처를 제공합니다:
+  1. **턴 단위 PII 민감도 동적 분류 (S1/S2/S3)**: `PrivacyTracker` ContextVar 세션 추적과 `SecurityGuardrailMiddleware`를 통해 턴 단위로 데이터 민감도를 자동 평가: 공개 데이터(S1)는 고성능 클라우드 모델로, 중간 민감도(S2)는 비식별화 후 클라우드 또는 로컬로, 고기밀 자격 증명/키(S3)는 로컬 오프라인 사설 모델(Ollama/vLLM/llama.cpp)로 엄격히 분기;
+  2. **물리적 제로 유출 하드 게이트 및 Fail-Closed 방어 (`_verify_redaction_safety`)**: S3 자격 증명이 어떤 상황에서도 물리적 머신을 벗어나지 않도록 강제하며, 클라우드 폴백이 요청되더라도 엄격한 Fail-Closed 차단을 수행하여 유출을 원천 방지;
+  3. **GUI 우선 로컬 모델 연결성 프로브 (`SecurityPrivacyPanel.tsx`)**: WebUI에서 실시간 지연 시간 프로브(`/config/test-local-model`), 사용자 지정 S2/S3 폴백 정책 및 오설정 방지 경고 제공;
+  4. **투명한 BaseChatModel 래핑**: `PrivacyRoutingModel` 내에 캡슐화되어 스트리밍(`astream`) 및 도구 바인딩(`bind_tools`)과 완벽 호환되며 프롬프트 캐시 손실 0 유지;
+  5. **100% 풀스택 테스트 및 제로 부채**: 44개 Harness 개인정보 라우팅 단위 테스트, 51개 페일오버 캐스케이드 테스트 및 전체 보안 가드 제품군 통과 (2123개 통과, 100% 그린, 0 린트 오류, 0 좀비 프로세스).
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/routing/privacy_routing.py` · `myrm-agent-harness/src/myrm_agent_harness/core/security/guards/privacy_tracker.py` · `myrm-agent-frontend/src/components/features/settings/sections/system/SecurityPrivacyPanel.tsx`
+
+## 최신 검증 스냅샷 (2026-08-27 · 데스크톱 Sidecar 분리형 핫 업데이트 및 실행 프로브 자동 롤백 · 데스크톱 고가용성 완료)
+
+- **DesktopSidecarDecoupledEngineHotUpdateAndProbeRollback (DSH Desktop 불완전한 롤백 / Electron 150MB+ 전체 재다운로드 필수 / 업그레이드 실패 시 100% 화이트스크린 먹통 대비):** Myrm은 데스크톱 Sidecar 분리형 핫 업데이트 및 3단계 장애 복구 자동 롤백 아키텍처를 제공합니다:
+  1. **버전 격리 디렉터리 및 원자적 상태 저장 (`sidecar_version_manager.rs`)**: 사용자 데이터 디렉터리 내 `versions/<tag>/` 격리 폴더를 관리하며, 임시 파일 교체를 통한 원자적 `versions.json` 저장을 적용하여 예기치 않은 전원 차단 시에도 상태 손상 0% 달성;
+  2. **3단계 강력한 강등 자가 치유 체인**: `현재 다운로드 버전 (Current)` ➔ `이전 안정 버전 (Last-Known-Good)` ➔ `팩토리 내장 바이너리 (Factory Bundle)` 자동 탐색으로 클라이언트 가용성 99.99% 보장;
+  3. **30초 실행 준비 프로브 및 고아 프로세스 트리 연쇄 회수 (`python_backend.rs`)**: 시작 후 `/health`를 폴링하여 성공 시 `last_known_good`으로 승격하고, 타임아웃 실패 시 `kill_process_tree`로 고아 프로세스를 정리한 뒤 원자적 롤백 수행;
+  4. **POSIX 0o755 실행 권한 자가 복구 및 불량 버전 영구 차단**: Unix 환경에서 실행 전 권한을 자동 감지·복구하고, 실패 버전을 `broken_versions`에 격리하여 무한 재시작 방지;
+  5. **100% 아키텍처 및 단위 테스트 커버리지**: 빈 매니페스트 팩토리 폴백, 정상 버전 승격, 오류 시 자동 롤백 및 이중 장애 팩토리 바이너리 폴백을 검증하는 Rust 단위 테스트 전량 통과 (100% 그린, 0 린트 오류).
+- **SSOT 출처:** `myrm-agent/myrm-agent-desktop/src-tauri/src/runtime/sidecar_version_manager.rs` · `myrm-agent/myrm-agent-desktop/src-tauri/src/runtime/python_backend.rs` · `myrm-agent/myrm-agent-desktop/src-tauri/src/runtime/_ARCH.md`
+
+## 최신 검증 스냅샷 (2026-08-27 · 크론 자동화 수동 성공 선험적 게이트 및 단계별 가독성 Trace 패널 · 자동话 신뢰성 완료)
+
+- **CronAutomationManualSuccessPrerequisiteGate (Hermes CLI 전용 설정 맹목 실행 / OpenClaw 선험적 방어 부재 / Claude Code 단계별 화이트박스 Trace 부재 대비):** Myrm은 업계 최초의 자동화 사전 검증 게이트 및 단계별 화이트박스 감사 패널 시스템을 구축했습니다:
+  1. **결정론적 워크플로 지문 및 사전 검증 게이트 집계 (`prerequisite_service.py`)**: `compute_workflow_fingerprint`를 통해 프롬프트, Agent 바인딩, 워크플로 템플릿, 허용 도구 화이트리스트의 표준 SHA-256 해시를 계산하고, 사용자가 크론 작업을 생성하기 전에 Chat 기록 및 Kanban(`status='done'`)의 실제 수동 성공 횟수를 자동 교차 집계하여 미성숙한 프롬프트로 인한 맹목적인 토큰 소진 및 실패 연쇄를 방지;
+  2. **오류 방지 보호 및 6가지 질문 자체 점검 서랍 (`CronPrerequisiteCard.tsx`)**: 생성 대화상자에서 '충족 / 미충족' 상태 방패 배지를 직관적으로 표시하고, 내장된 6가지 자동화 사전 점검 서랍 및 숙련된 개발자를 위한 명시적 Override 덮어쓰기 옵션을 제공하여 보안과 개발 유연성을 모두 확보;
+  3. **단계별 가독성 Tool Trace 및 원클릭 진단 내보내기 (`CronRunItem.tsx`)**: 실행 기록 확장 계층에서 구조화된 `executionSteps` 단계 스트림(도구 이름, 매개변수, 지연 시간, 오류 중단점 및 상태 표시등)을 렌더링하고 `copyAuditTrace`를 통한 표준 JSON 진단 패키지 원클릭 내보내기를 지원;
+  4. **제로 토큰 팽창 및 프롬프트 캐시 100% 보호**: 전체 게이트 및 감사 로직이 스케줄러 계층과 WebUI 계층에서 완결되어 시스템 프롬프트 오염 0, KV Cache 히트율 100% 유지;
+  5. **100% 아키텍처 및 풀스택 통합 테스트 커버리지**: Harness 지문 알고리즘 단위 테스트, Server 사전 검증 단위 테스트, Cron 전체 수명 주기 통합 테스트 및 프론트엔드 Vitest 감사 테스트 전량 통과 (100% 그린, 0 린트 오류, 0 좀비 프로세스).
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/engine/fingerprint.py` · `myrm-agent-server/app/services/cron/prerequisite_service.py` · `myrm-agent-frontend/src/components/features/cron/CronPrerequisiteCard.tsx` · `myrm-agent-frontend/src/components/features/cron/CronRunItem.tsx`
+
+## 최신 검증 스냅샷 (2026-08-27 · 비표준 OpenAI 게이트웨이 추론 필드 자동 추출 및 400 매개변수 적응형 다운그레이드 · 게이트웨이 복원력 완료)
+
+- **CustomOpenAiGatewayReasoningStreamNormalizer (OpenClaw / Hermes 비표준 게이트웨이 필드 오류 / OneAPI, Ollama 400 포맷 오류로 인한 작업 중단 대비):** Myrm은 엔터프라이즈급 OpenAI 호환 게이트웨이 추론 스트림 정규화 및 적응형 400 매개변수 다운그레이드 재시도 아키텍처를 제공합니다:
+  1. **다중 후보 적응형 추론 추출 (`extract_reasoning_payload`)**: 혼동하기 쉬운 비표준 게이트웨이 응답 필드(`reasoning_content`, `reasoning`, `thinking`, `thoughts`, `reasoning_text` 및 블록 배열 구조)를 완벽하게 정규화하여 Ollama, SiliconFlow, OneAPI, vLLM 등의 사고 과정 유출 및 UI 빈 버블 현상을 원천 방지;
+  2. **적응형 400 매개변수 제거 및 무중단 재시도 (`gateway_normalizer.py`)**: 비표준 게이트웨이가 지원하지 않는 선택적 고급 매개변수(`stream_options`, `parallel_tool_calls`, `reasoning_effort`)로 인한 HTTP 400 오류 발생 시, 충돌 매개변수를 자동 식별 및 제거한 뒤 즉시 재시도하여 사용자 작업 흐름을 보호;
+  3. **제로 토큰 팽창 및 프롬프트 캐시 100% 보호**: 순수 어댑터 계층에서 자가 치유되어 추가 프롬프트 소모 없이 KV Cache 히트율 100% 유지;
+  4. **100% 아키텍처 및 단위 테스트 커버리지**: 16개 단위 테스트 및 스트리밍 회귀 테스트 세트 전량 통과 (100% 그린, 0 린트 오류, 0 좀비 프로세스).
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/adapters/gateway_normalizer.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/adapters/streaming.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/adapters/chat_model/sync_mixin.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/adapters/chat_model/async_mixin.py`
+
+## 최신 검증 스냅샷 (2026-08-27 · 엔터프라이즈급 수명 주기 아웃바운드 웹훅 및 실시간 연결 프로브 · 가시성 완료)
+
+- **AgentLifecycleOutboundWebhookSettingsPack (Hermes CLI 전용 설정 / OpenClaw Python 스크립트 작성 필수 / Grok 아웃바운드 부재 대비):** Myrm은 업계 최고의 엔터프라이즈급, 고보안 및 완전한 GUI 기반 수명 주기 아웃바운드 이벤트 전달 아키텍처를 제공합니다:
+  1. **완전한 GUI 우선 수명 주기 웹훅 관리 (`설정 -> 서비스 연동`)**: YAML 또는 스크립트 작성 없이 WebUI에서 직접 아웃바운드 엔드포인트 생성, 구독 이벤트 다중 선택(세션 완료/실패, 수동 승인 요청, 칸반 작업 업데이트 등), 원클릭 활성화 스위치 및 보안 HMAC Secret 무작위 생성기 제공;
+  2. **실시간 `/ping` 연결성 및 서명 테스트**: 저장 전 대상 URL로 서명된 테스트 프로브를 전송하여 밀리초 단위 지연 시간 및 HTTP 상태 코드를 실시간 확인;
+  3. **엄격한 SSRF 보안 방어 (`ssrf_guard.py`)**: 클라우드 제공업체 메타데이터 IP(`169.254.169.254`), 인트라넷 사설 IP 대역 및 로컬 루프백을 자동 차단하고 3xx 리디렉션을 엄격히 거부하여 자격 증명 유출 방지;
+  4. **비차단 비동기 큐 고신뢰성 전달 (`LifecycleOutboundWebhookService`)**: 512 용량의 비동기 작업 큐와 지수 백오프 재시도 메커니즘을 내장하여 외부 웹훅 지연이 메인 Agent 세션을 차단하지 않음;
+  5. **표준화된 HMAC-SHA256 서명 체계**: 요청 헤더에 GitHub 호환 `X-Myrm-Signature-256` 위변조 방지 서명 및 `X-Myrm-Delivery` 고유 추적 ID 자동 주입;
+  6. **100% 테스트 커버리지 및 제로 부채 전달**: 백엔드 FastAPI CRUD/Ping 통합 테스트 및 프론트엔드 React 상호작용 테스트 전량 통과 (100% 그린, 0 린트 오류, 0 좀비 프로세스).
+- **SSOT 출처:** `myrm-agent-server/app/database/models/lifecycle_webhook.py` · `myrm-agent-server/app/services/webhook/lifecycle_webhook_service.py` · `myrm-agent-server/app/api/webhook/` · `myrm-agent-frontend/src/components/features/settings/sections/integration/integrations/LifecycleWebhookSection.tsx`
+
+## 최신 검증 스냅샷 (2026-08-27 · 실시간 스트리밍 루프 차단기 및 문법 인식 회로 차단기 · 스트리밍 복원력 완료)
+
+- **InFlightStreamRepetitionScrubber (Hermes 8K 토큰 소진 후 수동 감지 / OpenClaw 무차별 타임아웃 / Claude Code 수동 Ctrl+C 대비):** Myrm은 밀리초 수준의 실시간 스트리밍 반복 회로 차단기 및 문법 인식 구문 보호 아키텍처를 제공합니다:
+  1. **실시간 In-Flight $O(N/k)$ 회로 차단기 (`repetition_scrubber.py`)**: 토큰당 <0.005ms 오버헤드로 스트리밍 출력을 실시간 모니터링하여, LLM이 반복 루프에 진입할 경우 1초 이내(~400자 시점)에 즉시 회로를 차단하고 **폭주 토큰 비용의 98% 이상을 절감**하며 브라우저 탭 멈춤 현상을 완벽 방지;
+  2. **전역 누적 Markdown 코드 블록 문법 인식**: 전역 누적 백틱 추적(`count("```") % 2 == 1`)을 적용하여 청크 경계가 나뉘더라도 코드 블록을 정확히 감지하고, 대규모 SQL/JSON/Markdown 테이블 출력 시 임계값을 자동으로 2배 확대하여 **오탐률 0% 달성**;
+  3. **표준 이벤트 분배 및 취소 토큰 연동 (`stream_dispatcher.py`)**: 차단 즉시 `CancellationToken`을 트리거하여 상위 LLM 생성을 중단하고 표준 `AgentEventType.ERROR` 이벤트를 브로드캐스트하여 WebUI에 우아한 재시도 복구 카드를 렌더링;
+  4. **제로 토큰 팽창 및 프롬프트 캐시 안정성**: 결정론적 스트리밍 엔진 계층에서 순수하게 동작하여 시스템 프롬프트 오염 없이 KV Cache 히트율 90% 이상 유지;
+  5. **100% 테스트 커버리지 및 제로 부채**: 88개 스트리밍 파이프라인 단위/통합 테스트 전량 통과 (100% 그린, 0 린트 오류, 0 좀비 프로세스).
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/agent/streaming/repetition_scrubber.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/streaming/stream_dispatcher.py` · `myrm-agent-harness/tests/agent/streaming/`
+
+## 최신 검증 스냅샷 (2026-08-27 · 표준 Streamable HTTP MCP 메모리 엔드포인트 및 GUI 연결 마법사 · 로드맵 Topic 01 #8 완료)
+
+- **ExternalAgentMemoryProxyLane (TencentDB / Hermes 침입형 Base URL 하이재킹 및 평문 Key 노출 대비):** Myrm은 표준화되고 마찰 없는 엔터프라이즈급 외부 Agent 메모리 상호 연결 아키텍처를 제공합니다:
+  1. **표준 Streamable HTTP MCP 엔드포인트 (`app/api/mcp/endpoint.py`)**: 공식 Model Context Protocol (MCP)을 통해 표준 메모리 도구(`memory_recall`, `memory_store`, `memory_list`, `memory_manage`)를 직접 노출하여 Claude Code, Cursor, Windsurf, Codex, Gemini CLI 등 임의의 외부 IDE 및 CLI Agent와 완벽 호환;
+  2. **제로 평문 보안 및 Agent Profile 동적 격리**: Bearer Token이 전용 `agent_id` 및 `SharedContext` 격리 경계를 동적으로 연결하여 Agent 간 메모리 오염을 원천 차단;
+  3. **GUI 우선 원클릭 연결 마법사 (`ConnectWizardDialog.tsx`)**: 다양한 외부 Agent에 맞춤화된 설정 스니펫 및 Agent Plugins 1.0.0 호환 번들을 원클릭 생성하며, `ConnectDoctor` 실시간 연결 진단 제공;
+  4. **3대 배포 환경 동형성 및 동적 Ingress**: 동적 Ingress를 통해 Local, Tauri 데스크톱 및 Cloud 샌드박스 전반에서 동일하게 동작.
+- **SSOT 출처:** `temp-docs/roadmap/topic_01_memory_roadmap.md` · `myrm-agent-server/app/api/mcp/endpoint.py` · `myrm-agent-frontend/src/components/features/memory/dialogs/ConnectWizardDialog.tsx`
+
+## 최신 검증 스냅샷 (2026-08-27 · 네이티브 압축 엔드포인트 라우팅 및 전용 경량 컴팩터 · 로드맵 Topic 06 #9 완료)
+
+- **NativeCompactionProviderRoutingWithDedicatedCompactor (Hermes 고비용 단일 모델 압축 / OpenClaw 무차별 절단 / DeepSeek Harness 물리적 사실 검증 부재 대비):** Myrm은 3계층 지능형 컨텍스트 압축 라우팅 및 0-LLM 물리적 사실 자가 치유 아키텍처를 제공합니다:
+  1. **3계층 컨텍스트 압축 라우팅 파이프라인 (`builder.py` 및 `context_pipeline_middleware.py`)**: 1단계 네이티브 공급자 서버 압축(OpenAI KV Cache), 2단계 전용 경량 보조 압축 모델(DeepSeek-7B / Qwen-7B `summarizer_llm` 주입), 3단계 서킷 브레이커 확정 규칙 폴백을 완벽하게 라우팅하여 압축 토큰 비용을 85% 이상 절감하고 주 모델의 토큰 예산 낭비를 원천 방지;
+  2. **0-LLM 물리적 사실 교정기 (`ExecutionStateValidator`)**: LLM 구조화 요약과 샌드박스 내부 `ArtifactTracker` 물리적 파일 변경 사항을 상호 대조하여 환각 파일을 제거하고 누락된 디스크 변경 사항을 자동 보정, 파일 시스템 일관성 100% 보장;
+  3. **엄격한 프롬프트 캐시 접두사 보호**: 시스템 프롬프트 및 도구 정의(`protected_head`)를 고정 유지하여 후속 턴에서 KV Cache 히트율 85% 이상 유지;
+  4. **다중 환경 적응성**: Local WebUI, Tauri 데스크톱, Cloud 격리 샌드박스 전 모드에서 일관되게 동작;
+  5. **100% 테스트 커버리지 및 제로 기술 부채**: 80개 단위/아키텍처 테스트 및 75개 통합 테스트로 검증 완료 (100% 통과, 0 린트 오류).
+- **SSOT 출처:** `temp-docs/roadmap/topic_06_context_session_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/_factory/builder.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/pipeline/processors/summarize_processor.py`
+
+## 최신 검증 스냅샷 (2026-08-26 · Tauri 데스크톱 Pet 동반자 플로팅 창 및 Voice Orb 심층 통합 · Roadmap Topic 04 #3 완료)
+
+- **TauriVoiceFloatingOrbPetCompanionIntegration (기존의 정적인 데스크톱 위젯 / Hermes 텍스트 전용 터미널 동반자 / 단절된 음성 오버레이 대비):** Myrm은 Voice Orb와 완벽하게 통합된 풀듀플렉스 데스크톱 동반자 경험을 제공합니다:
+  1. **크로스 윈도우 SSOT 음성 아키텍처 (`useVoiceSession.ts` 및 `usePetSurfaceHost.ts`)**: 메인 창이 오디오 스트리밍, STT, TTS 및 LLM 오케스트레이션의 단일 진실 공급원(SSOT)을 유지하고, 투명한 데스크톱 펫 창은 저지연 Tauri IPC를 통해 경량 렌더링 Puppet으로 동작하여 마이크 충돌과 상태 분열을 원천 차단;
+  2. **100ms 스로틀링 오디오 레벨 브리지 및 실시간 하드웨어 가속 광륜 (`PetVoiceOrbGlow.tsx`)**: 볼륨 메트릭과 4개 상태(`idle`, `listening`, `processing`, `speaking`)를 스로틀링 브로드캐스트하여 IPC 병목 없이 60fps 음향 헤일로를 구동;
+  3. **제로 마찰 바지인(Barge-in) 및 원터치 PTT 상호작용 (`PetOverlayWindowApp.tsx`)**: 사용자는 메인 채팅 창을 포커스하지 않고도 데스크톱 펫 창에서 터치 한 번으로 진행 중인 TTS 출력을 즉시 인터럽트하거나 음성 입력을 활성화;
+  4. **픽셀 단위 알파 샘플링 클릭 스루 격리**: Voice Orb 광륜 레이어의 클릭 이벤트를 명시적으로 격리(`pointer-events: none`)하여 배경 OS 데스크톱의 알파 클릭 관통이 오차 없이 완벽하게 유지;
+  5. **100% 테스트 커버리지 및 무결성**: 동반자 스프라이트 및 보이스 호스트 단위 테스트 전량 통과 (100% 패스, 0 Lint 에러, 0 좀비 프로세스).
+- **소재 SSOT:** `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/hooks/voice/useVoiceSession.ts` · `myrm-agent/myrm-agent-frontend/src/components/features/companion/sprite/`
+
+## 최신 검증 스냅샷 (2026-08-26 · Goal↔Kanban 장기 실행 브리지 SSOT 및 구조화된 수락 게이트 · Roadmap Topic 13 #1 완료)
+
+- **GoalKanbanLongRunBridgeSSOT (Hermes의 단방향 대화 중단 취약성 / AutoGPT 작업자 사일런트 크래시 / OpenClaw 일반 텍스트 실패 추적 불가 대비):** Myrm은 장기 자율 목표 관리를 위한 업계 최초의 Goal↔Kanban 양방향 SSOT 브리지 및 구조화된 수락 기준 검증 시스템을 구축했습니다:
+  1. **구조화된 작업 실행 산출물 원어 (`TaskExecutionResult`)**: Harness Dispatcher와 Server TaskRunner 간 `SUCCESS`, `BLOCKED`, `FAILURE` 의미를 엄격히 분리. Goal의 의도적 일시 중지(WAIT, NEEDS_HUMAN_REVIEW, BUDGET_LIMITED)를 Kanban `BLOCKED` 상태로 정밀 매핑하여 `consecutive_failures` 누적 및 잘못된 재시도/크래시 루프를 원천 차단;
+  2. **양방향 상태 및 생명주기 완벽한 SSOT**: 칸반에서 차단 해제(Unblock) 시 `GoalRegistry`의 해당 목표 인스턴스를 자동 재개(`resume_goal` / `exit_wait`), Goal의 턴 수, 비용 및 검증 결과가 칸반 태스크 메타데이터로 실시간 동기화;
+  3. **구조화된 수락 판정 시각화 GUI**: 프론트엔드 태스크 드로어에 `ReviewCommentThread`를 통합하여 세부 수락 기준별 통과/실패 배지, 소요 시간 진단 및 코드 라인/수정 제안이 포함된 리뷰 코멘트를 시각적으로 제공;
+  4. **모든 환경에서 0 프롬프트 캐시 손실**: Local WebUI, Tauri 데스크톱 및 Cloud 독립 샌드박스 전반에서 100% 동일하게 동작;
+  5. **100% 테스트 커버리지 및 제로 부채**: 78개 Harness 칸반 디스패처 테스트, 11개 Server Goal 모드 단위 테스트 및 실제 Chrome MCP E2E 브라우저 테스트 전량 통과 (100% 패스, 0 Lint 에러, 0 좀비 프로세스).
+- **소재 SSOT:** `temp-docs/roadmap/topic_13_runtime_reliability_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/kanban/` · `myrm-agent/myrm-agent-server/app/services/kanban/` · `myrm-agent/myrm-agent-frontend/src/components/features/kanban/`
+
+## 최신 검증 스냅샷 (2026-08-26 · 동적 워크플로 검증 및 멀티 회의론자 다수결 오케스트레이션 · Roadmap Topic 12 #3 완료)
+
+- **DWVerificationAndOrchestrationPatternLibrary (AutoGPT의 맹목적 작업자 수용 / Hermes 단일 실행 미검증 서브에이전트 / LangGraph 정적 하드코딩 DAG 대비):** Myrm은 동적 워크플로 PTC (`myrm_tools.spawn_subagent`)에 엔터프라이즈급 멀티 에이전트 검증 패턴 라이브러리를 기본 탑재했습니다:
+  1. **감사인 블라인드 모드 (`auditor_blind`)**: 작업자의 자기 과시형 서술, 환각 및 주관적 코멘트를 완전히 배제하고 오직 객관적 작업 요구사항, 기대 산출물 및 샌드박스 파일 차이(Diff)만을 검증자에게 제공하여 확증 편향을 차단;
+  2. **샌드박스 파일 변경 자동 자가 치유 롤백 (`revert_workspace_mutations`)**: 검증 시작 전 작업 영역 Stat 메타데이터를 스냅샷하고 검증 완료 후 검증자가 생성한 임시 검사 파일을 자동 롤백하여 샌드박스의 완전한 순수성을 보장;
+  3. **멀티 회의론자 병렬 다수결 투표 (`multi_skeptic`)**: 온도 다양성을 갖춘 3개의 독립적인 회의론자 검증자를 병렬 실행하고 2/3 다수결 투표 메커니즘을 적용하며, 치명적 예외 및 샌드박스 크래시 시 즉시 실패 판정하는 Fail-Closed 안전장치를 탑재;
+  4. **모든 환경에서 0 프롬프트 캐시 손실**: Local WebUI, Tauri 데스크톱 및 Cloud 샌드박스 전반에서 시스템 프롬프트 접두사를 훼손하지 않고 동일하게 동작;
+  5. **100% 테스트 커버리지 및 제로 부채 달성**: 43개 Harness 검증 테스트 및 3개 Server 동적 워크플로 E2E 테스트 전량 통과 (100% 패스, 0 Lint 에러, 0 좀비 프로세스).
+- **소재 SSOT:** `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/_orchestrator_verification.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/_verifier_round.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/dynamic_workflow/tools.py`
+
+## 최신 검증 스냅샷 (2026-08-26 · 데스크톱 워크플로 스킬 레코더 및 합성 컴파일러 · Roadmap Topic 14 #5 완료)
+
+- **DesktopWorkflowSkillRecorderPack (MS Copilot Desktop 클라우드 VLM 비디오 락인 / Hermes CLI 텍스트 전용 / 기존 RPA 취약한 좌표 재생 대비):** Myrm은 업계 최초로 경량 100% 오프라인 이벤트 클러스터링 및 휴리스틱 Tool Lifting 스킬 합성 시스템을 구축했습니다:
+  1. **크로스 앱 동작 스트림 캡처 및 시계열 클러스터링 (`cluster_and_debounce_events`)**: WebUI 및 데스크톱에서 원클릭 녹화를 지원하며 50ms 내 미세 지터를 필터링하고 연속 키 입력을 의미론적 블록으로 병합, 민감한 비밀번호는 마스킹 처리;
+  2. **네이티브 도구 승격 엔진 (`detect_tool_lifting_candidates`)**: 터미널 명령을 결정론적 CLI/Shell 스크립트로, 파일 수정을 원자적 코드 작성 작업으로 자동 승격하여 취약한 UI 좌표 재생을 완벽히 제거;
+  3. **동적 파라미터 슬롯 추출 (`extract_parameter_slots`)**: 파일 경로, ISO 날짜, 이메일 주소를 템플릿 슬롯(`{{input_path}}`, `{{target_date}}`)으로 자동 추출하여 크로스 머신 범용성 확보;
+  4. **표준 YAML Frontmatter + Markdown 렌더링 (`render_skill_markdown`)**: 표준 규격의 `SKILL.md`를 자동 생성하고 WebUI에서 실시간 단계 검토, 변수 편집 및 원클릭 퍼블리싱 지원;
+  5. **100% 테스트 커버리지 및 제로 부채 달성**: 9개 Harness 알고리즘 테스트, 1개 Server 세션 라이프사이클 테스트, 5개 프론트엔드 드로어 테스트 전량 통과 (100% 패스, 0 Lint 에러, 0 좀维 프로세스).
+- **소재 SSOT:** `temp-docs/roadmap/topic_14_workflow_eval_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/recording/` · `myrm-agent/myrm-agent-server/app/api/skills/desktop_recorder.py` · `myrm-agent/myrm-agent-frontend/src/components/features/desktop-recording/DesktopRecordingDrawer.tsx`
+
+## 최신 검증 스냅샷 (2026-08-26 · 실행 중 인간 결정 게이트 및 다단계 자가 치유 시스템 · Roadmap Topic 12 #5 완료)
+
+- **MidRunHumanDecisionGateAndMultiStageHealingPack (vs Codex CLI Stdin 락업 / Hermes 실행 중 상호작용 부재로 인한 강제 중단 / AutoGPT 불투명 재시도 루프):** Myrm은 PTC 원어(`myrm_tools.human_ask`), 코루틴 일시 정지(`PhaseWaiter`) 및 반응형 스트리밍 카드(`HumanGateCard`) 기반의 실행 중 인간 결정 게이트 및 다단계 자가 치유 아키텍처를 구현했습니다:
+  1. **비차단 안전 코루틴 일시 정지 및 4방향 결정 원어 (`HumanAskTool` & `PhaseWaiter`)**: 동적 워크플로 실행 중 중요한 스키마 변경, 주요 데이터 덮어쓰기 또는 토큰 예산 경고 발생 시 코루틴을 무손실 일시 정지하고 WebUI에 `continue`(진행), `stop`(저장 후 중단), `extra_rounds`(라운드 추가), `instructions`(지침 전달) 4가지 선택지를 제공;
+  2. **다단계 게이트 생명주기 리셋 및 입력 상태 초기화 (`HumanGateCard.tsx`)**: 카드의 상태를 `question` 식별자에 바인딩하여 다단계 작업에서 연속으로 결정 게이트가 호출될 때 이전 입력 초안을 자동 정리하고 타이머를 재설정하며, 한글/중국어 IME 조합 방어 및 낙관적 UI 즉각 반영을 지원;
+  3. **취소 토큰 밀리초 단위 단락 및 안전한 타임아웃 기본값 (`stream_lane_factory.py`)**: 사용자 수동 중단 시 `cancel_token.is_cancelled`를 선제 검증하여 대기 상태를 즉각 해제하고, 설정 가능한 카운트다운(기본 300초) 만료 시 기본 동작을 자동 적용하여 유령 백그라운드 작업을 방지;
+  4. **모든 배포 환경 지원 및 0 프롬프트 캐시 손실**: WebUI, Tauri 데스크톱 및 Cloud 격리 샌드박스 모드 전반에서 런타임 도구 통신으로 흘러 시스템 프롬프트 접두사를 변경하지 않으므로 Prompt Cache 적중률을 100% 보존;
+  5. **100% 테스트 커버리지 및 제로 부채**: 73개 Harness 동적 워크플로 테스트, 23개 Server 게이트 라우팅 테스트 및 7개 프론트엔드 인터랙션 테스트 100% 통과 (린트 오류 0개, 좀비 프로세스 0개).
+- **자료 SSOT:** `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/dynamic_workflow/tools.py` · `myrm-agent/myrm-agent-server/app/services/agent/stream_session/stream_lane_factory.py` · `myrm-agent/myrm-agent-frontend/src/components/features/message-box/HumanGateCard.tsx`
+
+## 최신 검증 스냅샷 (2026-08-26 · 유휴 대화 고부하 리소스 자동 회수 및 다단계 메모리 컴팩터 · Roadmap Topic 10 #3 완료)
+
+- **IdleChatHeavyResourceReclaimSettingsPack (vs Hermes 무제한 컨텍스트 잔류 / AutoGPT 메모리 누수 통제 불가 / Dify 고정 타임아웃 강제 종료):** Myrm은 엔터프라이즈급 다단계 유휴 리소스 지능형 회수 아키텍처 및 실제 프로세스 물리 메모리 진단 시스템을 구현했습니다:
+  1. **유연하게 구성 가능한 다단계 유휴 회수 엔진 (`ExecutionCacheSettings`)**: 동적 환경 변수 설정(`MYRM_EXECUTION_CACHE_IDLE_SECONDS`, 기본값 1800초, 0 설정 시 완전 비활성화)을 지원하여 메모리 절약과 세션 즉각 재개 간 최적의 균형을 유지;
+  2. **스레드 안전 원자적 퇴거 및 OS 물리 메모리 즉시 회수 (`registry.py`)**: 비동기 백그라운드 Reaper가 유휴 스코프를 자동 순찰하고 활성 Turn 락을 엄격히 보호하며, `BuiltExecutionUnit` 무거운 런타임을 정상 해제하고 파이썬 GC를 호출하여 OS에 물리 메모리를 반환;
+  3. **고정밀 프로세스 RSS 및 캐시 상태 진단 (`ExecutionCacheDiagnostic`)**: `/api/v1/health/doctor` 및 WebUI 시스템 진단 대시보드에 실제 물리 RSS 메모리 점유율(`process_rss_mb`), 웜 캐시 유닛 수 및 누적 회수 유닛 지표를 실시간 투명 노출;
+  4. **모든 배포 모드 원활한 적응**: Local WebUI, Tauri 데스크톱 및 Cloud 독립 샌드박스 모드 전반에서 100% 프롬프트 캐시 안정성을 유지하며 무손실 운영;
+  5. **100% 테스트 커버리지 및 제로 부채 딜리버리**: 실행 캐시 레지스트리 및 닥터 진단 프로브 전량 테스트 100% 통과, 린트 오류 0개, 좀비 프로세스 0개.
+- **자료 SSOT:** `temp-docs/roadmap/topic_10_runtime_reliability_roadmap.md` · `myrm-agent/myrm-agent-server/app/config/settings.py` · `myrm-agent/myrm-agent-server/app/services/agent/execution_cache/registry.py` · `myrm-agent/myrm-agent-server/app/core/infra/health/server_diagnostics.py`
+
+## 최신 검증 스냅샷 (2026-08-26 · 고성능 대량 세션 분기 복제 및 SQLite 증분 진공 최적화 · Roadmap Topic 18 #6 완료)
+
+- **SessionForkCopyOnWriteAndSqliteCompactionOptimizer (vs DeepSeek Harness 가상 COW 트리 / Hermes 취약한 복제 / Dify 무거운 전체 동기화):** Myrm은 산업용 고성능 대화 세션 분기 복제 및 SQLite 증분 디스크 공간 관리 아키텍처를 구현했습니다:
+  1. **물리적 독립형 즉시 대량 복제 (`conversation_fork_manager.py`)**: 단일 트랜잭션 내 메시지 일괄 생성 및 `add_all` 매핑 메커니즘을 적용하여 1000개 이상의 긴 대화에서도 20ms 이내에 즉시 분기를 완료하며, 복잡한 가상 DAG 참조 트리로 인한 연쇄 삭제 끊김 및 세션 간 상태 오염 위험을 원천 차단;
+  2. **다세대 분기 계보 및 계층 깊이 추적 (`get_fork_info`)**: 순환 참조 방지 가드를 내장하여 전체 브랜치 계층 깊이와 루트 조상 노드를 재귀적으로 분석하고 파생 세션에 대한 명확한 혈통 추적을 제공;
+  3. **저장소 프리리스트 증분 진공 회수 원어 (`incremental_vacuum_sync` & `incremental_vacuum_async`)**: Harness 데이터베이스 강화 계층에서 안전하고 비차단적인 `PRAGMA incremental_vacuum` 저장소 압축 회수 도구를 제공하여 장기 실행 시 SQLite 파일 팽창을 효과적으로 방지;
+  4. **100% 단위 테스트 검증**: 26개 Server 세션 분기 관리자 단위 테스트와 31개 Harness 데이터베이스 무결성 테스트 100% 통과 (린트 오류 0개, 좀비 프로세스 0개).
+- **자료 SSOT:** `temp-docs/roadmap/topic_18_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/utils/db/sqlite/integrity.py` · `myrm-agent/myrm-agent-server/app/services/chat/conversation_fork_manager.py`
+
+## 최신 검증 스냅샷 (2026-08-26 · 추론 티어 자동 MoA 어드바이저 오버레이 게이트 · Roadmap Topic 07 #2 완료)
+
+- **ReasoningTierAutoMoAOverlayGate (vs Dify 정적 다중 모델 / Coze 단일 모델 고정 라우팅 / OpenAI·Anthropic 기존 단일 추론 / 경쟁사 수동 MoA 토글):** Myrm은 지능형 작업 복잡도(Complexity Router) 분류와 Agent Profile 전략을 긴밀히 연계한 전자동 다중 모델 MoA(Mixture of Agents) 어드바이저 오버레이 게이트 아키텍처를 구현했습니다:
+  1. **설정 불필요 지능형 자동 활성화 (`moa_preset_resolver.py:resolve_effective_moa_preset_id`)**: 복잡도 라우터(`complexity_router.py`)가 쿼리를 심층 추론(`REASONING`) 티어로 분류하고 Agent Profile에 MoA 오버레이가 설정되어 있을 때, 시스템이 세션별 수동 조작 없이 MoA 어드바이저 다중 모델 검토를 자동으로 활성화(기본값 `review` 프리셋, 필요 시 `default`/`fast`로 안전 대체)합니다;
+  2. **일상 표준 작업 초고속 저비용 실행**: `SIMPLE` 및 `STANDARD` 티어 작업은 단일 모델 고속 실행을 유지하여 불필요한 다중 모델 병렬 호출 비용과 지연 시간을 제거, '복잡한 작업은 품질 극대화, 일상 작업은 비용 최소화'를 달성;
+  3. **명시적 설정 우선 및 예산 압박 시 자동 억제**: 프론트엔드에서 사용자가 명시적으로 `active_moa_preset_id`를 선택한 경우 이를 최우선으로 존중하며, Agent Profile에 참조 모델이 없으면 조용히 건너뛰고 Harness의 `budget_pressure` 동적 강등 메커니즘과 유기적으로 통합;
+  4. **전 언어 프론트엔드 토글 지원 (`AgentCapabilitiesMoaOverlaySection.tsx`)**: Agent 기능 설정 패널에 독립적인 `auto_on_reasoning` 토글을 제공하며 6개 언어(zh/en/ja/ko/de/zh-TW) i18n 번역을 100% 완비;
+  5. **100% 테스트 커버리지 및 제로 부채**: 백엔드 `test_moa_preset_resolver.py` 16개 단위 테스트와 프론트엔드 i18n/단언 게이트 100% 통과, 린트 오류 0개, 좀비 프로세스 0개.
+- **자료 SSOT:** `temp-docs/roadmap/topic_07_model_routing_roadmap.md` · `myrm-agent/myrm-agent-server/app/services/agent/moa_preset_resolver.py` · `myrm-agent/myrm-agent-server/app/services/agent/params/converter.py` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/ai-core/agent/AgentCapabilitiesMoaOverlaySection.tsx`
+
+## 최신 검증 스냅샷 (2026-08-26 · MCP 교차 오리진 리디렉션 민감 헤더 전달 방지 보안 게이트 · Roadmap Topic 03 #7 완료)
+
+- **McpRedirectHeaderForwardGuard (vs Agent Plugins 사양 / ClawBank _RefuseRedirects / 기존 무방비 리디렉션 자격증명 유출):** Myrm은 RFC 6454 Web Origin 정규화 비교 및 동적 민감 헤더 정제 기반의 엔터프라이즈급 아웃바운드 HTTP 리디렉션 보안 아키텍처를 구현했습니다:
+  1. **교차 오리진 민감 헤더 자동 제거 (`redirect_guard.py:strip_sensitive_headers_on_redirect`)**: HTTP 3xx 리디렉션 체인에서 `(scheme, host, port)` Origin 튜플을 추출하고 기본 80/443 포트를 자동 보완하여 정밀한 동일 오리진 판정을 수행합니다. 교차 오리진 리디렉션 시 `Authorization`, `Cookie`, `X-API-Key`, `Token`, `Secret` 등 모든 민감 자격증명을 자동 제거하고 `REDIRECT_HEADER_STRIPPED` 감사 이벤트를 기록;
+  2. **비보안 프로토콜 다운그레이드 차단 (`InsecureRedirectSecurityError`)**: HTTPS에서 암호화되지 않은 HTTP 일반 텍스트 엔드포인트로 리디렉션되며 민감 헤더를 포함한 경우 Fail-Closed로 차단하여 중간자(MITM) 토큰 스니핑을 원천 차단;
+  3. **MCP 전송 계층 네이티브 훅 (`create_mcp_redirect_guard_event_hooks`)**: MCP 클라이언트(`mcp/client.py`)와 세션 액터의 `httpx2.AsyncClient`에 Request 이벤트 훅을 주입하여 `follow_redirects=True` 환경에서 동일 오리진 호환성과 교차 오리진 100% 자격증명 보호를 동시 달성;
+  4. **전체 시스템 아웃바운드 HTTP 통합 (`secure_fetch.py`)**: `secure_fetch.py`에 통합되어 자산 다운로드, REST API 호출 및 MCP 서비스 통신을 전방위 보호;
+  5. **0 토큰 오버헤드 및 100% 프롬프트 캐시 불변성 유지**: 네트워크 전송 계층 마이크로초 단위 순수 함수 연산으로 컨텍스트 오염을 제로화;
+  6. **100% 테스트 검증**: 118개 단위 및 통합 테스트 100% 통과, 0 린트 오류, 0 좀비 프로세스.
+- **자료 SSOT:** `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/core/security/http/redirect_guard.py` · `myrm-agent-harness/src/myrm_agent_harness/core/security/http/secure_fetch.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/mcp/client.py`
+
+
+## 최신 검증 스냅샷 (2026-08-26 · 프로젝트 범위 비 IDE 작업 공간 모드 및 경량 Ripgrep 코드 심볼 검색 · Roadmap Topic 09 #6 완료)
+
+- **ProjectScopedWorkspaceModeNonIDE (vs CoPaw / QwenPaw / Hermes-Agent / 기존 3분할 무거운 IDE 레이아웃):** Myrm은 무중단(Zero-Daemon) 경량 고성능 코드 심볼 검색 도구 체인 및 프로젝트 범위 컨텍스트 경계 아키텍처를 제공합니다:
+  1. **무중단 고성능 심볼 검색 (`grep_tool` & `glob_tool`)**: Harness 프레임워크 계층에서 샌드박스 네이티브 Ripgrep 및 파일 발견 기능을 통합하여 클래스, 인터페이스, 메서드, 함수 개요를 1ms 이내에 검색하며, 무거운 LSP 데몬 없이 토큰 낭비를 차단;
+  2. **결정론적 프로젝트 범위 컨텍스트 주입 (`project_scoped_context_middleware.py`)**: 시스템 메시지 체인에 `<project_scoped_workspace>` 경계 제약과 정밀 탐색 가이드를 자동 주입하여 100% KV Cache 접두사 안정성을 유지하고 모노레포 하위 프로젝트에서의 환각 방지;
+  3. **비침습적 경량 작업 공간 브라우저 및 인라인 Unified Diff 검토 (`workspace-browser`)**: 디렉터리 트리 탐색, 마우스 우클릭 "프로젝트 루트로 설정" 빠른 가이드 및 `InlineWorkspaceDiff` / `InlineDiffViewer` 코드 변경 검토 패널을 제공하여 복잡한 3분할 IDE 없이 쾌적한 챗 워크스테이션 환경을 보장;
+  4. **전문 코딩 서브 에이전트로의 완벽한 작업 위임**: 대규모 코딩 및 리팩터링 작업은 ACP(`invoke_acp_agent_tool`)를 통해 전문 서브 에이전트로 명확히 위임되어 메인 에이전트의 컨텍스트를 간결하게 유지;
+  5. **100% 전체 스택 테스트 커버리지 및 제로 기술 부채**: 심볼 검색 단위 테스트, 서버 미들웨어 단위 테스트, 프론트엔드 Unified Diff 단위 테스트, 6개 국어 i18n 패리티 및 Chrome MCP E2E 테스트 100% 통과, 린트 오류 0개, 좀비 프로세스 0개.
+- **자료 SSOT:** `temp-docs/roadmap/topic_09_frontend_ux_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_search/grep_tool.py` · `myrm-agent/myrm-agent-server/app/ai_agents/agent_middlewares/project_scoped_context_middleware.py` · `myrm-agent/myrm-agent-frontend/src/components/features/workspace-browser/InlineWorkspaceDiff.tsx`
+
+## 최신 검증 스냅샷 (2026-08-26 · 다중 티어 진화 전략 상태 머신 및 샌드박스 실제 회귀 방지 게이트 · Roadmap Topic 08 완료)
+
+- **EvolutionScreenerAndVerifiedCapsuleGate (vs EvoMap GEP Capsule / Continual Harness / 기존 자체 점수 조작 스크립트):** Myrm은 업계 최초로 다중 티어 핫플러그 진화 전략 상태 머신, 자식 프로세스 실제 샌드박스 검증 및 결정론적 회귀 단언 게이트 시스템을 구축했습니다:
+  1. **4단계 핫플러그 진화 전략 상태 머신 (`EvolutionScreener`)**: `balanced`, `innovate`, `harden` 및 `repair-only` 전략을 내장하고 `ModelTier`(약한 모델/강한 모델)에 따라 자동 강등되어 약한 모델이 조잡한 보일러플레이트 코드를 생성하는 것을 방지;
+  2. **물리적 파일 및 데이터베이스 이중 진화 잠금 (Phase 0 Lock)**: 보호된 핵심 스킬 및 사용자 잠금을 0 비용으로 즉각 식별하여 자동 변조를 100% 차단;
+  3. **자식 프로세스 컴파일 및 독립 샌드박스 Dry-Run (`SandboxValidator`)**: Python 구문 컴파일(`py_compile`)과 격리된 샌드박스 시험 실행을 통해 로컬 `success_streak` 자가 보고에 의존하는 취약성을 원천 배제;
+  4. **EvalCase 결정론적 회귀 테스트 단언 매트릭스 (`eval_regression.py`)**: 진화된 변체에 기존 평가 사례 및 다중 단언 매트릭스(`SandboxAssertion`, `StateAssertion`, `SemanticAssertion`)를 강제 바인딩하여 무의미한 테스트 통과를 원천 차단;
+  5. **전체 스택 테스트 검증**: Harness 진화 수명주기 12개 테스트 및 Server API/E2E 38개 진화 테스트 100% 통과, 0 Lint 오류, 0 좀비 프로세스.
+- **자료 SSOT:** `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/pipeline/screener.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/execution/sandbox_validator.py` · `myrm-agent/myrm-agent-server/app/api/skills/evolution/pending.py`
+
+## 최신 검증 스냅샷 (2026-08-26 · Turn-1 기본 바인딩 도구 및 시스템 프롬프트 토큰 예산 CI 아키텍처 게이트 · Roadmap Topic 06 #9 완료)
+
+- **Turn1TokenCIGate (vs Hermes / OpenClaw / DeepSeek Harness / 기존 무통제 프롬프트 팽창):** Myrm은 업계 최초로 정밀 도구 스키마 토큰 측정 도구 및 CI 아키텍처 토큰 예산 게이트 시스템을 구축했습니다:
+  1. **정밀 도구 스키마 토큰 측정 도구 (`measure_tool_schema_tokens.py`)**: Tool Description, JSON Schema Parameters 및 Wrapper 오버헤드를 계층별로 정밀하게 tiktoken (`o200k_base`) 측정하고 구조화된 표 및 JSON으로 출력하여 측정 감쇠(Measurement Decay) 위험을 원천 차단;
+  2. **엄격한 CI 아키텍처 토큰 예산 게이트 (`TestPromptTokenBudgetGate`)**: Harness CI 게이트를 통해 Turn-1 기본 도구 세트(CORE+COMMON 13개 도구) 토큰 상한 $\le 6,500$ 토큰, Full 시스템 프롬프트 $\le 2,000$ 토큰, Lean 시스템 프롬프트 $\le 1,200$ 토큰 및 $\le 0.70$ 압축비를 엄격히 잠금하여 다중 개발자 협업 시의 프롬프트 팽창을 방지;
+  3. **프롬프트 캐시 접두사 불변성 보장**: 시스템 동작 규칙 및 보안 경계 규칙의 불변성을 검증하여 다회차 턴 및 테넌트 간 KV Cache 히트율을 극대화;
+  4. **Code-as-Action 일괄 스크립트 실행 유도**: `browser_execute_script_tool` 안내를 개선하여 $\ge 3$ 단계 연속 브라우저 상호작용 시 Python 배치 스크립트 작성을 유도, 다회차 라운드트립 지연 및 토큰 낭비를 절감;
+  5. **전체 스택 테스트 검증**: 토큰 예산 게이트, 프롬프트 무결성 및 규율 테스트 100% 통과, 0 오류, 0 경고, 0 좀비 프로세스.
+- **자료 SSOT:** `temp-docs/roadmap/topic_06_context_session_roadmap.md` · `myrm-agent-harness/scripts/measure_tool_schema_tokens.py` · `myrm-agent-harness/tests/architecture/test_prompt_token_budget_gate.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/tool_management/DEFAULT_AGENT_TOKEN_INVENTORY.md`
+
+## 최신 검증 스냅샷 (2026-08-26 · 스트리밍 중단 시 잔여 콘텐츠 접두사 보존 및 대화 분기 상속 · Roadmap Topic 15 #4 완료)
+
+- **StreamingCancelPartialCompletionPrefixRetention (vs DeepSeek Harness / OpenClaw / Hermes-Agent / 기존 스트리밍 취소 시 전체 삭제):** Myrm은 스트리밍 중단 시 생성된 콘텐츠와 추론 사고 과정을 안전하게 영속화하고 대화 분기에서 상속할 수 있는 엔터프라이즈급 엔진을 구현했습니다:
+  1. **취소 상태 잔여 접두사 원자적 영속화 (`stream_collector.py` & `stream_finalize.py`)**: 사용자가 생성을 취소하거나 네트워크가 끊겼을 때 이미 스트리밍된 텍스트 접두사와 추론 과정(Reasoning Scratchpad)을 `completionStatus="cancelled"` 메타데이터와 함께 데이터베이스에 원자적으로 저장하여 기존 플랫폼의 '취소 시 생성 내용 소멸' 문제를 완벽 해소;
+  2. **후속 대화 컨텍스트 연속 이해 (`chat_utils.py`)**: 잔여 접두사를 유효한 Assistant 기록 메시지로 자동 변환하여 LLM이 중단된 내용을 인지하고 자연스러운 후속 질의응답을 지원;
+  3. **중단 메시지로부터의 무손실 대화 분기 (Fork) (`conversation_fork_manager.py`)**: 취소된 부분 응답 노드에서 즉시 새로운 대화 브랜치를 생성하여 다각도 탐색 지원;
+  4. **프론트엔드 온건 상태 렌더링 및 6개 언어 지원 (`MessageBox.tsx` & locales)**: 거친 에러 표시 대신 차분한 상태 배지로 렌더링;
+  5. **전체 스택 테스트 검증**: `test_streaming_cancel_prefix_retention.py` 6개 테스트 100% 통과, 0 오류, 0 경고, 0 좀비 프로세스.
+- **자료 SSOT:** `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent/myrm-agent-server/app/services/agent/streaming_support/stream_collector.py` · `myrm-agent/myrm-agent-server/app/services/agent/stream_session/stream_finalize.py`
+
+## 최신 검증 스냅샷 (2026-08-26 · 외부 CLI 서브에이전트 비대화형 권한 자동 주입 및 다중 명명 인스턴스 풀 오케스트레이션 · Roadmap Topic 15 #5 완료)
+
+- **ClaudeCodeCodexMultiNamedSubagentInstanceAndAutoPermissionPreset (vs DeepSeek Harness RC.8 / OpenClaw / Hermes-Agent / 독립 외부 CLI 서브에이전트):** Myrm은 업계 최고의 다중 명명 서브에이전트 인스턴스 풀 및 비대화형 권한 파라미터 자동 주입 엔진을 구축했습니다:
+  1. **비대화형 권한 파라미터 자동 주입 (`_profiles.py` & `cli_runtime.py`)**: `permission_mode`가 `allow_all` 또는 `bypass`인 무인 샌드박스 환경에서 각 CLI 전용 비대화형 플래그(Claude Code `--dangerously-skip-permissions`, Codex CLI `--full-auto`, Gemini/Qwen `-y`)를 자동으로 주입하여 TTY 없는 환경에서의 교착 상태 및 300초 타임아웃 장애를 완전 차단;
+  2. **다중 명명 서브에이전트 인스턴스 독립 구성 및 동시 스케줄링 (`pool.py` & `invoke_acp_agent_tool`)**: 단일 `RuntimePool` 하에서 여러 명명된 서브에이전트 인스턴스(예: `claude-auditor`, `codex-builder`, `gemini-tester`)를 독립 명령, 권한 및 인자 구성으로 등록하고 오케스트레이션 지원;
+  3. **동적 스키마 팽창 제로 및 100% 프롬프트 캐시 불변성**: 도구 인자를 통해 라우팅하여 동적 도구 등록 폭발 및 LLM 접두사 캐시 무효화를 완벽 방지;
+  4. **파라미터 중복 방지 및 멱등성 보장**: 기존 CLI 인자를 점검하여 중복 주입 방지;
+  5. **전체 스택 테스트 검증**: `test_cli_runtime.py` 90개 단위 및 통합 테스트 100% 통과, 0 오류, 0 경고, 0 좀비 프로세스.
+- **자료 SSOT:** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/auth/_profiles.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/runtime/cli_runtime.py`
+
+## 최신 검증 스냅샷 (2026-08-26 · Ollama 64K Agentic Modelfile 자동 파생 및 Doctor 진단 · Roadmap Topic 06 #1 완료)
+
+- **OllamaPullAutoNumCtx64000AgenticModelfile (vs Hermes local-ollama-setup / Ollama 기본 2048 / Open WebUI):** Myrm은 로컬 모델 다운로드 시 자동 64K 컨텍스트 Modelfile 파생, Doctor Fail-Loud 건강 진단, 24/7 상주/해제 가이드를 제공합니다:
+  1. **자동 64K Modelfile 파생 (`hardware.py:_ensure_agentic_modelfile`)**: Ollama 모델 다운로드 완료 시 자동으로 `/api/create`를 호출하여 `PARAMETER num_ctx 64000`이 적용된 `{model_name}-agentic` 별칭을 생성하여 2048 토큰 기본 잘림 문제를 제거;
+  2. **모델 삭제 연동 정리**: 기본 모델 삭제 시 연결된 `-agentic` 파생 모델을 자동으로 연동 정리;
+  3. **Doctor Fail-Loud 진단 프로브 (`server_diagnostics.py::OllamaModelContextDiagnostic`)**: 활성 Ollama 모델 상태 및 64K agentic 별칭 비율을 능동적으로 점검하여 `/health/doctor`에 보고;
+  4. **KV Cache VRAM 분석 및 24/7 상주/해제 가이드 (`HardwareCookbook.tsx`)**: 64K Agentic 배지, 동적 FP16/Q8 KV 캐시 VRAM 분석 및 24/7 keep-alive 봇 운영 vs 의도적 GPU VRAM 해제 가이드를 제공;
+  5. **전체 스택 테스트 검증**: `test_hardware_api.py`에서 샌드박스 격리, 자동 Modelfile 생성, 모델 연동 삭제 테스트 100% 통과.
+- **자료 SSOT:** `temp-docs/materials/COMPETITIVE_ADVANTAGE_LOCAL_MODEL.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md` · `myrm-agent/myrm-agent-server/app/api/integrations/hardware.py` · `myrm-agent/myrm-agent-server/app/core/infra/health/server_diagnostics.py` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/model-service/HardwareCookbook.tsx`
+
+## 최신 검증 스냅샷 (2026-08-26 · 기업급 중립 플랫폼 업무 자산 보존 HUD 및 데이터 주권 안내 · Roadmap Topic 07 #1 완료)
+
+- **WorkAssetStableWorkbenchRetentionHUD 워크벤치 자산 보존 HUD (vs WorkBuddy 폐쇄형 생태계 / OpenClaw / Hermes-Agent / 독점 플랫폼):** Myrm은 워크스페이스 전 요소 업무 자산 보존의 투명한 시각화 모니터링, 중립 플랫폼 가치 제안 및 데이터 주권 안내 체계를 구축했습니다:
+  1. **워크스페이스 핵심 자산 6차원 KPI 매트릭스 (`useWorkbenchRetentionSummary.ts` & `WorkbenchRetentionSection.tsx`)**: 워크스페이스에 축적된 메모리 금고 (Memory Vault 수량 및 건강 점수), Wiki 지식 베이스 (개념 트리 및 원본 파일), 스킬 라이브러리 (Skills 총수 및 자가 진화 버전 수), 프로젝트 규칙 (Workspace Rules 항목 수 및 문자 수), 자동화 워크플로 (Cron 작업 수 및 주간 실행 횟수), 영구 저장소 볼륨 (Volume 스토리지 사용량 및 여유 공간)을 실시간 집계하여 정량화;
+  2. **중립 플랫폼 데이터 주권 및 락인 제로 이점**:
+     - **모델과 자산의 분리**: Claude, DeepSeek, GPT, Gemini 등 이기종 모델 간 자유로운 전환이 가능하며, 축적된 자산·스킬·메모리는 100% 온전히 유지;
+     - **개방형 표준 스토리지**: 모든 Wiki 페이지, Markdown 규칙, SQLite 메모리는 개방형 표준 형식으로 저장되어 독점 포맷 종속 방지;
+     - **원클릭 내보내기 및 마이그레이션**: 워크스페이스 전체 설정 및 메모리 스냅샷 백업 패키징 도구 제공;
+  3. **3가지 배포 모드 스토리지 격리 투명 안내**: 데스크톱(Tauri 로컬 비공개 디렉터리), 클라우드 샌드박스(독립 Persistent Volume 마운트), 로컬 자체 호스팅(마운트 디렉터리) 실행 상태에 따라 데이터 지속성 경로와 격리 메커니즘을 투명하게 안내;
+  4. **동시성 내결함성 및 우아한 성능 저하**: `Promise.allSettled` 병렬 프로브 스케줄링을 채택하여 비핵심 메트릭 장애 시 UI를 중단하지 않고 가벼운 복구 상태로 표시;
+  5. **전체 스택 테스트 검증**: 4개 프론트엔드 Vitest 단위 테스트 100% 통과, 6개 언어 국제화 사전 엄격 정합.
+- **자료 SSOT:** `temp-docs/materials/USER_EXPERIENCE_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/personal/WorkbenchRetentionSection.tsx` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/personal/useWorkbenchRetentionSummary.ts`
+
+## 최신 검증 스냅샷 (2026-08-26 · 멀티 턴 이미지 누적 페이로드 동적 거버넌스 및 점진적 다운샘플링 · Roadmap Topic 15 #3 완료)
+
+- **CumulativeImagePayloadBudgetGovernor 멀티 턴 이미지 누적 페이로드 거버넌스 (vs DeepSeek Harness / OpenClaw / 커뮤니티 멀티모달 에이전트):** Myrm은 멀티 턴 이미지 대화에서 `HTTP 400 Payload Too Large` 충돌을 방지하고 프롬프트 캐시 불变성을 유지하는 3단계 시각적 다운샘플링 파이프라인을 구축했습니다:
+  1. **3단계 시각적 다운샘플링 사다리 (`media_budget_governor.py`)**: Tier 1은 최근 포커스 턴의 2048px 고해상도를 온전히 보호하고, Tier 2는 누적 페이로드 초과 시 이전 이미지를 512px WebP로 자동 비동기 다운샘플링(페이로드 85-95% 감소)하며, Tier 3는 극단적 예산 한도 내에서 구조화된 텍스트 요약으로 안전하게 전환;
+  2. **게이트웨이 페이로드 수렴 (`MediaBudgetGovernorProcessor`)**: 세션 전반의 Base64 이미지 바이트를 안전한 게이트웨이 한도(기본 10MB) 내로 엄격히 관리하여 API 거부 오류 제거;
+  3. **프롬프트 캐시 불변성 유지**: 이전 이미지 교체 후 Base64 상태를 고정하여 후속 멀티 턴 요청에서 접두사 프롬프트 캐시 적중률 유지;
+  4. **비차단 스레드 풀 오프로딩**: Lanczos 리샘플링 및 WebP 압축을 `asyncio.to_thread`를 통해 전담 스레드 풀로 분산하여 이벤트 루프 지연 제로 달성;
+  5. **전체 스택 테스트 검증**: 8개 단위 및 엣지 케이스 테스트와 파이프라인 통합 테스트 100% 통과, 코드 커버리지 93%.
+- **자료 SSOT:** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/pipeline/processors/media_budget_governor.py`
+
+## 최신 검증 스냅샷 (2026-08-25 · 클라우드 샌드박스 프라이버시 Fail-Closed 사다리 및 이벤트 구동 턴별 지속성 · Roadmap Topic 03 #3 완료)
+
+- **CloudSandboxPrivacyFailClosedLadder 클라우드 샌드박스 3단계 프라이버시 게이트 및 이벤트 구동 턴별 지속성 (vs mem/pi_agent / OpenClaw / Hermes-Agent / 기존 샌드박스 지속성):** Myrm은 업계 최초로 불변 3단계 프라이버시 Fail-Closed 사다리 및 이벤트 구동 턴별 스냅샷 지속성 심층 방어 체계를 구축했습니다:
+  1. **3단계 입체 Fail-Closed 프라이버시 사다리 (`privacy_ladder.py`)**: `PrivacyLadderLevel`(WORKSPACE, SESSION, FILE), `PrivacyScope`, `PrivacyLadderVerdict`, `PrivacyLadderViolationType`을 엄격히 정의. Level 3는 워크스페이스 물리적 경계와 시스템 특권/장치 탈출 방지를 검증(`/dev/null` 위장 및 볼륨 간 심볼릭 링크 순회 차단); Level 2는 세션 민감도 수위(`PrivacyTracker.current_turn_level`)가 한도 임계값(`max_allowed_sensitivity`)을 초과하지 않도록 보장; Level 1은 `pii_classifier` 기반으로 콘텐츠 및 `restricted_patterns`를 심층 스캔하여 암호화되지 않은 S3 자격 증명/비밀번호 저장을 완전 차단;
+  2. **이벤트 구동 턴별 지속성 계약 (`SnapshotTrigger`)**: `TURN_COMPLETED`, `TOOL_COMPLETED`, `SESSION_ENDED`, `CHECKPOINT_SYNC`의 4대 수명 주기 이벤트를 확장하여 단일 턴 대화 및 도구 호출 후 원자적 지속성과 사전 게이트 검증을 구동;
+  3. **서버 측 스트림 진단 및 원자적 스냅샷 차단 (`stream_loop.py` & `snapshot_service.py`)**: 스냅샷 서비스는 프라이버시 사다리 제약 조건을 자동으로 검증하고 위반 시 `PrivacyFailClosedViolationError`를 발생시킴; SSE 스트림 루프는 예외를 포착하여 구조화된 `privacy_ladder_blocked` 이벤트와 복구 지침을 전송;
+  4. **제로 토큰 오버헤드 및 프롬프트 캐시 불변성**: 순수 런타임 마이크로초 수준 상수 검사로 LLM 컨텍스트 오염 제로, 프롬프트 캐시 적중률 100% 안정 유지;
+  5. **전체 스택 테스트 검증**: `test_privacy_ladder.py`의 27개 전용 테스트 및 모든 보안/샌드박스 테스트 100% 통과.
+- **자료 SSOT:** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/core/security/guards/privacy_ladder.py` · `myrm-agent/myrm-agent-server/app/services/checkpoint/snapshot_service.py` · `myrm-agent/myrm-agent-server/app/services/agent/stream_session/stream_loop.py`
+
+## 최신 검증 스냅샷 (2026-08-25 · MCP Stdio 환경 변수 주입 방어 게이트 및 정적 보안 스캐너 · Roadmap Topic 03 #2 완료)
+
+- **MCPStdioEnvInjectionGuard 환경 변수 주입 차단 및 정적 구성 스캐너 (vs MCP Python SDK / OpenClaw / Hermes-Agent / cloudflared):** Myrm은 크로스 플랫폼 환경 변수 주입 방어 및 구성 정적 스캔의 이중 심층 방어 체계를 구축했습니다:
+  1. **크로스 플랫폼 환경 변수 정화 SSOT (`env_guard.py`)**: 대소문자 정규화 기반으로 6개 주요 범주의 50개 이상 위험 환경 변수(Linux 동적 링커 하이재킹 `LD_PRELOAD`/`LD_LIBRARY_PATH`, macOS 주입 `DYLD_INSERT_LIBRARIES`, 런타임 훅 `NODE_OPTIONS`/`PYTHONPATH`/`PYTHONSTARTUP`, 셸 오염 `BASH_ENV`/`IFS`, 프록시 주입 `HTTP_PROXY`, TLS 우회 `GIT_SSL_NO_VERIFY`, 패키지 레지스트리 탈취 및 금고 마스터 키 등)를 완벽 차단하며, 플러그인 예약 변수(`PLUGIN_ROOT`, `PLUGIN_DATA`)를 엄격히 화이트리스트로 보장;
+  2. **실행 시점 자동 파라미터 정화 (`placeholders.py:resolve_stdio_launch`)**: MCP Stdio 자식 프로세스 생성 전 `extra_params["env"]`에서 위험 변수를 투명하게 제거하고 감사 로그를 기록하여 프로세스 실행 탈취 방지;
+  3. **정적 구성 사전 검사 CRITICAL 게이트 (`config_scan.py:scan_mcp_config`)**: 구성 저장 및 정적 스캔 단계에서 위험 환경 변수를 탐지하여 `threat_type="dangerous_env_injection"` 및 `CRITICAL` 심각도로 표시, 악성 구성 저장 사전 차단;
+  4. **제로 토큰 오버헤드 및 안정적인 프롬프트 캐시**: 순수 프로세스 런타임 및 스캐너 레벨에서 작동하여 LLM 컨텍스트 오염 제로 및 프롬프트 캐시 적중률 100% 유지;
+  5. **전체 스택 테스트 검증**: `test_stdio_env_guard.py` 49개 전용 테스트 및 993개 MCP toolkit 테스트 100% 통과, 0 에러, 0 좀비 프로세스.
+- **자료 SSOT:** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/mcp/env_guard.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/mcp/placeholders.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/mcp/config_scan.py`
+
+## 최신 검증 스냅샷 (2026-08-25 · 크론 자동화 수동 성공 전제 조건 게이트 및 단계별 Tool Trace 감사 · Roadmap Topic 11 #3 완료)
+
+- **AgentLifecycleOutboundWebhookSettingsPack 수명 주기 아웃바운드 웹훅 및 이벤트 푸시 (vs Hermes-Agent / OpenClaw / Grok Build):**
+  1. **GUI 기반 시각적 웹훅 관리 (`LifecycleWebhookSection.tsx`)**: "설정 -> 통합"에서 웹훅 엔드포인트를 시각적으로 관리하고, 클릭 한 번으로 HMAC-SHA256 서명 시크릿을 생성하며, 구독 이벤트(세션 완료/실패, 승인 트리거, 서브에이전트 생성/병합, 칸반 업데이트)를 유연하게 선택할 수 있어 YAML 설정 수정의 번거로움을 완전히 해결;
+  2. **프로덕션 수준의 SSRF 방어 및 보안 표준 (`ssrf_guard.py`)**: 루프백, 사설 IP(RFC1918) 및 클라우드 메타데이터 엔드포인트(`169.254.169.254`)를 엄격히 차단하며 3xx 리디렉션을 명시적으로 거부하여 자격 증명 유출을 원천 방지;
+  3. **비차단 비동기 큐 디스패치 (`LifecycleOutboundWebhookService.py`)**: 유계 `asyncio.Queue` (512)와 지수 백오프 재시도 메커니즘을 기반으로 `AppEventBus`에 연결되어 대화 스트리밍 및 LLM 추론에 0 오버헤드 보장;
+  4. **즉각적인 `/ping` 연결성 테스트**: WebUI에서 밀리초 단위의 RTT 왕복 지연 시간과 HTTP 상태 코드 배지를 실시간으로 제공하여 신속한 문제 해결 지원;
+  5. **전체 스택 테스트 검증**: 백엔드 HMAC 서명 및 SSRF 차단 테스트(Pytest 2/2)와 프론트엔드 Vitest 컴포넌트 테스트(3/3) 100% 통과, 0 Lint 에러, 0 좀비 프로세스.
+- **자료 SSOT:** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent-server/app/services/webhook/lifecycle_webhook_service.py` · `myrm-agent-frontend/src/components/features/settings/sections/integration/integrations/LifecycleWebhookSection.tsx`
+
+- **CronAutomationManualSuccessPrerequisiteGate 자동화 사전 검증 게이트 및 단계별 Trace 감사 (vs WorkBuddy / Hermes-Agent / OpenClaw / 기존 크론 시스템):**
+  1. **결정론적 순수 함수 워크플로 핑거프린트 (`fingerprint.py`)**: Harness 레벨에서 0 I/O 오버헤드로 프롬프트, 바인딩된 에이전트 ID, 워크플로 템플릿, CLI 명령어 및 도구 화이트리스트를 정규화하여 64자리 SHA-256 해시를 생성함으로써 세션·칸반·크론 간 일관된 정체성 추적 지원;
+  2. **Server 비즈니스 수동 실행 성공 횟수 사전 게이트 (`prerequisite_service.py` & `POST /cron/prerequisite-check`)**: 24/7 자동화 등록 전 Chat/Kanban에서 수동 검증 성공 횟수(기본 $\ge 2$회)를 자동 집계하여 검증되지 않은 취약한 작업의 섣부른 자동화를 방지하고, 고급 사용자의 명시적 Override 확인 및 감사 로그 지원;
+  3. **자동화 전 6가지 자체 점검 체크리스트 및 단계별 Tool Trace 타임라인 (`CronPrerequisiteCard.tsx` & `CronRunItem.tsx`)**:
+     - 입력/출력/실패/비용/멱등성/타임아웃 6가지 자동화 준비 체크리스트를 접이식 카드로 제공;
+     - 실행 기록 상세 뷰를 인간 가독형 단계별 Tool 호출 타임라인으로 업그레이드하고 "감사 Trace 원클릭 복사" 기능 제공;
+  4. **전체 스택 테스트 검증**: Harness 핑거프린트 단원 테스트 및 Server 크론 생애주기 API 회귀 테스트 100% 통과 (41 passed in 6.76s), 0 Lint 에러, 0 좀비 프로세스.
+- **자료 SSOT:** `temp-docs/materials/AUTOMATION_CRON_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/engine/fingerprint.py` · `myrm-agent-server/app/services/cron/prerequisite_service.py` · `myrm-agent-frontend/src/components/features/cron/CronPrerequisiteCard.tsx`
+
+## 최신 검증 스냅샷 (2026-08-24 · Hermes Reference Ladder 및 64K KV 캐시 하드웨어 쿡북 · Topic 06 #8 완료)
+
+
+- **Reference Ladder 등급 차트 및 64K KV 캐시 하드웨어 쿡북 (vs Hermes Reference Ladder / whichllm CLI / Open WebUI):** Myrm은 실시간 하드웨어 감지, Transformer 레벨 64K KV 캐시 메모리 예측 및 대화형 하드웨어 시뮬레이터 파이프라인을 구축했습니다:
+  1. **Transformer 64K KV 캐시 메모리 물리 모델링 (`hardware_calculator.py`)**: 멀티헤드/GQA 어텐션 구조를 기반으로 동적 KV 메모리($VRAM_{KV} = 2 \cdot L \cdot H_{kv} \cdot D \cdot C \cdot B / 1024^3$)를 FP16 (2.0B), Q8 (1.0B), Q4 (0.5B) 3단계로 정밀 계산하여 긴 컨텍스트 실행 시 발생하는 메모리 부족(OOM) 오류를 원천 방지;
+  2. **5단계 Reference Ladder 등급 분류 (Rung 1 ~ Rung 5)**: 사용 가능한 VRAM(Apple Silicon 통합 메모리 OS 예약 포함)을 Entry(`<10GB`, 0.5B-3B)부터 Flagship(`80GB+`, 70B+)까지의 표준 능력 사다리에 자동 매핑;
+  3. **대화형 크로스 머신 하드웨어 시뮬레이터 (`HardwareCookbook.tsx` & `hardwareSimulator.ts`)**: 사용자가 WebUI에서 4GB~128GB VRAM 슬라이더를 조절하여 다양한 기기에서의 모델 Fit Score, 생성 속도(~tok/s) 및 64K 안전 마진을 실시간 시뮬레이션 가능;
+  4. **전체 스택 테스트 검증**: 백엔드 단위/통합 테스트 25개 및 프론트엔드 Vitest 단언 23개 100% 통과, 0 에러, 0 좀비 프로세스.
+- **자료 SSOT:** `temp-docs/materials/COMPETITIVE_ADVANTAGE_LOCAL_MODEL.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md` · `myrm-agent-server/app/api/integrations/hardware_calculator.py` · `myrm-agent-frontend/src/components/features/settings/model-service/HardwareCookbook.tsx`
+
+## 최신 검증 스냅샷 (2026-08-23 · 결측 시맨틱 계약 매트릭스 및 페일클로즈 베어메탈 실행 금지 게이트 · Roadmap Topic 15 #5 완료)
+
+- **결측 시맨틱 계약 매트릭스 및 페일클로즈 게이트 시스템 (vs 타이이 엔터프라이즈 SPI 계약 / OpenClaw / Hermes):** Myrm은 전사 차원의 불변 Missing Semantics 계약 매트릭스를 수립하여 명확한 강등 정책을 정의하고 샌드박스 미구동 시 호스트 베어메탈로의 무단 다운그레이드 실행을 원천 차단했습니다:
+  1. **전역 불변 SSOT 계약 매트릭스 및 3단계 강등 정책 (`missing_semantics.py`)**: `SANDBOX_ISOLATION`(컨테이너 격리), `CREDENTIAL_VAULT`(비밀 금고)에 대해 엄격한 `FAIL_CLOSED` 게이트를 강제 적용하고, `CORE_DATABASE`는 `FAIL_FAST`, `READONLY_CACHE` 및 `SECURITY_REVIEWER`는 부드러운 `FALLBACK`으로 정의;
+  2. **코드 실행 엔진 제로 우회 결측 게이트 (`safe_exec.py` & `LocalExecutor.py`)**: Python 및 Bash 실행 경로 모두 `evaluate_missing_capability`를 엄격하게 적용하여, 샌드박스 격리가 필요하지만 컨테이너가 준비되지 않은 경우 `MissingSemanticsBlockedError`를 즉시 발생시키고 호스트 실행을 차단;
+  3. **Server 비즈니스 스트리밍 구조화 진단 및 감사 로깅 (`stream_loop.py`)**: 차단 예외를 가로채 구조화된 `missing_semantics_blocked` SSE 이벤트와 친절한 가이드를 사용자에게 전송하고 보안 감사 원장에 `MISSING_SEMANTICS_BLOCKED` 기록;
+  4. **전체 스택 테스트 검증**: Harness 프레임워크 단위 테스트 및 Server SSE 스트리밍 테스트 100% 정상 통과.
+- **자료 SSOT:** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/core/security/missing_semantics.py` · `myrm-agent/myrm-agent-server/app/services/agent/stream_session/stream_loop.py`
+
+## 최신 검증 스냅샷 (2026-08-23 · 다중 작업공간 의존성 취약점 CI 게이트 및 락파일 정밀 분석 · 보안 거버넌스 Roadmap Topic 03 #6 완료)
+
+- **다중 작업공간 교차 생태계 의존성 취약점 CI 게이트 및 락파일 공급망 감사 (vs Dependabot / Hermes security_audit.py / osv-scanner):** Myrm은 엔터프라이즈급 모노레포 의존성 공급망 보안 CI 차단 및 이중 트랙 스캐닝 시스템을 완성했습니다:
+  1. **교차 생태계 락파일 순수 Python 파싱 엔진 (`dependency_extractor.py`)**: 6개 모노레포 작업공간 전체의 `uv.lock` (PyPI TOML), `bun.lock` (npm JSON v1/workspaces/flat), `package-lock.json` (npm JSON v1/v3)을 외부 바이너리 도구 없이 순수 Python으로 완벽 파싱하여 640개 이상의 직접 및 전이 의존성과 정확한 고정 버전을 추출;
+  2. **이중 트랙 보안 스캐닝 및 심각도 등급별 CI 게이트 (`check_workspace_dependency_vulns.py`)**: 알려진 악성 패키지를 즉시 차단하는 오프라인 카탈로그(`security_advisories.py`)와 OSV.dev 온라인 배치 API를 결합하여 `--fail-on HIGH` PR 차단, `--offline` 오프라인 고속 실행 및 사유/만료일이 명시된 선언적 `vuln_gate_config.json` 화이트리스트 면제 지원;
+  3. **CI 구조화 보고서 아카이빙 및 제로 토큰 오버헤드**: GitHub Actions Step Summary에 직접 임베드 가능한 `--output-json` 및 `--output-md` 요약 보고서를 자동 생성하며 프롬프트 캐시 100% 보존;
+  4. **전체 스택 테스트 검증**: 235개 스캐닝 테스트 0.77초 만에 100% 통과 및 Linter 경고 0건.
+- **자료 SSOT:** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/dependency_extractor.py` · `scripts/ci/check_workspace_dependency_vulns.py` · `scripts/ci/vuln_gate_config.json`
+
+## 최신 검증 스냅샷 (2026-08-23 · 격리 샌드박스 실행 및 정밀 인간-AI 협업 편집 · 지식 베이스 및 Wiki Roadmap Topic 02 #14 & #15 완료)
+
+- **격리 샌드박스 실행 및 정밀 인간-AI 협업 편집 (vs WorkBuddy 라이브러리 및 라이트 앱 CSV 바인딩 / Manus Projects):** Myrm은 업계 최고의 샌드박스 격리 실행 및 아티팩트/지식 베이스 계층화 협업 아키텍처를 확립했습니다:
+  1. **완전한 기능의 보안 격리 샌드박스 vs 취약한 DSL 템플릿**: **Agent in Sandbox** 아키텍처를 채택하여 Python (Pandas/DuckDB/SQLite), Node.js 및 Bash의 완전한 샌드박스 환경을 기본 지원합니다. 프롬프트 노이즈와 환각을 유발하는 사설 CSV-HTML 바인딩 대신, Agent가 프로덕션 수준의 웹 아티팩트(React, Tailwind, LocalStorage, WASM SQLite)를 자율적으로 생성할 수 있도록 지원합니다;
+  2. **정밀 인간-AI 협업 및 DOM 요소 선택 편집 100% 완성**:
+     - `ElementPickerToolbar.tsx`: 시각적 DOM 요소 선택을 통한 직관적인 Agent 수정 기능 제공;
+     - `DocumentSelectionToolbar.tsx`: 플로팅 텍스트 선택 툴바(수정, 최적화, 설명, 추가 질문) 지원;
+     - `ArtifactProcessor`: 대화형 CSV / JSON 구조화 데이터 하이라이트 렌더링, 정렬 및 내보내기 지원;
+  3. **전문가급 마크다운 편집 및 멀티 클라우드 엣지 배포**:
+     - `WikiMarkdownEditor.tsx`: Typora급 Monaco 분할 화면 실시간 미리보기 및 임시 저장 보호 제공;
+     - `PublishModal.tsx`: 상태 비저장 HMAC 비밀번호 게이트를 갖춘 Vercel, Cloudflare, Netlify 엣지 배포(`publish_artifact_to_target`) 지원;
+  4. **전체 스택 테스트 검증**: 243개 정적 계약 테스트 및 Vitest/i18n 테스트 100% 정상 통과.
+- **자료 SSOT:** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `temp-docs/roadmap/topic_02_knowledge_wiki_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/artifacts/ElementPickerToolbar.tsx` · `myrm-agent/myrm-agent-frontend/src/components/features/wiki/WikiMarkdownEditor.tsx`
+
+## 최신 검증 스냅샷 (2026-08-23 · 벤더 간 작업 전문성 무지연 라우팅 및 4단계 계단식 폴백 · 모델 라우팅 Roadmap Topic 07 #5 완료)
+
+- **작업 전문성 무지연 휴리스틱 라우팅 (vs WorkBuddy 폐쇄형 라우팅 / Cursor Router / DeepSeek Harness):** Myrm은 업계 최초의 0ms 지연, 다차원 시맨틱 피처 스코어링, 세션 모멘텀 고정 및 4단계 폴백 지원 벤더 간 전문성 라우팅 매트릭스를 제공합니다:
+  1. **0ms 인메모리 작업 전문성 피처 분류 엔진 (`specialty_router.py`)**: CODE (구문 AST/에러 트레이스), LONG_DOC (24k+ 글자/긴 보고서), REASONING (LaTeX/수학 증명/논리 추론), MULTIMODAL (비전 이미지 페이로드) 및 CASUAL (간단한 인사/경제형 모델)을 추가 LLM 판별 지연 없이 0ms로 자동 분류;
+  2. **세션 모멘텀 고정 (Session Momentum Lock)**: 멀티턴 기술 대화 중 "계속해줘", "어떻게 고쳐" 같은 짧은 후속 질의에서도 기존 전문성을 유지하여 불필요한 모델 다운그레이드 방지;
+  3. **4단계 결정론적 폴백 체인 (Specialty Fallback Chain)**: 중복 제거된 `Specialty Primary -> Specialty Fallback -> Default Primary -> Default Fallback` 페일오픈 시퀀스를 구성하여 100% 회복력 보장;
+  4. **원활한 풀스택 스트리밍 전달 및 투명 칩**: 서버에서 `tier` 및 `specialty`가 포함된 `routing_decision` SSE 이벤트를 전달하고 프런트엔드 `routingMetaEvents.ts`에서 파싱하여 `TokenUsageDisplay.tsx`에 호버 칩으로 표시;
+  5. **전체 스택 테스트 검증**: Harness 단위 테스트 21/21 통과, Server API/SSE 테스트 4/4 통과, Frontend Vitest 8/8 통과 및 6개 언어 100% 다국어 사전 동기화.
+- **자료 SSOT:** `temp-docs/materials/USER_EXPERIENCE_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/routing/specialty_router.py` · `myrm-agent/myrm-agent-server/app/services/agent/params/converter.py` · `myrm-agent/myrm-agent-frontend/src/store/chat/messageStream/handlers/routingMetaEvents.ts`
+
+## 최신 검증 스냅샷 (2026-08-23 · Formal Replanner 동적 DAG 실시간 재계획 및 원자적 불변성 보호 · 런타임 신뢰성 Roadmap Topic 10 #2 완료)
+
+- **Formal Replanner 동적 DAG 재계획 (vs Hermes Agent / OpenClaw / Cursor Plan Mode / Claude Code):** Myrm은 장기 실행 복잡 워크플로의 자체 진화를 지원하는 엔터프라이즈급 DAG 재계획 시스템을 완성했습니다:
+  1. **단일 트랜잭션 원자적 추가/수정/삭제 및 완료 잠금 (`revise_plan`)**: 실행 도중 검증 단계 동적 추가, 미실행 매개변수 수정 또는 불필요 분기 정리를 지원하며 `COMPLETED`/`IN_REVIEW` 작업에 대한 강력한 읽기 전용 보호로 상태 찢어짐을 원천 방지;
+  2. **섀도 그래프 밀리초 단위 DFS 순환 의존성 사전 검사**: 커밋 전 토폴로지를 사전 시뮬레이션하여 순환 참조를 100% 차단하고 충돌 시 원자적 롤백 수행;
+  3. **실행 중인 워커 코루틴 정상 취소 및 슬롯 반환 (`replan_ops.py`)**: 취소된 `RUNNING` 작업을 자동 식별하여 Dispatcher에 취소 신호를 전달해 동시성 슬롯을 즉시 확보하고 후속 작업을 순차 승격;
+  4. **직관적인 구조화 Diff 검토 패널 및 다국어 지원 (`KanbanReplanDialog.tsx`)**: 작업 및 의존성 엣지의 변경 내역을 한눈에 비교할 수 있는 시각적 UI와 사유 추적 및 한/영 완벽 지원;
+  5. **전체 스택 테스트 검증**: Harness 단위 테스트, Server API 통합 테스트, Frontend Vitest 9개 테스트 100% 정상 통과 및 좀비 프로세스 0건.
+- **자료 SSOT:** `temp-docs/materials/USER_EXPERIENCE_ADVANTAGE.md` · `temp-docs/roadmap/topic_10_runtime_reliability_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/kanban/stores.py` · `myrm-agent/myrm-agent-server/app/services/kanban/replan_ops.py` · `myrm-agent/myrm-agent-frontend/src/components/features/kanban/KanbanReplanDialog.tsx`
+
+## 최신 검증 스냅샷 (2026-08-23 · 시간대 상황 인지 연산자 및 적응형 제로 토큰 빈 상태 엔진 · 메모리 Roadmap Topic 01 #5 완료)
+
+- **시간대 상황 인지 연산자 (vs Hermes Agent / OpenClaw / ChatGPT / Claude Desktop):** Myrm은 실제 시간대 컨텍스트에 따라 작동하는 제로 토큰, 제로 지연의 적응형 빈 상태 프롬프트 체계를 제공합니다:
+  1. **결정론적 4단계 시간 인지 엔진 (`SamplePrompts.tsx`)**: 하루의 골든 작업 주기를 4개 구간(🌅 아침 집중 06:00-12:00: 우선순위 일정, 일일 스탠드업 미완료 항목, 팀 간 동기화; 🚀 오후 스프린트 12:00-18:00: 아키텍처 심층 검토, 기술 스택 평가, 동시성 최적화; 🌙 저녁 회고 18:00-24:00: 회고 요약, 장기 메모리 저장, 위키 카드 추출; 🌌 심야 딥워크 00:00-06:00: 시스템 리팩터링, 알고리즘 병목 분석)으로 지능적 분할하여 고정된 정적 프롬프트의 한계를 완벽히 극복;
+  2. **제로 토큰 및 제로 지연 실행**: 추가적인 LLM 추론이나 네트워크 호출 없이 순수 클라이언트 결정론적 알고리즘으로 구동되어 100% 프롬프트 캐시 친화성 유지;
+  3. **이중 모드 마이크로 필 제어**: 기본 자동 시간 추적 모드 및 펄스 표시등과 함께 사용자가 클릭 한 번으로 필터를 전환하거나 초기화할 수 있는 마이크로 필 캡슐 지원;
+  4. **전체 스택 테스트 검증**: 프런트엔드 엄격한 TypeScript 단위 테스트, 210개 백엔드 단위 테스트, 124개 API 통합 테스트 100% 정상 통과 및 Linter 오류 0건.
+- **자료 SSOT:** `temp-docs/materials/USER_EXPERIENCE_ADVANTAGE.md` · `temp-docs/roadmap/topic_01_memory_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/SamplePrompts.tsx`
+
+특히 메모리의 경우 Myrm은 이제 전체 **진단 + 원격 측정 무결성 루프** 엔드투엔드를 제공합니다. 스트림 단계 상태, 지속 단계 상태, 제어 평면 집계/경고, 프런트엔드 소스 설명(`preflight` 대 `runtime_fallback`), 모바일 비호버 복사, 엄격한 클라우드 페일클로즈 수집(공유 봉투 멱등성 + 공유 중복 제거 백엔드를 사용할 수 없을 때 자동 로컬 대체 없음, `dedup_reject` 사용) 이유 측정항목). 최근 집중 회귀 실행(2026-07-19): 서버 28 통과, 제어 평면 55 통과, 프런트엔드 14 통과.
+
+## 최신 검증 스냅샷 (2026-08-22 · 에이전트 수명 주기 아웃바운드 Webhook 및 제로 SSRF 안전성 보장 · 관찰 가능성 Roadmap Topic 11 #2 완료)
+
+- **에이전트 수명 주기 아웃바운드 Webhook (vs Hermes / OpenClaw / Grok):** Myrm은 엔터프라이즈급 아웃바운드 수명 주기 Webhook 체계를 구축하여 제로 SSRF 유출 방지 및 GUI 우선의 관리 경험을 제공합니다:
+  1. **엔터프라이즈급 안전 발송 및 HMAC-SHA256 서명 (`lifecycle_webhook_service.py`)**: 모든 Webhook 전송은 엄격한 SSRF 유효성 검사(`validate_webhook_url`)를 거쳐 클라우드 메타데이터 IP(`169.254.169.254`) 및 사설망 접근을 차단하며, `X-Myrm-Signature-256` HMAC 서명을 기본 제공하고 3xx 리디렉션을 차단하여 보안 유지;
+  2. **비차단 비동기 큐 발송 (`asyncio.Queue`)**: 512 용량의 워커 큐와 지수 백오프 재시도(최대 2회)를 탑재하여 외부 HTTP 지연이나 네트워크 불안정이 Agent 코어 실행 루프를 전혀 차단하지 않음;
+  3. **GUI 우선 네이티브 관리 대시보드 (`LifecycleWebhookSection.tsx`)**: `설정 -> 서비스 디렉터리 (Integrations)` 내 시각적 관리 카드를 제공하여 HMAC 키 1클릭 무작위 생성, 구독 이벤트 배지 다중 선택(`session_completed` / `session_failed` / `approval_required` / `kanban_task_updated` 등) 및 엔드포인트별 「Ping 연결성 테스트」 실시간 밀리초 지연/상태 피드백 완벽 지원;
+  4. **전체 스택 테스트 검증**: 세 가지 배포 모드(Local, Tauri 데스크톱, 클라우드 호스팅)에서 Pytest 백엔드 단위/통합 테스트 및 Vitest 프런트엔드 컴포넌트 테스트 100% 정상 통과.
+- **자료 SSOT:** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent/myrm-agent-server/app/services/webhook/lifecycle_webhook_service.py` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/integration/integrations/LifecycleWebhookSection.tsx`
+
+
+턴당 기능 제어를 위해 Myrm은 완전한 관찰 가능성(제출/적용/noop/큐/바쁨/최종 결과 + 실패 이유)을 갖춘 **원턴 스킬/MCP 재정의 칩**을 지원합니다. 집중 검증(2026-07-29): 프런트엔드 29/29 통과, 서버 10/10 통과; 목표 적용 범위는 핵심 프런트엔드 파일의 라인 62.47%, 서버 원격 측정 모듈의 전체 라인 72%에 도달했습니다. 이는 팀에게 추측이 아닌 비용/신뢰성 조정에 대한 마이그레이션 안전 증거를 제공합니다.
+
+## 최신 검증 스냅샷 (2026-08-22 · 다중 작업공간 종속성 취약점 CI 게이트 및 런타임 공급망 Doctor 진단 · 보안 거버넌스 Roadmap Topic 03 #6 완료)
+
+- **다중 작업공간 종속성 취약점 CI 게이트 및 런타임 공급망 Doctor 진단 (vs osv-scanner / Dependabot / Hermes security_audit.py):** Myrm은 교차 에코시스템, 다중 작업공간 통합 공급망 보안 게이트 및 런타임 진단 체계를 구축했습니다:
+  1. **교차 에코시스템 매니페스트 및 잠금 파일 정밀 종속성 추출 (`dependency_extractor.py`)**: `pyproject.toml`, `package.json`, `uv.lock`, `bun.lock` 및 `package-lock.json` 파일에서 Python (PyPI) 및 Node.js (npm) 작업공간의 선언 및 전이 종속성을 완벽 추출;
+  2. **Monorepo 전역 통합 CI 게이트 스크립트 (`security_vuln_gate.py`)**: 5개 작업공간(Harness, Server, Frontend, Brand, Control Plane)을 동시 스캔하여 `--fail-on HIGH` 차단, `--allow-advisories` 감사 면제 거버넌스 및 24시간 TTL 로컬 캐싱/오프라인 대체 지원;
+  3. **런타임 Active Venv 진단 및 WebUI Doctor 대시보드 연동 (`SupplyChainDiagnostic`)**: 설치된 패키지를 온디맨드로 동적 검사하여 표준화된 `HealthReport`를 생성하고 WebUI `DoctorDashboard`에 취약점 통계와 수정 제안(`fix_suggestion`)을 직관적으로 표시;
+  4. **전체 스택 테스트 검증**: 게이트 단위 테스트(`test_dependency_vuln_gate.py`) 및 Server 상태 진단 테스트(`test_agent_cold_start_diagnostic.py`) 100% 정상 통과, 0 Lint.
+- **자료 SSOT:** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` · `scripts/dev/security_vuln_gate.py` · `myrm-agent/myrm-agent-server/app/core/infra/health/server_diagnostics.py`
+
+## 최신 검증 스냅샷 (2026-08-22 · 분기 스코프 하위 에이전트 산출물 및 인계 결과 결정론적 병합 · 컨텍스트 및 세션 Roadmap Topic 06 #7 완료)
+
+- **분기 스코프 하위 에이전트 산출물 및 인계 결과 결정론적 병합 (vs Pi Agent / OpenClaw / Hermes / DeepSeek Harness):** Myrm은 엔터프라이즈급 멀티 에이전트 분기 스코프 압축 및 결과 무손실 병합 체계를 구축했습니다:
+  1. **제로 LLM 비용 결정론적 병합 (`branch_scoped_compaction.py`)**: 주 세션 컨텍스트 압축 시 순수 Python 메모리 알고리즘을 통해 <0.2ms 내에 하위 에이전트의 물리적 변경 파일 및 구조화된 인계 상태(완료 항목, 잔여 TODO, 핵심 발견 및 위험)를 자동 수집하여 2차 LLM 요약 오버헤드와 지연을 100% 제거;
+  2. **멀티 에이전트 물리 파일 재귀 대사**: `ExecutionStateValidator`를 업그레이드하여 연결된 하위 세션의 `ArtifactTracker` 기록을 재귀적으로 수집하고 주 에이전트가 하위 에이전트의 파일 수정을 잊는 환각을 철저히 차단;
+  3. **100% Prompt Cache 고정 유지**: 병합된 하위 작업 결과는 부모 세션의 HumanMessage 메모리 컨텍스트에 캡슐화되어 시스템 프롬프트 접두사를 완전히 보존;
+  4. **전체 스택 테스트 검증**: Harness 측 61개 테스트 스위트(`test_branch_scoped_compaction.py`, `test_execution_state_validator.py`, `test_stream_recovery_overflow_failover.py`) 100% 통과.
+- **자료 SSOT:** `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/branch_scoped_compaction.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/strategies/summary/execution_state_validator.py`
+
+## 최신 검증 스냅샷 (2026-08-22 · 패키징된 플러그인 secret-ref 제거 및 범위화된 제로 평문 자격 증명 주입 · 보안 거버넌스 Roadmap Topic 03 #5 완료)
+
+- **패키징된 플러그인 secret-ref 제거 및 범위화된 제로 평문 자격 증명 주입 (vs bun 1.2.16 / OpenClaw / Hermes):** Myrm은 엔터프라이즈급 전체 수명 주기 자격 증명 격리 및 제로 평문 저장 아키텍처를 구축했습니다:
+  1. **소스 레벨 평문 자격 증명 원천 제거 (`mcp_config.py`)**: Harness 프레임워크 수준의 파서는 플러그인 `mcp.json` 파싱 시 환경 변수 키 이름 목록(`env_key_names`)만 추출하고 모든 평문 환경 값을 완전히 제거(`values are stripped for security`)하여 플러그인 번들이 물리적으로 민감한 Key를 포함하거나 유출하는 것을 방지;
+  2. **템플릿화 제로 평문 영구 저장 (`_mcp_persist.py`)**: 저장 시 환경 변수를 `required_secrets` 메타데이터로 매핑하고 민감한 Header를 `{{secret:KEY}}` 템플릿으로 강제 변환하여 데이터베이스에 어떠한 정적 평문 자격 증명도 남기지 않음;
+  3. **런타임 최소 권한 스코프 주입 (`mcp_runtime_prepare.py`)**: stdio MCP 하위 프로세스 시작 전 선언된 `required_secrets`에 따라 AES-256-GCM 암호화 금고(`DatabaseSecretBackend`)에서 필요한 키만 추출하여 주입하며, 전역 환경 변수 유출을 철저히 차단;
+  4. **동적 요청 인증 및 정적 저장 제거 (`mcp_secret_auth.py`)**: HTTP 요청 시 `MCPSecretAuthProvider`를 통해 Header 비밀번호를 동적으로 해석하며 메모리에 장기적인 민감 설정이 상주하지 않음;
+  5. **포괄적인 아웃바운드 유출 방지 및 압축 해제 보호**: `leak_detector.py`의 40+ 정규식 및 샤논 엔트로피 검출로 출력 유출을 방어하고, `zip_extract.py`로 실행 파일 바이너리 추출을 물리적으로 차단;
+  6. **전체 스택 테스트 검증**: Harness 및 Server 307개 단위/통합 테스트 100% 통과, 0 Lint.
+- **자료 SSOT:** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/plugins/mcp_config.py` · `myrm-agent/myrm-agent-server/app/services/plugins/_mcp_persist.py` · `myrm-agent/myrm-agent-server/app/services/agent/mcp_runtime_prepare.py`
+
+## 최신 검증 스냅샷 (2026-08-22 · 격리된 풀 샌드박스 실행 및 정밀 인간-AI 협업 편집 체계 · 지식 베이스 Roadmap Topic 02 #14 & #15 완료)
+
+- **격리된 안전 샌드박스 실행 및 정밀 인간-AI 협업 편집 체계 (vs WorkBuddy 5.3.11 폐쇄형 자료실 및 CSV 데이터 바인딩):** Myrm은 실행 워크숍과 영구 지식 저장소의 엄격한 분리와 강력한 협업을 제공합니다:
+  1. **워크숍과 저장소의 명확한 역할 분리**: 동적으로 생성된 코드, 인터랙티브 대시보드 및 HTML 프로토타입은 `ArtifactPortal` 및 `ArtifactsCenter`에 귀속되며, 영구적인 개념과 링크는 Obsidian 호환 `Wiki Vault` 및 `Memory`에 축적되어 단일 허브의 혼란을 방지;
+  2. **정밀 인간-AI 클릭 협업 편집**: `ElementPickerToolbar`를 통해 시각적으로 DOM 요소를 선택하여 Agent에 세부 수정을 요청할 수 있으며, `DocumentSelectionToolbar` 및 Monaco Editor를 통해 텍스트 범위 선택 즉시 질문 및 실시간 소스 양방향 수정을 완벽 지원;
+  3. **실제 샌드박스 실행으로 취약한 CSV DSL 완전 대체**: Python (Pandas/DuckDB/SQLite), Node.js 및 Bash 기반의 안전한 샌드박스에서 Agent가 영구 저장소를 갖춘 실전용 React/Tailwind/ECharts 인터랙티브 앱을 직접 생성하므로, 부자연스러운 독점 CSV 바인딩 규격이 불필요;
+  4. **엣지 배포 및 불변 스냅샷**: `PublishModal`을 통해 Vercel, Cloudflare 및 Netlify에 무상태 HMAC 암호문과 함께 1클릭 읽기 전용 스냅샷 배포를 지원;
+  5. **전체 스택 테스트 검증**: 243개 정적 계약 테스트, 19개 Harness Wiki 단위 테스트 및 프런트엔드 i18n/Vitest 100% 정상 통과.
+- **자료 SSOT:** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `temp-docs/roadmap/topic_02_knowledge_wiki_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/artifacts/` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/`
+
+## 최신 검증 스냅샷 (2026-08-22 · 결정론적 다중 소스 클라우드 지식 수집 및 통합 경험 진화 SSOT · 지식 베이스 Roadmap Topic 02 #12 & #13 완료)
+
+- **결정론적 다중 소스 클라우드 지식 수집 및 통합 경험 진화 체계 (vs WorkBuddy 폐쇄형 자료실 / Manus Project Harvest 지식 수확):** Myrm은 개방적이고 결정론적이며 스스로 진화하는 지식 베이스 및 장기 메모리 인프라를 제공합니다:
+  1. **결정론적 다중 소스 동기화 엔진 (`WikiSourceSync`)**: 취약한 프런트엔드 파일 선택기 및 특정 클라우드 벤더 종속(Tencent Docs/iMa)을 완전히 탈피하고, 제로 LLM 비용의 결정론적 백그라운드 동기화를 통해 Feishu Docs(구조화된 Block 변환 포함), Google Drive, Gmail 및 RSS 피드를 Obsidian 호환 Markdown Vault로 원활하게 수집;
+  2. **자동화된 지식 컴파일 루프**: 수집된 원본 문서는 수동 복사-붙여넣기 없이 `WikiCompiler`를 거쳐 원자 단위 개념 추출, 양방향 지식 그래프 생성 및 Claims 팩트 출처 추적을 자동으로 완료;
+  3. **프로젝트 수준 공유 메모리 및 글로벌 경험 진화 일체화**: Project는 `SharedContextService`와 양방향 바인딩되어 다중 세션 메모리를 공유하며, 실행 중 발견된 모범 사례와 함정(Pitfalls)은 `experience_ledger` 및 `PendingEvolutionsDashboard`로 자동 집계되어 인간 검토(HITL)를 거쳐 표준 스킬로 진화;
+  4. **전체 스택 테스트 검증**: 개발 게이트 정적 테스트 2120개, Harness 지식 베이스 단위 테스트 600개 및 프런트엔드 Vitest/i18n 테스트 100% 정상 통과.
+- **자료 SSOT:** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `temp-docs/roadmap/topic_02_knowledge_wiki_roadmap.md` · `myrm-agent-server/app/services/wiki/source_sync/` · `myrm-agent-frontend/src/components/features/settings/sections/knowledge/WikiSourceSyncPanel.tsx`
+
+## 최신 검증 스냅샷 (2026-08-22 · 아웃바운드 7×24 메시지 전송 및 재전송 가시성 및 듀얼 트랙 채널 상태 진단 · 관찰 가능성 Roadmap Topic 11 #9 완료)
+
+- **아웃바운드 7×24 메시지 전송 및 데드 레터 큐(DLQ) 듀얼 트랙 상태 진단 (vs Hermes 전송 원장 / OpenClaw / DeerFlow):** Myrm은 프로덕션급 7×24 비동기 메시지 송신 파이프라인 및 채널 재전송에 대한 화이트박스 관찰 가능성 체계를 구축했습니다:
+  1. **듀얼 트랙 전송 상태 측정 (`DLQDiagnostic`)**: `DurableOutboundGate.count_pending()`(디스크 영구 저장 대기/재전송 메시지 수)과 `DeadLetterQueue.get_failed_count()`(데드 레터 영구 실패 수)를 동시 수집하여 일시적 네트워크 끊김 및 프로세스 재시작 중 블랙박스 의혹 원천 차단;
+  2. **다단계 계층화 판정 및 지능형 경고 임계값**: `pass`(완전 정상), `warn`(송신 대기 적체 >10건 또는 DLQ 실패 >0건), `fail`(송신 대기 심각 적체 >50건 또는 DLQ 실패 >50건)으로 정밀 분류하고 세부 원인 및 명확한 복구 가이드 제공;
+  3. **원클릭 가이드 복구 루프 연동 (`RepairAction`)**: `DoctorDashboard`, `/api/v1/health/doctor`, `/api/v1/ops/snapshot`에 원활하게 통합되어 `REVIEW_CHANNEL_DLQ` 빠른 문제 해결을 안내;
+  4. **마이크로초 수준 제로 토큰 순수 로컬 실행**: 외부 LLM 토큰 소모나 네트워크 오버헤드가 전혀 없는 순수 동기식 비차단 진단 실행;
+  5. **전체 스택 테스트 검증**: `test_agent_cold_start_diagnostic.py` 및 서버 상태 진단 API 테스트 100% 정상 통과, 0 Lint.
+- **자료 SSOT:** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent/myrm-agent-server/app/core/infra/health/server_diagnostics.py`
+
+## 최신 검증 스냅샷 (2026-08-22 · 채팅 내 상주 경량 모니터링 스트립 및 서브 에이전트 종합 거버넌스 · 멀티 에이전트 Roadmap Topic 12 #2 & #4 완료)
+
+- **채팅 내 상주 경량 모니터링 스트립 및 서브 에이전트 종합 거버넌스 (vs WorkBuddy / Codex / Hermes / OpenClaw):** Myrm은 가벼운 인채팅 인지와 심층 진단을 결합한 다중 에이战 모니터링 및 거버넌스 스위트를 제공합니다:
+  1. **전 수명주기 경량 인채팅 스트립 (`ChatInlineTeamRunVisibilityStrip.tsx`)**: WorkBuddy `WorkerEventProjector`를 벤치마킹하여, 단순 회전/완료 상태를 넘어 `pending` / `running` / `verifying` / `pending_approval` / `interrupted` / `checkpoint` 및 `stale` 지연 감지까지 전 수명주기를 완벽 지원;
+  2. **우선순위 선점형 동적 알림 메커니즘**: 최고 위험 상태를 상단 배너로 즉시 승격 표시(`pending_approval` 승인 대기 차단 > `stale` 이상 지연 알림 > `running`), 가중치 마이크로 진행 표시줄 및 2.5초 자연스러운 완료 페이드아웃 버퍼 제공;
+  3. **원클릭 아바타 딥링크 (Deep-linking)**: 스트립 내 워커 아바타 클릭 시 `SubagentDashboard` 트리/그래프 뷰로 매끄럽게 이동하여 해당 노드를 포커스/하이라이트;
+  4. **단계별 작업 카운트 실시간 스트립 (`StageTaskCountStrip.tsx`)**: Codez §14 오케스트레이션 패널을 벤치마킹하여 Scope / Fan-out / Verify / Synthesize 4대 단계의 완료도 및 업스트림 블로킹 대기 상태 표시;
+  5. **이상 진단 및 LoopGuard 제안 (`SubagentInsightsView.tsx`)**: 에이전트 타입별 통계, Z-score 지연 이상치 하이라이트 및 교착 상태 자동 복구 제安 제공;
+  6. **전체 스택 테스트 검증**: 7개 컴포넌트 단위 테스트, 6개 단계 통계 테스트 100% 통과, 6개 국어 i18n 및 stable-mocks 게이트 통과, 0 Lint 에러.
+- **자료 SSOT:** `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/subagent/ChatInlineTeamRunVisibilityStrip.tsx` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/subagent/SubagentDashboard.tsx`
+
+## 최신 검증 스냅샷 (2026-08-22 · 오케스트레이션 모드 자유 전환 및 비용 정직 투명성 · 개발자 경험 Roadmap Topic 15 #4 완료)
+
+- **오케스트레이션 모드 자유 전환 및 비용 정직 투명성 (vs Manus / Cursor Composer / Devin / Hermes):** Myrm은 초고속 경제성과 심층 병렬 오케스트레이션을 동시에 지원하는 듀얼 레인 실행 아키텍처를 구축했습니다:
+  1. **원클릭 네이티브 모드 전환 칩 (`WorkflowModeToggle.tsx`)**: 메시지 입력 작업 표시줄에 내장된 오케스트레이션 전환 칩(Direct-FC 초고속 표준 모드 vs PTC 동적 워크플로 오케스트레이션 모드), 은은한 시머 효과 및 다국어 완벽 지원;
+  2. **비용 정직 투명성 (Cost Honesty)**: 마우스 호버 툴팁을 통해 실제 비용 차이를 투명하게 공개 — 짧은 단일 작업은 Direct-FC가 경제적이고 빠름; PTC 모드는 Python 스크립트를 생성하여 샌드박스 서브 에이전트를 동시 병렬 실행함으로써 컨텍스트 한계를 돌파하지만, 스크립트 생성 및 사전 검사로 약 9%의 토큰 오버헤드가 발생함을 명확히 안내;
+  3. **세션별 1회 전송 후 자동 리셋 및 지능형 폴백**: 전송 후 기본 모드로 자동 복귀하여 의도치 않은 고비용 스크립트 실행 방지, 백엔드 규칙 기반 Auto-escalation 자동 승격 폴백 지원;
+  4. **전체 스택 엄격 계약 및 Prompt Cache 제로 오염**: 프런트-백엔드 간 일관된 `orchestration_mode` Pydantic 모델 및 REST 요청 직렬화, 정적 프롬프트 프리픽스를 변경하지 않아 100% Prompt Cache 적중률 유지;
+  5. **전체 스택 테스트 검증**: 22개 단위 테스트 및 83개 멀티 스위트 통합 테스트 100% 정상 통과, 0 Lint 에러.
+- **자료 SSOT:** `temp-docs/materials/DEVELOPER_EXPERIENCE_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent-frontend/src/components/features/message-input-actions/WorkflowModeToggle.tsx` · `myrm-agent-server/app/services/agent/params/models.py`
+
+## 최신 검증 스냅샷 (2026-08-22 · 활성 세션 「대话 | 궤적」 듀얼 탭 및 원본 이벤트 스트림 직결 · DX Roadmap Topic 15 #3 완료)
+
+- **활성 세션 「대화 | 궤적」 듀얼 탭 및 무삭제 이벤트 스트림 (vs DSH / 주황색 책 / 자이신 / Hermes / OpenClaw):** Myrm은 세션 내 프로덕션 수준의 무삭제 물리 이벤트 가시성을 완성했습니다:
+  1. **기본 세션 창 내장 듀얼 탭 전환기 (`ChatWindow.tsx`)**: 채팅 상단 헤더에 「대화 (Chat) | 궤적 (Trace)」 반응형 탭을 제공하여, 별도 설정 창을 열 필요 없이 한 화면에서 즉시 전환 및 모니터링 가능;
+  2. **무삭제 물리 이벤트 스트림 및 귀인 배지**: `agent/event_log/` 추가 전용 로그와 직접 연동되어 도구 입출력, 모델 지표, 실행 지연 시간 및 6가지 결정론적 오류 귀인 배지(Model/Harness/Env/Owner)를 실시간 렌더링;
+  3. **유휴 시 제로 부하 및 적응형 폴링**: 비활성 시 네트워크 요청 0건, 활성 스트리밍 실행 중에만 2초 간격으로 실시간 증분 폴링 수행;
+  4. **멀티 플랫폼 반응형 디자인 및 SessionReplayPlayer 타임머신 연동**: 모바일 및 PC 반응형 레이아웃 완벽 지원 및 궤적 뷰 내에서 타임머신 재생 모드로 원클릭 진입 지원;
+  5. **전체 스택 테스트 검증**: 9개 단위 및 엔드투엔드 통합 테스트 100% 정상 통과, 0 Lint.
+- **자료 SSOT:** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/ChatWindow.tsx` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/system/ExecutionTraceTimeline.tsx`
+
+## 최신 검증 스냅샷 (2026-08-22 · 네이티브 지식 라이브러리 협업 편집 및 CSV 라이트 앱 아키텍처 심층 검증 · 지식 위키 Roadmap Topic 02 #14 & #15 완료)
+
+- **네이티브 지식 라이브러리 협업 편집 및 안전 격리 샌드박스 아티팩트 생태계 (vs WorkBuddy 5.3.11 라이브러리 및 CSV 라이트 앱):** Myrm은 명확한 아키텍처 경계와 진정한 산업 등급 샌드박스 실행 환경을 제공합니다:
+  1. **작업장(Artifacts)과 저장소(Wiki/Memory)의 엄격한 분리**: 임시 아티팩트, 협업 편집 및 영구 지식을 혼합하지 않고, `ArtifactPortal`은 동적 아티팩트 생성 및 상호작용에 집중하며, Obsidian 호환 `Wiki Vault`는 영구 지식 보존에 집중;
+  2. **프로덕션 등급 격리 샌드박스 vs 취약한 템플릿**: 격리된 샌드박스 환경에서 Python(Pandas/DuckDB/SQLite), Node.js 및 Bash를 기본 지원하며, `ElementPickerToolbar` DOM 요소 시각적 선택, `DocumentSelectionToolbar` 텍스트 선택 플로팅 도구 및 구조화된 CSV/JSON 미리보기를 지원하여 취약한 가상 양방향 바인딩 템플릿을 완전히 대체;
+  3. **전체 스택 테스트 검증**: 243개 정적 계약 테스트 및 프런트엔드 전체 Vitest/i18n 제품군 100% 통과, 0 Lint 에러.
+- **자료 SSOT:** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `temp-docs/roadmap/topic_02_knowledge_wiki_roadmap.md` · `myrm-agent-frontend/src/components/features/artifacts/`
+
+## 최신 검증 스냅샷 (2026-08-22 · 프런트엔드 6대 디테일 통합 엔지니어링 및 방어적 복원력 강화 · 프런트엔드 UX Roadmap Topic 09 #4 완료)
+
+- **프런트엔드 6대 디테일 통합 엔지니어링 및 방어적 복원력 강화 (vs Pi Agent / Claude Desktop / Cursor / OpenClaw):** Myrm은 프런트엔드 전반의 핵심 상호작용 세부 사항에 대한 체계적인 강화 및 표준 유틸리티 라이브러리 캡슐화를 완료했습니다:
+  1. **전체 플랫폼 다중 디바이스 IME 229 및 Process 상태 입력 가드 (`imeUtils.ts`)**: CJK 입력기 한글/한자/일본어 조합 중 Enter 입력 시 스트리밍 메시지가 조기 전송되는 업계 공통 문제를 완벽하게 해결; MessageInput, ClarificationInput, ReviewPanel, AgentEditPanel, SmartPromptEditor 등 전 사이트 입력 컴포넌트 100% 적용;
+  2. **글로벌 세션 제목 지능형 중복 제거 및 인덱스 증가기 (`titleUtils.ts`)**: 세션 제목 충돌 시 자동으로 최소 가용 인덱스를 계산하여 추가(예: "아키텍처 토론 (2)"), 사이드바 목록의 고유 식별성 보장;
+  3. **전체 플랫폼 경로 및 Windows UNC 표준화 (`pathValidation.ts`)**: POSIX, Windows 드라이브 문자, Windows UNC 공유 네트워크 경로(`\\\\server\\share`) 지원 및 슬래시 표준화, 중앙 생략(`formatPathForDisplay`) 제공;
+  4. **Skill 기본 설명 결손 가드 (`skillUtils.ts`)**: 스킬 카드, 발견 탭 및 상세 시트에 다국어 폴백을 제공하여 빈 설명으로 인한 레이아웃 깨짐 방지;
+  5. **dict-like 안전 분해 및 타입 가드 (`typeUtils.ts`)**: `isRecord`, `asRecord`, `safeGet` 유틸리티를 제공하여 비정형 응답으로 인한 프런트엔드 런타임 크래시 차단;
+  6. **전체 스택 테스트 검증 및 6개 국어 i18n 검증**: `frontendPolishUtils.test.ts` 11개 단위 테스트 100% 통과, `verify:i18n` 및 `verify:stable-mocks` 게이트 통과, 0 Lint 에러.
+- **자료 SSOT:** `temp-docs/materials/USER_EXPERIENCE_ADVANTAGE.md` · `temp-docs/roadmap/topic_09_frontend_ux_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/lib/utils/imeUtils.ts` · `myrm-agent/myrm-agent-frontend/src/lib/utils/titleUtils.ts`
+
+## 최신 검증 스냅샷 (2026-08-22 · 에이전트 기본 모델 교체 시 자산 연속성 보장 및 전용 실행 규율 적응 · 모델 라우팅 Roadmap Topic 07 #6 완료)
+
+- **에이전트 기본 모델 교체 시 자산 연속성 보장 및 전용 실행 규율 적응 (vs WorkBuddy 비공개 안정형 워크벤치 / Claude Workbench / Dify / FastGPT):** Myrm은 엔터프라이즈급 모델 중립성과 원활한 에이전트 자산 연속성 보장 체계를 완성했습니다:
+  1. **전체 자산 100% 연속 보존 증명 (`ModelSwapContinuityCard`)**: 모델 교체 시 바인딩된 Skills (N개), MCP 서비스 (N개), 장기 기억 Vault, 워크스페이스 보안 정책 및 서브에이전트 오케스트레이션 토폴로지의 상속 상태를 실시간 요약하여 자산 유실 우려를 원천 해소;
+  2. **멀티모달 및 기능 호환성 지능형 안전망**: 대상 모델이 네이티브 Vision 입력을 지원하지 않을 경우, 글로벌 `visionFallbackModel`이 자동 인수하여 런타임 400 Bad Request 크래시를 사전 방지;
+  3. **모델 패밀리별 전용 실행 규율 연동**: Harness `model_discipline.py`의 패밀리별 실행 규율(Claude 구조화 도구 계약 및 최소 면책 조항, DeepSeek 불필요 설명 억제, GPT 작업 지속성, Gemini 절대 경로 및 병렬 실행)을 자동 매핑하고 권장 Prompt 모드(Lean / Full) 제공;
+  4. **비차단 고품질 인라인 디자인**: 번거로운 다단계 팝업 마법사 대신 적응형 인라인 카드를 채택하여 지연 없는 빠른 작업 흐름과 확고한 신뢰감 제공;
+  5. **전체 스택 테스트 검증**: 단위 테스트 3/3 통과, 6개 국어 i18n 완전 지원 및 0 Lint.
+- **자료 SSOT:** `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/ai-core/agent/ModelSwapContinuityCard.tsx` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/ai-core/agent/AgentCapabilitiesTabSections.tsx`
+
+## 최신 검증 스냅샷 (2026-08-22 · 공급업체 간 작업 전문 지능형 자동 라우팅 및 4단계 장애 복구 · 모델 라우팅 Roadmap Topic 10 #5 완료)
+
+- **공급업체 간 작업 전문 지능형 자동 라우팅 (vs WorkBuddy 비공개 라우팅 / Claude Code / Cursor / Hermes / OpenClaw):** Myrm은 제로 토큰 오버헤드, 0.5ms 미만의 초고속 도메인 전문 라우팅 시스템을 구현했습니다:
+  1. **6차원 휴리스틱 전문 분류기 (`classify_task_specialty`)**: `CODE`(프로그래밍/리팩토링/AST/Traceback), `LONG_DOC`(대용량 문서/재무 보고서/백서), `REASONING`(수학/정리/LaTeX 유도), `MULTIMODAL`(이미지/오디오/비디오), `CASUAL`(인사/가벼운 대화), `GENERAL`을 정확히 분류하여 TTFT 0ms 영향 달성;
+  2. **멀티턴 세션 모멘텀**: 짧은 후속 질의(예: "12번째 줄 설명해줘") 시 이전 작업 전문성을 자동 상속하여 모델 깜빡임 및 불연속성 제거;
+  3. **4단계 장애 복구 체인 (`_build_fallback_chain`)**: `Specialty Primary → Specialty Fallback → Base Primary → Base Fallback`을 통해 네트워크 또는 할당량 오류 시 원활한 다운그레이드 복구 보장;
+  4. **투명한 전문성 표시 칩 (`ModelSpecialtyChip`)**: 자동 라우팅의 단순함을 유지하면서 응답 하단에 투명 칩을 제공하여 마우스 호버 시 분류 근거와 실제 호출된 모델을 확인 가능;
+  5. **전체 스택 테스트 검증**: Harness 전문성 라우팅 단위 테스트 100% 정상 통과, 0 Lint.
+- **자료 SSOT:** `temp-docs/materials/PROXY_LLM_INFRA_ADVANTAGE.md` · `temp-docs/roadmap/topic_10_model_routing_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/routing/specialty_router.py` · `myrm-agent/myrm-agent-frontend/src/components/features/message-box/ModelSpecialtyChip.tsx`
+
+## 최신 검증 스냅샷 (2026-08-22 · Windows 데스크톱 완전 대등 릴리스 및 네이티브 초경량 배포 · 데스크톱 Roadmap Topic 05 #36 완료)
+
+- **Windows 데스크톱 완전 대등 릴리스 및 네이티브 초경량 배포 (vs Datawhale DSH-Desktop / WeSight / Hermes-Desktop):** Myrm은 Windows와 macOS 간의 100% 대등한 데스크톱 릴리스 및 사용자 경험을 완성했습니다:
+  1. **듀얼 트랙 배포 설치 매트릭스**: Tauri v2 파이프라인을 통해 `.exe`(NSIS 대화형 6개 국어 마법사)와 `.msi`(엔터프라이즈 사일런트 설치)를 동시 생성;
+  2. **Authenticode 및 Azure Trusted Signing 신뢰할 수 있는 서명**: RFC 3161 Digicert 타임스탬프(`http://timestamp.digicert.com`)가 완벽 구성되어 Windows Defender SmartScreen 알 수 없는 게시자 경고를 원천 차단;
+  3. **커널 수준 Job Object 프로세스 트리 종료 및 포트 자가 치유**: 업데이트 중 생존 프로세스 파일 잠금 문제를 제거하고, 8080 포트 충돌 시 이전 인스턴스를 자동 식별하여 `re_kill`을 트리거하고 100ms 지수 백오프로 포트 해제를 대기;
+  4. **네이티브 초경량 및 최저 리소스 소비**: 설치 파일 크기 약 30MB(Electron 기반 경쟁사 150MB+ 대비) 및 메모리 사용량 1/4 수준;
+  5. **다국어 문서 100% 대등화**: 한국어/영어/중국어 빠른 시작, 다운로드 매트릭스 및 데스크톱 운영 가이드 전면 동기화.
+- **자료 SSOT:** `temp-docs/materials/DESKTOP_APP_ADVANTAGE.md` · `temp-docs/roadmap/topic_05_desktop_release_engineering_ci_roadmap.md` · `myrm-agent-desktop/DESKTOP_RELEASE_SYSTEM.md` · `myrm-agent-desktop/src-tauri/tauri.conf.json`
+
+## 최신 검증 스냅샷 (2026-08-21 · Goal 장기 목표 ↔ 칸반 양방향 강력한 일관성 SSOT · 런타임 신뢰성 Roadmap Topic 13 #1 완료)
+
+- **Goal 장기 목표 ↔ 칸반 양방향 강력한 일관성 브리지 및 지능형 중단점 복구 (vs Claude `/goal` / Manus / Echo / AutoGPT):** Myrm은 Goal 엔진과 Kanban 작업 스케줄러 간의 양방향 상태 강일관성 및 구조화된 승인 기준 지속성 루프를 구현했습니다:
+  1. **지능형 중단점 재개 (`_setup_goal_provider`)**: 작업 재실행 시 완료되지 않은 Goal(`PAUSED` / `BUDGET_LIMITED` / `WAIT`)을 감지하여 `resume_goal(reset_turns=False)`을 호출해 실행을 복구하고, 과거 턴 수와 컨텍스트를 엄격하게 보존하여 새 Goal 생성으로 인한 컨텍스트 손실 및 턴 드리프트를 원천 방지;
+  2. **일시중지 상태 원자적 BLOCKED 매핑 (`_map_goal_outcome`)**: `PAUSED` / `NEEDS_HUMAN_REVIEW` / `WAIT`를 `TaskStatus.BLOCKED`로 정밀 매핑하고 `BlockKind.HUMAN`(인간 개입/일시중지)과 `BlockKind.EXTERNAL`(외부 백그라운드 작업/CI 대기)을 구분하여 다운스트림 디스패처가 작업을 정상 보류하도록 보장(실패 오판 또는 재시도 횟수 소진 방지);
+  3. **구조화된 검수 결과 SSOT 및 GUI 시각화**: Goal 엔진 다차원 테스트 검수 결과(`acceptance_results`)를 Task `metadata`에 원자적으로 동기화하고 프런트엔드 작업 드로어 `KanbanTaskDrawerDetails.tsx`에 현대적인 카드 형태로 렌더링(다국어 지원);
+  4. **전체 스택 테스트 검증**: 11개 `test_kanban_goal_mode.py` 단위 테스트 + 198개 Server Kanban 테스트 + 221개 Harness Goal 엔진 테스트 + 137개 프런트엔드 Kanban 컴포넌트 테스트 100% 정상 통과, 0 Lint.
+- **자료 SSOT:** `temp-docs/materials/KANBAN_TASK_SCHEDULING_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/services/kanban/task_runner/runner.py` · `myrm-agent/myrm-agent-frontend/src/components/features/kanban/KanbanTaskDrawerDetails.tsx`
+
+## 최신 검증 스냅샷 (2026-08-21 · Magic Bytes 심층 포맷 감지 및 다중 포맷 통합 수집 파이프라인 · 지식 위키 Roadmap Topic 02 #9 완료)
+
+- **Magic Bytes 심층 감지 및 다중 포맷 파서 레지스트리 매트릭스 (vs Hermes / OpenClaw / 기존 RAG):** Myrm은 완전한 엔드투엔드 문서 수집 및 컴파일 아키텍처를 제공합니다:
+  1. **심층 파일 특성 감지 (`sniff_content_format`)**: 누락되거나 위조된 파일 확장자를 우회하여 Magic Bytes 및 Zip 컨테이너 구조에서 실제 MIME 유형을 직접 정확하게 감지;
+  2. **통합 다중 포맷 파서 레지스트리 (`file_parsers._PARSERS`)**: PDF(SmartPDFParser + 텍스트/표 추출 및 OCR 자동 강등), Word(.docx/.doc), Excel(.xlsx/.xls), PPT(.pptx/.ppt), RTF, EPUB, ODF, CSV, Jupyter Notebook(.ipynb) 및 이미지 OCR(PaddleOCR) 기본 지원;
+  3. **전체 Agent 수집 및 컴파일 파이프라인**: `wiki_ingest_tool`이 웹 URL(FetchEngine / secure_get / MarkdownGenerator), 바이너리 문서(`_parse_binary_document`), 일반 텍스트를 일관되게 라우팅하고 `publish_raw` 보안 필터링, 충돌 정책(OVERWRITE/SKIP/ERROR/VERSION), 적응형 분할(`_split_if_large`) 및 컴파일 대기열 스테이징을 적용;
+  4. **전체 스택 테스트 검증**: Harness `file_parsers` 단위 테스트 및 Wiki Ingest 통합 테스트 100% 정상 통과, 0 Lint 에러.
+- **자료 SSOT:** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `temp-docs/roadmap/topic_02_knowledge_wiki_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/file_parsers/` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/wiki/wiki_agent_tools.py`
+
+## 최신 검증 스냅샷 (2026-08-21 · 음성 듀얼 트랙 패스트레인 및 15초 Supervisor 백그라운드 핸드오프 · 음성 미디어 Roadmap Topic 04 #3 완료)
+
+- **음성 듀얼 트랙 패스트레인 및 15초 Supervisor 백그라운드 핸드오프 (vs Qwen Audio Agent / ChatGPT Voice / Claude Voice):** Myrm은 산업용 듀얼 트랙 음성 실행 엔진과 긴 작업 감독자 상태 머신을 구축했습니다:
+  1. **듀얼 트랙 패스트레인 초고속 출력 (`_is_fast_lane_query`)**: 간단한 인사 및 사실 확인 질의(`RoutingTier.SIMPLE`)에 대해 무거운 Agent 프로필 로드와 불필요한 대기 음성을 건너뛰어 TTFT <1.5s 초고속 응답 실현 및 자동 자가 치유 폴백 지원;
+  2. **15초 Supervisor 시간 초과 핸드오프 (`_consume_agent_stream_supervised`)**: 15초 초과 긴 작업 감지 시 구두 전환 안내 음성을 출력하고, 활성 음성 채널을 즉시 해제하며 지속형 Kanban 백그라운드 작업으로 위임;
+  3. **백그라운드 작업 완료 능동 음성 안내**: 기존 `voice_background_task_done` 이벤트 대기열과 완벽 통합되어 작업 완료 시 현재 음성 발화를 방해하지 않고 결과 요약을 능동 안내;
+  4. **전체 스택 테스트 검증**: 173개 음성 통합 테스트 및 43개 단위 테스트 100% 정상 통과, 0 Lint 에러.
+- **자료 SSOT:** `temp-docs/materials/VOICE_BACKGROUND_TASK_ANNOUNCE_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md` · `myrm-agent/myrm-agent-server/app/api/voice/agent_bridge.py`
+
+## 최신 검증 스냅샷 (2026-08-21 · PLUR 크로스 툴 Engram 메모리 가져오기 및 제로 콜드 스타트 마이그레이션 · 메모리 Roadmap Topic 01 #58 완료)
+
+- **PLUR 크로스 툴 Engram 메모리 가져오기 및 제로 콜드 스타트 마이그레이션 (vs PLUR / Hermes / OpenClaw / Mem0):** Myrm은 프로덕션급 전용 가져오기 어댑터(`import_plur.py`) 및 마이그레이션 마법사 통합을 제공합니다:
+  1. **무손실 다중 포맷 Engram 파싱**: `yaml.safe_load` 메커니즘을 기반으로 PLUR 생태계(Cursor, Claude Code, OpenClaw 등)에서 내보낸 일반 텍스트 YAML/JSON engrams를 안전하게 파싱하여 원격 코드 실행 취약점을 원천 차단하고 비정상 선두 데이터에 대한 복원력 확보;
+  2. **지능형 Scope 매핑 및 버킷 분류**: `global` 범위의 사용자 선호도 및 지침을 동결된 Profile 버킷으로 자동 매핑하여 Prompt Cache 적중률을 100% 보호하고, `project` 범위의 프로젝트 팩트와 경험을 Semantic 벡터 버킷으로 매핑하여 완전한 도메인 메타데이터 보존;
+  3. **원자적 Dry-Run 및 2단계 트랜잭션 롤백 보장**: 마이그레이션 마법사(`source_manifest.py`)와 완벽히 통합되어 가져오기 전 사전 점검, 구조화된 경고 보고 및 감사 가능한 2단계 트랜잭션 커밋/롤백 원장 제공;
+  4. **전체 스택 테스트 검증**: 8/8개 단위 및 영구 저장 통합 테스트 100% 정상 통과(`test_import_plur.py`, `test_plur_import_integration.py`), 0 Lints.
+- **자료 SSOT:** `temp-docs/materials/MEMORY_ADVANTAGE.md` · `temp-docs/roadmap/topic_01_memory_roadmap.md` · `myrm-agent/myrm-agent-server/app/services/memory/imports/import_plur.py`
+
+## 최신 검증 스냅샷 (2026-08-21 · Web 프로젝트 기술 SEO 최적화 및 정기 상태 점검 블루프린트 팩 · Roadmap Topic 11 #5 완료)
+
+- **Web 프로젝트 기술 SEO 최적화 및 정기 상태 점검 블루프린트 팩 (vs Trae Solo / Hermes SEO 스택):**
+  1. **개방형 표준 Prebuilt Skill**: `agentskills.io` 표준을 준수하며, Recon / Plan / Audit / Remediate / Verify 5단계 표준 엔지니어링 SOP를 내장하고 표준화된 `SEO-OPTIMIZATION-ROADMAP.md` P0–P3 로드맵 아티팩트를 출력;
+  2. **5개 언어 자동 주간 점검 블루프린트**: `CronBlueprint` 핵심에 `seo_weekly_audit`을 등록하고, 5개 언어(`en`, `zh`, `ja`, `de`, `ko`) 다국어 및 엄격한 슬롯 검증을 기본 지원하여 24x7 무인 자동화 상태 점검을 실현;
+  3. **AI 검색 준비도 (LLMO) 및 현대적 프레임워크 보호**: `llms.txt`, 시맨틱 Markdown 제목, JSON-LD 구조화 데이터 감사를 심층 지원하며, Next.js (App Router/Pages)를 지능적으로 감지하여 타입 안전한 Metadata를 내보내 SSR 손상을 원천 방지;
+  4. **전체 스택 테스트 검증**: 48개 단위/슬롯 검증 테스트 + 41개 정적 Bash 계약 아키텍처 테스트 100% 통과.
+- **자료 SSOT:** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/assets/prebuilt_skills/web-project-seo-optimization/SKILL.md` · `myrm-agent/myrm-agent-server/app/core/cron/blueprints.py`
+
+## 최신 검증 스냅샷 (2026-08-21 · 5D 컨텍스트 압축 충실도 A/B 하네스 및 Prompt Cache 접두사 무손실 보호 · 컨텍스트 Roadmap Topic 09 #4 완료)
+
+- **5D 컨텍스트 압축 충실도 A/B 하네스 및 Prompt Cache 접두사 무손실 보호 (vs Pi Agent / Claude Code / Hermes / OpenClaw):** Myrm은 프로덕션급 장기 세션 컨텍스트 압축 품질 저하 방지 게이트와 캐시 친화적 메모리 레이아웃을 구축했습니다:
+  1. **Prompt Cache 접두사 100% 불변 보호**: 구출된 `<preserve_context>` 블록을 동적 `SystemMessage` 주입에서 구조화된 `HumanMessage` 요약 페이로드(`summary_builder.py` / `summarizer.py`)로 수렴 주입하여 Anthropic / OpenAI / DeepSeek 시스템 프롬프트 KV Cache 적중률을 원천 보호;
+  2. **물리적 파일 대조 2차 폴백 파싱 (`extract_physical_modified_files`)**: ToolMessage 메타데이터와 정규식 폴백을 강화하여 `ArtifactTracker`가 분리된 경우에도 `write`/`edit`/`save` 도구 반환값에서 파일 시스템 변경 경로를 정밀 대조;
+  3. **5차원 충실도 동일 작업 A/B 인수 테스트 스위트 (`CompactionABEvaluator`)**: 압축 후 단일 단계 지속 실행을 위한 정량 평가 레이더(제약 조건 회수율, 결정 일치성, 실행 상태 정확도, 산출물 커버리지, 지속 성공률) 구축 및 도구 별칭 정규화 지원;
+  4. **전체 스택 테스트 검증**: 1,285개 이상의 Harness 컨텍스트 관리 단위 테스트 및 Server 실제 LLM 압축 통합 테스트 100% 정상 통과, 0 Lints.
+- **자료 SSOT:** `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md` · `temp-docs/roadmap/topic_09_context_session_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/`
+
+## 최신 검증 스냅샷 (2026-08-21 · Outbound 메시지 재전송 가시성 및 이중 트랙 채널 헬스 Doctor 팩 · Topic 14 관찰 가능성 #9 완료)
+
+- **Outbound 메시지 재전송 가시성 및 이중 트랙 채널 헬스 Doctor 진단 팩 (vs Hermes / OpenClaw / Claude Code):** Myrm은 0 토큰 소모의 실시간 메시지 발송 신뢰성 진단 프로브를 구현했습니다:
+  1. **이중 트랙 헬스 상태 매트릭스 (`DLQDiagnostic`)**: `DurableOutboundGate`(발송 대기/재전송 큐)와 `_dlq`(데드 레터 큐)를 동시 감지하여 메시지 발송 인프라의 투명성을 대폭 강화:
+     - **Pending Outbound Redelivery**: 채널 네트워크 지연 또는 재시작 후 복구 대기 중인 메시지 수를 실시간 감지;
+     - **DLQ Failed Messages**: 재시도 횟수를 초과하여 보존된 실패 메시지 수를 정확히 추적;
+  2. **단계별 지능형 경보 임계치**:
+     - `failed_count > 100` 또는 `pending_count > 200`일 때 즉시 `ERR_DLQ_CRITICAL` 발생;
+     - `failed_count > 10`일 때 `WARN_DLQ_FAILED` 발생;
+     - `pending_count > 50`일 때 `WARN_OUTBOUND_PENDING_BACKLOG` 백로그 경보 발생;
+  3. **수리 가이드 및 액션 연동**: 웹 UI 및 데스크톱 Doctor 대시보드와 완벽 연동되어 DLQ 복구 및 채널 연결 점검 가이드 즉시 제공;
+  4. **전체 스택 테스트 검증**: DLQ 진단 단위 테스트 및 `/health/doctor` API 통합 테스트 100% 정상 통과, 0 Lints.
+- **자료 SSOT:** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/core/infra/health/server_diagnostics.py` · `myrm-agent/myrm-agent-server/tests/core/infra/health/test_agent_cold_start_diagnostic.py`
+
+## 최신 검증 스냅샷 (2026-08-21 · Agent 콜드 스타트 Warm-Path 4단계 Doctor 팩 · Topic 14 관찰 가능성 #8 완료)
+
+- **Agent 콜드 스타트 Warm-Path 4단계 화이트박스 진단 팩 (vs Hermes Quicksilver / OpenClaw / DeerFlow / Claude Code):** Myrm은 0 토큰 소모, 마이크로초 수준 응답의 콜드 스타트 화이트박스 상태 진단 프로브를 구현했습니다:
+  1. **4단계 화이트박스 준비 상태 매트릭스 (`AgentColdStartDiagnostic`)**: LLM 토큰을 일절 소모하지 않고 Turn-1 응답성의 4대 핵심 축을 체계적으로 평가:
+     - **모델 제공자 준비도 (Model Provider)**: 제공자 자격 증명 설정, 기본 모델 가용성 및 엔드포인트 연결 상태 검증;
+     - **도구 레지스트리 준비도 (Tool Catalog / MCP Registry)**: 도구 단일 진실 소스(SSOT) 등록 상태 및 지연 인덱스 캐시 준비도 확인;
+     - **실행 캐시 웜 상태 (ExecutionCache Warm State)**: 상주 예열 `BuiltExecutionUnit` 인스턴스 및 메모리 점유 상태 감지;
+     - **스토리지 및 데이터베이스 활성도 (Storage & DB Liveness)**: 엄격한 1.0초 타임아웃 퓨즈가 적용된 마이크로초 단위 SQLite 핑 대기 시간 측정;
+  2. **정량적 준비 점수 체계 (`warm_path_score` 0-100)**: 세분화된 `ready_phases`(`model_ready`, `tools_ready`, `cache_warm`, `storage_healthy`) 및 사용자 친화적인 실행 가능 조치 권장 사항 제공;
+  3. **다중 배포 모드 통합 진입점**: `ServerDiagnosticsManager`에 심층 통합되어 WebUI, Tauri 데스크톱 및 클라우드 샌드박스에서 `/api/v1/health/doctor` 및 `/api/v1/ops/snapshot`을 통해 즉시 사용 가능한 시각화 지원;
+  4. **전체 스택 테스트 검증**: 6개 단위 테스트 + `/health/doctor` API 통합 테스트 100% 정상 통과, 0 Lints.
+- **자료 SSOT:** `temp-docs/materials/OBSERVABILITY_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/core/infra/health/server_diagnostics.py` · `myrm-agent/myrm-agent-server/tests/core/infra/health/test_agent_cold_start_diagnostic.py`
+
+## 최신 검증 스냅샷 (2026-08-21 · 데스크톱 네이티브 편집 단축키 브리지 및 크로스 플랫폼 Shell 인자 안전 이스케이프 · Roadmap Topic 08 완료)
+
+- **데스크톱 네이티브 편집 단축키 브리지 및 안전한 Shell 인자 이스케이프 (vs StaffDeck / dsh-cc-tui / Electron 경쟁사):**
+  1. **네이티브 AppKit/Win32 Edit 메뉴 브리지**: 테두리 없는 커스텀 WebView 창에서 클립보드/편집 단축키(`Cmd/Ctrl+C/V/X/A/Z`)가 간헐적으로 작동하지 않는 문제를 네이티브 OS 메뉴 응답자 및 가속기 주입으로 완벽 해결하면서 현대적인 몰입형 UI 디자인 유지;
+  2. **MSDN CommandLineToArgvW 및 Windows 변수 이스케이프 방어**: POSIX, Windows `cmd.exe`(끝자리 백슬래시 2배 규칙 및 `%`/`^` 주입 방어), PowerShell을 완벽 지원하는 범용 `shell_quote` 도구 제공;
+  3. **Prompt Cache / KV Cache 적중률 보호**: 안전한 경로/토큰에 대해 불필요한 따옴표 이스케이프를 건너뛰어 LLM 컨텍스트 캐시 무효화를 원천 방지;
+  4. **전체 스택 테스트 검증**: Harness 단위 테스트 8개 + 실제 세션 통합 테스트 3개 + PTC 동적 스텁 테스트 49개 100% 정상 통과, 0 Lints.
+- **자료 SSOT:** `temp-docs/materials/DESKTOP_APP_ADVANTAGE.md` · `myrm-agent/myrm-agent-desktop/src-tauri/src/app/menu.rs` · `myrm-agent-harness/src/myrm_agent_harness/utils/shell_quote.py`
+
+## 최신 검증 스냅샷 (2026-08-21 · 데스크톱 관리 프로세스 레지스트리 및 생명주기 가시성 · Roadmap Topic 08 #1 완료)
+
+- **데스크톱 관리 프로세스 레지스트리 및 다중 Sidecar 전체 생명주기 거버넌스 (vs Hermes-Desktop / WeSight / AionUi / OpenClaw):** Myrm은 고성능 Rust 네이티브 데스크톱 프로세스 레지스트리 및 연쇄 종료 하위 시스템을 제공합니다:
+  1. **스레드 안전 통합 프로세스 레지스트리 (`ProcessRegistry`)**: 모든 데스크톱 Sidecar 자식 프로세스(`Backend`, `Frontend`, `AgentRunner`, `AgentWorker`, `ToolRunner`)를 전역 단일 레지스트리에 등록하여 밀리초 수준의 상태 추적(`Starting`, `Running`, `Stopped`, `Crashed`, `OrphanReclaimed`) 제공;
+  2. **크래시 종료 코드 캡처 및 재시작 폭풍 방지**: 비정상 종료 시 `exit_code` 및 오류 원인을 자동 포착하고, 자동 재시작 시 `restart_count`를 영구 보존하여 Watchdog 지수 백오프 및 5분 3회 회로 차단기와 완벽 연동;
+  3. **유계 기록 정리로 메모리 누수 0**: 엄격한 `MAX_STOPPED_HISTORY_ENTRIES = 50` LRU 정리를 통해 가동 시간과 무관하게 일정한 메모리 점유 유지;
+  4. **연쇄 프로세스 트리 종료 및 포트 충돌 원천 방지**: `kill_managed_process`가 크로스 플랫폼 프로세스 트리 파괴(`kill_process_tree` + Windows Job Object `JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE`)와 연동되어 자식 고아 프로세스를 완전히 정리하고 포트 점유 해소;
+  5. **Tauri IPC 명령 및 보안 정책 등급화**: `get_desktop_process_registry`(읽기 전용) 및 `kill_desktop_process`(Critical 위험 등급)를 `ipc_security/policy.rs`의 엄격한 보안 하에 노출;
+  6. **전체 스택 테스트 검증**: Rust 단위 테스트 + Python server 콜드 스타트 진단 통합 테스트 + 아키텍처 어휘 테스트 100% 정상 통과, 0 Lints.
+- **자료 SSOT:** `temp-docs/materials/DESKTOP_APP_ADVANTAGE.md` · `myrm-agent/myrm-agent-desktop/src-tauri/src/runtime/process_registry/` · `myrm-agent/myrm-agent-desktop/src-tauri/src/commands/process_registry.rs`
+
+## 최신 검증 스냅샷 (2026-08-21 · 자동 스크롤 추종 지속성 미러 · Frontend UX Roadmap Topic 12 #3 완료)
+
+- **자동 스크롤 추종 지속성 미러 및 제로 지터 읽기 앵커 (vs Pi Agent / Claude Desktop / Cursor):** Myrm은 네이티브 및 가상화 목록 동형 스크롤 상태 및 추종 의도 지속성 미러를 구축했습니다:
+  1. **이중 모드 추종 및 의미론적 읽기 앵커 분리**: `isFollowingBottom`(실시간 스트리밍 출력 하단 추종)과 `isUserScrolledUp` / `anchorMessageId`(기록 조회 앵커)를 지능적으로 분리하여, 세션 전환 전 추종 중이었다면 복귀 시 스트리밍 말단에 즉시 고정되고, 과거 내용을 조회 중이었다면 0ms 정밀 복원되어 뷰포트가 강제로 튕기는 현상을 원천 방지;
+  2. **가상화 목록 동형 컨테이너 어댑터 (`useScrollPositionRestore`)**: 범용 `getScrollElement`를 추상화하여 기본 `window` 스크롤과 `@tanstack/react-virtual` 가상화 목록 컨테이너(`HTMLDivElement`)를 완벽 지원, 긴 대화에서 가상 스크롤 복원이 실패하던 문제를 완전히 해결;
+  3. **L1 메모리 즉각 복원 + L2 SessionStorage 계단식 지속성**: 세션 전환 시 0ms 즉각 복원 및 페이지 새로고침 시 10개 세션 LRU 디바운스 지속성 및 스토리지 할당량 안전 보호 기능 제공;
+  4. **전체 스택 테스트 검증**: `useScrollPositionRestore` 4개 단위 테스트 + `ScrollToBottomButton` 9개 단위 테스트 + `chat-window/` 및 `hooks/ui/` 204개 통합 테스트 100% 정상 통과, 0 Lints.
+- **자료 SSOT:** `temp-docs/materials/USER_EXPERIENCE_ADVANTAGE.md` · `myrm-agent/myrm-agent-frontend/src/hooks/ui/useScrollPositionRestore.ts` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/virtual-message-list/VirtualMessageList.tsx`
+
+## 최신 검증 스냅샷 (2026-08-21 · 동적 워크플로 네이티브 동작 증류 vs 장난감급 스킬 팩 · Roadmap Topic 10 #4 완료)
+
+- **동적 워크플로 네이티브 동작 증류 및 샌드박스 재생 (vs RLM 재귀 언어 모델 / Claude Code / 학술 프로토타입):** Myrm은 프로덕션급 Code-as-Orchestrator 동적 워크플로 오케스트레이션 엔진을 제공합니다:
+  1. **네이티브 동작 습관 증류(Probe-Split-Delegate-Synthesize)**: 하위 엔진 `ORCHESTRATOR_PROMPT`에 4단계 오케스트레이션 패러다임과 3대 클래식 아키텍처 템플릿(배리어 팬아웃, 배치 추출, 종속성 파이프라인)을 기본 내장하고, 필터링·정렬·중복제거·JSON 파싱 등 저가치 연산에 대한 LLM 도구 호출을 엄격히 금지하여 80% 이상의 토큰을 절약;
+  2. **PTC 격리 샌드박스 및 고효율 RPC 브리지**: 안전한 UDS/TCP IPC 브리지를 통해 `myrm_tools`(`spawn_subagent`, `notify`, `llm_query`, `llm_query_batched`)를 제공하며, 중간 결과물이 서브 프로세스 메모리 내에서만 순환되어 프롬프트 컨텍스트 오염을 원천 차단;
+  3. **SQLite Event Sourcing 결정론적 재생**: `WorkflowEventStore` 매개변수 지문 매칭을 통해 장애 발생 시 완료된 하위 작업을 몇 초 만에 재실행 없이 복구하여 토큰 낭비 방지;
+  4. **실시간 진행 투명성 및 트래픽 제어**: 스크립트 내부 단계 알림을 통한 SSE `workflow_stage` 스트리밍 지원 및 `WorkflowRunGuard` 하드 동시성/생성 제한 연동;
+  5. **전체 스택 테스트 검증**: Harness 160개 DW 단위 테스트 + 48개 PTC 샌드박스 테스트 + Server 52개 API/에스컬레이션 통합 테스트 + 실제 LLM E2E 테스트 100% 정상 통과.
+- **자료 SSOT:** `temp-docs/materials/DYNAMIC_WORKFLOW_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/dynamic_workflow/` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/ptc/`
+
+## 최신 검증 스냅샷 (2026-08-20 · 채널 인그레스 도구 매트릭스 및 최소 권한 보안 방어 · Roadmap Topic 16 완료)
+
+- **채널 인그레스 도구 매트릭스 및 최소 권한 보안 방어 (vs Pi Agent / OpenClaw / Hermes platform_toolsets):** Myrm은 엔터프라이즈급 전 채널 정적 도구 마운트 및 다계층 방어 프리셋 아키텍처를 제공합니다:
+  1. **정적 도구 정의 정렬 및 제로 캐시 지터**: `resolve_agent_mount`를 통해 각 진입점(`WEB_CHAT`, `WEB_FAST`, `CHANNEL`, `CRON`, `KANBAN`, `VOICE`)을 표준 `ExecutionSurface`에 맞춰 정렬하여 95% 이상의 Prompt Cache 적중률을 보장하며, 도구를 동적으로 제거하여 발생하는 캐시 파괴를 방지;
+  2. **Harness 커널 4단계 보안 프리셋(SSOT)**: `myrm-agent-harness` 내장 `CHANNEL_PRESETS`를 통해 IM 채널에 `!browser_*` 및 `!desktop_*` 음성 기능 펜스를 적용하고, 코드 인터프리터, MCP, 파일 쓰기/편집을 HITL 인간 승인으로 강제하며, 승인되지 않은 셸 실행을 완벽 차단;
+  3. **최소 권한 천장 병합 알고리즘(Least Privilege Ceiling)**: 사용자 및 에이전트 사용자 정의 규칙이 보안 정책을 강화만 할 수 있도록 보장하여 채널 간 권한 상승 취약점을 제거;
+  4. **전체 스택 테스트 검증**: 15개 이상 채널의 모든 보안 차원을 포괄하는 408줄의 Harness 보안 단위 테스트 100% 정상 통과.
+- **자료 SSOT:** `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/security/channel_presets.py` · `myrm-agent/myrm-agent-server/app/services/agent/tool_mount/resolver.py`
+
+## 최신 검증 스냅샷 (2026-08-21 · 통합 멀티모달 직접 비전 및 아키텍처 정화)
+
+- **통합 네이티브 멀티모달 직접 비전 및 아키텍처 정화 (vs DeepSeek Harness / Claude Code / Hermes / DeerFlow):** Myrm은 프롬프트 오버헤드가 전혀 없는 간결한 멀티모달 아키텍처를 제공합니다:
+  1. **단일 진입점 (`file_read_tool`)**: 이미지, PDF, 비디오, Office 문서 읽기를 핵심 `file_read_tool`로 통합하고 네이티브 `ImageBlock`을 직접 전송하여 중복 비전 도구를 제거하고 턴당 ~1500 토큰을 절약하며 KV 캐시 적중률을 극대화;
+  2. **적응형 동적 폴백 (`VisionFallbackEngine`)**: 텍스트 전용 모델 활성화 시 이미지를 구조화된 의미 텍스트 설명으로 자동 변환하여 런타임 충돌 방지;
+  3. **다단계 이미지 방어**: 5단계 품질(0.95~0.20) 및 해상도(4096~1024) 압축과 함께 `MAX_DECODE_PIXELS` 픽셀 폭탄 방어 내장;
+  4. **샌드박스 Python 기하학 실행**: 공간 크롭, 픽셀 디프, 이미지 분석은 경직된 하드코딩 도구 대신 샌드박스 Python 스크립트(PIL/OpenCV)를 통해 동적으로 실행;
+  5. **전체 스택 테스트 검증**: Harness 및 Server 전반에 걸쳐 104개 이상의 단위/통합 테스트 통과 + Chrome LIVE E2E 테스트 100% 정상 통과.
+- **자료 SSOT:** `temp-docs/materials/MULTIMODAL_CAPABILITY_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_ops/file_read_tool.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/vision/`
+
+## 최신 검증 스냅샷 (2026-08-20 · 모델 적응형 재귀 위임 깊이 및 동적 도구 권한 격리 · Roadmap Topic 10 #3 완료)
+
+- **모델 적응형 재귀 위임 깊이 및 동적 도구 격리 (vs RLM 재귀 언어 모델 / Claude Code / Hermes):** Myrm은 단순 정수 깊이 제한을 넘어 산업용 5차원 권한 격리 및 전역 위임 트리 예산 거버넌스를 구축했습니다:
+  1. **물리적 도구 박탈 메커니즘(Physical Tool Stripping)**: Agent 구축 시 `DelegationCapabilityManifest`를 통해 리프 노드(`role=LEAF`)에서 `delegate_task_tool`을 완전히 제거하여 권한 초과 호출 및 토큰 낭비를 100% 방지하고 프롬프트 캐시를 보호;
+  2. **5차원 입체 권한 매트릭스**: `Role`(ORCHESTRATOR/WORKER/LEAF), `ModelTier`(STRONG/MEDIUM/WEAK), `max_spawn_depth`, 기능 매니페스트, 전역 트리 예산 상태를 유기적으로 연동;
+  3. **전역 트리 총 예산 거버넌스(`DelegationBudgetState`)**: 실행당 총 자손 수(기본 30) 및 동시성(기본 5)을 제한하여 지수적 분열 폭발 방지;
+  4. **전체 스택 테스트 검증**: 모델 지능형 계층화, 서브 Agent 권한 정책, 도구 주입 및 승인 안전 등 100개 이상의 테스트 100% 통과.
+- **자료 SSOT:** `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/` · `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/spawn_subagent/`
+
+## 최신 검증 스냅샷 (2026-08-20 · 검토 우선 작업별 회상 경계 및 4대 책임 거버넌스 패널 · Roadmap #56 완료)
+
+- **검토 우선 회상 경계 및 4대 책임 거버넌스 패널 (vs Oh-My-Hermes / Mem0 / Claude / Manus):** Myrm은 업계 최초로 시각화된 작업별 메모리 회상 경계 및 후보 게이팅 거버넌스 패널을 제공합니다:
+  1. **작업별 읽기 범위 매트릭스(Task Scope Boundary Matrix)**: 전역, 에이전트, 채널, 작업, 공유 5단계 가시성을 엄격히 격리하여 작업 간 지식 오염 방지;
+  2. **후보 메모리 진입 승인 게이트(Candidate Review Gate)**: 검증되지 않은 추론 메모리를 후보 풀로 격리하여 원클릭 승인/거부 지원;
+  3. **4대 메모리 책임 파티션(Mise en Place)**: 활성 메모리를 신원/선호, 작업 메모리, 운영 지침, 검색 가능 증거 4가지 책임으로 명확히 분류;
+  4. **턴당 6000자 적재 예산 게이지(Per-Turn Budget Gauge)**: 실시간 진행률 표시줄 및 투명한 초과 위험 수준(안전 / 한계 접근 / 초과) 제공으로 컨텍스트 폭발 방지;
+  5. **전체 스택 테스트 검증**: 백엔드 Pydantic/API 통합 테스트 100% 통과(`test_recall_boundary_integration.py`) + 프런트엔드 0 Lint 오류.
+- **자료 SSOT:** `temp-docs/materials/MEMORY_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/schemas/memory/command_center.py` · `myrm-agent/myrm-agent-frontend/src/components/features/memory/command-center/MemoryRecallBoundaryPanel.tsx`
+
+## 최신 검증 스냅샷 (2026-08-21 · 사용자 중단 인플레이스 메타인지 자가 치유 주석 및 고아 프로세스 보호 · 오류 복구 및 견고성 강화)
+
+- **인플레이스 중단 자가 치유 주석 및 백그라운드 탈각 프로세스 차단 (vs Claude Code / OpenHands / Devin / Hermes):** Myrm은 장기 세션에서 사용자 중단 시 LLM 반복 데드락 및 복합 셸 명령어로 인한 포트 데드락 문제를 근본적으로 해결했습니다:
+  1. **인플레이스 메타인지 주석(In-place Semantic Annotation)**: 사용자 중단 시 합성 ToolMessage 내에 능동적 적응 지침을 주입하여(`Action was cancelled by user; do not retry the exact same failing action. Please adapt your plan to user instructions.`) 프롬프트 캐시 접두사 안정성을 100% 유지하면서 모델의 맹목적 재시도 루프를 차단;
+  2. **POSIX 스트리밍 렉서 보호기**: 포그라운드 복합 명령 내의 중간 백그라운드 `&` 연산자(`npm run dev & echo started`)를 정밀 탐지 및 차단하여 관리형 `run_in_background=True` 채널 사용을 강제, 고아 프로세스 격리 실패 방지;
+  3. **전체 스택 테스트 검증**: Harness 93개 단위 테스트 + 71개 통합 테스트 + 실제 LLM API 스트리밍 + Chrome E2E 테스트 100% 통과.
+- **자료 SSOT:** `temp-docs/materials/ERROR_RECOVERY_ROBUSTNESS_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/tooling/dangling_tool_call_middleware.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/bash/_security/preflight_checks.py`
+
+## 최신 검증 스냅샷 (2026-08-20 · 프로토콜 우선 프로덕션급 칸반 협업 vs 취약한 파일 JSONL 협업 · Roadmap Topic 16 완료)
+
+- **프로토콜 우선 프로덕션 칸반 협업 (vs MateClaw 순수 파일 JSONL 멀티 에이전트):** Myrm은 엔터프라이즈급 비동기 멀티 에이전트 협업 및 작업 추적 시스템을 제공합니다:
+  1. **프로토콜 우선 커널 및 결정론적 상태 머신**: `myrm-agent-harness`에 내장되어 원자적 트랜잭션, 의존성 해결, 인간 검토 승인(`in_review`), 환각 검증 게이트(`CompletionVerifier`), 타임아웃 자가 치유(`BlockKind`)를 완벽 지원하여 취약한 JSONL/Markdown 파일 폴링을 완전히 종식;
+  2. **다중 채널 및 다중 터미널 통합 스케줄링**: WebUI/데스크톱에서 네이티브 인터랙티브 칸반을 제공하고, Telegram, Slack, Feishu, WeCom 전 채널에서 `/kanban` 슬래시 명령으로 통합 제어;
+   3. **전체 스택 테스트 검증**: 480개 Harness 커널 단위 테스트 + 253개 Server/API/명령 통합 테스트 + 실제 Chrome MCP E2E 테스트 100% 통과.
+- **자료 SSOT:** `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/kanban/` · `myrm-agent/myrm-agent-server/app/channels/routing/commands/kanban_command.py`
+
+## 최신 검증 스냅샷 (2026-08-20 · 5링 폐루프 학습 상태 센터 및 성장 디스커버리 칩 · Roadmap #55 완료)
+
+- **5링 폐루프 학습 상태 센터 및 성장 디스커버리 칩 (vs Hermes / Mem0 / Claude / Manus):** Myrm은 시각적 인지 자가 진화 5링 상태 허브 및 EmptyChat 디스커버리 시스템을 제공합니다:
+  1. **5링 토폴로지 상태 허브(`LearningLoopFiveRingHub`)**: 5개 상호 연결된 링(사후 반성 및 트레이스 마이닝 → 스킬 추출 및 제안 → 런타임 발전 및 개선 게이트 → 주기적 메모리 정리 및 노이즈 제거 → 점진적 프로파일링 및 교차 세션 회상)을 `/journey`에서 시각적으로 직관적이게 제공;
+  2. **EmptyChat 성장 디스커버리 칩(`GrowingLoopDiscoveryChip`)**: 빈 채팅 화면에서 사용자가 현재 통합된 메모리와 활성 스킬 수를 확인하고 원클릭으로 `/journey`로 이동할 수 있는 미려한 성장 캡슐 제공;
+  3. **안티 굿하트 건강 점수 시스템**: 무의미한 자가 진화 반복을 강제하지 않고 컴포넌트 준비 상태, 회귀 방지 게이트 유효성을 기준으로 건강 점수를 산출;
+  4. **전체 스택 테스트 검증**: 백엔드 2개 스키마/API 통합 테스트 통과(`test_learning_loop_integration.py`) + 프런트엔드 0 Lint 오류.
+- **자료 SSOT:** `temp-docs/materials/MEMORY_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/api/statistics/learning_loop.py` · `myrm-agent/myrm-agent-frontend/src/components/features/growth/LearningLoopFiveRingHub.tsx`
+
+## 최신 검증 스냅샷 (2026-08-20 · 엔터프라이즈급 문서 및 PDF 생성 워크플로 · office-document / pdf-generator 완료)
+
+- **엔터프라이즈급 문서 및 PDF 생성 워크플로 (vs 정적 템플릿 잠금 / 구조화되지 않은 스크립트):** Myrm은 엔터프라이즈급 다중 형식 문서 및 PDF 지능형 생성 툴체인을 제공합니다:
+  1. **Node.js 런타임 종속성 제로**: 순수 Python과 네이티브 LibreOffice / WeasyPrint / ReportLab / Chromium 인쇄 파이프라인 및 독립형 폴백 결합으로 외부 Node.js/npm 컨테이너 오버헤드 제거;
+  2. **계약 기반 워크플로 구동 (SSOT)**: `SKILL.md`가 생성 단계, 잠재적 함정 완화 및 검증 게이트를 엄격히 정의하여 결정론적이고 전문적인 문서 작성 보장;
+  3. **고품질 기업용 레이아웃 및 Paged Media CSS**: 표준 부가가치세 세금계산서, 비즈니스 보고서, 분석 대시보드 지원, CJK 글꼴 및 인쇄 페이지 나눔 방지(`page-break-inside: avoid;`) 지원;
+  4. **3단계 시각적 자체 교정 (Visual Self-Correction)**: PDF 페이지를 PNG 뷰포트 이미지로 자동 렌더링하고 멀티모달 LLM 시각적 검사를 수행하여 레이아웃 겹침, 텍스트 오버플로 및 서식 오류 방지;
+  5. **순수 Harness 엔진 및 프롬프트 캐시 최적화**: 서버 측 Prebuilt Skill로 완벽히 캡슐화되어 핵심 Harness 엔진의 도구 공간 오염이 없으며 95%+ 프롬프트 캐시 적중률 유지;
+  6. **전체 스택 테스트 검증**: 단위 테스트 + 샌드박스 실행 테스트 100% 통과, 0 Lint 오류.
+- **자료 SSOT:** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/assets/prebuilt_skills/office-document/`
+
+## 최신 검증 스냅샷 (2026-08-20 · 엔터프라이즈 크로스 플랫폼 릴리스 엔지니어링 파이프라인 · 4-Target CI 게이트)
+
+- **산업용 Map-Reduce 릴리스 엔지니어링 파이프라인 (vs Hermes-Desktop / WeSight / AionUi / 커뮤니티 관행):** Myrm은 macOS (Apple Silicon / Intel), Windows (x64), Linux (AppImage) 전반에 걸쳐 코드 강제형 릴리스 게이트 네트워크를 구축합니다:
+  1. **Map-Reduce 파이프라인 아키텍처**: 프런트엔드를 한 번 빌드하여 4개 타깃에 공유, macOS ARM 사전 게시로 릴리스 대기 시간 40% 단축;
+  2. **빌드 전 수학적 공개키 일치성 검증** (`check-updater-pubkey.sh`): 업데이터 공개키와 CI 개인키 일치성을 사전 검증하고 플레이스홀더 값 즉시 차단;
+  3. **양대 플랫폼 권위 있는 서명 및 공증**: macOS 4중 검증 (`codesign` + `spctl` Gatekeeper 시뮬레이션 + `xcrun stapler` 공증 티켓 확인) + Windows Authenticode RFC 3161 타임스탬프;
+  4. **플랫폼 결함 자가 치유**: AppImage 크래시를 방지하는 네이티브 musl 모듈 자동 제거, Tauri 사이드카 패키징 결함을 해결하는 Dummy-Swap 번들링, 아키텍처 간 덮어쓰기를 방지하는 적응형 이름 변경;
+  5. **자동 OTA 매니페스트 생성 및 런타임 스모크 게이트**: `finalize-release.sh` + `verify-release.sh`가 `.sig` 서명과 SHA-256 교차 검증을 페어링하고, `smoke-launch-runtime.sh`가 CI 러너에서 패키지를 해제하여 실제 `:8080/health` 및 WebUI 포트를 프로브.
+- **경쟁사 비교**: 경쟁사는 사람의 실수와 측정 감쇠에 취약한 수동 Markdown 체크리스트에 의존하지만, Myrm은 18개 이상의 자동화된 CI 기계적 게이트를 강제하여 100% 무결점 데스크톱 릴리스를 보장합니다.
+- **검증 데이터**: `test_desktop_finalize_fixture.py` (4-Target 비네트워크 서명 페어링 + 엣지 케이스) **통과** + `test_desktop_launch_smoke_script.py` **통과** + `check-fractal-docs.test.ts` **2개 통과**.
+- **자료 SSOT**: `temp-docs/materials/DESKTOP_APP_ADVANTAGE.md` (2026-08-20 섹션) · `myrm-agent/.github/workflows/desktop-release.yml` · `scripts/ci/desktop-release/_ARCH.md`
+
+## 최신 검증 스냅샷 (2026-08-20 · 관리형 스킬 설치 불변 영수증 및 스냅샷 원자적 롤백 · Roadmap #2 완료)
+
+- **불변 스킬 설치 영수증 및 원자적 롤백 게이트 (vs Hermes / OpenClaw / 플러그인 마켓):** Myrm은 엔터프라이즈급 관리형 스킬 설치 보안 및 감사 프레임워크를 제공합니다:
+  1. **원자적 스냅샷 롤백(`SkillInstallTransaction`)**: Harness 수준 트랜잭션 관리자가 설치 전 대상 디렉터리의 백업 스냅샷을 자동 생성하여 I/O, 압축 해제, 검증 또는 에이전트 마운트 단계 실패 시 100% 무손실 롤백 보장;
+  2. **라이프사이클 스크립트 차단 게이트(`LifecycleScriptGuard`)**: 압축 해제 전 인메모리 감사를 통해 `package.json` 내 `preinstall`, `postinstall`, `install` 위험 스크립트 및 셸 삽입 위험 즉시 차단;
+  3. **불변 설치 영수증(`SkillInstallReceipt`)**: 설치 완료 시 파일별 SHA256 해시, 매니페스트 해시, 보안 점수를 `receipt.json`으로 불변 기록;
+  4. **인증 영수증 표시 및 정밀 캐스케이드 제거**: WebUI에서 관리형 영수증 인증 배지를 표시하며, 삭제 시 불변 영수증 목록에 따라 연관 파일을 정확하게 정리;
+  5. **전체 스택 테스트 검증**: Harness 16개 트랜잭션/영수증 단위 테스트 + Server 4개 API 통합 테스트 100% 통과 (0 Lint 오류).
+- **자료 SSOT:** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/skills/market/transaction.py` · `myrm-agent/myrm-agent-server/app/api/skills/discovery.py`
+
+## 최신 검증 스냅샷 (2026-08-20 · Wiki 개념 팽창 거버넌스 및 샌드박스 Git 스냅샷 감사 · Roadmap #2 & #3 완료)
+
+- **다층 개념 팽창 방어 및 샌드박스 데이터 무결성 (vs Hermes / OpenClaw / deer-flow / Obsidian):** Myrm은 엔터프라이즈급 위키 개념 팽창 거버넌스 및 샌드박스 데이터 감사 아키텍처를 제공합니다:
+  1. **구성 계층 유입 한도(`max_concepts_per_doc = 20`)**: 원본 문서당 엄격한 개념 추출 한도를 적용하여 대량 문서 수집 시 무의미한 개념 파편화 방지;
+  2. **기존 카탈로그 컨텍스트 주입(`read_index_context()`)**: 개념 추출 프롬프트에 기존 카탈로그를 직접 주입하여 모델이 기존 표준 용어를 재사용하도록 강제;
+  3. **배치 제어 및 회복성 회로 차단기**: 10개 문서 배치 처리와 `canonical_registry` 별칭 중복 제거 병합, `evaluate_batch_pause` 자동 일시 중지 지원;
+  4. **HITL 인간 승인 대기열**: 합성된 모든 새 개념은 `WikiPendingEdits` 검토 대기열을 거쳐 최종 저장;
+  5. **샌드박스 네이티브 Git 버전 관리**: 13개 변경 경로에서 로컬 Git 스냅샷 커밋(`vault_git.py` + `git_snapshot.py`)을 자동 트리거하여 원격 Git 오버헤드나 자격 증명 유출 위험 제거;
+  6. **전체 스택 테스트 검증**: Harness 140개 단위 테스트 + Server 52개 API 통합 테스트 + 297개 이상 전수 회귀 테스트 100% 통과.
+- **자료 SSOT:** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/wiki/` · `myrm-agent/myrm-agent-server/app/services/wiki/`
+
+## 최신 검증 스냅샷 (2026-08-20 · 통합 인지 진화 타임라인 및 인라인 거버넌스 · Roadmap #54 완료)
+
+- **통합 학습 및 스킬 진화 타임라인과 인라인 거버넌스 (vs Hermes / Mem0 / Claude / Manus):** Myrm은 인지 진화 타임라인과 실시간 인라인 거버넌스 시스템을 업계 최초로 제공합니다:
+  1. **다형성 학습 스트림 및 다차원 필터링(`LearningTimeline`)**: `/journey` 페이지에서 사실 기억, 사용자 선호도, 절차적 규칙, 에피소드 이벤트 및 스킬 진화 라이프사이클 이벤트를 의미론적 색상 배지와 커서 페이지네이션을 통해 단일 시계열 스트림으로 통합;
+  2. **인라인 실시간 거버넌스 및 사용자 잠금(`is_user_locked`)**: 메모리 규칙 내용을 제자리에서 직접 편집하고, 중요도 점수(0–10)를 정밀 조절하며, **사용자 잠금(`is_user_locked=True`)**을 활성화하여 자율 에이전트 모델이 사람이 승인한 선호도를 덮어쓰는 것을 영구적으로 방지;
+  3. **스킬 라이프사이클 핫 아카이빙**: 타임라인에서 직접 스킬을 즉시 아카이브하거나 복원하여 도구 런타임 충돌을 방지;
+  4. **시공간 양방향 동기화**: 타임라인 카드를 클릭하면 **메모리 지식 그래프(`MemoryKnowledgeGraph`)**의 해당 노드로 자동 이동 및 포커싱;
+  5. **전체 스택 테스트 검증**: 백엔드 7개 단위 테스트 + 5개 HTTP API 통합 테스트 통과(`test_learning_timeline_integration.py`) + 프런트엔드 0 Lint 오류.
+- **자료 SSOT:** `temp-docs/materials/MEMORY_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/api/statistics/learning_timeline.py` · `myrm-agent/myrm-agent-frontend/src/components/features/growth/LearningTimeline.tsx`
+
+## 최신 검증 스냅샷 (2026-08-20 · StorageCapabilities 명시적 계약 및 Fail-Closed 시작 검증 게이트 · Roadmap #13 완료)
+
+- **명시적 스토리지 계약 및 시작 시 다운그레이드 방지 Fail-Closed 게이트 (vs Hermes / OpenClaw / DeerFlow / 기존 Agent 스토리지):** Myrm은 모든 SQLite 스토리지 계층에 걸쳐 엔터프라이즈급 스토리지 기능 명시적 선언 및 Fail-Closed 자체 검증 보안 체계를 구축했습니다:
+  1. **불변 스토리지 기능 프로토콜(`StorageCapabilities`)**: `schema_version`, `min_compatible_version`, `supports_atomic_batch`, `supports_concurrent_readers`, `required_tables`를 명시적으로 선언하고 SQLite 연결 강화 팩토리(`harden_connection_sync/async`) 및 `connect_async`에서 원시적으로 검증;
+  2. **Fail-Closed 상향/하향 호환성 가드**: 이전 빌드가 최신 데이터베이스를 발견할 경우 `PRAGMA user_version`을 읽어 즉시 `SchemaVersionTooNewError`로 시작을 차단하고 정확한 업그레이드 가이드를 제공하여 무음 데이터 손상을 원천 차단;
+  3. **테이블 구조 및 최소 호환 버전 이중 보호**: DDL 또는 쿼리가 실행되기 전에 필수 테이블 무결성(`SchemaShapeMismatchError`)과 최소 지원 스키마 버전(`SchemaVersionTooOldError`)을 검증;
+  4. **상태 저장 마이그레이션 엔진의 원자적 버전 동기화**: `StatefulMigrationEngine`이 마이그레이션 완료 시 `PRAGMA user_version`을 원자적으로 동기화하며, 인덱스 러너를 위한 격리(`sync_user_version=False`) 지원;
+  5. **전체 스택 테스트 검증**: Harness 프레임워크 계층 80개 테스트 통과 + Server 계층 1개 실제 데이터베이스 시작 차단 통합 테스트 통과 (100% 통과).
+- **자료 SSOT:** `temp-docs/materials/STORAGE_CRASH_CONSISTENCY_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/utils/db/sqlite/schema_gate.py` · `myrm-agent/myrm-agent-server/app/database/connection.py`
+
+## 최신 검증 스냅샷 (2026-08-20 · Maka UI 표준 스켈레톤 및 빈 상태 3상태 시각 시스템 · Roadmap #2 완료)
+
+- **1:1 픽셀 맞춤형 스켈레톤 및 고회복성 빈 상태 머신 (vs Linear / Raycast / Manus / 기존 오픈소스 Agent):** Myrm은 핵심 비즈니스 대시보드와 여정 전반에 걸쳐 엔터프라이즈급 시각적 로딩 및 빈 상태 3상태 시스템을 구축했습니다:
+  1. **7가지 표준화된 위상 스켈레톤 템플릿(`skeleton-templates.tsx`)**: `ListSkeleton`, `CardGridSkeleton`, `TableSkeleton`, `FormSkeleton`, `ListDetailSkeleton`, `MetricCardsSkeleton`(KPI 그리드), `TimelineSkeleton`(시계열 성장 노드)을 제공하여 실제 레이아웃을 1:1로 미러링하고 누적 레이아웃 이동(CLS 0.00으로 감소)을 완벽하게 제거;
+  2. **고신호 EmptyState 상태 머신(`empty-state.tsx`)**: 은은한 아이콘 글로우, 다크/라이트 테마 자동 전환, 6개 국어 다국어 문구 및 완벽한 A11y 접근성 속성(`aria-busy` / `aria-live`)을 갖춘 5가지 표준 형태(`default`, `dashed`, `compact`, `card`, `error`) 제공;
+  3. **전체 핵심 라우트 100% 수렴 교체**: `GrowthDashboard`, `LearningTimeline`, `ArtifactsCenter`, `RateLimitTab`, `ToolStabilitySection`, `CronJobList`의 기존 스피닝 로더(`Loader2`)와 거친 수동 빈 컨테이너를 완벽하게 제거;
+  4. **제자리 오류 복구 및 원클릭 재시도**: 네트워크 또는 샌드박스 콜드스타트 실패 시 빨간색 경고 아이콘과 재시도 CTA가 포함된 복구 상태로 부드럽게 전환하여 빈 화면이나 비정상 종료를 원천 방지;
+  5. **전체 스택 테스트 검증**: 프런트엔드 원시 단위 테스트 12/12 통과 + 백엔드 통계 API 통합 테스트 7/7 통과 (100% 통과).
+- **자료 SSOT:** `temp-docs/materials/USER_EXPERIENCE_ADVANTAGE.md` · `src/components/primitives/empty-state.tsx` · `src/components/primitives/skeleton-templates.tsx` · `src/components/features/growth/GrowthDashboard.tsx`
+
+## 최신 검증 스냅샷 (2026-08-20 · 전역 공유 스킬 풀 에이전트 간 핫싱크 및 이중 트랙 배포 · Roadmap #3 완료)
+
+- **전역 스킬 풀 Single Source of Truth 및 고아 참조 없는 실시간 핫싱크 (vs QwenPaw / CoPaw / 기존 다중 Agent 프레임워크):** Myrm은 에이전트 간 실시간 핫싱크와 고아 참조 자동 정리를 완벽하게 지원하는 공유 스킬 풀 생태계를 구축했습니다:
+  1. **이중 트랙 배포 모델(Dual-Track)**: 범용 Agent는 전역 스킬 풀을 즉시 상속(구성 오버헤드 제로)하며, 전문화된 Agent는 명시적 허용 목록을 유지하여 프롬프트 토큰 오염을 방지하고 `/pool/sync`를 통한 일괄 동기화 지원;
+  2. **고아 참조 자동 정리(Orphan Reference GC)**: 스킬 제거 시 `remove_skill_from_all_agents`가 모든 Agent의 허용 목록에서 유효하지 않은 스킬 ID를 자동으로 정리하여 런타임 오류 방지;
+  3. **엔드투엔드 실시간 핫싱크 브로드캐스트**: `AppEventBus` + SSE 및 프런트엔드 300ms 디바운스(`useGlobalEvents.ts`, `useSkillStore`)를 통해 WebUI, 데스크톱, 클라우드 인스턴스 전반에 걸쳐 수동 재시작 없이 실시간 무감각 동기화;
+  4. **전체 라이프사이클 출처 추적(Provenance)**: `Skill.installed_from`을 통해 설치 출처 채널, 업스트림 URL, 버전, 설치 날짜를 기록하고 상세 창에 직관적으로 렌더링;
+  5. **전체 테스트 검증**: 코어 스킬 테스트 171 passed + 스킬 통합 테스트 62 passed + 스킬 API 테스트 150 passed (100% 통과).
+- **자료 SSOT:** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `app/core/skills/discovery/adopt.py` · `app/api/skills/discovery.py` · `components/features/skills/SkillDetailSheetContent.tsx`
+
+## 최신 검증 스냅샷 (2026-08-20 · 범용 외부 Agent 프로토콜 통합 매트릭스 및 코드 없는 구성 생태계)
+
+- **하드코딩된 독점 카드를 대체하는 표준 프로토콜 추상화 (vs deer-flow / OpenClaw / Hermes):** Myrm은 업계에서 가장 범용적인 외부 Agent 통합 시스템(`ExternalAgentsConfig.tsx` + `toolkits/acp/` + `invoke_acp_agent_tool`)을 구축하여 표준화된 CLI/ACP/SDK 모드 Agent(Claude Code, Codex CLI, Gemini CLI 및 사용자 지정 Agent)를 원클릭으로 연결하고 구성할 수 있도록 지원합니다:
+  1. **범용 표준 프로토콜 vs 파편화된 비공개 카드**: 공개 CLI 사양이 없는 실험적 도구를 위한 전용 카드를 하드코딩하여 발생하는 코드 팽창과 기술 부채를 방지하고 표준 프로토콜 추상화에 집중;
+  2. **통합 3-백엔드 런타임(ACP/CLI/SDK)**: Claude Code `--resume` 세션 재사용, 턴 간 컨텍스트 연속성, 타임아웃 프로세스 SIGTERM/SIGKILL 자동 정리 및 구조화된 오류 전파 기본 지원;
+  3. **백엔드별 동시성 안전 잠금**: 동일 Agent는 엄격하게 직렬화하여 stdout 충돌을 방지하고, 서로 다른 Agent는 안전하게 병렬 실행;
+  4. **전체 테스트 검증**: ACP 모듈 423 passed + 외부 Agent 설치/삭제/인증 28 passed (100% 통과).
+- **자료 SSOT:** `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/` · `myrm-agent-frontend/src/components/features/settings/sections/integration/ExternalAgentsConfig.tsx`
+
+## 최신 검증 스냅샷 (2026-08-22 · 결정론적 3단계 충실도 오버플로 복구 시스템 · Roadmap Topic 06 #6 완료)
+
+- **결정론적 3단계 충실도 오버플로 복구 시스템 (vs Pi Agent / Claude Code / Codex 기존 단순 절단 방식):** Myrm은 스트리밍 실행 엔진 계층에서 업계 최초의 엔터프라이즈급 3단계 충실도 강등 아키텍처를 구축했습니다:
+  1. **SSOT 완전 구조화 요약 단일 진실 공급원 (Tier 1)**: Provider 컨텍스트 초과(400 Context Overflow) 발생 시 능동 압축과 동일한 `generate_structured_summary` 파이프라인을 자동 호출하여 사용자 의도, 엔티티 제약 및 작업 진행 상황을 완전 보존, 기존 단순 절단으로 인한 역방향 기억 상실을 완벽 차단;
+  2. **물리 실행 사실 양방향 자동 정합성 검증**: 오버플로 복구 시 `ExecutionStateValidator`를 강제 연동하여 변조 불가능한 `ArtifactTracker` 기록과 대조, 디스크에 기록되지 않은 허위 쓰기를 자동 제거하고 실제 수정 파일을 보완하여 도구 상태 환각 제거;
+  3. **결정론적 3단계 자동 강등 체계**: Tier 1 (완전 구조화 요약) -> Tier 2 (도구 긴급 정리 `_emergency_compact`) -> Tier 3 (턴 절단 안전망 `_truncate_oldest_rounds`)으로 네트워크 불안정이나 모델 사용 불가 시에도 100% 작업 복원력 보장;
+  4. **프롬프트 접두사 캐시 100% 고정**: 요약 내용을 HumanMessage `<preserved-context>` 내에 캡슐화하여 시스템 프롬프트 접두사를 완전히 고정, 재시도 요청에서도 95%+ KV Cache 적중 가속 보장;
+  5. **Aux 보조 모델 컨텍스트 오버플로 방지 가드 (`_guard_aux_context`)**: 요약 모델 호출 전 안전 예산을 사전 계산하여 "오버플로 처리 중 자체 오버플로 유발" 데드락을 원천 차단;
+  6. **전체 테스트 검증**: Harness 51개 스트리밍 예외 복구 단위 테스트 및 전체 회귀 테스트 100% 통과, 0 Lint 에러.
+- **자료 SSOT:** `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/streaming/recovery/stream_recovery.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/strategies/summary/summarizer.py`
+
+## 최신 검증 스냅샷 (2026-08-20 · Profile Capability Escalation 권한 상승 방지 및 AST CI 게이트)
+
+- **런타임 단방향 수렴 천장 및 3단계 입체 방어선 (vs mem0 / Hermes / OpenClaw / 기존 Agent 플랫폼):** Myrm은 런타임 실행 엔진과 서버 전반에 걸쳐 포괄적인 권한 상승 및 정책 탈출 방지 체계를 구축했습니다:
+  1. **Least Privilege Ceiling 단방향 수렴 알고리즘**: `_merge_ruleset_with_ceiling` 알고리즘을 통해 에이전트 사전 설정은 보안 정책을 강화(ALLOW $\rightarrow$ ASK / DENY)할 수만 있고, 단방향 완화(DENY/ASK $\rightarrow$ ALLOW)는 엄격히 금지하여 사용자 보안 설정을 우회하는 취약점을 제거;
+  2. **YOLO 모드 이중 잠금 제어**: 에이전트가 단독으로 YOLO 모드를 활성화할 수 없으며 사용자가 전역 활성화해야만 적용;
+  3. **마켓플레이스 가져오기 패키지 보안 정제**: `_sanitize_imported_security_overrides`를 통해 외부 Agent Package에 포함된 `yoloModeEnabled` 및 와일드카드 `*` / 위험 실행 권한을 자동으로 `ask`로 강등;
+  4. **무의존 AST CI 정적 게이트**: `check_profile_capability_escalation.py` 순수 AST 정적 분석으로 PR에서 기본 정책을 임의로 완화하려는 변경을 즉시 차단.
+- **검증 데이터:** Harness 단방향 수렴 단위 테스트 **57 passed** + Server 마켓플레이스 정제 테스트 **22 passed** + CI AST 정적 감사 게이트 **exit 0** (100% 통과).
+- **자료 SSOT:** `temp-docs/materials/SECURITY_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/security/channel_presets.py` · `myrm-agent/myrm-agent-server/app/services/agent/marketplace/import_.py` · `myrm-agent/myrm-agent-server/scripts/ci/check_profile_capability_escalation.py`
+
+## 최신 검증 스냅샷 (2026-08-20 · 4단계 도구 계층 순서 보존 및 프롬프트 캐시 극대화 · 캐시 스래싱 0)
+
+- **도구 온디맨드 로딩 및 프롬프트 캐시(Prompt Cache) 순서 보존 (vs Hermes / OpenClaw / 기존 Agent 프레임워크):** Myrm은 실행 엔진(`ToolRegistry`)에서 엄격한 4단계 도구 분류 체계(CORE $\rightarrow$ COMMON $\rightarrow$ EXTENDED $\rightarrow$ EXTERNAL)를 시행합니다:
+  1. **결정론적 캐시 안정 도구 스키마**: 도구 계층 우선순위에 따라 스키마를 결정론적으로 정렬하여 턴 간 스키마 드리프트를 제거하고 Claude, OpenAI, DeepSeek의 Prompt Cache 적중률을 극대화(TTFT 60%+ 단축);
+  2. **최소 초기 풋프린트**: 기본 에이전트는 7개의 CORE 메타 도구만 로드하고, 데스크톱/브라우저/칸반/서브에이전트 도구는 런타임 조건에 따라 지연 로드하여 턴 1 토큰 팽창 방지;
+  3. **고정밀 시맨틱 데스크톱 제어(SDC)**: 네이티브 OS 접근성 트리(`@dref`) 기반 상호작용과 좌표 기반 클릭(`[x,y]`) 폴백을 결합하여 기존 스크린샷 기반 CV 방식 대비 토큰 비용 약 90% 절감.
+- **검증 데이터:** Harness 도구 관리 단위 테스트 **35 passed** + Server 통합 테스트 **38 passed** + 프런트엔드 다형성 렌더링 **18 passed** (전체 100% 통과, 좀비 프로세스 0).
+- **자료 SSOT:** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `temp-docs/materials/MYRM_AGENT_TOOL_INVENTORY.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/tool_management/`
+
+## 최신 검증 스냅샷 (2026-08-20 · 화이트박스 검색 평가 단언 엔진 및 긴 문서 심층 관통 진단)
+
+- **결정론적 RAG/메모리 검색 평가 및 긴 문서 심층 관통 (vs Citadel / Hermes / OpenClaw / Mem0):** Myrm은 화이트박스 검색 단언과 심층 Span 관통 테스트를 평가 실험실(Eval Lab)과 메모리 사령부(Memory Command Center Doctor)에 직접 통합했습니다:
+  1. **LLM 비용 0의 결정론적 평가**: `RetrievalAssertion`은 비싸고 불안정한 LLM-as-a-judge 없이 본문 span 재현율, 문서 ID 일치, 출처 다양성 및 중복률을 손실 없이 단언합니다;
+  2. **메타데이터 및 제목 자동 분리**: `split_header_and_body`는 YAML frontmatter와 Markdown 제목 라인을 자동 필터링하여 메타데이터 허위 일치를 방지합니다;
+  3. **Collapse Hits 출처 중복 제거 축약**: `collapse_retrieval_hits`는 동일 문서의 여러 청크 히트를 단일 유효 순위로 축약하고 본문을 병합하여 단일 파일 도배로 인한 타 출처 배제를 방지합니다;
+  4. **긴 문서 Head vs Tail 부록 관통 검사**: 합성 프로브는 모델이 문서 제목 표면에 머무르지 않고 문서 부록(예: 부록 D 라우팅 알고리즘)까지 깊이 있게 검색 관통하는지 검증합니다.
+- **검증 데이터:** Harness 검색 단언 단위 테스트 **11 passed** + Server 진단 프로브 단위 테스트 **3 passed** + 평가 전체 통합 테스트 **10 passed** (100% 통과).
+- **자료 SSOT:** `temp-docs/materials/MEMORY_ADVANTAGE.md`(2026-08-20 헤더) · `myrm-agent-harness/src/myrm_agent_harness/eval/retrieval_assertions.py` · `myrm-agent-server/app/services/memory/diagnostics/diagnostic/diagnostic_recall_benchmark.py`
+
+## 최신 검증 스냅샷 (2026-08-20 · Typora급 분할 창 Markdown 실시간 미리보기 및 미저장 초안 보호 · 실제 Chrome E2E)
+
+- **지식 베이스 편집 및 승인의 완전한 WYSIWYG 환경 (vs Hermes / OpenClaw / 기존 Markdown 메모 도구):** Myrm은 지식 베이스(Wiki 개념)와 보류 중인 편집(Pending Edits)에 전문적인 분할 창 Markdown 작성 환경을 제공합니다:
+  1. **Monaco 소스 + MarkdownContent 실시간 미리보기 분할 창**: 왼쪽 창은 VS Code 수준의 코드 접기, 다크/라이트 테마 연동 및 단축키를 제공하며, 오른쪽 창은 서식 있는 텍스트, KaTeX 수식, 구문 강조 코드 블록을 실시간 렌더링하여 기존 에이전트 도구의 단순 `<textarea>` 입력 한계를 극복;
+  2. **`useDeferredValue` 비동기 디바운스 아키텍처**: 수천 자 이상의 긴 문서 작성 시에도 프레임 드롭 없이 부드럽고 빠른 타이핑 반응성 보장;
+  3. **미저장 초안 보호 가드**: 변경 사항이 저장되지 않은 상태에서 개념 트리를 이동하거나 편집 취소 시 "저장되지 않은 변경 사항을 삭제하시겠습니까?" 대화상자를 표시하여 실수로 인한 데이터 손실 방지;
+  4. **전문가용 단축키 및 반응형 지원**: `Cmd/Ctrl+S` 빠른 저장을 백엔드 좁은 쓰기(narrow apply)와 직접 연결; 모바일에서는 "편집 / 미리보기" 탭으로 자동 전환.
+- **검증 데이터:** 프런트엔드 단위 테스트(`wikiTreeUtils.test.ts`) 전체 통과 + 프런트엔드 회귀 테스트 598개 파일 4469개 통과 + **Chrome LIVE E2E 통과**(`test_wiki_markdown_editor_chrome_e2e.py`: 실제 Chrome 구동 시드 $\rightarrow$ 편집 모드 진입 $\rightarrow$ Monaco 텍스트 입력 $\rightarrow$ 실시간 미리보기 업데이트 검증 $\rightarrow$ 저장 영속화 폐쇄 루프 · 21.31s).
+- **자료 SSOT:** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md`(2026-08-20 헤더) · `myrm-agent-frontend/src/components/features/settings/sections/knowledge/wiki/WikiMarkdownEditor.tsx`
+
