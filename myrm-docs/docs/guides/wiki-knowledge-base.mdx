@@ -21,6 +21,7 @@ When ingesting large books, complex documents, or hundreds of research files, ra
 | **Batch Resilience** | 10-doc batching + circuit breaker | Pauses compilation on rate limits or API credit exhaustion, preventing cascade failures. |
 | **Vector Overflow Failsafe** | `resolve_embed_failure` policy | Gracefully catches `EmbedInputTooLargeError` and pauses single documents without crashing the entire batch queue. |
 | **Dual-Lane Ingest & Bounded Backpressure** | Object/Job Lane dual stream + bounded queue | Parallel atomic chunks and bottom-up directory DAG summaries with constant $O(1)$ memory, preventing OOM during massive repo ingest. |
+| **Shared Workspace Trust Structure** | `FactTrustPolicy` (Truth 1.2x / Draft 0.3x / Deprecated 0.1x) + `StaleFileArchiver` | Distinguishes canonical truth, WIP drafts, and deprecated materials with dynamic retrieval weighting and automated stale draft archival. |
 | **HITL Approval** | `WikiPendingEdits` queue | User audits and approves all synthesized concepts before permanent disk commit. |
 | **Sandbox Git Snapshot** | `vault_git.py` SSOT hook | 13 mutation points automatically commit local Git snapshots for complete time-travel auditing without remote credential risks. |
 
