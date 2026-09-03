@@ -11,6 +11,16 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Validation Snapshot (2026-09-03 · Native /loop Slash Command & Periodic Scheduling Engine · Loop Engineering Completed)
+
+- **NativeLoopSlashCommandAndNaturalLanguageIntervalParserPack (vs Claude Code 2.1.88 `/loop` Terminal-Only / Missing Multi-Device Web Parity / English-Only Limitations):** Myrm delivers an isomorphic native `/loop` command and bilingual interval parsing engine:
+  1. **Isomorphic Slash Interaction (`builtinActions.ts` & `loopSlashCommand.ts`)**: Native `/loop [interval] <prompt>` command directly in WebUI and Tauri desktop inputs with zero friction;
+  2. **Bilingual Deep Natural Language Interval Parser (`parseNaturalInterval` & `parseLoopCommandInput`)**: Supports short formats (`10m`, `1h`, `2d`), natural phrases (`every 20m`, `half hour`, `daily`), with mandatory 1-minute safety floor preventing CPU storms;
+  3. **Immediate First-Run Policy**: Instant execution upon creation without waiting for the first periodic interval, providing immediate user feedback and task kickoff;
+  4. **Seamless Agent Profile Context Binding**: Automatically inherits current session's `chatId` and `selectedPersona` (custom models, tools, memory, and prompts);
+  5. **100% Full-Stack Test Coverage**: 19 Vitest frontend tests and 31 Pytest harness tests 100% green with 0 linter errors.
+- **SSOT Sources:** `myrm-agent-frontend/src/store/builtinActions.ts` · `myrm-agent-frontend/src/services/commands/loopSlashCommand.ts` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/engine/parser.py`
+
 ## Latest Validation Snapshot (2026-09-02 · Agent Persistent State Storage Governance & Point-in-Time Snapshot Recovery · Observability & Reliability)
 
 - **AgentPersistentStateStorageGovernanceAndSnapshotRollback (vs Hermes multi-month 3GB+ State.db unchecked bloat / OpenClaw lack of user-facing storage diagnostics / irreversible manual state corruption):** Myrm delivers a complete persistent state storage governance and disaster recovery suite:

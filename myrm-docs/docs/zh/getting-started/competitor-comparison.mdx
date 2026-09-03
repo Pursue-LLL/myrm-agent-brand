@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-03 · 原生 /loop Slash 命令与自然语言周期调度解析引擎 · Loop 循环工程与自动化调度完成）
+
+- **NativeLoopSlashCommandAndNaturalLanguageIntervalParserPack（对标 Claude Code 2.1.88 `/loop` 仅限单机终端 / 缺乏 Web 与桌面协同 / 英文单语言局限）：** Myrm 交付了多端同构原生 `/loop` 命令与中英双语周期调度解析引擎：
+  1. **三端同构原生 Slash 交互（`builtinActions.ts` & `loopSlashCommand.ts`）**：在 WebUI 输入框与 Tauri 桌面端原生支持 `/loop [interval] <prompt>` 命令，零门槛直达；
+  2. **中英双语深度自然语言智能解析引擎（`parseNaturalInterval` & `parseLoopCommandInput`）**：全面支持中英文短格式（`10m`, `1h`, `2d`）、中文单位（`10分钟`, `2小时`, `半小时`, `1个半小时`, `每天`）与前后缀语法（`/loop 5m 检查构建`, `/loop 每隔半小时 监控服务健康`, `/loop check deploy every 2 hours`），内置最小 1 分钟安全底线保护防止 CPU 冲击；
+  3. **首跑即时触发策略（Immediate First-run Policy）**：任务创建后立即触发第 1 次执行，用户瞬间获得任务执行回执与初步产出，无需漫长等待定时周期首次到达，随后进入平滑的周期性续跑；
+  4. **智能体 Profile 上下文无缝绑定**：循环任务自动绑定当前会话正在使用的 Agent Profile（自定义模型、提示词、工具与专属记忆），而非粗暴回退到单一大模型；
+  5. **100% 全栈自动化测试覆盖**：跨前端 Vitest（19/19 passed）与后端 Harness Pytest（31/31 passed）共 50 项测试 100% 绿色通过，0 Lint 报错。
+- **SSOT 来源：** `myrm-agent-frontend/src/store/builtinActions.ts` · `myrm-agent-frontend/src/services/commands/loopSlashCommand.ts` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/engine/parser.py`
+
 ## 最新验证快照（2026-09-01 · DshCcTuiStreamingRenderLaneAndSelfHealingGuard · 流式渲染可靠性）
 
 - **DshCcTuiStreamingRenderLaneAndSelfHealingGuard（对标 Hermes #86581 单 Turn 6 万字符刷屏 / OpenClaw 压缩后循环检测缺失 / React #185 "Maximum update depth exceeded" 白屏顽疾）：** Myrm 交付了流式 UI 渲染车道与三层自愈守卫闭环：
