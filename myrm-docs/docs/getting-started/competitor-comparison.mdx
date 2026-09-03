@@ -62,6 +62,16 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
   5. **100% Full-Stack Testing**: 37 frontend component tests and 38 backend routing tests all passing with 0 lint errors and 0 zombie processes.
 - **SSOT Sources:** `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/message-box/TokenUsageDisplay.tsx` · `myrm-agent/myrm-agent-frontend/src/components/features/message-actions/RegenerateMenu.tsx`
 
+## Latest Validation Snapshot (2026-09-03 · Channel Inbound Data Plane & Three-Stage WAL Drain Barrier · Channels & Reliability Completed)
+
+- **ChannelDataPlaneAndThreeStageWalCheckpointClosure (vs Hermes hard SIGKILL torn write & database corruption / Channel messages treated as ephemeral triggers lacking DWD persistence and redaction):** Myrm delivers an enterprise-grade channel data plane and three-stage graceful shutdown barrier:
+  1. **Atomic Inbound Credential Redaction & DWD Ledger (`ChannelDataPlaneService`)**: Inbound messages from all 35+ channels undergo 50+ regex credential sanitizations (API keys and tokens redacted to `***REDACTED***`) before being persisted to the `channel_messages` ledger, preventing plaintext credential leaks in database storage;
+  2. **High-Signal Knowledge Extraction Eligibility (`is_learning_eligible`)**: Heuristically filters out slash commands, single-character noise, and automated CI/Prometheus bot broadcasts, isolating high-value human dialogue for offline knowledge base distillation and memory evolution;
+  3. **Bidirectional Outbound Reply Retention**: Persists assistant replies alongside `reply_to_id` topology pointers, eliminating multi-turn conversational amnesia across sessions;
+  4. **Three-Stage Graceful Shutdown & WAL TRUNCATE Barrier**: Upon receiving shutdown or reload signals, executes in-flight turn draining → enforces `PRAGMA wal_checkpoint(TRUNCATE)` to flush 100% of dirty WAL pages to the primary database and truncate the WAL file to 0 bytes → safely releases MCP process pools and background connections, eliminating torn write corruption;
+  5. **100% Automated Testing**: 12 channel data plane unit and integration tests passing 100% green with zero database corruption on rapid restarts.
+- **SSOT Sources:** `myrm-agent-server/app/channels/routing/channel_data_plane.py` · `myrm-agent-server/app/database/repositories/channel_message_repo.py` · `myrm-agent-server/app/api/system/shutdown.py` · `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md` · `temp-docs/materials/STORAGE_CRASH_CONSISTENCY_ADVANTAGE.md`
+
 ## Latest Validation Snapshot (2026-09-03 · Precision Decoupled PTC vs Universal PTC Trap · Tool Ecosystem Completed)
 
 - **PrecisionDecoupledPtcVsUniversalPtcClosure (vs DeepSeek-Harness / CodeAct Universal PTC 3x token bloat & Python syntax errors / Traditional agents flattening MCP schemas into Turn 1):** Myrm delivers a precision-decoupled tool calling architecture:

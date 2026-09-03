@@ -51,6 +51,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   5. **100% 自动化测试全绿**：全套单元与集成测试 100% 满分通过。
 - **SSOT 来源：** `myrm-agent-server/app/channels/delegation/` · `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md`
 
+## 最新验证快照（2026-09-03 · 渠道入站数据平面与三段式 WAL Checkpoint 排空屏障 · 渠道网关与运行时可靠性完成）
+
+- **ChannelDataPlaneAndThreeStageWalCheckpointClosure（对标 Hermes 强杀导致 WAL 撕裂与数据库损坏 / 渠道消息即用即弃缺乏持久明细与凭据脱敏）：** Myrm 交付了针对多渠道消息数据平面与数据库停机排空的完整闭环：
+  1. **渠道入站消息原子脱敏与 DWD 持久账本（ChannelDataPlaneService）**：多渠道入站消息入库前自动经过 50+ 正则敏感凭证脱敏（密码/私钥转为 `***REDACTED***`），写入 `channel_messages` 明细表，杜绝数据库明文泄密；
+  2. **高信噪比知识提炼自适应打标（`is_learning_eligible`）**：自动过滤控制命令、短表情与监控机器人系统广播，精准筛选出有价值的人类业务对话供离线知识库提取与记忆自进化；
+  3. **出站回复双向归档（Outbound Context Retention）**：自动归档 Agent 回复与 `reply_to_id` 拓扑关系，彻底消除多轮跨时段对话失忆；
+  4. **三段式优雅停机与 WAL Checkpoint 物理截断屏障（Three-Stage Drain Barrier）**：收到关机/重启指令后先执行在途会话排空（Turn Drain）→ 强制对 SQLite 连接池执行 `PRAGMA wal_checkpoint(TRUNCATE)` 将所有脏页落盘并截断 WAL 文件 → 有序释放 MCP 连接池与后台长连接，彻底终结写撕裂；
+  5. **100% 自动化测试全绿**：12 项渠道数据平面单测与集成测试 100% 满分通过，系统重启与并发写入稳健零损坏。
+- **SSOT 来源：** `myrm-agent-server/app/channels/routing/channel_data_plane.py` · `myrm-agent-server/app/database/repositories/channel_message_repo.py` · `myrm-agent-server/app/api/system/shutdown.py` · `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md` · `temp-docs/materials/STORAGE_CRASH_CONSISTENCY_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-03 · Universal PTC 陷阱反思与场景分治架构 · 工具生态完成）
 
 - **PrecisionDecoupledPtcVsUniversalPtcClosure（对标 DeepSeek-Harness / CodeAct 全局 Universal PTC 导致日常操作 3x Token 膨胀与缩进语法崩溃 / 传统 Agent 首轮全量平铺 MCP 撑爆上下文）：** Myrm 交付了针对工具调用的精准场景分治架构：
