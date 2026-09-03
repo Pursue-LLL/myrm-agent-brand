@@ -17,6 +17,7 @@ When the server process crashes mid-turn, Myrm does not leave you guessing:
 - Resumed turns persist **`token_economics`** on the assistant message (same cost accounting as the main path)
 - **`ReplaySafety` dual-state replay arbitration**: Crashed read-only tool calls (file reading, search, etc.) safely produce success placeholders to avoid useless LLM re-reflection; mutating tools strictly return interruption errors to prevent data corruption from accidental re-execution
 - **Persistent Steering instruction replay**: User steering/intervention messages enqueued before a crash are persisted with the turn marker and re-injected upon restart, ensuring zero loss of user intent
+- **DurableAgentRuntime Intent-First Ledger**: Model inferences, tool calls, and state transitions are secured via pre-provisioned result IDs and 5-table ACID WAL SQLite storage before execution. Crash recovery inspects pending intents, safely replaying read-only tools and synthesizing `ToolExecutionInterruptedError` for mutating side-effects to eliminate duplicate execution risks.
 - You can disable the feature in **Settings → Preferences → Advanced → Auto-continue interrupted turns**
 
 <Note>
