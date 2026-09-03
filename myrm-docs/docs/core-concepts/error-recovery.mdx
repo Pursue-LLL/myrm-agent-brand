@@ -15,6 +15,8 @@ When the server process crashes mid-turn, Myrm does not leave you guessing:
 - After **server restart**, a startup scan resumes eligible turns within a **15-minute freshness window**
 - A **crash-loop breaker** stops after **2 failed attempts** per marker
 - Resumed turns persist **`token_economics`** on the assistant message (same cost accounting as the main path)
+- **`ReplaySafety` dual-state replay arbitration**: Crashed read-only tool calls (file reading, search, etc.) safely produce success placeholders to avoid useless LLM re-reflection; mutating tools strictly return interruption errors to prevent data corruption from accidental re-execution
+- **Persistent Steering instruction replay**: User steering/intervention messages enqueued before a crash are persisted with the turn marker and re-injected upon restart, ensuring zero loss of user intent
 - You can disable the feature in **Settings → Preferences → Advanced → Auto-continue interrupted turns**
 
 <Note>
