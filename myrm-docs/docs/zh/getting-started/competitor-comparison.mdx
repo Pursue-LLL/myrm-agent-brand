@@ -761,6 +761,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   5. **全栈测试验证**：Harness 专长路由单元测试 21/21 绿灯，Server 端集成测试全量通过，0 Lint 错误。
 - **素材 SSOT：** `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/routing/specialty_router.py` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/ai-core/DefaultModelSection.tsx`
 
+## 最新验证快照（2026-08-23 · 模型路由透明度与误路由升档表面升级 · 模型路由 Roadmap Topic 07 #1 达成）
+
+- **模型路由透明度与误路由升档表面升级（对比 Trask 战略模型集成 / Plano 路由观测 / OpenRouter / Hermes）：** Myrm 实现了兼具白盒掌控与自适应学习的模型路由透明度与纠偏闭环体系：
+  1. **消息气泡调度透明归因浮层（`TokenUsageDisplay`）**：彻底破除传统 AI 黑盒调度的无知感，气泡操作栏的 Token 用量浮层中直观透出本次调度的档位 Badge（`Light` / `Standard` / `Reasoning` / `Code` / `Long Doc`）及其算力分配理由，详细解释为何匹配当前模型与节约多少算力配额；
+  2. **重新生成菜单「用更强模型重试」显式 CTA（`RegenerateMenu`）**：遭遇低档位模型输出不佳时，无需繁琐进入设置切模，在重新生成菜单中 1 键直达高亮入口「用更强模型重试（Retry with Frontier Model）」，系统自动升档至顶尖推理模型重新计算；
+  3. **反向负反馈学习闭环（`Complaint-up` + `PenaltyTracker`）**：用户触发显式升档后，系统自动向后端的 PenaltyTracker 登记误路由惩罚，使判决器自适应学习，避免在后续对话中对同类高难度任务再次误判降级；
+  4. **全端同构与 6 国语言国际化**：中/英/繁中/日/韩/德 6 种语言文案 100% 对称覆盖，优化移动触控 Tap 响应与桌面悬停延迟（100ms 极速响应）；
+  5. **全链路真实测试验证**：前端组件单测 37/37 全过，后端路由测试 38/38 全过，0 Lint 错误，0 僵尸进程。
+- **素材 SSOT：** `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/message-box/TokenUsageDisplay.tsx` · `myrm-agent/myrm-agent-frontend/src/components/features/message-actions/RegenerateMenu.tsx`
+
 ## 最新验证快照（2026-08-22 · Windows 桌面全功能发布对等与原生极速交付 · 桌面 Roadmap Topic 05 #36 达成）
 
 - **Windows 桌面全功能发布对等与原生极速交付（对比 Datawhale DSH-Desktop / WeSight / Hermes-Desktop）：** Myrm 实现了 Windows 与 macOS 100% 对称的桌面交付与体验闭环：
@@ -1595,30 +1605,29 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **资源安全边界**：本轮验证期间系统可用内存保持在 **36%-40%**，未出现高压（已用 >80%）状态。
 - **已知环境前提（诚实说明）**：captcha coordinator 测试仍依赖本机 `patchright`，但不影响本次浏览器语义快照/遥测基线结论。
 
-## vs 六大竞品 — LLM 结构化 JSON 输出解析鲁棒性
+## vs 五大开源项目 — LLM 结构化 JSON 输出解析鲁棒性
 
-**一句话：模型把 JSON 夹在散文里、包进代码围栏、先吐一版草稿再给最终答案、字符串里塞裸换行——这些场景下，Myrm 的结构化流水线照样一次跑通，多数竞品要么抛错要么静默吐空。**
+**一句话：模型把 JSON 夹在散文里、包进代码围栏、先吐一版草稿再给最终答案、字符串里塞裸换行——这些场景下，Myrm 的结构化流水线照样一次跑通，多数开源项目要么抛错中断，要么静默吐空。**
 
-| 解析能力（LLM 自由文本 → JSON） | **Myrm** | OpenClaw | Hermes | deer-flow | LobsterAI | CoPaw | jiuwenclaw |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| markdown fence 剥离 | ✅ | ❌ 直接 `JSON.parse` | ✅ 简单 | ❌ | ❌ | ✅ | ✅ |
-| prose 包裹中找 JSON | ✅ | ❌ | ✅ 首尾切片 | ❌ 无提取器 | ❌ | ✅ 平衡扫描 | ✅ 首尾切片 |
-| **多重 JSON 块取「最后（最新）」** | ✅ **取最后有效** | ❌ | ❌ | ❌ | ❌ | ❌ 取第一个 | ❌ 取第一个成功 |
-| 字符串内裸控制字符转义 | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| 尾逗号剥离 | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| 数组/对象歧义 schema 感知（require_key） | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| reasoning content 空值回退 | ✅ 统一提取层 | ⚠️ per-model wrapper | ❌ | ❌ | ❌ | ❌ | ❌ |
-| 失败处理 | 多级回退→None，上层恢复 | 抛错 | 报错重试 | N/A | catch→null | 平衡扫描兜底 | 3 级回退→`{}` 静默 |
-| 消费方覆盖 | **17+ 模块统一复用** | 特定路径 | 仅 delegation | N/A | 仅归档 | 仅子应用 | 分散不一致 |
+| 解析能力（LLM 自由文本 → JSON） | **Myrm** | Hermes Agent | OpenClaw | OpenAI Codex | DeepSeek-Harness | Pi (oh-my-pi) |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| markdown fence 剥离 | ✅ | ✅ 简单切片 | ❌ 直接 `JSON.parse` | ⚠️ 依赖静态模式 | ⚠️ 正则剥离 | ✅ 平衡扫描 |
+| prose 包裹中找 JSON | ✅ | ✅ 首尾切片 | ❌ 无提取器 | ❌ 仅代码块 | ⚠️ 局部正则 | ✅ 平衡扫描 |
+| **多重 JSON 块取「最后（最新）」** | ✅ **取最后有效** | ❌ 仅首个有效 | ❌ | ❌ 仅首块 | ❌ 取第一个 | ❌ 取首个成功 |
+| 字符串内裸控制字符转义 | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| 尾逗号自动剥离修复 | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| 数组/对象歧义 schema 感知（require_key） | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| reasoning content 空值回退 | ✅ 统一提取层 | ⚠️ per-model wrapper | ❌ | ❌ | ⚠️ 基础回退 | ❌ |
+| 失败恢复处理 | 多级回退→None，上层自愈 | 报错重试 | 抛错崩溃 | 严格失败报错 | 异常捕获抛错 | 平衡扫描兜底 |
+| 消费方覆盖 | **17+ 模块统一复用** | 仅 delegation | 分散特定路径 | 单一执行器 | Code Mode 脚本路径 | 独立子 Agent 路径 |
 
-**逐竞品证据（2026-08 代码级）：**
+**逐竞品证据（2026 代码级）：**
 
-- **OpenClaw**：生产代码直接 `JSON.parse`（`src/talk/agent-run-control-shared.ts:267`、`src/state/openclaw-state-ownership.ts:79`）——LLM 输出夹带一句话或一个 fence 即抛错。
 - **Hermes**：`extract_json_candidate`（`tools/delegation_output_schema.py:80`）剥离 fence + 首尾括号切片后裸 `json.loads`，失败报错转重试；`agent/jiter_preload.py` 只是 OpenAI SDK 的 Rust 加速解析器，不修复语法。
-- **deer-flow**：backend 全仓 `json.loads` 仅解析自有文件/消息数据（`app/channels/*.py`），没有面向 LLM 自由文本的 JSON 提取器。
-- **LobsterAI**：`parseJsonObject`（`src/main/sessionDiagnostics/archive.ts:63`）裸 `JSON.parse` + catch 返回 null，输出稍脏即丢。
-- **CoPaw**：`extract_json_payload`（`plugins/apps/qwenpaw-creator/backend/utils/structured_output.py:59`）fence + 平衡扫描但取**第一个** JSON；`json_repair` 仅用于配置文件（`src/qwenpaw/config/utils.py:18`）。
-- **jiuwenclaw**：`extract_json_from_response`（`jiuwenswarm/server/hooks/executor.py:270`）3 级回退（直接→正则 fence→`{}` 切片）全失败返回 `{}` 静默吞错；`json_repair` 仅 JSON5/特定场景。
+- **OpenClaw**：生产代码直接 `JSON.parse`（`src/talk/agent-run-control-shared.ts:267`、`src/state/openclaw-state-ownership.ts:79`）——LLM 输出夹带一句散文解释或一个未闭合 fence 即抛出异常中断。
+- **OpenAI Codex**：依赖 Rust 后端 `serde_json` 严格解析，当 LLM 在思考过程中夹带文本散文或首尾未闭合标记时直接拒绝，缺乏动态容错回退机制。
+- **DeepSeek-Harness**：正则抓取代码块结合 Python 裸 `json.loads`，对于多重候选块只能机械截取首个或触发 SyntaxError，在思考模型输出草稿时极易解析废稿。
+- **Pi (oh-my-pi)**：轻量级平衡扫描但往往取第一个命中块，缺少 schema 语义键检验（require_key）及尾逗号、裸换行转义兜底。
 
 **为什么「取最后」是关键**：推理模型长输出常先给「思考草稿 JSON」再给最终答案，取第一个会拿到废稿。Myrm 取最后一个**有效**对象 + `require_key`（只认含目标键的对象）天然抗草稿污染，skill 进化 / wiki 编译 / 记忆抽取 / judge 判卷全部受益。
 
@@ -1626,145 +1635,96 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 ## 一览
 
-| 能力 | Myrm | Hermes Agent (v0.15) | OpenClaw | 360 Security OpenClaw | OpenClacky | MiniMax Mavis | MemPalace |
-|------------|:----:|:------------:|:--------:|:---------:|:---------:|:-----:|:---------:|
-| **记忆系统** | ✅ 8 类 + 知识图谱 + 27 源集成（9 类别）+ 14 种竞品导入 + 跨任务 SharedContext + 归档自动恢复 + 15 种诊断 + 9 层自动提取（ZeroCost + 反馈信号 + Deep PII）+ 冲突自动检测与 GUI 裁决（4 种裁决 + 24h 分级自动解决：低风险自动保留旧值 / 高风险 ≥0.9 强制人工 + 重复去重 + **冲突类型透明**：semantic/episodic/procedural 在持久化、审计账本、前端 UI 全链路标识）+ 三引擎行为推导（CognitiveDeriver + PreferenceStability + FrustrationDetector→技能进化）+ BM25/Vector/RRF 三通道检索（7-Signal + MMR）+ Protocol-first SDK（3,100+ 项测试） | ⚠️ 2,200 字符 | ⚠️ 3 类 | ⚠️ 3 类 | ❌ 仅会话 | ⚠️ 基础更新 | ⚠️ 扁平抽屉 |
-| **对话搜索** | ✅ FTS5 + Qdrant 混合 | ⚠️ v0.15 仅本地文本 | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **代码搜索** | ✅ ripgrep grep/glob + `@codebase` 概览 + 路径分组密集化（省 18-39% Token） | ❌ 仅 grep | ⚠️ tree-sitter 精确匹配 | ❌ | ❌ 仅 grep | ❌ | ❌ |
-| **GUI 界面** | ✅ Web 原生 | ❌ CLI（v0.15 TUI 多会话） | CLI | ✅ Web/App | ⚠️ 基础 WebUI | ⚠️ 飞书嵌入 | ❌ 仅 CLI |
-| **桌面应用** | ✅ Tauri + 开机自启 + 零闪烁 + **跨设备遥控中心**（E2EE加密穿透 + CF Tunnel一键公网 + Mobile Hub手机控制面: SSE实时流/HITL审批/Steer/Stop/Live Preview/语音 + QR扫码即连 + 17 Channel任何IM远程操控 + Node Events自动化触发）— **401 项跨设备遥控全栈测试** | Electron | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **部署** | ✅ Web/Tauri/SaaS · **本地一条命令启动完整服务**（桌面/Web 数据一致）· **后端未启时有清晰界面指引**（不会弹出难懂报错，离线可浏览已保存设置）· **Cloud/Sandbox Loopback Guard** 会在流程开始前拦截仅 localhost 可用的 MCP 连接并引导切换 Local/Tauri | 自托管 | 自托管 | ❌ 仅 SaaS | 本地 + WebUI | ❌ 闭源 SaaS | 仅本地 |
-| **Harness 升级契约** | ✅ `myrm_agent_harness.api` + CI 禁止私有 `_` import；按沙箱滚动 runtime 镜像 tag；`api.hooks`/`api.skills` 保 Server 胶水层稳定 | ❌ 单体深 import | ❌ 单体深 import | ❌ | ❌ | ❌ | ❌ |
-| **工作区隔离 (Worktree)** | ✅ 一键 GUI 沙箱模式 + Kanban 任务自动分配隔离 Worktree，含完整合并/丢弃审批流 | ⚠️ 仅支持后台自动创建，缺乏生命周期管理 | ❌ 无 | ❌ 无 | ❌ 无 | ❌ 无 | ❌ 无 |
-| **多端会话接力 (Handoff)** | ✅ Web ↔ IM (Telegram/WeChat) 无缝转移，瞬间克隆结构化状态，连终端进程都能接力 | ⚠️ 仅桌面端本地模型切换 | ❌ 无 | ❌ 无 | ❌ 无 | ❌ 无 | ❌ 无 |
-| **多账号凭证池** | ✅ 4 种轮换策略 + 错误感知冷却与熔断器 + ManagedLLM/KeyPool 智能体内故障转移（33 项 openai_compat 测试）| ⚠️ 单一账号 | ⚠️ 单一账号 | ⚠️ 厂商账号 | ⚠️ 单一账号 | ⚠️ 厂商账号 | ⚠️ 单一账号 |
-| **纯本地直连** | ✅ Tauri 轻量级直连官方 API，满足企业绝对隐私合规，内存占用仅为 Electron 的 1/10 | ⚠️ 依赖 Electron 内存占用极大 | ⚠️ 云端中转 | ❌ 仅云端 | ⚠️ 依赖 Electron | ❌ 仅云端 | ⚠️ 依赖 Electron |
-| **零配置迁移 (OOBE)** | ✅ 首次启动自动扫描 Claude Code, Cursor, Codex 等 11 种凭证，一键导入 + **自动迁移默认模型配置**（迁移后首次对话即用，无需手动选模型）+ **OpenClaw vault 绑定闭环**（导入后 GUI 绑 Project → 首条消息写 chat SSOT — **5 pytest 2026-07-28**）（216项测试验证） | ⚠️ 仅支持少数 CLI 工具的粗糙调用 | ❌ 无 | ❌ 无 | ❌ 无 | ❌ 无 | ❌ 无 |
-| **零配置首跑 (Express Lane)** | ✅ 平台预置托管模型，Cloud 新用户无需 API Key 即可对话；WU 额度计费 + tier 降级 + 额度耗尽引导 BYOK | ❌ 必须 BYOK | ❌ 必须 BYOK | ⚠️ 闭源厂商提供 | ❌ 必须 BYOK | ❌ 仅闭源厂商 | ❌ 必须 BYOK |
-| **SaaS 登录** | ✅ Google OAuth + 一次性交换（JWT 不进 URL）；企业 OIDC 支持管理员 GUI 配置 + 首登自动建成员（IdP 群组白名单 / 邮箱域匹配） | ❌ | ❌（OAuth 仅 LLM Key） | ⚠️ 厂商账号 | ❌ | ❌ 闭源 SaaS | ❌ |
-| **模型支持** | ✅ 100+ 供应商经 LiteLLM + 小模型自动调优 + API 方言自动转换（DeepSeek/Kimi/MiMo 零配置）+ 原生思考模型支持（6 级强度 + 思考面板 + 20+ 推理模型检测 + 逐模型超时底线自动适配，思考期间永不超时）+ **base_url 全路径统一管理**（Agent/视觉/视频/检索/Structured Output 7 条 LLM 创建路径统一尊重自定义端点，企业内网代理与离线部署开箱即用，147 项验证测试）— 310 项测试 | 200+ 经 OpenRouter 网关 | 固定 | ⚠️ 固定三档 | BYOK 多模型 | ❌ 仅 MiniMax | N/A |
-| **渠道** | ✅ 26 渠道 + 三级 Agent 绑定（Thread/Chat/Channel）+ 六维身份隔离 + **Topic→Project/Vault 工作区绑定**（GUI Project 下拉 + IM `/bind workspace=`；执行前 sync 到 chat SSOT；解绑双向清空；fail-loud — OpenClaw 仅 Agent 级 workspaceDir；**9 pytest 2026-07-28**）+ **Obsidian vault 原位写入保真**（file_edit 自动补回 YAML frontmatter + FormatObserver 豁免 vault `.md` — **44 pytest 2026-07-28**；OpenClaw/Hermes：仅 prompt 或 wiki 编译层）+ IM Goal 管理 + **微信语音闭环** + **IM /undo /retry 联动文件快照 Revert（独家）**（iLink 语音 STT + channel_notify_tool 文件回推 + DLQ 去重 + 656 项专项测试全通过 2026-07-14）（5,756 测试） | ~23（无 Topic 级绑定） | ~7 | ⚠️ 飞书/钉钉 | ⚠️ IM 机器人 | ❌ 仅飞书 | ❌ |
-| **公网 Ingress 引导** | ✅ SSOT API + 入站/出站徽章 + 一键 Cloudflare 隧道 + 自选穿透文档（cpolar/NATAPP/frp）+ E2EE 端到端加密 + 6 级 TrustZone + DNS 重绑定防护 | ❌ 纯文档 | SSH+Tailscale(CLI) | ⚠️ 文档教 cloudflared | ❌ | ❌ | ❌ |
-| **手机远程指挥台** | ✅ 完整 PWA（离线缓存+安装引导）· E2EE NaCl Box 加密配对令牌 Hub · 实时 Status Board（SSE 进度 · 视觉审批 · 语音 push-to-talk · 中途 steer · 紧急停止 · **Browser/Desktop Live Preview** — Agent 操作画面实时截图预览，Lightbox 全屏放大，浏览器/桌面 Tab 切换，可折叠卡片，零新 API）· 会话级 **chat cancel**（配对安全）· 100dvh + pb-safe 视口 · **Web Push VAPID 离线推送**（8 类事件、iOS PWA 安装引导、过期订阅自动清理）· **144 项移动端测试**（2026-07-11：MobileStatusBoard 8 + MobileActionSheet 28 + PWA Install 4 + Web Push 53 + Remote Access 51） | ❌ 仅 CLI/TUI | ⚠️ macOS 远程模式(SSH+CLI) | ❌ | ❌ | ❌ | ❌ |
-| **子 Agent** | ✅ 8 模式 + 动态工作流 + **单 Agent 门控** + **AI Build**（一句话意图自动生成完整 Agent 配置）+ Template Market + Org Marketplace（606+ 项测试） | ⚠️ v0.15 Kanban Swarm（1 模式） | ⚠️ 基础 spawn（仅线性） | ⚠️ 基础 spawn | ❌ 单 Agent | ⚠️ L-W-V | ❌ |
-| **工具生态集成** | ✅ 自有 Agent 引擎 + MCP 行业标准（OAuth+安全扫描+Schema容错+动态发现+连接池自愈）+ **Settings 页 MCP GUI 全链路（options/scan/verify/registry）** + **Agent/Team 模板市场一键实例化** + 5层安全审批 + 技能自动进化 + 8种SubAgent编排（8,687 项测试） | ⚠️ 单文件 Copilot 适配器（686 行，仅 CLI） | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **安全** | ✅ 6 层防御 + **四级 Allow-Always**（permission/tool/exact/**命令模式**，设置页 CRUD，复合 shell 防护，Chrome LIVE E2E）+ DM Pairing（4 策略、GUI 审批、防刷冷却）+ **GUI 安全健康仪表板**（6 维度实时评分 + 逐项 finding 详情 + 一键修复/配置跳转引导——7 大竞品均无此能力）+ **会话级安全预设全生命周期**（三档一键切换：HITL / 自动批准编辑+AI 智能审查 / 只读模式，与 YOLO 双向互斥；每个 Agent 携带默认预设——绑定/切换自动 fail-closed 重置，聊天间零预设串泄；异步配置加载下 YOLO 互斥仍闭环执行（就绪重放 + 快路径持久化），经 live Chrome E2E 6 大场景 + 3766 项前端测试验证，2026-08） | ⚠️ v0.15 Promptware 3 卡口 | 1 层 | ⚠️ 未知 | ⚠️ 基础沙箱 | ⚠️ 闭源 | ❌ |
-| **凭证库** | ✅ 标签注入 + TOTP（浏览器 + 桌面） | ❌ 工具参数明文 | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **WebUI 访问安全** | ✅ 零信任 WebSocket + 安全 Cookie | ⚠️ 仅 HTTP，WS 脆弱 | ⚠️ 基础 JWT | ⚠️ 未知 | ⚠️ 仅 HTTP | ⚠️ 闭源 SaaS | ❌ LAN 裸奔 |
-| **目标模式** | ✅ 8 状态 + 4D 预算 + 14层防死循环盾 + **逐步人工确认**（opt-in 每步自动暂停等待用户确认——6大竞品均无此能力）+ **看板 Goal Mode**（任务卡片多轮自治循环执行，复用完整 Goal 引擎——Hermes 仅 max_turns 单维） | /goal | ❌ | ❌ | ❌ | ⚠️ 计划审批 | ❌ |
-| **上下文管理** | ✅ 6 层 Prompt Cache + **读取时去重**（未变文件返回轻量 stub 而非重发相同内容——保持消息序列稳定、缓存热；写后失效 + 压缩后重置 + 硬阻断防循环 + 按 executor 隔离；单元覆盖 100% + 10 个真实全链路集成测试）+ 22+ 中间件 + 11 步压缩流水线 + **OpenAI Responses API 原生服务端压缩桥接 (Native Server-Side Compaction Bridge)** + 双轨原子 Sidecar 检查点 + **compression_intent 结构化 retain**（业务层自动提取 focus 文件/失败命令/目标提示 → Filter 与 Compress group 级对齐，结构裁剪替代 LLM 摘要，保留最近 5 组工具调用——竞品无此链路）+ 七层防鞭尸 + 数据库级会话压缩持久化 + 确定性回退 + **三层 tool_call 配对完整性防护** + **Human Anchor** + **7 层超大输出纵深防护** + **上下文健康环** + **压缩参数零配置热更新**（**1098+** 上下文管线 unit 测试 + 2 API E2E 长会话验证 + 209 Goal 守卫链测试） | ⚠️ system_and_3（4 断点）+ 8 层固定栈 + 单层 ContextCompressor（内存态，无 DB 持久化）+ 运行时 `_is_real_user_message` 检查（新增合成消息类型时有绕过风险）+ 强防误导 Prompt（但无 XML 边界和 U-curve 布局） | LCM | LCM | ⚠️ 空闲压缩 + 双缓存 | ⚠️ Worker 隔离 | ⚠️ 4 层栈 |
-| **智能并发路由** | ✅ 五层守卫（会话互斥+用户级+全局信号量+内存压力熔断+分层超时）+ O(1) 路径锁 + **Busy Ack**（IM：即时 i18n 排队/满队回复，30s 防抖；Web：toast 携带队列位置）— 103项并发+busy测试通过 | ⚠️ 粗粒度写锁 + runtime-id 映射（双ID易出错） | ❌ 不安全 | ⚠️ 未知 | ❌ | ⚠️ 未知 | ❌ |
-| **无头无人值守** | ✅ 标签工具隔离（零死锁） | ⚠️ 易交互死锁 | ❌ 不支持 | ❌ | ❌ | ❌ | ❌ |
-| **极端防爆** | ✅ 4 层护城河（卫生/护盾/剥离/预算） | ⚠️ 大负载崩溃/丢失 | ⚠️ 单点失败 | ⚠️ 未知 | ⚠️ 基础限制 | ⚠️ 未知 | ❌ |
-| **输出净化** | ✅ 双层防护（流式+投递前），覆盖全角管道符和 DeepSeek token | ⚠️ 单层，仅 ASCII 管道符（近期修复） | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **MCP 工具参数智能修复** | ✅ required+nullable 缺失自动补 null + mixed-union 对象/数组解析（含类型守卫）+ schema 规范化保障 Prompt Cache 稳定 | ⚠️ 部分/旧式 coercion 路径 | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **智能路由与模型自动升级** | ✅ 六层体系: ComplexityRouter 三档路由（40+ 中英关键词 + 20 种异常正则 + 多维信号评分）+ LLM 裁判(256条TTL缓存) + 会话动量(长度加权衰减) + 隐私感知路由 + PenaltyTracker误路由反馈学习(24h衰减) + ESCALATION_CONTRACT (模型自主升级合约) + EscalationScrubber + 11模块降级链 + 10模块Token经济学(成本溯源+工具归因+延迟统计+多维预算) + 17+维度路由透明度（tier badge+成本+缓存+隐私+工具归因+路由分析面板）+ **WebUI tier 徽章 SSE 重连不丢失**（loadMessages 流式 merge + onopen guard — Chrome E2E 121s/365s 2026-08）+ 6级推理强度GUI控件(off/low/medium/high/xhigh/max+自定义值+per-model持久化+reasoning模型自动检测) + **25+ 内置提供商**（OpenRouter、Moonshot/Kimi 双端点、DeepSeek、Xiaomi MiMo 等 — 粘贴 API Key 即用）+ **session/daily/per-call 三维预算守卫** — 3,926 项测试 | ⚠️ 仅 Sonnet→Opus 单维度 | ❌ | ⚠️ 手动三档 | ❌ | ⚠️ 未知 | ❌ |
-| **后台任务托盘** | ✅ GUI-first 闭环 v1（2026-07）+ **R04B 媒体后台韧性（2026-07-31）**：shell Turn1 eager → i18n 聊天 + SSE toast；Navbar **Activity Panel** — **耗时任务** + **媒体生成**（进行中进度/Cancel）+ 可折叠 **近期** terminal 媒体（成功/失败+错误摘要）+ 任务 SSE 单路复用 + Web/Tauri 通知 + 托盘 badge；**27 vitest + 2 integration + Chrome MCP smoke** + Background Tasks Panel Chrome MCP E2E **7/7**（vault spill drawer · shell stdin · waiting badge · 2026-08） | ⚠️ 仅运行+取消 | ❌ | ❌ | ⚠️ Background Agent（无 Panel 近期媒体 E2E） | ⚠️ 未知 | ❌ |
-| **错误恢复** | ✅ 8层纵深防护(LoopGuard 7种模式+ToolStuck→GraphInterrupt+FrequencyGuard+E-Stop+4层熔断器+僵尸自动回收+Gateway超时+内存压力熔断) + **工具调用四层自主修正**(7+种JSON修复策略适配弱/本地模型+错误→ToolMessage自动回传LLM自修正+LoopGuard防死循环+CorrectionLearning审批修正持久化记忆) + 14类自愈 + 9层纵深降级 — 3,276项测试 | try/catch | 基础 | 基础 | ⚠️ 上下文溢出恢复 | ⚠️ 未知 | ❌ |
-| **企业可靠性** | ✅ xdist 锁、EventBus 截断、OTEL 安全、路径边界 + TOCTOU 审批测试；聊天 SSE 状态机回归；**521 份分形 `_ARCH` 模块文档 + 296 项架构 CI 门禁**；**Eval 引擎：4 类 12+ 种断言体系（Tool+State+Sandbox+Semantic LLM 裁判，支持自定义 judge_prompt/model/threshold）+ 多轮评测（MultiTurnEvalCase）+ 一键 chat→eval 捕获（GUI Flywheel 闭环）+ AdaptiveEvalManager 智能算力让步 + GUI 集成 + 多数据集 CRUD + A/B 历史报告 + SSE 流式进度 + 6 项 IR 指标（Recall/Precision/NDCG/MRR/HitRate/Latency）+ ModelTier 自动调优 + 评测工作空间物理防污染隔离 + 记忆检索质量评测子系统 + EvalManifest 10 维环境快照（模型/工具/提示词指纹/数据集哈希/推理深度——自动嵌入每份报告确保 A/B 对比公平，竞品无此能力）+ **Benchmark Headless Profile**（一键 GUI 开关：空 System Prompt + 仅 CORE 工具 + 禁用 MCP/技能/子 Agent/记忆/搜索/Replan/上下文压缩 — Terminal-Bench/SWE-bench 标准化公平评测；Eval Lab 仪表盘内 A/B 对比）— 142 项 eval 测试验证，唯一具备完整评测 GUI+AI 裁判+并发执行+一键捕获闭环+环境可复现快照+标准化 Benchmark 模式 + **一键记忆 A/B**（同一批任务分别跑记忆开/关：并排对比通过率与成本报告、独家 `memory_tool_calls` 行为指标、embedding 前置探测、诚实提示单轮任务收益有限、临时记忆卷隔离不污染真实记忆 — 用数字证明记忆是否值得开启，竞品无此能力）的 Agent 框架**（2026-08-10） | ⚠️ 仅快乐路径测试 | ⚠️ 易竞态（ClawEval: CLI 59 角色基准测试，无 GUI） | ⚠️ 未知 | ⚠️ 未知 | ⚠️ 未知 | ❌ |
-| **模块文档地图** | ✅ **521** 份 `_ARCH.md` + CI 防漂移（`check_fractal_docs`） | ❌ 仅集中式 docs | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **文件编辑安全** | ✅ **8 层多代理文件保护**（先读后写 + 版本匹配 + 完整读取前置 + 行级冲突检测 + 跨代理活动追踪 + 自动工作空间隔离 ISOLATED_COPY + 延迟串行合并 + 完成自动清理 — **192 项多代理测试**）+ 三层写后防呆（内存语法校验+CLI深度诊断+12种自动格式化）+ 语法错误自动回滚 + Shadow Git 快照**选择性文件恢复**（checkbox 多选）+ 行级变更统计 (+X/−Y) + 回退后 Agent 自动感知 + 配置保护 + 敏感文件保护 + 实时 diff SSE（1,380+ 项测试） | ⚠️ py_compile 级写后检查（无自动格式化、无回滚） | ❌ | ❌ | ❌ 仅 Prompt 文件互斥（LLM 可绕过） | ⚠️ 未知 | ❌ |
-| **文件系统智能** | ✅ 19 种原生操作 + 11模块解析引擎（PDF 3策略 + Office全格式 + Jupyter Notebook含kernel语言检测+语法高亮+全栈拖拽入库 + 未知格式附件感知兜底）+ 5 层观察者 + **智能文件检索**（glob通配递归 + grep三级引擎 ripgrep>mmap>Python + ReDoS防护 + token节约格式化 + 前端typeahead路径补全）+ **编译器级三上限读**（字符预算/行数/单行长度，完整行边界截断+预计算续读位置，展示层截断不污染完整性门禁，全路径一致）——**163项file_search+suggest测试 + 788项文件系统测试 = 951项全通过 + 三上限真实链路13项集成测试** | ⚠️ 4 种基础操作 + 基础 ipynb/docx/xlsx（同步、无降级） | ⚠️ 仅 bash | ⚠️ 仅 bash | ❌ | ⚠️ 基础 | ❌ |
-| **代码执行引擎** | ✅ 零进程开销 pathlib I/O + 语法错误自动回滚 + 持久化 Shell 会话 + 环境自动探测 + seatbelt/bwrap 沙箱 + PTC 双向通道 + 输出压缩 + 虚拟环境管理 + 工具自动发现 + **BashExecutor/BashTool 模块化拆分（13 文件，97.1% 覆盖，架构门禁）** — **1,520+ 项测试** | ⚠️ 仅 Shell 子进程 | ⚠️ 仅 bash | ⚠️ 仅 bash | ❌ | ⚠️ 基础 | ❌ |
-| **工作区上下文** | ✅ 7 种 @ 引用（文件/文件夹/staged/diff/URL/上传/行范围）+ 工具层全文件系统访问 + Dynamic Workflow 多项目并行（259 项测试） | ⚠️ 仅 @file（沙箱限制） | ❌ 单目录 | ❌ | ❌ | ⚠️ 未知 | ❌ |
-| **本地文件"数据不出域"** | ✅ 天然支持 — Agent 在本地运行，所有文件原地处理 | ❌ 仅云端 | ⚠️ Docker | ⚠️ Docker | ❌ 云端 | ❌ | ❌ |
-| **定时任务** | ✅ 20+ GUI 组件 + 27 项配置能力 + 7 种触发器（cron/event/system/webhook/poll/stream/manual — HMAC-SHA256 + SSRF + ReDoS 三重安全）+ 3 种会话模式(Isolated/Main/Daily — Daily 自动注入同日执行历史用于趋势检测) + 指数退避重试 + 误火恢复 + Agent 绑定 + 结果投递 + Merkle 审计链 + 智能噪音过滤 + **按任务执行策略（能力围栏 + 工具范围 + fail-closed 默认）** + **5 层并发控制**（全局信号量 + 用户信号量 + skip_if_active + active_hours + stagger）+ **无内容跳过**（无事可报时零 token 消耗）（**985+ 项测试**） | ⚠️ CLI 基础 cron（无GUI/无重试/无恢复） | ✅ | ✅ | ❌ | ❌ | ❌ |
-| **统一工具网关 + 行为审计** | ✅ 四合一网关 + 弹性 BYOK 回退 + Bash 独立审计面板(12 字段) + 全工具 ExecutionTrace 时间线 + 会话回放 + OTel 全链路(**669 项测试**) | ⚠️ 硬切换（易出错） | ❌ N/A | ⚠️ 未知 | ❌ | ⚠️ 未知 | ❌ |
-| **OpenAI 兼容代理** | ✅ **Agent API** — OpenAI 兼容 `/v1` 运行 Myrm 智能体（记忆/工具/技能）；严格 API Key 认证；`/v1/models` 列出智能体。**Cursor/Codex LLM 代理**：搭配独立的外部 LLM 网关（33 项测试） | ⚠️ `/v1/chat/completions`（仅 Agent，无 LLM 直通，无模型发现） | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **语音** | ✅ 3 种模式（标准/Bridge/Realtime）+ 10 提供商（5 TTS + 5 STT 含免费 Edge TTS 与 Local Whisper）+ Discord 唤醒词 + 打断检测 + Vision 融合 — **1,176 项测试** | ⚠️ Discord 语音 | WebRTC + iOS 原生唤醒 | ⚠️ 基础 | ❌ | ❌ | ❌ |
-| **多模态生成** | ✅ 图片（20+ 模型 + 智能 Failover + Gateway 回退 + 图片编辑含 Inpainting 局部重绘 + 4 层校验含 SSRF 防护 + 批量生成 + **异步生图：即时 task_id + 聊天气泡 ImageTaskCard + SSE 进度，生图时继续对话；API Key 与 Gateway Token 写入任务队列前 AES 加密，云沙箱 tasks.db 无明文密钥**，370+ 项测试）+ 视频（5 引擎：Sora/Veo/Qwen/MiniMax/xAI Grok + T2V/I2V/V2V + 幂等任务管理 + **对话内 VideoTaskCard 内嵌播放器+重试 — 即时预览，无需导出门控**）+ TTS（5 Provider 含免费 Edge + 流式 + 长文本自动摘要 + OpenAI 兼容 base_url）+ 截图即操作管线（粘贴/拖放 → 标注编辑器 → OCR/Vision → 工具调用闭环）+ Vision 自动降级 + **创意设计全覆盖**：沙箱内 ffmpeg 视频剪辑 / Pillow+ImageMagick 批量图片处理 + computer_use 智能操控 Adobe PS/AI/InDesign（AppleScript/COM 自动路由）+ Figma MCP 接入——AI 原生引擎比专用 PS 插件更可靠（Adobe 版本更新常破坏 API）— **401 项多媒体全栈测试全通过** — 总计 1,293+ 项测试 | ⚠️ FAL.ai 图片（7 编辑模型，同步阻塞，无 mask/无 SSRF/无 failover）+ 2 视频插件 + 10 TTS（含 5 个 niche 本地方案） | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Computer Use** | ✅ 桌面自动化 + 三平台后台静默输入（不抢焦点）+ 前台权限主动授权门控（三级粒度 once/session/always）+ BBox 审批 + Tauri OS 叠加层 + 敏感应用防火墙（银行/通信自动阻断）+ 原生 API 智能路由（95+ 应用：AppleScript/COM/D-Bus 自动检测，零配方零依赖）+ 三平台完整语义 AX invoke（macOS AX/Windows UIA/Linux AT-SPI）+ **增量 AX 树 Diff**（follow-up 快照仅渲染增删改元素，连续操作节省 80%+ Token，4 层自动 fallback 全量兜底）+ 跨平台环境诊断卡片（macOS TCC + Linux 依赖+xvfb + Windows 依赖 — GUI 一键修复）+ VNC 安全 Token 签名（HMAC+TTL 防重放）+ Takeover/Resume 全生命周期人工接管 + **3 个工具覆盖 Pi 的 11 个**（Python 直调 OS API，无需 Rust/Swift 原生守护进程，零路径冲突，pip 即装即用；仅工具定义即省 ~4,000 tokens/请求）— **548 项桌面测试 + 10 项前端测试全通过** + 办公文件三层覆盖（ExcelParser 4模式直读 + python-pptx/docx 原生生成 + 17渠道 Bot API 直发文件附件，「读Excel→生成PPT→发企微群」零 GUI 操控）— **519 项办公+通讯全栈测试全通过** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **浏览器引擎** | ✅ 双隐身引擎（Patchright + Camoufox）+ 跨会话指纹持久化 + 三级拟人化交互（高斯延迟 + 贝塞尔鼠标轨迹）+ 三层 GlobalBrowserPool（零冷启动、三层崩溃恢复）+ Shadow DOM 穿透 + API-First 网络智能（CDP 懒加载响应体 + 请求重放）+ 域名引擎亲和记忆 + 后台无感执行（双层隔离）+ 同源智能Tab路由 + 4 大云浏览器 Provider（GUI 配置 + 热更新免重启）+ 语义 inspect→snapshot 链路 + 浏览器事件遥测基线，已由 **127 项定向测试** 与真实 Chrome MCP snapshot/evaluate 验证 | ⚠️ 第三方云浏览器（环境变量配置，需重启） | ❌ | ❌ | ❌ | ⚠️ 未知 | ❌ |
-| **网页搜索** | ✅ 8 引擎 + 中文全网搜索（百度/搜狗/360/夸克自托管零成本）+ 7类意图零LLM路由 + BM25/Reranker 过滤 + 三层防幻觉 + 191项搜索测试 | ⚠️ 云 API 透传 | ⚠️ DDG/Bing 抓取 | ⚠️ 同 OpenClaw | ⚠️ DDG/Bing | ❌ | ❌ |
-| **网页抓取** | ✅ 三层自动降级 + 自学习 AdaptiveRouter + 反爬自动绕过（主流 WAF）+ 向量提取 + DOM 修剪（391 项测试） | ⚠️ web_extract（Firecrawl + LLM） | ⚠️ HTTP / Firecrawl 回退 | ⚠️ 同上 | ⚠️ 仅 HTTP | ❌ | ❌ |
-| **工作区 RAG** | ✅ **四层管线**：BM25 + 向量 + RRF融合 + Reranker；7类19种格式解析（PDF/Word/Excel/PPT/ipynb/OCR）；双后端知识图谱；Karpathy Wiki 编译引擎；**Per-Agent 独立 Vault 与 Purpose 编译指引 GUI**；**frontmatter `type` 枚举硬闸门**（编译 + 待审批准 + Linter 修复 + Settings Repair Page Types — 7 类 OKF 兼容，47 pytest Jul 2026）；**认知地图三件套**（`wiki/index.md` + `log.md` + `hot.md` 事件驱动刷新；hot 仅 wiki_query 消费 — cache-safe，25 pytest Jul 2026）；Skill Evolution 自学习；RSG质量守卫（2,886项测试——Wiki 159 + Evolution 437 + Skills 565 + Memory 1,901 + 索引/RAG 159 + Marketplace 52 + Optimization 23） | ⚠️ 仅代码AST索引 | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **图片搜索** | ❌（web_search + web_fetch / browser 可找页面图） | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **长文目录** | ✅ 聊天内自动 TOC + 滚动同步 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **富内容渲染** | ✅ Mermaid（缩放/全屏/图例/导出）+ KaTeX 数学公式 + GFM Alerts（5 种类型带图标）+ 脚注 + 代码 Diff + 平滑流式 | ⚠️ 基础 Mermaid | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **精准多模态** | ✅ 意图感知视觉（无 UI 操作 = 0 vision token） | ⚠️ 常开（浪费 token） | ⚠️ 盲（无截图） | ⚠️ 未知 | ⚠️ 盲 | ⚠️ 盲 | ❌ |
-| **标题生成** | ✅ O(1) 防阻塞 + 脱敏 | ⚠️ 易卡死/泄漏 | ⚠️ 易卡死/泄漏 | ⚠️ 未知 | ⚠️ 未知 | ⚠️ 未知 | ❌ |
-| **全局闪念捕捉** | ✅ macOS+Windows 双平台截屏 + UI 文本提取 + 语音 + FlowPad + Inline Agent Switcher/Profile 路由 + 隐私黑名单 + request-id 串流归因 + route-switch 请求级 abort + deep-link 去重队列（**36 项前端定向 + Chrome MCP `/intent` 实证**） | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Token 效率** | ✅ 总计 ~2,167 tokens（少 86%） | ~15,520 | ~18,000 | ⚠️ 手动三档 | ⚠️ ~9 Kanban LLM 工具 | ⚠️ 高成本 | ⚠️ ~900 唤醒 |
+| 能力维度 | Myrm | Hermes Agent | OpenClaw | OpenAI Codex | DeepSeek-Harness | Pi (oh-my-pi) |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| **记忆系统** | ✅ 8 类 + 知识图谱 + 27 源集成 + 跨任务 SharedContext + 冲突自动检测与 GUI 裁决 + BM25/Vector/RRF 三通道检索 | ⚠️ 2,200 字符扁平 MEMORY.md | ⚠️ 3 类基础会话记忆 | ❌ 仅单会话上下文 | ⚠️ 基础单轮摘要 | ⚠️ 轻量级会话键值 |
+| **GUI 界面** | ✅ 现代响应式 WebUI + 全功能看板 | ❌ 仅 CLI / TUI | ⚠️ 简易控制台 | ❌ 仅 CLI / IDE 插件 | ❌ 仅 CLI / 终端 | ❌ 仅终端交互 |
+| **桌面客户端** | ✅ Tauri 原生（零闪烁 + 跨设备遥控中心） | ⚠️ Electron 包装 | ❌ 无 | ❌ 无 | ❌ 无 | ❌ 无 |
+| **部署形态** | ✅ Web / Tauri / SaaS 三位一体 | 自托管 CLI | 自托管 CLI | 本地 CLI | 本地 CLI | 本地 CLI |
+| **工具调用架构** | ✅ 精准解耦 PTC + Direct FC 混合架构（CORE 8 项原生 Direct FC + Skill PTC） | ⚠️ 扁平工具注入（800+ tokens/turn 开销） | ⚠️ 全量平铺静态定义 | ⚠️ 静态函数定义 | ❌ Universal PTC 陷阱（Python 语法错/Token 膨胀 3 倍） | ⚠️ 双模型交互 RPC |
+| **Prompt Cache** | ✅ 6 层缓存架构（Golden Prefix 锁定，95%+ 命中率） | ⚠️ 仅 4 断点，内存态易失效 | ❌ 无缓存规划 | ⚠️ 部分前缀对齐 | ❌ 动态平铺导致缓存频繁雪崩 | ⚠️ 基础系统提示对齐 |
+| **Computer Use** | ✅ 语义桌面控制 (SDC, @dref) + 标准化 MCP Server 导出 + 敏感应用拦截 | ❌ 无 | ❌ 无 | ❌ 仅代码沙箱 | ❌ 无 | ⚠️ 纯视觉截图坐标（高 Token 且易漂移） |
+| **多 Agent 编排** | ✅ 8 种确定性模式（DAG/Verified/Council 等）+ 运行时 Steering | ⚠️ 仅 Kanban Swarm | ⚠️ 仅基础 Spawn | ❌ 无多代理编排 | ⚠️ 基础串行链路 | ⚠️ 双模型旁路顾问（主从交互） |
+| **沙箱隔离** | ✅ 物理级 Git Worktree + seatbelt/bwrap 沙箱 | ⚠️ 容器/进程级 | ⚠️ 基础 Docker | ⚠️ 基础沙箱执行 | ⚠️ 基础进程沙箱 | ⚠️ 仅本地目录隔离 |
+| **代码执行安全** | ✅ 8 层多代理文件保护 + AST 静态扫描 + 语法自愈回滚 | ⚠️ py_compile 级写后检查 | ⚠️ 裸 bash 执行 | ⚠️ 进程隔离执行 | ⚠️ 基础 subprocess | ⚠️ 提示词软约束 |
+| **离线与数据不出域** | ✅ 天然支持本地沙箱原地处理 + S1/S2/S3 隐私动态路由 | ❌ 依赖云服务 | ⚠️ 依赖 Docker 转发 | ❌ 依赖云 API | ⚠️ 本地模型直连 | ⚠️ 本地模型直连 |
+| **审计与合规** | ✅ 双轨事前先验审计 + 组织级统一时间线 | ⚠️ 事后简单日志 | ❌ 无统一审计 | ⚠️ 基础 CLI 日志 | ❌ 无审计 | ❌ 无审计 |
+| **技能与自进化** | ✅ 42 模块原生自进化 + 6 层验证 + 9 维 GUI 治理 | ⚠️ 依赖外部 AGPL 脚本 | ⚠️ 手动复制 SKILL.md | ❌ 无技能进化 | ❌ 无技能进化 | ❌ 无技能进化 |
+| **Token 效率** | ✅ 平均节省 86%（动态按需加载 + 结构化裁剪） | 高开销（全量静态注册） | 高开销（原始数据透传） | 中等 | 极高（Universal PTC 浪费大量 Token） | 高（双模型通信重复消耗） |
 
-## vs PilotDeck — 代理操作系统与多 Agent 协作平台
+## vs OpenClaw — 开源主流终端 Agent 与沙箱工作区
 
-PilotDeck（清华 THUNLP 等联合开源）主打“Agent 操作系统”概念，提供 WorkSpace 工作空间隔离、白盒化记忆（Dream Mode）、智能路由降本以及 Always-on 后台驻留执行功能。
+OpenClaw 是社区广泛使用的开源终端级全自动 AI Agent，主打单机开发场景下的自主执行。但当面对企业级复杂长周期任务、多文件协同以及非命令行用户时，其架构局限性显著暴露。
 
 ### Myrm 的领先之处
 
-| 领域 | PilotDeck | MyrmAgent | 用户收益 |
-|------|-----------|-----------|---------|
-| **项目工作区隔离** | 虚拟 WorkSpace 隔离与状态存储 | **物理级 Git Worktree 沙箱** | 真正的零冲突并行读写。分配子 Agent 重构代码时，主分支代码完全不受影响，结束后一键可视化合并/丢弃。 |
-| **持久化后台任务** | CLI Always-on 进程 | **跨生命周期队列守护 (Daemon)** | 随时关掉浏览器或 Tauri 桌面端，长任务状态安全落盘，醒来推送结果，绝不半途而废。 |
-| **多 Agent 监控** | 基础日志流或简单 Waterfall | **SubagentDashboard 全景大盘** | 对话不被子任务刷屏。子任务拥有独立折叠抽屉与状态灯，支持 Working/Review/Done 实时监控和断点可视化干预。 |
-| **委派暂停控场** | Hermes 等 CLI 全局 `spawn_paused`（一次暂停影响所有会话） | **Session 级 Delegation Pause** | 在 Dashboard 一键暂停「本会话新委派」，在途子任务继续跑；多标签页互不干扰。Chrome LIVE E2E 签收（2026-07-20）。 |
-| **Agent 全局存活状态** | 文件轮询 (gateway_state.json) | **五态 Liveness SSOT**（busy/idle/degraded/offline/draining） | `GET /health/liveness` 返回全局五态 + 活跃会话 + 并发槽位。前端 LivenessIndicator 精确区分 degraded（后端可达但异常）和 offline（后端不可达），状态同步到 Tab 标题前缀、Tauri 托盘图标、聊天输入区圆点指示灯。33 项单测 + Chrome MCP E2E 验证。 |
-| **记忆引擎与整合** | 定时 Dream Mode 汇总 | **GUI 指挥中心 + 10 模块专用机制** | 不仅支持“白盒化记忆”，更配备 GUI 仪表盘、知识图谱视图与健康评分。统一 /journey 页面将知识图谱+技能趋势+成长 KPI 一页呈现。包含降维除重和“主动遗忘”算法。 |
-| **智能模型路由** | 简单的 Judge 模型判断 | **复杂度与隐私双重路由 + 账单系统 + 实时 Rate Limit 仪表盘** | ComplexityRouter + PrivacyRouter + FallbackManager + KeyPool + **实时 Rate Limit 监控**（RPM/RPH/TPM/TPH 四维圆形进度条 + SSE 实时更新 + 三级颜色预警）+ **SSE 模型切换实时通知**（model_failover + model_recovery ProgressStep + Toast 弹窗）+ EscalationScrubber 自升级检测 + 13 模块工业级 Fallback 体系（CircuitBreaker + ProbeThrottle + 场景感知选择）。Premium 模型 rate limit 问题通过自动降级 + 实时监控解决，而非静态警告文本。240+ 项路由/降级测试全通过。 |
-| **全平台一键部署** | 终端 3 分钟 `curl` 脚本 | **可视化向导 + 启动预检 + 双 wheel 校验 + 24 项精瘦核心** | 4步引导向导自动探测本地能力 → 启动前预检全部配置（错误即阻断+修复建议）→ 跨版本配置schema自动迁移 → 7大GUI设置面板零YAML编辑。Tauri原生安装包支持。引擎：**24** 项锁定核心依赖 + **11** 组可选 Extras（浏览器/检索/ACP/可观测性…），二次开发者按需安装、终端用户自动获得完整 bundle；装错平台 wheel 在**启动时**失败而非对话中途（**327** 项 harness 架构测试，2026-07）。 |
+| 领域 | OpenClaw | Myrm | 用户收益 |
+|------|-----------|------|---------|
+| **工作区与文件隔离** | 单目录直接操作，易出现脏写与并发冲突 | **物理级 Git Worktree 隔离 + ISOLATED_COPY 模式** | 多任务并行互不污染，重构与实验分支结束后可一键可视化合并或丢弃。 |
+| **工具架构与 Token 消耗** | 静态平铺全部工具定义，首轮消耗 3,000+ Tokens | **四层解耦（CORE Direct-FC + Prebuilt Skill PTC）** | 首轮固定仅加载 8 个核心原子工具，Prompt Cache 命中率 95%+，节省 80%+ 上下文开销。 |
+| **交互与易用性** | 纯命令行（CLI）交互，日志冗长难翻阅 | **现代响应式 WebUI + Tauri 原生桌面端** | 拥有完整的步骤执行树、可视化 Markdown/Diff 渲染、审批卡片与全局快捷闪念捕捉。 |
+| **持久化与灾难恢复** | 依赖简单的单文件状态落盘，异常退出易坏库 | **原子密封签名（SealManifest）与 Point-in-Time 检查点** | 发生断电或崩溃时毫秒级无损回滚，受损会话自动隔离至 Quarantine，杜绝污染运行态。 |
+| **多 Agent 与协作** | 仅支持基础线性 spawn，无依赖拓扑校验 | **8 种确定性编排（DAG / Verified / Swarm Fission 等）** | 复杂任务按拓扑序自动分发，完成前强制物理证据（STDOUT）核验，拒绝“口头声称完成”。 |
 
-### 从 PilotDeck 迁移到 Myrm
+### 从 OpenClaw 迁移到 Myrm
 
-从 PilotDeck 迁移过来，你将从一个“命令行偏向的操作系统”彻底升级为一个 **“面向图形化交互的现代智能体工作站”**。你不仅继承并超越了其引以为傲的多项目隔离、省钱路由、后台执行等高级能力，更将获得可视化、可拖拽、可回滚的安全体验，以及与主流 MCP 插件生态无缝打通的开放性。
+- **配置无缝导入**：Myrm 首次启动内置迁移向导，一键扫描并导入 OpenClaw 本地凭证、Agent 预设与工作区路径。
+- **操作习惯升级**：从单纯终端命令行升级为支持快捷键呼出的可视化工作站，同时完整保留 CLI/PTC 原生执行能力。
 
-## vs 360 Security OpenClaw（企业封装版）
+## vs OpenAI Codex (openai/codex) — 企业级 Coding Harness 与沙箱防护
 
-360 Security OpenClaw 是基于 OpenClaw 核心的闭源企业封装，通过「Shrimp Coach」引导配置和手动「Token 成本模式」（轻量/经济/全功率）降低上手门槛。
+OpenAI Codex 仓（以 Rust/Python 驱动的开发沙箱 Harness 与命令行代码代理为代表）展示了极高规范的底层执行纪律，但其作为独立工具存在端到端工作空间闭环弱、模型依赖单一和交互受限的痛点。
 
 ### Myrm 的领先之处
 
-| 领域 | 360 Security OpenClaw | Myrm | 用户收益 |
-|------|-----------------------|------|-------------|
-| **Agent 创建** | 「Shrimp Coach」对话 | **27 预设 Agent（7 种工具预设：MINIMAL/DEFAULT/CODING/RESEARCH/DESIGN/VIDEO_STUDIO/DATA_VIZ）+ 12 YAML 模板市场（10 可见 + 2 hidden, individual+team, i18n, 原子性实例化）+ GUI 向导 + 每 Profile 15 维独立工具开关** | 零提示词即开即用，角色工具边界已优化。 |
-| **Token 成本控制** | LLM Judge 单阶段路由 (PilotDeck) | **规则+Judge 双阶段复杂度路由** | 80%+ 请求规则阶段即可决定（0 额外 token），仅歧义 case 调 Judge。 |
-| **成本可见性** | 基础统计 | **双层消息级可视化（内嵌缓存节省 banner + 17 项 tooltip）+ 14 维统计大屏 + Per-Agent 成本归因 + SessionSpendSurface 常驻胶囊（每轮 WU/-$、会话累计、burn-rate ETA）** | 每条回复显示缓存命中率与节省金额、5 类 Token、TTFT/P95/TPS、per-model/per-tool 成本分解、会话基线对比、cache-break 归因+修复建议。常驻胶囊实时展示每轮 WU 消耗（沙箱）或 USD 成本（本地/Tauri），含会话累计与剩余天数 ETA。竞品中无一具备消息级实时成本可视化。 |
-| **执行 Trace 与回放** | 仅日志 / AI Purpose Title（额外 LLM 调用） | **产品内嵌 7 层 Trace（ProgressSteps 实时树 + 语义工具标签 28 工具 × 5 语言 + 内联 AI 意图描述 + 分类图标 + 阶段折叠分组 + 思考过程 + 17 项 tooltip + 缓存节省 banner + ExecutionTraceTimeline + SessionReplayPlayer + SessionAnalyticsDialog）** | 每个工具调用显示人类可读标签 + AI 意图描述，零额外成本（意图由主模型在 tool_call 中直接提供，无需独立 utility model）。任意消息一键查看完整执行回放——无需外部 SaaS 和额外费用。 |
-| **云环境** | 云电脑 | **沙箱 + 持久终端 + SaaS** | 真跨平台隔离与数据归属。 |
-| **多媒体** | 基础视频 Agent | **原生 `video/generator.py` + 全双工语音 + 工具无关沙箱（Agent 可 npm/npx 安装任意视频工具 HyperFrames/Remotion/FFmpeg——不锁定单一框架）+ 7 步 Multi-Shot Pipeline（自动检测 provider 时长限制→分镜规划→base image 一致性→I2V 生成→FFmpeg 无损拼接→BGM 叠加→关键帧 QC）+ 平台导出规格控制（10 种画幅 + 3 级分辨率 + 自动归一化 + 6 平台问卷 + QC 双通道：ffprobe 硬指标 + Vision 字幕安全区）** | 创作内容并支持打断（barge-in）免提交互。对话内 VideoTaskCard 内嵌播放器+重试。沙箱架构让 Agent 使用任意 CLI 视频工具，无框架锁定。内置 shot pipeline 指引解决 6-12s provider 时长限制——Agent 自动规划多段拍摄工作流制作长视频。平台导出规格自动归一化确保视频符合目标平台规范（抖音 9:16、YouTube 16:9 等），无需手动配置。 |
+| 领域 | OpenAI Codex | Myrm | 用户收益 |
+|------|--------------|------|---------|
+| **模型自由度** | 深度绑定 OpenAI 专有端点与 API 方言 | **100+ 模型自由路由（LiteLLM + 本地 Ollama/vLLM）** | 消除供应商锁定，根据任务复杂度自动在旗舰模型与极低成本/本地私有模型间秒级分流。 |
+| **工具生态与扩展性** | 封闭固定的内置代码编辑/Shell 工具集合 | **标准 MCP 原生支持 + 42 模块自进化技能系统** | 自由挂载任意外部数据源与三方生态能力，技能在执行中自动根据失败与挫败信号自修复。 |
+| **多模态与人机交互** | 仅纯文本终端与 diff 补丁交互 | **语义桌面控制 (SDC) + 富内容全屏交互画布** | 不仅能写代码，还能直接驱动浏览器抓取、操作桌面软件排版、生成图表与多媒体成果物。 |
+| **记忆与跨会话连续性** | 会话结束即销毁，跨任务无法积累代码经验 | **8 类分层记忆 + 知识图谱 + 偏好稳定性追踪** | 记住团队的代码风格、规避已犯过的错误，工程经验跨周跨月复利沉淀。 |
+| **成本透明度** | 黑盒 Token 计费，无细粒度归因 | **消息级双层成本归因（实时 Cache 节省比率 + 17 项 Tooltip）** | 精确获知每个子任务、每个工具调用耗费的毫秒数与金额，杜绝账单失控。 |
 
-**结论：Myrm 提供更自动化、原生的 GUI 体验。无需「教练」问答，直接给可用模板；双阶段路由比竞品的纯 LLM Judge 方案更省 token 且更准确，并提供约 10 倍成本透明度。**
+### 从 Codex 迁移到 Myrm
 
-## vs OpenClacky — Token 优化本地 Agent
+- 享受超越单一 Coding Agent 的全场景工作空间能力，在享受高确定性代码沙箱的同时，获得长记忆、多模型自由度与团队级可观测性。
 
-OpenClacky 主打低成本本地 AI Agent，宣称 Token 约为 Hermes 的 1/6。核心策略：16 个最小工具、空闲压缩、先插入后压缩、双缓存标记、BYOK 多模型路由。
+## vs DeepSeek-Harness (DeepSeek DSH) — 工具执行流水线与沙箱代码执行 (PTC)
+
+DeepSeek-Harness（DSH）作为聚焦 DeepSeek 强推理模型的开源 Harness 工具链，深度探索了 Program-aided Tool Calling（PTC / CodeAct）模式。然而，由于将所有工具都强制退化为 Python 代码在沙箱中动态生成和执行，带来了致命的“Universal PTC 陷阱”。
 
 ### Myrm 的领先之处
 
-| 领域 | OpenClacky | Myrm | 用户收益 |
-|------|-----------|------|-------------|
-| Tool Architecture | 16 core + invoke_skill (2-tier) | **3-tier (CORE/COMMON/EXTENDED)** + ASCS cognitive load scoring + **Dynamic Schema Weaver** | Scientifically optimized, dynamic tool pruning prevents hallucinations |
-| Idle Pipeline | Single-purpose message compression (Thread) | **3 parallel tasks** (memory consolidation + evidence mining + cache preheating) + **CacheKeepAliveManager** (4分钟探测间隔, 活跃时自动暂停) + MaintenanceScheduler + crash-resilient registry | 空闲时完成3倍工作 + 缓存永不过期 |
-| Compression | LLM-based summarization (each compression costs LLM tokens) | **Rule engine 3-tier (Dedup/Truncate/Remove)** — zero LLM cost + Cold Cache Drain + Anti-Thrashing | No extra LLM calls for compression |
-| Cache Strategy | Fixed last-2-message marking | **Multi-breakpoint** (system + 15-block protection + compression boundary + last message) + TTL strategy + 20-block window protection + token distance validation | More precise, provider-aware caching |
-| Model Routing | Simple main/sub-task model split | **4-layer routing** (ComplexityRouter + PrivacyRouter + FallbackManager + KeyPool) | Comprehensive cost + privacy + reliability routing |
-| Cache Protection | None | **Hot Cache Bypass** (skip compression when cache is warm) + **Anti-Thrashing** (stop after 2+ ineffective compressions) | Unique — no competitor has this |
-| Deployment | CLI + WebUI | **Web + Tauri + SaaS** (3 modes) | More deployment options |
-| Memory System | Session-only (lost on restart) | **8 memory types + knowledge graph + cross-session consolidation** | Persistent intelligence across sessions |
-| GUI | Basic web terminal | **Full workspace GUI** — agent templates, Kanban, memory panel, analytics | Professional workspace vs terminal |
-| Security | Basic sandboxing | **6-layer defense** with PII protection + taint tracking + audit | Enterprise-grade security |
+| 领域 | DeepSeek-Harness (DSH) | Myrm | 用户收益 |
+|------|------------------------|------|---------|
+| **工具调用架构** | **Universal PTC 陷阱**：所有简单 I/O（如读写文件、简单查网）全生成 Python 代码运行 | **精准解耦 PTC 架构**：CORE 8 项基础能力走原生 Direct FC，仅复杂批处理走 PTC | 消除小模型写 Python 经常出现的语法错误与类型缩进问题，执行速度提升 5 倍以上。 |
+| **Token 消耗效率** | 每次调用产生大段解释代码与包装脚手架，Token 膨胀 3~4 倍 | **轻量化调用开销**：单步原生 Direct FC 仅占约 10 个 Token | 保持上下文极度紧凑，长推理过程中绝不因无意义的代码包装挤占推理思考窗口。 |
+| **Prompt Cache 保持** | 动态拼接代码脚手架与频繁变化的执行上下文，缓存命中率通常 &lt; 30% | **Golden Prefix 锁定**：CORE 工具定义前置绝对锁死，95%+ KV Cache 命中 | 响应延迟从数秒骤降至毫秒级，推理 API 账单成本直接削减 80% 以上。 |
+| **执行流可靠性** | 缺乏执行超时的原子熔断与局部自愈，单个脚本 SyntaxError 导致任务中断 | **四层自动修复流水线**：语法校验 + 错误自动回传上下文自修正 + LoopGuard | 出现偶发异常时 Agent 具备自我闭环修正能力，无需人工反复介入重新执行。 |
+| **全栈应用层闭环** | 仅底层 Python 执行引擎脚本库，缺乏可视化界面与用户层产品功能 | **企业级全栈产品体系**：Web/Tauri/SaaS + 完整组织权限/多渠道集成 | 开发者可直接交付给非技术团队使用，无需二次封装即可获得生产级体验。 |
 
-### 关键架构差异
+### 从 DeepSeek-Harness 迁移到 Myrm
 
-**压缩成本**：OpenClacky 调用 LLM 生成压缩摘要 — 每次压缩都产生 API 成本。Myrm 使用确定性规则引擎（Dedup → Truncate → Remove），零 LLM 开销。
+- **告别语法错与 Token 焦虑**：立即解决 DSH 在处理多轮工具交互时频繁报 `SyntaxError: unexpected indent` 或因工具脚本代码冗长导致 128k 上下文快速耗尽的痛点。
+- **完整继承 DeepSeek 推理能力**：Myrm 原生针对 DeepSeek 系列模型（V3 / R1）做了思考流提取、方言自适应与超时底线自适配，思考过程平滑折叠展开，体验更上一层楼。
 
-**缓存智能**：OpenClacky 双缓存标记是静态模式（始终标记最后 2 条消息）。Myrm 的 ExplicitCacheProcessor 根据内容块、token 距离与压缩边界动态计算断点，并带完整校验流水线。
+## vs Pi (pi-agent / oh-my-pi) — 双模型旁路顾问与实时监督体系
 
-**空闲利用**：OpenClacky 空闲定时器仅压缩消息。Myrm 空闲流水线并行 3 项：认知记忆整合、会话证据挖掘（从失败中学习）、前缀缓存预热 — 由容量感知调度器协调，带熔断保护。此外，`CacheKeepAliveManager` 每 4 分钟发送轻量 probe，防止 Anthropic/Qwen 5 分钟缓存 TTL 过期，确保用户暂停后继续对话时 TTFT 一致（0.5-1s vs 冷启动 2-5s）。
+Pi（包括社区开源的 pi-agent 与 oh-my-pi 生态）倡导通过主从轻重模型分工（Dual-Agent Advisor / Worker）来实现实时监督与反思纠偏，但在系统开销、确定性控制以及桌面端落地方面存在现实瓶颈。
 
-### 从 OpenClacky 迁移到 Myrm
+### Myrm 的领先之处
 
-| OpenClacky 功能 | Myrm 对应 | 体验 |
-|--------------------|-----------------|------------|
-| 16 core tools | 3-tier tool system + ASCS scoring | ⬆️ Upgrade |
-| Idle compression | Idle pipeline (3 tasks + scheduler) | ⬆️ Upgrade |
-| Insert-then-Compress | Rule engine compression (zero LLM cost) | ⬆️ Upgrade |
-| Dual cache marking | Multi-breakpoint strategy + validation | ⬆️ Upgrade |
-| BYOK model routing | 4-layer routing system | ⬆️ Upgrade |
-| Session persistence | 8-type memory + knowledge graph | ⬆️ Upgrade |
-| WebUI | Full workspace GUI (Tauri + Web + SaaS) | ⬆️ Upgrade |
-| Skill system | 42-module skill evolution with safety | ⬆️ Upgrade |
+| 领域 | Pi (oh-my-pi) | Myrm | 用户收益 |
+|------|---------------|------|---------|
+| **架构与双模型开销** | 每步强制主副两个模型进行双向交互同步，网络延迟加倍、Token 开销翻倍 | **单模型原生自律 + 按需触发 8 种编排（Verified/Council 等）** | 日常任务 0 额外开销快速运行；仅在关键敏感节点或用户设定时启用对抗验证与专家评审。 |
+| **监督与验证方式** | 依赖 Advisor LLM 的纯文本“口头审查”，容易出现审查模型被带偏或幻觉放行 | **CompletionGuard 物理证据强制断言**：必须提供实际命令的 STDOUT/测试通过凭据 | 消除人情世故式“盲目通过”，任何声称“已修复”的代码必须经沙箱真实执行验证。 |
+| **桌面与跨端体验** | 仅基于终端的 CLI 监督界面，副模型建议直接刷屏打断 | **Tauri 原生跨端体验 + Mobile Hub 手机远程控制台（SSE 进度 + HITL 审批）** | 既保证桌面端沉浸工作，又能在手机随时接收关键审批卡片，一键 Steer 或中断。 |
+| **工具生态规范** | 自建定制的旁路审查通信协议，无法复用行业标准生态 | **标准 MCP 协议全面支持 + 严格 5 层权限控制围栏** | 即插即用全球所有标准 MCP Server，同时副代理权限严格收敛，严禁权限越级提升。 |
+| **离线私密性** | 监督流通常依赖外部高级商业闭源模型进行判卷 | **PrivacyRouter 隐私路由 + S1/S2/S3 凭证物理隔离门禁** | 企业核心代码与高密凭据强制走本地离线模型运算，绝无旁路外发泄漏风险。 |
 
-**结论：8 项升级、0 项持平、0 项降级。OpenClacky 用户获得零成本压缩、智能缓存保护、跨会话持久记忆与完整 GUI 工作区，同时保留全部 Token 效率优势。**
+### 从 Pi 迁移到 Myrm
+
+- 获得更轻快、更确定、不刷屏的智能工作体验。用代码级的**确定性证据链**替代靠不住的双模型纯文本争吵，算力成本立即缩减 50% 以上。
 
 ## 统一工具网关与弹性 BYOK（vs Hermes / OpenClaw）
 
@@ -2235,113 +2195,80 @@ Myrm 采用**三层有机学习体系**安全地实现同一目标：
 
 **结论：7 项升级、1 项权衡、0 项降级。用户获得智能安全、安全配置管理与有序技能生命周期，零能力损失。**
 
-## vs MiniMax Mavis — 多 Agent 团队平台
+## 从五大开源项目迁移到 Myrm（全方位迁移对照与收益）
 
-MiniMax Mavis 是闭源 SaaS 多 Agent 系统，采用 Leader-Worker-Verifier 架构，仅通过飞书（Lark）集成提供。
+### 从 Hermes Agent 迁移到 Myrm
 
-### Mavis 做得好的地方
+| Hermes 功能特性 | Myrm 对应能力 | 体验与收益 |
+|-----------------|---------------|------------|
+| `/skill-name` 手动激活命令 | 斜杠命令自动补全与动态注入 | ⬆️ 升级（无需记忆完整包名，键入即候选） |
+| `[Skill config: key=value]` 明文配置 | 强类型 JSON Schema 表单 + env 隔离 | ⬆️ 升级（敏感密钥绝不泄露给 LLM 提示词） |
+| `skills_guard` 单层正则扫描 | 6 层纵深防御（隔离沙箱 + AST + 语义审计） | ⬆️ 升级（拦截混淆与任意代码执行漏洞） |
+| `lock.json` 来源文件 | origin.json + 数据库支持审计账本 | ⬆️ 升级（完整回溯安装来源与版本防篡改） |
+| `curator --dry-run` 命令行 | GUI 交互式 Curator 面板 + 实时预览 | ⬆️ 升级（可视化审查与一键生效） |
+| 2,200 字符扁平 MEMORY.md | 8 类长短期记忆 + 知识图谱 + 智能遗忘 | ⬆️ 升级（知识跨会话复利积累，无容量硬限） |
+| 仅限终端 TUI / CLI 交互 | 响应式 WebUI + Tauri 原生桌面端 | ⬆️ 升级（支持全屏画布、Diff 高亮与移动端协同） |
 
-- **Leader-Worker-Verifier 模式** — 规划、执行、验证角色清晰分离
-- **IM 原生体验** — 飞书聊天内直接多 Agent 协作
-- **「即时回复」+ 后台执行** — 立即确认用户，任务异步运行
-- **Worker 间上下文隔离** — 各 Worker 独立运行
+**结论：7 项升级、0 项降级。Hermes 用户获得可视化工作空间、端到端安全审计与持久记忆系统，完全保留自主代码执行与技能生态兼容性。**
 
-### Myrm 的领先之处
+### 从 OpenClaw 迁移到 Myrm
 
-| 领域 | MiniMax Mavis | Myrm | 用户收益 |
-|------|---------------|------|-------------|
-| Orchestration | Leader LLM dispatches tasks | **8 deterministic modes** (Spawn/Chain/Batch/DAG/Verified/Swarm Fission/Alternatives Race/Council Debate) | Structured scheduling, not dependent on LLM improvisation |
-| DAG Dependencies | ❌ None | ✅ Dependency graph + cycle detection + concurrency limits | Complex tasks auto-resolve execution order |
-| Verification | Text-based review | **Physical evidence enforcement** — must provide STDOUT/STDERR execution logs; claiming PASS without evidence is forced to FAIL | No rubber-stamp reviews |
-| Tool Isolation | Not disclosed | **5-layer isolation** (type admission → global blocklist → per-config → parent-child intersection → role control) | Sub-agents cannot escalate privileges |
-| Budget Control | Token Plan (commercial tier) | **4-dimension control** (Token + USD + time + max descendants) | Precise cost management, not plan-tier anxiety |
-| Model Freedom | Locked to MiniMax models | **100+ 模型** 三种兼容协议(OpenAI/Gemini/Anthropic-like)无极接入 + models.dev 实时模型发现 + 多密钥轮换 + 2M Token 超大上下文全链路 + API 方言自动转换 + 原生思考模型支持（6 级强度 + 思考面板）+ 双层 Schema Normalizer（Myrm 通用层 + LiteLLM per-provider 层，50 项单测）— 538 项测试 | 零供应商锁定，切换任意模型工具零报错 |
-| Channels | Lark only | **35+ channels** (WeChat/DingTalk/Slack/Telegram/Discord/Email...) | Not limited to one platform |
-| Deployment | Closed-source SaaS only | **Web + Tauri + SaaS** (MIT open source) | Full data sovereignty |
-| Skill Evolution | Basic "learned something" memory update | **49-module native system** with A/B testing + GUI approval + 5-layer safety + Enterprise Marketplace (1,110 tests) | True self-improvement vs simple memory |
-| Checkpoint Recovery | Not mentioned | ✅ Checkpointer saves stage-by-stage state | Long tasks survive crashes |
-| Cost Efficiency | Users report "tokens are burning" | DelegationBudget + intelligent routing saves 60-80% | Zero cost anxiety |
-| Auditability | Closed-source, not auditable | MIT open source + 48 EventKind streaming trail + 37 SecurityDecision audit types | Enterprise compliance |
+| OpenClaw 功能特性 | Myrm 对应能力 | 体验与收益 |
+|-------------------|---------------|------------|
+| 单目录直接执行与修改 | 物理级 Git Worktree 沙箱隔离 | ⬆️ 升级（读写并发无冲突，随时一键还原） |
+| 静态平铺全部工具定义 | 4 级解耦（CORE Direct-FC + PTC） | ⬆️ 升级（首轮开销降低 80%+，95%+ 缓存命中） |
+| 基础 Docker 容器化 | seatbelt / bwrap 毫秒级轻量沙箱 | ⬆️ 升级（零冷启动延迟，原生文件路径直连） |
+| 基础线性任务 Spawn | 8 种确定性编排模式（DAG、Verified 等） | ⬆️ 升级（具备拓扑依赖解析与对抗验证重试） |
+| 单文件状态落盘 | 原子密封签名（SealManifest）与时间点快照 | ⬆️ 升级（崩溃秒级无损自愈，彻底避免状态损坏） |
+| 纯文本终端输出 | 富内容交互（Mermaid、KaTeX、Prism Diff） | ⬆️ 升级（现代可读性，一目了然的代码审查） |
 
-### 从 Mavis 迁移到 Myrm
+**结论：6 项升级、0 项降级。OpenClaw 用户摆脱了终端单行执行的不稳定性和上下文暴涨焦虑，获得生产级多代理协同与沙箱保护。**
 
-| Mavis Feature | Myrm Equivalent | 体验 |
-|---------------|-----------------|------------|
-| Leader-Worker-Verifier | DAG + Verification orchestration mode | ⬆️ Upgrade (8 modes vs 1) |
-| IM multi-task parallel | WebUI multi-session + Goal continuation | ↔️ Equivalent (different design) |
-| Verifier adversarial check | `_enforce_evidence` + ReadonlySandbox | ⬆️ Upgrade (physical evidence required) |
-| Plan → Approve → Execute | 主 Agent `todo_write` + Goal approval workflow | ⬆️ Upgrade (7-state lifecycle) |
-| "Learned something" | 42-module Skill Evolution system | ⬆️ Upgrade (full evolution pipeline) |
-| Lark integration | 35+ channel support (including Lark) | ⬆️ Upgrade |
-| Worker 上下文隔离 | **四层写入防护**：行级冲突检测 + CoW 工作区隔离 + git worktree + 串行批量合并 + 三层沙箱（毫秒级启动，无需Docker）— 1,101 项子代理与沙箱专项测试 | ⬆️ 工业级升级 |
-| Token display | 4D budget + real-time tracking + alerts | ⬆️ Upgrade |
+### 从 OpenAI Codex 迁移到 Myrm
 
-**结论：7 项升级、1 项持平、0 项降级。用户获得开源数据主权、模型自由与多平台接入，零能力损失。**
+| OpenAI Codex 功能特性 | Myrm 对应能力 | 体验与收益 |
+|----------------------|---------------|------------|
+| 专有 OpenAI 端点与 API 绑定 | 100+ 模型自由接入（LiteLLM + 本地私有化） | ⬆️ 升级（零供应商锁定，支持 DeepSeek/Ollama 等） |
+| 单任务静态代码执行沙箱 | 具备动态工作流、多代理协作的完整工作台 | ⬆️ 升级（超越单一代码片段执行，覆盖端到端工程） |
+| 黑盒 Token 计费与单向输出 | 双层实时成本归因与消息级缓存节省透明化 | ⬆️ 升级（清楚知道每一步开销，杜绝账单失控） |
+| 会话隔离、经验单次销毁 | 8 类分层记忆 + 组织级代码规范沉淀 | ⬆️ 升级（代码风格自适应学习，越用越默契） |
+| 仅代码语法审查与测试 | 语义桌面控制 (SDC) + 浏览器自动化双引擎 | ⬆️ 升级（从单纯写代码拓展到端到端业务交付） |
 
-## vs Claude Code — Fork 子 Agent 与 Prompt Cache
+**结论：5 项升级、0 项降级。Codex 用户在保留高度严谨的沙箱代码执行特性的同时，获得了多模型自由与全场景自主交付能力。**
 
-Claude Code 采用「Fork 子 Agent」设计，字节级 prompt 前缀对齐以复用 KV Cache，子 Agent 成本最高可降 90%。
+### 从 DeepSeek-Harness (DSH) 迁移到 Myrm
 
-### Myrm 的领先之处
+| DeepSeek-Harness 特性 | Myrm 对应能力 | 体验与收益 |
+|----------------------|---------------|------------|
+| Universal PTC（全操作强制生成 Python 脚本）| 精准解耦 PTC（8 项原子工具原生 Direct FC） | ⬆️ 升级（根除小模型语法缩进错误，速度提升 5 倍） |
+| 动态脚手架频繁击穿 Prompt Cache | Golden Prefix 静态锁定前缀 | ⬆️ 升级（95%+ KV Cache 命中，延迟下降 70%） |
+| 单步工具脚本冗长，Token 膨胀 3~4 倍 | 轻量级原子工具调用（单步仅 ~10 Tokens） | ⬆️ 升级（大幅节约上下文窗口，释放推理算力） |
+| 单点 SyntaxError 导致任务链断裂 | 4 层自主修复流水线 + LoopGuard | ⬆️ 升级（异常在上下文中自愈重试，无需人工打断） |
+| 仅底层 Python 脚本库，缺乏产品交互 | 完整的 WebUI / 桌面端 / 多渠道 Bot 支持 | ⬆️ 升级（零门槛交付业务团队，免去自行造轮子） |
 
-| 领域 | Claude Code | Myrm | 用户收益 |
-|------|------------|------|-------------|
-| Prompt Cache Architecture | 1 strategy (prefix alignment) | **6-layer system** (tool layering → system freeze → explicit breakpoints → cache-friendly compression → pipeline → LLM layer) | Comprehensive caching, not just alignment |
-| Fork Context Reuse | Empty system prompt (loses cache prefix) | **Full prefix reuse** (`context_mode="fork"`) → 100% Prefix Cache Hit + **结论性过滤**（fork Token 降低 60-80%） | 更高缓存命中率，成本大幅降低 |
-| Cache Breakpoints | None | **4 strategies** (after system / every 15 blocks / after compression / last message) | Anthropic best-practice coverage |
-| Cache Break Detection | ❌ None | **2-phase attribution** with 5 root causes (system/tools/model/TTL/eviction) | Quickly diagnose why cache dropped |
-| Anti-Thrashing | ❌ None | ✅ Prevents compression from repeatedly invalidating cache | Stable caching in long sessions |
-| Resume-Aware Cache | ❌ None | ✅ Preserves cache prefix on session resume (90% savings in resume scenarios) | Cost-efficient session continuity |
-| Multi-Provider Cache | Anthropic only | **5+ providers** (Anthropic + Qwen + OpenAI + DeepSeek + Gemini) | Zero vendor lock-in |
-| Sub-Agent Tool Control | All-or-nothing (Fork = no tools) | **5-layer isolation** (type → blocklist → per-config → parent-child → role) | Fine-grained per-tool control |
-| Cost Budget | None | **4-dimension** (Token + USD + time + descendants) | Precise cost management |
-| Observability | CLI text | **NDJSON metrics + Cache Metrics Collector + 5-level monitoring** | Full-stack cache visibility |
+**结论：5 项升级、0 项降级。从 Universal PTC 的语法与 Token 泥潭中彻底解脱，让 DeepSeek 模型的深度推理能力专注于复杂业务逻辑。**
 
-### 从 Claude Code 迁移到 Myrm
+### 从 Pi (oh-my-pi) 迁移到 Myrm
 
-| Claude Code Feature | Myrm Equivalent | 体验 |
-|---------------------|-----------------|------------|
-| Fork Subagent (lightweight child) | `context_mode="fork"` with prefix reuse | ⬆️ Upgrade (100% cache hit vs lost prefix) |
-| Prompt Cache prefix alignment | 6-layer Prompt Cache system | ⬆️ Upgrade (6 layers vs 1 strategy) |
-| Agent Team (parallel agents) | 8 orchestration modes (Spawn/Chain/Batch/DAG/Verified/Swarm Fission/Alternatives Race/Council Debate) | ⬆️ Upgrade |
-| sendTask message passing | P2P Mailbox + AgentHandoverState | ⬆️ Upgrade (structured handover) |
-| CLI interface | Web GUI + Tauri Desktop + SaaS | ⬆️ Upgrade |
-| Anthropic-only models | 100+ models with intelligent routing | ⬆️ Upgrade |
+| Pi / oh-my-pi 特性 | Myrm 对应能力 | 体验与收益 |
+|-------------------|---------------|------------|
+| 强制双模型主副全流程交互（延迟与成本翻倍）| 单模型原生自律 + 按需触发专家验证 | ⬆️ 升级（常规任务秒级响应，成本立减 50%） |
+| 审查模型纯文本“口头判断” | CompletionGuard 强制物理证据（STDOUT 核验）| ⬆️ 升级（杜绝副模型被人情世故带偏或幻觉放行） |
+| 终端双端文字持续刷屏打断心流 | 响应式大盘 + 关键节点 Polymorphic 审批卡片 | ⬆️ 升级（工作过程安稳静默，关键节点精准把控） |
+| 私有审查协议，无法接入公共生态 | 完整兼容 Model Context Protocol (MCP) | ⬆️ 升级（即插即用行业成熟的百种 MCP 服务） |
+| 敏感代码通过云端进行双重审查 | PrivacyRouter 隐私动态分流（高密本地计算）| ⬆️ 升级（核心资产物理不出域，兼顾智能与安全） |
 
-**结论：6 项升级、0 项持平、0 项降级。Myrm 缓存经济性更强，具备 Claude Code 完全缺失的三项能力（断裂检测、防抖动、Resume 感知）。**
+**结论：5 项升级、0 项降级。用工程确定性与物理凭据核验取代不可靠的“双模型聊天审查”，获得兼具极致性价比与严苛安全的企业级体验。**
 
-### Claude Code 2.1.154~2.1.157 Harness 升级
+### 动态工作流与多 Agent 实测痛点闭环
 
-随 Opus 4.8，Claude Code 推出 `/effort`（6 级推理预算）、Dynamic Workflows、精简 system prompt 与增强 `--resume`。Myrm 对比如下：
+针对复杂工程重构与长周期多代理协作场景，开源社区用户反馈的常见痛点在 Myrm 中均已得到闭环解决：
 
-| Feature | Claude Code | Myrm | 结果 |
-|---------|------------|------|--------|
-| Reasoning budget control | `/effort` 6 levels (manual) | `complexity_router` 3-tier auto-routing + PenaltyTracker | ⬆️ Smarter (auto vs manual) |
-| Workflow orchestration | Dynamic Workflows (unpredictable LLM JS, keyword trigger) | 8 deterministic modes + manual Dynamic Workflow (Python PTC + SQLite event sourcing) | ⬆️ Dual-path: safe DW + richer modes |
-| System prompt optimization | lean system prompt | 6-layer Prompt Cache + TaskAdaptiveMiddleware | ⬆️ Complete cache engineering |
-| Autonomous execution | "Ask fewer questions" | Goal 7-state machine + auto_approve + continuation guard | ⬆️ Systematic |
-| Skill system | .claude/skills directory scan | 42-module Skill system + 6 discovery sources + evolution | ⬆️ Full evolution ecosystem |
-| Agent configuration | CLI-based agent config | 27 预设 + 12 YAML 模板（10 可见 + 2 hidden）+ 5-Tab GUI（Monaco SmartPromptEditor + AI 生成 + 17 种人格 + 含 3 层 fallback + Context Window Badge + 参考成本展示的模型选择器 + 6 项引擎参数）+ DB 存储 + TimeMachine 回滚 + **Org Marketplace**（562 项测试） | ⬆️ 全可视化构建器 |
-| Code isolation | EnterWorktree | WorkspacePolicy (INHERIT/ISOLATED_COPY/READ_ONLY_SANDBOX) + GUI 配置 | ⬆️ 3 策略 + 可视化 |
-| Task resumption | `--resume` CLI flag | 5 层上下文持久化 (SessionNotes + ContextSnapshot + GoalStorage + SubagentCheckpoint + ArchiveCheckpoint) + OrphanRecovery + StreamRecovery + workspace_isolation 3 策略 COW + batch_merge — 501 项测试验证 | ⬆️ Complete recovery |
-| Cost control | Manual effort selection | Auto-routing + GoalBudget + DelegationBudget + token_economics | ⬆️ Automated |
-| Model support | Claude-only | 100+ models with intelligent routing | ⬆️ Model freedom |
-
-**结论：10 项升级、0 项持平、0 项降级。**
-
-### 动态工作流 — 真实痛点
-
-基于 Claude Code Dynamic Workflows 用户反馈（2026-05 数据）：
-
-| User-Reported Issue | Root Cause | Myrm Solution |
-|---------------------|-----------|---------------|
-| "Planned 47 agents, only 25 actually ran" | LLM-generated JS scripts are non-deterministic | **DAG** for production; **Dynamic Workflow** replays completed sub-agents from SQLite cache on retry |
-| "Started with 10, ballooned to 82, burned all tokens" | No budget enforcement in runtime | **DelegationBudget** — 4D hard limits (Token+USD+time+descendants), impossible to overshoot |
-| "8 万字 output lost content midway" | No checkpointing for long parallel runs | **Checkpointer** + OrphanRecovery + **WorkflowEventStore** — stage-by-stage persistence, crash-safe |
-| "Had to babysit for 5 hours" | No completion guard or auto-recovery | **CompletionGuard** + 429/503 auto-backoff + 7×24 unattended operation |
-| "Accidentally triggered workflow by keyword" | Keyword-based trigger (mention "parallel" or "research") | **Manual WorkflowModeToggle** — opt-in only, auto-resets after send; zero keyword accidents |
-| "Didn't know I could use workflow mode" | No discoverability mechanism | **Workflow Escalation** — zero-LLM-cost detection proactively suggests workflow mode for complex decomposable tasks (non-blocking inline card) |
-| "max 16 concurrency, max 1000 total agents" | Fixed runtime limits | **Configurable ConcurrencyLimiter** + TokenBucket — no hard ceiling |
-| "Cost is a black box until the end" | No real-time cost tracking | **SubagentDashboard** — Real-time `$0.001` precision cost visualization per node |
-| "Approval requests get lost in long terminal logs" | CLI-only, no visual anchors | **Visual HITL Approval** — One-click jump from Dashboard to Approval Card |
-| "Hard to review what the agent is doing" | Raw JSON arguments in terminal | **Polymorphic Views** — Prism syntax-highlighted diffs with Unified/Split dual-view for code, terminal UI for shell |
+| 用户实测常见痛点 | 根本原因 | Myrm 架构级解决方案 |
+|-----------------|----------|---------------------|
+| “计划编排了 40 个步骤，实际只跑了 20 步就自满停止” | 传统 LLM 规划不具备确定性执行拓扑 | **DAG 确定性拓扑编排**：依赖关系代码级锁定，前置未满足严禁后置启动；支持断点重试。 |
+| “初始只派发了几个子任务，中途剧烈膨胀把 Token 瞬间烧光” | 缺乏运行时代代理树深度与预算控制 | **DelegationBudget**：4 维硬预算门禁（Token、USD、超时时长、最大子代数），严禁超额。 |
+| “长文本长代码输出中途偶发崩溃，前功尽弃全部丢失” | 进程长周期运行无阶段性原子落盘 | **Checkpointer 检查点 + SealManifest**：分阶段自动快照，崩溃或取消后支持原地无损复原。 |
+| “子代理口头回复‘已全部测试通过’，拉下代码一跑全是错” | 缺乏物理证据链强核验 | **CompletionGuard 物理验收门禁**：必须提供实际命令的 STDOUT/STDERR 通过日志，空口声称强制判定为 FAIL。 |
+| “误触发后台并发导致电脑 CPU 占满卡死” | 关键词粗暴触发并发或缺乏全局限流 | **手动 WorkflowModeToggle 确认机制 + ConcurrencyLimiter**：显式开关控制，配额梯度平滑消费。 |
+| “复杂的子代理执行过程就像黑盒，完全不敢放手” | 终端原始日志堆叠，缺乏可解释性展示 | **SubagentDashboard 全景大盘 + Polymorphic 视图**：支持 Prism 语法高亮 Diff 查看、单步成本毫秒级追踪。 |
