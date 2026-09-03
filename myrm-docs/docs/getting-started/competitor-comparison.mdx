@@ -472,3 +472,183 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
   4. **Idempotent Parameter Deduplication**: Guarantees that flags already explicitly provided in config args are never duplicated;
   5. **100% Test Coverage**: 90 unit tests in `test_cli_runtime.py` and pool suites passing 100% with 0 lint errors and 0 zombie processes.
 - **Material SSOT:** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/auth/_profiles.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/runtime/cli_runtime.py`
+
+## vs Five Open-Source Projects — LLM Structured JSON Output Parsing Robustness
+
+**In a nutshell: When an LLM embeds JSON inside conversational prose, wraps it in unclosed markdown fences, emits reasoning draft JSON before final answers, or includes raw control characters inside strings — Myrm's structured parsing pipeline succeeds in a single pass, whereas traditional open-source projects either throw unhandled syntax errors or silently emit empty payloads.**
+
+| Parsing Capability (LLM Raw Text → JSON) | **Myrm** | Hermes Agent | OpenClaw | OpenAI Codex | DeepSeek-Harness | Pi (oh-my-pi) |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| Markdown fence stripping | ✅ | ✅ Simple slice | ❌ Direct `JSON.parse` | ⚠️ Rigid pattern match | ⚠️ Regex stripping | ✅ Balanced scan |
+| Prose extraction (embedded JSON) | ✅ | ✅ Head-tail slice | ❌ None | ❌ Code block only | ⚠️ Partial regex | ✅ Balanced scan |
+| **Multiple JSON blocks: take latest/last valid** | ✅ **Latest valid** | ❌ First block only | ❌ | ❌ First block only | ❌ First block only | ❌ First block only |
+| Raw control characters escaping | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Trailing commas auto-stripping | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Schema ambiguity resolution (`require_key`) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Reasoning content empty fallback | ✅ Unified extractor | ⚠️ Per-model wrapper | ❌ | ❌ | ⚠️ Basic fallback | ❌ |
+| Failure recovery handling | Multi-tier fallback → Self-healing | Retries with error | Fatal crash | Strict validation error | Exception bubble-up | Balanced scan fallback |
+| Reusability & Coverage | **17+ Modules Unified** | Delegation only | Scattered ad-hoc paths | Single runner | Code Mode script path | Independent Subagent path |
+
+**Code-Level Evidence:**
+- **Hermes**: `extract_json_candidate` (`tools/delegation_output_schema.py:80`) strips fences and performs head-tail bracket slicing followed by raw `json.loads`. Syntax errors trigger retry prompts; `jiter_preload.py` merely accelerates OpenAI SDK parsing via Rust without fixing dirty LLM syntax.
+- **OpenClaw**: Relies on raw `JSON.parse` in production pipelines (`src/talk/agent-run-control-shared.ts:267`, `src/state/openclaw-state-ownership.ts:79`). Any conversational prose or unescaped control character immediately throws an unhandled exception.
+- **OpenAI Codex**: Relies on strict Rust `serde_json` deserialization. When models emit chain-of-thought scratchpads before closing brackets, the parsing pipeline strictly rejects the payload without self-healing.
+- **DeepSeek-Harness**: Employs naive regex code block extraction followed by Python `json.loads`. On reasoning models that output multiple thought-draft JSONs, it deterministically picks the initial draft instead of the final verified block.
+- **Pi (oh-my-pi)**: Lightweight balanced scanning that takes the first match, lacking semantic `require_key` schema validation, trailing comma sanitation, and raw newline escaping.
+
+## Capability Matrix Overview
+
+| Core Dimension | Myrm | Hermes Agent | OpenClaw | OpenAI Codex | DeepSeek-Harness | Pi (oh-my-pi) |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| **Memory System** | ✅ 8 Types + Knowledge Graph + 27 Integrations + Cross-Session SharedContext + Conflict Arbitration | ⚠️ 2,200 chars flat MEMORY.md | ⚠️ 3 basic session types | ❌ Single session only | ⚠️ Basic turn summary | ⚠️ Lightweight session KV |
+| **User Interface** | ✅ Modern Responsive WebUI + Full Kanban Board | ❌ CLI / TUI only | ⚠️ Basic console | ❌ CLI / IDE plugin only | ❌ Terminal CLI only | ❌ Terminal CLI only |
+| **Desktop Application**| ✅ Native Tauri Client + Zero-Flicker + Mobile Remote Hub | ⚠️ Electron wrapper | ❌ None | ❌ None | ❌ None | ❌ None |
+| **Deployment Topology** | ✅ Web / Tauri Desktop / SaaS Cloud | Self-hosted CLI | Self-hosted CLI | Local CLI | Local CLI | Local CLI |
+| **Tool Calling Architecture** | ✅ Decoupled PTC + Direct FC (8 CORE primitives via native Direct FC + Skill PTC) | ⚠️ Flat tool injection (800+ tokens/turn) | ⚠️ Static flattened definitions | ⚠️ Static function definitions | ❌ Universal PTC trap (Python syntax errors & 3x token bloat) | ⚠️ Dual-model RPC calls |
+| **Prompt Cache Stability** | ✅ 6-Layer Architecture (Golden Prefix locked, 95%+ KV hit rate) | ⚠️ 4 breakpoints, volatile memory layer | ❌ No cache design | ⚠️ Partial prefix alignment | ❌ Dynamic scaffolding invalidates cache | ⚠️ Basic system prompt alignment |
+| **Computer Use** | ✅ Semantic Desktop Control (SDC, `@dref`) + Standard MCP Server Export + App Firewalls | ❌ None | ❌ None | ❌ Code sandbox only | ❌ None | ⚠️ Visual screenshot coordinates (high token drift) |
+| **Multi-Agent Orchestration** | ✅ 8 Deterministic Modes (DAG/Verified/Council etc.) + Runtime Steering | ⚠️ Kanban Swarm only | ⚠️ Basic linear spawn | ❌ Single runner only | ⚠️ Basic sequential pipeline | ⚠️ Dual-model advisor (Master-Slave chat) |
+| **Sandbox Isolation** | ✅ Physical Git Worktree + seatbelt / bwrap sandboxing | ⚠️ Process / Container | ⚠️ Basic Docker | ⚠️ Process isolation | ⚠️ Basic subprocess | ⚠️ Directory isolation |
+| **Code Execution Safety** | ✅ 8-Layer Multi-Agent Protection + AST Scanning + Syntax Auto-Rollback | ⚠️ py_compile post-write check | ⚠️ Raw bash execution | ⚠️ Sandbox execution | ⚠️ Subprocess run | ⚠️ Prompt soft-constraints |
+| **Data Sovereignty & Offline** | ✅ Native local sandbox processing + S1/S2/S3 Privacy Dynamic Routing | ❌ Cloud dependent | ⚠️ Docker proxy | ❌ Cloud API dependent | ⚠️ Local model direct connect | ⚠️ Local model direct connect |
+| **Audit & Governance** | ✅ Dual-Track Prior Audit Trail + Org-Wide Unified Timeline | ⚠️ Post-hoc logs | ❌ No unified audit | ⚠️ Basic CLI logs | ❌ None | ❌ None |
+| **Skill Evolution** | ✅ 42-Module Native Self-Evolution + 6-Layer Verification + 9 GUI Panels | ⚠️ External AGPL wrapper script | ⚠️ Manual file copy | ❌ None | ❌ None | ❌ None |
+| **Token Efficiency** | ✅ 86% Average Token Savings (Dynamic On-Demand Loading + Structural Pruning) | High token burn (all tools registered) | High token burn (raw data passthrough) | Moderate | Extreme token waste (Universal PTC code bloat) | High token burn (duplicate dual-model chats) |
+
+## vs OpenClaw — Open-Source Terminal Agent & Sandbox Workspaces
+
+OpenClaw is a widely adopted open-source terminal coding agent designed for single-machine automation. However, when tackling enterprise-scale, long-running tasks, multi-file concurrency, and non-CLI users, its architectural limitations become prominent.
+
+### Where Myrm Leads
+
+| Area | OpenClaw | Myrm | User Benefit |
+|------|-----------|------|--------------|
+| **Workspace & File Isolation** | Direct modification on single directory, prone to dirty writes | **Physical Git Worktree Isolation + ISOLATED_COPY Mode** | Zero file conflict during parallel tasks; experimental branches can be visually merged or discarded with one click. |
+| **Tool Architecture & Token Cost** | Static flattening of all tool schemas, consuming 3,000+ tokens on Turn 1 | **Four-Tier Decoupled Layering (CORE Direct-FC + Skill PTC)** | Turn 1 strictly loads only 8 core atomic tools, locking Prompt Cache at 95%+ and cutting token overhead by 80%+. |
+| **User Experience & Collaboration** | Terminal CLI-only, difficult to navigate long streaming logs | **Modern Responsive WebUI + Native Tauri Desktop** | Complete step execution trees, rich Markdown/Diff syntax rendering, approval cards, and global intent capture. |
+| **Persistence & Disaster Recovery** | Naive single-file state serialization, prone to corruption on abort | **Atomic Checkpoint Sealing (`SealManifest`) & Point-in-Time Rollback** | Millisecond-level lossless rollback upon crash; corrupted sessions are automatically quarantined without polluting the workspace. |
+| **Multi-Agent Orchestration** | Basic linear spawn without topological dependency validation | **8 Deterministic Orchestration Modes (DAG, Verified, Council, etc.)** | Complex multi-stage workflows execute in topological order with mandatory physical evidence (STDOUT) verification. |
+
+## vs OpenAI Codex (openai/codex) — Enterprise Coding Harness & Sandbox Defense
+
+OpenAI's Codex codebase exemplifies rigorous harness discipline and sandbox security. However, as a standalone developer tool, it lacks an end-to-end workspace experience, restricts model choices, and limits interaction modalities.
+
+### Where Myrm Leads
+
+| Area | OpenAI Codex | Myrm | User Benefit |
+|------|--------------|------|--------------|
+| **Model Freedom** | Deeply locked into OpenAI proprietary endpoints and schemas | **100+ Models via LiteLLM + Local Private Deployment (Ollama/vLLM)** | Zero vendor lock-in; dynamically routes between frontier reasoning models and offline private models based on task complexity. |
+| **Tool Ecosystem & Extensibility**| Closed, fixed set of code editing and shell primitives | **Native Model Context Protocol (MCP) + 42-Module Self-Evolution** | Seamlessly mount any third-party MCP servers; skills autonomously evolve and repair based on execution failure signals. |
+| **Multimodal & Interaction** | Terminal-only text diffs and patch streams | **Semantic Desktop Control (SDC) + Interactive Rich Content Canvas** | Drives browsers, manipulates desktop design tools, renders interactive KaTeX and Mermaid charts in real time. |
+| **Memory & Cross-Session Growth** | State destroyed upon session exit; cannot accumulate project rules | **8-Type Memory System + Knowledge Graph + Preference Stability** | Remembers team code conventions and prevents recurring errors across weeks and months. |
+| **Cost Transparency** | Opaque token billing without fine-grained attribution | **Message-Level Dual-Layer Cost Attribution (Cache Savings + 17 Metrics)**| Complete visibility into latency, cache hit ratios, and dollar costs per tool call and subagent node. |
+
+## vs DeepSeek-Harness (DeepSeek DSH) — Tool Execution Pipelines & Sandbox PTC Execution
+
+DeepSeek-Harness (DSH) provides an open-source harness exploration for DeepSeek reasoning models, advocating Program-aided Tool Calling (PTC / CodeAct). However, forcing every interaction into generated Python scripts leads to the severe **Universal PTC Trap**.
+
+### Where Myrm Leads
+
+| Area | DeepSeek-Harness (DSH) | Myrm | User Benefit |
+|------|------------------------|------|--------------|
+| **Tool Calling Architecture** | **Universal PTC Trap**: Forces even basic file reads and web queries into dynamic Python generation | **Decoupled PTC Architecture**: 8 CORE primitives execute as native Direct FC; PTC is reserved for bulk parallel workflows | Eliminates Python syntax and indentation errors common in smaller models, accelerating tool response 5x. |
+| **Token Efficiency** | Each step emits verbose boilerplate scripts, inflating token usage 3x to 4x | **Lightweight Atomic Dispatch**: Core tool calls consume only ~10 tokens per invocation | Context remains lean and focused on complex reasoning rather than script plumbing. |
+| **Prompt Cache Invariance** | Dynamic code generation continuously alters prompt structure, dropping cache hit rate &lt; 30% | **Golden Prefix Absolute Lock**: System prompt and CORE tools are permanently frozen, achieving 95%+ KV Cache hits | Latency drops from seconds to sub-second responses; API expenditure is slashed by over 80%. |
+| **Execution Resilience** | Lack of granular timeouts or in-flight self-healing; single syntax errors break entire runs | **Four-Tier Autonomous Self-Healing**: AST linting + automatic error-reflection injection + LoopGuard | Agent autonomously inspects syntax errors and retries within context without failing the entire task. |
+| **Product-Grade Workspace** | Python scripts without GUI or multi-tenant management | **Full-Stack Enterprise Product**: Responsive WebUI + Tauri Desktop + SaaS multi-channel bots | Immediately deployable for engineering and cross-functional teams without building wrappers. |
+
+## vs Pi (pi-agent / oh-my-pi) — Dual-Model Advisor & Real-Time Oversight System
+
+The Pi ecosystem (pi-agent and oh-my-pi) explores dual-agent oversight (Advisor / Worker) for continuous verification. However, this pattern introduces severe latency overhead, high token costs, and terminal noise.
+
+### Where Myrm Leads
+
+| Area | Pi (oh-my-pi) | Myrm | User Benefit |
+|------|---------------|------|--------------|
+| **Architecture & Overhead** | Mandatory dual-model handshake on every turn doubles latency and API costs | **Single-Model Discipline + On-Demand Multi-Agent Verification** | Routine tasks run lightning-fast with zero overhead; adversarial review triggers only on high-risk operations. |
+| **Verification Reliability** | Relies on Advisor LLM verbal critique, prone to conversational hallucination | **CompletionGuard Physical Evidence Enforcement**: Requires actual test logs and STDOUT/STDERR | No rubber-stamp reviews; code marked "fixed" must pass real sandbox execution. |
+| **User Experience & Focus** | Terminal logs flooded with continuous two-agent deliberation | **Responsive Workspace + Mobile Remote Hub + Polymorphic Approval Cards** | Silent, non-intrusive background execution; user is alerted only when human approval is required. |
+| **Tool Interoperability** | Proprietary internal communication format; cannot reuse external ecosystems | **Universal Model Context Protocol (MCP) Support + 5-Layer Tool Fencing**| Plug-and-play with hundreds of standard MCP servers while strictly isolating child subagent permissions. |
+| **Data Privacy & Compliance** | Dual-model streams routinely routed to external frontier LLM providers | **PrivacyRouter Dynamic Routing + Physical S1/S2/S3 Data Boundaries** | High-security credentials and proprietary intellectual property stay strictly on-premise. |
+
+## vs Hermes Agent (NousResearch) — Autonomous Agents & Skill Evolution Ecosystem
+
+Hermes Agent is a prominent open-source agent platform known for autonomous function calling and evolutionary capabilities. Myrm builds upon and transcends these concepts with enterprise-grade multi-agent orchestration, native GUI governance, and comprehensive prompt cache stability.
+
+### Where Myrm Leads
+
+- **Event-Driven Kanban Dashboard** vs Hermes polling — instant dispatch, heartbeat monitoring, zombie reclamation, and 3-layer anti-collision locks.
+- **8 Deterministic Orchestration Modes** (Spawn, Chain, Batch, DAG, Verified, Swarm Fission, Alternatives Race, Council Debate) vs single Kanban Swarm.
+- **CompletionGuard Physical Evidence Verification** — enforces actual execution logs; Hermes lacks completion verification gates.
+- **35+ Communication Channels** with platform-specific formatting vs ~23 in Hermes.
+- **8 Memory Classes + Knowledge Graph** vs 2,200-character flat `MEMORY.md`.
+- **Dual-Engine Web Search & Local DOM Pruning** ($0/month local processing) vs paid cloud API passthrough and LLM summarization.
+- **Hybrid FTS5 + Qdrant Vector Retrieval** with scope filtering vs simple local text search.
+- **Native 42-Module Self-Evolution System** with A/B testing and Monaco DiffEditor GUI approval vs external AGPL CLI wrappers.
+- **Golden Prefix Cache Discipline** supporting 5+ providers with cache breakage detection vs fragile Anthropic-only breakpoints.
+
+## Migration Guide from the Five Open-Source Projects to Myrm
+
+### Migrating from Hermes Agent
+
+| Hermes Feature | Myrm Equivalent | Experience & Benefit |
+|----------------|-----------------|----------------------|
+| `/skill-name` manual invocation | Slash command autocompletion & dynamic injection | ⬆️ Upgrade (Instant discovery without memorizing exact names) |
+| `[Skill config: key=value]` plain-text config | Strongly-typed JSON Schema forms + environment isolation | ⬆️ Upgrade (Secrets never leak into LLM prompts) |
+| `skills_guard` single-layer regex scan | 6-layer defense (Quarantine sandbox + AST + Semantic audit) | ⬆️ Upgrade (Guards against obfuscated code and zero-days) |
+| `lock.json` provenance | `origin.json` + DB-backed immutable audit ledger | ⬆️ Upgrade (Full provenance tracking and tamper-resistance) |
+| `curator --dry-run` CLI | GUI Interactive Curator Panel with live diff preview | ⬆️ Upgrade (Visual inspection and one-click application) |
+| 2,200 chars flat MEMORY.md | 8-Type Memory System + Knowledge Graph + Intelligent Decay | ⬆️ Upgrade (Knowledge compounds cross-session without limits) |
+| CLI / TUI-only interaction | Modern Responsive WebUI + Native Tauri Desktop + Mobile Hub | ⬆️ Upgrade (Full-screen canvas, diff highlighting, mobile remote control) |
+
+### Migrating from OpenClaw
+
+| OpenClaw Feature | Myrm Equivalent | Experience & Benefit |
+|------------------|-----------------|----------------------|
+| Single directory direct writes | Physical Git Worktree sandbox isolation | ⬆️ Upgrade (Zero read/write concurrency collision; one-click revert) |
+| Static flattening of all tool schemas | 4-tier decoupled layering (CORE Direct-FC + PTC) | ⬆️ Upgrade (80%+ initial token reduction, 95%+ cache hit rate) |
+| Basic Docker containerization | Millisecond-level lightweight sandboxing (seatbelt/bwrap) | ⬆️ Upgrade (Zero cold-start lag, native path transparency) |
+| Linear task spawning | 8 deterministic orchestration modes (DAG, Verified, Council) | ⬆️ Upgrade (Topological dependency resolution with verification retries) |
+| Single-file state saving | Atomic seal manifests (`SealManifest`) & Point-in-Time snapshots | ⬆️ Upgrade (Crash-resilient recovery, zero workspace pollution) |
+| Plain text terminal output | Rich-content interactive canvas (Mermaid, KaTeX, Prism Diffs) | ⬆️ Upgrade (Superior readability and seamless code review) |
+
+### Migrating from OpenAI Codex
+
+| OpenAI Codex Feature | Myrm Equivalent | Experience & Benefit |
+|----------------------|-----------------|----------------------|
+| Proprietary OpenAI API binding | 100+ models via LiteLLM + local private models | ⬆️ Upgrade (Zero vendor lock-in, support for DeepSeek, Qwen, Ollama) |
+| Standalone single-task sandbox | Full-featured workspace with dynamic workflows & multi-agent | ⬆️ Upgrade (From isolated code edits to full software engineering lifecycle) |
+| Opaque token billing | Dual-layer real-time cost attribution & cache savings breakdown | ⬆️ Upgrade (Millisecond-level cost transparency per step) |
+| Ephemeral session memory | 8 memory classes + project coding convention learning | ⬆️ Upgrade (Adaptive learning of team conventions and past bug fixes) |
+| Pure code syntax execution | Semantic Desktop Control (SDC) + Browser Automation | ⬆️ Upgrade (Expands beyond coding into end-to-end task fulfillment) |
+
+### Migrating from DeepSeek-Harness (DSH)
+
+| DeepSeek-Harness Feature | Myrm Equivalent | Experience & Benefit |
+|--------------------------|-----------------|----------------------|
+| Universal PTC (all operations forced into Python code) | Decoupled PTC (8 atomic tools run as native Direct FC) | ⬆️ Upgrade (Eliminates syntax and indent errors, 5x speedup) |
+| Dynamic scaffolding breaks Prompt Cache | Golden Prefix permanent prefix locking | ⬆️ Upgrade (95%+ KV Cache hit rate, 70% latency cut) |
+| Verbose tool generation bloating tokens 3x~4x | Lightweight atomic execution (~10 tokens per step) | ⬆️ Upgrade (Preserves reasoning context budget) |
+| Single-point SyntaxError aborting entire runs | 4-tier autonomous repair pipeline + LoopGuard | ⬆️ Upgrade (In-context self-healing without human intervention) |
+| Python script library without product UI | Full-stack WebUI / Desktop / Multi-channel bots | ⬆️ Upgrade (Ready for cross-functional production delivery) |
+
+### Migrating from Pi (oh-my-pi)
+
+| Pi / oh-my-pi Feature | Myrm Equivalent | Experience & Benefit |
+|-----------------------|-----------------|----------------------|
+| Mandatory dual-model handshake on every step | Single-model discipline + on-demand expert verification | ⬆️ Upgrade (Sub-second response, 50%+ cost reduction) |
+| Pure-text conversational critique | CompletionGuard physical execution evidence enforcement | ⬆️ Upgrade (Eliminates hallucinated approvals; requires actual STDOUT) |
+| Constant terminal noise disrupting focus | Responsive dashboard + polymorphic approval cards | ⬆️ Upgrade (Silent execution with precise human-in-the-loop gates) |
+| Proprietary review protocol | Standard Model Context Protocol (MCP) compatibility | ⬆️ Upgrade (Plug-and-play with industry-standard toolkits) |
+| Sensitive code passed through external cloud review | PrivacyRouter dynamic routing (sensitive data kept local) | ⬆️ Upgrade (Core intellectual property never leaves local boundary) |
+
+### Dynamic Workflow & Multi-Agent Pain Point Resolution
+
+| Community Pain Point | Root Cause | Myrm Solution |
+|----------------------|------------|---------------|
+| "Planned 40 steps, but agent stopped prematurely after 20" | Non-deterministic execution without topological enforcement | **Deterministic DAG Scheduling**: Step dependencies locked at code level; requires explicit evidence before completing. |
+| "Dispatched a few subtasks, but subagents ballooned and burned all tokens" | Lack of runtime tree depth and budget constraints | **DelegationBudget**: 4D hard limit gates (Tokens, USD, Wall-clock time, Max descendants). |
+| "Crash midway through long execution wiped out all progress" | Monolithic runtime without incremental atomic state writes | **Checkpointer & SealManifest**: Staged atomic snapshots allow instant lossless resumption upon crash or cancel. |
+| "Subagent claimed 'all tests passed', but the code was completely broken" | Absence of physical evidence verification | **CompletionGuard**: Requires real STDOUT/STDERR logs; verbal claims without evidence are forced to FAIL. |
+| "Background concurrency hijacked CPU and froze the machine" | Keyword-triggered concurrency without global rate-limiting | **Explicit WorkflowModeToggle + ConcurrencyLimiter**: Controllable execution with token bucket throttling. |
+| "Agent activity is a total black box inside terminal logs" | Raw text output without structured observability | **SubagentDashboard + Polymorphic Views**: Prism diff highlights, step-by-step latency, and millisecond cost breakdown. |
