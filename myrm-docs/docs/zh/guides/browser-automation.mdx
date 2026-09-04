@@ -1064,6 +1064,14 @@ Myrm 将浏览器管理关注点分离到最合适的位置，而非塞入单一
 
 **2026-07-14 验证**：388 项浏览器测试分 8 批运行全通过，0 失败。
 
+## 三轨操作决策树与富文本探针写入（Browser Automation SOP）
+
+面对现代 Web 应用中 Canvas 画布与现代富文本编辑器（飞书文档、Google Docs、Notion、Figma 等）DOM 节点缺失、常规输入假写入等行业通病，Myrm 内置官方级工业规程：
+
+1. **三轨决策树**：自动识别 Standard DOM（原生 refs 交互）、Visual Coordinate（视口坐标 `interact_at`）与 Script-First Batch（声明式同页表单批处理）三条路径；
+2. **Write Probe 写入探测与 Clear & Replace 规程**：坐标点击聚焦后，通过真实物理按键（keydown/press）探测光标激活态，利用 `Control+a` + `Backspace` 彻底清空默认占位符，结合 `verify_goal` 视觉目标进行前后闭环验证，从根本上杜绝“假输入”和文字静默丢失；
+3. **2FA / MFA / 登录墙安全接管（HITL）**：严禁模型盲猜或暴力破解密码，遇到短信验证码、滑块验证码或企业 SSO 认证时，即刻发起安全接管，由人类在 WebUI `BrowserLiveView` 中快速处理后无缝继续。
+
 ## Web Vitals 洞察 — 页面真实加载速度一览
 
 问你的智能体「这个页面快吗？」，它会基于真实浏览器遥测给出确凿答案，而不是靠猜。
