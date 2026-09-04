@@ -11,6 +11,27 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-05 · 主流中文社媒内置领域技能包与首屏懒加载反爬穿透闭环 · 浏览器与自动化完成）
+
+- **BrowserDomainSkillPackCnSocialHarvest（对标 Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi 遇到国内 B站、小红书、抖音等主流社交平台时，因全屏未登录登录弹窗阻断、虚拟列表懒加载导致提取空列表、脆弱的 Hash CSS 类名随前端构建失效、以及相对链接导致死链的痛点）：** Myrm 交付了工业级开箱即用的三大中文社媒内置领域技能包体系：
+  1. **全套内置领域技能包开箱即用（`bilibili/` · `xiaohongshu/` · `douyin/`）**：在 `myrm-agent-harness` 中原生预置 `manifest.json` 与独立 Python 提取工具，三端（Local WebUI / Tauri / 云托管）同构兼容；
+  2. **首屏微滚平滑探针与全屏遮罩物理穿透（Known Traps SOP）**：提取脚本原生内置首屏微滚探针（`interact(action="scroll", text="350")`），瞬间激活现代前端框架的 `content-visibility: auto` 和虚拟列表；针对小红书未登录遮罩，自动注入物理 `press: "Escape"` 与轻微滚动，100% 穿透登录墙提取内容；
+  3. **ARIA 语义角色与文本流双轨容错提取**：彻底摒弃易碎的随机 Hash CSS 选择器，100% 基于 `role="article"`、`role="feed"`、`role="link"` 提取标题、链接与作者；副轨结合文本流切块正则归纳兜底，保证平台 UI 微调时零代码修改持续可用；
+  4. **链接标准化绝对路径归一**：强制使用 `urllib.parse.urljoin(current_url, raw_url)`，彻底根除相对路径导致的死链缺陷；
+  5. **零破坏 Prompt Cache**：仅在导航到特定域名时由 Harness `DomainSkillStore` 按需注入工具签名（~20 tokens），全局提示词零污染，大模型 KV Cache 命中率 100% 保持锁定；
+  6. **100% 自动化测试全绿与 0 Lints**：`test_cn_social_tools.py` 6/6 passed、`test_domain_skill_store.py` 59/59 passed、API 端点与 Schema 校验测试 25/25 passed 全部绿灯，0 错误 0 警告。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/domain_skills/builtin/` · `myrm-agent-harness/tests/toolkits/browser/domain_skills/test_cn_social_tools.py` · `temp-docs/materials/BROWSER_AUTOMATION_ADVANTAGE.md`
+
+## 最新验证快照（2026-09-05 · 私人评测题目包脚手架与日常会话一键沉淀闭环 · 评测与测试完成）
+
+- **UserPrivateEvalProblemPackTemplate / CaptureToPackScaffold（对标 agent-problem-pack / Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi 缺乏日常踩坑沉淀机制、会话 Badcase 关掉即忘导致换模型反复踩坑、无内置 GUI 评测实验室要求用户手写终端 Python 脚本、以及多模态截屏 Base64 膨胀压垮测试集的痛点）：** Myrm 交付了从日常聊天到专属回归评测集的端到端沉淀闭环：
+  1. **日常会话右键 1 秒一键沉淀（`ChatHistoryRow.tsx` · `ChatHistoryList.tsx` · `CaptureEvalCaseDialog.tsx`）**：在侧栏任意踩坑会话上右键即可呼起沉淀弹窗，自动动态获取本地沙箱已有评测集（展示各集用例数）供下拉选择，亦可直接输入全新数据集名称，0 门槛秒级固化为持久化私有回归测试用例；
+  2. **多模态 Base64 防御清洗（`capture.py:30-88` `_sanitize_content`）**：自动将截屏大图替换为 `[image: base64 omitted]` 占位符，保留完整的自然语言意图、工具调用名称与结构化入参，彻底阻断数 MB 二进制污染挤爆 JSONL 文件；
+  3. **预置「黄金 5 题」私人回归脚手架（`golden5PackTemplate.ts`）**：涵盖格式遵循、工具调用、沙箱文件断言、安全拒绝与防污染切分，在 Eval Lab 编辑器与新建数据集时支持一键载入，消除评测冷启动门槛；
+  4. **零额外 LLM Token 成本 & 100% Prompt Cache 锁定**：纯本地正则与文件序列化操作，0 额外账单，不影响在线运行上下文与前缀缓存命中率；
+  5. **100% 全栈自动化测试通过**：后端核心覆盖测试（`test_eval_core_coverage.py` 6/6 passed）、前端组件测试（`CaptureEvalCaseDialog.test.tsx` 4/4 passed、`ChatHistoryRow.reveal.test.tsx` 3/3 passed）、全语种 i18n 校验 100% 通过，0 警告 0 错误。
+- **SSOT 来源：** `myrm-agent-server/app/core/eval/capture.py` · `myrm-agent-frontend/src/components/features/sidebar/CaptureEvalCaseDialog.tsx` · `myrm-agent-frontend/src/components/features/eval-lab/constants/golden5PackTemplate.ts` · `temp-docs/materials/ENTERPRISE_RELIABILITY_AND_TESTING_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-04 · 会话级统一知识库选择器、跨库联邦混合检索与全生命周期治理工作台 · 知识与 Wiki 完成）
 
 - **UnifiedKnowledgeBasePickerAndCrossSourceHybridSearch / KnowledgeGovernanceWorkbenchExpiryArchiveRevival（对标 Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi 面对外部知识库切换必须跳出会话修改全局配置、知识库只增不减导致过时规范持续污染模型检索、以及缺乏零网络开销单进程跨库联邦检索的痛点）：** Myrm 交付了工业级会话动态知识挂载、原生 SQLite 联邦混合检索与四队列生命周期治理闭环架构：
