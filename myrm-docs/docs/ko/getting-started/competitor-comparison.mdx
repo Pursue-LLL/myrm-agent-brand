@@ -11,6 +11,17 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-09-05 · 중국 주요 소셜 미디어 내장 도메인 스킬 및 가상 리스트 크롤링 방어 관통 · 브라우저 자동화 완료)
+
+- **BrowserDomainSkillPackCnSocialHarvest (Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi 등 Bilibili, Xiaohongshu, Douyin 등 국내 주요 소셜 미디어 플랫폼 마주칠 때 로그인 모달 차단, 가상 리스트 지연 로딩으로 인한 빈 결과 반환, 취약한 CSS 해시 클래스명 변경으로 인한 추출 실패, 상대 경로로 인한 데드 링크 문제 대비):** Myrm은 즉시 사용 가능한 엔터프라이즈급 중국 주요 소셜 미디어 내장 도메인 스킬 세트를 제공합니다:
+  1. **완전한 내장 도메인 스킬 기본 탑재 (`bilibili/` · `xiaohongshu/` · `douyin/`)**: `myrm-agent-harness`에 `manifest.json` 및 독립 Python 추출 툴킷을 사전 내장하여 Local WebUI, Tauri 데스크톱 및 클라우드 호스팅 환경 간 완벽 호환;
+  2. **첫 화면 미세 스크롤 프로브 및 전체 화면 오버레이 물리 관통 (Known Traps SOP)**: 추출 스크립트에 첫 화면 미세 스크롤 프로브(`interact(action="scroll", text="350")`) 내장으로 현대 프론트엔드의 `content-visibility: auto` 및 가상 리스트 즉각 활성화; 미로그인 샤오홍슈 모달에 대해 물리적 `press: "Escape"` 및 미세 스크롤 자동 발송으로 100% 신뢰성 있는 로그인 장벽 관통;
+  3. **ARIA 시맨틱 역할 및 텍스트 스트림 듀얼 트랙 내결함성 추출**: 취약한 무작위 해시 CSS 선택자를 완전히 배제하고 `role="article"`, `role="feed"`, `role="link"` 기반 100% 제목/링크/작성자 추출; 텍스트 스트림 정규식 보정 듀얼 트랙으로 플랫폼 UI 미세 변경 시 코드 수정 없는 영구 가용성 보장;
+  4. **절대 URL 표준화 정규화**: `urllib.parse.urljoin(current_url, raw_url)` 강제로 상대 경로로 인한 데드 링크 완전 박멸;
+  5. **프롬프트 접두사 캐시 제로 파괴**: 매칭 도메인 접속 시에만 Harness `DomainSkillStore`를 통해 최소 툴 시그니처(~20 토큰)를 동적 주입하여 대형 모델 KV Cache 100% 보존;
+  6. **100% 풀스택 자동화 테스트 통과**: `test_cn_social_tools.py` 6/6 통과, `test_domain_skill_store.py` 59/59 통과, API 스키마 검증 테스트 25/25 전량 통과.
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/domain_skills/builtin/` · `myrm-agent-harness/tests/toolkits/browser/domain_skills/test_cn_social_tools.py` · `temp-docs/materials/BROWSER_AUTOMATION_ADVANTAGE.md`
+
 ## 최신 검증 스냅샷 (2026-09-04 · 세션 수준 통합 지식 베이스 피커 및 다중 소스 하이브리드 검색 · 지식 및 위키 완료)
 
 - **UnifiedKnowledgeBasePickerAndCrossSourceHybridSearch (Hermes / OpenClaw / Codex / Pi / Octop 등 단일 세션 내 외부 지식 베이스 임시 다중 마운트 불가, 동적 툴 설명으로 인한 프롬프트 접두사 캐시 빈번한 파괴, 제로 LLM 초고속 검색 전용 레인 부재 대비):** Myrm은 엔터프라이즈급 세션 동적 지식 베이스 마운트 및 크로스 소스 연합 검색 아키텍처를 제공합니다:

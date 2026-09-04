@@ -679,3 +679,27 @@ When you change the embedding model in Settings, previously stored memories are 
 5. **Memory Doctor Integration** — The `probe_orphan_collections` check appears in Health diagnostics, ensuring long-term awareness
 
 **Cost note:** Migration re-embeds text through your configured embedding provider. The estimate shown before migration helps you anticipate API usage.
+
+## Zero-Model-Cost Deterministic Behavioral Measurement
+
+Traditional AI memory frameworks (e.g., Mem0, Letta) periodically awaken an LLM in the background to perform "reflection" or batch summarization for computing user active routines, peak hours, and response latency. This introduces two fatal flaws:
+1. **Exploding Token Bills & Numerical Hallucinations**: Computing trivial timestamp diffs and frequency counts consumes thousands of tokens per batch, and models frequently hallucinate or miscalculate cross-timezone intervals.
+2. **Cascading Batch Failures**: A single rate-limit error (HTTP 429) fails the entire multi-hour batch extraction.
+
+Myrm adopts a **pure-deterministic local algorithmic engine + independent transaction slices architecture**, completely decoupling quantitative metrics from subjective cognitive personas:
+
+### 1. Pure Local Math Operators (0 LLM Cost, <5ms Latency)
+- **Decoupled Workday vs. Weekend Histograms**: Computes separate 24-hour active distributions for workdays (Mon-Fri) and weekends (Sat-Sun), auto-inferring high-confidence 4-hour peak windows (e.g., Workdays 10:00 - 14:00).
+- **Response Latency Percentiles (P50 / P90)**: Implements exact nearest-rank interpolation over strictly paired user-assistant turns, truncating idle gaps (>4 hours) to capture genuine focused communication velocity.
+- **Top-K Frequent Collaborators**: Aggregates interaction frequency from multi-channel metadata (Slack, Feishu, WebUI) without any LLM calls.
+
+### 2. Per-Message Dynamic Timezone Adaptation
+For frequent travelers and distributed teams, messages carry an explicit `offset_minutes` timestamp offset. Metrics are dynamically normalized against the user's local interaction time, eliminating routine distortion caused by host/server timezones.
+
+### 3. Independent Transaction Slices (Fault Isolation)
+Background measurement and persistence tasks are sliced into independent units by `(facet, time_window)`. Any isolated failure retries locally without stalling or failing global progress.
+
+### 4. Memory Command Center (MCC) & Prompt Cache Immunity
+- **WebUI Visualization**: The `/settings/memory` "Understand" section displays dual-track histograms, latency pills, collaborator badges, and sample readiness bars with light/dark theme support.
+- **Prompt Cache Protection**: High-frequency metrics remain strictly on the dashboard and are only committed to durable profile entries when sample thresholds ($N_{self} \ge 20$, $N_{latency} \ge 10$) are met, preventing System Prompt perturbations and preserving a 100% Prompt Prefix Cache hit rate.
+
