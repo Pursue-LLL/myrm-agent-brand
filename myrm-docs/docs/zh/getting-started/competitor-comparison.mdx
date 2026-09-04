@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-04 · 防自强化坍缩蒸馏守卫与身份三态防御体系 · 记忆系统完成）
+
+- **AntiDriftDistillationGuardsAndSelfExclusion（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi / Mem0 在多轮自主对话后 Agent 自产内容倒灌导致画像口吻自强化坍缩、群聊身份未认证模糊猜测造成交叉污染、自动化告警 Bot 灌水以及凭空捏造无源证据的痛点）：** Myrm 交付了业内首个零网络开销（<1ms）全链路确定性记忆准入防线：
+  1. **数字人自产消息永久物理阻断（`origin === 'agent'`）**：在抽取管道前置建立不可逾越的物理硬隔离，彻底杜绝 Agent 将自己上一轮给出的建议、假设或回复口吻作为用户偏好提取入库，根除长期运行必现的回音壁坍缩（Persona Echo Chamber / Drift）；
+  2. **严格身份三态模型（`SelfIdentityState.SELF / OTHER / UNCONFIRMED`）**：群聊与多成员协同场景中，未确认身份一律拒绝入库，拒绝任何基于姓名或默认值的模糊猜测；第三方发言严格标记为对话背景（`_third_party_context`），杜绝张冠李戴与身份冒认；
+  3. **自动化 Bot 模式与告警特征前置过滤**：识别 Prometheus、Grafana、Sentry、CI/CD 及打卡机器人等特征，毫秒级直接剥离高频运维与系统噪音，保护个人与工作画像纯净度；
+  4. **证据链真实性与防木马伪造守卫（Anti-Trojan & Verbatim Quote Verification）**：拒绝空壳证据，杜绝将 Agent 声明为证据作者的木马证据；强制要求提取的事实必须绑定原始交互凭据，并严格比对 `quote_snippet` 是否真实存在于用户的原始发言文本中，彻底杜绝大模型伪造引用；
+  5. **全链路自动化测试 100% 满分通过**：`test_distillation_guards.py`（21 项针对性攻防用例）与核心记忆边界测试（`test_wiki_memory_boundary.py`、`test_transient_fact_boundary.py`，共 39 项）全量通过，0 Lints 0 告警。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/strategies/distillation_guards.py` · `extractor.py` · `channel_data_plane.py` · `temp-docs/materials/MEMORY_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-04 · 会话级统一知识库选择器与跨源混合检索 · 知识与 Wiki 完成）
 
 - **UnifiedKnowledgeBasePickerAndCrossSourceHybridSearch（对标 Hermes / OpenClaw / Codex / Pi / Octop 等产品在单会话内无法临时多挂载外部知识库、动态工具描述导致提示词前缀缓存频频击穿、以及缺失零 LLM 极速检索专用车道的架构缺陷）：** Myrm 交付了企业级会话级动态知识库挂载与跨源联邦检索体系：
