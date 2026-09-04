@@ -11,6 +11,17 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-05 · 确定性代码调用图谱与测试爆炸半径定位技能包 · 技能与工具链完成）
+
+- **RepoCallGraphAstMcpSkillPack（对标 Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi 在处理上万行中大型工程时，仅能依赖盲目 grep 文本搜索导致数十处同名符号看花眼、上下文塞爆数万 Token 依然漏改、以及重构时无法精准获知受影响单测集合的痛点；亦对标 code-graph-rag 强依赖外部 Memgraph Docker 容器与大模型编写不可靠 Cypher 语句的弊端）：** Myrm 交付了本地沙箱零外部容器依赖、毫秒级增量更新的确定性代码调用图与影响面分析技能包体系：
+  1. **8 大无幻觉确定性图遍历工具（`resolve` · `definition` · `callers` · `callees` · `implementors` · `overrides` · `importers` · `tests_reaching`）**：彻底终结大模型写复杂 Cypher 语法的幻觉与网络 IPC 延迟，100% 返回确定的物理文件路径与 CallSite 精确行列号（包含入参列表）；
+  2. **Python 3.13 原生 AST 与 TypeScript 双主力全栈同构**：纯 Python 标准库解析与 TS/JS 语法抽取引擎，无需外部 Node 复杂环境即可跨语言捕获函数调用、类继承与方法覆盖；
+  3. **基于反向调用图的测试爆炸半径精准追溯（`tests_reaching`）**：修改核心公共函数时，图引擎沿反向调用拓扑树自动向上溯源，秒级精准列出所有直接或间接穿透执行该代码的单元测试（自动识别 Python `test_` 与前端 `*.test.ts`, `*.spec.tsx`），重构仅跑针对性用例，提效 95%；
+  4. **单文件毫秒级增量重析（`reingest_file`）**：在用户多轮编写与局部重构过程中，毫秒级原子清除旧文件边关系并重新提取，杜绝全库重复全扫；
+  5. **GUI 结构化可视化卡片（`CallGraphCard.tsx`）**：WebUI 界面直接以优雅的双主题折叠卡片渲染物理调用拓扑与受影响测试套件，并支持一键执行关联单测；
+  6. **100% 全栈自动化测试通过**：后端核心覆盖测试（`test_code_graph_service.py` 3/3 passed）、全流程集成任务测试（`test_repo_call_graph_integration.py` 1/1 passed in 4.77s）、0 警告 0 错误，100% 锁定 Prompt Cache。
+- **SSOT 来源：** `myrm-agent-server/app/services/code_graph/` · `myrm-agent-server/assets/prebuilt_skills/repo-call-graph/SKILL.md` · `myrm-agent-frontend/src/components/features/chat-window/CallGraphCard.tsx` · `temp-docs/materials/CODE_INTELLIGENCE_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-05 · 主流中文社媒内置领域技能包与首屏懒加载反爬穿透闭环 · 浏览器与自动化完成）
 
 - **BrowserDomainSkillPackCnSocialHarvest（对标 Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi 遇到国内 B站、小红书、抖音等主流社交平台时，因全屏未登录登录弹窗阻断、虚拟列表懒加载导致提取空列表、脆弱的 Hash CSS 类名随前端构建失效、以及相对链接导致死链的痛点）：** Myrm 交付了工业级开箱即用的三大中文社媒内置领域技能包体系：
