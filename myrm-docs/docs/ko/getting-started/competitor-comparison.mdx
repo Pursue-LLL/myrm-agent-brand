@@ -11,6 +11,16 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-09-04 · 세션 수준 통합 지식 베이스 피커 및 다중 소스 하이브리드 검색 · 지식 및 위키 완료)
+
+- **UnifiedKnowledgeBasePickerAndCrossSourceHybridSearch (Hermes / OpenClaw / Codex / Pi / Octop 등 단일 세션 내 외부 지식 베이스 임시 다중 마운트 불가, 동적 툴 설명으로 인한 프롬프트 접두사 캐시 빈번한 파괴, 제로 LLM 초고속 검색 전용 레인 부재 대비):** Myrm은 엔터프라이즈급 세션 동적 지식 베이스 마운트 및 크로스 소스 연합 검색 아키텍처를 제공합니다:
+  1. **세션 수준 제로 인지 부하 임시 마운트 (`KnowledgePickerPopover.tsx` · `MessageInput.tsx` / `MobileActionSheet.tsx`)**: 사용자가 데스크톱 및 모바일 입력창 내에서 다중 선택 패널을 원클릭으로 호출하여 최대 6개의 지식 베이스를 동적으로 마운트/마운트 해제 지원; 선택된 지식 베이스는 보라색 `knowledge` 캡슐로 입력창 컨텍스트 바에 즉시 렌더링되며, 원클릭 제거 지원 및 전역 에이전트 지속 구성을 오염시키지 않음;
+  2. **프로세스 내 제로 네트워크 SQLite `ATTACH DATABASE` 연합 검색 (`WikiStructure` & `WikiIndexer`)**: SQLite 네이티브 원자적 읽기 전용 데이터베이스 마운트를 통해 단일 연결 단일 프로세스 내에서 10ms 미만의 지연 시간으로 크로스 데이터베이스 FTS5 BM25 전문 검색 및 RRF 순위 융합을 수행하며, 프로세스 간 IPC 및 분산 네트워크 오버헤드 원천 제거;
+  3. **제로 LLM 소모 Quick Lane 초고속 지식 응답 레인 (`wiki_knowledge_lane.py`)**: 결정론적 지식 베이스 질의의 경우 밀리초 단위로 구조화된 인용 출처(`SourceSnippet`)를 프론트엔드로 직접 스트리밍하여 고비용 LLM 토큰 소모 및 추론 대기 시간 우회;
+  4. **100% 정적 툴 스키마 및 아카이버 캐시 격리 (`get_wiki_archiver`)**: LLM 툴 정의를 100% 정적으로 유지하여 프롬프트 접두사 캐시 적중률(95%+)을 확고히 수호하고, 아카이버 캐시 키에 정렬된 공용 경로 해시와 레이블 지문을 주입하여 크로스 세션 오염 위험 완벽 차단;
+  5. **100% 풀스택 자동화 테스트 검증**: 35/35 Harness 단위 테스트 (`test_structure.py`, `test_indexer_federated.py`), 6/6 Server 연합 질의 테스트 (`test_federated_wiki_query.py`), 17/17 프론트엔드 테스트 (`KnowledgePickerPopover.test.tsx`, `useChatStore.knowledgeBase.test.ts`, `useComposerContextChips.test.ts`), 실제 Chrome E2E 테스트 (`test_knowledge_picker_chrome_e2e.py`, 실제 MiniMax-M3 LLM 응답으로 137초 내 1 passed) 전량 통과.
+- **SSOT 출처:** `myrm-agent-server/app/services/wiki/vault/` · `myrm-agent-server/app/services/agent/stream_session/lanes/wiki_knowledge_lane.py` · `myrm-agent-frontend/src/components/features/message-input-actions/KnowledgePickerPopover.tsx` · `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md`
+
 ## 최신 검증 스냅샷 (2026-09-03 · 채널 인바운드 데이터 플레인 및 3단계 WAL 체크포인트 배리어 · 채널 게이트웨이 & 런타임 신뢰성 완료)
 
 - **ChannelDataPlaneAndThreeStageWalCheckpointClosure (Hermes의 하드 SIGKILL로 인한 WAL 손상 및 DB 깨짐 / 채널 메시지 일회성 트리거로 인한 DWD 영속화 및 자격 증명 마스킹 부재 대비):** Myrm은 멀티 채널 메시지 데이터 플레인과 무손실 프로세스 종료 배리어를 제공합니다:

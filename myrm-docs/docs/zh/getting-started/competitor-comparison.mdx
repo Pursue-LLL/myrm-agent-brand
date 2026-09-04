@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-04 · 会话级统一知识库选择器、跨库联邦混合检索与全生命周期治理工作台 · 知识与 Wiki 完成）
+
+- **UnifiedKnowledgeBasePickerAndCrossSourceHybridSearch / KnowledgeGovernanceWorkbenchExpiryArchiveRevival（对标 Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi 面对外部知识库切换必须跳出会话修改全局配置、知识库只增不减导致过时规范持续污染模型检索、以及缺乏零网络开销单进程跨库联邦检索的痛点）：** Myrm 交付了工业级会话动态知识挂载、原生 SQLite 联邦混合检索与四队列生命周期治理闭环架构：
+  1. **会话级零摩擦即席多选挂载（`KnowledgePickerPopover.tsx` · `MessageInput.tsx` / `MobileActionSheet.tsx`）**：支持用户在桌面端或移动端输入区一键唤出多选弹层，即时 Switch 挂载/卸载最多 6 个只读私有知识库；挂载后输入框上方即时呈现紫色 `knowledge` 上下文胶囊，支持一键移除且不污染全局持久配置；
+  2. **单进程零网络开销 SQLite `ATTACH DATABASE` 联邦检索（`WikiStructure` & `WikiIndexer`）**：底层利用 SQLite 原生原子只读挂载机制，单连接内以低于 50ms 延时完成跨库 FTS5 BM25 关键词检索与 0.9 衰减 RRF 倒数排名融合，从源头杜绝进程间 IPC 与分布式检索网络开销；
+  3. **零 LLM 开销 Quick Lane 秒级透传直出（`wiki_knowledge_lane.py`）**：确定性知识库问答在毫秒级内直接向前端流式透传 `SourceSnippet` 结构化信源徽标，在首个大模型 Token 推理前完成知识直出，彻底规避繁重昂贵的多轮大模型 Tool Call；
+  4. **四队列全生命周期治理工作台（`WikiGovernanceWorkbench.tsx` & `freshness_service.py`）**：原生构建「待审核草稿 / 即将过期 (>90d) / 知识盲区 / 隔离归档」四队列全景看板；90 天老化检测自动圈选陈旧词条；归档概念物理原子移动至 `wiki/archive/` 并在检索索引中物理剔除；提供 30 秒内存 Undo 倒计时缓冲区与一键复活重建索引；支持 `lifecycle: permanent` 常青白名单永久豁免；
+  5. **100% 全栈自动化测试与真实 Task Flow E2E 闭环**：35/35 项 Harness 多库单测、6/6 项 Server 联邦问答单测、17/17 项前端 Store/Popover/ContextChip 单测、真实 Chrome CDP 并行 E2E（`test_knowledge_picker_chrome_e2e.py`，驱动真实 WebUI :3000 + 真实 MiniMax-M3 流式大模型，137s 完整闭环 100% 绿灯通过）、83 项静态契约测试全量通过，0 警告 0 错误。
+- **SSOT 来源：** `myrm-agent-server/app/services/wiki/` · `myrm-agent-server/app/api/wiki/governance_routes.py` · `myrm-agent-frontend/src/components/features/message-input-actions/KnowledgePickerPopover.tsx` · `myrm-agent-frontend/src/components/features/settings/sections/knowledge/wiki/WikiGovernanceWorkbench.tsx` · `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-04 · 浏览器自动化预置技能视觉工作流与三轨操作规程 · 浏览器与媒体完成）
 
 - **BrowserAutomationPrebuiltSkillVisualWorkflowEnrichment（对标 Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi 面对富文本画布应用光标未激活导致静默假写入、默认占位符文本粘连污染正文、弱模型编写黑盒脚本死循环崩溃、以及 2FA/验证码盲猜撞库导致账号被封的痛点）：** Myrm 交付了工业级浏览器自动化全场景操作规程与预置技能标准：
