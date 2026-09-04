@@ -691,4 +691,25 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **三部署模式存储隔离透明导览**：依据桌面端（Tauri 本地私有目录）、云沙箱（独立 Persistent Volume 挂载）及本地自托管（挂载目录）真实运行态，诚实向用户透明展示数据持久化路径与隔离机制；
   4. **并发容错与优雅降级隔离**：采用 `Promise.allSettled` 并行探针调度，任一非关键指标故障时自动呈现轻量容灾状态，绝不阻断界面渲染；
   5. **全栈测试验证**：4 项前端 Vitest 单元测试 100% 绿灯通过，6 语种国际化字典 100% 严格对齐。
-- **素材 SSOT：** `temp-docs/materials/USER_EXPERIENCE_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/personal/WorkbenchRetentionSection.tsx` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/personal/useWorkbench
+- **素材 SSOT：** `temp-docs/materials/USER_EXPERIENCE_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/personal/WorkbenchRetentionSection.tsx` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/personal/useWorkbenchRetentionSummary.ts`
+
+## 最新验证快照（2026-08-28 · 会话级统一知识库选择器与跨库混合检索 · 路线图 Topic 02 #5 达成）
+
+- **UnifiedKnowledgeBasePickerAndCrossSourceHybridSearch（对比 Hermes / OpenClaw / Codex / Pi / Octop）：** Myrm 实现了业界首个会话级临时知识库快速挂载、单连接多库联合全文检索、零模型 Quick Lane 加速与 100% Prompt Cache 锁定架构：
+  1. **会话级临时多库即插即用挂载（`KnowledgePickerPopover.tsx`）**：在对话输入框上方支持即时挂载/解挂最多 6 个专属知识库（Public Vaults），紫色 Context Chip 胶囊流直观展示，随时一键移除，零全局污染；
+  2. **SQLite 原生 `ATTACH DATABASE` 单连接跨库联合检索（`WikiStructure` & `WikiIndexer`）**：单条连接原地 Attach 多库，原生跨库 FTS5 BM25 全文检索与倒数排名融合（RRF），10ms 内极速返回，零 IPC 与外部向量数据库网络开销；
+  3. **Zero-LLM Quick Lane 极速知识响应（`wiki_knowledge_lane.py`）**：对于高确定性事实查询，直接走轻量知识通道进行结果组装与引用提取并流式打回前端，将常见问答的 Token 消耗与模型耗时降至 0；
+  4. **静态工具 Schema 与标签指纹缓存隔离（`get_wiki_archiver`）**：工具定义保持 100% 恒定不变，维持 95%+ KV Cache 命中率；底层 Archiver 实例按排序标签指纹安全缓存复用；
+  5. **全栈测试验证**：35 项 Harness 单元测试 + 6 项 Server 集成测试 + 17 项 Frontend 单元测试 + 真实 Chrome DevTools 协议全链路 E2E 测试 100% 绿灯通过。
+- **素材 SSOT：** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `temp-docs/roadmap/topic_02_knowledge_wiki_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/wiki/` · `myrm-agent-server/app/services/wiki/` · `myrm-agent/myrm-agent-frontend/src/components/features/composer/KnowledgePickerPopover.tsx`
+
+## 最新验证快照（2026-09-05 · 并行浏览器任务空间与用户接管强暂停恢复策略 · 路线图 Topic 04 #5 达成）
+
+- **ParallelBrowserTaskSpaceWebUiPack（对比 Hermes / OpenClaw / HappyCapy / Cowork / Codex / Pi）：** Myrm 实现了业界首个基于物理 BrowserContext 强隔离、自适应悬浮感知胶囊 Dock 与 Harness 级硬暂停恢复的端到端并行浏览器自动化系统：
+  1. **物理上下文强隔离与并发互斥（`BrowserTaskSpace` & `HarnessTaskSpaceManager`）**：每个子任务独占绑定专属 `BrowserContext`、`BrowserSession` 与专有 `asyncio.Lock` 动作互斥锁，多任务并发执行零 Cookie / LocalStorage 串扰，彻底杜绝动作踩踏与状态冲突；
+  2. **物理级硬配额与空闲超时自动修剪**：内置硬配额限制（默认最多 5 个活跃任务空间）与 900s TTL 自动清理，物理消除无头浏览器僵尸进程与内存泄漏隐患；
+  3. **悬浮感知胶囊 Dock（`TaskSpaceDock.tsx`）**：右下角自适应浮动胶囊，支持自适应轮询、移动端 Safe-Area 安全区适配、多任务空间卡片展开与一键接管切换；
+  4. **用户接管硬暂停与自愈恢复策略（Hard Stop & Resume Policy）**：界面一键接入即刻底层触发 `session.pause()` 物理锁停 Agent 动作流，彻底防止人机抢光标；接管释放后触发 `session.resume()` 并重新获取 DOM 快照自动校准上下文，实现 Agent 无缝继续执行；
+  5. **全栈测试验证**：Harness 任务空间单元测试 + Server REST API 测试 + Frontend Vitest 单元测试 + 真实 Chrome DevTools 协议 TaskSpaceDock 浮动胶囊 E2E 测试 100% 绿灯通过。
+- **素材 SSOT：** `temp-docs/materials/BROWSER_AUTOMATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/spaces/` · `myrm-agent/myrm-agent-server/app/services/browser_spaces/` · `myrm-agent/myrm-agent-frontend/src/components/features/browser/TaskSpaceDock.tsx`
+

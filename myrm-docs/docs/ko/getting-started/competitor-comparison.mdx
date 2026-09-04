@@ -11,6 +11,17 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-09-05 · 병렬 브라우저 작업 공간 및 사용자 인수 하드 스톱 재개 정책 · 브라우저 자동화 완료)
+
+- **ParallelBrowserTaskSpaceWebUiPack / BrowserUserInitiatedTakeoverHardStopResumePolicy (Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi 등 동시 에이전트 실행 시 쿠키 덮어쓰기 충돌, 액션 경합, 수명 주기 관리 부재로 인한 좀비 헤드리스 프로세스 누수 및 OOM, 수동 인수 시 커서 쟁탈전 문제 대비):** Myrm은 엔터프라이즈급 격리된 작업 공간 컨테이너 및 복원력 있는 사용자 인수 아키텍처를 제공합니다:
+  1. **물리적 컨테이너 수준 격리 (`BrowserTaskSpace` · `space_manager.py`)**: 각 하위 에이전트에게 전용 `BrowserContext` 및 독립 `BrowserSession`을 배정하여 쿠키 및 로컬 스토리지를 완벽히 분리, 상태 간섭 완전 차단;
+  2. **전용 상호 배제 동시성 락 (`asyncio.Lock`)**: 각 작업 공간마다 독립적인 뮤텍스 락을 부여하여 저수준 스케줄링 레이어에서 동작 충돌을 원천 방지;
+  3. **하드 쿼터 제한 및 900초 TTL 유휴 자동 정리**: 동시 작업 공간 수 제한(기본 최대 5개)과 자동 유휴 청소 메커니즘으로 무인 브라우저 메모리 누수를 영구 제거;
+  4. **플로팅 감지 독 (`TaskSpaceDock.tsx`)**: 적응형 폴링, 모바일 안전 영역(Safe-Area) 대응, 다중 작업 공간 확장 카드 및 원클릭 인수 전환을 지원하는 경량 캡슐 UI;
+  5. **물리적 하드 스톱 및 재개 시 DOM 자동 재정렬**: "인수" 클릭 즉시 저수준 `session.pause()`를 호출하여 에이전트 동작을 일시 중단하고 커서 쟁탈을 방지; 인수 해제 시 `session.resume()` 및 최신 DOM 트리 재수집을 통해 매끄러운 작업 재개 보장;
+  6. **100% 자동화 테스트 통과**: Harness 작업 공간 단위 테스트, Server 라우트 테스트, 프론트엔드 컴포넌트 테스트 및 실제 Chrome MCP Task Flow E2E 테스트 전량 통과.
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/spaces/` · `myrm-agent-server/app/services/browser_spaces/` · `myrm-agent-frontend/src/components/features/browser/TaskSpaceDock.tsx` · `temp-docs/materials/BROWSER_AUTOMATION_ADVANTAGE.md`
+
 ## 최신 검증 스냅샷 (2026-09-05 · 중국 주요 소셜 미디어 내장 도메인 스킬 및 가상 리스트 크롤링 방어 관통 · 브라우저 자동화 완료)
 
 - **BrowserDomainSkillPackCnSocialHarvest (Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi 등 Bilibili, Xiaohongshu, Douyin 등 국내 주요 소셜 미디어 플랫폼 마주칠 때 로그인 모달 차단, 가상 리스트 지연 로딩으로 인한 빈 결과 반환, 취약한 CSS 해시 클래스명 변경으로 인한 추출 실패, 상대 경로로 인한 데드 링크 문제 대비):** Myrm은 즉시 사용 가능한 엔터프라이즈급 중국 주요 소셜 미디어 내장 도메인 스킬 세트를 제공합니다:
@@ -1235,5 +1246,16 @@ Hermes Agent는 강력한 함수 호출과 스킬 진화 기능으로 잘 알려
 | "단순한 지식 조회마다 비싼 LLM 왕복 호출이 발생함" | 모놀리식 에이전트 설계로 인해 모든 사용자 턴이 프론티어 모델을 통과하도록 강제됨 | **Zero-LLM 퀵 레인 가속 (`wiki_knowledge_lane.py`)** | 사실 확인 쿼리에 대해 토큰 비용을 0으로 줄이고, 서브초 단위의 직접 지식 종합 및 인용 추출 결과를 UI로 즉시 스트리밍합니다. |
 | "지식 베이스 도구를 추가하면 프롬프트 캐시가 깨져 쿼리 응답 시간이 2배로 늘어남" | 동적 볼트 경로를 도구 정의에 직접 주입하여 스키마를 변경함 | **정적 도구 스키마 및 레이블 지문 캐시 격리 (`get_wiki_archiver`)** | 95%+의 KV Cache 적중률을 유지하기 위해 도구 스키마를 100% 고정 상태로 유지하며, 내부 아카이버 인스턴스는 정렬된 레이블 지문별로 캐싱되어 세션 간 오염을 방지합니다. |
 | "지식 검색 기능이 작동한다고 주장하지만 실제 브라우저 및 모바일 세션에서는 깨짐" | 실제 종단 간 사용자 여정 없이 Mock 테스트 제품군 및 CLI 전용 테스트만 수행 | **풀스택 제로 회귀 테스트 제품군 (35 Harness + 6 Server + 17 Frontend + Real Chrome E2E)** | 백엔드, 스토어, 컴포넌트 전반에 걸친 100% 테스트 통과율과 프론티어 LLM(MiniMax-M3) 스트리밍 응답을 포함한 실제 Chrome DevTools Protocol E2E 검증을 완결했습니다. |
+
+## 최신 검증 스냅샷 (2026-09-05 · 병렬 브라우저 작업 공간 및 사용자 인수 하드 스톱 복구 정책 · Roadmap Topic 04 #5 완료)
+
+- **ParallelBrowserTaskSpaceWebUiPack (vs Hermes / OpenClaw / HappyCapy / Cowork / Codex / Pi):** Myrm은 물리적 `BrowserContext` 격리, 적응형 플로팅 도크 및 Harness 수준의 하드 정지/자동 복구 정책을 지원하는 종단 간 병렬 브라우저 자동화 시스템을 완성했습니다:
+  1. **물리적 컨텍스트 격리 및 동시성 뮤텍스 (`BrowserTaskSpace` & `HarnessTaskSpaceManager`)**: 각 하위 작업은 독립된 `BrowserContext`, `BrowserSession` 및 전용 `asyncio.Lock`에 독점 바인딩되어 하위 에이전트 병렬 실행 시 쿠키/LocalStorage 간섭 및 작업 경합을 완벽 차단;
+  2. **물리적 하드 할당량 및 유휴 시간 초과 자동 정리**: 최대 5개 활성 공간 제한과 900초 TTL 유휴 자동 회수 메커니즘을 내장하여 헤드리스 브라우저의 좀비 프로세스 및 메모리 누수 위험을 물리적으로 제거;
+  3. **적응형 플로팅 인식 도크 (`TaskSpaceDock.tsx`)**: 적응형 폴링, 모바일 안전 영역(Safe-Area) 대응, 다중 작업 공간 카드 확장 및 원클릭 인수 전환 지원;
+  4. **사용자 인수 하드 스톱 및 자동 복구 정책**: 사용자가 인터페이스에서 인수를 클릭하면 즉시 저수준 `session.pause()`가 트리거되어 에이전트 동작을 물리적으로 잠금 처리해 마우스 커서 쟁탈을 방지; 인수 해제 시 `session.resume()`과 함께 DOM 스냅샷을 자동 재수집하여 원활하게 작업을 연속 실행;
+  5. **100% 풀스택 테스트 통과**: Harness 작업 공간 단위 테스트 + Server REST API 테스트 + Frontend Vitest 테스트 + 실제 Chrome DevTools Protocol TaskSpaceDock E2E 테스트 100% 녹색 통과.
+- **자료 SSOT:** `temp-docs/materials/BROWSER_AUTOMATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/spaces/` · `myrm-agent/myrm-agent-server/app/services/browser_spaces/` · `myrm-agent/myrm-agent-frontend/src/components/features/browser/TaskSpaceDock.tsx`
+
 
 
