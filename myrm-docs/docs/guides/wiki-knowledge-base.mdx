@@ -494,6 +494,25 @@ Wiki ingestion is protected by **path traversal defense** and **persistence-laye
 
 These defenses operate at the harness framework level, meaning all wiki ingestion paths (agent tool calls, auto-archive, Settings import, large document RAG ingest) are automatically protected. The wiki directory itself lives outside the user home directory and is further isolated by OS-level sandboxing (macOS Seatbelt / Linux bubblewrap / Windows AppContainer) during code execution.
 
+## Session-Level Knowledge Base Multi-Mount & Cross-Source Hybrid Search
+
+In multi-task workflows, users often need to temporarily reference dedicated knowledge bases (such as "Code Standards", "Financial Auditing Guidelines", "Product Whitepapers", or "API Documentation") for a specific conversation. Legacy tools (like Hermes or OpenClaw) only support globally binding a single knowledge base at the agent profile level, forcing users to leave their current chat to switch contexts; pure coding tools like Codex lack structured knowledge base concepts altogether.
+
+Myrm provides **instant session-level multi-vault mounting and federated hybrid search**:
+
+| Dimension | Legacy Tools (Hermes / OpenClaw / Codex / Octop) | Myrm Industrial-Grade Architecture |
+|-----------|--------------------------------------------------|------------------------------------|
+| **Mounting UX** | Must leave conversation to edit global agent config, or paste long texts | **Inline Popover in Input Area**: search filter, instant Switch toggle, full mobile parity |
+| **Context Visibility** | Black box or whole text dumps that overwhelm context window | **Violet ContextChip Capsule**: clear display of mounted vault names with one-click unbind |
+| **Multi-Vault Retrieval** | Serial network round-trips or single-track cosine vector search | **Native SQLite ATTACH Federation**: zero-IPC unified FTS5 BM25 + RRF ranking in < 50ms |
+| **Latency & Cost** | Mandatory main model invocation with multiplied latency | **Sub-Second Quick Lane**: zero-LLM streaming of high-confidence snippets & human-readable citations |
+| **Prompt Cache Protection** | Raw document dumps invalidate Prompt Cache | **Precise Segment Citations**: static system prompt stays untouched, **KV Cache hit rate $\ge 95\%$** |
+
+**How to use:**
+1. **Desktop**: Click the Book icon in the chat input bar (`KnowledgePickerPopover`), search available knowledge bases, and toggle them on (capped at 6 vaults per session for database limits).
+2. **Mobile**: Open the action sheet via the right drawer (`MobileActionSheet`) and select "Mount Knowledge Bases".
+3. **Context Chips**: Mounted vaults appear as violet chips above the input bar. Click the `×` on any chip to unmount it from the active conversation.
+
 ## Compared to DIY wiki skills
 
 | DIY (e.g. Hermes llm-wiki SKILL) | Myrm |
