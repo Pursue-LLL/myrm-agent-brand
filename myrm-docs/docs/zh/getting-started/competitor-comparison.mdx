@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-04 · 限时 Scoped 提权与自动收回门禁 · 安全治理完成）
+
+- **TimeBoundScopedPermissionGrantAutoRevokeGate（对标 Hermes / OpenClaw / Claude Code / Codex / DeepSeek-Harness / Pi 强行二选一单次审批或永久放行导致严重审批疲劳、特权蔓延与残留后门漏洞的痛点）：** Myrm 交付了工业级限时细粒度授权与自动物理收回门禁架构：
+  1. **结构化授权时效阶梯（`AllowAlwaysDuration` · `session`、`15m`、`1h`、`permanent`）**：在单项审批卡与多态审批卡（`SingleApprovalCard.tsx`、`AllowAlwaysConfirmDialog.tsx`、`EditModeView.tsx`）中完整提供可预测的时限选项，从根源杜绝批处理操作下的频繁打扰；
+  2. **Harness 与数据库双层原子惰性自动收回（`AllowlistEntry.expires_at`）**：底层白名单缓存与 Server 数据库模型（`UserToolAllowlist`）直接支持时间戳衰减；在 `check()` 校验与 `load()` 反序列化时自动物理剪除过期权限，无需任何常驻定时任务轮询打扰系统性能；
+  3. **高危操作防呆告警与永久授权熔断**：当操作匹配高危 Shell 正则或关键敏感目录时，自动阻断或弹出强二次警示，杜绝给破坏性命令赋予永久特权；
+  4. **已生效临时权限可视化管理与一键撤销（`AllowlistSection.tsx`）**：在系统设置面板清晰呈现时限徽章（如“限时 · 1h”）与精确到期时间戳，并支持随时一键手动吊销；
+  5. **100% 全自动化测试矩阵**：Harness 安全测试 12 项（`test_approval_flow.py`）、中间件生命周期测试 1 项（`test_approval_edge_cases.py`）、Server API 测试 9 项（`test_allowlist_api.py`）、前端 Vitest 测试 11 项（`AllowlistSection.test.tsx`）及真实 Chrome E2E 测试全量通过，0 错误 0 警告。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/security/approval_flow.py` · `app/database/models/security.py` · `AllowAlwaysConfirmDialog.tsx` · `AllowlistSection.tsx` · `temp-docs/materials/SKILL_PERMISSION_SECURITY_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-04 · 超长截图自适应切片与无损分段转写 · 媒体与多模态完成）
 
 - **VisionToolkitCompletionSet / LongScreenshotAdaptiveSlicing（对标 Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi 遇到超长截图粗暴等比压缩至 2048px 导致横向文字模糊成马赛克彻底无法阅读、以及 DSH 外部暴力暴露 10 个独立工具造成系统提示词膨胀 4000 Tokens 击穿 Prompt Cache 的痛点）：** Myrm 交付了零工具暴露、透明自适应的超长图保真解析体系：
