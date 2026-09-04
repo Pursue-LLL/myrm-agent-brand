@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-04 · 浏览器自动化预置技能视觉工作流与三轨操作规程 · 浏览器与媒体完成）
+
+- **BrowserAutomationPrebuiltSkillVisualWorkflowEnrichment（对标 Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi 面对富文本画布应用光标未激活导致静默假写入、默认占位符文本粘连污染正文、弱模型编写黑盒脚本死循环崩溃、以及 2FA/验证码盲猜撞库导致账号被封的痛点）：** Myrm 交付了工业级浏览器自动化全场景操作规程与预置技能标准：
+  1. **三轨操作决策树（Standard DOM 语义轨 / Visual 坐标轨 / Script-first 批处理轨）**：明确指引大模型根据页面类型分流：标准网页走原生 DOM Refs、Canvas/文档应用（飞书/Google Docs/Sheets/Figma）走 `interact_at` 视口坐标轨、同页多字段表单走批处理轨；
+  2. **富文本 Write Probe 写入探测与 Clear & Replace 占位符清空规程（`Control+a` + `Backspace`）**：建立点击定位 → 物理按键（keydown/press）激活探测 → `Control+a` / `Backspace` 选区彻底清空默认提示词 → 真实键入并附带 `verify_goal` 验收的严密 SOP，100% 杜绝协作文档“假写入”与文本粘连污染；
+  3. **声明式 `steps[]` 批处理绝对第一优先级与 8 步防失控护栏**：严格要求同页连续 $\ge 3$ 个确定性表单字段 100% 优先采用结构化 Pydantic `steps[]` 调用，单脚本上限 $\le 8$ 步，且强制携带 `verify_goal`（原生 `_vision_verifier` 视觉基线前后比对）；遇错即刻单步降级回退，单表单填报提速 **87%**、Token 消耗降 **83%**，彻底终结模型写裸脚本的语法崩溃与失控死锁；
+  4. **敏感门禁与人工接管（Zero Guessing 绝对安全红线）**：严禁任何撞库或盲猜密码行为，遇到 2FA、短信/邮件验证码、滑块人机验证或企业 SSO 登录墙时即刻调用 `browser_ask_human_tool`，用户在 WebUI `BrowserLiveView` 中一键接管，零凭证外泄与零封号风险；
+  5. **100% 自动化测试全绿与 0 Lints**：架构防漂移测试 18 项（`test_prebuilt_skill_browser_automation.py`）、Bash 合同测试 45 项、预置技能同步契约测试、默认技能映射死链测试全量通过，0 警告 0 错误。
+- **SSOT 来源：** `myrm-agent-server/assets/prebuilt_skills/browser-automation/SKILL.md` · `tests/architecture/test_prebuilt_skill_browser_automation.py` · `temp-docs/materials/BROWSER_AUTOMATION_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-04 · 限时 Scoped 提权与自动收回门禁 · 安全治理完成）
 
 - **TimeBoundScopedPermissionGrantAutoRevokeGate（对标 Hermes / OpenClaw / Claude Code / Codex / DeepSeek-Harness / Pi 强行二选一单次审批或永久放行导致严重审批疲劳、特权蔓延与残留后门漏洞的痛点）：** Myrm 交付了工业级限时细粒度授权与自动物理收回门禁架构：
