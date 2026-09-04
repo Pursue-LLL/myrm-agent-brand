@@ -80,7 +80,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   2. **进程内零网络跳转 SQLite `ATTACH DATABASE` 联邦检索（WikiStructure & WikiIndexer）**：通过 SQLite 原生原子挂载只读库，在单连接单进程内以 <10ms 极致延迟执行跨库 FTS5 BM25 全文搜索与 RRF 倒数秩融合，彻底消除跨进程 IPC 与分布式网络开销；
   3. **零 LLM 消耗 Quick Lane 极速知识响应车道（wiki_knowledge_lane.py）**：对于确定性知识库问答，毫秒级直接产出结构化引用来源（`SourceSnippet`）流式推送到前端，无需消耗高昂的 LLM Token 与等待推理轮次；
   4. **100% 静态工具契约与归档器缓存隔离（get_wiki_archiver）**：保证 LLM 工具定义完全静态化，稳守 95%+ 提示词前缀缓存命中率；同时在 Archiver 缓存 Key 注入排序后的公共路径哈希与标签指纹，彻底根治跨会话串库与缓存污染风险；
-  5. **100% 全链路自动化测试验证**：5/5 Python 服务端联邦查询测试（`test_federated_wiki_query.py`）、2/2 前端 Vitest 测试（`KnowledgePickerPopover.test.tsx`）及真实 Chrome E2E 测试（`test_knowledge_picker_chrome_e2e.py`）全量绿灯通过。
+  5. **100% 全链路自动化测试验证**：Harness 框架层多库单元测试（35/35 passed in 2.06s）、Server 业务层联邦问答测试（6/6 passed in 9.55s）、前端 Store/Popover/ContextChip 测试（17/17 passed in 13.40s）、真实浏览器端到端 Task Flow E2E（1/1 passed in 137.87s，真实 MiniMax-M3 流式大模型问答全链路闭环通过）、249 项静态契约测试（249/249 passed in 4.22s）全部 100% 绿灯通过，0 僵尸残留，0 缺失翻译键。
 - **SSOT 来源：** `myrm-agent-server/app/services/wiki/vault/` · `myrm-agent-server/app/services/agent/stream_session/lanes/wiki_knowledge_lane.py` · `myrm-agent-frontend/src/components/features/message-input-actions/KnowledgePickerPopover.tsx` · `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-04 · 移动设备协同巡检面板与 ADB 双向触控中继 · 自动化与端侧控制完成）

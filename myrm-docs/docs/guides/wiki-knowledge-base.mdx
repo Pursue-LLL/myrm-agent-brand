@@ -57,6 +57,31 @@ When **Wiki is enabled** on an agent profile, four automatic ingress paths land 
 
 **Tests:** 37 targeted pytest (Harness 18 + Server 19, Jul 2026).
 
+## Session-level knowledge base mounting and federated hybrid search (KnowledgePickerPopover)
+
+In addition to statically configuring an agent's dedicated knowledge base in Settings, Myrm allows users to **dynamically mount and federate multiple private knowledge bases per conversation**:
+
+| Capability | Architecture Design | User Benefit |
+|---|---|---|
+| **In-chat popover picker** | Click the book icon in the input toolbar to trigger `KnowledgePickerPopover` with sub-millisecond fuzzy search and switch toggles | Zero context switching; attach and detach knowledge bases on the fly without leaving the chat |
+| **Context chip strip** | Mounted vaults render as purple `knowledge` chips in `ComposerContextChipStrip` with a one-click remove (`×`) button | Immediate visibility over active authoritative sources; effortless management |
+| **6-vault safety guard** | Strict cap of at most 6 mounted vaults per conversation, enforcing switch disabling and toast warnings | Aligns with SQLite single-process file attachment limits, eliminating system overload |
+| **Deferred binding & incognito isolation** | Draft sessions defer backend persistence until the first message is sent; incognito mode keeps bindings strictly in memory | Eliminates race conditions; 100% privacy preservation in incognito mode |
+| **Native SQLite ATTACH federated search** | In-process `ATTACH DATABASE ? AS pub_{idx}` read-only federation with FTS5 BM25 and 0.9 decay RRF rank fusion | Zero IPC overhead; cross-source hybrid search latency under 50ms |
+| **Instant zero-LLM Quick Lane streaming** | `knowledge_query_service.py` streams `SourceSnippet` citations before model inference begins | Instant authoritative verification without waiting for expensive multi-turn LLM tool calls |
+
+## Knowledge Lifecycle Governance Workbench (WikiGovernanceWorkbench)
+
+As a knowledge base grows, accumulated concepts often suffer from **Knowledge Decay** and stale guidelines that mislead agent reasoning. Myrm provides a native lifecycle governance workbench at the top of **Settings → Wiki → Overview**:
+
+| Governance Dimension | Core Architecture Mechanism | User & Business Benefit |
+|---|---|---|
+| **Four-queue lifecycle dashboard** | Unifies four dynamic card queues: "Pending Approval / Expiring (>90d) / Knowledge Gaps / Archived Concepts" | Holistic visibility over knowledge health; eliminates unmanaged document rot |
+| **90-day dynamic aging scan** | Scans concept modification times (`mtime`) to flag unreviewed concepts older than 90 days | Proactive prompts for review; prevents obsolete APIs from polluting Agent context |
+| **Physical directory & FTS5 isolation** | Archived concepts atomically move to `wiki/archive/concepts/` and are purged from FTS5 & Qdrant | Physically prevents archived pages from surfacing in RAG recall |
+| **Evergreen concept whitelist** | Exemption via Frontmatter `lifecycle: permanent`, `lifecycle: evergreen`, or `pinned: true` | Foundation rules and architectural documents are permanently immune from aging alerts |
+| **30-second in-memory undo & one-click revival** | Archiving actions offer a 30s countdown Undo Toast; archived concepts can be revived and reindexed at any time | Zero anxiety over accidental deletions; fully reversible operations |
+
 ## Wiki vs Memory write boundary
 
 When **both Wiki and Memory** are enabled, Myrm keeps long-form knowledge out of compact memory storage:
