@@ -301,6 +301,15 @@ harness 的 `FileLock`（供投递队列使用）以 `O_NOFOLLOW` 打开锁文�
 - **使用统计面板**：审计日志聚合为可视化统计——按权限类型聚合总次数 / 放行 / 拒绝次数、精确的拒绝原因、最近 10 条操作明细，支持 1/7/30/90 天窗口筛选；异常行为（如技能反复探测环境变量全被拒）一眼可见，而不是埋在原始日志里。
 - **验证**：技能边界 100% 单元覆盖 + 真实 DB 全链路集成验证（授权 → 门禁 → 执行 → 撤销 → 即时拒绝）。
 
+### 可信来源与沙箱边界诚实披露门禁（Trusted Source & Honest Sandbox Disclosure）
+
+在安装外部第三方扩展或技能插件包时，进程内半截 JS 沙箱防不住大模型执行 bash 窃密。Myrm 在 WebUI 技能 URL 导入（`SkillUrlImportDialog`）与插件包导入（`PluginImportDialog`）全链路建立**诚实权限披露与强制可信勾选守卫**：
+
+- **拔除单 URL 静默自动安装后门**：彻底消除输入单个合规 URL 即直接绕过用户确认静默执行安装的供应链钓鱼后门；
+- **环境自适应诚实告知（Honest copy）**：智能感知当前部署模式——本地/桌面端（Local/Tauri）诚实展示 `Local OS Permissions`，明确告知技能具备当前操作系统的用户权限；云托管端（Cloud）展示 `Cloud Sandbox` 徽标，解释独立容器 Volume 的隔离边界；
+- **提示注入与脚本攻击风险示例**：客观警示不可信扩展可能通过间接 Prompt 注入诱导 Agent 执行越权命令读取私钥；
+- **可信复选框物理门禁（Trusted Source Checkbox）**：新增 `trusted-source-checkbox`，默认未勾选；未显式勾选前，【确认安装】按钮保持物理禁用，彻底堵塞供应链盲目信任漏洞。
+
 ### GUI 安全审查
 
 三处前端组件协同展示安全扫描结果，每个发现都包含**精确行号定位**（如 `L42 Command injection: recursive delete`），帮助开发者快速跳转到问题代码：

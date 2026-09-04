@@ -318,6 +318,15 @@ After a skill passes installation, sensitive runtime operations remain gated by 
 - **Usage analytics dashboard**: the audit log is aggregated into a visual dashboard — per-permission total/allowed/denied counts, exact denial reasons, and the latest 10 operations, filterable over 1/7/30/90-day windows. Abnormal behavior (e.g., a skill probing env vars repeatedly and getting denied each time) is visible at a glance, not buried in a raw log.
 - **Verification**: 100% unit coverage of the skill boundary + real-DB end-to-end integration (grant → gate → execute → revoke → instant deny).
 
+### Trusted Source & Honest Sandbox Disclosure
+
+When importing third-party extensions or skill packages, half-baked in-process JS sandboxes fail to prevent model-coerced shell attacks. Myrm implements honest permission disclosure and mandatory trusted checkbox guards across both `SkillUrlImportDialog` and `PluginImportDialog`:
+
+- **Silent direct-install backdoor removed**: eliminates zero-interaction installation of single-URL imports to prevent supply-chain phishing;
+- **Environment-aware honest narrative**: clearly indicates `Local OS Permissions` under Local/Desktop mode and `Cloud Sandbox` under isolated volume container deployments;
+- **Prompt injection and script execution warnings**: educates users about indirect prompt injections attempting to exfiltrate secrets via bash;
+- **Physical checkbox gate (`trusted-source-checkbox`)**: the import button remains physically disabled until the user explicitly checks the trust confirmation box.
+
 ### GUI Security Review
 
 Three frontend components work together to present security scan results, each finding includes **precise line-number targeting** (e.g., `L42 Command injection: recursive delete`) to help developers jump directly to problematic code:
