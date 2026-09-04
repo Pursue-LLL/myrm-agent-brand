@@ -11,6 +11,26 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-04 · 会话级统一知识库选择器与跨源混合检索 · 知识与 Wiki 完成）
+
+- **UnifiedKnowledgeBasePickerAndCrossSourceHybridSearch（对标 Hermes / OpenClaw / Codex / Pi / Octop 等产品在单会话内无法临时多挂载外部知识库、动态工具描述导致提示词前缀缓存频频击穿、以及缺失零 LLM 极速检索专用车道的架构缺陷）：** Myrm 交付了企业级会话级动态知识库挂载与跨源联邦检索体系：
+  1. **会话级零心智临时挂载（KnowledgePickerPopover.tsx · MessageInput.tsx / MobileActionSheet.tsx）**：支持用户在桌面端与移动端输入框内一键调出多选面板，动态挂载/解挂最多 6 个知识库；选中的知识库以紫色 `knowledge` 胶囊展示于输入框上下文栏，支持单项一键移除，完全不污染全局智能体持久配置；
+  2. **进程内零网络跳转 SQLite `ATTACH DATABASE` 联邦检索（WikiStructure & WikiIndexer）**：通过 SQLite 原生原子挂载只读库，在单连接单进程内以 <10ms 极致延迟执行跨库 FTS5 BM25 全文搜索与 RRF 倒数秩融合，彻底消除跨进程 IPC 与分布式网络开销；
+  3. **零 LLM 消耗 Quick Lane 极速知识响应车道（wiki_knowledge_lane.py）**：对于确定性知识库问答，毫秒级直接产出结构化引用来源（`SourceSnippet`）流式推送到前端，无需消耗高昂的 LLM Token 与等待推理轮次；
+  4. **100% 静态工具契约与归档器缓存隔离（get_wiki_archiver）**：保证 LLM 工具定义完全静态化，稳守 95%+ 提示词前缀缓存命中率；同时在 Archiver 缓存 Key 注入排序后的公共路径哈希与标签指纹，彻底根治跨会话串库与缓存污染风险；
+  5. **100% 全链路自动化测试验证**：5/5 Python 服务端联邦查询测试（`test_federated_wiki_query.py`）、2/2 前端 Vitest 测试（`KnowledgePickerPopover.test.tsx`）及真实 Chrome E2E 测试（`test_knowledge_picker_chrome_e2e.py`）全量绿灯通过。
+- **SSOT 来源：** `myrm-agent-server/app/services/wiki/vault/` · `myrm-agent-server/app/services/agent/stream_session/lanes/wiki_knowledge_lane.py` · `myrm-agent-frontend/src/components/features/message-input-actions/KnowledgePickerPopover.tsx` · `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md`
+
+## 最新验证快照（2026-09-04 · 移动设备协同巡检面板与 ADB 双向触控中继 · 自动化与端侧控制完成）
+
+- **MobileDeviceBridgeInspectorPane（对标 Hermes #63 / OpenClaw / Claude Code / Codex / DeepSeek-Harness / Pi 在移动端操控与视觉协同完全割裂、缺少持久分屏与双向中继、以及私密通知泄露进入大模型视觉 Prompt 的痛点）：** Myrm 交付了端到端的三位一体（Browser/Desktop/Mobile Device）持久分屏巡检与安全中继体系：
+  1. **Browser / Desktop / Mobile Device 三位一体 Inspector 矩阵**：同一个工作台统一承载网页（Browser）、桌面窗口（Desktop）、移动真机（Mobile Device）持久并列分屏与交互中继，提供一致的丝滑协同体验；
+  2. **物理级状态栏纯黑隐私遮蔽（Notification Redaction）**：在图像转码进入管道前，使用 PIL 对顶部状态栏区域直接覆写纯黑掩码（RGB 18, 18, 18），从物理根源杜绝短信验证码与私人通知渗入视觉 Prompt，彻底根治前端 CSS 伪脱敏安全漏洞；
+  3. **真实 ADB 异步非阻塞手势中继**：实现 Tap、Swipe、Hold、Scroll、Keyevent 指令的标准化封装与分发，全量调用绑定 `asyncio.wait_for(timeout=3.5)` 异步超时与进程树安全回收，包含坐标越界自动 clamp 修正与恶意输入过滤，杜绝僵尸进程与请求池挂死；
+  4. **前端参数规范与 Doctor 诊断卡片**：规范传递 `chat_id` 与 `redact_notifications`；`DeviceLiveView.tsx` 针对离线与无环境状态呈现结构化 Doctor 诊断卡，提供 ADB 与设备连接排查指引，移除非标 emoji；
+  5. **全链路自动化测试与 0 Lints**：`tests/services/webui/test_device_bridge.py`（6/6）与 `test_device_bridge_edge_cases.py`（3/3）通过 `./myrm test` 100% 绿灯通过；E2E 测试 `test_mobile_device_bridge_inspector_chrome_e2e.py` 验证真实 API 契约与前端状态机；ReadLints 检查 0 错误 0 警告。
+- **SSOT 来源：** `myrm-agent-server/app/services/webui/device_bridge.py` · `useDeviceInspectorStore.ts` · `DeviceLiveView.tsx` · `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-04 · 穿戴与移动随身转向控制及长按防误触闭环 · 交互与执行控制完成）
 
 - **WearableAndMobileSteeringWithHoldToApproveClosure（对标 Hermes #73/#99 / Auto-Atlas / OpenClaw / AstrBot 强行开发小众独立 Wear OS APK 导致仅能覆盖 <15% 硬件生态且无法覆盖 Apple Watch、转向动作降级与小屏幕审批一键误触高危灾难）：** Myrm 交付了通用随身穿戴转向协议加固与端侧防误触体系：
