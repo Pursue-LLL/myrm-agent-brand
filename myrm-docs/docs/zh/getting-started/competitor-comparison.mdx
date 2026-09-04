@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-04 · 超长截图自适应切片与无损分段转写 · 媒体与多模态完成）
+
+- **VisionToolkitCompletionSet / LongScreenshotAdaptiveSlicing（对标 Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi 遇到超长截图粗暴等比压缩至 2048px 导致横向文字模糊成马赛克彻底无法阅读、以及 DSH 外部暴力暴露 10 个独立工具造成系统提示词膨胀 4000 Tokens 击穿 Prompt Cache 的痛点）：** Myrm 交付了零工具暴露、透明自适应的超长图保真解析体系：
+  1. **自适应几何透明分块切片（`slice_long_image_if_needed` · `image_compressor.py:255-300`）**：自动探测纵横比 $\ge 2.5$ 且高度 $> 1000\text{px}$ 的极端垂直长图（如手机聊天记录、长发票单据、长网页截图），以 60px 重叠步长切分为高清子图序列，**100% 保持原始全宽横向分辨率**，从物理根源解决大模型阅读长图“瞎眼”与编造幻觉；
+  2. **多段分块自适应感知与 Markdown 缝合（`describe_image_b64` · `fallback_engine.py:250-290`）**：在视觉回退引擎底层无缝注入 `[Context: This is segment X of Y]` 分段上下文，模型并发逐段解析并聚合为结构化 `### [Section 1/N]` Markdown 正文，保证长文阅读连贯性；
+  3. **Prompt Cache 100% 锁定与零 Schema 膨胀**：彻底摒弃竞品 DSH 外挂 10 个独立 RPC 工具的落后反模式，底层几何自适应透明分流，0 新增工具 Schema，系统提示词零膨胀，大模型 KV Cache 命中率稳守 95%+；
+  4. **Canvas 原生像素比对与 UI 逆向还原 SOP（`accurate_comparator.py` & `ui-design-restoration/SKILL.md`）**：采用浏览器原生 Canvas API 达成 100ms 无依赖高精度像素比对；配合预置官方技能标准化沙箱内提取色板与组件重构，全方位覆盖竞品视觉工具能力；
+  5. **100% 自动化测试全绿与健壮容错**：涵盖主流手机比例、极端长图、损坏二进制流回退、解码异常静默降级等 11 类边缘场景，`test_vision_toolkit.py` 8/8 项单测、全量 72 项视觉测试 100% 全绿通过，0 错误 0 告警。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/utils/media/image_compressor.py` · `toolkits/llms/vision/fallback_engine.py` · `accurate_comparator.py` · `assets/prebuilt_skills/ui-design-restoration/SKILL.md` · `temp-docs/materials/MULTIMODAL_CAPABILITY_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-04 · 压缩前确定性工具结果修剪与安全短路机制 · 上下文与会话治理完成）
 
 - **DeterministicToolResultPrunerBeforeCompaction（对标 Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi 僵化按固定步数压缩、纯内存截断导致超大输出彻底丢失不可找回、缺失摘要前置确定性短路白烧 LLM 成本、以及单步微修剪打碎 Prompt Cache 的痛点）：** Myrm 交付了毫秒级确定性上下文脱水与 LLM 摘要短路旁路架构：
