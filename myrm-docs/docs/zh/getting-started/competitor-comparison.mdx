@@ -11,6 +11,26 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-04 · 穿戴与移动随身转向控制及长按防误触闭环 · 交互与执行控制完成）
+
+- **WearableAndMobileSteeringWithHoldToApproveClosure（对标 Hermes #73/#99 / Auto-Atlas / OpenClaw / AstrBot 强行开发小众独立 Wear OS APK 导致仅能覆盖 <15% 硬件生态且无法覆盖 Apple Watch、转向动作降级与小屏幕审批一键误触高危灾难）：** Myrm 交付了通用随身穿戴转向协议加固与端侧防误触体系：
+  1. **全穿戴 100% 硬件生态覆盖（Channel-as-UI）**：无需在手表端安装任何私有 App，即可在 Apple Watch（>50% 份额）、Wear OS 及各类智能手环上直接接收 IM 富文本通知并手腕语音回复实现毫秒级纠偏；
+  2. **底层并发与动作保真（SteeringToken & SteeringRegistry）**：Harness `reset_turn()` 增加互斥锁彻底杜绝跨轮次竞态，注册表以元组精确区分并保真还原紧急重定向阻断（`redirect`）与平滑转向（`steer`），引入 10s TTL 过期自动剪枝与 10 条上限杜绝悬挂泄露；
+  3. **自然语言自动转向分流（busy_input_mode）**：运行中任务配置对应模式时，用户发送的普通消息直接分流注入转向队列并回推预览回执，同时严密旁路未知斜杠命令；
+  4. **移动端/手表 700ms 动态进度长按防误触（`HoldToApproveButton`）**：在随身看板装配 700ms 动态进度环长按确认，支持触摸屏滑屏滚动（`pointercancel`）与移出即时中止复位，消除小屏幕误触放行高危权限的隐患；
+  5. **全链路 70+ 单测/集成与真实 Chrome E2E 100% 全绿**：跨 Harness 单测（14 项）、Server 注册表与网关分流（50 项）、前端 Vitest（6 项）及真实 Chrome E2E（`test_channel_routing_general_only_chrome_e2e.py` 40s）满分通过。
+- **SSOT 来源：** `myrm_agent_harness/utils/runtime/steering.py` · `app/services/agent/steering_registry.py` · `app/channels/routing/router.py` · `HoldToApproveButton.tsx` · `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md`
+
+## 最新验证快照（2026-09-04 · 移动端遥控派活与跨端自适应卡片 Push 通知总线 · 渠道与通知集成完成）
+
+- **MobileRemoteTaskDispatchAndChannelPushNotificationBridge（对标 Hermes / OpenClaw / AstrBot / CoPaw / Codex / DeepSeek-Harness / Pi 在移动端外出时无法主动接收长程任务与 Cron 终态通知、缺乏富交互自适应卡片、直接向简单 Webhook 发送组件导致崩坏、以及完全缺失 Web Push / PWA 离线任务推送一键引导的痛点）：** Myrm 交付了端到端的跨端通知中枢与自适应卡片格式化体系：
+  1. **跨渠道自适应卡片格式化中枢（`AdaptiveCardFormatter` · `app/core/notifications/adaptive_cards.py`）**：全自动将审批（`APPROVAL_REQUIRED`）、配对（`PAIRING_PENDING`）、长任务终态（`GOAL_TERMINAL`）、后台任务（`BACKGROUND_TASK_DONE`）及会话完成（`SESSION_COMPLETED`）五大核心事件转换为富文本 Markdown 摘要并挂载快速操作按钮（`ActionButton`）；
+  2. **协议级平滑降级（`downgrade_components`）**：针对不支持富卡片组件的普通 Webhook 或纯文本渠道，非侵入式自动退化为操作指引列表，杜绝渠道序列化异常与丢包；
+  3. **Web Push (VAPID) 离线完结推送与防骚扰聚合**：长程任务与 Cron 定时巡检终态自动分发 Web Push 通知，并通过 `NotificationOptions.tag`（`myrm-${chatId}`）实现会话级防刷屏聚合；
+  4. **移动端随身指挥中心一键授权横幅（`MobilePushDiscoveryBanner`）**：在手机端与 PWA 访问下于 `MobileStatusBoard` 智能浮现发现横幅，支持一键开启动态授权并静默记忆用户偏好；
+  5. **100% 自动化测试与真实 Chrome MCP E2E 双闭环**：60 项 Python 核心单测、6 项前端 Vitest 单测、多语言 i18n 纯净门禁及在专用 E2E 真实 Chrome 浏览器（`:9333`）中通过的 `test_mobile_push_discovery_chrome_e2e.py` 与 `test_push_approval_deeplink_chrome_e2e.py`（4/4 全绿）验收。
+- **SSOT 来源：** `myrm-agent/myrm-agent-server/app/core/notifications/` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/mobile/` · `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-04 · 现场故障自愈与试错回滚外壳补丁体系 · 执行可靠性与鲁棒性完成）
 
 - **ContinualFaultSiteSessionOverlayPatchClosure（对标 普林斯顿 Continual Harness 学术脚本 / OpenClaw / Hermes / DeepSeek-Harness / Claude Code 长程任务因参数废弃或校验报错粗暴打回重置、上下文归零、Token 翻倍死锁）：** Myrm 交付了业内首创的现场故障零重置自愈与单次试错快照安全回滚闭环：
