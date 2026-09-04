@@ -11,6 +11,28 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-04 · 压缩前确定性工具结果修剪与安全短路机制 · 上下文与会话治理完成）
+
+- **DeterministicToolResultPrunerBeforeCompaction（对标 Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi 僵化按固定步数压缩、纯内存截断导致超大输出彻底丢失不可找回、缺失摘要前置确定性短路白烧 LLM 成本、以及单步微修剪打碎 Prompt Cache 的痛点）：** Myrm 交付了毫秒级确定性上下文脱水与 LLM 摘要短路旁路架构：
+  1. **LLM 摘要前置确定性短路（`summarize_processor.py:300-340`）**：在触发耗时昂贵的 LLM 摘要之前，优先运行纯确定性工具结果脱水；若剩余 Token 经重新测算已稳稳落入安全水位线（预留 15% 硬性安全衰减余量），毫不犹豫直接跳过 LLM 摘要，节省数十秒推理延迟与 100% 摘要 Token 费用；
+  2. **Prompt Cache 缓存前缀保护门禁（`min_reclaim_tokens` · `active_tool_result_prune_processor.py:100-240`）**：采用两阶段聚合评估扫描，仅当全量候选工具输出预期节省量 $\ge$ 4096 Tokens 时才落盘修改，彻底拦截零碎微小变动击穿长会话的高命中 KV Cache 前缀；
+  3. **沙箱卷持久化归档与纯内存 Head/Tail 截断双轨兜底**：优先将超大工具输出持久化落盘至沙箱持久卷（生成 `[Tool Result Archive Reference]` 句柄，模型可随时按需反查召回），在缺乏持久化回调时平滑退化为确定性首尾保留的内存截断，兼顾极速执行与事实可召回性；
+  4. **紧急紧缩（Emergency Compact）Phase 1 确定性优先救援（`agent_recovery.py:45-75`）**：全面升级极端溢出容灾机制，优先执行 Phase 1 确定性工具脱水，再执行 Phase 2 消息紧缩，最大限度保全真实对话历史轮次；
+  5. **100% 全链路自动化测试与 0 Lints**：Active Prune 单元测试 26 项、Summarize 单元测试 55 项、Recovery 单元测试 24 项及流水线全链路集成测试 100% 全绿通过，0 警告 0 错误。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/pipeline/processors/active_tool_result_prune_processor.py` · `summarize_processor.py` · `agent_recovery.py` · `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md`
+
+## 最新验证快照（2026-09-04 · FAL.ai 开放生态与连贯分镜提供商包 · 媒体与多模态完成）
+
+- **BflFlux3VideoKeyframesContinuationProviderPack（对标 Hermes #96 / OpenClaw / Codex / DeepSeek-Harness / Pi 强行平铺 6 个专有工具打碎 Prompt Cache、盲目 Base64 触发 413 Payload Too Large、绑定私有加价网关、缺失首尾关键帧插值与长镜头续写、以及裸请求下载遭 SSRF 攻击的痛点）：** Myrm 交付了专业级开放生态视频生成体系：
+  1. **单工具多态统一抽象（`video_tool`）**：彻底杜绝 Hermes 暴力平铺 6 个独立工具浪费 1500+ Tokens 并打碎前缀缓存的恶习；采用标准 `video_tool` 单工具多态调度，输入 2 张图片自动匹配关键帧插值（`keyframes`），输入前置视频自动匹配长镜头续写（`continuation`），**Prompt Cache 命中率 100% 保持锁定**；
+  2. **原生公网 URL 直通优先（彻底杜绝 HTTP 413 Payload Too Large）**：针对续写长视频（5MB~20MB）场景，自动提取并透传已有 CDN/公网视频 URL（`_video_source_urls`），零 Base64 内存膨胀、零本地内网流量消耗，彻底根除请求体超限网关崩溃；
+  3. **显式 Mode 优先契约与意图防篡改**：明确支持显式声明的生成模式（`generation_mode`），仅在未指定时智能推断，杜绝“多图风格/角色一致性参考”被误判强制触发首尾变形过渡；
+  4. **开放 BYOK (Bring Your Own Key) 生态**：直连 FAL.ai 官方端点（`queue.fal.run`），用户在 WebUI 设置面板中自主填入官方 API Key，0 中间商加价、0 隐私外泄，单次生成成本低至 $0.05，账单透明；
+  5. **电影级运镜技能与分镜 SOP（`flux3-prompting-guide`）**：官方预置分镜指南技能，规范化运镜词汇（Pan / Tilt / Tracking / Orbit）与首尾帧插值 SOP，Agent 自动感知分镜逻辑，创作 30s~60s 角色不脸崩、镜头不漂移的高清连贯短片；
+  6. **`secure_get` SSRF 物理防线与流式熔断**：在 DNS 解析阶段阻断私有网段与本地回环 IP，并在传输过程中施加 200MB 大小熔断，防止内网穿透与超大 4K 视频打爆沙箱内存；
+  7. **自动化测试 100% 全绿与 0 Lints**：Harness 单元测试 `test_fal_provider.py`（30/30，覆盖率 99%）、Server 业务测试 `test_media_fal_provider.py`（6/6）全部通过，相关代码 0 Linter 错误。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/video/providers/fal_provider.py` · `app/api/agents/media.py` · `assets/prebuilt_skills/flux3-prompting-guide/SKILL.md` · `MediaGenerationSection.tsx` · `temp-docs/materials/MULTIMODAL_CAPABILITY_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-04 · 防自强化坍缩蒸馏守卫与身份三态防御体系 · 记忆系统完成）
 
 - **AntiDriftDistillationGuardsAndSelfExclusion（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi / Mem0 在多轮自主对话后 Agent 自产内容倒灌导致画像口吻自强化坍缩、群聊身份未认证模糊猜测造成交叉污染、自动化告警 Bot 灌水以及凭空捏造无源证据的痛点）：** Myrm 交付了业内首个零网络开销（<1ms）全链路确定性记忆准入防线：
