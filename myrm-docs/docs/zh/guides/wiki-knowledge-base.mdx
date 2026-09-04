@@ -25,6 +25,8 @@ Myrm 提供**编译型知识库（Wiki）**——不是让 Agent 解读的一堆
 | **可恢复意图账本与四层解耦** | Intent-First 预分配 ID + 四层状态机 | 执行前先持久化意图记录，崩溃重启数学确定性恢复，100% 杜绝工具重复副作用与二次扣费。 |
 | **全流程 HITL 审批** | `WikiPendingEdits` 队列 | 所有生成的新概念必须经过用户审阅方可落盘。 |
 | **沙箱原生 Git 快照** | `vault_git.py` SSOT 钩子 | 13 处写路径自动产生本地 Git 提交快照，杜绝远端同步鉴权死锁与凭据泄露。 |
+| **每轮规程主动注入与 150ms 熔断** | `KnowledgePackSelector` + `TurnPrewarmCoordinator` | Turn 前并发预热，Jaccard ≥0.70 语义去重，硬预算 ≤600 字符，150ms 熔断降级零阻塞，提示词缓存 100% 保护。 |
+| **会话级即时多选挂载** | `KnowledgePickerPopover` + SQLite ATTACH 联邦 | 输入区即席勾选多知识库，零 IPC 单进程 FTS5 联邦检索，毫秒级 Quick Lane 免模型流式直出。 |
 
 
 ## 按智能体隔离的 Wiki
