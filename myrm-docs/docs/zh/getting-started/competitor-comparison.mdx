@@ -79,6 +79,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   5. **全栈多级自动化测试 100% 满分通过**：Harness 93 项单元测试（覆盖率 100%）、17 项搜索编排集成测试、13 项前端组件测试及 249 项全局静态契约测试全部绿灯通过。
 - **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/web_search/processing/intent_optimizer.py` · `myrm-agent-frontend/src/components/features/message-box/progress-steps/renderers/QueryItemsRenderer.tsx` · `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md`
 
+## 最新验证快照（2026-09-05 · Flash 智能体落盘耐久性、未落盘工件自动保全与多模态超限自愈体系 · 运行时韧性全面闭环）
+
+- **FlashAgentExecutionDurabilityAndMultimodalResilience（对标 Google Antigravity / OpenClaw / Hermes 实战中在聊天窗口吐出数千行代码却漏调写文件工具导致的“纯 Chat 假智能体”缺陷、覆盖关键文件缺乏快照导致代码丢失、多图超限 400 Bad Request 致使长程会话彻底报废瘫痪等严重缺陷）：** Myrm 交付了业内领先的执行持久性、工件保全与多模态弹性自愈防线：
+  1. **实质交付物嗅探与收尾强制驳回修正门禁（`deliverable_write_verifier.py` · `completion_guard.py`）**：针对 AI 仅在聊天窗口生成长代码或宽表数据却漏调写盘工具的“伪完成”行为，基于行数、文件名指纹与宽表数据密度（CSV/紧凑JSON）进行启发式识别；若模型未落盘试图收尾，强制驳回并注入自愈指令，迫使模型在下一个循环中补齐文件工具调用；
+  2. **沙箱草案自动保全与 LRU 防爆安全机制（`deliverable_auto_staging.py`）**：若模型达到重试上限仍死锁，自动将其未落盘代码提取并安全暂存至工作区 `.myrm/staged_artifacts/`，同时自动维护 `.gitignore` 防止 Git 污染，并实施容量与时间双重 LRU 淘汰保全，0 代码丢失；
+  3. **多模态 Payload 400/413 超限自适应脱水与原地重试（`classifier.py` · `stream_recovery_oneshot.py`）**：支持三级视觉预算天梯（`1280px` / `768px` / `512px`）前置管控；当因历史图片累积突发遭遇上游大模型 API 400/413 报错时，精准捕获并在当前轮次自动逆向将历史图片脱水降采样为 512px WebP，发起原地自愈重发，彻底根除多模态会话永久报废的顽疾；
+  4. **全链路自动化测试 100% 满分通过**：涵盖交付物启发式嗅探、沙箱草案暂存安全与 Git 隔离、多次驳回拦截、多模态超限逆向脱水与自愈的专项测试全部满分绿灯通过。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/guards/deliverable_write_verifier.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/guards/deliverable_auto_staging.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/streaming/stream_recovery_oneshot.py` · `temp-docs/materials/ERROR_RECOVERY_ROBUSTNESS_ADVANTAGE.md` · `temp-docs/materials/MULTIMODAL_CAPABILITY_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-05 · Zero-Disk 硬件密钥环托管、默认回环锁死与受保护指令文件防投毒体系 · 安全与供应链治理全面闭环）
 
 - **ZeroDiskKeyringAndProtectedInstructionShield（对标 Hermes Agent / OpenClaw / Pi 商业密钥明文落盘被恶意脚本偷刷、默认 0.0.0.0 裸奔遭公网扫描与 DNS 重绑定 RCE、以及提示词注入篡改 AGENTS.md 埋藏持久后门的致命缺陷）：** Myrm 交付了业内领先的零磁盘与指令文件防线：
