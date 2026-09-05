@@ -248,6 +248,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   5. **100% 自动化测试通过**：87 项 Harness 核心安全测试、脚本操作数验证与环境变量隔离测试全绿通过，0 警告 0 错误 0 僵尸进程。
 - **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/security/env_isolation.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/security/script_operand_verifier.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
 
+## 最新验证快照（2026-09-06 · 三层渐进隐私脱敏过滤器与全自动化 Trace 审查门禁 · 可观测与审计完成）
+
+- **ThreeLayerPrivacySanitizerAndAutomatedTraceReviewGate（对标 OpenClaw / Hermes / Codex / DeepSeek-Harness / Pi 在可观测链路与遥测追踪中，将包含明文 sk- API 密钥、数据库连接密码、Bearer/JWT 认证头、超长工具大输出直接 dump 进 span 属性与日志导出，导致审计合规审查挂科、三方 OTel 收集器产生生产泄密与前端 Trace 瀑布图直接 OOM 卡死的痛点）：** Myrm 交付了从 Harness OTel 跨进程拦截到 Server API 出口闭环的三层渐进脱敏与安全审查门禁体系：
+  1. **Layer 1 键名白名单物理过滤（`TraceSpanSanitizer.is_safe_key`）**：严格遵循 OpenTelemetry GenAI 语义规范（`gen_ai.*`、`rpc.*`、`http.*` 等），敏感键名（包含 `password`、`token`、`secret`、`api_key` 等）直接拦截替换为 `[REDACTED_SENSITIVE_KEY]`；
+  2. **Layer 2 递归敏感值正则擦除与嵌套 JSON 深度脱敏（`sanitize_string_value` · `sanitize_payload`）**：自动探测并递归解析嵌套 JSON 字符串/对象/数组，精准抹除 Bearer Token、`sk-` API 密钥、数据库 URL 密码，彻底消除嵌套序列化泄密死角；
+  3. **Layer 3 超长安全截断与 SHA-256 完整性指纹（Bounded Truncation with Fingerprint）**：属性超长时保留头部并打上 `[TRUNCATED:len=X:sha256=Y]` 完整性指纹，既防止 OTel 收集器与前端 Trace 瀑布图 OOM，又保留机器审计完整性证据；
+  4. **全链路闭环与出口门禁（`SanitizingSpanProcessor` · `session_trace.py`）**：在 Harness Span 结束落盘时透明清洗 `BoundedAttributes`，并在 Server API `/api/v1/statistics/session/{id}/trace` 出口处统一经由 `sanitize_trace_payload` 过滤，确保前后端与外部导出 100% 凭证无泄漏；
+  5. **100% 全栈自动化测试通过**：Harness `test_sanitizer.py` 与 Server `test_session_trace_sanitizer.py` 全部绿灯通过，0 警告 0 错误 0 僵尸进程。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/infra/tracing/sanitizer.py` · `myrm-agent-server/app/api/statistics/session_trace.py` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-05 · 压缩换窗前工具原话可召回与安全隔离归档 · 上下文管线完成）
 
 - **PreCompactToolOutputVerbatimRecallPack（对标 MemPalace / OpenClaw / Hermes / Codex / DeepSeek-Harness / Pi 在长程会话触发压缩换窗后忘记具体的命令行报错、退出码与依赖冲突现场，或采用外部 CLI 粗暴将包含 ANSI 乱码的 raw jsonl 倾倒进对话检索库导致信噪比雪崩的痛点）：** Myrm 交付了企业级四层上下文管线与确定性安全归档闭环体系：

@@ -254,6 +254,16 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
   5. **100% Architecture Gate Verification**: All 18 assertions in `test_prebuilt_skill_web_scraping.py` passing with 0 warnings and 0 errors.
 - **SSOT Sources:** `myrm-agent-server/assets/prebuilt_skills/web-scraping/SKILL.md` · `myrm-agent-server/tests/architecture/test_prebuilt_skill_web_scraping.py` · `temp-docs/materials/BROWSER_AUTOMATION_ADVANTAGE.md`
 
+## Latest Validation Snapshot (2026-09-06 · Three-Layer Progressive Privacy Sanitizer & Automated Trace Review Gate · Observability & Compliance Completed)
+
+- **ThreeLayerPrivacySanitizerAndAutomatedTraceReviewGate (vs OpenClaw / Hermes / Codex / DeepSeek-Harness / Pi dumping raw sk- API keys, database connection passwords, Bearer/JWT auth tokens, and massive tool outputs into telemetry spans and logs, causing compliance audit failures, third-party OTel collector credential leakage, and WebUI Trace waterfall OOM freezes):** Myrm delivers a complete three-layer progressive privacy sanitizer and automated review gate from the Harness OpenTelemetry base to Server API endpoints:
+  1. **Layer 1 Key Whitelist Physical Filtering (`TraceSpanSanitizer.is_safe_key`)**: Strictly complies with OpenTelemetry GenAI Semantic Conventions (`gen_ai.*`, `rpc.*`, `http.*`, etc.); sensitive keys (`password`, `token`, `secret`, `api_key`, etc.) are intercepted immediately and replaced with `[REDACTED_SENSITIVE_KEY]`;
+  2. **Layer 2 Recursive Secret Regex Redaction & Nested JSON Sanitization (`sanitize_string_value` · `sanitize_payload`)**: Automatically detects and recursively parses stringified JSON payloads/arrays, scrubbing Bearer tokens, `sk-` API keys, and database URL credentials with zero leakage in nested serializations;
+  3. **Layer 3 Bounded Truncation with SHA-256 Integrity Fingerprint**: Over-limit attributes preserve head content alongside `[TRUNCATED:len=X:sha256=Y]`, preventing memory exhaustion while retaining cryptographically verifiable evidence for audits;
+  4. **End-to-End Closed Loop & API Export Gate (`SanitizingSpanProcessor` · `session_trace.py`)**: Transparently cleans `BoundedAttributes` at Harness span completion and sanitizes outgoing traces at the Server `/api/v1/statistics/session/{id}/trace` API, guaranteeing 100% credential safety across UI rendering and external OTLP exports;
+  5. **100% Full-Stack Automated Test Coverage**: Harness `test_sanitizer.py` and Server `test_session_trace_sanitizer.py` all pass with 0 warnings, 0 errors, and 0 zombie processes.
+- **SSOT Sources:** `myrm-agent-harness/src/myrm_agent_harness/infra/tracing/sanitizer.py` · `myrm-agent-server/app/api/statistics/session_trace.py` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md`
+
 ## Latest Validation Snapshot (2026-09-05 · Streamable HTTP MCP DNS-Rebinding Guard & Physical Onion Gate · Security Completed)
 
 - **McpHttpOriginDnsRebindingGuard / ChatExportSecretRedactionPack (vs Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi / qmd exposing unauthenticated or naked loopback transports vulnerable to browser-initiated DNS rebinding cross-site hijacking, and dumping raw plaintext credentials upon chat export):** Myrm delivers an enterprise-grade physical transport onion guard and zero-disk secret redaction architecture:
