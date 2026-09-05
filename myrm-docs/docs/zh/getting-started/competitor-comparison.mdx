@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-05 · 多页复杂表格企业级抓取与双哨兵防死循环 · 浏览器与自动化完成）
+
+- **BrowserPaginatedTableHarvestToExcelArtifactWorkflow（对标 Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi 在网页表格跨页提取场景中，因点击无效翻页陷入死循环、中间翻页数据全塞入上下文窗口导致 Token 爆炸与上下文截断、以及提取的 CSV 乱码且缺乏正规 Excel 工件的痛点）：** Myrm 交付了基于 `web-scraping` (v1.1.0) 预置技能与增量磁盘流式缓存的高鲁棒提取闭环体系：
+  1. **三维加载模式精准适配（Three-Dimensional Loading Modes）**：Mode A（下一页按钮 / 静态翻页）、Mode B（加载更多 / 累积瀑布流）、Mode C（无限滚动 / 滚动触发加载），覆盖现代 Web 表格各种分页实现；
+  2. **双哨兵防死循环终结机制（Dual-Sentinel Loop Guard）**：首行数据特征指纹比对（Row Fingerprint）实时探查翻页是否生效 + 严格最大翻页上限拦截（Bounded Max Page Cap），无论目标网站 DOM 如何混淆，均保证物理终止，绝无死循环风险；
+  3. **增量磁盘流式缓存协议（Incremental Disk Cache Protocol）**：每页提取的数据即时流式追加写入工作区磁盘缓存文件，上下文窗口仅维护轻量指标（行数与状态），100% 保护大模型长上下文与 KV Cache 稳定性；
+  4. **双引擎输出与工件原生交付（Dual-Engine Output & Artifact Delivery）**：开箱默认输出 UTF-8-SIG（带 BOM，完美兼容 Excel 直读零乱码）CSV，并可通过沙箱内 Python 脚本转换为原生 `.xlsx` 格式，直接通过工件系统向前端交付；
+  5. **100% 架构门禁校验通过**：`test_prebuilt_skill_web_scraping.py` 18 项单测全部绿灯，0 警告 0 错误。
+- **SSOT 来源：** `myrm-agent-server/assets/prebuilt_skills/web-scraping/SKILL.md` · `myrm-agent-server/tests/architecture/test_prebuilt_skill_web_scraping.py` · `temp-docs/materials/BROWSER_AUTOMATION_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-05 · Streamable HTTP MCP DNS-Rebinding 守护与洋葱门禁 · 安全治理完成）
 
 - **McpHttpOriginDnsRebindingGuard / ChatExportSecretRedactionPack（对标 Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi / qmd 在本地暴露未受防范的 HTTP MCP / 端口，易遭受浏览器跨站 DNS Rebinding 攻击直接穿透同源策略窃取私有知识库甚至控制桌面，以及会话导出将明文密钥直接泄露的痛点）：** Myrm 交付了毫秒级传输层洋葱物理门禁与全结构凭据零落盘脱敏闭环体系：

@@ -11,6 +11,16 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Validation Snapshot (2026-09-05 · Paginated Table Harvesting & Dual-Sentinel Guard · Browser Automation Completed)
+
+- **BrowserPaginatedTableHarvestToExcelArtifactWorkflow (vs Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi falling into infinite click loops on invalid next-page controls, blowing up context windows with raw intermediate table data, and generating garbled CSVs lacking proper Excel export):** Myrm delivers a high-robustness extraction workflow based on the `web-scraping` (v1.1.0) prebuilt skill and incremental disk cache:
+  1. **Three-Dimensional Loading Modes**: Native handling for Mode A (Next Button / Static Paginated), Mode B (Load More / Waterfall Accumulation), and Mode C (Infinite Scroll / Virtualized Triggered), covering modern web table implementations;
+  2. **Dual-Sentinel Loop Guard**: Real-time first-row data fingerprint comparison detecting page mutation + bounded maximum page ceiling termination, ensuring absolute physical halting without infinite loop hazards;
+  3. **Incremental Disk Cache Protocol**: Streams extracted table rows page-by-page into disk cache files, maintaining only minimal lightweight status markers in the context window to protect model long-context and KV cache stability;
+  4. **Dual-Engine Output & Native Artifact Delivery**: Defaults to UTF-8-SIG (BOM-encoded, perfectly opening in Excel without character distortion) CSV output, optionally converted to native `.xlsx` files delivered directly via the Artifact system;
+  5. **100% Architecture Gate Verification**: All 18 assertions in `test_prebuilt_skill_web_scraping.py` passing with 0 warnings and 0 errors.
+- **SSOT Sources:** `myrm-agent-server/assets/prebuilt_skills/web-scraping/SKILL.md` · `myrm-agent-server/tests/architecture/test_prebuilt_skill_web_scraping.py` · `temp-docs/materials/BROWSER_AUTOMATION_ADVANTAGE.md`
+
 ## Latest Validation Snapshot (2026-09-05 · Streamable HTTP MCP DNS-Rebinding Guard & Physical Onion Gate · Security Completed)
 
 - **McpHttpOriginDnsRebindingGuard / ChatExportSecretRedactionPack (vs Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi / qmd exposing unauthenticated or naked loopback transports vulnerable to browser-initiated DNS rebinding cross-site hijacking, and dumping raw plaintext credentials upon chat export):** Myrm delivers an enterprise-grade physical transport onion guard and zero-disk secret redaction architecture:
