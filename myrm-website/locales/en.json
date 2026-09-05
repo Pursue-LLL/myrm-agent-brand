@@ -1473,3 +1473,588 @@
         "memoryKnowsYou": {
           "label": "Memory & wiki",
           "title": "Eight memory types that learn you over time",
+          "desc": "Eight memory types learn your preferences across sessions. Incognito when you need privacy; enable Wiki + Memory together for unified recall in one tool call—long articles stay in Wiki, short facts stay in Memory (automatic write guards when both are on). After answers, tap Memory N to see which memories grounded the reply—citations survive reload. Type @wiki: to inject specific wiki concepts. Per-agent wiki vaults in Settings keep each agent's documents isolated, featuring a split-pane Markdown editor and unsaved draft protection. Wiki pages enforce a frontmatter `type` contract at compile and review—Repair Page Types fixes legacy notes in one click. Settings Overview shows Karpathy cognitive map readiness and zero-LLM structural health badges (broken links, wikilinks, missing types) that refresh when you edit concepts. Bulk ingest streams live progress over SSE; the External Sources card pulls Gmail labels and RSS into your vault on a schedule—pull phase uses no AI credits. Every recall is wall-clock time-guarded across memory, wiki, conversation history and web corpora: if a corpus ever hangs or slows down, search fails open in seconds with a graceful degraded notice instead of stalling your conversation. A Brand Style board in Settings lets you define your brand identity (colors, fonts, tone, taboos) once—it is stably injected into every session so AI-generated copy, design and documents automatically match your brand.",
+          "stat": "8",
+          "statLabel": "memory types",
+          "tag1": "Split-Pane Markdown Editor",
+          "tag2": "@wiki: chat reference",
+          "tag3": "Frontmatter type gate"
+        },
+        "memoryPoisonGuard": {
+          "label": "Memory safety",
+          "title": "Every memory write passes security & trust screening",
+          "desc": "Hidden instructions inside malicious webpages, documents or emails can't sneak into your long-term memory even if they fool the conversation; API keys, passwords and SMS codes are sanitized before persistence. Manual stores, batch writes, memory updates, user profile, rules, the MCP tool, agent auto-extraction and import recovery—all nine write paths share one guard, and a CI poisoning benchmark gate keeps it from regressing. Every memory also passes nine layers of trust verification—guesses and unconfirmed inferences never masquerade as facts, and stale, contested or unsupported facts are automatically down-weighted at recall so your answers stay grounded in what's actually true. Your memory belongs to you.",
+          "stat": "9",
+          "statLabel": "write paths",
+          "tag1": "Injection blocked at write",
+          "tag2": "Secrets never persisted",
+          "tag3": "CI poisoning gate"
+        },
+        "memoryStorageResilience": {
+          "label": "Memory resilience",
+          "title": "No matter how full, slow or fragile the disk gets, memory never breaks",
+          "desc": "Memory persists in a local embedded vector store—zero Docker dependency, works out of the box. When disk space runs out, a directory is occupied, or permissions tighten, memory automatically switches to in-memory mode and keeps reading and writing—no interruption, returning to persistence automatically once the disk recovers. Retrieval never hangs either: if any memory corpus stalls or slows down, the search times out on schedule and degrades gracefully, and the agent is honestly told \"search timed out — try a more specific query or retry\" across both the GUI and MCP surfaces—a failed retrieval is never disguised as \"no memory\", so it never fabricates answers. Every path is a process-wide singleton, so concurrent agents never hit file-lock conflicts or corruption; throwaway memory volumes for evals and workspaces are burned after use with zero leaked file handles. Isolated volumes never cross-contaminate each other's data—your memory stays yours, never mixed, never leaked. And you can always see, at a glance in the Memory Command Center, whether memory is stored persistently, has fallen back to in-memory mode, or is unavailable—so \"memory will be lost on restart\" is never a silent surprise. Every critical state file—context snapshots, skill state, encryption keys, usage ledgers—is written via crash-consistent atomic write (temp file → fsync → atomic rename), so a crash or restart can never leave a half-written corrupted file: your data is always complete, never a fragment.",
+          "stat": "0",
+          "statLabel": "memory lost on disk failure — zero leaks",
+          "tag1": "Auto-degrade keeps memory running on disk failure",
+          "tag2": "Per-path singleton prevents lock conflicts",
+          "tag3": "Isolated volumes burned after use, zero residue"
+        },
+        "deepResearch": {
+          "label": "Search & research",
+          "title": "Deep research with local-first crawling",
+          "desc": "Multi-engine search, local fetch, and cited reports—four source types with previews. Your wiki knowledge is automatically scanned before web searches, saving cost and avoiding redundancy; past reports are auto-archived and reused in future research, with built-in cross-validation of prior conclusions—no manual mode switching needed. Three-layer knowledge transfer: same-session chat history, cross-session Wiki auto-archiving with EXPLORE recall, and agent memory_recall tool for general conversations—research never gets lost. Comparison queries automatically generate plans with consistent evaluation dimensions and produce summary comparison tables. Review and edit the research plan before execution. Pause anytime; real-time per-cycle cost and budget visible. Dual-model architecture cuts research costs while keeping report quality high. End-to-end Research→Notes→Deck workflow: save reports to your wiki with one click, edit freely, then generate professional PPTs through natural conversation—more flexible than any fixed template engine. Cross-document analysis: upload multiple files and the agent identifies consensus, contradictions, and attributed quotes across documents—citations are clickable and jump to highlighted source text, with no limits on analysis angles. Unified output panel: mind maps (interactive Mermaid SVG with zoom/fullscreen/download), podcast audio (dual TTS engines), PPTs, HTML, and all artifact types in tab-switchable view—one click to save to Wiki.",
+          "stat": "70+",
+          "statLabel": "search sources",
+          "tag1": "Plan review gate",
+          "tag2": "Local-first crawl",
+          "tag3": "Academic-grade citations"
+        },
+        "desktopComputerUse": {
+          "label": "Silent Desktop Agent",
+          "title": "Working for you, never stealing your mouse",
+          "desc": "Background desktop automation without stealing focus. Semantic UI trees plus vision fallback—and guardrails for risky actions. All SDC semantic capabilities are packaged as a standard DesktopMCPServer, enabling instant integration from Cursor, Claude Code, and external agents out of the box. Canvas/rich-editor visual mode: auto-detects Google Docs, Figma, Sheets and switches to coordinate-based interaction with humanized Bézier mouse trajectories. Just 3 tools cover everything competitors need 11 tools for—saving ~4,000 tokens per request in tool descriptions alone, so the agent decides faster and more accurately. Turn-end control is always released: whether the agent finishes, you stop it, it errors, or the budget runs out, the \"controlling\" indicator vanishes instantly — no lingering \"AI stopped but the screen still says using computer\" (a common complaint on competitor products). Python calls OS APIs directly—pip install and go, no compiling Rust/Swift native daemons, zero path conflicts. 548 backend + 10 frontend tests all green.",
+          "stat": "3",
+          "statLabel": "tools cover 11 competitor tools",
+          "tag1": "Focus-free background run",
+          "tag2": "Standard MCP server export",
+          "tag3": "Turn-end guaranteed release"
+        },
+        "multiAgent": {
+          "label": "Multi-agent",
+          "title": "Simple by default, a team on demand",
+          "desc": "Default single-agent speed with zero overhead. Flip one toggle to unlock 8 orchestration modes (sequential, batch, DAG, race, verification, swarm, alternatives, council) and live topology boards. Ultra-clean tool prompts eliminate internal noise and enforce strict schemas, ensuring even lightweight open models delegate flawlessly without hallucination. Synchronous wait and global inspection eliminate wasteful token-burning poll loops. Background sub-agents are fire-and-deliver, queryable for 3600s with dual-trust indicators on one screen.",
+          "stat": "8",
+          "statLabel": "orchestration modes",
+          "tag1": "Single-agent default · zero noise",
+          "tag2": "Clean prompts · zero drift",
+          "tag3": "4D budget guard · cost control"
+        },
+        "omniChannel": {
+          "label": "Channels & automation",
+          "title": "Same agent on chat, voice, and cron",
+          "desc": "Chat, cron, and messaging from one agent—auto-adapts reply style per channel (concise on mobile IM, detailed on desktop); send commands remotely via WeChat/Telegram/Slack, one-tap approve risky actions without exposing your PC to the internet; completed/failed/blocked tasks push to your phone instantly — never 'discover next morning that a task hung all night'; quiet when nothing needs you.",
+          "stat": "35+",
+          "statLabel": "channel adapters",
+          "tag1": "Feishu · DingTalk · WeCom",
+          "tag2": "IM remote control · one-tap approval",
+          "tag3": "Done/fail/blocked 3-status push"
+        },
+        "tokenSmart": {
+          "label": "Token smart",
+          "title": "More work on the same API budget",
+          "desc": "Say goodbye to the 3x per-step overhead of universal code-wrapping traps: 8 CORE primitives run on native Direct FC locked in the Golden Prefix, preserving a 95%+ prompt cache hit rate; external skills and heavy MCPs load progressively via sandboxed PTC with 0 Turn-1 pollution. Combined with an 11-step context pipeline + zero-LLM rule compression (dedup, semantic output compression, image strip) enabled by default — far beyond single-layer 8–15%/turn compression. Long chats stay stable, savings visible in the health ring. Re-reading the same file never re-bills or breaks the cache. Every call reports into one honest ledger, so background spend never hides.",
+          "stat": "95%+",
+          "statLabel": "core prefix cache hit rate",
+          "tag1": "Golden Prefix cache lock",
+          "tag2": "Direct FC sub-second latency",
+          "tag3": "Zero Turn-1 schema bloat"
+        },
+        "evalLab": {
+          "label": "Eval Lab & Memory A/B",
+          "title": "Memory's value, proven with numbers, not hype",
+          "desc": "Eval Lab turns 'is my agent getting better?' into measurable, reproducible scores. Run the built-in WorkBuddy Bench — four realistic tracks (Code, Web, Office, Security) with checksum-verified downloads and live progress — and watch the agent execute real tests with pass rates scored from actual results, never an LLM judging itself. The killer proof: one-click Memory A/B runs the same tasks twice, memory on vs off, and reports side-by-side pass rates, token cost, and exactly how many memory tool calls happened — a real number honest enough to admit single-turn tasks benefit less. International benchmarks plug straight in: OpenAI BrowseComp (1,266 real questions) joins the same Eval Lab, and every report records both the scored agent model and the judge model, keeping numbers audit-proof. Each case runs in an isolated sandbox destroyed after the run — no cross-case file races, no disk buildup. Layered Evaluation runs the same tasks across an ascending harness chain — bare model, core harness, plus skills, plus memory — and reports each layer's measured gain. Integrity is engineered in: the agent is barred from Hugging Face and other answer-key repos so no benchmark can be gamed, each benchmark declares its own tool-call and iteration budget so stuck tasks stop automatically with the reason marked, and every report shows blocked attempts and which limit stopped the run.",
+          "stat": "260",
+          "statLabel": "real benchmark tasks built in",
+          "tag1": "One-click Memory A/B — memory on vs off",
+          "tag2": "Scores from real tests, zero LLM judging · per-case isolated sandbox, destroyed after run",
+          "tag3": "Layered eval quantifies each harness layer's gain · contamination-proof runs with declared budgets"
+        },
+        "memoryDoctor": {
+          "label": "Memory Doctor",
+          "title": "Know when memory breaks — and when it gets slower",
+          "desc": "One click runs a real memory check-up: your agent actually writes and re-reads 16 scenarios across 8 memory types, then scores recall quality and retrieval latency. Every result is archived, and the trend panel plots recall and P50/P95 latency over time — so “the agent feels slower” becomes a curve you can see, and the exact memory category regressing shows up immediately.",
+          "stat": "16",
+          "statLabel": "real write-read scenarios per run",
+          "tag1": "Recall quality + latency trends in one panel",
+          "tag2": "Per-category pass rates pinpoint regressions",
+          "tag3": "Model-switch drift hints keep scores honest"
+        },
+        "voiceBgDone": {
+          "label": "Voice task closure",
+          "title": "Speak, walk away — the agent speaks up when your task is done",
+          "desc": "Dispatch a background task by voice (research, report, script), then leave the computer. When it finishes, the agent proactively tells you the result in your next voice session — symmetrically across all four voice modes (audio_only / agent_bridge / OpenAI Realtime / Gemini Live), so nothing is ever missed. Task finishes while the agent is mid-sentence? The completion announcement queues safely in the TTS pipeline and plays the moment it finishes speaking — it never interrupts what you're hearing. Multiple windows open? Session-scoped deduplication means only the active voice window announces, exactly once. The chat timeline refreshes in real time too, so when you want details you can just ask, and the agent answers with full context.",
+          "stat": "4",
+          "statLabel": "voice modes announce symmetrically",
+          "tag1": "Proactive completion announcement with result summary",
+          "tag2": "Queue-safe insertion — never interrupts current speech",
+          "tag3": "Multi-window dedup · live timeline refresh"
+        },
+        "i18nLocalization": {
+          "label": "Six languages, one agent",
+          "title": "Every built-in agent speaks your language",
+          "desc": "All 25 built-in agents are fully localized in 6 languages (EN / 中文 / 繁體 / 日本語 / 한국어 / DE) — names and job descriptions stay consistent across chat, kanban, memory, settings, and every dropdown, picker and @mention. No corner leaks raw English. Industrial-grade i18n gates in CI auto-block untranslated leaks and translation drift, so localization quality never decays release after release.",
+          "stat": "25×6",
+          "statLabel": "built-in agents × languages",
+          "tag1": "Names + descriptions across the full UI",
+          "tag2": "CI gates block English leaks & drift",
+          "tag3": "Consistent on 40+ UI surfaces"
+        },
+        "humanReview": {
+          "label": "Review, one tap away",
+          "title": "Tasks waiting for your call? See them globally, reach them instantly",
+          "desc": "Tasks that need a human sign-off (background jobs, cron, long-running deliverables) land in a 'pending review' state instead of pretending to be done. A global pending-review counter in the nav and fleet overview tells you, at a glance, how many items are waiting for your decision — no matter which project they belong to. Tap the notification or the counter and you're dropped straight into the board's in-review column; approve to complete and auto-advance dependents, or reject with a reason to send it back for rework. The count updates in real time — a complete number → action → result loop, so no human gate is ever missed.",
+          "stat": "3",
+          "statLabel": "paths to review (notify / counter / filter)",
+          "tag1": "Global pending count · cross-project",
+          "tag2": "Tap notification to land in review",
+          "tag3": "Approve completes · reject sends back with reason"
+        },
+        "reasoningModel": {
+          "label": "Any model, stable answers",
+          "title": "Reasoning models included — answers survive, thinking stays out",
+          "desc": "DeepSeek-R1, Qwen-QwQ, OpenAI o-series, minimax M3 — models that put the final answer in reasoning_content instead of content are a silent trap for most agent frameworks: scripts, tool results, and UI end up empty or printing 'None'. Myrm extracts the user-visible answer through a model-agnostic layer that also strips <think> blocks and tolerates Anthropic block lists, so generated scripts, wiki articles, and structured results stay clean no matter which provider you plug in. It also parses structured JSON from raw model output — fenced code, prose-wrapped, even with stray control characters or trailing commas — through one self-repairing extraction layer shared by every skill, wiki, and memory pipeline, so nothing needs a manual retry. No per-model whitelist to wait for — new models just work.",
+          "stat": "0",
+          "statLabel": "model whitelists to maintain",
+          "tag1": "Auto-fallback from reasoning_content",
+          "tag2": "Robust JSON extraction (fences, prose, stray chars)",
+          "tag3": "Strips <think> blocks everywhere"
+        },
+        "browserRecording": {
+          "label": "Record & replay browser work",
+          "title": "Record a browser flow once — replay it as a reusable skill",
+          "desc": "Click through a workflow in the recorder panel and Myrm turns it into an executable skill your agent can replay anytime — no scripting required. Recording is semantic, not raw: selects record both value and human-readable labels, multi-selects stay complete, form fields are disambiguated by their real labels (aria-label, label[for], wrapping label, placeholder), input-method composition never fragments Chinese/Japanese text, SPA route changes and redirect chains are folded automatically, and hover/Enter-submit steps are deduplicated. The generated skill is readable, token-lean, and replayable across sessions — record once, automate forever.",
+          "stat": "28",
+          "statLabel": "recording scenarios verified",
+          "tag1": "Select value + label recorded",
+          "tag2": "Field-name disambiguation",
+          "tag3": "IME-safe text capture"
+        },
+        "browserHealthOps": {
+          "label": "Browser health ops",
+          "title": "One click diagnoses the browser stack — and cleans up orphan processes",
+          "desc": "Run a full browser check-up right from Settings: engines, memory, disk, proxy and the extension relay are all probed for real and graded, with concrete fix suggestions for anything failing. Orphan Chromium/driver processes that survive crashes are detected machine-wide and cleaned up in one click behind a confirm gate — no more hunting PIDs in Activity Monitor. Your agent can also run a Core Web Vitals check on any page it visits — LCP, CLS and INP graded against Google's official thresholds, with the fix already suggested.",
+          "stat": "8",
+          "statLabel": "real diagnostic checks per run",
+          "tag1": "Real probes, not guesses",
+          "tag2": "One-click orphan cleanup behind a confirm gate",
+          "tag3": "Fix suggestion for every failing check"
+        },
+        "humanizedBrowsing": {
+          "label": "Browses like a person",
+          "title": "Scrolls, clicks and moves like a human — invisible to anti-bot systems",
+          "desc": "Every scroll is a real mouse-wheel input with human rhythm — acceleration, deceleration, natural pauses, tiny overshoots and corrections — never a tell-tale JavaScript one-shot jump. Clicks first wheel the target into view the human way, honest scroll feedback means the agent never claims a success it didn't achieve, and nested scroll containers and iframes are handled precisely.",
+          "stat": "3",
+          "statLabel": "humanization levels (FAST/DEFAULT/CAREFUL)",
+          "tag1": "Real wheel input, not JS jumps",
+          "tag2": "Natural rhythm on every page",
+          "tag3": "No silent failed clicks"
+        },
+        "skillGrowth": {
+          "label": "Evolution, quantified",
+          "title": "Skills get smarter every use — see exactly how much better",
+          "desc": "Myrm learns skills from real usage: examples, failures and feedback are distilled into reusable skills that repair and evolve themselves. Every evolution carries a before/after quality score badge right in the history panel, so you always know what changed and whether it actually improved. Fuzzy matching, regression-safe changes (verified not to break existing behavior), approve-before-apply and one-click rollback guard each step; the Growth Center unifies pending/approved/rejected reviews with real-time badge sync — your agent gets smarter every day, fully under your control.",
+          "stat": "0→100",
+          "statLabel": "quality score scale · before/after per evolution",
+          "tag1": "Before/After quality badge per evolution",
+          "tag2": "Unified review in Growth Center · realtime sync",
+          "tag3": "Fuzzy match + regression-safe + one-click rollback"
+        },
+        "interactiveUi": {
+          "label": "Interactive UI",
+          "title": "Results you can see, click, and drive — not Markdown to decode",
+          "desc": "While other agents dump code blocks, Myrm's agent renders live, interactive interfaces right in the chat — cards, charts, tables, forms and more. Data refreshes incrementally: progress bars tick, status badges flip, tables update in place, without re-sending the whole UI. Click a button or submit a form and the agent picks it up instantly and keeps going. The interface isn't a showpiece — it's a remote control for your agent.",
+          "stat": "23",
+          "statLabel": "built-in UI components",
+          "tag1": "Live cards · charts · tables · forms",
+          "tag2": "Incremental data refresh · token-cheap",
+          "tag3": "Form & button actions feed back to the agent"
+        },
+        "evidenceDiscipline": {
+          "label": "Honesty, enforced",
+          "title": "Knows what it knows — and says so",
+          "desc": "AI assistants fail in predictable ways: a command exits cleanly so it claims the service is fixed; a file is edited so it claims the feature works; it can check something itself but asks you to repeat it instead. Myrm's default agent ships with evidence discipline built in: it separates what it directly observed from what it inferred or what you told it, never upgrades a failed check or an empty result into a successful verification, bounds negative claims to what it actually checked, and verifies on its own before ever asking you to repeat information. No verification theater, no UNKNOWN as an excuse — results you can trust without re-checking.",
+          "stat": "6",
+          "statLabel": "evidence states · claim-to-evidence contract",
+          "tag1": "Observed vs inferred vs user-reported — always distinguished",
+          "tag2": "Never calls a failed check a success",
+          "tag3": "Checks before it asks · bounded negative claims"
+        },
+        "marketplaceAgentInstall": {
+          "label": "Agent marketplace, safe upgrades",
+          "title": "One package. Whole Agent. Undo any upgrade.",
+          "desc": "Claude Code and Cursor force you to hand-assemble an agent: subagent YAML, plugins, MCP tools, skill bindings — four separate steps that drift apart. Myrm installs a complete Agent package in one atomic step (model + prompt + bundled skills + subagents + MCP + safety profile), remapping publisher IDs to your local store so bindings never dangle. When the cloud pushes a new version, empty package fields never overwrite your customizations, local skill/subagent bindings survive, a snapshot is written before every push, and a misbehaving upgrade rolls back with one click.",
+          "stat": "1",
+          "statLabel": "atomic install · safe push · one-click rollback",
+          "tag1": "Full Agent package: model · skills · subagents · MCP · safety",
+          "tag2": "Upgrades never clobber local customizations or bindings",
+          "tag3": "Snapshot before every push · undo any upgrade"
+        },
+        "rewindUndo": {
+          "label": "Rewind & undo, survives refresh",
+          "title": "Rewind conversations and file changes — even after refresh",
+          "desc": "Every agent turn snapshots the files it touches, and every message keeps a rewind point. Delete the messages after a wrong turn, or restore just the files that turn modified — pick individual files, not everything. The best part: rewind survives a page refresh. Message IDs, snapshot ownership and sandbox paths are wired so your undo button keeps working after reload, in parallel chats, and on cloud sandboxes. Competitor rewinds are CLI-session-scoped: close the page and your undo is gone.",
+          "stat": "3",
+          "statLabel": "granularity levels: message · file · session",
+          "tag1": "Undo a message, revert files, or roll back a whole session",
+          "tag2": "File diffs + selective per-file restore with confirm",
+          "tag3": "Survives refresh · works in cloud sandboxes"
+        },
+        "threeCeilingRead": {
+          "label": "Compiler-grade file reads",
+          "title": "Read any file without blowing up your context",
+          "desc": "Logs, CSVs, minified JS — other agents read these oversized or over-wide files and instantly eat your whole context window and token budget, sometimes handing back half a line of broken syntax. Myrm gates reads with three smart guardrails: a character budget, a line-count cap, and a per-line length cap. Anything beyond the limit is cut at a complete line boundary — never splitting a line of code — and you get a precise continuation offset, so reading on doesn't require guessing. Crucially, truncation happens at the display layer: the file on disk is left untouched, so post-read edit-integrity checks stay accurate. No faking the checks with edited content.",
+          "stat": "3",
+          "statLabel": "read guardrails · consistent across preview/stream/all/vault",
+          "tag1": "Auto-guard oversized files · no token-bill blowouts",
+          "tag2": "Truncate at full line boundaries · never split syntax",
+          "tag3": "Precomputed resume offset · display-only, disk untouched"
+        },
+        "filePreview": {
+          "label": "In-app file preview",
+          "title": "Open any file without leaving the workspace",
+          "desc": "Click a PDF, image, video or audio file in the workspace browser and it renders in-app — no garbled text, no download first. The backend decides text vs binary (zero-IO extension detection), text is capped to keep the page snappy, and binary streams fully over HTTP Range. Downloads stay safe too: header injection is blocked and non-ASCII filenames encode via RFC 5987.",
+          "stat": "12+",
+          "statLabel": "artifact types · workspace + chat",
+          "tag1": "PDF · image · video · audio in-app",
+          "tag2": "Backend text/binary authority, never garbled",
+          "tag3": "Streaming + Range · safe download headers"
+        },
+        "pdfSmartReading": {
+          "label": "Reads scanned PDFs",
+          "title": "No text layer? The agent reads it for you",
+          "desc": "Contracts, papers, old invoices — many critical PDFs are scans with images only, no text. Other agents either dump a pile of images for you to read yourself, or simply say \"can't read it\". Myrm's PDF toolchain auto-detects textless pages: renders them to images, runs local OCR page by page, and reassembles full text. @-mentions, knowledge-base imports and web-downloaded PDFs all hook in automatically — scanned files are no longer a blind spot, with zero cloud OCR dependency.",
+          "stat": "100%",
+          "statLabel": "OCR wired into every text path · fully automatic",
+          "tag1": "Scanned PDF auto-OCR · no vision model needed",
+          "tag2": "@files · knowledge base · web downloads covered",
+          "tag3": "Local OCR · data stays on-device · multilingual"
+        },
+        "mcpEcosystem": {
+          "label": "MCP ecosystem, plug & play",
+          "title": "10,000+ MCP servers, zero config — the latest protocol, already shipped",
+          "desc": "Myrm speaks the newest MCP 2.0 protocol — a version ahead of other agents. It adopts SDK 2.x before anyone else: SSE stream leaks that plague long sessions are fixed, cloud deployments get stateless HTTP sessions, and tool errors arrive as structured data your agent actually understands instead of text to guess. Any MCP server in the ecosystem connects in seconds, in the browser, the desktop app, or your own private network.",
+          "stat": "2.0",
+          "statLabel": "MCP SDK generation · ahead of the ecosystem",
+          "tag1": "Newest MCP 2.0 protocol · zero-config connect",
+          "tag2": "SSE leak fix · hours-long sessions stay stable",
+          "tag3": "Structured tool errors the agent can self-heal from"
+        },
+        "connectorDoctor": {
+          "label": "Connector Doctor",
+          "title": "External-agent connections verified on disk — no more configure-and-pray",
+          "desc": "Connecting Claude Code, Cursor, or any MCP client? Myrm's Doctor reads the client's actual config file on your machine — JSON or TOML, `~` expanded — verifies the `myrm` / `myrm-memory` entry exists and the Bearer token hash matches, then reports a machine-readable diagnosis with three-level severity (healthy / needs attention / failed). Supports both reverse memory sync and Semantic Desktop Control (SDC) automation tool exposure! Wrong path, missing token, corrupted file, env-var placeholder: each gets its own clear code and fix guidance, in 6 languages. Tokens are stored as SHA-256 hashes only, and `${VAR}` placeholders are honestly flagged as unverifiable instead of misreported.",
+          "stat": "9",
+          "statLabel": "machine-readable diagnosis codes",
+          "tag1": "Reads the real on-disk config — JSON + TOML",
+          "tag2": "Token hash verified · never stored in plaintext",
+          "tag3": "3-level severity · 6-language guidance"
+        },
+        "permissionUsageStats": {
+          "label": "Skill permissions, on camera",
+          "title": "Every permission call is a dashboard, not a blind trust",
+          "desc": "Other agents make you trust third-party skills on faith — or drown you in per-request popups. Myrm logs every sensitive action a skill takes (write files, run commands, touch the network, read env vars) and turns it into a visual dashboard: total vs allowed vs denied per permission type, the exact denial reason, and the last 10 operations, filterable over 1/7/30/90-day windows. Spot at a glance when a skill tried to read environment variables thirty times and got denied every time. Revoke access in one click and the very next call is refused.",
+          "stat": "100%",
+          "statLabel": "of sensitive skill calls logged & visualized",
+          "tag1": "Per-permission totals · allowed / denied / reasons",
+          "tag2": "Last 10 operations · 1/7/30/90-day windows",
+          "tag3": "One-click revoke · next call refused instantly"
+        },
+        "governanceGate": {
+          "label": "Tool governance",
+          "title": "Every tool declared — no silent security bypass",
+          "desc": "Other frameworks govern tools with manually maintained lists, so a newly added tool can silently fall back to 'ask every time' — or quietly lose capability. Myrm enforces a registration-level governance gate: every built-in tool must carry an explicit declaration (auto-allow for read-only, ask for risky, explicit fallback for high-risk) or the build fails. The gate cross-checks declarations against the real tool universe in both directions, so the security report can never contradict the code. High-risk tools keep an explicit human-confirmation baseline — nothing flips to auto-allow by accident.",
+          "stat": "57",
+          "statLabel": "built-in tools · 0 governance blind spots",
+          "tag1": "CI-enforced: undeclared tool fails the build",
+          "tag2": "Explicit ask, never implicit fallback",
+          "tag3": "Audit matrix matches code, or CI fails"
+        },
+        "failureFaultSide": {
+          "label": "Failure attribution",
+          "title": "Task failed? Myrm tells you whose fault it is",
+          "desc": "Other agents just throw a red error block when a task fails — was it a model hallucination, a broken tool, a misconfigured environment, or your own unclear instruction? You have to guess. Myrm's failure attribution engine classifies every failure deterministically into six sides — model / tool / pipeline / environment / grader / user. The live progress panel pins a fault badge on each failed step, the execution timeline keeps the root cause of past failures, and one-click recovery actions take you straight to the right fix — update API key, switch model, reinstall a dependency. Even when the problem is in your own instructions, it says so plainly instead of leaving you staring at a stack trace.",
+          "stat": "6",
+          "statLabel": "root-cause sides · deterministic · zero-LLM cost",
+          "tag1": "Instant fault attribution: model / tool / env / user",
+          "tag2": "One-click recovery buttons",
+          "tag3": "Compaction-dropped constraints are auditable"
+        },
+        "toolLineageAudit": {
+          "label": "Auditable AI actions",
+          "title": "Every tool call traced to its instruction — with the security verdict attached",
+          "desc": "Other agents treat tool calls as a black box — when something sensitive happens (a file edit, a command run, a network request), you can't tell which instruction caused it or whether the safety system even reviewed it. Myrm links every tool call back to the instruction that spawned it and attaches the security verdict to each step of the execution timeline. Replay any session: every sensitive action shows whether it was approved, denied, or flagged with a reason — so a 'works on my machine' claim is backed by an audit trail you can actually see, not a log you'd have to trust.",
+          "stat": "100%",
+          "statLabel": "tool calls traced · security verdict per step",
+          "tag1": "Instruction → tool call → result, fully linked",
+          "tag2": "Approved / denied / flagged, each with a reason",
+          "tag3": "Session replay with verdicts attached"
+        },
+        "enterpriseAgentAudit": {
+          "label": "Organization-wide audit",
+          "title": "Every agent action across every team sandbox, on one auditable timeline",
+          "desc": "In a real business, agents run in many sandboxes — how do you know what they all did, and whether anything slipped past your safety controls? Other agents have no answer: no cross-sandbox ledger, no way to say which member or sandbox a sensitive action belongs to, and failed scans are silently skipped. Myrm aggregates every tool call, approval, and security decision from all member sandboxes into one org-wide timeline: real deny counts (block/deny/redact/leak) are exact, each event is attributed to the right member and sandbox, and sandboxes that couldn't be scanned are surfaced instead of hidden. Audit coverage you can prove, not a log you have to trust.",
+          "stat": "100%",
+          "statLabel": "of sandboxes audited · org-wide deny count",
+          "tag1": "All member sandboxes on one unified timeline",
+          "tag2": "Real deny counts — block / deny / redact / leak",
+          "tag3": "Unscannable sandboxes surfaced, never silently skipped"
+        },
+        "patternDiscovery": {
+          "label": "Memory, thinking",
+          "title": "Your agent discovers the behavior patterns you haven't noticed",
+          "desc": "Most memory systems just store what you said. Myrm goes one step further: every week it scans everything you've accumulated and surfaces the behavioral patterns you may not see yourself — recurring work habits, how your understanding of a topic evolved, unresolved threads that keep coming back, preference drift, blind spots. Each pattern comes with evidence, a confidence score, and a stability level; the most certain ones are automatically promoted into behavioral rules (with your approval) so your agent proactively applies the work preferences it learned from you. In the WebUI evolution review panel you can browse every pattern, expand its evidence, and trigger a fresh analysis anytime.",
+          "stat": "weekly",
+          "statLabel": "auto analysis · patterns promoted to rules",
+          "tag1": "Cross-session pattern discovery with evidence & confidence",
+          "tag2": "High-confidence patterns auto-promote to rules (your approval)",
+          "tag3": "WebUI evolution review panel — browse & trigger anytime"
+        },
+        "sessionPerfObservability": {
+          "label": "Per-response performance",
+          "title": "See where every second and every dollar of a session went",
+          "desc": "When a long task feels slow, other agents just make you wait — there is no way to tell whether the time went to thinking, tool calls, or a slow model, and no number for how long you actually waited for the first token. Myrm's session analytics breaks every session down by model: how many calls each model made and how long they took, plus a response-speed summary (average and P95 time-to-first-token). Open any session's analytics panel and you immediately see which model is your bottleneck and which reply was the slow one — data you can act on, instead of a feeling.",
+          "stat": "P95",
+          "statLabel": "time-to-first-token per session · LLM duration by model",
+          "tag1": "LLM calls grouped by model with total duration",
+          "tag2": "Response speed — avg & P95 first-token latency",
+          "tag3": "Per-session analytics panel, zero configuration"
+        },
+        "gatewayRuntimeVitals": {
+          "label": "Gateway health vitals",
+          "title": "Know when your agent engine is healthy — before users feel it",
+          "desc": "Long-running self-hosted agents often look \"online\" while the event loop is stalling or memory is climbing — you only notice when chats freeze. Myrm exposes zero-payload gateway vitals on the liveness endpoint and Prometheus: event-loop lag, RSS, active asyncio tasks, and OTLP posture. Ops can alert on degraded vs unhealthy without ever scraping chat content.",
+          "stat": "0",
+          "statLabel": "user prompts in health payloads (redacted by design)",
+          "tag1": "Liveness JSON: busy/idle/degraded/draining + gatewayRuntime",
+          "tag2": "Prometheus gauges for lag, RSS, tasks, health code",
+          "tag3": "Harness GatewayHealthInspector — no chat content leakage"
+        },
+        "streamResilient": {
+          "label": "No character left behind",
+          "title": "Reconnect and resume — every character intact",
+          "desc": "Other agents stream with diffs or naive chunking, so a dropped connection means dropped characters and reconnection is a gamble; on weak networks a slow client can pin the entire stream for everyone. Myrm's built-in stream buffer resumes exactly where you lost the connection using the standard SSE Last-Event-ID protocol — duplicates, gaps and reordering never happen. The Aug 2026 concurrency hardening means slow consumers (weak-network mobile) can no longer stall other clients, so several devices can watch the same live session without blocking each other.",
+          "stat": "0",
+          "statLabel": "content lost on reconnect (zero duplicates/gaps/reordering)",
+          "tag1": "SSE Last-Event-ID standard reconnect protocol",
+          "tag2": "Sliding-window buffer — zero-loss, zero-dup resume",
+          "tag3": "Slow-consumer isolation — multi-client, zero blocking"
+        }
+      }
+    }
+  },
+  "cloud": {
+    "brand": "MyrmAgent Cloud",
+    "nav": {
+      "howItWorks": "How it works",
+      "pricing": "Pricing",
+      "faq": "FAQ",
+      "login": "Log in",
+      "getStarted": "Start free",
+      "selfHost": "Self-host",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu"
+    },
+    "hero": {
+      "badge": "Cloud Hosted · Zero ops",
+      "title": "Your AI workspace,\nalways online",
+      "subtitle": "One-click isolated sandbox · 24/7 uptime · Work Units billing · we handle the infra",
+      "differentiator": "Zero ops · Isolated sandbox · WU billing · 24/7 online",
+      "ctaPrimary": "Start free on cloud",
+      "ctaSecondary": "View pricing"
+    },
+    "advantages": {
+      "title": "Why MyrmAgent Cloud",
+      "subtitle": "Hosted agent workspace with transparent usage billing — no server to maintain.",
+      "items": {
+        "zeroOps": {
+          "title": "Zero infrastructure ops",
+          "description": "We provision, patch, and scale your dedicated sandbox. Sign in and start working — no Docker, no VPS, no cron babysitting."
+        },
+        "isolatedSandbox": {
+          "title": "Isolated per-user sandbox",
+          "description": "Your files, memory, and tools live in a dedicated encrypted volume — never shared with other tenants. The control plane auto-initializes volume permissions and health checks, with fail-fast diagnostics when a sandbox fails to start."
+        },
+        "wuBilling": {
+          "title": "Transparent Work Units & Budget Control",
+          "description": "One WU balance covers LLM calls, tool runs, and sandbox time. 4-state budget badge warns before you overspend; pre-send WU estimation blocks accidental overruns. Enterprise admins set team budgets with automatic threshold alerts — no surprise bills. 283+ billing tests verified."
+        },
+        "alwaysOn": {
+          "title": "Always-on workspace",
+          "description": "Your cloud workspace stays reachable 24/7. Idle sandboxes auto-sleep at zero cost; open your browser and wake up in seconds—background tasks are never interrupted."
+        }
+      }
+    },
+    "howItWorks": {
+      "title": "Live in 3 steps",
+      "subtitle": "Sign up to a dedicated sandbox — about 2 minutes.",
+      "steps": {
+        "step1": {
+          "num": "01",
+          "title": "Create cloud account",
+          "description": "Sign in with Google or GitHub. Your dedicated sandbox activates in seconds — no server to provision."
+        },
+        "step2": {
+          "num": "02",
+          "title": "Start talking — zero config",
+          "description": "A platform-hosted model is ready out of the box. Just type and your Agent responds — no API key needed. Bring your own key later for unlimited usage."
+        },
+        "step3": {
+          "num": "03",
+          "title": "Collaborate on tasks",
+          "description": "Describe work; Agent researches, executes, and delivers with full observability."
+        }
+      }
+    },
+    "pricingPreview": {
+      "title": "Simple Work Units pricing",
+      "subtitle": "Transparent usage billing. Local self-host remains forever free BYOK.",
+      "period": "/mo",
+      "recommended": "Recommended",
+      "wuExplainer": "Work Units (WU) are your single usage meter — LLM inference, tool execution, and sandbox active time draw from the same monthly balance. BYOK is supported where applicable.",
+      "billingNote": "Manage subscriptions and billing in the app.",
+      "billingLink": "Open app billing",
+      "plans": {
+        "free": {
+          "name": "Free",
+          "price": "$0",
+          "wu": "600 WU/mo",
+          "features": [
+            "1 agent",
+            "Basic memory",
+            "Community support"
+          ]
+        },
+        "companion": {
+          "name": "Companion",
+          "price": "$19",
+          "wu": "2,500 WU/mo",
+          "features": [
+            "2C sandbox",
+            "Full memory system",
+            "Multi-channel support"
+          ]
+        },
+        "plus": {
+          "name": "Plus",
+          "price": "$42",
+          "wu": "5,000 WU/mo",
+          "features": [
+            "Same 2C sandbox as Companion",
+            "More monthly WU",
+            "Cron automation"
+          ]
+        },
+        "pro": {
+          "name": "Pro",
+          "price": "$49",
+          "wu": "12,000 WU/mo",
+          "features": [
+            "8C sandbox + VNC desktop",
+            "Priority support",
+            "Extended active time"
+          ]
+        },
+        "max": {
+          "name": "Max",
+          "price": "$149",
+          "wu": "22,000 WU/mo",
+          "features": [
+            "8C sandbox · 200GB storage",
+            "22,000 WU monthly allowance",
+            "Dedicated support"
+          ]
+        }
+      }
+    },
+    "useCases": {
+      "title": "Built for real work",
+      "subtitle": "From research to automation — your agent runs in a full sandbox, not a chat box.",
+      "items": {
+        "research": {
+          "tag": "Research",
+          "title": "Research & deliverables",
+          "description": "Three-column Research Studio: curate sources, converse with AI, and produce reports or slides — all in one view with full tool traceability."
+        },
+        "coding": {
+          "tag": "Build",
+          "title": "From idea to running app",
+          "description": "Describe your idea in plain language — Agent builds, runs, and iterates in a cloud workspace with memory across sessions. No coding required."
+        },
+        "automation": {
+          "tag": "Automate",
+          "title": "Cron & recurring tasks",
+          "description": "Schedule agents on Plus and above to monitor feeds, sync data, or run nightly maintenance jobs."
+        }
+      }
+    },
+    "trust": {
+      "title": "Billing & trust",
+      "subtitle": "Merchant-of-record billing, isolated infrastructure, and human support when you need it.",
+      "items": {
+        "creem": {
+          "title": "Creem billing",
+          "description": "Subscriptions and payments are processed by Creem as merchant of record. Manage plans and invoices in the app."
+        },
+        "security": {
+          "title": "Data isolation",
+          "description": "Per-user sandbox volumes with encryption at rest. 22-layer enterprise infrastructure — 3-tier quota, fleet health monitoring, audit dashboard (KPI + time-series + event distribution + CSV/JSON export), cost & usage report (member ranking + category breakdown + budget alerts), secrets vault, killswitch, org management with atomic RBAC + one-click employee offboarding & volume handoff + IT-managed Org MCP (configure once, every employee's agent auto-ready · legacy configs self-heal · cloud stdio auto-filtered · full-chain Chrome E2E verified) + **Org Model Whitelist** (admin glob rules → picker greys out blocked models + agent build blocked) + **Managed Approval Policy** (org-wide YOLO/approval SSOT pushed to every sandbox) + **IdP Group → MCP ACL** (OIDC auto-sync + instant offboard revocation + internal field leak prevention) + **Privacy-Aware Dynamic Model Routing** (per-turn PII classification & fail-closed physical zero-egress sanitize gate) — 5,200+ tests verified."
+        },
+        "support": {
+          "title": "Human support",
+          "description": "Reach support@myrmagent.ai for billing or technical issues. Refund Policy applies to eligible subscription charges."
+        }
+      }
+    },
+    "faq": {
+      "title": "Cloud FAQ",
+      "items": {
+        "billing": {
+          "question": "How does Work Units (WU) billing work?",
+          "answer": "You see a single Work Units balance. Platform usage — LLM calls, tool execution, and active sandbox time — burns WU according to an internal rate table. Idle sleep periods incur zero WU cost. BYOK is supported where applicable."
+        },
+        "data": {
+          "question": "Where is my data stored?",
+          "answer": "Cloud data lives in an isolated per-user sandbox volume with encryption at rest. It is not shared with other tenants."
+        },
+        "cancel": {
+          "question": "Can I cancel anytime?",
+          "answer": "Yes. Subscriptions cancel anytime; access continues until the billing period ends. See our Refund Policy."
+        },
+        "selfHost": {
+          "question": "Prefer to self-host?",
+          "answer": "MyrmAgent is open source. Run Local WebUI or the desktop client on your own hardware — forever free with BYOK."
+        },
+        "topup": {
+          "question": "Can I buy extra Work Units?",
+          "answer": "Yes. One-time WU top-ups are available in the app billing page when you need more capacity before your monthly reset."
+        },
+        "byok": {
+          "question": "Does BYOK work on cloud?",
+          "answer": "Yes. Bring your own API keys where supported — platform WU still applies to sandbox time and bundled tool usage per plan."
+        },
+        "sandboxSpec": {
+          "question": "What sandbox specs do I get?",
+          "answer": "Companion and Plus include a 2C sandbox (4GB RAM, 50GB storage); Pro adds 8C with VNC desktop (8GB RAM, 100GB storage); Max includes 8C with 200GB storage and the highest monthly WU allowance."
+        }
+      }
+    },
+    "footer": {
+      "tagline": "Cloud-hosted MyrmAgent — zero ops, isolated sandbox.",
+      "operator": "Operated by VortexAI. Subscriptions billed via Creem · Work Units usage.",
+      "contact": "Support: support@myrmagent.ai",
+      "selfHostLink": "Self-host for free (open source)",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "refund": "Refund",
+      "copyright": "© {year} VortexAI. MyrmAgent Cloud."
+    }
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "description": "The page you are looking for does not exist or has been moved.",
+    "backHome": "Back to Home"
+  },
+  "metadata": {
+    "landingPageTitle": "MyrmAgent — Open Source AI Agent Platform",
+    "landingPageDescription": "Self-host MyrmAgent locally or run the desktop client. BYOK, full sandbox, memory, and GUI-first workspace.",
+    "privacyPageTitle": "Privacy Policy - MyrmAgent",
+    "privacyPageDescription": "How MyrmAgent collects, uses, and protects your data.",
+    "termsPageTitle": "Terms of Service - MyrmAgent",
+    "termsPageDescription": "Terms governing your use of the MyrmAgent platform.",
+    "refundPageTitle": "Refund Policy - MyrmAgent",
+    "refundPageDescription": "Refund policy for MyrmAgent.",
+    "cloudPageTitle": "MyrmAgent Cloud — Hosted AI Workspace",
+    "cloudPageDescription": "One-click cloud deploy, isolated sandbox, Work Units billing, zero ops."
+  }
+}
