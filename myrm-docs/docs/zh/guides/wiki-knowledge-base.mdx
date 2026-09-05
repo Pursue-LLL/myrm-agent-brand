@@ -543,6 +543,23 @@ Myrm 实现了**会话级知识库即时多选挂载与跨源联邦混合检索*
 2. **移动端**：在输入框右侧唤起操作抽屉（`MobileActionSheet`），点击「挂载知识库」即可即时选择。
 3. **输入区胶囊**：挂载的知识库会以内联紫调胶囊呈现；点击右侧 `×` 可一键从当前会话解绑。隐私模式（Incognito）下挂载仅作用于当前轮次，不持久化绑定关系。
 
+## Obsidian 本地库深度融合与安全隔离收件箱（Obsidian Vault Portability & Safe Inbox）
+
+面对广大研究员、创作者与工程师深度使用 Obsidian 沉淀第二大脑的场景，传统 AI 工具要么只能读简单 Markdown 导致 `.canvas` 画布成为盲区，要么由于缺乏写入防护导致直接篡改人类本地笔记库。
+
+Myrm 提供了原生开箱即用的 **Obsidian 工具链与安全防护套件（`obsidian_tools.py` 与 `obsidian_canvas.py`）**：
+
+- **强类型 `.canvas` 白板 AST 与 1-Hop 维基链接邻近笔记级联展开**：
+  - 原生解析 Obsidian Canvas 白板文件，精准提取空间文本节点、文件引用卡片与拓扑连线，彻底破除大模型在空间视觉知识上的检索盲区；
+  - 智能解析 `[[Wikilinks]]` 并提供 1-Hop 邻域笔记级联展开（Linked Notes Context），阅读单篇笔记自动聚合一度关联笔记摘要，保全人类笔记库的知识图谱拓扑；
+  - 具备损坏 JSON、非法 AST 结构与异常编码的 100% 容错护栏。
+- **只读检索与安全隔离收件箱（`obsidian_inbox_write`）**：
+  - 坚持“用户核心库只读检索、AI 沉淀知识增量入 Inbox”的架构隔离原则；
+  - Agent 输出总结时默认只能写入专用的收件箱目录（如 `_Myrm_Inbox/`），支持自适应嵌套子目录（`subfolder`），绝不覆写用户原笔记；
+  - 深度集成 HITL 人工审批机制：配置审批策略时拦截写操作并向用户呈现审批卡片，无审批时安全落盘，彻底兼顾自动化流转与人机互信。
+- **毫秒级 mtime 水位差量同步（`ObsidianVaultBinding`）**：
+  - 本地库变动通过微秒级 `mtime` 水位扫描，本地新增与修改无需长轮询与重量级外部守护进程，极速感知与对齐。
+
 ## 对比 DIY Wiki 技能
 
 | DIY（如 Hermes llm-wiki SKILL） | Myrm |

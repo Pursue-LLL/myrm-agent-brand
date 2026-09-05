@@ -290,6 +290,9 @@ In production engineering and complex multi-turn workflows, long-term memory sys
    - Retrieval endpoints natively support `created_at <= until.isoformat()` upper-bound truncation, strictly blocking future memories from contaminating past timelines during offline benchmarking and trajectory replay.
 4. **Software Engineering 4-Phase Tags & Negative Trap Interception (Failed Attempts)**:
    - Natively tracks `analyze / locate / edit / verify` subtask phases and structured failure reasons. Injects failed attempts at highest priority (priority=3) into dynamic context to ensure the agent never repeats identical dead-ends.
+5. **Git Adaptive Incremental Sync & Pitfall Memory**:
+   - Features `RepoSyncDecision` and `evaluate_repo_sync_policy` operators to dynamically assess uncommitted changes, branch drift, and baseline commits, deciding exactly when repository memory needs synchronization.
+   - Provides `create_pitfall_memory` and `add_pitfall` primitives to lock hard-learned lessons into durable, high-priority episodic memory.
 
 ## Knowledge Graph
 
