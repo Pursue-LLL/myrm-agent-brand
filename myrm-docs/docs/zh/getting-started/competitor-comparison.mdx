@@ -11,6 +11,17 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-06 · 搜索配额水库与浏览器算力全要素运行成本监控器 · 观测与度量全面闭环）
+
+- **SearchQuotaAndBrowserComputeRuntimeCostMeter（对标 Hermes Agent @hooeem 仅在推文口头宣传“全天候 $10/月运行模型”但在开源仓内 0 水表、以及 OpenClaw / Codex / DeepSeek-Harness / Pi 在长程 24/7 常驻运行中遭遇外部搜索免费额度耗尽静默雪崩、浏览器自动化静默卡死空转耗尽沙箱算力与内存的致命盲区）：** Myrm 全面落地全要素白盒化运行水表与运行时算力监控闭环：
+  1. **Harness 框架层高内聚只读遥测（`WebSearchMetrics` & `BrowserRunTelemetry`）**：`WebSearchMetrics` 原生采集 Provider 级调用频次、成功率与配额超限度量；`BrowserObservability` 深度集成，流式捕获 `active_compute_seconds` 与 `total_bytes_transferred` 纯数字网络数据吞吐量；
+  2. **429 报错自愈感知与无感切流（Self-Healing Re-anchor & Quota Hop）**：`web_search/providers/chain.py` 引入 `ProviderQuotaStatus` 状态机与 Transient/Persistent 429 精准区分，遇到持久配额耗尽时毫秒级自动将本地水表对齐至限额上限，无感触发 `search_provider_chain` 向下跳过耗尽 Provider，彻底终结长程任务因单点限流全盘瘫痪；
+  3. **3 分钟防死循环长耗时看门狗（Watchdog Shield）**：`BrowserObservability.check_action_watchdog` 对超长浏览器操作进行非阻塞硬时限监测，超阈值安全熔断并累加看门狗触发计数，杜绝挂起网页无限空转耗尽沙箱 CPU 与电量；
+  4. **Server 业务层 SQLite 账本与并发安全防护**：`runtime_meter_service.py` 内置官方免费基线字典（Tavily 1000/Brave 2000 等），具备事务回滚与重查机制（Rollback & Re-query Safe Retry），消除高并发唯一键冲突；支持未计费无限专线豁免标签与沙箱折合算力开销自动折算（$0.001/分钟）；
+  5. **Frontend 表现层高质感双卡片仪表盘（`RuntimeCostMeterCard.tsx`）**：在系统用量统计页直观提供搜索配额水库（80%/95% 多阶色彩警示）、浏览器算力耗时与网络加载流量 MB 卡片、3 分钟防死循环看门狗说明、自定义配额弹窗与一键重置校准；全语言 6 套 i18n（zh, en, ja, ko, de, zh-TW）完全对齐，0 原生 emoji，PC/移动双端全自适应；
+  6. **全栈自动化测试 100% 满分通过**：Harness 7/7 单测、Server 10/10 路由单测、Frontend 2/2 Vitest 测试及 249 项静态契约测试全部绿灯通过。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/web_search/providers/chain.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/observability.py` · `myrm-agent-server/app/api/statistics/quota_runtime_router.py` · `myrm-agent-frontend/src/components/features/settings/sections/system/RuntimeCostMeterCard.tsx` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
+
 ## 最新验证快照（2026-09-05 · 生产级全流程 30 节点与三阶段六泳道生命周期闭环 · 工业级执行与反思核验完成）
 
 - **ProductionExecutionLifecycleLanesAndVerificationLoop（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在日常实体查询不调工具凭空捏造虚假订单号、任务执行黑盒无进度、参数格式校验缺失打崩下游接口、外部依赖宕机时抛原生堆栈崩溃、以及在最终答复时脱离物理证据信口开河的行业顽疾）：** Myrm 全面落地生产级三阶段、六泳道与 30 核心节点全流程闭环体系：

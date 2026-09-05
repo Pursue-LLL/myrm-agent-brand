@@ -59,6 +59,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'patternDiscovery',
   'sessionPerfObservability',
   'gatewayRuntimeVitals',
+  'runtimeCostMeter',
   'streamResilient',
 ] as const;
 
