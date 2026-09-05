@@ -11,14 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
-## 最新验证快照（2026-09-05 · 交付物与代码块未落盘拦截门禁与工件自动落盘保全 · 运行时耐久性与资产保护全面闭环）
+## 最新验证快照（2026-09-05 · 交付物未落盘嗅探、多模态 400 逆向脱水自愈与本地技能安全采纳 · 运行时耐久性与资产安全闭环）
 
-- **UnwrittenDeliverableAndCodeBlockEnforcementGuardAndArtifactAutoStaging（对标 Google Antigravity / Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在对话框生成大量长篇代码或完整报告却漏调用工具落盘、沦为“只在屏幕打字不保存物理文件”的纯 Chat 假智能体，或导致用户资产丢失的硬痛点）：** Myrm 交付了交付物未落盘拦截门禁与工件自动落盘保全系统：
-  1. **结束前启发式交付物嗅探器（`deliverable_write_verifier.py`）**：在 Agent 判定会话结束前，静态扫描模型输出中的完整交付物（py/ts/html/css/sh/json/sql/md 等多语言代码块与长篇报告），结合单行纯命令过滤、算法教学问答意图智能放行、以及宽表 CSV / 紧凑 JSON 的字节密度自适应判定，严格核验是否真实调用了文件写入/修改工具（`file_write_tool` / `file_edit_tool`）；
-  2. **门禁拦截与自愈修正反馈环（`completion_guard.py`）**：检测到“光说不练”的漏落盘行为时立即拦截收尾动作，自动改写注入 `_completion_check` 系统工具反思指令，迫使模型在下一个 ReAct 循环中显式调用 `file_write_tool` 真正落盘；
-  3. **沙箱工件自动暂存、Git 卫生隔离与草案库（`deliverable_auto_staging.py`）**：在达到最大重试上限触发 `forced_finish` 时，自动将未落盘的代码块或报告提取并原子化写入沙箱 `.myrm/staged_artifacts/`，同时自动维护 `.myrm/.gitignore` 实现沙箱透明与用户工程零污染，并提供 20 个上限的 LRU 滚动容量防爆保护；
-  4. **全栈自动化测试 100% 满分通过**：37/37 核心嗅探、Git 隔离与自动暂存单测全部通过（代码行覆盖率 94%），3/3 CompletionGuard 联动集成测试全部通过，全链路 100% 绿灯。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_write_verifier.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_auto_staging.py` · `temp-docs/materials/FILE_SYSTEM_INTELLIGENCE_ADVANTAGE.md`
+- **UnwrittenDeliverableSniffingAndMultimodalOverflowSelfHealing（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在对话框生成大量长篇代码或完整报告却漏调用工具落盘沦为“只在屏幕吐字不存文件”的假智能体，或在连续长截屏时触发网关 400/413 Payload Too Large 导致会话永久报废瘫痪的行业顽疾）：** Myrm 交付了工业级执行耐久性与资产自愈防护系统：
+  1. **结束前启发式交付物嗅探器（`deliverable_write_verifier.py`）**：在 Agent 判定会话结束前，静态扫描模型输出中的完整交付物（24+ 行可执行脚本、全文件结构、宽表 CSV 与紧凑 JSON 密度分析），严格核验是否真实调用了文件写入/修改工具；
+  2. **CompletionGuard 强制驳回与反向修正自愈环**：检测到“光说不练”的漏落盘行为时立即拦截收尾动作，自动注入反思指令迫使模型在下一个 ReAct 循环中显式调用 `file_write_tool` 真正落盘；
+  3. **沙箱工件自动暂存与 Git 隔离保全（`deliverable_auto_staging.py`）**：在达到最大重试上限触发强制结束时，自动将代码块安全暂存至沙箱 `.myrm/staged_artifacts/`，同时自动维护 `.gitignore` 避免污染用户代码仓，配备 20 份上限的 LRU 滚动防爆保护；
+  4. **多模态 400/413 超限逆向脱水与原地重发自愈（`classifier.py` · `media_budget_governor.py` · `stream_recovery_oneshot.py`）**：前置视觉预算阶梯治理结合网关 400/413 精准捕获；自动将历史图片逆向聚合脱水至 512px WebP 并原地重试，彻底杜绝长图会话永久报废；
+  5. **本地技能路径 Dry-Run 预检与原子采纳（`local_preview.py` · `LocalSkillPathScanPreviewBeforeAdoptDialog.tsx`）**：导入外部技能前提供无副作用预览、AST 安全审计与多选采纳，杜绝恶意技能隐蔽攻击；
+  6. **全栈自动化测试 100% 满分通过**：37 项交付物验证单测、12 项多模态自愈单测、真实 Chrome E2E 全链路 100% 绿灯。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_write_verifier.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/streaming/recovery/stream_recovery_oneshot.py` · `temp-docs/roadmap/topic_19_flash_agent_execution_durability_and_multimodal_resilience_roadmap.md`
 
 ## 最新验证快照（2026-09-05 · 真实全流程任务、真实大模型推理与 Browser Orchestrator 真实 Chrome E2E 全链路闭环 · 企业级可靠性完成）
 

@@ -11,6 +11,17 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-09-05 · 미작성 산출물 스니핑 차단, 다중 모달 400 자동 복구 및 로컬 스킬 안전 도입 · 안정성 및 보안 완료)
+
+- **UnwrittenDeliverableSniffingAndArtifactAutoStaging (Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 등 LLM이 파일 쓰기 도구를 호출하지 않고 채팅창에 코드만 출력하여 세션 종료 시 빈 디렉토리가 남는 가짜 완성 문제나 다중 모달 400/413 초과로 세션이 영구 정지되는 문제 대비):** Myrm은 견고한 산업용 실행 내구성 및 산출물 안전 가드를 제공합니다:
+  1. **실질 코드 및 고밀도 데이터 휴리스틱 스니핑 (`deliverable_write_verifier.py`)**: 모델의 최종 응답에서 24줄 이상의 실행 가능한 스크립트, 광폭 CSV 표, 고밀도 JSON 데이터셋을 AST/정규식으로 감지하여 영속화 도구 미호출 시 완료를 차단;
+  2. **CompletionGuard 능동 거부 및 원위치 자가 치유**: 토큰 누수 없이 `file_write_tool` 또는 `create_artifact_tool`을 호출하도록 구조화된 피드백을 제공하여 능동적으로 거부 및 자가 수정 유도;
+  3. **데드락 방지 자동 안전 임시저장 (`deliverable_auto_staging.py`)**: 2회 연속 거부 후에도 영속화 실패 시 `.myrm/staged_artifacts/`로 자동 격리 저장하며 `.gitignore`를 자동 업데이트하여 Git 저장소 오염 방지;
+  4. **다중 모달 400/413 초과 적응형 다운샘플링 및 원위치 복구 (`classifier.py` · `media_budget_governor.py` · `stream_recovery_oneshot.py`)**: 점진적 시각 예산 관리 및 게이트웨이 400/413 정밀 분류; 과거 이미지를 512px WebP로 역방향 탈수 및 원위치 재전송하여 긴 캡처 세션의 영구 벽돌화 완전 방지;
+  5. **로컬 스킬 경로 드라이런 사전 검토 모달 (`local_preview.py` · `LocalSkillPathScanPreviewBeforeAdoptDialog.tsx`)**: 외부 스킬 디렉토리를 가져오기 전 AST 정적 보안 감사 및 선택적 채택을 지원하여 악성 페이로드 방어;
+  6. **100% 자동화 테스트 통과**: 산출물 검증 단위 테스트 37개, 다중 모달 복구 테스트 12개, Chrome E2E 테스트 100% 전량 통과.
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_write_verifier.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/streaming/recovery/stream_recovery_oneshot.py` · `myrm-agent-server/app/core/skills/providers/local_preview.py` · `temp-docs/roadmap/topic_19_flash_agent_execution_durability_and_multimodal_resilience_roadmap.md`
+
 ## 최신 검증 스냅샷 (2026-09-05 · 동일 모델 원위치 스트리밍 중단점 복구 LCP 중복 제거 및 단일 작업 토큰 소프트/하드 이중 임계값 보호 · 모델 라우팅 완료)
 
 - **SmartRoutingInPlaceStreamResumeAndTokenGuard (Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi 등 장시간 스트리밍 중 네트워크 끊김이나 504 Gateway Timeout 발생 시 전체 응답을 처음부터 다시 생성하여 수천 개의 토큰이 낭비되고 시간이 두 배로 소요되는 문제와 작업 수준의 소프트/하드 한도 부재로 복잡한 루프 시 백그라운드에서 신용카드가 고갈되는 문제 대비):** Myrm은 스트리밍 복원력과 토큰 예산 제어를 위한 산업 등급 폐루프 아키텍처를 제공합니다:
@@ -69,6 +80,15 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
   4. **듀얼 엔진 출력 및 네이티브 아티팩트 전달 (Dual-Engine Output & Artifact Delivery)**: Excel에서 문자 깨짐 없이 즉시 열리는 UTF-8-SIG(BOM 인코딩) CSV를 기본 출력하며, 샌드박스 내 스크립트를 통해 정식 `.xlsx` 파일로 변환하여 아티팩트 시스템을 통해 직접 전달;
   5. **100% 아키텍처 게이트 검증 통과**: `test_prebuilt_skill_web_scraping.py` 18개 단위 테스트 전량 통과, 0 경고 0 오류.
 - **SSOT 출처:** `myrm-agent-server/assets/prebuilt_skills/web-scraping/SKILL.md` · `myrm-agent-server/tests/architecture/test_prebuilt_skill_web_scraping.py` · `temp-docs/materials/BROWSER_AUTOMATION_ADVANTAGE.md`
+
+## 최신 검증 스냅샷 (2026-09-05 · Flash 에이전트 실행 지속성, 미기록 결과물 자동 보존 및 멀티모달 초과 복원력 · 런타임 신뢰성 완료)
+
+- **FlashAgentExecutionDurabilityAndMultimodalResilience (Google Antigravity / OpenClaw / Hermes 등 채팅창에 수천 줄의 코드를 출력하면서 파일 쓰기 도구 호출을 누락하여 단순 챗봇으로 전락하는 결함, 롤백을 위한 원자적 스냅샷 부재, 다중 이미지 초과 400 Bad Request로 인한 세션 영구 마비 문제 대비):** Myrm은 업계 최고의 실행 지속성, 결과물 보존 및 멀티모달 복원력 방어 아키텍처를 제공합니다:
+  1. **실질적 결과물 감지 및 완료 강제 차단 게이트 (`deliverable_write_verifier.py` · `completion_guard.py`)**: 라인 수, 파일명 서명, 조밀한 테이블 데이터 패턴(CSV/압축 JSON)을 기반으로 미저장 결과물을 감지; 파일 쓰기 없이 종료하려는 시도를 차단하고 자가 치유 지침을 주입하여 도구 호출을 강제;
+  2. **샌드박스 임시 저장 및 LRU 오버플로 방지 (`deliverable_auto_staging.py`)**: 재시도 한도 초과 시 미저장 코드를 `.myrm/staged_artifacts/`에 안전하게 임시 저장하고, `.gitignore`를 통해 자동 격리하며 용량/시간 듀얼 LRU 정책으로 디스크 팽창 방지;
+  3. **멀티모달 400/413 페이로드 탈수 및 인플레이스 자가 치유 (`classifier.py` · `stream_recovery_oneshot.py`)**: 3단계 시각 예산 사다리(`1280px` / `768px` / `512px`) 적용 및 업스트림 400/413 에러 감지; 과거 이미지를 512px WebP로 자동 탈수 다운샘플링하여 인플레이스 재시도 및 세션 영구 마비 완전 박멸;
+  4. **100% 자동화 테스트 통과**: 결과물 감지, 샌드박스 임시 저장, 완료 가드 및 멀티모달 탈수 자가 치유 단위/통합 테스트 전량 통과.
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/agent/guards/deliverable_write_verifier.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/guards/deliverable_auto_staging.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/streaming/stream_recovery_oneshot.py` · `temp-docs/materials/ERROR_RECOVERY_ROBUSTNESS_ADVANTAGE.md` · `temp-docs/materials/MULTIMODAL_CAPABILITY_ADVANTAGE.md`
 
 ## 최신 검증 스냅샷 (2026-09-05 · 병렬 브라우저 작업 공간 및 사용자 인수 하드 스톱 재개 정책 · 브라우저 자동화 완료)
 
