@@ -23,3 +23,18 @@ Myrm Agent tracks LLM usage and cost down to the message level, so the totals yo
 - **Chat details / export**: each chat's `usageSummary` (`totalCalls`, `totalTokens`, `totalUsd`) is the message-level aggregate.
 - **Usage radar & statistics** (`/statistics/usage/radar` and friends): built on the same exact totals.
 - **Budget dashboards**: budget enforcement reads from the same precise accounting, so warnings match real spend.
+
+## Full-Element Runtime Cost Meter: Free Search Quota & Browser Compute
+
+Beyond direct LLM token costs, long-horizon autonomous tasks frequently draw from third-party search API free tiers and local/cloud browser automation infrastructure. Myrm Agent provides end-to-end transparent watermarks and defense guards:
+
+### 1. Search Quota Reservoir
+- **Official Baselines & Level Tracking**: Built-in monthly baselines for major providers (Tavily: 1,000 req/mo, Brave: 2,000 req/mo), visualized in Settings with dual progress meters.
+- **429 Self-Healing Re-anchor**: When a third-party 429 quota-exceeded error occurs, Myrm automatically recalibrates the local ledger to 100% depleted and seamlessly fails over to backup providers via the Priority Chain without crashing the user's task.
+- **Graduated Alerts & Unmetered Exemptions**: Clear warnings at 80% and 95% capacity; self-hosted search engines (e.g. SearXNG) are automatically exempted as unmetered dedicated lines.
+
+### 2. Browser Automation Compute & Network Meter
+- **Second-Precision Duration & Bandwidth**: Non-intrusive CDP telemetry captures active compute seconds and transferred network megabytes (MB) across all browser automation tool calls.
+- **3-Minute Anti-Runaway Watchdog**: Automatic 180s hard timeout fuses prevent hung JavaScript loops and zombie browser processes from exhausting host CPU and memory.
+- **Full-Element Accounting**: Delivers 100% white-box operational observability for developers and enterprise teams running 24/7 background agent workflows.
+
