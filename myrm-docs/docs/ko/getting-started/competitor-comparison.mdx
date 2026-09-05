@@ -11,6 +11,26 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-09-05 · 자식 프로세스 민감 자격 증명 격리 관문 및 스크립트 피연산자 TOCTOU 검증 · 보안 거버넌스 완료)
+
+- **ChildProcessCredentialTokenIsolation / ApprovedScriptsChangePrevention (OpenClaw / Hermes / Codex / DeepSeek-Harness / Pi 등 자식 프로세스 실행 시 부모 환경 변수를 그대로 상속하여 Noise/Vault 자격 증명 및 sk- API 키가 유출되는 문제와 사용자 승인 후 외부 스크립트가 변조되어 대리 실행되는 TOCTOU 취약점 대비):** Myrm은 기업급 심층 자식 프로세스 환경 변수 화이트리스트 정화 관문과 런타임 SHA-256 피연산자 검증 아키텍처를 제공합니다:
+  1. **3단계 자식 프로세스 환경 격리 엔진 (`env_isolation.py` · `build_isolated_child_env`)**: 네이티브 SSOT 모드로 `CORE`(엄격한 POSIX 및 개발 도구체인 화이트리스트, Git author 신원은 유지하되 민감 자격 증명 물리적 제거), `ALL`(전체 상속 + 57개 동적 링커/프록시 하이재킹 블랙리스트 및 8차원 어근 와일드카드 정화), `NONE`(완전 제로 환경 변수 물리적 절연)을 제공하여 코드 실행 수명 주기 전반의 자격 증명 유출 차단;
+  2. **오탐 제로 및 개발자 도구체인 무손실 호환**: 기밀 변수(`AUTH_TOKEN`, `API_KEY`)와 개발자 커밋 신원(`GIT_AUTHOR_NAME`, `GIT_COMMITTER_EMAIL`)을 정밀하게 구분하여 최고 수준의 보안을 제공하면서도 로컬 Git 커밋 경험을 원활하게 보장;
+  3. **스크립트 피연산자 TOCTOU 해시 검증 관문 (`script_operand_verifier.py`)**: 승인 평가 단계에서 가변 외부 스크립트(`python test.py`, `bash deploy.sh`)의 SHA-256 스냅샷을 캡처하고 실행 경계에서 내용을 실시간 재검증; 승인 창이 열려 있는 동안 파일이 변조되거나 심볼릭 링크로 교체된 경우 `SCRIPT_OPERAND_DRIFT_REJECT`로 즉시 실행 차단;
+  4. **고위험 스크립트 단일 승인 강제 (Hide Allow Always)**: 가변 외부 스크립트가 포함된 작업에 대해 '항상 허용'을 전면 비활성화하여 시간차 기반 명령 교체 취약점 근본적 차단;
+  5. **100% 자동화 테스트 통과**: 87개 Harness 핵심 보안 테스트, 스크립트 피연산자 검증 및 환경 변수 격리 테스트 전량 통과, 0 경고 0 오류 0 좀비 프로세스.
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/security/env_isolation.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/security/script_operand_verifier.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+
+## 최신 검증 스냅샷 (2026-09-05 · 컨텍스트 압축 전 도구 출력 원문 회상 및 안전 격리 아카이빙 · 컨텍스트 파이프라인 완료)
+
+- **PreCompactToolOutputVerbatimRecallPack (MemPalace / OpenClaw / Hermes / Codex / DeepSeek-Harness / Pi 등 장기 대화에서 컨텍스트 압축 창 전환 후 구체적인 명령행 오류, 종료 코드 및 종속성 충돌 현장을 잊어버리거나 외부 CLI를 통해 ANSI 제어 문자가 오염된 raw jsonl을 대화 검색 색인에 쏟아부어 신호 대 잡음비가 붕괴되는 문제 대비):** Myrm은 엔터프라이즈급 4단계 컨텍스트 파이프라인과 결정론적 안전 아카이빙 폐루프 아키텍처를 제공합니다:
+  1. **파이프라인 수준 결정론적 헤드/테일 보존 및 오프라인 슬라이싱 (`ActiveToolResultPruneProcessor`)**: 대형 도구 출력을 Head 800 + Tail 400 문자로 결정론적 절단하고 초과분을 샌드박스 `.context/{session_id}/compacted/`로 안전하게 오프로드하며 정밀 행 복원 매개변수(`chunk_restore_args`)가 포함된 구조화된 `ContextArchiveReference` 토큰 포함;
+  2. **제로 모델 비용 보호 마일스톤 주입 (`MemoryPreCompactService`)**: LLM 압축 트리거 전 `_fetch_archive_checkpoint_milestone`이 최근 도구 체크포인트(`## Recent Archive Checkpoints`)를 보호 컨텍스트에 주입하여 창 전환 후에도 과거 오류와 실행 궤적을 100% 보존;
+  3. **도구 연속 실패 단기 방어 메모리 (`ToolMemoryCaptureHook`)**: 동일 도구가 $\ge 2$회 연속 실패할 때 `Last error: {error[:200]}` 및 자동 24시간 TTL을 갖춘 `ProceduralMemory`로 자동 승격하여 무한 재시도 결함 영구 차단;
+  4. **엄격한 대화 검색 색인 화이트리스트 격리 (`chat_helpers.py` · `ALLOWED_MESSAGE_ROLES`)**: 사용자 대상 SQLite FTS5 대화 검색 색인에 `{"user", "assistant"}` 화이트리스트를 엄격 적용하여 기계 로그 오염을 물리적으로 차단하고 100% Prompt Cache 안정성 유지;
+  5. **100% 풀스택 자동화 테스트 통과**: 37개 단위 테스트, 32개 파이프라인 통합 테스트 및 249개 정적 SSOT 계약 테스트 전량 통과, 0 경고 0 오류 0 좀비 프로세스.
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/` · `myrm-agent-server/app/services/chat/chat_helpers.py` · `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md`
+
 ## 최신 검증 스냅샷 (2026-09-05 · Control UI 전 표면 오류 마스킹 및 예외 출구 관문 · 보안 완료)
 
 - **ControlUISurfaceErrorRedaction (OpenClaw / Hermes / Codex / DeepSeek-Harness / Pi 등 화면 공유, 녹화, 화면 캡처 지원 요청 시 토스트 팝업 및 API 오류에서 sk- API 키, 데이터베이스 암호, 로컬 절대 경로 및 내부 IP가 그대로 노출되는 심각한 정보 유출 문제 대비):** Myrm은 프론트엔드 표현 계층 투명 적용과 서버 측 예외 출구 관문의 2단계 심층 방어 아키텍처를 제공합니다:

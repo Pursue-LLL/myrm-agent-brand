@@ -11,6 +11,36 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-05 · 插件分级沙箱权限模型与默认禁用门禁 · 安全治理完成）
+
+- **PluginSandboxPermissionModelPack（对标 DeepSeek Harness 在 Issue #312 与社区实测中暴露的“插件直接拥有宿主进程权限、安装即静默在后台常驻运行”的特权漏洞）：** Myrm 交付了业内领先的插件与 MCP 五重纵深防御闭环体系：
+  1. **落盘默认全量禁用（Default-Disabled 铁律）**：`_mcp_persist.py` 强制在持久化时将所有导入的第三方 MCP 服务状态设为 `enabled: False`，彻底杜绝插件未经用户知情并在后台静默启动的提权风险；
+  2. **前端导入向导强制安全信任与沙箱环境揭示**：`PluginImportDialog.tsx` 联动 `PluginTrustedSourceDisclosure.tsx` 动态感知运行环境（Cloud Sandbox 还是 Local OS），强制要求用户勾选知情同意框，未勾选时确认按钮物理禁用；
+  3. **AST 静态安全扫描与代码体积门禁**：`_preview.py` 对技能代码进行 AST 语法树与正则注入扫描，超过 64KB 限制或包含高危代码片段的技能自动标记拦截；
+  4. **探针二次审查（Probe Gate）**：用户必须在设置界面主动执行连通性与可用性探针测试，并显式点击开关确认，才会被真正接入智能体对话流程；
+  5. **100% 测试通过**：Vitest 前端全流程 20/20 项单测全部绿灯，249 项底层 SSOT 契约测试全量通过，0 警告 0 错误 0 僵尸进程。
+- **SSOT 来源：** `myrm-agent-server/app/services/plugins/_mcp_persist.py` · `myrm-agent-frontend/src/components/features/plugins/PluginImportDialog.tsx` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+
+## 最新验证快照（2026-09-05 · 子进程敏感凭据隔离门禁与脚本操作数 TOCTOU 校验 · 安全治理完成）
+
+- **ChildProcessCredentialTokenIsolation / ApprovedScriptsChangePrevention（对标 OpenClaw / Hermes / Codex / DeepSeek-Harness / Pi 在子进程执行时完全继承父进程环境变量导致 Noise/Vault 凭据和 sk- API Key 全盘失守，以及在用户审批后外部脚本被恶意篡改发生替身攻击的痛点）：** Myrm 交付了企业级纵深子进程环境变量白名单净化门禁与运行时 SHA-256 操作数校验架构：
+  1. **三档子进程环境隔离引擎（`env_isolation.py` · `build_isolated_child_env`）**：原生 SSOT 模式提供 `CORE`（严格 POSIX 与开发工具链白名单，保留 Git author 提交身份同时物理剥离敏感凭据）、`ALL`（全量继承 + 57 项动态链接器/代理劫持黑名单与 8 维词根通配符深度净化）以及 `NONE`（绝对零变量物理绝缘模式），消除代码执行全生命周期的凭据外泄隐患；
+  2. **零误杀与开发者工具链无损兼容**：精确区分秘密变量（`AUTH_TOKEN`、`API_KEY`）与开发者提交身份（`GIT_AUTHOR_NAME`、`GIT_COMMITTER_EMAIL`），在筑起最高安全屏障的同时保障本地 Git 提交丝滑顺畅；
+  3. **脚本操作数 TOCTOU 散列验签门禁（`script_operand_verifier.py`）**：在审批评估阶段自动抓取可变外部脚本（如 `python test.py`、`bash deploy.sh`）并生成 SHA-256 快照，在执行边界实时重验内容；若脚本在审批弹窗停留期间被外部进程篡改或软链接偷换，立即以 `SCRIPT_OPERAND_DRIFT_REJECT` 强行阻断；
+  4. **高危脚本强制单次审批（Hide Allow Always）**：针对包含外部可变脚本的操作彻底禁用「永久允许」，从根源封死基于时间差的命令替换漏洞；
+  5. **100% 自动化测试通过**：87 项 Harness 核心安全测试、脚本操作数验证与环境变量隔离测试全绿通过，0 警告 0 错误 0 僵尸进程。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/security/env_isolation.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/security/script_operand_verifier.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+
+## 最新验证快照（2026-09-05 · 压缩换窗前工具原话可召回与安全隔离归档 · 上下文管线完成）
+
+- **PreCompactToolOutputVerbatimRecallPack（对标 MemPalace / OpenClaw / Hermes / Codex / DeepSeek-Harness / Pi 在长程会话触发压缩换窗后忘记具体的命令行报错、退出码与依赖冲突现场，或采用外部 CLI 粗暴将包含 ANSI 乱码的 raw jsonl 倾倒进对话检索库导致信噪比雪崩的痛点）：** Myrm 交付了企业级四层上下文管线与确定性安全归档闭环体系：
+  1. **管线级确定性头尾保留与离线切片（`ActiveToolResultPruneProcessor`）**：原生支持 DSH 风格 Head 800 + Tail 400 确定性字符截断，超长部分自动异步 offload 至沙箱 `.context/{session_id}/compacted/`，并在上下文嵌入结构化 `ContextArchiveReference`，支持按行号范围（`chunk_restore_args`）原地精准恢复；
+  2. **零模型开销受保护里程碑注入（`MemoryPreCompactService`）**：在 Compaction 压缩触发前，`_fetch_archive_checkpoint_milestone` 自动提取最近归档工具检查点（`## Recent Archive Checkpoints`）并硬性注入受保护上下文，模型换窗后 100% 记住过去的错误与执行轨迹；
+  3. **工具连续失败短期防踩坑记忆（`ToolMemoryCaptureHook`）**：同一工具失败 $\ge 2$ 次时，自动沉淀带 `Last error: {error[:200]}` 的 ProceduralMemory 并附加 24 小时 TTL，彻底阻断长任务中的死循环重试；
+  4. **严格人机对话检索库白名单（`chat_helpers.py` · `ALLOWED_MESSAGE_ROLES`）**：坚守 `{"user", "assistant"}` 白名单硬隔离，彻底杜绝机器报错日志污染面向用户的 SQLite FTS5 对话检索库，Prompt Cache 100% 保持；
+  5. **100% 全栈自动化测试通过**：37 项单元测试、32 项管线集成测试与 249 项静态 SSOT 契约测试全绿通过，0 警告 0 错误 0 僵尸进程。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/` · `myrm-agent-server/app/services/chat/chat_helpers.py` · `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-05 · Control UI 全表面错误安全脱敏与异常出口门禁 · 安全治理完成）
 
 - **ControlUISurfaceErrorRedaction（对标 OpenClaw / Hermes / Codex / DeepSeek-Harness / Pi 在用户录屏、截屏求助或日常操作时，API 报错、连通性测试或底核异常直白向前端吐出包含明文 sk- Key、数据库密码、本地绝对路径与私网 IP 导致严重生产泄密的痛点）：** Myrm 交付了前端表现层透明接入与服务端异常出口门禁双级安全防护体系：

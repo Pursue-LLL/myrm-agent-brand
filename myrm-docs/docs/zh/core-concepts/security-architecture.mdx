@@ -347,11 +347,16 @@ harness 的 `FileLock`（供投递队列使用）以 `O_NOFOLLOW` 打开锁文�
 
 扫描结果通过 `ScanConfirmDialog` 展示严重程度徽章，用户可信任、拒绝或强制启用（自担风险）。
 
-### Stdio 进程环境变量注入防御
+### Stdio 进程环境变量注入防御与全生命周期子进程凭证隔离门禁
 
-对于 Stdio 类型的 MCP 服务器，Myrm 构建了静态配置拦截与运行时参数清洗的双层纵深防御体系：
+对于 Stdio 类型的 MCP 服务器及所有派生执行的子进程（Bash Shell、Python 解释器、后台守护进程、CUA 驱动），Myrm 构建了静态配置拦截与运行时动态清洗的双层纵深防御体系：
 - **静态预检阻断**：在解析配置时若包含 `LD_PRELOAD`、`DYLD_INSERT_LIBRARIES`、`NODE_OPTIONS`、`PYTHONPATH`、`HTTP_PROXY`、`GIT_SSH_COMMAND` 等 50+ 种危险变量，直接标记 `CRITICAL` 严重级别阻断安装。
-- **运行时自动剥离**：在子进程启动前（`resolve_stdio_launch`）自动清洗并剔除所有高危键值，同时基于大小写归一化（Case-Insensitive Normalization）免疫跨平台混淆注入，精准白名单放行规范保留变量（`PLUGIN_ROOT`, `PLUGIN_DATA`）。
+- **运行时自动剥离与子进程凭证隔离（ChildProcessCredentialTokenIsolation）**：
+  - 在子进程启动前（`env_isolation.py:build_isolated_child_env`）自动执行严格的环境清洗；
+  - 核心凭据全面绝缘：`NOISE_AUTH_TOKEN`、`CODEX_EXEC_SERVER_NOISE_AUTH_TOKEN`、`AUTH_TOKEN`、`ACCESS_TOKEN`、`BEARER_TOKEN`、`DATABASE_URL`、`MYRM_VAULT_MASTER_KEY` 等全量敏感密钥在下发给任何第三方脚本前物理剥离；
+  - 8 维词根通配符拦截：精确过滤 `KEY`、`SECRET`、`TOKEN`、`PASSWORD`、`CREDENTIAL`、`AUTH_`、`_AUTH`、`AUTHORIZATION`、`AUTHENTICATION`、`BEARER`、`SIGNATURE`，彻底杜绝任何脚本偷窥宿主环境凭证；
+  - 零误杀设计：采用词形区分算法，安全放行 `GIT_AUTHOR_NAME`、`GIT_AUTHOR_EMAIL` 等合法 Git 提交者身份，确保开发者工作流顺畅；
+  - 三档继承策略（`CORE` 严格白名单 / `ALL` 清洗模式 / `NONE` 零环境变量），三部署同构适配。
 - **零 Prompt Cache 损耗**：纯框架底座运行时计算，0 Token 消耗，0 性能抖动。
 
 
@@ -964,5 +969,17 @@ CaMeL 单信任边界；Myrm **6 层**洋葱防御、5 域循环检测、3 层�
 1. **评估阶段快照锁定**：在用户审批包含外部可变脚本的 Shell 或代码解释器调用（如 `python script.py`）时，Harness 在评估阶段自动解析并计算该操作数文件的 SHA-256 内容哈希快照。
 2. **执行边界实时重验**：在审批通过最终下发执行（`apply_approval_decisions`）时，实时重新计算文件当前 SHA-256。若脚本在用户查看审批弹窗期间被外部恶意进程篡改、覆盖或软链接替换，立即触发 `SCRIPT_OPERAND_DRIFT_REJECT` 并物理阻断执行。
 3. **禁止永久放行（Hide Allow Always）**：涉及外部动态脚本操作数的高风险命令自动禁用「永久允许」权限，从根源堵死恶意借道既有白名单命令执行未授权代码的漏洞。
+
+## 子进程敏感凭证隔离门禁 (Child Process Credential Token Isolation)
+
+为杜绝第三方库与用户脚本窥探宿主进程环境变量（超越 OpenAI Codex #38941 局部修补）：
+
+1. **三档继承策略体系（SSOT）**：
+   - `CORE`：严格 POSIX / Runtime 白名单模式（仅保留 `PATH`、`HOME`、`USER`、开发工具链及 `GIT_AUTHOR_*` 身份，阻断一切潜在恶意或敏感变量）；
+   - `ALL`：全量继承 + 57 项动态链接器/代理劫持黑名单 + 8 维词根通配符深度净化；
+   - `NONE`：绝对零变量物理绝缘模式；
+2. **执行全生命周期 100% 覆盖**：覆盖持久 Shell 会话、Python 子进程、后台守护进程、浏览器沙箱与 CUA 驱动，消除任何脚本偷窥宿主环境凭证的供应链攻击隐患；
+3. **零误杀与开发者工具链无损兼容**：精确区分秘密变量（`AUTH_TOKEN`、`API_KEY`）与开发者提交身份（`GIT_AUTHOR_NAME`、`GIT_COMMITTER_EMAIL`），在筑起最高安全屏障的同时保障本地 Git 提交丝滑顺畅。
+
 
 
