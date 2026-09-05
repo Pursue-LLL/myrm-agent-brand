@@ -1070,3 +1070,20 @@ Myrm introduces an autonomous agentic vulnerability scanning and remediation ver
 4. **4-State Lifecycle Tracking & JSONL Persistence**: `ScanRunComparisonService` tracks findings across consecutive runs (`New`, `Persisting`, `Resolved`, `Regressed`) with automatic incremental JSONL persistence, preserving security baseline diffs across server restarts.
 5. **AST Incremental Slicing & Evidence Truncation**: Slices diff contexts to under 300 lines to maximize prompt cache hit rates, and strictly truncates sandbox PoC evidence to 4,096 characters to prevent SSE message channel overflows.
 
+## Control UI Surface Error Redaction
+
+To prevent sensitive credential leakage during screen-recording demos, screenshot troubleshooting, or console error returns:
+
+1. **Dual-Tier UI & API Filtering**: The frontend `errorRedactor.ts` intercepts all `toast.error`, `toast.warning`, and API Client error pipelines, automatically masking high-entropy API keys, Bearer/JWT tokens, and database URI passwords.
+2. **Local Path Normalization**: Replaces sensitive local developer paths (e.g., `/Users/username/...` or `/home/username/...`) with `~/...`, preventing internal user directory disclosure.
+3. **Server-Side Serialization Safety Net**: FastAPI global exception handlers (`errors.py`) sanitize error messages and details before dispatching JSON responses to clients.
+
+## Approved Scripts TOCTOU Drift Guard
+
+To defend against Time-of-Check to Time-of-Use (TOCTOU, CVE-2026-32921) attacks:
+
+1. **Evaluation Snapshot Locking**: When a user approves an external script command (e.g., `python script.py`), the Harness extracts the script operand and records its SHA-256 content hash snapshot during the security evaluation phase.
+2. **Execution-Boundary Revalidation**: At the execution boundary (`apply_approval_decisions`), the file's current SHA-256 hash is recomputed. If the script was modified, overwritten, or symlink-swapped while awaiting user approval, it triggers `SCRIPT_OPERAND_DRIFT_REJECT` and halts immediately.
+3. **Hide Allow Always**: Commands involving dynamic external script operands automatically suppress the "Always Allow" option, blocking malicious attackers from leveraging existing allowlists to run unreviewed code.
+
+

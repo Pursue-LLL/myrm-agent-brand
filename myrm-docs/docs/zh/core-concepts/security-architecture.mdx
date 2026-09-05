@@ -949,3 +949,20 @@ CaMeL 单信任边界；Myrm **6 层**洋葱防御、5 域循环检测、3 层�
 2. **读平面防越权召回隔离 (`default_scope="same_source"`)**：服务端历史召回适配器强制锁定检索来源必须为同渠道同会话，彻底防御 Prompt 越狱攻击诱导大模型跨渠道召回 WebUI 私有会话中的凭据与敏感记录。
 3. **零 Prompt Token 损耗与 100% 缓存保留**：门禁逻辑由后端运行时与适配器纯内存执行，Tool Description 保持 100% 静态不变，系统提示词缓存命中率毫无损耗。
 
+## 控制台全表面错误展示安全脱敏 (Control UI Surface Error Redaction)
+
+为了彻底根治开发者在投屏演示、截图求助或控制台报错回显时的敏感凭证外泄：
+
+1. **UI 弹窗与 API 异常双级过滤**：前端 `errorRedactor.ts` 在所有 `toast.error`、`toast.warning` 以及 API Client 报错管线中前置挂载高熵过滤器，自动掩码 API Key、Bearer/JWT 认证头、数据库连接串密码。
+2. **本地文件系统路径归一化**：自动将报错堆栈或提示中的敏感本地开发路径（如 `/Users/username/...` 或 `/home/username/...`）统一替换为 `~/...`，避免泄露内部系统目录名与私有用户名称。
+3. **服务端序列化兜底防线**：FastAPI 全局异常处理 `errors.py` 在向客户端分发 JSON 错误体前执行强约束清洗，杜绝原始报错携带凭据外溢。
+
+## 已批准脚本变更防护 (Approved Scripts TOCTOU Drift Guard)
+
+为防御 Time-of-Check to Time-of-Use（TOCTOU，CVE-2026-32921 级）替身攻击：
+
+1. **评估阶段快照锁定**：在用户审批包含外部可变脚本的 Shell 或代码解释器调用（如 `python script.py`）时，Harness 在评估阶段自动解析并计算该操作数文件的 SHA-256 内容哈希快照。
+2. **执行边界实时重验**：在审批通过最终下发执行（`apply_approval_decisions`）时，实时重新计算文件当前 SHA-256。若脚本在用户查看审批弹窗期间被外部恶意进程篡改、覆盖或软链接替换，立即触发 `SCRIPT_OPERAND_DRIFT_REJECT` 并物理阻断执行。
+3. **禁止永久放行（Hide Allow Always）**：涉及外部动态脚本操作数的高风险命令自动禁用「永久允许」权限，从根源堵死恶意借道既有白名单命令执行未授权代码的漏洞。
+
+

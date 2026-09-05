@@ -212,6 +212,19 @@ Myrm includes a pure Python **Deterministic CJK Bigram + Unigram Tokenizer (`cjk
   - **Tier 2 (Relaxed Fallback)**: If strict retrieval yields 0 hits, the query smoothly falls back within $0.1\text{ms}$ to unigram single-character matching, clearly marked with `relaxed: true` and `query_tokens` metadata to preserve transparency;
 - **Zero External Dependencies**: Powered purely by Python standard library utilities, providing 100% precision and recall for CJK search across all platforms out of the box.
 
+## Deterministic 4-Tier RRF Fusion & White-Box Recall Debugger
+
+In hybrid retrieval architectures, different retrieval streams (sparse FTS, dense vector search, and knowledge graph associative search) produce score scales that are fundamentally heterogeneous and non-comparable. Traditional weighted linear sum approaches require continuous manual tuning and degrade quickly as corpora grow.
+
+Myrm adopts an enhanced **Reciprocal Rank Fusion (RRF)**:
+$$RRF(d) = \sum_{s \in S} w_s \cdot \frac{1}{k + rank_s(d)}$$
+
+with rank decay smoothing parameter $k=60$. To completely eliminate rank jitter caused by minor network latency fluctuations during parallel asynchronous queries, Myrm designed the industry's first **Four-Tier Mathematical Deterministic Tie-Breaker (`fuse_rrf_deterministic`)**:
+1. **$10^{-9}$ Epsilon Score Bucketing**: Uses `round(score, 9)` for primary descending sorting, eliminating machine rounding discrepancies at $10^{-17}$ precision across hardware architectures;
+2. **Multi-Source Consensus Count Priority**: In the event of a tie, candidates retrieved by more independent sources (`len(hit_by)` descending) are prioritized, honoring the first-principle heuristic that "cross-source consensus outweighs single-source outliers";
+3. **Natural Entity ID Lexicographical Fallback**: Final-tier ties are resolved deterministically by entity identifier (`key_func(item)` ascending), completely immunizing downstream pipelines from Python hash/dict iteration non-determinism and flaky tests;
+4. **Millisecond White-Box RecallDebug Monitoring**: Returns immutable structured metadata containing per-source hit ranks (`hit_by`), raw reciprocal scores, and per-source execution latencies (`latency_ms`), offering transparent diagnostic explainability in the developer panel.
+
 ## Anti-Chitchat Memory (No-Op Default)
 
 Mem0 and Codex extractors lean toward **High Recall**, eagerly pulling transient thoughts ("Hello", "It's sunny today") into the database. Over time, this drastically dilutes meaningful constraints and pollutes the RAG context.
