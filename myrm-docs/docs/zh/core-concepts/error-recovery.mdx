@@ -90,6 +90,7 @@ CLOSED（正常）→ OPEN（检测到失败）→ HALF-OPEN（探测）→ CLOS
 | `FileNotFoundError` | 文件引用缺失 | 建议搜索正确路径 |
 | `PermissionError` | 权限不足 | 建议请求审批 |
 | `ConnectionError` | 网络失败 | 自动退避重试 |
+| `UnwrittenDeliverable` | 交付物未落盘 | 静态嗅探中英双模代码/文档交付声明，零写工具调用时硬拦截打回并注入 `_completion_check` 自愈；强制结束时自动将未落盘草案保全至 `.myrm/staged_artifacts/`（LRU 20 限制） |
 | `TimeoutError` | LLM 超时 | 增加超时或简化请求 |
 | `RateLimitError` | API 配额用尽 | 换 Key 或等待 |
 | `ContextOverflow` | 窗口超限 | 触发压缩 |
