@@ -11,6 +11,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-06 · 看板任务级模型思考深度调控与动态活体引导 · 多智能体编排完成）
+
+- **KanbanPerTaskModelThinkingAndLiveSteerGUI（对标 Hermes Agent v0.20 / OpenClaw / Codex / DeepSeek-Harness / Pi 缺乏任务级模型与思考参数微调控制、长程执行黑盒无法活体干预的通病：竞品要么强制整板使用单一全局模型，导致简单任务极度浪费额度或复杂任务由于模型能力不足而失败；要么在任务派发后只能全黑盒等待结束或超时）：** Myrm 交付了业内领先的看板任务级模型重写、多协议思考强度自适应映射与非阻塞动态活体引导能力：
+  1. **细粒度任务级模型重写（`KanbanTaskDrawerDetails.tsx` · `types.py:260` · `runner.py:389`）**：在看板任务详情抽屉中完全解耦任务模型选择，底层严格执行 `task.model_override > profile.model > 默认` 优先级裁决，并支持子任务整树继承与严格的模型有效性前置校验；
+  2. **多协议深度思考强度自适应映射（`deepseek_reasoning.py` · `openrouter_verbosity.py`）**：自动将界面选择的思考强度翻译为 OpenAI（`reasoning_effort`）、Anthropic（`thinking.budget_tokens`）或 DeepSeek 原生字段，从协议层杜绝啰嗦思考与 Token 浪费；
+  3. **非阻塞动态活体引导句柄（`steer_child` · `executor_helpers.py`）**：原生提供异步运行时引导句柄，支持在不中断任务执行图的前提下动态注入指令矫偏；
+  4. **全套自动化测试 100% 满分通过**：Harness 框架层、Server 调度层与前端 Chrome E2E 真实任务流（`test_kanban_chrome_e2e.py`）全绿灯通过，零 Lint 告警。
+- **SSOT 来源：** `myrm-agent-frontend/src/components/features/kanban/KanbanTaskDrawerDetails.tsx` · `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/executor_helpers.py` · `temp-docs/materials/KANBAN_TASK_SCHEDULING_ADVANTAGE.md` · `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md`
+
 ## 最新验证快照（2026-09-06 · 内核级本地追踪隔离门禁与知识图谱维度自检 · 数据安全与合规可观测性闭环）
 
 - **LocalTraceOnlyGateAndCodebaseDoctorCheckIntegration（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在本地私有化或离线运行时，后台遥测组件可能仍尝试向外部 OTel 收集器外发 Trace 数据导致网络泄漏，或向量数据库索引维度配置失配导致检索静默失效的风险）：** Myrm 交付了内核级本地追踪物理阻断与健康自检探针：

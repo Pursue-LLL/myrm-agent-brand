@@ -61,6 +61,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'gatewayRuntimeVitals',
   'runtimeCostMeter',
   'streamResilient',
+  'kanbanTaskModelSteer',
 ] as const;
 
 export type HighlightSlideKey = (typeof HIGHLIGHT_SLIDE_KEYS)[number];
