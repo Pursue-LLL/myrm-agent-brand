@@ -38,3 +38,18 @@ Beyond direct LLM token costs, long-horizon autonomous tasks frequently draw fro
 - **3-Minute Anti-Runaway Watchdog**: Automatic 180s hard timeout fuses prevent hung JavaScript loops and zombie browser processes from exhausting host CPU and memory.
 - **Full-Element Accounting**: Delivers 100% white-box operational observability for developers and enterprise teams running 24/7 background agent workflows.
 
+
+## Aggregated Gateway Spend Observability: Vercel AI Gateway
+
+For developers and organizations routing multiple models through aggregation gateways like Vercel AI Gateway:
+- **Zero-Config First-Class Preset**: Native `vercel_ai_gateway` provider preset in WebUI with preconfigured endpoint (`https://ai-gateway.vercel.sh/v1`).
+- **Vendor Prefix Anti-Hijacking**: Automatically isolates multi-vendor identifiers (e.g., `anthropic/claude-3-5-sonnet`) with standard OpenAI routing wrappers to prevent SDK misrouting.
+- **Native Attribution Headers**: Transparently injects `HTTP-Referer: https://myrm.ai` and `X-Title: Myrm Agent` headers on all outgoing requests, giving you message-level spend auditing and analytics directly on your Vercel Dashboard.
+
+## Resilient Provider Policy Failover & Honest Guidance
+
+When using commercial frontier subscriptions or direct BYOK providers, upstream policy updates can occasionally block requests (e.g., policy blocks, unexpected subscription revocations):
+- **Universal Policy Classification**: The core agent execution engine directly classifies `PROVIDER_POLICY_BLOCKED` and authentication failures into non-fatal, recoverable states.
+- **Automatic Fallback LLM Cascade**: Without crashing running tasks or creating recursive retry loops, the runtime seamlessly rebuilds the agent session onto configured fallback models.
+- **Honest Actionable Next Steps**: In the UI, users are immediately provided with localized, direct navigation paths (`/settings/models` or `/settings/credentials`) to rectify credentials without guessing error codes.
+
