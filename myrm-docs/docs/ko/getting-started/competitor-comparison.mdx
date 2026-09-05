@@ -53,6 +53,15 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
   5. **100% 자동화 테스트 통과**: 12개의 채널 데이터 플레인 단위 및 통합 테스트 100% 그린 통과, 고빈도 재시작 및 동시 쓰기 환경에서 무손상 안정성 입증.
 - **SSOT 출처:** `myrm-agent-server/app/channels/routing/channel_data_plane.py` · `myrm-agent-server/app/database/repositories/channel_message_repo.py` · `myrm-agent-server/app/api/system/shutdown.py` · `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md` · `temp-docs/materials/STORAGE_CRASH_CONSISTENCY_ADVANTAGE.md`
 
+## 최신 검증 스냅샷 (2026-09-05 · SmartGuard 자동 모드 프로덕션 강화 및 사회적 비가역 행위 방어 · 보안 및 거버넌스 완료)
+
+- **SmartGuardAutoModeProductionHardeningPack (Claude Code / Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi가 비가역적 외부 행위에 대한 화이트리스트 우회 방지 부재, 다회 턴 쿼터 초기화 취약점으로 악성 프롬프트의 자동 모드 정지 우회, 셸 명령 심층 분류 부재 대비):** Myrm은 심층 방어 및 강화된 실행 거버넌스 아키텍처를 제공합니다:
+  1. **사회적 비가역 행위 하드 게이트 (`is_irreversible_social_action`)**: `git push`(--force 및 -C 경로 포함), `npm publish`, `twine upload`, `docker/podman push`, `gh release/pr`, 외부 채널 통지 등 롤백 불가능한 작업을 정밀 식별. "항상 허용"을 강제 차단하고 단일 승인 및 위험 경고 배너 의무화;
+  2. **세션 스코프 거부 상태 영속화 (`_session_denial_registry`)**: 단일 턴 수명 주기에서 거부 카운터를 분리하여 대화 세션 간 연속 거부 횟수를 추적. 턴 분할 프롬프트 인젝션을 통한 3/20 자동 모드 정지 우회 원천 차단;
+  3. **자동 모드 셸 명령 전체 의도 분류 (`classify_all_shell_in_auto_mode`)**: 모든 셸 명령을 Transcript Classifier로 검증하여 우회 차단;
+  4. **100% 자동화 테스트 통과**: 보안 핵심 및 회귀 테스트 100% 그린 통과.
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/core/security/spend_governance.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/approval/batch_processor.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+
 ## 최신 검증 스냅샷 (2026-09-03 · 대화 사각지대 지식 패치 자동 생성 및 인간 승인 루프 · 메모리 생태계 완료)
 
 - **SessionBlindSpotAutoKnowledgePatchClosure (OpenClaw / Hermes / Mem0의 수동적인 기록 및 답변 사각지대 자체 성찰 부재 대비):** Myrm은 대화 사각지대를 자체 성찰하고 지식 패치로 정제하는 인간 승인 폐쇄 루프를 제공합니다:

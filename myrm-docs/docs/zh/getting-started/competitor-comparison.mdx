@@ -53,6 +53,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   5. **100% 全栈自动化测试通过**：后端核心覆盖测试（`test_eval_core_coverage.py` 6/6 passed）、前端组件测试（`CaptureEvalCaseDialog.test.tsx` 4/4 passed、`ChatHistoryRow.reveal.test.tsx` 3/3 passed）、全语种 i18n 校验 100% 通过，0 警告 0 错误。
 - **SSOT 来源：** `myrm-agent-server/app/core/eval/capture.py` · `myrm-agent-frontend/src/components/features/sidebar/CaptureEvalCaseDialog.tsx` · `myrm-agent-frontend/src/components/features/eval-lab/constants/golden5PackTemplate.ts` · `temp-docs/materials/ENTERPRISE_RELIABILITY_AND_TESTING_ADVANTAGE.md`
 
+## 最新验证快照（2026-09-05 · SmartGuard 自动模式生产级加固与社会性不可逆防线 · 安全治理完成）
+
+- **SmartGuardAutoModeProductionHardeningPack（对标 Claude Code / Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi 缺失不可逆社会性外部操作白名单绕过防线、存在跨轮会话拒绝计数重置漏洞导致恶意 Prompt 分批注入绕过自动模式熔断、以及自动模式下缺乏针对 Shell 意图全面分类的痛点）：** Myrm 交付了纵深防御、生产级强化的执行治理闭环架构：
+  1. **社会性不可逆动作绝对防线（`is_irreversible_social_action` · `spend_governance.py` & `batch_processor.py`）**：精准识别 `git push`（含 `--force` 与 `-C` 路径参数）、`npm/pnpm/yarn publish`、`twine upload`、`docker/podman push`、`gh release/pr create/merge` 以及外部群聊通知等物理不可逆外部操作，从根本上剥夺其被「永久允许（Allow Always）」绕过的可能，强制降级为单次单飞审批并注入显著风险警示；
+  2. **会话级熔断防穿透（`_session_denial_registry` · `helpers.py:60-110`）**：解除安全拒绝计数与单轮协程生命周期的耦合，在会话生命周期内持久追踪连续被拒次数，攻击者分批小步注入试探时无法抹掉历史违规记录，彻底堵死 3/20 自动模式熔断机制的逃逸漏洞；
+  3. **自动模式 Shell 意图全面分类审判（`classify_all_shell_in_auto_mode`）**：确保配置时所有 Shell 命令无遗漏通过安全分类器，杜绝看似普通读取（如读取私钥或凭证）带来的隐蔽越权；
+  4. **前端安全态感知与预警横幅（`PolymorphicApprovalCard.tsx`）**：前端审批卡片自动识别自动模式熔断冻结状态与不可逆操作标签，并向用户呈现显著的警示与原因说明，中英双语无缝支持；
+  5. **100% 全栈自动化测试与 0 Lints**：Harness 安全核心测试 3/3 项（`test_spend_governance.py` & `test_approval_edge_cases.py`）、审批流回归测试 49/49 项、前端 Vitest 测试 19/19 项（`PolymorphicApprovalCard.spend.test.tsx` & `.test.tsx`）100% 绿灯全量通过，0 警告 0 错误。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/core/security/spend_governance.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/approval/batch_processor.py` · `myrm-agent-frontend/src/components/approval/PolymorphicApprovalCard.tsx` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-04 · 会话级统一知识库选择器、跨库联邦混合检索与全生命周期治理工作台 · 知识与 Wiki 完成）
 
 - **UnifiedKnowledgeBasePickerAndCrossSourceHybridSearch / KnowledgeGovernanceWorkbenchExpiryArchiveRevival（对标 Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi 面对外部知识库切换必须跳出会话修改全局配置、知识库只增不减导致过时规范持续污染模型检索、以及缺乏零网络开销单进程跨库联邦检索的痛点）：** Myrm 交付了工业级会话动态知识挂载、原生 SQLite 联邦混合检索与四队列生命周期治理闭环架构：
