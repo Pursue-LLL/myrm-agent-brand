@@ -31,15 +31,16 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
   5. **100% Automated Multi-Tier Verification**: 50/50 Harness plugin parser unit tests passing with 0 warnings, 0 errors, and 0 zombie processes.
 - **SSOT Sources:** `myrm-agent-harness/src/myrm_agent_harness/agent/plugins/integrity.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/plugins/parser.py` · `myrm-agent-frontend/src/components/features/plugins/PluginImportDialog.tsx` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
 
-## Latest Validation Snapshot (2026-09-05 · Plugin Sandbox Permission Model & Default-Disabled Gate · Security Completed)
+## Latest Validation Snapshot (2026-09-05 · Plugin Sandbox Permission Model & Static Capability Inference · Security Completed)
 
-- **PluginSandboxPermissionModelPack (vs DeepSeek Harness Issue #312 and community findings where third-party plugins inherently inherit host process privileges and silently execute in the background upon installation):** Myrm delivers an industry-leading five-tier defense-in-depth architecture for plugins and MCP services:
-  1. **Strict Default-Disabled Persistence**: `_mcp_persist.py` permanently writes `enabled: False` for all imported MCP entries, eliminating unreviewed background execution risks;
-  2. **Frontend Security Trust & Runtime Environment Disclosure**: `PluginImportDialog.tsx` coupled with `PluginTrustedSourceDisclosure.tsx` dynamically detects Cloud Sandbox vs Local OS environments, enforcing explicit source confirmation checkboxes before allowing import execution;
-  3. **AST Static Security Scanner & File Ceiling**: Previews run AST static code analysis to block malicious regex/code injections and enforce 64KB skill content boundaries;
-  4. **Probe Gate Verification**: Users must explicitly trigger and pass connection probes in Settings before enabling imported MCP servers in the active agent loop;
-  5. **100% Automated Multi-Tier Verification**: 20/20 Vitest frontend tests and 249 static SSOT contract tests passing with 0 warnings, 0 errors, and 0 zombie processes.
-- **SSOT Sources:** `myrm-agent-server/app/services/plugins/_mcp_persist.py` · `myrm-agent-frontend/src/components/features/plugins/PluginImportDialog.tsx` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+- **PluginSandboxPermissionModelPack (vs DeepSeek Harness Issue #312 and community findings where third-party plugins inherently inherit host process privileges and silently execute in the background upon installation, as well as OpenClaw / Hermes blindly trusting unverified manifest declarations):** Myrm delivers an industry-leading six-tier defense-in-depth architecture for plugins and MCP services:
+  1. **6-Tier Granular Sandbox Permission Model (`PluginCapabilityTier` SSOT)**: Natively defines `read_only`, `network`, `fs_read`, `fs_write`, `shell_exec`, and `destructive` strict incremental capability tiers;
+  2. **Deterministic Static Capability Inference Engine (`integrity.py` · `infer_mcp_server_capabilities`)**: Analyzes `stdio` commands and network protocols at ingest time with pure functions, penetrating interpreter flags and script arguments to infer true execution capabilities, accurately categorizing commands like `rm -rf` as `destructive`;
+  3. **Declared vs. Inferred Capability Diff Audit (`verify_plugin_capability_diff`)**: Automatically compares declared permissions in `plugin.json` against actual server configurations, catching false "read-only" claims when subprocesses are spawned and raising `capability_undeclared_privilege` alerts;
+  4. **Full-Lifecycle Persistence Eliminating Dead Feature Paths**: Surface capability metadata in `/preview` and persist them to `mcpServers.extra_params["capabilities"]`, ensuring capability boundaries are durable and available for downstream runtime enforcement;
+  5. **Strict Default-Disabled Persistence & HITL Gate**: `_mcp_persist.py` permanently writes `enabled: False` for all imported MCP entries; `PluginImportDialog.tsx` renders color-coded capability badges and privilege escalation warning banners while skipping broken dependencies;
+  6. **100% Automated Multi-Tier Verification**: 74 Harness plugin tests, 5 Server service tests, and 21 Vitest frontend tests all green with 0 warnings, 0 errors, and 0 zombie processes.
+- **SSOT Sources:** `myrm-agent-harness/src/myrm_agent_harness/agent/plugins/models.py` · `myrm-agent-server/app/services/plugins/_mcp_persist.py` · `myrm-agent-frontend/src/components/features/plugins/PluginImportDialog.tsx` · `temp-docs/materials/PLUGIN_ECOSYSTEM_ADVANTAGE.md`
 
 ## Latest Validation Snapshot (2026-09-05 · Child Process Sensitive Token Isolation & Script Operand TOCTOU Guard · Security Completed)
 
