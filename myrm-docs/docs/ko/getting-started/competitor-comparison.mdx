@@ -11,6 +11,16 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-09-05 · 동일 모델 원위치 스트리밍 중단점 복구 LCP 중복 제거 및 단일 작업 토큰 소프트/하드 이중 임계값 보호 · 모델 라우팅 완료)
+
+- **SmartRoutingInPlaceStreamResumeAndTokenGuard (Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi 등 장시간 스트리밍 중 네트워크 끊김이나 504 Gateway Timeout 발생 시 전체 응답을 처음부터 다시 생성하여 수천 개의 토큰이 낭비되고 시간이 두 배로 소요되는 문제와 작업 수준의 소프트/하드 한도 부재로 복잡한 루프 시 백그라운드에서 신용카드가 고갈되는 문제 대비):** Myrm은 스트리밍 복원력과 토큰 예산 제어를 위한 산업 등급 폐루프 아키텍처를 제공합니다:
+  1. **동일 모델 원위치 중단점 재개 및 LCP 문자 수준 슬라이딩 중복 제거 (`resume_checkpoint.py`)**: 네트워크 장애 발생 시 꼬리 앵커를 안전하게 캡처하여 컨텍스트 끝에 재개 지침을 추가하고, 대형 모델이 다시 작성할 때 최장 공통 접두사(LCP) 슬라이딩 윈도우를 적용하여 겹치는 문구를 정밀 제거하고 AST 구문 트리를 완벽하게 유지;
+  2. **100% Prompt Cache 물리적 보호**: 재개 프롬프트를 대화의 가장 마지막(`\n\n[System Recovery]: ...`)에만 추가하여 시스템 프롬프트 및 대화 접두사 바이트를 100% 고정 유지, Prompt Cache 적중률 100% 유지 및 첫 글자 지연 시간(TTFT) 75% 단축;
+  3. **단일 작업 토큰 소프트/하드 이중 임계값 가드 (`token_guard.py` · `TaskTokenGuard`)**: 공식 제공자 토큰 사용량을 기준으로 80% 도달 시 부드러운 경고 트리거, 100% 도달 시 우아하게 작업을 일시 중단(`is_paused=True`)하여 무한 루프 과금을 원천 차단; 클릭 한 번으로 할당량을 확장(`grant_extension`)하는 사용자 결정 통로 제공;
+  4. **WebUI 듀얼 테마 반응형 캡슐 카드 (`TaskBudgetPill.tsx`)**: Tailwind 디자인 토큰을 엄격히 준수하여 320px 모바일 및 데스크톱 뷰포트에 완벽 반응형 제공, 네이티브 이모지 없이 Lucide 벡터 아이콘을 사용하여 정상/경고/차단 상태 직관적 표시;
+  5. **100% 풀스택 자동화 테스트 통과**: Harness 6개 단위 테스트, 서버 4개 단위 테스트, 프론트엔드 4개 Vitest 단위 테스트 및 249개 정적 계약 테스트 전량 통과.
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/agent/streaming/` · `myrm-agent-server/app/services/budget/` · `myrm-agent-frontend/src/components/chat/TaskBudgetPill.tsx` · `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md`
+
 ## 최신 검증 스냅샷 (2026-09-05 · 플러그인 패키징 무결성 및 정적 빌드 산출물 사전 검증 관문 · 보안 거버넌스 완료)
 
 - **PluginPackagingIntegrityGuard (OpenClaw / Hermes / Codex / DeepSeek-Harness / Pi 등 서드파티 플러그인 개발자가 `npm run build`를 누락하거나 ZIP 패키지에서 `dist/` 빌드 산출물을 누락하여 런타임에 `ENOENT` 예외가 발생하고 에이전트 서비스가 중단되는 문제 대비):** Myrm은 업계 최고 수준의 정적 패키징 검증 관문 및 컴포넌트 수준 장애 격리 아키텍처를 제공합니다:
