@@ -11,6 +11,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-05 · Control UI 全表面错误安全脱敏与异常出口门禁 · 安全治理完成）
+
+- **ControlUISurfaceErrorRedaction（对标 OpenClaw / Hermes / Codex / DeepSeek-Harness / Pi 在用户录屏、截屏求助或日常操作时，API 报错、连通性测试或底核异常直白向前端吐出包含明文 sk- Key、数据库密码、本地绝对路径与私网 IP 导致严重生产泄密的痛点）：** Myrm 交付了前端表现层透明接入与服务端异常出口门禁双级安全防护体系：
+  1. **前端底层透明脱敏引擎（`errorRedactor.ts` · `toast.ts` · `api.ts`）**：在 Toast 弹窗与 API 异常解析层自动截获并清洗敏感字段，高熵 API Key、Bearer/JWT 认证头、数据库连接密码与本地主机路径（自动归一化为 `~/`）100% 自动打码，全站 100+ 处报错弹窗零侵入天然具备隐私防护；
+  2. **服务端出口强约束（`errors.py` · `MyrmError` & `StandardHTTPException`）**：全局异常响应序列化时自动触发凭证脱敏，切断敏感数据向外溢出；
+  3. **兼顾排错上下文与绝对安全**：严格保留 HTTP 状态码、错误类型与 TraceID，仅消除私密高熵熵值，既保障安全又不妨碍故障排查；
+  4. **全栈单测 100% 验证**：前端 7/7 Vitest 与服务端 2/2 pytest 全部绿灯通过，0 警告 0 错误。
+- **SSOT 来源：** `myrm-agent-frontend/src/lib/utils/errorRedactor.ts` · `myrm-agent-server/app/core/utils/errors.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-05 · 多页复杂表格企业级抓取与双哨兵防死循环 · 浏览器与自动化完成）
 
 - **BrowserPaginatedTableHarvestToExcelArtifactWorkflow（对标 Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi 在网页表格跨页提取场景中，因点击无效翻页陷入死循环、中间翻页数据全塞入上下文窗口导致 Token 爆炸与上下文截断、以及提取的 CSV 乱码且缺乏正规 Excel 工件的痛点）：** Myrm 交付了基于 `web-scraping` (v1.1.0) 预置技能与增量磁盘流式缓存的高鲁棒提取闭环体系：

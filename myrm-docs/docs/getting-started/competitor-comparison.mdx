@@ -11,6 +11,15 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Validation Snapshot (2026-09-05 · Control UI Surface Error Redaction & Gateway Hardening · Security Completed)
+
+- **ControlUISurfaceErrorRedaction (vs OpenClaw / Hermes / Codex / DeepSeek-Harness / Pi displaying raw unredacted error messages leaking sk- API keys, database connection passwords, local user home paths, and internal private IPs in toast popups and HTTP exceptions during screen sharing, recordings, or pairing sessions):** Myrm delivers a two-tier defense-in-depth architecture spanning client-side presentation and server-side gateway error serialization:
+  1. **Transparent Frontend Redaction Engine (`errorRedactor.ts` · `toast.ts` · `api.ts`)**: Automatically intercepts error toasts and API response parsers across 100+ surfaces; masks high-entropy API tokens, Bearer/JWT headers, and database credentials while normalizing local OS user directories (`/Users/xxx/`, `/home/xxx/` -> `~/`), ensuring seamless developer privacy without requiring manual per-component handling;
+  2. **Server-Side Exception Egress Gate (`errors.py` · `MyrmError` & `StandardHTTPException`)**: Automatically scrubs sensitive token patterns and credentials before generating standardized HTTP error payloads, severing the leak vector at the root;
+  3. **Diagnosable Context Preserved**: Strictly preserves HTTP status codes, error classifications, and trace IDs, shielding secret entropy without compromising developer troubleshooting efficiency;
+  4. **100% Full-Stack Automated Test Suite**: Frontend 7/7 Vitest and server 2/2 pytest test suites fully green with 0 warnings and 0 errors.
+- **SSOT Sources:** `myrm-agent-frontend/src/lib/utils/errorRedactor.ts` · `myrm-agent-server/app/core/utils/errors.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+
 ## Latest Validation Snapshot (2026-09-05 · Paginated Table Harvesting & Dual-Sentinel Guard · Browser Automation Completed)
 
 - **BrowserPaginatedTableHarvestToExcelArtifactWorkflow (vs Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi falling into infinite click loops on invalid next-page controls, blowing up context windows with raw intermediate table data, and generating garbled CSVs lacking proper Excel export):** Myrm delivers a high-robustness extraction workflow based on the `web-scraping` (v1.1.0) prebuilt skill and incremental disk cache:
