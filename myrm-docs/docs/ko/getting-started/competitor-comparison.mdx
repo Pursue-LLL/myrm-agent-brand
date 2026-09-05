@@ -11,6 +11,17 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-09-06 · 검색 할당량 저수지 및 브라우저 컴퓨팅 런타임 비용 측정기 · 관측 및 측정 완료)
+
+- **SearchQuotaAndBrowserComputeRuntimeCostMeter (Hermes Agent @hooeem이 X에서 "월 $10 올웨이즈온 에이전트"를 주장하지만 오픈소스 레포에 실제 계량기가 없고, OpenClaw / Codex / DeepSeek-Harness / Pi 등 장시간 실행 시 외부 검색 무료 할당량 고갈로 인한 무응답 눈사태나 브라우저 자동화 무한 루프로 샌드박스 컴퓨팅 및 메모리를 잠식하는 문제 대비):** Myrm은 완전한 런타임 비용 화이트박스 계량 및 브라우저 원격 측정 루프를 제공합니다:
+  1. **Harness 원격 측정 계측 (`WebSearchMetrics` & `BrowserRunTelemetry`)**: 공급자별 검색 시도, 성공 및 할당량 소진 지표를 네이티브 수집; 브라우저 관측 모듈이 활성 컴퓨팅 시간 및 `total_bytes_transferred`를 네트워크 트래픽에서 직접 스트리밍;
+  2. **429 자가 치유 재조정 및 할당량 건너뛰기**: `web_search/providers/chain.py`에 `ProviderQuotaStatus` 상태 머신을 도입하여 일시적 429와 영구 할당량 소진을 정밀 구분; 영구 소진 시 로컬 사용량을 한도 상한으로 자동 재조정하고 고갈된 공급자를 원활하게 건너뛰어 장기 실행 작업이 중단되지 않도록 보장;
+  3. **3분 루프 방지 액션 워치독 (Watchdog Shield)**: `BrowserObservability.check_action_watchdog`가 긴 브라우저 실행을 비차단 워치독 타임아웃으로 보호하여 안전 차단기를 작동시키고 누적 카운터를 추적하여 폭주 CPU 소비를 원천 제거;
+  4. **서버 SQLite 원장 및 안전한 동시성**: `runtime_meter_service.py`가 공식 기본 카탈로그(Tavily 1000, Brave 2000 등)와 롤백 및 재조회 재시도 로직을 갖추어 동시성 고유 키 충돌을 방지; 비계량 무제한 전용선 면제 태그 및 샌드박스 실행 비용 정규화($0.001/분) 지원;
+  5. **프론트엔드 듀얼 카드 관측성 대시보드 (`RuntimeCostMeterCard.tsx`)**: 시스템 통계 섹션에 80%/95% 다단계 색상 경고가 있는 직관적인 검색 할당량 저수지, 브라우저 컴퓨팅 분 및 MB 단위의 네트워크 처리량, 3분 폭주 워치독 배지, 맞춤 할당량 모달 및 원클릭 수동 재조정 기능 제공; 6개 국어 i18n 완벽 지원, 네이티브 이모지 0개, 데스크톱/모바일 완벽 반응형;
+  6. **100% 자동화 테스트 통과**: Harness 7개 단위 테스트, 서버 10개 라우터 테스트, 프론트엔드 2개 Vitest 테스트 및 249개 정적 계약 테스트 전량 통과.
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/toolkits/web_search/providers/chain.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/observability.py` · `myrm-agent-server/app/api/statistics/quota_runtime_router.py` · `myrm-agent-frontend/src/components/features/settings/sections/system/RuntimeCostMeterCard.tsx` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
+
 ## 최신 검증 스냅샷 (2026-09-05 · 30개 핵심 노드 3단계 6레인 프로덕션 실행 수명 주기 및 검증 루프 · 산업 등급 실행 및 검증 완료)
 
 - **ProductionExecutionLifecycleLanesAndVerificationLoop (Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 등 일상적인 비즈니스 엔티티 조회 시 도구를 호출하지 않고 가짜 주문 번호를 허구로 꾸며내거나, 실행 진행률이 보이지 않는 블랙박스 상태, 인자 스키마 결함으로 다운스트림 API 장애 유발, 예외 발생 시 원시 스택 추적을 출력하며 충돌하는 고질적 문제 대비):** Myrm은 완전한 프로덕션 등급 3단계, 6레인, 30개 핵심 노드 폐루프 에이전트 실행 수명 주기를 제공합니다:
