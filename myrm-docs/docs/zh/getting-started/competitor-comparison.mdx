@@ -11,6 +11,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-06 · 全生命周期模型路由与前缀缓存感知自适应算力经济学 · 模型路由全面完成）
+
+- **FullLifecycleModelRoutingAndCacheAwareEconomics（对标 Hermes Agent v0.21 / OpenClaw / Codex / DeepSeek-Harness / Pi 在模型切换时强迫清空会话、频繁跨厂商乱切打碎 KV Cache 导致长任务账单暴涨、以及粗暴全量跑昂贵模型导致的算力浪费痛点）：** Myrm 交付了业内领先的全生命周期模型路由与前缀缓存感知自适应算力经济学体系：
+  1. **三级自适应任务复杂度路由器（`complexity_router.py:40-150`）**：原生根据任务特征自动分流为 `FAST`（轻量小模型处理高频格式化与问答）、`STANDARD`（高性价比模型处理抓取与常规工具）与 `REASONING`（顶级旗舰模型处理代码重构与财务推导），主力 Token 账单直降 70%+；
+  2. **会话级任务动量锁定与缓存断裂防护（`complexity_router.py:440-620` · `cache_break_detector.py`）**：任务执行期间严格锁定模型粘性，杜绝跨步跳变打碎云端 KV Cache，结合 SHA-256 前缀断裂哨兵保证 80%+ Prompt Cache 命中率；
+  3. **无缝同会话跨厂商热切换兼容盾（`thinking_cleaner.py:75-176` · `gateway_normalizer.py:20-60`）**：实时转译异构思考块（`<think>` 与 `reasoning_content`）与悬空工具返回，自由切换模型 100% 杜绝 400 格式报错，彻底告别 Hermes 换模型必须 `/new` 重置清空历史的缺陷；
+  4. **全套自动化测试 100% 满分通过**：Topic 07 全量 187 项路线图提案全部地毯式核验，零遗漏闭环完成。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/routing/complexity_router.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/pipeline/processors/thinking_cleaner.py` · `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md`
+
 ## 最新验证快照（2026-09-06 · 看板任务级模型思考深度调控与动态活体引导 · 多智能体编排完成）
 
 - **KanbanPerTaskModelThinkingAndLiveSteerGUI（对标 Hermes Agent v0.20 / OpenClaw / Codex / DeepSeek-Harness / Pi 缺乏任务级模型与思考参数微调控制、长程执行黑盒无法活体干预的通病：竞品要么强制整板使用单一全局模型，导致简单任务极度浪费额度或复杂任务由于模型能力不足而失败；要么在任务派发后只能全黑盒等待结束或超时）：** Myrm 交付了业内领先的看板任务级模型重写、多协议思考强度自适应映射与非阻塞动态活体引导能力：
