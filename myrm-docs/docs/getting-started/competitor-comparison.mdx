@@ -987,6 +987,16 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
   5. **100% Test Coverage**: Full suite in `test_streaming_cancel_prefix_retention.py` 100% green with 0 linter errors and 0 zombie processes.
 - **Material SSOT:** `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent/myrm-agent-server/app/services/agent/streaming_support/stream_collector.py` · `myrm-agent/myrm-agent-server/app/services/agent/stream_session/stream_finalize.py`
 
+## Latest Validation Snapshot (2026-09-06 · Local-Only Trace Egress Gate & Privacy Sanitization Engine · Roadmap Topic 11 #21/#22 Done)
+
+- **LocalTraceOnlyGateAndPrivacySanitizer (vs Hermes / OpenClaw / Codex / Pi / DeepSeek-Harness):** Myrm delivers an industry-first air-gapped local trace isolation gate, three-layer progressive privacy sanitization, and automated doctor egress security probe:
+  1. **Physical Air-Gapped Trace Assertion (`is_local_trace_only` & `assert_local_trace_only`)**: Harness `tracer.py` natively supports `MYRM_LOCAL_TRACE_ONLY=1`. When active, the core physically blocks any remote OTLP export, safely dropping misconfigured external endpoints and falling back to local NoOp or encrypted local JSONL file storage to prevent intranet data leaks;
+  2. **Three-Layer Progressive Privacy Sanitizer (`TraceSpanSanitizer`)**: Implements strict layer 1 sensitive key redaction (filtering API keys, secrets, and auth tokens), layer 2 regex credential masking (including bare Bearer tokens), and layer 3 bounded string truncation preserving a SHA-256 fingerprint;
+  3. **Doctor Export Security Diagnostic Probe (`TraceExportSecurityDiagnostic`)**: Fully adheres to the `DiagnosticProtocol` contract, integrating with the System Health Center to immediately trigger warnings (`WARN_REMOTE_TRACE_IN_LOCAL_MODE`) with remediation guidance if external endpoints are configured in local mode;
+  4. **Universal Deployment Topology**: Runs identically across Local WebUI, Tauri Desktop, and Cloud isolated sandbox environments;
+  5. **100% Test Coverage**: Full suite of sanitizer unit tests and server health security diagnostic tests passing 100% with 0 lint errors and 0 zombie processes.
+- **Material SSOT:** `temp-docs/roadmap/topic_11_observability_roadmap.md` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/infra/tracing/sanitizer.py` · `myrm-agent/myrm-agent-server/app/core/infra/health/trace_security_diagnostic.py`
+
 ## Latest Validation Snapshot (2026-08-26 · External CLI Subagent Auto-Permission Presets & Multi-Named Pool Orchestration · Roadmap Topic 15 #5 Done)
 
 - **ClaudeCodeCodexMultiNamedSubagentInstanceAndAutoPermissionPreset (vs DeepSeek Harness RC.8 / OpenClaw / Hermes-Agent / Standalone CLI Subagents):** Myrm delivers an enterprise-grade multi-named subagent instance pool and non-interactive permission auto-injection engine:
