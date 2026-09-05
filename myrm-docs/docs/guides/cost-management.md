@@ -44,7 +44,7 @@ Beyond direct LLM token costs, long-horizon autonomous tasks frequently draw fro
 For developers and organizations routing multiple models through aggregation gateways like Vercel AI Gateway:
 - **Zero-Config First-Class Preset**: Native `vercel_ai_gateway` provider preset in WebUI with preconfigured endpoint (`https://ai-gateway.vercel.sh/v1`).
 - **Vendor Prefix Anti-Hijacking**: Automatically isolates multi-vendor identifiers (e.g., `anthropic/claude-3-5-sonnet`) with standard OpenAI routing wrappers to prevent SDK misrouting.
-- **Native Attribution Headers**: Transparently injects `HTTP-Referer: https://myrm.ai` and `X-Title: Myrm Agent` headers on all outgoing requests, giving you message-level spend auditing and analytics directly on your Vercel Dashboard.
+- **Native Attribution Headers**: Transparently injects `HTTP-Referer: https://myrmagent.ai` and `X-Title: Myrm Agent` headers on all outgoing requests, giving you message-level spend auditing and analytics directly on your Vercel Dashboard.
 
 ## Resilient Provider Policy Failover & Honest Guidance
 
