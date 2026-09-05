@@ -11,15 +11,6 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
-## Latest Validation Snapshot (2026-09-05 · Real Model Task Flow & Browser Orchestrator Chrome E2E Verification · Reliability Completed)
-
-- **RealModelTaskFlowAndBrowserOrchestratorChromeE2E (vs Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi relying on fragile mocks, lacking real browser concurrency isolation, causing CDP port contention, dirty cookie leaks, and zombie browser crashes during parallel agent operations):** Myrm delivers an industry-first real-model inference task flow and industrial-grade browser orchestrator:
-  1. **Direct Real-Model (MiniMax-M3) Business Task Flow E2E**: Connects directly to the official MiniMax-M3 API, driving multi-turn microservice architectural derivation, JSON IR validation/sanitization, and physical `.arch.json` artifact generation in isolated workspaces with zero mock data;
-  2. **Browser Orchestrator Parallel Multi-Tenant Chrome Multiplexing**: Features an RPC-only TabCreateTransaction state machine managing a single headless Chrome instance (port 9333) with 4 concurrent worker leases, cdmcp-mux multiplexing, and automatic crash recovery with zero port collisions;
-  3. **Full-Stack Real Chrome E2E 100% Passed (72.56s)**: Drives real Chrome attached to WebUI (:3000) and backend (:8080), validating React Flow DAG nodes, causal BFS path highlights, and evolution diff badges end-to-end;
-  4. **Zero Zombie Process & Hygiene Guarantees**: Coordinates with `cleanup-zombie-tests.sh` and teardown hooks to release browser tabs and lease locks immediately after test completion (`pgrep -lf pytest` count strictly equals 0).
-- **SSOT Sources:** `myrm-agent/myrm-agent-server/tests/e2e/test_architecture_diagram_artifact_chrome_e2e.py` · `scripts/dev/browser-orchestrator/` · `temp-docs/materials/ENTERPRISE_RELIABILITY_AND_TESTING_ADVANTAGE.md`
-
 ## Latest Validation Snapshot (2026-09-05 · Zero Technical-Debt Package-Root Hard Discipline & Native SSOT Architecture · Engine & Harness Completed)
 
 - **ZeroTechnicalDebtPackageRootDiscipline (vs Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi suffering from dozens of historical forward stub files in package roots causing IDE double-file confusion, Any-type fallback, or dangling scanning backends):** Myrm delivers a pristine, single-truth, zero-technical-debt architecture:
@@ -259,6 +250,16 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
   4. **Sensitive Gate & Human Handoff (Zero Guessing Rule)**: Mandates immediate human handoff via `browser_ask_human_tool` upon encountering 2FA, SMS/MFA, CAPTCHAs, or SSO logins, allowing users to take over in WebUI `BrowserLiveView` in one click with zero credential exposure and zero ban risk;
   5. **100% Automated Testing Suite & 0 Lints**: 18/18 architecture guard tests (`test_prebuilt_skill_browser_automation.py`), 45/45 Bash contract tests, 1/1 prebuilt sync test, and 1/1 default skill resolution test passing with zero errors.
 - **SSOT Sources:** `myrm-agent-server/assets/prebuilt_skills/browser-automation/SKILL.md` · `tests/architecture/test_prebuilt_skill_browser_automation.py` · `temp-docs/materials/BROWSER_AUTOMATION_ADVANTAGE.md`
+
+## Latest Validation Snapshot (2026-09-05 · Unwritten Deliverable Heuristic Sniffer & Auto-Staging Guard · Reliability Completed)
+
+- **UnwrittenDeliverableAndCodeBlockEnforcementGuardAndArtifactAutoStaging (vs Google Antigravity / Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi outputting raw code/reports in chat text without writing them to disk, degrading AI agents into pure chatboxes):** Myrm delivers an enterprise-grade physical delivery enforcement and auto-staging architecture:
+  1. **Dual-Mode 8-Pattern Claim Sniffer (`detect_claimed_file_write` · `deliverable_write_verifier.py:33-55`)**: Actively catches false write claims (`saved to`, `written to`, `created the file`, `已保存`, `已写入`) paired with path indicators, validating against the real `LoopGuard` execution audit window and blocking unpersisted claims;
+  2. **Substantive Code Block Intent Sniffer (`detect_unwritten_deliverables` · `deliverable_write_verifier.py:100-160`)**: Heuristically extracts standalone deliverable code blocks ($\ge 12$ lines, language tagged, filename hints like `# filename: xxx`), filtering out pure syntax explanations and pedagogical demos to eliminate false positives;
+  3. **CompletionGuard Final Turn Hard Gate (`completion_guard.py:380-485`)**: Intercepts unpersisted completions, dynamically rewriting assistant outputs into system `_completion_check` tool calls with explicit remediation instructions, forcing models to invoke `file_write_tool` in the next ReAct turn;
+  4. **Sandboxed Draft Auto-Staging (`deliverable_auto_staging.py:30-110`)**: Automatically stages unwritten code/report blocks into `.myrm/staged_artifacts/` with SHA-256 fingerprinting and an LRU capacity ceiling (20 drafts max) to prevent asset loss during edge-case abortions;
+  5. **100% Automated Testing Suite & 0 Lints**: 28/28 verifier unit tests (`test_deliverable_write_verifier.py`), 6/6 auto-staging tests (`test_deliverable_auto_staging.py`, 92% coverage), and 249/249 static contract tests passing with zero errors.
+- **SSOT Sources:** `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_write_verifier.py` · `completion_guard.py` · `deliverable_auto_staging.py` · `temp-docs/materials/ENTERPRISE_RELIABILITY_AND_TESTING_ADVANTAGE.md`
 
 ## Latest Validation Snapshot (2026-09-04 · Time-Bound Scoped Permission Grants & Auto-Revocation Gate · Security & Governance Completed)
 

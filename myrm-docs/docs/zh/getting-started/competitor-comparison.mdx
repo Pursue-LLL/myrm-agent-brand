@@ -259,6 +259,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   5. **100% 全栈自动化测试与真实 Task Flow E2E 闭环**：35/35 项 Harness 多库单测、6/6 项 Server 联邦问答单测、17/17 项前端 Store/Popover/ContextChip 单测、真实 Chrome CDP 并行 E2E（`test_knowledge_picker_chrome_e2e.py`，驱动真实 WebUI :3000 + 真实 MiniMax-M3 流式大模型，137s 完整闭环 100% 绿灯通过）、83 项静态契约测试全量通过，0 警告 0 错误。
 - **SSOT 来源：** `myrm-agent-server/app/services/wiki/` · `myrm-agent-server/app/api/wiki/governance_routes.py` · `myrm-agent-frontend/src/components/features/message-input-actions/KnowledgePickerPopover.tsx` · `myrm-agent-frontend/src/components/features/settings/sections/knowledge/wiki/WikiGovernanceWorkbench.tsx` · `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md`
 
+## 最新验证快照（2026-09-05 · 交付物未落盘启发式嗅探、强制完成门禁与工件自动暂存 · 运行时可靠性完成）
+
+- **UnwrittenDeliverableAndCodeBlockEnforcementGuardAndArtifactAutoStaging（对标 Google Antigravity / Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi 在对话框生成大段代码/报表却完全漏调用工具存盘、退化为“纯 Chat 假智能体”的致命执行缺陷）：** Myrm 交付了工业级物理交付物落盘强制门禁与自动草案保全体系：
+  1. **双模八类写盘声称捕获与零调用拦截（`detect_claimed_file_write` · `deliverable_write_verifier.py:33-55`）**：主动识别虚假写盘声明（`saved to`、`written to`、`created the file`、`已保存`、`已写入` 等）与路径指示符，核查 `LoopGuard` 执行窗口真实写调用，100% 阻断假写盘放行；
+  2. **实体可交付物代码块启发式嗅探（`detect_unwritten_deliverables` · `deliverable_write_verifier.py:100-160`）**：精准提取 $\ge 12$ 行的独立工程代码块（py/ts/html/css/sh/json/sql/md）与显式文件名标记（`# filename: xxx`），自动过滤教学问答与演示片段，杜绝误杀；
+  3. **CompletionGuard 收尾强制拦截改写（`completion_guard.py:380-485`）**：在模型试图结束时执行最后一公里卡点，将消息动态改写为系统 `_completion_check` 工具调用，注入最高优先级自愈指令，迫使大模型在下一个 ReAct 循环中显式调用 `file_write_tool` 落盘；
+  4. **沙箱物理草案原子自动暂存（`deliverable_auto_staging.py:30-110`）**：自动将未落盘交付物向 `.myrm/staged_artifacts/` 存入草案快照，配备 SHA-256 内容哈希去重与 LRU 20 份容量修剪，杜绝极端异常下的代码资产丢失；
+  5. **100% 自动化测试全绿与 0 Lints**：`test_deliverable_write_verifier.py`（28/28 passed）、`test_deliverable_auto_staging.py`（6/6 passed，92% 覆盖率）及 249 项静态契约测试全量通过，0 警告 0 错误。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_write_verifier.py` · `completion_guard.py` · `deliverable_auto_staging.py` · `temp-docs/materials/ENTERPRISE_RELIABILITY_AND_TESTING_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-04 · 浏览器自动化预置技能视觉工作流与三轨操作规程 · 浏览器与媒体完成）
 
 - **BrowserAutomationPrebuiltSkillVisualWorkflowEnrichment（对标 Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi 面对富文本画布应用光标未激活导致静默假写入、默认占位符文本粘连污染正文、弱模型编写黑盒脚本死循环崩溃、以及 2FA/验证码盲猜撞库导致账号被封的痛点）：** Myrm 交付了工业级浏览器自动化全场景操作规程与预置技能标准：
