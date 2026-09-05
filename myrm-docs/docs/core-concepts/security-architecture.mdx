@@ -1108,6 +1108,26 @@ To prevent catastrophic runtime crashes caused by unbuilt or missing build artif
 3. **Adaptive Flag Stripping and Normalization**: Strips interpreter flags (`-u`, `--loader`), normalizes Windows backslashes and `${PLUGIN_ROOT}` macros, and detects bare relative entrypoint arguments (`args: ["dist/index.js"]`).
 4. **GUI Hardening and Accidental Install Protection**: Surfaces clear warning badges with actionable build instructions (e.g., `npm run build`), defaults broken servers to skip, and protects against accidental bulk installs.
 
+## Child Process Credential Token Isolation
+
+To prevent untrusted scripts and child processes from exfiltrating sensitive tokens from the host environment:
+
+1. **Tri-State Inheritance Policies (SSOT)**:
+   - `CORE`: Strict POSIX and runtime whitelist (preserves `PATH`, `HOME`, `USER`, developer tools, and `GIT_AUTHOR_*` identity while stripping all sensitive tokens).
+   - `ALL`: Full environment inheritance accompanied by 57 dynamic linker/proxy hijacking blocklists and 8-dimensional sensitive token wildcards.
+   - `NONE`: Complete environment isolation with zero inherited variables.
+2. **100% Execution Surface Coverage**: Applied across persistent shell sessions, Python subprocesses, background daemons, browser sandboxes, and CUA execution environments.
+3. **Zero False Positives for Toolchains**: Intelligently distinguishes credential patterns (`AUTH_TOKEN`, `API_KEY`) from developer authorship metadata (`GIT_AUTHOR_NAME`, `GIT_COMMITTER_EMAIL`), guaranteeing smooth Git commits and local developer workflows.
+
+## Zero-Key Subprocess Sanitization vs MITM Proxy
+
+To eliminate TLS disruption and massive performance degradation caused by OpenClaw-style self-signed MITM proxies:
+
+1. **Fail-Closed Physical Sanitization**: Strips all sensitive credentials at child environment creation time, ensuring `printenv` in subprocesses can never expose plaintext secrets.
+2. **In-Memory Controlled LLM Invocation**: Agent core inference connections are established directly within the runtime memory without proxy overhead, eliminating `CERTIFICATE_VERIFY_FAILED` errors.
+3. **Dedicated Agent-in-Sandbox Isolation**: Leverages dedicated volume isolation and containerization, providing true multi-tenant physical boundaries with zero configuration friction.
+
+
 
 
 
