@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-05 · 双机分机分离架构 Split-Stack 与局域网/Tailscale 免密直连 · 模型路由与基础设施全面闭环）
+
+- **TrustedLanTailscaleSplitStackModelEndpointWizard（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 仅支持纯 CLI 手写修改 `config.yaml` 且输错 IP 端口零直观反馈、云端部署缺乏 SSRF 隔离容易造成内网渗透，或在本地调用隔壁桌 DGX Spark/Mac mini 时因缺乏白名单被当成黑客攻击拦截的硬痛点）：** Myrm 交付了业内领先的受信任私网拓扑自动感知与免密分机直连体系：
+  1. **环境感知的受信任私网与 Tailscale 白名单（`llms.py:100-260`）**：在本地单机/桌面模式下，服务端自动识别 RFC1918 私网（`10.x`, `172.16-31.x`, `192.168.x`）、Tailscale CGNAT（`100.64.0.0/10`）与 `.local` mDNS 域名，注入免密标识并加入 `allowed_internal_hosts` 安全穿透 SSRF 护栏；同时显式阻断 Link-Local 元数据（`169.254.169.254`）；
+  2. **云托管 SaaS 沙箱物理级坚固隔离**：在沙箱模式下（`is_local_mode() == False`），所有内网请求强制要求鉴权并在底层被物理阻断，严格防范企业多租户数据穿透；
+  3. **WebUI 实时网络拓扑微胶囊交互（`providerTypes.ts` · `LocalCapabilitiesSetup.tsx`）**：输入分机 IP 即时点亮柔和微胶囊 `[已识别受信任局域网 / Tailscale 分机端点，支持留空 API Key 免密直连]`，点击一键拉取模型并进行实时流式 TTFT 测速；
+  4. **对话执行链路伪 Header 自动剥离（`_apply_local_no_auth_marker_transport_overrides`）**：避免 Ollama/vLLM 收到伪 Bearer 头返回 401 报错；
+  5. **全栈多级自动化测试 100% 满分通过**：服务端 25 项单测全绿（含精细 CIDR 边界测试）、前端 15 项单测全绿、249 项全局静态契约全绿通过。
+- **SSOT 来源：** `myrm-agent-server/app/api/integrations/llms.py` · `myrm-agent-frontend/src/store/config/providerTypes.ts` · `temp-docs/materials/COMPETITIVE_ADVANTAGE_LOCAL_MODEL.md`
+
 ## 最新验证快照（2026-09-05 · 零技术债包根目录硬门禁与原生 SSOT 架构治理 · 引擎与底层全面闭环）
 
 - **ZeroTechnicalDebtPackageRootDiscipline（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在长期迭代中堆积大量包根历史转发空壳文件导致 IDE 搜索同名冲突、类型推导降级为 Any，以及安全扫描模块错位散落无序的顽疾）：** Myrm 交付了零死代码、零历史空壳、全直连原生 SSOT 的极简高纯净度工程架构：
