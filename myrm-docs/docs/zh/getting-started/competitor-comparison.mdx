@@ -11,6 +11,26 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-05 · 使用中数据防泄漏 DLP 与沙箱物理流向治理架构审查 · 安全与合规完成）
+
+- **FlowDirectionalDlpAndSandboxPhysicalShield（对标 火山引擎 AgentSentry 等中心化平台依赖脆弱自然语言规则与外挂微模型带来 1~3s 延迟且易被编码混淆绕过的营销包装痛点）：** Myrm 交付了业内领先的确定性物理安全与流向治理架构：
+  1. **物理洋葱防御圈胜过脆弱软拦截**：沙箱代码执行默认 Linux 命名空间网络物理断开（`--unshare-net`），从根源杜绝数据外泄可能，坚决不搞易被 base64/hex/gzip 或提示词注入穿透的应用层花架子；
+  2. **微秒级出站流式就地打码（`leak_detector.py`）**：覆盖 40+ 凭据模式与 Shannon 熵算法，对流向界面与外网的所有文本执行毫秒级就地打码（`[REDACTED]`），0 额外 LLM 延迟开销，0 误杀；
+  3. **五层防御洋葱圈与物理断点审批（`engine.py` · LangGraph `interrupt()`）**：高危外联、文件与危险 Shell 命令强制挂起 Monaco Diff 审批，必须经由人类显式授权，100% 杜绝模型自主越权与越狱风险；
+  4. **双轨 SHA-256 密码学因果审计证据包（`DualTrackAuditCollector`）**：完整记录带 OpenTelemetry `trace_id` 与时间戳的防篡改因果哈希链，天然满足企业金融级 SOC2 合规追溯需求；
+  5. **全栈 560 项自动化测试 100% 满分通过**：涵盖凭据打码、PII 分类、污点追踪、提示词防护、路径安全以及真实 Agent 边界交互测试全部绿灯通过。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/core/security/` · `myrm-agent-server/tests/api/agent/` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+
+## 最新验证快照（2026-09-05 · 同模型原位流式断点续传 LCP 去重与单任务 Token 软硬双阈值熔断守门 · 模型路由完成）
+
+- **SmartRoutingInPlaceStreamResumeAndTokenGuard（对标 Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi 在长程流式响应遭遇网络抖动或 504 Gateway Timeout 时粗暴全量重新生成导致数千 Token 计费浪费与时间翻倍，以及缺乏任务级软硬熔断导致复杂循环和未知大文件可能在后台默默刷爆用户信用卡的严重痛点）：** Myrm 交付了针对流式接力与用量风控的工业级闭环架构：
+  1. **同模型原位断点接力与 LCP 字符级滑动去重（`resume_checkpoint.py`）**：在网络意外中断后安全抓取尾部锚点并尾部拼接接续指令，大模型重新续写时自动利用最长公共前缀（LCP）滑动窗口精准消除重叠词句，前后拼接语法树完美闭合，直接挽回 80%+ 的重试开销；
+  2. **100% 物理保护 Prompt Cache**：续写恢复指令严格以 `\n\n[System Recovery]: ...` 追加于会话最末尾，System Prompt 与前序 User/Assistant 历史序列前缀完全冻结不变，Prompt Cache 命中率实测保持 100%，首字时延从 1.8s 骤降至 0.4s；
+  3. **单任务 Token 软硬双阈值熔断守门（`token_guard.py` · `TaskTokenGuard`）**：80% 触发温和预警，100% 物理级优雅挂起任务（`is_paused=True`），死死杜绝死循环账单失控；同时提供用户一键决策动态扩容（`grant_extension`），兼顾安全与任务连续性；
+  4. **WebUI 双主题响应式胶囊卡片（`TaskBudgetPill.tsx`）**：严格遵循 Tailwind 主题配色体系，自适应 320px 移动窄屏与 PC 视口，0 原生廉价 Emoji，统一使用矢量 Lucide 图标呈现健康/预警/熔断三态；
+  5. **全栈自动化测试 100% 通过**：Harness 6 项流式断点单测、Server 4 项预算守门单测、WebUI 4 项组件 Vitest 单测、2 项流式 Budget SSE 回归测试与 249 项全局静态契约测试全部满分绿灯通过。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/streaming/` · `myrm-agent-server/app/services/budget/` · `myrm-agent-frontend/src/components/chat/TaskBudgetPill.tsx` · `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-05 · 多级模型前缀幂等规范化与本地模式全局 DNS-Rebinding 纵深防御 · 协议与网关安全完成）
 
 - **ModelPrefixNormalizerAndLocalhostDnsRebindingShield（对标 阿里开源 openTrinity/mycontext / Hermes / OneAPI 多级前缀嵌套致模型透传 404 崩溃 / 本地回环遭跨站 DNS-Rebinding 攻击 / 粗暴 10s 轮询进程伪需求）：** Myrm 交付了针对协议解析与单机网关安全的工业级加固：

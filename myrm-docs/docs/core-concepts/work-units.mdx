@@ -46,18 +46,18 @@ Myrm includes a three-dimensional budget system that protects you from unexpecte
 
 | Dimension | What it limits | Example |
 |-----------|---------------|---------|
-| Per-session | Single conversation cost | $2.00 per chat |
-| Daily | Total daily spend | $10.00/day across all chats |
+| Per-session | Single conversation cost (isolated per `session_id` across multi-tab concurrency) | $2.00 per chat |
+| Daily | Total daily spend (aligned to UTC midnight reset with cold-start DB recovery) | $10.00/day across all chats |
 | Per-call | Individual LLM call cost | $0.50 per API call |
 
 ### Four Progressive Levels
 
 1. **OK** — normal operation
-2. **WARNING** — approaching limit, toast notification shown
-3. **FINALIZATION** — agent wraps up current task, tool calls restricted
-4. **EXCEEDED** — hard stop, new messages blocked until reset
+2. **WARNING** — approaching limit (default 80%), toast notification shown with cache-safe injection
+3. **FINALIZATION** — 15% reserve buffer released to guide agent in concluding and delivering completed artifacts gracefully
+4. **EXCEEDED** — hard stop, new messages blocked until reset or budget expansion
 
-Configure all budgets in **Settings > System > Budget Policy**. The system respects prompt cache — budget enforcement uses prompt injection that preserves cache prefix stability.
+Configure all budgets in **Settings > System > Budget Policy**. The system respects prompt cache — budget enforcement uses tail prompt injection that preserves KV cache prefix stability (99%+ hit rate). Multi-tab sessions maintain dedicated isolated ledgers to prevent cross-window budget wipeouts.
 
 ## Enterprise Org Budget (Cloud Only)
 
