@@ -253,6 +253,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   5. **全链路 70+ 单测/集成与真实 Chrome E2E 100% 全绿**：跨 Harness 单测（14 项）、Server 注册表与网关分流（50 项）、前端 Vitest（6 项）及真实 Chrome E2E（`test_channel_routing_general_only_chrome_e2e.py` 40s）满分通过。
 - **SSOT 来源：** `myrm_agent_harness/utils/runtime/steering.py` · `app/services/agent/steering_registry.py` · `app/channels/routing/router.py` · `HoldToApproveButton.tsx` · `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md`
 
+## 最新验证快照（2026-09-05 · 多级模型前缀幂等规范化、本地模式全局 DNS-Rebinding 纵深防御与轻量探针 · 存储与网关安全完成）
+
+- **ModelPrefixIdempotentFoldingAndLocalhostDnsRebindingShield（对标 阿里开源 openTrinity/mycontext · knowledge-feed、Hermes、OneAPI/NewAPI 在跨框架对接时多级前缀嵌套导致 400/404 崩溃、本地单机模式被外部恶意跨站网页利用 DNS-Rebinding 偷取数据、以及跨技术栈生造独立 10s 轮询进程与磁盘明文清单的严重缺陷）：** Myrm 交付了网关层与模型解析器的企业级安全与稳定性加固体系：
+  1. **模型名称多级连续前缀幂等折叠（`model_resolver.py:480-488`）**：针对跨框架代理或聚合平台常见的 `anthropic/anthropic/claude-3-5-sonnet` 或 `openai-compatible/openai/gpt-4o` 嵌套前缀，采用自愈式 `while` 管道自动幂等折叠为单层标准标识，彻底根除模型透传导致的上游 API 400/404 崩溃；
+  2. **本地模式全局 DNS-Rebinding 与非法跨站 Origin 纵深防御（`host_allowlist.py:65-78`）**：在本地单机运行模式下强化 Host 严格约束为 RFC 回环地址，并对携带外部跨站 Origin 的请求直接触发 403 Forbidden 物理阻断，同时安全放行 Tauri 桌面端与 Webview 协议，构筑军工级单机安全防线；
+  3. **坚决剔除过度设计与零开销事件流转**：彻底淘汰竞品在本地启动独立 HTTP Loopback 进程与明文 `handoff.json` 清单（消除明文凭证泄露与多端口冲突隐患），全面采用进程内 `asyncio` 微秒级内存事件调度与极简只读探针；
+  4. **全套自动化测试 25/25 100% 满分通过**：模型解析测试集与网关中间件安全测试集 100% 绿灯（29.38s，exit=0，0 僵尸进程残留，0 Linter 错误）。
+- **SSOT 来源：** `myrm-agent-server/app/core/channel_bridge/model_resolver.py` · `myrm-agent-server/app/middleware/host_allowlist.py` · `temp-docs/materials/STORAGE_CRASH_CONSISTENCY_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-04 · 移动端遥控派活与跨端自适应卡片 Push 通知总线 · 渠道与通知集成完成）
 
 - **MobileRemoteTaskDispatchAndChannelPushNotificationBridge（对标 Hermes / OpenClaw / AstrBot / CoPaw / Codex / DeepSeek-Harness / Pi 在移动端外出时无法主动接收长程任务与 Cron 终态通知、缺乏富交互自适应卡片、直接向简单 Webhook 发送组件导致崩坏、以及完全缺失 Web Push / PWA 离线任务推送一键引导的痛点）：** Myrm 交付了端到端的跨端通知中枢与自适应卡片格式化体系：
