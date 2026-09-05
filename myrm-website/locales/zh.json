@@ -603,7 +603,7 @@
           "feature": "用量精确记账 · 消息级 SSOT，防漏算防通胀",
           "hermes": "会话级快照，进行中滞后 + 崩溃漏记",
           "openclaw": "无用量持久化",
-          "myrmAgent": "**消息级 SSOT 记账**（Chat 表 total_calls/total_tokens/total_usd 只从消息 extra_data.tokenEconomics 全量聚合，唯一口径统一）· **防漏算**：进程内 ChatUsageCache 携带 last_message_id 校验，缓存陈旧自动重算，长会话最后一条消息永不丢账（竞品缓存/快照方案最后消息常永久缺失）· **防通胀**：retry/undo/truncate/rewind/regenerate/switch_sibling 六突变点 commit 后 best-effort 重算，撤回/重试/切分支后用量精确回落，作废消息费用即时剔除（竞品删除/切分支后总账虚高）· **崩溃自愈**：auto-continue 崩溃恢复路径从流内收集 message_end.token_economics 快照补录，崩溃重跑 turn 费用自动入账（竞品崩溃后该会话用量永久缺失）· **真实 LLM E2E 验证**：同一 chat 连续两轮真实调用，total_calls/tokens/usd 精确等于两轮快照之和（无 mock，无遗漏无通胀）· harness TokenTracker 显式传参修复 async generator 跨 task ContextVar 丢失，任意嵌套深度精确追踪"
+          "myrmAgent": "**消息级 SSOT 记账**（Chat 表 total_calls/total_tokens/total_usd 只从消息 extra_data.tokenEconomics 全量聚合，唯一口径统一）· **防漏算**：进程内 ChatUsageCache 携带 last_message_id 校验，缓存陈旧自动重算，长会话最后一条消息永不丢账（竞品缓存/快照方案最后消息常永久缺失）· **防通胀**：retry/undo/truncate/rewind/regenerate/switch_sibling 六突变点 commit 后 best-effort 重算，撤回/重试/切分支后用量精确回落，作废消息费用即时剔除（竞品删除/切分支后总账虚高）· **崩溃自愈**：auto-continue 崩溃恢复路径从流内收集 message_end.token_economics 快照补录，崩溃重跑 turn 费用自动入账（竞品崩溃后该会话用量永久缺失）· **真实 LLM E2E 验证**：同一 chat 连续两轮真实调用，total_calls/tokens/usd 精确等于两轮快照之和（无 mock，无遗漏无通胀）· harness TokenTracker 显式传参修复 async generator 跨 task ContextVar 丢失，任意嵌套深度精确追踪 · **全要素运行开销与算力水表（SearchQuota & BrowserRuntime）**：业界首个将「免费搜索配额水库（Tavily/Brave 等）」与「浏览器自动化时长与网络流量 MB」纳入原生白盒化监控的 Agent；支持 429 限流自愈归零对账（Self-Healing Re-anchor）与无感切轨，3分钟主动防死循环看门狗阻断僵尸算力，彻底告别 24/7 长程任务后台断供与天价账单"
         },
         "promptMode": {
           "feature": "Prompt 可控 · 按场景精确调教 AI 行为",
@@ -897,7 +897,7 @@
           "feature": "联网搜索 · 搜得准、答有据",
           "hermes": "API 直通原文",
           "openclaw": "DDG 网页抓取",
-          "myrmAgent": "11 引擎 + Volcengine 豆包 Provider MVP（Settings GUI · 非 CLI Skill）+ Priority Chain 额度 hop + 7类意图路由 · 全模型 grounding · RSG 充分性 · Domain 多样性 · 双层去重 · 中文全网自托管 · **Agent 显式检索参数**（time_range + site: query 引导、三引擎归一化 + 三层优先级融合 + 单轮搜索配额）· **结构化命中字段**（site_name/authority/date 全链路保留）· **引用悬浮卡片**（权威标签+相对时效+站名 — 竞品仅显示 URL）· **5层交叉验证搜索**（Thinking Checklist 4维强制 + 1-5 query并行 + Domain Diversity + RSG补搜 + proactive grounding — 竞品仅 3 行 Prompt 文案）— 整体碾压竞品单引擎+无 Agent 级控参"
+          "myrmAgent": "11 引擎 + Volcengine 豆包 Provider MVP（Settings GUI · 非 CLI Skill）+ Priority Chain 额度 hop + 7类意图路由 · 全模型 grounding · RSG 充分性 · Domain 多样性 · 双层去重 · 中文全网自托管 · **Agent 显式检索参数**（time_range + site: query 引导、三引擎归一化 + 三层优先级融合 + 单轮搜索配额）· **结构化命中字段**（site_name/authority/date 全链路保留）· **引用悬浮卡片**（权威标签+相对时效+站名 — 竞品仅显示 URL）· **5层交叉验证搜索**（Thinking Checklist 4维强制 + 1-5 query并行 + Domain Diversity + RSG补搜 + proactive grounding — 竞品仅 3 行 Prompt 文案）· **搜索配额自愈与多源无感切流**：内置官方免费基线，精准捕获 429 报错即刻自动将本地额度校准归零并无感切至备用源，前端提供双卡片透明水表（80%/95% 梯度预警与无限专线豁免），任务永不因搜索断供崩溃 — 整体碾压竞品单引擎+无 Agent 级控参"
         },
         "steerToken": {
           "feature": "中途纠偏 · 无需等待即刻纠正",
