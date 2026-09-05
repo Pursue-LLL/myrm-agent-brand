@@ -1099,5 +1099,15 @@ To prevent Stored XSS attacks via model-generated or untrusted Mermaid diagrams:
 2. **Recursive DOMParser Attribute Sanitization**: Recursively inspects the rendered SVG DOM tree using `sanitizeMermaidSvg`, stripping dangerous tags (`<script>`, `<foreignObject>`, `<iframe>`, `<object>`).
 3. **Neutralized Inline Events and Pseudo-Protocols**: Strips all case-insensitive `on*` inline event listeners and purges `href` / `xlink:href` attributes containing pseudo-protocols, ensuring complete immunity against Stored XSS across chat bubbles and fullscreen modal views.
 
+## Plugin Packaging Integrity Guard
+
+To prevent catastrophic runtime crashes caused by unbuilt or missing build artifacts in third-party plugin packages:
+
+1. **Static Ingestion Verification**: Statically verifies referenced local build artifacts and entrypoint scripts (`node dist/index.js`, `python server.py`, `./bin/server`) at archive ingest time against the package files.
+2. **Component-Level Localized Fault Isolation**: Automatically skips broken MCP servers while allowing functional Skills and Agents to install smoothly, preventing a single unbuilt component from halting the entire import workflow.
+3. **Adaptive Flag Stripping and Normalization**: Strips interpreter flags (`-u`, `--loader`), normalizes Windows backslashes and `${PLUGIN_ROOT}` macros, and detects bare relative entrypoint arguments (`args: ["dist/index.js"]`).
+4. **GUI Hardening and Accidental Install Protection**: Surfaces clear warning badges with actionable build instructions (e.g., `npm run build`), defaults broken servers to skip, and protects against accidental bulk installs.
+
+
 
 

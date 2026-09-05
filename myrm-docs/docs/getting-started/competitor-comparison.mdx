@@ -80,6 +80,15 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
   5. **100% Automated Test Suite Passing**: 54/54 unit, middleware, and full FastAPI pipeline integration tests passed with 0 errors, 0 lints, and 0 zombie processes.
 - **SSOT Sources:** `myrm-agent-server/app/api/mcp/origin_guard.py` · `myrm-agent-server/app/api/mcp/endpoint.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
 
+## Latest Validation Snapshot (2026-09-05 · Zero-Key Subprocess Sanitization vs High-Risk MITM Proxy · Security Completed)
+
+- **AgentZeroKeyIsolationVsMITM (vs OpenClaw introducing self-signed Root CA injection and local loopback MITM proxy stream-substitution causing widespread CERTIFICATE_VERIFY_FAILED breakages across Python requests, Node, Go, and curl toolchains alongside major streaming upload throughput degradation):** Myrm delivers a clean, fail-closed root-cause sanitization architecture:
+  1. **Fail-Closed Subprocess Environment Sanitization (`env_isolation.py:175-225` · `executor.py:560-565`)**: Strictly scrubs all sensitive variables (`KEY`, `TOKEN`, `SECRET`, `AUTH_`, etc.) prior to spawning child processes, guaranteeing that untrusted third-party code running `printenv` never accesses plaintext credentials;
+  2. **In-Memory Controlled LLM Invocation**: The agent execution engine executes primary model inference and tool orchestration directly within the trusted Python host process memory over direct TLS sessions, with zero proxy hops and zero certificate trust errors;
+  3. **Physical Isolation with Dedicated Volumes (Agent-in-Sandbox)**: Eliminates the root causes that led competitors to hack together complex loopback MITM proxies, achieving complete credential safety with zero developer friction.
+- **SSOT Sources:** `myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/security/env_isolation.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+
+
 ## Latest Validation Snapshot (2026-09-05 · Parallel Browser Task Spaces & User Takeover Hard-Stop Policy · Browser Automation Completed)
 
 - **ParallelBrowserTaskSpaceWebUiPack / BrowserUserInitiatedTakeoverHardStopResumePolicy (vs Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi suffering from cookie collisions across concurrent agents, action race conditions, unmanaged headless browser zombie leaks causing container OOM, and cursor-fighting during manual human takeover):** Myrm delivers an enterprise-grade isolated task space container and resilient human takeover architecture:

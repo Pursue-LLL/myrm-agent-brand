@@ -989,6 +989,25 @@ CaMeL 单信任边界；Myrm **6 层**洋葱防御、5 域循环检测、3 层�
 2. **DOMParser 递归属性白名单二次净化**：在渲染生成原始 SVG 后，统一经由 `sanitizeMermaidSvg` 纯函数过滤，递归剔除 `<script>`、`<foreignObject>`、`<iframe>`、`<object>` 等危险标签；
 3. **内联事件与链接伪协议彻底中立化**：剥离任何大小写混淆的 `on*` 事件属性（如 `oNload`），剥离 `href` 与 `xlink:href` 伪协议，确保工件与 Markdown 图表在普通预览与全屏弹窗下 100% 免疫 XSS 攻击。
 
+## 插件打包完整性与静态构建产物前置校验门禁 (Plugin Packaging Integrity Guard)
+
+为彻底消灭第三方插件因遗忘构建产物导致 Agent 运行时抛出 `ENOENT` 崩溃的问题：
+
+1. **解压摄取第一时间静态校验**：在插件 ZIP 解压阶段，第一时间静态比对 stdio MCP 服务声明的入口脚本与构建产物（如 `dist/index.js`、`server.py`、`./bin/run`）是否物理存在于包内。
+2. **组件级精准局部熔断**：坏 MCP 服务自动标记并跳过，好 Skills 与 Agents 正常入库，彻底避免单个未构建组件导致整包导入失败或运行时全盘崩溃。
+3. **全解释器参数自适应剥离**：智能跳过 `-u`、`--loader` 等标志参数，统一归一化 Windows 反斜杠与 `${PLUGIN_ROOT}` 宏，精准识别裸相对路径。
+4. **WebUI 工业级防呆与防误触**：展示醒目红色警告徽章并附带 `npm run build` 指引，默认跳过并禁用单项启用，批量全选自动规避损坏服务。
+
+## 零密钥外泄与子进程环境脱敏防线 (Zero-Key Subprocess Sanitization vs MITM Proxy)
+
+为杜绝类似竞品 OpenClaw 方案引入自签名 MITM 代理对 TLS 生态的破坏与性能雪崩：
+
+1. **源头物理脱敏基线（Fail-Closed SSOT）**：Myrm 在子进程环境构建阶段通过 `env_isolation.py` 与 `executor.py` 强制剔除包含 `KEY`、`TOKEN`、`SECRET`、`AUTH_` 等全部敏感变量，第三方脚本无论如何 `printenv` 都无法探测到真实明文。
+2. **受控底座内存内联调用**：Agent 核心大模型推理直接在受控进程内存中与官方网关建立加密 TLS 连接，0 证书报错（免除 `CERTIFICATE_VERIFY_FAILED` 生产事故），0 代理损耗。
+3. **专属容器沙箱隔离（Agent-in-Sandbox）**：结合独立 Volume，从操作系统和网络物理层面提供极致防护，实现 0 配置负担下的企业级凭据安全。
+
+
+
 
 
 

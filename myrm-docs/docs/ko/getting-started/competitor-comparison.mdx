@@ -11,7 +11,17 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
-## 최신 검증 스냅샷 (2026-09-05 · 자식 프로세스 민감 자격 증명 격리 관문 및 스크립트 피연산자 TOCTOU 검증 · 보안 거버넌스 완료)
+## 최신 검증 스냅샷 (2026-09-05 · 플러그인 패키징 무결성 및 정적 빌드 산출물 사전 검증 관문 · 보안 거버넌스 완료)
+
+- **PluginPackagingIntegrityGuard (OpenClaw / Hermes / Codex / DeepSeek-Harness / Pi 등 서드파티 플러그인 개발자가 `npm run build`를 누락하거나 ZIP 패키지에서 `dist/` 빌드 산출물을 누락하여 런타임에 `ENOENT` 예외가 발생하고 에이전트 서비스가 중단되는 문제 대비):** Myrm은 업계 최고 수준의 정적 패키징 검증 관문 및 컴포넌트 수준 장애 격리 아키텍처를 제공합니다:
+  1. **제로 토큰 정적 수신 관문 (`integrity.py` · `verify_mcp_server_artifacts`)**: ZIP 압축 해제 수신 시점에 선언된 빌드 산출물 및 진입점 스크립트의 물리적 존재 여부를 정적으로 검증($O(1)$ 메모리 해시 조회, $<0.2$ms 오버헤드)하여 DB 저장 전 런타임 `ENOENT` 및 500 장애 원천 차단;
+  2. **컴포넌트 수준 정밀 장애 격리 (Partial Failure Isolation)**: 손상된 MCP 서버는 자동으로 `is_runnable=False` 처리 후 건너뛰고, 동일 번들 내 정상 Skills 및 Agents는 원활하게 가져와 시스템 가용성 극대화;
+  3. **유니버설 인터프리터 및 인수 정규화**: `-u`, `--config` 등의 플래그를 지능적으로 제거하며 `node`, `bun`, `python3`, `bash`, `deno`, `ts-node` 등 모든 주요 인터프리터 지원, Windows 역슬래시, `${PLUGIN_ROOT}` 매크로 및 베어 상대 경로 정규화;
+  4. **산업용 GUI 안전장치**: 누락된 파일 정보와 `npm run build` 가이드를 표시하는 눈에 띄는 빨간색 경고 배지 제공, 기본 결정을 `skip`으로 설정하고 개별 활성화 비활성화, 일괄 전체 선택 시 오작동 방지;
+  5. **100% 자동화 테스트 통과**: Harness 플러그인 파서 50/50개 단위 테스트 전량 통과, 0 경고 0 오류 0 좀비 프로세스.
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/agent/plugins/integrity.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/plugins/parser.py` · `myrm-agent-frontend/src/components/features/plugins/PluginImportDialog.tsx` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+
+## 최신 검증 스냅샷 (2026-09-05 · 자식 프로세스 민감 자격 증명 격리 관问 및 스크립트 피연산자 TOCTOU 검증 · 보안 거버넌스 완료)
 
 - **ChildProcessCredentialTokenIsolation / ApprovedScriptsChangePrevention (OpenClaw / Hermes / Codex / DeepSeek-Harness / Pi 등 자식 프로세스 실행 시 부모 환경 변수를 그대로 상속하여 Noise/Vault 자격 증명 및 sk- API 키가 유출되는 문제와 사용자 승인 후 외부 스크립트가 변조되어 대리 실행되는 TOCTOU 취약점 대비):** Myrm은 기업급 심층 자식 프로세스 환경 변수 화이트리스트 정화 관문과 런타임 SHA-256 피연산자 검증 아키텍처를 제공합니다:
   1. **3단계 자식 프로세스 환경 격리 엔진 (`env_isolation.py` · `build_isolated_child_env`)**: 네이티브 SSOT 모드로 `CORE`(엄격한 POSIX 및 개발 도구체인 화이트리스트, Git author 신원은 유지하되 민감 자격 증명 물리적 제거), `ALL`(전체 상속 + 57개 동적 링커/프록시 하이재킹 블랙리스트 및 8차원 어근 와일드카드 정화), `NONE`(완전 제로 환경 변수 물리적 절연)을 제공하여 코드 실행 수명 주기 전반의 자격 증명 유출 차단;

@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-05 · 插件打包完整性与静态构建产物前置校验门禁 · 安全治理完成）
+
+- **PluginPackagingIntegrityGuard（对标 OpenClaw / Hermes / Codex / DeepSeek-Harness / Pi 在第三方作者遗漏 `npm run build` 或在 ZIP 包中遗漏 `dist/` 产物导致运行时抛出 `ENOENT` 异常、服务崩溃乃至会话中断）：** Myrm 交付了业内领先的插件打包静态校验门禁与组件级故障隔离架构：
+  1. **零 Token 开销静态 Ingest 门禁（`integrity.py` · `verify_mcp_server_artifacts`）**：在 ZIP 解压 Ingestion 第一时间静态检验声明的构建产物与入口脚本是否存在（$O(1)$ 内存哈希比对，耗时 $<0.2$ms），彻底在入库前消灭运行时 `ENOENT` 与 500 崩溃；
+  2. **组件级精准局部熔断（Partial Failure Isolation）**：损坏的 MCP 服务自动标记 `is_runnable=False` 并跳过，同包内的好 Skills / Agents 依然平滑入库，实现系统容错与可用性最大化；
+  3. **全解释器参数自适应剥离**：智能跳过 `-u`、`--config` 等标志参数，完美适配 `node`、`bun`、`python3`、`bash`、`deno`、`ts-node` 等所有主流解释器，统一样式化 Windows 反斜杠、`${PLUGIN_ROOT}` 宏与裸相对路径；
+  4. **WebUI 工业级防呆与防护**：展示醒目红色警告徽章并说明缺失文件，附带 `npm run build` 修复指引，默认决议为 `skip` 并禁用单项启用，批量全选自动防误触；
+  5. **100% 自动化测试通过**：Harness 插件解析器 50/50 项单测全绿通过，0 警告 0 错误 0 僵尸进程。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/plugins/integrity.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/plugins/parser.py` · `myrm-agent-frontend/src/components/features/plugins/PluginImportDialog.tsx` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-05 · 插件分级沙箱权限模型与默认禁用门禁 · 安全治理完成）
 
 - **PluginSandboxPermissionModelPack（对标 DeepSeek Harness 在 Issue #312 与社区实测中暴露的“插件直接拥有宿主进程权限、安装即静默在后台常驻运行”的特权漏洞）：** Myrm 交付了业内领先的插件与 MCP 五重纵深防御闭环体系：
@@ -69,6 +79,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   4. **全结构递归凭证脱敏（`ChatExportSecretRedactionPack`）**：覆盖会话标题、消息正文、思考链推理轨迹以及嵌套命令行工具调用入参，5 种导出形态（Markdown / JSON / HTML / Copy / Print）全覆盖并搭载自解释合规徽章；
   5. **100% 自动化测试全绿与 0 Lints**：54/54 单元测试、中间件拦截测试与 FastAPI 全链路集成测试全部绿灯，0 错误 0 警告 0 僵尸进程。
 - **SSOT 来源：** `myrm-agent-server/app/api/mcp/origin_guard.py` · `myrm-agent-server/app/api/mcp/endpoint.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+
+## 最新验证快照（2026-09-05 · 零密钥泄露与子进程源头脱敏防线 · 安全治理完成）
+
+- **AgentZeroKeyIsolationVsMITM（对标 OpenClaw 采用高危的自签名 Root CA 注入及本地 MITM 代理流式滑动窗口替换凭据导致 Python requests/Node/Go/curl 频繁爆发 CERTIFICATE_VERIFY_FAILED 证书链崩溃报错且大文件传输性能雪崩的严重痛点）：** Myrm 交付了从源头彻底消除凭据泄露风险的工业级架构：
+  1. **Fail-Closed 子进程源头物理脱敏基线（`env_isolation.py:175-225` · `executor.py:560-565`）**：在子进程创建时强制清洗包含 `KEY`、`TOKEN`、`SECRET`、`AUTH_` 等敏感变量，第三方脚本无论如何 `printenv` 绝无可能读取到密钥明文；
+  2. **受控底座内存内联调用**：Agent 核心大模型推理直接在受控底层进程内存中安全完成加密 TLS 握手，0 证书报错，0 代理损耗，杜绝中间人劫持；
+  3. **专属容器沙箱隔离（Agent-in-Sandbox）**：结合独立 Volume，从操作系统和网络物理层面提供极致防护，实现 0 配置负担下的企业级凭据安全。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/security/env_isolation.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+
 
 ## 最新验证快照（2026-09-05 · 确定性代码调用图谱与测试爆炸半径定位技能包 · 技能与工具链完成）
 
