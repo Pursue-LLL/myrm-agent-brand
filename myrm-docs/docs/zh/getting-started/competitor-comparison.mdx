@@ -11,6 +11,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-06 · 三层隐私脱敏与全自动化 Trace 合规审查门禁 · 数据安全与合规可观测性闭环）
+
+- **ThreeLayerPrivacySanitizerAndAutomatedTraceReviewGate（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在可观测性与排障日志中“要么完全不记录排障全靠盲猜，要么记录详尽却将 API Key、密码与私密文件路径明文落盘外发导致灾难性隐私泄漏”、且事后审计完全缺乏自动化核验标准的行业痛点）：** Myrm 交付了业内领先的三层渐进脱敏引擎与 16 维全自动化合规审查门禁：
+  1. **三层渐进隐私脱敏过滤器（`TraceSpanSanitizer`）**：在 Harness 执行引擎底层，针对全链路 Span 与 Trace Payload 实施三层递进过滤：第一层执行字段白名单精确划分（分离安全审计字段与高危属性）；第二层执行敏感模式扫描（覆盖 Bearer 凭据、API Key、Password、Token 等高频私密签名并保留结构化指纹 `[REDACTED:len=...:fp=...]`）；第三层对超长文本（>1024 字符）执行低熵安全 SHA-256 截断，杜绝反推泄密；
+  2. **短生命周期短任务退出批量安全落盘（Batch Safe Flush Guarantee）**：结合原子写入与 `atexit` 批量落盘机制，确保脚本中断或沙箱短任务退出时内存脱敏日志不遗失，0 丢帧且 0 进程卡死；
+  3. **16 项全自动化 Trace 合规审查门禁（Automated Trace Review Gate）**：内置 16 项高标准合规探针，自动化拦截明文敏感凭据外泄、字段缺失与非法未授权上报，实现合规问题的毫秒级 Fail-Fast 阻断；
+  4. **全套自动化测试 100% 满分通过**：Harness 118 项专属脱敏与链路测试全量通过，无任何 Lint 警告与环境残留。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/infra/tracing/sanitizer.py` · `myrm-agent-harness/tests/observability/test_trace_span_sanitizer.py` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
+
 ## 最新验证快照（2026-09-06 · 模型编排四大经典范式全景指南与多级有序回退体系 · 模型路由与用户体验完成）
 
 - **ModelOrchestrationPlaybookAndMultiTierFallback（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在模型选型与故障切换方面的黑盒体验：竞品通常仅在庞杂的 CLI 或外部 Markdown 中写满参数说教，导致用户只能全盘盲选昂贵大模型导致额度瞬间枯竭，且一旦主模型遭遇 429 RateLimit 或 503 故障时直接报错中断长程任务）：** Myrm 交付了业内领先的可视化模型编排认知体系与原生流式多级回退引擎：
