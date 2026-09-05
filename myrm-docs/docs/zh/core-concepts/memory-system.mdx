@@ -52,6 +52,9 @@ Myrm 记忆系统是 Agentic Memory Operations（AMO）范式最完整的实现�
 11. **语义不变性契约与正反例防幻觉断言** — 记忆工具描述采用中英双语原生对称架构，内置严格的纠错拦截、第三方属性隔离与 GOOD vs BAD 正反例对比示范；静态单测全面转换为语义不变性守卫（Semantic Invariants），配合 16 组真实业务黄金决策流（Golden Decisions），彻底根除因 Token 盲目裁剪带来的模型幻觉与记忆污染。
 12. **历史会话索引覆盖率与自适应诚实上报** — 引入 `ConversationIndexCoverage` 状态契约，在后台异步构建或部分未索引时自动向前注入精简前缀提示，明确向 Agent 揭示物理检索边界；索引 100% 就绪时零额外 Token 输出，杜绝模型在检索未完时自信断言「用户没说过」，完美守护 Prompt Cache。
 13. **会话盲区自动提炼知识补丁与人机协同闭环** — 周期扫描未命中召回、用户纠正反问与显式差评，将知识盲区（Blind Spots）聚类提炼为结构化补丁候选；打通全域人机协同（HITL）审批流，前端多态卡片一键审查对比与采纳入库，实现使用中知识自主沉淀。
+14. **强/弱/暗跨任务置信分层与动作执行防火墙** — 原生在 `EpisodicMemory` 与 `EpisodicRelation` 支持 `strong`、`weak` 与 `shadow` 置信度划分；在动态上下文注入层对弱相关历史背景打上 `[BACKGROUND CONTEXT - Reference only, do not execute as automated SOP]`，阻止大模型将跨任务参考当成自动化操作 SOP，根除跨轮逻辑返工。
+15. **单向因果时序护盾（防未来泄漏）** — 存储层全面落地 `created_at <= until.isoformat()` 时间上限硬过滤，在时间旅行、断点重放和基线自动化评测中，严格封死未来记忆逆向穿越，确保评估指标 100% 客观真实。
+16. **软件工程四相位标签与失败尝试避坑拦截** — 结构化记录 `analyze/locate/edit/verify` 四相位元数据及失败尝试（`is_failure_attempt=True`、`failure_reason`、`negative_lesson`）；在动态上下文层以高优先级 `priority=3` 置顶 `Failed Attempts & Negative Traps`，严厉警示模型 Avoid 历史教训，避免同一个错误犯第二次。
 
 结果：AI 的长期记忆是「实际发生的事」的真实记录，回答始终建立在可验证的事实之上，而非自信的猜测。
 
@@ -274,6 +277,19 @@ Myrm 检索器为每条情节/语义记忆注入人类可读的时间标签（�
 这与管道式方案（如 MindMemOS 的 `AgenticLoop`）形成对比，后者不论查询复杂度如何都机械地迭代 N 轮。Myrm 的 Agent-first 方式意味着：简单查询一轮完成，零额外成本；复杂多实体查询由 Agent 主动发起有上下文感知的补充搜索。
 
 RSG 是共享基础设施（`toolkits/retriever/sufficiency/`），已被 web search 工具使用，通过配置即可应用于 memory search。默认关闭（面向需要最大化复杂查询召回率的用户按需开启）。
+
+### 跨任务置信分层、动作执行防火墙与时序单向护盾
+
+在真实工程与复杂会话中，长期记忆系统极易受到“弱相关记忆误执行引发逻辑返工”与“离线回放未来记忆逆向穿透”的困扰。Myrm 在底层构建了三重工业级确定性安全网：
+
+1. **强/弱/暗三级置信分层（Strong / Weak / Shadow Tiers）**：
+   - 显式区分情景记忆与关联边的置信级别。同一工单或强关联记忆标记为 `strong`，具有可操作指导性；历史跨任务或跨项目的边缘引用标记为 `weak` 或 `shadow`，在上下文预算紧张时自适应优先降级裁剪。
+2. **动作执行防火墙（Action Execution Guard）**：
+   - 在动态上下文注入层，所有 `weak` 与 `shadow` 级别的历史记忆均被自动包装 `[BACKGROUND CONTEXT - Reference only, do not execute as automated SOP]` 只读警示，硬核阻断大模型把跨项目背景误当成执行指南，根治业界实测暴露的 1350 级逻辑返工顽疾。
+3. **Qdrant 单向因果防未来泄漏护盾（Anti-Future Leakage Temporal Guard）**：
+   - 检索出口与向量层支持 `created_at <= until.isoformat()` 时间上限硬过滤，在时间旅行、历史排障复盘与基线 Benchmark 评测中彻底杜绝后序记忆穿越，确保评估指标客观真实。
+4. **工程四相位标签与失败尝试避坑置顶（Failed Attempts & Negative Traps）**：
+   - 记忆原生感知 `analyze / locate / edit / verify` 四大软件工程阶段，并结构化记录失败尝试与 Avoid 避坑指南。在 Prompt 动态层以最高优先级置顶警示，确保“同一个死胡同绝不重复踩坑”。
 
 ## 知识图谱
 

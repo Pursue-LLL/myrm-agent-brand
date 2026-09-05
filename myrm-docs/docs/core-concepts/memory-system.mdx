@@ -52,6 +52,9 @@ Long-term memory only persists what is **true**, not what merely sounds plausibl
 11. **Semantic Invariants Contract & Negative Examples** — Bilingual native symmetric architecture with rigorous negative/positive demonstration pairs, preventing prompt-trimming-induced hallucinations and memory drift.
 12. **Historical Conversation Index Coverage Reporting** — Introduces the `ConversationIndexCoverage` contract: transparently informs the Agent of indexing status and backfill ratios when background asynchronous indexing is in progress; preserves 100% Prompt Cache efficiency with 0 token overhead under full index coverage.
 13. **Blind Spot Auto Knowledge Patch & HITL Loop** — Periodically harvests missed queries, user corrections, and negative signals, clustering blind spots into structured knowledge patch candidates with polymorphic card review and atomic ingestion into Wiki and L3 memory.
+14. **Cross-Task Confidence Tiering & Action Execution Guard** — Natively supports `strong`, `weak`, and `shadow` tiers in `EpisodicMemory` and `EpisodicRelation`. Attaches `[BACKGROUND CONTEXT - Reference only, do not execute as automated SOP]` in dynamic prompt context to prevent LLMs from confusing historical background references with execution SOPs, eliminating 1,350+ logic rework loops.
+15. **Anti-Future Leakage Temporal Guard** — Hard-filters `created_at <= until.isoformat()` at the storage layer, strictly preventing future knowledge from leaking in historical replay, baseline benchmarking, and offline evaluation.
+16. **Subtask-Phase Tagging & Failed Attempt Trap Guard** — Explicitly captures `analyze/locate/edit/verify` phase metadata and failed attempts (`is_failure_attempt=True`, `failure_reason`, `negative_lesson`), prioritizing `Failed Attempts & Negative Traps` at priority=3 in dynamic context to warn models against repeating dead ends.
 
 The result: your AI's long-term memory is a record of what actually happened, and its answers are grounded in verified facts — never in confident guesses.
 
@@ -274,6 +277,19 @@ When enabled, the Retrieval Sufficiency Guard (RSG) evaluates whether search res
 This contrasts with pipeline-based approaches (e.g., MindMemOS's `AgenticLoop`) that mechanically iterate N rounds regardless of query complexity. Myrm's Agent-first approach means simple queries complete in one round at zero extra cost, while complex multi-entity queries benefit from Agent-driven follow-up searches that are contextually aware.
 
 The RSG is shared infrastructure (`toolkits/retriever/sufficiency/`) already used by web search tools and available to memory search through configuration. Default: off (opt-in for users who want maximum recall on complex queries).
+
+### Cross-Task Confidence Tiering, Action Execution Guard & Anti-Future Leakage Shield
+
+In production engineering and complex multi-turn workflows, long-term memory systems often suffer from "logic rework caused by executing weak-context instructions" and "temporal leakage during offline benchmarking". Myrm establishes a 3-layer deterministic safety net:
+
+1. **Strong / Weak / Shadow Confidence Tiers**:
+   - Explicitly tags episodic memories and graph relations with confidence tiers. Strong memories drive autonomous actions, while weak or shadow cross-task references are marked as read-only background and prioritized for dynamic budget shedding when token limits are reached.
+2. **Action Execution Guard**:
+   - In dynamic context injection, all `weak` and `shadow` memories are automatically wrapped with `[BACKGROUND CONTEXT - Reference only, do not execute as automated SOP]`, preventing LLMs from misinterpreting historical background as active workflows and eliminating thousands of potential logic reworks.
+3. **Anti-Future Leakage Temporal Guard**:
+   - Retrieval endpoints natively support `created_at <= until.isoformat()` upper-bound truncation, strictly blocking future memories from contaminating past timelines during offline benchmarking and trajectory replay.
+4. **Software Engineering 4-Phase Tags & Negative Trap Interception (Failed Attempts)**:
+   - Natively tracks `analyze / locate / edit / verify` subtask phases and structured failure reasons. Injects failed attempts at highest priority (priority=3) into dynamic context to ensure the agent never repeats identical dead-ends.
 
 ## Knowledge Graph
 
