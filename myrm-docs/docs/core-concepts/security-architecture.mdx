@@ -89,6 +89,7 @@ Every tool call passes through up to 10 layers of deterministic and intelligent 
 | L2 | **Command Risk Classifier** | Categorizes shell commands by risk level (SAFE / UNKNOWN / DANGEROUS) |
 | L3 | **URL Domain Allowlist** | Auto-allows network access to trusted domains |
 | L4 | **Path Policy** | Enforces file access boundaries (workspace-only, deny-list, etc.) |
+| L4.5 | **Protected Instruction Shield** | Mandatory human approval for persona & governance files (`AGENTS.md`, `SOUL.md`, `CLAUDE.md`, `.cursorrules`); forbids permanent allowlist bypass |
 | L5 | **Fast-Path Read-Only MCP** | Auto-allows MCP tools with `readOnlyHint=true` and no destructive/open-world flags |
 | L6 | **Allowlist Persistence** | 4-level matching: permission → tool → exact args hash → command glob pattern |
 | L7 | **Taint-Aware Escalation** | Escalates already-ALLOW tools to ASK when session contains tainted data (PII, credentials) |
@@ -1164,8 +1165,21 @@ To counter adversarial prompt injection and multi-turn jailbreak attempts (e.g.,
 2. **Non-Bypassable Layer 1–5 Onion Physical Guard**: Bypasses fragile, slow, and evadable external LLM evaluators by enforcing fail-closed physical barriers at the system call boundary. Even if a model is semantically jailbroken, destructive operations and credential exfiltration are physically halted before OS execution.
 3. **Immutable Causal Audit Trail**: Tracks all tool calls, approval decisions, and blocks with tamper-evident cryptographic metadata, fulfilling enterprise compliance and auditability requirements out of the box.
 
+## Kernel-Level Sandbox & Supply Chain Defense (Bubblewrap / Seatbelt & Google OSV)
 
+To counter third-party dependency vulnerabilities (CVEs) and eliminate sandbox escape risks without heavy brittle CLI interceptors:
 
+1. **Agent-in-Sandbox Kernel Isolation (Linux Bubblewrap & macOS Seatbelt)**: All code execution runs in dedicated kernel-level namespaces (`--unshare-user`, `--unshare-pid`, `--unshare-net`). Root filesystem is mounted read-only (`--ro-bind /usr`), and host credentials (`~/.ssh`, `~/.aws`) are physically unmapped (`ENOENT`).
+2. **Default-Deny Network Boundary**: Sandbox code execution is strictly network-isolated (`--unshare-net`) by default. Malicious CVE payloads cannot reverse-shell or exfiltrate local data.
+3. **Google OSV.dev Intelligence & Offline Advisory Catalog**: Combines real-time Google OSV.dev CVE batch queries (`osv_scanner.py`) with offline known-compromised package catalogs (`security_advisories.py`) and install-script audits (`package_audit.py`).
 
+## Enterprise Outbound Proxy & Ephemeral Loopback Architecture
+
+To ensure seamless, secure outbound connectivity across complex corporate firewall and TLS-inspection environments:
+
+1. **Native Asynchronous Network Stack (httpx)**: Fully inherits system `HTTP_PROXY`, `HTTPS_PROXY`, `ALL_PROXY`, and `NO_PROXY` without fragile Node.js-style global dispatcher patches.
+2. **Mandatory Loopback Exemption (Anti-Deadlock Invariant)**: Automatically injects `localhost`, `127.0.0.1`, and `::1` into bypass rules, completely preventing local UI, WebSocket, and IPC traffic from routing into external proxies.
+3. **Enterprise TLS Inspection Compatibility (`tls_compat.py`)**: Precisely relaxes `VERIFY_X509_STRICT` for corporate proxies without disabling certificate chain verification, eliminating SSL handshake errors across all outbound exits.
+4. **Child Process Proxy Credential Scrubbing**: Strips embedded basic-auth proxy passwords before passing environments to untrusted workers, defeating credential extraction attacks.
 
 

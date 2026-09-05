@@ -88,12 +88,28 @@ Agent 可以使用 `ask_question_tool` 在执行操作前向用户提出结构�
 | L2 | **命令风险分类器** | 按风险级别分类 Shell 命令（SAFE / UNKNOWN / DANGEROUS） |
 | L3 | **URL 域名白名单** | 自动允许访问受信域名 |
 | L4 | **路径策略** | 强制文件访问边界（仅工作区、禁止列表等） |
+| L4.5 | **受保护指令文件防线** | 强制人机审批人设与规则文件（`AGENTS.md`、`SOUL.md`、`CLAUDE.md`、`.cursorrules`）；严格禁止白名单永久豁免 |
 | L5 | **只读 MCP 快速通道** | 自动批准 `readOnlyHint=true` 且无破坏性/开放世界标志的 MCP 工具 |
 | L6 | **白名单持久化** | 4 级匹配：权限 → 工具 → 精确参数哈希 → 命令 glob 模式 |
 | L7 | **污点感知升级** | 当会话包含被污染数据（PII、凭证）时，将已 ALLOW 的工具升级为 ASK |
 | L8 | **Cron 能力围栏预批** | 在定时任务中自动批准已声明的能力；无声明时 fail-closed |
 | L9 | **Domain HITL 运行时** | 在同一会话中自动批准已审批过的域名 |
 | L10 | **LLM 安全审核** | AI 分类器处理 ASK/污点/Shell 升级/出站检查场景 |
+
+### 技能元数据防提权与运行时零知识凭证保险库（Sentinel & Vault）
+
+针对 2026 年权威论文《Agent Skills in the Wild》披露的第三方技能提权后门与凭据外泄灾难，Myrm 构筑了工业级防线：
+
+1. **Frontmatter 声明与执行权限严格解耦**：
+   - 彻底封死类似 Claude Code 中恶意技能仅靠 `SKILL.md` 头部声明 `allowed-tools: Bash` 即可静默免批提权的致命漏洞；
+   - 任何技能 frontmatter 中的 `allowed-tools` 仅作为提示词中的可用工具池过滤，真实执行决策牢牢掌控在底层五层洋葱圈（`engine.py`）手中；外部第三方技能强制赋予 `SkillTrust.INSTALLED = 0`（只读收敛）。
+2. **技能内容 SHA-256 防篡改与运行时自动隔离**：
+   - 加载阶段实时执行 LF 归一化 SHA-256 校验；一旦上游或磁盘发生非授权代码漂移，`QuarantineAwareSkillBackend` 在运行时强行阻断（`is_active=False`），彻底消灭可变脚本投毒风险。
+3. **OS Keyring 零落盘主密钥与落盘透明 AES-256-GCM 信封加密**：
+   - `MasterKeyProvider` 原生托管至 macOS Keychain / Linux SecretService / Windows Credential Manager，贯彻 **Strictly Zero-Disk** 零落盘铁律；
+   - 本地 SQLite 凭证全量经 AES-256-GCM 加密落盘；子进程与沙箱仅能获取 `myrm-sent-v1...` 占位符，环境变量执行 `env` 绝无可能窃取明文 Key；出站白名单网关（Loopback Egress Proxy）动态透明代填。
+4. **默认 127.0.0.1 回环硬门禁与防 DNS 重绑定攻击**：
+   - 本地服务绝对强制仅绑定 `127.0.0.1` 环回接口，消灭意外局域网/公网裸奔；严格的 CORS 与 LoopbackAuthToken 彻底防范跨站请求伪造与 DNS Rebinding 提权攻击。
 
 ### 多平台审批交互
 
@@ -1043,6 +1059,23 @@ CaMeL 单信任边界；Myrm **6 层**洋葱防御、5 域循环检测、3 层�
 1. **去特权化物理信封机制（Untrusted Data Envelope）**：将网页抓取与外部不可信文本强制包裹在专用隔离信封内，系统提示词协议层剥离一切指令特权，杜绝间接提示词注入。
 2. **非旁路 Layer 1~5 洋葱硬门禁**：不依赖脆弱且易被绕过的外挂打分小模型，而是在系统调用入口强制执行五层物理非旁路硬拦截（Fail-Closed & Deny-First），任何越狱模型下发的破坏性系统命令、敏感目录越界或凭证探测在内核交互前即被物理诛杀。
 3. **全因果审计链溯源**：每一笔工具调用与阻断决策均记录不可篡改的流水与审计签名，原生满足企业级合规与审计需要。
+
+## 内核级沙箱与供应链纵深防御 (Bubblewrap / Seatbelt & Google OSV)
+
+针对第三方依赖已知高危漏洞（CVE）与沙箱逃逸隐患：
+
+1. **Agent-in-Sandbox 内核物理隔离（Linux Bubblewrap & macOS Seatbelt）**：所有代码执行强制运行于操作系统的专属命名空间中（`--unshare-user`, `--unshare-pid`, `--unshare-net`）。核心系统目录默认以只读挂载（`--ro-bind /usr`），宿主个人凭证（`~/.ssh`, `~/.aws`）物理未映射（`ENOENT`）。
+2. **默认物理断网边界**：沙箱代码执行默认处于完全断网状态（`--unshare-net`），从物理底层切断反弹 Shell、命令注入或漏洞利用导致的数据外发路径。
+3. **Google OSV.dev 情报联动与离线安全咨询库**：实时接入 Google 官方 OSV 全球漏洞库（`osv_scanner.py`），结合离线受感染依赖特征库（`security_advisories.py`）与包安装生命周期脚本审计（`package_audit.py`），构筑坚固的供应链防线。
+
+## 企业级出网代理策略与本地回环绝对防护 (Enterprise Outbound Proxy & Loopback Hardlock)
+
+针对跨国企业专线代理、安全审计及复杂内网部署场景：
+
+1. **原生现代化异步网络栈 (httpx)**：基于现代化异步网络底座，原生完整继承并解析系统的 `HTTP_PROXY`、`HTTPS_PROXY`、`ALL_PROXY` 与 `NO_PROXY`，彻底消除类似 Node.js 平台静默忽略代理的缺陷。
+2. **强制本地回环严格豁免 (防代理死循环)**：自动将 `localhost`、`127.0.0.1` 与 `::1` 强行固化注入绕过白名单，杜绝本地 WebUI、WebSocket 传输与沙箱通信陷入代理死锁。
+3. **OriginGuard 主机头与 DNS 重绑定拦截**：服务端启动默认物理锁死仅绑定 `127.0.0.1` 环回接口；强制严格校验 `Host` 与 `Origin` 请求头，彻底粉碎利用公网域名发起的 DNS Rebinding 攻击。
+4. **子进程代理凭据脱敏安全下发**：在向非受信沙箱环境派生 Worker 时，自动剥离代理 URL 中可能包含的明文密码，严密杜绝企业网关鉴权凭证被恶意脚本窥探。
 
 
 
