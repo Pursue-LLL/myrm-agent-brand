@@ -990,13 +990,13 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   5. **全栈测试验证**：35 项 Harness 单元测试 + 6 项 Server 集成测试 + 17 项 Frontend 单元测试 + 真实 Chrome DevTools 协议全链路 E2E 测试 100% 绿灯通过。
 - **素材 SSOT：** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `temp-docs/roadmap/topic_02_knowledge_wiki_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/wiki/` · `myrm-agent-server/app/services/wiki/` · `myrm-agent/myrm-agent-frontend/src/components/features/composer/KnowledgePickerPopover.tsx`
 
-## 最新验证快照（2026-09-05 · 并行浏览器任务空间与用户接管强暂停恢复策略 · 路线图 Topic 04 #5 达成）
+## 最新验证快照（2026-09-06 · 纯本地 Trace 物理门禁与 Doctor 零远程外发硬断言 · 路线图 Topic 11 #21/#22 达成）
 
-- **ParallelBrowserTaskSpaceWebUiPack（对比 Hermes / OpenClaw / HappyCapy / Cowork / Codex / Pi）：** Myrm 实现了业界首个基于物理 BrowserContext 强隔离、自适应悬浮感知胶囊 Dock 与 Harness 级硬暂停恢复的端到端并行浏览器自动化系统：
-  1. **物理上下文强隔离与并发互斥（`BrowserTaskSpace` & `HarnessTaskSpaceManager`）**：每个子任务独占绑定专属 `BrowserContext`、`BrowserSession` 与专有 `asyncio.Lock` 动作互斥锁，多任务并发执行零 Cookie / LocalStorage 串扰，彻底杜绝动作踩踏与状态冲突；
-  2. **物理级硬配额与空闲超时自动修剪**：内置硬配额限制（默认最多 5 个活跃任务空间）与 900s TTL 自动清理，物理消除无头浏览器僵尸进程与内存泄漏隐患；
-  3. **悬浮感知胶囊 Dock（`TaskSpaceDock.tsx`）**：右下角自适应浮动胶囊，支持自适应轮询、移动端 Safe-Area 安全区适配、多任务空间卡片展开与一键接管切换；
-  4. **用户接管硬暂停与自愈恢复策略（Hard Stop & Resume Policy）**：界面一键接入即刻底层触发 `session.pause()` 物理锁停 Agent 动作流，彻底防止人机抢光标；接管释放后触发 `session.resume()` 并重新获取 DOM 快照自动校准上下文，实现 Agent 无缝继续执行；
-  5. **全栈测试验证**：Harness 任务空间单元测试 + Server REST API 测试 + Frontend Vitest 单元测试 + 真实 Chrome DevTools 协议 TaskSpaceDock 浮动胶囊 E2E 测试 100% 绿灯通过。
-- **素材 SSOT：** `temp-docs/materials/BROWSER_AUTOMATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/spaces/` · `myrm-agent/myrm-agent-server/app/services/browser_spaces/` · `myrm-agent/myrm-agent-frontend/src/components/features/browser/TaskSpaceDock.tsx`
+- **LocalTraceOnlyGateAndPrivacySanitizer（对比 Hermes / OpenClaw / Codex / Pi / DeepSeek-Harness）：** Myrm 实现了业界首个面向金融合规与企业内网环境的纯本地 Trace 物理隔离门禁、三层渐进式隐私脱敏与 Doctor 零外发合规巡检探针闭环：
+  1. **纯本地 Trace 内核硬断言（`is_local_trace_only` & `assert_local_trace_only`）**：在 Harness `tracer.py` 中原生支持 `MYRM_LOCAL_TRACE_ONLY=1` 环境变量；当激活时，内核物理级阻断远程 OTLP 外发通道，自动过滤忽略误配的外部端点并安全回退为本地 NoOp/纯文件归档，杜绝内网运行数据静默泄露；
+  2. **三层渐进式隐私脱敏引擎（`TraceSpanSanitizer`）**：严格执行第一层高危键过滤（屏蔽 API 密钥与敏感 Token）、第二层高危敏感文本正则遮蔽（包括裸 Bearer 凭证自动打码）与第三层超长内容 SHA-256 哈希保真截断；
+  3. **Doctor 专属安全合规探针（`TraceExportSecurityDiagnostic`）**：严格实现 `DiagnosticProtocol` 契约，自动纳入系统健康巡检中心；在本地模式下若检测到外部远程 OTLP 配置立即触发预警（`WARN_REMOTE_TRACE_IN_LOCAL_MODE`）并输出修复指引；
+  4. **全端部署模式自适应**：在 Local WebUI、Tauri 桌面端与 Cloud 独立沙箱模式下完全一致运行；
+  5. **100% 架构与测试覆盖**：经由 Harness 脱敏器单元测试、Server 端 Trace 导出安全探针专项测试全量验证（100% 绿灯，0 Lint 错误，0 僵尸残留）。
+- **素材 SSOT：** `temp-docs/roadmap/topic_11_observability_roadmap.md` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/infra/tracing/sanitizer.py` · `myrm-agent/myrm-agent-server/app/core/infra/health/trace_security_diagnostic.py`
 
