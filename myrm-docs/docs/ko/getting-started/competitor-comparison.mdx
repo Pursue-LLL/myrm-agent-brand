@@ -11,6 +11,20 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-09-05 · 30개 핵심 노드 3단계 6레인 프로덕션 실행 수명 주기 및 검증 루프 · 산업 등급 실행 및 검증 완료)
+
+- **ProductionExecutionLifecycleLanesAndVerificationLoop (Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 등 일상적인 비즈니스 엔티티 조회 시 도구를 호출하지 않고 가짜 주문 번호를 허구로 꾸며내거나, 실행 진행률이 보이지 않는 블랙박스 상태, 인자 스키마 결함으로 다운스트림 API 장애 유발, 예외 발생 시 원시 스택 추적을 출력하며 충돌하는 고질적 문제 대비):** Myrm은 완전한 프로덕션 등급 3단계, 6레인, 30개 핵심 노드 폐루프 에이전트 실행 수명 주기를 제공합니다:
+  1. **제로 관측 및 전량 실패 조회 접지 허위 작성 방지 게이트 (`query_grounding_verifier.py` · 노드 23)**: 주문/티켓/트랜잭션 등 엔티티 조회 의도를 동사-명사 시맨틱으로 감지; 도구 미호출 시 가짜 답변을 물리적으로 차단하고, 도구 실패 시 정직한 부재 보고를 강제하여 비즈니스 데이터 환각 원천 차단;
+  2. **3단계 6레인 실시간 진행률 스태퍼 및 데스크톱 네이티브 미러링 (`ExecutionPhaseStepper.tsx` · `phase_stepper.py` · 노드 1-30)**: planning/executing/verifying 3단계와 6개 동시 실행 레인(agent, llm, mcp, skills, sandbox, user)을 스트리밍 표시; Tauri 데스크톱 트레이 펄스 표시기 및 OS 독 진행률 표시줄과 연동하여 작업 불안감 해소;
+  3. **호출 전 슬롯 완전성 사전 검증 및 NEVER_PARALLEL 물리적 격리 (`ask_question.py` · `clarification_guard_middleware.py` · 노드 5 & 5.1)**: 매개변수 누락 또는 모호성 발생 시 구조화된 명확화 카드를 강제 실행; 미들웨어 계층에서 질문과 부작용 도구의 단일 턴 병렬 호출을 물리적으로 차단;
+  4. **도구 호출 단위 세분화 정책 가로채기 및 Confused Deputy 격리 (`ToolApprovalMiddleware` · `approval_flow.py` · 노드 15)**: 호출자 `agent_id` 및 `session_id`에 바인딩된 4계층 화이트리스트 매칭으로 권한 상승 차단; ToolTurnBudgetGuard 단일 턴 예산 차단 및 완벽한 감사 로깅 제공;
+  5. **우아한 성능 저하 안전 종료 및 사용자 친화적 진단 복구 (`stream_finalize.py` · `engine.py` · 노드 26)**: 10개 이상의 최종 예外 클래스를 `LLMErrorDiagnostic`으로 분류하여 사용자 친화적인 진단 단계 및 원클릭 복구 작업(`recovery_actions`: 재시도/모델 전환/충전/키 확인)을 제공하여 원시 충돌 방지;
+  6. **호출 전 엄격한 스키마 가로채기 및 제로 네트워크 자가 치유 (`_tool_helpers.py` · `semantic_failure_sniffer.py` · 노드 9)**: Pydantic 사전 스키마 검증으로 잘못된 페이로드를 0ms 내에 로컬 거부하고 `is_non_retryable` 태그를 부착하여 재시도 폭풍 방지; 외부 HTTP 200 시맨틱 오류 감지;
+  7. **영향도 기반 적응형 동적 승인 에스컬레이션 매트릭스 (`batch_processor.py` · `spend_governance.py` · 노드 16 & 16.1)**: 읽기 전용 작업은 밀리초 내 자동 승인; 금융 거래 및 되돌릴 수 없는 외부 작업은 금액 및 해시 검증을 통한 YOLO 면역 하드 락 강제;
+  8. **실행 후 접지 이중 트랙 사실 대조 및 구조화된 인용 표기 (`CompletionGuard` · `stream_finalize.py` · 노드 28)**: 최종 답변과 `CallRecord` 실행 추적 간 양방향 대조 강제; `<cite:...>` 구조화된 인용을 자동 추출하여 프론트엔드 인용 칩 클릭 시 원본 증거 하이라이트;
+  9. **스킬 우선 아키텍처 및 엄격한 다중 에이전트 분열 승인 게이트 (`workflow_escalation.py` · `builder.py` · 노드 6.4 & 7)**: 단순 단일 턴 조회의 경우 워크플로 오버헤드를 100% 우회; 복합 장기 작업에만 서브 에이전트를 승인하며 Child ⊆ Parent 권한 감쇠, 토큰 예산 제한 및 `<handover>` 프로토콜 인계 적용.
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/` · `myrm-agent-frontend/src/components/features/message-box/progress-steps/ExecutionPhaseStepper.tsx` · `temp-docs/roadmap/topic_20_production_agent_execution_lifecycle_lanes_and_verification_loop_roadmap.md`
+
 ## 최신 검증 스냅샷 (2026-09-05 · 미작성 산출물 스니핑 차단, 다중 모달 400 자동 복구 및 로컬 스킬 안전 도입 · 안정성 및 보안 완료)
 
 - **UnwrittenDeliverableSniffingAndArtifactAutoStaging (Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 등 LLM이 파일 쓰기 도구를 호출하지 않고 채팅창에 코드만 출력하여 세션 종료 시 빈 디렉토리가 남는 가짜 완성 문제나 다중 모달 400/413 초과로 세션이 영구 정지되는 문제 대비):** Myrm은 견고한 산업용 실행 내구성 및 산출물 안전 가드를 제공합니다:
