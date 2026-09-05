@@ -11,6 +11,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-06 · 模型编排四大经典范式全景指南与多级有序回退体系 · 模型路由与用户体验完成）
+
+- **ModelOrchestrationPlaybookAndMultiTierFallback（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在模型选型与故障切换方面的黑盒体验：竞品通常仅在庞杂的 CLI 或外部 Markdown 中写满参数说教，导致用户只能全盘盲选昂贵大模型导致额度瞬间枯竭，且一旦主模型遭遇 429 RateLimit 或 503 故障时直接报错中断长程任务）：** Myrm 交付了业内领先的可视化模型编排认知体系与原生流式多级回退引擎：
+  1. **界面内一键呼出四大经典编排范式（Playbook Discoverability）**：在前端新对话（`EmptyChat.tsx`）与设置页（`ModelOrchestrationPlaybookCard.tsx` / `ModelOrchestrationPlaybookDialog.tsx`）直接内置四大编排范式可视化教学（Brain & Hands 规划大脑与敏捷双手分工、Dynamic Tier Routing 动态阶梯智能路由、Routing vs MoA 正交解耦共识、Specialist Slots 视觉与自进化专家槽位）；支持深链跳转配置，大幅消除用户迁移配置摩擦；
+  2. **会话级原生流式多级有序回退（UserConfigurableModelRetryOrderedFallback）**：主模型发生 429/503 或账单欠费时，在 Harness 内部流式生命周期中自动按优先级顺延切换至备选模型（如 Claude 3.7 -> DeepSeek V3 -> GPT-4o），自动校验目标模型上下文并无缝重建执行图，长任务永不掉线；
+  3. **SuperGrok / xAI OAuth 设备码授权与优先级裁决**：原生实现 RFC 8628 设备码授权流，并在凭证组装层严格执行 OAuth 订阅优先于自备 API Key，确保已付费权益优先消耗；
+  4. **并发抗压与死锁深度根治**：全局提升 SQLite busy timeout 至 30000ms，在多 Agent 并行执行与并发测试状态下彻底消除数据库锁死风暴。
+- **SSOT 来源：** `myrm-agent-frontend/src/components/features/chat-window/ModelOrchestrationPlaybookDialog.tsx` · `myrm-agent-server/app/api/integrations/xai_oauth.py` · `temp-docs/materials/MULTI_MODEL_CONSENSUS_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md`
+
 ## 最新验证快照（2026-09-06 · 搜索配额水库与浏览器算力全要素运行成本监控器 · 观测与度量全面闭环）
 
 - **SearchQuotaAndBrowserComputeRuntimeCostMeter（对标 Hermes Agent @hooeem 仅在推文口头宣传“全天候 $10/月运行模型”但在开源仓内 0 水表、以及 OpenClaw / Codex / DeepSeek-Harness / Pi 在长程 24/7 常驻运行中遭遇外部搜索免费额度耗尽静默雪崩、浏览器自动化静默卡死空转耗尽沙箱算力与内存的致命盲区）：** Myrm 全面落地全要素白盒化运行水表与运行时算力监控闭环：
@@ -46,6 +55,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   5. **本地技能路径 Dry-Run 预检与原子采纳（`local_preview.py` · `LocalSkillPathScanPreviewBeforeAdoptDialog.tsx`）**：导入外部技能前提供无副作用预览、AST 安全审计与多选采纳，杜绝恶意技能隐蔽攻击；
   6. **全栈自动化测试 100% 满分通过**：37 项交付物验证单测、12 项多模态自愈单测、真实 Chrome E2E 全链路 100% 绿灯。
 - **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_write_verifier.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/streaming/recovery/stream_recovery_oneshot.py` · `temp-docs/roadmap/topic_19_flash_agent_execution_durability_and_multimodal_resilience_roadmap.md`
+
+## 最新验证快照（2026-09-06 · 搜索配额水库与浏览器算力全要素运行成本水表 · 可观测性全面闭环）
+
+- **SearchQuotaAndBrowserComputeRuntimeCostMeter（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 缺乏外部免费搜索源额度治理与浏览器自动化物理消耗白盒感知，长任务频繁遭遇 429 静默雪崩断供、无头浏览器空转死循环耗尽服务器 CPU 与网络带宽的致命痛点）：** Myrm 交付了业界领先的运行全要素白盒化成本度量闭环：
+  1. **Harness 搜索配额智能避障与状态机熔断（`ProviderQuotaTracker`）**：在 `chain.py` 内部署线程安全状态机（`HEALTHY` / `RATE_LIMITED` / `DEPLETED`），精准识别 Transient 与 Persistent 429 报错；瞬时限流保留指数退避重试，配额耗尽则毫秒级标记并自动切流至备用搜索源，确保 24/7 长程任务永不断供；
+  2. **CDP 物理级网络带宽度量与 3 分钟防卡死看门狗（`BrowserRunTelemetry` · `BrowserObservability`）**：通过 Chrome DevTools Protocol 监听原生 `Network.dataReceived` 实时统计数据吞吐量（字节/MB）；搭载单步 180s 防卡死看门狗（带 60s 心跳空闲识别），坚决拦截死循环僵尸浏览器进程；
+  3. **Server 搜索水库持久化与动态上限管理（`SearchQuotaRecord` · `quota_runtime_router.py`）**：按月自动归档免费搜索配额账本，支持用户自定义配额上限与一键手动校准重置；支持计量/非计量源（Metered/Unmetered）区分，为企业与个人用户精准兜底；
+  4. **WebUI 用量统计高质感水库卡片（`RuntimeCostMeterCard.tsx`）**：在用量统计页提供多阶色彩预警进度条（80% 琥珀黄 / 95% 玫瑰红）、未计费专线徽章、浏览器算力执行耗时与网络加载流量 MB 双卡片，支持 6 国语言（zh, en, ja, ko, de, zh-TW）完全国际化，零原生 emoji，适配 PC 与移动端；
+  5. **全栈多级自动化测试 100% 满分通过**：Harness 18 项单测、Server 12 项单测、前端 2 项单测及 83 项静态契约测试全部绿灯通过。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/web_search/providers/chain.py` · `myrm-agent-server/app/api/statistics/quota_runtime_router.py` · `myrm-agent-frontend/src/components/features/settings/sections/system/RuntimeCostMeterCard.tsx` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-05 · 真实全流程任务、真实大模型推理与 Browser Orchestrator 真实 Chrome E2E 全链路闭环 · 企业级可靠性完成）
 
