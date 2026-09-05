@@ -145,6 +145,25 @@ Myrm 通过与模型无关的统一提取层，自动保证用户可见答案的
 
 配合 Ollama、LM Studio 或 vLLM 本地后端，敏感负载可完全气隙运行。
 
+## 模型编排最佳实践看板 (Model Orchestration Playbook)
+
+为帮助用户理解现代大模型的最佳分工与成本效益，Myrm 在主聊天首屏与设置中心内置了交互式**模型编排最佳实践看板**（Playbook）：
+
+- **Brain & Hands（大脑与双手）双模协同**：将重型思考模型（如 Claude 3.7 Sonnet / DeepSeek-R1）作为“大脑”，负责意图规划与架构拆解；将超轻高吞吐模型（如 GPT-4o-mini / Gemini Flash）作为“双手”，负责高频工具调用与环境验证。
+- **三大开箱即用配方**：
+  1. **极简轻量 (Frugal)**：全轻量模型驱动，适合高频日常问答与自动化巡检，Token 成本降低 85%+；
+  2. **动静均衡 (Balanced Brain & Hands)**：大脑攻坚 + 双手执行，兼顾顶级推理能力与 4x 经济学优势；
+  3. **多元共识 (Consensus MoA)**：多模型交叉验证，针对金融、法律或安全敏感业务消除单一模型幻觉。
+- **就地订阅一键发现**：支持一键连接 GitHub Copilot、ChatGPT Plus/Pro、xAI SuperGrok 与 Claude Pro 现有订阅，免去海外信用卡充值 API 的门槛。
+
+## 统一网关预置与支出可观测性 (Vercel AI Gateway)
+
+Myrm 将 Vercel AI Gateway 作为内置一等公民支持：
+
+- **零厂商前缀协议冲突**：聚合网关使用包含厂商名的高级模型 ID（如 `anthropic/claude-3-5-sonnet`）。Myrm 自动注入 `openai/` 协议包装层，确保底层以标准 OpenAI-compatible Wire Protocol 稳定通信，彻底杜绝 LiteLLM 厂商前缀误判问题。
+- **归属可观测性头自动注入**：针对 `ai-gateway.vercel.sh` 请求，传输层底层自动携带 `HTTP-Referer: https://myrm.ai`、`X-Title: Myrm Agent` 与标识版本客户端，确保在 Vercel 控制台中精确归属 Myrm 业务流量。
+- **官方控制台深度直达**：在模型服务卡片中，提供一键直达 Vercel AI Gateway 支出仪表盘的深链，实时掌握调用量与预算消耗。
+
 ## 本地模型与硬件管家
 
 Myrm 自动探测本地模型服务和硬件能力，实现零配置的本地 AI 体验：

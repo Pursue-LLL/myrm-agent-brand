@@ -154,6 +154,25 @@ Privacy Routing wraps the model behind a standard interface. Agents, middlewares
 
 Combined with Ollama, LM Studio, or vLLM for local backends, this enables fully air-gapped operation for sensitive workloads.
 
+## Model Orchestration Playbook
+
+To help users understand multi-model specialization and token economics, Myrm provides an interactive **Model Orchestration Playbook** on the empty chat landing page and in Settings:
+
+- **Brain & Hands Synergy**: Employs reasoning models (e.g., Claude 3.7 Sonnet, DeepSeek-R1) as the "Brain" for planning and architecture, while utilizing lightweight, high-throughput models (e.g., GPT-4o-mini, Gemini Flash) as the "Hands" for frequent tool execution and verification.
+- **Three Golden Recipes**:
+  1. **Frugal**: 100% lightweight models for high-frequency queries and monitoring, reducing token costs by 85%+;
+  2. **Balanced Brain & Hands**: Top-tier reasoning planning paired with swift tool execution, achieving a 4x token economic advantage;
+  3. **Consensus (MoA)**: Multi-model cross-validation to eliminate single-model hallucinations for security-sensitive workflows.
+- **In-Place Subscription Discovery**: Instant authorization with existing subscriptions like GitHub Copilot, ChatGPT Plus/Pro, xAI SuperGrok, and Claude Pro without needing separate API credits.
+
+## Vercel AI Gateway & Spend Observability
+
+Myrm natively integrates Vercel AI Gateway as a first-class provider preset:
+
+- **Zero Vendor-Prefix Hijacking**: Composite model IDs (e.g., `anthropic/claude-3-5-sonnet`) automatically receive an internal `openai/` protocol shield, guaranteeing communication via the OpenAI-compatible wire protocol and preventing SDK routing conflicts.
+- **Automatic Attribution Headers**: Requests sent to `ai-gateway.vercel.sh` automatically inject `HTTP-Referer: https://myrm.ai` and `X-Title: Myrm Agent` headers for transparent attribution in the Vercel dashboard.
+- **Dashboard Deep Links**: Quick access links directly to the official Vercel AI Gateway metrics page right from the provider card.
+
 ## Local Models & Hardware Cookbook
 
 Myrm auto-detects local model services and your hardware capabilities for a zero-friction local AI experience:
