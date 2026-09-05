@@ -31,15 +31,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   5. **100% 自动化测试通过**：Harness 插件解析器 50/50 项单测全绿通过，0 警告 0 错误 0 僵尸进程。
 - **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/plugins/integrity.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/plugins/parser.py` · `myrm-agent-frontend/src/components/features/plugins/PluginImportDialog.tsx` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
 
-## 最新验证快照（2026-09-05 · 插件分级沙箱权限模型与默认禁用门禁 · 安全治理完成）
+## 最新验证快照（2026-09-05 · 插件分级沙箱权限模型与能力推导闭环 · 安全治理完成）
 
-- **PluginSandboxPermissionModelPack（对标 DeepSeek Harness 在 Issue #312 与社区实测中暴露的“插件直接拥有宿主进程权限、安装即静默在后台常驻运行”的特权漏洞）：** Myrm 交付了业内领先的插件与 MCP 五重纵深防御闭环体系：
-  1. **落盘默认全量禁用（Default-Disabled 铁律）**：`_mcp_persist.py` 强制在持久化时将所有导入的第三方 MCP 服务状态设为 `enabled: False`，彻底杜绝插件未经用户知情并在后台静默启动的提权风险；
-  2. **前端导入向导强制安全信任与沙箱环境揭示**：`PluginImportDialog.tsx` 联动 `PluginTrustedSourceDisclosure.tsx` 动态感知运行环境（Cloud Sandbox 还是 Local OS），强制要求用户勾选知情同意框，未勾选时确认按钮物理禁用；
-  3. **AST 静态安全扫描与代码体积门禁**：`_preview.py` 对技能代码进行 AST 语法树与正则注入扫描，超过 64KB 限制或包含高危代码片段的技能自动标记拦截；
-  4. **探针二次审查（Probe Gate）**：用户必须在设置界面主动执行连通性与可用性探针测试，并显式点击开关确认，才会被真正接入智能体对话流程；
-  5. **100% 测试通过**：Vitest 前端全流程 20/20 项单测全部绿灯，249 项底层 SSOT 契约测试全量通过，0 警告 0 错误 0 僵尸进程。
-- **SSOT 来源：** `myrm-agent-server/app/services/plugins/_mcp_persist.py` · `myrm-agent-frontend/src/components/features/plugins/PluginImportDialog.tsx` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+- **PluginSandboxPermissionModelPack（对标 DeepSeek Harness 在 Issue #312 与社区实测中暴露的“插件直接拥有宿主进程权限、安装即静默在后台常驻运行”，以及 OpenClaw / Hermes 盲目信任 manifest 声明无法识别虚假特权欺骗的严重漏洞）：** Myrm 交付了业内领先的插件与 MCP 六重纵深沙箱权限闭环体系：
+  1. **6 级细粒度沙箱权限模型（`PluginCapabilityTier` SSOT）**：原生定义 `read_only`、`network`、`fs_read`、`fs_write`、`shell_exec`、`destructive` 严格递增权限梯队；
+  2. **确定性静态穿透推导引擎（`integrity.py` · `infer_mcp_server_capabilities`）**：在插件导入第一时间以纯函数静态扫描 `stdio` 与远程协议，智能识别解释器参数与脚本命令，自动穿透推导实际权限，对 `rm -rf` 等破坏性指令精确标记 `destructive`；
+  3. **声明 vs 实际 Diff 越权审计（`verify_plugin_capability_diff`）**：自动比对 `plugin.json` 声明权限与底层实际配置权限，精准捕获“声明只读实际拉起 Shell 进程”的虚假特权欺骗，输出 `capability_undeclared_privilege` 结构化诊断并标红报警；
+  4. **彻底消灭 Dead Feature Path 的持久化闭环**：在 `/preview` 接口结构化下发权限元数据并在落库持久化时固化至 `mcpServers.extra_params["capabilities"]`，让权限元数据在全生命周期内真正沉淀并供后续运行时动态鉴权；
+  5. **落盘默认全量禁用与前端知情同意**：`_mcp_persist.py` 强制在持久化时将所有第三方 MCP 服务默认置为 `enabled: False`；`PluginImportDialog.tsx` 动态渲染分色胶囊徽章、提权警告条并支持损坏产物自动跳过；
+  6. **100% 自动化测试通过**：Harness 74 项插件测试全绿、Server 5 项服务测试全绿、前端 21 项 Vitest 测试全绿，全链路 100% 绿灯。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/plugins/models.py` · `myrm-agent-server/app/services/plugins/_mcp_persist.py` · `myrm-agent-frontend/src/components/features/plugins/PluginImportDialog.tsx` · `temp-docs/materials/PLUGIN_ECOSYSTEM_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-05 · 子进程敏感凭据隔离门禁与脚本操作数 TOCTOU 校验 · 安全治理完成）
 

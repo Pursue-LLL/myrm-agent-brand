@@ -65,6 +65,19 @@ Agents can ask structured questions using the `ask_question_tool` before taking 
 - Responses flow back into the agent loop as structured data
 - Particularly useful for ambiguous tasks where the agent needs user input to proceed correctly
 
+### Plugin Sandbox Permission Model & Static Inference
+
+For third-party Agent Plugins and MCP extension ecosystems, Myrm provides compile-time static capability inference and full lifecycle informed consent:
+
+1. **6-Tier Granular Sandbox Permission Model (`PluginCapabilityTier`)**:
+   - `READ_ONLY` (probing & observation), `NETWORK` (outbound HTTP/remote access), `FS_READ` (file reading), `FS_WRITE` (file writing), `SHELL_EXEC` (system command execution), `DESTRUCTIVE` (destructive system actions).
+2. **Deterministic Static Inference Engine**:
+   - Never blindly trusts declarations in `plugin.json`; the underlying pure-function engine analyzes `mcp.json` in milliseconds, inferring true capabilities from `stdio` commands, interpreter parameters, and network configurations.
+3. **Declared vs. Inferred Capability Diff & Escalation Alerts**:
+   - Detects when a plugin claims to be "read-only" but spawns `stdio` shell processes, generating `capability_undeclared_privilege` diagnostics and warning banners on import.
+4. **Interactive Consent & Persistence**:
+   - Displays colorful capability badges and risk ratings in the WebUI import dialog; persists inferred capabilities into server-side metadata upon confirmation to enforce runtime constraints.
+
 ### 10-Layer Progressive Approval Architecture
 
 Every tool call passes through up to 10 layers of deterministic and intelligent checks before reaching the user:
