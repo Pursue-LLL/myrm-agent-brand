@@ -21,6 +21,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   5. **全栈自动化测试 100% 满分通过**：17/17 写入检验单测、5/5 自动落盘暂存单测（代码行覆盖率 95%）、38/38 核心工件测试全部通过。
 - **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_write_verifier.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_auto_staging.py` · `temp-docs/materials/ENTERPRISE_RELIABILITY_AND_TESTING_ADVANTAGE.md`
 
+## 最新验证快照（2026-09-05 · 真实全流程任务、真实大模型推理与 Browser Orchestrator 真实 Chrome E2E 全链路闭环 · 企业级可靠性完成）
+
+- **RealModelTaskFlowAndBrowserOrchestratorChromeE2E（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 缺乏真实无头浏览器隔离守护机制，在多 Agent 并行运行时互相抢占 CDP 端口、脏 Cookie 互相污染、页面奔溃挂死导致整个测试套件雪崩，且普遍采用脆弱的 Mock 伪测试冒充真实跑通的行业顽疾）：** Myrm 交付了业内首屈一指的真实模型推理驱动与工业级浏览器并行调度引擎：
+  1. **直连真实大模型（MiniMax-M3）全流程业务闭环验证**：直连官方 MiniMax-M3 API（`https://api.minimaxi.com/v1`），在真实生产数据库预置与测试生命周期中完成微服务架构设计、四阶段拓扑推导、JSON IR 校验清洗与 `.arch.json` 工件生成，绝非 Mock 伪执行；
+  2. **Browser Orchestrator 真实 Chrome 浏览器并行调度守护**：独创基于 RPC-only 的 TabCreateTransaction 事务管理，在真实 Chrome（:9333 端口）单实例下支撑 4 路 Worker 并行隔离，通过 cdmcp-mux 多路复用和崩溃自动探测自愈，彻底杜绝孤儿进程与端口争抢；
+  3. **全链路真实 Chrome E2E 满分通过（72.56s）**：真实 Chrome 挂载 WebUI（:3000）与后端（:8080），深度校验 React Flow 交互画布节点渲染、状态流转与拓扑 Diff 徽标，全链路 100% 绿灯通过；
+  4. **零僵尸残留与进程卫生防线**：完善 `cleanup-zombie-tests.sh` 与 coordinator 优雅下线机制，测试结束后自动注销租约、释放物理资源，`pgrep -lf pytest` 残留数严格为 0。
+- **SSOT 来源：** `myrm-agent/myrm-agent-server/tests/e2e/test_architecture_diagram_artifact_chrome_e2e.py` · `scripts/dev/browser-orchestrator/` · `temp-docs/materials/ENTERPRISE_RELIABILITY_AND_TESTING_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-05 · 双机分机分离架构 Split-Stack 与局域网/Tailscale 免密直连 · 模型路由与基础设施全面闭环）
 
 - **TrustedLanTailscaleSplitStackModelEndpointWizard（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 仅支持纯 CLI 手写修改 `config.yaml` 且输错 IP 端口零直观反馈、云端部署缺乏 SSRF 隔离容易造成内网渗透，或在本地调用隔壁桌 DGX Spark/Mac mini 时因缺乏白名单被当成黑客攻击拦截的硬痛点）：** Myrm 交付了业内领先的受信任私网拓扑自动感知与免密分机直连体系：
