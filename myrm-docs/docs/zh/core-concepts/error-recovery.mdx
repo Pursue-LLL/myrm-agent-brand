@@ -70,6 +70,15 @@ CLOSED（正常）→ OPEN（检测到失败）→ HALF-OPEN（探测）→ CLOS
 | `permanent` | 10 分钟 | 切换回退模型 |
 | `transient` | 1 分钟 | 退避重试 |
 
+### 厂商政策阻断前置自愈与故障转移
+
+在接入 Claude Pro/Max 等厂商第三方订阅授权时，常遭遇单边 HTTP 403 政策阻断（如 `third-party client not permitted`、`extra usage credits required`）。传统框架（如 Hermes、OpenClaw）将该类 403 错误误判为普通认证失败（`auth_permanent`），导致长任务直接崩溃夭折。
+
+Myrm 实现全链路工业级政策阻断自愈闭环：
+- **前置特征嗅探**：分类器将专有政策签名优先于通用 403 鉴权匹配，精准提取 `PROVIDER_POLICY_BLOCKED` 错误类型；
+- **状态机自动降级**：阻断发生时自动触发模型故障转移（Failover），平滑切换至 Agent Profile 备用模型（如 GPT-4o / DeepSeek），任务零中断；
+- **前端全语系诚实契约卡片**：在设置页透明披露订阅政策与额度事实，并引导用户配置官方 API Key 或备用模型，消除认知偏差。
+
 ### 凭证池
 
 单 Key 限流时自动轮换下一可用 Key：

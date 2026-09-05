@@ -71,6 +71,15 @@ CLOSED (normal) → OPEN (failures detected) → HALF-OPEN (probe) → CLOSED (r
 | `permanent` | 10 minutes | Switch to fallback model |
 | `transient` | 1 minute | Retry with backoff |
 
+### Provider Policy Block Auto-Failover & Honest Contract
+
+When utilizing third-party web subscriptions (e.g. Claude Pro/Max OAuth), agents frequently encounter HTTP 403 provider policy blocks (`third-party client not permitted`, `extra usage credits required`). Legacy frameworks (Hermes, OpenClaw) misclassify these as generic permanent authentication errors (`auth_permanent`), terminating user tasks abruptly.
+
+Myrm establishes a production-grade four-tier self-healing loop:
+- **Priority Feature Sniffing**: Error classifier evaluates provider policy signatures before generic 403 auth rules, extracting `PROVIDER_POLICY_BLOCKED`.
+- **Automated Failover State Machine**: Seamlessly triggers model fallback to configured backup LLMs (e.g., GPT-4o / DeepSeek) upon policy block, achieving zero session interruption.
+- **Multilingual Honest Contract Notice**: Transparently communicates subscription policies and quota constraints in settings, guiding users toward dedicated API keys or fallback configurations.
+
 ### Credential Pool
 
 When one API key hits rate limits, the system automatically rotates to the next available key:
