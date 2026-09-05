@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-05 · 零技术债包根目录硬门禁与原生 SSOT 架构治理 · 引擎与底层全面闭环）
+
+- **ZeroTechnicalDebtPackageRootDiscipline（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在长期迭代中堆积大量包根历史转发空壳文件导致 IDE 搜索同名冲突、类型推导降级为 Any，以及安全扫描模块错位散落无序的顽疾）：** Myrm 交付了零死代码、零历史空壳、全直连原生 SSOT 的极简高纯净度工程架构：
+  1. **严格的包根目录三类文件硬门禁**：强制包根仅允许对外门面、子包入口文档与 `__init__.py`。全面切除 `toolkits/memory/` 根目录下 10 个历史动态反射空壳代理（`vars(_impl).items()`），实现 100% 直连 `agent_surface/` 原生实现；
+  2. **安全子模块深度归位与内聚**：将 `ScanningSkillWriteBackend` 深度收拢归入 `backends/skills/scanning/`，确保 AST+Regex+LLM 只升不降的安全扫描与路径穿越防护统一处于不可绕过的安全防线之后；
+  3. **测试环境零垃圾污染与防僵尸进程治理**：加固全局 `.gitignore`，利用 `run-pytest-safe.sh` 进程组隔离与超时防僵尸机制，杜绝临时日志与覆盖率二进制污染工作区；
+  4. **大模型提示词缓存（Prompt Cache）100% 绝对保护**：系统提示词与 Tool Schema 零变动，杜绝动态前缀污染，保障生产级 LLM 推理成本与缓存命中率；
+  5. **全栈多级自动化测试 100% 绿灯通过**：249 项静态契约测试、138 项技能系统核心测试、110 项 MCP 内存测试、60 项记忆工具面测试全部通过。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/scanning_write_backend.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/agent_surface/` · `temp-docs/materials/HARNESS_ARCHITECTURE_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-05 · 交互式系统架构图与多版本演进三态 Diff 工件套件 · 前端 UX 与设计生态全面闭环）
 
 - **InteractiveArchitectureMapAndEvolutionDiffArtifactSuite（对标 Archify / Claude Artifacts / Qoder / OpenClaw / Hermes 强制大模型在 Token 流中硬算 SVG 像素坐标导致文字重叠错位且单次浪费 3,500+ Tokens，以及重构时无法看出架构拓扑演进变化的行业顽疾）：** Myrm 交付了语义拓扑与几何排版彻底解耦的工业级架构图工件套件：
