@@ -659,6 +659,12 @@
           "openclaw": "Number 强转受双精度限制（≥2^53 大整数丢精度）",
           "myrmAgent": "框架层 strict-host 兼容：required+nullable 缺失自动补 null + union 对象/数组安全解析 + schema 规范化保障 Prompt Cache 稳定 · 数值参数零丢失：大整数/金额/ID 精确到每一位，2^53 以上也不丢精度 · **MCP 与 OpenAPI 双入口统一强转**：任意 REST API 的参数定义自动解析（含 $ref 指针内联），LLM 传错类型也自动修正——接上就能用，不因参数类型错误返回 400 · **模糊 schema 保真·字段零丢失**：悬空 $ref / 缺 type / anyOf-oneOf-allOf 复合 / 非规范键名（如 `issue_class~neq`）/ 深嵌套 schema 全部归一化，字段端到端永不丢 · **保留名参数安全**：参数恰好叫 `config`/`run_manager` 的工具（Stripe/Unreal/GitHub 等 MCP 常见）不再被框架静默吞掉——官方 langchain-mcp-adapters 与 deer-flow 至今仍踩此坑"
         },
+        "executionLifecycle": {
+          "feature": "生产级 30 核心节点全流程闭环 · 三阶段六泳道生命周期 · 实体查询零编造反思门禁 · 桌面端原生任务栏/托盘同构进度",
+          "hermes": "黑盒执行无泳道感知 · 实体查询常凭空编造假订单流水 · 异常时抛未捕获原生崩溃",
+          "openclaw": "无细粒度阶段泳道流式步进 · 缺少基于真实物理流水对账的反向引用与实体防造假硬门禁",
+          "myrmAgent": "**三阶段六泳道全链路流式执行看板（ExecutionPhaseStepper）**：覆盖 planning/executing/verifying 三阶段与 agent/llm/mcp/skills/sandbox/user 六大执行泳道；结合 Tauri 桌面端原生托盘呼吸灯与任务栏原生进度条，彻底消灭长任务黑盒焦虑 · **实体查询零观测与全失败防硬编反思门禁（query_grounding_verifier）**：语义识别实体查询意图，无工具调用凭空宣称已查询一律硬阻断；观测全失败时强制诚实披露缺失，彻底根除凭空编造假业务数据的幻觉 · **前置槽位完整性机检与 NEVER_PARALLEL 物理阻断**：参数缺失或歧义时强制触发结构化反问卡片；中间件层物理切除澄清与副作用工具的单轮并发，杜绝一边发问一边乱调工具 · **优雅降级安全收场与可操作排查指引（stream_finalize）**：10+ 类终态异常统一分流打包，结合 LLMErrorDiagnostic 生成人话排查步骤与一键恢复按钮（重试/切换模型/前往充值/检查密钥），杜绝裸报错崩溃 · **调用前强契约 Schema 拦截与零网络开销自愈**：Pydantic 前置强校验，参数不合规即刻本地打回纠偏并标记 is_non_retryable，毫秒级阻断重试风暴；嗅探外部 HTTP 200 语义失败并提取错误码 · **终态事实反向溯源与结构化引用链上屏**：答复收尾前强制与 CallRecord 执行流水双向对账；自动解析提取 `<cite:...>` 结构化引用，前端 Citation 微标点击高亮定位原始工具调用证据 · **技能优先与子智能体严苛裂变准入**：简单查询 100% 旁路绕过工作流；仅对复合长任务准入裂变，子智能体严格执行 Child ⊆ Parent 权限衰减、Token 预算熔断与 `<handover>` 强契约交付"
+        },
         "errorRecovery": {
           "feature": "4层自愈体系 · 7种循环检测 · 完成验证守卫 · 10种流恢复策略 · 流式 In-Flight 死循环断路器 · 真实大模型 Task Flow 与 Browser Orchestrator E2E",
           "hermes": "易陷入无限重试死循环 · 单 Turn 吐出 6 万字符刷屏（Issue #86581） · 缺乏真实浏览器隔离守护",

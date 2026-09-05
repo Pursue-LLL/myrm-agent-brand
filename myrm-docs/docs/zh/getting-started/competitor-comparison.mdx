@@ -11,6 +11,20 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-05 · 生产级全流程 30 节点与三阶段六泳道生命周期闭环 · 工业级执行与反思核验完成）
+
+- **ProductionExecutionLifecycleLanesAndVerificationLoop（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在日常实体查询不调工具凭空捏造虚假订单号、任务执行黑盒无进度、参数格式校验缺失打崩下游接口、外部依赖宕机时抛原生堆栈崩溃、以及在最终答复时脱离物理证据信口开河的行业顽疾）：** Myrm 全面落地生产级三阶段、六泳道与 30 核心节点全流程闭环体系：
+  1. **实体查询零观测与全失败防硬编反思门禁（`query_grounding_verifier.py` · 节点 23）**：动宾语义识别订单/工单/流水等实体查询意图；零工具调用凭空宣称已查询一律硬阻断，全失败观测下强制要求诚实披露缺失，彻底根除凭空编造假业务数据的幻觉；
+  2. **三阶段六泳道全链路流式执行进度看板与桌面端同构（`ExecutionPhaseStepper.tsx` · `phase_stepper.py` · 节点 1-30）**：planning/executing/verifying 三阶段阶梯流式进度条，覆盖 agent/llm/mcp/skills/sandbox/user 六大执行泳道；结合 Tauri 桌面端原生托盘呼吸灯与任务栏原生进度条，彻底消灭长任务黑盒焦虑；
+  3. **前置槽位完整性机检与 NEVER_PARALLEL 物理阻断（`ask_question.py` · `clarification_guard_middleware.py` · 节点 5 & 5.1）**：参数缺失或歧义时强制触发结构化反问卡片；中间件层物理切除澄清与副作用工具的单轮并发，杜绝一边发问一边乱调工具；
+  4. **单工具调用级 Policy 策略拦截与 Confused Deputy 隔离（`ToolApprovalMiddleware` · `approval_flow.py` · 节点 15）**：四级 Allowlist 细粒度匹配，强绑定 `agent_id` 与 `session_id` 阻断子 Agent 越权继承；配合 ToolTurnBudgetGuard 单轮预算阻断与 audit 全量审计链路；
+  5. **优雅降级安全收场与可操作排查指引（`stream_finalize.py` · `engine.py` · 节点 26）**：10+ 类终态异常统一分流打包，结合 `LLMErrorDiagnostic` 生成人话排查步骤与一键恢复按钮（`recovery_actions`：重试/切换模型/前往充值/检查密钥），杜绝裸报错崩溃；
+  6. **调用前强契约 Schema 拦截与零网络开销自愈（`_tool_helpers.py` · `semantic_failure_sniffer.py` · 节点 9）**：Pydantic 前置强校验，参数不合规即刻本地打回纠偏并标记 `is_non_retryable`，毫秒级阻断重试风暴；嗅探外部 HTTP 200 语义失败并提取错误码；
+  7. **基于影响面的自适应动态放权矩阵（`batch_processor.py` · `spend_governance.py` · 节点 16 & 16.1）**：只读操作 100% 毫秒级静默自动放行；资金退款与不可逆外部操作实施 YOLO 免疫绝对锁定，必须携带金额与哈希触发多端全双工审批；
+  8. **终态事实反向溯源与结构化引用链上屏（`CompletionGuard` · `stream_finalize.py` · 节点 28）**：答复收尾前强制与 `CallRecord` 执行流水双向对账；自动解析提取 `<cite:...>` 结构化引用，前端 Citation 微标点击高亮定位原始工具调用证据；
+  9. **技能优先与子智能体严苛裂变准入（`workflow_escalation.py` · `builder.py` · 节点 6.4 & 7）**：简单查询 100% 旁路绕过工作流；仅对复合长任务准入裂变，子智能体严格执行 Child ⊆ Parent 权限衰减、Token 预算熔断与 `<handover>` 强契约交付。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/` · `myrm-agent-frontend/src/components/features/message-box/progress-steps/ExecutionPhaseStepper.tsx` · `temp-docs/roadmap/topic_20_production_agent_execution_lifecycle_lanes_and_verification_loop_roadmap.md`
+
 ## 最新验证快照（2026-09-05 · 交付物未落盘嗅探、多模态 400 逆向脱水自愈与本地技能安全采纳 · 运行时耐久性与资产安全闭环）
 
 - **UnwrittenDeliverableSniffingAndMultimodalOverflowSelfHealing（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在对话框生成大量长篇代码或完整报告却漏调用工具落盘沦为“只在屏幕吐字不存文件”的假智能体，或在连续长截屏时触发网关 400/413 Payload Too Large 导致会话永久报废瘫痪的行业顽疾）：** Myrm 交付了工业级执行耐久性与资产自愈防护系统：
