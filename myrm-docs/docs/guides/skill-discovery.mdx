@@ -50,6 +50,15 @@ Your config is stored in a central **skill configuration** — not inside the SK
 
 Secrets are injected as environment variables and never appear in chat context.
 
+## Local Skill Paths & Atomic Adoption
+
+In addition to online marketplace discovery, Myrm allows developers to mount local directories for custom private skills:
+
+1. **Adaptive Scan (Root & Multi-Directory)**: Whether given a single skill root directory (containing `SKILL.md` directly) or a parent folder housing multiple skill subdirectories, Myrm automatically parses and extracts skill metadata.
+2. **Two-Phase Inspection & Atomic Adopt**: Before saving a path, a dry-run preview inspects discovered skills, tags, required system tools, name conflicts, and security findings. Users can select desired skills to adopt and enable them atomically, or simply add the path.
+3. **CWE-22 Path Traversal Defense**: All input paths strictly prohibit relative traversal sequences (`..`), safeguarding host and sandbox filesystems against directory traversal attacks.
+4. **Live Path Health Badges & One-Click Copy**: Each configured path card in Settings displays live health status (e.g. discovered skills count, path not found) and provides a convenient one-click copy button for rapid terminal workflows.
+
 ## Supply Chain Security Rescan & Auto-Quarantine
 
 Third-party skill packages and their underlying dependencies (npm / PyPI) may expose newly discovered CVE vulnerabilities or fall victim to open-source supply chain poisoning over time.
