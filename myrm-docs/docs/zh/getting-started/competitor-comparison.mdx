@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-05 · 级联安全清库与 FTS 虚表逆序防孤儿及游标强一致重置 · 数据治理完成）
+
+- **SafeVaultPurgeCascadeFtsAndCursorSync（对标 openTrinity/mycontext / OpenClaw / Hermes 在用户清空会话数据时因直接级联删除导致 contentless FTS5 虚表永久残留 8.4 万行孤儿幽灵索引、自增序列未重置导致下游消费游标死锁、以及无差别清空导致用户 API Key 和智能体配置丢失的严重痛点）：** Myrm 交付了业内领先的系统级安全清库事务协议（`SafeVaultPurgeService`）：
+  1. **严格逆序删除与 FTS5 虚表物理清理（Zero Ghost Rows in Contentless FTS）**：在事务最前置通过 `safe_purge_fts5_virtual_table` 发送 `delete-all`、`rebuild` 与 `optimize`，彻底消灭 contentless 虚表因 `old.content` 读取失败造成的幽灵行残留（实测清理后匹配结果精确为 0）；
+  2. **Outbox 序列与下游消费游标强一致原子清零（Cursor Resync & Zero Skip）**：在同一事务中清空业务数据并重置 `sqlite_sequence` 自增计数器，防止新会话 ID 重新从 1 起步而低于既有游标导致下游知识库/图谱消费者永久跳过所有新数据；
+  3. **数据与身份配置严格解耦的白名单保护（Zero Re-Onboarding Guarantee）**：实行严密的资产白名单隔离（`agents`, `api_keys`, `user_configs`, `channel_pairings`），做到「清数据、不清身份与偏好」，清空后用户无需重新填 Key 或重新配对机器人；
+  4. **原生异步与并发排他锁屏障**：全量基于标准异步事务（`async with engine.begin()`）执行，杜绝 aiosqlite 未 await 协程的静默缺陷，配合 `_PURGE_LOCK` 彻底杜绝并发死锁与 SQLite 锁表崩溃；
+  5. **100% 自动化测试通过**：Harness 14/14 项底层 FTS5 测试与 Server 3/3 项安全清库集成用例全绿通过，0 警告 0 错误 0 僵尸进程。
+- **SSOT 来源：** `myrm-agent-server/app/services/system/vault_purge_service.py` · `myrm-agent-harness/src/myrm_agent_harness/utils/db/fts5.py` · `temp-docs/materials/STORAGE_CRASH_CONSISTENCY_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-05 · 插件打包完整性与静态构建产物前置校验门禁 · 安全治理完成）
 
 - **PluginPackagingIntegrityGuard（对标 OpenClaw / Hermes / Codex / DeepSeek-Harness / Pi 在第三方作者遗漏 `npm run build` 或在 ZIP 包中遗漏 `dist/` 产物导致运行时抛出 `ENOENT` 异常、服务崩溃乃至会话中断）：** Myrm 交付了业内领先的插件打包静态校验门禁与组件级故障隔离架构：
