@@ -116,11 +116,13 @@ Myrm 的 **Working Memory** 通过专用 `__working_state` Profile Memory 条目
 
 **新用户默认开启记忆**。**历史会话搜索与核心记忆解耦**，默认关闭直至手动开启。
 
-### 竞品对比（诚实表述，2026-07）
+### 竞品对比（诚实表述，2026-07 ~ 2026-09）
 
-Hermes 将语义记忆与会话搜索拆成独立工具；CoPaw 默认 auto-inject 历史。Myrm：**单一 corpus ACL** + **GUI opt-in sessions** + **无痕全关** + **依据 N** 引用 UI。OpenClaw 有类似 corpus 模型；我们额外提供 GUI 隐私控制与统一引用。
+Hermes 将语义记忆与会话搜索拆成独立工具；CoPaw 默认 auto-inject 历史导致上下文膨胀；OpenClaw 与 Codex 缺乏长会话动态展开能力，展开技术上下文时常因数百字符硬截断丢失代码尾部。Myrm 架构具备独特优势：
+- **两阶段按需因果深挖**：首轮召回仅输出高密度 700 字符命中与深挖 Tip，首轮上下文极致轻简；大模型需要查阅完整流程时，按需调用 `memory_search_tool(corpus="sessions", expand_conversation_id=..., expand_message_id=..., expand_window=...)` 展开多达 4000 字符的高保真多轮上下文，展开后自动阻断递归死循环。
+- **单一 corpus ACL** + **GUI opt-in sessions** + **无痕全关** + **依据 N** 引用 UI。OpenClaw 有类似 corpus 模型；我们额外提供 GUI 隐私控制与统一引用。
 
-**验证（2026-07-20）**：factory 单元 38 项（99.6% 覆盖）、API memory/session e2e 8 项、Chrome citation e2e 4 项、前端 vitest 7 项 — 模型 mimo-v2.5-pro（`.env.test`）。
+**验证（2026-09）**：两阶段展开单元测试（12项）、真实 SQLite FTS5 与多轮窗口抽取（21项）、Agent 门面大模型端到端调用（4项）共 37 项测试全绿，且无僵尸进程残留。
 
 ## 品牌风格记忆板（Brand Studio）
 

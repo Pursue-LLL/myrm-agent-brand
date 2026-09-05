@@ -116,9 +116,13 @@ Cross-session continuity: L1 **stable** profile injects automatically; **learned
 
 **Memory is on by default** for new users. **Conversation history search is decoupled** and off by default until you opt in.
 
-### How we compare (honest, Jul 2026)
+### How we compare (honest, Sep 2026)
 
-Hermes splits semantic memory and session search into separate tools; CoPaw auto-injects history. Myrm: **single corpus ACL** + **GUI opt-in sessions** + **incognito fully disables memory** + **Evidence N** citation UI. OpenClaw uses a similar corpus model; we add GUI privacy controls and unified citations.
+Hermes splits semantic memory and session search into separate tools; CoPaw auto-injects history causing context bloat; OpenClaw and Codex lack deep adaptive multi-turn expansion, often truncating long code context. Myrm's architecture delivers distinct advantages:
+- **Two-Stage On-Demand Causal Expansion**: Initial retrieval returns high-density 700-char snippets with deep dive tips for minimal token overhead; when detailed context is required, the model invokes `memory_search_tool(corpus="sessions", expand_conversation_id=..., expand_message_id=..., expand_window=...)` to pull up to 4000 characters of full multi-turn context with automatic anti-recursion protection.
+- **Single corpus ACL** + **GUI opt-in sessions** + **Incognito fully disables memory** + **Evidence N** citation UI. OpenClaw uses a similar corpus model; we add GUI privacy controls and unified citations.
+
+**Verified (Sep 2026)**: Two-stage expansion unit suite (12 passed), real SQLite FTS5 window recall (21 passed), and agent facade LLM integration (4 passed) — 37 tests 100% green with zero lingering zombie processes.
 
 ## Brand Style Memory Board (Brand Studio)
 

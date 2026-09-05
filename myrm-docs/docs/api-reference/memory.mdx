@@ -51,9 +51,14 @@ POST /api/memory/search
 ```json
 {
   "query": "user preferences for coding style",
-  "limit": 10
+  "limit": 10,
+  "expand_conversation_id": "chat-xxx",
+  "expand_message_id": "msg-yyy",
+  "expand_window": 5
 }
 ```
+
+Supports two-stage causal expansion: standard queries return compact 700-char summaries; providing `expand_conversation_id`, `expand_message_id`, and `expand_window` (1-20, default 5) dynamically scales output capacity up to 4000 characters of full multi-turn context.
 
 ## Create Memory Entry
 

@@ -51,9 +51,14 @@ POST /api/memory/search
 ```json
 {
   "query": "user preferences for coding style",
-  "limit": 10
+  "limit": 10,
+  "expand_conversation_id": "chat-xxx",
+  "expand_message_id": "msg-yyy",
+  "expand_window": 5
 }
 ```
+
+支持两阶段按需因果深挖：未传 `expand_*` 时以 700 字符高密度摘要快速定位；传入 `expand_conversation_id`、`expand_message_id` 与 `expand_window`（1-20，默认 5）后动态放宽至 4000 字符长文本多轮上下文。
 
 ## 创建记忆条目
 
