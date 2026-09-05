@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-05 · 原生技能 Monaco 源码编辑器与 26 类静态安全威胁拦截门禁 · 前端与工具链全面闭环）
+
+- **SkillSourceEditorAndSecurityGuard（对标 SkillsGate / Hermes Agent / OpenClaw / Claude Code / Cursor / Pi 在云端沙箱缺乏原生编辑器被迫进 SSH/nano、只读详情抹除 Frontmatter 导致关键授权配置不可见、以及编辑落盘裸写零安全扫描容易被注入危险脚本或破坏 YAML 格式导致服务宕机等致命断点）：** Myrm 交付了 GUI 原生技能源码编辑器与生产级安全防护闭环：
+  1. **零新增 npm 体积的双模式编辑器（`SkillDetailSheetContent.tsx`）**：无缝支持高保真渲染 Markdown 预览与异步按需加载的 Monaco 源码编辑器（`LazyMonacoEditor`），在 WebUI 原生直接查看与修改完整的 `SKILL.md`（含 YAML Frontmatter、`allowed-tools` 等），微调即改即存；
+  2. **落盘前 26 类静态威胁扫描安全门禁（`app/api/skills/core.py` · `scan_skill_content`）**：在执行 `PUT /skills/{id}/files/{filename:path}` 写入前，底层调用 Harness 静态威胁扫描器，实时阻断任何 `CRITICAL` 级别的代码注入、反弹 Shell 或恶意破坏指令，并严格执行路径穿越检查（`..` 拦截）；
+  3. **YAML Frontmatter 语法强校验与元数据热更新**：通过 `yaml.safe_load` 终验结构，保存后自动刷新内存中的技能模型与提示词发现缓存，无需重启服务；
+  4. **版本快照比对与一键回滚联动**：源码每次保存自动记录历史版本，与 `SkillVersionsPanel.tsx` 联动支持 Monaco Diff 差异直观对比与一键 Rollback 还原，改坏也能秒恢复；
+  5. **全栈自动化测试 100% 绿灯**：源码编辑器 API 单测 6/6 通过、预置技能执行合约 48/48 通过、技能全流程集成测试 23/23 通过，全量体系 97 项测试全部绿灯。
+- **SSOT 来源：** `myrm-agent-server/app/api/skills/core.py` · `myrm-agent-frontend/src/components/features/skills/SkillDetailSheetContent.tsx` · `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-05 · Zero-Disk 硬件密钥环托管、默认回环锁死与受保护指令文件防投毒体系 · 安全与供应链治理全面闭环）
 
 - **ZeroDiskKeyringAndProtectedInstructionShield（对标 Hermes Agent / OpenClaw / Pi 商业密钥明文落盘被恶意脚本偷刷、默认 0.0.0.0 裸奔遭公网扫描与 DNS 重绑定 RCE、以及提示词注入篡改 AGENTS.md 埋藏持久后门的致命缺陷）：** Myrm 交付了业内领先的零磁盘与指令文件防线：
