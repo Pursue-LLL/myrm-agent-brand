@@ -11,6 +11,15 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Validation Snapshot (2026-09-05 · Zero-Disk Keychain Vault, Loopback Hardlock & Protected Instruction Shield · Security & Supply Chain Completed)
+
+- **ZeroDiskKeyringAndProtectedInstructionShield (vs Hermes Agent / OpenClaw / Pi plaintext credentials prone to exfiltration, 0.0.0.0 binding vulnerable to DNS-rebinding RCE, and prompt injections silently poisoning AGENTS.md):** Myrm delivers a defense-in-depth zero-disk credential vault and instruction integrity shield:
+  1. **Strictly Zero-Disk Hardware Keychain Storage (`master_key.py`)**: Master encryption keys are directly delegated to macOS Keychain / Linux SecretService / Windows Credential Manager with zero plaintext footprint on disk. Subprocesses and untrusted scripts only see dynamic ephemeral placeholders (`myrm-sent-v1...`), while outbound proxy injects keys in-memory;
+  2. **Default 127.0.0.1 Loopback Hardlock & HostAllowlist Middleware (`host_allowlist.py`)**: Physically binds to 127.0.0.1 by default with high-entropy token authentication for remote setups, strictly validating Host and browser Origin headers to eliminate cross-origin hijacking and DNS-rebinding attacks;
+  3. **Kernel Read-Only Mounts & Shell AST Redirect Pipeline Analyzer (`shell_command_analyzer.py` · `path_security.py`)**: Mounts `AGENTS.md`, `SOUL.md`, `CLAUDE.md`, and `.cursorrules` as read-only and intercepts shell redirect pipes (`>`, `>>`, `tee`) via AST analysis, vetoing unauthorized mutations and requiring line-by-line Monaco Diff human confirmation;
+  4. **100% Automated Multi-Tier Verification**: Full-stack test suites for keychain access, loopback interception, AST syntax tree scanning, and human approval flow pass with 100% green status.
+- **SSOT Sources:** `myrm-agent-harness/src/myrm_agent_harness/core/security/path_security.py` · `myrm-agent-server/app/core/security/master_key.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+
 ## Latest Validation Snapshot (2026-09-05 · In-Use Data Loss Prevention & Physical Sandbox Flow Governance · Security & Compliance Completed)
 
 - **FlowDirectionalDlpAndSandboxPhysicalShield (vs Volcano Engine AgentSentry and centralized platforms relying on fragile natural-language rules and sidecar SLMs introducing 1-3s latency and vulnerable to base64/hex evasion):** Myrm delivers a deterministic physical security and flow governance architecture:

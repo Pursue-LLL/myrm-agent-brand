@@ -1078,6 +1078,25 @@ CaMeL 单信任边界；Myrm **6 层**洋葱防御、5 域循环检测、3 层�
 3. **OriginGuard 主机头与 DNS 重绑定拦截**：服务端启动默认物理锁死仅绑定 `127.0.0.1` 环回接口；强制严格校验 `Host` 与 `Origin` 请求头，彻底粉碎利用公网域名发起的 DNS Rebinding 攻击。
 4. **子进程代理凭据脱敏安全下发**：在向非受信沙箱环境派生 Worker 时，自动剥离代理 URL 中可能包含的明文密码，严密杜绝企业网关鉴权凭证被恶意脚本窥探。
 
+## 元指令持久化防投毒与受保护指令文件硬门禁 (Protected Instructions & Anti-Persistence)
+
+针对恶意网页通过间接提示词注入（Indirect Prompt Injection）诱导 Agent 篡改全局人设与系统规则的持久化后门威胁：
+
+1. **绝对禁写白名单剥夺**：系统对 `AGENTS.md`、`SOUL.md`、`CLAUDE.md`、`.cursorrules` 等核心指令文件实施全方位受保护文件监控（`path_security.py`），任何写入或覆盖企图永久剥夺自动放行（Allow Always）特权，强制拉起 Monaco Diff 高亮审查卡。
+2. **内核只读挂载与 Shell AST 重定向一票否决**：在沙箱内核中将此类关键文件实施只读挂载；在 Shell 命令执行器（`shell_command_analyzer.py`）中进行 AST 语法全管道机检，严密拦截 `echo "hacked" > AGENTS.md`、`sed -i`、`tee` 等命令伪装，直接返回硬拒绝（DENY）。
+3. **严格 Zero-Disk 原生 OS 硬件密钥环中枢**：主加密密钥直接委托宿主操作系统硬件级安全管线（macOS Keychain / Linux SecretService / Windows Credential Manager），磁盘 100% 仅以 AES-256-GCM 密文存储，彻底终结开源 Agent 生态中明文存 Key 遭盗刷的灾难。
+
+## 零信任金库静态加密与 Sentinel 运行时防窥体系 (Zero-Trust Vault & Sentinel)
+
+针对 API Key 和企业 Token 在多端运行时的存储与外泄威胁：
+
+1. **严格 Zero-Disk 原生 OS 密钥环托管**：集成 `MasterKeyProvider`，原生对接 macOS Keychain、Linux SecretService 与 Windows Credential Manager，主加密密钥绝不以任何明文形式落盘。
+2. **AES-256-GCM 数据库透明信封加密**：本地持久化数据库与配置中的所有 `AgentSecret` 在写入存储时强制执行 AES-256-GCM 工业级加密，物理窃取数据库文件亦无法解密。
+3. **Sentinel 运行时零明文不透明占位符**：沙箱代码执行时仅注入单向不透明占位符（`myrm-sent-v1...`），真实密钥仅在白名单出站环回代理（Loopback Egress Proxy）层由网关即时代填，模型即使执行 `env`、`cat .env` 也无法获得真实明文密钥。
+4. **前端全流程脱敏防窥**：WebUI 与桌面端设置面板实施强力掩码展示（`sk-****abcd`），支持一键平滑无感轮换与屏幕共享防窥保护。
+
+
+
 
 
 

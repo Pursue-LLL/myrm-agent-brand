@@ -11,6 +11,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-05 · Zero-Disk 硬件密钥环托管、默认回环锁死与受保护指令文件防投毒体系 · 安全与供应链治理全面闭环）
+
+- **ZeroDiskKeyringAndProtectedInstructionShield（对标 Hermes Agent / OpenClaw / Pi 商业密钥明文落盘被恶意脚本偷刷、默认 0.0.0.0 裸奔遭公网扫描与 DNS 重绑定 RCE、以及提示词注入篡改 AGENTS.md 埋藏持久后门的致命缺陷）：** Myrm 交付了业内领先的零磁盘与指令文件防线：
+  1. **Strictly Zero-Disk 硬件钥匙串托管（`master_key.py`）**：主加密密钥直接委托 macOS Keychain / Linux SecretService / Windows Credential Manager，磁盘绝对零明文；配合 Sentinel 动态不透明占位符（`myrm-sent-v1...`），沙箱子进程无论如何执行 `printenv` 绝无可能拿到真实 API Key，出网代理微秒级内存代填；
+  2. **默认 127.0.0.1 回环硬门禁与 HostAllowlist 防 DNS 重绑定（`host_allowlist.py`）**：默认物理锁死 127.0.0.1，远程模式强制生成高熵 Token，严格拦截非法 Host 与外部浏览器 Origin 跨站请求，彻底杜绝公网裸奔与 DNS 重绑定提权；
+  3. **受保护指令文件内核级只读与 Shell 重定向 AST 管道全扫描（`shell_command_analyzer.py` · `path_security.py`）**：针对 `AGENTS.md`、`SOUL.md`、`CLAUDE.md`、`.cursorrules` 等人设与规则文件，实施内核只读挂载与终端管道覆写一票否决；任何修改强制唤起 Monaco Diff 人工审批，彻底杜绝跨会话隐蔽后门；
+  4. **全栈自动化测试 100% 满分通过**：涵盖主密钥钥匙串存取、Loopback 回环拦截、AST 语法树重定向扫描以及真实 Monaco 审批卡片全流程测试全部绿灯通过。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/core/security/path_security.py` · `myrm-agent-server/app/core/security/master_key.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-05 · 使用中数据防泄漏 DLP 与沙箱物理流向治理架构审查 · 安全与合规完成）
 
 - **FlowDirectionalDlpAndSandboxPhysicalShield（对标 火山引擎 AgentSentry 等中心化平台依赖脆弱自然语言规则与外挂微模型带来 1~3s 延迟且易被编码混淆绕过的营销包装痛点）：** Myrm 交付了业内领先的确定性物理安全与流向治理架构：

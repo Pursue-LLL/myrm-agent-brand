@@ -1198,4 +1198,13 @@ To ensure seamless, secure outbound connectivity across complex corporate firewa
 3. **Enterprise TLS Inspection Compatibility (`tls_compat.py`)**: Precisely relaxes `VERIFY_X509_STRICT` for corporate proxies without disabling certificate chain verification, eliminating SSL handshake errors across all outbound exits.
 4. **Child Process Proxy Credential Scrubbing**: Strips embedded basic-auth proxy passwords before passing environments to untrusted workers, defeating credential extraction attacks.
 
+## Protected Instructions & Anti-Persistence Injection Shield
+
+To eliminate persistent backdoor infection through indirect prompt injection attempting to tamper with system steering files:
+
+1. **Protected Instruction Hardening**: Core steering assets including `AGENTS.md`, `SOUL.md`, `CLAUDE.md`, and `.cursorrules` are registered under protected path defense (`path_security.py`). Any mutation attempt forfeits "Allow Always" exemptions and triggers mandatory Monaco Diff approval cards.
+2. **Kernel Read-Only Mounts & Shell AST Redirect Veto**: In sandbox environments, steering files are mounted read-only (`--ro-bind`). In shell executors (`shell_command_analyzer.py`), AST-driven full-pipe parsing vetos redirection commands (`echo > AGENTS.md`, `sed -i`, `tee`), halting persistent jailbreaks at the system boundary.
+3. **Strictly Zero-Disk Native OS Keychain Integration**: Master encryption keys are delegated directly to OS-native hardware security backends (macOS Keychain, Linux SecretService, Windows Credential Manager). Local SQLite stores only AES-256-GCM ciphertexts, ensuring enterprise secrets remain secure even if worktrees are leaked.
+
+
 
