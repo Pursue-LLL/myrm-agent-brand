@@ -11,6 +11,15 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Validation Snapshot (2026-09-06 · Kernel-Level Local Trace Only Gate & Knowledge Graph Dimension Health Probes · Security & Observability Completed)
+
+- **LocalTraceOnlyGateAndCodebaseDoctorCheckIntegration (vs Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi risking unauthorized remote telemetry leakage when running in private/offline environments, or silent retrieval degradation due to mismatched vector embedding dimensions):** Myrm delivers kernel-level local trace physical isolation and doctor diagnostic probes:
+  1. **Kernel-Level Physical Blocking Gate (`LocalTraceOnlyEnforcer` / `assert_local_trace_only`)**: Directly enforced within the Harness core when `MYRM_LOCAL_TRACE_ONLY=1`, physically intercepting and blocking any trace egress to non-localhost OTLP collectors;
+  2. **Doctor Audit Probe (`check_local_trace_export_audit`)**: Integrates an automated trace isolation compliance check into the Doctor diagnostics subsystem, complete with structured remediation advice;
+  3. **Knowledge Graph Vector Dimension Probe (`check_graph_embedding_health`)**: Validates vector index availability and dimensions against canonical model specifications to prevent silent vector search drift;
+  4. **100% Automated Multi-Tier Verification**: Dedicated unit tests pass with 100% green status and zero linter warnings.
+- **SSOT Sources:** `myrm-agent-harness/src/myrm_agent_harness/infra/tracing/tracer.py` · `myrm-agent-harness/src/myrm_agent_harness/observability/diagnostics/probes.py` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
+
 ## Latest Validation Snapshot (2026-09-06 · Three-Layer Privacy Sanitizer & Automated Trace Review Gate · Security & Compliant Observability Completed)
 
 - **ThreeLayerPrivacySanitizerAndAutomatedTraceReviewGate (vs Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi suffering from the painful trade-off between debugging visibility and credential security: either logging nothing and leaving failures as pure mysteries, or logging raw payloads and accidentally persisting API keys, passwords, bearer tokens, and private paths to disk, all while lacking automated review standards):** Myrm delivers an enterprise-grade three-layer progressive privacy sanitization engine and 16-point automated compliance review gate:

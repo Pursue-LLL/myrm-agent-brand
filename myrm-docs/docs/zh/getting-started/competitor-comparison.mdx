@@ -11,6 +11,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-06 · 内核级本地追踪隔离门禁与知识图谱维度自检 · 数据安全与合规可观测性闭环）
+
+- **LocalTraceOnlyGateAndCodebaseDoctorCheckIntegration（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在本地私有化或离线运行时，后台遥测组件可能仍尝试向外部 OTel 收集器外发 Trace 数据导致网络泄漏，或向量数据库索引维度配置失配导致检索静默失效的风险）：** Myrm 交付了内核级本地追踪物理阻断与健康自检探针：
+  1. **内核级物理阻断门禁（`LocalTraceOnlyEnforcer` / `assert_local_trace_only`）**：在 Harness 执行底座直接识别 `MYRM_LOCAL_TRACE_ONLY=1`，物理阻断一切向非 localhost/127.0.0.1 远端 OTLP Collector 的数据上报，阻断越界导出风险；
+  2. **Doctor 隔离自检与合规审计（`check_local_trace_export_audit`）**：在诊断自检体系中新增本地 Trace 隔离状态审计探针，并提供结构化自愈修复指引；
+  3. **知识图谱向量维度自检（`check_graph_embedding_health`）**：在 Doctor 诊断探针中集成向量索引连通性与维度探测，防止冷启动时因模型与向量库维度失配造成隐蔽故障；
+  4. **全套自动化测试 100% 满分通过**：相关单元测试全部通过，无任何 Lint 警告与环境残留。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/infra/tracing/tracer.py` · `myrm-agent-harness/src/myrm_agent_harness/observability/diagnostics/probes.py` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
+
 ## 最新验证快照（2026-09-06 · 三层隐私脱敏与全自动化 Trace 合规审查门禁 · 数据安全与合规可观测性闭环）
 
 - **ThreeLayerPrivacySanitizerAndAutomatedTraceReviewGate（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在可观测性与排障日志中“要么完全不记录排障全靠盲猜，要么记录详尽却将 API Key、密码与私密文件路径明文落盘外发导致灾难性隐私泄漏”、且事后审计完全缺乏自动化核验标准的行业痛点）：** Myrm 交付了业内领先的三层渐进脱敏引擎与 16 维全自动化合规审查门禁：
