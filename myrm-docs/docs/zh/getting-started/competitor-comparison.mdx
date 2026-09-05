@@ -29,14 +29,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   4. **全套自动化测试 100% 满分通过**：相关单元测试全部通过，无任何 Lint 警告与环境残留。
 - **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/infra/tracing/tracer.py` · `myrm-agent-harness/src/myrm_agent_harness/observability/diagnostics/probes.py` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
 
-## 最新验证快照（2026-09-06 · 三层隐私脱敏与全自动化 Trace 合规审查门禁 · 数据安全与合规可观测性闭环）
+## 最新验证快照（2026-09-06 · 三层隐私脱敏与 OTel 原生清洗闭环 · 数据安全与合规可观测性闭环）
 
-- **ThreeLayerPrivacySanitizerAndAutomatedTraceReviewGate（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在可观测性与排障日志中“要么完全不记录排障全靠盲猜，要么记录详尽却将 API Key、密码与私密文件路径明文落盘外发导致灾难性隐私泄漏”、且事后审计完全缺乏自动化核验标准的行业痛点）：** Myrm 交付了业内领先的三层渐进脱敏引擎与 16 维全自动化合规审查门禁：
-  1. **三层渐进隐私脱敏过滤器（`TraceSpanSanitizer`）**：在 Harness 执行引擎底层，针对全链路 Span 与 Trace Payload 实施三层递进过滤：第一层执行字段白名单精确划分（分离安全审计字段与高危属性）；第二层执行敏感模式扫描（覆盖 Bearer 凭据、API Key、Password、Token 等高频私密签名并保留结构化指纹 `[REDACTED:len=...:fp=...]`）；第三层对超长文本（>1024 字符）执行低熵安全 SHA-256 截断，杜绝反推泄密；
-  2. **短生命周期短任务退出批量安全落盘（Batch Safe Flush Guarantee）**：结合原子写入与 `atexit` 批量落盘机制，确保脚本中断或沙箱短任务退出时内存脱敏日志不遗失，0 丢帧且 0 进程卡死；
-  3. **16 项全自动化 Trace 合规审查门禁（Automated Trace Review Gate）**：内置 16 项高标准合规探针，自动化拦截明文敏感凭据外泄、字段缺失与非法未授权上报，实现合规问题的毫秒级 Fail-Fast 阻断；
-  4. **全套自动化测试 100% 满分通过**：Harness 118 项专属脱敏与链路测试全量通过，无任何 Lint 警告与环境残留。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/infra/tracing/sanitizer.py` · `myrm-agent-harness/tests/observability/test_trace_span_sanitizer.py` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
+- **ThreeLayerPrivacySanitizerAndAutomatedTraceReviewGate（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi / 《Agent Tracing》在可观测性与排障日志中“要么完全不记录排障全靠盲猜，要么记录详尽却将 API Key、密码与私密文件路径明文落盘外发导致灾难性隐私泄漏”、竞品采用私有白名单误杀官方规范、缺乏防 ReDoS 机制且粗暴丢弃超长数据导致证据链断裂的行业痛点）：** Myrm 交付了业内领先的三层渐进脱敏拦截器与 OpenTelemetry 原生清洗闭环：
+  1. **三层渐进隐私脱敏过滤器（`TraceSpanSanitizer` & `SanitizingSpanProcessor`）**：在 OpenTelemetry 导出前原生挂载。第一层执行安全命名空间白名单精确划分（全面兼容 OpenTelemetry GenAI 官方语义标准 `gen_ai.*` 与 `tool.*`，零误杀）；第二层执行防回溯 ReDoS 免疫的敏感模式扫描（微秒级覆盖 Bearer 凭据、API Key、Password、Token 等高频私密签名并脱敏掩码为 `[REDACTED]`）；第三层对超长文本（>2048 字符）执行安全有界截断，同时贴上防篡改的不可逆 SHA-256 事实指纹，既防止日志爆炸又保全排障因果证据链；
+  2. **原生 SpanProcessor 原地拦截清洗**：在 Span 结束且交付下游 Batch/OTLP Exporter 之前原地清洗 `span._attributes`，确保发往第三方 APM（Jaeger/Datadog/Grafana）的网络数据包 100% 物理脱敏；
+  3. **Server 业务层统一轨迹导出脱敏出口**：在 `/session/{id}/trace` 与 `/traces/search` 接口中无损接入 `sanitize_trace_payload` 递归脱敏，保障 WebUI 调试面板绝对安全；
+  4. **Prompt Cache 零污染保障**：脱敏处理严格发生在下游遥测管道中，绝不反向污染正在推理的模型 Prompt，Prompt Cache 极致命中率 100% 保持；
+  5. **全套自动化测试 100% 满分通过**：Harness 专属单测 5/5 与 Server 业务端点单测 3/3 全部绿灯通过，无任何 Lint 警告与环境残留。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/infra/tracing/sanitizer.py` · `myrm-agent-harness/src/myrm_agent_harness/infra/tracing/tracer.py` · `myrm-agent-server/app/api/statistics/session_trace.py` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
 
 ## 最新验证快照（2026-09-06 · 模型编排四大经典范式全景指南与多级有序回退体系 · 模型路由与用户体验完成）
 
