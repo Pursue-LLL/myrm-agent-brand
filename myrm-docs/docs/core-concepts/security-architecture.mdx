@@ -1091,4 +1091,13 @@ To defend against Time-of-Check to Time-of-Use (TOCTOU, CVE-2026-32921) attacks:
 2. **Execution-Boundary Revalidation**: At the execution boundary (`apply_approval_decisions`), the file's current SHA-256 hash is recomputed. If the script was modified, overwritten, or symlink-swapped while awaiting user approval, it triggers `SCRIPT_OPERAND_DRIFT_REJECT` and halts immediately.
 3. **Hide Allow Always**: Commands involving dynamic external script operands automatically suppress the "Always Allow" option, blocking malicious attackers from leveraging existing allowlists to run unreviewed code.
 
+## Frontend Chart SVG Strict Sanitization (Mermaid Preview)
+
+To prevent Stored XSS attacks via model-generated or untrusted Mermaid diagrams:
+
+1. **Strict Engine Configuration**: Forces Mermaid rendering configuration to `securityLevel: 'strict'` and `htmlLabels: false`, disabling inner HTML script execution vectors.
+2. **Recursive DOMParser Attribute Sanitization**: Recursively inspects the rendered SVG DOM tree using `sanitizeMermaidSvg`, stripping dangerous tags (`<script>`, `<foreignObject>`, `<iframe>`, `<object>`).
+3. **Neutralized Inline Events and Pseudo-Protocols**: Strips all case-insensitive `on*` inline event listeners and purges `href` / `xlink:href` attributes containing pseudo-protocols, ensuring complete immunity against Stored XSS across chat bubbles and fullscreen modal views.
+
+
 

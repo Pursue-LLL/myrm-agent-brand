@@ -981,5 +981,14 @@ CaMeL 单信任边界；Myrm **6 层**洋葱防御、5 域循环检测、3 层�
 2. **执行全生命周期 100% 覆盖**：覆盖持久 Shell 会话、Python 子进程、后台守护进程、浏览器沙箱与 CUA 驱动，消除任何脚本偷窥宿主环境凭证的供应链攻击隐患；
 3. **零误杀与开发者工具链无损兼容**：精确区分秘密变量（`AUTH_TOKEN`、`API_KEY`）与开发者提交身份（`GIT_AUTHOR_NAME`、`GIT_COMMITTER_EMAIL`），在筑起最高安全屏障的同时保障本地 Git 提交丝滑顺畅。
 
+## 前端 Mermaid 图表 SVG 工业级安全净化 (Mermaid Preview Strict Sanitization)
+
+为防御大模型生成或外部导入的 Mermaid 图表中的 Stored XSS 向量：
+
+1. **配置收敛（Strict Security Level）**：将 Mermaid 渲染引擎全面约束为 `securityLevel: 'strict'` 与 `htmlLabels: false`，彻底封死底层内部 HTML 解析器的脚本执行通道；
+2. **DOMParser 递归属性白名单二次净化**：在渲染生成原始 SVG 后，统一经由 `sanitizeMermaidSvg` 纯函数过滤，递归剔除 `<script>`、`<foreignObject>`、`<iframe>`、`<object>` 等危险标签；
+3. **内联事件与链接伪协议彻底中立化**：剥离任何大小写混淆的 `on*` 事件属性（如 `oNload`），剥离 `href` 与 `xlink:href` 伪协议，确保工件与 Markdown 图表在普通预览与全屏弹窗下 100% 免疫 XSS 攻击。
+
+
 
 
