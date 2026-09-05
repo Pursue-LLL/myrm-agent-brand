@@ -97,6 +97,21 @@ Every tool call passes through up to 10 layers of deterministic and intelligent 
 | L9 | **Domain HITL Runtime** | Auto-allows previously-approved domains within the same session |
 | L10 | **LLM Security Review** | AI classifier for ASK/Taint/Shell-Escalation/Outbound-Check scenarios |
 
+### Skill Frontmatter Defense & Zero-Trust Secret Vault (Sentinel & Vault)
+
+To counter the supply-chain vulnerabilities and secret exfiltration highlighted by the 2026 paper *Agent Skills in the Wild*, Myrm provides enterprise-grade runtime guarantees:
+
+1. **Frontmatter Privilege Decoupling**:
+   - Defeats the critical backdoor where malicious skills pre-approve execution by specifying `allowed-tools: Bash` in `SKILL.md`.
+   - Frontmatter declarations strictly act as prompt context filters; real execution authorization is governed by the underlying five-layer security engine (`engine.py`). Untrusted third-party skills default to `SkillTrust.INSTALLED = 0` (read-only confinement).
+2. **SHA-256 Tamper Protection & Runtime Quarantine**:
+   - Computes cross-platform LF-normalized SHA-256 content hashes at load time. If unauthorized code drift occurs, `QuarantineAwareSkillBackend` blocks execution at runtime (`is_active=False`), shutting down downstream poisoning.
+3. **OS Keyring Zero-Disk Master Key & AES-256-GCM Envelope Encryption**:
+   - `MasterKeyProvider` integrates natively with macOS Keychain, Linux SecretService, and Windows DPAPI under a strict **Zero-Disk** policy.
+   - All credentials in SQLite are transparently AES-256-GCM encrypted at rest. Child processes in sandboxes receive only `myrm-sent-v1...` opaque tokens—`env` calls reveal no raw keys. The loopback egress proxy dynamically substitutes valid Authorization headers on-the-fly for whitelisted domains.
+4. **Strict 127.0.0.1 Loopback Hardlock & Anti-DNS-Rebinding Shield**:
+   - Local services strictly bind to `127.0.0.1` by default. Robust CORS and LoopbackAuthToken enforcement prevent cross-site request forgery and DNS rebinding attacks against high-privilege local agents.
+
 ### Multi-Platform Approval UX
 
 Every approval surfaces the same four actions across all channels:
@@ -143,7 +158,8 @@ To prevent malicious prompt injections from probing or bypassing security constr
 
 - **Cross-Turn Registry**: Consecutive (3) and cumulative (20) security denial counters are anchored to a persistent session registry rather than ephemeral coroutine ContextVars;
 - **Auto-Mode Suspension (`AUTO_MODE_SUSPENDED`)**: When breach thresholds are reached, Auto Mode is immediately suspended and a high-visibility warning banner surfaces on the WebUI approval card;
-- **Decay & Self-Healing**: Explicit user approvals reset the consecutive counter and trigger self-healing decay on cumulative breaches (1 decay per 3 safe executions), ensuring a balanced balance between strict security and uninterrupted developer velocity.
+- **Decay & Self-Healing**: Explicit user approvals reset the consecutive counter and trigger self-healing decay on cumulative breaches (1 decay per 3 safe executions), ensuring a balanced balance between strict security and uninterrupted developer velocity;
+- **Session-Scoped Grant Isolation & Lifecycle Reclamation**: Temporary tool approvals granted with "session" duration are strictly isolated in memory to the active `session_id`. When the session is purged (via Focus & Flush, chat deletion, or trash empty), `_cleanup_checkpointer` automatically cascade-purges all ephemeral allowlist grants and resets denial counters, preventing dangling authorization leaks.
 
 ### Sidebar Attention Indicator
 
