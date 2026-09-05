@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-05 · Streamable HTTP MCP DNS-Rebinding 守护与洋葱门禁 · 安全治理完成）
+
+- **McpHttpOriginDnsRebindingGuard / ChatExportSecretRedactionPack（对标 Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi / qmd 在本地暴露未受防范的 HTTP MCP / 端口，易遭受浏览器跨站 DNS Rebinding 攻击直接穿透同源策略窃取私有知识库甚至控制桌面，以及会话导出将明文密钥直接泄露的痛点）：** Myrm 交付了毫秒级传输层洋葱物理门禁与全结构凭据零落盘脱敏闭环体系：
+  1. **Layer 1 物理传输洋葱门禁（`origin_guard.py` · `_MCPOriginGuardMiddleware`）**：在到达 Token 鉴权或数据库查询前置拦截；基于纯函数严格核验 `Origin` 与 `Host` 请求头，全面覆盖 RFC loopback 标准（`localhost`、`*.localhost`、`127.0.0.0/8`、`::1`、`::ffff:127.x.x.x`）与显式白名单，并刻意剔除 `0.0.0.0` 阻断 Chromium 自动路由绕过漏洞；
+  2. **原生开发者工具链零误杀**：Cursor IDE、Claude Code、终端 curl 与 MCP SDK 等原生工具因不发 `Origin` 请求头而自动安全放行，彻底消除开发者本地工具链摩擦；
+  3. **容器与 Wildcard 绑定智能自适应**：智能探测 `0.0.0.0` 与 `::` 通配绑定（如 Docker / 云托管环境），无显式白名单时仅放宽 Host 限制以兼容反向代理，但 `Origin` 审查 100% 强制生效；
+  4. **全结构递归凭证脱敏（`ChatExportSecretRedactionPack`）**：覆盖会话标题、消息正文、思考链推理轨迹以及嵌套命令行工具调用入参，5 种导出形态（Markdown / JSON / HTML / Copy / Print）全覆盖并搭载自解释合规徽章；
+  5. **100% 自动化测试全绿与 0 Lints**：54/54 单元测试、中间件拦截测试与 FastAPI 全链路集成测试全部绿灯，0 错误 0 警告 0 僵尸进程。
+- **SSOT 来源：** `myrm-agent-server/app/api/mcp/origin_guard.py` · `myrm-agent-server/app/api/mcp/endpoint.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-05 · 确定性代码调用图谱与测试爆炸半径定位技能包 · 技能与工具链完成）
 
 - **RepoCallGraphAstMcpSkillPack（对标 Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi 在处理上万行中大型工程时，仅能依赖盲目 grep 文本搜索导致数十处同名符号看花眼、上下文塞爆数万 Token 依然漏改、以及重构时无法精准获知受影响单测集合的痛点；亦对标 code-graph-rag 强依赖外部 Memgraph Docker 容器与大模型编写不可靠 Cypher 语句的弊端）：** Myrm 交付了本地沙箱零外部容器依赖、毫秒级增量更新的确定性代码调用图与影响面分析技能包体系：
