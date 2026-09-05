@@ -128,6 +128,22 @@ When multi-agent orchestration or parallel executions produce multiple pending a
 - **Safe-Only Precision Splitting & Pre-Resume Fix**: Users can choose "Approve Safe Only" — safe read-only operations resume immediately while high-risk destructive operations remain safely suspended for individual review. Client-side stream resume is strictly scoped to verified `safeItemIds`;
 - **Server HTTP 409 State-Machine Guard**: When a Safe-Only batch contains 0 safe items, the API returns HTTP 409 Conflict (`NO_SAFE_ITEMS_TO_APPROVE`), preventing empty response ambiguity.
 
+### Socially Irreversible Action Gate (External Impact Defense)
+
+In real-world engineering workflows, certain operations produce irrevocable external collaborative impact (such as pushing code to remote main branches, channel broadcasts, or package publishing). Once dispatched, these cannot be rolled back locally. Myrm enforces a strict **Socially Irreversible Action Gate**:
+
+- **Accurate Action Identification**: Covers `git push` (with complex path/force/pager flags), `npm/pnpm/yarn publish`, `twine upload`, `docker/podman push`, `gh release/pr`, and `channel_notify`/`artifact_publish`;
+- **Allowlist Bypass Prevention**: These actions are stripped of the "Allow Always" privilege. Even if a broad pattern rule exists for `shell_exec`, socially irreversible commands are intercepted and demoted to single-shot HITL approvals;
+- **Prominent High-Risk Warning Banners**: The approval card mounts a dedicated amber warning banner informing the user that remote environments will be modified upon confirmation.
+
+### Session-Scoped Denial Persistence & Auto-Mode Circuit Breaker
+
+To prevent malicious prompt injections from probing or bypassing security constraints across fragmented turns, Myrm breaks the architectural limitation of per-turn denial resets:
+
+- **Cross-Turn Registry**: Consecutive (3) and cumulative (20) security denial counters are anchored to a persistent session registry rather than ephemeral coroutine ContextVars;
+- **Auto-Mode Suspension (`AUTO_MODE_SUSPENDED`)**: When breach thresholds are reached, Auto Mode is immediately suspended and a high-visibility warning banner surfaces on the WebUI approval card;
+- **Decay & Self-Healing**: Explicit user approvals reset the consecutive counter and trigger self-healing decay on cumulative breaches (1 decay per 3 safe executions), ensuring a balanced balance between strict security and uninterrupted developer velocity.
+
 ### Sidebar Attention Indicator
 
 When an agent pauses for approval, the sidebar displays a real-time amber pulse indicator next to the affected chat — even if you're currently viewing a different conversation. This eliminates the need to manually check each session for pending approvals:
@@ -1139,6 +1155,15 @@ To eliminate TLS disruption and massive performance degradation caused by OpenCl
 1. **Fail-Closed Physical Sanitization**: Strips all sensitive credentials at child environment creation time, ensuring `printenv` in subprocesses can never expose plaintext secrets.
 2. **In-Memory Controlled LLM Invocation**: Agent core inference connections are established directly within the runtime memory without proxy overhead, eliminating `CERTIFICATE_VERIFY_FAILED` errors.
 3. **Dedicated Agent-in-Sandbox Isolation**: Leverages dedicated volume isolation and containerization, providing true multi-tenant physical boundaries with zero configuration friction.
+
+## Deterministic Execution-Defense vs Jailbreak Red-Teaming
+
+To counter adversarial prompt injection and multi-turn jailbreak attempts (e.g., PAIR, Many-Shot):
+
+1. **Untrusted Data Envelope**: Wraps untrusted external data (web content, attachments) in strict physical envelopes, stripping instruction privileges at the system prompt protocol layer to defeat indirect injection.
+2. **Non-Bypassable Layer 1–5 Onion Physical Guard**: Bypasses fragile, slow, and evadable external LLM evaluators by enforcing fail-closed physical barriers at the system call boundary. Even if a model is semantically jailbroken, destructive operations and credential exfiltration are physically halted before OS execution.
+3. **Immutable Causal Audit Trail**: Tracks all tool calls, approval decisions, and blocks with tamper-evident cryptographic metadata, fulfilling enterprise compliance and auditability requirements out of the box.
+
 
 
 
