@@ -71,7 +71,10 @@ Speed test results reflect your actual network conditions and API key quotas —
 
 ## Thinking Intensity Control
 
-For reasoning-capable models (Claude 3.7+, o1/o3/o4-mini, Gemini 2.5, DeepSeek R1, Qwen3, etc.), Myrm provides fine-grained control over how deeply the model "thinks" before responding.
+For reasoning-capable models (Claude 3.7+, o1/o3/o4-mini, Gemini 2.5, DeepSeek R1, DeepSeek-Reasoner, Qwen3, etc.), Myrm provides fine-grained control over how deeply the model "thinks" alongside intelligent multi-tier onboarding routing.
+
+**Hybrid Open/Closed-Source Smart Routing (Onboarding):**
+In the onboarding wizard, Myrm natively reuses the rigorously tested single source of truth (`isReasoningModelByName`) to accurately identify official `deepseek-reasoner` and front-line thinking models. When both self-hosted local endpoints (Ollama / split-stack LAN) and commercial cloud models are detected, the system heuristically recommends the local model for zero-marginal-cost routine throughput (`lite`) and the cloud frontier model for complex fallback reasoning (`reasoning`), reducing overall API expenses by 75%+ out of the box.
 
 **6 preset levels:** Off / Low / Medium / High / Extra High / Max — covering everything from quick answers to deep multi-step reasoning.
 

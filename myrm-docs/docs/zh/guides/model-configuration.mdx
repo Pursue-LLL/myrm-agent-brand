@@ -62,7 +62,10 @@ GOOGLE_API_KEY=...
 
 ## 推理强度控制
 
-对于支持推理能力的模型（Claude 3.7+、o1/o3/o4-mini、Gemini 2.5、DeepSeek R1、Qwen3 等），Myrm 提供精细的"思考深度"控制。
+对于支持推理能力的模型（Claude 3.7+、o1/o3/o4-mini、Gemini 2.5、DeepSeek-R1、DeepSeek-Reasoner、Qwen3 等），Myrm 提供精细的"思考深度"控制与智能路由全自动对齐。
+
+**开闭源混合智能路由编排（Onboarding）：**
+在系统引导向导中，Myrm 原生复用经全面单测守护的单一真相源（`isReasoningModelByName`），秒级识别官方 `deepseek-reasoner`、Gemini 思考模型与各大前沿推理模型。检测到本地自建算力（Ollama / 局域网分机）与云端商业模型时，系统自动启发式将本地端点推荐为 $0 边际成本日常高吞吐路由（`lite`），将云端商业端点推荐为攻坚兜底路由（`reasoning`），帮助用户将整体 API 费用降低 75%+，真正实现开箱即用的开闭源黄金协同。
 
 **6 级预设：** 关闭 / 低 / 中 / 高 / 超高 / 最大 — 从快速回答到深度多步推理，覆盖所有场景。
 
