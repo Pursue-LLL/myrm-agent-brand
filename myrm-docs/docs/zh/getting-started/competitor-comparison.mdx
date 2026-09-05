@@ -14,12 +14,11 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 ## 最新验证快照（2026-09-05 · 交付物与代码块未落盘拦截门禁与工件自动落盘保全 · 运行时耐久性与资产保护全面闭环）
 
 - **UnwrittenDeliverableAndCodeBlockEnforcementGuardAndArtifactAutoStaging（对标 Google Antigravity / Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在对话框生成大量长篇代码或完整报告却漏调用工具落盘、沦为“只在屏幕打字不保存物理文件”的纯 Chat 假智能体，或导致用户资产丢失的硬痛点）：** Myrm 交付了交付物未落盘拦截门禁与工件自动落盘保全系统：
-  1. **结束前启发式交付物嗅探器（`deliverable_write_verifier.py`）**：在 Agent 判定会话结束前，静态扫描模型输出中的完整交付物（py/ts/html/css/sh/json/sql/md 等多语言代码块与长篇报告），严格核验是否真实调用了文件写入/修改工具（`file_write_tool` / `file_edit_tool`）；
-  2. **门禁拦截与自愈修正反馈环（`completion_guard.py`）**：检测到“光说不练”的漏落盘行为时立即拦截，自动注入确定性提示（“检测到完整交付内容但未调用文件写入工具，请立即调用落盘”），引导模型自愈落地；
-  3. **沙箱工件自动暂存与草案库（`deliverable_auto_staging.py`）**：在强制结束时，自动将未落盘的代码块或报告提取并原子化写入 `.myrm/staged_artifacts/`，附带 SHA-256 唯一指纹与 LRU 保全配额，确保资产绝不遗失；
-  4. **三端同构 UI 一键采纳**：在 Local WebUI、Tauri 桌面端与云端沙箱中均提供未落盘工件的一键保存与检视入口；
-  5. **全栈自动化测试 100% 满分通过**：17/17 写入检验单测、5/5 自动落盘暂存单测（代码行覆盖率 95%）、38/38 核心工件测试全部通过。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_write_verifier.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_auto_staging.py` · `temp-docs/materials/ENTERPRISE_RELIABILITY_AND_TESTING_ADVANTAGE.md`
+  1. **结束前启发式交付物嗅探器（`deliverable_write_verifier.py`）**：在 Agent 判定会话结束前，静态扫描模型输出中的完整交付物（py/ts/html/css/sh/json/sql/md 等多语言代码块与长篇报告），结合单行纯命令过滤、算法教学问答意图智能放行、以及宽表 CSV / 紧凑 JSON 的字节密度自适应判定，严格核验是否真实调用了文件写入/修改工具（`file_write_tool` / `file_edit_tool`）；
+  2. **门禁拦截与自愈修正反馈环（`completion_guard.py`）**：检测到“光说不练”的漏落盘行为时立即拦截收尾动作，自动改写注入 `_completion_check` 系统工具反思指令，迫使模型在下一个 ReAct 循环中显式调用 `file_write_tool` 真正落盘；
+  3. **沙箱工件自动暂存、Git 卫生隔离与草案库（`deliverable_auto_staging.py`）**：在达到最大重试上限触发 `forced_finish` 时，自动将未落盘的代码块或报告提取并原子化写入沙箱 `.myrm/staged_artifacts/`，同时自动维护 `.myrm/.gitignore` 实现沙箱透明与用户工程零污染，并提供 20 个上限的 LRU 滚动容量防爆保护；
+  4. **全栈自动化测试 100% 满分通过**：37/37 核心嗅探、Git 隔离与自动暂存单测全部通过（代码行覆盖率 94%），3/3 CompletionGuard 联动集成测试全部通过，全链路 100% 绿灯。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_write_verifier.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_auto_staging.py` · `temp-docs/materials/FILE_SYSTEM_INTELLIGENCE_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-05 · 真实全流程任务、真实大模型推理与 Browser Orchestrator 真实 Chrome E2E 全链路闭环 · 企业级可靠性完成）
 
