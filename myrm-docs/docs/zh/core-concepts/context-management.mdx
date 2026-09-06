@@ -9,13 +9,20 @@ Myrm 上下文管理确保 Agent 在 200+ 轮对话中不丢信息，并通过�
 
 ## 架构概览
 
-每条消息在到达 LLM 前经 12 步渐进降载流水线处理：
+每条消息在到达 LLM 前经 13 步渐进降载流水线处理：
 
 ```
-用户消息 → 思维清理 → 媒体过滤 → 智能过滤 → 主动工具结果归档 → Cache TTL 剪枝 → 预压缩 → 压缩 → 会话笔记 → 摘要 → 压缩后热恢复 → 规范化 → 媒体解析 → Prompt Cache 优化 → LLM
+用户消息 → 推理决策锚点提取与保留 (ReasoningAnchor) → 思维清理 (ThinkingClean) → 视觉降级与媒体过滤 → 智能过滤 → 消费感知型主动工具归档 (ActiveToolResultPrune) → Cache TTL 剪枝 → 预压缩 → 压缩 → 会话笔记 → 摘要 → 压缩后热恢复 → 规范化 → 媒体解析 → Prompt Cache 优化 → LLM
 ```
 
 ## 压缩流水线
+
+### 第 -1 层：推理决策锚点提取与保留（ReasoningAnchorProcessor）
+
+针对推理大模型（DeepSeek-R1、Claude 3.7 Sonnet Thinking、OpenAI o3/o1、MiniMax 等）输出的高密度思维链，在传统清理器剥离冗余思考前，以零 LLM 开销确定性提取核心结论、架构约束与定位结论（`ReasoningAnchor`）：
+- **不可变决策账本**：会话级 `SessionAnchorLedger` 严格隔离并以 LRU/FIFO 淘汰保障单会话不超过 10 条、全局不超过 500 会话，杜绝内存泄漏；
+- **Prompt Cache 前缀零破坏**：提取出的锚点仅追加注入到当前最后一条 `HumanMessage` 尾部，历史消息哈希严格一致，彻底打破长程任务中因剥离思考链导致的“失忆与反复踩坑”难题；
+- **消费感知观察压缩**：针对工具观察值，引入 `is_tool_result_consumed` 生命周期追踪，未被后续 AI 消费的工具结果处于活跃保护态，严禁提前裁剪，防止重试或连续执行上下文丢失。
 
 ### 第 0 层：意图引导压缩（CompressionIntent）
 
