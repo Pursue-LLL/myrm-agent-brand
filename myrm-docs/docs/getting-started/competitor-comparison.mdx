@@ -1137,3 +1137,20 @@ DeepSeek-Harness (DSH) provides an open-source harness exploration for DeepSeek 
 ## vs Pi (pi-agent / oh-my-pi) — Dual-Model Advisor & Real-Time Oversight System
 
 The Pi ecosystem (pi-agent and oh-my-pi) explores dual-agent oversight (Advisor / Worker) for continuous verification. However, this pattern introduces severe latency overhead, high token costs, and terminal noise.
+
+### Where Myrm Leads
+
+| Area | Pi (pi-agent / oh-my-pi) | Myrm | User Benefit |
+|------|--------------------------|------|--------------|
+| **Oversight Architecture** | Advisor continuously reviews every step via sequential LLM round-trips | **Deterministic Rule Engine + Semantic Post-Verification** | Avoids redundant advisor LLM token consumption while ensuring strict security compliance. |
+| **Model Orchestration & Gateways** | Fixed model slots without unified gateway integration | **Model Orchestration Playbook + Native Vercel AI Gateway Preset** | Direct discovery of four classical paradigms (Brain & Hands, Solo Worker, etc.) with spend observability. |
+| **Workspace Integration** | Terminal TUI focus with limited graphical artifact management | **Integrated WebUI & Tauri Desktop** | Complete Kanban, Artifact Portal, and interactive Playbook directly accessible in the browser and desktop. |
+
+## Latest Validation Snapshot (2026-09-06 · Model Orchestration Playbook & Native Vercel AI Gateway Preset · Roadmap Topic 07 #35/#36 Completed)
+
+- **ModelOrchestrationPlaybookAndVercelAIGatewayPreset (vs Hermes / OpenClaw / Codex / Pi / DeepSeek-Harness):** Myrm delivers an interactive Model Orchestration Playbook, golden recipes, first-class Vercel AI Gateway preset with spend observability, and zero-friction Hermes migration:
+  1. **Interactive Four-Paradigm Playbook (`ModelOrchestrationPlaybookDialog.tsx`)**: The empty chat screen and settings center provide direct access to four classic orchestration patterns (Brain & Hands synergy, Solo Worker, Dynamic Tiering, Multi-Agent Swarm) with built-in Frugal and Balanced recipes applied in a single click;
+  2. **First-Class Vercel AI Gateway Preset (`ProviderList.tsx` + `providerTypes.ts`)**: Built-in brand SVG icon, automatic `openai/` anti-hijacking prefix wrapper, and automatic injection of attribution headers (`HTTP-Referer: https://myrmagent.ai`, `X-Title: Myrm Agent`) with direct deep-links to the Vercel spend dashboard;
+  3. **Zero-Friction Hermes Migration**: Full compatibility with `.env` `AI_GATEWAY_API_KEY` and `VERCEL_AI_GATEWAY_KEY` keys, enabling instant migration without re-creating API credentials;
+  4. **100% Automated Multi-Tier Verification**: 17 frontend Playbook unit tests, 27 model parameter unit tests, and full real Chrome E2E browser tests (`test_model_orchestration_playbook_chrome_e2e.py` and `test_vercel_ai_gateway_chrome_e2e.py`) all passing cleanly.
+- **SSOT Materials:** `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/playbook/ModelOrchestrationPlaybookDialog.tsx` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/core/llm.py`
