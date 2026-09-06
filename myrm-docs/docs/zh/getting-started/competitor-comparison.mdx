@@ -46,11 +46,14 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 - **LoopEngineeringAndGoalAutonomousSchedulingSuite（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在长任务自动化中普遍存在的“开机并发雪崩 Thundering Herd、模型凭空口嗨假完成交付、以及无事实死循环空转烧干 Token”的致命痛点）：** Myrm 交付了业内领先的四层物理事实门禁、三阶段启动自愈与自适应收敛长任务自治体系：
   1. **四层物理事实完成阶梯（`VerificationGatekeeper` · `ShellCriterion`）**：彻底终结大模型“凭空脑补已完成”的假阳性弊病。Agent 声明任务达成时，必须物理跑通自动化测试（Exit 0）、通过 AST 语法与语义静态断言、并完成安全扫描，否则强制拦截打回重修；
-  2. **三阶段错峰顺延恢复防雪崩（`StartupRecovery`）**：在系统重启或服务恢复时，将堆积的长周期定时任务进行非抢占式错峰调度，平滑释放系统 CPU 与沙箱 Volume 挂载，100% 杜绝并发雪崩；
-  3. **无新事实自适应收敛引擎（`GoalConvergenceGuard` · `_check_convergence`）**：对执行过程中的物理证据进行单调性严密监测，一旦发现连续无新事实产出或陷入原地打转，自动以 `PAUSED` 优雅收敛停机，杜绝无意义 Token 消耗；
-  4. **18+ 款工业级业务蓝图开箱即用（`blueprints.py`）**：原生内置涵盖早报摘要、竞品全网追踪、社交舆情、知识库巡检自愈与财务对账的完整蓝图矩阵，搭配前端 WebUI `TemplateMarket` 强类型槽位，实现 10 秒级一键启用；
-  5. **原生 `/loop` 斜杠命令与自然语言自适应解析（`loopSlashCommand.ts` · `parser.py`）**：支持在聊天框输入 `/loop 10m`、`/loop 每隔半小时` 一秒建任务，支持别名 `/repeat`、`/cron`；独创**即时首跑验证策略（Immediate First-run Policy）**，创建即触发真实执行，用户当场验收质量后再沉淀至后台持久化调度，杜绝黑盒等待；
-  6. **全套自动化测试 100% 满分通过**：前端单测 23 项、Harness 调度解析 34 项、Server API 全生命周期 44 项、真实 LLM 断点恢复与 Chrome MCP E2E 真实浏览器全链路测试全绿灯通过。
+  2. **物理验收 Exit 0 即时完工短路（Fast-Path Physical Verification Short-Circuit）**：当检测到自动化测试套件 100% 通过且无篡改时，毫秒级即时完工，免去多轮机械等待，端到端执行效率提升 50%+ 并直省 Token 开销；
+  3. **动态工件防作弊不可变快照（`Dynamic Invariant Snapshot` · `register_protected_artifact`）**：Agent 中途动态生成的测试代码与关键断言计算 SHA-256 即刻物理锁定，杜绝自愈回合通过篡改弱化测试断言（如改成 `assert True`）假装达标通过；
+  4. **独立自愈预算解耦控制（`GoalBudget.max_verification_retries`）**：将任务执行总预算与验证修复重试上限严格解耦，支持用户与场景按需配置自愈阈值，彻底阻断死循环自愈空转；
+  5. **三阶段错峰顺延恢复防雪崩（`StartupRecovery`）**：在系统重启或服务恢复时，将堆积的长周期定时任务进行非抢占式错峰调度，平滑释放系统 CPU 与沙箱 Volume 挂载，100% 杜绝并发雪崩；
+  6. **无新事实自适应收敛引擎（`GoalConvergenceGuard` · `_check_convergence`）**：对执行过程中的物理证据进行单调性严密监测，一旦发现连续无新事实产出或陷入原地打转，自动以 `PAUSED` 优雅收敛停机，杜绝无意义 Token 消耗；
+  7. **18+ 款工业级业务蓝图开箱即用（`blueprints.py`）**：原生内置涵盖早报摘要、竞品全网追踪、社交舆情、知识库巡检自愈与财务对账的完整蓝图矩阵，搭配前端 WebUI `TemplateMarket` 强类型槽位，实现 10 秒级一键启用；
+  8. **原生 `/loop` 斜杠命令与自然语言自适应解析（`loopSlashCommand.ts` · `parser.py`）**：支持在聊天框输入 `/loop 10m`、`/loop 每隔半小时` 一秒建任务，支持别名 `/repeat`、`/cron`；独创**即时首跑验证策略（Immediate First-run Policy）**，创建即触发真实执行，用户当场验收质量后再沉淀至后台持久化调度，杜绝黑盒等待；
+  9. **全套自动化测试 100% 满分通过**：前端单测 23 项、Harness 调度解析 34 项、Server API 全生命周期 44 项、真实 LLM 断点恢复与 Chrome MCP E2E 真实浏览器全链路测试全绿灯通过。
 - **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/goals/continuation.py` · `myrm-agent-server/app/core/cron/blueprints.py` · `temp-docs/materials/AUTOMATION_CRON_ADVANTAGE.md` · `temp-docs/roadmap/topic_18_loop_engineering_goal_autonomous_scheduling_and_runtime_verification_roadmap.md`
 
 ## 最新验证快照（2026-09-06 · 全生命周期模型路由与前缀缓存感知自适应算力经济学 · 模型路由全面完成）
