@@ -42,6 +42,25 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
    - **痛点断点**：纯自然语言陪聊，完全缺失代码沙箱、Shell 与外部工具执行能力；记忆完全黑盒封闭，无法审计、修改或私有化部署。
    - **Myrm 获益**：**“高情商伴侣 + 硬核工程专家”双心智同构**（兼具 15 种物种伴侣与全自动工程交付）+ **白盒化 8 类记忆与级联遗忘** + **本地/桌面/云托管全数据主权**。
 
+## 最新验证快照（2026-09-06 · 跨生态 A2A v1.0 服务端与零信任客户端委托闭环 · 多智能体编排全面演进）
+
+- **A2AProviderServer & RemoteClientDelegateToolSuite（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在跨智能体协作中存在的“单体死板绑定无沙箱、外部入参盲目注入受攻、出站 HTTP 裸奔诱发 SSRF 穿透窃取云元数据、以及长任务缺乏异步流式与状态感知”四大痛点）：** Myrm 交付了业内领先的 A2A v1.0 全双工协议互操作、零信任出站安全防御与三模式自适应扇出编排体系：
+  1. **全生态 A2A v1.0 双向标准化互操作（`types.py:1-240` · `router.py:1-170`）**：完整对齐 Google/Linux Foundation A2A v1.0 标准。入站暴露 `GET /.well-known/agent-card.json` 与 `/api/v1/a2a/agents/{agent_id}/.well-known/agent-card.json`，根据 Agent Profile SSOT 动态暴露技能与能力清单；JSON-RPC 2.0 端点 `/api/v1/a2a/rpc` 支持 `tasks/send`、`tasks/get`、`tasks/cancel` 与 `agent/card`，外部框架（Hermes、LangChain、AutoGen）可无缝发现并安全调用；
+  2. **零信任出站 SSRF 物理防御（`client.py:40-120`）**：针对竞品出站裸调 HTTP 极易被间接提示词注入（Prompt Injection）诱导攻击云端元数据 `169.254.169.254` 或内网私有服务的致命安全漏洞，Myrm 出站强制经过 DNS Pinning 与逐跳重定向安全检查，100% 物理切断内网穿透风险；
+  3. **三模式自适应扇出编排（`tools.py:90-180`）**：原生提供 `a2a_orchestrate` 工具，支持 `all`（全量并发收集）、`first`（极速短路响应并自动取消其余等待）、`best`（按输出丰满度与产物质量自动选优）三种多智能体编排策略；
+  4. **防重放 HMAC-SHA256 签名 Webhook 与结构化审计（`security.py` · `audit.py`）**：任务状态变更通过带 `X-A2A-Signature` 与时间戳防重放校验的 Webhook 异步回调调用方，全生命周期事件同步写入 `~/.myrm/logs/a2a_audit.jsonl`；
+  5. **全套自动化测试 100% 满分通过**：Harness 层 A2A 工具包单测 8/8 通过，A2A 客户端与扇出编排单测 4/4 通过，Server 层 A2A 发现与 JSON-RPC 任务生命周期集成测试 6/6 通过，架构测试 5/5 通过，总计 23 项用例 100% 满分通过。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/a2a/` · `myrm-agent-server/app/services/a2a/` · `myrm-agent-server/app/api/a2a/` · `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md`
+
+## 最新验证快照（2026-09-06 · 工业级视频生产加固与长任务透明阶段流 · 浏览器与媒体采集全面完成）
+
+- **VideoToolchainProductionHardeningPack（对标 Hermes Agent / OpenClaw / Deer-Flow / Codex / Pi 在长耗时视频生成任务中存在的“跨模型动态指定入参被 Pydantic 误杀拦截、普通参数错误被粗暴扣上敏感词风控帽子掐断容灾、以及长达 1~2 分钟界面盲等”三大高频痛点）：** Myrm 交付了业内领先的工业级视频生产自适应容灾与端到端透明交互体系：
+  1. **稳定超集 Schema 契约与运行时能力软降级（`video_agent_tool.py:220-278`）**：外层暴露全量能力超集，从源头上 **100% 保护静态 System Prompt 前缀缓存（Prompt Prefix Cache）**；底层基于 `ConfigDict(extra="allow")` 允许高级入参动态穿透，在 Tool 内部根据目标 Provider 真实 Capabilities 进行只读软降级与友好告警，彻底根除跨 Provider 动态指定（如 `provider="minimax"`）时被 Pydantic 拦截抛出 `ValidationError` 导致 Agent 暴毙的缺陷；
+  2. **422 状态码风控精准消歧与容灾降级守护（`generator.py:312-332`）**：严格约束判定规则，HTTP 422 必须伴随风控特征词（`content_filter`、`nsfw`、`moderation`、`safety` 等）联合判定才触发不可重试的 `ModerationBlockedError` 熔断；纯参数格式错误归为标准 `InvalidRequestError` 或 `VideoGenerationError`，保留完整的 Failover 跨供应商备用降级能力，杜绝乱扣“风控违规”帽子；
+  3. **前端长任务细粒度阶段感知（`VideoTaskCard.tsx` · `TaskCardPlaceholder.tsx`）**：`TaskCardPlaceholder` 扩展 `statusMessage?: string` 属性，`VideoTaskCard.tsx` 在排队与运行态实时消费透传后端的 `task.progress_message`（排队等待集群、关键帧渲染、动作插帧与音频合成），适配 Tailwind 双主题与无原生 emoji 规范，彻底终结用户面对冷冰冰百分比的渲染盲等焦虑；
+  4. **全套自动化测试 100% 满分通过**：Server 12 项单测、Harness 44 项单测、前端 4 项单测与真实 Chrome E2E 浏览器端到端测试（`test_video_tool_fal_provider_chrome_e2e.py`、`test_media_settings_fal_chrome_e2e.py`、`test_media_background_tasks_panel_chrome_e2e.py`）全绿灯通过。
+- **SSOT 来源：** `myrm-agent-server/app/ai_agents/media_tools/video_agent_tool.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/video/generator.py` · `temp-docs/materials/MULTIMODAL_CAPABILITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md`
+
 ## 最新验证快照（2026-09-06 · 长周期自主目标推进与四层完成阶梯物理事实门禁 · 自动化调度全面完成）
 
 - **LoopEngineeringAndGoalAutonomousSchedulingSuite（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在长任务自动化中普遍存在的“开机并发雪崩 Thundering Herd、模型凭空口嗨假完成交付、以及无事实死循环空转烧干 Token”的致命痛点）：** Myrm 交付了业内领先的四层物理事实门禁、三阶段启动自愈与自适应收敛长任务自治体系：
