@@ -17,7 +17,9 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   1. **三级自适应任务复杂度路由器（`complexity_router.py:40-150`）**：原生根据任务特征自动分流为 `FAST`（轻量小模型处理高频格式化与问答）、`STANDARD`（高性价比模型处理抓取与常规工具）与 `REASONING`（顶级旗舰模型处理代码重构与财务推导），主力 Token 账单直降 70%+；
   2. **会话级任务动量锁定与缓存断裂防护（`complexity_router.py:440-620` · `cache_break_detector.py`）**：任务执行期间严格锁定模型粘性，杜绝跨步跳变打碎云端 KV Cache，结合 SHA-256 前缀断裂哨兵保证 80%+ Prompt Cache 命中率；
   3. **无缝同会话跨厂商热切换兼容盾（`thinking_cleaner.py:75-176` · `gateway_normalizer.py:20-60`）**：实时转译异构思考块（`<think>` 与 `reasoning_content`）与悬空工具返回，自由切换模型 100% 杜绝 400 格式报错，彻底告别 Hermes 换模型必须 `/new` 重置清空历史的缺陷；
-  4. **全套自动化测试 100% 满分通过**：Topic 07 全量 187 项路线图提案全部地毯式核验，零遗漏闭环完成。
+  4. **双聚合网关归属头与 OpenRouter 免费配额自动合规注入（`llm.py:240-265`）**：底层原生检测 Vercel AI Gateway 与 OpenRouter 端点，自动注入 `HTTP-Referer: https://myrmagent.ai` 与 `X-Title: Myrm Agent`，既在 Vercel 控制台提供完备支出可观测性，又确保 OpenRouter 免费模型池（`:free`）零频控阻断，零配置享受官方应用审计与开发者榜单赋能；
+  5. **六语系无障碍智能路由用量徽章与真实 Chrome E2E 闭环（`TokenUsageDisplay.tsx` · `test_smart_routing_tier_chrome_e2e.py`）**：Token 用量徽章支持 6 大语系自适应展示当前所处认知层级（Fast / Standard / Reasoning），同级内联 `sr-only` 无障碍标签，并通过真实 Chrome E2E 自动化测试全流程 100% 验证；
+  6. **全套自动化测试 100% 满分通过**：Topic 07 全量 187 项路线图提案全部地毯式核验，零遗漏闭环完成。
 - **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/routing/complexity_router.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/pipeline/processors/thinking_cleaner.py` · `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md`
 
 ## 最新验证快照（2026-09-06 · 看板任务级模型思考深度调控与动态活体引导 · 多智能体编排完成）
