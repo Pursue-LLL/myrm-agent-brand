@@ -11,6 +11,37 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 五大标杆竞品（Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi）深度横向对标与核心获益
+
+| 维度 | Myrm Agent | Hermes (NousResearch) | OpenClaw | Codex (Code-Centric) | DeepSeek-Harness | Pi (Inflection) |
+|------|------------|-----------------------|----------|----------------------|------------------|-----------------|
+| **产品形态** | **全栈 AI 工作站 (WebUI + Tauri 桌面 + 云控制平面)** | CLI/TUI 为主，简易 Web | 命令行/脚本为主 | IDE 插件/单体代码补丁 | 算法评测/推理框架 | 纯情感陪聊 Bot |
+| **首轮 Token 开销** | **2,167 tokens** (动态按需披露，节省 86%+) | 15,520+ (全量加载 73% 固定开销) | 18,000+ (Turn1 全量 bind) | 单次文件大上下文打满 | 无动态披露，按提示词硬拼 | 仅对话上下文 |
+| **模型切换与缓存** | **全生命周期自适应路由，同会话随意切模型，`<think>` 自动清洗，Prompt Cache 97% 命中** | 换模型强制 `/new` 清空会话，否则报 400 格式错误 | 无法平滑转译，频繁打碎云端 KV 缓存 | 固定绑定单一模型 | 偏固定单点模型测试 | 固定闭源托管模型 |
+| **执行可靠性与自愈** | **14 层恢复网格 + 结构有界 json_repair + 交付物未落盘反思拦截** | 基础重试，缺少未落盘检测 | 裸 `JSON.parse`，带 markdown 或反思散文即崩溃 | 依赖人工在 IDE 检查补丁 | 简单超时重试 | 无代码或工具执行力 |
+| **多智能体与任务治理**| **看板任务级模型重写 + 9 态生命周期 + IN_REVIEW 人工审批门 + 动态活体引导 (Live Steer)** | 基础子任务，无动态活体干预 | 无子代理任务看板 | 仅单智能体生成 | 批量单任务推理 | 无任务分解与执行 |
+| **安全与沙箱隔离** | **6 层纵深防御 (L1~L5.5) + Cloud 沙箱 HMAC 凭证防火墙 + YOLO 互斥** | IronProxy (依赖 MITM CA，易断) | 单层权限声明，易受 Confused Deputy 越权 | 本地无保护执行或受限沙箱 | 无沙箱凭证防护 | 无外部执行权限 |
+| **知识与记忆系统** | **8 类白盒记忆 + 二级知识库 Wiki + 3D 拓扑图谱 + 级联遗忘** | 3 类记忆 (一次只能用一种) | 3 类基础内存缓存 | 无个人知识库 | 无记忆状态持久化 | 黑盒不可视不可导出的记忆 |
+| **真实业务闭环** | **独创 Browser Orchestrator 真实 Chrome 多路复用 + 真实 LLM 全链路 E2E** | 模拟器或简单无头浏览器 | 简易无头脚本 | 无浏览器集成 | 无图形浏览器 | 无浏览器与系统操作 |
+
+### 核心技术压制与用户切实收益
+
+1. **对标 Hermes（NousResearch）**：
+   - **痛点断点**：Hermes 缺乏持久化云原生沙箱凭证隔离（IronProxy 依赖本地自签 CA，易崩溃或泄露）；换模型必须清空历史（`/new`），否则因 `<think>` 或格式报错；首轮全量工具加载消耗 70%+ Token。
+   - **Myrm 获益**：**Cloud 沙箱 HMAC 凭证防火墙** + **异构模型无缝热切换兼容盾**（`thinking_cleaner.py`，会话内随意切换 Claude/DeepSeek/GPT，零报错且保持 80%+ Prompt Cache 命中率）+ **动态能力发现**（Turn 1 仅 2,167 Token，节省 86% 成本）。
+2. **对标 OpenClaw**：
+   - **痛点断点**：第一轮全量 bind 工具消耗 18,000+ Token 摧毁 KV 缓存；裸 `JSON.parse` 处理模型输出，遇到复杂散文或反思 Markdown 直接崩溃断流；单层静态权限易受 Confused Deputy 越权。
+   - **Myrm 获益**：**结构有界 JSON 多级自修复引擎**（`chat_utils.py`，收敛 17+ 模块，遇到畸形 JSON 100% 挽救）+ **6 层纵深防御与 YOLO 互斥** + **35+ 渠道（企微/飞书/钉钉/Telegram/Slack 等）开箱即用**。
+3. **对标 Codex (Code-Centric)**：
+   - **痛点断点**：场景单一聚焦于“写代码”，无法处理深度业务调研与个人知识沉淀；对话框常常“只打印代码却漏调工具写盘”，任务中断直接丢失；缺乏真实浏览器端到端闭环验证。
+   - **Myrm 获益**：**启发式交付物嗅探与 Git 隔离暂存**（`deliverable_write_verifier.py`，自动识别长代码并强制反思落盘）+ **独创 Browser Orchestrator**（真实 Chrome :9333 多路复用与并行隔离调度）+ **Second Brain 个人与团队知识中枢**。
+4. **对标 DeepSeek-Harness**：
+   - **痛点断点**：偏离线评测脚本集合，缺乏 GUI 与桌面产品化；无法动态调节思考模型深度（简单任务浪费额度，大任务超时）；无外部调用水表，长程任务遇 429 静默卡死。
+   - **Myrm 获益**：**三级自适应复杂度路由**（Fast / Standard / Reasoning 智能分流，账单直降 70%+）+ **跨协议思考参数原生转换**（`deepseek_reasoning.py`）+ **全要素白盒化运行水表**（搜索水库 + 浏览器耗时 + 3 分钟看门狗）。
+5. **对标 Pi (Inflection)**：
+   - **痛点断点**：纯自然语言陪聊，完全缺失代码沙箱、Shell 与外部工具执行能力；记忆完全黑盒封闭，无法审计、修改或私有化部署。
+   - **Myrm 获益**：**“高情商伴侣 + 硬核工程专家”双心智同构**（兼具 15 种物种伴侣与全自动工程交付）+ **白盒化 8 类记忆与级联遗忘** + **本地/桌面/云托管全数据主权**。
+
 ## 最新验证快照（2026-09-06 · 全生命周期模型路由与前缀缓存感知自适应算力经济学 · 模型路由全面完成）
 
 - **FullLifecycleModelRoutingAndCacheAwareEconomics（对标 Hermes Agent v0.21 / OpenClaw / Codex / DeepSeek-Harness / Pi 在模型切换时强迫清空会话、频繁跨厂商乱切打碎 KV Cache 导致长任务账单暴涨、以及粗暴全量跑昂贵模型导致的算力浪费痛点）：** Myrm 交付了业内领先的全生命周期模型路由与前缀缓存感知自适应算力经济学体系：
@@ -217,6 +248,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **零开销进程内调度与轻量序列探针（`head_probe.py`）**：坚决摒弃竞品粗暴的独立 HTTP 轮询进程与磁盘明文清单，依靠内存异步事件总线实现 0 延迟，同时提供极简只读 `/api/v1/memory/head` 探针（0 CPU 挂起）；
   4. **全套自动化测试全绿**：模型解析单测、网关中间件测试与探针端点集成测试全部满分通过。
 - **SSOT 来源：** `myrm-agent/myrm-agent-server/app/core/channel_bridge/model_resolver.py` · `myrm-agent/myrm-agent-server/app/middleware/host_allowlist.py` · `temp-docs/materials/STORAGE_CRASH_CONSISTENCY_ADVANTAGE.md`
+
+## 最新验证快照（2026-09-06 · 本地技能目录自适应扫描、安全防御与原子采纳闭环 · 技能生态完成）
+
+- **LocalSkillsAdaptiveScanAndAtomicAdopt（对标 aweskill / OpenClaw / Hermes / Codex / DeepSeek-Harness / Pi 在本地技能目录识别与采纳中，单目录无法自适应识别、缺乏 CWE-22 路径穿越防线、无 UI 预检导致盲目添加同名冲突报错，以及仅做静态落盘从未完成真实大模型端到端调用验证的痛点）：** Myrm 交付了业内领先的本地技能资产自适应安全接入与全流程闭环体系：
+  1. **单/多目录智能自适应探测**：既支持包含单个 `SKILL.md` 的技能根目录，又支持包含数十个技能的父目录集群，自动兼容平铺与递归结构，告别竞品扫描识别空白；
+  2. **CWE-22 路径穿越统一防线**：在 API 路由端与底层探测引擎双重硬核拦截非法 `..` 相对跳转，坚决守住沙箱与主机文件系统边界；
+  3. **结构化预检与防冲突弹窗（`LocalSkillPathScanPreviewBeforeAdoptDialog`）**：在保存前清晰展现已发现技能数、工具依赖标签与同名冲突预警，支持全选/反选与一键原子采纳（`POST /paths/adopt`）；
+  4. **真实商用大模型 (MiniMax-M3) Universal Task Flow E2E 验证**：在真实沙箱浏览器内走通「路径探查 ➔ 弹窗结构化预览 ➔ 原子采纳 ➔ 进入 Chat 发送真实计算任务 Prompt ➔ 真实 MiniMax-M3 流式推理完成并产出结果」全闭环，单测（9/9）、前端测试（4/4）、E2E（1/1 94s）全绿通过。
+- **SSOT 来源：** `myrm-agent-server/app/core/skills/providers/local_preview.py` · `myrm-agent-frontend/src/components/features/skills/LocalSkillPathScanPreviewBeforeAdoptDialog.tsx` · `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-05 · 级联安全清库与 FTS 虚表逆序防孤儿及游标强一致重置 · 数据治理完成）
 

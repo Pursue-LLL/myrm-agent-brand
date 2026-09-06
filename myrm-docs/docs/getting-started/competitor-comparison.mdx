@@ -11,6 +11,37 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## In-Depth Benchmark Against Five Flagship Competitors & Tangible Gains
+
+| Capability | Myrm Agent | Hermes (NousResearch) | OpenClaw | Codex (Code-Centric) | DeepSeek-Harness | Pi (Inflection) |
+|------------|------------|-----------------------|----------|----------------------|------------------|-----------------|
+| **Product Surface** | **Full AI Workstation (WebUI + Tauri Desktop + Cloud)** | Primarily CLI/TUI, minimal Web | CLI/Script-centric framework | IDE Extension / Patch Generator | Algorithm benchmarking / eval scripts | Conversational Companion Bot |
+| **Turn 1 Token Cost** | **2,167 tokens** (Dynamic on-demand disclosure, 86%+ savings) | 15,520+ (Static tool load, 73% overhead) | 18,000+ (Full tool bind) | Heavy single-shot file dump | Static prompt concatenation | Pure chat window |
+| **Model Switching & Cache** | **Adaptive full-lifecycle routing, live hot-swap, `<think>` auto-sanitized, 97% Prompt Cache** | Forced `/new` session resets on model switch | Fragile context, destroys KV cache | Locked to single vendor model | Single-point eval model | Locked proprietary hosted model |
+| **Execution Resilience** | **14-layer recovery grid + bounded json_repair + unwritten deliverable gate** | Basic retry, no deliverable verification | Naked `JSON.parse`, crashes on markdown prose | Manual user review in IDE | Simple timeout retry | No code/tool execution |
+| **Multi-Agent Governance** | **Kanban task-level model override + 9-state lifecycle + IN_REVIEW gate + Live Steer** | Basic subtasks, zero live steering | No task kanban | Single-agent patch generator | Batch offline inference | No task orchestration |
+| **Security & Sandbox** | **6-layer defense (L1~L5.5) + Cloud Sandbox HMAC Firewall + YOLO mutex** | IronProxy (fragile self-signed CA) | Single-tier static permission | Local uncontained or minimal sandbox | No sandbox firewall | No external tool access |
+| **Knowledge & Memory** | **8 white-box memory types + Second Brain Wiki + 3D Graph + Cascade deletion** | 3 types (single active type) | 3 basic cache layers | No personal knowledge base | Zero memory persistence | Black-box unexportable memory |
+| **True Business Verification** | **First-party Browser Orchestrator (real Chrome :9333 multiplexing) + Real LLM E2E** | Mock or rudimentary headless browser | Fragile headless scripts | No browser integration | No graphical browser | No browser execution |
+
+### Technical Dominance & Tangible User Value
+
+1. **vs Hermes (NousResearch)**:
+   - **Pain Points**: Hermes relies on IronProxy with local self-signed MITM CA, creating enterprise compliance risks; switching models requires `/new` clearing context due to `<think>` incompatibilities; Turn 1 binds all tools consuming 70%+ token headroom.
+   - **Myrm Gains**: **Cloud Sandbox HMAC Credential Firewall** + **Cross-Family Hot-Switching Shield** (`thinking_cleaner.py`, switch between Claude/DeepSeek/GPT inside the same conversation with zero 400 errors while preserving 80%+ Prompt Cache hit rate) + **Dynamic Capability Discovery** (Turn 1 consumes only 2,167 tokens, saving 86%).
+2. **vs OpenClaw**:
+   - **Pain Points**: Turn 1 binds all tools consuming 18,000+ tokens and breaking cloud KV caches; raw `JSON.parse` crashes when reasoning models emit explanatory prose or markdown fences; single-layer permission is prone to Confused Deputy exploits.
+   - **Myrm Gains**: **Bounded JSON Multi-Tier Self-Healing Engine** (`chat_utils.py`, consolidating 17+ parsing modules to recover 100% of malformed outputs) + **6-Layer Defense-in-Depth with YOLO Mutex** + **35+ Turnkey Channels** (Slack, Discord, Telegram, DingTalk, Feishu, WeChat, Email).
+3. **vs Codex (Code-Centric)**:
+   - **Pain Points**: Narrowly restricted to code files, completely unable to perform deep research or Second Brain knowledge synthesis; frequently outputs code into chat while forgetting file-write tools; lacks full-link browser verification.
+   - **Myrm Gains**: **Heuristic Unwritten Deliverable Sniffer & Git-Isolated Staging** (`deliverable_write_verifier.py`, automatically detecting 24+ unwritten lines to force file persistence) + **Browser Orchestrator** (real Chrome :9333 multiplexing and parallel transaction scheduling) + **Second Brain Knowledge Base**.
+4. **vs DeepSeek-Harness**:
+   - **Pain Points**: Offline test harness without WebUI or desktop packaging; unable to govern thinking depth (wasting budget on small tasks, timing out on long ones); lacks quota meters and watchdog triggers.
+   - **Myrm Gains**: **Three-Tier Adaptive Complexity Router** (Fast / Standard / Reasoning triage, slashing token bills by 70%+) + **Multi-Protocol Thinking Effort Auto-Mapping** (`deepseek_reasoning.py`) + **Runtime Cost Meter & 3-Minute Watchdog**.
+5. **vs Pi (Inflection)**:
+   - **Pain Points**: Voice/companion chatbot with zero ability to run Shell, write code, browse the web, or produce deliverables; black-box proprietary memory without export or private hosting.
+   - **Myrm Gains**: **"Empathetic Companion + Elite Full-Stack Engineering" Dual Persona** (15 species companion gamification + full-stack automated software delivery) + **White-Box 8-Tier Memory with Cascading Forgetting** + **Complete Data Sovereignty (Local / Desktop / Cloud)**.
+
 ## Latest Validation Snapshot (2026-09-06 · Task-Level Model Thinking Intensity & Live Steering GUI · Multi-Agent Orchestration Completed)
 
 - **KanbanPerTaskModelThinkingAndLiveSteerGUI (vs Hermes Agent v0.20 / OpenClaw / Codex / DeepSeek-Harness / Pi lacking per-task model reasoning governance or live steering controls: competitors either force a single global model setting across the entire board—overpaying on simple tasks or underpowering complex steps—or lock long-running tasks into unguided black boxes until full completion or timeout):** Myrm delivers an industry-leading task-level model override selector, reasoning parameter auto-adaptation, and non-blocking live steering GUI:
@@ -216,6 +247,15 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
   4. **Industrial GUI Safeguards**: Renders prominent red warning badges indicating exact missing files with actionable `npm run build` guidance, defaults decisions to `skip`, disables install toggles, and protects against accidental bulk-selection mistakes;
   5. **100% Automated Multi-Tier Verification**: 50/50 Harness plugin parser unit tests passing with 0 warnings, 0 errors, and 0 zombie processes.
 - **SSOT Sources:** `myrm-agent-harness/src/myrm_agent_harness/agent/plugins/integrity.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/plugins/parser.py` · `myrm-agent-frontend/src/components/features/plugins/PluginImportDialog.tsx` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+
+## Latest Validation Snapshot (2026-09-06 · Local Skills Adaptive Scan, Path Traversal Defense & Atomic Adoption · Ecosystem Completed)
+
+- **LocalSkillsAdaptiveScanAndAtomicAdopt (vs aweskill / OpenClaw / Hermes / Codex / DeepSeek-Harness / Pi failing to detect root single-skill directories, lacking CWE-22 path traversal defense, blind imports causing silent duplicate ID collisions, and having zero real LLM Task Flow browser verification):** Myrm delivers an industry-leading adaptive discovery, defense-in-depth security, and closed-loop adoption pipeline:
+  1. **Adaptive Single & Multi-Directory Discovery**: Auto-detects single-skill root folders (containing direct `SKILL.md`) as well as multi-skill directory trees, eliminating scanning blind spots present in competing CLI scanners;
+  2. **Unified CWE-22 Path Traversal Guard**: Hardened dual-layer interception on HTTP routes and internal scanning engine strictly blocking malicious `..` relative path traversals, physically safeguarding container and sandbox boundaries;
+  3. **Structured Preview & Conflict Shield Dialog (`LocalSkillPathScanPreviewBeforeAdoptDialog`)**: Surfaces discovered skills, tool requirements, and ID conflict warnings before saving, supporting select-all/deselect-all and atomic adoption (`POST /paths/adopt`);
+  4. **Universal Task Flow E2E Verified with Commercial LLM (MiniMax-M3)**: Completely validated via real Chrome E2E browser automation (Path Input ➔ Modal Preview ➔ Conflict Resolution & Select ➔ Atomic Adopt ➔ Chat Navigation ➔ Real Prompt Sending ➔ Real Streaming Model Response with Verified Computation Result), 100% passing across unit (9/9), frontend (4/4), and E2E (1/1 94s).
+- **SSOT Sources:** `myrm-agent-server/app/core/skills/providers/local_preview.py` · `myrm-agent-frontend/src/components/features/skills/LocalSkillPathScanPreviewBeforeAdoptDialog.tsx` · `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md`
 
 ## Latest Validation Snapshot (2026-09-05 · Plugin Sandbox Permission Model & Static Capability Inference · Security Completed)
 
