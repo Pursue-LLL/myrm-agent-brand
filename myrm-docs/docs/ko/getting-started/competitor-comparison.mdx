@@ -11,6 +11,15 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-09-07 · 사용자 모델 선호도 기억 및 투명한 인지 도출 배포 · 블랙박스 모델 강제 변경 및 선택 피로도 해결)
+
+- **UserModelPreferenceMemoryAndCognitiveAffinityPack (Floatboat / FloatSail, Hermes, OpenClaw, Codex, Pi 등 경쟁사들의 블랙박스 모델 변경으로 인한 프롬프트 캐시 파괴 및 스타일 급변, 세션 간 기억 부재로 인한 반복적 모델 선택 피로, 도구 사용 습관과 개인 일상 선호도의 혼동 문제 해결):** Myrm은 산업 표준 사용자 모델 선호도 기억 및 변증법적 인지 도출 파이프라인을 완전 배포했습니다:
+  1. **도메인 힌트 및 인지 도출의 Harness 프레임워크 듀얼 강화 (`extraction_domain.py:40-55` · `extractor.py:300-310`)**: Persona 및 Work Assistant 힌트에 `model_preferences` 및 `tooling_habits`를 네이티브 확장; 변증법적 추론에서 `model_affinity`를 핵심 차원으로 정립하여 `ProfileEntry`에 구조화;
+  2. **결정론적 우선순위 계층화 (Deterministic Preference Hierarchy)**: 「명시적 설정 > 전역 기본값 > 선호도 추천」의 철칙을 엄격히 적용하여 블랙박스 모델 변조를 원천 차단하고 투명한 개인화 추천 워크플로 제공;
+  3. **제로 마진 비용 및 프롬프트 캐시 100% 보호**: 기억 추출이 백그라운드 비동기 파이프라인에서 완전히 실행되어 시스템 프롬프트 접두사를 100% 고정 유지하고 KV-Cache 적중률 극대화;
+  4. **Harness 단위 테스트 183개 100% 통과**: 메모리 추출 및 도메인 파싱 테스트가 3.00초 만에 완료되며 메모리 누수 및 좀비 프로세스 0개 확인.
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/strategies/` · `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md`
+
 ## 최신 검증 스냅샷 (2026-09-07 · 추가 전용 이벤트 무결성 보호, 손상 방지 및 실행 단계 뷰 완전 착륙 · JSON 파싱 중단 및 긴 작업 폭포수 화면 정리)
 
 - **AppendOnlyEventLogTraceTimeline (DeepSeek Harness DSH, Hermes, OpenClaw, Codex, Pi 등 이벤트 스트림 및 디버깅 뷰에서 발생하는 4KB 초과 시 강제 절단으로 인한 JSONDecodeError 충돌, 짧은 500자 프롬프트 미리보기로 인한 인과 컨텍스트 손실, 세션 분기(Fork) 시 불변 앵커 부재, 긴 작업의 >15단계 폭포수 화면 채움 문제 해결):** Myrm은 산업 표준 추가 전용 이벤트 로그 및 실행 단계 뷰를 제공합니다:

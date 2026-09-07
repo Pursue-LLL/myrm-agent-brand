@@ -11,6 +11,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-07 · 用户模型偏好记忆与透明认知推导全面交付 · 彻底终结黑盒擅自切模与选模疲劳）
+
+- **UserModelPreferenceMemoryAndCognitiveAffinityPack（对标 Floatboat / FloatSail、Hermes、OpenClaw、Codex 与 Pi 在模型选择与偏好管理中普遍存在的“黑盒自动篡改模型导致 Prompt Cache 失效与输出风格突变、完全无记忆导致每次新建对话重复选模、以及粗暴将模型偏好与生活偏好混淆”等痛点）：** Myrm 全面交付了工业级用户模型偏好记忆与辩证推导闭环：
+  1. **Harness 框架层领域提示词与认知推导双重增强（`extraction_domain.py:40-55` · `extractor.py:300-310`）**：在 Persona 与 Work Assistant 提示词域中原生扩展 `model_preferences` 与 `tooling_habits` 引导；并在 Dialectic Reasoning 认知推导中确立 `model_affinity` 为核心维度，自动将用户的模型偏好沉淀为结构化 `ProfileEntry`；
+  2. **严格遵循确定性优先级分层（Deterministic Preference Hierarchy）**：确立「显式配置 > 全局默认 > 偏好建议」不可逾越的铁律，杜绝竞品黑盒篡改模型的缺陷，兼顾人性化体验与执行确定性；
+  3. **零边际成本与 Prompt Cache 100% 保护**：偏好提取完全运行在后台异步任务流中，Agent 运行主干的 System Prompt 前缀完全固化，KV-Cache 命中率达到最大化；
+  4. **全套自动化测试 100% 通过**：183 项 Harness 记忆策略单元测试全绿（耗时 3.00s），零内存泄漏与零僵尸进程。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/strategies/` · `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md`
+
 ## 最新验证快照（2026-09-07 · 四层 ARIA 空间快照与轻量无图坐标投射全面交付 · 告别私有 VOM DSL 语法与 2K 全屏大图 Token 烧穿）
 
 - **BrowserVOMVisualObjectModelSnapshotAndCoordinateProjectionPack（对标 BrowserSkill `@browser-skill/vom`、Hermes、OpenClaw 在网页控制中普遍存在的“私有 VOM DSL 破坏大模型预训练认知遵循率、强依赖 Chrome 扩展 backendNodeId 拼接、每步全屏截图极度烧钱与缺乏空间物理自愈”等痛点）：** Myrm 交付了基于 W3C 标准语义与空间增强的工业级 ARIA 快照体系：

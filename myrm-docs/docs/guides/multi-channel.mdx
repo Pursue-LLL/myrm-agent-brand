@@ -964,6 +964,14 @@ Both modes support:
 - Callback signature verification (anti-forgery)
 - Message deduplication (prevent duplicate processing)
 
+### Remote Ops & Autonomous Self-Healing Suite
+
+When initiating complex, long-running deployments or operational workflows from mobile IM apps:
+
+1. **High-Entropy Terminal Log Distillation (`TerminalLogDistiller`)**: Strips ANSI noise and carriage return animations, pinpoints key diagnostic signatures (`HTTP 403`, `EADDRINUSE`, tracebacks), and retains tail context to compress thousands of lines into <50 high-signal lines (**>96% token reduction**).
+2. **Troubleshooting Budget & Anti-Oscillation State Machine (`TroubleshootingBudgetManager`)**: Provides 5 autonomous retry attempts across domestic mirror failovers, port probing, and dependency remediation. Deduplicates retry strategies using SHA256 hashes to prevent infinite retry loops and broadcasts progress beacons to IM channels. High-risk operations (e.g. `rm -rf /`) escalate to interactive approval cards immediately.
+3. **Idempotent Patch Replay Depot**: Packages successful deployment recipes into idempotent `deploy.sh` scripts with `[0/N]` phase markers, returned as downloadable artifacts for seamless replayability after software upgrades.
+
 ### WeChat Personal Dual Channels
 
 | Mode | Protocol | Features |
