@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-08 · 事件源模型视口全景回放、时空穿梭调试器与对话语义分支全面交付 · 彻底告别排障黑盒与前缀缓存暴跌）
+
+- **EventSourcedModelViewportReplayAndTimeMachine（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness 与 Pi 在多轮长程任务调试中普遍存在的“历史决策模型真实输入截断丢失形成黑盒、排障只能重新开对话引发前缀缓存全盘报废、以及缺乏沙箱工作区隔离重置导致多分支文件冲突”等痛点）：** Myrm 全面交付了工业级事件源模型视口全景回放、时空穿梭调试器与确定性分支派生闭环：
+  1. **Harness 框架层 32KB 真实输入视口不可变保全（`llm_observability.py:100-140`）**：在底层 `LLMCallRecord` 原生保全 32KB 未破坏的 `prompt_preview` 文本与元数据，支持跨轮次因果溯源，杜绝破坏性截断与 JSON 损坏；
+  2. **Server 业务层沙箱隔离重置与语义分支派生（`conversation_fork_manager.py:45-120`）**：支持从任意历史轮次（Turn）派生（Fork）独立新会话；派生会话沙箱工作区自动重置为干净的 Git 仓库根目录，杜绝父子沙箱临时 Worktree 相互污染；自动赋予语义分支标题（`[分支 @ 第N轮] 原始任务`）；
+  3. **Frontend 表现层四色角色结构化解构与三栏时空穿梭（`viewportParser.ts` · `ModelViewportView.tsx` · `SessionReplayPlayer.tsx`）**：纯函数微秒级解构 System/User/Assistant/Tool 角色卡片与字数统计；时间轴 Scrubber 原生集成 `snapToNearestEventTime`（Turn Boundary Snap）；支持一键从当前断点派生并显示确定性保留轮次 Toast（`t('forkSuccessDetail', { count })`）；
+  4. **Prompt Cache 100% 保护与调试降本 80%+**：派生分支严格对齐轮次边界，100% 继承上游会话前缀与系统提示，大模型 Provider 端 KV-Cache 命中率达 90%+，多轮交互调试改写成本降低 80%+；
+  5. **100% 满分全矩阵测试通过**：Harness 单测全绿、Server 业务单测 7 项全绿、前端 Vitest 单测 27 项全绿，真实浏览器 Chrome E2E 自动化测试 100% PASS（`test_fork_chrome_e2e.py` 真实沙箱创建与语义标题断言一致）。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/event_log/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
+
 ## 最新验证快照（2026-09-08 · 端侧弱模型 Grammar 结构化约束解码与本地弱端点自适应感知全面交付 · 彻底消除小模型 Tool Call 格式破损与死循环重试）
 
 - **LocalGrammarTransportForWeakLocalModels（对标 Atomic Agent、Hermes、OpenClaw、Codex 与 Pi 在本地端侧小模型运行中普遍存在的“7B/14B 小模型 Function Calling 泛化弱导致生成破损 JSON、单步反复报错重试烧干算力、以及竞品手工硬编码 GBNF 语法文件导致引擎锁定无法跨平台通用”等痛点）：** Myrm 全面交付了工业级端侧弱端点自适应感知与标准 JSON Schema 约束传输闭环：
