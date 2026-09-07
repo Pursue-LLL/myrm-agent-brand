@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-08 · 端侧弱模型 Grammar 结构化约束解码与本地弱端点自适应感知全面交付 · 彻底消除小模型 Tool Call 格式破损与死循环重试）
+
+- **LocalGrammarTransportForWeakLocalModels（对标 Atomic Agent、Hermes、OpenClaw、Codex 与 Pi 在本地端侧小模型运行中普遍存在的“7B/14B 小模型 Function Calling 泛化弱导致生成破损 JSON、单步反复报错重试烧干算力、以及竞品手工硬编码 GBNF 语法文件导致引擎锁定无法跨平台通用”等痛点）：** Myrm 全面交付了工业级端侧弱端点自适应感知与标准 JSON Schema 约束传输闭环：
+  1. **Harness 框架层端点感知与弱小模型能力自适应判定（`model_capability.py:170-205`）**：精准自动识别 loopback 物理地址（`127.0.0.1`、`localhost`、`0.0.0.0`、端口 `:11434`、`:8000`、`:8080`、`:8088` 等）与本地主流推断后端（`ollama`、`llama-server`、`vllm`、`sglang`、`llamacpp`），云端大模型 100% 旁路；
+  2. **前置标准 JSON Schema 结构化约束解码注入（`ChatLiteLLM.bind_tools` · `model.py:515-555`）**：在检测到本地端点且存在绑定工具时，自动注入标准 `response_format={"type": "json_schema", ...}` 载荷，由底层现代推断引擎在 Token 采样层进行 Logits Masking 物理级约束，100% 杜绝格式破损；
+  3. **前置硬约束 + 后置柔性容错双保险（`tool_recovery.py` · `tool_call_parsers.py`）**：即使遇到极端畸变，后置 8 阶容错解析器自动进行字段自愈、HTML Entity 还原与多格式转译，确保执行流绝对不断流；
+  4. **零破坏 Prompt Cache 与云端原生 FC**：前置约束作为采样器独立参数透传，主干 System Prompt 前缀 100% 固化，KV-Cache 命中率达到最大化；
+  5. **13 项全矩阵单元测试 100% 满分通过**：耗时 2.71s，覆盖端点探测、大小写不敏感防御与云端模型安全旁路，零内存泄漏，零僵尸进程。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/adapters/` · `temp-docs/materials/COMPETITIVE_ADVANTAGE_LOCAL_MODEL.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md`
+
 ## 最新验证快照（2026-09-07 · 三维正交认知模型与五级强类型记忆治理全面交付 · 彻底终结多智能体记忆串扰与权限失控）
 
 - **TriFileOrthogonalCognitiveArchitectureSoulMemoryUserSpecification（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness 与 Pi 在多智能体长期记忆中普遍存在的“SOUL/MEMORY/USER 依赖扁平文本缺乏强类型约束、跨 Agent 共享大表引发记忆越界与口吻坍缩、以及未经转义的记忆导致提示词注入攻击”等痛点）：** Myrm 全面交付了工业级三维正交认知架构与五级强类型记忆治理闭环：

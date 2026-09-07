@@ -38,6 +38,20 @@ Beyond direct LLM token costs, long-horizon autonomous tasks frequently draw fro
 - **3-Minute Anti-Runaway Watchdog**: Automatic 180s hard timeout fuses prevent hung JavaScript loops and zombie browser processes from exhausting host CPU and memory.
 - **Full-Element Accounting**: Delivers 100% white-box operational observability for developers and enterprise teams running 24/7 background agent workflows.
 
+## Unattended Runaway Circuit Breaker & Smoke Alarm (Anti-Runaway Safety Net)
+
+For offline scheduled cron tasks and long-running unattended background automation, Myrm builds a resilient defense line spanning from the execution engine core to downstream schedulers:
+
+### 1. Engine-Level Physical Circuit Breaker (RunawayCircuitBreakException)
+- **Runaway Loop Detection**: `LoopGuard` activates strict defense policies in `unattended_mode`. When an agent enters an unprogressive repetitive tool-call loop, it immediately raises an uncatchable `RunawayCircuitBreakException`.
+- **Scheduler Retry Abortion**: The server-side `AgentJobRunner` and harness `CronExecutor` capture this exception, immediately **canceling all scheduled retries** to prevent recursive disaster amplification, and transitions the run into a `circuit_break` state.
+- **Job Suspension & Diagnostics**: The cron job is automatically paused with future runs cleared, while the WebUI displays an unmistakable pulsing rose badge and guided troubleshooting steps.
+
+### 2. In-Memory Sliding Window Smoke Alarm (BurnRateSmokeAlarmDetector)
+- **Ultra-Fast Sliding Window**: An in-memory 60-second sliding window monitors real-time token throughput velocity (TPM) without any database I/O overhead.
+- **Velocity Threshold Alerts**: If a single session experiences an unexpected burn spike (e.g. >80,000 TPM) or global system spikes, the alarm immediately fires and broadcasts via the event bus to prevent sudden financial catastrophe.
+
+
 
 ## Aggregated Gateway Spend Observability: Vercel AI Gateway
 

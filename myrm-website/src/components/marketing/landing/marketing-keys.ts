@@ -64,6 +64,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'kanbanTaskModelSteer',
   'contextDoctor',
   'openTelemetryTracing',
+  'circuitBreakerAlarm',
 ] as const;
 
 export type HighlightSlideKey = (typeof HIGHLIGHT_SLIDE_KEYS)[number];
