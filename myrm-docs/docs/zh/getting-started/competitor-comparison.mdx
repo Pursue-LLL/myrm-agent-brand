@@ -91,6 +91,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   5. **全套自动化测试 100% 满分通过**：Harness AX 与 Session 单测 73/73 通过、Server 提示词契约 39/39 通过、Frontend 组件测试 9/9 通过、真实 Chrome E2E 真实大模型全链路闭环通过。
 - **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/` · `myrm-agent/myrm-agent-frontend/src/components/features/desktop-inspector/` · `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md` · `temp-docs/roadmap/topic_05_desktop_release_engineering_ci_roadmap.md`
 
+## 最新验证快照（2026-09-07 · 授权≠可捕获 GUI 就绪门禁 · 拆穿 TCC 假绿）
+
+- **DesktopDoctorPermissionsPlusSmokeSelfTest（对标 Hermes / OpenClaw / Claude Code / Codex：系统「屏幕录制」开关为 ON 仍可能截帧全黑；CLI doctor 或系统弹窗无法在 GUI 任务前诚实拦住）：** Myrm 交付 Granted≠Capturable 产品门禁：
+  1. **`capture_ready` 严格尺子**：仅当 OS 授权齐全且功能捕获探测为 True；未探测≠就绪；Pillow 缺失不伪装成功；
+  2. **L1/L2**：默认只查授权；Recheck / Doctor 才按需截帧（对齐 OpenClaw「被动检查不发起 probe」）；
+  3. **GUI 四态**：智能体配置 Inline + 设置 DesktopPermissionsCard（verified / unverified / capture_failed / missing），捕获失败标题绝不误报「缺权限」；
+  4. **验收**：Harness/Server/Frontend 单测全绿；Chrome E2E Settings→System Recheck 命中 `probe_capture=true` 通过。
+- **SSOT 来源：** `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md` · `temp-docs/roadmap/topic_05_desktop_release_engineering_ci_roadmap.md` · `myrm-docs/docs/zh/getting-started/desktop-app.mdx`
+
 ## 最新验证快照（2026-09-07 · 两轨制程序化工具调用 PTC 与多步骤依赖链合并处理全面交付 · 彻底终结多轮往返高延迟与中间态 Token 污染）
 
 - **ProgrammaticToolCallingDualTrackAndMultiStepMergeSuite（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在工具调用与长链路执行中普遍存在的“多步骤依赖必须经历多次 LLM 网络往返（如查车站代码➔查票➔余票过滤需 4 轮耗时 25s+）、中间庞大原始 JSON 报文撑爆上下文稀释注意力、首轮 50+ 工具 Schema 强灌消耗数万 Token、以及任务中断只能从头重跑重复计费”等致命痛点）：** Myrm 全面交付了两轨制程序化工具调用（PTC）体系：

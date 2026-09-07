@@ -100,6 +100,15 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
   6. **100% Automated Multi-Tier Verification**: 35 Harness SDC unit tests, 20 ARIA snapshot & vision tests, 20 Server integration tests, and 14 desktop skill recording & MCP adapter tests pass with 100% green status (89/89 passed).
 - **SSOT Sources:** `myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/` · `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md`
 
+## Latest Validation Snapshot (2026-09-07 · Granted ≠ Capturable GUI Readiness · Stops False-Green Desktop Starts)
+
+- **DesktopDoctorPermissionsPlusSmokeSelfTest (vs Hermes / OpenClaw / Claude Code / Codex: Screen Recording toggle can stay ON while captures return black frames; CLI doctor or OS prompts alone do not honestly block GUI users before a burning desktop task):** Myrm ships a product readiness gate:
+  1. **Strict `capture_ready`**: ready only when OS grants are OK **and** a functional capture probe is True; not-probed ≠ ready; missing Pillow never fakes success;
+  2. **L1/L2 probing**: grant-only by default; Recheck/Doctor run on-demand capture samples (same idea as OpenClaw: passive checks do not probe);
+  3. **Four-state GUI**: Agent config Inline + Settings DesktopPermissionsCard (verified / unverified / capture_failed / missing) — capture failure never titled as “missing permissions”;
+  4. **Verification**: harness/server/frontend unit suites green; Chrome E2E Settings→System Recheck hits `probe_capture=true`.
+- **SSOT Sources:** `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md` · `temp-docs/roadmap/topic_05_desktop_release_engineering_ci_roadmap.md` · `myrm-docs/docs/getting-started/desktop-app.mdx`
+
 ## Latest Validation Snapshot (2026-09-06 · Flight-Recorder Deterministic Append-Only EventLog Trace & Safe Truncation Gate · Context & Session Completed)
 
 - **AppendOnlyDeterministicEventLogTraceAndSafeTruncationGate (vs Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi suffering from broken JSON syntax on oversized log fields, out-of-order event log commits on asynchronous parallel tool executions destroying replay determinism, silent event stream corruptions, and lack of immutable conversation fork lineage audit):** Myrm delivers an enterprise-grade deterministic event sourcing and safe truncation architecture:
