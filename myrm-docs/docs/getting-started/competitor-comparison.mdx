@@ -167,6 +167,16 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
   4. **100% Automated Multi-Tier Verification**: 254 static contract tests, 215 backend statistics unit tests (211 passed, 4 skipped in 7.02s), and 742 frontend Vitest suites with 5,186 tests all pass with 100% green status.
 - **SSOT Sources:** `myrm-agent-harness/src/myrm_agent_harness/agent/event_log/` · `myrm-agent-server/app/api/statistics/` · `myrm-agent-frontend/src/components/features/settings/sections/system/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
 
+
+## Latest Validation Snapshot (2026-09-08 · Dual-Layer Operator-as-Key Guard · Stops Calculator Token Burn)
+
+- **DesktopControlKeyLimitPromptRules (vs Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi / KimiCU: weak models treat `*` `/` `+` as `press`/`key` names and burn retries on Calculator; competitors mostly document the pitfall or wait for OS failure):** Myrm ships prompt guidance + runtime reject:
+  1. **Standing bilingual anti-pattern** injected when desktop control mounts; clarifies interact `press` activates `@dref` (not a keyboard keystroke);
+  2. **Runtime lone-operator reject** via `safety.is_operator_as_key_name` for sole `*`/`/`/`+`/`-`/`%`/`=` (strip-first so lone `+` is not lost to combo splitting); modifier combos like `ctrl+/` remain allowed;
+  3. **Zero tool bloat** — no new top-level tools, no platform key encyclopedia; static EN singleton preserves Prompt Cache;
+  4. **Verification**: harness operator unit tests, prompt integrity, and real agent-stream Lane-C (forced `key=*`) green.
+- **SSOT Sources:** `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md` · `temp-docs/roadmap/topic_05_desktop_release_engineering_ci_roadmap.md` · `safety.py` · `shared_rules.py`
+
 ## Latest Validation Snapshot (2026-09-07 · Computer & Browser Control Quality vs Codex / Claude Code · SDC Sub-Second Desktop Control Delivered)
 
 - **ComputerUseBrowserControlQualityVsCodexClaudeParityPack (vs Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi in desktop and browser automation: competitors rely on full-screen 2K screenshot coordinate guessing causing extreme Retina display drift, 15–20 minute task latencies, multi-thousand image tokens per step destroying Prompt Cache, and infinite retry loops on click misses):** Myrm delivers an industry-first Semantic Desktop Control (SDC) and four-layer ARIA incremental snapshot architecture:

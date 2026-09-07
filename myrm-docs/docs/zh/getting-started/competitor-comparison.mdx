@@ -50,6 +50,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   4. **308 项四层立体测试 100% 满分通过**：Harness 单元 126 项、Harness 真实 SQLite 集成 11 项、Server API/DB 46 项、Frontend Vitest 125 项全部通过，0 失败，0 僵尸进程。
 - **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/` · `temp-docs/materials/MEMORY_ADVANTAGE.md` · `temp-docs/roadmap/topic_01_memory_roadmap.md`
 
+## 最新验证快照（2026-09-08 · macOS Sequoia+ iPhone 镜像窗自动化与安全连接门控闭环全面交付 · 彻底攻克移动端原生 App 与 2FA 审批）
+
+- **IPhoneMirrorMobileHarnessToolkit（对标 Phone-Harness、Hermes 与纯视觉工具在手机自动化中普遍存在的“手机锁屏黑屏时盲目乱点导致设备锁死、缺乏 When-Not-To-Use 约束导致滥用手机控制、自立臃肿 CLI 破坏 Prompt Cache”等痛点）：** Myrm 全面交付了工业级 iPhone 镜像连接门控与安全自愈闭环：
+  1. **Harness 框架层权威状态探针（`iphone_mirror.py:40-120` · `types.py:195-210`）**：精准探测 `READY / LOCKED / BLOCKED_CONNECT_PROMPT / NOT_RUNNING / NOT_SUPPORTED` 五态，自动提取视口边界，非 macOS Sequoia 环境优雅降级返回 `is_supported=False`；
+  2. **系统配对与待连接弹窗物理防越权（`safety.py:200-225` · `is_iphone_mirror_blocked_action`）**：严格拦截 Agent 自动代点苹果系统级“连接确认”与生物识别授权，杜绝安全合规风险；
+  3. **Server 提示词 When-Not-To-Use 黄金守门（`shared_rules.py:108,126`）**：凡可通过网页/API/桌面原生 App 解决的任务坚决不切入手机镜像，保持 SDC 极简 3 核心工具矩阵不变，Prompt Cache 100% 满命中；
+  4. **全套自动化测试 100% 绿灯通过**：72 项 Harness 底层感知测试 + 41 项 Server 提示词契约测试全绿，零内存泄漏，零僵尸进程。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/iphone_mirror.py` · `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md` · `temp-docs/roadmap/topic_05_desktop_release_engineering_ci_roadmap.md`
+
 ## 最新验证快照（2026-09-07 · Windows UIA 原生 Pattern 语义控制与跨端自愈同构全面交付 · 彻底攻克复杂企业桌面折叠树与多态控件）
 
 - **WindowsUiaToggleExpandInvokeActions（对标 Hermes、OpenClaw、Pi-Computer-Use 与传统纯视觉在桌面控制中普遍存在的“无 Windows UIA Pattern 支持导致依靠物理点击易失焦、非标准自绘控件直接抛异常崩溃、三态 Checkbox 反复点击陷入死循环与跨端指令集割裂”等痛点）：** Myrm 全面交付了工业级 Windows 原生 UIA Pattern 与跨端同构自愈闭环：
@@ -138,6 +147,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 5. **对标 Pi (Inflection)**：
    - **痛点断点**：纯自然语言陪聊，完全缺失代码沙箱、Shell 与外部工具执行能力；记忆完全黑盒封闭，无法审计、修改或私有化部署。
    - **Myrm 获益**：**“高情商伴侣 + 硬核工程专家”双心智同构**（兼具 15 种物种伴侣与全自动工程交付）+ **白盒化 8 类记忆与级联遗忘** + **本地/桌面/云托管全数据主权**。
+
+
+## 最新验证快照（2026-09-08 · 桌面运算符假键名双层护栏 · 堵住计算器空转烧 Token）
+
+- **DesktopControlKeyLimitPromptRules（对标 Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi / KimiCU：弱模型把 `*` `/` `+` 等当 `press`/`key` 键名导致计算器等任务反复失败；竞品多为文档踩坑或等 OS 失败后再空转）：** Myrm 交付软劝 + 行为拒绝双层：
+  1. **常驻双语反模式**：启用桌面控制即注入 system 规则，禁止把可打印运算符当 `desktop_vision_tool key=`；并澄清 interact `press`=激活 `@dref` 控件；
+  2. **执行层 lone-operator 拒绝**：`safety.is_operator_as_key_name` 拦截单独 `*`/`/`/`+`/`-`/`%`/`=`（先 strip，避免 `+` 被 combo 分隔吃掉），返回 Safety + REMEDY；**允许** `ctrl+/` 等合法 combo；
+  3. **零工具膨胀**：不新增 Top-Level 工具、否决平台键位大表，静态 EN 单例保住 Prompt Cache；
+  4. **验收**：Harness operator 单测绿；Prompt integrity 绿；真实 agent-stream Lane-C（强制 `key=*`）通过。
+- **SSOT 来源：** `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md` · `temp-docs/roadmap/topic_05_desktop_release_engineering_ci_roadmap.md` · `myrm-agent-harness/.../safety.py` · `myrm-agent-server/.../shared_rules.py`
 
 ## 最新验证快照（2026-09-07 · 语义深树穿透搜索与原子化延时等待闭环全面交付 · 突破 500 节点硬截断与告别长操作 Polling 轮询）
 
