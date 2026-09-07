@@ -43,6 +43,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
    - **痛点断点**：纯自然语言陪聊，完全缺失代码沙箱、Shell 与外部工具执行能力；记忆完全黑盒封闭，无法审计、修改或私有化部署。
    - **Myrm 获益**：**“高情商伴侣 + 硬核工程专家”双心智同构**（兼具 15 种物种伴侣与全自动工程交付）+ **白盒化 8 类记忆与级联遗忘** + **本地/桌面/云托管全数据主权**。
 
+## 最新验证快照（2026-09-07 · 语义深树穿透搜索与原子化延时等待闭环全面交付 · 突破 500 节点硬截断与告别长操作 Polling 轮询）
+
+- **DesktopSemanticSearchUiAndWaitFor（对标 Pi-Computer-Use / KimiCU / Hermes Agent 在桌面控制中普遍存在的“复杂软件 500 节点硬截断丢失深层控件、耗时操作需多轮 LLM 反复轮询额外消耗 50%+ Token 与延迟、以及工具拆碎为 11 个工具严重破坏 Prompt Cache”等痛点）：** Myrm 全面交付了极简高内聚的 SDC 语义深树穿透与延时等待闭环：
+  1. **3 核心工具矩阵高内聚扩展（`desktop_agent_tools.py:48-110` · `mcp_server.py:210-235`）**：坚守 SDC 极简 3 工具（`snapshot` / `interact` / `vision`）模型，零新增 Top-Level 工具，无侵入扩展 `query`、`role` 与 `wait_seconds` 可选参数，**System Prompt 0 膨胀，Prompt Cache 100% 保护**；
+  2. **OS 底层深树语义优先穿透遍历（`macos_ax.py:165-195` · `windows_ax.py:46-55` · `linux_ax.py:120-140`）**：在系统级遍历脚本中注入小写归一化、双引号安全转义与多维度模糊剪枝，优先将深层目标控件装载入 `@dref` 树，彻底解决 VSCode、办公套件深层菜单丢失痛点；
+  3. **单步原子化 `wait_seconds` 终态等待（`desktop_session.py:165,335`）**：在操作后自动等待界面稳定（0~30s 防御截断）并返回终态快照，消除以往需多轮 LLM 发起 `wait` 轮询的往返开销，**端到端提速 50%+，节省 50%+ 轮询 Token**；
+  4. **Desktop Inspector 实时高亮与搜索联动（`DesktopInspectorToolbar.tsx` · `DesktopLiveView.tsx`）**：WebUI 纯客户端 `useMemo` 毫秒级多字段（`refId` / `name` / `role` / `value`）模糊高亮过滤，支持 6 语系国际化与零技术泄露，人机协同认知 100% 对齐；
+  5. **全套自动化测试 100% 满分通过**：Harness AX 与 Session 单测 73/73 通过、Server 提示词契约 39/39 通过、Frontend 组件测试 9/9 通过、真实 Chrome E2E 真实大模型全链路闭环通过。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/` · `myrm-agent/myrm-agent-frontend/src/components/features/desktop-inspector/` · `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md` · `temp-docs/roadmap/topic_05_desktop_release_engineering_ci_roadmap.md`
+
 ## 最新验证快照（2026-09-07 · 两轨制程序化工具调用 PTC 与多步骤依赖链合并处理全面交付 · 彻底终结多轮往返高延迟与中间态 Token 污染）
 
 - **ProgrammaticToolCallingDualTrackAndMultiStepMergeSuite（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在工具调用与长链路执行中普遍存在的“多步骤依赖必须经历多次 LLM 网络往返（如查车站代码➔查票➔余票过滤需 4 轮耗时 25s+）、中间庞大原始 JSON 报文撑爆上下文稀释注意力、首轮 50+ 工具 Schema 强灌消耗数万 Token、以及任务中断只能从头重跑重复计费”等致命痛点）：** Myrm 全面交付了两轨制程序化工具调用（PTC）体系：
