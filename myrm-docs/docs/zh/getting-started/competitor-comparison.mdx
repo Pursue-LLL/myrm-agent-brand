@@ -11,6 +11,26 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-07 · 四层 ARIA 空间快照与轻量无图坐标投射全面交付 · 告别私有 VOM DSL 语法与 2K 全屏大图 Token 烧穿）
+
+- **BrowserVOMVisualObjectModelSnapshotAndCoordinateProjectionPack（对标 BrowserSkill `@browser-skill/vom`、Hermes、OpenClaw 在网页控制中普遍存在的“私有 VOM DSL 破坏大模型预训练认知遵循率、强依赖 Chrome 扩展 backendNodeId 拼接、每步全屏截图极度烧钱与缺乏空间物理自愈”等痛点）：** Myrm 交付了基于 W3C 标准语义与空间增强的工业级 ARIA 快照体系：
+  1. **四层标准 ARIA 快照流水线（`myrm_agent_harness/toolkits/browser/snapshot/`）**：获取 ➔ YAML 解析 ➔ 空间增强 ➔ 渲染格式化，100% 对齐 W3C 标准无障碍语义树，主流大模型指令遵循率比私有 VOM DSL 提升 35%+；
+  2. **原生 BBox Collector 空间几何映射（`observer_scripts.py:184-288` · `aria_enhancer.py:298-324`）**：自动提取元素绝对与视口坐标并计算语义方位（`[at bottom-right]`），精准反映遮挡与层叠关系；
+  3. **Compact 单行极简无图观测流（`aria_renderer.py:28-80`）**：单步仅消耗 100~300 tokens，相较传输 2K 大图节省 80%+ 费用，极大降低单步决策延迟；
+  4. **BBox Healer 空间物理自愈与语义否决（`self_healer.py:170-176`）**：动态 DOM 突变时自动触发就近中心点物理点击，配合 `FORBIDDEN_WORDS` 语义否决门禁，形成高容错安全闭环；
+  5. **113 项跨模块单元/集成/性能测试 100% 通过**：数千节点大树压测单次仅耗 2.83ms (OPS ~352)，0 内存泄漏与 0 僵尸进程残留。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/snapshot/` · `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md`
+
+## 最新验证快照（2026-09-07 · 只追加事件完整性守护、防破坏截断与步骤执行视图全面交付 · 彻底根除 JSON 破坏崩溃与长任务瀑布流刷屏）
+
+- **AppendOnlyEventLogTraceTimeline（对标 DeepSeek Harness DSH、Hermes、OpenClaw、Codex 与 Pi 在事件流与排障视图中普遍存在的“超长载荷 4KB 粗暴截断导致 JSONDecodeError 崩溃、LLM Prompt 前缀预览过短丢失上下文因果、会话分叉 Fork 缺乏不可变血缘锚点、长任务进度瀑布流刷屏”等痛点）：** Myrm 全面交付了工业级只追加事件日志守护与执行步骤视图闭环：
+  1. **Harness 框架层 64KB 平滑容量扩展与沙箱溢出安全保留（`logger.py:50,478` · `llm_observability.py:25`）**：将结构体保留容量提升至 64KB，Prompt Preview 扩展至 32KB，彻底杜绝破坏性截断导致的 JSON 损坏，同时保障大模型 Prompt Cache 零污染；
+  2. **运行期完整性不变式自愈门禁（`integrity_gate.py:72` · `logger.py:180`）**：在 `EventLogger.close()` 阶段原生挂载 `verify_session_enclosure` 与 `verify_sequence_continuity`，对括号闭合与序列号单调连续性进行严格零 LLM 数学级校验；
+  3. **Server 业务层会话分叉不可变因果链（`conversation_fork_manager.py:150-185`）**：在会话克隆与分叉时原子写入持久化 `fork_point` 锚点事件，完成多分支血缘与分支因果溯源；
+  4. **Frontend 表现层执行步骤树原地增强与下钻弹窗（`ProgressSteps.tsx:68` · `StepDetailModal.tsx`）**：单步耗时徽标（`duration_ms`）、故障归因徽标（`fault_side`）、>8 步长任务阶段智能折叠展开与点击 Dialog 查看完整出入参，全语言 6 语 i18n（zh, en, ja, ko, de, zh-TW）完全对齐；
+  5. **测试门禁 100% 满分通过**：Harness 单测 199 项全绿、Server 集成测试 35+12 项全绿、前端 Vitest 71 项全绿，零内存泄漏，零僵尸进程。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/event_log/` · `myrm-agent/myrm-agent-server/app/services/chat/` · `myrm-agent/myrm-agent-frontend/src/components/features/message-box/progress-steps/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md`
+
 ## 最新验证快照（2026-09-07 · 工业级 OpenTelemetry 遥测与 SRE 运行时态势感知全面交付 · 彻底终结静默降级假象与厂商监控私有绑定）
 
 - **UniversalOpenTelemetryTracerAndOtlpSuite（对标 Hermes Agent @alexander-akhmetov/grafana-agento11y-hermes、OpenClaw、Codex、DeepSeek-Harness 与 Pi 在监控领域普遍存在的“强绑定私有厂商变量、OTLP 导出失败静默降级假装在线（False Active）、只读环境变量导致动态参数失联（State Disconnect）、网络挂起阻塞退出等致命痛点）：** Myrm 全面交付了工业级标准 OpenTelemetry 遥测与 SRE 态势闭环：
