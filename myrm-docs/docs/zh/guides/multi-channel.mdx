@@ -830,14 +830,6 @@ Agent 自动执行：
 2. **自主排障预算与防振荡自愈（`TroubleshootingBudgetManager`）**：内置 5 次策略试错预算，支持国内镜像源重定向、端口探测自愈与依赖自动修复；基于 SHA256 策略 Hash 拦截死循环，自动向 IM 发送 Progress Beacon 汇报进度；高危破坏性命令（如 `rm -rf /`）或预算耗尽时自动升级为移动端交互审批卡片。
 3. **运维资产幂等固化（Idempotent Patch Depot）**：任务成功后自动生成带 `[0/N]` 幂等检查标记的部署重放脚本 `deploy.sh`，封装为卡片回传，软件升级后可一键无损重放。
 
-### 企业三链组织上下文穿透与真实轨迹周报 SOP（Organizational Context & Weekly Report SOP）
-
-针对传统 AI 周报缺乏物理凭据、纯靠大模型凭空编造（Hallucination），以及群聊关键技术决策随刷屏流失的痛点，Myrm 首创企业级组织三链轨迹聚合与知识库萃取闭环：
-
-1. **生产/业务/管理三大价值链聚合（`TrajectoryAggregator`）**：自动穿透沙箱任务（Task ID、耗时、物理工件、Commit）、业务需求讨论与审批治理记录，提供百分之百客观可验证的真实执行凭据。
-2. **真实证据驱动的周报 1-Click 生成（`WeeklyReportSOPService`）**：根据时间窗口自动聚合多链事件，一键生成结构化 Markdown 周报，并自适应渲染为飞书、企微、钉钉原生富媒体交互卡片，支持直接复制或一键推送。
-3. **IM 决策自动萃取至 Wiki 知识库（Chat-to-Knowledge）**：自动提取群聊中的技术选型、架构改动与方案决策，直接原子化写入企业/本地 Wiki 知识库，终结人工整理知识库的繁琐流程。
-
 ### 微信个人双通道
 
 | 模式 | 协议 | 特点 |
@@ -854,18 +846,4 @@ Agent 自动执行：
   - **飞书 / 钉钉 / Telegram / Slack / Discord**：直接在对话流中下发原生交互卡片（`ActionButton`），用户点击「✅ 批准」或「❌ 拒绝」即时生效；
   - **微信 / iMessage / SMS**：智能降维适配纯文本交互，支持 `/approve` 指令或 Apple Tapback 👍 表情秒级确认。
 - **全端毫秒级状态广播**：手机端批准后，通过 SSE / WebSocket 实时向 WebUI（`CronJobCard`）与桌面端同步最新状态，无需手动刷新。
-
-## 企业三链组织上下文穿透与周报 SOP 套件
-
-基于 Myrm 独创的 **Channel Data Plane 数据平面** 与 **多源轨迹汇聚引擎（`TrajectoryAggregator`）**，系统支持将碎片化的企业日常协作转化为结构化生产力资产：
-
-1. **企业三大价值链全景穿透**：
-   - **生产链（Production Chain）**：自动收集后台沙箱任务执行状态、代码变更 Diff 与编译交付物物理哈希（SHA256）；
-   - **业务链（Business Chain）**：智能捕捉客户需求确认、商务讨论关键结论与项目里程碑；
-   - **管理链（Management Chain）**：沉淀特权操作审批、工单流转与风险上报记录。
-2. **IM 聊天流自动萃取知识库（Chat-to-Knowledge）**：
-   - 从群聊高信息熵讨论中自动萃取技术决策与架构方案，生成标准 Markdown Wiki 页面并建立向量索引，不产生任何闲聊 Token 浪费。
-3. **1-Click 专业周报生成与卡片分发（`WeeklyReportSOPService`）**：
-   - 一键将全周多源轨迹编译为标准 Markdown/PDF 周报，并附带物理工件防伪证据链；
-   - 支持通过飞书、钉钉、微信下发交互式总结卡片，支持「一键复制 Markdown」、「导出 PDF」与「归档 Wiki」即时闭环。
 
