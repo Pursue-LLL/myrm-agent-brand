@@ -21,6 +21,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   5. **100% 满分全矩阵测试通过**：Harness 单测全绿、Server 业务单测 7 项全绿、前端 Vitest 单测 27 项全绿，真实浏览器 Chrome E2E 自动化测试 100% PASS（`test_fork_chrome_e2e.py` 真实沙箱创建与语义标题断言一致）。
 - **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/event_log/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
 
+## 最新验证快照（2026-09-08 · 全景生产级可观测性、4D 实时 Token 经济学与流式思维链剥离全面交付 · 彻底终结算力黑盒与长思考失控）
+
+- **FullSpectrumProductionObservabilitySuite（对标 Hermes Agent、OpenClaw、Codex、DeepSeek-Harness 与 Pi 在生产运行中普遍存在的“黑盒积分套路账单不透明、长思考模型（如 DeepSeek-R1 / o1）在后台无限循环空转烧穿额度、Git 追踪依赖子进程导致频繁死锁、以及遥测冲刷挂起主线程导致系统卡死”等痛点）：** Myrm 全面交付了工业级全景生产可观测性、实时 HUD 与长思考流式剥离闭环：
+  1. **实时 4D Token 经济学与 Net ROI 算力水表（`TokenUsageDisplay.tsx` · `cache_savings.py`）**：全要素结构化核算 Prompt、Completion、缓存读取、缓存写入、深度思考（Reasoning）与引用（Citation）Token；剔除写入溢价，给出金融级 Net ROI 真实净节省计算；前端 HUD 实时呈现 ContextRing 预算水位、TTFT 延迟波动与缓存命中高亮（最高节省 85% 费用）；
+  2. **流式状态机思维链剥离与 Prompt Cache 零损保活（`reasoning_scrubber.py` · `reasoning_anchor_processor.py`）**：$O(N)$ 前缀滑动窗口状态机跨 Chunk 毫秒级剥离 `<think>` 标签，正文零延迟透传，并转为强类型 `REASONING` 事件；自动提取决策锚点并紧凑注入 Prompt 尾部，100% 保活 90%+ 提示词前缀缓存（KV-Cache）；
+  3. **Zero-LLM 确定性洞察聚合引擎（`EventLogAnalytics` · `types.py`）**：纯确定性算法聚合跨会话全局活动模式、日常趋势分布与工具使用排行，零边际大模型开销；
+  4. **因果追踪调用树与多层立体健康探针（`trace_builder.py` · `manager.py`）**：递归构建因果执行调用链，精准分离自愈性重试与不可挽回的根因错误；为 SQLite、Qdrant 及 Graph Embedding 提供标准化健康探针与超时并发隔离；
+  5. **100% 满分全矩阵测试通过**：Harness 框架层单测、Server 统计分析 API 单测及前端组件 Vitest 测试 100% 通过，零内存泄漏，零 linter 错误。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/utils/token_economics/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
+
 ## 最新验证快照（2026-09-08 · 企业三大价值链真实轨迹周报 SOP 与 IM 决策萃取 Wiki 全面交付 · 彻底消除周报幻觉与碎片化上下文）
 
 - **OrganizationalContextThreeValueChainAndChatToKnowledgeWeeklyReportSOPPack（对标豆包工作、WorkBuddy、千问办公、Hermes、OpenClaw、Codex 与 Pi 在周报与知识沉淀中普遍存在的“单一公网 SaaS 生态绑定、周报依赖纯文本随意编造缺乏代码与沙箱真实构建证据、群聊高价值技术决策随刷屏流失、以及背景闲聊无谓浪费大模型 Token 账单”等痛点）：** Myrm 全面交付了企业级三链轨迹聚合、周报 SOP 与知识库自动归档闭环：

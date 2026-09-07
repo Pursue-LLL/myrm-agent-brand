@@ -47,3 +47,13 @@ description: 自托管 Myrm 环境变量完整参考。
 |----------|---------|-------------|
 | `JWT_SECRET` | （自动生成） | JWT 签名密钥 |
 | `ENCRYPTION_KEY` | （自动生成） | AES-256 加密密钥 |
+
+## 可观测性与遥测
+
+| 变量 | 默认值 | 说明 |
+|------|--------|------|
+| `MYRM_LOG_FORMAT` | `text` | 日志格式：`text` 或 `json`（方便 ELK/Loki 采集） |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | （空） | 标准 OpenTelemetry Collector 端点（如 `http://localhost:4318` 或 `http://localhost:4317`） |
+| `OTEL_EXPORTER_OTLP_PROTOCOL` | `http/protobuf` | OTLP 传输协议：`http/protobuf` 或 `grpc` |
+| `MYRM_LOCAL_TRACE_ONLY` | `0` | 纯本地 Trace 模式：设为 `1` 时物理拦截任何远端导出，确保 Trace 100% 留在本地 |
+| `MYRM_CARDINALITY_FIREWALL` | `1` | 激活指标高基数隔离防火墙，杜绝 Prometheus 内存溢出 |
