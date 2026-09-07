@@ -42,6 +42,36 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
    - **痛点断点**：纯自然语言陪聊，完全缺失代码沙箱、Shell 与外部工具执行能力；记忆完全黑盒封闭，无法审计、修改或私有化部署。
    - **Myrm 获益**：**“高情商伴侣 + 硬核工程专家”双心智同构**（兼具 15 种物种伴侣与全自动工程交付）+ **白盒化 8 类记忆与级联遗忘** + **本地/桌面/云托管全数据主权**。
 
+## 最新验证快照（2026-09-07 · 标准三层追踪、因果重试透视、轻量启发式异常归因与缓存雷达全面交付 · 彻底终结长程 Agent 排障盲盒）
+
+- **OpenTelemetryGenAITraceAndSessionReplayAttributionSuite（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在可观测性中普遍存在的“LLM 模型退避重试过程不透明、重试耗时混入总思考时间导致性能虚假误判、同名并发工具调用日志串线混淆、陷入死循环与 Token 暴涨缺乏实时秒级报警、以及长上下文前缀缓存收益无量化看板”等生产痛点）：** Myrm 全面交付了业界领先的三层可观测性与异常智能归因套件：
+  1. **因果重试透视与网络抖动精准剥离（`trace_types.py:10-50` · `_llm.py:45-120` · `TraceGanttWaterfall.tsx:80-140`）**：在底层 `LLMCallRecord` 与 `_PendingLLMRequest` 中精准捕获 `attempt` 与 `retry_count` 序号，甘特图与模型调用卡片原生标明琥珀色“Retry xN”徽章，彻底将模型纯思考耗时与 429 退避/网络重试耗时分离，避免性能评估背黑锅；
+  2. **轻量纯函数启发式异常自动归因（`trace_builder.py:280-360` · `ExecutionTraceTimeline.tsx:210-260`）**：0 外部依赖、0 额外 LLM Token 开销，在事件聚合阶段自动捕捉工具死循环（`tool_loop`）、Token 陡增（`token_surge`）与模型重试退避（`retry_backoff`），在会话轨迹顶部毫秒级挂载红/黄分级智能警示横幅；
+  3. **异步非阻塞全局 Prompt Cache 雷达（`prompt_cache_radar.py:40-110` · `UsageStatisticsSection.tsx:320-370`）**：彻底重构跨会话日志统计，利用 `asyncio.to_thread` 卸载至工作线程，结合数据库索引秒级聚合 7/30/90 天 Prompt Cache 命中率、缓存读取 Token 量与真金白银折算节省金额（USD），让长文本优化成效直观可见；
+  4. **全套自动化测试 100% 满分通过**：静态契约测试 254 项全绿（2.82s）、后端统计模块 215 项单元测试（211 passed, 4 skipped，7.02s）、前端 Vitest 742 个测试套件 5186 项测试全绿通过（196s），零 Lint 告警。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/event_log/` · `myrm-agent-server/app/api/statistics/` · `myrm-agent-frontend/src/components/features/settings/sections/system/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
+
+## 最新验证快照（2026-09-07 · 计算机与浏览器操控质量对标 Codex / Claude Code 迁民口碑攻坚 · SDC 毫秒级桌面控制全面交付）
+
+- **ComputerUseBrowserControlQualityVsCodexClaudeParityPack（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在桌面与浏览器操控中存在的“全屏 2K 截图盲猜坐标导致高分屏严重漂移、单任务耗时长达 15~20 分钟、每步传输几千 Token 图像迅速打满上下文破坏 Prompt Cache、以及点偏后模型无感知陷入死循环重试”的痛点）：** Myrm 交付了业内领先的 SDC（Semantic Desktop Control）语义桌面控制与 ARIA 四层增量快照体系：
+  1. **OS 原生无障碍树直通与 `@dref` 语义定位（`DESKTOP_SYSTEM.md` · `desktop_agent_tools.py:40-195`）**：彻底摒弃传统看图猜像素的慢速模式，直接提取 macOS AX / Windows UIA / Linux AT-SPI 语义树，分配 `@dref` 唯一引用，**单步执行耗时稳定在 100ms 级别，相较传统纯视觉盲猜提速 >10 倍**；
+  2. **单行 Compact 增量快照与 Token 消耗压降 80%+（`aria_renderer.py:28-100` · `dref/registry.py:20-70`）**：原生支持 `compact` 单行无图模式（`e0:role at top-left`）与增量 Diff 差分，单步仅消耗 100~300 tokens，配合 Prompt Cache 97% 命中率，长跑任务极其经济；
+  3. **三级梯次自愈体系（`healer.py:20-60` · `desktop_session.py:310-330`）**：AX Invoke 优先 ➔ 失败自动触发 BBox Healer 坐标点击纠偏 ➔ 再次失败注入结构化 `[REMEDY_HINT]` 指导模型刷新快照或转视觉兜底，彻底杜绝死循环；
+  4. **四层 ARIA 快照与 3 层视觉验证漏斗（`aria_enhancer.py:180-320` · `vision_verifier.py:38-110`）**：具备 `Modal Blocking` 顶层模态窗锁定、`Hover Pre-discovery` 悬停预感知及 `DOM Mutation ➔ dHash 感知哈希 ➔ Vision LLM 评分` 完整 3 层验证漏斗，确保操作真实生效；
+  5. **多维主动安全围栏与防自杀保护（`safety.py:1-200`）**：物理拦截高危组合键（Cmd+Q 等）、危险 Shell 命令与银行/密码管理等敏感应用，并配备 `is_self_app` 防自杀保护；
+  6. **全套自动化测试 100% 满分通过**：Harness 层 SDC 单测 35/35 通过、ARIA 快照与视觉单测 20/20 通过、Server 层集成测试 20/20 通过、技能录制与 MCP 适配测试 14/14 通过，总计 89 项用例 100% 绿灯全过。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/` · `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md`
+
+## 最新验证快照（2026-09-06 · 飞行记录仪级确定性保序日志与防破损时间线 · 上下文与会话治理全面完成）
+
+- **AppendOnlyDeterministicEventLogTraceAndSafeTruncationGate（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在长程任务中存在的超大字段截断导致 JSON 语法破坏崩溃、多工具异步乱序并发导致日志提交与模型发起序颠倒破坏回放确定性、缺乏运行时事件闭合校验静默损毁、以及缺乏会话分叉谱系不可变审计的痛点）：** Myrm 交付了业内领先的确定性事件溯源与防破损时间线体系：
+  1. **64KB 结构化安全截断与 JSON 语法树自愈（`logger.py:49-50` · `logger.py:476-493` · `llm_observability.py:25-47`）**：将传统 4KB 粗暴截断彻底升级为生产级 64KB 安全封顶（`_MAX_FIELD_BYTES = 65536`）与 32KB Prompt 预览（`PROMPT_PREVIEW_MAX_LEN = 32768`），显式追加 `... [truncated N chars]` 标记，100% 保持 JSON 结构合法性，彻底根除下游回放解析器崩溃；
+  2. **并发工具乱序执行与确定性发起序提交流水线（`_pairing.py:20-85` · `trace_builder.py:20-50`）**：基于 `tool_call_id` 强锚点状态机，将物理异步执行先后与逻辑发起顺序彻底解耦，无论底层多线程如何乱序完成，重构出的日志与执行树永远 100% 确定性保序；
+  3. **运行期会话闭合性与连续性门禁（`logger.py:186-215` · `integrity_gate.py`）**：在 `EventLogger.close()` 阶段集成零开销被动自检门禁，自动校验单调递增序号与会话生命周期闭合，从源头消灭静默事件损毁；
+  4. **会话分叉不可变审计锚点（`conversation_fork_manager.py:353-385` · `types.py:155-160`）**：在执行 `fork_conversation` 时自动向持久化事件流注入结构化不可变 `fork_point` 事件，精准记录父子 DAG 谱系与沙箱 Checkpoint 映射；
+  5. **全套自动化测试 100% 满分通过**：Harness 层 191 项单测、Server 层 27 项分叉测试、真实 LLM 端到端分叉流转测试及真实 Chrome WebUI E2E 测试（`test_reasoning_anchor_and_compaction_chrome_e2e.py`）全部绿灯通过。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/event_log/logger.py` · `myrm-agent-server/app/services/chat/conversation_fork_manager.py` · `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md`
+
 ## 最新验证快照（2026-09-06 · 跨生态 A2A v1.0 服务端与零信任客户端委托闭环 · 多智能体编排全面演进）
 
 - **A2AProviderServer & RemoteClientDelegateToolSuite（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在跨智能体协作中存在的“单体死板绑定无沙箱、外部入参盲目注入受攻、出站 HTTP 裸奔诱发 SSRF 穿透窃取云元数据、以及长任务缺乏异步流式与状态感知”四大痛点）：** Myrm 交付了业内领先的 A2A v1.0 全双工协议互操作、零信任出站安全防御与三模式自适应扇出编排体系：

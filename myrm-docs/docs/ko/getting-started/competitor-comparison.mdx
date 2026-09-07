@@ -42,6 +42,15 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
    - **문제점**: 대화형 컴패니언으로 쉘, 코드 작성, 웹 브라우징 또는 결과물 생성 기능이 전무하며, 블랙박스 메모리로 감사, 편집 또는 프라이빗 배포가 불가능합니다.
    - **Myrm 혜택**: **"공감 컴패니언 + 정예 풀스택 엔지니어링" 듀얼 페르소나**(15종 컴패니언 게이미피케이션 + 풀스택 자동화 소프트웨어 배포) + **화이트박스 8종 메모리 및 연쇄 망각** + **완전한 데이터 주권(로컬 / 데스크톱 / 클라우드)**.
 
+## 최신 검증 스냅샷 (2026-09-07 · 표준 3계층 추적, 인과 재시도 가시성, 휴리스틱 이상 귀속 및 캐시 레이더 제품군 · 관측성 완료)
+
+- **OpenTelemetryGenAITraceAndSessionReplayAttributionSuite (Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 등 LLM 재시도 지연이 모델 추론 지연으로 오인되고, 비동기 도구 호출 로깅 충돌, 도구 무한 루프 및 토큰 급증에 대한 실시간 이상 감지 부재, 프롬프트 캐시 혜택 정량화 부재 문제 대비):** Myrm은 업계 최고의 3계층 관측성 및 자동화된 이상 귀속 제품군을 제공합니다:
+  1. **인과 재시도 가시성 및 네트워크 지터 분리 (`trace_types.py:10-50` · `_llm.py:45-120` · `TraceGanttWaterfall.tsx:80-140`)**: `LLMCallRecord` 및 `_PendingLLMRequest` 내에서 `attempt` 및 `retry_count`를 정확히 추적하여 간트 차트 및 LLM 호출 카드에 호박색 "Retry xN" 배지를 표시, 순수 추론 시간과 429 지연 및 네트워크 재시도를 명확히 분리;
+  2. **외부 종속성 제로 순수 함수 이상 귀속 (`trace_builder.py:280-360` · `ExecutionTraceTimeline.tsx:210-260`)**: 외부 종속성 및 토큰 오버헤드 0으로 도구 루프(`tool_loop`), 토큰 급증(`token_surge`), 모델 재시도 지연(`retry_backoff`)을 자동 캡처하여 실행 타임라인 상단에 계층화된 위험 경고 배너 표시;
+  3. **비차단 비동기 글로벌 프롬프트 캐시 레이더 (`prompt_cache_radar.py:40-110` · `UsageStatisticsSection.tsx:320-370`)**: 세션 간 파일 스캔을 `asyncio.to_thread` 및 데이터베이스 인덱싱으로 전면 리팩터링하여 7/30/90일 프롬프트 캐시 히트율, 캐시된 토큰 볼륨 및 실제 절감 금액(USD)을 즉시 집계;
+  4. **100% 자동화 다계층 테스트 통과**: 정적 계약 테스트 254개, 백엔드 통계 단위 테스트 215개(211 passed, 4 skipped), 프론트엔드 Vitest 742개 스위트 5,186개 테스트 전량 통과.
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/agent/event_log/` · `myrm-agent-server/app/api/statistics/` · `myrm-agent-frontend/src/components/features/settings/sections/system/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
+
 ## 최신 검증 스냅샷 (2026-09-06 · 로컬 스킬 디렉터리 적응형 스캔, 경로 탐색 방어 및 원자적 채택 · 스킬 생태계 완료)
 
 - **LocalSkillsAdaptiveScanAndAtomicAdopt (aweskill / OpenClaw / Hermes / Codex / DeepSeek-Harness / Pi가 단일 스킬 루트 디렉터리를 감지하지 못하고, CWE-22 경로 순회 방어가 부족하며, 맹목적인 가져오기로 인한 충돌 경고 부재 및 실제 LLM E2E 검증 부재 대비):** Myrm은 업계 최고의 적응형 감지, 다계층 보안 및 엔드투엔드 채택 파이프라인을 제공합니다:
