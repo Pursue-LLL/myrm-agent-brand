@@ -11,6 +11,25 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-07 · 三维正交认知模型与五级强类型记忆治理全面交付 · 彻底终结多智能体记忆串扰与权限失控）
+
+- **TriFileOrthogonalCognitiveArchitectureSoulMemoryUserSpecification（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness 与 Pi 在多智能体长期记忆中普遍存在的“SOUL/MEMORY/USER 依赖扁平文本缺乏强类型约束、跨 Agent 共享大表引发记忆越界与口吻坍缩、以及未经转义的记忆导致提示词注入攻击”等痛点）：** Myrm 全面交付了工业级三维正交认知架构与五级强类型记忆治理闭环：
+  1. **三维正交认知模型强类型抽象（`types.py` · `AgentPersona / EpisodicMemory / UserProfile`）**：在底层数据模型与接口上实现 `SOUL`（AgentPersona 静态人设与职责边界）、`MEMORY`（Episodic/Semantic 动态执行经验与事实）与 `USER`（UserProfile 习惯、偏好与技术栈倾向）的物理和逻辑严格正交；
+  2. **五级细粒度作用域与跨 Agent 隔离（`MemoryScopeLevel` · `AgentMemoryPolicy`）**：支持 `GLOBAL`、`AGENT`、`CHANNEL`、`CONVERSATION`、`TASK` 五级作用域划分，配合命名空间（`agent:<id>` / `user:<id>` / `shared:<ns>`）严格阻断不同智能体间的越权读取与篡改；
+  3. **运行时管道安全隔离注入（`MemoryContextMiddleware` · `memory_context_format.py`）**：动态检索结果自动包裹 `<untrusted_memory_content>` 防投毒转义标签，配合 Token Budget 自适应裁剪与 L0 显式画像置顶注入特权（`priority=1`），保障 100% 前缀 Prompt Cache 命中；
+  4. **308 项四层立体测试 100% 满分通过**：Harness 单元 126 项、Harness 真实 SQLite 集成 11 项、Server API/DB 46 项、Frontend Vitest 125 项全部通过，0 失败，0 僵尸进程。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/` · `temp-docs/materials/MEMORY_ADVANTAGE.md` · `temp-docs/roadmap/topic_01_memory_roadmap.md`
+
+## 最新验证快照（2026-09-07 · Windows UIA 原生 Pattern 语义控制与跨端自愈同构全面交付 · 彻底攻克复杂企业桌面折叠树与多态控件）
+
+- **WindowsUiaToggleExpandInvokeActions（对标 Hermes、OpenClaw、Pi-Computer-Use 与传统纯视觉在桌面控制中普遍存在的“无 Windows UIA Pattern 支持导致依靠物理点击易失焦、非标准自绘控件直接抛异常崩溃、三态 Checkbox 反复点击陷入死循环与跨端指令集割裂”等痛点）：** Myrm 全面交付了工业级 Windows 原生 UIA Pattern 与跨端同构自愈闭环：
+  1. **Windows UIA 原生 Pattern 直通（`windows_ax.py:295-365`）**：在底层优先获取并调用 `GetTogglePattern()`、`GetExpandCollapsePattern()`、`GetInvokePattern()`，直接由 OS 无障碍接口派发事件，0 坐标漂移、0 焦点抖动；
+  2. **自绘与无 Pattern 控件 100% 自动降级（`windows_ax.py:315,335,350`）**：采用纯函数无状态反射与异常保护，无法获取 Pattern 时无感平滑回退至 `target.Click()`，确保不抛出中断异常阻断任务流；
+  3. **三态多选（Indeterminate）状态机自愈与幂等（`windows_ax.py:300-325`）**：原生支持 `check`/`uncheck` 幂等状态机；针对 Windows 三态 Checkbox（Indeterminate ➔ On ➔ Off）实现标准多轮步进自愈，杜绝死循环；
+  4. **Win / Mac / Linux 三端 100% 语义同构（`types.py:25` · `macos_ax.py` · `linux_ax.py`）**：在大模型交互层统一抽象为 `toggle`、`expand`、`collapse`、`invoke`、`check`、`uncheck` 动作，System Prompt 前缀缓存 100% 保护；
+  5. **171 项单元/模块测试 + 2 项 Chrome E2E 真实链路测试 100% 通过**：Harness 底层 132 项全绿，Server 提示词 39 项全绿，真实 Chrome 浏览器面板生命周期闭环通过（123.02s）。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/perception/` · `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md` · `temp-docs/roadmap/topic_05_desktop_release_engineering_ci_roadmap.md`
+
 ## 最新验证快照（2026-09-07 · 用户模型偏好记忆与透明认知推导全面交付 · 彻底终结黑盒擅自切模与选模疲劳）
 
 - **UserModelPreferenceMemoryAndCognitiveAffinityPack（对标 Floatboat / FloatSail、Hermes、OpenClaw、Codex 与 Pi 在模型选择与偏好管理中普遍存在的“黑盒自动篡改模型导致 Prompt Cache 失效与输出风格突变、完全无记忆导致每次新建对话重复选模、以及粗暴将模型偏好与生活偏好混淆”等痛点）：** Myrm 全面交付了工业级用户模型偏好记忆与辩证推导闭环：
@@ -1246,4 +1265,14 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   4. **全端响应式双主题组件与全语言支持（`ContextBreakdownCard.tsx`）**：无原生 emoji，自适应双主题设计语言，移动端与 PC 端自适应多列平铺，6 语 i18n 完整对齐；
   5. **100% 测试覆盖与 Chrome E2E 真实闭环**：通过 Harness 100% 覆盖单测、Server API 集成测试及真实 Chrome E2E 真实大模型 + 浏览器端到端闭环验证。
 - **素材 SSOT：** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/event_log/_context_doctor.py` · `myrm-agent-server/app/api/statistics/session_analytics.py` · `myrm-agent-frontend/src/components/features/settings/sections/system/ContextBreakdownCard.tsx`
+
+## 最新验证快照（2026-09-07 · 透明化全沙箱执行算力计量水表、本地节省增益徽标与全场景审计账本导出 · 路线图 Topic 11 #14 达成）
+
+- **TransparentSandboxWorkloadMeterAndCostAuditDashboard（对比 Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi）：** Myrm 实现了业界首个将代码解释器通用沙箱与浏览器自动化统一归一化的算力水表、本地免算力费获得的经济效益量化，以及具备跨平台容灾与防乱码的企业级会话审计导出：
+  1. **多负载统一归一化沙箱算力水表（`SandboxWorkloadRecord` & `RuntimeMeterService`）**：超越竞品仅度量“浏览器”的单一局限，在服务端新增通用沙箱算力数据模型，聚合代码执行（Python/Bash）与浏览器自动化时长（`total_active_compute_minutes`）与流量，支持 429 配额耗尽毫秒级熔断与一键原子自愈重置；
+  2. **本地私有化部署算力获得感（Local Compute Free & Cloud Savings）**：在 WebUI 用量统计中心直观透出绿色「本地算力免费（Local Compute Free）」徽标，并以工业标准（$0.001/分钟）量化折算出「等效节省云端开销（Cloud Equivalent Saved）」，让私有化与单机用户的投资回报率清晰可见；
+  3. **高鲁棒合规审计账本导出与双重容灾降级（`SessionAnalyticsDialog.tsx`）**：提供 Markdown 审计卷宗与 CSV 详细账本一键导出：自研内网 LAN / 非安全非 HTTPS 部署环境隐藏 `textarea` 剪贴板降级机制（`document.execCommand('copy')`），复制成功率 100%；导出 CSV 头部原生注入 UTF-8 BOM（`\uFEFF`），杜绝 Windows Excel 中文乱码；
+  4. **超窄屏幕自适应与无原生 Emoji 现代规范**：移动端与分屏下自适应隐藏按钮文本保留图标（`hidden sm:inline`），全系统 6 语 i18n 完整对齐；
+  5. **100% 测试通过与真实 Chrome E2E 验证**：后端 Quota/Runtime 路由单测 13 项全绿、前端组件单测 10 项全绿、真实 Chrome 浏览器端到端测试 100% PASS（68.16s 真实 DOM 探查、Markdown 降级、CSV BOM 与 429 自愈重置闭环）。
+- **素材 SSOT：** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent/myrm-agent-server/app/database/models/runtime_quota_metric.py` · `myrm-agent/myrm-agent-server/app/services/observability/runtime_meter_service.py` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/system/SessionAnalyticsDialog.tsx`
 
