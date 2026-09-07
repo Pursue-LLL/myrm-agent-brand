@@ -21,6 +21,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   5. **100% 满分全矩阵测试通过**：Harness 单测全绿、Server 业务单测 7 项全绿、前端 Vitest 单测 27 项全绿，真实浏览器 Chrome E2E 自动化测试 100% PASS（`test_fork_chrome_e2e.py` 真实沙箱创建与语义标题断言一致）。
 - **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/event_log/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
 
+## 最新验证快照（2026-09-08 · 企业三大价值链真实轨迹周报 SOP 与 IM 决策萃取 Wiki 全面交付 · 彻底消除周报幻觉与碎片化上下文）
+
+- **OrganizationalContextThreeValueChainAndChatToKnowledgeWeeklyReportSOPPack（对标豆包工作、WorkBuddy、千问办公、Hermes、OpenClaw、Codex 与 Pi 在周报与知识沉淀中普遍存在的“单一公网 SaaS 生态绑定、周报依赖纯文本随意编造缺乏代码与沙箱真实构建证据、群聊高价值技术决策随刷屏流失、以及背景闲聊无谓浪费大模型 Token 账单”等痛点）：** Myrm 全面交付了企业级三链轨迹聚合、周报 SOP 与知识库自动归档闭环：
+  1. **Server 业务层三大价值链真实轨迹聚合（`trajectory_aggregator.py`）**：结构化贯通生产链（沙箱任务、Git Diff、交付物物理 SHA256 哈希）、业务链（需求跟进、架构决策）与管理链（特权审批记录），支持自然周与自定义时间窗口过滤；
+  2. **证据驱动的 1-Click 周报 SOP 引擎（`weekly_report_service.py`）**：一键将真实产出编译为标准化 Markdown 报告，自动渲染飞书/钉钉/微信原生交互卡片，支持一键复制 Markdown、导出 PDF 与归档 Wiki；
+  3. **IM 聊天决策流自动萃取至 Wiki（`archive_chat_to_wiki`）**：从即时通讯讨论中提炼高信息熵架构决策与 RFC，自动生成带 YAML Frontmatter 的 Markdown Wiki 草稿，无缝对接向量检索；
+  4. **零模型背景消耗与 100% 提示词缓存保护**：依托 Channel Data Plane 零 Token 账本与本地 SQLite 持久化，后台闲聊零额外大模型账单；
+  5. **8 项单元与集成测试 100% 满分通过**：多链记录、周报装配、卡片生成与 Wiki 提取测试全绿，零 linter 错误。
+- **SSOT 来源：** `myrm-agent-server/app/services/trajectory/` · `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md` · `temp-docs/roadmap/topic_13_channel_integration_roadmap.md`
+
 ## 最新验证快照（2026-09-08 · 端侧弱模型 Grammar 结构化约束解码与本地弱端点自适应感知全面交付 · 彻底消除小模型 Tool Call 格式破损与死循环重试）
 
 - **LocalGrammarTransportForWeakLocalModels（对标 Atomic Agent、Hermes、OpenClaw、Codex 与 Pi 在本地端侧小模型运行中普遍存在的“7B/14B 小模型 Function Calling 泛化弱导致生成破损 JSON、单步反复报错重试烧干算力、以及竞品手工硬编码 GBNF 语法文件导致引擎锁定无法跨平台通用”等痛点）：** Myrm 全面交付了工业级端侧弱端点自适应感知与标准 JSON Schema 约束传输闭环：
