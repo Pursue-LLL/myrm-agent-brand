@@ -1160,3 +1160,13 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   4. **全端 100% 自动化测试验证**：覆盖 17 项前端 Playbook 单测、27 项模型参数单测与真实 Chrome E2E 浏览器自动化测试（`test_model_orchestration_playbook_chrome_e2e.py` 与 `test_vercel_ai_gateway_chrome_e2e.py`），100% 绿灯全流程闭环通过。
 - **素材 SSOT：** `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/playbook/ModelOrchestrationPlaybookDialog.tsx` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/core/llm.py`
 
+## 最新验证快照（2026-09-07 · Context Doctor 四色开销拆解与 Token 烧钱热点可视化 · 路线图 Topic 11 #9 达成）
+
+- **ContextDoctorTokenHotspotAnalyzerAndCostAuditor（对比 DeepSeek Harness dsh-context-doctor 离线脚本 / Claude Code、Hermes、OpenClaw、Codex、Pi 缺乏四色拆解与诱导破坏 KV Cache）：** Myrm 提供了业界首个零缓存破坏的实时上下文构成拆解与烧钱热点诊断体系：
+  1. **四色结构化 Token 构成分析（`_context_doctor.py`）**：纯函数高精度拆解系统规则（System）、对话轮次（Chat）、工具执行（Tools）与文件内容（Files）四大维度开销，秒级诊断上下文膨胀根源；
+  2. **Top 3 烧钱工具热点智能高亮与状态感知**：自动标记超过 1500 tokens 或执行报错的工具，清晰标明 `Auto-Pruned`（已被底层安全瘦身裁剪）、`Active` 或 `Error`；
+  3. **100% 捍卫大模型 KV Cache 前缀缓存**：坚决摒弃竞品诱导用户手动删除历史消息的反模式（破坏前缀导致二次推理成本激增），由底层 `ActiveToolResultPruneProcessor` 自动进行安全裁剪，前端仅做透明、直观的上下文健康审计；
+  4. **全端响应式双主题组件与全语言支持（`ContextBreakdownCard.tsx`）**：无原生 emoji，自适应双主题设计语言，移动端与 PC 端自适应多列平铺，6 语 i18n 完整对齐；
+  5. **100% 测试覆盖与 Chrome E2E 真实闭环**：通过 Harness 100% 覆盖单测、Server API 集成测试及真实 Chrome E2E 真实大模型 + 浏览器端到端闭环验证。
+- **素材 SSOT：** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/event_log/_context_doctor.py` · `myrm-agent-server/app/api/statistics/session_analytics.py` · `myrm-agent-frontend/src/components/features/settings/sections/system/ContextBreakdownCard.tsx`
+
