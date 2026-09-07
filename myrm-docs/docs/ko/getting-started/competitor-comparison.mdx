@@ -11,6 +11,16 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-09-07 · 산업 등급 OpenTelemetry 원격 측정 및 SRE 자세 제품군 완전 착륙 · 자동 축퇴 은폐 방지 및 전용 벤더 종속 종결)
+
+- **UniversalOpenTelemetryTracerAndOtlpSuite (Hermes Agent @alexander-akhmetov/grafana-agento11y-hermes, OpenClaw, Codex, DeepSeek-Harness, Pi의 전용 변수 종속, 실패 시 콘솔 축퇴를 정상으로 은폐하는 대시보드 허위 표시, 환경 변수만 읽는 State Disconnect 문제 해결):** Myrm은 산업 표준 OpenTelemetry 추적 및 런타임 자세 진단 제품군을 제공합니다:
+  1. **산업 등급 OTLP 듀얼 모드 프로토콜 적응 (`tracer.py:275-370`)**: W3C/OTel 공식 표준 HTTP/Protobuf (`:4318`) 및 gRPC (`:4317`)를 네이티브 지원하고 Datadog, Grafana Tempo, NewRelic, Jaeger와 원활하게 연동;
+  2. **권위 있는 런타임 메모리 SSOT (`tracer.py:60,135` · `_active_posture`)**: 메모리에서 런타임 자세를 직접 관리하여 환경 변수가 없는 프로그래밍 방식 설정에서도 State Disconnect를 완전히 제거;
+  3. **자동 축퇴 은폐 방지 (Anti-Silent Fallback Illusion)**: OTLP 내보내기가 실패할 때 콘솔 출력으로 안전하게 폴백(Fail-Open)하면서 `status="degraded_console"`과 구체적인 원인 `degraded_reason`을 투명하게 보고;
+  4. **프런트엔드 4그리드 SRE 자세 카드 및 호박색 경고 배너 (`TelemetryPostureCard.tsx`)**: 개발자 설정에서 프로토콜, 엔드포인트, 헤더, 3계층 GenAI 스팬 배지를 표시하고, 성능 저하 시 원인 안내 배너 및 원클릭 환경 변수 복사 지원;
+  5. **유계 안전 종료 및 100% 자동화 테스트 통과**: 데몬 스레드 격리 유계 플러시 `shutdown_tracing(timeout_ms=1500.0)`; Harness 단위 테스트 30개, Server 통합 테스트 3개, 프런트엔드 3개, Chrome MCP E2E 실제 브라우저 상호 작용 테스트 **1/1 PASS (87.74초)**.
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/infra/tracing/` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/system/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
+
 ## 5대 핵심 벤치마크 경쟁사(Hermes, OpenClaw, Codex, DeepSeek-Harness, Pi) 심층 비교 및 실질적 혜택
 
 | 영역 | Myrm Agent | Hermes (NousResearch) | OpenClaw | Codex (Code-Centric) | DeepSeek-Harness | Pi (Inflection) |

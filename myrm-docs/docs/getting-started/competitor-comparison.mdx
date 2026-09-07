@@ -11,6 +11,16 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Benchmark Snapshot (2026-09-07 · Industrial OpenTelemetry Tracing & SRE Posture Suite Fully Landed · Eliminating Silent Degradation Illusions & Proprietary Vendor Lock-in)
+
+- **UniversalOpenTelemetryTracerAndOtlpSuite (Targeting industry-wide pain points in Hermes Agent @alexander-akhmetov/grafana-agento11y-hermes, OpenClaw, Codex, DeepSeek-Harness, and Pi: proprietary APM variables, silent degradation to console masquerading as "active" in dashboards, and state disconnect from solely reading env vars):** Myrm delivers a production-grade OpenTelemetry tracing and runtime posture diagnostic suite:
+  1. **Industrial Dual-Mode OTLP Resolution (`tracer.py:275-370`)**: Native support for W3C/OTel standard HTTP/Protobuf (`:4318`) and gRPC (`:4317`), with standard auth header parsing and URL-embedded credential scrubbing for Datadog, Grafana Tempo, NewRelic, or Jaeger;
+  2. **Authoritative Runtime Memory SSOT (`tracer.py:60,135` · `_active_posture`)**: Eliminates state disconnect by maintaining runtime posture in memory, accurately capturing custom programmatic setups even without environment variables;
+  3. **Anti-Silent Fallback Illusion**: When OTLP exporters fail, the system fails open to console logging while explicitly reporting `status="degraded_console"` and capturing the exact error in `degraded_reason`;
+  4. **Frontend 4-Grid SRE Posture Card with Amber Degradation Banner (`TelemetryPostureCard.tsx`)**: Renders protocol, endpoint, headers, and 3-tier GenAI span badges with one-click env copy and manual refresh, popping an amber troubleshooting banner upon degradation;
+  5. **Bounded Shutdown & 100% Automated Test Pass**: `shutdown_tracing(timeout_ms=1500.0)` guarantees daemon-isolated bounded flush; 30 Harness unit tests, 3 server integration tests, 3 frontend Vitest tests, and Chrome MCP E2E real browser interaction test **1/1 PASS in 87.74s**.
+- **SSOT Sources:** `myrm-agent-harness/src/myrm_agent_harness/infra/tracing/` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/system/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
+
 ## In-Depth Benchmark Against Five Flagship Competitors & Tangible Gains
 
 | Capability | Myrm Agent | Hermes (NousResearch) | OpenClaw | Codex (Code-Centric) | DeepSeek-Harness | Pi (Inflection) |

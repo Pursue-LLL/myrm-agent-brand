@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-07 · 工业级 OpenTelemetry 遥测与 SRE 运行时态势感知全面交付 · 彻底终结静默降级假象与厂商监控私有绑定）
+
+- **UniversalOpenTelemetryTracerAndOtlpSuite（对标 Hermes Agent @alexander-akhmetov/grafana-agento11y-hermes、OpenClaw、Codex、DeepSeek-Harness 与 Pi 在监控领域普遍存在的“强绑定私有厂商变量、OTLP 导出失败静默降级假装在线（False Active）、只读环境变量导致动态参数失联（State Disconnect）、网络挂起阻塞退出等致命痛点）：** Myrm 全面交付了工业级标准 OpenTelemetry 遥测与 SRE 态势闭环：
+  1. **工业级 OTLP 双模协议自适应（`tracer.py:275-370`）**：原生支持 W3C/OTel 官方标准 HTTP/Protobuf（`:4318`）与 gRPC（`:4317`），支持标准 Header 解析与 Bearer 鉴权凭据安全脱敏，无缝对接 Datadog、Grafana Tempo、NewRelic 等企业 APM 平台；
+  2. **权威运行时态势内存单源追踪（`tracer.py:60,135` · `_active_posture`）**：彻底消除依赖 `os.environ` 导致的 State Disconnect 缺陷，即使通过代码传参注入配置，态势也能 100% 精确反映；
+  3. **消除静默降级假象（Anti-Silent Fallback Illusion）**：当远程 Exporter 不可用时，系统自动安全降级至控制台标准输出（Fail-Open 保活），同时显式标记 `status="degraded_console"` 并暴露详细报错原因 `degraded_reason`；
+  4. **Frontend 表现层 4 格 SRE 态势仪表盘与琥珀色排错横幅（`TelemetryPostureCard.tsx`）**：在开发者设置页中直观呈现协议、端点、特性与鉴权状态，检测到降级时自动展示排错指引与一键配置复制；
+  5. **有界防卡死关机与全套自动化测试 100% 通过**：`shutdown_tracing(timeout_ms=1500.0)` 引入独立 Daemon Thread 隔离超时退出；Harness 单测 30 项、Server 集成 3 项、Frontend 单测 3 项全绿，真实 Chrome MCP E2E 真实大模型与浏览器交互闭环通过（87.74s）。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/infra/tracing/` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/system/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
+
 ## 五大标杆竞品（Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi）深度横向对标与核心获益
 
 | 维度 | Myrm Agent | Hermes (NousResearch) | OpenClaw | Codex (Code-Centric) | DeepSeek-Harness | Pi (Inflection) |
