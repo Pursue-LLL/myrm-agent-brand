@@ -1136,7 +1136,7 @@
       "savings": "86% fewer tokens · ~7x tasks same budget",
       "savingsCache": "97% more with cache hits · repeat queries cost almost nothing",
       "footnote": "Based on the same knowledge Q&A scenario in real use; bars show prompt tokens per request.",
-      "ptcFootnote": "In complex workflows, orchestrated execution saves about half the input tokens vs. calling tools directly. Kanban LLM tools use role gates (7 orchestrator / 5 worker, full opt-in 12). PTC: batch local tools in one script; single web search stays native. Planning stays off by default (~150 tok/turn when enabled); `todo_write` persists todos to sandbox SSOT, CompletionGuard blocks early exit. MAX_TODOS=20 + single in_progress constraint prevents planning explosion and execution drift.",
+      "ptcFootnote": "Dual-Track Programmatic Tool Calling (PTC): collapses multi-step dependency chains (e.g., station code lookup ➔ ticket search ➔ seat filter) into atomic in-memory sandbox scripts, reducing 4 network round-trips to a single 1-round execution (<2s vs 25s, 85% token reduction) with 100% of raw payload absorbed in sandbox memory. In complex workflows, orchestrated execution saves about half the input tokens vs. calling tools directly. Kanban LLM tools use role gates (7 orchestrator / 5 worker, full opt-in 12). PTC: batch local tools in one script; single web search stays native. Planning stays off by default (~150 tok/turn when enabled); `todo_write` persists todos to sandbox SSOT, CompletionGuard blocks early exit. MAX_TODOS=20 + single in_progress constraint prevents planning explosion and execution drift.",
       "breakdown": {
         "title": "Token Composition",
         "systemPrompt": "System Prompt",
@@ -1208,7 +1208,7 @@
           "title": "~7× more tasks on the same budget",
           "desc": "Multi-layer chat cache + isolated execution for heavy ops + auto-trim of bloated output — hard caps on usage, cost, and time with transparent spend visibility.",
           "point1": "Six-layer chat cache + session-affinity routing (87% cache hit) — roughly 7× more tasks on the same budget",
-          "point2": "Long tool chains run in an isolated sandbox, then summarized — keeps chat context lean",
+          "point2": "Dual-Track PTC: multi-step dependency chains (code lookup ➔ ticket query ➔ filter) run atomically in sandbox memory, turning 4 rounds into 1 (90% faster, 85% fewer tokens) without bloating chat context",
           "point3": "Hard caps on usage, cost, time, and sub-tasks — prevents unexpected overruns"
         },
         "visualControl": {

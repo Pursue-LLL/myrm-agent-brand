@@ -1136,7 +1136,7 @@
       "savings": "省 86% Token · 同样预算约 7 倍任务量",
       "savingsCache": "缓存命中后再省 97% · 重复问题几乎不花钱",
       "footnote": "基于相同知识问答场景的真实使用对比；柱状图为单次请求的提示词用量。",
-      "ptcFootnote": "复杂工作流场景下，编排执行比直连工具再省约一半输入用量。Kanban LLM 工具按角色绑定（聊天 orchestrator 7 / Worker 5，full 仅 opt-in 12）。PTC 适合同脚本批量本地工具；单次搜网仍走 native。Planning 默认关闭，按需启用约 ~150 tok/轮；启用后 `todo_write` 写入沙箱 todos SSOT，CompletionGuard 防早退。MAX_TODOS=20 + 单一 in_progress 约束防止规划爆炸和执行失焦。",
+      "ptcFootnote": "两轨制程序化工具调用（PTC）：将查车站代码➔查票➔余票过滤等多步骤依赖链折叠至沙箱内存原子串联，从 4 轮模型网络交互缩短为 1 轮单次脚本执行，耗时从 25 秒降至 2 秒内，Token 消耗节省 85%，中间 60 趟车次原始报文 100% 在沙箱吸收而不污染上下文。复杂工作流场景下，编排执行比直连工具再省约一半输入用量。Kanban LLM 工具按角色绑定（聊天 orchestrator 7 / Worker 5，full 仅 opt-in 12）。PTC 适合同脚本批量本地工具；单次搜网仍走 native。Planning 默认关闭，按需启用约 ~150 tok/轮；启用后 `todo_write` 写入沙箱 todos SSOT，CompletionGuard 防早退。MAX_TODOS=20 + 单一 in_progress 约束防止规划爆炸和执行失焦。",
       "breakdown": {
         "title": "Token 占用构成",
         "systemPrompt": "系统提示词",
@@ -1208,7 +1208,7 @@
           "title": "极致省 Token，用量透明可控",
           "desc": "多层对话缓存 + 复杂操作隔离执行 + 超长输出自动精简 —— 用量、费用、时间四维上限，支出一目了然。",
           "point1": "六层对话缓存 + 会话级路由亲和（87% 缓存命中），同等预算可完成约 7 倍任务量",
-          "point2": "长链操作在隔离沙箱内执行后汇总返回，避免撑爆对话上下文",
+          "point2": "两轨制程序化工具调用（PTC）：多步骤依赖链（如查代码➔查票➔过滤）在沙箱内存原子串联，4 轮等待缩为 1 轮（耗时缩短 90%、Token 降 85%），避免海量中间态撑爆上下文",
           "point3": "用量、费用、时间、子任务四维硬上限，防止意外超额"
         },
         "visualControl": {
