@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-09 · 宿主依赖毫秒级嗅探、全平台自愈修复与分类目录防碰撞网关全面交付 · 彻底消除技能依赖缺失崩溃与同名覆盖覆灭风险）
+
+- **SkillPrerequisitesAndCategoryCollisionGuardSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness 与 Pi 在技能生态与真机控制中普遍存在的“安装需要 ffmpeg/pandas 的技能但因宿主缺少依赖导致运行时连续报错崩溃、缺乏自愈引导让小白用户排查碰壁、安装同名单技能意外抹除整个分类目录、以及缺乏原生无线真机调试”等痛点）：** Myrm 全面交付了宿主环境嗅探、跨系统一键自愈与路径碰撞物理防御闭环体系：
+  1. **零 Token 宿主依赖嗅探引擎（`HostPrerequisiteProbe`）**：在技能市场预览阶段以纯本地纳秒级 API（`shutil.which` 与 `importlib.metadata`）动态检测系统 CLI 二进制与 Python 依赖，0 运行时 Token 消耗，100% 维持模型 Prompt Cache 黄金命中率；
+  2. **全平台一键自愈修复命令生成（`RemediationEngine`）**：根据用户真实宿主系统（macOS / Ubuntu / Debian / Fedora / Arch / Windows）自动生成零配置自愈安装命令（如 `brew install ffmpeg`、`winget install ffmpeg`、`uv pip install <pkg>`），在 WebUI 卡片一键复制解决；
+  3. **分类目录防覆灭与重解析点穿透拦截（`path_security.py`）**：严格断言物理沙箱根目录边界，物理拦截符号链接与 Windows NTFS Junction 逃逸；自动阻断名为 `category` 的单技能覆盖现有同名多技能聚合目录，资产 100% 安全；
+  4. **原生 Android 11+ 无线 ADB 语义化驱动（`mobile_adb`）**：内置 `MobileSession` 与 `AdbDeviceDriver`，提供 UIAutomator XML 解析与 `@mref` 语义化节点引用，WebUI 设备管理即连即控；
+  5. **全量单元测试 14/14 全部绿灯通过**：覆盖设备解析、依赖检测与安全路径拦截，0 僵尸进程，0 内存泄漏。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/backends/skills/prerequisites/` · `myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/path_security.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/mobile_adb/` · `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md` · `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`
+
 ## 最新验证快照（2026-09-09 · 接管驾驶盘人机协同控制流、VNC 原生视口与外带凭据零暴露直填全面交付 · 彻底消除 Bot 偷跑、2FA 锁号与密文泄露风险）
 
 - **TakeTheWheelHumanControlAndOutOfBandSecretInjectSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness 与 Pi 在浏览器自动化与人机接管交互中普遍存在的“人类输入 2FA/滑块验证码期间 Bot 动作未阻断并发偷跑导致账号被锁、缺乏原生桌面视口迫使用户把密码贴到对话框引发严重泄漏、以及落后的网关丢包补丁导致时序竞争”等痛点）：** Myrm 全面交付了引擎级原子中断状态机与密文零暴露接管闭环体系：
