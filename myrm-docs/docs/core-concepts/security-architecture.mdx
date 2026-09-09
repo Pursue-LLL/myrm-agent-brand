@@ -1206,5 +1206,14 @@ To eliminate persistent backdoor infection through indirect prompt injection att
 2. **Kernel Read-Only Mounts & Shell AST Redirect Veto**: In sandbox environments, steering files are mounted read-only (`--ro-bind`). In shell executors (`shell_command_analyzer.py`), AST-driven full-pipe parsing vetos redirection commands (`echo > AGENTS.md`, `sed -i`, `tee`), halting persistent jailbreaks at the system boundary.
 3. **Strictly Zero-Disk Native OS Keychain Integration**: Master encryption keys are delegated directly to OS-native hardware security backends (macOS Keychain, Linux SecretService, Windows Credential Manager). Local SQLite stores only AES-256-GCM ciphertexts, ensuring enterprise secrets remain secure even if worktrees are leaked.
 
+## Multi-Channel DM Session Enclave & Anti-Poisoning Gate
+
+To eliminate cross-talk between multi-user conversations, open-mode superuser privilege escalation, and vector memory poisoning when agents are accessed via external messaging channels (Feishu, WeChat, Telegram, Slack, etc.):
+
+1. **4-Tuple Physical Session Enclave (`routing_enclave_key`)**: Strictly isolates sessions via `(tenant_id, channel, peer_id, agent_profile_id)`, physically preventing conversation cross-talk and data leaks across tenants, channels, senders, and multi-agent personas while seamlessly maintaining backwards-compatible 2-tuple `parse_enclave_key` resolution;
+2. **Stranger Privilege Escalation Defense Gate (Anti-Privilege Escalation Gate)**: Closes the critical vulnerability in OPEN policy where unpaired senders automatically fell back to inheriting `default_user_id` (sandbox superuser privileges); unpaired senders are strictly assigned isolated guest identities (`guest_{channel}_{sender_id}`) with zero access to privileged execution tools;
+3. **Long-Term Memory Anti-Poisoning Fence (Anti-Poisoning Fence)**: Directly validates authentication state in the inbound persistence pipeline `record_inbound`; visitor and unpaired messages are strictly stamped with `learning_eligible=False`, physically blocking prompt injection attempts from polluting long-term memory and vector indices.
+
+
 
 

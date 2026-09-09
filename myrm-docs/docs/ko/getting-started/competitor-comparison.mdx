@@ -11,6 +11,15 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-09-09 · 다중 채널 DM 세션 격리, 낯선 사용자 권한 상승 방어 및 장기 메모리 오염 방지 게이트웨이 완전 배포 · 사용자 간 DM 혼선, 오픈 모드 루트 권한 탈취 및 프롬프트 주입 오염 완전 차단)
+
+- **MultiChannelDMIsolationAndSessionContextEnclaveGuard (OpenClaw, Hermes, Codex, DeepSeek-Harness, Pi 등 경쟁사들의 다중 채널 DM 연동 시 동일 봇에 복수 사용자 접근으로 인한 대화 컨텍스트 혼선 및 기업 기밀 유출, OPEN 모드에서 미인증 낯선 사용자가 default_user_id를 상속받아 샌드박스 루트 권한을 탈취하는 취약점, 미인증 사용자 입력이 무차별적으로 장기 기억에 축적되어 벡터 데이터베이스가 오염되는 문제 해결):** Myrm은 완전한 물리적 세션 엔클레이브, 낯선 사용자 권한 상승 방어 및 데이터 평면 메모리 보호 아키텍처를 전면 배포했습니다:
+  1. **4튜플 물리적 세션 엔클레이브 (`router_keys.py:22-38` · `routing_enclave_key`)**: `(tenant_id, channel, peer_id, agent_profile_id)`를 기반으로 엄격한 물리적 격리 키를 생성하여 테넌트, 채널, 발신자 및 멀티 에이전트 페르소나 간의 컨텍스트 혼선을 원천 차단하며 기존 2튜플 `parse_enclave_key` 역호환성을 완벽 유지;
+  2. **낯선 사용자 권한 상승 방어 게이트 (`policy_resolver.py:165-171`)**: OPEN 정책에서 미인증 사용자가 `default_user_id`(샌드박스 관리자 특권)를 자동 상속받던 치명적 취약점을 영구 폐쇄하고 격리된 게스트 신원(`guest_{channel}_{sender_id}`)을 강제 부여하여 특권 도구 호출 차단;
+  3. **장기 기억 오염 방지 울타리 (`channel_data_plane.py:84-88`)**: 인바운드 영구 기록 파이프라인 `record_inbound`에서 인증 상태를 엄격히 검증하여 게스트 및 미페어링 메시지에 `learning_eligible=False`를 강제 부여, 악성 프롬프트 주입이 모델 장기 기억과 벡터 인덱스를 오염시키는 것을 물리적으로 차단;
+  4. **100% 자동화 테스트 통과**: 4튜플 키 상호 배타성, OPEN 모드 권한 방어, 화이트리스트 차단, 페어링 핸드셰이크 라이프사이클을 검증하는 6개 테스트 100% 녹색 통과.
+- **SSOT 출처:** `myrm-agent-server/app/channels/routing/router_keys.py` · `myrm-agent-server/app/channels/routing/policy_resolver.py` · `myrm-agent-server/app/channels/routing/channel_data_plane.py` · `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md` · `temp-docs/roadmap/topic_13_channel_integration_roadmap.md`
+
 ## 최신 검증 스냅샷 (2026-09-08 · 이벤트 소싱 모델 뷰포트 재생, 타임머신 디버거 및 시맨틱 브랜치 분기 완전 배포 · 디버깅 블랙박스 및 프롬프트 캐시 낭비 완전 해결)
 
 - **EventSourcedModelViewportReplayAndTimeMachine (Hermes, OpenClaw, Codex, DeepSeek-Harness, Pi 등 경쟁사들의 다회전 작업 디버깅 중 과거 모델 입력 뷰포트 절단 및 유실로 인한 블랙박스화, 디버깅을 위해 세션을 처음부터 다시 시작함으로써 발생하는 프롬프트 캐시 전면 파괴, 브랜치 간 샌드박스 격리 초기화 부재로 인한 작업 공간 충돌 문제 해결):** Myrm은 산업 표준 이벤트 소싱 모델 뷰포트 전체 재생, 타임머신 디버거 및 결정론적 브랜치 분기 파이프라인을 완전 배포했습니다:

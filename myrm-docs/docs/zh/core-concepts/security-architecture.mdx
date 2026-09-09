@@ -1095,6 +1095,14 @@ CaMeL 单信任边界；Myrm **6 层**洋葱防御、5 域循环检测、3 层�
 3. **Sentinel 运行时零明文不透明占位符**：沙箱代码执行时仅注入单向不透明占位符（`myrm-sent-v1...`），真实密钥仅在白名单出站环回代理（Loopback Egress Proxy）层由网关即时代填，模型即使执行 `env`、`cat .env` 也无法获得真实明文密钥。
 4. **前端全流程脱敏防窥**：WebUI 与桌面端设置面板实施强力掩码展示（`sk-****abcd`），支持一键平滑无感轮换与屏幕共享防窥保护。
 
+## 多渠道多用户私信飞地与记忆防投毒网关 (Multi-Channel DM Enclave & Anti-Poisoning Gate)
+
+针对飞书、微信、Telegram 等多渠道多用户并发私信同一台 Agent 时，传统 Agent 架构普遍存在的私信上下文串台、开放提权后门与记忆库被投毒等严峻挑战，Myrm 构筑了三重物理飞地：
+
+1. **4 元组物理隔离会话飞地（`routing_enclave_key`）**：严格按 `(tenant_id, channel, peer_id, agent_profile_id)` 生成独立沙盒隔离 Key，从根源物理杜绝不同租户、不同账号或同一实例多 Agent 分身之间的对话上下文串台与商业机密泄漏；
+2. **陌生人提权逃逸防御门禁（Anti-Privilege Escalation Gate）**：彻底修复并封死 OPEN 开放策略下未配对陌生人直接回退并继承宿主超级管理员（`default_user_id`）的高危特权漏洞；未配对发送者统一强制分配沙盒受限访客身份 `guest_{channel}_{sender_id}`，其权限与管理员完全隔离，物理禁止执行破坏性工具与越权读取敏感资产；
+3. **长期记忆防投毒物理栅栏（Anti-Poisoning Fence）**：在入站持久化流水线 `record_inbound` 中引入严格的认证与访客校验；未配对陌生人与访客消息强制标记为 `learning_eligible=False`，物理阻断恶意 Prompt 注入污染大模型长期记忆与向量知识库。
+
 
 
 

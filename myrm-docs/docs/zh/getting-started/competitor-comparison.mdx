@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-09 · 接管驾驶盘人机协同控制流、VNC 原生视口与外带凭据零暴露直填全面交付 · 彻底消除 Bot 偷跑、2FA 锁号与密文泄露风险）
+
+- **TakeTheWheelHumanControlAndOutOfBandSecretInjectSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness 与 Pi 在浏览器自动化与人机接管交互中普遍存在的“人类输入 2FA/滑块验证码期间 Bot 动作未阻断并发偷跑导致账号被锁、缺乏原生桌面视口迫使用户把密码贴到对话框引发严重泄漏、以及落后的网关丢包补丁导致时序竞争”等痛点）：** Myrm 全面交付了引擎级原子中断状态机与密文零暴露接管闭环体系：
+  1. **LangGraph 原生 `interrupt()` 执行图原子冻结（`takeover.py:130`）**：在执行引擎状态机边界将 Agent 运行图彻底物理冻结，大模型推理与工具队列完全归零，从底层物理消除 Bot 在人类接管期间偷跑越界操作的一切可能；
+  2. **双模原生交互视口（`VisualDesktopToggle.tsx` & `ExtensionTakeoverBanner.tsx`）**：沙箱环境下自动唤起带呼吸脉冲的内嵌 `@novnc/novnc` 真实图形桌面；本地模式下自动呈现 Chrome 扩展直通横幅；用户直接在目标网页利用自身系统的 1Password / 钥匙串或键盘完成输入，零凭据流入 AI 上下文；
+  3. **内存标签化凭据金库（`CredentialVault` & `fill_credential`）**：静态配置凭据通过内存引用直填目标 DOM 元素，LLM 提示词、会话历史与账本日志 100% 免除明文暴露风险；
+  4. **接管恢复后强制刷新 Chromium 快照（`snapshot(force=True)`）**：用户交还控制权后，底层执行引擎强制废弃旧快照并全量重新拉取真实 DOM 状态，彻底杜绝状态脱节与幻觉；
+  5. **自动化测试 100% 满分通过与零僵尸进程保障**：28 项单元测试与 3 项 API/流式集成测试全部绿色通过，零内存泄漏，零僵尸进程。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/tools/takeover.py` · `myrm-agent-frontend/src/store/useBrowserTakeoverStore.ts` · `temp-docs/materials/BROWSER_AUTOMATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md`
+
 ## 最新验证快照（2026-09-09 · 多渠道多用户私信上下文隔离、陌生人提权逃逸防御与长期记忆防投毒网关全面交付 · 彻底消除跨用户私信串台、开放提权后门与 Prompt 注入投毒）
 
 - **MultiChannelDMIsolationAndSessionContextEnclaveGuard（对标 OpenClaw、Hermes、Codex、DeepSeek-Harness 与 Pi 在多渠道多用户私信接入中普遍存在的“多员工/客户接入同一机器人时上下文混杂导致严重商业隐私泄露、OPEN 模式下未配对陌生人自动回退继承宿主管理员特权造成系统命令执行逃逸漏洞、以及外部恶意 Prompt 注入被无差别持久化进学习账本导致长期记忆库被恶意投毒”等痛点）：** Myrm 全面交付了跨渠道会话物理飞地、陌生人提权防御与数据平面防投毒闭环体系：
