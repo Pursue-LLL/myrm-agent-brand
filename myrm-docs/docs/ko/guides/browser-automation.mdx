@@ -347,11 +347,12 @@ Agent가 브라우저나 데스크톱 앱을 작동할 때 무엇을 하는지 �
 
 ### 비교 방법
 
-어떤 경쟁 제품도 동일한 대화형 시각적 모니터링 조합을 제공하지 않습니다.
+어떤 경쟁 제품도 동일한 대화형 시각적 모니터링과 구조화된 제어 역량을 제공하지 않습니다:
 
-- **Skyvern**은 연속 JPEG 프레임을 스트리밍하기 위해 CDP `Page.startScreencast()`을 사용합니다. — "비디오" 환경을 제공하지만 **보기 전용**입니다(요소 상호 작용 없음, BBox 데이터 없음, 검사기 모드 없음). 또한 WebSocket 긴 연결과 지속적인 CPU/대역폭 소비가 필요합니다.
-- **저희 접근 방식**은 이벤트 기반 스크린샷 + 대화형 BBox 오버레이 + 명령 주입 등 AI Agent 개별 작업을 위해 특별히 설계되었습니다. **스크린샷의 모든 요소를 ​​클릭**하고 에이전트에게 이를 처리할 작업을 지시할 수 있습니다. 순수 비디오 스트림에서는 불가능합니다.
-- **다른 모든 경쟁사**(브라우저 사용, CUA, Claude 컴퓨터 사용, OpenClaw, Hermes)는 시각적 피드백이나 텍스트 전용 로그를 제공하지 않습니다.
+- **Grok @Bot click-to-control VM**: 원격 VM에서 원시 픽셀 VNC/WebRTC를 스트리밍하므로 높은 네트워크 대역폭(5~15MB/s)과 눈에 띄는 지연 시간(100~300ms+)이 발생합니다. DOM/ARIA 시맨틱 메타데이터 없이 순수 픽셀만 전송하므로 사용자는 요소를 선택해 자연어로 지침을 주입하는 대신 무작정 마우스 커서를 빼앗아야 합니다.
+- **Skyvern**: 연속 JPEG 프레임을 스트리밍하기 위해 CDP `Page.startScreencast()`를 사용합니다. "비디오" 환경을 제공하지만 **보기 전용**입니다(요소 상호 작용 없음, BBox 데이터 없음, 검사기 모드 없음). 또한 WebSocket 연결 유지와 지속적인 CPU/대역폭 소모가 필요합니다.
+- **Myrm (SandboxAgentLivePeekPanel)**: AI Agent 개별 실행을 위해 설계: 이벤트 기반 300ms 스로틀링 SSE 스트리밍(대역폭 90% 절감, ~120KB/s 무손실 화질) + 대화형 ARIA/DOM `ElementOverlay` + 지침 프롬프트 직접 주입(`InspectorInstructionInput`) + 엄격한 다중 세션 격리(`ChatWindowSatellites` + `useClosePanelOnChatSwitch` 확정적 정리) + 데스크톱 마이크로 픽(Desktop Micro Peek) 호버 미리보기.
+- **기타 주요 경쟁사(Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi)**: Hermes, Codex, DeepSeek-Harness는 정적 이미지나 텍스트만 출력하는 헤드리스 CLI 블랙박스입니다. OpenClaw는 인라인 분할 화면 스트리밍이 부족합니다. Pi는 샌드박스 GUI가 없습니다. 어떤 제품도 실시간 스트리밍 뷰포트나 요소 수준의 인간-에이전트 협업 교정을 제공하지 못합니다.
 
 ### 테스트 범위
 

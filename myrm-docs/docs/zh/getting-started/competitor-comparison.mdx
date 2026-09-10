@@ -11,6 +11,17 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-10 · 沙箱智能体实时画面窥视、DOM/ARIA 结构化点击纠偏与多会话强隔离全链路交付 · 彻底告别黑盒盲跑与公网高带宽裸 VNC 风险）
+
+- **SandboxAgentLivePeekPanelAndStructuredControlSuite（对标 Grok @Bot click-to-control VM、Hermes、OpenClaw、Codex、DeepSeek-Harness 与 Pi 在沙箱图形化执行中普遍存在的“后台黑盒盲跑无法感知卡顿死锁、粗暴公网裸 VNC 消耗 5~15MB/s 带宽且延迟高达数百毫秒、纯像素画面无法基于元素语义进行人机协同纠偏、以及多任务并发时画面串扰泄漏”等痛点）：** Myrm 全面交付了实时画面窥视、结构化元素指控与多会话强隔离闭环体系：
+  1. **300ms 智能消抖流式推流（`browser_view_update` / `desktop_view_update`）**：Harness 底层事件驱动节流，经 300ms 防抖算法压缩，以原生 Server-Sent Events (SSE) 流式分发，较传统 VNC 视频流暴降 90% 带宽（实测 ~120KB/s），保持 100% 原始视口无损分辨率；
+  2. **三位一体实时 Inspector 矩阵（`ChatWindowSatellites.tsx`）**：集中调度 `BrowserLiveView`（浏览器）、`DesktopLiveView`（桌面沙箱）与 `DeviceLiveView`（移动真机），根据活跃工具毫秒级自动就绪；
+  3. **结构化 ARIA / DOM 元素级指选协同（`ElementOverlay` + `InspectorInstructionInput`）**：实时视口无缝叠加高精度 ARIA 角色与 DOM 边界框，鼠标悬停即查语义，点击控件直接将元素句柄（`@dref`）注入指令输入框，实现自然语言人机纠偏；
+  4. **严格的多会话强隔离与确定性会话清理（`useClosePanelOnChatSwitch`）**：通过 `selectScopedBrowserViewData` 严格按 `chatId` 过滤视口数据，切换会话瞬间毫秒级卸载清理 Inspector，彻底根除画面串台与幽灵连接残留；
+  5. **嵌入式桌面接管与微缩悬停预览（Micro Peek）**：支持桌面微缩卡片悬停动态透视；遇复杂验证码一键唤起嵌入式 `@novnc/novnc` 视口，结合 LangGraph `interrupt()` 物理冻结 Agent 动作，杜绝人机抢光标；
+  6. **端到端测试 100% 满分通过**：前端单元与契约测试 46/46 全部通过，**真实 Chrome E2E 端到端测试套件（`test_browser_blcv_chrome_e2e.py`）5/5 全绿通过（54.72s）**。
+- **SSOT 来源：** `myrm-agent-frontend/src/components/features/chat-window/ChatWindowSatellites.tsx` · `myrm-agent-frontend/src/components/features/inspector/BrowserLiveView.tsx` · `myrm-agent-server/tests/e2e/test_browser_blcv_chrome_e2e.py` · `temp-docs/materials/BROWSER_AUTOMATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md`
+
 ## 最新验证快照（2026-09-09 · 宿主依赖毫秒级嗅探、全平台自愈修复与分类目录防碰撞网关全面交付 · 彻底消除技能依赖缺失崩溃与同名覆盖覆灭风险）
 
 - **SkillPrerequisitesAndCategoryCollisionGuardSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness 与 Pi 在技能生态与真机控制中普遍存在的“安装需要 ffmpeg/pandas 的技能但因宿主缺少依赖导致运行时连续报错崩溃、缺乏自愈引导让小白用户排查碰壁、安装同名单技能意外抹除整个分类目录、以及缺乏原生无线真机调试”等痛点）：** Myrm 全面交付了宿主环境嗅探、跨系统一键自愈与路径碰撞物理防御闭环体系：

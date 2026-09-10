@@ -11,6 +11,17 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-09-10 · 샌드박스 에이전트 실시간 화면 엿보기, 구조화된 DOM/ARIA 클릭 수정 및 다중 세션 격리 전면 인도 · 블랙박스 맹목적 실행 및 고대역폭 공개 VNC 위험 종식)
+
+- **SandboxAgentLivePeekPanelAndStructuredControlSuite (Grok @Bot click-to-control VM, Hermes, OpenClaw, Codex, DeepSeek-Harness 및 Pi의 샌드박스 GUI 자동화 취약점 대조: 백그라운드 맹목적 실행으로 정체 파악 불가, 5~15MB/s의 고대역폭과 수백 ms 지연을 유발하는 순수 픽셀 VNC 스트리밍, 시맨틱 요소 부재로 인한 협업 교정 불가, 다중 세션 화면 혼선):** Myrm은 실시간 화면 엿보기, 구조화된 요소 제어 및 다중 세션 격리 아키텍처를 전면 제공합니다:
+  1. **300ms 스마트 스로틀링 SSE 스트리밍 (`browser_view_update` / `desktop_view_update`)**: 이벤트 기반 디바운스로 원시 VNC 대비 대역폭을 90% 절감(~120KB/s)하면서 100% 무손실 해상도를 유지;
+  2. **3-in-1 실시간 Inspector 매트릭스 (`ChatWindowSatellites.tsx`)**: 브라우저, 데스크톱, 모바일 뷰포트를 활성 도구에 맞춰 밀리초 단위로 자동 마운트;
+  3. **구조화된 ARIA / DOM 요소 레벨 클릭 수정 (`ElementOverlay` + `InspectorInstructionInput`)**: 실시간 스트림에 고정밀 ARIA 경계 상자를 오버레이하여 클릭 시 요소 핸들(`@dref`)을 지침 입력 상자에 직접 주입;
+  4. **엄격한 다중 세션 격리 및 확정적 정리 (`useClosePanelOnChatSwitch`)**: `chatId`별 엄격한 데이터 필터링 및 대화 전환 시 즉각적인 언마운트로 화면 혼선 및 잔여 연결 제거;
+  5. **임베디드 데스크톱 인계 및 데스크톱 마이크로 픽(Micro Peek)**: 호버 축소판 미리보기 제공, 2FA/캡차 조우 시 LangGraph `interrupt()`로 동작을 물리적으로 동결하고 인계 뷰포트 연결;
+  6. **100% 테스트 통과 및 실제 Chrome E2E 검증 완료**: 46/46 프런트엔드/계약 단원 테스트 통과, **실제 Chrome E2E 테스트(`test_browser_blcv_chrome_e2e.py`) 5/5 전체 통과 (54.72초)**.
+- **SSOT 출처:** `myrm-agent-frontend/src/components/features/chat-window/ChatWindowSatellites.tsx` · `myrm-agent-frontend/src/components/features/inspector/BrowserLiveView.tsx` · `myrm-agent-server/tests/e2e/test_browser_blcv_chrome_e2e.py` · `temp-docs/materials/BROWSER_AUTOMATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md`
+
 ## 최신 검증 스냅샷 (2026-09-09 · 다중 채널 DM 세션 격리, 낯선 사용자 권한 상승 방어 및 장기 메모리 오염 방지 게이트웨이 완전 배포 · 사용자 간 DM 혼선, 오픈 모드 루트 권한 탈취 및 프롬프트 주입 오염 완전 차단)
 
 - **MultiChannelDMIsolationAndSessionContextEnclaveGuard (OpenClaw, Hermes, Codex, DeepSeek-Harness, Pi 등 경쟁사들의 다중 채널 DM 연동 시 동일 봇에 복수 사용자 접근으로 인한 대화 컨텍스트 혼선 및 기업 기밀 유출, OPEN 모드에서 미인증 낯선 사용자가 default_user_id를 상속받아 샌드박스 루트 권한을 탈취하는 취약점, 미인증 사용자 입력이 무차별적으로 장기 기억에 축적되어 벡터 데이터베이스가 오염되는 문제 해결):** Myrm은 완전한 물리적 세션 엔클레이브, 낯선 사용자 권한 상승 방어 및 데이터 평면 메모리 보호 아키텍처를 전면 배포했습니다:

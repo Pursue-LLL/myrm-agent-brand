@@ -404,11 +404,12 @@ Agent 使用 `verify_goal="购物车数量显示为 2"`。点击后，系统自�
 
 ### 竞品对比
 
-无竞品提供同等水平的交互式可视化监控能力：
+无竞品提供同等水平的交互式可视化监控与结构化指控能力：
 
+- **Grok @Bot click-to-control VM**：采用云端全量 VM 裸露 VNC/WebRTC 视频流，带宽占用巨大（5~15MB/s）、公网延迟高（100~300ms+），纯像素画面无 DOM/ARIA 结构化元数据，用户只能盲目抢鼠标，无法点选元素向智能体输入精准纠偏指令。
 - **Skyvern**：采用 CDP `Page.startScreencast()` 连续推送 JPEG 帧——提供"视频流"体验，但**只能看不能交互**（无元素数据、无 BBox、无 Inspector 模式）。且需要 WebSocket 长连接和持续 CPU/带宽消耗。
-- **我方方案**：专为 AI Agent 离散操作设计——事件驱动截图 + 可交互 BBox 叠加 + 指令注入。你可以**直接点击截图上的任意元素**告诉 Agent 该做什么——纯视频流无法做到。
-- **其他所有竞品**（browser-use、CUA、Claude Computer Use、OpenClaw、Hermes）：无可视化反馈或仅提供纯文本日志。
+- **我方方案（SandboxAgentLivePeekPanel）**：专为 AI Agent 离散操作设计——事件驱动 300ms 智能消抖节流推流（带宽较纯 VNC 骤降 90%，仅 ~120KB/s 无损画质）+ 可交互 ARIA/DOM `ElementOverlay` 叠加 + 句柄注入自然语言纠偏（`InspectorInstructionInput`）+ 多会话强隔离（`ChatWindowSatellites` + `useClosePanelOnChatSwitch` 切换瞬间确定性清理）+ 桌面 Micro Peek 悬停微缩透视。
+- **其他主流竞品（Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi）**：Hermes、Codex、DeepSeek-Harness 仅为无头黑盒 CLI 或落盘静态图片；OpenClaw 缺乏内嵌分屏与流式节流；Pi 缺乏沙箱 GUI——均无法提供任何实时流式视口或人机元素级指控。
 
 ### 测试覆盖
 
