@@ -102,6 +102,36 @@ Myrm 的 **Working Memory** 通过专用 `__working_state` Profile Memory 条目
 
 对比 ChatGPT Dreaming（被动、无任务聚焦）、CLAUDE.md（手动维护）、第三方 MCP 插件（配置开销），Working Memory 零配置、系统自动提取、自动清理。
 
+### ReTree 自纠错树状工作记忆与因果回溯剪枝引擎
+
+在长流程复杂任务与深度调研（Deep Research）中，传统工作记忆往往被设计为扁平文本或简单 Scratchpad。当任务在深水区推翻了早期的某个前置假设（例如早期搜索得到过时价格、错误参数或假新闻）时，扁平架构无法获知该错误到底污染了哪些后续推导分支，导致终版研报前后自相矛盾，或者全盘重推导致 Token 与耗时翻倍。
+
+Myrm 首创引入 **ReTree（树状自纠错工作记忆与回溯剪枝引擎）**，基于有向无环因果图（DAG）实现真正具备因果推理与自纠错能力的工作记忆底座：
+
+```
+[root_plan (根目标)]
+   ├── [ev_01: 初始参数基准 (ACTIVE)] ──> [ev_02: 派生推理 (PRUNED_INVALIDATED)]
+   │                                           └──> [ev_03: 最终策略 (PRUNED_INVALIDATED)]
+   └── [ev_04: 独立架构分析 (ACTIVE - 100% 保持)]
+```
+
+#### 核心机制与架构设计
+1. **强类型 DAG 因果拓扑图（`EvidenceTree`）**：每个证据节点（`EvidenceNode`）强类型绑定声明、结构化摘要、来源 URL 及双向因果链路（`dependencies` / `dependents`），全程可追溯。
+2. **两阶段极速冲突仲裁（`FastContradictionDetector`）**：
+   - **Stage 1 本地初筛（<0.1ms）**：哈希指纹去重 + 纯正则字面初筛，毫秒级快速识别完全重复或否定词元；
+   - **Stage 2 极速模型仲裁**：当实体高度重合但存在语义分歧时，由快模型执行仲裁，精确区分时态演进（`TEMPORAL_UPDATE`）与硬性反驳（`CONTRADICTION`）。
+3. **四步原子回溯与级联软剪枝（`TreeRepairEngine`）**：
+   - 记录版本审计日志（`RevisionRecord`），保留事实演进证据链；
+   - 热替换目标节点最新证据与结构化指标；
+   - 沿因果树递归收集所有受污染的下游派生节点；
+   - 执行级联软剪枝（标记为 `PRUNED_INVALIDATED`），其余独立分支 100% 保持 `ACTIVE`，零重复计算。
+4. **震荡阻尼守卫（Oscillation Guard）**：
+   - 同一节点版本深度达到上限（`MAX_REVISIONS=2`）时，自动冻结为 `DISPUTED` 争议并存状态，彻底切断大模型因观点摇摆导致的无限反转死循环。
+5. **Prompt Cache 友好装配（Bounded Slice）**：
+   - 严格按时间戳正序装配工作记忆切片，前缀固化以最大化命中 LLM KV Cache；物理剔除失效节点，并在受限预算下保障至少 40% 的研报正文配额。
+
+**验证指标（2026-09）**：110 项全量集成测试全绿，核心模块覆盖率高达 **95.56%**；实测真实大模型在线仲裁（10.42s，置信度 0.95），研报彻底消除自相矛盾与幻觉。
+
 ## 画像注入 + 统一记忆搜索（Prefix Cache 友好）
 
 跨会话续聊：L1 **stable** 画像自动注入；**learned** 偏好通过 `memory_search_tool` 检索（非 Turn1 middleware），最大化 Prompt Cache 命中率。

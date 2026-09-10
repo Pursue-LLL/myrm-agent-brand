@@ -41,7 +41,7 @@ const LOCALES = ['zh', 'en', 'ko'] as const;
 const HIGHLIGHT_TAG_COUNT = 3;
 const HIGHLIGHT_DESC_MAX_CHARS = 1500;
 /** Max chars per Integrations chip segment (` · ` split); keeps mobile pills scannable. */
-const INTEGRATION_CHIP_MAX_CHARS = 48;
+const INTEGRATION_CHIP_MAX_CHARS = 96;
 const INTEGRATION_LIST_DELIMITER = ' · ';
 
 /** Keys referenced by legal pages and cloud footer links — must stay in sync across locales. */

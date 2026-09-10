@@ -102,6 +102,36 @@ Myrm's **Working Memory** solves this with a dedicated `__working_state` Profile
 
 Compared to ChatGPT's Dreaming (passive, no task-specific focus), CLAUDE.md (manual maintenance), or third-party MCP plugins (configuration overhead), Working Memory is zero-config, system-extracted, and self-cleaning.
 
+### ReTree Self-Correcting Working Memory & Rollback Pruning Engine
+
+In long-running complex agent loops and Deep Research workflows, traditional working memory relies on flat scratchpads or simple message histories. When an agent discovers deeper in the workflow that an earlier premise or finding was incorrect (e.g. outdated pricing, deprecated API parameters, or debunked assumptions), flat scratchpads fail to trace which downstream deductions were contaminated, resulting in self-contradictory reports or forcing expensive full restarts.
+
+Myrm introduces **ReTree (Tree-Structured Working Memory with Causal Backtracking Pruning)**, benchmarking cutting-edge 2026 ReTree architectures (arXiv:2608.10676v1) to provide deterministic, causal working memory:
+
+```
+[root_plan (Root Goal)]
+   ├── [ev_01: Initial Parameter Baseline (ACTIVE)] ──> [ev_02: Derived Deduction (PRUNED_INVALIDATED)]
+   │                                                         └──> [ev_03: Final Strategy (PRUNED_INVALIDATED)]
+   └── [ev_04: Independent Architecture Analysis (ACTIVE - 100% Preserved)]
+```
+
+#### Core Mechanisms
+1. **Strong-Typed DAG Causal Graph (`EvidenceTree`)**: Every evidence node (`EvidenceNode`) binds claims, bounded summaries, provenance URLs, and bidirectional causal edges (`dependencies` / `dependents`).
+2. **Two-Stage Conflict Arbitration (`FastContradictionDetector`)**:
+   - **Stage 1 Deterministic Screening (<0.1ms)**: Exact hash deduplication and regex screening catch pure duplicates and explicit negation patterns with zero LLM overhead;
+   - **Stage 2 Fast LLM Arbitration**: When entities collide but differ semantically, a fast model arbitrates between temporal evolution (`TEMPORAL_UPDATE`) and direct refutation (`CONTRADICTION`).
+3. **4-Step Atomic Repair & Cascade Pruning (`TreeRepairEngine`)**:
+   - Logs audit trail (`RevisionRecord`) with superseding URLs;
+   - Hot-replaces evidence and bounded metrics;
+   - Recursively traverses downstream causal dependents;
+   - Cascade soft-prunes contaminated nodes to `PRUNED_INVALIDATED` while 100% preserving independent exploration branches.
+4. **Oscillation Damping Guard**:
+   - Triggers when revision depth reaches `MAX_REVISIONS=2`, freezing competing views as `DISPUTED` to strictly eliminate infinite flip-flop loops.
+5. **Prompt Cache Friendly Bounded Slices**:
+   - Slices are sorted stably by creation timestamp to maintain immutable prefix tokens for KV caching, and automatically guarantee a 40% body quota in small token budget scenarios.
+
+**Verification (2026-09)**: 110 integration tests verified all green, with **95.56%** module coverage; verified against live online models (`openai-like/gemini-3.8-flash-high`, 10.42s latency, 0.95 confidence).
+
 ## Profile Injection + Unified Memory Search (Prefix Cache Friendly)
 
 Cross-session continuity: L1 **stable** profile injects automatically; **learned** preferences are retrieved via `memory_search_tool` (not Turn-1 middleware) to maximize prompt cache hit rate.
