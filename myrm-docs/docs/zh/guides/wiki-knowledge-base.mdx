@@ -171,6 +171,16 @@ Myrm 提供**编译型知识库（Wiki）**——不是让 Agent 解读的一堆
 
 每次保存携带页 **租约**（`if_match` = 上次 `content_hash`）。若其他 Tab/客户端已先改页，会 toast **页冲突** — 请刷新后重试。
 
+### 词条重命名与别名重定向治理（Canonical Rename & Alias Redirect）
+
+在传统笔记系统（Hermes、OpenClaw、Codex、Pi）中，重命名或移动文件会导致全库引用的双链失效断裂（File-based Memory Rot）。Myrm 内置企业级链接治理与重构引擎：
+
+- **永久 Canonical ID 固化与别名继承**：重命名或移动概念笔记时，`_inject_rename_metadata` 自动固化不变的 `canonical_id`，并将旧 slug 自动沉淀为 Frontmatter 中的 `aliases` 与 `supersedes` 历史链。无论是使用旧 slug 还是别名搜索，系统都能精准解析至当前最新实体。
+- **全库双链与 Markdown 链接原子无损重写**：`refactor` 引擎自动精准扫描全库，无损更新双链 `[[slug|别名]]`（保持原展示别名不变），并智能解析标准 Markdown 链接的 `#anchor` 锚点进行安全拆装重写，杜绝 404 死链。
+- **增量 DAG 依赖图与 FTS 索引刷新**：概念移动后仅增量刷新相关概念与 `wiki_edges` 拓扑，无需耗时重建全库索引。
+- **真实浏览器 E2E 持久化验证**：在页面多次刷新与深链跳转下，引用的凭证与 `依据` 按钮在前端 DOM 与全局 store 中 100% 稳定挂载。
+
+
 ## 受控写入面（`POST /wiki/apply`）
 
 所有 Wiki 变更统一走 **`POST /wiki/apply?caller=`**（`settings` | `agent` | `chat`）。

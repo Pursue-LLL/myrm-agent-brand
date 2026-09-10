@@ -181,6 +181,15 @@ When the agent recalls semantic/episodic memories, completed assistant messages 
 
 Citations are **persisted to the database** and survive **page reload** — not SSE-only ephemeral state.
 
+## Canonical Rename & Alias Redirect Governance
+
+In traditional agent systems (Hermes, OpenClaw, Codex, Pi), moving or renaming a note breaks all incoming links across the entire knowledge base (File-based Memory Rot). Myrm features a built-in atomic link governance and refactoring engine:
+
+- **Stable Canonical ID & Alias Inheritance**: When renaming or relocating a concept note, `_inject_rename_metadata` preserves the immutable `canonical_id` and automatically appends the previous slug into frontmatter `aliases` and `supersedes` chains. Searches via old names or aliases resolve deterministically to the latest entity.
+- **Zero-Dangling-Link Dual-Link & Anchor-Safe Refactoring**: The `refactor` engine safely updates all `[[slug|alias]]` dual-links across the vault while preserving display aliases, and safely extracts `#anchor` sections from standard Markdown links to prevent 404 dead links.
+- **Incremental DAG Graph & FTS Cache Invalidation**: Moving a concept invalidates and updates only affected `wiki_edges` and full-text index tokens incrementally without requiring a heavy, full-vault re-indexing cycle.
+
+
 ## Open Wiki settings
 
 1. Go to **Settings → Wiki 知识库 (Wiki)**.
