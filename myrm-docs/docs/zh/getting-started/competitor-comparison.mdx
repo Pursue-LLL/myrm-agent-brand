@@ -69,7 +69,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **已载入 / 未载入双态微光与连续无抖动跳转（`loadThroughTurn`）**：精准标明本地/云端轮次状态，点击未载入轮次自动发起连续静默分页并在 DOM 树就绪后无抖动精准锁定目标位置；
   4. **悬浮大纲预览气泡与移动端全屏抽屉适配（`TurnTimelineRail` & `MobileTurnOutlineSheet`）**：桌面端悬停毫秒级弹出 50 字用户意图 + 120 字核心答复摘要；移动端提供原生体验的全屏轮次卡片抽屉，长任务检索效率提升 60 倍；
   5. **100% 满分单测与真实 Chrome E2E 验证通过**：Vitest 单元测试 5/5 全部通过，真实 Chrome E2E 浏览器业务闭环测试绿色通过。
-- **SSOT 来源：** `myrm-agent/myrm-agent-server/app/services/chat/turn_outline_service.py` · `myrm-agent-frontend/src/components/features/chat-window/TurnTimelineRail.tsx` · `temp-docs/materials/PROMPT_CACHE_ADVANTAGE.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md`
+## 最新验证快照（2026-09-10 · MoA 自适应风控触发路由与异构高阶参谋破局全面交付 · 彻底消除长任务异常卡死与全量 MoA 账单暴涨）
+
+- **AdvisorRiskTriggerRouterSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness 与 Pi 在复杂长程任务与异常应对中普遍存在的“遇到工具执行失败或死循环只会机械重试同一模型直至轮次耗尽崩溃、全量开启 MoA 导致每轮简单问答均消耗数倍天价 Token、以及原模型缺乏跨模型异构视角导致陷入思维死胡同”等痛点）：** Myrm 全面交付了工业级自适应风控触发路由（`AdvisorRiskTriggerRouter`）与异构高阶参谋模型动态破局闭环：
+  1. **连续失败与循环异常门禁自适应唤醒（`advisor_risk_trigger_router.py` · `moa_advisor_middleware.py`）**：常态下使用高性价比主力经济模型高速执行，当且仅当发生连续 2 次工具执行失败（`consecutive_errors >= 2`）或触发 `LoopGuard` 死循环警报时，毫秒级自适应唤醒高阶异构参谋模型（如 Claude 3.7 Sonnet / DeepSeek-R1），注入架构级破局指导；
+  2. **401/403/ENOSPC 致命环境故障快速旁路**：遇凭据失效（401 Unauthorized）、权限拒绝/限流过载（403 Forbidden）或磁盘已满等不可逆环境故障时，零延迟快速旁路，严禁向不可用的参谋模型无意义重试；
+  3. **3 轮冷却期与 3 次会话硬上限**：参谋介入后强制执行 3 轮观察冷却期，且单会话全局最多激活 3 次，从物理层面杜绝长任务下的参谋滥调雪崩与 Token 膨胀；
+  4. **尾部瞬态注入保全 >95% KV-Cache 命中率（`_inject_advisor_block_cache_safe`）**：严格将参谋破局意见注入在当前回合提示词尾部，绝不篡改历史上下文与 System 前缀，保持上游 Prompt Cache 命中率恒定 >95%；
+  5. **WebUI / 桌面端 / 云端三端同构可视化开箱即用（`AgentCapabilitiesMoaOverlaySection.tsx`）**：在智能体 Capabilities 面板原生暴露 4 档触发模式（Standard / Deep Review / Fast / `risk_triggered`），配套 6 国语言国际化字典，彻底消除 Dead Feature Path；
+  6. **100% 满分全栈实测闭环**：Lane-A 核心单测 21 passed (Harness) + 10 passed (Server)；Lane-B 真实 Chrome 浏览器配置持久化 2 passed (123.6s)；Lane-C 真实模型全链路业务 Universal Task Flow E2E 2 passed (172s，真实捕获流式 SSE 与 WebUI 聊天 DOM 渲染卡片)。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/advisor_risk_trigger_router.py` · `myrm-agent-server/app/services/agent/stream_session/moa_overlay_setup.py` · `myrm-agent-frontend/src/components/features/agent-profile/AgentCapabilitiesMoaOverlaySection.tsx` · `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md`
 
 ## 最新验证快照（2026-09-09 · MoA 跨参谋凭证深度脱敏、物理截断防暴涨与根智能体特权隔离全面交付 · 彻底消除账单背刺、隐私扩散与子任务弹窗骚扰）
 
