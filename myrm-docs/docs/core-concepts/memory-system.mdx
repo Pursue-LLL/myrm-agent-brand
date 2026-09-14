@@ -156,6 +156,8 @@ Hermes splits semantic memory and session search into separate tools; CoPaw auto
 
 **Verified (Sep 2026)**: Two-stage expansion unit suite (12 passed), real SQLite FTS5 window recall (21 passed), and agent facade LLM integration (4 passed) — 37 tests 100% green with zero lingering zombie processes.
 
+- **Pluggable storage backends without touching source** — Myrm ships a zero-config local stack (SQLite + embedded Qdrant) and accepts any conforming backend via `VectorStoreConfig(mode=REMOTE, url, api_key)` routed through a single factory entry point. The memory layer is assembled against 8 role-separated Protocols (vector / relational / graph / conversation-search / embedding / cache / lifecycle hooks), so an upper-layer tool contract stays constant while the physical store swaps — the same principle JDBC drivers popularized, but enforced at assembly time with typed Protocols instead of a runtime reflection registry. Competitors' runtime driver-registry proposals (Hermes-style "advanced providers bolted on") add an env-var selection layer Myrm deliberately avoids: production callers inject configuration explicitly, keeping behavior auditable and type-safe.
+
 ## Brand Style Memory Board (Brand Studio)
 
 Myrm is the only agent product that turns **brand identity** into an editable GUI that is stably injected into the agent's context — so AI-generated deliverables (copy, design, HTML, PPT) automatically match your brand.
