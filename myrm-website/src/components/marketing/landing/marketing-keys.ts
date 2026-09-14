@@ -66,6 +66,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'openTelemetryTracing',
   'circuitBreakerAlarm',
   'timeMachineFork',
+  'factCheckArbitration',
 ] as const;
 
 export type HighlightSlideKey = (typeof HIGHLIGHT_SLIDE_KEYS)[number];
