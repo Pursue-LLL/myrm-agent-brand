@@ -422,6 +422,16 @@ Hash matching (0.18ms, saves 98% embedding cost) → Vector similarity → LLM s
 
 Entity matching uses exact `=` comparison (not substring matching), so distinct entities like "Sam" and "Samsung" or "Apple" and "Pineapple" are never confused — a known issue in competitors that rely on rule-based NER with substring deduplication.
 
+### Evolution History Timeline (Memory Detail)
+
+Every merged or corrected memory shows its full evolution trail in the memory detail panel:
+
+- **Merge audit timeline** — when the same fact gets confirmed/supplemented/replaced across sessions, a merge-count badge plus a structured `timestamp | action | summary` timeline records exactly how the fact evolved
+- **Correction chain** — memories fixed via the correct operation show a "Corrects xxx" entry linking back to the superseded version, so every error fix stays traceable
+- **Deterministic consolidation** — three-state merging (confirm/supplement/replace) completes in milliseconds; only the ambiguous mid-similarity band escalates to LLM arbitration; user-locked memories are immune to automatic merges
+
+Competitors mostly update memories with silent overwrites — you never learn why a memory changed. Myrm makes every memory's origin, revision count, rationale, and corrections fully transparent and auditable.
+
 ### Recurrence Detection
 
 Embedding-based buffer detects when the same topic recurs ≥4 times across sessions, automatically triggering consolidation — inspired by RecMem's academic approach but with production-grade implementation.
