@@ -18,6 +18,7 @@ import {
   RepeatIcon,
   Search01Icon,
   SourceCodeIcon,
+  UserGroupIcon,
 } from 'hugeicons-react';
 import { cn } from '@/lib/utils/classnameUtils';
 import { TiltCard } from './interactive';
@@ -28,6 +29,7 @@ const USE_CASE_ICONS: Record<UseCaseKey, typeof Search01Icon> = {
   coding: SourceCodeIcon,
   automation: RepeatIcon,
   content: PencilEdit01Icon,
+  team: UserGroupIcon,
 };
 
 export default function UseCasesSection() {

@@ -1004,3 +1004,12 @@ When controlling your AI companion remotely from mobile IM channels, high-privil
   - **Feishu / DingTalk / Telegram / Slack / Discord**: Delivers interactive cards with native `ActionButton` elements (`✅ Approve` / `❌ Deny`) directly in your chat stream;
   - **WeChat / iMessage / SMS**: Seamlessly degrades to text command parsing (`/approve`) and Apple Watch Tapback 👍 emoji gestures.
 - **Multi-Client Real-Time Sync**: Approvals resolved on your phone instantly push updates to WebUI (`CronJobCard`) and Desktop via SSE/WebSocket without manual page refreshes.
+
+## Team Identity: A Named Teammate in Every Group Chat
+
+Give a group chat a named shared identity so everyone talks to the same Ariel:
+
+1. Open **Settings → Integration → Channel Routing**, pick the channel and topic, type a name (e.g. `Helper`), and choose a scope: **Inherit** (channel baseline), **Shared**, or **Private** (independent, no baseline inheritance);
+2. In the group, mention it (`@Helper, research this and file it to our topic library`) — it answers in thread, remembers the discussion in its own memory compartment, and never sees your DMs;
+3. Group turns run on shared credentials that never touch your personal tokens; DMs always stay personal;
+4. Freeze the identity anytime (routing falls back to the default agent, memory retained) or check `/topic` status. Or in chat: `/bind agent=my-agent identity=Helper identity_scope=shared`.
