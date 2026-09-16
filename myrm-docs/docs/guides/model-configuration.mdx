@@ -325,6 +325,8 @@ When you switch between models (e.g., GPT-4o → Gemini → Claude), each provid
 
 **Why this matters:** MCP tools come from third-party servers with varying schema quality. Without normalization, switching your agent from one model to another often breaks tool calling entirely. Myrm ensures every tool works on every model, transparently.
 
+**Third-party gateways and strict validators:** If you route Myrm through a self-hosted gateway or aggregator (LiteLLM proxy, one-api, or any OpenAI-compatible forwarder) instead of calling providers directly, Myrm adapts automatically: requests rejected for schema-shape reasons are retried once without the optional constraint, remembered per endpoint so later calls go straight through, and tool-call ids plus thinking-model reasoning are replayed exactly as issued. No configuration needed — incompatible requests heal themselves instead of failing with cryptic 400 errors.
+
 ## Fault Tolerance
 
 The 14-layer error recovery system handles failures automatically:
