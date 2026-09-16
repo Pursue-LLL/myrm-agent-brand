@@ -30,6 +30,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'deepResearch',
   'desktopComputerUse',
   'multiAgent',
+  'agentGovernance',
   'omniChannel',
   'tokenSmart',
   'evalLab',

@@ -77,6 +77,16 @@ Tool prompts for LLMs should guide action without noise. Myrm refactored its sub
 
 Backed by **943 harness core unit tests**, **32 API/Server integration tests**, **79 frontend component tests**, and **Chrome E2E real browser verification**.
 
+### 10. Agent Responsibility Governance: More Assistants, Zero Mess
+
+Agent fleets rot: overlapping roles, zombie assistants nobody dares delete (fear of breaking schedules and channel bindings). Myrm is currently the only GUI assistant with **responsibility-unit governance**:
+
+1. Open the **Agents** page and fill in each assistant's **responsibility scope** and **acceptance checklist** (owner is optional on your own device).
+2. When the **Agent Health Check** panel appears, review idle and overlapping assistants.
+3. Click **Merge**: preview the diff → type the kept assistant's name to confirm → migrate skills and bindings in one click → **restore** anytime to roll back.
+
+Inspection costs zero model fees; merging is 100% GUI, no command line. Verified: Claude Code, Cursor and Codex offer no equivalent governance.
+
 ## How to Get Started
 
 1.  Open the **Myrm Agent WebUI**, and navigate to the Workflow or Kanban section.
