@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-17 · 双轨工作记忆看板、陷阱自愈与超短期状态向长期自动固化体系全链路交付 · 彻底消除黑盒易失、重复踩坑死循环与认知断层）
+
+- **WorkingMemoryBoardAndStateConsolidationSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在复杂任务与长程执行中普遍存在的“超短期子任务状态仅靠滑动上下文黑盒维护、工具调用报错后缺乏结构化陷阱防御导致反复在同一参数死循环、用户无从直观获知当前执行进度与已避开的踩坑、以及任务结束后临时经验随进程销毁产生严重认知断层”等痛点）：** Myrm 全面交付了强类型超短期工作记忆块、聊天内原生工作看板与跨会话自动固化闭环体系：
+  1. **强类型超短期工作记忆块（`LocalWorkingMemoryBlock`）**：在底层核心执行流提供线程/协程安全的原子状态管理，结构化治理当前核心目标、子任务进阶树（带 `SubtaskStatus`：PENDING / IN_PROGRESS / COMPLETED / FAILED / SKIPPED 状态机）、踩坑记录（`TrapRecord` 搭配 `resolve_trap` 缺陷自愈标记）与临时轻量记事本（`scratchpad`）；
+  2. **聊天区原生折叠式工作看板（`WorkingMemoryBoard.tsx`）**：在 WebUI 与桌面端对话流原生嵌入折叠式视觉面板，高精度呈现目标胶囊、进度百分比计算（按完成/进行中权重平滑加权）、活跃进行中子任务高亮微光、以及已规避陷阱安全徽章，人机协同状态完全透明；
+  3. **超短期状态向长期记忆自动固化服务（`consolidation_service.py`）**：在智能体任务收敛或阶段推进时，自动将工作记忆块中的目标执行结论、已成功规避的踩坑经验与关键记事本提炼固化为长期程序性/语义性记忆（`MemoryType.PROCEDURAL` / `SEMANTIC`），实现临时状态向持久资产的经验闭环；
+  4. **严格公共门面架构隔离（`myrm_agent_harness.api`）**：Server 端严禁深层依赖 Harness 内部模块，所有类型与类统一由公共 API 门面导出，杜绝跨层耦合与架构腐化；
+  5. **100% 满分实测绿灯验证**：后端 10/10 项 API/状态单元与集成测试全绿、前端 Vitest 4/4 项全绿、全量 338 项 server 门禁全绿，跨层依赖架构测试 6/6 全绿。
+- **SSOT 来源：** `myrm_agent_harness/agent/context_management/working_memory/` · `WorkingMemoryBoard.tsx` · `consolidation_service.py` · `temp-docs/materials/MEMORY_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-17 · NAS 与家庭实验室一键部署、三卷物理持久隔离与宿主 Ollama 零配置自适应全链路交付 · 彻底消除单体数据丢失与容器断流顽疾）
 
 - **NASHomeLabSingleStackAndHostOllamaProbeSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在私有化自托管部署与本地模型协同中普遍存在的“仅提供裸机脚本或单体单容器镜像缺乏持久化架构、跨机换盘迁移权限碎裂、容器内 AI 访问宿主 Ollama 频繁出现 Connection Refused 断流、以及低配 NAS 内存溢出宕机”等痛点）：** Myrm 全面交付了一键部署覆盖层、三卷物理隔离与宿主机模型探针自适应闭环体系：
