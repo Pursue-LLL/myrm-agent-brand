@@ -61,6 +61,7 @@ Myrm 记忆系统是 Agentic Memory Operations（AMO）范式最完整的实现�
 20. **高熵精确事实确定性硬锁与行为模式双轨治理** — 自动识别 UUID、Git Commit SHA、IP:Port、配置键等高熵精确事实，在底层关系存储（`_exact_fact_store.py`）施加确定性硬锁；支持用户主动置锁（`is_user_locked`），自动合并与语义润色对其物理旁路；精确事实轨（关系点查 <0.1ms）与行为模式轨（半衰期直方图演化）双轨正交隔离，彻底杜绝关键事实被模糊篡改。
 21. **工具调用避坑经验自动提炼与靶向动态注入（Tool Guidance Evolution）** — 结构化沉淀工具环境异常与自愈经验（ProceduralMemory）；Harness 核心合成器（`ToolGuidanceSynthesizer`）执行探针词清洗、去重与置顶优先归纳；仅在调用相关工具时动态注入极简避坑指南（0 历史噪音污染，单次节省 95% 上下文 Token）；Web 控制中心支持可视化置顶与废弃规约一键清理，实现工具经验跨会话自适应进化与人类透明治理。
 22. **本地优先 Markdown 文件记忆双向同步与防撕裂流式状态机（Local-First Markdown File-as-Memory Sync）** — 原生支持工作区 `MEMORY.md` 与 `daily/*.md` 本地文件记忆体系；底层采用单趟流式状态机解析（`LenientMarkdownParser`），严格区分代码围栏（` ``` ` 与 ` ~~~ `），代码块内包含的 `#` 注释不再误触标题切分，彻底杜绝语法撕裂；临时文件结合 `os.replace` 保证原子落盘与断电安全；纳秒级 `os.stat` 惰性探针结合内容哈希，未改动时 `<0.05ms` 零 I/O 穿透（提速 300 倍）；Prompt 注入透明携带 `[source: MEMORY.md#Lstart-Lend]` 物理行号锚点，模型具备精确溯源与自省能力。
+23. **工作记忆五动作自治空间引擎与超固化提炼闭环** — 突破传统被动截断上下文的短板，赋予模型 4 大工作记忆元工具动作（`update_subtask`, `discard`, `summarize`, `set_scratchpad`）与长期记忆 `discard` 动作；死胡同主动废弃并登记 Avoidance Traps，在 Turn Tail 动态挂载 `<working_board>`（100% 保护 Prompt Cache 前缀）；任务完成时经 `HyperConsolidator` 自动提炼沉淀为永久 `ProceduralMemory` 经验并执行纯度清空，绝不在同一个死胡同原地打转。
 
 结果：AI 的长期记忆是「实际发生的事」的真实记录，回答始终建立在可验证的事实之上，而非自信的猜测。
 
@@ -135,6 +136,28 @@ Myrm 首创引入 **ReTree（树状自纠错工作记忆与回溯剪枝引擎）
    - 严格按时间戳正序装配工作记忆切片，前缀固化以最大化命中 LLM KV Cache；物理剔除失效节点，并在受限预算下保障至少 40% 的研报正文配额。
 
 **验证指标（2026-09）**：110 项全量集成测试全绿，核心模块覆盖率高达 **95.56%**；实测真实大模型在线仲裁（10.42s，置信度 0.95），研报彻底消除自相矛盾与幻觉。
+
+### 五动作自主工作记忆空间引擎与超固化提炼闭环
+
+传统 Agent 框架中，工作记忆往往由系统外部脚本机械维护或直接采用滑动窗口截断，模型自身对正在执行的工作空间缺乏自治管理能力——在面临执行死胡同时无法主动放弃并沉淀教训，导致反复试错或上下文被大量垃圾中间输出淹没。
+
+Myrm 原生引入 **五动作自主工作记忆空间元工具（`working_memory_manage_tool`）** 与 **超固化提炼引擎（`HyperConsolidator`）**：
+
+#### 核心动作与治理机制
+1. **工作台四动作**：
+   - `update_subtask`：模型自主流转子任务状态（`PENDING` / `IN_PROGRESS` / `COMPLETED` / `FAILED` / `SKIPPED`），确保执行进度完全结构化；
+   - `discard`：在尝试受阻或方案不可行时，模型主动放弃死胡同，自动置子任务为 `FAILED`，并立即生成结构化 `TrapRecord` 记录避坑教训；
+   - `summarize`：阶段性任务收敛时，模型自主精简并压缩中间步骤，提炼核心结论；
+   - `set_scratchpad`：暂存跨步骤的关键上下文、多端口配置或待处理队列。
+2. **长期记忆淘汰动作**：
+   - 长期记忆 `discard`：对已知过时或失效的长期规则执行精准废弃淘汰。
+3. **Turn Tail 动态挂载与 Prompt Cache 保护**：
+   - 避坑规则与工作记忆看板在每轮对话的 **Turn Tail（末尾）** 动态渲染 `<working_board>`；
+   - 保持 System Prompt 与历史上下文的前缀完全稳定，实现 **100% Prompt Cache 命中率**。
+4. **超固化提炼与纯度守卫（`HyperConsolidator`）**：
+   - 任务终结时，超固化引擎自动提取会话中累积的 `Avoidance Traps`，去重归纳为永久有效的 `ProceduralMemory` 存库；
+   - 同时触发纯度守卫重置工作记忆临时草稿，避免临时状态外溢污染后续全新会话。
+
 
 ## 画像注入 + 统一记忆搜索（Prefix Cache 友好）
 
