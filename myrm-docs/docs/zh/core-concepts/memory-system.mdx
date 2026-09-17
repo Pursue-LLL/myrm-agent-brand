@@ -841,3 +841,22 @@ Myrm 在 Harness 层落地了**七层统一长期记忆治理与上下文装配�
 - `is_expired` 与时间线排序算子全面支持时区自动归一化（`_safe_timestamp`），完美免疫 Python `offset-naive` 与 `offset-aware` 混合比较异常；
 - 套件包含 26 项端到端测试用例（覆盖 8 大黄金业务场景与全套极端边界），代码覆盖率达 **92%**，并通过真实大模型端到端持久化测试（85.75s）与真实 Chrome 浏览器 WebUI 自动化验证。
 
+## 知识图谱视口诱导子图精准下推与因果链防假环遍历
+
+在长程复杂任务与多智能体协作中，传统图谱可视化与因果检索通常面临“全表扫描截断导致连线丢失”与“递归遍历假环早停”两大技术瓶颈。
+
+Myrm 在 Harness 层与 Server 端落地了**严格诱导子图下推（Induced Subgraph Pushdown）与防假环因果网络体系**：
+
+### 1. 严格数学诱导子图下推（Induced Subgraph Pushdown）
+- **痛点**：传统方案（如 Mem0/Letta 实验图模块）在拉取节点关联边时，采用全表盲目 `LIMIT` 截断，导致视口内节点的大量关联边被无辜丢弃，前端力导向画布上出现大量“孤岛散点”，节点度数统计失真；
+- **实现**：WebUI 记忆指挥中心与 API 路由（`GET /api/memory/command-center/graph`）将当前视口选定的 `filtered_node_ids` 精准下推至底层存储；
+- **SQL 下推**：`sqlite_store.py` 严格执行 `WHERE source_id IN (...) AND target_id IN (...)` 参数化绑定，并在空列表时毫秒级短路，100% 连通当前视口节点的所有真实因果边，度数统计绝对可信。
+
+### 2. 多智能体命名空间原生隔离（Namespace Isolation）
+- `list_nodes(namespace=...)` 将 Agent 标识直接下推至 SQLite 原生表达式索引，切换智能体视口无需内存全量过滤，零开销实现单沙箱内多 Agent 的认知图谱彻底隔离。
+
+### 3. 递归因果链防假环安全遍历（Anti-Pseudo-Cycle Traversal）
+- 递归 CTE 因果链分析采用逗号界定符 `,node_id,` 精准匹配已访问路径，彻底消除了历史实现中 `node_20` 包含子串 `node_2` 造成的假环误判与提前早停；
+- 当 `relation_types=[]` 时自动短路类型过滤条件，顺畅遍历全量下游因果实体。
+
+

@@ -804,3 +804,22 @@ Background measurement and persistence tasks are sliced into independent units b
 - **WebUI Visualization**: The `/settings/memory` "Understand" section displays dual-track histograms, latency pills, collaborator badges, and sample readiness bars with light/dark theme support.
 - **Prompt Cache Protection**: High-frequency metrics remain strictly on the dashboard and are only committed to durable profile entries when sample thresholds ($N_{self} \ge 20$, $N_{latency} \ge 10$) are met, preventing System Prompt perturbations and preserving a 100% Prompt Prefix Cache hit rate.
 
+## Knowledge Graph Induced Subgraph Pushdown & Anti-Pseudo-Cycle Traversal
+
+In long-running complex workflows and multi-agent coordination, traditional graph visualization and causal reasoning often face two severe hurdles: edge loss caused by arbitrary full-table limit truncations, and premature loop termination from substring false cycles.
+
+Myrm provides **rigorous Induced Subgraph Pushdown and robust Causal Traversal**:
+
+### 1. Mathematical Induced Subgraph Pushdown
+- **The Problem**: Experimental graph features in traditional frameworks (e.g. Mem0/Letta) pull relationships using arbitrary `LIMIT` caps on global tables. As graph density grows, edges between visible viewport nodes get silently dropped, creating misleading "orphan islands" on force-directed canvases and zeroing out node degree metrics.
+- **Pushdown Solution**: The Memory Command Center route (`GET /api/memory/command-center/graph`) passes the exact viewport node IDs (`filtered_node_ids`) directly down to the storage engine.
+- **SQL Execution**: `sqlite_store.py` executes `WHERE source_id IN (...) AND target_id IN (...)` with parameterized bindings, short-circuiting on empty lists and guaranteeing 100% edge connectivity among active nodes.
+
+### 2. Multi-Agent Namespace Pushdown
+- `list_nodes(namespace=...)` pushes agent isolation straight into SQLite expression indexes, enabling instant agent switching with zero full-table memory scans.
+
+### 3. Anti-Pseudo-Cycle CTE Traversal
+- Recursive CTE causal chain analysis utilizes comma delimiters (`,node_id,`) for visited path tracking, preventing IDs like `node_20` from triggering false positive cycle detection against `node_2`.
+- When `relation_types=[]`, the engine automatically bypasses edge type filters to deliver seamless downstream traversal.
+
+
