@@ -1,105 +1,43 @@
 ---
-title: Interactive UI (render_ui)
-description: Declarative in-chat forms, tables, and charts via the A2UI v3.1 stack.
+title: Interactive forms (structured_clarify)
+description: Render in-chat forms with options, multi-select, and free-text questions via the structured_clarify tool.
 ---
 
-# Interactive UI (`render_ui`)
+# Interactive forms (`structured_clarify`)
 
-Myrm ships a **declarative UI artifact** pipeline: the agent calls `render_ui`, the server emits a `UI_UPDATE` SSE event, and the WebUI renders interactive components inline in chat.
+Myrm renders **structured forms inline in chat**. The agent calls the `structured_clarify` tool (`ask_question_tool` schema) with one or more questions; the WebUI renders options, checkboxes, and free-text fields in the conversation, and the user's answers resume the same run.
 
 ## Enable the tool
 
 1. Open **Agent settings** in chat.
-2. Turn on **Interactive UI** (`render_ui`).
-3. On first run with a workspace, the server seeds `.agent/docs/A2UI_REFERENCE.md` (full props manual).
+2. Turn on **Interactive UI** (`structured_clarify`).
 
-Turn1 cost is **~223 tokens** for the slim tool docstring — full component props are **not** inlined in the prompt.
+When the toggle is off, no `ask_question_tool` schema is sent at Turn1 — you pay nothing for a capability you do not use.
 
-## Surface gate (Web / desktop only)
+## What you can build
 
-Inline A2UI mounts only on **Web Chat** and the **Tauri desktop client** (`client_surface`: `web` or `tauri`). Telegram, Discord, cron, and other non-web channels do not load `render_ui_tool` / `update_ui_data_tool` at Turn1 — the agent answers in plain text instead, which saves ~318 prompt tokens per turn on those surfaces. **Voice** (OpenAI Realtime, Gemini Live, and the agent bridge) also omits inline A2UI: there is no in-session UI renderer, so exposing `render_ui` would only waste tokens and invite broken tool calls. Agent settings show a hint when **Interactive UI** is enabled; use Web Chat or the desktop app for in-chat forms and live panels.
+| Field | Purpose |
+|-------|---------|
+| `title` | Optional heading for the whole form |
+| `questions[]` | One or more questions rendered in a single form |
+| `questions[].options[]` | Choice buttons (`id` + `label` + optional `description`) |
+| `questions[].allow_multiple` | Render the options as checkboxes instead of single-select |
+| `questions[].options` (empty) | Renders an open-ended text input — omit options for free-text answers |
+| `requires_confirmation` | Require an explicit sign-off before an irreversible or high-risk operation |
+| `context` | Supporting detail shown above the questions |
 
-**Verified (2026-07-20)**: Chrome E2E — settings hint + `client_surface=web` hook, **`client_surface=tauri` when `window.__TAURI__` is present**, and a live inline card in chat (**READ 2/2 + LIVE 1/1**); agent-stream integration asserts mount/omit per surface; lane resolver ensures READ tests do not block LIVE lease.
+## How the round trip works
 
-## When `render_ui` is off (default)
+1. The agent calls `structured_clarify` and the run suspends.
+2. The WebUI renders the form inline; the chat stream is never blocked.
+3. The user submits; answers are persisted and the same run **auto-resumes** with those answers.
+4. A **900-second** backend timeout guard auto-resumes with `no_answer` if the user never replies, so a forgotten form cannot wedge the session.
 
-`render_ui` defaults **OFF** to keep Prompt Cache lean. If you ask for in-chat forms (e.g. deployment checklists) without enabling it:
+Harness **`ClarificationGuardMiddleware`** enforces at most one `ask_question_tool` per turn and blocks parallel tools, keeping the form and the tool plan consistent.
 
-1. **Preflight** emits a `capability_gap` SSE before the agent runs.
-2. WebUI shows a toast — tap **Enable & resend**.
-3. If the first stream is still loading, **`pendingGapRetry`** waits until **MESSAGE_END**, **ERROR**, or **CANCEL**, then auto-resends with `render_ui` on.
-4. Turn 2 renders the A2UI form inline — no trip to settings.
+## When to use it
 
-Competitors (OpenClaw, Hermes, jiuwenclaw) lack this preflight + deferred-retry loop; users must hunt settings or retype the message manually.
-
-## A2UI v3.1 behavior
-
-| Topic | Behavior |
-|-------|----------|
-| Component whitelist | **23** `UIComponentType` values (enum SSOT, front + back); includes dedicated **UIList** (`list` type, `bindings.data` array rendering — not a Container hack) |
-| Zero-hallucination skeleton | Prompt includes a direct **Minimal Example Structure** skeleton; explicitly prohibits object nesting in `children`; enforces strict reference closure between `actions` and `events` |
-| Progressive spec | Simple UIs (text + field + button) need no extra read; for **table / chart / tabs** or **3+ components**, the agent should `file_read_tool` `.agent/docs/A2UI_REFERENCE.md` first |
-| Validation | **Fail-closed** — unknown `type`, empty `components`, invalid graph (`root_ids`/`children`), or malformed `actions` return structured tool errors (no silent skip) |
-| User actions | Button / form submissions flow back as `UIActionEvent` and continue the agent loop |
-
-## Delivery pipeline (SSE)
-
-Tool execution may run in a LangGraph child asyncio task where `ArtifactContext` ContextVars are not visible. Myrm stashes UI artifacts by assistant `message_id` (run-level bind + post_run pop) so **`UI_UPDATE` SSE** still reaches the WebUI before `MESSAGE_END`.
-
-**Regression coverage (2026-07-10)**: 20 SSE wiring cases + 13 stream-collector tests + 12 frontend Vitest (incl. deep-merge `data_update`) + architecture enum parity + **1 real LLM agent-stream E2E** (minimax/MiniMax-M3) — **66 tests green** on the critical path. GUI & UX audit: **65 A2UI interactive component tests + 105 ArtifactCard tests + 68 ProgressSteps tests + 73 approval system tests + 6 gapEvents tests = 317 frontend tests passed**.
-
-## Incremental data updates (`update_ui_data`)
-
-Long-lived UIs (progress bars, task lists, live metrics) should not require a full `render_ui` redraw every turn. The agent calls **`update_ui_data`** to emit `data_update` events; the WebUI **deep-merges** `data` model fields (nested objects keep sibling keys; arrays replace by key).
-
-| Competitor | In-chat UI data refresh |
-|------------|-------------------------|
-| OpenClaw / Hermes / Codex | No first-class incremental UI data channel |
-| CopilotKit AG-UI | Stateful sync protocol, but no Myrm-style workspace spec + fail-closed enum gate |
-| **Myrm** | `render_ui` initial render + `update_ui_data` incremental SSE + frontend `mergeUiDataModel` deep merge |
-
-**User benefit**: deployment checklists, batch progress, and monitoring panels update live without flicker or wiping fields the user already filled.
-
-### Data bindings (`bindings`)
-
-Components can declare `bindings` — a map of **prop name → data path** (e.g. `{"text": "$.status"}`). On every render the frontend **resolves each bound prop from the `data` model and overrides the static value**, so display and form components become fully data-driven. Combined with `update_ui_data`, the agent only sends the changed data slice; bound props (progress percent, status badges, table rows, form values) update in place — no full artifact redraw, no Markdown regeneration.
-
-## JSON shape (adjacency list)
-
-```json
-{
-  "title": "Feedback form",
-  "components": [
-    {"id": "t1", "type": "text", "props": {"text": "Rate this run"}},
-    {"id": "f1", "type": "text_field", "props": {"label": "Comment"}, "bindings": {"value": "$.form.comment"}},
-    {"id": "b1", "type": "button", "props": {"label": "Submit"}, "events": {"onClick": "submit"}}
-  ],
-  "root_ids": ["t1", "f1", "b1"],
-  "data": {"form": {"comment": ""}},
-  "actions": [{"id": "submit", "type": "submit", "label": "Submit"}]
-}
-```
-
-## vs competitors
-
-| Product | In-chat generative UI |
-|---------|----------------------|
-| **Myrm** | 23 typed components, SSE artifact, progressive spec, fail-closed validation |
-| OpenClaw / Codex / Claude Code | No first-class in-chat form renderer |
-| CopilotKit AG-UI | Web protocol catalog (~19 basic widgets); no Myrm-style workspace spec seed + enum gate |
-| Hermes | Text suggestions; no structured chat UI artifact |
-
-For simple clarifying questions, prefer `ask_question_tool` instead of building a full UI. On the **desktop app**, the question is delivered through a **dedicated feedback window** — a focused dialog that pops up without blocking the chat flow.
-
-| Capability | Myrm |
-|------------|------|
-| Feedback surface | Independent desktop GUI window; the chat stream is never blocked |
-| Multiple pending questions | Queued and shown one window at a time — no overwrite, no missed confirmations |
-| Timeout | Auto-submits the default feedback and the workflow continues |
-| Draft lifecycle | Cleared on close / submit — a half-finished answer never leaks into the next question |
-| Hot reload | Pending and closed-question records survive an app upgrade and are restored exactly once |
-
-OpenClaw renders the same confirmation as a browser question-prompt component; Hermes / deer-flow / CoPaw / LobsterAI only offer plain terminal prompts with no queue, timeout, or draft lifecycle.
+Use `structured_clarify` for **clarifying questions and explicit sign-off** — deployment checklists, destructive-operation confirmation, and branch selection. For dashboards, charts, or long-lived live panels, prefer **Mermaid artifacts** or an artifact file: forms are for asking, not for displaying data.
 
 ## Large-file inline preview protection
 

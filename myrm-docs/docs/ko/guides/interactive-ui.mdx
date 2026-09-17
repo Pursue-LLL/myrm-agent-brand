@@ -1,120 +1,58 @@
 ---
-
-title: 대화형 UI(render_ui)
-description: A2UI v3.1 스택을 통한 선언적 채팅 양식, 테이블 및 차트.
+title: 대화형 양식(structured_clarify)
+description: structured_clarify 도구로 채팅 내에서 옵션, 다중 선택, 자유 텍스트 양식을 렌더링합니다.
 ---
 
-# 대화형 UI(`render_ui`)
+# 대화형 양식(`structured_clarify`)
 
-Myrm은 **선언적 UI 아티팩트** 파이프라인을 제공합니다. 에이전트는 `render_ui`을 호출하고, 서버는 `UI_UPDATE` SSE 이벤트를 내보내고, WebUI는 채팅에서 대화형 구성 요소를 인라인으로 렌더링합니다.
+Myrm은 **채팅 내에서 구조화된 양식을 렌더링**합니다. 에이전트가 `structured_clarify` 도구(`ask_question_tool` 스키마)를 호출하면 WebUI가 대화에 옵션 버튼, 체크박스, 자유 텍스트 입력란을 렌더링하고, 사용자가 제출하면 동일한 run이 그 답변으로 다시 이어서 실행됩니다.
 
 ## 도구 활성화
 
-1. 채팅에서 **에이전트 설정**을 엽니다.
-2. **대화형 UI**(`render_ui`)를 켭니다.
-3. 작업공간을 처음 실행할 때 서버는 `.agent/docs/A2UI_REFERENCE.md`(전체 소품 매뉴얼)을 시드합니다.
+1. 채팅에서 **Agent 설정**을 엽니다.
+2. **대화형 UI**(`structured_clarify`)를 켭니다.
 
-Turn1 비용은 슬림 도구 문서 문자열의 **~223개 토큰**입니다. 전체 구성 요소 소품은 프롬프트에 인라인되지 **않습니다**.
+꺼져 있으면 Turn1에 `ask_question_tool` 스키마가 전송되지 않으므로 사용하지 않는 기능에 토큰을 지불하지 않습니다.
 
-## 서피스 게이트(웹/데스크탑 전용)
+## 만들 수 있는 것
 
-인라인 A2UI는 **웹 채팅** 및 **Tauri 데스크톱 클라이언트**(`client_surface`: `web` 또는 `tauri`)에만 마운트됩니다. Telegram, Discord, cron 및 기타 웹이 아닌 채널은 Turn1에서 `render_ui_tool` / `update_ui_data_tool`을 로드하지 않습니다. 대신 에이전트가 일반 텍스트로 응답하므로 해당 표면에서 턴당 최대 318개의 프롬프트 토큰이 저장됩니다. **Voice**(OpenAI Realtime, Gemini Live 및 에이전트 브리지)도 인라인 A2UI를 생략합니다. 세션 내 UI 렌더러가 없으므로 `render_ui`를 노출하면 토큰만 낭비되고 손상된 도구 호출이 발생하게 됩니다. **대화형 UI**가 활성화되면 에이전트 설정에 힌트가 표시됩니다. 채팅 내 양식 및 라이브 패널에 웹 채팅 또는 데스크톱 앱을 사용하세요.
-
-**검증됨(2026년 7월 20일)**: Chrome E2E — 설정 힌트 + `client_surface=web` 후크, **`window.__TAURI__`가 있는 경우 `client_surface=tauri`**, 채팅의 라이브 인라인 카드(**READ 2/2 + LIVE 1/1**); 에이전트 스트림 통합은 표면당 마운트/생략을 주장합니다. 레인 확인자는 READ 테스트가 LIVE 임대를 차단하지 않도록 보장합니다.
-
-## `render_ui`이 꺼진 경우(기본값)
-
-`render_ui`은 프롬프트 캐시를 간결하게 유지하기 위해 기본값은 **OFF**입니다. 활성화하지 않고 채팅 양식(예: 배포 체크리스트)을 요청하는 경우:
-
-1. **프리플라이트**는 에이전트가 실행되기 전에 `capability_gap` SSE을 내보냅니다.
-2. WebUI에 알림 메시지가 표시됩니다. **활성화 및 재전송**을 탭합니다.
-3. 첫 번째 스트림이 여전히 로드 중인 경우 **`pendingGapRetry`**은 **MESSAGE_END**, **ERROR** 또는 **CANCEL**까지 기다린 다음 `render_ui`을 켜서 자동 재전송합니다.
-4. Turn 2는 A2UI 양식을 인라인으로 렌더링합니다. 설정으로 이동할 필요가 없습니다.
-
-경쟁업체(OpenClaw, Hermes, jiuwenclaw)에는 이 사전 실행 + 지연된 재시도 루프가 없습니다. 사용자는 설정을 검색하거나 수동으로 메시지를 다시 입력해야 합니다.
-
-## A2UI v3.1 동작
-
-| Topic | Behavior |
-|-------|----------|
-| Component whitelist | **23** `UIComponentType` values (enum SSOT, front + back); includes dedicated **UIList** (`list` type, `bindings.data` array rendering — not a Container hack) |
-| Progressive spec | Simple UIs (text + field + button) need no extra read; for **table / chart / tabs** or **3+ components**, the agent should `file_read_tool` `.agent/docs/A2UI_REFERENCE.md` first |
-| Validation | **Fail-closed** — unknown `type`, empty `components`, invalid graph (`root_ids`/`children`), or malformed `actions` return structured tool errors (no silent skip) |
-| User actions | Button / form submissions flow back as `UIActionEvent` and continue the agent loop |
-
-## 전달 파이프라인(SSE)
-
-도구 실행은 `ArtifactContext` ContextVars가 표시되지 않는 LangGraph 하위 asyncio 작업에서 실행될 수 있습니다. Myrm은 보조자 `message_id`(실행 수준 바인드 + post_run pop)에 의해 UI 아티팩트를 숨기므로 **`UI_UPDATE` SSE**는 여전히 `MESSAGE_END` 이전에 WebUI에 도달합니다.
-
-**회귀 적용 범위(2026-07-10)**: 20개의 SSE 배선 사례 + 13개의 스트림 수집기 테스트 + 12개의 프런트엔드 Vitest(심층 병합 `data_update` 포함) + 아키텍처 열거형 패리티 + **1개의 실제 LLM 에이전트 스트림 E2E**(minimax/MiniMax-M3) — **66개의 중요 경로에서 녹색 테스트**. GUI 및 UX 감사: **65개의 A2UI 대화형 구성 요소 테스트 + 105개의 ArtifactCard 테스트 + 68개의 ProgressSteps 테스트 + 73개의 승인 시스템 테스트 + 6개의 gapEvents 테스트 = 317개의 프런트엔드 테스트 통과**.
-
-## 증분 데이터 업데이트(`update_ui_data`)
-
-수명이 긴 UI(진행률 표시줄, 작업 목록, 실시간 측정 항목)는 매 턴 전체 `render_ui` 다시 그리기를 요구해서는 안 됩니다. 에이전트는 **`update_ui_data`**을 호출하여 `data_update` 이벤트를 내보냅니다. WebUI **심층 병합** `data` 모델 필드(중첩 객체는 형제 키를 유지하고 배열은 키로 대체됨)
-
-| Competitor | In-chat UI data refresh |
-|------------|-------------------------|
-| OpenClaw / Hermes / Codex | No first-class incremental UI data channel |
-| CopilotKit AG-UI | Stateful sync protocol, but no Myrm-style workspace spec + fail-closed enum gate |
-| **Myrm** | `render_ui` initial render + `update_ui_data` incremental SSE + frontend `mergeUiDataModel` deep merge |
-
-**사용자 이점**: 배포 체크리스트, 일괄 진행 상황 및 모니터링 패널은 사용자가 이미 입력한 필드가 깜박이거나 삭제되지 않고 실시간으로 업데이트됩니다.
-
-### 데이터 바인딩(`bindings`)
-
-컴포넌트는 `bindings`를 선언할 수 있습니다 — **prop 이름 → 데이터 경로** 매핑(예: `{"text": "$.status"}`). 모든 렌더링에서 프론트엔드는 **`data` 모델에서 바인딩된 prop을 해석하고 정적 값을 덮어씁니다**, 표시 및 양식 컴포넌트가 완전히 데이터 기반으로 작동합니다. `update_ui_data`와 결합하면 에이전트가 변경된 데이터 조각만 보내며, 바인딩된 prop(진행률 퍼센트, 상태 배지, 테이블 행, 양식 값)이 제자리에서 업데이트됩니다 — 전체 아티팩트를 다시 그리거나 Markdown을 재생성할 필요가 없습니다.
-
-## JSON 형태(인접 목록)
-
-```json
-{
-  "title": "Feedback form",
-  "components": [
-    {"id": "t1", "type": "text", "props": {"text": "Rate this run"}},
-    {"id": "f1", "type": "text_field", "props": {"label": "Comment"}, "bindings": {"value": "$.form.comment"}},
-    {"id": "b1", "type": "button", "props": {"label": "Submit"}, "events": {"onClick": "submit"}}
-  ],
-  "root_ids": ["t1", "f1", "b1"],
-  "data": {"form": {"comment": ""}},
-  "actions": [{"id": "submit", "type": "submit", "label": "Submit"}]
-}
-```
-
-## 경쟁사 대비
-
-| Product | In-chat generative UI |
-|---------|----------------------|
-| **Myrm** | 23 typed components, SSE artifact, progressive spec, fail-closed validation |
-| OpenClaw / Codex / Claude Code | No first-class in-chat form renderer |
-| CopilotKit AG-UI | Web protocol catalog (~19 basic widgets); no Myrm-style workspace spec seed + enum gate |
-| Hermes | Text suggestions; no structured chat UI artifact |
-
-간단하고 명확한 질문의 경우 전체 UI를 구축하는 대신 `ask_question_tool`을 선호합니다. **데스크톱 앱**에서는 질문이 **전용 피드백 창**을 통해 전달됩니다 — 채팅 흐름을 차단하지 않는 포커스된 다이얼로그입니다.
-
-| 기능 | Myrm |
+| 필드 | 용도 |
 |------|------|
-| 피드백 형태 | 독립 데스크톱 GUI 창, 채팅 스트림 차단 없음 |
-| 대기 중인 다중 질문 | 대기열로 창을 하나씩 표시 — 덮어쓰기나 누락 없음 |
-| 타임아웃 | 기본 피드백 자동 제출, 워크플로 계속 진행 |
-| 초안 수명주기 | 닫기/제출 시 초기화 — 미완성 답변이 다음 질문에 유출되지 않음 |
-| 핫 리로드 | 업그레이드 후 진행 중/닫힌 질문 기록이 그대로 유지되며 정확히 한 번만 복원 |
+| `title` | 전체 양식의 선택적 제목 |
+| `questions[]` | 하나 이상의 질문을 하나의 양식으로 렌더링 |
+| `questions[].options[]` | 선택 버튼(`id` + `label` + 선택적 `description`) |
+| `questions[].allow_multiple` | 단일 선택 대신 체크박스로 렌더링 |
+| `questions[].options`(비움) | 자유 텍스트 입력란 렌더링 — 옵션을 생략하면 직접 입력 |
+| `requires_confirmation` | 되돌릴 수 없거나 고위험 작업 전 사용자 명시적 승인 요구 |
+| `context` | 질문 위에 표시되는 배경 설명 |
 
-OpenClaw는 동일한 확인을 브라우저 question-prompt 컴포넌트로 렌더링하며, Hermes / deer-flow / CoPaw / LobsterAI는 대기열·타임아웃·초안 수명주기 없이 터미널 프롬프트만 제공합니다.
+## 왕복 동작 방식
 
-## 대용량 파일 인라인 미리보기 보호
+1. 에이전트가 `structured_clarify`를 호출하면 run이 대기 상태가 됩니다.
+2. WebUI가 채팅에 양식을 렌더링하며, **채팅 스트림을 차단하지 않습니다**.
+3. 사용자가 제출하면 답변이 저장되고 동일한 run이 해당 답변으로 **자동 재개**됩니다.
+4. 백엔드에 **900초** 타임아웃 가드가 등록되어, 사용자가 끝내 답하지 않으면 `no_answer`로 자동 재개됩니다. 잊힌 양식이 세션을 영구히 막지 않습니다.
 
-HTML/SVG/Mermaid 아티팩트는 기본적으로 채팅 스트림에서 자동 확장됩니다. 아티팩트가 **1MB**(`LARGE_FILE_THRESHOLD`)를 초과하면 인라인 렌더러의 성능이 정상적으로 저하됩니다.
+Harness의 **`ClarificationGuardMiddleware`**가 턴당 최대 하나의 `ask_question_tool` 호출만 허용하고 병렬 도구를 차단하여 양식과 도구 계획의 일관성을 유지합니다.
 
-1. 콘텐츠 가져오기 또는 `srcDoc` 렌더링이 발생하지 않습니다(OOM/브라우저 지연 방지).
-2. 압축 대체 카드에는 파일 크기와 **"전체 화면에서 보기"** 버튼이 표시됩니다.
-3. 버튼을 클릭하면 격리된 URL 모드(`iframe src`)를 통해 콘텐츠를 로드하는 `ArtifactPortal`이 열립니다. 파일 크기에 관계없이 성능 위험이 없습니다.
+## 사용 시점
 
-이렇게 하면 사용자가 정지되거나 비어 있는 인라인 미리 보기로 인해 생성된 대용량 파일(데이터 대시보드, 복잡한 SVG 인포그래픽)을 "실패한 작업"으로 착각하는 것을 방지할 수 있습니다.
+`structured_clarify`는 **명확화 질문과 명시적 승인**에 사용합니다 — 배포 체크리스트, 파괴적 작업 확인, 분기 선택 등입니다. 대시보드, 차트, 장기 실행 패널에는 **Mermaid 아티팩트**나 아티팩트 파일을 사용하십시오. 양식은 '묻기' 위한 것이지 '데이터 표시'를 위한 것이 아닙니다.
 
-| Product | Large-file protection |
-|---------|----------------------|
-| **Myrm** | 1 MB threshold + fallback CTA + URL-mode safe render + preload skip |
-| Hermes | Desktop only (512 KB); WebUI has no protection |
-| LobsterAI / OpenClaw | No protection; direct srcDoc render |
+## 대용량 파일 인라인 보호
 
-[에이전트 구성 - 도구 로딩](/docs/core-concepts/agent-configuration)도 참조하세요.
+HTML/SVG/Mermaid 아티팩트는 기본적으로 채팅 스트림에서 자동 확장 렌더링됩니다. 아티팩트가 **1 MB**(`LARGE_FILE_THRESHOLD`)를 초과하면 인라인 렌더러가 우아하게 저하됩니다.
+
+1. 콘텐츠 fetch도 `srcDoc` 렌더링도 발생하지 않습니다(OOM / 브라우저 지연 방지).
+2. 파일 크기와 **"전체 화면 보기"** 버튼을 보여주는 간결한 폴백 카드가 표시됩니다.
+3. 클릭하면 `ArtifactPortal`이 격리 URL 모드(`iframe src`)로 내용을 로드합니다 — 파일 크기와 무관하게 성능 위험이 없습니다.
+
+이를 통해 인라인 미리보기가 멈추거나 비어 있어 대용량 생성 파일(데이터 대시보드, 복잡한 SVG 인포그래픽)을 "실패한 작업"으로 오해하는 것을 방지합니다.
+
+| 제품 | 대용량 파일 보호 |
+|------|-----------------|
+| **Myrm** | 1 MB 임계값 + 폴백 CTA + URL 모드 안전 렌더 + 프리로드 생략 |
+| Hermes | 데스크톱만(512 KB), WebUI 보호 없음 |
+| LobsterAI / OpenClaw | 보호 없음, 직접 srcDoc 렌더 |
+
+참고: [Agent 구성 — 도구 로딩](/docs/ko/core-concepts/agent-configuration).

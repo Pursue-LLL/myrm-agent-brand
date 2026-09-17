@@ -150,7 +150,7 @@ Planning을 활성화하면 할 일이 `{sandbox}/.myrm/progress/todos.json` 아
 | Tier | Behavior | Examples |
 |------|----------|---------|
 | **Immediate** | Always available in the prompt when enabled | File ops, terminal, search, browser, **image/video/TTS when you toggle them in Agent config** (AgentDeclared eager mount) |
-| **Deferred** | Loaded on demand when intent is detected | UI rendering (`render_ui`), **cron management (default)**, computer use, optional integrations |
+| **Deferred** | Loaded on demand when intent is detected | Interactive forms (`structured_clarify`), **cron management (default)**, computer use, optional integrations |
 
 **미디어 도구 및 자격 증명**: 에이전트 내장 도구 패널에서 이미지/비디오/TTS를 활성화하면 이러한 도구는 **제공자 API 키 또는 미디어 게이트웨이가 설정 → 모델 서비스에 구성된 **경우에만** 1단계에 나타납니다. 자격 증명이 누락된 경우 UI에는 설정 링크와 함께 인라인 황색 경고가 표시됩니다. 에이전트는 충돌을 일으키거나 손상된 도구 스키마를 노출하지 않습니다.
 
@@ -307,9 +307,9 @@ ACP 프로토콜을 통해 외부 코딩 에이전트에 작업을 위임합니�
 - **27개의 사전 설정된 에이전트 매트릭스** — 시작 시 이니셜라이저가 동기화됩니다. 갤러리 및 설정 목록에는 27개의 내장 기능이 모두 표시됩니다(`AGENT_LIST_BUILTIN_PAGE_SIZE=50` 기본값, `enabled_builtin_tools`의 칩).
 - **단일 쓰기 경로** — `persist_enabled_builtin_tools`는 DB 쓰기 전에 유효성을 검사합니다. 레거시 ID는 자동 실패 대신 422를 반환합니다.
 - **기본 프로필** — UI 기본값은 `web_search` + `memory` + **`structured_clarify`**(구조화된 다중 질문 양식)입니다. 파일/셸 기능은 에이전트 기준을 통해 항상 켜져 있습니다. 양식 페이로드는 **`requires_confirmation: bool`**(경쟁사 스타일 5형 열거형 대체)을 사용합니다. `true`인 경우 WebUI는 호박색 위험 확인 강조를 렌더링합니다.
-- **사용자 스위치 ON → Turn1 직접 사용** — 기본 또는 수동으로 활성화된 내장 기능(선택한 경우 **cron**, **structured_clarify**, render_ui, 컴퓨터_use, x_search, Delegate_to_agent 포함) 및 바인딩된 기술 도구는 `discover_capability`을 먼저 호출하지 않고 첫 번째 턴 LLM 스키마에 나타납니다. **Cron 기본값은 OFF(검색 가능)** — 이를 활성화한 사용자만 ~827 토크 열망 스키마를 지불합니다. OpenClaw/Hermes은 항상 에이전트별 선택 해제 없이 Turn1에 cron을 마운트합니다. **`structured_clarify` 꺼짐 → 0 `ask_question_tool` 스키마** — 영구적인 메시지에 설명을 추가하는 경쟁업체와는 다릅니다. 하네스 **`ClarificationGuardMiddleware`**는 회전당 최대 하나의 `ask_question_tool`을 적용하고 병렬 도구를 차단합니다(Hermes 단일 회전 `clarify` 제약 조건에 맞춰 조정됨).
-- **active_tool_groups SSOT** — `derive_active_tool_groups()`은 활성화된 그룹을 한 곳에서 파생시켜 render_ui 또는 미디어 그룹이 이미 켜져 있을 때 거짓 `capability_gap`을 방지합니다.
-- **전체 행렬 회귀** — `CAPABILITY_GAP_REGISTRY`은 **14 GUI-togglable** 내장 기능(web_search, memory, cron, Answer_tool, browser, render_ui, Computer_use, wiki, kanban, Planning, **structured_clarify**, 미디어 트리오)을 다룹니다. 에이전트 기준 `file_ops` / `code_execute`은 런타임에 강제되며 간격 힌트에서 제외됩니다. 편집 가능한 화이트보드: [MCP을 통한 다이어그램](/docs/guides/diagram-via-mcp).
+- **사용자 스위치 ON → Turn1 직접 사용** — 기본 또는 수동으로 활성화된 내장 기능(선택한 경우 **cron**, **structured_clarify**, 컴퓨터_use, x_search, Delegate_to_agent 포함) 및 바인딩된 기술 도구는 `discover_capability`을 먼저 호출하지 않고 첫 번째 턴 LLM 스키마에 나타납니다. **Cron 기본값은 OFF(검색 가능)** — 이를 활성화한 사용자만 ~827 토크 열망 스키마를 지불합니다. OpenClaw/Hermes은 항상 에이전트별 선택 해제 없이 Turn1에 cron을 마운트합니다. **`structured_clarify` 꺼짐 → 0 `ask_question_tool` 스키마** — 영구적인 메시지에 설명을 추가하는 경쟁업체와는 다릅니다. 하네스 **`ClarificationGuardMiddleware`**는 회전당 최대 하나의 `ask_question_tool`을 적용하고 병렬 도구를 차단합니다(Hermes 단일 회전 `clarify` 제약 조건에 맞춰 조정됨).
+- **active_tool_groups SSOT** — `derive_active_tool_groups()`은 활성화된 그룹을 한 곳에서 파생시켜 `structured_clarify` 또는 미디어 그룹이 이미 켜져 있을 때 거짓 `capability_gap`을 방지합니다.
+- **전체 행렬 회귀** — `CAPABILITY_GAP_REGISTRY`은 **14 GUI-togglable** 내장 기능(web_search, memory, cron, Answer_tool, browser, external_cli, Computer_use, wiki, kanban, Planning, **structured_clarify**, 미디어 트리오)을 다룹니다. 에이전트 기준 `file_ops` / `code_execute`은 런타임에 강제되며 간격 힌트에서 제외됩니다. 편집 가능한 화이트보드: [MCP을 통한 다이어그램](/docs/guides/diagram-via-mcp).
 - **자격 공백** — **실행 전**은 에이전트 루프 전에 각 사용자 메시지를 검색합니다(Turn1 스키마를 변경하지 않고 SSE `capability_gap` / `skill_gap`). 발견 미스는 동일한 레지스트리를 사용합니다. WebUI는 **`/api/v1/workspace/stream` 멀티플렉스**(POST 전에 등록된 리스너이므로 초기 청크가 버퍼링됨)를 통해 프리플라이트 이벤트를 수신합니다. Toast는 원클릭 활성화/바인딩을 제공합니다. 스트림이 로드되는 동안 클릭하면 `pendingGapRetry`는 **MESSAGE_END**, **ERROR** 또는 **CANCEL**(두 번째 수동 전송 없음) 후에 자동으로 다시 전송됩니다.
 - **세션 도구 패널** — 채팅 입력 **렌치** 아이콘은 SSE `tools_snapshot`(레이어 배지 포함)를 통해 라이브 **Turn1-bound** 도구를 표시하며, 이는 설정에서 전환된 것뿐만 아니라 에이전트가 지금 바로 호출할 수 있는 것을 반영합니다.
 - **제어판 도구(기본 Turn1 토큰 없음)** — 오케스트레이션 신호(Deep Research), CompletionGuard(`_completion_check`), Verifier(`submit_verdict`) 및 워크플로 PTC(`spawn_subagent`/`notify`)는 감사를 위해 등록되지만 **기본 채팅 바인드에서 제외** — 일반 채팅은 생성/오케스트레이션 스키마 세금을 지불하지 않습니다. 측정된 기본 프로필: **15개 도구 / ~8,354개의 톡 도구 레이어**(2026년 7월 SSOT).
