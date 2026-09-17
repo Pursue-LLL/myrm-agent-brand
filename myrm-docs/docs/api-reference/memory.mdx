@@ -167,3 +167,51 @@ POST /api/v1/statistics/learning-timeline/skill/:id/archive
   "archived": true
 }
 ```
+
+## Memory Command Center: Long-Horizon Economics Profiler
+
+```bash
+GET /api/v1/memory/command-center/economics?conversation_id=conv-xxx&window=50
+```
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `conversation_id` | string | `None` | Optional conversation filter (omitted to evaluate global stateful trajectories) |
+| `window` | int | 50 | Recent turn horizon window size (max 200) |
+
+Response:
+
+```json
+{
+  "kpis": {
+    "total_injected_turns": 42,
+    "avg_load_ratio": 0.18,
+    "avg_phase_latency_ms": {
+      "retrieval": 12.4,
+      "assembly": 4.1,
+      "injection": 1.8
+    },
+    "long_horizon_roi": "optimal"
+  },
+  "turn_trajectories": [
+    {
+      "turn": 1,
+      "retrieval_ms": 14.2,
+      "assembly_ms": 3.8,
+      "injection_ms": 1.5,
+      "load_ratio": 0.12,
+      "injected_tokens": 320
+    }
+  ],
+  "parasitic_stale_items": [
+    {
+      "id": "mem-123",
+      "content": "Legacy unreferenced trap rule",
+      "created_at": "2026-06-01T00:00:00Z",
+      "access_count": 0,
+      "estimated_tokens": 150
+    }
+  ]
+}
+```
+

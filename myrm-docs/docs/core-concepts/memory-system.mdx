@@ -827,4 +827,40 @@ Myrm provides **rigorous Induced Subgraph Pushdown and robust Causal Traversal**
 - Recursive CTE causal chain analysis utilizes comma delimiters (`,node_id,`) for visited path tracking, preventing IDs like `node_20` from triggering false positive cycle detection against `node_2`.
 - When `relation_types=[]`, the engine automatically bypasses edge type filters to deliver seamless downstream traversal.
 
+## Stateful Long-Horizon Memory Economics Profiler & 3-Phase Overhead Governance Dashboard
+
+In long-horizon, multi-turn stateful workflows (such as 50+ turn debugging sessions, complex engineering implementations, or autonomous research pipelines), traditional Agent memory frameworks frequently suffer from "black-box economic sprawl":
+1. **Three-Phase Black-Box Latency & Token Bloat**: Overall conversation latency spikes, yet developers cannot distinguish whether bottlenecks originate from Retrieval, Assembly, or Context Injection;
+2. **Lack of Long-Horizon Memory ROI Evaluation**: Context windows fill with legacy memories, but only a fraction are genuinely referenced by the LLM, leaving value unquantified;
+3. **Parasitic Stale Memory Sprawl**: Obsolete configurations and dead-end notes unaccessed for months remain pinned, consuming high-cost context quota, degrading prompt cache efficiency, and slowing Time-to-First-Token (TTFT).
+
+Benchmarking cutting-edge memory economics literature (Omri et al. 2026), Myrm integrates the **Stateful Long-Horizon Memory Economics Profiler & 3-Phase Governance Dashboard (`StatefulLongHorizonMemoryEconomicsProfiler`)** across the Harness execution engine and Server tiers:
+
+### 1. Microsecond-Level 3-Phase Profiling
+- **Retrieval Phase**: Profiles concurrent multi-channel recall latencies and candidate counts across FTS5 sparse search, Qdrant dense vectors, and knowledge graph queries;
+- **Assembly Phase**: Measures cross-source deduplication, deterministic RRF fusion, surplus-spillover budget redistribution, and prompt template serialization overhead;
+- **Injection Phase**: Tracks the exact token expenditure, character footprint, and relative payload percentage loaded into the system prompt.
+
+### 2. Dynamic Long-Horizon Memory ROI Assessment
+The engine computes the empirical return on investment across multi-turn trajectories:
+$$\text{ROI} = \frac{\text{Decision-Referenced Memory Tokens}}{\text{Total Injected Memory Tokens}}$$
+
+Visualized across four dynamic health tiers:
+- **Optimal ($\text{ROI} \ge 0.70$)**: Highly condensed memory footprint where nearly all injected tokens directly inform model choices;
+- **Healthy ($0.40 \le \text{ROI} < 0.70$)**: Balanced context budget with predominant utility;
+- **Suboptimal ($0.15 \le \text{ROI} < 0.40$)**: Excessive redundant recall, recommending rule tightening;
+- **Parasitic ($\text{ROI} < 0.15$)**: Context heavily diluted by dormant cold data, triggering parasitic alarms.
+
+### 3. Parasitic Stale Memory Detection & Governance Loop
+- **Automated Heuristic Scanning**: Identifies items pinned high in context but unreferenced across consecutive turns with aged access timestamps;
+- **Dual Remediations**: Supports one-click **Downgrade** to unpin from default injection, or **Batch Archive** to relocate out of active context into cold storage.
+
+### 4. Memory Command Center 50-Turn Stateful Trajectory Dashboard
+- **4 KPI Metric Capsules**: Displays total injected turns, average context burden ratio, 3-phase average latency (P50/P90), and current long-horizon ROI rating;
+- **50-Turn Trajectory Graph**:
+  - **Stacked Latency Bars**: Dissects retrieval, assembly, and injection time slices per turn;
+  - **Dual-Axis Utilization Curves**: Tracks memory load ratio evolution across the conversation horizon;
+- **Theme-Adaptive & Real-Time**: Seamlessly adapts to light and dark themes with instantaneous recalculation and cache refresh controls.
+
+
 
