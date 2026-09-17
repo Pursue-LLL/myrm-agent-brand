@@ -1,0 +1,65 @@
+---
+title: NAS 与家庭实验室部署
+description: 使用 Docker Compose 与三个持久化卷，在群晖/QNAP/家庭实验室运行 Myrm。
+---
+
+# NAS 与家庭实验室部署
+
+在生产编排之上叠加一个文件——无需分叉镜像，无需额外容器。
+
+## 启动
+
+```bash
+cd myrm
+docker compose -f docker-compose.yml -f docker-compose.nas.yml --profile app up -d
+```
+
+群晖 Container Station 中用这两个文件创建项目并填写相同命令即可。
+
+## 存储
+
+三个命名卷，各自映射到应用支持的分离点：
+
+| 卷 | 容器内 | 内容 |
+| --- | --- | --- |
+| `myrm-nas-data` | `MYRM_DATA_DIR` | SQLite、Qdrant、检查点、harness 状态 |
+| `myrm-nas-memory` | `MEMORY_BASE_PATH` | 用户记忆内容——**请备份这一个** |
+| `myrm-nas-logs` | `EVENT_LOG_DIR` | 事件/审计日志——可放心轮转 |
+
+凭据加密存放在 `data.db` 内，因此刻意不设明文 secrets 挂载。
+
+## 从单卷迁移
+
+已在用 `myrm-data`？旧数据会原样保留在旧卷中。迁移方法：
+
+```bash
+docker compose --profile app stop myrm-server
+docker run --rm -v myrm-data:/from -v myrm-nas-data:/to alpine sh -c "cp -a /from/. /to/"
+docker run --rm -v myrm-data:/from -v myrm-nas-memory:/to alpine sh -c "cp -a /from/memory/. /to/ 2>/dev/null || true"
+docker compose -f docker-compose.yml -f docker-compose.nas.yml --profile app up -d
+```
+
+在 WebUI 确认无误后，再删除旧卷。
+
+## 更新
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.nas.yml pull
+docker compose -f docker-compose.yml -f docker-compose.nas.yml --profile app up -d
+```
+
+数据迁移在启动时自动执行。
+
+## NAS 调优
+
+| 变量 | 默认值 | 含义 |
+| --- | --- | --- |
+| `NAS_MEM_LIMIT` | `2g` | 服务端内存上限 |
+| `NAS_CPUS` | `1.0` | 服务端 CPU 上限 |
+| `NAS_FRONTEND_MEM_LIMIT` | `512m` | 前端内存上限 |
+| `NAS_FRONTEND_CPUS` | `0.5` | 前端 CPU 上限 |
+
+## 本地模型（可选）
+
+在 NAS 本机（或局域网任意机器）运行 Ollama，然后在 WebUI 设置中按 OpenAI 兼容供应商添加
+`http://host.docker.internal:11434` 即可，无需 sidecar 容器。

@@ -1,0 +1,65 @@
+---
+title: NAS & HomeLab Deployment
+description: Run Myrm on Synology/QNAP/HomeLab with Docker Compose and three persistent volumes.
+---
+
+# NAS & HomeLab Deployment
+
+One compose file on top of the production stack — no forked images, no extra containers.
+
+## Start
+
+```bash
+cd myrm
+docker compose -f docker-compose.yml -f docker-compose.nas.yml --profile app up -d
+```
+
+On Synology Container Station, create a project from these two files and set the same command.
+
+## Storage
+
+Three named volumes, each mapped to an app-supported split point:
+
+| Volume | Inside the container | What it holds |
+| --- | --- | --- |
+| `myrm-nas-data` | `MYRM_DATA_DIR` | SQLite, Qdrant, checkpoints, harness state |
+| `myrm-nas-memory` | `MEMORY_BASE_PATH` | User memory content — **back this one up** |
+| `myrm-nas-logs` | `EVENT_LOG_DIR` | Event/audit logs — safe to rotate |
+
+Credentials stay encrypted inside `data.db`; there is deliberately no separate plaintext secrets mount.
+
+## Migrate From The Single Volume
+
+Already running with `myrm-data`? Your data stays untouched in the old volume. To move it:
+
+```bash
+docker compose --profile app stop myrm-server
+docker run --rm -v myrm-data:/from -v myrm-nas-data:/to alpine sh -c "cp -a /from/. /to/"
+docker run --rm -v myrm-data:/from -v myrm-nas-memory:/to alpine sh -c "cp -a /from/memory/. /to/ 2>/dev/null || true"
+docker compose -f docker-compose.yml -f docker-compose.nas.yml --profile app up -d
+```
+
+Verify in WebUI, then remove the old volume when you are sure.
+
+## Update
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.nas.yml pull
+docker compose -f docker-compose.yml -f docker-compose.nas.yml --profile app up -d
+```
+
+Migrations run automatically on startup.
+
+## NAS Tuning
+
+| Variable | Default | Meaning |
+| --- | --- | --- |
+| `NAS_MEM_LIMIT` | `2g` | Server memory cap |
+| `NAS_CPUS` | `1.0` | Server CPU cap |
+| `NAS_FRONTEND_MEM_LIMIT` | `512m` | Frontend memory cap |
+| `NAS_FRONTEND_CPUS` | `0.5` | Frontend CPU cap |
+
+## Local Models (Optional)
+
+Run Ollama on the NAS host (or any LAN box), then add it in WebUI Settings as an
+OpenAI-compatible provider at `http://host.docker.internal:11434`. No sidecar container needed.
