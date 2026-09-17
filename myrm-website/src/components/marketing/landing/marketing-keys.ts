@@ -43,7 +43,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'browserHealthOps',
   'humanizedBrowsing',
   'skillGrowth',
-  'interactiveUi',
+  'richRendering',
   'evidenceDiscipline',
   'marketplaceAgentInstall',
   'rewindUndo',

@@ -38,7 +38,7 @@ POST /api/tools/:name/execute
 | `glob_tool` | File path pattern search under the workspace |
 | `@codebase` mention | Lightweight workspace file/extension overview injected into the user message (use with grep/glob for exploration) |
 | `web_search` | Multi-engine search with BM25/Reranker filtering — returns cleaned, deduplicated snippets |
-| `structured_clarify` | 채팅 내 구조화 양식: 선택 버튼, 다중 선택 체크박스, 자유 텍스트 질문. 제출 시 동일 run이 재개되며 900초 백엔드 가드가 `no_answer`로 자동 재개합니다. 기본 OFF — 대화형 UI 활성화 전에는 Turn1에 `ask_question_tool` 스키마가 없습니다 |
+| `structured_clarify` | 채팅 내 구조화 양식: 선택 버튼, 다중 선택 체크박스, 자유 텍스트 질문. 제출 시 동일 run이 재개되며 900초 백엔드 가드가 `no_answer`로 자동 재개합니다. 기본 ON(`structured_clarify`) — 끄면 Turn1에 `ask_question_tool` 스키마가 전송되지 않습니다 |
 | `todo_write` | Structured task planning for multi-step objectives. Hard-enforced MAX_TODOS=20 limit prevents over-planning; single `in_progress` concurrency keeps execution focused. Violations auto-corrected with LLM feedback. Opt-in via Planning toggle or auto-enabled on resume when existing todos detected |
 
 ### 기본 도구 그룹과 주문형 기능 비교

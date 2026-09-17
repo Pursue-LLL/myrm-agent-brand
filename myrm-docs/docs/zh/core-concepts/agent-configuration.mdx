@@ -292,7 +292,7 @@ GUI 配置编辑器提供 5 个独立面板（技能 / MCP / 内置工具 / 子�
 |-----------|:---:|
 | **Skills** | `skill_ids[]` — 该 Agent 可用技能集 |
 | **Model** | 按 Agent 选模型 |
-| **Built-in Tools** | `enabled_builtin_tools[]` — 15 类 canonical 工具白名单（py↔ts 契约锁死；legacy ID 如 `image_gen` 明确拒绝） |
+| **Built-in Tools** | `enabled_builtin_tools[]` — 18 类 canonical 工具白名单（16 项 GUI 可切换 + 2 项 Agent 基线）（py↔ts 契约锁死；legacy ID 如 `image_gen` 明确拒绝） |
 | **MCP Tools** | `mcp_tool_selections{}` — 按服务选工具 |
 | **Security** | `security_overrides{}` — 独立安全策略 |
 | **Sub-Agents** | `subagent_ids[]` — 按需多层协作。统一沙箱内多 Agent 天然共享文件系统和浏览器，零同步成本无缝接力。启用后 Agent 可自动将子任务委派给专业 Agent |
@@ -313,7 +313,7 @@ GUI 配置编辑器提供 5 个独立面板（技能 / MCP / 内置工具 / 子�
 
 ### Built-in Tools SSOT（2026-07）
 
-- **15 canonical IDs**：`web_search`、`memory`、**`structured_clarify`** 等 **14 项**在 UI 可切换；`file_ops`、`code_execute` 为 **Agent 基线**（服务端强制 Turn1 eager，面板不展示开关）。
+- **18 canonical IDs**：`web_search`、`memory`、**`structured_clarify`** 等 **16 项**在 UI 可切换；`file_ops`、`code_execute` 为 **Agent 基线**（服务端强制 Turn1 eager，面板不展示开关）。
 - **27 预置 Agent 工具矩阵**：服务启动时 initializer 幂等同步；Agent 画廊与设置页均展示完整 27 个 built-in（`AGENT_LIST_BUILTIN_PAGE_SIZE=50` 默认；画廊 chip 来自 `enabled_builtin_tools`）。
 - **写路径单入口**：`persist_enabled_builtin_tools` 校验后再落库；legacy ID 返回 422，避免 silent 失效。
 - **默认 profile**：UI 默认开启 `web_search` + `memory` + **`structured_clarify`（结构化多题澄清表单）**；**文件/代码执行能力始终可用**（Agent 基线，无需用户勾选）。表单 payload 使用 **`requires_confirmation: bool`**（替代竞品常见的 5 类枚举）；`true` 时 WebUI 以琥珀色强调风险确认。
