@@ -265,19 +265,19 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   5. **有界防卡死关机与全套自动化测试 100% 通过**：`shutdown_tracing(timeout_ms=1500.0)` 引入独立 Daemon Thread 隔离超时退出；Harness 单测 30 项、Server 集成 3 项、Frontend 单测 3 项全绿，真实 Chrome MCP E2E 真实大模型与浏览器交互闭环通过（87.74s）。
 - **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/infra/tracing/` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/system/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
 
-## 五大标杆竞品（Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi）深度横向对标与核心获益
+## 六大标杆竞品（Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode）深度横向对标与核心获益
 
-| 维度 | Myrm Agent | Hermes (NousResearch) | OpenClaw | Codex (Code-Centric) | DeepSeek-Harness | Pi (Inflection) |
-|------|------------|-----------------------|----------|----------------------|------------------|-----------------|
-| **产品形态** | **全栈 AI 工作站 (WebUI + Tauri 桌面 + 云控制平面)** | CLI/TUI 为主，简易 Web | 命令行/脚本为主 | IDE 插件/单体代码补丁 | 算法评测/推理框架 | 纯情感陪聊 Bot |
-| **首轮 Token 开销** | **2,167 tokens** (动态按需披露，节省 86%+) | 15,520+ (全量加载 73% 固定开销) | 18,000+ (Turn1 全量 bind) | 单次文件大上下文打满 | 无动态披露，按提示词硬拼 | 仅对话上下文 |
-| **程序化工具调用 (PTC) 与多步合并** | **两轨制 PTC (MCP+DW)，多步依赖沙箱内存原子串联（1 轮搞定、耗时缩短 90%、Token 降 85%），三级渐进披露 (<200 Token)，Durable 0-Token 秒级断点续跑** | 单步 JSON FC，多步骤需 4 轮大模型往返 (25s+)，大量原始报文回灌污染上下文 | Turn 1 全量 bind 工具 (45,000+ Token 爆仓)，无沙箱代码原子串联，多次往返 | 仅单向数据计算沙箱，外部多工具仍走传统多轮 JSON 交互 | 单一 `run_code` 编译模式，无三级渐进披露，缺乏持久化状态账本 | 无工具调用与代码执行力 |
-| **模型切换与缓存** | **全生命周期自适应路由，同会话随意切模型，`<think>` 自动清洗，Prompt Cache 97% 命中** | 换模型强制 `/new` 清空会话，否则报 400 格式错误 | 无法平滑转译，频繁打碎云端 KV 缓存 | 固定绑定单一模型 | 偏固定单点模型测试 | 固定闭源托管模型 |
-| **执行可靠性与自愈** | **14 层恢复网格 + 结构有界 json_repair + 交付物未落盘反思拦截** | 基础重试，缺少未落盘检测 | 裸 `JSON.parse`，带 markdown 或反思散文即崩溃 | 依赖人工在 IDE 检查补丁 | 简单超时重试 | 无代码或工具执行力 |
-| **多智能体与任务治理**| **看板任务级模型重写 + 9 态生命周期 + IN_REVIEW 人工审批门 + 动态活体引导 (Live Steer)** | 基础子任务，无动态活体干预 | 无子代理任务看板 | 仅单智能体生成 | 批量单任务推理 | 无任务分解与执行 |
-| **安全与沙箱隔离** | **6 层纵深防御 (L1~L5.5) + Cloud 沙箱 HMAC 凭证防火墙 + YOLO 互斥** | IronProxy (依赖 MITM CA，易断) | 单层权限声明，易受 Confused Deputy 越权 | 本地无保护执行或受限沙箱 | 无沙箱凭证防护 | 无外部执行权限 |
-| **知识与第二大脑** | **Second Brain 原子预设 + 三大维护 Cron 蓝图 + 多源安全同步 + 白盒 8 类记忆与 3D 拓扑图谱 + 三维正交认知 (SOUL/MEMORY/USER) 五级作用域隔离** | 仅粗糙 CLI 脚本，3 类单选记忆 | 3 类基础内存缓存，无第二大脑预设 | 无个人知识库 | 无记忆状态持久化 | 黑盒不可视不可导出的记忆 |
-| **真实业务闭环** | **独创 Browser Orchestrator 真实 Chrome 多路复用 + 真实 LLM 全链路 E2E** | 模拟器或简单无头浏览器 | 简易无头脚本 | 无浏览器集成 | 无图形浏览器 | 无浏览器与系统操作 |
+| 维度 | Myrm Agent | Hermes (NousResearch) | OpenClaw | Codex (Code-Centric) | DeepSeek-Harness | Pi (Inflection) | OpenCode |
+|------|------------|-----------------------|----------|----------------------|------------------|-----------------|----------|
+| **产品形态** | **全栈 AI 工作站 (WebUI + Tauri 桌面 + 云控制平面)** | CLI/TUI 为主，简易 Web | 命令行/脚本为主 | IDE 插件/单体代码补丁 | 算法评测/推理框架 | 纯情感陪聊 Bot | 终端优先编码 Agent + Web/Electron 桌面/IDE 客户端 |
+| **首轮 Token 开销** | **2,167 tokens** (动态按需披露，节省 86%+) | 15,520+ (全量加载 73% 固定开销) | 18,000+ (Turn1 全量 bind) | 单次文件大上下文打满 | 无动态披露，按提示词硬拼 | 仅对话上下文 | 静态会话工具与技能注册表（无实测渐进披露层级） |
+| **程序化工具调用 (PTC) 与多步合并** | **两轨制 PTC (MCP+DW)，多步依赖沙箱内存原子串联（1 轮搞定、耗时缩短 90%、Token 降 85%），三级渐进披露 (<200 Token)，Durable 0-Token 秒级断点续跑** | 单步 JSON FC，多步骤需 4 轮大模型往返 (25s+)，大量原始报文回灌污染上下文 | Turn 1 全量 bind 工具 (45,000+ Token 爆仓)，无沙箱代码原子串联，多次往返 | 仅单向数据计算沙箱，外部多工具仍走传统多轮 JSON 交互 | 单一 `run_code` 编译模式，无三级渐进披露，缺乏持久化状态账本 | 无工具调用与代码执行力 | 原生 `code-mode` PTC 路径；无三级渐进披露与持久化状态账本 |
+| **模型切换与缓存** | **全生命周期自适应路由，同会话随意切模型，`<think>` 自动清洗，Prompt Cache 97% 命中** | 换模型强制 `/new` 清空会话，否则报 400 格式错误 | 无法平滑转译，频繁打碎云端 KV 缓存 | 固定绑定单一模型 | 偏固定单点模型测试 | 固定闭源托管模型 | 依赖 provider 配置；无跨家族会话内清洗盾 |
+| **执行可靠性与自愈** | **14 层恢复网格 + 结构有界 json_repair + 交付物未落盘反思拦截** | 基础重试，缺少未落盘检测 | 裸 `JSON.parse`，带 markdown 或反思散文即崩溃 | 依赖人工在 IDE 检查补丁 | 简单超时重试 | 无代码或工具执行力 | LSP 锚定 `apply_patch`；无交付物落盘拦截 |
+| **多智能体与任务治理**| **看板任务级模型重写 + 9 态生命周期 + IN_REVIEW 人工审批门 + 动态活体引导 (Live Steer)** | 基础子任务，无动态活体干预 | 无子代理任务看板 | 仅单智能体生成 | 批量单任务推理 | 无任务分解与执行 | 子代理 `task` 工具；无看板与审批门 |
+| **安全与沙箱隔离** | **6 层纵深防御 (L1~L5.5) + Cloud 沙箱 HMAC 凭证防火墙 + YOLO 互斥** | IronProxy (依赖 MITM CA，易断) | 单层权限声明，易受 Confused Deputy 越权 | 本地无保护执行或受限沙箱 | 无沙箱凭证防护 | 无外部执行权限 | 按工具权限配置；无多租户沙箱防火墙 |
+| **知识与第二大脑** | **Second Brain 原子预设 + 三大维护 Cron 蓝图 + 多源安全同步 + 白盒 8 类记忆与 3D 拓扑图谱 + 三维正交认知 (SOUL/MEMORY/USER) 五级作用域隔离** | 仅粗糙 CLI 脚本，3 类单选记忆 | 3 类基础内存缓存，无第二大脑预设 | 无个人知识库 | 无记忆状态持久化 | 黑盒不可视不可导出的记忆 | **无内置记忆与知识库** |
+| **真实业务闭环** | **独创 Browser Orchestrator 真实 Chrome 多路复用 + 真实 LLM 全链路 E2E** | 模拟器或简单无头浏览器 | 简易无头脚本 | 无浏览器集成 | 无图形浏览器 | 无浏览器与系统操作 | 无一方浏览器工具（Playwright 仅用于自身 E2E 测试） |
 
 ### 核心技术压制与用户切实收益
 
@@ -296,6 +296,10 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 5. **对标 Pi (Inflection)**：
    - **痛点断点**：纯自然语言陪聊，完全缺失代码沙箱、Shell 与外部工具执行能力；记忆完全黑盒封闭，无法审计、修改或私有化部署。
    - **Myrm 获益**：**“高情商伴侣 + 硬核工程专家”双心智同构**（兼具 15 种物种伴侣与全自动工程交付）+ **白盒化 8 类记忆与级联遗忘** + **本地/桌面/云托管全数据主权**。
+
+6. **对标 OpenCode（The Open-Source AI Coding Agent）**：
+   - **痛点断点**：OpenCode 是工程质量扎实的终端优先编码 Agent（v1.18，每日高频发版），LSP 锚定与原生 `code-mode` PTC 路径确实优秀，但能力止步于代码：**无内置记忆与知识库**（`packages/core/src` 下不存在任何 memory 模块）、**无任务看板治理**（无任务板、无 `IN_REVIEW` 人工审批门）、**无一方浏览器自动化工具**（Playwright 仅出现在其自身 E2E 测试工程内）、IM 渠道**仅有 Slack 一个**（无 Telegram、Discord、飞书、微信、钉钉）。且配置以文件为中心（`config.mdx`），非技术用户在看到价值前就要先跨过终端与配置文件门槛。
+   - **Myrm 获益**：**白盒 8 类记忆 + Second Brain Wiki + 3D 拓扑图谱 + 级联遗忘**（OpenCode 完全没有对应能力）+ **看板任务级模型重写 + 9 态生命周期 + `IN_REVIEW` 审批门** + **35+ 开箱即用渠道**（对方仅 Slack）+ **一方 Browser Orchestrator（真实 Chrome :9333 多路复用）** 让真实业务闭环可验证 + **GUI 优先上手**（2 分钟安装，无需写配置文件）。
 
 
 ## 最新验证快照（2026-09-08 · 桌面运算符假键名双层护栏 · 堵住计算器空转烧 Token）
@@ -344,6 +348,24 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **异步非阻塞全局 Prompt Cache 雷达（`prompt_cache_radar.py:40-110` · `UsageStatisticsSection.tsx:320-370`）**：彻底重构跨会话日志统计，利用 `asyncio.to_thread` 卸载至工作线程，结合数据库索引秒级聚合 7/30/90 天 Prompt Cache 命中率、缓存读取 Token 量与真金白银折算节省金额（USD），让长文本优化成效直观可见；
   4. **全套自动化测试 100% 满分通过**：静态契约测试 254 项全绿（2.82s）、后端统计模块 215 项单元测试（211 passed, 4 skipped，7.02s）、前端 Vitest 742 个测试套件 5186 项测试全绿通过（196s），零 Lint 告警。
 - **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/event_log/` · `myrm-agent-server/app/api/statistics/` · `myrm-agent-frontend/src/components/features/settings/sections/system/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
+
+## vs OpenCode（anomalyco/opencode）— 开源终端编码 Agent
+
+OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供应商、启动快。它刻意不做的是「周边工作台」——记忆、GUI、自动化与治理，于是每一个非编码需求都会变成一次集成工程。
+
+### Myrm 的领先之处
+
+| 维度 | OpenCode | Myrm | 用户获益 |
+|------|----------|------|----------|
+| **内置 Agent 数量** | **4 个**原生 Agent（`build`、`plan`、`general` 子代理、`explore` 子代理，见 `packages/opencode/src/agent/agent.ts`） | **27 个内置 Agent**（5 核心 + 2 检索 + 5 扩展 + 15 垂直）+ GUI 画廊 + 自定义创建 | 直接选用现成角色（调研、设计、数据可视化、视频工作室…），不必手工调教一个通用 Agent。 |
+| **记忆与知识** | **完全没有**——仓库中不存在记忆子系统，每次会话从零开始 | **8 类白盒记忆 + Wiki 知识库 + 3D 拓扑图谱 + 级联遗忘** | Agent 能跨周记住约定、决策与历史失败；知识沉淀为可复用资产。 |
+| **界面与触达** | 终端 TUI + 早期 Electron 桌面 Beta | **响应式 WebUI + 原生 Tauri 桌面 + 35+ IM 渠道** | 非开发者也能上手，手机即可审批，不必守着终端。 |
+| **自动化** | 仅手动触发，无调度器 | **19+ Cron API + 链式任务 + 心跳监控 + 渠道推送** | 周期性报表与维护任务无人值守执行，并在你常用的渠道通知你。 |
+| **任务治理** | 单会话，无看板与审批门 | **看板 9 态生命周期 + IN_REVIEW 人工审批 + 动态活体引导 (Live Steer)** | 长程多步任务全程可见可审计，不可逆动作前有人工闸门。 |
+| **安全纵深** | 配置文件驱动的 `permission` 规则集（单层） | **6 层纵深防御 (L1–L5.5) + PII 脱敏 + Taint Tracking + YOLO 互斥** | 提示词注入与 Confused Deputy 越权被物理阻断，而非仅靠配置劝导。 |
+| **供应商自由度** | 通过 provider 配置支持 75+ 模型 | **100+ 模型 + 自动复杂度路由** | 日常轮次自动交由廉价模型，前沿模型只用于真正的推理。 |
+
+**迁移结论：10 项升级、0 项降级。** OpenCode 的编码能力完整保留，额外获得记忆、GUI、调度、多渠道触达与纵深防御——否则你需要自己拼装「OpenCode + 记忆插件 + cron 脚本 + 审批包装器」。
 
 ## 最新验证快照（2026-09-07 · 计算机与浏览器操控质量对标 Codex / Claude Code 迁民口碑攻坚 · SDC 毫秒级桌面控制全面交付）
 
@@ -935,7 +957,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **Token 开销压缩 85%+ 与叶子安全硬围栏**：协作沟通成本锐减，底层物理封禁子智能体执行 `cron_manage_tool` 或递归无限制派生，防止权限泄露；
   4. **WebUI 详情抽屉可视化透出**：`SubagentDetailDrawer` 原生以高亮徽标呈现事实发现、置信度等级与代码真实凭据，技术与产品体验全链路闭环；
   5. **100% 自动化测试全绿**：全套单测与集成测试 100% 满分通过。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/` · `temp-docs/materials/DYNAMIC_WORKFLOW_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/` · `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-03 · 全渠道长程任务托管委托、动态转向与富交付枢纽 · 渠道生态完成）
 

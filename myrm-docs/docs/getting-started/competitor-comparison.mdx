@@ -296,18 +296,18 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
   4. **308 Automated Multi-Tier Tests 100% Passed**: 126 Harness unit tests, 11 real SQLite integration tests, 46 Server API/DB tests, and 125 Frontend Vitest tests all pass with 0 failures and zero zombie processes.
 - **SSOT Sources:** `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/` · `temp-docs/materials/MEMORY_ADVANTAGE.md` · `temp-docs/roadmap/topic_01_memory_roadmap.md`
 
-## In-Depth Benchmark Against Five Flagship Competitors & Tangible Gains
+## In-Depth Benchmark Against Six Flagship Competitors & Tangible Gains
 
-| Capability | Myrm Agent | Hermes (NousResearch) | OpenClaw | Codex (Code-Centric) | DeepSeek-Harness | Pi (Inflection) |
-|------------|------------|-----------------------|----------|----------------------|------------------|-----------------|
-| **Product Surface** | **Full AI Workstation (WebUI + Tauri Desktop + Cloud)** | Primarily CLI/TUI, minimal Web | CLI/Script-centric framework | IDE Extension / Patch Generator | Algorithm benchmarking / eval scripts | Conversational Companion Bot |
-| **Turn 1 Token Cost** | **2,167 tokens** (Dynamic on-demand disclosure, 86%+ savings) | 15,520+ (Static tool load, 73% overhead) | 18,000+ (Full tool bind) | Heavy single-shot file dump | Static prompt concatenation | Pure chat window |
-| **Model Switching & Cache** | **Adaptive full-lifecycle routing, live hot-swap, `<think>` auto-sanitized, 97% Prompt Cache** | Forced `/new` session resets on model switch | Fragile context, destroys KV cache | Locked to single vendor model | Single-point eval model | Locked proprietary hosted model |
-| **Execution Resilience** | **14-layer recovery grid + bounded json_repair + unwritten deliverable gate** | Basic retry, no deliverable verification | Naked `JSON.parse`, crashes on markdown prose | Manual user review in IDE | Simple timeout retry | No code/tool execution |
-| **Multi-Agent Governance** | **Kanban task-level model override + 9-state lifecycle + IN_REVIEW gate + Live Steer** | Basic subtasks, zero live steering | No task kanban | Single-agent patch generator | Batch offline inference | No task orchestration |
-| **Security & Sandbox** | **6-layer defense (L1~L5.5) + Cloud Sandbox HMAC Firewall + YOLO mutex** | IronProxy (fragile self-signed CA) | Single-tier static permission | Local uncontained or minimal sandbox | No sandbox firewall | No external tool access |
-| **Knowledge & Memory** | **8 white-box memory types + Second Brain Wiki + 3D Graph + Cascade deletion + Tri-file orthogonal cognitive model (SOUL/MEMORY/USER) & 5-tier scope isolation** | 3 types (single active type) | 3 basic cache layers | No personal knowledge base | Zero memory persistence | Black-box unexportable memory |
-| **True Business Verification** | **First-party Browser Orchestrator (real Chrome :9333 multiplexing) + Real LLM E2E** | Mock or rudimentary headless browser | Fragile headless scripts | No browser integration | No graphical browser | No browser execution |
+| Capability | Myrm Agent | Hermes (NousResearch) | OpenClaw | Codex (Code-Centric) | DeepSeek-Harness | Pi (Inflection) | OpenCode (v1.18) |
+|------------|------------|-----------------------|----------|----------------------|------------------|-----------------|------------------|
+| **Product Surface** | **Full AI Workstation (WebUI + Tauri Desktop + Cloud)** | Primarily CLI/TUI, minimal Web | CLI/Script-centric framework | IDE Extension / Patch Generator | Algorithm benchmarking / eval scripts | Conversational Companion Bot | Terminal-first coding agent + web/Electron desktop/IDE clients |
+| **Turn 1 Token Cost** | **2,167 tokens** (Dynamic on-demand disclosure, 86%+ savings) | 15,520+ (Static tool load, 73% overhead) | 18,000+ (Full tool bind) | Heavy single-shot file dump | Static prompt concatenation | Pure chat window | Static per-session tool & skill registry (no measured disclosure tiers) |
+| **Model Switching & Cache** | **Adaptive full-lifecycle routing, live hot-swap, `<think>` auto-sanitized, 97% Prompt Cache** | Forced `/new` session resets on model switch | Fragile context, destroys KV cache | Locked to single vendor model | Single-point eval model | Locked proprietary hosted model | Provider-config driven; no cross-family in-session sanitizer |
+| **Execution Resilience** | **14-layer recovery grid + bounded json_repair + unwritten deliverable gate** | Basic retry, no deliverable verification | Naked `JSON.parse`, crashes on markdown prose | Manual user review in IDE | Simple timeout retry | No code/tool execution | LSP-grounded `apply_patch`; no deliverable-persistence gate |
+| **Multi-Agent Governance** | **Kanban task-level model override + 9-state lifecycle + IN_REVIEW gate + Live Steer** | Basic subtasks, zero live steering | No task kanban | Single-agent patch generator | Batch offline inference | No task orchestration | Subagent `task` tool; no Kanban board or approval gate |
+| **Security & Sandbox** | **6-layer defense (L1~L5.5) + Cloud Sandbox HMAC Firewall + YOLO mutex** | IronProxy (fragile self-signed CA) | Single-tier static permission | Local uncontained or minimal sandbox | No sandbox firewall | No external tool access | Per-tool permission config; no multi-tenant sandbox firewall |
+| **Knowledge & Memory** | **8 white-box memory types + Second Brain Wiki + 3D Graph + Cascade deletion + Tri-file orthogonal cognitive model (SOUL/MEMORY/USER) & 5-tier scope isolation** | 3 types (single active type) | 3 basic cache layers | No personal knowledge base | Zero memory persistence | Black-box unexportable memory | **No built-in memory or knowledge base** |
+| **True Business Verification** | **First-party Browser Orchestrator (real Chrome :9333 multiplexing) + Real LLM E2E** | Mock or rudimentary headless browser | Fragile headless scripts | No browser integration | No graphical browser | No browser execution | No first-party browser tool (Playwright only for its own E2E tests) |
 
 ### Technical Dominance & Tangible User Value
 
@@ -326,6 +326,10 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 5. **vs Pi (Inflection)**:
    - **Pain Points**: Voice/companion chatbot with zero ability to run Shell, write code, browse the web, or produce deliverables; black-box proprietary memory without export or private hosting.
    - **Myrm Gains**: **"Empathetic Companion + Elite Full-Stack Engineering" Dual Persona** (15 species companion gamification + full-stack automated software delivery) + **White-Box 8-Tier Memory with Cascading Forgetting** + **Complete Data Sovereignty (Local / Desktop / Cloud)**.
+
+6. **vs OpenCode (The Open-Source AI Coding Agent)**:
+   - **Pain Points**: OpenCode is a well-engineered terminal-first coding agent (v1.18, shipping daily) with genuinely strong LSP grounding and a native `code-mode` PTC path — but it stops at code. There is **no built-in memory or knowledge base** (no memory module exists under `packages/core/src`), **no Kanban task governance** (no task board, no `IN_REVIEW` human approval gate), **no first-party browser automation tool** (Playwright appears only inside its own E2E test harness), and exactly **one IM channel — Slack** (no Telegram, Discord, Feishu, WeChat, or DingTalk). Configuration is file-centric (`config.mdx`), so non-technical users hit a terminal/config barrier before they ever see value.
+   - **Myrm Gains**: **White-Box 8-Tier Memory + Second Brain Wiki + 3D Graph with cascading forgetting** (OpenCode has no equivalent whatsoever) + **Kanban task-level model override with a 9-state lifecycle and `IN_REVIEW` approval gate** + **35+ turnkey channels** (vs Slack-only) + **First-party Browser Orchestrator (real Chrome :9333 multiplexing)** for true business-loop verification + **GUI-first onboarding** (2-minute install, no config file required).
 
 ## Latest Validation Snapshot (2026-09-07 · Standard Three-Tier Tracing, Causal Retry Visibility, Heuristic Anomaly Attribution & Cache Radar Suite · Observability Completed)
 
@@ -951,7 +955,7 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
   3. **85%+ Token Compression & Leaf Security Fencing**: Drastically cuts coordination overhead while physically banning subagents from invoking `cron_manage_tool` or infinite spawning;
   4. **Full WebUI Drawer Visualization**: Highlights findings, confidence levels, and code evidence in `SubagentDetailDrawer`;
   5. **100% Automated Testing**: All unit and integration suites green.
-- **SSOT Sources:** `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/` · `temp-docs/materials/DYNAMIC_WORKFLOW_ADVANTAGE.md`
+- **SSOT Sources:** `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/` · `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md`
 
 ## Latest Validation Snapshot (2026-09-03 · Mobile-to-Desktop Sandbox Task Delegation & Delivery Hub · Roadmap Topic 13 #5 Done)
 
@@ -1481,22 +1485,22 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 
 ## Capability Matrix Overview
 
-| Core Dimension | Myrm | Hermes Agent | OpenClaw | OpenAI Codex | DeepSeek-Harness | Pi (oh-my-pi) |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|
-| **Memory System** | ✅ 8 Types + Knowledge Graph + 27 Integrations + Cross-Session SharedContext + Conflict Arbitration | ⚠️ 2,200 chars flat MEMORY.md | ⚠️ 3 basic session types | ❌ Single session only | ⚠️ Basic turn summary | ⚠️ Lightweight session KV |
-| **User Interface** | ✅ Modern Responsive WebUI + Full Kanban Board | ❌ CLI / TUI only | ⚠️ Basic console | ❌ CLI / IDE plugin only | ❌ Terminal CLI only | ❌ Terminal CLI only |
-| **Desktop Application**| ✅ Native Tauri Client + Zero-Flicker + Mobile Remote Hub | ⚠️ Electron wrapper | ❌ None | ❌ None | ❌ None | ❌ None |
-| **Deployment Topology** | ✅ Web / Tauri Desktop / SaaS Cloud | Self-hosted CLI | Self-hosted CLI | Local CLI | Local CLI | Local CLI |
-| **Tool Calling Architecture** | ✅ Decoupled PTC + Direct FC (8 CORE primitives via native Direct FC + Skill PTC) | ⚠️ Flat tool injection (800+ tokens/turn) | ⚠️ Static flattened definitions | ⚠️ Static function definitions | ❌ Universal PTC trap (Python syntax errors & 3x token bloat) | ⚠️ Dual-model RPC calls |
-| **Prompt Cache Stability** | ✅ 6-Layer Architecture (Golden Prefix locked, 95%+ KV hit rate) | ⚠️ 4 breakpoints, volatile memory layer | ❌ No cache design | ⚠️ Partial prefix alignment | ❌ Dynamic scaffolding invalidates cache | ⚠️ Basic system prompt alignment |
-| **Computer Use** | ✅ Semantic Desktop Control (SDC, `@dref`) + Standard MCP Server Export + App Firewalls | ❌ None | ❌ None | ❌ Code sandbox only | ❌ None | ⚠️ Visual screenshot coordinates (high token drift) |
-| **Multi-Agent Orchestration** | ✅ 8 Deterministic Modes (DAG/Verified/Council etc.) + Runtime Steering | ⚠️ Kanban Swarm only | ⚠️ Basic linear spawn | ❌ Single runner only | ⚠️ Basic sequential pipeline | ⚠️ Dual-model advisor (Master-Slave chat) |
-| **Sandbox Isolation** | ✅ Physical Git Worktree + seatbelt / bwrap sandboxing | ⚠️ Process / Container | ⚠️ Basic Docker | ⚠️ Process isolation | ⚠️ Basic subprocess | ⚠️ Directory isolation |
-| **Code Execution Safety** | ✅ 8-Layer Multi-Agent Protection + AST Scanning + Syntax Auto-Rollback | ⚠️ py_compile post-write check | ⚠️ Raw bash execution | ⚠️ Sandbox execution | ⚠️ Subprocess run | ⚠️ Prompt soft-constraints |
-| **Data Sovereignty & Offline** | ✅ Native local sandbox processing + S1/S2/S3 Privacy Dynamic Routing | ❌ Cloud dependent | ⚠️ Docker proxy | ❌ Cloud API dependent | ⚠️ Local model direct connect | ⚠️ Local model direct connect |
-| **Audit & Governance** | ✅ Dual-Track Prior Audit Trail + Org-Wide Unified Timeline | ⚠️ Post-hoc logs | ❌ No unified audit | ⚠️ Basic CLI logs | ❌ None | ❌ None |
-| **Skill Evolution** | ✅ 42-Module Native Self-Evolution + 6-Layer Verification + 9 GUI Panels | ⚠️ External AGPL wrapper script | ⚠️ Manual file copy | ❌ None | ❌ None | ❌ None |
-| **Token Efficiency** | ✅ 86% Average Token Savings (Dynamic On-Demand Loading + Structural Pruning) | High token burn (all tools registered) | High token burn (raw data passthrough) | Moderate | Extreme token waste (Universal PTC code bloat) | High token burn (duplicate dual-model chats) |
+| Core Dimension | Myrm | Hermes Agent | OpenClaw | OpenAI Codex | DeepSeek-Harness | Pi (oh-my-pi) | OpenCode |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **Memory System** | ✅ 8 Types + Knowledge Graph + 27 Integrations + Cross-Session SharedContext + Conflict Arbitration | ⚠️ 2,200 chars flat MEMORY.md | ⚠️ 3 basic session types | ❌ Single session only | ⚠️ Basic turn summary | ⚠️ Lightweight session KV | ❌ None (no memory subsystem) |
+| **User Interface** | ✅ Modern Responsive WebUI + Full Kanban Board | ❌ CLI / TUI only | ⚠️ Basic console | ❌ CLI / IDE plugin only | ❌ Terminal CLI only | ❌ Terminal CLI only | ⚠️ TUI + early Electron beta |
+| **Desktop Application**| ✅ Native Tauri Client + Zero-Flicker + Mobile Remote Hub | ⚠️ Electron wrapper | ❌ None | ❌ None | ❌ None | ❌ None | ⚠️ Electron beta |
+| **Deployment Topology** | ✅ Web / Tauri Desktop / SaaS Cloud | Self-hosted CLI | Self-hosted CLI | Local CLI | Local CLI | Local CLI | Local CLI |
+| **Tool Calling Architecture** | ✅ Decoupled PTC + Direct FC (8 CORE primitives via native Direct FC + Skill PTC) | ⚠️ Flat tool injection (800+ tokens/turn) | ⚠️ Static flattened definitions | ⚠️ Static function definitions | ❌ Universal PTC trap (Python syntax errors & 3x token bloat) | ⚠️ Dual-model RPC calls | ⚠️ Native FC + plugin tools |
+| **Prompt Cache Stability** | ✅ 6-Layer Architecture (Golden Prefix locked, 95%+ KV hit rate) | ⚠️ 4 breakpoints, volatile memory layer | ❌ No cache design | ⚠️ Partial prefix alignment | ❌ Dynamic scaffolding invalidates cache | ⚠️ Basic system prompt alignment | ⚠️ Basic provider-side |
+| **Computer Use** | ✅ Semantic Desktop Control (SDC, `@dref`) + Standard MCP Server Export + App Firewalls | ❌ None | ❌ None | ❌ Code sandbox only | ❌ None | ⚠️ Visual screenshot coordinates (high token drift) | ❌ None |
+| **Multi-Agent Orchestration** | ✅ 8 Deterministic Modes (DAG/Verified/Council etc.) + Runtime Steering | ⚠️ Kanban Swarm only | ⚠️ Basic linear spawn | ❌ Single runner only | ⚠️ Basic sequential pipeline | ⚠️ Dual-model advisor (Master-Slave chat) | ⚠️ 4 native agents (build/plan/general/explore) |
+| **Sandbox Isolation** | ✅ Physical Git Worktree + seatbelt / bwrap sandboxing | ⚠️ Process / Container | ⚠️ Basic Docker | ⚠️ Process isolation | ⚠️ Basic subprocess | ⚠️ Directory isolation | ⚠️ Permission ruleset only |
+| **Code Execution Safety** | ✅ 8-Layer Multi-Agent Protection + AST Scanning + Syntax Auto-Rollback | ⚠️ py_compile post-write check | ⚠️ Raw bash execution | ⚠️ Sandbox execution | ⚠️ Subprocess run | ⚠️ Prompt soft-constraints | ⚠️ Config-driven permissions |
+| **Data Sovereignty & Offline** | ✅ Native local sandbox processing + S1/S2/S3 Privacy Dynamic Routing | ❌ Cloud dependent | ⚠️ Docker proxy | ❌ Cloud API dependent | ⚠️ Local model direct connect | ⚠️ Local model direct connect | ⚠️ Local-first CLI |
+| **Audit & Governance** | ✅ Dual-Track Prior Audit Trail + Org-Wide Unified Timeline | ⚠️ Post-hoc logs | ❌ No unified audit | ⚠️ Basic CLI logs | ❌ None | ❌ None | ❌ No unified audit |
+| **Skill Evolution** | ✅ 42-Module Native Self-Evolution + 6-Layer Verification + 9 GUI Panels | ⚠️ External AGPL wrapper script | ⚠️ Manual file copy | ❌ None | ❌ None | ❌ None | ❌ None |
+| **Token Efficiency** | ✅ 86% Average Token Savings (Dynamic On-Demand Loading + Structural Pruning) | High token burn (all tools registered) | High token burn (raw data passthrough) | Moderate | Extreme token waste (Universal PTC code bloat) | High token burn (duplicate dual-model chats) | ⚠️ Provider prompt caching |
 
 ## vs OpenClaw — Open-Source Terminal Agent & Sandbox Workspaces
 
@@ -1551,6 +1555,38 @@ The Pi ecosystem (pi-agent and oh-my-pi) explores dual-agent oversight (Advisor 
 | **Oversight Architecture** | Advisor continuously reviews every step via sequential LLM round-trips | **Deterministic Rule Engine + Semantic Post-Verification** | Avoids redundant advisor LLM token consumption while ensuring strict security compliance. |
 | **Model Orchestration & Gateways** | Fixed model slots without unified gateway integration | **Model Orchestration Playbook + Native Vercel AI Gateway Preset** | Direct discovery of four classical paradigms (Brain & Hands, Solo Worker, etc.) with spend observability. |
 | **Workspace Integration** | Terminal TUI focus with limited graphical artifact management | **Integrated WebUI & Tauri Desktop** | Complete Kanban, Artifact Portal, and interactive Playbook directly accessible in the browser and desktop. |
+
+## vs Hermes Agent (NousResearch) — Autonomous Agent & Skill Self-Evolution Ecosystem
+
+Hermes Agent popularized lightweight CLI autonomy and community skill sharing. But its credential handling, model switching, and Turn-1 tool loading create hard ceilings for long-running production work.
+
+### Where Myrm Leads
+
+| Area | Hermes Agent | Myrm | User Benefit |
+|------|--------------|------|--------------|
+| **Credential Security** | IronProxy hijacks traffic through a locally self-signed MITM CA — fragile and a compliance blocker | **HMAC virtual-credential relay (Cloud sandbox credential firewall)** | No MITM CA to install, rotate, or leak; credentials never touch the sandbox filesystem. |
+| **Model Switching Mid-Task** | Changing models mid-run throws HTTP 400 because `<think>` / `reasoning_content` tags are incompatible; you must run `/new` and lose all context | **Heterogeneous model hot-swap shield (`thinking_cleaner.py` · `gateway_normalizer.py`)** | Switch Claude, DeepSeek, GPT, or MiniMax at any point in a session with zero 400s and your context intact. |
+| **Turn-1 Token Overhead** | Loads the full tool catalog on Turn 1 (~15,520 tokens, 70%+ fixed overhead) | **Dynamic on-demand discovery: 2,167 tokens on Turn 1** | ~86% lower input cost per turn and far more of the context window left for your actual task. |
+| **Memory Model** | `MEMORY.md` capped at ~2,200 characters, flat text, one memory type active at a time | **8 white-box memory types + Wiki second brain + knowledge graph + cascade forgetting** | Preferences, facts, and procedures coexist; you can inspect, correct, and export every memory. |
+| **Skill Evolution** | External AGPL wrapper script | **42-module native self-evolution + 6-layer verification + 9 GUI panels** | Skills are proposed, sandbox-verified, and promoted with your approval instead of blind file copies. |
+
+## vs OpenCode (anomalyco/opencode) — Open-Source Terminal Coding Agent
+
+OpenCode is a solid MIT-licensed terminal coding agent: fast, TUI-native, and multi-provider. What it deliberately does not ship is the surrounding workspace — memory, GUI, automation, and governance — so every non-coding need becomes an integration project.
+
+### Where Myrm Leads
+
+| Area | OpenCode | Myrm | User Benefit |
+|------|----------|------|--------------|
+| **Built-in Agents** | **4** native agents (`build`, `plan`, `general` subagent, `explore` subagent) — verified in `packages/opencode/src/agent/agent.ts` | **27 built-in agents** (5 core + 2 search + 5 extended + 15 vertical) plus a GUI gallery and custom creation | Pick a ready-made role (research, design, data-viz, video studio…) instead of hand-tuning one generic agent. |
+| **Memory & Knowledge** | **None** — no memory subsystem in the repository; every session starts from zero | **8 memory types + Wiki knowledge base + 3D topology graph + cascade deletion** | Your agent remembers conventions, decisions, and past failures across weeks; knowledge becomes a durable asset. |
+| **Interface & Reach** | Terminal TUI plus an Electron desktop beta in early stage | **Responsive WebUI + native Tauri desktop + 35+ IM channels** | Non-developers can use it, and you can approve work from your phone instead of an open terminal. |
+| **Automation** | Manual invocation only; no scheduler | **19+ Cron APIs + chained tasks + heartbeat monitoring + channel push** | Recurring reports and maintenance run unattended and notify you where you already are. |
+| **Task Governance** | Single-session; no board or approval gate | **Kanban with 9-state lifecycle + IN_REVIEW human approval + Live Steer** | Long multi-step work stays visible and auditable, with a human gate before anything irreversible. |
+| **Security Depth** | Config-driven `permission` ruleset (single layer) | **6-layer defense-in-depth (L1–L5.5) + PII redaction + taint tracking + YOLO mutual exclusion** | Prompt-injection and confused-deputy escalation are physically blocked, not just discouraged by config. |
+| **Provider Freedom** | 75+ models via provider config | **100+ models with automatic complexity routing** | Cheap models handle routine turns automatically; frontier models are reserved for real reasoning. |
+
+**Migration verdict: 10 upgrades, 0 downgrades.** OpenCode's coding strength is fully preserved — plus memory, GUI, scheduling, multi-channel reach, and defense-in-depth that otherwise require assembling "OpenCode + a memory plugin + a cron script + an approval wrapper".
 
 ## Latest Validation Snapshot (2026-09-06 · Model Orchestration Playbook & Native Vercel AI Gateway Preset · Roadmap Topic 07 #35/#36 Completed)
 
