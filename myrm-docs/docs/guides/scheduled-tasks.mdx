@@ -347,6 +347,16 @@ On Tauri desktop, scheduled tasks automatically acquire a **PowerLock** to preve
 
 The lock is RAII-guarded and auto-released when the task completes, even on failure.
 
+## Unattended Desktop Apps (Pre-Trusted)
+
+Scheduled tasks that operate legacy desktop software (ERP clients, SAP GUI, invoicing tools) need desktop approval — but nobody is awake at 2 AM to click "Allow". Give the task's agent a **pre-trusted app list** instead:
+
+1. Open the agent's **Capabilities** tab and add the apps under **Pre-trusted desktop apps** (type a name, or pick from your already-trusted apps).
+2. The next unattended run auto-approves exactly those apps — everything else is still blocked as usual.
+3. If an unlisted app asks for approval, the run fails fast (no minute-long wait) and triggers the job's failure notification so the morning shift can take over.
+
+Trust is scoped to that agent's unattended runs only; your interactive chat approvals are untouched, and you can revoke an app's trust at any time from system settings.
+
 ## Monitoring Scheduler Health
 
 Beyond per-job failure alerts, Myrm monitors whether the **scheduler engine itself** is alive:
