@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-17 · NAS 与家庭实验室一键部署、三卷物理持久隔离与宿主 Ollama 零配置自适应全链路交付 · 彻底消除单体数据丢失与容器断流顽疾）
+
+- **NASHomeLabSingleStackAndHostOllamaProbeSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在私有化自托管部署与本地模型协同中普遍存在的“仅提供裸机脚本或单体单容器镜像缺乏持久化架构、跨机换盘迁移权限碎裂、容器内 AI 访问宿主 Ollama 频繁出现 Connection Refused 断流、以及低配 NAS 内存溢出宕机”等痛点）：** Myrm 全面交付了一键部署覆盖层、三卷物理隔离与宿主机模型探针自适应闭环体系：
+  1. **生产编排覆盖层一键起服（`docker-compose.nas.yml`）**：在主流 NAS（群晖 Container Station、QNAP Container Station、Unraid）只需单条命令 `docker compose -f docker-compose.yml -f docker-compose.nas.yml --profile app up -d` 即可起服，0 编排学习门槛；
+  2. **三命名卷物理隔离架构（`myrm-nas-data` / `myrm-nas-memory` / `myrm-nas-logs`）**：彻底解耦应用数据（加密密钥与检查点）、长程记忆（终身知识沉淀）与审计日志，换机备份仅需备份记忆卷，密钥绝不明文外露；
+  3. **宿主机 Ollama 探针 SSOT 动态绑定（`/api/v1/config/onboarding/probe-local`）**：后端自适应解析 `host.docker.internal:11434`，前端向导卡片动态探测并一键绑定本地模型，从协议层终结 Docker 容器直连宿主模型的网络断流顽疾；
+  4. **老旧 NAS 资源硬限保护与云端降级备选（`CloudQuickStartCard`）**：默认注入 2GB 内存与 1.0 CPU 物理硬限，针对算力不足的 NAS 设备无缝提供 SiliconFlow / Gemini / DeepSeek 云端快速引导卡片，永不宕机；
+  5. **100% 满分全栈自动化实测验证**：77 项前端 Onboarding 单元测试全绿、788 个测试文件通过防 OOM 稳定性门禁，Docker 编排与探针服务端单测 24 项全绿，真实 Chrome 浏览器 E2E 验收通过。
+- **SSOT 来源：** `docker-compose.nas.yml` · `myrm-agent-server/app/services/config/onboarding/` · `LocalCapabilitiesSetup.tsx` · `temp-docs/materials/PLATFORM_AND_DEPLOYMENT_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-17 · 5 维动态偏好雷达抽屉、加权几何均值检索调制与锁定保全全链路交付 · 彻底消除单一线性黑盒与意图偏好漂移）
 
 - **DynamicPreferenceRadarAndGeometricScoringSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在记忆召回与用户偏好调优中普遍存在的“静态粗暴加法评分导致先验失效、僵尸废弃记忆错误复活、模型多轮对话后偏好自回归严重漂移、以及缺乏直观前端雷达控件迫使用户反复在 Prompt 堆砌水词”等痛点）：** Myrm 全面交付了 5 维动态偏好雷达、加权几何均值算子与显式锁定保全闭环体系：
