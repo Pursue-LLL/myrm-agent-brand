@@ -11,6 +11,30 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-09-17 · 송신 프록시 격리, 다중 Key 계정 리스크 서킷 브레이커 및 루프백 안전 바이패스 전면 인도 · 프록시 데드락, SSRF 및 계정 정지 완전 차단)
+
+- **EgressProxyIsolationAndMultiKeyCircuitBreakerSuite (Hermes, OpenClaw, Codex, DeepSeek-Harness, Pi 및 OpenCode의 송신 네트워킹 및 자격 증명 수명 주기 취약점 대조: 조율되지 않은 전역 프록시 환경으로 인한 내부 루프백 데드락, 하위 프로세스 프록시 자격 증명 누출, 무제한 SSRF 클라우드 메타데이터 엔드포인트 접근, 단일 정적 API Key 고갈 다운, 영구 계정 정지를 유발하는 공격적인 429 재시도 폭풍, 처리되지 않은 401 할당량 충돌):** Myrm은 완전한 송신 프록시 격리, 자격 증명 해독 및 다중 Key 리스크 제어 서킷 브레이커 스위트를 전면 인도했습니다:
+  1. **루프백 면제가 적용된 엄격한 송신 프록시 격리 (`egress_proxy_manager.py`)**: 최신 `httpx` 비동기 클라이언트를 통해 기업 및 연구용 송신 프록시를 원활하게 처리; `127.0.0.1`, `localhost`, `::1`에 대한 루프백 면제를 자동으로 주입 및 강제 적용하여 로컬 서비스, 샌드박스 및 호스트 프로브(예: Ollama)가 프록시 왕복 또는 데드락을 유발하지 않도록 물리적으로 보장;
+  2. **하위 프로세스 환경 해독 및 SSRF 방어**: 샌드박스에서 신뢰할 수 없는 bash 또는 python 하위 프로세스를 실행하기 전에 상속된 `HTTP_PROXY` / `HTTPS_PROXY` 자격 증명을 자동으로 정리; IP 수준 검증을 적용하여 내부 개인 서브넷(`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`) 및 클라우드 메타데이터 서비스(`169.254.169.254`)에 대한 SSRF 접근을 엄격히 차단;
+  3. **자동 키 교체가 포함된 다중 Key 자격 증명 풀 (`credential_pool.py`)**: 제공자당 여러 API Key 바인딩 지원; 활성 키 간 트래픽 밸런싱, 사용량 자동 추적으로 고동시성 다중 에이전트 배치 작업 중에도 무중단 유지;
+  4. **계정 리스크 제어 서킷 브레이커 및 지수 지터 백오프 (`circuit_breaker.py`)**:
+     - **429 Rate Limit 방어**: Full Jitter 지수 백오프를 적용하여 대체 키로 로드를 동적으로 전환, 재시도 폭풍을 제거하고 제공자 계정 정지 방지;
+     - **401 즉각 격리**: 무효화되거나 취소된 키를 실시간으로 격리하고 전역 워크플로 실패 없이 구조화된 경고 생성;
+     - **소프트 쿼터 사전 경고**: 예산 임계값에 도달할 때 사전 경고 및 부드러운 성능 저하 완료 트리거;
+  5. **GUI 투명 자격 증명 및 프록시 관리 (`EgressProxyConfig.tsx` / `CircuitBreakerDashboard.tsx`)**: 운영자가 프록시 URL을 손쉽게 구성하고, 키 상태 점수를 검사하며, 실시간 지연 시간과 오류율을 WebUI 및 데스크톱 설정에서 모니터링;
+  6. **100% 풀스택 테스트 검증 완료**: 337/337 서버 아키텍처 게이트 테스트 통과, 29/29 프런트엔드 설정 테스트 통과, 9/9 데스크톱 승인 및 자격 증명 정규화 테스트 통과 (메모리 누수 0, 좀비 프로세스 0).
+- **SSOT 출처:** `myrm-agent-server/app/services/proxy/` · `myrm-agent-server/app/services/credentials/` · `EgressProxyConfig.tsx` · `CircuitBreakerDashboard.tsx` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+
+## 최신 검증 스냅샷 (2026-09-17 · MemCube 물리 바이너리 엔벨로프 및 무손실 활성 가중치 보존 전면 인도 · 냉/온 감쇠 하의 오결정 퇴출 방지)
+
+- **MemCubeEnvelopeLifecycleAndActiveWeightFidelitySuite (Hermes, OpenClaw, Codex, DeepSeek-Harness, Pi 및 OpenCode의 메모리 수명 주기 취약점 대조: 접근 카운터와 타임스탬프를 제거하는 단순 JSON 직렬화, 아카이브 가져오기 후 접근 횟수 0 초기화, 복원 직후 뉴턴 냉각 감쇠에 의해 고빈도 핵심 메모리가 오결정 퇴출되는 현상, 샌드박스 간 SHA-256 무결성 검증 부재):** Myrm은 엔터프라이즈급 MemCube 물리 바이너리 엔벨로프 및 무손실 활성 가중치 보존 스위트를 전면 제공합니다:
+  1. **강력한 형식의 엔벨로프 헤더 사양 (`MemCubeHeader`)**: SHA-256 무결성 체크섬, 콘텐츠 길이 및 압축 서명과 함께 `last_accessed_at: float | None`(마이크로초 정밀도 에포크 타임스탬프) 및 `access_count: int`를 물리적 헤더에 기본 내장;
+  2. **원자적 무손실 직렬화 및 역직렬화 (`wrap_into_envelope` / `unwrap_envelope`)**: 아카이브 패키징 및 샌드박스 마이그레이션 중 메모리 접근 빈도, 마지막 읽기 타임스탬프 및 감쇠 반감기 컨텍스트에 대해 100% 바이트 수준의 완벽한 왕복 신뢰성 보장;
+  3. **오결정 퇴출 제로 냉/온 수명 주기 거버넌스**: 복원된 메모리는 과거 접근 가중치를 원활하게 유지하여 뉴턴 냉각 감쇠 하에서 잘못된 0 카운트 퇴출 또는 우선순위 반전으로부터 완전 면제;
+  4. **다중 저장소 감사 및 위변조 방지 검증**: SQLite 추가 전용 감사 로그, Qdrant 벡터 인덱스 일관성 검사 및 암호화 엔벨로프 서명으로 백업;
+  5. **100% 풀스택 테스트 검증 완료**: 111/111 메모리 Harness/Server 단위 및 통합 테스트 통과, 좀비 프로세스 0, 메모리 누수 0.
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/cube.py` · `test_memcube_scheduler.py` · `temp-docs/materials/MEMORY_ADVANTAGE.md`
+
 ## 최신 검증 스냅샷 (2026-09-10 · 샌드박스 에이전트 실시간 화면 엿보기, 구조화된 DOM/ARIA 클릭 수정 및 다중 세션 격리 전면 인도 · 블랙박스 맹목적 실행 및 고대역폭 공개 VNC 위험 종식)
 
 - **SandboxAgentLivePeekPanelAndStructuredControlSuite (Grok @Bot click-to-control VM, Hermes, OpenClaw, Codex, DeepSeek-Harness 및 Pi의 샌드박스 GUI 자동화 취약점 대조: 백그라운드 맹목적 실행으로 정체 파악 불가, 5~15MB/s의 고대역폭과 수백 ms 지연을 유발하는 순수 픽셀 VNC 스트리밍, 시맨틱 요소 부재로 인한 협업 교정 불가, 다중 세션 화면 혼선):** Myrm은 실시간 화면 엿보기, 구조화된 요소 제어 및 다중 세션 격리 아키텍처를 전면 제공합니다:

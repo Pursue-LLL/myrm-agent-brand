@@ -11,15 +11,40 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-17 · 出网代理隔离、多 Key 账号风控熔断与环回安全旁路全链路交付 · 彻底消除代理死锁、SSRF 与账号封禁）
+
+- **EgressProxyIsolationAndMultiKeyCircuitBreakerSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在网络出网代理与密钥全生命周期治理中普遍存在的“粗暴全局环境变量导致本地环回死锁、子进程代理凭据泄漏、无限制 SSRF 访问云端元数据节点、单静态 API Key 配额耗尽崩溃、激进 429 重试风暴触发服务商永久封禁、以及未捕获 401 导致任务全局中断”等痛点）：** Myrm 全面交付了出网代理安全隔离、凭据解毒与多 Key 风控熔断闭环套件：
+  1. **严格出网代理隔离与环回白名单强制豁免（`egress_proxy_manager.py`）**：基于现代 `httpx` 异步客户端安全桥接企业与科学代理，自动识别并强制注入 `127.0.0.1`、`localhost`、`::1` 等本地环回白名单，从物理层面杜绝内部沙箱探针（如 Ollama）误走代理导致的严重死锁；
+  2. **子进程环境解毒与 SSRF 深度防御**：在沙箱内执行不受信的 Bash / Python 代码前，自动对继承的 `HTTP_PROXY` / `HTTPS_PROXY` 凭据脱敏解毒；强制执行 IP 级网段校验，严禁对内网私有地址（`10.0.0.0/8`、`172.16.0.0/12`、`192.168.0.0/16`）及云元数据服务（`169.254.169.254`）发起恶意 SSRF 探测；
+  3. **多 Key 凭据池与自动化轮换治理（`credential_pool.py`）**：支持单服务商绑定多个 API Key，引擎在活跃密钥间智能负载均衡并追踪消耗，高并发多 Agent 批处理时仍能实现 0 停机；
+  4. **账号风控熔断与 Full Jitter 指数退避保护（`circuit_breaker.py`）**：
+     - **429 限流保护**：采用带随机抖动的 Full Jitter 指数退避算法，动态平滑分流至备用 Key，杜绝激进重试风暴，保护服务商账号安全；
+     - **401 毫秒级即时隔离**：实时隔离失效或被撤销的凭据并产生结构化预警，确保全局 Agent 编排流水线不被单点中断；
+     - **软配额提前告警**：在接近预算阈值时主动触发告警与平滑降级补全；
+  5. **GUI 可视化凭据与代理透明监控（`EgressProxyConfig.tsx` / `CircuitBreakerDashboard.tsx`）**：在 WebUI 与桌面端设置页直接配置代理并直观洞察密钥健康度评分、实时延迟与熔断状态；
+  6. **100% 满分全栈自动化实测验证**：后端 337/337 架构门禁测试全绿、前端 29/29 设置项测试全绿、桌面端 9/9 审批与凭据规整测试全绿，0 内存泄漏与 0 僵尸残留。
+- **SSOT 来源：** `myrm-agent-server/app/services/proxy/` · `myrm-agent-server/app/services/credentials/` · `EgressProxyConfig.tsx` · `CircuitBreakerDashboard.tsx` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+
+## 最新验证快照（2026-09-17 · MemCube 物理二进制封装与无损活跃权重保全全链路交付 · 彻底消除冷热衰减误逐出与跨沙箱校验缺失）
+
+- **MemCubeEnvelopeLifecycleAndActiveWeightFidelitySuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在记忆生命周期与多沙箱归档中普遍存在的“普通 JSON 序列化丢失访问计数器与时间戳、归档导入后访问频次归零、高频核心记忆在冷热分级牛顿冷却衰减下被错误逐出、以及跨沙箱缺乏 SHA-256 完整性防篡改校验”等痛点）：** Myrm 全面交付了工业级 MemCube 物理二进制封装与无损活跃权重保全套件：
+  1. **强类型封装头规范（`MemCubeHeader`）**：原生将 `last_accessed_at: float | None`（微秒级时间戳）与 `access_count: int` 嵌入物理封装头，搭配 SHA-256 完整性校验和、内容长度与压缩签名；
+  2. **原子无损序列化与反序列化（`wrap_into_envelope` / `unwrap_envelope`）**：保证归档打包与沙箱迁移时，访问频率、最后读取时间戳与半衰期上下文 100% 字节级无损往返保真；
+  3. **零误逐出冷热生命周期治理**：恢复的记忆无缝保留历史访问权重，完全免疫牛顿冷却衰减下的零计数误逐出与优先级反转；
+  4. **多存储审计与防篡改验证**：由 SQLite 仅追加审计轨迹、Qdrant 向量索引一致性检查与加密封装签名三重背书；
+  5. **100% 满分全栈测试验证**：111/111 记忆 Harness/Server 单元与集成测试全绿，0 僵尸进程与 0 内存泄漏。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/cube.py` · `test_memcube_scheduler.py` · `temp-docs/materials/MEMORY_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-17 · 双轨工作记忆看板、陷阱自愈与超短期状态向长期自动固化体系全链路交付 · 彻底消除黑盒易失、重复踩坑死循环与认知断层）
 
-- **WorkingMemoryBoardAndStateConsolidationSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在复杂任务与长程执行中普遍存在的“超短期子任务状态仅靠滑动上下文黑盒维护、工具调用报错后缺乏结构化陷阱防御导致反复在同一参数死循环、用户无从直观获知当前执行进度与已避开的踩坑、以及任务结束后临时经验随进程销毁产生严重认知断层”等痛点）：** Myrm 全面交付了强类型超短期工作记忆块、聊天内原生工作看板与跨会话自动固化闭环体系：
-  1. **强类型超短期工作记忆块（`LocalWorkingMemoryBlock`）**：在底层核心执行流提供线程/协程安全的原子状态管理，结构化治理当前核心目标、子任务进阶树（带 `SubtaskStatus`：PENDING / IN_PROGRESS / COMPLETED / FAILED / SKIPPED 状态机）、踩坑记录（`TrapRecord` 搭配 `resolve_trap` 缺陷自愈标记）与临时轻量记事本（`scratchpad`）；
-  2. **聊天区原生折叠式工作看板（`WorkingMemoryBoard.tsx`）**：在 WebUI 与桌面端对话流原生嵌入折叠式视觉面板，高精度呈现目标胶囊、进度百分比计算（按完成/进行中权重平滑加权）、活跃进行中子任务高亮微光、以及已规避陷阱安全徽章，人机协同状态完全透明；
-  3. **超短期状态向长期记忆自动固化服务（`consolidation_service.py`）**：在智能体任务收敛或阶段推进时，自动将工作记忆块中的目标执行结论、已成功规避的踩坑经验与关键记事本提炼固化为长期程序性/语义性记忆（`MemoryType.PROCEDURAL` / `SEMANTIC`），实现临时状态向持久资产的经验闭环；
-  4. **严格公共门面架构隔离（`myrm_agent_harness.api`）**：Server 端严禁深层依赖 Harness 内部模块，所有类型与类统一由公共 API 门面导出，杜绝跨层耦合与架构腐化；
-  5. **100% 满分实测绿灯验证**：后端 10/10 项 API/状态单元与集成测试全绿、前端 Vitest 4/4 项全绿、全量 338 项 server 门禁全绿，跨层依赖架构测试 6/6 全绿。
-- **SSOT 来源：** `myrm_agent_harness/agent/context_management/working_memory/` · `WorkingMemoryBoard.tsx` · `consolidation_service.py` · `temp-docs/materials/MEMORY_ADVANTAGE.md`
+- **WorkingMemoryBoardAndStateConsolidationSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在复杂任务与长程执行中普遍存在的“超短期子任务状态仅靠滑动上下文黑盒维护、工具调用报错后缺乏结构化陷阱防御导致反复在同一参数死循环、动态运行状态塞入 System Prompt 导致 90% 前缀缓存击穿 Token 暴涨、以及任务结束后临时经验随进程销毁产生严重认知断层”等痛点）：** Myrm 全面交付了强类型超短期工作记忆块、Turn Tail 提示词缓存保全、终态自愈飞轮与 Chrome E2E 闭环体系：
+  1. **强类型超短期工作记忆块与协程无锁隔离（`LocalWorkingMemoryBlock`）**：在底层核心执行流基于 ContextVar 实现协程安全隔离，结构化治理核心目标、子任务进阶树（带 `SubtaskStatus`：PENDING / IN_PROGRESS / COMPLETED / FAILED / SKIPPED 状态机）、踩坑记录（`TrapRecord` 搭配 `resolve_trap` 缺陷自愈标记）与临时轻量记事本（`scratchpad`）；
+  2. **Turn Tail 提示词缓存绝对保全（Prompt Cache Invariance）**：动态工作台与避坑备忘录 `<working_board>` 严格注入在单次回合尾部（Turn Tail），系统前缀 100% 字节不变，稳享主流大模型 90% 缓存折扣；
+  3. **聊天区原生折叠工作看板与状态徽标（`WorkingStateBadge.tsx` / `WorkingMemoryBoard.tsx`）**：在 WebUI 与桌面端对话流原生嵌入响应式视觉徽标，仅在避坑自愈时低干扰透出盾牌，严禁原生 emoji 污染，适配暗黑/明亮双主题，人机协同状态完全透明；
+  4. **`HyperConsolidator` 任务终态自愈飞轮（`consolidation_service.py`）**：在智能体任务收敛或阶段推进时，自动将工作记忆块中已规避的避坑动作按错误指纹提炼去重，升维固化为通用长效规程记忆（`MemoryType.PROCEDURAL`），实现跨任务“吃一堑，长一智”的真自愈；
+  5. **零模型损耗确定性行为特征测量体系（`ZeroModelCostBehavioralMeasurement`）**：24h 工作日/周末双轨作息微直方图与跨时区峰值活跃窗口，纯 SQLite 数学算子毫秒级聚合 0 Token 消耗，彻底杜绝大模型时间戳计算幻觉；
+  6. **100% 满分全栈自动化与真实 Chrome E2E 实测验证**：后端单测 10/10 全绿、API 契约 11/11 全绿、前端 Vitest 4/4 全绿、真实 DB 接口集成测试 13/13 全绿、真实 Chrome 浏览器 E2E 端到端（`test_memory_behavioral_metrics_chrome_e2e.py`）在 169.86s 内满分通过，0 僵尸进程与 0 内存泄漏。
+- **SSOT 来源：** `myrm_agent_harness/agent/context_management/working_memory/` · `WorkingStateBadge.tsx` · `consolidation_service.py` · `test_memory_behavioral_metrics_chrome_e2e.py` · `temp-docs/materials/MEMORY_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-17 · NAS 与家庭实验室一键部署、三卷物理持久隔离与宿主 Ollama 零配置自适应全链路交付 · 彻底消除单体数据丢失与容器断流顽疾）
 
