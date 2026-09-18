@@ -112,6 +112,8 @@ Beyond docs, the open product layer enforces **machine-checkable contracts** so 
 
 These parity gates are **proven live**: on 2026-08-13 they caught and drove fixes for three real cross-language contract bugs (`load_timeout` reason missing from the TS union, `memory_retrieval_trace` missing from `ToolEndStreamEvent`, and a missing i18n mapping) — failures surfaced at CI time, before merge.
 
+The closed-source Harness adds a **generic-capability purity gate** (`test_toolkits_agent_boundary`): nothing under `toolkits/` may import `agent/`, `runtime/`, or `backends/` (including `importlib` string dynamic imports), so third parties reusing a generic capability never drag in the whole runtime; in 2026-09 it caught 7 violations that were fixed back to green. Contributor rule: generic code goes in `toolkits/`, session/runtime-bound code goes in `agent/meta_tools/`, business skills go in Server prebuilt skills — wrong layer fails CI.
+
 **What you get:** faster onboarding for self-hosters and integrators; doc drift blocked before merge, not discovered in production; frontend/backend contract drift fails the build instead of shipping a phantom bug.
 
 ## Security Model

@@ -112,6 +112,8 @@ Harness 引擎零业务逻辑，提供通用 Agent 能力（工具、记忆、�
 
 这些 parity 门禁**经过实战验证**：2026-08-13 它们真实抓出并驱动修复了 3 个跨语言契约漂移 bug（`load_timeout` reason 未同步进前端 TS union、`memory_retrieval_trace` 缺失于 `ToolEndStreamEvent`、i18n 映射遗漏）——失败全部在合并前的 CI 阶段暴露。
 
+闭源 Harness 侧还有一道**通用能力包纯净门禁**（`test_toolkits_agent_boundary`）：`toolkits/` 下任何文件不得导入 `agent/`、`runtime/`、`backends/`（含 `importlib` 字符串动态导入），保证第三方只引用通用能力包时不被拖入整个运行时；2026-09 实测抓出 7 处越界并修回，门禁现常绿。贡献者新增通用能力时：通用代码放 `toolkits/`，需会话/运行时上下文的放 `agent/meta_tools/`，业务技能放 Server 预置技能——放错层 CI 直接红灯。
+
 **你能得到什么**：自托管与二开 onboarding 更快；文档与代码脱节在合并前被 CI 拦住，而不是线上才发现；前端/后端契约漂移会直接让构建失败，而不是带着「幽灵 bug」上线。
 
 ## 安全模型
