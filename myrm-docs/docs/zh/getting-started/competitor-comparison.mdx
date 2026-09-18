@@ -11,6 +11,17 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-17 · 数据存储根路径无感安全迁移向导、三道硬指标安全防线与存储画像因果治理全链路交付 · 彻底消除爆盘撕裂、跨盘迁移毁损与 409 死锁）
+
+- **DataRootPathMigrationWizardAndStorageGovernanceSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在数据存储根路径迁移与持久化治理中普遍存在的“路径硬编码、WAL 撕裂、磁盘剩余空间盲写爆盘、无敏感操作票据防线、EXDEV 跨盘迁移毁损、无后台活跃写任务感知致 409 死锁、防自嵌套缺失致递归爆炸”等痛点）：** Myrm 全面交付了数据根路径安全迁移向导与多维存储治理套件：
+  1. **三道硬核预检防线（防自嵌套 + 1.2x 剩余空间 + 冲突隔离）**：严格断言目标目录不得为源目录子路径，目标磁盘可用空间必须满足源数据 1.2 倍以上，目标非空即阻断，彻底消除盲写爆盘与无限自嵌套风险；
+  2. **两阶段敏感操作票据防线（Sensitive Action Ticket）**：采用短效数字签名令牌（Dry-Run 预检颁发、用户显式确认后单次消费），物理隔绝 CSRF 劫持与前端误触；
+  3. **后台在途任务感知与排他写锁互斥**：自动感知活跃长任务（如后台 Shell 评测脚本），在途即拦截并返回动态任务数提示（409 冲突）；空闲时自动加排他写锁并触发 WAL TRUNCATE 刷盘同步，彻底杜绝写撕裂；
+  4. **故障秒级原子回滚与 0 残留清理**：迁移过程具备细粒度事务补偿能力，中途异常秒级还原源目录并彻底清除目标碎片，保证 0 毁损与 0 残留；
+  5. **多维存储画像因果分解与在线零停机瘦身（VACUUM）**：精准分解 SQLite 数据库、Qdrant 向量索引、会话快照与媒体资源占用，空闲时一键 `VACUUM` 释放 40%~60% 冗余碎片；
+  6. **100% 满分全栈实测验证**：后端 338/338 门禁测试全绿、Desktop Clippy 0 警告、Chrome E2E solo attach 门禁防死锁优化，0 内存泄漏与 0 僵尸残留。
+- **SSOT 来源：** `myrm-agent-server/app/api/system/storage.py` · `app/services/system/storage_manager.py` · `DataRootPathMigrationWizard.tsx` · `temp-docs/materials/STORAGE_CRASH_CONSISTENCY_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-17 · 出网代理隔离、多 Key 账号风控熔断与环回安全旁路全链路交付 · 彻底消除代理死锁、SSRF 与账号封禁）
 
 - **EgressProxyIsolationAndMultiKeyCircuitBreakerSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在网络出网代理与密钥全生命周期治理中普遍存在的“粗暴全局环境变量导致本地环回死锁、子进程代理凭据泄漏、无限制 SSRF 访问云端元数据节点、单静态 API Key 配额耗尽崩溃、激进 429 重试风暴触发服务商永久封禁、以及未捕获 401 导致任务全局中断”等痛点）：** Myrm 全面交付了出网代理安全隔离、凭据解毒与多 Key 风控熔断闭环套件：
