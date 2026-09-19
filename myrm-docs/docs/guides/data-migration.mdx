@@ -218,3 +218,18 @@ Comparison targets: **Hermes**, **OpenClaw**, **Codex**, **DeepSeek-Harness**, *
 | **Hermes Cron/Skill Import (Pause + Rollback)** | ✅ Deep parsing | ❌ Overwrite only | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Pi 5-Lane Cognitive State Migration** | ✅ Lossless mapping | ❌ | ❌ | ❌ | ❌ | N/A | ❌ |
 
+## Coming from WorkBuddy or Tencent WeKnora?
+
+There is no one-click importer yet (WorkBuddy is closed-source with no export format; WeKnora stores data in its own Go/Postgres stack) — but every workflow maps 1:1 and runs on a stronger engine:
+
+| Your workflow | What you get in Myrm |
+|---|---|
+| WorkBuddy meeting minutes (decisions + owners + deadlines) | Meeting-minutes skill extracts all three into structured minutes **and** dispatches kanban tasks automatically |
+| WorkBuddy daily briefings pushed to mini-programs | Cron jobs with the same prompt/plan/capability structure, delivered across 35+ channels |
+| WorkBuddy prompt-enhance / Ask / Plan modes | Goal + acceptance criteria + HtmlPreview today; one-click prompt polish and read-only Ask mode are on the roadmap |
+| WeKnora RAG Q&A over company docs | Same BM25 + Dense + RRF hybrid retrieval over your Wiki, plus per-agent memory on top |
+| WeKnora Wiki Mode (docs → maintained wiki) | Wiki governance workbench + source sync + scheduled refresh today; agent-authored wiki generation with rollback is on the roadmap |
+| WeKnora Docker self-hosting (8–10 containers) | One local install, one desktop app, or one cloud sandbox per user — same data sovereignty, far less ops |
+
+Honest gaps (in progress, not hidden): one-click prompt enhance, output style presets (table-first, no preamble), Ask-only mode, agent-authored wiki generation with version rollback, and the extended connector matrix (Feishu Drive structure-preserving sync, Notion, GitLab, DingTalk docs, RSS). What will **not** come: multi-tenant Workspace RBAC (conflicts with our single-user-per-sandbox architecture) and a CLI product (we are GUI-first).
+
