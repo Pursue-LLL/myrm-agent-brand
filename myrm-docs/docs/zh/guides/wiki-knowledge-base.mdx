@@ -29,6 +29,16 @@ Myrm 提供**编译型知识库（Wiki）**——不是让 Agent 解读的一堆
 | **会话级即时多选挂载** | `KnowledgePickerPopover` + SQLite ATTACH 联邦 | 输入区即席勾选多知识库，零 IPC 单进程 FTS5 联邦检索，毫秒级 Quick Lane 免模型流式直出。 |
 
 
+## Monaco 与 MarkdownContent 双模协同知识编辑器
+
+Myrm 在设置页的 Wiki 词条管理中直接内置了桌面级、媲美 Typora 的双模协同编辑器：
+
+- **毫秒级即输即显实时协同**：左侧搭载 IDE 级专业的 Monaco 代码编辑器（支持完整的快捷键体系：`Cmd/Ctrl+S` 保存、`Cmd/Ctrl+B` 粗体、`Cmd/Ctrl+I` 斜体、`Cmd/Ctrl+K` 插入双链），右侧搭载无阻塞的 `MarkdownContent` 渲染器。基于 React `useDeferredValue` 机制，将输入性能与 Markdown 解析彻底解耦，保障打字毫无延迟，所见即所得。
+- **零 CDN 离线沙箱安全架构**：不同于依赖公网 CDN（如 jsdelivr）容易在内网沙箱卡死或白屏的方案，Myrm 通过自研 `lazy-monaco-editor` 将 `monaco-editor` 核心运行时完整内嵌至本地构建 bundle。在企业专网、无外网沙箱和断网飞行模式下均可秒级离线自启动。
+- **原生 [[双链]] 语法与专业工具栏操作闭环**：原生支持 Obsidian 规范双链语法 `[[词条名称]]`，工具栏提供加粗、斜体、代码块、引用、任务清单与 3x3 标准表格模板的一键注入，配合光标智能包裹与重定位，协同构建个人与智能体共享知识中枢。
+- **响应式单双栏自适应**：桌面端优雅呈现双栏并排布局，窄屏及移动端自动折叠为单栏，并提供丝滑的“编辑/预览”Tab 切换体验。
+- **MCP App 交互工件与动态前端集成**：内置开放的 `previewTransform` 转换协议，智能体生成的不仅是静态文档，更能直接在右侧预览区呈现并运行 MCP App 交互工件、Sandpack 前端组件与可视化动态图表。
+
 ## 按智能体隔离的 Wiki
 
 每个智能体可有**独立 Wiki 库**。在 **设置 → Wiki** 使用 **智能体范围** 下拉（或从智能体横幅打开 `/settings/wiki?agentId=<id>`）。统计、编译、维护与导入均作用于所选智能体。

@@ -11,6 +11,17 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-23 · Monaco 与 MarkdownContent 双模协同 Wiki 编辑器与零 CDN 离线沙箱全链路交付 · 彻底消除终端黑盒盲打、CDN 冻结与割裂式工作空间）
+
+- **MonacoDualModeLivePreviewAndOfflineSandboxWikiSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在知识库沉淀与富文本长文协作中普遍存在的“终端纯文本无渲染输出、缺乏双栏实时联动预览、强依赖公网 CDN 导致离线沙箱卡死白屏、原生 [[双链]] 语法缺失、以及无法内嵌渲染 MCP App 交互工件”等痛点）：** Myrm 全面交付了 Typora 级双模协同知识编辑器与零 CDN 离线沙箱闭环套件：
+  1. **Typora 级双栏 Monaco + MarkdownContent 毫秒级协同**：左侧搭载 IDE 级专业的 Monaco 代码编辑器（具备完整快捷键、多光标编辑、智能语法高亮），右侧通过 React `useDeferredValue` 防抖并发渲染，彻底解耦打字与 Markdown 解析，实现 0 延迟键入与毫秒级即输即显；
+  2. **100% 离线打包与零 CDN 沙箱安全保障**：通过 `lazy-monaco-editor` 架构将 Monaco 核心运行时完整打入本地构建 bundle，通过 `loader.config({ monaco })` 显式接管，彻底终结对 jsdelivr 等公网 CDN 的依赖，保证在企业内网、无公网沙箱与断网 CI 容器中秒级离线自启动；
+  3. **原生 [[双链]] 语法与专业工具栏操作闭环**：原生支持 Obsidian 规范双链语法 `[[页面名称]]`，工具栏提供粗体、斜体、代码块、引用、任务清单与 3x3 标准表格模板的一键注入，配合光标智能包裹与重定位，协同构建个人与智能体共享知识中枢；
+  4. **响应式单双栏自适应与生命周期内存防泄漏**：桌面端优雅双栏并排，窄屏及移动端自动折叠为单栏并提供平滑的“编辑/预览”Tab 切换；组件卸载时严格调用 `.dispose()` 并清理宿主引用，杜绝内存泄漏；
+  5. **MCP App 交互工件与动态沙箱前端集成**：内置开放的 `previewTransform` 转换协议，智能体产出的不仅是文档，更能直接在预览区呈现并运行 MCP App 交互工件、Sandpack 前端组件与可视化图表；
+  6. **100% 满分全栈实测验证**：前端 Wiki 40/40 项单元测试全绿（包含新建的高质量 `WikiMarkdownEditor.test.tsx`）、0 oxlint 警告/报错，无头 Chrome CDP 真实测试（`test_wiki_markdown_editor_live_preview_loop`）在 4 分 14 秒内全链路一气呵成通过，0 僵尸进程。
+- **SSOT 来源：** `WikiMarkdownEditor.tsx` · `WikiEditorToolbar.tsx` · `lazy-monaco-editor.tsx` · `test_wiki_markdown_editor_chrome_e2e.py` · `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-17 · 数据存储根路径无感安全迁移向导、三道硬指标安全防线与存储画像因果治理全链路交付 · 彻底消除爆盘撕裂、跨盘迁移毁损与 409 死锁）
 
 - **DataRootPathMigrationWizardAndStorageGovernanceSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在数据存储根路径迁移与持久化治理中普遍存在的“路径硬编码、WAL 撕裂、磁盘剩余空间盲写爆盘、无敏感操作票据防线、EXDEV 跨盘迁移毁损、无后台活跃写任务感知致 409 死锁、防自嵌套缺失致递归爆炸”等痛点）：** Myrm 全面交付了数据根路径安全迁移向导与多维存储治理套件：

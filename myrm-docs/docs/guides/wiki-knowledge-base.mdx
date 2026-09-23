@@ -28,6 +28,16 @@ When ingesting large books, complex documents, or hundreds of research files, ra
 | **Session-Level Instant Knowledge Mount** | `KnowledgePickerPopover` + SQLite ATTACH Federation | Ad-hoc multi-vault binding in message input, zero-IPC federated FTS5 search, sub-second zero-LLM Quick Lane streaming. |
 
 
+## Monaco & MarkdownContent Dual-Mode Collaborative Editor
+
+Myrm features a desktop-grade, Typora-level dual-mode knowledge editor embedded directly inside the Settings Wiki view:
+
+- **Millisecond Synchronized Live Preview**: Code-grade Monaco editor on the left pane (with full IDE shortcut support: `Cmd/Ctrl+S` to save, `Cmd/Ctrl+B` for bold, `Cmd/Ctrl+I` for italic, `Cmd/Ctrl+K` for wikilinks) seamlessly paired with a non-blocking `MarkdownContent` renderer on the right pane. Powered by React `useDeferredValue`, typing speed is completely decoupled from Markdown parsing for silky-smooth, 0-latency input.
+- **Zero-CDN Offline Sandbox Architecture**: Rather than relying on public CDNs (e.g. jsdelivr) that freeze or crash in air-gapped sandboxes, Myrm bundles the entire `monaco-editor` runtime into local build assets via `lazy-monaco-editor`. It starts in milliseconds across internal enterprise networks, offline CI containers, and airplane-mode laptops.
+- **Native [[Wikilinks]] & Semantic Action Toolbar**: Full native support for Obsidian-style `[[Concept Name]]` bidirectional links, paired with one-click actions for bold, italic, code blocks, blockquotes, checklists, and 3x3 table templates with intelligent text selection wrapping and cursor repositioning.
+- **Responsive Single/Dual Pane Layout**: Automatically renders an elegant side-by-side split layout on desktop viewports and folds into a single-pane view on mobile/narrow screens with instant `Edit` and `Preview` tab toggling.
+- **MCP App & Interactive Artifact Runtime**: With extensible `previewTransform` filters, synthesized articles can render live Sandpack micro-frontends, interactive charts, and MCP App widgets directly in the preview pane.
+
 ## Consumption loop
 
 Myrm connects the wiki to the Agent through **12 code-level paths** (no manual AGENTS.md like OpenWiki):
