@@ -864,5 +864,29 @@ Visualized across four dynamic health tiers:
   - **Dual-Axis Utilization Curves**: Tracks memory load ratio evolution across the conversation horizon;
 - **Theme-Adaptive & Real-Time**: Seamlessly adapts to light and dark themes with instantaneous recalculation and cache refresh controls.
 
+## White-Box Memory Evolution Timeline & Merge Audit Sheet
 
+Traditional agent memory frameworks (e.g., Hermes, OpenClaw, Codex) rely on black-box in-place overwrites or naive vector appends. This leads to untracked memory mutations, silent preference erasure by reflection models, irreversible loss of historical context, and high vulnerability to prompt injection.
 
+Myrm introduces an end-to-end **White-Box Evolution Timeline & Merge Audit Sheet** natively across the Harness cognitive engine and the WebUI `MemoryDetailSheet`:
+
+### 1. 4-Stage Lifecycle State Machine
+The core engine strictly tracks state transitions for every memory record:
+- **`CREATED` (Initial Ingestion)**: Captures observation evidence, confidence rating, and source turn context;
+- **`STRENGTHENED` (Consensus Boost)**: Increments corroboration count and activation weight when subsequent turns repeatedly validate the preference;
+- **`EXTENDED` (Boundary Expansion)**: Broadens semantic constraints without perturbing prefix stability;
+- **`SUPERSEDED` (Explicit Correction)**: Rather than destructive hard deletion, deprecated records are preserved in historical archives with bidirectional causality pointers.
+
+### 2. Single-Turn Merge Audit Sheet
+The detail drawer renders an intuitive before-and-after comparison table (Before vs After):
+- **Field-Level Semantic Diff**: Highlights changes across type, confidence, scope, and canonical content;
+- **Elimination of Silent Overwrites**: Auditors and end users can inspect model reflections per turn, preventing inadvertent deletion of critical preferences.
+
+### 3. Bidirectional Correction Trace
+- Strongly typed pointers maintain both `correction_of` (which previous record this memory rectifies) and `superseded_by` (which newer memory replaces this record);
+- Users can jump to historical ancestor records and conversation origins in one click.
+
+### 4. Physical User Lock Invariance (`is_user_locked`)
+- Critical preferences can be locked in place with a single click (`is_user_locked=True`);
+- Once locked, the consolidation and evolution engine deterministically bypasses modification, completely safeguarding against reflection drift and prompt injection poisoning;
+- Fully verified via automated browser testing (**Chrome E2E PASS**), providing enterprise-grade auditability without compromising user preferences.

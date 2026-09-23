@@ -171,7 +171,7 @@ export const COMPARE_ROW_KEYS = [
   'agentPluginRuntime',
   'smartCommandInput',
   'newTaskWorkContextCard',
-  'desktopNativeBridge',
+  'memoryEvolutionAudit',
 ] as const;
 
 export type CompareRowKey = (typeof COMPARE_ROW_KEYS)[number];
@@ -204,6 +204,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'searchIntelligence',
     'agentTemplates',
     'agentPluginMemory',
+    'memoryEvolutionAudit',
   ],
   security: ['sandbox', 'securityLayers', 'toolSecurity', 'skillPermissionGate', 'credentialVault', 'fileEditSafety', 'privacySafeShare', 'shareLink', 'cascadeDeletion', 'toolIntegration', 'toolProfileSsot', 'unifiedToolGateway'],
   automation: [
@@ -272,6 +273,6 @@ export const USE_CASE_KEYS = ['research', 'coding', 'automation', 'content', 'te
 
 export type UseCaseKey = (typeof USE_CASE_KEYS)[number];
 
-export const FAQ_ITEM_KEYS = ['what', 'pronounce', 'local', 'data', 'embedWindow', 'cloudResources', 'optionalExtras', 'commerceSupport'] as const;
+export const FAQ_ITEM_KEYS = ['what', 'pronounce', 'local', 'data', 'embedWindow', 'cloudResources', 'optionalExtras', 'commerceSupport', 'migrate', 'ghostError'] as const;
 
 export type FaqItemKey = (typeof FAQ_ITEM_KEYS)[number];
