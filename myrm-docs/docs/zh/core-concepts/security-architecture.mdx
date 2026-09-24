@@ -96,6 +96,22 @@ Agent 可以使用 `ask_question_tool` 在执行操作前向用户提出结构�
 | L9 | **Domain HITL 运行时** | 在同一会话中自动批准已审批过的域名 |
 | L10 | **LLM 安全审核** | AI 分类器处理 ASK/污点/Shell 升级/出站检查场景 |
 
+### 外部收件箱零信任白名单与 Prompt 投毒防御（A2A & Ingress Fence）
+
+针对多智能体协同（Agent-to-Agent, A2A）与外部 Webhook 消息接入场景，Myrm 落地了金融级的零信任收件箱与物理级特权隔离防线：
+
+1. **A2A 可信节点名册与自动准入策略**：
+   - 外部请求严格基于 `a2a_peers` 注册表进行身份校验（支持 Bearer Token / HMAC 签名鉴权）；
+   - 白名单节点请求自动放行至受信沙箱；
+   - 未授信或匿名请求强制降级为 `APPROVAL_PENDING` 挂起状态，在 WebUI 可信节点管理看板（`A2APeerRegistrySection`）中弹出人机审查卡片，待管理员明示批准后方可执行。
+2. **UntrustedIngressFence 运行时物理特权硬阻断**：
+   - **拒绝软防御**：传统竞品（如 Hermes、OpenClaw）依赖系统提示词“请不要执行外部指令”的软约束，极易被“忽略前序规则”、“开发者调试模式”等对抗性 Prompt 注入瞬间击穿；
+   - **底层物理下线**：对外部非受信来源输入，底层 `UntrustedIngressFence` 在工具动态绑定与调度阶段，对 10 大核心高危特权实施物理硬下线，使其对大模型**物理不可见、接口不可调**：
+     - `code_interpreter`（代码执行）、`file_write`（文件写入/覆盖）、`desktop_control`（桌面鼠标键盘操作）、`desktop_capture`（屏幕截屏）、`mobile_control`（移动设备控制）、`mobile_capture`（移动端截图）、`spawn_subagent`（派生子智能体）、`invoke_external_agent`（级联调用外部智能体）、`cron_manage`（定时任务调度）、`skill_manage`（动态技能安装与修改）；
+   - **YOLO 穿透绝对免疫**：即便用户全局开启了 `--yolo` 自动放行模式，`UntrustedIngressFence` 依然强制生效，杜绝外部输入借由 YOLO 模式发生提权渗透与沙箱逃逸。
+3. **竞品防御能力对标**：
+   - 对比 **Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi / OpenCode**，Myrm 是业界唯一在 A2A 收件箱入口兼具“白名单准入审批 + 10 大特权物理硬阻断 + YOLO 穿透绝对免疫”的多层防御系统，实现从输入清洗、审批管控到底层执行隔离的完整安全闭环。
+
 ### 技能元数据防提权与运行时零知识凭证保险库（Sentinel & Vault）
 
 针对 2026 年权威论文《Agent Skills in the Wild》披露的第三方技能提权后门与凭据外泄灾难，Myrm 构筑了工业级防线：

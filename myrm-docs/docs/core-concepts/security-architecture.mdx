@@ -97,6 +97,22 @@ Every tool call passes through up to 10 layers of deterministic and intelligent 
 | L9 | **Domain HITL Runtime** | Auto-allows previously-approved domains within the same session |
 | L10 | **LLM Security Review** | AI classifier for ASK/Taint/Shell-Escalation/Outbound-Check scenarios |
 
+### External Inbox Zero-Trust Whitelist & Prompt Poisoning Defense (A2A & Ingress Fence)
+
+For multi-agent collaboration (Agent-to-Agent, A2A) and external webhook ingress scenarios, Myrm implements a financial-grade zero-trust perimeter and physical privilege fence:
+
+1. **A2A Trusted Peer Registry & Automated Admission**:
+   - Inbound requests are verified against the `a2a_peers` registry with Bearer Token or HMAC signature authentication.
+   - Whitelisted peers pass directly to secure execution.
+   - Untrusted or anonymous requests are forcibly downgraded to `APPROVAL_PENDING`, rendering interactive review cards in the WebUI (`A2APeerRegistrySection`) for human sign-off.
+2. **UntrustedIngressFence Runtime Physical Privilege Severance**:
+   - **No Soft Defenses**: Competitors (e.g. Hermes, OpenClaw) rely on system prompts like "please do not execute external commands", which are routinely bypassed by adversarial prompt injection.
+   - **Kernel-Level Tool De-registration**: For untrusted ingress, `UntrustedIngressFence` physically de-registers 10 high-risk privilege tools during tool dispatch, making them **physically invisible and uncallable** to the model:
+     - `code_interpreter`, `file_write`, `desktop_control`, `desktop_capture`, `mobile_control`, `mobile_capture`, `spawn_subagent`, `invoke_external_agent`, `cron_manage`, `skill_manage`.
+   - **Immune to YOLO Mode**: Even if `--yolo` auto-approval is globally active, `UntrustedIngressFence` strictly enforces privilege severance, eliminating privilege escalation and sandbox escapes.
+3. **Competitive Parity**:
+   - Versus **Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi / OpenCode**, Myrm is the only platform providing an end-to-end A2A defense loop combining identity admission, physical privilege fences, and YOLO-immune execution barriers.
+
 ### Skill Frontmatter Defense & Zero-Trust Secret Vault (Sentinel & Vault)
 
 To counter the supply-chain vulnerabilities and secret exfiltration highlighted by the 2026 paper *Agent Skills in the Wild*, Myrm provides enterprise-grade runtime guarantees:
