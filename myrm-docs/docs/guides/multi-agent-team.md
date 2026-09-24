@@ -87,6 +87,16 @@ Agent fleets rot: overlapping roles, zombie assistants nobody dares delete (fear
 
 Inspection costs zero model fees; merging is 100% GUI, no command line. Verified: Claude Code, Cursor and Codex offer no equivalent governance.
 
+### 11. Async Review on Deliverables: Comment, Send Back, Done
+
+Stop babysitting the agent while it works. Let it deliver a complete artifact first, then review on your own schedule:
+
+1. Open the deliverable in the **Artifact Portal** and select any text, rows, or chart area to leave an **inline comment** with your change request (works for docs, code, tables, and charts — not just Git repos).
+2. Click **Submit review**: each comment carries its location anchor, the original excerpt, and your intent, and returns to the agent via chat resend or kanban reject (`addComment` + `rejectTask`) — no need to re-explain the requirement.
+3. The agent revises only the targeted section; **version chips** let you jump between versions with highlighted diffs. Anchors relocate automatically after revisions and out-of-range comments are flagged.
+
+Verified: Codex inline comments live only in code diffs; Hermes, OpenClaw, pi, opencode and DeepSeek-Harness offer no equivalent loop (compared 2026-09-24).
+
 ## How to Get Started
 
 1.  Open the **Myrm Agent WebUI**, and navigate to the Workflow or Kanban section.

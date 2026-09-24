@@ -31,6 +31,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'desktopComputerUse',
   'multiAgent',
   'agentGovernance',
+  'asyncReview',
   'omniChannel',
   'tokenSmart',
   'evalLab',

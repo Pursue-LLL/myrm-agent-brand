@@ -97,6 +97,16 @@ Myrm 将后台子代理生命周期与父流解耦：
 
 巡检全程零模型费用；合并全程 GUI，无需命令行。Claude Code、Cursor、Codex 经实证均无同等治理能力。
 
+### 12. 交付物异步审阅：批注即打回，改完即定稿 (Async Review)
+
+不用守着 Agent 干活。让它先交完整产物，你有空时再审：
+
+1. 在 **产物面板（Artifact Portal）** 打开交付物，选中任意文本/行/图表区域留下**行内批注**与修改意见（文档、代码、表格、图表通用，不限 Git 仓）。
+2. 点**提交审阅**：每条批注携带定位锚点、原文摘录与修改意图，经聊天重发或看板退回（`addComment` + `rejectTask`）直达 Agent 精准局部修订，不用重讲需求。
+3. Agent 只改你点的那段；**版本 chips** 一键跳转，变更 Diff 高亮；锚点随版本自动重定位，越界批注主动提示。
+
+Codex 行内评论只活在代码 diff 里；Hermes、OpenClaw、pi、opencode、DeepSeek-Harness 经实证均无同等闭环（2026-09-24 对比）。
+
 ## 如何开始使用？
 
 1.  打开 **Myrm Agent WebUI**，进入工作流（Workflow）或看板（Kanban）界面。
