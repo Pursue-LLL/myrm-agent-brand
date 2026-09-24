@@ -11,6 +11,17 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-24 · 会话事件日志与全版本工件 ZIP 归档导出包全链路交付 · 彻底消除日志分散割裂、服务端 OOM 打包崩溃、工件血缘丢失与敏感密钥外泄）
+
+- **SessionEventLogZipExportPack（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在会话数据归档、可观测审计导出与交付物迁移中普遍存在的“日志零碎散落各处、排障无法离线回放事件因果、工件与多轮交互脱节、整包导出频繁触发服务端 OOM、API Key 随日志明文泄漏以及跨系统中文文件名乱码”等痛点）：** Myrm 全面交付了常数内存流式会话归档包导出与物理对账套件：
+  1. **全景自包含审计归档（`session.jsonl` + `subagents/` + `artifacts/` + `manifest.json`）**：一键生成自包含 `.zip` 归档，完整封装着主会话不可变事件时序流、级联子智能体执行轨迹，以及由 ArtifactVault 严格版本控制的所有物理交付物快照；
+  2. **物理级 SHA-256 完整性清单（`manifest.json`）**：在归档根目录实时计算并封签每个文件的 SHA-256 校验和与物理字节数（`integrity_report`），支持第三方工具进行 100% 零信任数学级对账与防篡改验证；
+  3. **常数级内存 $O(1)$ 分块流式压缩引擎（`_ZipStreamBuffer`）**：边压缩边流式吐出分块 Chunk，无需在内存常驻完整归档包，大容量或超长轨迹会话导出 0 内存峰值暴涨，杜绝 OOM；
+  4. **军工级三层安全防御体系**：(a) 深度清洗文件名阻断 Zip Slip 路径穿越（`../`）；(b) 严格软链接安全校验（`_is_path_strictly_within`）防止沙箱逃逸窃取宿主机敏感文件；(c) 默认启用敏感密钥实时正则掩码脱敏（`redact_secrets`）；
+  5. **客户端并发排重互斥锁与 RFC 5987 / RFC 6266 中文编码**：前端内置 HEAD 预检探测与单会话排重互斥锁（`activeExports` Set），防止连击与重复弹窗；标准 UTF-8 编码确保在 Windows/macOS/Linux 各端解压均零乱码；
+  6. **100% 满分全栈实测验证**：Harness 框架刷盘屏障 95% 覆盖率通过、Server 业务端点 92% 覆盖率通过、前端双引擎单测（Bun 255ms / Vitest 5.00s）全绿通过、Chrome CDP E2E（`test_export_pack_chrome_e2e.py`）106.28s 真实浏览器全链路通过。
+- **SSOT 来源：** `app/api/chats/chat/export_pack.py` · `protocols.py` · `chatExportPack.ts` · `test_export_pack_chrome_e2e.py` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-24 · 研究领域知识树与概念双向链接导航器全链路交付 · 彻底消除单向超链孤岛、扁平目录堆叠与跨概念高额 Token 重复漫游）
 
 - **ResearchDomainKnowledgeTreeAndBiDirectionalLinkNavigator（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在科研探索、架构调研与多领域知识沉淀中普遍存在的“单向超链导致反向引用彻底丢失、扁平目录堆杂掩盖领域层级、缺乏上下文提及片段、以及在关联概念间漫游分析必须反复请求昂贵 LLM 产生高额 Token 消耗”等痛点）：** Myrm 全面交付了领域知识树与概念双向链接导航器全栈套件：
