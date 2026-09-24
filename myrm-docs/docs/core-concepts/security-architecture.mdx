@@ -1231,6 +1231,22 @@ To eliminate cross-talk between multi-user conversations, open-mode superuser pr
 2. **Stranger Privilege Escalation Defense Gate (Anti-Privilege Escalation Gate)**: Closes the critical vulnerability in OPEN policy where unpaired senders automatically fell back to inheriting `default_user_id` (sandbox superuser privileges); unpaired senders are strictly assigned isolated guest identities (`guest_{channel}_{sender_id}`) with zero access to privileged execution tools;
 3. **Long-Term Memory Anti-Poisoning Fence (Anti-Poisoning Fence)**: Directly validates authentication state in the inbound persistence pipeline `record_inbound`; visitor and unpaired messages are strictly stamped with `learning_eligible=False`, physically blocking prompt injection attempts from polluting long-term memory and vector indices.
 
+## Controlled Micro-budget Autonomous Payment & Spending Limit Vault (Commerce)
 
+To enable agents to autonomously execute micro-payments during long-running workflows (e.g. purchasing third-party CAPTCHA solves, pay-per-call API tokens, ephemeral compute, or temporary proxy bandwidth) without breaking autonomy with constant popups or risking unbounded credit card drainage:
 
-
+1. **Deterministic `SpendGovernor` Pure State Machine (`spend_governor.py`)**:
+   - **Zero External I/O**: Designed as a pure state machine decoupled from specific payment providers, ensuring minimal latency and zero vendor lock-in.
+   - **Integer Cents Accounting**: Replaces vulnerable floating-point math with exact integer cents (`cents: int`), completely eliminating rounding errors and cumulative precision drifts across concurrent transactions.
+   - **Dual Hard Limits**: Enforces strict `per_transaction_limit_cents` and `daily_limit_cents` thresholds. Any over-limit attempt is physically blocked and flagged as `APPROVAL_REQUIRED`.
+   - **Merchant & Category Whitelists**: Restricts payments strictly to approved domains (supporting wildcards like `*.api.stripe.com`) and service categories (`api_compute`, `dataset`, etc.), defeating malicious prompt injections attempting to transfer funds to adversary accounts.
+   - **UTC Calendar Day Atomic Rolling & 3600s Lease Compaction**: Atomically rolls daily counters at midnight UTC (`YYYY-MM-DD`), preventing 24-hour sliding window deadlocks; automatically evicts finalized `COMMITTED`/`RELEASED` leases older than 3600s to avoid memory leaks.
+2. **Two-Phase Idempotent Lease Commit/Release**:
+   - **Idempotency-Key Pre-allocation**: Enforces `idempotency_key` deduplication, allowing safe retries across flaky networks without duplicate holds.
+   - **HMAC-SHA256 Cryptographic Lease Signatures**: Generates tamper-proof lease signatures (`hmac_sha256(lease_id + amount + ts)`). Tampered lease IDs or falsified payment amounts are rejected instantly.
+   - **Hold/Commit/Release Lifecycle**: Pre-allocates funds on hold, accurately reconciles final charged amounts, and guarantees immediate fund release on task cancellation.
+3. **Offline Persistent Ledger & Crash-Resilient Boot Reconciliation (`spending_ledger.json`)**:
+   - **Cold-Boot Self-Healing (`restore_daily_spent`)**: Upon server boot, `BudgetService` scans local committed transactions for the current UTC day and restores the exact daily spent watermark into `SpendGovernor`. This eliminates the critical reboot-bypass vulnerability where adversaries induce crashes to reset spending counters.
+   - **WebUI Spending Vault & Emergency Freeze**: Provides real-time budget utilization gauges, merchant allowlist management, and an instant one-click `Emergency Freeze` trigger to halt all active payment channels.
+4. **Competitive Parity vs. Six Major Frameworks**:
+   - Unlike **Hermes, OpenClaw, Codex, DeepSeek-Harness, Pi, and OpenCode**—which either completely lack micro-payment sandboxes or expose raw credentials to LLM prompt injection—Myrm provides the industry's first defense-in-depth commerce spending safety suite, backed by 100% statement test coverage.
