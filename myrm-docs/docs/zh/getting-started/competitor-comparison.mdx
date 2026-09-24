@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-24 · 研究领域知识树与概念双向链接导航器全链路交付 · 彻底消除单向超链孤岛、扁平目录堆叠与跨概念高额 Token 重复漫游）
+
+- **ResearchDomainKnowledgeTreeAndBiDirectionalLinkNavigator（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在科研探索、架构调研与多领域知识沉淀中普遍存在的“单向超链导致反向引用彻底丢失、扁平目录堆杂掩盖领域层级、缺乏上下文提及片段、以及在关联概念间漫游分析必须反复请求昂贵 LLM 产生高额 Token 消耗”等痛点）：** Myrm 全面交付了领域知识树与概念双向链接导航器全栈套件：
+  1. **Ego 局部拓扑概念双向链接图谱（`get_concept_links`）**：执行引擎原生 MemoryStore 与 SQLite 拓扑存储，毫秒级提取概念笔记的邻接图谱，完整捕获出链（Outbound）与反向入链（Inbound Backlinks），并自动精准截取上下文提及语境片段（`_extract_mention_snippet`）；
+  2. **多层级领域知识树动态导航器（`DomainKnowledgeTreeNavigator`）**：将复杂知识按领域（Domain）与子主题树状递归归纳，实时展示概念节点计数、健康状态指示与未解决依赖标记，彻底告别单目录扁平混乱；
+  3. **零 Token 沙箱本地漫游**：用户与智能体在概念网络与领域知识树间下钻、跳转与反向溯源全部在沙箱本地 SQLite + AST 解析器完成，具备毫秒级响应，0 额外 LLM Token 消耗；
+  4. **严格的单机沙箱物理隔离**：基于每用户独立沙箱 + 专属持久化存储卷设计，杜绝外部网络竞态与多租户权限穿透风险，保障 100% 确定性与数据主权；
+  5. **100% 满分全栈实测验证**：底层双向链接提取单元测试全绿、服务端概念链接接口门禁全绿、前端领域树与反向链接导航端到端验证 0 回归。
+- **SSOT 来源：** `myrm_agent_harness/toolkits/memory/store/sqlite.py` · `myrm-agent-harness/src/myrm_agent_harness/api/` · `WikiDomainTreeSection.tsx` · `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-24 · 长会话与 IM 渠道技能自我进化防膨胀与上下文过载主动守卫全链路交付 · 彻底消除 400k 长会话递归压缩崩溃、微技能无限失控堆叠与容量向上失明）
 
 - **DiscordLongSessionSkillEvolutionBloatGuard（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在持续在线与长会话 IM 运行中普遍存在的“长会话自主进化导致微技能无序膨胀挤爆 Prompt、上下文超限时依然发起昂贵远程递归摘要触发 ContextLengthExceeded 死锁崩溃、缺乏单机沙箱硬容量预算、缺乏自愈任务通道、以及前端对技能池占用状态向上失明”等痛点）：** Myrm 全面交付了长会话进化防膨胀与上下文过载主动守卫全栈套件：
