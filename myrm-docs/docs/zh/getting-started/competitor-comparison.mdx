@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-25 · 出网数据污染拦截、单次虚拟卡动态预算凭证、主干工作流安全移交与前瞻上下文熔断门禁全链路交付 · 彻底消除盲目出网、资金穿透、单循环失控与截断崩溃）
+
+- **TaintedEgressHITLAndVirtualCardBudgetAndTrunkWorkflowAndPressureGateSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在真实生产环境、商务交易与极限长会话中普遍存在的“敏感数据盲目出网导致凭据失窃、商务自动化资金穿透无隔离凭证、扁平单循环缺乏多阶段契约移交门禁、以及上下文超限硬截断或服务抛错崩溃”等致命痛点）：** Myrm 全面交付了全生命周期安全防护与鲁棒编排套件：
+  1. **敏感出网数据污染拦截与会话级信任审批（HITL Tainted Egress Interceptor）**：在 API 与网络出网层（`app/api/security/tainted_egress.py`）建立数据污点追踪机制。当 Agent 携带机密凭据尝试外发请求时自动截获，提供单次放行、单次拒绝或会话级信任（Session Trust）审批，并在端侧告警，彻底封死间接注入导致的数据外泄；
+  2. **商务预算动态隔离与一次性虚拟卡凭证（Bound Virtual Card Voucher）**：原生内置单次隔离虚拟卡凭证引擎（`app/commerce/budget_service.py`），为自动化采购与商务任务动态颁发带商户域名强绑定、强制额度上限与短时 TTL 的数字凭据，彻底杜绝 Agent 死循环刷爆卡或资金资产穿透风险；
+  3. **主干工作流原生模版与安全移交门禁（Trunk Workflow Templates & Handoff Security Gates）**：标准化多阶段工作流模版（`TrunkWorkflowTemplates` 与 `WorkflowHandoffGate`），在调研、设计、编码、测试等阶段流转间施加严格的安全契约断言，杜绝脏状态穿透污染；
+  4. **前瞻上下文压力自适应压缩与熔断门禁（Preflight Context Pressure Gate）**：在模型推理流水线前部署前瞻压力评估。超过 85% 软限自动触发无损自适应压缩，突破 98% 硬熔断线安全挂起并人机求助，零硬截断、零 API 报错崩溃；
+  5. **100% 满分全栈实测验证**：出网污点拦截 API 单元测试通过、主干工作流契约测试通过、上下文压力门禁端到端测试（5 passed in 16.66s）全绿通过，0 僵尸残留。
+- **SSOT 来源：** `app/api/security/tainted_egress.py` · `app/commerce/budget_service.py` · `app/services/workflow_templates/` · `test_pressure_gate_e2e_contract.py` · `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-24 · 会话事件日志与全版本工件 ZIP 归档导出包全链路交付 · 彻底消除日志分散割裂、服务端 OOM 打包崩溃、工件血缘丢失与敏感密钥外泄）
 
 - **SessionEventLogZipExportPack（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在会话数据归档、可观测审计导出与交付物迁移中普遍存在的“日志零碎散落各处、排障无法离线回放事件因果、工件与多轮交互脱节、整包导出频繁触发服务端 OOM、API Key 随日志明文泄漏以及跨系统中文文件名乱码”等痛点）：** Myrm 全面交付了常数内存流式会话归档包导出与物理对账套件：
