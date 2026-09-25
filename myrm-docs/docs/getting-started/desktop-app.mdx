@@ -126,27 +126,37 @@ The desktop app enforces a three-tier permission model for agent actions:
 | **Ask** | Agent requests approval before any write or system operation |
 | **Auto** | Agent executes all approved tool categories without prompting |
 
-## Remote Server Gateway
+## Remote Connections
 
-Connect your Desktop client to a remote Myrm server running on a VPS or NAS — manage your remote agent from the native desktop experience:
+One desktop drives all your machines — your own computer, a self-hosted server (VPS, NAS, home server), or cloud hosting. Switch between them anytime.
+
+On first launch the app asks where your assistant runs: **this computer**, a **remote server**, or **cloud hosting**. You can change this later under **Settings → System → Server Connection**.
+
+### Remote server profiles
 
 1. Go to **Settings → System → Server Connection**
 2. Toggle from **Local** to **Remote**
-3. Enter the remote server URL (e.g., `https://your-vps.example.com`)
-4. Click **Test Connection** to verify the server is reachable
-5. Click **Connect** — the app reloads and all API calls now route to the remote server
-6. Log in with your remote server credentials (Setup Token + password)
+3. Give the connection a name (e.g., `Homelab`), enter the server URL, and click **Test Connection**
+4. Click **Connect** — the app reloads and all API calls now route to that server
+5. Log in with your remote server credentials (Setup Token + password)
 
-All features (chat, settings, skills, artifacts, notifications) work against the remote server. The local sidecar continues running so you can switch back instantly if the remote connection drops.
+You can save multiple servers and switch between them with one click. Each entry has its own health check; if a server becomes unreachable, an inline alert offers a one-click **Switch to Local Mode** button. Your local auth token is backed up automatically and restored when you disconnect.
 
-**Status indicators:**
-- **NavBar plug icon** — visible when connected to a remote server, click to jump to connection settings
-- **Disconnect banner** — if the remote server becomes unreachable, an inline alert appears with a "Switch to Local Mode" button
-- **Token safety** — your local auth token is automatically backed up when switching to remote mode and restored when you disconnect
+While connected remotely, the local backend stays off to save ports, CPU, and battery — it restarts automatically when you switch back.
 
-<Note>
-The Remote Gateway is for connecting to your own self-hosted server (VPS, NAS, home server). For cloud-hosted deployments, use the browser-based MyrmAgent Cloud — no desktop gateway needed.
-</Note>
+### Cloud hosting
+
+Prefer not to run a server yourself? In the same settings card, under **Cloud hosting**:
+
+1. Enter your cloud address and click **Check sign-in options**
+2. Sign in with your cloud account in the browser, then click **Open in desktop app** to hand the session back
+3. Or, if you are already signed in, click **Discover my sandbox** — your hosted sandbox is added as a connection automatically
+
+### Good to know
+
+- **NavBar plug icon** — visible while connected remotely; click to jump to connection settings.
+- **Scheduled tasks keep running** on the remote server or cloud sandbox even when this desktop is offline or closed.
+- Capabilities always come from the connected server — the desktop is a window into it, not a second copy of it.
 
 ## Remote Access (Mobile Hub)
 
