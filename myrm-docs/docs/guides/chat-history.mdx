@@ -170,6 +170,18 @@ Key benefits of redirect mode:
 
 Change the default mode in **Settings → Agent → Busy Input Mode** (`redirect` / `steer` / `queue`).
 
+## Lazy Session Persistence & Self-Purge
+
+In daily high-frequency use, pressing Enter and immediately hitting Escape to cancel, accidental disconnects, or tentative inputs are common. Traditional agent frameworks prematurely insert database records and create physical workspace sandbox folders the moment the user sends the first message, causing the sidebar to be cluttered with empty orphan sessions.
+
+MyrmAgent introduces **Lazy Session Persistence Until First Assistant** and **Lazy Workspace Materialization**:
+
+1. **In-Memory Draft Isolation**: When a user submits the first prompt, the server keeps a lightweight `PendingSessionDraft` in memory without writing to the database or updating inverted indices.
+2. **Active Generation Chunk Detection & Atomic Barrier**: The stream pipeline filters passive ping/keepalive events. Upon detecting the first active assistant content (text, thinking stream, or tool progress step), it atomically commits via an `asyncio.Lock` barrier.
+3. **Zero-Write on Early Cancellation**: If the run is canceled or disconnected before the first assistant token or tool execution, the draft is safely dropped with zero database writes and zero physical folder footprint.
+4. **Tool-Call Draft Protection**: Even if the model generates only tool calls in the first turn without visible text, `has_active_generation` reliably detects the activity and commits the session, ensuring tool side effects and artifacts are safely persisted.
+5. **Doctor Orphan Session Self-Healing**: For legacy empty sessions, the Doctor diagnostics engine provides the `OrphanSessionDiagnostic` probe and `PURGE_ORPHAN_SESSIONS` self-healing action, supporting dry-run previews and cascading physical cleanup (database rows, messages, FTS5 indices, checkpointer states, and workspace folders).
+
 ## vs Competitor Approaches
 
 Most competitors (e.g., Hermes Agent) use a separate `/history` page that duplicates sidebar functionality. MyrmAgent follows the same pattern as ChatGPT, Claude, and Gemini — **sidebar-integrated history** — while providing 16 additional capabilities that the separate-page approach lacks.
@@ -177,3 +189,4 @@ Most competitors (e.g., Hermes Agent) use a separate `/history` page that duplic
 <Tip>
 The sidebar approach keeps your workflow uninterrupted. You never leave your current conversation to search, export, or manage history.
 </Tip>
+
