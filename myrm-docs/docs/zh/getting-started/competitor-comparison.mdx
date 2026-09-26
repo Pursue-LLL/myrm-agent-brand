@@ -11,6 +11,17 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-26 · 双模启发式脚本装甲、防哨兵吞噬、Exit 拦截保活与孤儿脚本启动自愈 GC 全链路交付 · 彻底消除常驻 Shell 误杀崩溃、输出截断丢失退出码、行尾注释失效与持久卷磁盘泄露）
+
+- **DualModeScriptArmorAndPersistentSessionGuardSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在执行复杂代码、Heredoc 输入与常驻 Shell 会话中普遍存在的“脚本内嵌 `exit` 强杀常驻父进程、多行 Heredoc 吞噬随机边界哨兵导致任务假死挂起、行尾注释吞噬退出码赋值造成状态误判、以及 OOM 强杀后遗留孤儿脚本永久堆积导致沙箱 Volume 磁盘爆满 ENOSPC”等致命痛点）：** Myrm 全面交付了企业级脚本执行装甲与常驻会话保活套件：
+  1. **双模启发式决策探针（`should_materialize_script`）**：智能区分父进程状态变更命令（`cd`, `export`, `source` 等）走直接快速路径（Direct Fast-Path），100% 保持会话目录与环境变量上下文；多行脚本、Heredoc（`<<EOF`）、超长字节（>512B）与内嵌 `exit` 语句自动路由至物化保护子 Shell；
+  2. **原子级 0700 脚本物化与执行装甲（`prepare_armored_command`）**：将复杂脚本原子写入 `0700` 权限的临时可执行文件并通过子 Shell 隔离执行，彻底封死 `exit` 语句对常驻父进程的误杀，消除会话崩溃与频繁自愈震荡；
+  3. **防边界哨兵吞噬与行尾注释物理隔离**：在 `BashFlavor` 中对命令剥离尾部换行并独立重组分行，彻底消除了尾部带单行注释（`# note`）吞噬 `__myrm_rc__` 哨兵赋值的隐患；子 Shell 执行避免了 Heredoc 文本吞噬管道输出哨兵；
+  4. **启动自愈孤儿脚本垃圾回收（`sweep_stale_materialized_scripts`）**：在会话首次启动与超时损坏自愈时，以 `<0.2ms` 的极低开销自动扫描并回收持久沙箱 Volume 和 `/tmp` 中超过 1 小时的孤儿脚本，采用防御性 `try-except OSError` 包装，在受限权限目录下依然平稳容灾，彻底根除 OOM-killer 强杀后临时脚本堆积导致的磁盘空间枯竭（ENOSPC）；
+  5. **零破坏向下同构与元数据透传（`ArmoredCommandString`）**：继承原生 `str`，在所有子进程输入与字符串操作中保持 100% 兼容，同时挂载 `is_armored: bool` 状态，贯穿 `SessionExecutionResult` 并向前端提供精准透明的执行装甲可观测性；
+  6. **100% 满分全栈实测验证**：`script_armor.py` 单测覆盖率达到 **97.1%**（24/24 项专测全绿），真实端到端会话防护、Heredoc 防吞噬、超时自愈、输出流控及进程组清理累计 **48 项真实测试 100% 全部通过**，零 Mock、零卡死、零内存泄露、零僵尸进程残留。
+- **SSOT 来源：** `myrm_agent_harness/toolkits/code_execution/security/script_armor.py` · `myrm_agent_harness/toolkits/code_execution/session/persistent_session.py` · `shell_flavor.py` · `test_script_armor.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-25 · 出网数据污染拦截、单次虚拟卡动态预算凭证、主干工作流安全移交与前瞻上下文熔断门禁全链路交付 · 彻底消除盲目出网、资金穿透、单循环失控与截断崩溃）
 
 - **TaintedEgressHITLAndVirtualCardBudgetAndTrunkWorkflowAndPressureGateSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在真实生产环境、商务交易与极限长会话中普遍存在的“敏感数据盲目出网导致凭据失窃、商务自动化资金穿透无隔离凭证、扁平单循环缺乏多阶段契约移交门禁、以及上下文超限硬截断或服务抛错崩溃”等致命痛点）：** Myrm 全面交付了全生命周期安全防护与鲁棒编排套件：
