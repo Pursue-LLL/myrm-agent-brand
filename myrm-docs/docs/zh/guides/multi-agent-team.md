@@ -107,6 +107,16 @@ Myrm 将后台子代理生命周期与父流解耦：
 
 Codex 行内评论只活在代码 diff 里；Hermes、OpenClaw、pi、opencode、DeepSeek-Harness 经实证均无同等闭环（2026-09-24 对比）。
 
+### 13. 主干工作流：钉选现成流程，一点即跑 (Trunk Workflows)
+
+不用每次从零口述流程。需求判断、方案交付、开发、Bugfix、沉淀——五条最高频工作链已预置为“主干流程”：
+
+1. 看到工作流建议卡时（或打开设置 → 工作流模板），**钉选**一条主干流程（如 Bugfix）。
+2. 填写两三个空（如报错信息）；缺材料会被拦下并用人话告诉你缺什么，绝不默默跑飞。
+3. 上一步的材料自动带到下一步；版本 Diff 与质检记录随时可查。
+
+Codex、OpenClaw、Hermes、pi、opencode、DeepSeek-Harness 经实证均无“预置业务主干流+类型化交接+准入门禁”闭环（2026-09-26 对比）。
+
 ## 如何开始使用？
 
 1.  打开 **Myrm Agent WebUI**，进入工作流（Workflow）或看板（Kanban）界面。

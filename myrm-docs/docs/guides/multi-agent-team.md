@@ -97,6 +97,16 @@ Stop babysitting the agent while it works. Let it deliver a complete artifact fi
 
 Verified: Codex inline comments live only in code diffs; Hermes, OpenClaw, pi, opencode and DeepSeek-Harness offer no equivalent loop (compared 2026-09-24).
 
+### 12. Trunk Workflows: Pin a Ready-Made Flow, Done
+
+Stop dictating every process from scratch. For the five highest-frequency chains — triage, delivery, dev, bugfix, consolidation — Myrm ships ready-made trunk flows:
+
+1. When the workflow suggestion card appears (or open Settings → Workflow Templates), **pin** a trunk flow such as Bugfix.
+2. Fill in the two or three blanks (e.g. error report); missing pieces are stopped with a plain-language reason, never a silent runaway.
+3. Materials from the previous step travel automatically; version diffs and gate records stay inspectable.
+
+Verified: none of Codex, OpenClaw, Hermes, pi, opencode or DeepSeek-Harness ships prebuilt business trunk flows with typed handoff and admission gates (compared 2026-09-26).
+
 ## How to Get Started
 
 1.  Open the **Myrm Agent WebUI**, and navigate to the Workflow or Kanban section.
