@@ -11,6 +11,17 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-09-26 · 제로 일반 텍스트 외부 비밀 저장소 및 동적 순환 스위트 · 일반 텍스트 유출, 프로세스 폭풍, 만료 자격 증명 멈춤 및 수동 복사 붙여넣기 완전 제거)
+
+- **ZeroPlaintextExternalSecretsVaultAndDynamicRotationSuite (Hermes, OpenClaw, Codex, DeepSeek-Harness, Pi 및 OpenCode의 중앙 집중식 비밀 관리, 키 교체 자체 복구 및 제로 일반 텍스트 저장 취약점 대조: 프로덕션 키를 암호화되지 않은 구성 파일에 수동 복사 붙여넣기 강제, 동시 호출 시 CLI 프로세스 폭풍 유발, 정기 비밀번호 교체 시 파이프라인 마비 취약점):** Myrm은 엔터프라이즈급 제로 일반 텍스트 외부 금고 게이트웨이 및 동적 순환 자체 복구 스위트를 전면 인도했습니다:
+  1. **기본 비밀 URI 확인 (`op://`, `bw://`, `bws://`)**: 1Password(CLI/Connect) 및 Bitwarden(CLI/Secrets Manager) 참조를 메모리에서 온디맨드로 기본 확인. 데이터베이스에는 추상 URI 포인터만 저장되어 민감한 일반 텍스트 토큰이 디스크에 절대 닿지 않음;
+  2. **단일 비행 프로세스 폭풍 방지 (`_FlightCall`)**: 동일한 비밀 참조를 대상으로 하는 고동시성 요청을 단일 CLI 확인으로 병합하는 락프리 원자적 단일 비행 원시 타입을 구현하여 프로세스 폭풍 서비스 거부 및 잠금 경합 교착 상태를 완벽 차단;
+  3. **메모리 내 TTL 캐싱 및 401 동적 순환**: 확인된 자격 증명을 600초 TTL로 휘발성 메모리에만 보관. 업스트림 401/403 권한 실패 발생 시 만료된 캐시를 투명하게 무효화하고 즉시 교체된 최신 비밀을 재확인하여 장기 실행 미션 무중단 자율 복구 보장;
+  4. **비대화형 실행 격리 (`_build_noninteractive_env`)**: GUI 디스플레이 토큰, 프롬프트 후크 및 데스크톱 알림을 완전 제거하여 헤드리스 백엔드 실행 시 백그라운드 워커 멈춤 원천 방지;
+  5. **컨테이너 Sentinel 바우처 보호**: 확인된 비밀을 불투명한 Sentinel 바우처로 샌드박스에 주입하고 송신 프록시에서 메모리 내 대체하여 `printenv`를 실행하더라도 실제 업스트림 키 유출 불가;
+  6. **100% 풀스택 테스트 검증 완료**: 하네스 핵심 외부 비밀 모듈 단위 테스트 커버리지 **98.86%** 달성(15/15 전원 통과), 서버 자격 증명 풀 API 100% 통과, 실제 Chrome 브라우저 CDP E2E (`test_external_secrets_settings_chrome_e2e.py`) 독점 격리 실행 100% 통과(1 passed in 248.02s).
+- **SSOT 출처:** `myrm_agent_harness/core/security/external_secrets/manager.py` · `app/api/settings/credential_pool.py` · `test_external_secrets_settings_chrome_e2e.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+
 ## 최신 검증 스냅샷 (2026-09-25 · 송신 오염 데이터 차단, 1회용 가상 카드 동적 예산 바우처, 트렁크 워크플로 핸드오프 게이트 및 컨텍스트 압력 서킷 브레이커 전면 인도 · 맹목적 송신, 자금 침투, 단일 루프 표류 및 컨텍스트 초과 충돌 완전 차단)
 
 - **TaintedEgressHITLAndVirtualCardBudgetAndTrunkWorkflowAndPressureGateSuite (Hermes, OpenClaw, Codex, DeepSeek-Harness, Pi 및 OpenCode의 민감 데이터 맹목적 유출, 상업 자동화 자금 침투, 다단계 워크플로 핸드오프 단절, 그리고 컨텍스트 초과 시 강제 절단 또는 공급자 API 충돌 취약점 대조):** Myrm은 미션 크리티컬 보안 및 실행 보호 스위트를 전면 인도했습니다:

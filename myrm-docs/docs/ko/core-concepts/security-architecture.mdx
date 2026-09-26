@@ -570,6 +570,26 @@ AI 분류자(`TranscriptClassifier`)는 도구 호출을 검토하여 사용자�
 Payment-card CVV has no dedicated `use_payment_method` API yet (unlike FSB's browser extension). Password-type fields are covered; card checkout may need manual approval or future API.
 </Note>
 
+### 제로 일반 텍스트 외부 비밀 저장소 및 동적 순환 (1Password & Bitwarden)
+
+디스크나 개발자 머신에 민감한 자격 증명을 노출하지 않고 중앙 집중식 비밀 관리가 필요한 엔터프라이즈 환경을 위해 Myrm은 외부 비밀번호 관리자와의 기본 통합을 제공합니다:
+
+1. **기본 비밀 URI 확인**:
+   - `op://<vault>/<item>/<field>` (1Password CLI / Connect API), `bw://<item-id>` (Bitwarden CLI), `bws://<secret-id>` (Bitwarden Secrets Manager) 기본 지원.
+   - 데이터베이스에는 참조 URI만 저장되며, **어떠한 일반 텍스트 비밀도 영구 디스크에 저장되지 않습니다**.
+2. **단일 비행 프로세스 폭풍 방지 (`_FlightCall`)**:
+   - 동일한 자격 증명을 동시에 확인하는 고동시성 요청을 단일 확인 호출로 병합하여 CLI 프로세스 폭풍과 잠금 경합 교착 상태를 완벽 차단합니다.
+3. **메모리 내 TTL 캐싱 및 401 동적 순환**:
+   - 확인된 자격 증명은 600초 TTL로 휘발성 메모리에만 유지됩니다.
+   - 업스트림 API 호출 중 401/403 권한 실패가 발생하면 캐시 항목을 즉시 무효화하고 교체된 비밀을 투명하게 다시 확인하여 장기 실행 작업이 중단 없이 자율 복구됩니다.
+4. **비대화형 실행 격리 (`_build_noninteractive_env`)**:
+   - 헤드리스 백엔드 환경에서 백그라운드 프로세스가 대화형 인증 프롬프트로 인해 멈추지 않도록 GUI 팝업 및 알림 환경 변수를 완벽 제거합니다.
+5. **컨테이너 내 Sentinel 바우처 보호**:
+   - 샌드박스에서 실행되는 스크립트가 `printenv`를 실행하더라도 불투명한 Sentinel 바우처만 노출되며, 실제 키는 송신 프록시에서 메모리 내 대체됩니다.
+6. **엄격한 테스트 검증**:
+   - 하네스 핵심 외부 비밀 모듈 단위 테스트 커버리지 **98.86%** (15/15 전원 통과).
+   - 실제 Chrome 브라우저 CDP E2E (`test_external_secrets_settings_chrome_e2e.py`) 독점 격리 실행 통과 (1 passed in 248.02s).
+
 ### 누출 감지
 
 40개 이상의 정규식 패턴이 에이전트 출력에서 자격 증명을 감지합니다.

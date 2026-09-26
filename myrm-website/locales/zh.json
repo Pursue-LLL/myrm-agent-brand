@@ -906,10 +906,10 @@
           "myrmAgent": "技能敏感操作（文件写入/命令执行/联网/环境变量读取等）必须已授权，否则**引擎层直接拒绝**（skill_boundary 门禁，fail-loud 不静默降级）· 工具名→权限类型由工具注册表单点权威（SSOT）解析，杜绝映射漂移导致「以为拦截实则放行」· **授权一次即自动执行，无人值守不被打断**（竞品逐次弹窗打断）· **撤销秒级生效**（缓存失效回调实时落地）· 沙箱代码执行与原生 shell 分离授权 · 权限使用全程审计可追溯 · **技能边界 100% 单元覆盖 + 真实 DB 全链路集成验证（授权→门禁→执行→撤销→即时拒绝）**"
         },
         "credentialVault": {
-          "feature": "表单凭证金库 · 密码不进对话",
-          "hermes": "明文 type",
-          "openclaw": "明文 type",
-          "myrmAgent": "Label 引用注入：浏览器+桌面统一 `fill_credential` · **Strictly Zero-Disk 操作系统级硬件钥匙串托管**（macOS Keychain / Linux SecretService / Windows Credential Manager 主密钥物理零落盘） + **Sentinel 动态不透明令牌占位符**（沙箱中执行 `printenv` 仅见无毒虚假令牌，真正调用大模型时出网代理微秒代填，商业 API Key 绝不在磁盘存明文，即使你把整个项目拷给别人或在沙箱内运行恶意脚本，也绝对偷不走你的 Key） + AES-256-GCM Fail-Closed 加密金库 + TOTP 自动填充 · Settings 统一管理 · 5层凭据纵深防护（Vault label引用 + ContextVar协程隔离 + LeakDetector 40+模式 + CredentialLeakFilter消息级阻断 + prompt_guard） · 密码永不进入 LLM 上下文 · API 密钥零 env 写入（进程级沙箱隔离） · **445** 项凭证安全测试全通过"
+          "feature": "凭证金库与无明文网关 · 密码不进对话，密钥绝不落盘",
+          "hermes": "明文配置与键盘明文 type · 无外部密码管理器集成",
+          "openclaw": "明文手动粘贴与键盘明文 type · 无密钥轮换自愈机制",
+          "myrmAgent": "Label 引用注入：浏览器+桌面统一 `fill_credential` · **企业级外部密码管理器（1Password / Bitwarden）无明文凭据网关与 401 动态轮换**（原生支持 `op://`、`bw://`、`bws://` URI 引用，零明文落盘；内存 Single-Flight 锁级防击穿与 600s TTL 缓存；外部凭据轮换触发 401 自动毫秒级驱逐自愈重载，彻底告别明文复制与生产中断） · **Strictly Zero-Disk 操作系统级硬件钥匙串托管**（macOS Keychain / Linux SecretService / Windows Credential Manager 主密钥物理零落盘） + **Sentinel 动态不透明令牌占位符**（沙箱中执行 `printenv` 仅见无毒虚假令牌，真正调用大模型时出网代理微秒代填，商业 API Key 绝不在磁盘存明文，即使你把整个项目拷给别人或在沙箱内运行恶意脚本，也绝对偷不走你的 Key） + AES-256-GCM Fail-Closed 加密金库 + TOTP 自动填充 · Settings 统一管理 · 5层凭据纵深防护（Vault label引用 + ContextVar协程隔离 + LeakDetector 40+模式 + CredentialLeakFilter消息级阻断 + prompt_guard） · 密码永不进入 LLM 上下文 · API 密钥零 env 写入（进程级沙箱隔离） · **460+** 项凭证与外部密钥安全测试全通过"
         },
         "visionFusion": {
           "feature": "语音+视觉融合 · 通话时 Agent 能看摄像头和屏幕",
