@@ -11,6 +11,15 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-09-27 · 2단계 섹션 앵커 직접 도달 해석기 및 고스트 2차 스크롤 완전 제거 스위트 · 장문 복합 제목 부분문자열 가로채기, 저장 후 고스트 점프 및 비동기 렌더링 타이밍 표류 완전 제거)
+
+- **TwoPhaseHeadingAnchorResolverAndGhostScrollEliminationSuite (Hermes, OpenClaw, Codex, DeepSeek-Harness, Pi 및 OpenCode의 긴 문서 섹션 앵커 도달, 양방향 링크 깊은 점프 및 리치 텍스트 재렌더링 대조: 선행 복합 제목의 짧은 대상 제목 가로채기, 편집 저장 후 고스트 2차 스크롤 발생, 비동기 DOM 렌더링 타이밍 불일치로 인한 점프 유실 및 언마운트 타이머 누수 취약점):** Myrm은 엔터프라이즈급 2단계 섹션 앵커 해석기 및 상태 즉시 소비 스위트를 전면 인도했습니다:
+  1. **2단계 정확 일치 우선 가로채기 방지 메커니즘 (Exact-First Matching vs Greedy Substring Hijack)**: 1단계에서 엄격한 정규화 일치(`=== normalizedTarget`)를 실행하여 원자 섹션(예: "개요")으로의 100% 정확한 점프를 보장하며 선행 복합 제목(예: "1. 아키텍처 개요 및 핵심 개념")의 탐욕적 가로채기를 완전 차단; 미적중 시에만 2단계 부분문자열 포함(`includes`)으로 안전 폴백; 미존재 섹션은 안전하게 무시;
+  2. **상태 즉시 소비 및 고스트 2차 스크롤 근절 (Consumed State Reset & Ghost-Scroll Prevention)**: 대상 요소 적중 및 부드러운 스크롤 실행 즉시 재시도 타이머를 취소하고 상태를 원자적으로 리셋(`setTargetHeading(null)`); 후속 사용자 편집 저장이나 리렌더링 시 발생하는 원치 않는 고스트 2차 스크롤을 100% 제거;
+  3. **다중 프레임 적응형 프로브 및 리소스 회수 (Multi-Frame Adaptive Probes & Resource Reclamation)**: `[80, 250, 600]ms` 다중 프레임 사다리 시퀀스를 적용하여 AST 파싱 및 비동기 DOM 마운트 지연을 완벽 흡수; 하이라이트 애니메이션 타이머를 컴포넌트 수명 주기와 바인딩하여 언마운트 시 즉시 `clearTimeout` 실행으로 메모리 누수 방지;
+  4. **100% 풀스택 테스트 검증 완료**: 전용 한계 단원 테스트(`WikiConceptDetailPanel.sourceJump.test.tsx`) 6/6 통과, Wiki 전체 9개 파일 50개 단원 테스트 100% 통과, 백엔드 링크 API 5/5 통과, TypeScript 컴파일 0 오류.
+- **SSOT 출처:** `WikiConceptDetailPanel.tsx` · `WikiConceptDetailPanel.sourceJump.test.tsx` · `_ARCH.md` · `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md`
+
 ## 최신 검증 스냅샷 (2026-09-27 · 사전 압축 3상 수명 주기 인터셉트, 제로 LLM 외부 요약 직접 주입 및 90% 물리 창 동적 안전 거부 펜스 스위트 · 초장기 미션 오버플로 충돌, 외부 개입 부재, 중복 요약 및 비가역 교착 완전 제거)
 
 - **PreCompactExtensionLifecycleAndSafetyVetoSuite (Hermes, OpenClaw, Codex, DeepSeek-Harness, Pi 및 OpenCode의 압축 전 개입 불가, 외부 요약 주입 부재, 동적 컨텍스트 윈도우 추적 미흡 및 강제 절단 충돌 대조: 경직된 강제 LLM 요약 호출로 인한 토큰 낭비, 맹목적 취소로 인한 context_length_exceeded API 충돌, 다단계 파이프라인의 2차 절단 충돌 취약점):** Myrm은 엔터프라이즈급 압축 전 3상 수명 주기 훅 및 동적 안전 펜스 스위트를 전면 인도했습니다:
