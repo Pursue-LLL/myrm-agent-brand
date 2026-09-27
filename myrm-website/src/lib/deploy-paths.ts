@@ -115,6 +115,18 @@ export function getDeployPathHref(pathId: DeployPathId, docsLocale: DocsLocale =
   }
 }
 
+export function getMobileHubDocsUrl(docsLocale: DocsLocale = 'en'): string {
+  const anchor =
+    docsLocale === 'ja'
+      ? '#リモートアクセスmobile-hub'
+      : docsLocale === 'zh'
+        ? '#远程访问mobile-hub'
+        : docsLocale === 'ko'
+          ? '#원격-액세스mobile-hub'
+          : '#remote-access-mobile-hub';
+  return `${getDocsUrl('/getting-started/desktop-app', docsLocale)}${anchor}`;
+}
+
 /** In-page section link: `?path=local#quickstart` — hash id scrolls; search param selects tab. */
 export function getDeployPathSectionLink(sectionId: string, pathId: DeployPathId): string {
   const tab = deployPathToQuickStartTab(pathId);

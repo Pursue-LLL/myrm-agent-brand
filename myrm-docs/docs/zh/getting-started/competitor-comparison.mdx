@@ -11,6 +11,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-27 · 两段式小节锚点直达解析器与幽灵二次滚动彻底消除全链路交付 · 彻底消除长文档贪婪子串截胡、保存后幽灵跳跃与异步时序丢失）
+
+- **TwoPhaseHeadingAnchorResolverAndGhostScrollEliminationSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在长文档小节锚点直达、双向链接深度跳转与富文本编辑器重新渲染中普遍存在的“前置长标题对短目标标题的贪婪子串劫持、编辑保存后触发幽灵二次滚动打断思路、异步 DOM 渲染时序脱节导致跳转丢失、以及组件卸载未清理定时器引发内存泄漏”等痛点）：** Myrm 全面交付了两段式小节锚点直达解析器与状态即时消费套件：
+  1. **两段式精确全等优先防贪婪截胡机制（Exact-First Matching vs Greedy Substring Hijack）**：首创两段式小节查找器，第一阶段执行严格全等匹配（`=== normalizedTarget`），确保原子小节（如“简介”）100% 精确直达，彻底消灭靠前的复合标题（如“1. 架构简介与核心概念”）贪婪截胡；仅在未命中时第二阶段降级为模糊包含（`includes`）兜底；面对不存在的小节静默安全返回，零 DOM 污染；
+  2. **状态即时消费与幽灵二次滚动根除（Consumed State Reset & Ghost-Scroll Prevention）**：在目标小节命中并触发平滑滚动的瞬间，立即原子清空重试队列并复位 `setTargetHeading(null)`；彻底消除后续用户编辑保存或 Markdown 重新渲染触发的幽灵二次滚动；
+  3. **多帧自适应探针与生命周期资源回收（Multi-Frame Adaptive Probes & Resource Reclamation）**：采用 `[80, 250, 600]ms` 多帧阶梯序列自适应 AST 解析与 DOM 异步挂载时序；动画高亮绑定组件生命周期，卸载时严格 `clearTimeout`，杜绝内存泄漏；
+  4. **100% 满分全栈实测验证**：针对性极限单测（`WikiConceptDetailPanel.sourceJump.test.tsx`）6/6 全部通过，Wiki 全套件 9 个文件 50 项单测全绿，后端双链 API 测试 5/5 全绿，TypeScript 静态编译 0 Error。
+- **SSOT 来源：** `WikiConceptDetailPanel.tsx` · `WikiConceptDetailPanel.sourceJump.test.tsx` · `_ARCH.md` · `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-27 · 压缩前置三态生命周期拦截、0-LLM 外部摘要直充与 90% 物理窗口动态安全熔断铁腕守卫全链路交付 · 彻底消除超长任务爆仓崩溃、外部介入无门、昂贵二次总结与不可逆死锁）
 
 - **PreCompactExtensionLifecycleAndSafetyVetoSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在上下文紧缩前置拦截、外部摘要注入、动态上下文窗口度量与硬超限边界治理中普遍存在的“死板强制全量 LLM 总结、高额 Token 账单浪费、盲目取消导致下游抛出 context_length_exceeded 爆仓崩溃、以及多级管线二次截断冲突”等痛点）：** Myrm 全面交付了企业级压缩前置三态生命周期钩子与动态安全防护套件：

@@ -14,7 +14,7 @@
 
 import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { ArrowRight02Icon } from 'hugeicons-react';
+import { ArrowRight02Icon, SmartPhone01Icon } from 'hugeicons-react';
 import { useDocsLocale } from '@/hooks/useDocsLocale';
 import { Button } from '@/components/ui/button';
 import ChecksumSection from '@/components/download/ChecksumSection';
@@ -23,7 +23,46 @@ import PlatformDownloadGrid from '@/components/download/PlatformDownloadGrid';
 import ReleaseNotesSection from '@/components/download/ReleaseNotesSection';
 import SmartDownloadButton from '@/components/download/SmartDownloadButton';
 import { useDesktopRelease } from '@/components/download/DesktopReleaseProvider';
-import { getDeployPathHref } from '@/lib/deploy-paths';
+import { getDeployPathHref, getMobileHubDocsUrl } from '@/lib/deploy-paths';
+
+function MobileRemoteCallout({
+  docsLocale,
+}: {
+  docsLocale: ReturnType<typeof useDocsLocale>;
+}) {
+  const t = useTranslations('marketing');
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5 flex flex-col justify-between">
+      <div>
+        <div className="flex items-center gap-2">
+          <SmartPhone01Icon className="h-4 w-4 text-primary shrink-0" aria-hidden />
+          <h2 className="text-[15px] font-semibold text-foreground">
+            {t('download.mobileRemote.title')}
+          </h2>
+          <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+            {t('download.mobileRemote.badge')}
+          </span>
+        </div>
+        <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+          {t('download.mobileRemote.description')}
+        </p>
+      </div>
+      <div className="mt-4">
+        <Button asChild variant="outline" className="rounded-full">
+          <a
+            href={getMobileHubDocsUrl(docsLocale)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {t('download.mobileRemote.cta')}
+            <ArrowRight02Icon className="ml-2 h-4 w-4" />
+          </a>
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 function LocalWebuiAlternative({
   docsLocale,
@@ -33,17 +72,27 @@ function LocalWebuiAlternative({
   const t = useTranslations('marketing');
 
   return (
-    <div className="max-w-md mx-auto rounded-2xl border border-border bg-card p-5">
-      <h2 className="text-[15px] font-semibold text-foreground">{t('download.alternatives.local.title')}</h2>
-      <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
-        {t('download.alternatives.local.description')}
-      </p>
-      <Button asChild variant="outline" className="mt-4 rounded-full">
-        <a href={getDeployPathHref('localWebui', docsLocale)} target="_blank" rel="noopener noreferrer">
-          {t('download.alternatives.local.cta')}
-          <ArrowRight02Icon className="ml-2 h-4 w-4" />
-        </a>
-      </Button>
+    <div className="rounded-2xl border border-border bg-card p-5 flex flex-col justify-between">
+      <div>
+        <h2 className="text-[15px] font-semibold text-foreground">
+          {t('download.alternatives.local.title')}
+        </h2>
+        <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+          {t('download.alternatives.local.description')}
+        </p>
+      </div>
+      <div className="mt-4">
+        <Button asChild variant="outline" className="rounded-full">
+          <a
+            href={getDeployPathHref('localWebui', docsLocale)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {t('download.alternatives.local.cta')}
+            <ArrowRight02Icon className="ml-2 h-4 w-4" />
+          </a>
+        </Button>
+      </div>
     </div>
   );
 }
@@ -97,7 +146,8 @@ export default function DownloadPageContent() {
       )}
 
       {!hasInstallers && (
-        <div className="mt-10">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2">
+          <MobileRemoteCallout docsLocale={docsLocale} />
           <LocalWebuiAlternative docsLocale={docsLocale} />
         </div>
       )}
@@ -134,7 +184,8 @@ export default function DownloadPageContent() {
       )}
 
       {hasInstallers && (
-        <div className="mt-10">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2">
+          <MobileRemoteCallout docsLocale={docsLocale} />
           <LocalWebuiAlternative docsLocale={docsLocale} />
         </div>
       )}

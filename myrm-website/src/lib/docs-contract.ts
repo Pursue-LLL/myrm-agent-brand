@@ -13,6 +13,7 @@
 export const MARKETING_DOC_PATHS = [
   '/getting-started/quickstart',
   '/getting-started/competitor-comparison',
+  '/getting-started/desktop-app',
 ] as const;
 
 export type MarketingDocPath = (typeof MARKETING_DOC_PATHS)[number];
@@ -21,6 +22,9 @@ export const LOCAL_DEPLOY_DOCS_PATH: MarketingDocPath = '/getting-started/quicks
 
 export const COMPETITOR_COMPARISON_DOC_PATH: MarketingDocPath =
   '/getting-started/competitor-comparison';
+
+export const DESKTOP_APP_DOC_PATH: MarketingDocPath =
+  '/getting-started/desktop-app';
 
 /** Mintlify zh locale prefix on docs.myrmagent.ai (see myrm-docs/docs/zh/). */
 export const DOCS_ZH_URL_PREFIX = '/zh';
