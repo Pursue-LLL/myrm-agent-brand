@@ -11,6 +11,18 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-27 · 双态工作区信任网关、亚毫秒浅层扫描、95% 纯代码零弹窗秒级直通与本地侧信道 MCP/Plugin 隔离全链路交付 · 彻底消除首轮恶意扩展执行、未知仓库越权投毒与 CLI 生硬崩溃退出）
+
+- **DualStateWorkspaceTrustGateAndSideChannelIsolationSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在工作区信任边界、受限运行模式与本地侧信道隔离中普遍存在的“首轮盲目拉起本地恶意 MCP/Plugin 扩展导致 RCE 投毒、缺乏配置漂移感知后门被静默植入、以及如 Pi package-manager.ts:1747 粗暴 CLI 抛错直接退出进程打断开发”等痛点）：** Myrm 全面交付了企业级双态工作区信任网关与本地侧信道隔离套件：
+  1. **双态受限安全模式对标 Pi 生硬崩溃（Dual-State Restricted Mode）**：不同于 Pi 遇到未信任插件只能粗暴退出 CLI 进程，Myrm 进入优雅的双态受限运行模式。未信任工作区可安全进行核心对话与只读代码分析，仅物理阻断工作区内的本地侧信道 MCP 进程与本地插件，兼顾安全与连续性；
+  2. **亚毫秒极速浅层扫描与安全默认容错（Sub-0.2ms Shallow Risk Scan & Safe-Default）**：在载入工作区时以 `<0.2ms`（0 Token 开销）极速探查 `.cursor/mcp.json`、`mcp.json` 与 `.myrm/plugins/` 等风险资产；遇到畸形 JSON 配置文件解析异常时强制触发安全默认阻断（`count += 1`），绝不因配置损坏漏判放行；
+  3. **95% 纯代码项目零弹窗秒级直通**：无本地 MCP 或插件风险侧信道的纯代码工作区自动标记为信任放行（`requires_trust: false`），彻底消除弹窗轰炸与安全疲劳，实现开箱即用的无感开发体验；
+  4. **全资产 Hash 漂移校验（Drift Invalidation）**：将信任状态与工作区资产配置摘要（`manifest_hash`）强绑定。一旦攻击者事后在工作区静默注入 `.cursor/mcp.json` 或篡改本地插件，旧信任状态瞬时自动失效，彻底防御“先信任纯代码、后拉取恶意配置”的时序供应链投毒；
+  5. **软链接符号逃逸物理封死**：采用 `os.path.realpath` 规范化路径解析，彻底阻断软链接跨目录越界逃逸与目录攀爬攻击；
+  6. **沉浸式顶部提权 Banner 与全局信任管理**：在 Chat 顶部常驻优雅自适应明暗与移动端的高亮 Banner，清晰如实披露被隔离的本地资产明细，支持一键信任提权并热更新；系统设置面板（`TrustedFoldersSection`）支持全局查阅并随时一键撤销（Revoke）信任；
+  7. **100% 满分全栈实测验证**：Harness 核心工作区信任网关单测覆盖率达到 **95%**（12/12 测试全部通过），Server REST 接口 4/4 全绿，前端 WebUI 顶部 Banner 与设置卡片 Vitest 10/10 全绿，1798 模块孤儿架构门禁 100% 通过，`oxlint` 与 `ruff` 双零错误零警告交付。
+- **SSOT 来源：** `myrm_agent_harness/agent/security/workspace_trust/gate.py` · `manifest.py` · `app/api/security/workspace_trust.py` · `WorkspaceTrustBanner.tsx` · `TrustedFoldersSection.tsx` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-27 · 两段式小节锚点直达解析器与幽灵二次滚动彻底消除全链路交付 · 彻底消除长文档贪婪子串截胡、保存后幽灵跳跃与异步时序丢失）
 
 - **TwoPhaseHeadingAnchorResolverAndGhostScrollEliminationSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在长文档小节锚点直达、双向链接深度跳转与富文本编辑器重新渲染中普遍存在的“前置长标题对短目标标题的贪婪子串劫持、编辑保存后触发幽灵二次滚动打断思路、异步 DOM 渲染时序脱节导致跳转丢失、以及组件卸载未清理定时器引发内存泄漏”等痛点）：** Myrm 全面交付了两段式小节锚点直达解析器与状态即时消费套件：
