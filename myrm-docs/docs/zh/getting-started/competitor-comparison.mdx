@@ -11,6 +11,30 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-27 · 活动 Chrome 扩展免密直连、E2E 闭环自验证与午休无人值守挂机全链路交付 · 彻底消除遇登录必卡死、索要明文密码、人肉贴图与改完代码不经验证的半吊子交付）
+
+- **ActiveBrowserDebugAndE2ESelfVerificationSuite（对标 Qoder、Cursor 与 Claude Code 在前后端复杂 Bug 攻坚、真实管理后台联调与无人值守长任务中普遍存在的“Cursor 遇到登录页立即停滞逼用户交出账号密码、跑一个不到3分钟的小Bug反复中断4次让人肉贴控制台截图、改完代码无法自动在页面复核必须人类自己去点、以及 Qoder 积分消耗昂贵不耐烧且不支持私有化沙箱”等痛点）：** Myrm 全面交付了活动浏览器扩展免密直连、全流程 E2E 闭环自验证与无人值守挂机套件：
+  1. **轻量 Chrome 扩展直连与登录态会话免密复用（Active Chrome Extension Native Bridge）**：无需重启浏览器，无需手动添加 `--remote-debugging-port` 命令行参数。通过专用轻量 Chrome 扩展与原生的 `chrome.debugger` API 直连用户**已经打开且已经登录的活动标签页**，100% 免密复用既有 Cookies、LocalStorage 与 Session，0 次向用户索要明文密码，0 次让人肉切屏贴图；
+  2. **严格的活动标签页最小权限沙箱隔离（Strict Active-Tab Scoping Guard）**：控制范围严格限制在当前指定的调试页面（如本地项目或管理后台），物理屏蔽用户的私人微信、邮箱和银行等非关联标签页（越权访问直接返回 403 Access Denied），守死企业与个人隐私红线；
+  3. **全流程真实业务闭环 Task Flow E2E 自验证（改完自己点最后一下）**：在代码修改并触发 HMR 热更新后，Agent 自动在活动浏览器中重放目标交互（如点击 Today 筛选器）；通过 CDP 网络钩子双向拦截 HTTP 请求，精准断言发出参数（确认 `date=today` 替换了错误的 `range=today`）并核验后端返回 200 OK 与非空出单数据；断言 DOM 列表正常出单且控制台零报错后方可结单，**杜绝改完代码不验证的半吊子交付**；
+  4. **午休挂机无人值守免扰放行模式（Unattended Autonomous Run Gate）**：一键开启挂机模式，工作区内的常规代码读写、单元测试运行、关联活动页的点击与网络抓包一律静默自动放行；仅高危系统删除或敏感凭据外发才触发拦截，并支持通过手机飞书/企微/移动端伴侣看板一键远程审批，彻底终结“离开工位 3 分钟必定卡死”的焦虑；
+  5. **画中画实时调试置顶悬浮窗（Picture-in-Picture Live Debugging Viewport）**：前端 WebUI 与 Tauri 桌面端原生提供画中画（PiP）悬浮小窗，长任务执行时将实时 DOM 视口与网络请求流以独立半透明小窗置顶在屏幕角落，用户写代码或摸鱼看视频时，随时能瞥一眼 AI 正在点哪个按钮、查哪个接口；
+  6. **多梯队算力精益运营（0x 免费辅助模型 + 4 折夜间错峰 + BYOK 混合路由）**：查看报错截图、语法补全等轻量高频辅助任务默认走 **0x 免费轻量模型（如 Qwen-Flash）不扣 Credits**；长批处理任务在夜间低峰期享受 **4 折倍率优惠**；支持绑定用户自有 API Key（BYOK），自付账单与平台额度按任务类型智能分流，海外模型遇 403 阻断自动热切备用源，综合节省算力 60% 以上；
+  7. **三大部署形态同构（Local / Tauri / 云托管沙箱）**：摆脱单一商业客户端绑架，支持纯本地离线部署、Tauri 跨平台客户端与云端独立沙箱实例，数据资产完全归属用户。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/` · `myrm-agent-frontend/src/components/features/chat-window/sandbox/` · `myrm-agent-server/app/core/llm/` · `temp-docs/materials/ACTIVE_BROWSER_DEBUG_AND_E2E_VERIFICATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md` · `temp-docs/roadmap/topic_18_loop_engineering_goal_autonomous_scheduling_and_runtime_verification_roadmap.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md`
+
+## 最新验证快照（2026-09-27 · 子 Agent 运行时检查点 SQLite 持久化与断点自愈套件 · 彻底消除进程内存丢失、长任务中断全盘推倒重来与跨沙箱休眠恢复失败）
+
+- **SubagentSqliteCheckpointerPersistenceSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在子 Agent 复杂委派任务执行、运行时状态检查点与跨沙箱休眠唤醒中普遍存在的“子 Agent 仅使用临时 InMemorySaver、进程崩溃或沙箱重启后子任务检查点全部归零丢失、长耗时深层调研只能全盘推倒重来、审批挂起无法持久化沉睡等待用户决策、以及临时检查点无节制膨胀撑爆沙箱磁盘”等痛点）：** Myrm 全面交付了企业级子 Agent SQLite 持久化检查点与断点自愈套件：
+  1. **生产级 SQLite 持久化与沙箱 Volume 挂载（Volume-Backed Crash Resilient Storage）**：彻底废弃易失脆弱的 `InMemorySaver`，为子 Agent 体系引入基于 `AsyncSqliteSaver` 的 `SubagentSqliteCheckpointer` 代理层，直接写入沙箱持久化 Volume（`{MYRM_DATA_DIR}/subagent_checkpoints.sqlite`），容器重启或沙箱冷启动后历史执行步序与状态完全保真；
+  2. **Lazy Proxy 异步懒加载与连接池加固**：采用同步轻量代理 + 异步图执行首次触发时原子初始化与 `saver.setup()` 契约，零阻塞上层同步装配流程；底层深度集成 `harden_connection_async`（强制开启 WAL 模式、设置 30s busy_timeout 与 NORMAL 同步），并发写入零死锁零文件锁冲突；
+  3. **任务强隔离（`thread_id == task_id`）与主会话防污染**：确立子 Agent 独立 `thread_id` 命名空间，中间探索分支与工具调用轨迹绝不串扰或污染主会话上下文与主 Checkpointer，保障系统架构纯净解耦；
+  4. **全自动防御 LangGraph `checkpoint_ns` KeyError**：内置 `_normalize_config` 静态归一化机制，在任何外部调用或单测缺少 `checkpoint_ns` 配置时自动填充为空字符串 `""`，彻底消灭 LangGraph 异步 Checkpointer 底层常见的不可捕获 KeyError 陷阱；
+  5. **非审批终态自动卫生清理与挂起持久存活（PENDING_APPROVAL Resumption）**：子 Agent 执行完毕后，若任务成功或失败，自动触发 `adelete_thread` 释放临时 step 轨迹与快照，杜绝沙箱磁盘无休止膨胀；若任务处于 `PENDING_APPROVAL`（人机协同审批挂起）状态，则强持久保留，支持跨沙箱休眠数天唤醒后无缝自愈继续执行；
+  6. **停机生命周期优雅关闭（Graceful Shutdown）**：业务后端 Server 停机钩子（`safe_close_checkpointer`）深度协同接入 `close_subagent_checkpointer`，安全释放底层 aiosqlite 连接池与异步写锁，杜绝后台游离线程挂死与数据库文件损坏；
+  7. **100% 满分全栈实测验证**：7 项极限专项单测（包含 CRUD、跨进程断点恢复、强隔离与卫生清理）100% 绿灯通过，子 Agent 架构测试集（78 项）与 Server 停机测试集（5 项）100% 全绿，`ruff` 0 报错 0 警告交付。
+- **SSOT 来源：** `myrm_agent_harness/agent/sub_agents/checkpointer.py` · `app/server/shutdown.py` · `tests/agent/sub_agents/test_subagent_checkpointer.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md`
+
 ## 最新验证快照（2026-09-27 · 开放外设总线、中立开放本地 Vault、双轨网页永久存证与会议双向内录全链路交付 · 彻底消除专用硬件捆绑、10秒弹窗骚扰、通知投毒污染与手机卡顿远程桌面）
 
 - **PeripheralStateBusAndCrossDeviceContextAssetsSuite（对标 YoooClaw C·ONE、WorkBuddy 与 Hermes Desktop 在随身 AI 伴侣、上下文资产沉淀与桌面生产力套件中普遍存在的“强绑定数百元专用硬件卡片、网页浏览 10-15 秒强制倒计时弹窗骚扰打断心流、手机垃圾短信与验证码全量无序直灌长期记忆埋下注入漏洞、手机端只能通过卡顿模糊的 VNC 远程桌面虚拟机查看进度、以及数据私有黑盒存储无法带走”等痛点）：** Myrm 全面交付了开放外设状态总线、开放本地 Vault 镜像与桌面跨端生产力套件：
