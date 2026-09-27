@@ -17,6 +17,7 @@ import {
   MARKETING_DOC_PATHS,
   type DocsLocale,
 } from '../src/lib/docs-contract';
+import { getMobileHubDocsUrl } from '../src/lib/deploy-paths';
 import { appendLegacyUrlViolations } from './brand-url-patterns';
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
@@ -218,6 +219,55 @@ function scanLegacyUrls(docsRoot: string, errors: string[]): void {
   }
 }
 
+/**
+ * Standard slugification mirroring Mintlify / GitHub-slugger heading id generator.
+ */
+function slugifyHeading(heading: string): string {
+  return heading
+    .toLowerCase()
+    .replace(/[^\w\u4e00-\u9fa5\u3040-\u309f\u30a0-\u30ff\uac00-\ud7af\s-]/g, '')
+    .trim()
+    .replace(/[-\s]+/g, '-');
+}
+
+function scanMobileHubHeadingAnchors(docsRoot: string, errors: string[]): void {
+  const marketingLocales: DocsLocale[] = ['en', 'zh', 'ko', 'ja'];
+  for (const locale of marketingLocales) {
+    const expectedUrl = getMobileHubDocsUrl(locale);
+    const hashIndex = expectedUrl.indexOf('#');
+    if (hashIndex === -1) {
+      errors.push(`getMobileHubDocsUrl(${locale}) is missing an anchor hash: ${expectedUrl}`);
+      continue;
+    }
+    const expectedHash = expectedUrl.slice(hashIndex + 1);
+
+    const relPath =
+      locale === 'en'
+        ? 'docs/getting-started/desktop-app.mdx'
+        : `docs/${locale}/getting-started/desktop-app.mdx`;
+    const fullPath = join(docsRoot, relPath);
+    if (!existsSync(fullPath)) {
+      errors.push(`Mobile hub target doc not found: ${relPath}`);
+      continue;
+    }
+
+    const content = readFileSync(fullPath, 'utf8');
+    const headingMatch = content.match(/^##\s+(.*Mobile Hub.*)$/m);
+    if (!headingMatch || !headingMatch[1]) {
+      errors.push(`No "## ...Mobile Hub..." section heading found in ${relPath}`);
+      continue;
+    }
+
+    const rawHeading = headingMatch[1].trim();
+    const generatedSlug = slugifyHeading(rawHeading);
+    if (generatedSlug !== decodeURIComponent(expectedHash).toLowerCase()) {
+      errors.push(
+        `Anchor mismatch in ${relPath}: heading "${rawHeading}" generates slug "${generatedSlug}", but getMobileHubDocsUrl(${locale}) expects "${expectedHash}"`,
+      );
+    }
+  }
+}
+
 function main(): void {
   const doc = JSON.parse(readFileSync(DOCS_JSON, 'utf8')) as DocsJson;
   const mintlifyPages = collectMintlifyPages(doc);
@@ -256,6 +306,7 @@ function main(): void {
   scanLegacyUrls(DOCS_ROOT, errors);
   scanZhEnglishProse(DOCS_ROOT, errors);
   scanKoEnglishProse(DOCS_ROOT, errors);
+  scanMobileHubHeadingAnchors(DOCS_ROOT, errors);
 
   if (errors.length > 0) {
     console.error('Docs slug contract validation failed:\n' + errors.map((e) => `  - ${e}`).join('\n'));
