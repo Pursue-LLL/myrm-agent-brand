@@ -14,6 +14,7 @@ const LOCALE_LABELS: Record<Locale, string> = {
   en: 'EN',
   ko: '한',
   zh: '中',
+  ja: '日',
 };
 
 export default function LocaleSwitcher({ className, variant = 'editorial' }: LocaleSwitcherProps) {

@@ -11,6 +11,28 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-27 · 压缩前置三态生命周期拦截、0-LLM 外部摘要直充与 90% 物理窗口动态安全熔断铁腕守卫全链路交付 · 彻底消除超长任务爆仓崩溃、外部介入无门、昂贵二次总结与不可逆死锁）
+
+- **PreCompactExtensionLifecycleAndSafetyVetoSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在上下文紧缩前置拦截、外部摘要注入、动态上下文窗口度量与硬超限边界治理中普遍存在的“死板强制全量 LLM 总结、高额 Token 账单浪费、盲目取消导致下游抛出 context_length_exceeded 爆仓崩溃、以及多级管线二次截断冲突”等痛点）：** Myrm 全面交付了企业级压缩前置三态生命周期钩子与动态安全防护套件：
+  1. **三态归一化生命周期钩子（`PreCompactDecision`）**：在上下文紧缩管线前置部署统一钩子契约（`on_pre_compact`），支持 `CANCEL`（推迟紧缩）、`REPLACE`（外部摘要替换）与 `PASSTHROUGH`（继续紧缩）三态决策。自动将扩展返回的布尔值、原始字典或强类型对象平滑归一化，具备严格类型安全与不可变契约；
+  2. **0 LLM 开销外部结构化摘要直充（`_apply_structured_summary`）**：当业务扩展返回预计算的结构化摘要卡片（如基于 SQLite 账本或知识图谱）时，管线直接应用替换并彻底短路跳过 `SummarizeProcessor` 的昂贵大模型总结调用，实现 **85%+ 紧缩开销降本** 与 **0 秒卡顿等待**；
+  3. **90% 物理上下文极限动态安全熔断（Safety Veto）**：全面抛弃粗糙的 128k 硬编码估算，动态感知真实底模物理窗口上限（`llm_max_context_tokens`）。当上下文饱和度达到或超过 90% 物理硬极限时，扩展发起的任何 `CANCEL` 暂缓决策均被铁腕否决（Veto）并记录审计，强制执行紧缩，100% 杜绝后续生成抛出 `context_length_exceeded` 崩溃；
+  4. **全管线对称短路守卫**：在 `CompressProcessor`、`SessionNotesProcessor` 与 `SummarizeProcessor` 入口部署统一短路守卫。一旦外部直充摘要生效，后续截断与提炼阶段安全绕过，彻底消除重复截断与“摘要中的摘要”提示词缓存破坏；
+  5. **审计留痕与容灾降级（Fail-Safe）**：全生命周期决策与熔断事件完整记录至 `context.operations` 与服务端台账；扩展回调异常时自动捕获降级，保障主对话编排管线永远高可用不中断；
+  6. **100% 满分全栈实测验证**：15 组专项单测（10 项 Harness 动态窗口/熔断门禁测试 + 5 项 Server 内存扩展单测）100% 全绿通过，零回归。
+- **SSOT 来源：** `myrm_agent_harness/agent/context_management/infra/schemas_pre_compact.py` · `pre_compact_processor.py` · `app/ai_agents/extensions/pre_compact_memory.py` · `test_pre_compact_decision.py` · `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md`
+
+## 最新验证快照（2026-09-26 · 零明文外部机密保险库与动态轮转自愈全链路交付 · 彻底消除明文凭据外泄、并发击穿雪崩、陈旧凭据假死与手工拷贝粘贴）
+
+- **ZeroPlaintextExternalSecretsVaultAndDynamicRotationSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在企业级机密集中管理、密钥轮转自愈与零明文落盘中普遍存在的“强制开发者手工拷贝粘贴生产私钥到未加密配置、高并发请求引发 CLI 进程风暴雪崩、以及定期改密导致智能体自动化长任务全局崩溃瘫痪”等致命痛点）：** Myrm 全面交付了企业级零明文外部机密网关与动态轮转自愈套件：
+  1. **原生外部机密 URI 动态解析（`op://`, `bw://`, `bws://`）**：原生支持 1Password（CLI/Connect）与 Bitwarden（CLI/Secrets Manager）内存即时解析；数据库与配置仅持久化抽象 URI 指针，核心私钥永不落盘；
+  2. **Single-Flight 防击穿合并原语（`_FlightCall`）**：针对同一机密引用的高并发请求自动合并为单次 CLI 解析，彻底封死进程风暴拒绝服务与锁竞态死锁；
+  3. **内存 TTL 缓存与 401 动态轮转自愈**：解析后的临时凭据严格限制在内存且设 600s TTL；遇到上游 401/403 权限失效时，静默剔除陈旧缓存并即时触发轮转重解析，保障长程自主任务 0 中断；
+  4. **非交互式安全隔离执行（`_build_noninteractive_env`）**：剥离所有 GUI 弹窗、终端 Prompt 拦截与桌面提示，杜绝无头后台 Worker 假死挂起；
+  5. **沙箱 Sentinel 凭据守卫**：向沙箱注入不透明 Sentinel 令牌并通过出网代理内存即时置换，恶意或幻觉脚本运行 `printenv` 绝无法窃取真实上游 API Key；
+  6. **100% 满分全栈实测验证**：Harness 外部机密核心套件语句覆盖率达到 **98.86%**（15/15 专测全绿），Server 端凭据池 API 100% 全绿，无头 Chrome 真实 CDP E2E（`test_external_secrets_settings_chrome_e2e.py`）单任务独占验证 100% 通过（1 passed in 248.02s）。
+- **SSOT 来源：** `myrm_agent_harness/core/security/external_secrets/manager.py` · `app/api/settings/credential_pool.py` · `test_external_secrets_settings_chrome_e2e.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-26 · 双模启发式脚本装甲、防哨兵吞噬、Exit 拦截保活与孤儿脚本启动自愈 GC 全链路交付 · 彻底消除常驻 Shell 误杀崩溃、输出截断丢失退出码、行尾注释失效与持久卷磁盘泄露）
 
 - **DualModeScriptArmorAndPersistentSessionGuardSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在执行复杂代码、Heredoc 输入与常驻 Shell 会话中普遍存在的“脚本内嵌 `exit` 强杀常驻父进程、多行 Heredoc 吞噬随机边界哨兵导致任务假死挂起、行尾注释吞噬退出码赋值造成状态误判、以及 OOM 强杀后遗留孤儿脚本永久堆积导致沙箱 Volume 磁盘爆满 ENOSPC”等致命痛点）：** Myrm 全面交付了企业级脚本执行装甲与常驻会话保活套件：

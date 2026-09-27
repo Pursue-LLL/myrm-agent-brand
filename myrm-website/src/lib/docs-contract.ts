@@ -3,7 +3,7 @@
  * - myrm-docs/docs.json navigation pages (validated by scripts/validate-docs-slugs.ts)
  *
  * [OUTPUT]
- * - MARKETING_DOC_PATHS, localizedDocsPath, appLocaleToDocsLocale (en | zh | ko)
+ * - MARKETING_DOC_PATHS, localizedDocsPath, appLocaleToDocsLocale (en | zh | ko | ja)
  *
  * [POS]
  * Single source of truth for marketing → Mintlify slug contract.
@@ -28,11 +28,15 @@ export const DOCS_ZH_URL_PREFIX = '/zh';
 /** Mintlify ko locale prefix on docs.myrmagent.ai (see myrm-docs/docs/ko/). */
 export const DOCS_KO_URL_PREFIX = '/ko';
 
-export type DocsLocale = 'en' | 'zh' | 'ko';
+/** Mintlify ja locale prefix on docs.myrmagent.ai (see myrm-docs/docs/ja/). */
+export const DOCS_JA_URL_PREFIX = '/ja';
+
+export type DocsLocale = 'en' | 'zh' | 'ko' | 'ja';
 
 const DOCS_LOCALE_PREFIX: Record<Exclude<DocsLocale, 'en'>, string> = {
   zh: DOCS_ZH_URL_PREFIX,
   ko: DOCS_KO_URL_PREFIX,
+  ja: DOCS_JA_URL_PREFIX,
 };
 
 /** Map canonical marketing doc path to docs.myrmagent.ai URL path for the given locale. */
@@ -45,5 +49,6 @@ export function localizedDocsPath(path: MarketingDocPath, locale: DocsLocale): s
 export function appLocaleToDocsLocale(appLocale: string): DocsLocale {
   if (appLocale === 'zh') return 'zh';
   if (appLocale === 'ko') return 'ko';
+  if (appLocale === 'ja') return 'ja';
   return 'en';
 }

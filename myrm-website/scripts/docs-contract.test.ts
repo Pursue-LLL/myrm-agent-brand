@@ -37,9 +37,13 @@ describe('appLocaleToDocsLocale', () => {
     expect(appLocaleToDocsLocale('ko')).toBe('ko');
   });
 
+  test('maps ja app locale to ja docs locale', () => {
+    expect(appLocaleToDocsLocale('ja')).toBe('ja');
+  });
+
   test('maps other app locales to en', () => {
     expect(appLocaleToDocsLocale('en')).toBe('en');
-    expect(appLocaleToDocsLocale('ja')).toBe('en');
+    expect(appLocaleToDocsLocale('fr')).toBe('en');
   });
 });
 

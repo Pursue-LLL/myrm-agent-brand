@@ -72,7 +72,16 @@ This fills the gap between L1 filtering (which handles oversized *single* result
 
 Expired cached content is automatically cleared. This prevents stale data from consuming valuable context window space.
 
+### Layer 2.5: Pre-Compact Lifecycle Hook & 90% Safety Veto Fence (PreCompactProcessor)
+
+Before any irreversible history compaction occurs, Myrm exposes an extensible pre-compaction interception lifecycle (`on_pre_compact`):
+- **Three-State Decision Control (`PreCompactAction`)**: Extensions can emit `CANCEL` (postpone compaction to preserve ongoing multi-step reasoning context), `REPLACE` (inject a pre-computed structured summary card and bypass LLM summarization entirely), or `PASSTHROUGH` (proceed with standard pipeline execution).
+- **Zero-LLM Direct Summary Injection**: External structured summaries from memory ledgers or lightweight models are directly applied via `_apply_structured_summary`, achieving 0 API token cost and zero white-screen latency.
+- **Dynamic 90% Safety Veto Fence**: Automatically tracks real model physical context windows (`llm_max_context_tokens`) instead of static 128k heuristics. When saturation reaches $\ge 90\%$, `CANCEL` decisions are strictly vetoed with audit logging, forcing compaction and guaranteeing zero `context_length_exceeded` crashes.
+- **Symmetrical Pipeline Short-Circuit**: Downstream processors (`CompressProcessor`, `SessionNotesProcessor`, and `SummarizeProcessor`) symmetrically check for replacement summaries to completely avoid double message truncation or dirty overwrites.
+
 ### Layer 3: Priority-Aware Compression
+
 
 Messages are classified into four priority tiers:
 

@@ -25,9 +25,14 @@ describe('detectBrowserLocale', () => {
     expect(detectBrowserLocale('en-GB,en;q=0.9')).toBe('en');
   });
 
+  test('maps ja variants to ja', () => {
+    expect(detectBrowserLocale('ja-JP')).toBe('ja');
+    expect(detectBrowserLocale('ja,en;q=0.9')).toBe('ja');
+  });
+
   test('falls back to defaultLocale for unsupported languages', () => {
-    expect(detectBrowserLocale('ja-JP')).toBe(defaultLocale);
     expect(detectBrowserLocale('fr-FR,fr;q=0.9')).toBe(defaultLocale);
+    expect(detectBrowserLocale('es-ES')).toBe(defaultLocale);
     expect(detectBrowserLocale(null)).toBe(defaultLocale);
     expect(detectBrowserLocale('')).toBe(defaultLocale);
   });
@@ -68,7 +73,7 @@ describe('resolveInitialAppLocale', () => {
   });
 
   test('ignores invalid stored locale and falls back to browser detection', () => {
-    expect(resolveInitialAppLocale('ja', 'ko-KR', null)).toBe('ko');
+    expect(resolveInitialAppLocale('fr', 'ko-KR', null)).toBe('ko');
     expect(resolveInitialAppLocale('invalid', null, null)).toBe(defaultLocale);
   });
 });

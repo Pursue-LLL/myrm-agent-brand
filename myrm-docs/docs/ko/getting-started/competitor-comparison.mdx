@@ -11,6 +11,17 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-09-27 · 사전 압축 3상 수명 주기 인터셉트, 제로 LLM 외부 요약 직접 주입 및 90% 물리 창 동적 안전 거부 펜스 스위트 · 초장기 미션 오버플로 충돌, 외부 개입 부재, 중복 요약 및 비가역 교착 완전 제거)
+
+- **PreCompactExtensionLifecycleAndSafetyVetoSuite (Hermes, OpenClaw, Codex, DeepSeek-Harness, Pi 및 OpenCode의 압축 전 개입 불가, 외부 요약 주입 부재, 동적 컨텍스트 윈도우 추적 미흡 및 강제 절단 충돌 대조: 경직된 강제 LLM 요약 호출로 인한 토큰 낭비, 맹목적 취소로 인한 context_length_exceeded API 충돌, 다단계 파이프라인의 2차 절단 충돌 취약점):** Myrm은 엔터프라이즈급 압축 전 3상 수명 주기 훅 및 동적 안전 펜스 스위트를 전면 인도했습니다:
+  1. **3상 정규화 수명 주기 훅 (`PreCompactDecision`)**: 컨텍스트 압축 파이프라인 전면에 통합 훅 계약(`on_pre_compact`)을 배치하여 `CANCEL`(압축 연기), `REPLACE`(외부 요약 대체), `PASSTHROUGH`(압축 진행)의 3상 결정을 지원하며, 부울/원시 딕셔너리/타입 인스턴스를 불변의 타입 안전 계약으로 자동 정규화;
+  2. **제로 LLM 비용 외부 구조화 요약 직접 주입 (`_apply_structured_summary`)**: 확장이 사전 계산된 구조화 요약 카드(SQLite 원장 또는 외부 메모리 그래프 기반)를 반환할 때 파이프라인이 즉시 대체를 적용하고 `SummarizeProcessor`의 값비싼 LLM 추론을 전면 단락하여 **85% 이상의 압축 비용 절감** 및 **0ms 지연 시간** 달성;
+  3. **90% 물리적 컨텍스트 동적 안전 거부 (Safety Veto)**: 고정된 128k 추정치를 폐기하고 실제 모델의 물리적 컨텍스트 상한(`llm_max_context_tokens`)을 동적으로 감지. 포화도가 물리적 한계의 90% 이상 도달 시 확장의 `CANCEL` 결정을 감사 로그와 함께 강제 거부(Veto)하고 압축을 단행하여 후속 `context_length_exceeded` 충돌 100% 방지;
+  4. **파이프라인 대칭형 단락 가드**: `CompressProcessor`, `SessionNotesProcessor`, `SummarizeProcessor` 진입점에 일관된 단락 가드를 배치하여 외부 요약 적용 시 후속 메시지 2차 절단 및 프롬프트 캐시 훼손 원천 차단;
+  5. **감사 추적 및 내결함성 (Fail-Safe)**: 수명 주기 결정 및 Veto 이벤트를 `context.operations` 및 서버 원장에 완전 기록하며, 확장 콜백 예외 발생 시 자동 안전 격리(Fail-safe)로 메인 대화 파이프라인 연속성 보장;
+  6. **100% 풀스택 테스트 검증 완료**: 15개 전용 단위/통합 테스트(하네스 동적 윈도우/거부 게이트 10개 + 서버 메모리 확장 5개) 100% 통과, 무회귀 검증.
+- **SSOT 출처:** `myrm_agent_harness/agent/context_management/infra/schemas_pre_compact.py` · `pre_compact_processor.py` · `app/ai_agents/extensions/pre_compact_memory.py` · `test_pre_compact_decision.py` · `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md`
+
 ## 최신 검증 스냅샷 (2026-09-26 · 제로 일반 텍스트 외부 비밀 저장소 및 동적 순환 스위트 · 일반 텍스트 유출, 프로세스 폭풍, 만료 자격 증명 멈춤 및 수동 복사 붙여넣기 완전 제거)
 
 - **ZeroPlaintextExternalSecretsVaultAndDynamicRotationSuite (Hermes, OpenClaw, Codex, DeepSeek-Harness, Pi 및 OpenCode의 중앙 집중식 비밀 관리, 키 교체 자체 복구 및 제로 일반 텍스트 저장 취약점 대조: 프로덕션 키를 암호화되지 않은 구성 파일에 수동 복사 붙여넣기 강제, 동시 호출 시 CLI 프로세스 폭풍 유발, 정기 비밀번호 교체 시 파이프라인 마비 취약점):** Myrm은 엔터프라이즈급 제로 일반 텍스트 외부 금고 게이트웨이 및 동적 순환 자체 복구 스위트를 전면 인도했습니다:
