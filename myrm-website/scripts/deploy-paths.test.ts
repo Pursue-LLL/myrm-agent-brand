@@ -6,6 +6,7 @@ import {
   deployPathToQuickStartTab,
   getDeployPathHref,
   getDeployPathSectionLink,
+  getMobileHubDocsUrl,
   parseDeployPathFromQuery,
   quickStartTabToDeployPath,
   readDeployPathFromLocation,
@@ -65,6 +66,24 @@ describe('getDeployPathHref', () => {
     const localZh = getDeployPathHref('localWebui', 'zh');
     expect(localZh).toContain('/zh/getting-started/quickstart');
     expect(localZh).toContain('utm_campaign=localWebui');
+  });
+});
+
+describe('getMobileHubDocsUrl', () => {
+  test('returns english anchor by default', () => {
+    expect(getMobileHubDocsUrl('en')).toContain('/getting-started/desktop-app#remote-access-mobile-hub');
+  });
+
+  test('returns chinese anchor for zh locale', () => {
+    expect(getMobileHubDocsUrl('zh')).toContain('/zh/getting-started/desktop-app#远程访问mobile-hub');
+  });
+
+  test('returns korean anchor for ko locale', () => {
+    expect(getMobileHubDocsUrl('ko')).toContain('/ko/getting-started/desktop-app#원격-액세스mobile-hub');
+  });
+
+  test('returns japanese anchor for ja locale', () => {
+    expect(getMobileHubDocsUrl('ja')).toContain('/ja/getting-started/desktop-app#リモートアクセスmobile-hub');
   });
 });
 
