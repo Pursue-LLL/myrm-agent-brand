@@ -113,6 +113,11 @@ export default function DownloadPageContent() {
           {t('download.otaHint')}
         </p>
       )}
+      {hasInstallers && (
+        <p className="mt-3 text-center text-[13px] leading-relaxed text-muted-foreground sm:text-[14px]">
+          {t('download.trustHint')}
+        </p>
+      )}
       <ChecksumSection />
 
       {hasInstallers && (
