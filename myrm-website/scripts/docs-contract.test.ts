@@ -74,6 +74,17 @@ describe('getDocsUrl locale', () => {
     expect(url).toContain('/ko/getting-started/quickstart');
     expect(url).not.toContain('/ko/ko/');
   });
+
+  test('prefixes ja locale on docs base URL', () => {
+    const url = getDocsUrl(LOCAL_DEPLOY_DOCS_PATH, 'ja');
+    expect(url).toContain('docs.myrmagent.ai/ja/getting-started/quickstart');
+  });
+
+  test('does not double-prefix ja paths', () => {
+    const url = getDocsUrl('/ja/getting-started/quickstart', 'ja');
+    expect(url).toContain('/ja/getting-started/quickstart');
+    expect(url).not.toContain('/ja/ja/');
+  });
 });
 
 describe('getAppUrl locale relay', () => {
