@@ -1021,3 +1021,21 @@ Long jobs and quiet threads get closed without babysitting:
 1. In the same Channel Routing row, enable **Completion receipts** (posts a delivery card in the origin thread when long work finishes) and optionally **Stall nudge** (one @-mention when a thread with open items goes quiet);
 2. Every proactive message carries an AI badge and goes through your approval gates first — drafts held for review never auto-post;
 3. Mute any thread with `/mute`; frozen identities never send proactive messages.
+
+## Channel Quota Diagnostics & Group RBAC Zero-LLM Direct Output
+
+Managing token usage, rate limits, and member permissions across messaging channels requires zero-latency transparency without consuming LLM inference budgets:
+
+1. **Zero-LLM Token Direct Output (< 2ms)**:
+   - When a user sends `/quota` (or `@bot /quota` in groups), the router intercepts the request in the Inbound Pipeline and immediately aggregates usage records from local SQLite;
+   - Consumes **0 LLM Tokens**, eliminates API network latency, and preserves Prompt Cache prefix hit rates;
+2. **Group RBAC & Bypass White-listing**:
+   - Decouples sender privileges (Admin, Member, Guest) to prevent Confused Deputy exploits;
+   - Read-only diagnostic commands (`/status`, `/quota`, `/help`) are explicitly white-listed, ensuring that even when a member's daily quota is exhausted, they can still inspect their remaining allocation and countdown without being deadlocked;
+3. **High-Signal Visual Progress & Dual-Time Display**:
+   - Renders standard 10-char ASCII progress bars (`[████████░░] 80%`) for consistent cross-channel rendering;
+   - Displays UTC reset time alongside dynamic relative countdown (`Resets at: 00:00 UTC (in ~X hours Y minutes)`);
+   - Fully localized across English, Simplified Chinese, Traditional Chinese, and Japanese;
+4. **Mobile Responsive Management in WebUI**:
+   - Administrators can review and inline-edit member quotas under **Settings → Channels → Pairing**, with full mobile `flex-wrap` responsive adaptation.
+
