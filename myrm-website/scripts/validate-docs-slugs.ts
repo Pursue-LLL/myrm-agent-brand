@@ -228,7 +228,7 @@ function main(): void {
 
   const errors: string[] = [];
 
-  const marketingLocales: DocsLocale[] = ['en', 'zh', 'ko'];
+  const marketingLocales: DocsLocale[] = ['en', 'zh', 'ko', 'ja'];
   for (const locale of marketingLocales) {
     for (const marketingPath of MARKETING_DOC_PATHS) {
       const urlPath = localizedDocsPath(marketingPath, locale);
