@@ -38,6 +38,13 @@ const CP_BILLING_CONTRACT_PATH = join(import.meta.dir, 'cp-billing-contract.json
 const CP_CATALOG_PATH = join(CP_BILLING_ROOT, 'catalog.py');
 const CP_PLANS_PATH = join(CP_BILLING_ROOT, 'plans.py');
 const LOCALES = ['zh', 'en', 'ko'] as const;
+/**
+ * Tier-1 scoped locales (JA GTM pack): only download + metadata + notFound are
+ * translated; all other namespaces fall back to en at runtime (LocaleRootProvider
+ * deep-merge). Validated for scoped completeness instead of full parity.
+ */
+const PARTIAL_LOCALES = ['ja'] as const;
+const PARTIAL_JA_NAMESPACES = ['marketing.download', 'metadata', 'notFound'] as const;
 const HIGHLIGHT_TAG_COUNT = 3;
 const HIGHLIGHT_DESC_MAX_CHARS = 1500;
 /** Max chars per Integrations chip segment (` · ` split); keeps mobile pills scannable. */
@@ -451,6 +458,51 @@ for (const locale of LOCALES) {
 
 validateCloudPricingAgainstCp(errors);
 
+function collectLeafPaths(obj: unknown, prefix: string, out: string[]): void {
+  if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) {
+    out.push(prefix);
+    return;
+  }
+  for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
+    collectLeafPaths(value, prefix === '' ? key : `${prefix}.${key}`, out);
+  }
+}
+
+/** Scoped completeness for tier-1 partial locales: every en leaf under the JA namespaces must exist in ja. */
+function validatePartialLocale(
+  locale: (typeof PARTIAL_LOCALES)[number],
+  namespaces: readonly string[],
+  errors: string[],
+): void {
+  const localePath = join(ROOT, 'locales', `${locale}.json`);
+  const localeRaw = readFileSync(localePath, 'utf8');
+  appendLegacyUrlViolations(localeRaw, `myrm-website/locales/${locale}.json`, errors);
+  const json = JSON.parse(localeRaw) as Record<string, unknown>;
+  const enRaw = readFileSync(join(ROOT, 'locales', 'en.json'), 'utf8');
+  const enJson = JSON.parse(enRaw) as Record<string, unknown>;
+  for (const namespace of namespaces) {
+    const enSub = getAt(enJson, namespace);
+    const localeSub = getAt(json, namespace);
+    if (enSub === undefined || enSub === null || typeof enSub !== 'object') {
+      errors.push(`[${locale}] reference en.${namespace} missing (validator bug)`);
+      continue;
+    }
+    if (localeSub === undefined) {
+      errors.push(`[${locale}] missing namespace ${namespace}`);
+      continue;
+    }
+    const expected: string[] = [];
+    collectLeafPaths(enSub, '', expected);
+    for (const leaf of expected) {
+      assertKey(locale, localeSub as Record<string, unknown>, namespace, leaf, errors);
+    }
+  }
+}
+
+for (const locale of PARTIAL_LOCALES) {
+  validatePartialLocale(locale, PARTIAL_JA_NAMESPACES, errors);
+}
+
 const enIntegrationCounts = integrationChipCounts.en;
 const zhIntegrationCounts = integrationChipCounts.zh;
 if (enIntegrationCounts && zhIntegrationCounts) {
@@ -471,4 +523,4 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-console.log(`Marketing locales OK (${LOCALES.join(', ')})`);
+console.log(`Marketing locales OK (${LOCALES.join(', ')} + partial ${PARTIAL_LOCALES.join(', ')})`);
