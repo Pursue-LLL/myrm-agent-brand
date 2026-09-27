@@ -11,6 +11,26 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-27 · 会话日志扩展私有状态与模型可见消息物理解耦与全生命周期协同交付 · 彻底消除内部状态污染LLM、Token意外泄露、压缩遗留过期告警与前端无障碍缺失）
+
+- **SessionEntryCustomVsCustomMessageSeparationSuite（对标 Pi、Hermes、OpenClaw、Codex、DeepSeek-Harness、OpenCode 6 大竞品在会话扩展数据治理中普遍存在的“UI/宿主内部状态无脑污染 LLM 导致 Token 泄露与注意力偏移、临时通知无法在 Compaction 压缩时自动淘汰、日志流缺乏强类型约束易致崩溃以及前端渲染缺乏无障碍与主题自适应”等痛点）：** Myrm 全面交付了会话日志扩展私有状态（`custom`）与模型可见消息（`custom_message`）物理解耦与全生命周期协同套件：
+  1. **强类型编译期封闭与类型安全保障（Zero-Any Strong Typing）**：在 Harness 框架层 `types.py` 严格定义 `CustomStatePayload`（私有扩展状态）与 `CustomMessagePayload`（模型可见交互消息），彻底消灭 `Any`，在编译期与运行时构建双重防线；
+  2. **0 Token 泄露物理隔离网关（Physical LLM Context Barrier）**：在业务服务层 `chat_utils.py` 设立物理级阻断机制，严格拦截 `custom` 私有状态流向大模型，仅将具备业务语义的 `custom_message` 投影为标准化 `HumanMessage`，杜绝内部 UI/调试数据侵占 Token 与干扰注意力；
+  3. **Compaction 临时消息自愈淘汰机制（Ephemeral Message Eviction）**：引入 `retention: Literal["ephemeral", "persistent"]` 生命周期声明；在 `message_io.py` 上下文压缩流程中，自动对带有 `ephemeral` 标记的临时通知卡片（如环境检测、临时确认）进行物理剥离，保持长程压缩上下文的绝对纯净；
+  4. **Trace 级全链路结构化可观测性聚合（TraceBuilder Aggregation）**：在 `ExecutionTrace` 与 `TraceBuilder` 中原生支持 `custom_messages` 拓扑聚合，让开发者与运维人员在单次调试中对会话扩展事件与底层执行链路一目了然；
+  5. **前端无障碍与主题自适应卡片渲染（Accessible & Themed CustomMessageCard）**：前端重构 `CustomMessageCard.tsx`，严格遵循 WAI-ARIA 规范（`aria-expanded`, `aria-controls`），支持 `display === false` 零开销短路与深浅双主题无缝自适应，孤儿模块门禁 100% 满分通过。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/event_log/types.py` · `myrm-agent-server/app/core/utils/chat_utils.py` · `myrm-agent-server/app/services/chat/compact/message_io.py` · `myrm-agent-frontend/src/components/features/chat/CustomMessageCard.tsx` · `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md`
+
+## 最新验证快照（2026-09-27 · 动态思考算力分配、反向访谈澄清防自嗨、沙箱深水区工程压测与多流程演练全链路交付 · 彻底消除高Effort需求误读飙升88%、口头免责慢算法与静态伪完成交付）
+
+- **DynamicEffortAndSandboxDeepVerificationSuite（对标 Claude Code 官方《Spending your effort》与 Terminal-Bench 3.0 沙箱实测数据中普遍存在的“思考算力从 Low 飙到 Max 时需求误读率反而暴增 88%、写出 O(N^2) 慢算法仅靠末尾口头免责从不压测、仅输出单一静态代码遇到空数据即报错、以及纯终端 CLI 无法动态调控算力且击穿 Prompt 缓存”等痛点）：** Myrm 全面交付了全端动态思考算力调控、意图模糊反向访谈与沙箱深水区工程压测套件：
+  1. **高 Effort 意图模糊前置反向访谈澄清门禁（Ambiguity Gate & Spec Interview）**：针对 Terminal-Bench 实测发现高算力深度思考下模型因过度脑补导致需求误读激增 88% 的死穴，在深思任务启动前部署轻量模糊度探测。一旦需求存在核心歧义，强制自动挂起并弹出结构化选择卡片（`ask_question_tool`）向人类发起反向访谈，锁定核心口径后再启动高算力深思，彻底将误读率归零；
+  2. **反口头免责·大规模业务数据阶梯计时压测门禁（Scale Benchmarking Gate）**：彻底消灭“大数据量可能较慢”的口头免责推脱！强制 Agent 在沙箱内合成 $10^2 \to 10^5$ 阶梯规模业务数据进行真实计时压测；耗时非线性膨胀（如超过 3 秒阈值）即刻阻断验收并逼迫推倒算法重构，确保交付成果在生产真实业务数据量下丝滑运行；
+  3. **Zero Cache-Busting 全端动态算力调控（`/effort` Slash + GUI 强度按键 + 智能体 Persona 预设）**：智能体（Persona）配置层原生支持持久化预设默认 Effort 档位（日常助手秒回省钱，投研专家深度深思）；WebUI 聊天框通过快捷 `/effort` 斜杠命令与可视化 6 档按键实时双向绑定，外部 IM 渠道（飞书/企微）无缝支持；请求体外挂透传 100% 保护 Prompt Cache 零击穿；桌面端长任务联动系统原生托盘通知，离屏无忧；
+  4. **工件区多流程交互演练矩阵（Walkthroughs 4 态交互步进器）**：告别单张静态截图与静态代码伪交付！工件区原生内嵌 4 态交互步进器（Normal 正常/Empty 空数据/Error 报错/Back 回退），在侧边栏一键切换检验全部业务状态分支，彻底告别“一跑全是空数据未处理报错”；
+  5. **安全请求主动跨模型交接与物理离线断网沙箱（Air-Gapped Sandbox）**：高敏安全任务前置自动交接至高安全旗舰模型，Control Plane 动态切断沙箱外部网络，纯离线无网闭环执行，杜绝数据外泄风险。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/` · `myrm-agent-server/app/ai_agents/general_agent/tool_setup.py` · `myrm-agent-frontend/src/components/features/message-input-actions/ThinkingIntensityButton.tsx` · `temp-docs/materials/AGENT_VERIFICATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_09_frontend_ux_roadmap.md` · `temp-docs/roadmap/topic_18_loop_engineering_goal_autonomous_scheduling_and_runtime_verification_roadmap.md`
+
 ## 最新验证快照（2026-09-27 · 活动 Chrome 扩展免密直连、E2E 闭环自验证与午休无人值守挂机全链路交付 · 彻底消除遇登录必卡死、索要明文密码、人肉贴图与改完代码不经验证的半吊子交付）
 
 - **ActiveBrowserDebugAndE2ESelfVerificationSuite（对标 Qoder、Cursor 与 Claude Code 在前后端复杂 Bug 攻坚、真实管理后台联调与无人值守长任务中普遍存在的“Cursor 遇到登录页立即停滞逼用户交出账号密码、跑一个不到3分钟的小Bug反复中断4次让人肉贴控制台截图、改完代码无法自动在页面复核必须人类自己去点、以及 Qoder 积分消耗昂贵不耐烧且不支持私有化沙箱”等痛点）：** Myrm 全面交付了活动浏览器扩展免密直连、全流程 E2E 闭环自验证与无人值守挂机套件：
