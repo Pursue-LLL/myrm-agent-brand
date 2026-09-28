@@ -582,3 +582,30 @@ When initiating a new task, clearly defining workspace boundaries and isolation 
    - Out-of-the-box readiness with zero local configuration.
 3. **Quick Chat**:
    - Lightweight Q&A and general assistance without requiring a bound workspace.
+
+## Dual-Channel Steering & Follow-up Queue
+
+During long-running agent execution, human-agent interaction has traditionally suffered from either single-channel blocking or false interruptions that prematurely kill running jobs. Myrm implements a comprehensive dual-channel input protocol:
+
+1. **Real-time Steering (Enter $\to$ Steering / Redirect)**:
+   - When the agent is busy (`loading=true`), pressing `Enter` initiates immediate steering or redirection, interrupting unnecessary downstream tool calls.
+   - Preserves partial AI reasoning and output while injecting real-time user guidance without restarting from scratch.
+2. **Non-blocking Follow-up Queue (Alt+Enter $\to$ Follow-up Queue)**:
+   - Pressing `Alt+Enter` (`⌥+Enter`) enqueues subsequent directives into dedicated queue cards (`QueuedMessagesList`), immediately clearing the composer.
+   - The current long task continues undisturbed, and queued turns are automatically dispatched sequentially upon completion.
+3. **3-Tier State-Machine Fallback (Zero Lost Characters)**:
+   - If a steering request arrives precisely as the agent finishes and returns to idle (409 Conflict), the 3-tier fallback chain seamlessly falls back to `sendMessage()`, ensuring not a single keystroke is lost.
+4. **Newline Priority & IME Guard**:
+   - Strict rule: `Shift` key has the highest priority. Both `Shift+Enter` and accidental `Shift+Alt+Enter` always preserve native textarea multiline breaks.
+   - IME composition guard ensures Chinese/Japanese Pinyin candidates confirmed with Enter never falsely fire submissions.
+
+### 6-Competitor Dual-Channel Comparison
+
+| Dimension | Myrm | Pi (pi.dev) | Hermes | OpenClaw | Codex | DeepSeek-Harness / OpenCode |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Form Factor** | **Full-stack WebUI + Desktop + Mobile** | CLI only | CLI only | WebUI | WebUI / API | CLI / Scripts only |
+| **Dual-Channel Mental Model** | ✅ **Enter to steer, Alt+Enter to queue** | ✅ Enter to steer, Alt+Enter to queue | ❌ Fully blocked | ❌ No dual-channel protocol | ❌ Turn-based batch | ❌ None |
+| **Non-blocking Follow-up Queue** | ✅ **Visual queue cards + auto dispatch** | ⚠️ Memory queue (no visual cards) | ❌ None | ❌ None | ❌ None | ❌ None |
+| **409 Race 3-Tier Fallback** | ✅ **Redirect $\to$ Steer $\to$ Send (0 text loss)** | ⚠️ Occasional 409 text drop | ❌ None | ❌ Error out | ❌ None | ❌ None |
+| **IME Composition Guard** | ✅ **Strict isComposing protection** | ⚠️ Shell-dependent | ❌ False Enter trigger | ⚠️ Basic | ✅ Good | ❌ None |
+| **Multiline Safety Priority** | ✅ **Shift takes precedence (Shift+Alt+Enter safe)**| ⚠️ Accidental trigger | ❌ None | ⚠️ Accidental trigger | ✅ Good | ❌ None |
