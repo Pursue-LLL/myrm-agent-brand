@@ -64,7 +64,7 @@ Not just terminal commands — **every tool** (search, API, browser, MCP, etc.) 
 
 ### Layer 1.5: Active Per-Step Tool Result Pruning
 
-Before each LLM call, tool results from *earlier completed steps* that exceed 2,048 tokens are automatically replaced with compact archive placeholders — at **zero LLM cost**. Results from the most recent step are always preserved so the model can consume them. Protected tools (`file_read_tool`, etc.) are exempt from pruning. If the archive offload fails, the original content is kept (fail-safe). Previously archived placeholders are cached in-memory to avoid redundant offload calls on subsequent steps.
+Before each LLM call, tool results from *earlier completed steps* that exceed 2,048 tokens are automatically replaced with compact archive placeholders — at **zero LLM cost**. Results from the most recent step are always preserved so the model can consume them. Protected tools (`file_read_tool`, etc.) are exempt from pruning. If the archive offload fails, outputs that fit the head+tail budget are preserved verbatim and a replacement is applied only when the placeholder genuinely reduces the token count — no payload is silently dropped and savings never go negative. Previously archived placeholders are cached in-memory to avoid redundant offload calls on subsequent steps.
 
 This fills the gap between L1 filtering (which handles oversized *single* results) and L2 cache TTL pruning (which only triggers after cache expiry). During continuous multi-step execution, every step would otherwise pay full token price for all prior tool results — this processor proactively reclaims that waste.
 

@@ -11,6 +11,17 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-28 · 内存回退工具输出零丢失与真降本修剪守卫套件 · 彻底消除静默丢上下文、负 Token 节省、误导性占位符与不可缩短替换抖动）
+
+- **MemoryFallbackZeroLossPruneGuardSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 6 大竞品在长程上下文驱逐中，归档通道不可用时普遍静默丢弃工具输出——Codex #37121/#14589 公开报告截断后丢失工具状态——且缺乏任何「修剪必须真降 token」的守卫）：** Myrm 为每步主动工具结果修剪交付企业级「零丢失 + 真降本」双重守卫：
+  1. **预算内内容逐字保留（Budget-Preserving Verbatim Retention）**：当工具输出小到可完全落入头尾预算时，原样逐字保留，而不再塌缩为一行标记——无归档回退路径下杜绝静默数据丢失；
+  2. **真降本才替换（Real-Reduction-Only Replacement）**：跳过无法缩短的候选，仅在占位符真正降低 token 数时才替换工具结果，消除不可缩短替换抖动与负节省；
+  3. **占位符提示语义真实（Truthful Placeholder Semantics）**：仅在内容确实被截断时才声明「Preserved head & tail」，提示语义与行为 100% 一致；
+  4. **归档回调成功判定正确（Correct Offload Success Check）**：使用 `succeeded` 属性（path 非空且无 failure_kind）替代恒真的 classmethod 引用；
+  5. **死代码清零（Dead-Code Zeroing）**：删除 3 处生产 0 调用路径（`_replace_content`、`sanitize_multimodal_content`、`LocalWorkingMemoryBlock.flush_stale` / `WorkingMemoryFlushResult`）；
+  6. **100% 全栈测试验证**：上下文管理 1,445 项单元/集成测试全绿，改动模块覆盖率 ≥90%；真实 LLM 全链路 E2E + 上下文预算 / 上下文留存 Chrome E2E 全部通过。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/pipeline/processors/active_tool_result_prune_processor.py` · `.../working_memory/block.py` · `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-28 · 安装前 71 项前置静态模式扫描、0~100 风险量化门禁、Python AST 语法树危险调用穿透与合规审计留痕全链路交付 · 彻底消除第三方技能生态盲装盲信、恶意越狱代码直灌、0分假值逃逸与无痕越界放行）
 
 - **SkillSpectorHighRiskPatternScannerAndPreflightSecurityScoringGateSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 6 大竞品在第三方技能生态与开源技能市场中普遍存在的“安装前完全缺乏静态代码体检与威胁模式分析、面对恶意提示词注入/反弹 Shell/凭据嗅探直接无条件原样注入、开箱默认 bypass 裸奔、缺乏 0~100 量化准入门禁导致 0 分假值逃逸以及管理员放行无审计追踪”等致命安全盲区）：** Myrm 全面交付了安装前 71 项前置行为模式扫描、0~100 风险量化门禁、AST 语法树危险调用穿透与结构化合规审计套件：
