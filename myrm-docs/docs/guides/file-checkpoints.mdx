@@ -190,3 +190,43 @@ For large refactors that touch dozens or hundreds of files, the per-message diff
 - **Big-file folding** — diffs over 300 lines show stats and the first block; expand on demand. Files over 512KB show stats only and never freeze the page
 - **Mobile drawer** — on phones the review panel becomes a bottom sheet, so you can approve changes on the go
 - **Per-turn isolation** — the same file changed in different turns stays as separate rows, so multi-round edits never get mixed up
+
+## Atomic Context Checkpoint Rollback & Code Revert (Rewind)
+
+When exploring complex architectural decisions or prompt iterations, users frequently need to rewind the conversation to an earlier turn and either keep their workspace code or safely revert written changes.
+
+Myrm provides an enterprise-grade **Two-Phase Atomic Safe Rollback Coordinator** that completely eradicates the "brain-split" flaws common in competing frameworks:
+
+### Two-Phase Safe Transaction Architecture
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as User / WebUI
+    participant Server as Chat Turn Coordinator
+    participant Snap as Shadow Git & Snapshot Store
+    participant DB as SQLite DB & LangGraph Checkpointer
+
+    User->>Server: POST /chats/{chat_id}/rewind (target_message_id, scope)
+    alt scope == "both"
+        Server->>Snap: Phase 1: Validate target snapshot & capture PRE_ROLLBACK snapshot
+        Snap-->>Server: PRE_ROLLBACK snapshot saved
+        Server->>Snap: Phase 1: Atomically restore workspace files
+        alt File restoration fails
+            Server-->>User: 500 Error (Aborted: Zero DB modification, no brain-split)
+        end
+    end
+    Server->>DB: Phase 2: Transactional message truncation & Checkpointer rewind
+    DB-->>Server: Checkpoint rolled back
+    Server-->>User: 200 OK (rewound_messages, restored_files, pre_rollback_key)
+```
+
+1. **Phase 1: Code Restoration & Pre-Rollback Safety Shield**:
+   - If the user selects the `both` scope (revert code + truncate history), the backend first verifies snapshot validity and takes a `PRE_ROLLBACK` auto-snapshot before mutating the disk.
+   - If any file write or disk permission fails, the operation immediately aborts with zero changes to the database. This guarantees you never enter a split-brain state where the conversation history was deleted but the broken files remain on disk.
+2. **Phase 2: Atomic DB Truncation & LangGraph Checkpointer Rewind**:
+   - Only after code is safely verified on disk does the coordinator truncate message history and roll back the LangGraph state machine cursor to the target turn.
+3. **Dynamic SSOT Indexing (Zero Virtual Scroll Drift)**:
+   - The UI modal (`RewindDialog`) dynamically resolves the target message via authoritative `messageId` lookup against the central chat store, completely eliminating index drift when dealing with virtualized message lists, search filters, or lazy hydration.
+4. **Composer Auto-Refill & Focus**:
+   - Upon confirming rewind, the truncated user prompt is automatically loaded back into the message composer, and cursor focus is restored via `requestAnimationFrame`. Developers can tweak their prompt and re-run immediately without breaking their workflow.
