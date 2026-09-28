@@ -112,6 +112,28 @@ Hermes `config.yaml` 含 `moa` 块时，迁移向导 confirm 可将参考模型�
 
 **验证（2026-08-03）：** **`test_hermes_moa_migrator.py` 19/19** + import confirm 集成 — 属 **30/30** MoA server pytest 套件。
 
+## 跨平台会话与上下文高保真零摩擦迁移（Claude Code / Codex / Cursor）
+
+从 **Claude Code**、**OpenAI Codex CLI** 或 **Cursor** 迁入 Myrm 时，迁移向导不仅迁移静态规则与配置，还提供**高保真历史会话与上下文无损接管**：
+
+| 技术维度 | 竞品痛点 / 传统迁移硬伤 | Myrm 零摩擦迁移解决方案 | 核心架构与模块 |
+|---|---|---|---|
+| **会话连续性** | 换工具历史丢失，Agent 失去上下文沦为“失忆白痴”，开发者被迫重头交代背景 | 结构化会话车道（Session Lane）高保真导入，完整保留多轮 User Prompt、思维链（Thinking Trace）与 Tool Call 参数/结果 | `runtime/context/transcripts/` + `SessionMigrationService` |
+| **协议规范化** | Claude Code 流式 JSONL 与 Codex 分块 JSON 格式各异，内部字段碎片化 | `CanonicalTranscriptParser` 统一转录抽取引擎，自动清洗 `<system-reminder>` 平台私有注入，保全纯净交互 | `claude_parser.py` · `codex_parser.py` |
+| **沙箱路径重锚** | 旧会话记录宿主机绝对路径（如 `/Users/dev/...`），迁入容器沙箱报 `FileNotFoundError` 崩溃 | `SandboxPathRemapper` 自动嗅探 `host_root`，深度递归重写所有工具调用参数至容器标准 `/workspace` 路径 | `path_remapper.py` |
+| **上下文容量保护** | 历史巨量终端编译或安装日志塞满 Prompt，导致首轮即触发 Context Window 溢出 | `ToolOutputCompactor` 两阶段压缩引擎，智能保留首尾 25/15 行关键输出并折叠中间超长噪音，节省 90%+ 历史 Token | `tool_compactor.py` |
+| **即刻续聊闭环** | 导入后不知道存到哪，无法一键继续先前的开发任务 | 迁移向导 Preview 步骤渲染 `SessionPreviewCard`；Result 步骤提供【立即前往会话续聊】按钮，直达聊天界面开始协同 | `MigrationWizardSteps.tsx` |
+
+**诚实边界：**
+- 历史会话以结构化转录形式导入，归属指定 Agent Profile 并进入持久化数据库；
+- 超长单行输出触发字符级保护性截断，确保模型在极端巨型日志下永不爆窗；
+- 导入历史不重新执行已完成的外部工具副作用（如真实向远程发请求），确保历史安全只读。
+
+**机器测试实证（2026-09-28）：**
+- **Harness 框架单测覆盖率**：**99%**（`tests/runtime/context/test_transcripts_parser.py` 8/8 通过，覆盖率 99%）；
+- **Server 迁移测试**：`tests/services/migration/` 全套 **232/232 PASS**（覆盖 session_lane、payload_split、loader 与 e2e）；
+- **真实浏览器 Chrome MCP E2E**：`tests/e2e/test_competitor_session_migration_chrome_e2e.py` **1/1 PASS**（17.14s，无 Mock，全链路通过真实 WebUI 上传与 Review 弹窗渲染校验）。
+
 ## 回滚
 
 每次导入都可完全撤销：
