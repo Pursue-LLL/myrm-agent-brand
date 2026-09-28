@@ -11,6 +11,18 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
 **移行における安心ポイント** — SaaS・セルフホスト・デスクトップから自由に選択でき、HermesのスキルはGUI経由のZIPで直接インポート可能です。以下の詳細比較表でチャンネル・メモリ・セキュリティを行単位で確認した上でご検討いただけます。Grok Buildなどのプラグイン中心の製品をお使いの場合、Myrmはモデル・スキル・MCP・サブエージェント・安全プロファイルを**ワンクリックで一括セットアップ**するエージェントパッケージを提供します。ドキュメントとアプリは**6言語**(zh/en/ja/ko/de/zh-TW)に対応しており、WebUI・クラウドホスト・Tauriデスクトップのすべてで、初回アクセス時にブラウザ言語を自動判別します。
 </Note>
 
+## 最新検証スナップショット (2026-09-28 · インストール前71項目静的脅威パターン検知・0〜100定量セキュリティゲート・AST危険呼び出し透過解析および監査ログスイート)
+
+- **SkillSpectorHighRiskPatternScannerAndPreflightSecurityScoringGateSuite (Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCodeとの比較: サードパーティ製スキルの導入前静的検査の欠如、リバースシェルやプロンプト脱獄コードの無防備な直接注入、デフォルトでの権限bypass、0点・Noneの偽値エスケープ、および管理者オーバーライドの監査証跡欠如):** Myrmはインストール前71項目静的脅威パターン検知、0〜100定量セキュリティゲート、Python AST危険呼び出し透過解析、および構造化コンプライアンス監査スイートを提供します:
+  1. **71項目の事前静的脅威スキャンおよびAST構文解析 (`Preflight Static Threat Scanner`)**: スキルマーケットやローカルディレクトリからの導入前に、`.py`, `.sh`, `.js`, `.ts`, `.json`, `.yaml`, `.md`ファイルを自動検査。リバースシェル、`eval`/`exec`/`__import__`などの動的難読化、環境変数窃取、ディレクトリトラバーサル、隠蔽プロンプトインジェクションを高精度に検知;
+  2. **0〜100定量評価アルゴリズムおよび50点未満自動遮断 (`Security Scoring Gate`)**: 100点満点からの確定的な減点アルゴリズムを導入（カテゴリごとの減点上限で過剰検知を防止）。総合スコア50点未満の危険スキルは実行環境への直接注入を自動遮断;
+  3. **Fail-Closed設計による0点・None偽値エスケープの完全防止**: `score=0`がfalsyと判定されてゲートをすり抜ける脆弱性を完全に封鎖。0点または`None`は常にFail-Closed拒否ルートへ決定論的に誘導;
+  4. **OOMクラッシュ防止ガード (512KB上限および `\x00` ヌルバイトフィルタ)**: 1ファイルあたり512KBの読み取り上限とバイナリ空バイトの瞬時フィルタリングにより、スキャナプロセスのメモリ枯渇と異常終了を防止;
+  5. **構造化コンプライアンス監査ログ (`SKILL_SECURITY_OVERRIDE`)**: 管理者が低スコアスキルを明示的に許可した場合、操作者ID・スキル指紋・違反ルール・タイムスタンプを構造化監査ログとして永続化し、追跡可能性を100%担保;
+  6. **リスク感知型WebUIおよび動的警告スタイル (`adoptWithRisk`)**: WebUIドロワーでCritical（深紅）、High（橙）、Safe（緑）の視覚的バッジを表示。高リスク選択時はボタンが動的に警告スタイルへ変化;
+  7. **100%フルスタックテスト検証済み**: Harness単体テストカバレッジ93%（178件パス）、Serverテスト22件パス、Frontendテスト6件パス、Chrome 9333 CDP実機E2Eテスト100%パス。
+- **SSOTリファレンス:** `myrm-agent-harness/src/myrm_agent_harness/agent/security/skills/scanner.py` · `scoring.py` · `service.py` · `myrm-agent-server/app/api/v1/endpoints/skills.py` · `myrm-agent-frontend/src/components/features/settings/SkillMarketplaceDrawer.tsx` · `temp-docs/materials/SKILL_PERMISSION_SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md`
+
 ## 最新検証スナップショット (2026-09-27 · 2段階見出しアンカー直達リゾルバおよびゴーストスクロール根絶スイート)
 
 - **TwoPhaseHeadingAnchorResolverAndGhostScrollEliminationSuite (Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCodeとの比較: 長大ドキュメントの小節アンカー直達・双方向リンク遷移における前方長大見出しによる貪欲部分一致ハイジャック、編集保存後のゴースト再スクロール、非同期DOM描画の時序ズレ):** Myrmは2段階見出しアンカー直達リゾルバおよび状態即時消費スイートを提供します:

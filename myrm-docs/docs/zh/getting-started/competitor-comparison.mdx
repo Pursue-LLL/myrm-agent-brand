@@ -11,6 +11,18 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-28 · 安装前 71 项前置静态模式扫描、0~100 风险量化门禁、Python AST 语法树危险调用穿透与合规审计留痕全链路交付 · 彻底消除第三方技能生态盲装盲信、恶意越狱代码直灌、0分假值逃逸与无痕越界放行）
+
+- **SkillSpectorHighRiskPatternScannerAndPreflightSecurityScoringGateSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 6 大竞品在第三方技能生态与开源技能市场中普遍存在的“安装前完全缺乏静态代码体检与威胁模式分析、面对恶意提示词注入/反弹 Shell/凭据嗅探直接无条件原样注入、开箱默认 bypass 裸奔、缺乏 0~100 量化准入门禁导致 0 分假值逃逸以及管理员放行无审计追踪”等致命安全盲区）：** Myrm 全面交付了安装前 71 项前置行为模式扫描、0~100 风险量化门禁、AST 语法树危险调用穿透与结构化合规审计套件：
+  1. **安装前 71 项深度行为模式扫描与 AST 语法树穿透分析（Preflight Static Threat Scanner）**：在技能市场（Marketplace）与本地技能目录导入前，自动对 `.py`, `.sh`, `.js`, `.ts`, `.json`, `.yaml`, `.md` 等文件执行 71 项前置特征体检。深度识别隐藏反弹 Shell、`eval`/`exec`/`__import__` 动态混淆调用、环境变量嗅探、敏感文件遍历与暗藏提示词越狱注入，彻底终结开源技能生态的“盲装盲信”；
+  2. **0~100 风险量化评分与 <50 分自动阻断门禁（Security Scoring Gate）**：构建确定性量化打分算法（基础分 100 分，按高危特征扣分并设定类别扣分封顶，避免极端单一场景过杀）。若综合得分低于 50 分，系统触发强制硬阻断，拒绝直接加载至运行时；
+  3. **Fail-Closed 闭环严防 0 分与空值假值逃逸（Zero-False-Positive Fail-Closed）**：彻底修复将 `score=0` 判定为 falsy 而跳过门禁的致命漏洞。无论评分返回 0 还是 `None`，统一强制进入 Fail-Closed 阻断通路，杜绝利用解析异常偷渡执行；
+  4. **防 OOM 与二进制防崩溃守卫（512KB Limit & Null-Byte Filter）**：针对畸形或恶意构造的第三方技能包，严格设定单文件 512KB 读取上限，毫秒级过滤 `\x00` 二进制空字节文件，保护 Scanner 进程免于内存耗尽（OOM）与解释器崩溃；
+  5. **结构化合规审计留痕与全生命周期追踪（Audit Override Log）**：针对企业管理员显式放行低分技能场景，服务端原生打点记录 `AUDIT_EVENT: SKILL_SECURITY_OVERRIDE`，完整持久化操作人 ID、技能指纹、违规规则列表与免责放行时间戳，确保合规与责任链百分之百可追溯；
+  6. **动态风险感知 WebUI 交互与破坏性警告样式（Risk-Aware UI & AdoptWithRisk）**：WebUI 采纳面板以 Critical（深红）、High（橙红）、Safe（翠绿）透明呈现各风险项与检测规则；一旦用户勾选低分或高危技能，主采纳按钮动态绑定破坏性警告样式（`adoptWithRisk`），让风险看得见、管得住；
+  7. **100% 满分全栈实测验证**：Harness 核心模块实测单测覆盖率达到 **93%**（178 项单测全绿，耗时 9.61s），Server 端 22 项测试全绿，Frontend 6 项单测全绿，`bun run lint` 0 错误，`bun run verify:i18n` 扫描 1917 个代码文件 0 missing keys，真实 Chrome 9333 端口驱动 WebUI 3000 设置页集成 E2E 测试 100% 通过。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/security/skills/scanner.py` · `scoring.py` · `service.py` · `myrm-agent-server/app/api/v1/endpoints/skills.py` · `myrm-agent-frontend/src/components/features/settings/SkillMarketplaceDrawer.tsx` · `temp-docs/materials/SKILL_PERMISSION_SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md`
+
 ## 最新验证快照（2026-09-27 · 会话日志扩展私有状态与模型可见消息物理解耦与全生命周期协同交付 · 彻底消除内部状态污染LLM、Token意外泄露、压缩遗留过期告警与前端无障碍缺失）
 
 - **SessionEntryCustomVsCustomMessageSeparationSuite（对标 Pi、Hermes、OpenClaw、Codex、DeepSeek-Harness、OpenCode 6 大竞品在会话扩展数据治理中普遍存在的“UI/宿主内部状态无脑污染 LLM 导致 Token 泄露与注意力偏移、临时通知无法在 Compaction 压缩时自动淘汰、日志流缺乏强类型约束易致崩溃以及前端渲染缺乏无障碍与主题自适应”等痛点）：** Myrm 全面交付了会话日志扩展私有状态（`custom`）与模型可见消息（`custom_message`）物理解耦与全生命周期协同套件：

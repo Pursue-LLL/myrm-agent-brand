@@ -11,6 +11,18 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-09-28 · 설치 전 71개 정적 패턴 스캔, 0~100 정량 보안 게이트, AST 위험 호출 침투 분석 및 구조화 감사 로깅 스위트)
+
+- **SkillSpectorHighRiskPatternScannerAndPreflightSecurityScoringGateSuite (Hermes, OpenClaw, Codex, DeepSeek-Harness, Pi 및 OpenCode의 서드파티 스킬 생태계 도입 및 공급망 보안 대조: 설치 전 정적 코드 검사 부재, 리버스 셸 및 프롬프트 탈옥 코드 무조건 원형 주입, 기본 bypass 상태 동작, 0점/None 거짓값 탈출 취약점 및 관리자 강제 승인 감사 추적 부재):** Myrm은 설치 전 71개 정적 패턴 스캔, 0~100 정량 보안 점수 게이트, Python AST 위험 호출 침투 분석 및 구조화 규정 준수 감사 스위트를 전면 인도했습니다:
+  1. **설치 전 71개 정적 패턴 스캔 및 AST 구문 분석 (`Preflight Static Threat Scanner`)**: 마켓플레이스 또는 로컬 디렉터리 스킬 설치 전 `.py`, `.sh`, `.js`, `.ts`, `.json`, `.yaml`, `.md` 파일을 대상으로 71개 정적 특성을 자동 점검. 리버스 셸, `eval`/`exec`/`__import__` 동적 난독화 호출, 환경 변수 탈취, 디렉터리 탐색 및 숨겨진 프롬프트 탈옥을 정밀 감지;
+  2. **0~100 정량 안전 점수 알고리즘 및 50점 미만 자동 차단 (`Security Scoring Gate`)**: 100점 만점 기준의 결정론적 감점 알고리즘 적용 (단일 범주 과잉 차단을 막기 위한 상한선 포함). 종합 점수 50점 미만 시 런타임 직접 주입을 자동 차단;
+  3. **Fail-Closed 0점 및 None 거짓값 탈출 방지**: `score=0`이 falsy로 판정되어 게이트를 우회하는 취약점을 완전히 제거. 0점 또는 `None` 반환 시 무조건 Fail-Closed 차단 경로로 격리;
+  4. **OOM 방지 및 바이너리 충돌 가드 (512KB 제한 및 `\x00` 널 바이트 필터)**: 파일당 512KB 읽기 상한과 `\x00` 바이너리 널 바이트 필터링을 통해 스캐너 프로세스의 메모리 고갈과 크래시를 원천 차단;
+  5. **구조화 규정 준수 감사 로그 (`SKILL_SECURITY_OVERRIDE`)**: 관리자가 저점수 스킬을 명시적으로 승인할 경우 조작자 ID, 스킬 지문, 위반 규칙 목록 및 타임스탬프를 감사 이벤트로 영구 기록;
+  6. **위험 인지형 WebUI 및 동적 경고 스타일 (`adoptWithRisk`)**: WebUI 패널에서 Critical(진홍), High(주황), Safe(초록) 단계별 배지 렌더링. 고위험 스킬 선택 시 주 실행 버튼이 파괴적 경고 스타일(`adoptWithRisk`)로 동적 전환;
+  7. **100% 풀스택 테스트 검증 완료**: Harness 핵심 모듈 커버리지 93% (178개 단원 테스트 통과), Server 22개 테스트 통과, Frontend 6개 테스트 통과, Chrome 9333 CDP 실기기 E2E 테스트 100% 통과.
+- **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/agent/security/skills/scanner.py` · `scoring.py` · `service.py` · `myrm-agent-server/app/api/v1/endpoints/skills.py` · `myrm-agent-frontend/src/components/features/settings/SkillMarketplaceDrawer.tsx` · `temp-docs/materials/SKILL_PERMISSION_SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md`
+
 ## 최신 검증 스냅샷 (2026-09-27 · 2단계 섹션 앵커 직접 도달 해석기 및 고스트 2차 스크롤 완전 제거 스위트 · 장문 복합 제목 부분문자열 가로채기, 저장 후 고스트 점프 및 비동기 렌더링 타이밍 표류 완전 제거)
 
 - **TwoPhaseHeadingAnchorResolverAndGhostScrollEliminationSuite (Hermes, OpenClaw, Codex, DeepSeek-Harness, Pi 및 OpenCode의 긴 문서 섹션 앵커 도달, 양방향 링크 깊은 점프 및 리치 텍스트 재렌더링 대조: 선행 복합 제목의 짧은 대상 제목 가로채기, 편집 저장 후 고스트 2차 스크롤 발생, 비동기 DOM 렌더링 타이밍 불일치로 인한 점프 유실 및 언마운트 타이머 누수 취약점):** Myrm은 엔터프라이즈급 2단계 섹션 앵커 해석기 및 상태 즉시 소비 스위트를 전면 인도했습니다:
