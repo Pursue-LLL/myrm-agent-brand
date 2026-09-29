@@ -1,0 +1,56 @@
+---
+title: Built-in Skills and Factory Defaults
+description: Which skills you get out of the box, why these five, and how to change them freely.
+---
+
+# Built-in Skills and Factory Defaults
+
+On a fresh install, Myrm can handle these high-frequency office tasks **with zero configuration**: reading documents, data analysis, web research, generating Word/PPT/Excel files, and exporting PDFs.
+
+## The five skills enabled by default
+
+| Skill | Typical use |
+|-------|-------------|
+| **Data analysis** (`data-analysis`) | Clean and analyze tabular data, produce conclusions and charts |
+| **Deep research** (`deep-research`) | Multi-round search, cross-verification, sourced research reports |
+| **Document extraction** (`document-extraction`) | Extract structured content and tables from PDF / HTML / Markdown |
+| **Office documents** (`office-document`) | Create and edit **Excel (.xlsx), PowerPoint (.pptx), Word (.docx)** |
+| **PDF generation** (`pdf-generator`) | High-fidelity PDFs for invoices, audit and analysis reports (CJK-capable) |
+
+<Note>
+**Why these five and not all 144?**
+The factory set is deliberately **small and precise**: only cross-industry, locally-processed workflows. This avoids flooding the first turn with skill descriptions (which wastes tokens and invites tool-call hallucinations) while still giving you real output on your very first message. Everything else is one click away.
+</Note>
+
+## Three behaviors worth knowing
+
+<Steps>
+  <Step title="Applies to fresh installs only">
+    The default set is written **only when your skill configuration is first created**. For accounts already in use, your enable/disable choices are **never overwritten by defaults** — not on upgrade, not when new skills arrive.
+  </Step>
+  <Step title="Bound to skills that actually exist">
+    The default list only retains skills that **currently exist**. If a skill is removed or renamed in a later version, it is dropped from the defaults automatically — no dead entries are left behind.
+  </Step>
+  <Step title="Turn it off and it stays off">
+    Disable any default skill under **Settings → Skills** and it is recorded in your own disabled list — **it will not be re-enabled on restart or upgrade**.
+  </Step>
+</Steps>
+
+## Adding or removing skills
+
+1. Open **Settings → Skills** (also reachable from the "Skills" sidebar entry).
+2. The "Installed" tab shows your current enabled count; check or uncheck skills in the prebuilt list.
+3. Enabled skills take effect on your **next message** — they enter the available catalog as a `name — description` line, and the model loads the detailed playbook only when a task matches.
+
+<Note>
+**Why doesn't it come back on its own?**
+Disabling writes to your personal configuration, which takes precedence over any default policy. What the UI shows is always the real backend state — there is no "turned off in the UI but still running" case.
+</Note>
+
+## How this compares
+
+- **OpenClaw / Hermes**: enable skills **by default across the board** — more capability, but a heavier first turn and more hallucinated tool calls on weaker models.
+- **OpenCode / Pi**: equally clean architecture (catalog in the message, body loaded on demand), but **producing office documents requires wiring up external tools yourself**.
+- **Myrm**: **neither an empty start nor a stuffed one** — five curated office skills out of the box, including Word/PPT/Excel generation, all **visible and one click away from being disabled**.
+
+See the [competitor comparison and migration guide](/getting-started/competitor-comparison) for the full picture.
