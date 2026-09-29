@@ -34,6 +34,40 @@ Every memory write passes a deterministic security scan **before** it touches du
 
 Detection is rule-driven and deterministic (zero LLM cost, millisecond latency); intentionally obfuscated or highly semantic attacks are additionally covered by the LLM audit layer.
 
+## Decision Reversal Governance (the withdrawn answer retires immediately)
+
+You said "use Redis for the cache" last week and "no, switch to Memcached" this week. The easiest mistake for a memory
+system to make, and the one it least admits, is treating that second sentence as an *update* to the first. "We moved
+to Memcached because ops knows it" is semantically almost identical to "we use Redis", so a similarity-first pipeline
+merges them and the conflict check never runs — the decision you withdrew gets replaced by your own new wording.
+
+Myrm inverts that order: **a hard fact constraint outranks "these look alike."**
+
+- **Mutually exclusive means conflict, never a similarity merge** — contradicting values on the same subject are held
+  as a conflict with both sides kept, pending a human decision; a user-edited memory (`is_user_protected`) always wins
+- **Replacements resolve by direction** — "**switched to** Memcached" takes the value *after* the marker,
+  "Memcached **rather than** Redis" takes the value *before* it. Real phrasing varies endlessly, and recognising only
+  one direction guarantees misses.
+- **Contested records are frozen** — `conflict_status=conflicted` is written back to the stored document, so the
+  forgetting pass holds both sides until a human settles it rather than letting one quietly expire
+- **Retired, not deleted** — once a replacement is confirmed the withdrawn record leaves *ranked recall* while staying
+  auditable and decaying normally, visible and recoverable in the governance console
+- **Real ambiguity is never guessed** — when two statements disagree with no sign of which supersedes, nothing is
+  decided automatically; the pair is flagged for you
+- **Subjects stay separate** — two projects each picking their own stack never collide
+
+```python
+# A hard facet contradiction is checked before similarity can discard the record.
+if top_score >= high_threshold and not self._hard_facet_conflict(memory, top_candidate):
+    return DeduplicationDecision.DUPLICATE, ...
+```
+
+:::tip Verified
+End to end against a real embedded Qdrant store, a real embedding endpoint, a real model and real recall: after the
+withdrawn Redis decision is stored, searching "which cache does the project use" returns Memcached first.
+No mocks on the critical path; 2923 tests green.
+:::
+
 ## Fact Trust (inferences never masquerade as facts)
 
 Long-term memory only persists what is **true**, not what merely sounds plausible. Nine independent layers keep unproven inferences, guesses, and contested claims from being remembered as — or answered as — established facts:
