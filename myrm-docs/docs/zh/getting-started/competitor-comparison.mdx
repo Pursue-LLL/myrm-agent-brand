@@ -11,6 +11,19 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-29 · 会中实时结构化纪要、转写幂等摄入与撞名不丢场次归档套件 · 彻底消除会后回忆、逐字稿重复、会议静默丢失与模型啰嗦导致的 500）
+
+- **LiveMeetingMinutesSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 的会中纪要链路：竞品要么会后才总结（DeepSeek-Harness 整段录音）、要么只流字幕不做结构化（Hermes）、要么根本没有会议能力（Codex / Pi / OpenCode）；即便唯一具备实时闭环的 OpenClaw，也缺少幂等摄入、会中风险登记与沉淀到可检索知识库的归档）：** Myrm 交付完整的会中纪要闭环，把一场进行中的对话直接变成结构化、可检索的交付物：
+  1. **会中滚动结构化刷新**：对话进行中即刷新纪要（≥200 新字符触发、120 秒节流上限），产出摘要 / 决策 / 争议点 / **风险** / 待办（带责任人与截止提示）五段式，而不是会后再一次性总结；
+  2. **投递安全的幂等摄入**：每行转写携带客户端生成的 `line_id`，重试或重投直接忽略而不重复计入，逐字稿与行数保持真实（512 条有界去重窗口，长会议内存曲线平坦）；
+  3. **容错模型啰嗦**：真实 LLM 会把单元素列表写成裸字符串、把「无」写成 `null`、甚至返回非对象载荷。这些都在解析边界统一归一化——单条风险仍是 1 条（而非炸成 23 个单字符条目）、`null` 不再抛错、非对象载荷降级为原文摘要，模型啰嗦不再等于会议失败；
+  4. **非有限时间戳加固**：无限大的客户端时间戳在契约层被拒、在唯一写入点被钳制——因为 `inf // 60` 会得到 NaN，过去会直接中断 finalize、导致整场会议纪要全丢；
+  5. **撞名不丢场次**：纪要文件名由 LLM 生成标题决定，同名标题现在自动改用 `-2`、`-3` 及随机后缀，而不是被原始发布门禁静默跳过。每场会议都保住自己的交付物，且不覆盖他人纪要；
+  6. **诚实的发布契约**：接口只对真实写入返回库内相对路径字符串，绝不再返回序列化的结果对象（那会把宿主机绝对路径泄漏进响应体）；
+  7. **自动知识归档**：`finalize` 强制最终蒸馏，把纪要带溯源 frontmatter 发布进 Wiki 原始存证层并释放会话，交付物可被下一位同事检索与引用；
+  8. **100% 全栈测试验证**：196 个服务端单元/接口测试通过，改动模块覆盖率 97%（`live_notes.py` 100%、`models.py` 100%、`service.py` 95%）；358 个前端测试通过，含新增 10 例 Live 看板组件套件与 17 例 REST 契约套件；真实 LLM + 真实 Chrome E2E 在真实 WebUI 会话内跑完整场会议流程，并断言已发布纪要在真实 UI 中可见，零残留。
+- **SSOT 来源：** `myrm-agent/myrm-agent-server/app/services/meeting_notes/live_notes.py` · `.../meeting_notes/service.py` · `.../app/api/wiki/router.py` · `myrm-agent-frontend/src/hooks/voice/useLiveMeetingNotes.ts` · `.../components/features/voice/LiveNotesBoard.tsx` · `temp-docs/materials/OFFICE_DELIVERY_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-28 · 内存回退工具输出零丢失与真降本修剪守卫套件 · 彻底消除静默丢上下文、负 Token 节省、误导性占位符与不可缩短替换抖动）
 
 - **MemoryFallbackZeroLossPruneGuardSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 6 大竞品在长程上下文驱逐中，归档通道不可用时普遍静默丢弃工具输出——Codex #37121/#14589 公开报告截断后丢失工具状态——且缺乏任何「修剪必须真降 token」的守卫）：** Myrm 为每步主动工具结果修剪交付企业级「零丢失 + 真降本」双重守卫：
