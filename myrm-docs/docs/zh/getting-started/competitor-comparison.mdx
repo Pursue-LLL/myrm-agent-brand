@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-09-30 · 会话级自适应指数退避自唤醒轮询调度引擎、目标驱动终止闭环与 WebUI 悬浮胶囊全链路交付 · 彻底消除长任务轮询空转、无目标无休止死循环、黑盒盲盒调度与突发并发惊群）
+
+- **SessionScopedAdaptiveLoopSchedulerAndExponentialBackoffSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 6 大竞品在会话内长周期循环任务与自适应轮询中，普遍缺乏“终止目标态感知（Target-state Awareness）”导致机械耗尽轮次或无休止空转、在外部环境静默时固频轮询空烧数百元 Token、创建配置繁琐且无法即时首跑验证、以及缺乏会话级可视化悬浮状态流与精准静默取消等致命痛点）：** Myrm 全面交付了会话级自适应指数退避自唤醒轮询调度引擎、目标驱动终止闭环与 WebUI 悬浮胶囊套件：
+  1. **目标驱动的自唤醒闭环（`--until <condition>` + 目标达成自动停机）**：支持在 `/loop` 中追加 `--until <条件>`（如 `/loop 2m 轮询集群 --until 队列深度降为0`），前后端同构剥离任务内容与目标条件；调度器每轮自唤醒（`[/loop wakeup #N]`）将终止目标作为前置硬约束注入 System Prompt；当模型判定条件满足并发射 `LOOP_COMPLETE` 哨兵时，后端立即触发 `model_signal` 优雅自动停机并向前端广播事件，弹出多语系“循环目标已达成”通知，告别人工盯盘与机械耗尽轮次；
+  2. **智能状态自适应指数退避与语义指纹防空转（Exponential Backoff & Semantic Fingerprint）**：后端对 Agent 每一轮次的输出或外部探测数据提取确定性 SHA-256 语义指纹；当检测到连续无新事实产出时，自适应退避算法自动将休眠周期成倍拉长（例如从 30s 阶梯式退避至 1m、2m、5m，带 Full Jitter 随机抖动防惊群效应）；一旦外部状态出现新变化或用户主动输入介入，调度间隔瞬时复位回基线频率，长任务 Token 账单立省 90%；
+  3. **前后端同构自然语言解析与即时首跑验证（Homomorphic NLP & Immediate First-run）**：彻底修复历史前导 `/loop`、`/repeat` 命令未剥离导致时间间隔解析失效回退到 `self_paced` 的历史缺陷，引入 `_LOOP_COMMAND_PREFIX_RE` 正则实现前后端同构解析；创建后不干等下一个周期，而是立即触发首次真实任务执行并在当前会话直接流式呈现，肉眼验收通过后无缝转入持久化循环；
+  4. **WebUI 玻璃拟态悬浮胶囊状态栏（LoopStatusBar）与精准静默取消**：会话激活 loop 时，页面底部常驻玻璃拟态 `LoopStatusBar` 胶囊，动态显示当前轮次（如 `第 2/5 轮`）、运行间隔、倒计时微动画与 Target 徽章；点击红色停止按钮触发 `user_stopped` 安全停机，胶囊平滑淡出，不向用户抛出任何干扰报错；用户正在输入内容时自动进入挂起态，绝不争抢光标与输入锁；
+  5. **100% 满分全栈实测验证**：Harness 算法与单元测试 12/12 专测全绿（3.35s）；真实无头 Chrome 9333 端口驱动 WebUI 真实端到端测试（`test_session_loop_chrome_e2e.py`，242 行严控红线）覆盖 HTTP 周期启停与 Chrome CDP 真实点击停止胶囊交互，2 passed in 72.07s，退出码 0，全生命周期 0 僵尸残留。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/runtime/loop/parser.py` · `scheduler.py` · `myrm-agent-server/app/api/chats/chat/session_loop.py` · `myrm-agent-frontend/src/components/features/chat/LoopStatusBar.tsx` · `temp-docs/materials/AUTOMATION_CRON_ADVANTAGE.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md`
+
 ## 最新验证快照（2026-09-29 · 会中实时结构化纪要、转写幂等摄入与撞名不丢场次归档套件 · 彻底消除会后回忆、逐字稿重复、会议静默丢失与模型啰嗦导致的 500）
 
 - **LiveMeetingMinutesSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 的会中纪要链路：竞品要么会后才总结（DeepSeek-Harness 整段录音）、要么只流字幕不做结构化（Hermes）、要么根本没有会议能力（Codex / Pi / OpenCode）；即便唯一具备实时闭环的 OpenClaw，也缺少幂等摄入、会中风险登记与沉淀到可检索知识库的归档）：** Myrm 交付完整的会中纪要闭环，把一场进行中的对话直接变成结构化、可检索的交付物：

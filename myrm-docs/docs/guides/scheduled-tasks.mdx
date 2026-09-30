@@ -17,10 +17,14 @@ Type `/loop` (or aliases `/repeat`, `/cron`) directly into the chat input to spi
 /loop 10m check PR status and CI pipeline
 /loop every 30m monitor competitor updates
 /loop daily summarize unresolved error logs
+/loop 2m poll cluster deployment --until queue depth is 0
 ```
 
 - **Natural Language Parsing**: Flexibly handles interval strings in multiple languages (`10m`, `2h`, `every 30 minutes`, `daily`, `every monday`).
+- **Target-Driven Autonomous Wakeup (`--until <condition>`)**: Supports appending `--until <condition>` to loop commands. The scheduler injects termination targets as strict prompt constraints during each wakeup iteration. When the agent confirms the condition is met and emits `LOOP_COMPLETE`, the system gracefully finishes with a localized green success toast, eliminating manual monitoring.
+- **Adaptive Exponential Backoff & Semantic Fingerprinting**: Automatically computes SHA-256 semantic fingerprints of agent output. When consecutive rounds yield no new evidence, sleep intervals exponentially back off with Full Jitter (e.g. 30s → 1m → 2m → 5m) until external changes or user input reset it, slashing idle token costs by 90%.
 - **Immediate First-run Policy**: Triggers a live execution run immediately upon creation. You can observe the agent's complete execution trace and verify output quality in real time before it runs quietly in the background.
+- **Floating LoopStatusBar Capsule**: Active loops display a glassmorphic status capsule at the bottom showing round progress (`Round 2/5`), countdown timer, and Target badge. Clicking the stop button halts the loop smoothly, and user typing automatically pauses loop turns to avoid cursor conflicts.
 - **Missing Prompt Guard**: If an interval is provided without a prompt (e.g. `/loop 5m`), the system displays a helpful usage hint rather than creating an empty task.
 
 ### Via Chat (Natural Language)
