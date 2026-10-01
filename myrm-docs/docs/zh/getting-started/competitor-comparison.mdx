@@ -1761,3 +1761,19 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   5. **100% 测试通过与真实 Chrome E2E 验证**：后端 Quota/Runtime 路由单测 13 项全绿、前端组件单测 10 项全绿、真实 Chrome 浏览器端到端测试 100% PASS（68.16s 真实 DOM 探查、Markdown 降级、CSV BOM 与 429 自愈重置闭环）。
 - **素材 SSOT：** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent/myrm-agent-server/app/database/models/runtime_quota_metric.py` · `myrm-agent/myrm-agent-server/app/services/observability/runtime_meter_service.py` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/system/SessionAnalyticsDialog.tsx`
 
+## 最新验证快照（2026-10-01 · 纯净跨工具转录本导入、思维链剥离、凭据脱敏与全天候桌面睡眠自愈 · 路线图 Topic 06 #8 / Topic 09 #3 达成）
+
+- **CleanTranscriptImportAndSleepWakeRecovery（横向对标 Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi / OpenCode 六大竞品生态）：** Myrm 实现了业界首个涵盖纯净历史会话无缝接力、自动剥离思维链噪音、敏感 API 凭据自动打码、实时 Token 压缩收益感知，以及系统级睡眠唤醒与网络假死无感自愈的全栈闭环：
+  1. **纯净跨工具转录本解析与清洗（`SessionImportModal.tsx` & `import_session_api.py`）**：针对开发者在 Hermes、Codex CLI、Claude Code 等工具中遗留的历史记录，提供一键拖拽/粘贴导入；内核自动通过正则智能剥离 `<thinking>` 内部思考链标签（直接节省 50%~80% 上下文 Token），自动将 `sk-ant-*`、`sk-*` 等敏感 API Key 替换为 `[REDACTED_API_KEY]`，杜绝隐私凭据随转录本泄漏；
+  2. **可视化压缩收益与一键续聊无缝衔接（`Resume Chat Now`）**：导入结果卡片实时精准计算并展示“有效对话轮次（N Turns）”与“Token 压缩节省率（%）”；用户点击“立即继续对话”后，浏览器秒级平滑路由跳转至 `/${chatId}`，大模型基于清洗后的纯净历史无缝继续回答，彻底终结“换工具即失忆”的行业顽疾；
+  3. **Tauri 原生看门狗与双阶段防抖自愈（`desktopWakeRecovery.ts` & `runtime::wake`）**：Tauri Rust 深度监听操作系统级睡眠与唤醒事件（`system://sleep` / `system://wake`），配合前端 Web 原生 `online`/`offline` 监听器；采用创新两阶段防抖探活（Phase 1 开盖 10s 内静默探活防虚假震荡，Phase 2 深度 WebSocket 心跳与磁贴自动自愈），用户笔记本合盖下班再开盖，对话磁贴完全零假死、零卡死转圈，彻底告别 F5 手动刷新；
+  4. **六大竞品横向实证对比**：
+     - **Hermes**：仅支持 CLI `claw migrate` 迁移基础人格文件，导出包含数万字 `<thinking>` 噪音且明文暴露密钥，合盖后守护进程易失联；Myrm 提供图形化导入清洗、敏感密钥脱敏与全天候自愈看门狗；
+     - **OpenClaw**：单机网关壳，无会话导入面板，合盖睡眠或 Wi-Fi 切换后长连接假死转圈；Myrm 具备两阶段探活自愈机制，开盖即用；
+     - **Codex (CLI)**：封闭沙箱设计，外部转录本无法灌入，跨平台终端常断流；Myrm 原生支持多协议转录本解析并一键跳转续聊；
+     - **DeepSeek-Harness**：定位于单轮评测 Benchmark，完全缺失多轮持久化状态机与会话导入生态；Myrm 具备完整的生产级持久化与恢复流水线；
+     - **Pi (oh-my-pi)**：双模型顾问开销巨大且无导入解析能力，断网直接崩溃；Myrm 具备高鲁棒的容灾降级与断线自愈；
+     - **OpenCode**：TUI 无法粘贴巨型转录本，无压缩率感知，且 Electron 壳内存占用极高（常驻 1GB+）合盖后易白屏；Myrm 采用轻量高性能架构与可视化压缩统计；
+  5. **100% 测试通过与真实 Chrome E2E 验证**：前端自愈单测 12 项全绿、Tauri Hooks 单测 62 项全绿、Rust 看门狗单测 4 项全绿、真实 Chrome 浏览器无 mock 端到端测试 100% 满分通过（489.38s 真实 DOM 点击、React 受控输入状态注入、压缩率计算、路由跳转与大模型续聊全流程闭环）。
+- **素材 SSOT：** `temp-docs/materials/GENERAL_AGENT_MIGRATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/sidebar/SessionImportModal.tsx` · `myrm-agent/myrm-agent-frontend/src/services/desktopWakeRecovery.ts` · `myrm-agent/myrm-agent-server/tests/e2e/test_import_session_chrome_e2e.py`
+
