@@ -58,12 +58,21 @@ Enter batch mode to select multiple conversations at once:
 
 ## Export Conversations
 
-Right-click any conversation to export in four formats:
+Export any conversation directly from the sidebar menu or the chat header export button with built-in client-side privacy redaction:
 
-- **Markdown** — Clean `.md` file with message formatting
-- **HTML** — Styled HTML page ready to share
-- **JSON** — Structured data for programmatic use
-- **Copy to clipboard** — Quick paste anywhere
+- **Markdown** — Clean `.md` file preserving formatting and code blocks with redacted credentials.
+- **Self-contained HTML** — Single-file offline page with inlined CSS and no external CDN dependencies; features `@media print` dark-mode inversion (pure `#ffffff` background with `#000000` text) to eliminate paper ink waste.
+- **JSON** — Full structured messages, tool calls, and execution metadata for automated analysis or migration.
+- **High-Definition PNG Image** — Crisp Retina 2x full conversation screenshot powered by an in-memory `onclone` virtual DOM sandbox (zero offscreen DOM pollution, zero negative-coordinate blank screen clipping).
+- **Session Event Log Pack (.zip)** — Complete audit bundle with full message trajectory, artifacts, and a tamper-evident `manifest.json` containing SHA-256 integrity digests for all archived files.
+
+### Client-Side Privacy Redaction
+
+Toggle the "Redact Sensitive Information" checkbox in the export modal to sanitize your conversation before it leaves your machine:
+
+- **Credentials & Keys**: OpenAI, Anthropic, JWT tokens, and PEM private key blocks are replaced with `[REDACTED_API_KEY]`, `[REDACTED_TOKEN]`, etc.
+- **Personal Information**: Phone numbers, citizen IDs, IPv4/IPv6 addresses, and email addresses are automatically masked.
+- **False-Positive Guard**: Legitimate URL paths, query parameters, UUIDs, and version numbers are preserved without accidental masking.
 
 ### Diagnostic Information in Exports
 
@@ -77,7 +86,7 @@ Exported files automatically include metadata for debugging and workflow reprodu
 | **Tool Usage Stats** | Call count and total duration per tool |
 
 <Note>
-Sensitive information in tool arguments (API keys, passwords, tokens, etc.) is automatically redacted to `***` for safe sharing.
+Sensitive information in tool arguments and chat content is client-side redacted before file generation, ensuring credentials never touch disk or external networks unmasked.
 </Note>
 
 ### Print Conversation
