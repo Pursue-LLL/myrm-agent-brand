@@ -353,6 +353,49 @@ Additionally, sub-agents **inherit the full context pipeline** via `enable_conte
 
 **Why this matters**: Competitors describe "letting sub-agents handle long logs so the main agent only sees results" as a goal — Myrm already implements this with zero information loss (`file_read_tool` on `vault://` URIs, line ranges supported) and structured handover state. The chat UI shows **VaultArtifactCard** for vaulted results; no extra LLM vault tools needed.
 
+## Session Tree Bound Branch State & Atomic Isolation (SessionTreeBoundBranchState)
+
+In long-running development workflows requiring session rewinding or parallel exploratory branching (forking), conventional agents (such as Hermes-Agent, DeepSeek-Harness, and OpenClaw) suffer from severe **sandbox workspace split-brain**. When a user rewinds history or forks a conversation, stale code edits and corrupted task lists linger in the physical workspace, injecting inconsistent states into model prompts and causing hallucination loops.
+
+Myrm introduces the **`SessionTreeBoundBranchStateAndToolResultDetailsBridge`** architecture:
+
+```
+                ┌────────────────────────────────┐
+                │   Session Tree Root (Turn 0)   │
+                └───────────────┬────────────────┘
+                                │
+                                ▼
+                ┌────────────────────────────────┐
+                │        Branch A (Active)       │
+                │ Snapshot: Todos A + Workspace A│
+                └───────────────┬────────────────┘
+                                │
+               ┌────────────────┴────────────────┐
+               ▼                                 ▼
+┌──────────────────────────────┐  ┌──────────────────────────────┐
+│     Branch B (Sibling)       │  │     Branch C (Rewind/Fork)   │
+│ Isolated Folded todos.json   │  │ os.replace Atomic Rollback   │
+└──────────────────────────────┘  └──────────────────────────────┘
+```
+
+### 1. Key Architectural Guarantees
+
+1. **Full 6-Phase Mutation Lifecycle Coverage**:
+   - **Branch Creation**: Automatically captures current topological snapshots upon branch derivation.
+   - **Rewind**: Orchestrates two-phase atomic rewinds, rolling back conversation messages while synchronously resetting physical workspace files.
+   - **Switch Sibling**: Mounts the destination branch's persisted snapshot in sub-milliseconds, automatically expanding/folding branch todos.
+   - **Post-Tool Execution**: Instantly syncs state fingerprints upon any mutating tool operation.
+   - **Abort / Crash**: Safely isolates orphan states with immediate circuit breaker intervention.
+   - **Resume Mount**: Self-healing reconciliation on cold reboots, guaranteeing 1:1 bidirectional alignment between workspace files and session tree nodes.
+
+2. **Atomic File Replacement & Protective Guardrails**:
+   - Obsoletes fragile in-place file overwrites by enforcing atomic `os.replace` temp-file swapping across all state write paths.
+   - Built-in `preserve_on_empty` safeguard prevents catastrophic deletion or ghost todo injection during empty snapshot flushes or concurrent branch transitions.
+
+3. **Multi-Scale Turn Timeline Rail & Instant UI Feedback**:
+   - The WebUI features an integrated `TurnTimelineRail` with hover preview cards, enabling instant branch navigation and click-to-rewind time travel.
+   - Task lists and tool invocation details bridge bidirectionally, ensuring zero artifact bleed and seamless UI transitions across divergent branches.
+
 ## Session Notes
 
 Agents can create structured notes during a session — these persist in the context at zero API cost (no LLM call needed) and serve as a lightweight alternative to full compression.
