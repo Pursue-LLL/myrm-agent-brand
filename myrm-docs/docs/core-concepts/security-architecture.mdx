@@ -1390,6 +1390,16 @@ Static binary security architectures force users into an agonizing dilemma:
 - **Approval Fatigue Collapse**: Prompts fire on every minor command or edit (30-50 interruptions in a large refactor), conditioning users to mindlessly approve without reading, rendering security checks meaningless;
 - **The `--yolo` Disaster**: Desperate users disable approvals entirely, allowing hallucinations or looping test failures to blindly rewrite core files and burn hundreds of dollars in tokens.
 
+#### Architectural Comparison Across Industry Agents
+| Platform | Autonomy Granularity | Circuit Breaker Protection | Anti-Goodhart Metrics | Prompt Cache Impact |
+| :--- | :--- | :--- | :--- | :--- |
+| **Hermes** | Prompt-level soft instruction guidance | None (looping errors proceed unchecked) | None | Medium (dynamic prompt injection) |
+| **OpenClaw** | Binary `--yolo` flag (all-or-nothing bypass) | None (hallucinating loop burns tokens) | None | Zero |
+| **Codex (CLI)** | Single-step interactive terminal prompts (`y/n`) | None (stops only on user Ctrl-C) | None | High (terminal context churn) |
+| **DeepSeek-Harness** | Static coarse profile (`ask` vs `never`) | None (no dynamic escalation/recovery) | None | Zero |
+| **Pi / OpenCode** | Hardcoded tool allowlists without sliding telemetry | None (static timeout kill only) | None | Low |
+| **Myrm** | **Dynamic 5-Stage (L1-L5) Automotive Protocol** | **10ms Hardware-Style 3-State Breaker (Closed/Open/Half-Open)** | **Ring Buffer (N=50) >=20% Mutation Ratio Gate** | **100% Byte-Level Cache Preservation** |
+
 ### 2. High-Performance Architecture Innovations
 1. **5-Stage Automotive-Grade Autonomy Protocol (L1-L5)**:
    - **L1 (Advisor)**: Read-only observations; mutating actions strictly prohibited;
