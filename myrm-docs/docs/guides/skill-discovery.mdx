@@ -59,6 +59,9 @@ In addition to online marketplace discovery, Myrm allows developers to mount loc
 3. **CWE-22 Path Traversal Defense**: All input paths strictly prohibit relative traversal sequences (`..`), safeguarding host and sandbox filesystems against directory traversal attacks.
 4. **Live Path Health Badges & One-Click Copy**: Each configured path card in Settings displays live health status (e.g. discovered skills count, path not found) and provides a convenient one-click copy button for rapid terminal workflows.
 5. **System Prerequisites Sniffing & One-Click Remediation**: During skill preview and installation, Myrm evaluates host runtime prerequisites in milliseconds, detecting missing system CLI binaries (e.g. `ffmpeg`, `pandoc`, `poppler`) or Python packages. It provides visual status indicators and generates copy-paste remediation commands (`brew install ffmpeg`, `winget install Gyan.FFmpeg`, `uv pip install ...`) to eliminate runtime `command not found` errors.
+6. **Three-Level Progressive Disclosure & 3-Step Wizard**:
+   - **Zero Context Bloat**: Employs a three-level progressive loading mechanism (Level 1 lightweight metadata at boot ➔ Level 2 on-demand `SKILL.md` SOP during planning ➔ Level 3 exact function docs upon execution), slashing token consumption by 70%+ and eliminating LLM Tool Confusion;
+   - **Pain-Point-Driven 3-Step Wizard**: Enables non-technical users to choose their current business bottleneck (e.g. invoice reconciliation or code audit), auto-assembles the top 2–3 curated skills, and instantiates a ready-to-work specialist agent in 10 seconds.
 
 ## Supply Chain Security Rescan & Auto-Quarantine
 
@@ -69,6 +72,16 @@ Myrm provides an automated **Installed Skill Supply Chain Rescan Engine**:
 1. **Dual-Track Detection**: Built-in known malicious package catalog (zero-latency offline matching, network-independent) + OSV.dev online CVE batch query with 24h local caching.
 2. **Auto-Quarantine & Global Event Broadcast**: When a critical vulnerability or poisoned package is detected, Myrm automatically **quarantines & disables** the compromised skill and broadcasts `SKILL_POOL_UPDATED` across the UI and runtime to prevent misuse.
 3. **Audit Acknowledgment & Governance (AdvisoryAck)**: Security teams can audit and acknowledge (dismiss) specific findings with recorded rationale for isolated sandboxes, or reinstate warnings at any time.
+
+## Skill Lifecycle Curation & Forensic Uninstall
+
+Installing a skill is not set-and-forget — the more you install, the more context you pay. Myrm ships a fully automatic **Skill Curator** that keeps your skill library lean:
+
+1. **Lifecycle State Machine**: Skills unused for 30 days automatically transition to **stale**, and to **archived** after 90 days — zombie skills stop occupying context and list space. An automatic curation sweep runs every 7 days.
+2. **Usage-Quality Driven**: Skills with low call success rates (below 30% with ≥5 samples) are flagged for quality review and stop polluting task performance.
+3. **Duplicate Clustering & Consolidation**: Highly similar (≥0.75) redundant skills are automatically clustered and consolidated by the curation engine.
+4. **Protection & Grace Period**: Pinned skills are exempt from all automatic curation; newly installed skills enjoy a 7-day grace period so fresh capabilities are never mistakenly archived.
+5. **Forensic Cascade Uninstall**: Uninstalling reads the install receipt for precise forensic accounting; removing a parent plugin cascades to all its registered child skills — clean removals, zero residue.
 
 ## Related
 

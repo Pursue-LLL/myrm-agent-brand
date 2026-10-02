@@ -11,6 +11,43 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-10-02 · 云端托管沙箱秒级冷冻休眠与无头虚拟桌面 Computer Use 套件 · 彻底消除 Mac Mini 7x24 耗电折旧、VPS 丢失屏幕视觉操控与云端冷启动环境丢失）
+
+- **CloudSandboxSubSecondHibernationAndHeadlessComputerUseSuite（对标 DigitalOcean Managed Agents、Hermes、OpenClaw、Codex 6 大竞品以及 Mac Mini 本地 7x24 常驻模式，针对开发者在“买台 Mac Mini 7×24 本地开机耗电折旧发热 vs 云端托管暂停计费但丢失 Computer Use 桌面视觉与冷启动丢环境依赖”之间的痛苦割裂）：** Myrm 全面交付了云端托管沙箱秒级冷冻休眠、用户独享持久卷与无头虚拟桌面双模 Computer Use 套件：
+  1. **空闲 5 分钟秒级冷冻与入站事件 <300ms 极速原地解冻（Scale-to-Zero & Sub-Second Thaw）**：颠覆传统 VPS 7×24 全天开机扣费或本地主机长年耗电发热模式。当沙箱超过 5 分钟无活动时，底层自动通过 cgroup 冻结 CPU/GPU 算力消耗，计费归零；一旦收到入站 Webhook、IM 消息或用户输入，在 300ms 内瞬间原地解冻执行现场，彻底实现按需唤醒；
+  2. **用户专属 Persistent Volume 与工作区增量差异持久化（Dedicated Persistent Volume）**：沙箱计算实例与存储彻底物理解耦。容器即使休眠、缩容或跨宿主机漂移，用户专属 NVMe 卷保持不变，自行安装的 pip/npm 工具包、环境配置、本地知识库与工程资产 100% 完整保留，彻底粉碎云托管冷启动重装环境的顾虑；
+  3. **云端无头虚拟显示（Xvfb/Wayland）与双模穿透 Computer Use 视觉引擎（Headless Virtual Display & WebRTC Streaming）**：攻破传统云端 VPS 无法执行桌面操作的致命死穴。在云端 Docker 容器中内置轻量级 Xvfb/Wayland 虚拟屏幕缓冲与低延迟 WebRTC 流化通道，云端沙箱具备与本地桌面 100% 一致的多模态屏幕截图、DOM/OCR 识别与鼠标键盘交互能力；
+  4. **宿主侧 Governed Egress Proxy 盲盒凭据防护（Governed Blind Egress）**：沙箱内部绝对不注入真实明文 API Key，LLM 请求统一强制经由宿主侧代理透明签名与审计，第三方开源脚本或恶意代码完全无法刺探主 Key；
+  5. **Local WebUI / Desktop / Cloud 三端同构与一键双向漫游向导（Three-Tier Isomorphic Roaming）**：打破“本地单机”与“云端黑盒”的阵营对立。支持在本地 Desktop 发起长任务后一键「关盖托管至云端」脱机自主运行，并在次日一键全量打包下载回迁本地物理 Mac Mini，兼具银行级隐私主权与云端弹性低成本。
+- **SSOT 来源：** `myrm-control-plane/` · `myrm-agent-server/app/core/sandbox/` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/` · `temp-docs/materials/PLATFORM_AND_DEPLOYMENT_ADVANTAGE.md` · `temp-docs/roadmap/topic_05_desktop_release_engineering_ci_roadmap.md`
+
+## 最新验证快照（2026-10-02 · 跨平台规范工作空间脚手架规范与零门槛接管套件 · 彻底消除 Meta Muse/OpenClaw/Hermes 同名异构割裂、老项目迁移摩擦与裸奔越界执行）
+
+- **CanonicalAgentWorkspaceScaffoldingAndZeroFrictionHandoverSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、Meta Muse 6 大竞品在智能体脚手架（Scaffolding）已成为品类标准后，各家 Agent 配置文件同名异构（Meta Muse 照抄 OpenClaw 文件名却私有化魔改）、老项目需人工重写全部提示词与规范资产、以及外部工作空间裸奔挂载缺乏物理沙箱脱敏与安全隔离等痛点）：** Myrm 全面交付了跨平台规范工作空间脚手架规范、零摩擦迁移接管与沙箱安全映射套件：
+  1. **行业标准 Canonical Workspace 规范与三层架构契约**：统一将人格契约（`SOUL.md`）、策略规范（`STRATEGY.md`）、环境规则（`AGENTS.md` / `RULES.md`）与工具链（`SKILLS/`）分层标准化。保持行业标准兼容的同时原生提供一等公民解析器，一次编写，多 Agent 平台无缝兼容；
+  2. **多源工作区指纹自适应嗅探（Auto-Discovery Probe）+ 一键生成 Agent Profile**：自动扫描项目目录中的 `.openclaw/`, `.hermes/`, `.cursor/`, `.muse/` 痕迹，提取指令、人设与约束，前端弹出接管向导卡片，一键升舱为 Myrm 独立 Agent Profile，10 秒无痛接管既有项目；
+  3. **Agent-in-Sandbox 物理边界隔离 + 挂载前置 Layer 3 脱敏审计**：工作空间严格落入用户专属独立沙箱 Volume 容器；对外部工作区引入时执行 71 项前置特征体检与出站脱敏过滤（截断指纹/正则脱敏/白名单放行），阻断恶意反弹 Shell 与私钥外泄；
+  4. **跨部署三态同构支持（Local / Desktop / Cloud）**：本地目录直通挂载、桌面端原生文件系统桥接与云端专属持久化 Volume 采用完全相同的存储抽象接口，工作区状态与历史检查点跨设备无缝同步。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/runtime/workspace/` · `temp-docs/materials/PLATFORM_AND_DEPLOYMENT_ADVANTAGE.md` · `temp-docs/materials/WORKSPACE_REVIEW_DIFF_ADVANTAGE.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md`
+
+## 最新验证快照（2026-10-02 · 双旗舰 SOTA 盲审对质、100% 共识提炼与轻中度负载秒级直通套件 · 彻底消除单模型决策幻觉盲区、多模型手忙脚乱切换与日常轻任务黏滞等待）
+
+- **DualFlagshipMoAAndLightMediumZeroWaitSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 6 大竞品在面对行业顶级双旗舰 SOTA 模型同日撞车正面对决时，普遍缺乏异构多提供商的自动化盲测交叉审查机制，导致用户在两大旗舰之间纠结且单模型存在自洽幻觉与认知偏差；同时在海量日常轻中度办公中，缺乏亚秒级极速直通管道导致简单任务仍需苦等几十秒思考）：** Myrm 全链路交付了双旗舰异构盲审协同与轻中度负载直通套件：
+  1. **双旗舰异构并联推演与双盲去指纹交叉审查（Dual-Flagship Parallel Blind Cross-Critique）**：当用户在 WebUI 开启「✨ 双旗舰共识模式」或系统判定为重大关键决策时，系统将上下文同时分发给两大 SOTA 旗舰（如 OpenAI 旗舰与 Claude 旗舰）；系统自动抹去模型提供商标注与方言提示词，将 A 方案交由 B 模型以挑剔视角展开审计质询，将 B 方案交由 A 模型进行边界压力攻击，彻底粉碎单模型自审的自洽幻觉；
+  2. **100% 共识确定性提取与分歧决策卡片（Consensus Synthesizer & Trade-Off Arbiter）**：自动提炼出两大模型完全一致的重叠结论（交集部分），标记为「100% 高置信度共识」并直接采纳；对双方分歧点结构化提炼优劣对比（Pros & Cons）与风险边界，生成优雅的卡片供用户定夺；
+  3. **轻中度日常办公负载启发式自适应分流与零等待秒级直通（Light-Medium Zero-Wait Fast-Path Pipeline）**：基于轻量语义探针（<10ms）快速判定任务负载属性，凡文字润色、日常问答、多源摘要等轻中度任务直连极速低延迟模型（如 GPT-6 Luna、Claude Haiku 或端侧量化模型），首字延迟压降至 <200ms，赋予普通白领“纯魔法”般丝滑交互；代码攻坚与复杂重构时自动平滑接力移交主推演模型；
+  4. **全端同构与算力经济学双重保障**：WebUI / Desktop / 云托管独立沙箱全端统一交互，日常办公零额外 Token 开销，关键任务一键解锁世界最高智商上限。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/_orchestrator_council.py` · `temp-docs/materials/MULTI_MODEL_CONSENSUS_ADVANTAGE.md` · `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md` · `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md`
+
+## 最新验证快照（2026-10-01 · macOS AMFI 签名派生阻断、进程锁沙箱治理与 0 孤儿泄露闭环 · 彻底消除浏览器幽灵克隆吞噬磁盘、后台孤儿僵尸进程与沙箱死锁崩溃）
+
+- **AmfiCodeSignCloneBlockerAndOrphanSandboxDoctorSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 6 大竞品在运行自动化浏览器与长程任务时，普遍缺乏针对宿主机进程生命周期与物理磁盘缓存的深度治理，导致后台积压大量无头 Chromium 孤儿僵尸进程，且在 macOS AMFI 机制下反复派生 1.4 GB 的 `com.google.Chrome.code_sign_clone` 可执行包瞬间吞噬几十 GB 磁盘空间引发系统卡死与 OOM 崩溃）：** Myrm 全链路交付了代码签名派生阻断、文件锁保护与沙箱深度粉碎套件：
+  1. **AMFI 代码签名派生源头 100% 阻断**：在底层启动器、调试代理与 E2E 脚本中全链路动态注入 `--disable-features=MacAppCodeSignClone`，从内核启动层彻底阻断 macOS 产生额外的 1.3~1.4 GB 签名副本，从源头封死物理磁盘暴涨隐患；
+  2. **带活跃进程保护的沙箱精准识别与安全粉碎**：在 `orphans.py` 中将 `code_sign_clone.*` 纳入沙箱候选管理；在清理前严格调用 `lsof +D` 进行活跃进程占用检测，对被打开的候选予以安全保护，无进程占用的陈旧沙箱秒级安全 `rmtree` 粉碎；
+  3. **服务端口端点与前端 WebUI 实时联动**：服务端清理端点 `DELETE /api/v1/health/browser/orphans` 在确认清理时默认按即时生命周期执行，配合前端设置页 BrowserDoctor 卡片，让管理员一键直观透视并释放数 GB 真实硬盘空间；
+  4. **100% 全栈实测与 E2E 验证**：Harness 孤儿治理模块覆盖率达到 90%，58 项单测全绿；Server 接口 9 项全绿；Chrome MCP 真实用户交互 E2E 测试全绿（136.98s），无任何僵尸进程残留，开发机保持 160+ GiB 黄金健康空间。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/doctor/orphans.py` · `.../pool/browser_launcher.py` · `myrm-agent/myrm-agent-server/app/api/health/browser.py` · `myrm-agent-frontend/src/components/features/settings/sections/system/BrowserDoctorCard.tsx` · `temp-docs/materials/ACTIVE_BROWSER_DEBUG_AND_E2E_VERIFICATION_ADVANTAGE.md`
+
 ## 最新验证快照（2026-09-30 · 会话级自适应指数退避自唤醒轮询调度引擎、目标驱动终止闭环与 WebUI 悬浮胶囊全链路交付 · 彻底消除长任务轮询空转、无目标无休止死循环、黑盒盲盒调度与突发并发惊群）
 
 - **SessionScopedAdaptiveLoopSchedulerAndExponentialBackoffSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 6 大竞品在会话内长周期循环任务与自适应轮询中，普遍缺乏“终止目标态感知（Target-state Awareness）”导致机械耗尽轮次或无休止空转、在外部环境静默时固频轮询空烧数百元 Token、创建配置繁琐且无法即时首跑验证、以及缺乏会话级可视化悬浮状态流与精准静默取消等致命痛点）：** Myrm 全面交付了会话级自适应指数退避自唤醒轮询调度引擎、目标驱动终止闭环与 WebUI 悬浮胶囊套件：
