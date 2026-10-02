@@ -171,6 +171,22 @@ Agent 可通过 `web_search_tool` 的 `time_range` 显式限制结果时间窗�
 - **15 分钟结果缓存** — 重复查询零成本
 - **30s 健康探测** — 提前发现不可用引擎
 
+## X 实时搜索（xAI x_search）
+
+通用网页搜索之外，Myrm 内置 **x-live-search** 技能，直连 xAI Responses API 上的官方 `x_search` 工具——拿到的是 X 平台的实时帖子，而非搜索引擎的过期缓存。
+
+**核心能力：**
+
+- **作者与日期过滤** — 将查询锁定到指定账号（最多 20 个 handle）及 `from_date`/`to_date` 日期区间（YYYY-MM-DD），「某作者本周说了什么」一次调用即得
+- **图像/视频理解** — 含媒体帖子原生理解（`enable_image_understanding` / `enable_video_understanding`，后者为 X Search 独有），无需独立 OCR 管线
+- **可读引用** — xAI 返回的 `url_citation` 标题是行内裸数字；Myrm 自动改写为可点击的 **@作者 帖子** 标签，答案来源一目了然
+- **引用诚实守卫** — 搜索无引用时，技能明确警告「答案可能基于通用知识」，而不是伪装成每条结论都有真实帖子支撑
+- **协议同步** — 模型 `grok-4.6`、全参数覆盖、180s 超时（为长程 agentic 重试调优）
+
+**凭据处理（差异化核心）：** xAI key 存入加密凭据库，仅在沙箱调用存续期间注入（`XAI_API_KEY` / `XAI_BASE_URL`）。脚本、日志与聊天记录永远看不到明文 key——而竞品 harness 的第三方 X 搜索 MCP 插件普遍要求明文 `.env` 导出。
+
+**可用性门控：** 未配置任何 xAI 凭据时，技能报告 `available: false`（`unavailable_reason` 指向 设置 → 技能），并整体从提示词中排除——没有死工具签名污染提示词。在设置页添加一次 provider，下一会话技能即点亮。
+
 ## Web 抓取
 
 ### 3 级架构

@@ -171,6 +171,22 @@ When reference images are needed, the agent uses **web_search → web_fetch / br
 - **15-minute result cache** — repeat queries cost nothing
 - **30s health probe** — detects unavailable engines early
 
+## X Live Search (xAI x_search)
+
+Beyond generic web search, Myrm ships a built-in **x-live-search** skill wired directly to xAI's official `x_search` tool on the Responses API — live posts from X, not stale search-engine caches.
+
+**What it does:**
+
+- **Author & date filtering** — pin queries to specific handles (up to 20 accounts) and `from_date`/`to_date` ranges (YYYY-MM-DD), so "what did @handle say this week" is one call
+- **Image/video understanding** — posts containing media are analyzed natively (`enable_image_understanding` / `enable_video_understanding`, the latter exclusive to X Search), no separate OCR pipeline
+- **Readable citations** — xAI returns `url_citation` titles as bare inline numbers; Myrm rewrites them to clickable **@handle post** labels so answers stay traceable at a glance
+- **Honest-citation guard** — when a search returns no citations, the skill explicitly warns the answer may rest on general knowledge instead of pretending every claim is grounded
+- **Protocol-current** — model `grok-4.6`, full parameter surface, 180s timeout tuned for long agentic retries
+
+**Credential handling (the differentiator):** your xAI key is stored in the encrypted credential database and injected into the sandboxed execution environment only for the lifetime of the call (`XAI_API_KEY` / `XAI_BASE_URL`). Scripts, logs, and chat history never see a plaintext key — unlike plaintext `.env` exports required by third-party X-search MCP plugins across competitor harnesses.
+
+**Availability gating:** with zero xAI credentials configured, the skill reports `available: false` (with an `unavailable_reason` linking to Settings → Skills) and is excluded from the prompt entirely — no dead tool signatures, no prompt pollution. Add the provider once in Settings and the skill lights up on the next session.
+
 ## Web Fetch
 
 ### 3-Tier Architecture
