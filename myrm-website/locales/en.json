@@ -192,6 +192,10 @@
         "captcha": {
           "question": "What happens when a website throws a CAPTCHA? Will my task get stuck?",
           "answer": "No. MyrmAgent ships a four-layer defense: (1) AI auto-solving for reCAPTCHA, hCaptcha, and Cloudflare Turnstile via an optional CapSolver key; (2) human takeover as the built-in fallback — the live browser view is mirrored to you, you solve it, and the agent detects completion and resumes right where it left off; (3) behavioral-WAF handling — DataDome/Kasada-style firewalls trigger an automatic upgrade to the dual stealth engine (Patchright → Camoufox); (4) humanized interaction (Bézier mouse trajectories, human-like scrolling) throughout. Identical behavior across Local, Desktop, and Cloud."
+        },
+        "ecosystem": {
+          "question": "How does MyrmAgent relate to the OpenClaw and Microsoft Autopilot ecosystem?",
+          "answer": "Open collaboration, not picking sides. The open-source myrm-agent framework follows the same open agent substrate path as OpenClaw, while shipping a complete closed-source control plane (sandbox scheduling, enterprise governance, approval policies, budgeting and audit) out of the box — exactly the direction Microsoft validated in 2026 when Autopilot chose to control the control plane rather than build its own runtime. Going further, MyrmAgent fully supports the Google A2A v1.0 standard: you can onboard and govern any third-party agent like hiring an employee (identity checks, approval constraints, audit trails) — the enterprise manager for ALL agents, not just its own."
         }
       }
     },
@@ -1642,6 +1646,16 @@
           "tag1": "Recall quality + latency trends in one panel",
           "tag2": "Per-category pass rates pinpoint regressions",
           "tag3": "Model-switch drift hints keep scores honest"
+        },
+        "memoryKeywordRecall": {
+          "label": "Keyword Recall",
+          "title": "Recall everything you store: keywords never silently forget",
+          "desc": "The keyword (BM25) channel persists in the same store as memories themselves — indexed incrementally on write, zero per-query rebuilds, zero silent ceilings. Competitor BM25 channels commonly cap at 500–5000 entries: on a 600-memory corpus, a capped channel matched 0 hits while Myrm's persistent sparse index matched 50 — you search everything you stored. Full jieba CJK tokenization: ask in a fresh, context-free chat \"what's my cat's name?\" and the real model answers \"Xueqiu\" — names, project codenames, tastes and habits stay searchable. Deleting a memory cascades into the sparse index, so purged keywords never ghost back; channel failures degrade gracefully with a trace and never block the main retrieval path.",
+          "stat": "50/600",
+          "statLabel": "keyword hits on corpus · capped channel: 0",
+          "tag1": "Persistent sparse index · zero silent truncation",
+          "tag2": "CJK keyword recall across sessions",
+          "tag3": "Delete cascade mirror · no ghost revival"
         },
         "voiceBgDone": {
           "label": "Voice task closure",

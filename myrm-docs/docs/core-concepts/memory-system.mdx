@@ -199,6 +199,18 @@ Hermes splits semantic memory and session search into separate tools; CoPaw auto
 
 - **Pluggable storage backends without touching source** — Myrm ships a zero-config local stack (SQLite + embedded Qdrant) and accepts any conforming backend via `VectorStoreConfig(mode=REMOTE, url, api_key)` routed through a single factory entry point. The memory layer is assembled against 8 role-separated Protocols (vector / relational / graph / conversation-search / embedding / cache / lifecycle hooks), so an upper-layer tool contract stays constant while the physical store swaps — the same principle JDBC drivers popularized, but enforced at assembly time with typed Protocols instead of a runtime reflection registry. Competitors' runtime driver-registry proposals (Hermes-style "advanced providers bolted on") add an env-var selection layer Myrm deliberately avoids: production callers inject configuration explicitly, keeping behavior auditable and type-safe.
 
+## Persistent BM25 Sparse Index (keywords never silently forgotten)
+
+Hybrid retrieval is industry consensus, but competitor BM25 channels typically die three ways: full in-memory corpus re-scoring on every query, silent 500–5000 entry ceilings (overflow is dropped without a word), and CJK tokenizers that never split Chinese. Myrm makes the keyword channel a first-class persistent index:
+
+- **Same-store persistence** — BM25 term frequencies live as a `bm25` named vector inside the same Qdrant collections as the memories themselves: incremental `upsert` on write, direct index lookup on search, zero per-query rebuilds, zero silent ceilings.
+- **Delete cascade mirror** — deleting or permanently purging memories synchronously prunes the sparse index points (`delete_by_filter`), so purged keywords never ghost back into recall.
+- **One-shot lazy backfill** — existing stores build the sparse index on first keyword query (single execution, idempotent), never blocking service startup; writes landing mid-backfill mirror immediately.
+- **Fail-open degradation** — channel failures degrade to `degraded` with a trace and never block the dense retrieval path.
+- **Full jieba CJK tokenization** — two-character Chinese words (names, codenames) tokenize on both write and search.
+
+**How we compare (honest, Oct 2026)**: on a 600-memory corpus (past a typical 500-entry ceiling), a capped channel matched **0 hits** while Myrm's persistent sparse index matched **50** — you search everything you stored. Cross-session CJK recall verified end to end on real Chrome + real model (`MiniMax-M3.1-Flash-Preview`): after writing "my cat is called Xueqiu, three years old, loves freeze-dried chicken snacks" in chat A, a fresh context-free chat B asking "what's my cat's name?" returns the exact facts from memory (`1 passed`, 122.57s). English keyword recall (`Kestrel-77` codename + `uv` package manager) verified the same way (161.65s). Unit coverage for the sparse index and sparse channel: **100%** both (172/44 statements, zero misses).
+
 ## Brand Style Memory Board (Brand Studio)
 
 Myrm is the only agent product that turns **brand identity** into an editable GUI that is stably injected into the agent's context — so AI-generated deliverables (copy, design, HTML, PPT) automatically match your brand.

@@ -36,6 +36,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'tokenSmart',
   'evalLab',
   'memoryDoctor',
+  'memoryKeywordRecall',
   'voiceBgDone',
   'i18nLocalization',
   'humanReview',
@@ -275,6 +276,6 @@ export const USE_CASE_KEYS = ['research', 'coding', 'automation', 'content', 'te
 
 export type UseCaseKey = (typeof USE_CASE_KEYS)[number];
 
-export const FAQ_ITEM_KEYS = ['what', 'pronounce', 'local', 'data', 'embedWindow', 'cloudResources', 'optionalExtras', 'commerceSupport', 'migrate', 'ghostError', 'captcha'] as const;
+export const FAQ_ITEM_KEYS = ['what', 'pronounce', 'local', 'data', 'embedWindow', 'cloudResources', 'optionalExtras', 'commerceSupport', 'migrate', 'ghostError', 'captcha', 'ecosystem'] as const;
 
 export type FaqItemKey = (typeof FAQ_ITEM_KEYS)[number];
