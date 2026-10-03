@@ -568,6 +568,15 @@ Myrm provides **instant session-level multi-vault mounting and federated hybrid 
 2. **Mobile**: Open the action sheet via the right drawer (`MobileActionSheet`) and select "Mount Knowledge Bases".
 3. **Context Chips**: Mounted vaults appear as violet chips above the input bar. Click the `×` on any chip to unmount it from the active conversation.
 
+## MCP Agent Plugins zero-drift wiki access
+
+Turn on the **Wiki** tool for an agent, then generate an Agent Plugins bundle in **Settings → Verify → Connect**. The same agent-level wiki toggle drives both sides:
+
+- The `/mcp` endpoint's real tool list (`wiki_query`, `wiki_ingest`, `wiki_apply`)
+- The bundle's `skills/myrm-memory/SKILL.md` usage contract shipped to external agent clients (VS Code, Copilot, Kiro, Cursor, ChatGPT, ...)
+
+So the manual your external client reads never describes a tool the endpoint hides, and never hides one it exposes. MCP-side ingest writes the same shared FTS5 index as the in-app surface — `wiki_query` hits right after ingest, and concepts only publish after compile-time mention counting plus your HITL review. Ingest accepts public URLs or raw text only: intranet addresses are SSRF-rejected and local file paths are refused, so an external client can never turn ingest into a tunnel into your private network.
+
 ## Compared to DIY wiki skills
 
 | DIY (e.g. Hermes llm-wiki SKILL) | Myrm |

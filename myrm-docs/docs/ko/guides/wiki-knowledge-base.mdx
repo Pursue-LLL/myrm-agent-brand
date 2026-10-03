@@ -465,6 +465,15 @@ Wiki 수집은 **경로 순회 방어** 및 **지속성 레이어 콘텐츠 검�
 
 이러한 방어는 하네스 프레임워크 수준에서 작동합니다. 즉, 모든 Wiki 수집 경로(에이전트 도구 호출, 자동 보관, 설정 가져오기, 대용량 문서 RAG 수집)가 자동으로 보호됩니다. Wiki 디렉터리 자체는 사용자 홈 디렉터리 외부에 있으며 코드 실행 중에 OS 수준 샌드박스(macOS Seatbelt/Linux bubblewrap/Windows AppContainer)에 의해 더욱 격리됩니다.
 
+## MCP Agent Plugins 제로 드리프트 위키 접근
+
+에이전트에 **Wiki** 도구를 켜고 **설정 → Verify → Connect**에서 Agent Plugins 번들을 생성하세요. 동일한 에이전트 수준의 wiki 토글이 양쪽을 모두 구동합니다:
+
+- `/mcp` 엔드포인트의 실제 도구 목록 (`wiki_query`, `wiki_ingest`, `wiki_apply`)
+- 외부 에이전트 클라이언트(VS Code, Copilot, Kiro, Cursor, ChatGPT 등)에 배포되는 번들의 `skills/myrm-memory/SKILL.md` 사용 계약
+
+따라서 외부 클라이언트가 읽는 매뉴얼은 엔드포인트가 숨긴 도구를 설명하지 않고, 노출된 도구를 빠뜨리지도 않습니다. MCP 측 ingest는 앱 내부 서피스와 동일한 FTS5 인덱스를 공유합니다 — ingest 직후 `wiki_query`가 즉시 검색되며, 개념은 컴파일 시점의 실제 언급 수 노이즈 게이트와 HITL 승인을 통과한 후에만 출판됩니다. Ingest는 공개 URL 또는 텍스트만 허용합니다: 인트라넷 주소는 SSRF 가드에 의해 거부되고 로컬 파일 경로는 거부됩니다 — 외부 클라이언트가 ingest를 인트라넷 침투 통로로 쓸 수 없습니다.
+
 ## DIY 위키 스킬과 비교
 
 | DIY (e.g. Hermes llm-wiki SKILL) | Myrm |

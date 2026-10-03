@@ -593,6 +593,15 @@ Myrm 提供了原生开箱即用的 **Obsidian 开放格式解析与增量同步
   - 本地库变动通过微秒级 `mtime` 水位扫描，本地新增与修改无需长轮询与重量级外部守护进程，极速感知与对齐；
   - 同步由用户在设置页显式触发，沙箱部署下自动隐藏本地路径绑定入口（沙箱无法访问用户设备目录）。
 
+## MCP Agent Plugins 知识库零漂移接入
+
+给 agent 开启 **Wiki** 工具后，在 **设置 → Verify → Connect** 生成 Agent Plugins bundle。同一个 agent 级 wiki 开关同时驱动两边：
+
+- `/mcp` 端点的真实工具列表（`wiki_query`、`wiki_ingest`、`wiki_apply`）
+- 随 bundle 分发给外部 agent 客户端（VS Code、Copilot、Kiro、Cursor、ChatGPT 等）的 `skills/myrm-memory/SKILL.md` 使用说明
+
+因此外部客户端读到的说明书永远不会描述一个端点没暴露的工具，也永远不会漏掉一个真实暴露的工具。MCP 面导入与应用内写入共享同一个 FTS5 索引——导入完成后 `wiki_query` 立即可查；概念在编译期经过真实提及计数防噪闸门与你的 HITL 审核后才会出版。导入只接受公网 URL 或文本内容：内网地址被 SSRF 守卫拒绝、本地文件路径直接拒绝——外部客户端不可能把导入变成穿透你内网的通道。
+
 ## 对比 DIY Wiki 技能
 
 | DIY（如 Hermes llm-wiki SKILL） | Myrm |
