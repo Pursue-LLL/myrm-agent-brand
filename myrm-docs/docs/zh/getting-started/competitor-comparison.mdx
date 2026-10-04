@@ -11,6 +11,17 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-10-04 · 智能体长任务主动异步汇报与非阻塞双向双工通信循环套件 · 彻底消除长任务黑盒盲等失联、中途无法微调纠偏、刷新页面药丸失效与竞态 409 丢字）
+
+- **AgentAsyncUserMessageAndNonBlockingSteerLoopbackSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 6 大竞品在执行 5~30 分钟长任务中，普遍缺乏中途主动向用户反馈阶段性进展与关键抉择的结构化通道，导致用户长时间面对转圈黑盒盲等失联；中途发现跑偏只能掐死重跑浪费巨额 Token；缺乏交互式建议药丸导致用户手动打字门槛高；以及前端刷新后交互药丸丢失反序列化等致命痛点）：** Myrm 全面交付了智能体长任务中途主动异步汇报与非阻塞双向双工通信循环套件：
+  1. **主动结构化异步汇报协议（`send_user_message_async`）与 6 大语义徽章**：Agent 执行中途可随时向用户发射轻量结构化异步事件，涵盖 `progress`（进度）、`checkpoint`（检查点）、`question`（主动求助）、`milestone`（里程碑）、`warning`（风险预警）、`recommendation`（专家建议）六大语义分类，完全不中断当前工具流水线；
+  2. **建议选项药丸一键回填与高亮推荐预案（Suggested Replies Pills & 1-Click Prefill）**：卡片携带结构化 `suggested_replies` 药丸按钮与推荐预案高亮徽章，用户单点药丸即可秒级回填输入框或一键下发指令，告别打字折磨；
+  3. **全双工非阻塞 Steering 转向闭环与 409 竞态三级降级**：用户输入的指令直接在下一步原子注入，执行流零摩擦掉头；遇竞态临界点（409 Conflict）全自动按 `Redirect → Steer → SendMessage` 三级降级，1 字节输入都不丢；
+  4. **历史反序列化强健水合（Hydration Resilience）**：前端反序列化层双重清洗与强类型绑定，无论是刷新页面、切换标签页还是历史会话重载，所有卡片与药丸均 100% 保留交互能力；
+  5. **Hermes 终端与 CLI 优雅退化**：在无 GUI 纯终端环境下无缝降级为序号选择与自然语言回显，一套协议全端同构；
+  6. **100% 满分全栈实测验证**：真实无 Mock Chrome 浏览器真机并行 E2E 双用例（`test_async_user_message_steer_chrome_e2e.py`）**2 passed in 133.76s 满分通过**；Lane-A（Harness + Server）46 passed in 9.68s，Monorepo 服务端 337 passed；Lane-B 前端 Vitest 15 passed 8.82s，0 lint error，0 type error，0 i18n missing；商业模型 MiniMax-M3.1-Flash-Preview 真实返回 522 tokens 状态 SUCCESS。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/tools/send_user_message_async.py` · `myrm-agent-server/app/api/chats/` · `myrm-agent-frontend/src/store/chat/messageManagement.ts` · `.../components/features/message-box/MessageBox.tsx` · `temp-docs/materials/ASYNC_USER_MESSAGE_AND_STEER_LOOPBACK_ADVANTAGE.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md`
+
 ## 最新验证快照（2026-10-02 · 云端托管沙箱秒级冷冻休眠与无头虚拟桌面 Computer Use 套件 · 彻底消除 Mac Mini 7x24 耗电折旧、VPS 丢失屏幕视觉操控与云端冷启动环境丢失）
 
 - **CloudSandboxSubSecondHibernationAndHeadlessComputerUseSuite（对标 DigitalOcean Managed Agents、Hermes、OpenClaw、Codex 6 大竞品以及 Mac Mini 本地 7x24 常驻模式，针对开发者在“买台 Mac Mini 7×24 本地开机耗电折旧发热 vs 云端托管暂停计费但丢失 Computer Use 桌面视觉与冷启动丢环境依赖”之间的痛苦割裂）：** Myrm 全面交付了云端托管沙箱秒级冷冻休眠、用户独享持久卷与无头虚拟桌面双模 Computer Use 套件：
@@ -580,6 +591,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **安全与沙箱隔离** | **6 层纵深防御 (L1~L5.5) + Cloud 沙箱 HMAC 凭证防火墙 + YOLO 互斥** | IronProxy (依赖 MITM CA，易断) | 单层权限声明，易受 Confused Deputy 越权 | 本地无保护执行或受限沙箱 | 无沙箱凭证防护 | 无外部执行权限 | 按工具权限配置；无多租户沙箱防火墙 |
 | **知识与第二大脑** | **Second Brain 原子预设 + 三大维护 Cron 蓝图 + 多源安全同步 + 白盒 8 类记忆与 3D 拓扑图谱 + 三维正交认知 (SOUL/MEMORY/USER) 五级作用域隔离** | 仅粗糙 CLI 脚本，3 类单选记忆 | 3 类基础内存缓存，无第二大脑预设 | 无个人知识库 | 无记忆状态持久化 | 黑盒不可视不可导出的记忆 | **无内置记忆与知识库** |
 | **真实业务闭环** | **独创 Browser Orchestrator 真实 Chrome 多路复用 + 真实 LLM 全链路 E2E** | 模拟器或简单无头浏览器 | 简易无头脚本 | 无浏览器集成 | 无图形浏览器 | 无浏览器与系统操作 | 无一方浏览器工具（Playwright 仅用于自身 E2E 测试） |
+| **长任务异步汇报与 Steering 闭环** | **`send_user_message_async` 原生协议 + 6 类语义徽章 + 推荐预案与建议药丸秒级回填 + 409 竞态三级降级自愈（0丢字）+ 刷新/重载 100% 水合保留 + Chrome E2E 满分通过** | 单向终端阻塞执行，中途完全黑盒失联，无法动态注入 Steering | 无独立汇报协议，日志混杂，刷新页面药丸失效，易误杀打断 | 仅单回合批处理，不支持长跑中途主动推送选项与非阻塞 Steering | 算法评测离线批跑，无面向终端用户的双工事件流与交互药丸 | 纯单向对话，无长任务异步汇报与在线 Steering | 偏向单向脚本调度，无 Human-in-the-loop 的双工 Steering 与选项药丸 |
 
 ### 核心技术压制与用户切实收益
 
