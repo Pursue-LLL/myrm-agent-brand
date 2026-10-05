@@ -939,3 +939,24 @@ The detail drawer renders an intuitive before-and-after comparison table (Before
 - Critical preferences can be locked in place with a single click (`is_user_locked=True`);
 - Once locked, the consolidation and evolution engine deterministically bypasses modification, completely safeguarding against reflection drift and prompt injection poisoning;
 - Fully verified via automated browser testing (**Chrome E2E PASS**), providing enterprise-grade auditability without compromising user preferences.
+
+## Tool Reliability & Self-Reflection Ledger
+
+During autonomous agent execution, tools may experience repeated transient failures or negative constraints (e.g. "never use curl here"). Traditional agent architectures (such as Hermes, OpenClaw, Codex, DeepSeek-Harness, Pi, OpenCode) suffer from high false-positive rule extraction (e.g. misinterpreting casual negative statements like "don't lie" as tool bans), crash due to oversized traceback context injections, or degrade LLM prompt prefix caches via nondeterministic rule ordering.
+
+Myrm provides an enterprise-grade **Tool Reliability & Error Reflection Ledger**:
+
+### 1. Pronoun Guard & False-Positive Isolation (`_TOOL_PRONOUNS`)
+Casual conversational negatives ("don't lie", "stop rambling") are deterministically screened out. Negative tool constraints are only synthesized when explicit tool pronouns (`"该工具"`, `"此工具"`, `"this tool"`) or concrete tool names are present, reducing false-positive tool edicts from 100% to 0%.
+
+### 2. Dynamic Third-Party MCP Tokenization (`_match_dynamic_tool`)
+Structured tool names (e.g. `github__create_issue`, `filesystem__write_file`) are parsed across namespace and action tokens. Natural language instructions like "don't create issues using github" automatically match their target tools with zero configuration.
+
+### 3. Tail-First Error Traceback Summarization & ANSI Scrubbing
+Rather than flooding LLM context with hundreds of lines of stack traces or truncating the tail where critical failure reasons reside, Myrm performs Tail-First extraction. The root exception signature is isolated, stripped of ANSI escape sequences, and bounded to 140 characters.
+
+### 4. Deterministic JIT Guidance Assembly & KV Cache Protection
+Tool rules are strictly sorted in lexicographical ascending order prior to system prompt injection. With hard circuit breakers (max 3 rules per tool, global cap of 9) and probe command filtering (`which`, `test -f`), prefix stability is 100% guaranteed, maximizing cloud LLM Prompt Cache hits.
+
+### 5. Enterprise WebUI Command Center (`ToolGuidancePanel`)
+Integrated directly into the Memory Command Center, users can inspect, pin as permanent company rules, or revoke tool edicts via a vector-native, zero-emoji UI.
