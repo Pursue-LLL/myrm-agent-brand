@@ -71,6 +71,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'timeMachineFork',
   'factCheckArbitration',
   'xLiveSearch',
+  'functionHooks',
 ] as const;
 
 export type HighlightSlideKey = (typeof HIGHLIGHT_SLIDE_KEYS)[number];

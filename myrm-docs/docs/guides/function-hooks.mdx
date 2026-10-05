@@ -1,0 +1,62 @@
+---
+title: "Function Hooks: Extend Your Agent Without Touching Source Code"
+description: Four hook types (Python callable, shell command, webhook, LLM-as-hook) across 17 lifecycle events—declarative YAML in SKILL.md, argument rewrites that re-enter the permission gate, and SSRF-guarded signed webhooks.
+---
+
+# Function Hooks
+
+Function hooks let you inject custom logic at the key moments of your agent's lifecycle—before and after tool calls, at session start/end, around subagent scheduling—**without modifying any product source code**. Audit every tool call, intercept dangerous operations, rewrite arguments, or notify your ops channel: your logic, your rules.
+
+## What you get
+
+- **Four hook types** — pick the right tool for each job:
+  - **Python callable**: an async function registered in-process. Zero subprocess, zero network round-trip.
+  - **Shell command**: one shell command with `$ARGUMENTS` template injection.
+  - **HTTP webhook**: POST to any URL with SSRF protection (private-IP interception), optional HMAC-SHA256 signing (`X-Webhook-Signature`, the GitHub/Stripe convention), and optional fire-and-forget mode for notification events.
+  - **LLM-as-hook**: describe the condition in plain language; a model decides whether it passes (`quick` or `thorough` depth).
+- **12+ built-in lifecycle events with live fire points + custom event keys** — `pre_tool_use`, `post_tool_use`, `post_tool_use_failure`/`_cancelled`, `session_start`, `session_end`, subagent start/stop/cancel, `user_turn`, `approval_correction`, and more. Any custom event key works too.
+- **Declarative, zero-code mounting** — declare hooks in a `SKILL.md` frontmatter block; installing the skill installs the hooks.
+- **Bloat-proof output** — hook output above the token limit spills to disk automatically; only a preview enters the context.
+- **Session isolation** — hook registries are session-scoped (ContextVar); parallel sessions and agents never cross-contaminate.
+- **Failure isolation** — one hook crashing or timing out never breaks other hooks or the main flow; opt into fail-closed per hook if you need it.
+
+## Declare a hook in SKILL.md
+
+```yaml
+---
+name: my-audit-skill
+hooks:
+  BeforeToolUse:
+    - script: 'echo "$ARGUMENTS" >> ~/.myrm/audit.log'
+      tools: ["bash_*"]
+  SessionEnd:
+    - url: https://ops.example.com/agent-webhook
+      secret: ${OPS_WEBHOOK_SECRET}
+      fire_and_forget: true
+---
+```
+
+- `BeforeToolUse` / `AfterToolUse` / `SessionStart` / `SessionEnd` / `PostToolUseFailure` are recognized event aliases.
+- `script` becomes a command hook; `url` becomes an HTTP hook. `secret` enables HMAC signing; `fire_and_forget` makes the call non-blocking.
+- `tools` filters which tool names the hook sees (fnmatch pattern). Failure mode and timeout are configurable per hook.
+
+## Safe by construction, twice
+
+- **Argument rewrites re-enter the permission gate** — when a `pre_tool_use` hook returns rewritten arguments (for example, appending `--dry-run` to a command), the rewritten arguments are validated by the compliance gate and the permission engine **before execution**. Extension never becomes a privilege bypass.
+- **Command hooks run behind the same safety gate as agent shell commands** — hook-declared shell commands are analyzed by the same static command analyzer (destructive-command detection, BLOCK/ESCALATE threat levels) used for the agent's own bash usage; third-party-sourced hooks (skills/plugins/user config) get the stricter path, and standalone mode fails closed for them.
+
+## Event reference at a glance
+
+| Event | Fires when | Typical use |
+|-------|-----------|-------------|
+| `pre_tool_use` | Before each tool call | Intercept, audit, rewrite arguments |
+| `post_tool_use` / `post_tool_use_failure` / `post_tool_use_cancelled` | After each tool call (success / failure / cancelled) | Log results, alert on failures |
+| `session_start` / `session_end` | Session lifecycle boundaries | Setup, cost/usage reporting |
+| `subagent_start` / `subagent_stop` / `subagent_cancel_complete` | Subagent scheduling | Orchestration observability |
+| `user_turn` | On user input (fire-and-forget) | Prompt-level logging |
+| `approval_correction` | When a user edits or rejects tool calls in approval | Learning signals |
+
+## Where to go next
+
+- For the overall security model (sandboxing, permission engine, approval flow), see [Security Architecture](/core-concepts/security-architecture).
+- To package and reuse capabilities as portable units, see [Agent Plugins](/guides/agent-templates).

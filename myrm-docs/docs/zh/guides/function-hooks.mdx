@@ -1,0 +1,62 @@
+---
+title: "函数钩子：不改产品源码扩展你的智能体"
+description: 四类钩子（Python 函数、Shell 命令、Webhook、LLM 自然语言）覆盖 12+ 个生命周期事件——SKILL.md 里声明式 YAML 挂载、改参自动重过权限门、SSRF 防护与签名 Webhook。
+---
+
+# 函数钩子
+
+函数钩子让你在智能体生命周期的关键节点——工具调用前后、会话起止、子代理调度——注入自定义逻辑，**无需修改任何产品源码**。审计每一次工具调用、拦截危险操作、改写参数、通知你的运维群：你的逻辑，你的规则。
+
+## 你能得到什么
+
+- **四类钩子类型**——按场景选最合适的工具：
+  - **Python 函数（callable）**：进程内注册的 async 函数，零子进程、零网络往返。
+  - **Shell 命令**：一条 shell 命令，支持 `$ARGUMENTS` 模板注入。
+  - **HTTP Webhook**：POST 到任意 URL，自带 SSRF 防护（内网 IP 拦截）、可选 HMAC-SHA256 签名（`X-Webhook-Signature`，GitHub/Stripe 同款约定）、通知类事件可选 fire-and-forget 非阻塞模式。
+  - **LLM 智能钩子**：用自然语言描述条件，由模型判定通过与否（`quick`/`thorough` 双深度）。
+- **12+ 个内置生命周期事件（含真实发射点）+ 自定义事件键**——`pre_tool_use`、`post_tool_use`、`post_tool_use_failure`/`_cancelled`、`session_start`、`session_end`、子代理 start/stop/cancel、`user_turn`、`approval_correction` 等，任意自定义事件键同样支持。
+- **声明式零代码挂载**——在 `SKILL.md` frontmatter 里声明钩子；安装技能即安装钩子。
+- **上下文防爆仓**——钩子输出超限自动落盘，仅注入预览摘要。
+- **会话级隔离**——钩子注册表会话作用域（ContextVar），并行会话与智能体互不串扰。
+- **失败隔离**——单个钩子崩溃或超时绝不影响其他钩子与主流程；需要时按钩子开启 fail-closed。
+
+## 双重安全保障
+
+- **改参自动重过权限门**：`pre_tool_use` 钩子改写参数（例如给危险命令追加 `--dry-run`）后，改写结果会**重新经过合规门与权限引擎审核**再执行——扩展永远不会变成绕过审批的后门。
+- **命令钩子走智能体同款安全门禁**：钩子声明的 shell 命令与智能体自身 Shell 命令使用同一个静态命令分析器（破坏性命令检测、BLOCK/ESCALATE 威胁分级）；来自第三方来源（技能/插件/用户配置）的钩子走更严格的窄路，standalone 模式下对第三方来源默认 fail-closed。
+
+## 在 SKILL.md 中声明钩子
+
+```yaml
+---
+name: my-audit-skill
+hooks:
+  BeforeToolUse:
+    - script: 'echo "$ARGUMENTS" >> ~/.myrm/audit.log'
+      tools: ["bash_*"]
+  SessionEnd:
+    - url: https://ops.example.com/agent-webhook
+      secret: ${OPS_WEBHOOK_SECRET}
+      fire_and_forget: true
+---
+```
+
+- `BeforeToolUse` / `AfterToolUse` / `SessionStart` / `SessionEnd` / `PostToolUseFailure` 是可识别的事件别名。
+- `script` 构造命令钩子；`url` 构造 HTTP 钩子。`secret` 开启 HMAC 签名；`fire_and_forget` 使调用非阻塞。
+- `tools` 过滤钩子可见的工具名（fnmatch 模式）。失败模式与超时按钩子可配置。
+
+## 事件速查
+
+| 事件 | 触发时机 | 典型用途 |
+|------|---------|---------|
+| `pre_tool_use` | 每次工具调用前 | 拦截、审计、改写参数 |
+| `post_tool_use` / `post_tool_use_failure` / `post_tool_use_cancelled` | 每次工具调用后（成功/失败/取消） | 记录结果、失败告警 |
+| `session_start` / `session_end` | 会话生命周期边界 | 初始化、成本/用量上报 |
+| `subagent_start` / `subagent_stop` / `subagent_cancel_complete` | 子代理调度 | 编排可观测 |
+| `user_turn` | 用户输入时（fire-and-forget） | 提示词级日志 |
+| `approval_correction` | 用户在审批中编辑或拒绝工具调用 | 学习信号 |
+
+## 延伸阅读
+
+- 整体安全模型（沙箱、权限引擎、审批流）见[安全架构](/zh/core-concepts/security-architecture)。
+- 打包与复用能力见 [Agent Plugins](/zh/guides/agent-templates)。
