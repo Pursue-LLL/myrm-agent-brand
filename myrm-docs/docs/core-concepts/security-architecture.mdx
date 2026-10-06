@@ -811,20 +811,21 @@ When long conversations are compressed into structured summaries, PII and creden
 
 `TaintTracker` follows the information flow of sensitive data through the agent's execution, ensuring PII doesn't leak through indirect channels (e.g., a tool reading a file containing credentials, then using that data in a web request).
 
-### Agent Export Security
+### Agent Export & Import Security
 
-When you export an agent configuration (for sharing or backup), credentials are automatically stripped:
+**Export.** An agent leaves your machine as an Agent Plugins package after one reviewed redaction pass. The pass covers everything a recipient can read — system prompt, description, starter prompts, workspace templates and every shipped skill file. Each finding (API key, token, home-directory path) is shown and either redacted or explicitly kept by you; the export waits for every decision, and a decision made against an outdated preview is refused.
 
-| What's stripped | Where | Why |
-|----------------|-------|-----|
-| `api_key`, `bearer_token`, `client_secret`, `password`, `username` | `openapi_services[].auth` | Prevent API credential leaks in shared configs |
-| `auth_token` | `tool_gateway_config` | Prevent gateway token leaks |
+| What travels | How secrets stay out |
+|--------------|----------------------|
+| MCP servers | Only the declaration (URL or launch command) and the *names* of the secrets the recipient must supply. Header values become `{{secret:NAME}}` placeholders and environment values are never written. Servers that start a program from a local path, ship bundled files, or carry a credential inside the declaration are listed as not included |
+| Skills | Text files only, checked by the same sanitizer as Marketplace publishing; binary, oversized and hidden files (such as `.env`) are listed as not included |
+| Agent settings | Only fields classified as portable are written (default-deny: a new field is not shared until it is classified). Security policy (`security_overrides`, `trusted_desktop_apps`), `openapi_services`, `tool_gateway_config`, notification targets and channel bindings never leave |
 
-Team agents export recursively — all member configs are included with credentials stripped. On import, team members are created atomically (all-or-nothing rollback).
+**Import.** A package from outside is untrusted input:
 
-<Note>
-The `auth.type` field is preserved so the importer knows which authentication method to configure (e.g. "api_key", "bearer", "oauth2").
-</Note>
+- Every skill goes through the full install pipeline and a whole-file security scan; a skill with a clean `SKILL.md` but a malicious script is rejected and leaves nothing behind.
+- Agents can only narrow their own permissions, and a package never carries security policy. Marketplace installs and enterprise force-push pass one tighten-only gate that drops every `allow` rule, YOLO auto-approval, path and network allow-lists and `approvalTimeoutBehavior=allow`; `trusted_desktop_apps` never take effect from a package. Tool grants are limited to the default set and the loop budget cannot exceed the system default.
+- MCP servers are imported disabled; you enter the keys yourself, they are never read from the package.
 
 ### Privacy-safe Rule Sharing
 
