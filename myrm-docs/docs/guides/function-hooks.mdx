@@ -11,7 +11,7 @@ Function hooks let you inject custom logic at the key moments of your agent's li
 
 - **Four hook types** — pick the right tool for each job:
   - **Python callable**: an async function registered in-process. Zero subprocess, zero network round-trip.
-  - **Shell command**: one shell command with `$ARGUMENTS` template injection.
+  - **Shell command**: one shell command; `$ARGUMENTS` expands to the event payload as JSON and always arrives as data, never as shell code.
   - **HTTP webhook**: POST to any URL with SSRF protection (private-IP interception), optional HMAC-SHA256 signing (`X-Webhook-Signature`, the GitHub/Stripe convention), and optional fire-and-forget mode for notification events.
   - **LLM-as-hook**: describe the condition in plain language; a model decides whether it passes (`quick` or `thorough` depth).
 - **12+ built-in lifecycle events with live fire points + custom event keys** — `pre_tool_use`, `post_tool_use`, `post_tool_use_failure`/`_cancelled`, `session_start`, `session_end`, subagent start/stop/cancel, `user_turn`, `approval_correction`, and more. Any custom event key works too.
@@ -39,6 +39,14 @@ hooks:
 - `BeforeToolUse` / `AfterToolUse` / `SessionStart` / `SessionEnd` / `PostToolUseFailure` are recognized event aliases.
 - `script` becomes a command hook; `url` becomes an HTTP hook. `secret` enables HMAC signing; `fire_and_forget` makes the call non-blocking.
 - `tools` filters which tool names the hook sees (fnmatch pattern). Failure mode and timeout are configurable per hook.
+
+## Writing command hooks
+
+- **`$ARGUMENTS` is data, not code.** It expands to the event payload as one JSON string, delivered through the `HOOK_PAYLOAD` environment variable, so a hostile tool argument or session id can never be parsed as shell code. Use it bare (`printf "%s" $ARGUMENTS`) or inside double quotes; inside single quotes it stays literal. `HOOK_EVENT` carries the event name.
+- **Commands are vetted as you wrote them**, never as the payload they will receive, so a hook gets the same verdict on every event. Ordinary shell syntax (pipes, redirects, `;`, `$(…)`, `${…}`) is fine.
+- **Refused for every hook**: destructive or privilege-escalating commands (`sudo`, `rm -rf /`, `history -c`, writes to `~/.ssh/authorized_keys` or shell startup files) and obfuscated commands. **Also refused for hooks from skills, plugins and user config**: commands that need a human decision (`eval`, `curl … | sh`, `crontab` edits).
+- **A refused hook counts as a failed hook** — skipped and logged by default, or blocking the action when the hook sets `failure_mode: fail_closed`.
+- **No inline interpreter code** — `python3 -c …` and `node -e …` are refused. Put the logic in a script file and call it.
 
 ## Safe by construction, twice
 

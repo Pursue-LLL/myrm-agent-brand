@@ -11,7 +11,7 @@ description: 四类钩子（Python 函数、Shell 命令、Webhook、LLM 自然�
 
 - **四类钩子类型**——按场景选最合适的工具：
   - **Python 函数（callable）**：进程内注册的 async 函数，零子进程、零网络往返。
-  - **Shell 命令**：一条 shell 命令，支持 `$ARGUMENTS` 模板注入。
+  - **Shell 命令**：一条 shell 命令；`$ARGUMENTS` 展开为 JSON 格式的事件载荷，始终作为数据传入，绝不会被当作 shell 代码解析。
   - **HTTP Webhook**：POST 到任意 URL，自带 SSRF 防护（内网 IP 拦截）、可选 HMAC-SHA256 签名（`X-Webhook-Signature`，GitHub/Stripe 同款约定）、通知类事件可选 fire-and-forget 非阻塞模式。
   - **LLM 智能钩子**：用自然语言描述条件，由模型判定通过与否（`quick`/`thorough` 双深度）。
 - **12+ 个内置生命周期事件（含真实发射点）+ 自定义事件键**——`pre_tool_use`、`post_tool_use`、`post_tool_use_failure`/`_cancelled`、`session_start`、`session_end`、子代理 start/stop/cancel、`user_turn`、`approval_correction` 等，任意自定义事件键同样支持。
@@ -44,6 +44,14 @@ hooks:
 - `BeforeToolUse` / `AfterToolUse` / `SessionStart` / `SessionEnd` / `PostToolUseFailure` 是可识别的事件别名。
 - `script` 构造命令钩子；`url` 构造 HTTP 钩子。`secret` 开启 HMAC 签名；`fire_and_forget` 使调用非阻塞。
 - `tools` 过滤钩子可见的工具名（fnmatch 模式）。失败模式与超时按钩子可配置。
+
+## 编写命令钩子
+
+- **`$ARGUMENTS` 是数据，不是代码**：它展开为 JSON 格式的事件载荷（一个整体字符串），经 `HOOK_PAYLOAD` 环境变量传入，恶意的工具参数或会话 ID 永远不会被当作 shell 代码解析。可以直接写（`printf "%s" $ARGUMENTS`）或放在双引号里；放在单引号里则保持字面量。`HOOK_EVENT` 携带事件名。
+- **按你写下的命令审核**，而不是按它将收到的载荷审核，因此同一个钩子对每个事件的审核结论一致。普通 shell 语法（管道、重定向、`;`、`$(…)`、`${…}`）可正常使用。
+- **对所有钩子一律拒绝**：破坏性或提权类命令（`sudo`、`rm -rf /`、`history -c`、写入 `~/.ssh/authorized_keys` 或 shell 启动文件）以及混淆写法。**对来自技能、插件、用户配置的钩子额外拒绝**：需要人工决策的命令（`eval`、`curl … | sh`、`crontab` 修改）。
+- **被拒绝的钩子按失败处理**：默认跳过并记录日志；若该钩子设置了 `failure_mode: fail_closed`，则阻断对应操作。
+- **不支持内联解释器代码**：`python3 -c …`、`node -e …` 会被拒绝，请把逻辑写进脚本文件再调用。
 
 ## 事件速查
 
