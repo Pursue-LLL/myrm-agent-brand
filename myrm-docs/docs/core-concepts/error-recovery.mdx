@@ -38,12 +38,12 @@ Competitors such as Claude Code and OpenClaw typically surface merge errors only
 
 | Layer | Mechanism | What It Handles |
 |-------|-----------|-----------------|
-| **L1** | Stream Recovery | Network interruptions and stalls during LLM streaming — dual-phase stall detection (first-event 60s + inter-chunk 180s) + token-level precise resume + auto-failover on silent provider hangs |
+| **L1** | Stream Recovery | Network interruptions and stalls during LLM streaming — dual-phase stall detection (first-event 60s + inter-chunk 180s) + jittered-backoff retry (up to 15 attempts) + auto-failover to the backup model on silent provider hangs |
 | **L2** | Continuation Recovery | Consecutive stream failures — maintains context across multiple interruptions |
 | **L3** | Circuit Breaker | Model provider outages — 3-tier cooldown (auth 30min / permanent 10min / transient 1min) with half-open probe |
 | **L4** | Smart Deferred Failover | Provider failover with intelligence — rate-limit (429) never triggers model switch (always retries same model); overload (529) requires 3 consecutive failures before switching to backup model. Saves primary model quota and avoids unnecessary degradation |
 | **L5** | Agent Recovery | Tool execution failures — automatic re-planning with alternative strategies |
-| **L6** | Truncation Recovery | Response cutoff — local JSON repair (stack-based nesting, literal/numeric completion, dangling key fill) + progressive output budget boost (2x → 3x → 4x) with auto-retry |
+| **L6** | Truncation Recovery | Response cutoff — cut-off tool calls are never executed (withheld and retried once) + progressive output budget boost (2x → 3x → 4x, bounded by the model's output limit) with auto-continue for cut-off text |
 | **L7** | Aux Model Guard | Small model safety — dynamic message truncation before summarization to prevent aux model crashes |
 | **L8** | Deterministic Fallback | LLM-free safety net — rule-based summary generation when all LLM options fail, preventing deadlocks |
 | **L9** | Image Auto-Resize | Oversized images that exceed model limits — automatic re-encoding and compression |
@@ -436,11 +436,11 @@ Myrm's agents learn from failures and evolve their skills autonomously:
 All recovery happens transparently:
 
 - **Model goes down?** — Automatic switch to backup in milliseconds
-- **Network drops?** — Stream resumes from the exact token where it stopped
+- **Network drops?** — Your browser reconnects with `Last-Event-ID` and replays only the events it missed; if the model connection itself drops, the call is retried with jittered backoff or switched to the backup model
 - **Rate limited?** — Key rotation or backoff, then retry
 - **API key expired?** — One-click button to update it, right in the error card
 - **Agent loops?** — Detected early, before wasting budget
-- **Response truncated?** — Text truncation: seamless keep+continue with progressive output boost (2x/3x/4x, cap 32768); Tool truncation: discard invalid + auto-retry; JSON truncation: local repair. Output-cap auto-recovery across 5 provider formats (Anthropic, OpenRouter, LM Studio, vLLM, DashScope). SSE status notification in 5 languages. **388 output-cap + 294 truncation/recovery tests verified (Jul 2026)**
+- **Response truncated?** — Text truncation: seamless keep+continue with progressive output boost (2x/3x/4x, capped at 65536 and at the model's own output limit); Tool-call truncation: the cut-off call is never executed — it is discarded and retried once with a larger output budget, and reported if the retry fails; malformed but complete JSON arguments are repaired locally. Output-cap auto-recovery across 5 provider formats (Anthropic, OpenRouter, LM Studio, vLLM, DashScope). SSE status notification in 5 languages. **388 output-cap + 294 truncation/recovery tests verified (Jul 2026)**
 - **Upgrade interrupted?** — Pre-migration snapshot restores your data automatically
 - **Child agent crashes?** — Error auto-compacted, parent receives a clean summary, reasoning stays unpolluted
 - **Tool call fails?** — Silent retry with heartbeat timer; you see "running... 15s" instead of an error

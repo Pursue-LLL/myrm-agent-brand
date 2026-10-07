@@ -22,12 +22,12 @@ Claude Code 및 OpenClaw과 같은 경쟁업체는 일반적으로 CLI/터미널
 
 | Layer | Mechanism | What It Handles |
 |-------|-----------|-----------------|
-| **L1** | Stream Recovery | Network interruptions and stalls during LLM streaming — dual-phase stall detection (first-event 60s + inter-chunk 180s) + token-level precise resume + auto-failover on silent provider hangs |
+| **L1** | Stream Recovery | Network interruptions and stalls during LLM streaming — dual-phase stall detection (first-event 60s + inter-chunk 180s) + jittered-backoff retry (up to 15 attempts) + auto-failover to the backup model on silent provider hangs |
 | **L2** | Continuation Recovery | Consecutive stream failures — maintains context across multiple interruptions |
 | **L3** | Circuit Breaker | Model provider outages — 3-tier cooldown (auth 30min / permanent 10min / transient 1min) with half-open probe |
 | **L4** | Smart Deferred Failover | Provider failover with intelligence — rate-limit (429) never triggers model switch (always retries same model); overload (529) requires 3 consecutive failures before switching to backup model. Saves primary model quota and avoids unnecessary degradation |
 | **L5** | Agent Recovery | Tool execution failures — automatic re-planning with alternative strategies |
-| **L6** | Truncation Recovery | Response cutoff — local JSON repair (stack-based nesting, literal/numeric completion, dangling key fill) + progressive output budget boost (2x → 3x → 4x) with auto-retry |
+| **L6** | Truncation Recovery | Response cutoff — cut-off tool calls are never executed (withheld and retried once) + progressive output budget boost (2x → 3x → 4x, bounded by the model's output limit) with auto-continue for cut-off text |
 | **L7** | Aux Model Guard | Small model safety — dynamic message truncation before summarization to prevent aux model crashes |
 | **L8** | Deterministic Fallback | LLM-free safety net — rule-based summary generation when all LLM options fail, preventing deadlocks |
 | **L9** | Image Auto-Resize | Oversized images that exceed model limits — automatic re-encoding and compression |
@@ -410,11 +410,11 @@ Myrm의 에이전트는 실패로부터 학습하고 자율적으로 기술을 �
 모든 복구는 투명하게 이루어집니다.
 
 - **모델이 다운되나요?** — 밀리초 단위로 백업으로 자동 전환
-- **네트워크 중단?** — 스트림이 중지된 정확한 토큰에서 다시 시작됩니다.
+- **네트워크 중단?** — 브라우저가 `Last-Event-ID`로 다시 연결해 놓친 이벤트만 다시 전송하며, 모델 연결 자체가 끊기면 지터 백오프로 재시도하거나 백업 모델로 전환합니다.
 - **속도가 제한되어 있나요?** — 키 순환 또는 백오프 후 재시도
 - **API 키가 만료되었습니까?** — 오류 카드에서 바로 버튼을 클릭하여 업데이트할 수 있습니다.
 - **에이전트 루프?** — 예산이 낭비되기 전에 조기에 감지됩니다.
-- **응답이 잘렸나요?** — 텍스트 잘림: 점진적인 출력 부스트(2x/3x/4x, cap 32768)로 원활한 유지+계속; 도구 잘림: 유효하지 않은 삭제 + 자동 재시도; JSON 잘림: 로컬 복구. 5가지 공급자 형식(Anthropic, OpenRouter, LM Studio, vLLM, DashScope)에 대한 출력 한도 자동 복구. SSE 5개 언어로 상태 알림. **388개 출력 한도 + 294개 잘림/복구 테스트 확인(2026년 7월)**
+- **응답이 잘렸나요?** — 텍스트 잘림: 점진적인 출력 부스트(2x/3x/4x, 상한 65536이며 모델 자체 출력 한도를 넘지 않음)로 원활한 유지+계속; 도구 호출 잘림: 잘린 호출은 절대 실행되지 않으며, 폐기한 뒤 더 큰 출력 예산으로 1회 재시도하고 재시도가 실패하면 알립니다; 완전하지만 형식이 잘못된 JSON 인수는 로컬에서 복구합니다. 5가지 공급자 형식(Anthropic, OpenRouter, LM Studio, vLLM, DashScope)에 대한 출력 한도 자동 복구. SSE 5개 언어로 상태 알림. **388개 출력 한도 + 294개 잘림/복구 테스트 확인(2026년 7월)**
 - **업그레이드가 중단되었나요?** — 마이그레이션 전 스냅샷이 데이터를 자동으로 복원합니다.
 - **하위 에이전트가 충돌합니까?** — 오류가 자동으로 압축되고, 상위가 명확한 요약을 받고 추론이 오염되지 않은 상태로 유지됩니다.
 - **도구 호출이 실패합니까?** — 하트비트 타이머를 사용한 자동 재시도; 오류 대신 "실행 중... 15초"가 표시됩니다.

@@ -333,7 +333,7 @@ The 14-layer error recovery system handles failures automatically:
 
 - Rate limit errors (4-strategy key rotation + credential pool + ManagedLLM/KeyPool in-agent failover)
 - Provider outages (Circuit Breaker with 3-tier cooldown + fallback presets)
-- Stream interruptions (token-level precise resume)
+- Stream interruptions (stall detection + jittered-backoff retry + backup-model failover)
 - Response truncation (progressive output budget boost 2x → 3x → 4x)
 - Oversized images (automatic re-encoding and compression)
 - Model thinking mode errors (automatic mode adjustment and retry)
