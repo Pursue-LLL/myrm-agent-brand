@@ -12,7 +12,7 @@ Myrm ships as **two product layers** plus optional cloud control plane. Understa
 | Layer | Repo / package | License | What you run |
 |-------|----------------|---------|--------------|
 | **Product UI & API** | `myrm-agent-frontend` + `myrm-agent-server` | Open source | Browser WebUI, REST/SSE API, auth, billing hooks |
-| **Agent harness** | `myrm-agent-harness` | Proprietary runtime (bundled) | Tool execution, memory, browser, sub-agents, compression |
+| **Agent harness** | `myrm-agent-harness` | Open source (bundled) | Tool execution, memory, browser, sub-agents, compression |
 | **Control plane** (optional) | `myrm-control-plane` | SaaS / self-host | LLM relay, Work Units, unified tool gateway |
 | **Desktop shell** (optional) | `myrm-agent-desktop` | Open source (Tauri) | Native app wrapping the WebUI + local backend |
 
@@ -20,7 +20,7 @@ Myrm ships as **two product layers** plus optional cloud control plane. Understa
 
 ## Harness public API (integration contract)
 
-Open-source **server** code must integrate through `myrm_agent_harness.api` — not deep imports into private harness modules.
+Open-source **server** code must integrate through `myrm_agent_harness.api` — not deep imports into internal harness modules.
 
 | Package area | Purpose |
 |--------------|---------|

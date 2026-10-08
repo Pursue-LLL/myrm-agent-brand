@@ -22,6 +22,22 @@ The system supports **8 memory types** stored in SQLite + Qdrant (compared to Me
 | **Task Digest** | Task execution summaries | AI remembers what was accomplished |
 | **Integration** | Third-party service data | Calendar events, Git activity |
 
+## Tri-Level Memory Architecture & Scope Boundaries (Automatic Memory · Global Personalization · Project Rules)
+
+Users interacting with agentic systems often conflate the distinct scopes of **automatic memories**, **global personalization**, and **project-specific rules**, leading to cross-project rule pollution (e.g., frontend pnpm rules interfering with Python backends) or stale fact accumulation. Myrm formally defines a tri-level cognitive architecture with rigorous physical paths:
+
+| Memory Tier | Core Purpose & Nature | Effective Scope & Injection Timing | Physical Storage Path | Governance & Maintenance Guide |
+| :--- | :--- | :--- | :--- | :--- |
+| **① Automatic Memory** | Objective facts, episodic events, and tool procedures extracted autonomously by background AMO engines from dialogue | **Dynamic on-demand recall**: selectively injected via vector, BM25, and knowledge graph search only when semantically relevant | SQLite stores + Qdrant collections (managed automatically) | - Can be toggled **on/off at any time** in settings<br/>- Review and prune stale or misinferred facts in the Personal Brain Command Center |
+| **② Global Personalization** | Cross-project user persona, native language, communication style, and general guidelines | **Unconditional global injection**: directly injected as part of the System Prompt across all sessions | Global home directory: `~/.myrm/memory/MEMORY.md` (or user profile settings) | - **Never write repository-specific build commands or temporary tools here** to prevent pollution<br/>- Keep concise and universal (e.g., "prefer concise answers", "strict typing without Any") |
+| **③ Project Rules (Local MEMORY.md)** | Repository or workspace-exclusive architectural constraints, build instructions, and team traps | **Project/workspace exclusive**: loaded solely while operating within the workspace; overrides global preferences on conflict | Project root directory: `./MEMORY.md` or `.myrm/memory/MEMORY.md` | - Dedicated to repo dependencies, lint rules, and branch conventions<br/>- Integrates seamlessly with Git version control |
+
+:::tip Practical Key Takeaways (WorkBuddy Real-World Insights)
+1. **Automatic memory can be disabled anytime**: If you prefer purely manual control, disable automatic memory extraction in settings; delete inaccurate inferences in the GUI rather than wrestling with them;
+2. **Global personalization must stay lean**: Global instructions occupy first-turn prompt budget and affect every task—keep them universally applicable and never leak project details;
+3. **Physical separation of dual `MEMORY.md`**: Cross-project persona belongs in `~/.myrm/memory/MEMORY.md`, while single-repo engineering constraints belong in local `./MEMORY.md`.
+:::
+
 ## Write-Path Poisoning Defense
 
 Every memory write passes a deterministic security scan **before** it touches durable storage — malicious instructions cannot persist even if they fool the conversation layer:

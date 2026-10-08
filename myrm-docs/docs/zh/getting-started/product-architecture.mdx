@@ -12,7 +12,7 @@ Myrm 由**两层产品**加可选云端控制平面组成。理解这一划分�
 | 层级 | 仓库 / 包 | 许可 | 你运行什么 |
 |-------|----------------|---------|--------------|
 | **产品 UI 与 API** | `myrm-agent-frontend` + `myrm-agent-server` | 开源 | 浏览器 WebUI、REST/SSE API、认证、计费钩子 |
-| **Agent Harness** | `myrm-agent-harness` | 专有运行时（捆绑分发） | 工具执行、记忆、浏览器、子 Agent、压缩 |
+| **Agent Harness** | `myrm-agent-harness` | 开源（捆绑分发） | 工具执行、记忆、浏览器、子 Agent、压缩 |
 | **控制平面**（可选） | `myrm-control-plane` | SaaS / 自托管 | LLM 中继、Work Units、统一工具网关 |
 | **桌面壳**（可选） | `myrm-agent-desktop` | 开源（Tauri） | 封装 WebUI + 本地后端的原生应用 |
 
@@ -20,7 +20,7 @@ Myrm 由**两层产品**加可选云端控制平面组成。理解这一划分�
 
 ## Harness 公开 API（集成契约）
 
-开源 **Server** 只能通过 `myrm_agent_harness.api` 集成 Harness，**禁止**深 import 私有内部模块。
+开源 **Server** 只能通过 `myrm_agent_harness.api` 集成 Harness，**禁止**深 import 内部模块。
 
 | 子模块 | 用途 |
 |--------|------|
@@ -68,7 +68,7 @@ Myrm 由**两层产品**加可选云端控制平面组成。理解这一划分�
 - **渠道：** 35+ 内置提供商——在设置中重新绑定 OAuth/Token。
 
 与 OpenClaw、Hermes、Claude Code 等的客观功能对比见[竞品对比](/zh/getting-started/competitor-comparison)。
-如需在低负载条件下完成“开源产品层 + 闭源 harness 运行时”的可复现验收，请参考[分层验证作战手册](/zh/guides/layered-verification-playbook)。
+如需在低负载条件下完成“开源产品层 + Harness 运行时”的可复现验收，请参考[分层验证作战手册](/zh/guides/layered-verification-playbook)。
 
 ## 下一步
 
