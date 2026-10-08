@@ -493,11 +493,11 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   5. **8 项单元与集成测试 100% 满分通过**：多链记录、周报装配、卡片生成与 Wiki 提取测试全绿，零 linter 错误。
 - **SSOT 来源：** `myrm-agent-server/app/services/trajectory/` · `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md` · `temp-docs/roadmap/topic_13_channel_integration_roadmap.md`
 
-## 最新验证快照（2026-09-08 · 端侧弱模型 Grammar 结构化约束解码与本地弱端点自适应感知全面交付 · 彻底消除小模型 Tool Call 格式破损与死循环重试）
+## 最新验证快照（2026-09-08 · 端侧弱模型 Grammar 结构化约束解码与本地弱端点自适应感知已交付 · 降低本地小模型 Tool Call 外层 JSON 破损）
 
 - **LocalGrammarTransportForWeakLocalModels（对标 Atomic Agent、Hermes、OpenClaw、Codex 与 Pi 在本地端侧小模型运行中普遍存在的“7B/14B 小模型 Function Calling 泛化弱导致生成破损 JSON、单步反复报错重试烧干算力、以及竞品手工硬编码 GBNF 语法文件导致引擎锁定无法跨平台通用”等痛点）：** Myrm 全面交付了工业级端侧弱端点自适应感知与标准 JSON Schema 约束传输闭环：
   1. **Harness 框架层端点感知与弱小模型能力自适应判定（`model_capability.py:170-205`）**：精准自动识别 loopback 物理地址（`127.0.0.1`、`localhost`、`0.0.0.0`、端口 `:11434`、`:8000`、`:8080`、`:8088` 等）与本地主流推断后端（`ollama`、`llama-server`、`vllm`、`sglang`、`llamacpp`），云端大模型 100% 旁路；
-  2. **前置标准 JSON Schema 结构化约束解码注入（`ChatLiteLLM.bind_tools` · `model.py:515-555`）**：在检测到本地端点且存在绑定工具时，自动注入标准 `response_format={"type": "json_schema", ...}` 载荷，由底层现代推断引擎在 Token 采样层进行 Logits Masking 物理级约束，100% 杜绝格式破损；
+  2. **前置标准 JSON Schema 结构化约束解码注入（`ChatLiteLLM.bind_tools` · `model.py:515-555`）**：在检测到本地端点且存在绑定工具时，自动注入标准 `response_format={"type": "json_schema", ...}` 载荷，由底层推断引擎在 Token 采样层对外层 `{"tool_calls":[{"name","arguments"}]}` 结构做约束解码（各工具参数 schema 不在该约束内；暂无实测成功率，因此不作「100%」宣称）；
   3. **前置硬约束 + 后置柔性容错双保险（`tool_recovery.py` · `tool_call_parsers.py`）**：即使遇到极端畸变，后置 8 阶容错解析器自动进行字段自愈、HTML Entity 还原与多格式转译，确保执行流绝对不断流；
   4. **零破坏 Prompt Cache 与云端原生 FC**：前置约束作为采样器独立参数透传，主干 System Prompt 前缀 100% 固化，KV-Cache 命中率达到最大化；
   5. **13 项全矩阵单元测试 100% 满分通过**：耗时 2.71s，覆盖端点探测、大小写不敏感防御与云端模型安全旁路，零内存泄漏，零僵尸进程。
