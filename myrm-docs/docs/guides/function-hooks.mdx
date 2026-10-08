@@ -15,9 +15,9 @@ Function hooks let you inject custom logic at the key moments of your agent's li
   - **HTTP webhook**: POST to any URL with SSRF protection (private-IP interception), optional HMAC-SHA256 signing (`X-Webhook-Signature`, the GitHub/Stripe convention), and optional fire-and-forget mode for notification events.
   - **LLM-as-hook**: describe the condition in plain language; a model decides whether it passes (`quick` or `thorough` depth).
 - **12+ built-in lifecycle events with live fire points + custom event keys** — `pre_tool_use`, `post_tool_use`, `post_tool_use_failure`/`_cancelled`, `session_start`, `session_end`, subagent start/stop/cancel, `user_turn`, `approval_correction`, and more. Any custom event key works too.
-- **Declarative, zero-code mounting** — declare hooks in a `SKILL.md` frontmatter block; installing the skill installs the hooks.
+- **Declarative, zero-code mounting** — declare hooks in a `SKILL.md` frontmatter block. They go live when you invoke the skill yourself (pick it from the slash palette, or start the message with `[use skill-name]`) and only for that run. A skill the model loads on its own never registers hooks: third-party hooks always need your explicit consent.
 - **Bloat-proof output** — hook output above the token limit spills to disk automatically; only a preview enters the context.
-- **Session isolation** — hook registries are session-scoped (ContextVar); parallel sessions and agents never cross-contaminate.
+- **Run isolation** — hook registries are scoped to the session's async context (ContextVar), and a skill's hooks are released the moment its run ends: parallel sessions, consecutive runs and other skills never inherit each other's hooks.
 - **Failure isolation** — one hook crashing or timing out never breaks other hooks or the main flow; opt into fail-closed per hook if you need it.
 
 ## Declare a hook in SKILL.md
@@ -36,13 +36,15 @@ hooks:
 ---
 ```
 
-- `BeforeToolUse` / `AfterToolUse` / `SessionStart` / `SessionEnd` / `PostToolUseFailure` are recognized event aliases.
+- Recognized event names: `SessionStart`, `SessionEnd` (also `Stop`), `BeforeToolUse` / `PreToolUse`, `AfterToolUse` / `PostToolUse`, `PostToolUseFailure`. Any other name is skipped with a warning in the log.
 - `script` becomes a command hook; `url` becomes an HTTP hook. `secret` enables HMAC signing; `fire_and_forget` makes the call non-blocking.
-- `tools` filters which tool names the hook sees (fnmatch pattern). Failure mode and timeout are configurable per hook.
+- `tools` filters which tools the hook sees: one pattern or a list (`bash_*`, `[bash_*, write_file_tool]`), matched with fnmatch against the runtime tool name (the bash tool is `bash_code_execute_tool`). A malformed `tools` value skips that hook instead of widening it to every tool.
+- `failure_mode: fail_closed` blocks the action when the hook fails or is refused (default `fail_open`: skip and log). `timeout` is in seconds (default 10, range 1–600). An invalid entry is skipped with a warning and never discards the other hooks of the skill.
 
 ## Writing command hooks
 
 - **`$ARGUMENTS` is data, not code.** It expands to the event payload as one JSON string, delivered through the `HOOK_PAYLOAD` environment variable, so a hostile tool argument or session id can never be parsed as shell code. Use it bare (`printf "%s" $ARGUMENTS`) or inside double quotes; inside single quotes it stays literal. `HOOK_EVENT` carries the event name.
+- **The complete payload is also on standard input** (`cat | jq .tool_name`). `HOOK_PAYLOAD` is clipped once it would exceed 96 KiB, because a single environment string cannot be larger on Linux: long string values are shortened and `"payload_truncated": true` is added. A hook that must inspect everything (a secret scanner over a large file write) reads stdin.
 - **Commands are vetted as you wrote them**, never as the payload they will receive, so a hook gets the same verdict on every event. Ordinary shell syntax (pipes, redirects, `;`, `$(…)`, `${…}`) is fine.
 - **Refused for every hook**: destructive or privilege-escalating commands (`sudo`, `rm -rf /`, `history -c`, writes to `~/.ssh/authorized_keys` or shell startup files) and obfuscated commands. **Also refused for hooks from skills, plugins and user config**: commands that need a human decision (`eval`, `curl … | sh`, `crontab` edits).
 - **A refused hook counts as a failed hook** — skipped and logged by default, or blocking the action when the hook sets `failure_mode: fail_closed`.
