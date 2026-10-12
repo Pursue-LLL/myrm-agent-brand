@@ -9,7 +9,9 @@ Myrm 에이전트는 자율적으로 웹을 탐색하고, 양식을 채우고, �
 
 ## 브라우저 엔진
 
-**이중 스텔스 엔진(Patchright + Camoufox)** — 사이트에서 기본 Chromium 경로를 차단하면 Myrm은 **로그인 쿠키를 잃지 않고** Firefox 기반 스텔스 엔진으로 핫스왑할 수 있으므로 인증된 워크플로가 로그인 페이지로 되돌아가지 않습니다.
+**이중 스텔스 엔진(Patchright + Camoufox)** — 기본은 Chromium(Patchright)입니다. 사이트에서 차단하면 Myrm은 **로그인 쿠키를 잃지 않고** 선택 설치형 Firefox 기반 Camoufox 엔진으로 핫스왑할 수 있으므로 인증된 워크플로가 로그인 페이지로 되돌아가지 않습니다. 엔진을 바꾸면 지문 기반 차단을 통과할 수 있지만, 특정 봇 방지 서비스에 대한 통과를 보장하지는 않습니다.
+
+Camoufox 브라우저 빌드(약 1.2 GB)는 기본으로 설치되지 않습니다. `camoufox fetch`로 한 번 설치하거나, 오프라인·샌드박스 환경에서는 `CAMOUFOX_EXECUTABLE_PATH`로 기존 빌드를 지정하세요. 설치하지 않으면 Myrm은 Chromium을 유지하고 사이트가 차단할 때 사람 개입으로 전환합니다.
 
 3계층 상호작용 스택:
 
@@ -641,7 +643,7 @@ tools:
 10가지 CAPTCHA 유형이 자동으로 감지됩니다(Cloudflare Turnstile, reCAPTCHA, hCaptcha, DataDome, Akamai 등). 해결은 세 가지 계층으로 이루어집니다.
 
 1. **자동 해결**(CapSolver API): Cloudflare, reCAPTCHA, hCaptcha가 자동으로 해결되며 사용자 작업이 필요하지 않습니다.
-2. **행동 WAF 우회**: DataDome, Kasada, Akamai, Imperva, PerimeterX가 즉시 인식되고 엔진이 자동으로 Camoufox(심층 탐지 방지)로 업그레이드됩니다. — 완전히 투명합니다.
+2. **행동 WAF 처리**: DataDome, Kasada, Akamai, Imperva, PerimeterX가 즉시 인식됩니다. 선택 설치형 Camoufox 엔진이 설치되어 있으면 해당 엔진으로 업그레이드하며(지문 기반 차단을 통과할 수 있으나 보장은 없음), 설치되어 있지 않으면 에이전트가 인증을 직접 완료해 달라고 요청하거나 다른 출처로 전환합니다.
 3. **수동 폴백**: 실제로 해결 불가능한 CAPTCHA만 실행을 일시 중지합니다. VNC 패널이 열리면 사용자가 문제를 해결하고 에이전트가 자동으로 재개됩니다.
 
 ### 에이전트에 의한 인간 탈취
@@ -658,7 +660,7 @@ CAPTCHA 이외의 시나리오(2FA 프롬프트, 결제 대행사, 독점 양식
 
 ### 터미널 챌린지 하드 정지
 
-엔진 자동 업그레이드(Chromium → Camoufox) 후에도 CAPTCHA를 해결할 수 없는 경우 에이전트는 즉시 시간 낭비를 중지합니다.
+선택 엔진 업그레이드(Chromium → Camoufox)를 시도한 후에도 CAPTCHA를 해결할 수 없는 경우 에이전트는 즉시 시간 낭비를 중지합니다.
 
 1. 에이전트는 `BROWSER_TERMINAL_CHALLENGE` 오류 코드와 함께 구조화된 `ToolError`을 발생시킵니다.
 2. 도메인은 10분 동안 기억됩니다. 해당 도메인에 대한 후속 탐색은 재시도하는 대신 **0ms** 내에 실패합니다.
@@ -685,7 +687,7 @@ Myrm의 브라우저 시스템은 기능 저하 없이 월 5달러짜리 클라�
 | Optimization | What It Does | Impact |
 |:-------------|:-------------|:-------|
 | **Adaptive Routing** | 70% of pages resolved via lightweight HTTP (no browser launched) | ~0MB per HTTP-only page |
-| **Dual Engine** | Camoufox (Firefox, ~40MB idle) available alongside Chromium (~200MB+) | 5x memory reduction for stealth tasks |
+| **Dual Engine** | Camoufox (Firefox, ~40MB idle, optional install) available alongside Chromium (~200MB+) | 5x memory reduction for stealth tasks |
 | **MemoryGuard** | Monitors system memory; blocks new browser pages above 85% usage | Prevents OOM crashes in containers |
 | **Resource Blocking** | Blocks images, stylesheets, scripts, fonts, media + 3500 ad domains | Fewer network requests, less memory per page |
 | **4-Layer Network Defense** | CSP policy + route interception + WebRTC/WebTransport hardening + CDP audit monitoring | Trackers blocked across all channels (HTTP, WebSocket, EventSource, sendBeacon, WebRTC) |
@@ -878,7 +880,7 @@ Per-agent vault is selected in Settings → Integration → Extension Bridge. Re
 
 ## 에이전트별 브라우저 구성(3축 제어)
 
-각 에이전트에는 WebUI 설정 → 에이전트 → 기능 구성에 3개의 독립적인 브라우저 구성 축이 있습니다. **스텔스 엔진 선택은 자동입니다** — 브라우저 도구를 활성화하면 하네스가 에이전트별 엔진 선택 없이 Stealth Ladder(Patchright → Camoufox)를 실행합니다.
+각 에이전트에는 WebUI 설정 → 에이전트 → 기능 구성에 3개의 독립적인 브라우저 구성 축이 있습니다. **스텔스 엔진 선택은 자동입니다** — 브라우저 도구를 활성화하면 하네스가 에이전트별 엔진 선택 없이 Stealth Ladder(Patchright → Camoufox, 후자는 설치된 경우)를 실행합니다.
 
 | Axis | Options | Default | What It Controls |
 |------|---------|---------|------------------|

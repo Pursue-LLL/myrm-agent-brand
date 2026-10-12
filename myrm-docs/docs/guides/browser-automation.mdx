@@ -9,7 +9,9 @@ Myrm agents can autonomously browse the web, fill forms, extract data, and perfo
 
 ## Browser Engine
 
-**Dual stealth engines (Patchright + Camoufox)** — When a site blocks the default Chromium path, Myrm can hot-swap to a Firefox-based stealth engine **without losing your login cookies**, so authenticated workflows do not bounce back to a sign-in page.
+**Dual stealth engines (Patchright + Camoufox)** — Chromium (Patchright) is the default. When a site blocks it, Myrm can hot-swap to the optional Firefox-based Camoufox engine **without losing your login cookies**, so authenticated workflows do not bounce back to a sign-in page. A different engine may get past fingerprint-based blocks; it is not a guarantee against any specific anti-bot service.
+
+Camoufox's browser build (about 1.2 GB) is not installed by default. Install it once with `camoufox fetch`, or on offline or sandboxed hosts point `CAMOUFOX_EXECUTABLE_PATH` at an existing build. Without it, Myrm stays on Chromium and falls back to human takeover when a site blocks it.
 
 Three-layer interaction stack:
 
@@ -666,7 +668,7 @@ When the agent encounters a CAPTCHA or situation requiring human intervention, i
 10 CAPTCHA types are detected automatically (Cloudflare Turnstile, reCAPTCHA, hCaptcha, DataDome, Akamai, etc.). Resolution happens in three tiers:
 
 1. **Auto-solve** (CapSolver API): Cloudflare, reCAPTCHA, hCaptcha are solved automatically — no user action needed
-2. **Behavioral WAF bypass**: DataDome, Kasada, Akamai, Imperva, PerimeterX are instantly recognized and the engine silently upgrades to Camoufox (deep anti-detection) — completely transparent to you
+2. **Behavioral WAF handling**: DataDome, Kasada, Akamai, Imperva, PerimeterX are instantly recognized. If the optional Camoufox engine is installed, the session upgrades to it (it may get past fingerprint-based blocks, with no guarantee); otherwise the agent asks you to complete the verification or switches to another source
 3. **Manual fallback**: Only truly unsolvable CAPTCHAs pause execution — VNC panel opens, you solve it, agent resumes automatically
 
 ### Agent-Triggered Human Takeover
@@ -683,7 +685,7 @@ Both paths share the same structured resume contract (`{action:'completed'|'skip
 
 ### Terminal Challenge Hard-Halt
 
-When a CAPTCHA remains unsolvable even after engine auto-upgrade (Chromium → Camoufox), the agent immediately stops wasting time:
+When a CAPTCHA remains unsolvable even after the optional engine upgrade (Chromium → Camoufox), the agent immediately stops wasting time:
 
 1. Agent raises a structured `ToolError` with `BROWSER_TERMINAL_CHALLENGE` error code
 2. The domain is remembered for 10 minutes — any subsequent navigation to that domain fails in **0ms** instead of retrying
@@ -729,7 +731,7 @@ Myrm's browser system is designed to run efficiently on everything from $5/month
 | Optimization | What It Does | Impact |
 |:-------------|:-------------|:-------|
 | **Adaptive Routing** | 70% of pages resolved via lightweight HTTP (no browser launched) | ~0MB per HTTP-only page |
-| **Dual Engine** | Camoufox (Firefox, ~40MB idle) available alongside Chromium (~200MB+) | 5x memory reduction for stealth tasks |
+| **Dual Engine** | Camoufox (Firefox, ~40MB idle, optional install) available alongside Chromium (~200MB+) | 5x memory reduction for stealth tasks |
 | **MemoryGuard** | Monitors system memory; blocks new browser pages above 85% usage | Prevents OOM crashes in containers |
 | **Resource Blocking** | Blocks images, stylesheets, scripts, fonts, media + 3500 ad domains | Fewer network requests, less memory per page |
 | **4-Layer Network Defense** | CSP policy + route interception + WebRTC/WebTransport hardening + CDP audit monitoring | Trackers blocked across all channels (HTTP, WebSocket, EventSource, sendBeacon, WebRTC) |
@@ -922,7 +924,7 @@ Per-agent vault is selected in Settings → Integration → Extension Bridge. Re
 
 ## Per-Agent Browser Configuration (3-Axis Control)
 
-Each agent has three independent browser configuration axes in WebUI Settings → Agents → Capability Config. **Stealth engine selection is automatic** — enable the Browser tool and the harness runs the Stealth Ladder (Patchright → Camoufox) with no per-agent engine picker.
+Each agent has three independent browser configuration axes in WebUI Settings → Agents → Capability Config. **Stealth engine selection is automatic** — enable the Browser tool and the harness runs the Stealth Ladder (Patchright → Camoufox, the latter once installed) with no per-agent engine picker.
 
 | Axis | Options | Default | What It Controls |
 |------|---------|---------|------------------|

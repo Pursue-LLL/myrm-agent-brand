@@ -9,7 +9,9 @@ Myrm Agent 可自主浏览网页、填表、提取数据并执行操作。
 
 ## 浏览器引擎
 
-**双隐身引擎（Patchright + Camoufox）** — 站点拦截默认 Chromium 路径时，Myrm 可热切换到基于 Firefox 的隐身引擎，**且不丢失登录 Cookie**，已认证工作流不会跳回登录页。
+**双隐身引擎（Patchright + Camoufox）** — 默认使用 Chromium（Patchright）。站点拦截时，Myrm 可热切换到可选的、基于 Firefox 的 Camoufox 引擎，**且不丢失登录 Cookie**，已认证工作流不会跳回登录页。换引擎可能绕过指纹类拦截，但不保证对任何特定反爬服务有效。
+
+Camoufox 的浏览器构建（约 1.2 GB）默认不安装。执行一次 `camoufox fetch` 即可安装；离线或沙箱环境可用 `CAMOUFOX_EXECUTABLE_PATH` 指向现成构建。未安装时，Myrm 保持使用 Chromium，被站点拦截后回退到人工接管。
 
 三层交互栈：
 
@@ -670,7 +672,7 @@ Agent 在浏览网页时遇到验证码或需要人工介入的场景，系统�
 系统自动识别 10 种验证码类型（Cloudflare Turnstile、reCAPTCHA、hCaptcha、DataDome、Akamai 等）。三层解决机制：
 
 1. **自动解决**（CapSolver API）：Cloudflare、reCAPTCHA、hCaptcha 自动完成——无需任何操作
-2. **行为式 WAF 绕过**：DataDome、Kasada、Akamai、Imperva、PerimeterX 被即时识别，引擎静默升级至 Camoufox（深度反检测）——对你完全透明
+2. **行为式 WAF 处理**：DataDome、Kasada、Akamai、Imperva、PerimeterX 被即时识别。已安装可选的 Camoufox 引擎时，会话升级到该引擎（可能绕过指纹类拦截，不作保证）；未安装时，Agent 会请你完成验证，或改用其他来源
 3. **人工兜底**：仅在自动解决失败时才暂停——VNC 面板打开，你完成验证，Agent 自动恢复
 
 ### Agent 主动请求人类接管
@@ -687,7 +689,7 @@ Agent 在浏览网页时遇到验证码或需要人工介入的场景，系统�
 
 ### 终端挑战硬停机
 
-当验证码在引擎自动升级（Chromium → Camoufox）后仍然无法解决时，Agent 立即停止浪费时间：
+当验证码在尝试可选引擎升级（Chromium → Camoufox）后仍然无法解决时，Agent 立即停止浪费时间：
 
 1. 抛出结构化 `ToolError`，错误码为 `BROWSER_TERMINAL_CHALLENGE`
 2. 该域名被记忆 10 分钟——后续访问该域名的导航在 **0ms** 内直接失败，无需重试
@@ -731,7 +733,7 @@ Myrm 的浏览器系统经过优化，可在 $5/月云容器到低配笔记本�
 | 优化手段 | 功能说明 | 效果 |
 |:---------|:---------|:-----|
 | **自适应路由** | 70% 页面通过轻量 HTTP 完成（无需启动浏览器） | HTTP 页面 ~0MB 内存 |
-| **双引擎** | Camoufox（Firefox，空闲 ~40MB）可替代 Chromium（~200MB+） | 隐身任务内存降低 5 倍 |
+| **双引擎** | Camoufox（Firefox，空闲 ~40MB，可选安装）可替代 Chromium（~200MB+） | 隐身任务内存降低 5 倍 |
 | **MemoryGuard** | 监控系统内存；超过 85% 时阻止新建浏览器页面 | 防止容器 OOM 崩溃 |
 | **资源拦截** | 拦截图片/样式/脚本/字体/媒体 + 3500 广告域名 | 减少网络请求和内存占用 |
 | **四层网络纵深防御** | CSP 策略 + 路由拦截 + WebRTC/WebTransport 加固 + CDP 审计监控 | 全通道封锁追踪器（HTTP、WebSocket、EventSource、sendBeacon、WebRTC） |
@@ -889,7 +891,7 @@ Extension Bridge 跨越 5 层：
 
 ## Per-Agent 浏览器配置（3 轴控制）
 
-每个智能体有三个独立的浏览器配置轴，可在 WebUI 设置 → 智能体 → 能力配置中配置。**引擎由框架内 Stealth Ladder 自动决定**——开启 Browser 工具即可，无需 per-agent 引擎选择。
+每个智能体有三个独立的浏览器配置轴，可在 WebUI 设置 → 智能体 → 能力配置中配置。**引擎由框架内 Stealth Ladder 自动决定**（Camoufox 一档需已安装）——开启 Browser 工具即可，无需 per-agent 引擎选择。
 
 | 配置轴 | 选项 | 默认值 | 控制内容 |
 |--------|------|--------|----------|
