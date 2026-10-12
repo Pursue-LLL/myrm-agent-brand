@@ -166,22 +166,6 @@ description: 5계층 안전, GUI 승인 및 증거 중심 학습을 갖춘 42개
 
 **경쟁업체 대비:** Hermes/OpenClaw는 CLI 또는 파일 기반 롤백을 제공합니다. 섀도우 검증과 일괄 비행 중 롤백을 위한 전체 GUI 루프를 제공하는 제품은 없습니다.
 
-## 알려진 함정: 실패로부터 자동 학습
-
-Myrm은(는) 스킬 실행 실패에서 구조화된 "함정"을 자동으로 추출하여 향후 프롬프트에 다시 제공합니다. 에이전트는 동일한 실수를 두 번 방지합니다.
-
-| Capability | What you get |
-|------------|--------------|
-| **Auto-extraction** | Deterministic errors are automatically captured as structured traps (severity + trigger condition + mitigation) |
-| **Deduplication** | Same error increments `occurrence_count` instead of creating duplicates |
-| **Prompt injection** | High-severity traps are injected into evolution prompts as "Known Traps (avoid these pitfalls)" constraints |
-| **GUI display** | `KnownPitfallsSection` renders traps with 4-level color-coded severity, trigger conditions, and mitigation steps |
-| **Template library** | 8 common trap templates (npm timeout, API rate limit, file permissions, memory overflow, encoding, Python version, Docker, Git conflicts) |
-
-**평범한 언어:** 알려진 문제(예: npm 시간 초과)로 인해 스킬이 실패하면 Myrm은(는) 이를 기억하고 다음 진화 시도 시 AI에 명시적으로 경고합니다. 시간이 지남에 따라 귀하의 기술은 자동으로 더욱 강력해지며 수동 문서가 필요하지 않습니다.
-
-**경쟁업체 대비:** Hermes 기술에 일반 텍스트 "함정" 단락이 포함되어 있습니다. Myrm은 심각도 수준의 구조화된 스토리지, 런타임 오류 자동 추출, 발생 횟수 계산을 통한 중복 제거, 신속한 엔지니어링 주입 등 완전한 폐쇄 루프 학습 시스템을 제공합니다.
-
 ## 결정 내역: 이중 루프 학습
 
 모든 진화 결과(성공 또는 실패)는 영구적으로 기록되며 향후 진화 시도에 자동으로 반영됩니다. 에이전트는 시간이 지남에 따라 제도적 지식을 축적하여 효과적인 것과 그렇지 않은 것을 모두 기억합니다.
