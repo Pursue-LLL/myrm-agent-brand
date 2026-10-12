@@ -9,8 +9,6 @@ Agents autonomously learn, test, and deploy new skills through a **42-module nat
 
 ## How It Works
 
-The evolution engine follows a **Retrieve-Before-Generate** strategy: before creating new solutions, it searches existing high-confidence fixes. This alone eliminates redundant LLM calls.
-
 1. **Discovery** — Agent identifies a recurring task pattern or detects a failure signal
 2. **Evidence Aggregation** — Collects success and failure cases across multiple executions
 3. **Variant Generation** — Creates 3 candidate variants in parallel (cost-efficient vs competitors' 50-500 LLM calls)
@@ -80,7 +78,7 @@ Every time you complete a task, the agent automatically analyzes the full conver
 
 | Type | Trigger | What It Does |
 |------|---------|-------------|
-| **FIX** | 3 consecutive failures or success rate below 50% | Auto-repair failed skills using trace analysis |
+| **FIX** | A tool failure is attributed to a skill (credential, missing-dependency and transient network errors are excluded), or you request a repair manually | Drafts a repair from the failure trace; failures found at runtime always wait for your approval |
 | **DERIVED** | User feedback or frustration signals | Optimize skill based on explicit or implicit feedback |
 | **CAPTURED** | Session anti-patterns detected during idle | Background extraction → 10-dim scoring → dedup → safety scan → Insights Inbox approval |
 | **OPTIMIZE_DESCRIPTION** | Low match rate | Refine skill description for better semantic matching |
