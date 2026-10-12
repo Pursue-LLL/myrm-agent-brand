@@ -307,12 +307,11 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 ## 최신 검증 스냅샷 (2026-09-05 · 컨텍스트 압축 전 도구 출력 원문 회상 및 안전 격리 아카이빙 · 컨텍스트 파이프라인 완료)
 
-- **PreCompactToolOutputVerbatimRecallPack (MemPalace / OpenClaw / Hermes / Codex / DeepSeek-Harness / Pi 등 장기 대화에서 컨텍스트 압축 창 전환 후 구체적인 명령행 오류, 종료 코드 및 종속성 충돌 현장을 잊어버리거나 외부 CLI를 통해 ANSI 제어 문자가 오염된 raw jsonl을 대화 검색 색인에 쏟아부어 신호 대 잡음비가 붕괴되는 문제 대비):** Myrm은 엔터프라이즈급 4단계 컨텍스트 파이프라인과 결정론적 안전 아카이빙 폐루프 아키텍처를 제공합니다:
+- **PreCompactToolOutputVerbatimRecallPack (MemPalace / OpenClaw / Hermes / Codex / DeepSeek-Harness / Pi 등 장기 대화에서 컨텍스트 압축 창 전환 후 구체적인 명령행 오류, 종료 코드 및 종속성 충돌 현장을 잊어버리거나 외부 CLI를 통해 ANSI 제어 문자가 오염된 raw jsonl을 대화 검색 색인에 쏟아부어 신호 대 잡음비가 붕괴되는 문제 대비):** Myrm은 엔터프라이즈급 3단계 컨텍스트 파이프라인과 결정론적 안전 아카이빙 폐루프 아키텍처를 제공합니다:
   1. **파이프라인 수준 결정론적 헤드/테일 보존 및 오프라인 슬라이싱 (`ActiveToolResultPruneProcessor`)**: 대형 도구 출력을 Head 800 + Tail 400 문자로 결정론적 절단하고 초과분을 샌드박스 `.context/{session_id}/compacted/`로 안전하게 오프로드하며 정밀 행 복원 매개변수(`chunk_restore_args`)가 포함된 구조화된 `ContextArchiveReference` 토큰 포함;
   2. **제로 모델 비용 보호 마일스톤 주입 (`MemoryPreCompactService`)**: LLM 압축 트리거 전 `_fetch_archive_checkpoint_milestone`이 최근 도구 체크포인트(`## Recent Archive Checkpoints`)를 보호 컨텍스트에 주입하여 창 전환 후에도 과거 오류와 실행 궤적을 100% 보존;
-  3. **도구 연속 실패 단기 방어 메모리 (`ToolMemoryCaptureHook`)**: 동일 도구가 $\ge 2$회 연속 실패할 때 `Last error: {error[:200]}` 및 자동 24시간 TTL을 갖춘 `ProceduralMemory`로 자동 승격하여 무한 재시도 결함 영구 차단;
-  4. **엄격한 대화 검색 색인 화이트리스트 격리 (`chat_helpers.py` · `ALLOWED_MESSAGE_ROLES`)**: 사용자 대상 SQLite FTS5 대화 검색 색인에 `{"user", "assistant"}` 화이트리스트를 엄격 적용하여 기계 로그 오염을 물리적으로 차단하고 100% Prompt Cache 안정성 유지;
-  5. **100% 풀스택 자동화 테스트 통과**: 37개 단위 테스트, 32개 파이프라인 통합 테스트 및 249개 정적 SSOT 계약 테스트 전량 통과, 0 경고 0 오류 0 좀비 프로세스.
+  3. **엄격한 대화 검색 색인 화이트리스트 격리 (`chat_helpers.py` · `ALLOWED_MESSAGE_ROLES`)**: 사용자 대상 SQLite FTS5 대화 검색 색인에 `{"user", "assistant"}` 화이트리스트를 엄격 적용하여 기계 로그 오염을 물리적으로 차단하고 100% Prompt Cache 안정성 유지;
+  4. **100% 풀스택 자동화 테스트 통과**: 37개 단위 테스트, 32개 파이프라인 통합 테스트 및 249개 정적 SSOT 계약 테스트 전량 통과, 0 경고 0 오류 0 좀비 프로세스.
 - **SSOT 출처:** `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/` · `myrm-agent-server/app/services/chat/chat_helpers.py` · `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md`
 
 ## 최신 검증 스냅샷 (2026-09-05 · Control UI 전 표면 오류 마스킹 및 예외 출구 관문 · 보안 완료)

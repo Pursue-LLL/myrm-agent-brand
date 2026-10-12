@@ -1002,12 +1002,11 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
 
 ## 最新验证快照（2026-09-05 · 压缩换窗前工具原话可召回与安全隔离归档 · 上下文管线完成）
 
-- **PreCompactToolOutputVerbatimRecallPack（对标 MemPalace / OpenClaw / Hermes / Codex / DeepSeek-Harness / Pi 在长程会话触发压缩换窗后忘记具体的命令行报错、退出码与依赖冲突现场，或采用外部 CLI 粗暴将包含 ANSI 乱码的 raw jsonl 倾倒进对话检索库导致信噪比雪崩的痛点）：** Myrm 交付了企业级四层上下文管线与确定性安全归档闭环体系：
+- **PreCompactToolOutputVerbatimRecallPack（对标 MemPalace / OpenClaw / Hermes / Codex / DeepSeek-Harness / Pi 在长程会话触发压缩换窗后忘记具体的命令行报错、退出码与依赖冲突现场，或采用外部 CLI 粗暴将包含 ANSI 乱码的 raw jsonl 倾倒进对话检索库导致信噪比雪崩的痛点）：** Myrm 交付了企业级三层上下文管线与确定性安全归档闭环体系：
   1. **管线级确定性头尾保留与离线切片（`ActiveToolResultPruneProcessor`）**：原生支持 DSH 风格 Head 800 + Tail 400 确定性字符截断，超长部分自动异步 offload 至沙箱 `.context/{session_id}/compacted/`，并在上下文嵌入结构化 `ContextArchiveReference`，支持按行号范围（`chunk_restore_args`）原地精准恢复；
   2. **零模型开销受保护里程碑注入（`MemoryPreCompactService`）**：在 Compaction 压缩触发前，`_fetch_archive_checkpoint_milestone` 自动提取最近归档工具检查点（`## Recent Archive Checkpoints`）并硬性注入受保护上下文，模型换窗后 100% 记住过去的错误与执行轨迹；
-  3. **工具连续失败短期防踩坑记忆（`ToolMemoryCaptureHook`）**：同一工具失败 $\ge 2$ 次时，自动沉淀带 `Last error: {error[:200]}` 的 ProceduralMemory 并附加 24 小时 TTL，彻底阻断长任务中的死循环重试；
-  4. **严格人机对话检索库白名单（`chat_helpers.py` · `ALLOWED_MESSAGE_ROLES`）**：坚守 `{"user", "assistant"}` 白名单硬隔离，彻底杜绝机器报错日志污染面向用户的 SQLite FTS5 对话检索库，Prompt Cache 100% 保持；
-  5. **100% 全栈自动化测试通过**：37 项单元测试、32 项管线集成测试与 249 项静态 SSOT 契约测试全绿通过，0 警告 0 错误 0 僵尸进程。
+  3. **严格人机对话检索库白名单（`chat_helpers.py` · `ALLOWED_MESSAGE_ROLES`）**：坚守 `{"user", "assistant"}` 白名单硬隔离，彻底杜绝机器报错日志污染面向用户的 SQLite FTS5 对话检索库，Prompt Cache 100% 保持；
+  4. **100% 全栈自动化测试通过**：37 项单元测试、32 项管线集成测试与 249 项静态 SSOT 契约测试全绿通过，0 警告 0 错误 0 僵尸进程。
 - **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/` · `myrm-agent-server/app/services/chat/chat_helpers.py` · `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-05 · Control UI 全表面错误安全脱敏与异常出口门禁 · 安全治理完成）

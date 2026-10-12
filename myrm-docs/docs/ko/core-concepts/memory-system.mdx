@@ -594,17 +594,16 @@ Myrm은 성장 대시보드(`/journey`)에서 사실 기억, 사용자 선호도
 
 ## 실수로부터 자동 학습
 
-기존 AI 비서는 매 세션마다 새로운 시작을 하며 동일한 실수를 반복합니다. Myrm에는 3중 레이어 자동 학습 기능이 내장되어 있습니다.
+기존 AI 비서는 매 세션마다 새로운 시작을 하며 동일한 실수를 반복합니다. Myrm에는 2중 레이어 자동 학습 기능이 내장되어 있습니다.
 
 | Layer | Mechanism | How it works | Cost |
 |-------|-----------|--------------|------|
-| Real-time | **Tool-level failure capture** | Same tool fails 2+ times → auto-creates behavioral rule. User prohibitions detected in real-time (bilingual regex) | Zero LLM |
 | Per-session | **Correction chains** | When you correct the AI, the error + fix are paired; future recalls append `(avoid: …)` hints automatically | 1 LLM call at extraction |
 | Cross-session | **Goal learnings** | After long tasks complete, extracts Gotchas (pitfalls), Patterns (effective approaches), and Context (project facts) | 1 LLM call at extraction |
 
 **예시 흐름:**
 
-1. "다시는 sudo를 사용하지 마세요"라고 말합니다 → `bash_code_execute_tool`에 바인딩된 중요한 규칙으로 즉시 캡처됩니다.
+1. "다시는 sudo를 사용하지 마세요"라고 말합니다 → Agent가 지속적인 지시로 판단하면 `bash_code_execute_tool`에 바인딩된 영속 규칙으로 저장합니다.
 2. AI가 잘못된 API을 사용함 → 이를 수정함 → 시스템이 `source_error: "Used deprecated v1 API"`을 저장함 + 올바른 접근 방식
 3. 다음 번 → 검색 시 자동으로 `(avoid: Used deprecated v1 API)` 라벨을 사용하여 이 수정 사항을 반환합니다.
 4. 오래된 메모리는 자동으로 90% 수준이 낮아져 다시 나타나지 않습니다.

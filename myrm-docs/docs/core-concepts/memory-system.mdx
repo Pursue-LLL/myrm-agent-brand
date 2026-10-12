@@ -775,17 +775,16 @@ Myrm provides a unified **Learning and Skill Evolution Timeline** in the Growth 
 
 ## Auto-Learning from Mistakes
 
-Traditional AI assistants start fresh every session — repeating the same mistakes. Myrm has triple-layer automatic learning built in:
+Traditional AI assistants start fresh every session — repeating the same mistakes. Myrm has two-layer automatic learning built in:
 
 | Layer | Mechanism | How it works | Cost |
 |-------|-----------|--------------|------|
-| Real-time | **Tool-level failure capture** | Same tool fails 2+ times → auto-creates behavioral rule. User prohibitions detected in real-time (bilingual regex) | Zero LLM |
 | Per-session | **Correction chains** | When you correct the AI, the error + fix are paired; future recalls append `(avoid: …)` hints automatically | 1 LLM call at extraction |
 | Cross-session | **Goal learnings** | After long tasks complete, extracts Gotchas (pitfalls), Patterns (effective approaches), and Context (project facts) | 1 LLM call at extraction |
 
 **Example flow:**
 
-1. You say "Never use sudo again" → captured instantly as a critical rule bound to `bash_code_execute_tool`
+1. You say "Never use sudo again" → the agent saves it as a durable rule bound to `bash_code_execute_tool` once it recognizes a lasting instruction
 2. AI uses wrong API → you correct it → system stores `source_error: "Used deprecated v1 API"` + correct approach
 3. Next time → retrieval automatically returns this correction with `(avoid: Used deprecated v1 API)` label
 4. The outdated memory is automatically demoted by 90% — it won't resurface
@@ -962,23 +961,14 @@ The detail drawer renders an intuitive before-and-after comparison table (Before
 - Once locked, the consolidation and evolution engine deterministically bypasses modification, completely safeguarding against reflection drift and prompt injection poisoning;
 - Fully verified via automated browser testing (**Chrome E2E PASS**), providing enterprise-grade auditability without compromising user preferences.
 
-## Tool Reliability & Self-Reflection Ledger
+## Tool Guidance Ledger
 
-During autonomous agent execution, tools may experience repeated transient failures or negative constraints (e.g. "never use curl here"). Traditional agent architectures (such as Hermes, OpenClaw, Codex, DeepSeek-Harness, Pi, OpenCode) suffer from high false-positive rule extraction (e.g. misinterpreting casual negative statements like "don't lie" as tool bans), crash due to oversized traceback context injections, or degrade LLM prompt prefix caches via nondeterministic rule ordering.
+Rules bound to a tool (e.g. "never use curl here") are injected into the prompt as tool guidance. Traditional agent architectures degrade LLM prompt prefix caches via nondeterministic rule ordering or let guidance bloat the prompt.
 
-Myrm provides an enterprise-grade **Tool Reliability & Error Reflection Ledger**:
+Myrm provides a deterministic **Tool Guidance Ledger**:
 
-### 1. Pronoun Guard & False-Positive Isolation (`_TOOL_PRONOUNS`)
-Casual conversational negatives ("don't lie", "stop rambling") are deterministically screened out. Negative tool constraints are only synthesized when explicit tool pronouns (`"该工具"`, `"此工具"`, `"this tool"`) or concrete tool names are present, reducing false-positive tool edicts from 100% to 0%.
-
-### 2. Dynamic Third-Party MCP Tokenization (`_match_dynamic_tool`)
-Structured tool names (e.g. `github__create_issue`, `filesystem__write_file`) are parsed across namespace and action tokens. Natural language instructions like "don't create issues using github" automatically match their target tools with zero configuration.
-
-### 3. Tail-First Error Traceback Summarization & ANSI Scrubbing
-Rather than flooding LLM context with hundreds of lines of stack traces or truncating the tail where critical failure reasons reside, Myrm performs Tail-First extraction. The root exception signature is isolated, stripped of ANSI escape sequences, and bounded to 140 characters.
-
-### 4. Deterministic JIT Guidance Assembly & KV Cache Protection
+### 1. Deterministic JIT Guidance Assembly & KV Cache Protection
 Tool rules are strictly sorted in lexicographical ascending order prior to system prompt injection. With hard circuit breakers (max 3 rules per tool, global cap of 9) and probe command filtering (`which`, `test -f`), prefix stability is 100% guaranteed, maximizing cloud LLM Prompt Cache hits.
 
-### 5. Enterprise WebUI Command Center (`ToolGuidancePanel`)
-Integrated directly into the Memory Command Center, users can inspect, pin as permanent company rules, or revoke tool edicts via a vector-native, zero-emoji UI.
+### 2. Enterprise WebUI Command Center (`ToolGuidancePanel`)
+Integrated directly into the Memory Command Center, users can inspect, pin as permanent company rules, or revoke tool rules via a vector-native, zero-emoji UI.
