@@ -1,16 +1,16 @@
 ---
 
 title: 스킬 진화
-description: 5계층 안전, GUI 승인 및 증거 중심 학습을 갖춘 42개 모듈 기본 자체 진화 시스템입니다.
+description: 5계층 안전, GUI 승인 및 실패 기반 복구를 갖춘 40개 모듈 기본 자체 진화 시스템입니다.
 ---
 # 스킬 진화
 
-에이전트는 **42개 모듈로 구성된 기본 진화 시스템**을 통해 새로운 기술을 자율적으로 학습, 테스트 및 배포합니다. 외부 종속성, CLI 래퍼, AGPL 위험이 없습니다.
+에이전트는 **40개 모듈로 구성된 기본 진화 시스템**을 통해 새로운 기술을 자율적으로 학습, 테스트 및 배포합니다. 외부 종속성, CLI 래퍼, AGPL 위험이 없습니다.
 
 ## 작동 방식
 
 1. **검색** - 에이전트가 반복 작업 패턴을 식별하거나 실패 신호를 감지합니다.
-2. **증거 집계** — 여러 실행에서 성공 및 실패 사례를 수집합니다.
+2. **증거** — 구체적인 실패 트레이스(또는 최근 도구 호출 구간)를 컨텍스트로 첨부합니다.
 3. **변형 생성** - 3개의 후보 변형을 병렬로 생성합니다(경쟁업체의 50-500 LLM 호출에 비해 비용 효율적)
 4. **회귀 게이트** — 자동 생성된 EvalCase 테스트는 LLM 점수 매기기 전에 각 변형에 대해 실행됩니다. 회귀가 있는 변형은 점수 페널티를 받습니다(비차단 설계로 거짓 거부 방지).
 5. **점수** — 4가지 차원(기능/품질/안전성/호환성)을 통한 LLM-판사 평가
@@ -81,7 +81,7 @@ description: 5계층 안전, GUI 승인 및 증거 중심 학습을 갖춘 42개
 | **FIX** | 도구 실패가 특정 기술로 귀속된 경우(자격 증명, 누락된 종속성, 일시적 네트워크 오류 제외) 또는 수동 복구 요청 | 실패 트레이스를 기반으로 수정 초안을 생성하며, 런타임에 발견된 실패는 항상 사용자 승인을 기다립니다 |
 | **DERIVED** | User feedback or frustration signals | Optimize skill based on explicit or implicit feedback |
 | **CAPTURED** | Session anti-patterns detected during idle | Background extraction → 10-dim scoring → dedup → safety scan → Insights Inbox approval |
-| **OPTIMIZE_DESCRIPTION** | Low match rate | Refine skill description for better semantic matching |
+| **OPTIMIZE_DESCRIPTION** | Requested explicitly (no automatic trigger) | Refine skill description for better semantic matching |
 
 ## 5중 안전
 
@@ -105,13 +105,14 @@ description: 5계층 안전, GUI 승인 및 증거 중심 학습을 갖춘 42개
 - **워크플로** — "먼저 X 작업을 중지하세요."
 - **일반** — 좌절감 표현
 
-## 증거 중심의 진화
+## 실패 귀속 복구
 
-단일 실패 신호에서 발전하는 경쟁업체와 달리 Myrm은(는) 여러 실행에 걸쳐 증거를 집계합니다.
+저장된 기술이 로드된 상태에서 도구 호출이 실패하면, Myrm은 수정 초안을 작성하기 전에 그 기술의 책임인지 먼저 판단합니다.
 
-- **성공 사례** — 회귀 방지를 위해 보존됨
-- **실패 사례** — 근본 원인 패턴 분석
-- **최소 증거 임계값** — 진화를 트리거하려면 최소 3번의 실행과 1번의 실패가 필요합니다.
+- **먼저 귀속** — 저장된 기술이 정확히 하나만 로드된 경우에만 실패를 그 기술에 귀속합니다. 여러 기술이 로드되어 책임 소재가 모호하면 복구를 시도하지 않습니다.
+- **환경 오류 제외** — 자격 증명, 누락된 종속성, 일시적 네트워크 오류는 복구를 트리거하지 않습니다.
+- **구체적인 증거** — 수정 초안은 실패한 호출, 오류 시그니처, 작업 의도와 세션의 도구 트레이스(직접 인수한 경우 시연 포함)를 기반으로 작성됩니다.
+- **항상 사용자가 결정** — 런타임에 발견된 복구는 항상 승인을 기다리며 스스로 병합되지 않습니다.
 
 ## 가장 작은 적절한 형태
 
@@ -138,15 +139,9 @@ description: 5계층 안전, GUI 승인 및 증거 중심 학습을 갖춘 42개
 
 **경쟁사 대비:** 8개의 경쟁사 코드베이스(Hermes, OpenClaw, CoPaw, LobsterAI, CodePilot, jiuwenclaw, deer-flow)에서 검증되었으며 사전 기술 추천을 구현하지 않았습니다. Hermes의 `tool_search`(735줄)은 기능 검색이 아닌 이미 등록된 도구에 대한 점진적 도구 공개입니다.
 
-## 품질 모니터링
+## 기술 성공률 신호
 
-**슬라이딩 윈도우 통계를 사용한 3차원 성능 저하 감지**:
-
-- 구성 가능한 임계값을 통한 성공률 모니터링(기본값: 70%)
-- 자동 경고를 통한 P95 대기 시간 추적
-- 서버 오류율(5xx) 모니터링
-
-저하된 기술은 **1-스트라이크**(심각한 실패) 또는 **3-스트라이크**(점진적 성능 저하) 정책을 통해 자동으로 격리됩니다.
+저장된 기술이 정확히 하나만 로드된 동안 모든 도구 호출은 해당 기술의 성공 또는 실패로 기록됩니다(e-stop, 훅 거부 같은 정책 차단은 제외). 성공률은 자동 스위치가 아니라 안전 입력입니다. 기술이 최소 3회 실행되고 성공률이 50% 미만이면 해당 기술에 대한 모든 진화 제안은 자동 병합되지 않고 사용자 검토를 기다립니다. 기술은 실패 때문에 비활성화되거나 숨겨지지 않습니다.
 
 ## 손절매: 버전, 섀도우 A/B 및 배치 스냅샷
 
@@ -172,7 +167,6 @@ description: 5계층 안전, GUI 승인 및 증거 중심 학습을 갖춘 42개
 |--------|-----------------|------|
 | **FIX success** | Error description + fix reasoning | After successful auto-repair (score ≥ 0.7) |
 | **User-driven optimization** | User feedback + optimization reasoning | After successful DERIVED evolution (score ≥ 0.7) |
-| **Evidence-driven repair** | Aggregated failure patterns + fix reasoning | After successful evidence-based evolution (score ≥ 0.7) |
 | **Screener rejection** | Rejection reasoning with confidence score | When an evolution proposal is rejected (confidence ≥ 0.7) |
 | **Manual rejection** | Human reviewer's rejection reasoning | When a user rejects a proposed change in the GUI |
 
@@ -301,18 +295,16 @@ WebUI에서 스킬, 에이전트 바인딩 또는 관련 설정을 편집하면 
 
 **프롬프트 캐시:** 스킬이 실제로 변경되는 경우에만 다시 초기화가 발생하므로 관련 없는 대화에서도 캐시 이점이 유지됩니다.
 
-## 6 동시 자기 진화 메커니즘
+## 4 동시 자기 진화 메커니즘
 
-Myrm은 사용자가 문제를 알아차릴 때까지 기다리지 않습니다. 6개의 독립적인 백그라운드 메커니즘으로 에이전트가 연중무휴 학습할 수 있습니다.
+Myrm은 사용자가 문제를 알아차릴 때까지 기다리지 않습니다. 4개의 독립적인 백그라운드 메커니즘으로 에이전트가 연중무휴 학습할 수 있습니다.
 
 | Mechanism | What It Does | Trigger |
 |-----------|-------------|---------|
-| **MetricMonitor** | Scans for high-error-rate skills | Every 5 seconds |
 | **Sliding Window** | Extracts experience from tool call traces | Every 15 calls |
-| **SkillImmune** | Auto-quarantines failing skills, triggers repair | Runtime failure |
+| **SkillImmune** | Attributes a failed tool call to the loaded skill and drafts a repair for your approval | Runtime failure |
 | **Session-End** | Analyzes completed conversations for learnings | After each session |
 | **FrustrationDetector** | Detects user dissatisfaction in 38 bilingual patterns | Real-time |
-| **EvidenceEvolution** | Cross-session evidence aggregation | Every hour |
 
 모든 제안은 적용되기 전에 승인 파이프라인을 통과합니다. 에이전트는 지속적으로 학습하지만 귀하의 동의 없이는 변경되지 않습니다.
 
@@ -410,19 +402,17 @@ Myrm은 **내보내기 시 PII 수정**을 통해 **양방향 기술 동기화**
 
 | Capability | Myrm | OpenClaw | Hermes | Generic LLM agents |
 |-----------|:----:|:--------:|:------:|:---:|
-| Integration | Native (42 modules) | Config-based (4 fields) | External CLI wrapper (AGPL) | None |
+| Integration | Native (40 modules) | Config-based (4 fields) | External CLI wrapper (AGPL) | None |
 | Evolution strategy | 4-level (balanced/innovate/harden/repair-only) | On/off toggle | None | None |
 | Approval mechanism | 2-phase screener + GUI panel | pending/auto binary | Auto-execute | None |
 | Per-skill lock | Yes (frontmatter + API) | No (global only) | No | None |
 | Safety layers | 5 | 0 | 0 | 0 |
-| Quarantine | 1-Strike/3-Strikes auto-quarantine | None | None | None |
 | Rejection learning | Permanent constraints | None | None | None |
 | Shadow approval | Test before promote | None | None | None |
 | GUI approval | Full dashboard + diff | None | No | No |
 | Evolution cost | 3 variants/run | N/A | 50-500 LLM calls/run | N/A |
-| Persistence | SQLite + Qdrant | File system | Pickle files | N/A |
+| Persistence | SQLite | File system | Pickle files | N/A |
 | Frustration detection | 38 bilingual patterns | None | None | None |
-| Quality monitoring | 3D degradation | None | None | None |
 | Audit dashboard | Pending + Rejection dashboards | None | None | None |
 
 ### 대 Hermes 생태계 플러그인
