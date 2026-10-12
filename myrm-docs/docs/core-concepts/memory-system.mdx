@@ -533,7 +533,13 @@ When a user implicitly corrects the agent without saying "you're wrong" (e.g., "
 - **Idempotency** — Content-hash based source IDs prevent duplicate proposals from the same conversation
 - **Background execution** — Runs as a session cleanup callback, never affecting main conversation latency or prompt cache
 
-This is the industry's only implementation that combines implicit signal detection with a Human-in-the-Loop governance queue — competitors either auto-write without approval (risky) or don't detect implicit corrections at all.
+Proposals wait in your review queue instead of rewriting memory behind your back:
+
+- **Cards that name their target** — a correction or removal proposal says which existing memory it will correct or move to the trash before you accept
+- **Out-of-date suggestions are refused, never misapplied** — if that memory changed after the suggestion was made, Accept is declined with a neutral "This suggestion is out of date" notice; the proposal stays in your list so you can reject it
+- **Edit before you accept** — in the chat-window review dialog, rewrite the proposal and press "Save & Accept"; the stored memory carries your wording, and if approval fails your edit stays in the box for a retry
+
+How we compare (source snapshot, Oct 2026): Hermes offers an opt-in write-approval gate for staged memory writes, driven by slash commands. We found no memory-write review in the source of OpenClaw, Codex, DeepSeek-Harness, Pi or OpenCode, and none of the six has a graphical surface that names the memory being superseded or refuses out-of-date suggestions.
 
 ### Explicit Memory Operations
 
