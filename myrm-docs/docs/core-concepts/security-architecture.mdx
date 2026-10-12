@@ -252,17 +252,10 @@ When the agent needs files **outside** the current workspace (e.g. `~/Downloads`
 
 **Compared to competitors:** OpenWorker Cowork still relies on explicit `request_directory` which bloats LLM Action Space and invalidates Prompt Cache; OpenClaw, Hermes, DeerFlow, LobsterAI, CoPaw, and jiuwenclaw lack session-scoped directory HITL. Myrm achieves kernel transparent interception, dynamic elevation, drag-and-drop pre-authorization, and Prompt Cache freeze.
 
-### Correction Learning
+### Rejections and Denial Tracking
 
-When you edit an approved action's arguments, the system automatically learns your preferences:
-
-- **Zero LLM cost**: Deterministic dict-diff classification (no additional inference calls)
-- **Path preferences**: Edited paths on file operations → remembered as workspace conventions
-- **Command rules**: Edited shell commands → added to procedural memory as rules
 - **Rejections stay one-off**: A rejection applies to that call only. For a permanent block, add a pattern to the Command Deny List in security settings
 - **Denial tracking**: Repeated denials in one session suspend auto-mode, so every following action asks for explicit approval
-
-Over time, approval prompts naturally decrease as the agent aligns with your working style.
 
 ## Error Self-Healing
 
