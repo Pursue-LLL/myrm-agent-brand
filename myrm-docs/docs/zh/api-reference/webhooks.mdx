@@ -14,7 +14,7 @@ description: 配置 Webhook 实现事件驱动集成。
 ### Webhook 触发
 
 ```bash
-curl -X POST https://your-myrm-host/api/cron/trigger/webhook/my-path \
+curl -X POST https://your-myrm-host/api/v1/cron/trigger/webhook/my-path \
   -H "x-webhook-secret: your-secret" \
   -H "Content-Type: application/json" \
   -d '{"message": "处理这些数据"}'
@@ -23,7 +23,7 @@ curl -X POST https://your-myrm-host/api/cron/trigger/webhook/my-path \
 ### 事件触发
 
 ```bash
-curl -X POST https://your-myrm-host/api/cron/trigger/event \
+curl -X POST https://your-myrm-host/api/v1/cron/trigger/event \
   -H "Content-Type: application/json" \
   -d '{"message": "new_order_placed", "channel": "ecommerce"}'
 ```
@@ -31,7 +31,7 @@ curl -X POST https://your-myrm-host/api/cron/trigger/event \
 ### 系统事件触发
 
 ```bash
-curl -X POST https://your-myrm-host/api/cron/trigger/system-event \
+curl -X POST https://your-myrm-host/api/v1/cron/trigger/system-event \
   -H "Content-Type: application/json" \
   -d '{"source": "monitoring", "event_type": "alert", "payload": {"severity": "high"}}'
 ```
