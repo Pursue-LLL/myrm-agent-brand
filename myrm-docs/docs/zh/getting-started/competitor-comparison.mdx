@@ -1220,16 +1220,6 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   5. **100% 自动化测试与真实 Chrome MCP E2E 双闭环**：60 项 Python 核心单测、6 项前端 Vitest 单测、多语言 i18n 纯净门禁及在专用 E2E 真实 Chrome 浏览器（`:9333`）中通过的 `test_mobile_push_discovery_chrome_e2e.py` 与 `test_push_approval_deeplink_chrome_e2e.py`（4/4 全绿）验收。
 - **SSOT 来源：** `myrm-agent/myrm-agent-server/app/core/notifications/` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/mobile/` · `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md`
 
-## 最新验证快照（2026-09-04 · 现场故障自愈与试错回滚外壳补丁体系 · 执行可靠性与鲁棒性完成）
-
-- **ContinualFaultSiteSessionOverlayPatchClosure（对标 普林斯顿 Continual Harness 学术脚本 / OpenClaw / Hermes / DeepSeek-Harness / Claude Code 长程任务因参数废弃或校验报错粗暴打回重置、上下文归零、Token 翻倍死锁）：** Myrm 交付了业内首创的现场故障零重置自愈与单次试错快照安全回滚闭环：
-  1. **现场零重置外壳合成（`session_overlay/synthesizer.py`）**：在工具执行拦截点，基于本地正则与 AST 极速提取非法多余参数并自动剥离，额外 LLM Token 算力消耗为 0，单次自愈延迟 <0.05ms；
-  2. **单次试错快照安全回滚（Trial & Rollback Guard）**：独创单次试错预算机制（`max_attempts=1`），若补丁修复后工具仍报错，立即触发底层快照物理回滚并注销外壳，坚决杜绝补丁失效导致的级联雪崩；
-  3. **双轨寿命自毁与规避建议注入（TTL & Negative Advisory）**：工具单步消耗自毁 + 轮次边界自动注销；规避指令注入当前 `ToolMessage` 尾部，**静态 System Prompt 前缀 0 字节改动，Prompt Cache 命中率 100% 保持不变**；
-  4. **系统级致命故障 Fail-fast 短路**：OOM、磁盘写满（ENOSPC）、权限拒绝（401/403）直接熔断阻断，拒绝掩耳盗铃式的伪自愈；
-  5. **双向透明度量与 WebUI 淡紫流光徽标**：`EvalResult` 导出 `healed_by_overlay_count` 与 `overlay_rollback_count`，前端 `ContinualOverlayBadge` 呈现半透明流光徽标并提供就地一键撤销。长任务成功率从 68% 跃升至 89%，节省 40%+ 重跑费用。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/session_overlay/` · `temp-docs/materials/ERROR_RECOVERY_ROBUSTNESS_ADVANTAGE.md`
-
 ## 最新验证快照（2026-09-03 · 存储灾备自愈与三段式 WAL 停机屏障 · 运行可靠性完成）
 
 - **SQLiteRowidSalvageAndThreeStageShutdownClosure（对标 Hermes 因 `restart_drain_timeout=0` 强杀导致写撕裂与恢复工具误删 2 万条孤儿消息）：** Myrm 交付了底层物理存储零写破坏自愈与优雅停机防御体系：
