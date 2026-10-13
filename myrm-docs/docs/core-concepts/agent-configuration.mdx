@@ -418,10 +418,11 @@ Share an agent with your team or back it up as a standard **Agent Plugins packag
 | Operation | Description |
 |-----------|-------------|
 | **Export** | **Agent Settings > Export agent** packages the agent, its sub-agents, the skills it uses (custom skills with their files, built-in skills by name), its MCP servers as declarations without keys, and its workspace templates |
+| **Bulk export** | **Settings > Agents > Bulk export** puts several agents into one package, then runs the same review step |
 | **Import** | Import a `.zip` from the Agents or Skills page. A preview lists every agent, skill and MCP server in the package before anything is installed |
 | **Clone** | One-click duplicate within your workspace — new UUID, same configuration |
 
-Before the package is built you review every sensitive finding (API keys, tokens, home-directory paths) and choose to redact or keep it. Whatever cannot travel is listed under **Not included in the package** with the reason — for example MCP servers that start a program from a local path, binary or oversized skill files, and settings that may hold credentials. If saving fails halfway through an import, the agents it already created are removed again.
+Before the package is built you review every sensitive finding (API keys, tokens, home-directory paths) — each one is labeled with its type in your interface language — and choose to export the redacted version or keep the original. Whatever cannot travel is listed under **Not included in the package** with the reason — for example MCP servers that start a program from a local path, binary or oversized skill files, and settings that may hold credentials. If saving fails halfway through an import, the agents it already created are removed again.
 
 <Warning>
 A package from someone else is untrusted input. Imported agents can only narrow what they are allowed to do: tool grants are limited to the defaults, the loop budget never exceeds the system default, and security policy never comes with a package. MCP servers arrive disabled and wait for your own keys. If an agent with the same name already exists, you choose between a copy (default), replacing it (the previous version is saved to Version History), or skipping it.
