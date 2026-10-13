@@ -141,7 +141,7 @@ When the agent encounters a request it cannot fulfill with current tools, it **a
 
 ## Skill Success Signal
 
-While exactly one stored skill is loaded, every tool call counts as a success or a failure for that skill (policy blocks such as e-stop or hook rejections are not counted). The running success rate is a safety input, not an automatic switch: once a skill has at least 3 recorded runs and a success rate below 50%, any evolution proposal for it is never auto-merged and always waits for your review. Skills are never disabled or hidden because of failures.
+Every run that uses a skill adds one usage record to its `.stats.json`. While exactly one stored skill is loaded, the run's tool calls decide the outcome by majority: a run counts as a failure only when more than half of its calls failed, so a single recovered error does not drag a skill down (policy blocks such as e-stop or hook rejections are not counted). A run whose outcome cannot be attributed to the skill only counts as a use. The success rate is the share of successes among runs with an observed outcome. It is a safety input, not an automatic switch: once a skill has at least 3 recorded runs and a success rate below 50%, any evolution proposal for it is never auto-merged and always waits for your review. Skills are never disabled or hidden because of failures.
 
 ## Stop-Loss: Versions, Shadow A/B, and Batch Snapshots
 
@@ -183,6 +183,7 @@ Automated skill lifecycle management through the Curator system:
 - **Real usage-driven decisions** — Skill select / `[use skill]` writes `.stats.json`; Curator sweeps use actual call data, not empty sidecars
 - **Zero background token cost** — Stale/archive/LRU are deterministic; consolidation (umbrella merge) is **off by default** until you opt in
 - **Prebuilt immunity** — 45+ built-in skills under `/prebuilt/` are never auto-archived
+- **Automation-safe** — Skills bound to an agent, a slash command or an active or paused scheduled task are never staled, archived, evicted or merged, however long they go unused
 - **Dual one-click sweep** — Settings “Run now” + Agent config Radar “Smart Prune” with toast feedback
 - **Never-used protection** — Grace period + stale threshold; newly installed skills are not instantly marked idle
 - **Cluster detection** — Prefix + embedding finds semantically similar skills
@@ -382,7 +383,7 @@ Beyond agent-level scoping, Myrm supports **per-session skill selection** — ch
 
 To address the major industry pathology where LLMs generate vacuous assertions (`assert True` / `echo 1`) to bypass evaluation gates (proven in 84% of cases by HKUST research):
 - **AST Static Hollow Test Detection (`HollowTestDetector`)**: Static AST analysis intercepts trivial boolean assertions, empty `pass` blocks, and unsafe dynamic execution before sandbox launch;
-- **Sandbox Execution & VerificationProof**: Real command execution captures exit codes and outputs, producing tamper-evident proofs with success streaks and blast radius metrics;
+- **Sandbox Execution & VerificationProof**: Real command execution captures exit codes and outputs, producing tamper-evident proofs with blast radius metrics;
 - **WebUI Trust & Audit Panel**: Growth Center cards display clear `Verified` or `Hollow Blocked` badges with expandable proof inspection.
 
 ## MAP-Elites Gene Bank & Quality-Diversity Archive (2026-08)
