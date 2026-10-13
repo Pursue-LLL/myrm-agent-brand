@@ -88,7 +88,6 @@ Myrm 自动将请求路由到最具成本效益的模型档位：
 
 - 两阶段分类（规则打分 + LLM judge）
 - **Session momentum** — 后续消息继承近期对话档位，避免质量骤降
-- **Penalty feedback** — 记录误路由并在 24h 内衰减调整概率
 - **Min-tier floor** — 重新生成请求自动升档
 - **零配置** — 所有账户默认启用
 
@@ -168,7 +167,7 @@ CLI 工具输出通过智能规则自动压缩，降低 Token 消耗：
 |------|--------|
 | token_economics（ledger、budget、cost engine） | 9 |
 | Checkpoint（save/resume/delete/orphan） | 47 |
-| ComplexityRouter（routing + momentum + penalty） | 70 |
+| ComplexityRouter（routing + momentum） | 70 |
 | Delegation budget（spawn limits） | 26 |
 | Budget middleware（injection + strip） | 14 |
 | Goal continuation（9-step guard chain） | 76 |

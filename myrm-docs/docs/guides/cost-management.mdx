@@ -87,7 +87,6 @@ Myrm automatically routes requests to the most cost-effective model tier:
 Features:
 - Two-phase classification (rule scoring + LLM judge)
 - **Session momentum** — follow-up messages inherit the conversation's recent tier to prevent quality degradation
-- **Penalty feedback** — records misroutes and adjusts future routing probability (24h decay)
 - **Min-tier floor** — regenerate requests automatically escalate tier
 - **Zero configuration** — active by default on all accounts
 
@@ -166,7 +165,7 @@ System prompts and tool schemas are carefully ordered and canonicalized to maxim
 |--------|-------|
 | token_economics (ledger, budget, cost engine) | 9 |
 | Checkpoint (save/resume/delete/orphan) | 47 |
-| ComplexityRouter (routing + momentum + penalty) | 70 |
+| ComplexityRouter (routing + momentum) | 70 |
 | Delegation budget (spawn limits) | 26 |
 | Budget middleware (injection + strip) | 14 |
 | Goal continuation (9-step guard chain) | 76 |
