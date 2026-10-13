@@ -143,11 +143,9 @@ description: 5계층 안전, GUI 승인 및 실패 기반 복구를 갖춘 40개
 
 기술을 사용한 모든 실행은 해당 기술의 `.stats.json`에 사용 기록을 하나 남깁니다. 저장된 기술이 정확히 하나만 로드된 동안에는 도구 호출의 다수 결과로 실행의 성패가 정해집니다. 호출의 절반을 넘게 실패해야 실패로 보므로, 한 번의 일시적 오류가 기술을 깎아내리지 않습니다(e-stop, 훅 거부 같은 정책 차단은 제외). 결과를 해당 기술에 귀속할 수 없는 실행은 사용 횟수로만 집계됩니다. 성공률은 결과가 관찰된 실행 중 성공의 비율입니다. 성공률은 자동 스위치가 아니라 안전 입력입니다. 기술이 최소 3회 실행되고 성공률이 50% 미만이면 해당 기술에 대한 모든 진화 제안은 자동 병합되지 않고 사용자 검토를 기다립니다. 기술은 실패 때문에 비활성화되거나 숨겨지지 않습니다.
 
-## 손절매: 버전, 섀도우 A/B 및 배치 스냅샷
+## 손절매: 버전 및 섀도우 A/B
 
-**평범한 언어:** 발전된 기술로 인해 에이전트가 악화되는 경우 CLI 없이 설정에서 롤백할 수 있습니다. 먼저 **섀도우 모드**에서 변경 사항을 승인한 다음(백그라운드에서 비교하는 동안 프로덕션 동작은 이전 버전으로 유지됨) 측정항목이 좋아 보일 때 승격할 수도 있습니다. 많은 기술을 일괄 최적화하면 시작하기 전에 스냅샷이 저장됩니다. 결과가 옆으로 떨어지면 중간에 **취소하고 롤백**할 수 있습니다.
-
-**검증됨(2026년 6월 6일):** 34개의 자동화된 테스트에는 일괄 취소/롤백(다중 기술, 부분 실패 HTTP 디스크 복원 및 대기 시간 초과 건너뛰기 롤백 포함), 스케줄러 `cancel_batch_optimization` + `await_batch_optimization` 연결 및 `restore_skill_snapshot`(두 DB 분기 모두)에 대한 실제 디스크 복원이 포함됩니다. 취소는 롤백이 스냅샷을 복원하기 전에 하네스 취소 토큰을 통해 진행 중인 일괄 최적화를 중지합니다. 대기 시간이 초과되면 롤백을 건너뛰고 사용자는 세부 정보 페이지로 이동됩니다. 롤백 취소는 일괄 롤백 엔드포인트와 동일한 `rolled_back`/`failed`/`total_skills`/`error_message` 통계를 반환합니다. 웹 UI에는 성공, 부분(`cancelRollbackPartial` / `rollbackPartial`) 또는 실패 알림이 표시됩니다. 전체 GUI 클릭연결 E2E에는 실행 중인 백엔드가 필요합니다.
+**평범한 언어:** 발전된 기술로 인해 에이전트가 악화되는 경우 CLI 없이 설정에서 롤백할 수 있습니다. 먼저 **섀도우 모드**에서 변경 사항을 승인한 다음(백그라운드에서 비교하는 동안 프로덕션 동작은 이전 버전으로 유지됨) 측정항목이 좋아 보일 때 승격할 수도 있습니다.
 
 | Capability | What you get |
 |------------|--------------|
@@ -155,9 +153,8 @@ description: 5계층 안전, GUI 승인 및 실패 기반 복구를 갖춘 40개
 | **Evolution history** | Full audit trail of all approved/rejected changes with inline Diff viewer |
 | **Inline revision** | Monaco DiffEditor for editing proposals in place (responsive: side-by-side on desktop, inline on mobile) |
 | **Approve + Shadow** | Growth inbox → shadow test → Guardian promote/stop |
-| **Batch optimization** | Auto snapshot on submit; cancel with optional full rollback |
 
-**경쟁업체 대비:** Hermes/OpenClaw는 CLI 또는 파일 기반 롤백을 제공합니다. 섀도우 검증과 일괄 비행 중 롤백을 위한 전체 GUI 루프를 제공하는 제품은 없습니다.
+**경쟁업체 대비:** Hermes/OpenClaw는 CLI 또는 파일 기반 롤백을 제공합니다. 섀도우 검증을 위한 전체 GUI 루프를 제공하는 제품은 없습니다.
 
 ## 결정 내역: 이중 루프 학습
 

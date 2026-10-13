@@ -143,11 +143,9 @@ When the agent encounters a request it cannot fulfill with current tools, it **a
 
 Every run that uses a skill adds one usage record to its `.stats.json`. While exactly one stored skill is loaded, the run's tool calls decide the outcome by majority: a run counts as a failure only when more than half of its calls failed, so a single recovered error does not drag a skill down (policy blocks such as e-stop or hook rejections are not counted). A run whose outcome cannot be attributed to the skill only counts as a use. The success rate is the share of successes among runs with an observed outcome. It is a safety input, not an automatic switch: once a skill has at least 3 recorded runs and a success rate below 50%, any evolution proposal for it is never auto-merged and always waits for your review. Skills are never disabled or hidden because of failures.
 
-## Stop-Loss: Versions, Shadow A/B, and Batch Snapshots
+## Stop-Loss: Versions and Shadow A/B
 
-**Plain language:** If an evolved skill makes your agent worse, you can roll back in Settings — no CLI. You can also approve changes in **Shadow mode** first (production behavior stays on the old version while we compare in the background), then promote when metrics look good. Batch-optimizing many skills saves a snapshot before it starts; you can **cancel and roll back** mid-run if results go sideways.
-
-**Verified (2026-06-06):** 34 automated tests cover batch cancel/rollback (including multi-skill, partial-failure HTTP disk restore, and await-timeout skip-rollback), scheduler `cancel_batch_optimization` + `await_batch_optimization` wiring, and real disk restore for `restore_skill_snapshot` (both DB branches). Cancel stops in-flight batch optimization via harness cancellation tokens before rollback restores snapshots; if await times out, rollback is skipped and the user is directed to the detail page. Cancel-with-rollback returns the same `rolled_back`/`failed`/`total_skills`/`error_message` stats as the batch rollback endpoint; the Web UI shows success, partial (`cancelRollbackPartial` / `rollbackPartial`), or failure toasts. Full GUI click-through E2E requires a running backend.
+**Plain language:** If an evolved skill makes your agent worse, you can roll back in Settings — no CLI. You can also approve changes in **Shadow mode** first (production behavior stays on the old version while we compare in the background), then promote when metrics look good.
 
 | Capability | What you get |
 |------------|--------------|
@@ -155,9 +153,8 @@ Every run that uses a skill adds one usage record to its `.stats.json`. While ex
 | **Evolution history** | Full audit trail of all approved/rejected changes with inline Diff viewer |
 | **Inline revision** | Monaco DiffEditor for editing proposals in place (responsive: side-by-side on desktop, inline on mobile) |
 | **Approve + Shadow** | Growth inbox → shadow test → Guardian promote/stop |
-| **Batch optimization** | Auto snapshot on submit; cancel with optional full rollback |
 
-**vs competitors:** Hermes/OpenClaw offer CLI or file-based rollback; none ship a full GUI loop for shadow validation plus batch mid-flight rollback.
+**vs competitors:** Hermes/OpenClaw offer CLI or file-based rollback; none ship a full GUI loop for shadow validation.
 
 ## Decision History: Dual-Loop Learning
 
