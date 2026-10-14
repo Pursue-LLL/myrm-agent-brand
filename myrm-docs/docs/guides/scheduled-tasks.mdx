@@ -285,12 +285,13 @@ Inbound messages from connected channels (Feishu, Telegram, Slack, etc.) can fir
 1. **Connect a channel** in Settings — long-connection or webhook ingress
 2. **Create a task** with trigger type **Event** — set channel filter and regex pattern
 3. **Messages flow** through `AgentRouter` — commands (`/stop`, `/new`), reactions, and pending approvals are skipped; matching messages dispatch once
+4. **Only admitted senders fire it** — an event trigger runs the task unattended on your account, so it follows your access policy. You and the senders the policy lets through can fire it; strangers (under an allowlist or pairing policy), blocked or pending accounts, and messages from groups that are not enabled cannot (with guest mode on, a direct @mention in such a group counts as a one-shot request and does). To watch a group without the bot answering everything, enable the group and keep the default mention-to-reply mode: triggers evaluate every message the channel delivers from it, while replies still need a mention
 
 :::tip Cloud & Local Parity
-In cloud deployments, the Control Plane ingress endpoint only enqueues messages. Event dispatch happens in the sandbox router — preventing duplicate triggers that would occur if both layers dispatched.
+In cloud deployments, the Control Plane ingress endpoint only enqueues messages. Event dispatch happens in the sandbox router — preventing duplicate triggers that would occur if both layers dispatched. Messages forwarded by the Control Plane carry an identity it has already resolved, so the sender check lets them through.
 :::
 
-**Tested scenarios:** normal dispatch, command skip, approval skip, reaction skip, duplicate message dedup — 16 automated tests verify the full path.
+**Tested scenarios:** normal dispatch, command skip, approval skip, reaction skip, duplicate message dedup, sender admission — automated tests verify the full path.
 
 ### Remote Node Events (Mobile / IoT Automation)
 
