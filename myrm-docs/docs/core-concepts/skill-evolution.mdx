@@ -143,18 +143,18 @@ When the agent encounters a request it cannot fulfill with current tools, it **a
 
 Every run that uses a skill adds one usage record to its `.stats.json`. While exactly one stored skill is loaded, the run's tool calls decide the outcome by majority: a run counts as a failure only when more than half of its calls failed, so a single recovered error does not drag a skill down (policy blocks such as e-stop or hook rejections are not counted). A run whose outcome cannot be attributed to the skill only counts as a use. The success rate is the share of successes among runs with an observed outcome. It is a safety input, not an automatic switch: once a skill has at least 3 recorded runs and a success rate below 50%, any evolution proposal for it is never auto-merged and always waits for your review. Skills are never disabled or hidden because of failures.
 
-## Stop-Loss: Versions and Shadow A/B
+## Stop-Loss: Versions and Rollback
 
-**Plain language:** If an evolved skill makes your agent worse, you can roll back in Settings — no CLI. You can also approve changes in **Shadow mode** first (production behavior stays on the old version while we compare in the background), then promote when metrics look good.
+**Plain language:** If an evolved skill makes your agent worse, you can roll back in Settings — no CLI. Every proposal also shows its test result, verification proof and impact scope before you approve it.
 
 | Capability | What you get |
 |------------|--------------|
 | **Versions panel** | One-click rollback to any saved snapshot (GUI) |
 | **Evolution history** | Full audit trail of all approved/rejected changes with inline Diff viewer |
 | **Inline revision** | Monaco DiffEditor for editing proposals in place (responsive: side-by-side on desktop, inline on mobile) |
-| **Approve + Shadow** | Growth inbox → shadow test → Guardian promote/stop |
+| **Review card** | Test result, verification proof and impact scope on every proposal before you approve |
 
-**vs competitors:** Hermes/OpenClaw offer CLI or file-based rollback; none ship a full GUI loop for shadow validation.
+**vs competitors:** Hermes/OpenClaw offer CLI or file-based rollback.
 
 ## Decision History: Dual-Loop Learning
 
@@ -420,7 +420,6 @@ Myrm is the only AI agent platform offering **bidirectional skill synchronizatio
 | Per-skill lock | Yes (frontmatter + API) | No (global only) | No | None |
 | Safety layers | 5 | 0 | 0 | 0 |
 | Rejection learning | Permanent constraints | None | None | None |
-| Shadow approval | Test before promote | None | None | None |
 | GUI approval | Full dashboard + diff | None | No | No |
 | Evolution cost | 3 variants/run | N/A | 50-500 LLM calls/run | N/A |
 | Persistence | SQLite | File system | Pickle files | N/A |

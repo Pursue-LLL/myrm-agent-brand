@@ -143,18 +143,18 @@ description: 5계층 안전, GUI 승인 및 실패 기반 복구를 갖춘 40개
 
 기술을 사용한 모든 실행은 해당 기술의 `.stats.json`에 사용 기록을 하나 남깁니다. 저장된 기술이 정확히 하나만 로드된 동안에는 도구 호출의 다수 결과로 실행의 성패가 정해집니다. 호출의 절반을 넘게 실패해야 실패로 보므로, 한 번의 일시적 오류가 기술을 깎아내리지 않습니다(e-stop, 훅 거부 같은 정책 차단은 제외). 결과를 해당 기술에 귀속할 수 없는 실행은 사용 횟수로만 집계됩니다. 성공률은 결과가 관찰된 실행 중 성공의 비율입니다. 성공률은 자동 스위치가 아니라 안전 입력입니다. 기술이 최소 3회 실행되고 성공률이 50% 미만이면 해당 기술에 대한 모든 진화 제안은 자동 병합되지 않고 사용자 검토를 기다립니다. 기술은 실패 때문에 비활성화되거나 숨겨지지 않습니다.
 
-## 손절매: 버전 및 섀도우 A/B
+## 손절매: 버전 및 롤백
 
-**평범한 언어:** 발전된 기술로 인해 에이전트가 악화되는 경우 CLI 없이 설정에서 롤백할 수 있습니다. 먼저 **섀도우 모드**에서 변경 사항을 승인한 다음(백그라운드에서 비교하는 동안 프로덕션 동작은 이전 버전으로 유지됨) 측정항목이 좋아 보일 때 승격할 수도 있습니다.
+**평범한 언어:** 발전된 기술로 인해 에이전트가 악화되는 경우 CLI 없이 설정에서 롤백할 수 있습니다. 모든 제안은 승인하기 전에 테스트 결과, 검증 증거, 영향 범위를 보여 줍니다.
 
 | Capability | What you get |
 |------------|--------------|
 | **Versions panel** | One-click rollback to any saved snapshot (GUI) |
 | **Evolution history** | Full audit trail of all approved/rejected changes with inline Diff viewer |
 | **Inline revision** | Monaco DiffEditor for editing proposals in place (responsive: side-by-side on desktop, inline on mobile) |
-| **Approve + Shadow** | Growth inbox → shadow test → Guardian promote/stop |
+| **Review card** | Test result, verification proof and impact scope on every proposal before you approve |
 
-**경쟁업체 대비:** Hermes/OpenClaw는 CLI 또는 파일 기반 롤백을 제공합니다. 섀도우 검증을 위한 전체 GUI 루프를 제공하는 제품은 없습니다.
+**경쟁업체 대비:** Hermes/OpenClaw는 CLI 또는 파일 기반 롤백을 제공합니다.
 
 ## 결정 내역: 이중 루프 학습
 
@@ -406,7 +406,6 @@ Myrm은 **내보내기 시 PII 수정**을 통해 **양방향 기술 동기화**
 | Per-skill lock | Yes (frontmatter + API) | No (global only) | No | None |
 | Safety layers | 5 | 0 | 0 | 0 |
 | Rejection learning | Permanent constraints | None | None | None |
-| Shadow approval | Test before promote | None | None | None |
 | GUI approval | Full dashboard + diff | None | No | No |
 | Evolution cost | 3 variants/run | N/A | 50-500 LLM calls/run | N/A |
 | Persistence | SQLite | File system | Pickle files | N/A |
