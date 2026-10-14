@@ -927,7 +927,9 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   2. **Outbox 序列与下游消费游标强一致原子清零（Cursor Resync & Zero Skip）**：在同一事务中清空业务数据并重置 `sqlite_sequence` 自增计数器，防止新会话 ID 重新从 1 起步而低于既有游标导致下游知识库/图谱消费者永久跳过所有新数据；
   3. **数据与身份配置严格解耦的白名单保护（Zero Re-Onboarding Guarantee）**：实行严密的资产白名单隔离（`agents`, `api_keys`, `user_configs`, `channel_pairings`），做到「清数据、不清身份与偏好」，清空后用户无需重新填 Key 或重新配对机器人；
   4. **原生异步与并发排他锁屏障**：全量基于标准异步事务（`async with engine.begin()`）执行，杜绝 aiosqlite 未 await 协程的静默缺陷，配合 `_PURGE_LOCK` 彻底杜绝并发死锁与 SQLite 锁表崩溃；
-  5. **100% 自动化测试通过**：Harness 14/14 项底层 FTS5 测试与 Server 3/3 项安全清库集成用例全绿通过，0 警告 0 错误 0 僵尸进程。
+  5. **运行中会话拒绝与逐会话拆除**：网关登记的会话仍在运行时直接拒绝（HTTP 409），清空不会在进行中的一轮对话下面删行；每个被清空的会话先清运行时缓存、checkpoint 线程与会话授权，聊天行删除后再批量移除其 git worktree 与工作空间（拒绝判断是快照：清空窗口内新开的一轮不会被拦住）；
+  6. **设置 → 安全策略 → 数据流向与隐私披露内的一键入口**：二次确认的「清空全部会话」调用同一协议，保留记忆、智能体、API 密钥与渠道设置，会话仍在运行时给出可重试提示；
+  7. **100% 自动化测试通过**：Harness 14/14 项底层 FTS5 测试与 Server 6/6 项清库测试（4 项 API/集成 + 2 项服务层）全绿通过，0 警告 0 错误 0 僵尸进程。
 - **SSOT 来源：** `myrm-agent-server/app/services/system/vault_purge_service.py` · `myrm-agent-harness/src/myrm_agent_harness/utils/db/fts5.py` · `temp-docs/materials/STORAGE_CRASH_CONSISTENCY_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-05 · 插件打包完整性与静态构建产物前置校验门禁 · 安全治理完成）
