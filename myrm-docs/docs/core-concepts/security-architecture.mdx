@@ -773,12 +773,12 @@ Myrm provides 8-layer PII defense with 57+ detection capabilities — the deepes
 
 | Mode | Action | Use Case |
 |------|--------|----------|
-| **WARN** | Log detection, pass content through | Monitoring-only environments |
-| **REDACT** | Type-aware irreversible masking (e.g., `138****5678`) | Production default for S2 data |
+| **WARN** | Log detection, pass content through | Shipped default for S2 (phone, email, …): the model still sees the value |
+| **REDACT** | Type-aware irreversible masking (e.g., `138****5678`) | Shipped default for S3; opt-in for S2 |
 | **PSEUDONYMIZE** | Reversible placeholder replacement via SQLite-backed `PseudonymStore` with streaming-safe chunk-boundary restoration | When AI needs context but user sees originals |
 | **BLOCK** | Completely block the message | S3-level confidential data |
 
-**Privacy-Aware Model Routing**: Automatically routes requests based on sensitivity level — S1 to cloud, S2 to cloud-after-redaction or local, S3 to local-only (data never leaves the machine). Configurable fallback: block or force-redact-then-cloud.
+**Privacy-Aware Model Routing**: With a local model configured, requests are routed by sensitivity level — S1 to cloud, S2 to cloud (with the S2 action above applied) or local, S3 to the local model (the raw data never leaves the machine). Without a local model, routing is off: every request goes to the cloud with the S2/S3 actions already applied. Configurable fallback: block or force-redact-then-cloud.
 
 **GUI Configuration**: Full privacy controls in Settings — enable/disable toggle, per-level action selection, deep scan toggle, local model connection test, custom keywords/regex/sensitive tools, and a try-it box that shows what the model would receive for a sample sentence under the current settings.
 
