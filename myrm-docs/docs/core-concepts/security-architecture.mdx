@@ -1316,13 +1316,12 @@ When agents browse the open web, parse untrusted third-party search results, or 
 - **Pre-Flight 403 Handshake Veto**: When a tainted session initiates an outbound connection, `LoopbackEgressProxy` pre-emptively evaluates the target host during the CONNECT / HTTP handshake. Non-allowlisted external endpoints are immediately denied with `403 Forbidden` and the TCP connection is cleanly dropped before any egress handshake occurs;
 - **Microsecond Sliding-Window Stream Inspection**: For traffic destined to allowed endpoints, the proxy mounts a `StreamingHoneytokenScanner` (with a sliding window of $2 \times \text{MaxTokenLength}$) across HTTP headers and streaming bodies. The instant a honeytoken pattern is intercepted, a low-level `TCP RST` packet forcefully tears down the socket, completely neutralizing exfiltration attempts.
 
-### 3. Session-Scoped Circuit Breaking & In-Context Self-Healing
-- **Session-Scoped Isolation (`SessionCircuitBreaker`)**: Tripping a honeytoken alarm immediately isolates the affected session, disabling outbound tool calls while leaving untainted sessions fully operational without cross-talk;
+### 3. In-Context Self-Healing
 - **Interactive Self-Healing Card (`IndirectInjectionAlertCard`)**: The WebUI seamlessly renders a dual-theme, zero-native-emoji alert card styled with Lucide vector icons. Users can review the blocked target and click "Sanitize & Continue" to trigger `reset_breaker` and resume work safely.
 
 ### 4. Empirical Evidence & Competitive Parity vs. Six Major Frameworks
 - **Benchmark Comparison (Myrm vs. Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi / OpenCode)**: Competitors either lack egress proxies entirely or rely on prompt-based soft guardrails easily bypassed by Base64 or obfuscation. Myrm provides the industry's only defense suite combining 100% prompt cache purity with microsecond TCP RST socket teardown;
-- **Quality Gates & Test Coverage**: Core Harness modules `honeytoken.py` (94%) and `circuit_breaker.py` (92%) achieve **94% total statement coverage** (exceeding the strict ≥90% bar); all **2,347 security suite tests pass with 100% success**; both Python `ruff check` and frontend `bun run lint` maintain 0 errors and 0 warnings.
+- **Quality Gates & Test Coverage**: Core Harness module `honeytoken.py` achieves **94% statement coverage** (exceeding the strict ≥90% bar); all **2,347 security suite tests pass with 100% success**; both Python `ruff check` and frontend `bun run lint` maintain 0 errors and 0 warnings.
 
 ## Irreversible Destructive Action Hard Stop Line & Workspace Snapshot Rollback Suite
 
@@ -1378,48 +1377,7 @@ Traditional agent architectures suffer from **Ambient Authority**: spawned subag
 
 ---
 
-## 16. Data-Driven Autonomy Level Escalation & Exception Circuit Breaker Governance Suite
-
-### 1. Eliminating Approval Fatigue without Surrendering to Blind YOLO
-Static binary security architectures force users into an agonizing dilemma:
-- **Approval Fatigue Collapse**: Prompts fire on every minor command or edit (30-50 interruptions in a large refactor), conditioning users to mindlessly approve without reading, rendering security checks meaningless;
-- **The `--yolo` Disaster**: Desperate users disable approvals entirely, allowing hallucinations or looping test failures to blindly rewrite core files and burn hundreds of dollars in tokens.
-
-#### Architectural Comparison Across Industry Agents
-| Platform | Autonomy Granularity | Circuit Breaker Protection | Anti-Goodhart Metrics | Prompt Cache Impact |
-| :--- | :--- | :--- | :--- | :--- |
-| **Hermes** | Prompt-level soft instruction guidance | None (looping errors proceed unchecked) | None | Medium (dynamic prompt injection) |
-| **OpenClaw** | Binary `--yolo` flag (all-or-nothing bypass) | None (hallucinating loop burns tokens) | None | Zero |
-| **Codex (CLI)** | Single-step interactive terminal prompts (`y/n`) | None (stops only on user Ctrl-C) | None | High (terminal context churn) |
-| **DeepSeek-Harness** | Static coarse profile (`ask` vs `never`) | None (no dynamic escalation/recovery) | None | Zero |
-| **Pi / OpenCode** | Hardcoded tool allowlists without sliding telemetry | None (static timeout kill only) | None | Low |
-| **Myrm** | **Dynamic 5-Stage (L1-L5) Automotive Protocol** | **10ms Hardware-Style 3-State Breaker (Closed/Open/Half-Open)** | **Ring Buffer (N=50) >=20% Mutation Ratio Gate** | **100% Byte-Level Cache Preservation** |
-
-### 2. High-Performance Architecture Innovations
-1. **5-Stage Automotive-Grade Autonomy Protocol (L1-L5)**:
-   - **L1 (Advisor)**: Read-only observations; mutating actions strictly prohibited;
-   - **L2 (Collaborator - Default Baseline)**: Single-step human-in-the-loop approvals for state mutations;
-   - **L3 (Supervisor)**: Batch intent inspection with structured execution observability;
-   - **L4 (Conditional Autonomous)**: Uninterrupted background execution inside verified boundaries; automatically trips on anomalous signals;
-   - **L5 (Autonomous Sandbox)**: Full autonomy inside bounded audit sandboxes.
-2. **Deterministic Sliding-Window Ring Buffer Gate (`PromotionGateCalculator`)**:
-   - Maintains a fixed-capacity (N=50) ring buffer tracking continuous success rate, mutation action ratio, and security violations;
-   - **Anti-Goodhart & Cold-Start Protections**: Requires >= 20 samples, >= 20% mutation ratio (rejecting read-only grinding), and 0 violations before recommending escalation to L4;
-3. **10ms Hardware-Style Circuit Breaker (`AutonomyCircuitBreaker`)**:
-   - Monolithic 3-state machine (`CLOSED`, `OPEN`, `HALF_OPEN`) tracking consecutive errors;
-   - Trips within <10ms upon detecting 2 consecutive failures or unauthorized boundary probing, instantly forcing an emergency downgrade from L4 back to L2;
-   - Enforces a trial-probe cooldown period in `HALF_OPEN` state, requiring 5 consecutive safe actions before restoring full autonomous privileges;
-4. **100% Prompt Cache Preservation**:
-   - Operates strictly as a kernel execution interceptor without injecting prompt metadata or exposing synthetic LLM tools. Prompt cache byte-level hit rates remain 100%.
-
-### 3. Empirical Verification & Quality Gates
-- **Harness Core Coverage**: **97.07%** test coverage (22/22 passed in 5.29s) across `myrm_agent_harness.core.security.autonomy`;
-- **Frontend Interaction State Machine**: 5/5 Vitest tests passed for `AutonomyBreakerAlertCard` with responsive mobile drawer adaptivity, zero raw emojis, and in-flight debounce protection;
-- **Lint & Static Architecture Verification**: `ruff check` 0 errors across Harness and `oxlint` 0 warnings across frontend.
-
----
-
-## 17. Enterprise Zero Data Retention (ZDR) Passthrough & Ephemeral Compliance Gate Suite
+## 16. Enterprise Zero Data Retention (ZDR) Passthrough & Ephemeral Compliance Gate Suite
 
 ### 1. The Enterprise ZDR Compliance Blindspot
 When deploying LLM agents in regulated environments (finance, healthcare, legal, defense), enterprises sign strict **Zero Data Retention (ZDR)** agreements with frontier model providers (OpenAI, Anthropic, AWS Bedrock). However, traditional agent orchestration frameworks introduce a critical compliance violation:
