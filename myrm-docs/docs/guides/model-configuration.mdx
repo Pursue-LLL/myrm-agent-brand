@@ -142,12 +142,12 @@ On rate-limit errors, the pool applies exponential backoff with ±15% jitter and
 
 ## Privacy Routing
 
-Myrm's Privacy Routing automatically selects cloud or local models based on data sensitivity — no manual switching required:
+With a local model configured, Myrm's Privacy Routing automatically selects cloud or local models based on data sensitivity — no manual switching required:
 
 | Sensitivity | Routing | Data Handling |
 |-------------|---------|---------------|
 | **S1** — Public | Cloud model | Direct to cloud |
-| **S2** — Internal | Cloud (after PII redaction) or local | Auto-redaction or local routing |
+| **S2** — Internal | Cloud or local | Your S2 action is applied first (a warning by default), or local routing |
 | **S3** — Confidential | Local model only | Data never leaves your machine |
 
 Privacy Routing wraps the model behind a standard interface. Agents, middlewares, and the execution loop are completely unaware of the routing — they interact with a normal model.

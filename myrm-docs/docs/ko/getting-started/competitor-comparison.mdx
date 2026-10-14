@@ -529,7 +529,7 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 ## 최신 검증 스냅샷 (2026-08-27 · 개인정보 인식 동적 모델 라우팅 및 제로 유출 물리적 보안 격리 게이트 · 모델 보안 완료)
 
 - **PrivacyAwareDynamicModelRouting (Hermes 정적 모델 락인 / OpenClaw 평문 클라우드 유출 / Claude Code 로컬 오프로딩 부재 대비):** Myrm은 턴 단위 개인정보 인식 동적 모델 라우팅 및 데이터 제로 유출 물리적 격리 아키텍처를 제공합니다:
-  1. **턴 단위 PII 민감도 동적 분류 (S1/S2/S3)**: `PrivacyTracker` ContextVar 세션 추적과 `SecurityGuardrailMiddleware`를 통해 턴 단위로 데이터 민감도를 자동 평가: 공개 데이터(S1)는 고성능 클라우드 모델로, 중간 민감도(S2)는 비식별화 후 클라우드 또는 로컬로, 고기밀 자격 증명/키(S3)는 로컬 오프라인 사설 모델(Ollama/vLLM/llama.cpp)로 엄격히 분기;
+  1. **턴 단위 PII 민감도 동적 분류 (S1/S2/S3)**: `PrivacyTracker` ContextVar 세션 추적과 `SecurityGuardrailMiddleware`를 통해 턴 단위로 데이터 민감도를 자동 평가: 공개 데이터(S1)는 고성능 클라우드 모델로, 중간 민감도(S2)는 설정한 S2 동작을 적용한 뒤 클라우드로 또는 로컬로, 고기밀 자격 증명/키(S3)는 로컬 오프라인 사설 모델(Ollama/vLLM/llama.cpp)로 엄격히 분기;
   2. **물리적 제로 유출 하드 게이트 및 Fail-Closed 방어 (`_verify_redaction_safety`)**: S3 자격 증명이 어떤 상황에서도 물리적 머신을 벗어나지 않도록 강제하며, 클라우드 폴백이 요청되더라도 엄격한 Fail-Closed 차단을 수행하여 유출을 원천 방지;
   3. **GUI 우선 로컬 모델 연결성 프로브 (`SecurityPrivacyPanel.tsx`)**: WebUI에서 실시간 지연 시간 프로브(`/config/test-local-model`), 사용자 지정 S2/S3 폴백 정책 및 오설정 방지 경고 제공;
   4. **투명한 BaseChatModel 래핑**: `PrivacyRoutingModel` 내에 캡슐화되어 스트리밍(`astream`) 및 도구 바인딩(`bind_tools`)과 완벽 호환되며 프롬프트 캐시 손실 0 유지;

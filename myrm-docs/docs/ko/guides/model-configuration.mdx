@@ -131,12 +131,12 @@ AI 모델마다 행동 경향이 다릅니다. Myrm은(는) 최상의 결과를 
 
 ## 개인 정보 보호 라우팅
 
-Myrm의 개인 정보 보호 라우팅은 데이터 민감도에 따라 클라우드 또는 로컬 모델을 자동으로 선택하므로 수동 전환이 필요하지 않습니다.
+로컬 모델이 구성된 경우 Myrm의 개인 정보 보호 라우팅은 데이터 민감도에 따라 클라우드 또는 로컬 모델을 자동으로 선택하므로 수동 전환이 필요하지 않습니다.
 
 | Sensitivity | Routing | Data Handling |
 |-------------|---------|---------------|
 | **S1** — Public | Cloud model | Direct to cloud |
-| **S2** — Internal | Cloud (after PII redaction) or local | Auto-redaction or local routing |
+| **S2** — Internal | Cloud or local | Your S2 action is applied first (a warning by default), or local routing |
 | **S3** — Confidential | Local model only | Data never leaves your machine |
 
 개인 정보 보호 라우팅은 표준 인터페이스 뒤에 모델을 래핑합니다. 에이전트, 미들웨어 및 실행 루프는 라우팅을 전혀 인식하지 못하며 일반 모델과 상호 작용합니다.
