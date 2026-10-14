@@ -213,7 +213,7 @@ To prevent malicious prompt injections from probing or bypassing security constr
 - **Cross-Turn Registry**: Consecutive (3) and cumulative (20) security denial counters are anchored to a persistent session registry rather than ephemeral coroutine ContextVars;
 - **Auto-Mode Suspension (`AUTO_MODE_SUSPENDED`)**: When breach thresholds are reached, Auto Mode is immediately suspended and a high-visibility warning banner surfaces on the WebUI approval card;
 - **Decay & Self-Healing**: Explicit user approvals reset the consecutive counter and trigger self-healing decay on cumulative breaches (1 decay per 3 safe executions), ensuring a balanced balance between strict security and uninterrupted developer velocity;
-- **Session-Scoped Grant Isolation & Lifecycle Reclamation**: Temporary tool approvals granted with "session" duration are strictly isolated in memory to the active `session_id`. When the session is purged (via Focus & Flush, chat deletion, or trash empty), `_cleanup_checkpointer` automatically cascade-purges all ephemeral allowlist grants and resets denial counters, preventing dangling authorization leaks.
+- **Session-Scoped Grant Isolation & Lifecycle Reclamation**: Temporary tool approvals granted with "session" duration are strictly isolated in memory to the active `session_id`. When the session is purged (via Focus & Flush, chat deletion, or trash empty), `clear_conversation_state` automatically cascade-purges all ephemeral allowlist grants and resets denial counters, preventing dangling authorization leaks.
 
 ### Sidebar Attention Indicator
 
