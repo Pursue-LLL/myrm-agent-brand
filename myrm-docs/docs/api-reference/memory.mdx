@@ -45,20 +45,28 @@ Returns the most frequent tags across all memory types with their counts.
 ## Search Memory
 
 ```bash
-POST /api/memory/search
+GET /api/v1/memory/search?query=user%20preferences%20for%20coding%20style&memory_types=semantic,episodic&limit=10
 ```
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `query` | string | — | Search query (required, uses vector similarity) |
+| `memory_types` | string | all | Comma-separated memory types, e.g. `semantic,episodic` |
+| `limit` | int | 10 | Maximum results (1-50) |
+| `session_id` | string | — | Optional session ID; ranking signals are tuned to that session's preferences |
+
+Response:
 
 ```json
 {
+  "results": [...],
+  "scores": [0.91, 0.84],
   "query": "user preferences for coding style",
-  "limit": 10,
-  "expand_conversation_id": "chat-xxx",
-  "expand_message_id": "msg-yyy",
-  "expand_window": 5
+  "total": 2
 }
 ```
 
-Supports two-stage causal expansion: standard queries return compact 700-char summaries; providing `expand_conversation_id`, `expand_message_id`, and `expand_window` (1-20, default 5) dynamically scales output capacity up to 4000 characters of full multi-turn context.
+`results` and `scores` are aligned by index.
 
 ## Create Memory Entry
 

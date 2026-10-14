@@ -46,15 +46,28 @@ GET /api/memory/tags?limit=20
 ## 메모리 검색
 
 ```bash
-POST /api/memory/search
+GET /api/v1/memory/search?query=user%20preferences%20for%20coding%20style&memory_types=semantic,episodic&limit=10
 ```
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `query` | string | — | 검색 쿼리 (필수, 벡터 유사도 사용) |
+| `memory_types` | string | all | 쉼표로 구분한 메모리 유형 (예: `semantic,episodic`) |
+| `limit` | int | 10 | 최대 결과 수 (1-50) |
+| `session_id` | string | — | 선택적 세션 ID. 해당 세션의 선호도에 맞춰 순위 신호가 조정됩니다 |
+
+응답:
 
 ```json
 {
+  "results": [...],
+  "scores": [0.91, 0.84],
   "query": "user preferences for coding style",
-  "limit": 10
+  "total": 2
 }
 ```
+
+`results`와 `scores`는 인덱스 순서대로 대응됩니다.
 
 ## 메모리 항목 생성
 
