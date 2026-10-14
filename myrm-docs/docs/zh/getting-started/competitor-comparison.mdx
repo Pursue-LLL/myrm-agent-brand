@@ -242,11 +242,11 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 - **DiscordLongSessionSkillEvolutionBloatGuard（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在持续在线与长会话 IM 运行中普遍存在的“长会话自主进化导致微技能无序膨胀挤爆 Prompt、上下文超限时依然发起昂贵远程递归摘要触发 ContextLengthExceeded 死锁崩溃、缺乏单机沙箱硬容量预算、缺乏自愈任务通道、以及前端对技能池占用状态向上失明”等痛点）：** Myrm 全面交付了长会话进化防膨胀与上下文过载主动守卫全栈套件：
   1. **400k 长会话防爆气囊（`CompactorPreflightFence`）**：在上下文压缩流水线前端设立 85% 水位主动拦截网，当会话逼近极端水位时，果断阻断高风险且耗时耗资的远程 LLM 递归摘要调用，毫秒级优雅回退为本地确定性结构化截断摘要，彻底杜绝极端长会话抛错崩溃；
-  2. **精确 Token 计量与 50 技能硬限熔断（`CapacityGuard`）**：废弃粗糙的字符除 4 估算，全链路采用 `get_token_count` 精确测量；单机沙箱严格设置 50 技能硬容量上限，超额自动触发熔断并广播 `SKILL_CAPACITY_LIMIT` 事件；
+  2. **50 技能库容量上限（`SkillBudgetGovernor`）**：技能正文按需加载、不占常驻提示词，因此只按技能数量限流：已安装且未归档的技能达到 50 个时暂停自动沉淀新技能，归档或删除技能后自动恢复；
   3. **自愈通道豁免机制（Self-Healing Exemption）**：特别对 `FIX`（修复坏代码）与 `OPTIMIZE_DESCRIPTION`（优化与合并描述）等瘦身维护类任务提供通道放行，彻底消除系统陷入“满了却无法自行修复精简”的致命死锁；
-  4. **前端容量池实时透明度（`CapacityPoolBadge`）**：在 WebUI 与桌面端待办进化中心顶部操作栏原生内嵌容量监控徽标（如 42/50 84%），支持三态语义着色（正常 / 80% 软限预警 / 100% 熔断自愈提示），让普通用户一眼看清空间状态；视觉组件深度解耦重构，主业务组件控制在 434 行，符合单文件严格上限要求；
-  5. **100% 满分全栈实测验证**：框架层压缩防爆测试 63/63 全绿、服务层容量守卫与自愈测试 9/9 全绿、前端 Vitest 3/3 全绿、真实 Chrome CDP 端到端（`test_domain_skills_settings_chrome_e2e.py`）在 PRIVATE exclusive_backend 模式下 71.86s 一气呵成通过，0 僵尸残留。
-- **SSOT 来源：** `myrm_agent_harness/agent/context_management/pipeline/processors/summarize_processor.py` · `app/services/agent/evolution/engine.py` · `PendingEvolutionsDashboard.tsx` · `test_domain_skills_settings_chrome_e2e.py` · `temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`
+  4. **技能库已满提示（`skill_capacity_reached`）**：技能库填满时，WebUI 与桌面端弹出一次本地化提示并直达技能管理，学习暂停不再悄无声息；
+  5. **100% 满分全栈实测验证**：框架层压缩防爆测试 63/63 全绿、服务层容量守卫、在库技能核对与提示测试 15/15 全绿、前端提示 Vitest 5/5 全绿。
+- **SSOT 来源：** `myrm_agent_harness/agent/context_management/pipeline/processors/summarize_processor.py` · `app/services/agent/evolution/engine.py` · `skillCapacityToast.ts` · `temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-23 · Karpathy 五层知识资产立体拓扑与零死胡同智能分流全链路交付 · 彻底消除单目录堆叠、死路径白屏与任务凭据链断裂）
 
