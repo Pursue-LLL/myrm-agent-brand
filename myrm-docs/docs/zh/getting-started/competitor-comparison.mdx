@@ -923,7 +923,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
 ## 最新验证快照（2026-09-05 · 级联安全清库与 FTS 虚表逆序防孤儿及游标强一致重置 · 数据治理完成）
 
 - **SafeVaultPurgeCascadeFtsAndCursorSync（对标 openTrinity/mycontext / OpenClaw / Hermes 在用户清空会话数据时因直接级联删除导致 contentless FTS5 虚表永久残留 8.4 万行孤儿幽灵索引、自增序列未重置导致下游消费游标死锁、以及无差别清空导致用户 API Key 和智能体配置丢失的严重痛点）：** Myrm 交付了业内领先的系统级安全清库事务协议（`SafeVaultPurgeService`）：
-  1. **严格逆序删除与 FTS5 虚表物理清理（Zero Ghost Rows in Contentless FTS）**：在事务最前置通过 `safe_purge_fts5_virtual_table` 发送 `delete-all`、`rebuild` 与 `optimize`，彻底消灭 contentless 虚表因 `old.content` 读取失败造成的幽灵行残留（实测清理后匹配结果精确为 0）；
+  1. **严格逆序删除与 FTS5 虚表物理清理（Zero Ghost Rows in Contentless FTS）**：在清库事务中、删除源数据之前，对每张 FTS5 虚表发送 `delete-all`、`rebuild` 与 `optimize`，彻底消灭 contentless 虚表因 `old.content` 读取失败造成的幽灵行残留（实测清理后匹配结果精确为 0）；
   2. **Outbox 序列与下游消费游标强一致原子清零（Cursor Resync & Zero Skip）**：在同一事务中清空业务数据并重置 `sqlite_sequence` 自增计数器，防止新会话 ID 重新从 1 起步而低于既有游标导致下游知识库/图谱消费者永久跳过所有新数据；
   3. **数据与身份配置严格解耦的白名单保护（Zero Re-Onboarding Guarantee）**：实行严密的资产白名单隔离（`agents`, `api_keys`, `user_configs`, `channel_pairings`），做到「清数据、不清身份与偏好」，清空后用户无需重新填 Key 或重新配对机器人；
   4. **原生异步与并发排他锁屏障**：全量基于标准异步事务（`async with engine.begin()`）执行，杜绝 aiosqlite 未 await 协程的静默缺陷，配合 `_PURGE_LOCK` 彻底杜绝并发死锁与 SQLite 锁表崩溃；
