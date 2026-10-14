@@ -610,7 +610,7 @@ A complete bidirectional risk detection and governance framework with built-in r
 
 **GUI Rule Management**: Full CRUD via WebUI settings panel — create custom rules with regex patterns, toggle rules on/off, batch operations, and rule testing before deployment. No code required.
 
-**Audit Trail**: Every risk hit records `trace_id`, `session_id`, matched rule, severity level, and the character range of the match for compliance auditing. The matched text itself is never stored, so the hit log cannot leak the secret it caught; hits stored by earlier versions have their text cleared at startup.
+**Audit Trail**: Every risk hit records `trace_id`, `session_id`, matched rule, severity level, and the character range of the match for compliance auditing. The matched text itself is never stored, so the hit log cannot leak the secret it caught; at startup, any hit text found in the log is cleared.
 
 **Full-Stack Event Loop**: When input risk is detected, the server emits a `risk_blocked` SSE event. The event lists the triggered rules by id, name, and severity. The frontend `riskEvents` handler intercepts it and shows a Toast in the user's language that names those rules and points to **Settings → Security Policy → Risk Rules** — no silent failures.
 
