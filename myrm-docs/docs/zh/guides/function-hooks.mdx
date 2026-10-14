@@ -41,7 +41,7 @@ hooks:
 ---
 ```
 
-- 可识别的事件名：`SessionStart`、`SessionEnd`（亦可写 `Stop`）、`BeforeToolUse` / `PreToolUse`、`AfterToolUse` / `PostToolUse`、`PostToolUseFailure`。其他名称会被跳过，并在日志中给出警告。
+- 可识别的事件名：`SessionStart`、`SessionEnd`（亦可写 `Stop`）、`BeforeToolUse` / `PreToolUse`、`AfterToolUse` / `PostToolUse`、`PostToolUseFailure`。其他名称会被跳过，并在日志中给出警告；`hooks` 或事件值的写法与上面的示例结构不一致（事件名下应是条目列表）时，同样会被跳过并告警。
 - `script` 构造命令钩子；`url` 构造 HTTP 钩子。`secret` 开启 HMAC 签名；`fire_and_forget` 使调用非阻塞。
 - `tools` 过滤钩子可见的工具：一个模式或一个列表（`bash_*`、`[bash_*, write_file_tool]`），按 fnmatch 匹配运行时工具名（bash 工具名为 `bash_code_execute_tool`）。`tools` 写法不合法时，该钩子会被跳过，而不是放宽为匹配所有工具。
 - `failure_mode: fail_closed` 表示钩子失败或被拒绝时阻断对应操作（默认 `fail_open`：跳过并记录日志）。`timeout` 单位为秒（默认 10，范围 1–600）。无效条目会被跳过并告警，不会连累同一技能的其他钩子。
