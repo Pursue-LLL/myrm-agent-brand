@@ -82,8 +82,8 @@ The Shadow Git system uses a shared bare repository with per-project refs:
 If the server crashes mid-task:
 
 1. LangGraph's persistent SQLite checkpointer saves full state at every graph transition
-2. On restart, `OfflineDurableTask` detects interrupted tasks
-3. Tasks resume from the exact interruption point — no user action needed
+2. Before every ordinary conversation turn (long-running modes such as Deep Research are not covered) a write-ahead `InterruptedTurnMarker` is stored; on restart, turns interrupted in the last 15 minutes are found from it
+3. Those turns are re-run automatically in the background (at most 2 attempts) and you are notified when they finish — no user action needed
 
 This is architecturally superior to manual checkpoint callbacks (as used by some competitors) because state is captured at every graph node transition automatically, not just at manually-instrumented points.
 
