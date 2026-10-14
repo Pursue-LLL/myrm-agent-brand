@@ -595,24 +595,24 @@ An AI classifier (`TranscriptClassifier`) reviews tool calls to verify they alig
 
 A complete bidirectional risk detection and governance framework with built-in rules, custom rule management, and full-stack event handling. The same rule engine protects **both** WebUI input and IM channel inbound messages — no blind spots.
 
-**31 Built-in Rules** across 7 categories detect sensitive data before it reaches the LLM:
+**31 Built-in Rules** across 6 categories detect sensitive data before it reaches the LLM. Only the **8 Security rules** are enabled out of the box. They block a message when it carries an actual secret value — a key, token, private key, or a credential assigned a literal value — and let references such as `password = os.environ["DB_PASSWORD"]` or `api_key: "<redacted>"` through. The other 23 rules match broad vocabulary and are opt-in: turn them on under **Settings → Security Policy → Risk Rules** when your policy needs them. Installs that already saved their own toggles keep them. Rules only block: a hit stops the message before it reaches the model.
 
-| Category | Examples | Count |
-|----------|---------|-------|
-| **Personal** | Email, phone, Chinese ID number, passport, address | 8 |
-| **Security** | API keys (OpenAI, AWS, GCP, Azure), SSH private keys, JWT tokens | 7 |
-| **Company** | Internal IPs, employee IDs, project codenames, internal URLs | 5 |
-| **Customer** | Customer IDs, order numbers, support ticket numbers | 4 |
-| **Finance & Legal** | Bank accounts, credit cards, tax IDs, contract numbers | 4 |
-| **Political** | Politically sensitive content patterns | 3 |
+| Category | Examples | Count | On by default |
+|----------|---------|-------|---------------|
+| **Personal** | Email, mobile number, Chinese ID number, passport, bank card context, address and résumé wording | 7 | No |
+| **Security** | API keys and cloud credentials, private keys, JWT tokens, session tokens, connection strings, kubeconfig, credential assignments, environment secrets | 8 | Yes |
+| **Company** | Private network addresses, internal hostnames, Kubernetes service DNS, project codenames, org rosters, salary data | 7 | No |
+| **Customer** | Customer lists, contracts and quotes, CRM or ticket data | 3 | No |
+| **Finance & Legal** | Financial metrics, invoice and tax information, legal documents | 3 | No |
+| **Political** | Political, military and security, extremism wording | 3 | No |
 
-**Symmetric Inbound/Outbound Gate**: IM channel messages pass through `RiskDetectionService.detect()` at the router level before reaching the Agent. Blocked messages receive a localized notification (6 languages) and are audit-logged. Outbound agent responses pass through the same engine via `_apply_outbound_risk_gate` — forming a closed-loop defense.
+**Symmetric Inbound/Outbound Gate**: IM channel messages pass through `RiskDetectionService.detect()` at the router level before reaching the Agent. Blocked messages receive a localized notification (6 languages) and are audit-logged. Outbound agent responses pass through the same engine via `apply_outbound_risk_gate` — forming a closed-loop defense.
 
 **GUI Rule Management**: Full CRUD via WebUI settings panel — create custom rules with regex patterns, toggle rules on/off, batch operations, and rule testing before deployment. No code required.
 
-**Audit Trail**: Every risk hit records `trace_id`, `session_id`, matched rule, and severity level for compliance auditing.
+**Audit Trail**: Every risk hit records `trace_id`, `session_id`, matched rule, severity level, and the character range of the match for compliance auditing. The matched text itself is never stored, so the hit log cannot leak the secret it caught; hits stored by earlier versions have their text cleared at startup.
 
-**Full-Stack Event Loop**: When input risk is detected, the server emits a `risk_blocked` SSE event. The frontend `riskEvents` handler intercepts this event and displays a user-friendly Toast notification explaining which rules were triggered — no silent failures.
+**Full-Stack Event Loop**: When input risk is detected, the server emits a `risk_blocked` SSE event. The event lists the triggered rules by id, name, and severity. The frontend `riskEvents` handler intercepts it and shows a Toast in the user's language that names those rules and points to **Settings → Security Policy → Risk Rules** — no silent failures.
 
 ### Test Coverage
 
