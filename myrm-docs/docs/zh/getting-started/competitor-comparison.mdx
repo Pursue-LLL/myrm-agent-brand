@@ -244,7 +244,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   1. **400k 长会话防爆气囊（`CompactorPreflightFence`）**：在上下文压缩流水线前端设立 85% 水位主动拦截网，当会话逼近极端水位时，果断阻断高风险且耗时耗资的远程 LLM 递归摘要调用，毫秒级优雅回退为本地确定性结构化截断摘要，彻底杜绝极端长会话抛错崩溃；
   2. **50 技能库容量上限（`SkillBudgetGovernor`）**：技能正文按需加载、不占常驻提示词，因此只按技能数量限流：已安装且未归档的技能达到 50 个时暂停自动沉淀新技能，归档或删除技能后自动恢复；
   3. **自愈通道豁免机制（Self-Healing Exemption）**：特别对 `FIX`（修复坏代码）与 `OPTIMIZE_DESCRIPTION`（优化与合并描述）等瘦身维护类任务提供通道放行，彻底消除系统陷入“满了却无法自行修复精简”的致命死锁；
-  4. **技能库已满提示（`skill_capacity_reached`）**：技能库填满时，WebUI 与桌面端弹出一次本地化提示并直达技能管理，学习暂停不再悄无声息；
+  4. **技能库已满提示（`skill_capacity_reached`）**：技能库填满时，WebUI 与桌面端弹出本地化提示并直达技能管理；
   5. **100% 满分全栈实测验证**：框架层压缩防爆测试 63/63 全绿、服务层容量守卫、在库技能核对与提示测试 15/15 全绿、前端提示 Vitest 5/5 全绿。
 - **SSOT 来源：** `myrm_agent_harness/agent/context_management/pipeline/processors/summarize_processor.py` · `app/services/agent/evolution/engine.py` · `skillCapacityToast.ts` · `temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`
 
