@@ -1288,10 +1288,7 @@ When agents browse the open web, parse untrusted third-party search results, or 
 - **Pre-Flight 403 Handshake Veto**: When a tainted session initiates an outbound connection, `LoopbackEgressProxy` pre-emptively evaluates the target host during the CONNECT / HTTP handshake. Non-allowlisted external endpoints are immediately denied with `403 Forbidden` and the TCP connection is cleanly dropped before any egress handshake occurs;
 - **Microsecond Sliding-Window Stream Inspection**: For traffic destined to allowed endpoints, the proxy mounts a `StreamingHoneytokenScanner` (with a sliding window of $2 \times \text{MaxTokenLength}$) across HTTP headers and streaming bodies. The instant a honeytoken pattern is intercepted, a low-level `TCP RST` packet forcefully tears down the socket, completely neutralizing exfiltration attempts.
 
-### 3. In-Context Self-Healing
-- **Interactive Self-Healing Card (`IndirectInjectionAlertCard`)**: The WebUI seamlessly renders a dual-theme, zero-native-emoji alert card styled with Lucide vector icons. Users can review the blocked target and click "Sanitize & Continue" to trigger `reset_breaker` and resume work safely.
-
-### 4. Empirical Evidence & Competitive Parity vs. Six Major Frameworks
+### 3. Empirical Evidence & Competitive Parity vs. Six Major Frameworks
 - **Benchmark Comparison (Myrm vs. Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi / OpenCode)**: Competitors either lack egress proxies entirely or rely on prompt-based soft guardrails easily bypassed by Base64 or obfuscation. Myrm provides the industry's only defense suite combining 100% prompt cache purity with microsecond TCP RST socket teardown;
 - **Quality Gates & Test Coverage**: Core Harness module `honeytoken.py` achieves **94% statement coverage** (exceeding the strict ≥90% bar); all **2,347 security suite tests pass with 100% success**; both Python `ruff check` and frontend `bun run lint` maintain 0 errors and 0 warnings.
 
@@ -1380,14 +1377,10 @@ When deploying LLM agents in regulated environments (finance, healthcare, legal,
 3. **Tamper-Proof Cryptographic Compliance Attestation (`create_zdr_attestation`)**:
    - Computes deterministic HMAC-SHA256 cryptographic signatures over session parameters, tenant IDs, model routing, and timestamp bounds;
    - Issues an unforgeable compliance voucher that enterprise security teams can export for third-party SOC2, HIPAA, and GDPR audit certifications.
-4. **Enterprise Compliant User Interface (`ZDRComplianceDrawer.tsx`)**:
-   - Vector SVG status badges and full-screen / responsive drawer interfaces without raw emojis;
-   - Real-time attestation hash viewer, one-click voucher copy, and instant `0x00` physical wipe trigger.
 
 ### 3. Empirical Verification & Quality Gates
 - **Harness Wire Interceptor Unit Tests**: 6/6 tests passed in 9.35s (`test_zdr_interceptor.py`), `ruff check` 0 errors;
 - **Server Ephemeral Session & Attestation Tests**: 5/5 tests passed in 3.20s (`test_zdr_ephemeral_session.py`), full architecture suite 1,790 passed, `ruff check` 0 errors;
-- **Frontend Interaction & A11y Suite**: 5/5 Vitest tests passed in 1.03s (`ZDRComplianceDrawer.test.tsx`), `tsc --noEmit` 0 errors, `oxlint` 0 warnings;
 - **End-to-End Real LLM Inference**: Verified with `MiniMax-M3.1-Flash-Preview` achieving **83.1% Prompt Cache hit rate** (197 cached tokens out of 237 total tokens);
 - **Real Chrome CDP E2E Automation**: Orchestrated via `./myrm test -m chrome_e2e` on live Chrome instance (CDP :9333), **1 passed in 58.87s**, with 0 zombie processes.
 

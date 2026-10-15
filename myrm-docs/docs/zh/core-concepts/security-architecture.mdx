@@ -1133,10 +1133,7 @@ CaMeL 单信任边界；Myrm **6 层**洋葱防御、5 域循环检测、3 层�
 - **未受信白名单前置握手阻断**：受污染会话发起网络请求时，`LoopbackEgressProxy` 代理层在 CONNECT / HTTP 握手阶段前置校验目标主机，未加白域名直接返回 `403 Forbidden` 并切断连接，外部 TCP 连通率从源头降为零；
 - **微秒级滑动窗口流式嗅探**：对于受信任白名单域名的外发流量，代理层挂载 `StreamingHoneytokenScanner`（滑动窗口尺寸为 $2 \times \text{MaxTokenLength}$），在 HTTP 请求头与流式请求体传输中实时扫描；一旦检测到拟真金丝雀特征，底层立即发送 `TCP RST` 强行掐断 Socket，彻底杜绝数据微渗漏。
 
-### 3. 交互式前端一键自愈
-- **零原生 emoji 交互式自愈卡片（`IndirectInjectionAlertCard`）**：前端对话流中实时展示语义化安全警报，严格采用 Lucide 矢量图标并自适应深浅双主题与移动端；用户点击“净化受污染上下文并继续”即可一键调用 `reset_breaker` 自愈恢复。
-
-### 4. 实测数据与六大主流竞品对比
+### 3. 实测数据与六大主流竞品对比
 - **全息对比（Myrm vs Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi / OpenCode）**：竞品在遭遇注入时要么直接将凭证发送给外部攻击者，要么依赖模型自身的拒答道德感，极易被 Base64 或字符隐写绕过；Myrm 建立出网代理物理截断与诱饵暗桩防线，是业界唯一同时兼顾 100% Prompt Cache 命中率与微秒级出网 TCP RST 掐断的智能体平台；
 - **质量门禁与覆盖率背书**：Harness 执行内核 `honeytoken.py` 达到 **94% 测试覆盖率**（远超 ≥90% 门禁红线）；全量安全测试套件 **2,347 项 100% 满分通过**；Python `ruff check` 与前端 `bun run lint` 实现 0 errors, 0 warnings，零僵尸进程残留。
 
