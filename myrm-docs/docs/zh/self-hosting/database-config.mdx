@@ -1,38 +1,29 @@
 ---
 title: 数据库配置
-description: 配置 SQLite 与 Qdrant 数据存储。
+description: Myrm 的数据存放位置与备份方法。
 ---
 
 # 数据库配置
 
-## SQLite（主库）
+Myrm 把全部数据放在同一个数据目录：`MYRM_DATA_DIR`（默认 `~/.myrm`）。无需外部数据库或向量服务。
 
-Myrm 使用 SQLite 作为主数据库。基础用法无需额外安装。
+| 路径 | 内容 |
+|------|------|
+| `data.db` | 主 SQLite 数据库 |
+| `qdrant/` | 记忆检索使用的内嵌向量库 |
+| `checkpoints.db` | 智能体检查点 |
+| `memory/` | 记忆内容 |
 
-数据默认存储在 `./data/myrm.db`，可通过 `DATABASE_URL` 配置。
+同一个数据目录同一时间只能由一个运行中的 Myrm 使用，因为内嵌向量库会锁定自己的文件夹。打不开该文件夹的第二个副本会继续运行，但新记忆不会被永久保存，并会在应用内显示警告。
 
-## Qdrant（向量库）
+## 图存储（可选）
 
-Qdrant 为记忆系统提供向量检索能力。
-
-### Docker Compose（默认）
-
-默认 Docker Compose 已包含 Qdrant，会自动启动。
-
-### 外部 Qdrant
-
-使用已有 Qdrant 实例：
-
-```env
-QDRANT_URL=http://your-qdrant-host:6333
-```
+`DATABASE_URL` 指向可选的 Apache AGE（PostgreSQL）图存储。留空则图数据保存在数据目录下的 SQLite 中。
 
 ## 备份
 
-```bash
-# SQLite 备份
-cp ./data/myrm.db ./backups/myrm-$(date +%Y%m%d).db
+先停止 Myrm，再复制整个数据目录：
 
-# Qdrant 快照
-curl -X POST http://localhost:6333/collections/myrm/snapshots
+```bash
+cp -R "${MYRM_DATA_DIR:-$HOME/.myrm}" "./backups/myrm-$(date +%Y%m%d)"
 ```

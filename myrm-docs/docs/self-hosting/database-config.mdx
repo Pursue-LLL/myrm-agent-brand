@@ -1,38 +1,29 @@
 ---
 title: Database Configuration
-description: Configure SQLite and Qdrant for data storage.
+description: Where Myrm keeps its data and how to back it up.
 ---
 
 # Database Configuration
 
-## SQLite (Primary)
+Myrm keeps all of its data in one data directory: `MYRM_DATA_DIR` (default `~/.myrm`). No external database or vector service is needed.
 
-Myrm uses SQLite as the primary database. No additional setup needed for basic usage.
+| Path | Contents |
+|------|----------|
+| `data.db` | Primary SQLite database |
+| `qdrant/` | Embedded vector store used by memory search |
+| `checkpoints.db` | Agent checkpoints |
+| `memory/` | Memory content |
 
-Data is stored at `./data/myrm.db` by default. Configure with `DATABASE_URL`.
+Only one running copy of Myrm can use a data directory at a time, because the embedded vector store locks its folder. A second copy that cannot open it keeps running, but it does not save new memories permanently and shows a warning in the app.
 
-## Qdrant (Vector Store)
+## Graph store (optional)
 
-Qdrant provides vector search capabilities for the memory system.
-
-### Docker Compose (Default)
-
-Qdrant is included in the default Docker Compose configuration and starts automatically.
-
-### External Qdrant
-
-To use an existing Qdrant instance:
-
-```env
-QDRANT_URL=http://your-qdrant-host:6333
-```
+`DATABASE_URL` points to an optional Apache AGE (PostgreSQL) graph store. Leave it empty to keep the graph in SQLite inside the data directory.
 
 ## Backup
 
-```bash
-# SQLite backup
-cp ./data/myrm.db ./backups/myrm-$(date +%Y%m%d).db
+Stop Myrm, then copy the whole data directory:
 
-# Qdrant snapshot
-curl -X POST http://localhost:6333/collections/myrm/snapshots
+```bash
+cp -R "${MYRM_DATA_DIR:-$HOME/.myrm}" "./backups/myrm-$(date +%Y%m%d)"
 ```
