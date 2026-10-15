@@ -447,7 +447,7 @@
           "feature": "记忆系统 · 8 种类型、知识图谱、40+ 个可视化管理组件、27 源集成（9 类别）、Obsidian 导出、数据集导出、健康诊断",
           "hermes": "2200字符（无管理UI）",
           "openclaw": "3",
-          "myrmAgent": "三层去重(Hash→Vector→LLM) + 三引擎行为推导(CognitiveDeriver偏好推理 + PreferenceStability稳定性追踪 + FrustrationDetector挫败→技能进化) + BM25/Vector/RRF三通道融合检索(7-Signal加权+MMR多样性) + 查询侧时间窗硬过滤(「上周聊的」类中英文时间标记自动推导→存储层剪枝，纯本地正则2.9µs零成本，旧时段记忆绝不串扰回答) + 跨引擎精排门(Top-N语义精排把真正相关的顶到最前+超时/异常自动降级保原序，精排坏了检索照常出结果) + Auto Dreaming 异步固化 + 知识图谱增强检索 + L1 画像注入 + memory×3 COMMON 层 eager + unified memory_search_tool(corpus=memory/wiki/sessions/all) + sessions **opt-in default off**（按需开启，Evidence N 可核对）+ **无痕模式全记忆关闭** + **新用户默认开启记忆** + **多Agent记忆隔离Scope Boundary**（全局记忆与Agent指令冲突时自动确保Agent人设优先，业界唯一）+ **沙箱与编码能力智能体 L3 写入安全门控**（自动识别 code_execute/沙箱挂载 → 淘汰阶段短路跳过后台提取 + 待审队列安全降级，根除代码污染与回退事故）+ **隐式纠正自动检测**（两阶段：regex零成本快筛+LLM隐式矛盾深度检测→结构化纠正提案→Governance审批队列+SharedContext跨Agent同步——竞品无）+ **显式记忆5种操作**（对话中自然语言直接add/update/delete/correct/rate——Agent原生理解+纠正链降级+HITL审批——竞品仅CLI 3种且无审批）+ **记忆矛盾主动通知**（LLM跨会话矛盾检测→智能路由→前端实时通知+4种交互裁决+低风险24h Guardian自动解决（高风险≥0.9 必须人工裁决；重复冲突去重；元数据合并保留字段）+**冲突类型可辨识卡片**（semantic/episodic/procedural 在持久化、审计账本、前端 UI 全链路标识——一眼分辨事实冲突/经历冲突/流程冲突）+IM推送——竞品仅静态标注）+ **MemoryGuardian自适应维护**（健康6h/不健康2h自动调度+容量控制+预算感知+健康恢复）+ **记忆诊断可解释 + 遥测完整性闭环**（stream/persist 一致性、控制平面聚合告警、前端 `preflight`/`runtime_fallback` 来源解释，云模式共享信封幂等+去重后端故障 fail-closed + dedup_reject 原因指标）+ **存储层真分页**（Qdrant payload 索引排序 + DB 级 offset/limit + 标签过滤下推——万条记忆秒开，竞品全量加载后切片）+ **Retrieval Sufficiency Guard**（检索后LLM充分性评估+负面约束检测+自动建议补充搜索——复杂问题一次问到位不遗漏，简单问题零额外成本；Agent自主多轮深挖无需配置——竞品MindMemOS需硬编码pipeline内部循环，我们Agent天然多轮）— 2800+项测试验证（2026-07 记忆栈 39 场景 server e2e + 前端全链路手验），真正越用越懂你 + **消息级记忆生命周期条**（Recall→Extract→Store 四阶段 SSE 实时 + extract 失败聊天内 Retry + Memory Insight Panel 内嵌——竞品黑盒无 per-message 可视化；**52 pytest 2026-08**） + **防自强化坍缩与身份三态蒸馏守卫(AntiDriftDistillationGuards)**（数字人自产消息永久物理阻断·告别回音壁画像坍缩+严格身份三态SELF/OTHER/UNCONFIRMED防止群聊冒认+监控告警Bot毫秒级前置过滤+真实语料子串证据链防虚假伪造，零LLM开销确定性守卫） + **零模型成本确定性行为特征测量体系(ZeroModelCostBehavioralMeasurement)**（24h工作日/周末双轨作息独立微直方图+P50/P90响应时延最近秩插值+Top-K高频协作者统计，SQLite纯数学算子毫秒级聚合0 Token消耗+单条消息级时区偏移自适应差旅零漂移+独立事务切片防429级联报废+双主题可视化看板开箱即用，彻底杜绝大模型计算时间戳差值的数字幻觉，节省90%后台反思Token账单） + **全链路可信证据链溯源与上下文切片回放抽屉(EvidenceDrawer & ProvenanceInspection)**（单条记忆一键调出毛玻璃证据抽屉·就地抓取前后对话切片与原文黄色高亮·全自动敏感凭据脱敏遮蔽·支持一键误判标记与人工纠偏加锁防重算覆盖，0大模型调用毫秒级响应，彻底消除记忆黑盒与打断心流的页面跳转跳转事故） + **Int8 逐行动态量化向量引擎(Int8VectorQuantizationPerRowScale)**（逐行自适应缩放+L2严格归一化+单字节原地零拷贝内积计算，余弦保真度>99.5%，实现精准4x物理内存压缩，75%内存节约，单机向量常驻容量由5万条提升至20万条） + **确定性CJK Bigram双轨分词引擎(DeterministicCjkBigramFtsTokenizer)**（单趟保序分词，严格档优先+0.1ms单字放宽自动降级，无需编译任何C扩展插件，彻底解决原生SQLite对中文双字词与单字词0命中的顽疾） + **强/弱/暗跨任务置信分层与动作执行防火墙(CrossTaskConfidenceTier & ActionExecutionGuard)**（原生态在EpisodicMemory与EpisodicRelation落地strong/weak/shadow置信度划分，在动态上下文层对弱相关背景打上[BACKGROUND CONTEXT - Reference only, do not execute as automated SOP]只读防火墙，硬核阻断大模型把跨项目历史弱相关误当自动化SOP执行，根治腾讯2600场实测暴露的1350级逻辑返工顽疾） + **反未来信息泄漏单向时序护盾(AntiFutureLeakageTemporalGuard)**（存储层Qdrant Range Filter全面落地created_at<=until.isoformat()时间上限硬拦截，在历史任务复盘、基线Benchmark评测和离线回放中严格封死未来知识逆向穿越，确保评估指标100%客观真实） + **工程四相位标签与失败尝试负向经验拦截(SubtaskPhaseTaggedEpisodicMemoryPack)**（analyze/locate/edit/verify四相位结构化感知+is_failure_attempt失败尝试归档，在动态上下文层以高优先级priority=3置顶Failed Attempts & Negative Traps，严厉警示模型Avoid错误教训，杜绝疑难Bug跨轮重复踩坑） + **ReTree自纠错树状工作记忆与因果依赖回溯剪枝引擎(ReTreeWorkingMemoryRollbackPruningEngine)**（对标2026前沿ReTree架构·强类型DAG因果拓扑图+双阶段Stage1正则初筛<0.1ms/Stage2极速模型仲裁+四步原子回溯修复与下游级联软剪枝PRUNED_INVALIDATED，只剔除受污染的分支100%保留独立探索+MAX_REVISIONS=2震荡阻尼守卫防死循环+时间戳前缀固化装配保全Prompt Cache，研报零矛盾幻觉与数倍Token节约，110项测试全绿+95.56%高覆盖） + **记忆演变历史时间线与纠正链**（详情面板直显每条记忆「合并次数徽标+时间戳|动作|摘要」审计脉络与「纠正了xxx」回链，事实如何演变完全透明可审计——竞品静默覆盖黑盒，Chrome E2E 全链路实证） + **双轨工作记忆看板与超短期状态固化体系(WorkingMemoryBoard & StateConsolidation)**（强类型 LocalWorkingMemoryBlock 结构化治理目标、子任务进阶与避坑陷阱自愈 + 聊天区原生折叠工作看板可视化呈现 + 阶段推进自动向长期记忆提炼固化，0 记忆断层与 0 上下文漂移） + **MemCube 物理封包元数据保真与冷热生命周期连续性保障**（底层二进制封包协议原生将 last_accessed_at 与 access_count 纳秒级保真封存入 MemCubeHeader，跨沙箱与生命周期归档恢复零误淘汰、零假性失忆） + **Turn Tail 提示词缓存保全与自愈飞轮(TurnTailPromptCacheAndSelfHealingFlywheel)**（动态状态与避坑备忘录严格注入回合尾部，前缀 100% 字节不变稳享 90% 缓存折扣；配合 HyperConsolidator 终态自愈飞轮，按错误指纹自动去重并升维长效规程，实现真自愈且越用越聪明） + **本地优先 Markdown 文件记忆双向同步与防撕裂流式状态机(LocalFirstMarkdownMemorySync)**（单趟代码围栏状态机防 # 注释撕裂代码块 + 原子覆写防断电清空 + 纳秒级惰性探针提速 300 倍 + 物理行号锚点精准自省，零破坏解耦） + **稀疏语义突变引擎与三态掩码增量变异(SparseSemanticMutationEngine)**（三态掩码增量变异就地微调，前缀 100% 稳定捍卫 Prompt Cache 缓存折扣；内置及物动词防误删守卫，完美兼容 C++ 命名空间、URL 冒号与中英文混排分号，0 LLM 额外消耗毫秒级合并纠正，17 项测试 95.3% 覆盖率） + **长程任务记忆经济学剖析器与三阶段开销治理看板(StatefulMemoryEconomicsProfiler)**（对标 2026 前沿 Omri et al. 记忆经济学·检索/组装/注入三阶段微秒级时延与 Token 精确拆解+长程任务 ROI 价值回报四级评级+高寄生沉睡记忆一键降级与批量归档闭环+WebUI 记忆指挥中心 50 轮有状态长程时序轨迹可视化看板，长程复杂任务推理成本降低 60% 且首字延迟降低 40%） + **MAGMA 三子图多集合并发反查与实体保真(MultiCollectionConcurrentHydration)**（实体与因果图拓扑下钻时，同时并发反查情节与语义概念双集合，强类型保真还原绝不丢失，~1.8ms 毫秒级拓扑下钻，搜事实概念永不漏查）"
+          "myrmAgent": "三层去重(Hash→Vector→LLM) + 三引擎行为推导(CognitiveDeriver偏好推理 + PreferenceStability稳定性追踪 + FrustrationDetector挫败→技能进化) + BM25/Vector/RRF三通道融合检索(7-Signal加权+MMR多样性) + 查询侧时间窗硬过滤(「上周聊的」类中英文时间标记自动推导→存储层剪枝，纯本地正则2.9µs零成本，旧时段记忆绝不串扰回答) + 跨引擎精排门(Top-N语义精排把真正相关的顶到最前+超时/异常自动降级保原序，精排坏了检索照常出结果) + Auto Dreaming 异步固化 + 知识图谱增强检索 + L1 画像注入 + memory×3 COMMON 层 eager + unified memory_search_tool(corpus=memory/wiki/sessions/all) + sessions **opt-in default off**（按需开启，Evidence N 可核对）+ **无痕模式全记忆关闭** + **新用户默认开启记忆** + **多Agent记忆隔离Scope Boundary**（全局记忆与Agent指令冲突时自动确保Agent人设优先，业界唯一）+ **沙箱与编码能力智能体 L3 写入安全门控**（自动识别 code_execute/沙箱挂载 → 淘汰阶段短路跳过后台提取 + 待审队列安全降级，根除代码污染与回退事故）+ **隐式纠正自动检测**（两阶段：regex零成本快筛+LLM隐式矛盾深度检测→结构化纠正提案→Governance审批队列+SharedContext跨Agent同步——竞品无）+ **显式记忆5种操作**（对话中自然语言直接add/update/delete/correct/rate——Agent原生理解+纠正链降级+HITL审批——竞品仅CLI 3种且无审批）+ **记忆矛盾主动通知**（LLM跨会话矛盾检测→智能路由→前端实时通知+4种交互裁决+低风险24h Guardian自动解决（高风险≥0.9 必须人工裁决；重复冲突去重；元数据合并保留字段）+**冲突类型可辨识卡片**（semantic/episodic/procedural 在持久化、审计账本、前端 UI 全链路标识——一眼分辨事实冲突/经历冲突/流程冲突）+IM推送——竞品仅静态标注）+ **MemoryGuardian自适应维护**（健康6h/不健康2h自动调度+容量控制+预算感知+健康恢复）+ **记忆诊断可解释 + 遥测完整性闭环**（stream/persist 一致性、控制平面聚合告警、前端 `preflight`/`runtime_fallback` 来源解释，云模式共享信封幂等+去重后端故障 fail-closed + dedup_reject 原因指标）+ **存储层真分页**（Qdrant payload 索引排序 + DB 级 offset/limit + 标签过滤下推——万条记忆秒开，竞品全量加载后切片）+ **Retrieval Sufficiency Guard**（检索后LLM充分性评估+负面约束检测+自动建议补充搜索——复杂问题一次问到位不遗漏，简单问题零额外成本；Agent自主多轮深挖无需配置——竞品MindMemOS需硬编码pipeline内部循环，我们Agent天然多轮）— 2800+项测试验证（2026-07 记忆栈 39 场景 server e2e + 前端全链路手验），真正越用越懂你 + **消息级记忆生命周期条**（Recall→Extract→Store 四阶段 SSE 实时 + extract 失败聊天内 Retry + Memory Insight Panel 内嵌——竞品黑盒无 per-message 可视化；**52 pytest 2026-08**） + **防自强化坍缩与身份三态蒸馏守卫(AntiDriftDistillationGuards)**（数字人自产消息永久物理阻断·告别回音壁画像坍缩+严格身份三态SELF/OTHER/UNCONFIRMED防止群聊冒认+监控告警Bot毫秒级前置过滤+真实语料子串证据链防虚假伪造，零LLM开销确定性守卫） + **零模型成本确定性行为特征测量体系(ZeroModelCostBehavioralMeasurement)**（24h工作日/周末双轨作息独立微直方图+P50/P90响应时延最近秩插值+Top-K高频协作者统计，SQLite纯数学算子毫秒级聚合0 Token消耗+单条消息级时区偏移自适应差旅零漂移+独立事务切片防429级联报废+双主题可视化看板开箱即用，彻底杜绝大模型计算时间戳差值的数字幻觉，节省90%后台反思Token账单） + **全链路可信证据链溯源与上下文切片回放抽屉(EvidenceDrawer & ProvenanceInspection)**（单条记忆一键调出毛玻璃证据抽屉·就地抓取前后对话切片与原文黄色高亮·全自动敏感凭据脱敏遮蔽·支持一键误判标记与人工纠偏加锁防重算覆盖，0大模型调用毫秒级响应，彻底消除记忆黑盒与打断心流的页面跳转跳转事故） + **Int8 逐行动态量化向量引擎(Int8VectorQuantizationPerRowScale)**（逐行自适应缩放+L2严格归一化+单字节原地零拷贝内积计算，余弦保真度>99.5%，实现精准4x物理内存压缩，75%内存节约，单机向量常驻容量由5万条提升至20万条） + **确定性CJK Bigram双轨分词引擎(DeterministicCjkBigramFtsTokenizer)**（单趟保序分词，严格档优先+0.1ms单字放宽自动降级，无需编译任何C扩展插件，彻底解决原生SQLite对中文双字词与单字词0命中的顽疾） + **强/弱/暗跨任务置信分层与动作执行防火墙(CrossTaskConfidenceTier & ActionExecutionGuard)**（原生态在EpisodicMemory与EpisodicRelation落地strong/weak/shadow置信度划分，在动态上下文层对弱相关背景打上[BACKGROUND CONTEXT - Reference only, do not execute as automated SOP]只读防火墙，硬核阻断大模型把跨项目历史弱相关误当自动化SOP执行，根治腾讯2600场实测暴露的1350级逻辑返工顽疾） + **反未来信息泄漏单向时序护盾(AntiFutureLeakageTemporalGuard)**（存储层Qdrant Range Filter全面落地created_at<=until.isoformat()时间上限硬拦截，在历史任务复盘、基线Benchmark评测和离线回放中严格封死未来知识逆向穿越，确保评估指标100%客观真实） + **工程四相位标签与失败尝试负向经验拦截(SubtaskPhaseTaggedEpisodicMemoryPack)**（analyze/locate/edit/verify四相位结构化感知+is_failure_attempt失败尝试归档，在动态上下文层以高优先级priority=3置顶Failed Attempts & Negative Traps，严厉警示模型Avoid错误教训，杜绝疑难Bug跨轮重复踩坑） + **记忆演变历史时间线与纠正链**（详情面板直显每条记忆「合并次数徽标+时间戳|动作|摘要」审计脉络与「纠正了xxx」回链，事实如何演变完全透明可审计——竞品静默覆盖黑盒，Chrome E2E 全链路实证） + **双轨工作记忆看板与超短期状态固化体系(WorkingMemoryBoard & StateConsolidation)**（强类型 LocalWorkingMemoryBlock 结构化治理目标、子任务进阶与避坑陷阱自愈 + 聊天区原生折叠工作看板可视化呈现 + 阶段推进自动向长期记忆提炼固化，0 记忆断层与 0 上下文漂移） + **MemCube 物理封包元数据保真与冷热生命周期连续性保障**（底层二进制封包协议原生将 last_accessed_at 与 access_count 纳秒级保真封存入 MemCubeHeader，跨沙箱与生命周期归档恢复零误淘汰、零假性失忆） + **Turn Tail 提示词缓存保全与自愈飞轮(TurnTailPromptCacheAndSelfHealingFlywheel)**（动态状态与避坑备忘录严格注入回合尾部，前缀 100% 字节不变稳享 90% 缓存折扣；配合 HyperConsolidator 终态自愈飞轮，按错误指纹自动去重并升维长效规程，实现真自愈且越用越聪明） + **本地优先 Markdown 文件记忆双向同步与防撕裂流式状态机(LocalFirstMarkdownMemorySync)**（单趟代码围栏状态机防 # 注释撕裂代码块 + 原子覆写防断电清空 + 纳秒级惰性探针提速 300 倍 + 物理行号锚点精准自省，零破坏解耦） + **稀疏语义突变引擎与三态掩码增量变异(SparseSemanticMutationEngine)**（三态掩码增量变异就地微调，前缀 100% 稳定捍卫 Prompt Cache 缓存折扣；内置及物动词防误删守卫，完美兼容 C++ 命名空间、URL 冒号与中英文混排分号，0 LLM 额外消耗毫秒级合并纠正，17 项测试 95.3% 覆盖率） + **长程任务记忆经济学剖析器与三阶段开销治理看板(StatefulMemoryEconomicsProfiler)**（对标 2026 前沿 Omri et al. 记忆经济学·检索/组装/注入三阶段微秒级时延与 Token 精确拆解+长程任务 ROI 价值回报四级评级+高寄生沉睡记忆一键降级与批量归档闭环+WebUI 记忆指挥中心 50 轮有状态长程时序轨迹可视化看板，长程复杂任务推理成本降低 60% 且首字延迟降低 40%） + **MAGMA 三子图多集合并发反查与实体保真(MultiCollectionConcurrentHydration)**（实体与因果图拓扑下钻时，同时并发反查情节与语义概念双集合，强类型保真还原绝不丢失，~1.8ms 毫秒级拓扑下钻，搜事实概念永不漏查）"
         },
         "knowledgeGraph": {
           "feature": "知识图谱 · 关联可视化",
@@ -501,7 +501,7 @@
           "feature": "多 Agent 协作 · P2P 通信 · DAG 编排 · 对抗式验证 · 结构化证据交接",
           "hermes": "Kanban + Batch Tasks（无证据链绑定，长对话 Dump 易爆炸）",
           "openclaw": "展示型看板 · JiuwenSwarm：workflow.py 静态 DAG + CLI/TUI",
-          "myrmAgent": "8种编排（链式/批量/DAG/竞速/验证/蜂群/多方案竞争/委员会辩论）+ 批量/委员会/多方案三种多Agent模式均有成本预检（≥$0.50自动审批卡），非浅层 LLM fan-out + **结构化交接协议（`AgentHandoverState` SSOT）**：冻结契约收敛几万字无序对话，父通知 Token 压缩 85%+；每个事实发现强绑定代码/文档证据与归一化置信度（HIGH/MEDIUM/LOW），消除脑补；批量聚合自动去重全量引文并注入 `source_task_id` 与 `agent_type` 证据谱系标签，100% 责任追溯；叶子节点硬封禁计划任务等特权工具，防止越权；SubagentDetailDrawer 专属面板可视化呈现 + 按需注入 6 个 LLM 委派工具（默认 0 tok 不占 Prompt Cache）+ 双轨 Agent 协作（内部 Sub-Agent 专属任务图 `delegate_task_tool` + 外部标准化 ACP 编码器专属 `invoke_acp_agent_tool` 彻底消除多模型调用歧义与 Schema 漂移）+ 双控制面：Agent 工具 + REST Dashboard（cancel/steer/list/session pause/token+model）+ Session 级委派暂停（优于 Hermes 全局 spawn_paused）+ Fork 子代理 + **子 agent bash HITL → 父对话审批卡**（共享 checkpointer 恢复；**Chrome LIVE E2E 5/5** 含多轮 WebUI Approve；Claude Code/OpenClaw 子任务 HITL dead-end）+ Auto Vault（vault:// 协议 + SSE 前端推送）+ 级联取消 + P2P 邮箱 + 对抗验证（**代码级角色分离**：Expert→CouncilOpinion + Chair→CouncilResult 含交叉辩论——竞品仅靠 Prompt 指示角色分工，LLM 可违反；**防伪验证**：未实际执行代码声称 PASS → 自动 FAIL，系统级 `has_executed_code` 追踪）+ COW 隔离 + 10+ GUI + 12 态生命周期 + ACP/A2A + 默认无墙钟超时 + 四层安全网（max_turns/停滞检测/budget_tokens/max_cost_usd）+ 可选双层超时（非致命wait + 3x硬安全网，输入校验≤0→禁用，最小30s下限）+ 前端 isNodeOvertime 多策略卡死检测 + 事件驱动**停滞探测**（零额外开销，工具执行中 4x 容忍，Dashboard 告警 + IM 推送 + 桌面通知）+ **实时工作证明**（SUBAGENT_LOG 工具流 + FILE_DIFF 含完整 diff + SUBAGENT_PROGRESS token/成本/ETA + ARTIFACT_CONTENT——全程实时推送，非竞品事后提取）+ **Dashboard 高级可视化**（HeaderSummary 总代理/成本/模型分布 + SortFilterBar 4排序×4过滤 + AggregateBadge 子树成本/tokens/后代数 + MiniGantt CSS 时间线——GUI 原生，碾压 Hermes CLI TUI）+ 4层模型解析链 + **失败时保留部分进展**（4条失败路径全覆盖：LLM错误/预算耗尽/超时/运行时异常均返回已完成工作，父Agent可复用80%结果仅补做剩余——竞品子Agent失败后工作全部丢失） + **SCIP 2026-07：核心 preset SSOT fail-fast + L3 父工具集合并 session browser 工具（开 Browser 即可委派，无 Not in parent toolkit）+ browser/analysis YAML 对齐 canonical 工具**（API Live E2E example_domain_seen ~6.5s · 10864 项编排+安全+恢复+UI+多路复用+共识+协议+预算+可视化+Goal引擎+Webhook全链路测试通过 0 失败 · 核心模块覆盖率 90.1% · **Dashboard Chrome LIVE E2E 3/3（2026-07-20）**） + **工作区合并失败 GUI**（聊天 warning 横幅 + 可展开错误面板，DB 持久化、刷新仍在——竞品 ISOLATED_COPY 合并失败多 buried in 日志；Chrome E2E 2026-08 验证）"
+          "myrmAgent": "8种编排（链式/批量/DAG/竞速/验证/蜂群/多方案竞争/委员会辩论）+ 批量/委员会/多方案三种多Agent模式均有成本预检（≥$0.50自动审批卡），非浅层 LLM fan-out + **结构化交接协议（`AgentHandoverState` SSOT）**：冻结契约收敛几万字无序对话，父通知 Token 压缩 85%+；每个事实发现强绑定代码/文档证据与归一化置信度（HIGH/MEDIUM/LOW），消除脑补；批量聚合自动去重全量引文并注入 `source_task_id` 与 `agent_type` 证据谱系标签，100% 责任追溯；叶子节点硬封禁计划任务等特权工具，防止越权；SubagentDetailDrawer 专属面板可视化呈现 + 按需注入 6 个 LLM 委派工具（默认 0 tok 不占 Prompt Cache）+ 双轨 Agent 协作（内部 Sub-Agent 专属任务图 `delegate_task_tool` + 外部标准化 ACP 编码器专属 `invoke_acp_agent_tool` 彻底消除多模型调用歧义与 Schema 漂移）+ 双控制面：Agent 工具 + REST Dashboard（cancel/steer/list/session pause/token+model）+ Session 级委派暂停（优于 Hermes 全局 spawn_paused）+ Fork 子代理 + **子 agent bash HITL → 父对话审批卡**（共享 checkpointer 恢复；**Chrome LIVE E2E 5/5** 含多轮 WebUI Approve；Claude Code/OpenClaw 子任务 HITL dead-end）+ Auto Vault（vault:// 协议 + SSE 前端推送）+ 级联取消 + P2P 邮箱 + 对抗验证（**代码级角色分离**：Expert→CouncilOpinion + Chair→CouncilResult 含交叉辩论——竞品仅靠 Prompt 指示角色分工，LLM 可违反；**防伪验证**：未实际执行代码声称 PASS → 自动 FAIL，系统级执行证据追踪）+ COW 隔离 + 10+ GUI + 12 态生命周期 + ACP/A2A + 默认无墙钟超时 + 四层安全网（max_turns/停滞检测/budget_tokens/max_cost_usd）+ 可选双层超时（非致命wait + 3x硬安全网，输入校验≤0→禁用，最小30s下限）+ 前端 isNodeOvertime 多策略卡死检测 + 事件驱动**停滞探测**（零额外开销，工具执行中 4x 容忍，Dashboard 告警 + IM 推送 + 桌面通知）+ **实时工作证明**（SUBAGENT_LOG 工具流 + FILE_DIFF 含完整 diff + SUBAGENT_PROGRESS token/成本/ETA + ARTIFACT_CONTENT——全程实时推送，非竞品事后提取）+ **Dashboard 高级可视化**（HeaderSummary 总代理/成本/模型分布 + SortFilterBar 4排序×4过滤 + AggregateBadge 子树成本/tokens/后代数 + MiniGantt CSS 时间线——GUI 原生，碾压 Hermes CLI TUI）+ 4层模型解析链 + **失败时保留部分进展**（4条失败路径全覆盖：LLM错误/预算耗尽/超时/运行时异常均返回已完成工作，父Agent可复用80%结果仅补做剩余——竞品子Agent失败后工作全部丢失） + **SCIP 2026-07：核心 preset SSOT fail-fast + L3 父工具集合并 session browser 工具（开 Browser 即可委派，无 Not in parent toolkit）+ browser/analysis YAML 对齐 canonical 工具**（API Live E2E example_domain_seen ~6.5s · 10864 项编排+安全+恢复+UI+多路复用+共识+协议+预算+可视化+Goal引擎+Webhook全链路测试通过 0 失败 · 核心模块覆盖率 90.1% · **Dashboard Chrome LIVE E2E 3/3（2026-07-20）**） + **工作区合并失败 GUI**（聊天 warning 横幅 + 可展开错误面板，DB 持久化、刷新仍在——竞品 ISOLATED_COPY 合并失败多 buried in 日志；Chrome E2E 2026-08 验证）"
         },
         "dynamicWorkflow": {
           "feature": "动态工作流 · 运行时 DAG，无需重新部署",
@@ -523,7 +523,7 @@
         },
         "voiceInteraction": {
           "feature": "语音交互 · 说话即操作 + 视频自动转录",
-          "hermes": "Discord 语音, 无视频转录",
+          "hermes": "CLI 语音模式 + 按句流式 TTS + 桌面 GPT-Live 全双工",
           "openclaw": "WebRTC, 无视频转录",
           "myrmAgent": "四模式(audio_only/agent_bridge/OpenAI Realtime/Gemini Live)+Realtime与Gemini Live原生Function Calling+**Settings 对齐的记忆搜索**（与 Chat 同一「历史会话搜索」开关 — 语音声明裁剪 corpus + 运行时 respect opt-in）+**Web对话与桌面内联结构化表单**（`structured_clarify`，纯语音会话不含UI渲染）+**打断感知 Barge-in Latch**（用户打断时模型自动获知“上次没说完”，不重复已说内容自然衔接；实例级隔离多会话安全）+Vision+5个STT提供商+视频音频转录+自定义STT端点+对话框直传音频8格式(mp3/wav/ogg等)+25MB分级校验+Tauri桌面端30+扩展名+双TTS路径(Settings Voice渠道免费Edge/流式/摘要；Agent tts_generate聊天Audio工件+Gateway BYOK)+**语音后台任务面板完整闭环**（语音说一句即派发后台研究 → Kanban 持久化 → Activity Panel 实时可见 → 完成自动推送聊天 — 竞品无此能力）+**229项Voice+BackgroundTasks测试全通过+Chrome E2E 7/7(2026-08)**"
         },
@@ -571,7 +571,7 @@
         },
         "deployment": {
           "feature": "部署自由 · 数据完全自主",
-          "hermes": "自托管",
+          "hermes": "自托管 + Nous 托管团队版（2026-09 发布，每团队独立租户）",
           "openclaw": "自托管",
           "myrmAgent": "三端全覆盖 · 4步引导向导（自动探测本地能力）· 启动前配置预检（错误即阻断+修复建议）· 跨版本配置自动迁移（旧版 provider 导出不会白屏）· 7大GUI设置面板（零YAML编辑）· Doctor诊断面板（双层并行诊断引擎 + 10项探针 + Agent冷启动Warm-Path 4阶段白盒量化评分 + GUI健康卡片 + 一键修复按钮——竞品仅有CLI文本输出，无可视化）· 装错依赖启动即提示，不会用到一半才崩 · 企业TLS兼容：一键开启企业代理模式（Zscaler/Netskope等），per-MCP-server自定义CA证书+mTLS双向认证，4层自动注入覆盖全链路，144项TLS测试验证 · 交互式API文档：Swagger UI内置Authorize按钮，输入API Key即可在线调试任何端点（本地开发loopback自动信任，零配置即用）"
         },
@@ -603,7 +603,7 @@
           "feature": "零配置迁移 (OOBE) · 带着资产零成本入住 · 使用习惯不丢失",
           "hermes": "需手动配置",
           "openclaw": "无",
-          "myrmAgent": "首次启动自动扫描本机 Claude Code, Cursor, Codex, Hermes, OpenClaw, Windsurf, Trae, gbrain, PLUR 等 15 种竞品配置（12 种 ready），一键导入记忆/技能/MCP/模型配置 + 自动映射 + 技能使用历史/偏好/Pin 状态同步迁移（零冷启动）。**Google Gemini 官方对话与记忆全量无损导入**：Settings→Memory/向导无损解析 Gemini 导出 JSON/Takeout，自适应多轮对话转写提取、角色归一化与时间戳映射入 Episodic 向量池，带 Dry-Run 预检与事务级回滚。**PLUR Engram 记忆无损导入**：Settings→Memory/向导无损解析 PLUR local YAML/JSON engrams，自动多级 Scope 映射（global 偏好入 Profile 保证 Prompt Cache 不抖动，project 经验入 Semantic 向量池），带 Dry-Run 预检与事务回滚（**8 测全过 2026-08-21**）。**Mem0 记忆导入**：Settings→Memory 上传 mem0 导出 JSON → dry-run 预览 + 审查对话框（6 语言来源标签）→ 确认写入，leading junk 容错（**Chrome E2E 31.9s 2026-08-17**）。**Hermes 定时任务迁移（默认暂停）**：dry-run 预览 skip 列表 + 确认后以 PAUSED 创建（不迁 model，用 Agent 默认）· 批次回滚 · 结果页直达设置→定时任务（**7 pytest 2026-08-03**）。**OpenClaw vault 绑定闭环**：导入后在 GUI 一键绑 Obsidian vault 到 Project，首条消息即写 chat SSOT。**导入后 Readiness 首聊引导**：live-resolve 待完成项（含 voice/consensus）→ 首聊 toast 直达 MCP/模型/Memory 设置（软门禁不阻断回复，2026-07-29 Chrome E2E **3/3 sequential 签收**）。**诚实边界**：Kanban 不自动迁移"
+          "myrmAgent": "本地版/桌面版在新对话页自动发现本机的 Hermes、OpenClaw、Claude Code、Codex、Pi 数据并提示迁移，云托管版上传压缩包识别；记忆中心另可导入 18 种就绪来源（Cursor、Windsurf、Trae、Mem0、Letta、Zep、ChatGPT、gbrain、PLUR 等），按来源映射导入记忆/技能/MCP/模型配置 + 自动映射 + 技能使用历史/偏好/Pin 状态同步迁移（零冷启动）。**Google Gemini 官方对话与记忆全量无损导入**：Settings→Memory/向导无损解析 Gemini 导出 JSON/Takeout，自适应多轮对话转写提取、角色归一化与时间戳映射入 Episodic 向量池，带 Dry-Run 预检与事务级回滚。**PLUR Engram 记忆无损导入**：Settings→Memory/向导无损解析 PLUR local YAML/JSON engrams，自动多级 Scope 映射（global 偏好入 Profile 保证 Prompt Cache 不抖动，project 经验入 Semantic 向量池），带 Dry-Run 预检与事务回滚（**8 测全过 2026-08-21**）。**Mem0 记忆导入**：Settings→Memory 上传 mem0 导出 JSON → dry-run 预览 + 审查对话框（6 语言来源标签）→ 确认写入，leading junk 容错（**Chrome E2E 31.9s 2026-08-17**）。**Hermes 定时任务迁移（默认暂停）**：dry-run 预览 skip 列表 + 确认后以 PAUSED 创建（不迁 model，用 Agent 默认）· 批次回滚 · 结果页直达设置→定时任务（**7 pytest 2026-08-03**）。**OpenClaw vault 绑定闭环**：导入后在 GUI 一键绑 Obsidian vault 到 Project，首条消息即写 chat SSOT。**导入后 Readiness 首聊引导**：live-resolve 待完成项（含 voice/consensus）→ 首聊 toast 直达 MCP/模型/Memory 设置（软门禁不阻断回复，2026-07-29 Chrome E2E **3/3 sequential 签收**）。**诚实边界**：Kanban 不自动迁移；Hermes 历史会话目前只能导入导出的 JSON/JSONL，暂不直接读取本机 state.db"
         },
         "webuiSecurity": {
           "feature": "WebUI 隧道安全 · 三层跨域防护 + 本地单机与远程穿透 DNS Rebinding 纵深防御",
@@ -769,7 +769,7 @@
         },
         "desktopNativeBridge": {
           "feature": "Zero-Chrome 纯净外壳与声明式扩展插槽 · 零套娃无缝同构",
-          "hermes": "仅 CLI，无原生外壳桥接",
+          "hermes": "Electron 桌面端有原生 IPC（文件 / 通知 / 托盘）；网页端与桌面端是两套独立前端",
           "openclaw": "普通 WebView 套壳，双层标题栏套娃",
           "myrmAgent": "Zero-Chrome 纯净沉浸容器 + macOS 交通灯留白自适应（`useTrafficLightInsets`）彻底消除顶部重叠 + 强类型 `desktopBridge` 统一门面与安全 Web 降级 + 声明式 `<ExtensionSlot />` 插件插槽动态挂载，一套代码 Web/Desktop/Cloud 100% 同构"
         },
@@ -781,7 +781,7 @@
         },
         "enterpriseAuth": {
           "feature": "企业权限 · IdP群组→MCP工具分配",
-          "hermes": "_no",
+          "hermes": "托管团队版有成员与角色；企业版（SSO/SLA）仅开放登记意向；未公开 IdP 群组→工具权限",
           "openclaw": "_no",
           "myrmAgent": "**IdP群组→MCP ACL**（OIDC groups claim自动同步→OrgMember.idp_groups，管理员per-MCP配置acl_groups白名单，下发时按用户群组交集过滤，无群组=全员可见）+**离职即时撤销**（offboard推空MCP列表，即时断权）+**前端GUI一站配置**（org admin面板直接设置群组白名单，竞品无对等GUI）+**登录自动刷新**（每次OIDC登录同步最新群组，零手动维护）——6大开源竞品均无对等能力，**撤销对称**（移除成员即时三路清除：MCP+审批策略+模型白名单；休眠沙箱唤醒时自动清空残留治理，权限零残留窗口）+**归档保留期自动清理**（离职归档按组织保留天数自动清除，既满足合规留存又不占磁盘）——6大开源竞品均无对等能力，18项测试全通过"
         },
@@ -829,9 +829,9 @@
         },
         "cjkMigration": {
           "feature": "全量资产与会话零摩擦平滑迁移 · 换工具不丢记忆、规则与多轮历史",
-          "hermes": "仅脆弱的 CLI claw migrate，丢失大量规则与全部会话",
+          "hermes": "仅有命令行 claw migrate（只支持从 OpenClaw 迁入）；不迁移会话历史，部分配置只归档、需手动重建",
           "openclaw": "无迁移能力，需手动逐个文件拷贝",
-          "myrmAgent": "多车道 GUI 向导（Hermes + OpenClaw + Pi + Claude Code + Codex 等）· 14 种环境自动嗅探 · Dry-run 预演/一键生效/原子回滚 · 首创 Claude Code/Codex 会话高保真转录解析 + 沙箱路径重锚（零 FileNotFoundError）+ 工具输出两阶段安全压缩 + 导入即刻一键续聊 · 340+ 项测试全 PASS"
+          "myrmAgent": "多车道图形向导：本地版/桌面版自动发现本机的 Hermes、OpenClaw、Claude Code、Codex、Pi 数据，云托管版上传压缩包即可识别 · Dry-run 预演/一键生效/原子回滚 · Claude Code/Codex 会话高保真转录解析 + 沙箱路径重锚（零 FileNotFoundError）+ 工具输出两阶段安全压缩 + 导入即刻一键续聊 · 诚实边界：Hermes 历史会话目前只能导入导出的 JSON/JSONL，Kanban 不自动迁移"
         },
         "workspaceRulesCompat": {
           "feature": "项目规则兼容 · 你的 AGENTS.md / .cursorrules / CLAUDE.md 直接生效",
@@ -1582,14 +1582,14 @@
           "tag3": "午休挂机免扰放行"
         },
         "multiAgent": {
-          "label": "多 Agent",
-          "title": "默认简洁，按需释放团队力量",
-          "desc": "默认以单 Agent 快速响应，零编排开销。一键解锁 8 种编排模式（链式/批量/DAG/竞速/对抗验证/蜂群/多方案/委员会辩论）与实时拓扑看板。纯净去噪的提示词体系彻底剔除底层技术细节噪音，严格收口入参契约，即便是轻量开源模型也能 100% 精准委派不幻觉；同步等待（wait）与全局巡检（list）语义清晰，杜绝死循环轮询空耗 Token。后台子代理派发即交付，刷新后 3600s 仍可查，双轨可信指示一屏了然。",
-          "stat": "8",
-          "statLabel": "种编排模式",
-          "tag1": "单 Agent 默认 · 零噪音",
-          "tag2": "纯净提示词 · 零幻觉委派",
-          "tag3": "4 维预算守卫 · 成本可控"
+          "label": "多 Agent 舰队",
+          "title": "默认简洁，按需释放自适应舰队力量",
+          "desc": "默认以单 Agent 快速响应，零编排开销；启发式准入门禁自动拦截伪需求，简单改动强制单步降级（节省 85%+ Token 且提速 5 倍），重型任务自动准入图编排；4 档弹性自适应并发节流，算力告急时自动触发优雅局部归约保全已交付成果，彻底杜绝半夜任务崩溃清零；全舰队多网关连接池支持跨 Darwin/Linux 异构节点，断网离线排队与自动重连自愈。",
+          "stat": "85%+",
+          "statLabel": "伪图开销节省",
+          "tag1": "启发式准入门禁 · 拒滥用",
+          "tag2": "弹性预算熔断 · 保全工件",
+          "tag3": "跨机多网关 · 离线自愈"
         },
         "agentGovernance": {
           "label": "助手治理",
@@ -1602,15 +1602,16 @@
           "tag3": "GUI 全程 · 零命令行"
         },
         "asyncReview": {
-          "label": "异步审阅",
-          "title": "交付物上直接批注，打回即改",
-          "desc": "Agent 先交完整产物，你有空时逐行批注，提交即退回精准重修，版本 Diff 可查。不用守着等，不用重讲需求。Codex 行内评论只活在代码 diff 里；Hermes、OpenClaw、pi、opencode、DeepSeek-Harness 经实证都没有这套闭环。",
-          "stat": "1~3",
-          "statLabel": "轮内定稿",
-          "tag1": "行内批注 · 版本时间线",
-          "tag2": "聊天重发 · 看板打回",
-          "tag3": "GUI 点选 · 六语言"
+          "label": "正交盲审与异步审阅",
+          "title": "正交双审终结自欺欺人，批注打回即改",
+          "desc": "独创正交双视角盲审门禁：Reviewer A 紧盯原始需求防偏离，Reviewer B 物理剥离历史思考链，以 100% 全新零偏见独立视角盲审代码（红线拦截 Any 类型逃逸与除零越界隐患），隐蔽缺陷漏检率降低 70%+！同时支持交付物逐行批注，打回精准重修，版本 Diff 全程可溯。Hermes、OpenClaw、Codex、pi、opencode、DeepSeek-Harness 经实证均无此双审与批注闭环。",
+          "stat": "70%+",
+          "statLabel": "缺陷漏检率降幅",
+          "tag1": "独立干净上下文盲审",
+          "tag2": "语义去重自愈指令",
+          "tag3": "行内批注 · 版本 Diff"
         },
+
         "omniChannel": {
           "label": "渠道与自动化",
           "title": "一句自然语言，唤醒 7x24 小时专属员工",
@@ -2169,7 +2170,7 @@
         },
         "security": {
           "title": "数据隔离与合规驻留",
-          "description": "Per-User 沙箱卷静态加密，支持日本（东京 NRT）、韩国（首尔 ICN）及美东（弗吉尼亚 IAD）东北亚数据物理驻留锁定与硬亲和性调度，杜绝跨区越界漫游。22层企业级基础设施——三层配额、舰队健康监控、安全审计大盘（KPI + 时序图 + 事件分布 + CSV/JSON 导出）、成本报表（成员排行 + 分类统计 + 预算告警）、密钥保管库、紧急停止、组织管理（原子RBAC + 一键离职交接 + 卷迁移 + IT 集中管理 Org MCP（一次配置全员 Agent 自动可用 · 存量配置类型自愈 · 云环境 stdio 自动过滤 · 全链路 Chrome E2E 验证） + **Org 模型白名单**（管理员 glob 规则 → 模型选择器灰显不可选 + Agent 构建拦截）+ **Managed Approval Policy**（组织级 YOLO/审批策略推送至各沙箱）+ **IdP群组→MCP ACL精细授权**：OIDC自动同步+离职即时撤销+内部字段防泄漏）+ **隐私感知动态模型路由**（逐轮PII敏感度评估与Fail-Closed物理零外溢脱敏门禁）——5200+项测试验证。"
+          "description": "Per-User 沙箱卷静态加密，支持日本（东京 NRT）、韩国（首尔 ICN）及美东（弗吉尼亚 IAD）东北亚数据物理驻留锁定与硬亲和性调度，杜绝跨区越界漫游。22层企业级基础设施——三层配额、舰队健康监控、安全审计大盘（KPI + 时序图 + 事件分布 + CSV/JSON 导出）、成本报表（成员排行 + 分类统计 + 月度预算进度）、密钥保管库、紧急停止、组织管理（原子RBAC + 一键离职交接 + 卷迁移 + IT 集中管理 Org MCP（一次配置全员 Agent 自动可用 · 存量配置类型自愈 · 云环境 stdio 自动过滤 · 全链路 Chrome E2E 验证） + **Org 模型白名单**（管理员 glob 规则 → 模型选择器灰显不可选 + Agent 构建拦截）+ **Managed Approval Policy**（组织级 YOLO/审批策略推送至各沙箱）+ **IdP群组→MCP ACL精细授权**：OIDC自动同步+离职即时撤销+内部字段防泄漏）+ **隐私感知动态模型路由**（逐轮PII敏感度评估与Fail-Closed物理零外溢脱敏门禁）——5200+项测试验证。"
         },
         "support": {
           "title": "人工支持",

@@ -11,6 +11,28 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-10-15 · 项 77~79 分布式多网关动态路由、图工程自适应准入门禁与正交双视角盲审门禁 · 彻底消除大模型自欺欺人偏见、伪图算力爆炸与跨机断网丢指令）
+
+- **DualOrthogonalReviewerAndElasticGraphFleetSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 6 大竞品在多智能体长程协作与代码审查中，普遍存在的“大模型自审自身代码带有自我合理化先验偏见（Self-Rationalization Bias）导致 70%+ 隐蔽 Bug 漏检；简单错别字或闲聊也盲目拉起图拓扑导致天价 Token 账单与突发 429 全盘崩溃；以及子智能体单机绑定断网即丢指令”等致命痛点）：** Myrm 全链路交付了涵盖闭源 Harness 框架内核与开源 Server/Frontend 产品的三位一体工业级解决方案：
+  1. **正交双视角审查门禁与零偏见盲审子代理（项 79 [P0] · 终结大模型自我合理化）**：
+     - **闭源 Harness 框架层**：`sub_agents/orthogonal_reviewer/` 强制启动两重视角互补审查——Reviewer A 共享任务原始需求与设计上下文，专职核验业务目标是否漂移（`intent_drift`）与过度设计；Reviewer B 则**物理剥离全部前置历史与思考链（Clean Context）**，以 100% 全新、客观挑剔视角审查 Diff，严格拦截 `Any` 类型逃逸、除零异常与边界越界；`OrthogonalReviewArbiter` 按语义指纹去重并自动合成结构化自愈修复指令；
+     - **开源 Server + Frontend 产品层**：REST 端点 `/agents/orthogonal-reviewer/evaluate` 联动 `DualOrthogonalReviewerCard.tsx`，左右分栏呈现双审结论，一键派发自愈修复任务；
+  2. **图工程自适应适用性评估门禁与弹性预算熔断（项 78 [P0] · 彻底阻断伪图算力失控）**：
+     - **闭源 Harness 框架层**：`sub_agents/graph_triage/` 首创四大启发式准入门禁——单步改错与单查强制降级单 Agent（省 85%+ Token 并提速 5 倍），头脑风暴保持对话模式，串行链条保持单向流水线，仅独立重型分支准入图编排；4 档自适应节流（Healthy/Warning/Critical/Exhausted）联动**优雅提前局部归约（Graceful Early Reduce）**，算力告急时自动保全已交付工件并出具报告，杜绝半夜跑崩成果全盘清零；
+     - **开源 Server + Frontend 产品层**：REST 端点 `/agents/graph-triage/assess` 联动 `GraphApplicabilityTriageCard.tsx` 与 `<progress>` 动态水线，实时监控节流状态；
+  3. **全舰队宿主 Profile Rail 与多网关自愈路由（项 77 [P0] · 异构跨机分布式协同）**：
+     - **闭源 Harness 框架层**：`sub_agents/fleet_router/` 统一纳管 Darwin 开发机、Linux GPU 集群与云端沙箱节点，实时心跳探测；断网或离线时指令自动进入 FIFO 缓冲排队，节点重连后自动自愈排空，工件流转全程携带 SHA-256 不可篡改签名；
+     - **开源 Server + Frontend 产品层**：REST 端点 `/fleet/gateways` 联动 `FleetWideProfileRailCard.tsx`，提供跨机拓扑感知与分布式大盘；
+  4. **六大主流竞品横向实测对比**：
+     - **Hermes**：依赖单进程终端，审查完全由同一上下文模型自审自辩，无盲审概念；无图拓扑管理，长任务易断网中断；
+     - **OpenClaw**：固定流水线编排，无图适用性准入门禁，无论任务轻重均走固定重型流程；无物理剥离 CoT 的盲审子代理；
+     - **Codex (CLI)**：闭源二进制黑盒，审查仅停留在静态 PR 差异，缺少结构化去重仲裁与自动自愈修复指令派发闭环；
+     - **DeepSeek-Harness**：热衷于静态多节点编排，但缺乏自适应节流与提前局部归约，并发失控时直接 429 报错崩溃全盘作废；
+     - **Pi**：依赖社区插件拼装，缺乏跨机多网关拓扑感知与离线缓冲自愈能力，合盖或断网指令直接丢失；
+     - **OpenCode**：单一只读子代理，无法形成正交双重视角审查，面对 `Any` 类型逃逸与隐蔽边界缺陷缺乏拦截能力；
+  5. **100% 全栈实测验证**：Harness 框架单测 19/19 passed，Server 业务单测 15/15 passed，前端 Vitest 15/15 passed（单测耗时 <1s），`bunx oxlint` 0 warnings 0 errors，所有组件行数严控 ≤ 400 行，0 Any 类型，无障碍 live output 100% 达标。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/orthogonal_reviewer/` · `.../graph_triage/` · `.../fleet_router/` · `myrm-agent-server/app/api/agents/` · `myrm-agent-frontend/src/components/features/chat-window/` · `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md`
+
 ## 最新验证快照（2026-10-04 · 智能体长任务主动异步汇报与非阻塞双向双工通信循环套件 · 彻底消除长任务黑盒盲等失联、中途无法微调纠偏、刷新页面药丸失效与竞态 409 丢字）
 
 - **AgentAsyncUserMessageAndNonBlockingSteerLoopbackSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 6 大竞品在执行 5~30 分钟长任务中，普遍缺乏中途主动向用户反馈阶段性进展与关键抉择的结构化通道，导致用户长时间面对转圈黑盒盲等失联；中途发现跑偏只能掐死重跑浪费巨额 Token；缺乏交互式建议药丸导致用户手动打字门槛高；以及前端刷新后交互药丸丢失反序列化等致命痛点）：** Myrm 全面交付了智能体长任务中途主动异步汇报与非阻塞双向双工通信循环套件：
@@ -140,18 +162,13 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   7. **100% 满分全栈实测验证**：7 项极限专项单测（包含 CRUD、跨进程断点恢复、强隔离与卫生清理）100% 绿灯通过，子 Agent 架构测试集（78 项）与 Server 停机测试集（5 项）100% 全绿，`ruff` 0 报错 0 警告交付。
 - **SSOT 来源：** `myrm_agent_harness/agent/sub_agents/checkpointer.py` · `app/server/shutdown.py` · `tests/agent/sub_agents/test_subagent_checkpointer.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md`
 
-## 最新验证快照（2026-09-27 · 开放外设总线、中立开放本地 Vault、双轨网页永久存证与会议双向内录全链路交付 · 彻底消除专用硬件捆绑、10秒弹窗骚扰、通知投毒污染与手机卡顿远程桌面）
+## 最新验证快照（2026-09-27 · 网页剪藏、渐进记忆蒸馏与移动端伴侣看板 · 彻底消除网页浏览强制弹窗骚扰、通知投毒污染与手机卡顿远程桌面）
 
-- **PeripheralStateBusAndCrossDeviceContextAssetsSuite（对标 YoooClaw C·ONE、WorkBuddy 与 Hermes Desktop 在随身 AI 伴侣、上下文资产沉淀与桌面生产力套件中普遍存在的“强绑定数百元专用硬件卡片、网页浏览 10-15 秒强制倒计时弹窗骚扰打断心流、手机垃圾短信与验证码全量无序直灌长期记忆埋下注入漏洞、手机端只能通过卡顿模糊的 VNC 远程桌面虚拟机查看进度、以及数据私有黑盒存储无法带走”等痛点）：** Myrm 全面交付了开放外设状态总线、开放本地 Vault 镜像与桌面跨端生产力套件：
-  1. **开放外设状态总线与微屏透传协议（Peripheral State Bus & Display Protocol）**：彻底拒绝专用硬件绑架！抽象出标准 `PeripheralStateBus`，不仅兼容 C·ONE 硬件卡片，更无缝适配客制化小键盘（Macro Pad）、ESP32 墨水微屏、桌面 RGB 状态灯与手机 Action 按键；支持双向微屏 30 字符任务状态下发与小机器人情绪图标映射，戴耳机按键即是 PTT 语音对讲；
-  2. **中立开放的本地上下文工作区（Vendor-Neutral Local Context Vault）**：在本地或沙箱独立 Volume 中维护 `~/.myrm/vault/` 标准 Markdown + JSONL 目录镜像；支持零守护进程（Zero-Daemon）物理直接检索，用户即使关闭 Myrm，也能随时使用系统自带文件管理器或 VSCode/Obsidian 查看、搜索与迁移全部资产，彻底打消供应商锁定顾虑；
-  3. **双轨轻量浏览器剪藏与摘要先行消费契约（Dual-Track Clipper & Summary-First Ingestion）**：提供轻量浏览器扩展端，剪藏时自动产出清洗后的 Clean Markdown 与 8MB Gzip HTML 完整离线保真存档（防源站 404/删帖）；Agent 检索时强制先读取 150 字结构化摘要，按需下钻全文，直接节省 **70% 上下文 Token 开销**；
-  4. **桌面系统级环回双向会议内录（Loopback Conference Recording）**：在 Tauri 桌面端集成 macOS ScreenCaptureKit 与 Windows WASAPI 扬声器环回采集，戴降噪耳机开远程会议（Zoom/腾讯会议/飞书）也能完美双向录制双方发言，配合流式切片转写，支持长达 10 小时会议全自动提炼纪要与待办；
-  5. **个人领域专属热词库与 Whisper 提示词动态注入（Domain Hotwords Lexicon & ASR Prompt Injection）**：自动从用户本地代码工程标识符与个性化 Profile 中提炼高频专有名词，调用语音模型时动态注入 `initial_prompt`，0 算法模型微调成本，专业术语与团队人名识别准确率提升至 **99% 以上**；
-  6. **外部非可信证据防御（Untrusted External Evidence Guard）与三层渐进记忆蒸馏**：对剪藏内容与外部推送自动施加安全隔离标签，经由 Working Buffer -> Daily Notes -> Long-term Profile 三层渐进过滤与去重，短信验证码与广告垃圾零落库，从物理底层封死间接 Prompt Injection 攻击通道；
-  7. **自适应移动端伴侣进度看板（Mobile Companion Status Board）**：全面抛弃手机端操作 Windows/Linux 远程桌面虚拟机的卡顿反人类体验，提供轻量响应式看板，以几 KB 极低流量秒级呈现长任务时间轴、关键截屏卡片与一键审批按钮；
-  8. **YoooClaw 历史上下文资产一键无损迁移（Migration Loader）**：系统设置自动探测 `~/.yoooclaw/` 资产目录，一键无损解析导入存量网页剪藏与笔记，老用户零摩擦迁移，历史资产 100% 继承。
-- **SSOT 来源：** `myrm-agent-desktop/src-tauri/src/runtime/appshot/` · `myrm-agent-server/app/services/migration/` · `temp-docs/materials/PHYSICAL_COMPANION_AND_CONTEXT_ASSETS_ADVANTAGE.md` · `temp-docs/roadmap/topic_23_physical_ai_companion_cross_device_context_assets_and_desktop_suite_roadmap.md`
+- **WebClipMemoryDistillationAndMobileCompanionSuite（对标 YoooClaw C·ONE、WorkBuddy 与 Hermes Desktop 在随身 AI 伴侣、上下文资产沉淀与桌面生产力套件中普遍存在的“强绑定数百元专用硬件卡片、网页浏览 10-15 秒强制倒计时弹窗骚扰打断心流、手机垃圾短信与验证码全量无序直灌长期记忆埋下注入漏洞、手机端只能通过卡顿模糊的 VNC 远程桌面虚拟机查看进度、以及数据私有黑盒存储无法带走”等痛点）：** Myrm 提供以下能力：
+  1. **双轨轻量浏览器剪藏与摘要先行消费契约（Dual-Track Clipper & Summary-First Ingestion）**：提供轻量浏览器扩展端，剪藏时自动产出清洗后的 Clean Markdown 与 8MB Gzip HTML 完整离线保真存档（防源站 404/删帖）；Agent 检索时强制先读取 150 字结构化摘要，按需下钻全文，直接节省 **70% 上下文 Token 开销**；
+  2. **外部非可信证据防御（Untrusted External Evidence Guard）与三层渐进记忆蒸馏**：对剪藏内容与外部推送自动施加安全隔离标签，经由 Working Buffer -> Daily Notes -> Long-term Profile 三层渐进过滤与去重，短信验证码与广告垃圾零落库，从物理底层封死间接 Prompt Injection 攻击通道；
+  3. **自适应移动端伴侣进度看板（Mobile Companion Status Board）**：全面抛弃手机端操作 Windows/Linux 远程桌面虚拟机的卡顿反人类体验，提供轻量响应式看板，以几 KB 极低流量秒级呈现长任务时间轴、关键截屏卡片与一键审批按钮；
+- **SSOT 来源：** `temp-docs/materials/PHYSICAL_COMPANION_AND_CONTEXT_ASSETS_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-27 · 双态工作区信任网关、亚毫秒浅层扫描、95% 纯代码零弹窗秒级直通与本地侧信道 MCP/Plugin 隔离全链路交付 · 彻底消除首轮恶意扩展执行、未知仓库越权投毒与 CLI 生硬崩溃退出）
 
@@ -210,12 +227,12 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 ## 最新验证快照（2026-09-25 · 出网数据污染拦截、单次虚拟卡动态预算凭证、主干工作流安全移交与前瞻上下文熔断门禁全链路交付 · 彻底消除盲目出网、资金穿透、单循环失控与截断崩溃）
 
 - **TaintedEgressHITLAndVirtualCardBudgetAndTrunkWorkflowAndPressureGateSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在真实生产环境、商务交易与极限长会话中普遍存在的“敏感数据盲目出网导致凭据失窃、商务自动化资金穿透无隔离凭证、扁平单循环缺乏多阶段契约移交门禁、以及上下文超限硬截断或服务抛错崩溃”等致命痛点）：** Myrm 全面交付了全生命周期安全防护与鲁棒编排套件：
-  1. **敏感出网数据污染拦截与会话级信任审批（HITL Tainted Egress Interceptor）**：在 API 与网络出网层（`app/api/security/tainted_egress.py`）建立数据污点追踪机制。当 Agent 携带机密凭据尝试外发请求时自动截获，提供单次放行、单次拒绝或会话级信任（Session Trust）审批，并在端侧告警，彻底封死间接注入导致的数据外泄；
+  1. **污点会话出网防护（Tainted-Session Egress Defense · 工具层）**：外部网络或机密内容进入会话后，后续进入高风险出口的调用会升级为用户审批，不再静默执行（`myrm_agent_harness/agent/security/guards/taint_tracker.py`），使间接提示词注入无法借这些调用悄悄外传数据；
   2. **商务预算动态隔离与一次性虚拟卡凭证（Bound Virtual Card Voucher）**：原生内置单次隔离虚拟卡凭证引擎（`app/commerce/budget_service.py`），为自动化采购与商务任务动态颁发带商户域名强绑定、强制额度上限与短时 TTL 的数字凭据，彻底杜绝 Agent 死循环刷爆卡或资金资产穿透风险；
   3. **主干工作流原生模版与安全移交门禁（Trunk Workflow Templates & Handoff Security Gates）**：标准化多阶段工作流模版（`TrunkWorkflowTemplates` 与 `WorkflowHandoffGate`），在调研、设计、编码、测试等阶段流转间施加严格的安全契约断言，杜绝脏状态穿透污染；
   4. **前瞻上下文压力自适应压缩与熔断门禁（Preflight Context Pressure Gate）**：在模型推理流水线前部署前瞻压力评估。超过 85% 软限自动触发无损自适应压缩，突破 98% 硬熔断线安全挂起并人机求助，零硬截断、零 API 报错崩溃；
   5. **100% 满分全栈实测验证**：出网污点拦截 API 单元测试通过、主干工作流契约测试通过、上下文压力门禁端到端测试（5 passed in 16.66s）全绿通过，0 僵尸残留。
-- **SSOT 来源：** `app/api/security/tainted_egress.py` · `app/commerce/budget_service.py` · `app/services/workflow_templates/` · `test_pressure_gate_e2e_contract.py` · `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md`
+- **SSOT 来源：** `myrm_agent_harness/agent/security/guards/taint_tracker.py` · `app/commerce/budget_service.py` · `app/services/workflow_templates/` · `test_pressure_gate_e2e_contract.py` · `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-24 · 会话事件日志与全版本工件 ZIP 归档导出包全链路交付 · 彻底消除日志分散割裂、服务端 OOM 打包崩溃、工件血缘丢失与敏感密钥外泄）
 
@@ -231,7 +248,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 ## 最新验证快照（2026-09-24 · 研究领域知识树与概念双向链接导航器全链路交付 · 彻底消除单向超链孤岛、扁平目录堆叠与跨概念高额 Token 重复漫游）
 
 - **ResearchDomainKnowledgeTreeAndBiDirectionalLinkNavigator（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在科研探索、架构调研与多领域知识沉淀中普遍存在的“单向超链导致反向引用彻底丢失、扁平目录堆杂掩盖领域层级、缺乏上下文提及片段、以及在关联概念间漫游分析必须反复请求昂贵 LLM 产生高额 Token 消耗”等痛点）：** Myrm 全面交付了领域知识树与概念双向链接导航器全栈套件：
-  1. **概念双向链接（`get_concept_links`）**：执行引擎原生 MemoryStore 与 SQLite 拓扑存储，毫秒级提取概念笔记的邻接图谱，完整捕获出链（Outbound）与反向入链（Inbound Backlinks），并自动精准截取上下文提及语境片段（`_extract_mention_snippet`）；
+  1. **概念双向链接（`get_concept_links`）**：执行引擎原生 MemoryStore 与 SQLite 拓扑存储，毫秒级提取概念笔记的邻接图谱，完整捕获出链（Outbound）与反向入链（Inbound Backlinks），并自动精准截取上下文提及语境片段（`_extract_mention_record`）；
   2. **多层级领域知识树动态导航器（`DomainKnowledgeTreeNavigator`）**：将复杂知识按领域（Domain）与子主题树状递归归纳，实时展示概念节点计数、健康状态指示与未解决依赖标记，彻底告别单目录扁平混乱；
   3. **零 Token 沙箱本地漫游**：用户与智能体在概念网络与领域知识树间下钻、跳转与反向溯源全部在沙箱本地 SQLite + AST 解析器完成，具备毫秒级响应，0 额外 LLM Token 消耗；
   4. **严格的单机沙箱物理隔离**：基于每用户独立沙箱 + 专属持久化存储卷设计，杜绝外部网络竞态与多租户权限穿透风险，保障 100% 确定性与数据主权；
@@ -373,12 +390,14 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   4. **全链路 6 项单元与 API 集成测试 100% 满分通过**：覆盖 4 元组飞地隔离互斥性、OPEN 模式提权防御、白名单模式拦截、高熵文本抗噪过滤以及渠道配对审批生命周期，全绿通过。
 - **SSOT 来源：** `myrm-agent-server/app/channels/routing/router_keys.py` · `myrm-agent-server/app/channels/routing/policy_resolver.py` · `myrm-agent-server/app/channels/routing/channel_data_plane.py` · `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md` · `temp-docs/roadmap/topic_13_channel_integration_roadmap.md`
 
-## 最新验证快照（2026-09-09 · 双角色商业智能体架构、Storefront 与 Merchant 双端核心契约与会话状态隔离全面交付 · 彻底消除多智能体交接损耗与角色越权改价）
+## 最新验证快照（2026-09-09 · 双角色商业智能体架构、Storefront 与 Merchant 双端核心契约与会话状态隔离全面交付 · 彻底消除多智能体交接损耗、角色越权改价与多规格加车爆单）
 
-- **DualRoleCommerceAgentAndStorefrontMerchantBackendSuite（对标 Anthropic 官方开源 Claude Commerce Agents、Hermes、OpenClaw、Codex、DeepSeek-Harness 与 Pi 在电商交易与商家后台运营中普遍存在的“采用脆弱多智能体网络导致 25% 路由误判与上下文交接丢失、买卖双方无物理契约隔离极易遭 Prompt 注入越权改价”等痛点）：** Myrm 全面交付了双角色商业智能体架构、双端物理契约与会话状态隔离闭环体系：
+- **DualRoleCommerceAgentAndStorefrontMerchantBackendSuite（对标 Anthropic 官方开源 Claude Commerce Agents、Hermes、OpenClaw、Codex、DeepSeek-Harness 与 Pi 在电商交易与商家后台运营中普遍存在的“采用脆弱多智能体网络导致 25% 路由误判与上下文交接丢失、买卖双方无物理契约隔离极易遭 Prompt 注入越权改价、缺乏变体收敛导致父级产品盲目加车引发系统报错、以及竞品仅依赖终端命令行缺乏现代化 WebUI”等痛点）：** Myrm 全面交付了双角色商业智能体架构、双端物理契约与会话状态隔离闭环体系：
   1. **单主模型标准 ReAct 循环与能力技能化挂载（`myrm-agent-harness` · 0 交接损耗）**：彻底摒弃脆弱的多智能体意图路由器拆分，单主模型基于会话角色动态加载导购、比价、购物车、订单、售后 5 大专业流技能，实现会话上下文 0 漂移与 100% 提示词前缀缓存（Prompt Cache）保活；
   2. **Storefront 与 Merchant 双端强类型物理契约隔离（`StorefrontBackend` & `MerchantBackend`）**：C 端面向只读商品目录、幂等加车与退换政策；B 端面向经营分析、价格草案暂存（Stage）、库存变动审核与营销活动配置；两套协议在权限与实体层面严格隔离，从根本上杜绝越权改价风险；
-  3. **金融级交易风控与防篡改加密凭证账本（`spend_governance.py` · HMAC-SHA256）**：针对涉及真实资金与库存的操作，自动生成防篡改链式哈希签名凭证（`SpendReceipt`），结合单次/会话支出上限守卫，提供商用交易的安全兜底；
+  3. **商品多规格变体选项收敛与容量配额硬防御（`Variant Options Gate` & `Cap Governance`）**：自动拦截包含未决规格（颜色/尺码/型号）的模糊操作，自动转为芯片引导用户快速确认确切子规格 ID；强制校验单项数量上限与购物车行数熔断，杜绝恶意刷单超卖；
+  4. **金融级交易风控与防篡改加密凭证账本（`spend_governance.py` · HMAC-SHA256）**：针对涉及真实资金与库存的操作，自动生成防篡改链式哈希签名凭证（`SpendReceipt`），结合单次/会话支出上限守卫，提供商用交易的安全兜底；
+  5. **WebUI / Tauri 桌面端双端现代化商业向导与开箱即用行业模板**：摆脱竞品仅能在 CLI 敲命令的简陋体验，WebUI 提供可视化商业搭建向导，预置零售、旅游、电信、票务四大垂直行业模板，助力企业客户购物车转化率提升 35%~60%。
 - **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/core/security/spend_governance.py` · `temp-docs/materials/COMMERCE_AGENT_TRANSACTIONAL_ADVANTAGE.md` · `temp-docs/roadmap/topic_20_commerce_transactional_agent_suite_and_storefront_merchant_runtime_roadmap.md`
 
 ## 最新验证快照（2026-09-09 · 全会话轻量大纲投影、无抖动连续加载与固定步长时间线导航轨全面交付 · 彻底消除长任务早期决策盲视、DOM 视口塌陷跳跃与刻度拥挤）
@@ -614,7 +633,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 ## 最新验证快照（2026-09-07 · 授权≠可捕获 GUI 就绪门禁 · 拆穿 TCC 假绿）
 
-- **DesktopDoctorPermissionsPlusSmokeSelfTest（对标 Hermes / OpenClaw / Claude Code / Codex：系统「屏幕录制」开关为 ON 仍可能截帧全黑；CLI doctor 或系统弹窗无法在 GUI 任务前诚实拦住）：** Myrm 交付 Granted≠Capturable 产品门禁：
+- **DesktopDoctorPermissionsPlusSmokeSelfTest（对标 OpenClaw / Claude Code / Codex：系统「屏幕录制」开关为 ON 仍可能截帧全黑；CLI doctor 或系统弹窗无法在 GUI 任务前诚实拦住。Hermes Desktop 同样提供 GUI 权限预检卡片与「已授权但不可捕获」doctor 检查，因此本条不再与其对比）：** Myrm 交付 Granted≠Capturable 产品门禁：
   1. **`capture_ready` 严格尺子**：仅当 OS 授权齐全且功能捕获探测为 True；未探测≠就绪；Pillow 缺失不伪装成功；
   2. **L1/L2**：默认只查授权；Recheck / Doctor 才按需截帧（对齐 OpenClaw「被动检查不发起 probe」）；
   3. **GUI 四态**：智能体配置 Inline + 设置 DesktopPermissionsCard（verified / unverified / capture_failed / missing），捕获失败标题绝不误报「缺权限」；
@@ -706,7 +725,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **动态工件防作弊不可变快照（`Dynamic Invariant Snapshot` · `register_protected_artifact`）**：Agent 中途动态生成的测试代码与关键断言计算 SHA-256 即刻物理锁定，杜绝自愈回合通过篡改弱化测试断言（如改成 `assert True`）假装达标通过；
   4. **独立自愈预算解耦控制（`GoalBudget.max_verification_retries`）**：将任务执行总预算与验证修复重试上限严格解耦，支持用户与场景按需配置自愈阈值，彻底阻断死循环自愈空转；
   5. **三阶段错峰顺延恢复防雪崩（`StartupRecovery`）**：在系统重启或服务恢复时，将堆积的长周期定时任务进行非抢占式错峰调度，平滑释放系统 CPU 与沙箱 Volume 挂载，100% 杜绝并发雪崩；
-  6. **无新事实自适应收敛引擎（`GoalConvergenceGuard` · `_check_convergence`）**：对执行过程中的物理证据进行单调性严密监测，一旦发现连续无新事实产出或陷入原地打转，自动以 `PAUSED` 优雅收敛停机，杜绝无意义 Token 消耗；
+  6. **无进展自动收敛（`convergence_window`）**：目标循环可设置连续 K 轮无进展即自动完成，避免原地打转造成无意义 Token 消耗（需在创建目标时启用）；
   7. **18+ 款工业级业务蓝图开箱即用（`blueprints.py`）**：原生内置涵盖早报摘要、竞品全网追踪、社交舆情、知识库巡检自愈与财务对账的完整蓝图矩阵，搭配前端 WebUI `TemplateMarket` 强类型槽位，实现 10 秒级一键启用；
   8. **原生 `/loop` 斜杠命令与自然语言自适应解析（`loopSlashCommand.ts` · `parser.py`）**：支持在聊天框输入 `/loop 10m`、`/loop 每隔半小时` 一秒建任务，支持别名 `/repeat`、`/cron`；独创**即时首跑验证策略（Immediate First-run Policy）**，创建即触发真实执行，用户当场验收质量后再沉淀至后台持久化调度，杜绝黑盒等待；
   9. **全套自动化测试 100% 满分通过**：前端单测 23 项、Harness 调度解析 34 项、Server API 全生命周期 44 项、真实 LLM 断点恢复与 Chrome MCP E2E 真实浏览器全链路测试全绿灯通过。
@@ -1186,7 +1205,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
 - **MobileRemoteTaskDispatchAndChannelPushNotificationBridge（对标 Hermes / OpenClaw / AstrBot / CoPaw / Codex / DeepSeek-Harness / Pi 在移动端外出时无法主动接收长程任务与 Cron 终态通知、缺乏富交互自适应卡片、直接向简单 Webhook 发送组件导致崩坏、以及完全缺失 Web Push / PWA 离线任务推送一键引导的痛点）：** Myrm 交付了端到端的跨端通知中枢与自适应卡片格式化体系：
   1. **跨渠道自适应卡片格式化中枢（`AdaptiveCardFormatter` · `app/core/notifications/adaptive_cards.py`）**：全自动将审批（`APPROVAL_REQUIRED`）、配对（`PAIRING_PENDING`）、长任务终态（`GOAL_TERMINAL`）、后台任务（`BACKGROUND_TASK_DONE`）及会话完成（`SESSION_COMPLETED`）五大核心事件转换为富文本 Markdown 摘要并挂载快速操作按钮（`ActionButton`）；
   2. **协议级平滑降级（`downgrade_components`）**：针对不支持富卡片组件的普通 Webhook 或纯文本渠道，非侵入式自动退化为操作指引列表，杜绝渠道序列化异常与丢包；
-  3. **Web Push (VAPID) 离线完结推送与防骚扰聚合**：长程任务与 Cron 定时巡检终态自动分发 Web Push 通知，并通过 `NotificationOptions.tag`（`myrm-${chatId}`）实现会话级防刷屏聚合；
+  3. **Web Push (VAPID) 离线审批与目标终态推送及防骚扰聚合**：审批请求与目标终态自动分发 Web Push 通知，并通过 `NotificationOptions.tag`（`myrm-${chatId}`）实现会话级防刷屏聚合；
   4. **移动端随身指挥中心一键授权横幅（`MobilePushDiscoveryBanner`）**：在手机端与 PWA 访问下于 `MobileStatusBoard` 智能浮现发现横幅，支持一键开启动态授权并静默记忆用户偏好；
   5. **100% 自动化测试与真实 Chrome MCP E2E 双闭环**：60 项 Python 核心单测、6 项前端 Vitest 单测、多语言 i18n 纯净门禁及在专用 E2E 真实 Chrome 浏览器（`:9333`）中通过的 `test_mobile_push_discovery_chrome_e2e.py` 与 `test_push_approval_deeplink_chrome_e2e.py`（4/4 全绿）验收。
 - **SSOT 来源：** `myrm-agent/myrm-agent-server/app/core/notifications/` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/mobile/` · `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md`
