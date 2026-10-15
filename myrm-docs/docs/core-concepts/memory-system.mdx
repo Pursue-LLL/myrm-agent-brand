@@ -166,36 +166,6 @@ Myrm's **Working Memory** solves this with a dedicated `__working_state` Profile
 
 Compared to ChatGPT's Dreaming (passive, no task-specific focus), CLAUDE.md (manual maintenance), or third-party MCP plugins (configuration overhead), Working Memory is zero-config, system-extracted, and self-cleaning.
 
-### ReTree Self-Correcting Working Memory & Rollback Pruning Engine
-
-In long-running complex agent loops and Deep Research workflows, traditional working memory relies on flat scratchpads or simple message histories. When an agent discovers deeper in the workflow that an earlier premise or finding was incorrect (e.g. outdated pricing, deprecated API parameters, or debunked assumptions), flat scratchpads fail to trace which downstream deductions were contaminated, resulting in self-contradictory reports or forcing expensive full restarts.
-
-Myrm introduces **ReTree (Tree-Structured Working Memory with Causal Backtracking Pruning)**, benchmarking cutting-edge 2026 ReTree architectures (arXiv:2608.10676v1) to provide deterministic, causal working memory:
-
-```
-[root_plan (Root Goal)]
-   ├── [ev_01: Initial Parameter Baseline (ACTIVE)] ──> [ev_02: Derived Deduction (PRUNED_INVALIDATED)]
-   │                                                         └──> [ev_03: Final Strategy (PRUNED_INVALIDATED)]
-   └── [ev_04: Independent Architecture Analysis (ACTIVE - 100% Preserved)]
-```
-
-#### Core Mechanisms
-1. **Strong-Typed DAG Causal Graph (`EvidenceTree`)**: Every evidence node (`EvidenceNode`) binds claims, bounded summaries, provenance URLs, and bidirectional causal edges (`dependencies` / `dependents`).
-2. **Two-Stage Conflict Arbitration (`FastContradictionDetector`)**:
-   - **Stage 1 Deterministic Screening (<0.1ms)**: Exact hash deduplication and regex screening catch pure duplicates and explicit negation patterns with zero LLM overhead;
-   - **Stage 2 Fast LLM Arbitration**: When entities collide but differ semantically, a fast model arbitrates between temporal evolution (`TEMPORAL_UPDATE`) and direct refutation (`CONTRADICTION`).
-3. **4-Step Atomic Repair & Cascade Pruning (`TreeRepairEngine`)**:
-   - Logs audit trail (`RevisionRecord`) with superseding URLs;
-   - Hot-replaces evidence and bounded metrics;
-   - Recursively traverses downstream causal dependents;
-   - Cascade soft-prunes contaminated nodes to `PRUNED_INVALIDATED` while 100% preserving independent exploration branches.
-4. **Oscillation Damping Guard**:
-   - Triggers when revision depth reaches `MAX_REVISIONS=2`, freezing competing views as `DISPUTED` to strictly eliminate infinite flip-flop loops.
-5. **Prompt Cache Friendly Bounded Slices**:
-   - Slices are sorted stably by creation timestamp to maintain immutable prefix tokens for KV caching, and automatically guarantee a 40% body quota in small token budget scenarios.
-
-**Verification (2026-09)**: 110 integration tests verified all green, with **95.56%** module coverage; verified against live online models (`openai-like/gemini-3.8-flash-high`, 10.42s latency, 0.95 confidence).
-
 ## Profile Injection + Unified Memory Search (Prefix Cache Friendly)
 
 Cross-session continuity: L1 **stable** profile injects automatically; **learned** preferences are retrieved via `memory_search_tool` (not Turn-1 middleware) to maximize prompt cache hit rate.
@@ -633,13 +603,13 @@ A comprehensive 40+ component interactive GUI replaces the traditional plain-tex
 - **Health Dashboard** — real-time monitoring of memory system health with quantified scores
 - **Preference Analytics** — PreferenceStabilityCard and TasteSummaryCard show how well the AI understands your preferences
 - **Injection Safety** — dual-layer protection: `sanitize()` strips structural framing tags (tool_call, ChatML, CDATA) and neutralizes Unicode spoofing attacks, then `_escape_xml_item()` escapes XML entities (`&`/`<`/`>`) before injection into the prompt. Content is physically separated into trusted (user-configured) and untrusted (AI-extracted) layers with a Scope Boundary declaring agent instructions take precedence over memories. Automatic content scanning detects prompt injection attacks (CLEAN/WARN/REDACTED/BLOCKED)
-- **Export/Import** — full memory export with dry-run preview before import (supports 14 formats across 11 ready sources, including Claude Code, Claude, Cursor, Hermes, Codex, and **mem0** — upload a mem0 export JSON in Settings → Memory for auto-detect, translated source label, and mapping preview before confirm; Windsurf, Trae, and MemWeaver are on the roadmap)
+- **Export/Import** — full memory export with dry-run preview before import (supports 18 ready sources, including Claude Code, Claude, Cursor, Hermes, Codex, and **mem0** — upload a mem0 export JSON in Settings → Memory for auto-detect, translated source label, and mapping preview before confirm; only MemWeaver is not ready yet)
 - **New User Guide** — built-in MemoryGuide walks first-time users through the system
 - **Save to Memory Button** — one-click save any AI reply to long-term semantic memory directly from the chat action bar. 3-state feedback (idle → saving → saved), duplicate prevention, and 5-language i18n. No competitor offers this in-chat GUI shortcut
 
 ## Memory Health
 
-The diagnostic system monitors memory quality with quantified health scores and provides actionable repair recommendations. Includes memory import/export for 14 formats, archive management, and recall benchmarking with IR metrics (NDCG, MRR, precision).
+The diagnostic system monitors memory quality with quantified health scores and provides actionable repair recommendations. Includes memory import/export for 18 ready sources, archive management, and recall benchmarking with IR metrics (NDCG, MRR, precision).
 
 **Memory Doctor (write-read conformance benchmark)** — one click runs a real consistency check: the agent actually writes and re-reads 16 scenarios across 8 memory categories, then scores recall quality (recall@5 / NDCG@5 / MRR) and retrieval latency (P50/P95/P99). Every run is archived in an audit ledger and rendered as a historical trend panel:
 
@@ -667,7 +637,7 @@ Myrm never lets "memory will be lost on restart" be a silent surprise. The **Mem
 Export your conversation traces as industry-standard fine-tuning datasets — directly from the Settings page.
 
 - **3 output formats**: ShareGPT, Alpaca, OpenAI JSONL — compatible with LLaMA-Factory, Alpaca-LoRA, and OpenAI Fine-tuning API
-- **PII redaction**: phone, email, ID card, bank card, IBAN, passport, address, SSN, passwords, and more — type-tagged placeholders preserve structure while removing sensitive data
+- **12-category PII redaction**: phone, email, ID card, bank card, passport, address, SSN, and more — type-tagged placeholders preserve structure while removing sensitive data
 - **Quality filtering**: only export successful, substantive conversations (configurable success requirement, minimum turns, content length)
 - **Content deduplication**: SHA-256 hashing eliminates duplicate samples automatically
 - **Incremental export**: state tracking skips already-exported sessions on subsequent runs
@@ -977,3 +947,28 @@ Tool rules are strictly sorted in lexicographical ascending order prior to syste
 
 ### 2. Enterprise WebUI Command Center (`ToolGuidancePanel`)
 Integrated directly into the Memory Command Center, users can inspect, pin as permanent company rules, or revoke tool rules via a vector-native, zero-emoji UI.
+
+## Visual Memory Readiness & Vector Health Inspector
+
+Traditional agent memory frameworks (OpenClaw, Hermes, Codex, Pi, OpenCode) suffer from extreme operational black-box opacity. When semantic retrieval degrades or fails, users cannot determine whether the upstream Embedding API is offline, the vector dimension is mismatched, or local vector tables are corrupt. OpenClaw provides only a terminal-only CLI command (`memory status --deep`), completely leaving GUI users in the dark.
+
+Myrm introduces the **Visual Memory Readiness & Vector Health Inspector Suite** (`VisualMemoryHealthCard`):
+
+### 1. WebUI White-Box Health Cockpit
+- **Live Readiness Badges**: Real-time display of Provider status (`Ready` / `Degraded` / `Error`), active embedding model name, and backend vector engine (`SQLite-vec`, `Qdrant`, `PGVector`, or `Memory Ephemeral`);
+- **Dimensionality & Capacity Metrics**: Live stats for embedding dimensions (e.g. 1536), total indexed chunks, and full-text search (FTS) index entries.
+
+### 2. One-Click Deep Latency Diagnostic
+- **End-to-End Latency Breakdown**: Clicking "深度自检" initiates a synthetic micro-slice probe, displaying microsecond-accurate latency metrics across three core stages:
+  - **Embedding API Latency**
+  - **Vector Store Write Latency**
+  - **Cosine Search Latency**
+- **3-Tier Latency Rating**: Automatically grades total latency into `Optimal` (<100ms), `Acceptable` (100–300ms), or `Degraded` (>300ms).
+
+### 3. Real-Time Re-Indexing & Token Consumption Estimation
+- **Streamlined Workflow**: When switching embedding models or re-chunking, users can trigger full vector re-indexing with one click;
+- **Live Progress Visualization**: Displays dynamic progress bar, processed chunks vs. total chunks, and estimated token usage (`~250 tokens/chunk`), with support for graceful cancellation.
+
+### 4. Cross-Component Custom Event Bus
+- Emits standardized `myrm:memory-inspector-diagnostic` browser events, allowing the main chat window, status bars, and settings hub to react to memory health transitions synchronously.
+
