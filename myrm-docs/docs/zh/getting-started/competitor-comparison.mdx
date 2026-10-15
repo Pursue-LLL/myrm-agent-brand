@@ -373,14 +373,12 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   4. **全链路 6 项单元与 API 集成测试 100% 满分通过**：覆盖 4 元组飞地隔离互斥性、OPEN 模式提权防御、白名单模式拦截、高熵文本抗噪过滤以及渠道配对审批生命周期，全绿通过。
 - **SSOT 来源：** `myrm-agent-server/app/channels/routing/router_keys.py` · `myrm-agent-server/app/channels/routing/policy_resolver.py` · `myrm-agent-server/app/channels/routing/channel_data_plane.py` · `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md` · `temp-docs/roadmap/topic_13_channel_integration_roadmap.md`
 
-## 最新验证快照（2026-09-09 · 双角色商业智能体架构、Storefront 与 Merchant 双端核心契约与会话状态隔离全面交付 · 彻底消除多智能体交接损耗、角色越权改价与多规格加车爆单）
+## 最新验证快照（2026-09-09 · 双角色商业智能体架构、Storefront 与 Merchant 双端核心契约与会话状态隔离全面交付 · 彻底消除多智能体交接损耗与角色越权改价）
 
-- **DualRoleCommerceAgentAndStorefrontMerchantBackendSuite（对标 Anthropic 官方开源 Claude Commerce Agents、Hermes、OpenClaw、Codex、DeepSeek-Harness 与 Pi 在电商交易与商家后台运营中普遍存在的“采用脆弱多智能体网络导致 25% 路由误判与上下文交接丢失、买卖双方无物理契约隔离极易遭 Prompt 注入越权改价、缺乏变体收敛导致父级产品盲目加车引发系统报错、以及竞品仅依赖终端命令行缺乏现代化 WebUI”等痛点）：** Myrm 全面交付了双角色商业智能体架构、双端物理契约与会话状态隔离闭环体系：
+- **DualRoleCommerceAgentAndStorefrontMerchantBackendSuite（对标 Anthropic 官方开源 Claude Commerce Agents、Hermes、OpenClaw、Codex、DeepSeek-Harness 与 Pi 在电商交易与商家后台运营中普遍存在的“采用脆弱多智能体网络导致 25% 路由误判与上下文交接丢失、买卖双方无物理契约隔离极易遭 Prompt 注入越权改价”等痛点）：** Myrm 全面交付了双角色商业智能体架构、双端物理契约与会话状态隔离闭环体系：
   1. **单主模型标准 ReAct 循环与能力技能化挂载（`myrm-agent-harness` · 0 交接损耗）**：彻底摒弃脆弱的多智能体意图路由器拆分，单主模型基于会话角色动态加载导购、比价、购物车、订单、售后 5 大专业流技能，实现会话上下文 0 漂移与 100% 提示词前缀缓存（Prompt Cache）保活；
   2. **Storefront 与 Merchant 双端强类型物理契约隔离（`StorefrontBackend` & `MerchantBackend`）**：C 端面向只读商品目录、幂等加车与退换政策；B 端面向经营分析、价格草案暂存（Stage）、库存变动审核与营销活动配置；两套协议在权限与实体层面严格隔离，从根本上杜绝越权改价风险；
-  3. **商品多规格变体选项收敛与容量配额硬防御（`Variant Options Gate` & `Cap Governance`）**：自动拦截包含未决规格（颜色/尺码/型号）的模糊操作，自动转为芯片引导用户快速确认确切子规格 ID；强制校验单项数量上限与购物车行数熔断，杜绝恶意刷单超卖；
-  4. **金融级交易风控与防篡改加密凭证账本（`spend_governance.py` · HMAC-SHA256）**：针对涉及真实资金与库存的操作，自动生成防篡改链式哈希签名凭证（`SpendReceipt`），结合单次/会话支出上限守卫，提供商用交易的安全兜底；
-  5. **WebUI / Tauri 桌面端双端现代化商业向导与开箱即用行业模板**：摆脱竞品仅能在 CLI 敲命令的简陋体验，WebUI 提供可视化商业搭建向导，预置零售、旅游、电信、票务四大垂直行业模板，助力企业客户购物车转化率提升 35%~60%。
+  3. **金融级交易风控与防篡改加密凭证账本（`spend_governance.py` · HMAC-SHA256）**：针对涉及真实资金与库存的操作，自动生成防篡改链式哈希签名凭证（`SpendReceipt`），结合单次/会话支出上限守卫，提供商用交易的安全兜底；
 - **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/core/security/spend_governance.py` · `temp-docs/materials/COMMERCE_AGENT_TRANSACTIONAL_ADVANTAGE.md` · `temp-docs/roadmap/topic_20_commerce_transactional_agent_suite_and_storefront_merchant_runtime_roadmap.md`
 
 ## 最新验证快照（2026-09-09 · 全会话轻量大纲投影、无抖动连续加载与固定步长时间线导航轨全面交付 · 彻底消除长任务早期决策盲视、DOM 视口塌陷跳跃与刻度拥挤）
