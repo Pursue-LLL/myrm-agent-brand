@@ -447,7 +447,7 @@ Settings **概览** 自动展示三件套就绪状态；无需 CLI。
 - **维护模式（#31）** — Settings **概览 → 维护** 可选 **Structural**（快扫 lint + type 修复 + blocked raw 清理）或 **Full**（额外漂移检测与 backlink 刷新）。Cron 蓝图 **`wiki_maintain`** 经 router `__wiki_maintain__:{mode}` 定时执行相同模式；第二大脑 preset 在稍后读与晨间 delta 之外新增 **周末 03:00 full maintain** 闹钟。此外新增 **`wiki_vault_weekly_health`（知识库每周健康巡检 · 只列不修）** 蓝图（默认周日 18:00），以零修改原则生成分类体检清单（断链/陈旧/格式异常）与 `/settings/knowledge` 治理深链。
 - **结构健康 Stats**（Overview 页）— 零 LLM 扫描：markdown 断链、Obsidian `[[wikilink]]` 断链（路径 + 唯一 title 别名）、缺 frontmatter `type`；amber badge 在编译、导入、词条编辑、待审审批、文件夹删除后即时刷新；Harness CI 跑 4 case 检索回归门。无需 CLI `wiki lint`。
 - **图书馆 / Brain 视图** — 3D 知识图谱与词条探索（因部署而异）。
-- **知识图谱** — 编译器自动抽取概念及其关联关系，构建加权边图谱（直接链接 + 来源重叠 + 共同邻居三维权重）。LPA 社区检测自动将相关概念分组；盲区分析高亮孤立节点和跨领域桥接概念。
+- **知识图谱** — 编译器自动抽取概念及其关联关系，构建加权边图谱（直接链接为基础权重，两端共同链接的概念越多权重越高）。LPA 社区检测自动将相关概念分组；盲区分析高亮孤立节点和跨领域桥接概念。
 - **智能上下文回忆** — 开始新对话时，Agent 自动根据当前话题检索相关记忆和知识，无需手动指引文档。
 - **矛盾检测** — Claim Graph 追踪 `contradiction_status` 和 `CONTRADICTED_BY` 关系。巩固流程自动标记冲突事实，交由人工审核而非静默覆盖。
 - **联邦检索** — 当存在多个 Wiki 命名空间或发布目录时，查询自动跨源检索并以 RRF 排序合并结果，确保全面覆盖无需手动切换范围。
