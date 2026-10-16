@@ -661,7 +661,7 @@ This prevents **slopsquatting attacks** — where an attacker registers a packag
 | **In Transit** | TLS 1.3 for all network connections |
 | **API Keys** | Encrypted secrets vault with per-user isolation |
 | **Memory** | Optional encryption for sensitive memory entries |
-| **Incognito Mode** | Physical isolation and read-after-burn for sensitive sessions |
+| **Incognito Mode** | A session that reads and writes no memory, stays out of history and search, and is deleted after an hour of inactivity |
 
 ### Enterprise TLS Compatibility
 
@@ -679,10 +679,10 @@ Corporate networks often deploy TLS inspection proxies (Zscaler, Netskope, Palo 
 
 One-click toggle in the message input area activates per-session privacy isolation:
 
-- **Harness layer**: `IncognitoPolicy` physically skips all writes to MEMORY and ARCHIVE context scenes
+- **Event log**: no per-session event log is written, so prompts and tool results are not copied to disk outside the chat database
 - **Server layer**: Skips memory manager binding and all memory tools (`memory_search_tool`, `memory_save`, `memory_manage`), disables memory context injection, archive checkpoints, and session cleanup callbacks
-- **Database layer**: `is_incognito` flag ensures sessions are hidden from sidebar listing and excluded from full-text search
-- **Self-hosted advantage**: Unlike SaaS competitors that require a separate "local mode" toggle to keep data off vendor servers, Myrm's self-hosted architecture means user data never leaves the machine by design — Incognito Mode adds session-level non-persistence on top
+- **Database layer**: the `is_incognito` flag keeps the session out of the sidebar, full-text search, session recall, the Catchup Inbox and the memory export, and no title or message preview is stored; the messages stay in the local database until the session has been idle for an hour, then the session is permanently deleted
+- **Self-hosted**: chats are stored on your own deployment rather than on a vendor server; the model provider you configure still processes what each turn sends, incognito or not
 
 ## Credential Protection
 
