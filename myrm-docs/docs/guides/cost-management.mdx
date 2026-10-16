@@ -74,6 +74,16 @@ Every LLM call, streaming or not, lands in the same token ledger:
 
 For hosted / metered-billing users this means the bill you see is the bill you can trust — background work is never hidden, and nothing is double-counted.
 
+### Chat Totals — Exact at Message Level
+
+A chat's `total calls / tokens / USD` are rebuilt from the token economics snapshot stored on each active assistant message, never accumulated incrementally, so they cannot drift from the messages you see:
+
+- **Latest message always counted** — the rebuilt aggregate is cached against the id of the newest message; a new or sibling-switched message invalidates it, so the last turn is never missing
+- **Mutations recompute** — retry, regenerate, switch sibling, undo, truncate and rewind each re-aggregate after they commit, so discarded or deactivated messages stop counting immediately
+- **Recovered turns keep their cost** — the auto-continue recovery path persists the token economics snapshot of the resumed turn the same way a normal turn does
+
+The same totals appear as `usageSummary` (`totalCalls`, `totalTokens`, `totalUsd`) in chat details and exports, and the usage radar (`/statistics/usage/radar`) sums them across chats.
+
 ## Intelligent Cost Routing
 
 ### ComplexityRouter (Automatic)
@@ -93,6 +103,30 @@ Features:
 ### Privacy-Aware Routing
 
 Sensitive content is automatically routed to privacy-appropriate models based on PII detection level.
+
+## Search Provider Failover
+
+Long autonomous tasks draw on third-party search APIs, and free tiers run out. With more than one search provider configured, a failing provider never stalls the task:
+
+- **Priority chain** — a provider that times out, answers with a server error or reports a spent quota is passed over, and the next configured provider answers the search
+- **Exhausted quota is remembered, then probed again** — a provider that reports an exhausted quota is skipped for an hour, after which the next real search probes it again
+- **Rate limits are short** — a provider that answers with a rate limit (429) is skipped for a few seconds
+
+## Vercel AI Gateway
+
+For teams that route several models through an aggregation gateway:
+
+- **Built-in preset** — Vercel AI Gateway is a built-in provider in Settings with its endpoint (`https://ai-gateway.vercel.sh/v1`) preconfigured
+- **Namespaced model ids** — models are addressed as `vercel_ai_gateway/<vendor>/<model>` and sent over the OpenAI-compatible route, so an id that already carries a vendor prefix (for example `anthropic/claude-3-5-sonnet`) stays routed through the gateway instead of being treated as a direct vendor call
+- **Attribution headers** — requests to the gateway carry `HTTP-Referer` and `X-Title` headers that identify Myrm Agent
+
+## Provider Policy Block Failover
+
+Aggregators and providers can reject a request on policy grounds (guardrail or data-policy blocks). Myrm treats that as a failover case, not a task failure:
+
+- **Fallback model** — a policy-blocked model enters a cooldown and the run continues on a configured fallback model
+- **Clear next step** — the error card offers Switch to API Key and Switch Model, both opening model settings (`/settings/models`)
+- **Credential errors are not failed over** — an invalid API key is shown at once with a Check API Key action that opens `/settings/credentials`, because another model cannot fix it
 
 ## Subagent Cost Isolation
 
@@ -139,6 +173,14 @@ The continuation engine evaluates 9+ conditions before each turn:
 - Goal drift detection (trajectory scoring every 5 turns)
 - Per-todo checkpoint (optional pause after each step)
 - Protected file integrity validation
+
+### Unattended Runaway Circuit Breaker
+
+Scheduled tasks run without anyone watching, so a loop has to stop itself:
+
+- **Loop detection** — in unattended mode the loop guard treats three consecutive tool failures, repeated identical failing calls, or the same error recurring as a runaway and raises a hard circuit break instead of a recoverable stuck-tool error
+- **No retry storm** — the scheduler records the run as `circuit_break`, pauses a recurring job and clears its next run, so no backoff retry fires
+- **Visible in the run history** — the run shows a pulsing rose "Circuit Break" badge, a banner, and an expanded panel with the reason
 
 ## Output Compression
 
