@@ -665,7 +665,7 @@ During complex, long-running agent autonomy tasks (20+ turns), traditional conte
 1. **Critical Fact Loss via Over-generalization**: When summarizing conversations using natural language, LLMs frequently omit or rewrite crucial file paths, code symbols (function/class names), Git Commit SHAs, and exact raw error messages (Exception/Traceback text) as "unnecessary details", causing amnesia and recurring bugs in subsequent rounds;
 2. **High Summary Token Overhead**: Traditional verbose summaries consume 1,000+ tokens, rapidly cannibalizing the remaining context window.
 
-Myrm introduces a unified three-part deep architecture combining zero-LLM deterministic extraction, 4-pillar lean compaction, and on-demand turn refetching:
+Myrm introduces a deep architecture combining zero-LLM deterministic extraction and 4-pillar lean compaction, with a single-turn refetch tool in the harness:
 
 ### Core Mechanisms
 
@@ -679,9 +679,10 @@ Myrm introduces a unified three-part deep architecture combining zero-LLM determ
      - `critical_anchors`: Machine-extracted symbols and error messages;
      - `pending_plan`: Explicit next action steps;
    - Strips away redundant conversational boilerplate, cutting summary token consumption by **over 65%** while strictly preserving monotonic sequence order to preserve Prompt Cache / KV Cache prefixes.
-3. **On-Demand Turn Refetcher**:
+3. **On-Demand Turn Refetcher (harness tool, not mounted on the default agent)**:
    - Compressed turns are never permanently erased; full turns are structured and persisted in local storage;
    - When downstream reasoning requires examining the full raw input/output of an earlier compacted turn (e.g., complete tool execution outputs), the refetch engine reconstructs and injects that specific turn in sub-milliseconds without re-inflating the entire history.
+   - The harness implements this as the `refetch_historical_turn` tool. The default agent does not mount it, so it is not part of the product's Turn 1 tool surface.
 
 ### 6-Competitor Comprehensive Benchmark Matrix
 
@@ -691,7 +692,7 @@ Myrm introduces a unified three-part deep architecture combining zero-LLM determ
 | **Verbatim Error Preservation** | ✅ Physical exception stack pinned | ❌ Errors rewritten or ignored | ❌ Keeps exit code only | ⚠️ Relies on limited retries | ❌ Errors truncated | ❌ No protection |
 | **Summary Token Reduction** | ✅ **Lean model cuts 65%+** | ⚠️ Traditional summary consumes 1.5K+ | ❌ LCM prone to bloat | ⚠️ Dense text overhead | ❌ No structured summary | ❌ Truncation only |
 | **Prompt Cache Protection** | ✅ Strict monotonic order, 0 mutation | ❌ Rebuild often breaks prefixes | ❌ Dynamic updates reset cache to 0 | ⚠️ Session affinity without order | ❌ No cache awareness | ❌ No cache mechanism |
-| **On-Demand Single-Turn Refetch** | ✅ Sub-ms single turn reconstruction | ❌ Must restore all or read raw files | ❌ Global logs only | ❌ No refetch engine | ❌ None | ❌ None |
+| **On-Demand Single-Turn Refetch** | ⚠️ Implemented as a harness tool; not mounted on the default agent | ❌ Must restore all or read raw files | ❌ Global logs only | ❌ No refetch engine | ❌ None | ❌ None |
 | **Real LLM E2E Verification** | ✅ Commercial LLM + Chrome E2E 100% | ⚠️ CLI unit tests only | ⚠️ Basic integration | ⚠️ Benchmark eval only | ⚠️ Offline benchmarks | ❌ No complete E2E |
 
 ## Zero-Friction Universal Session & Skill Migration
