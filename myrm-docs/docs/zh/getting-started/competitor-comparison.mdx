@@ -259,7 +259,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 - **DiscordLongSessionSkillEvolutionBloatGuard（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在持续在线与长会话 IM 运行中普遍存在的“长会话自主进化导致微技能无序膨胀挤爆 Prompt、上下文超限时依然发起昂贵远程递归摘要触发 ContextLengthExceeded 死锁崩溃、以及技能库只增不减缺少自动整理”等痛点）：** Myrm 全面交付了长会话进化防膨胀与上下文过载主动守卫全栈套件：
   1. **400k 长会话防爆气囊（`CompactorPreflightFence`）**：在上下文压缩流水线前端设立 85% 水位主动拦截网，当会话逼近极端水位时，果断阻断高风险且耗时耗资的远程 LLM 递归摘要调用，毫秒级优雅回退为本地确定性结构化截断摘要，彻底杜绝极端长会话抛错崩溃；
-  2. **技能库自我收敛（技能 Curator）**：技能正文按需加载、不占常驻提示词；Curator 定期清扫长期未用的技能（先标记为过期，再归档），活跃技能超过 50 个时把最久未使用的标记为过期（置顶与锁定的技能不受影响），技能库保持有界且从不暂停学习；
+  2. **技能库自我修剪（技能 Curator）**：技能正文按需加载、不占常驻提示词；Curator 定期清扫长期未用的技能（先标记为过期，再归档；置顶、锁定、被智能体绑定与已安装的技能不受影响），且从不暂停学习；
   3. **压缩流水线验证**：框架层压缩防爆测试 63/63 全绿。
 - **SSOT 来源：** `myrm_agent_harness/agent/context_management/pipeline/processors/summarize_processor.py` · `myrm_agent_harness/agent/skills/curator/engine.py` · `temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`
 
