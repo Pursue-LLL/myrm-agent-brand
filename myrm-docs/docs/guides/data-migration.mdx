@@ -218,8 +218,8 @@ As projects accumulate over long operational cycles, working memory, vector inde
    - Acquires an exclusive write lock during migration and triggers WAL TRUNCATE flushing to ensure seamless database cutover.
 4. **Sub-Second Atomic Rollback**:
    - Employs granular transactional compensation. If interrupted by cross-filesystem (EXDEV) copying errors or unexpected power failure, the system rolls back source directory state and removes partial destination artifacts in sub-seconds (zero corruption, zero leftovers).
-5. **Storage Profiling & Zero-Downtime Online Compaction**:
-   - Decomposes storage footprints across SQLite databases, Qdrant vector collections, session snapshots, and media; supports lock-free online `VACUUM` during idle periods to reclaim 40%–60% of fragmented space.
+5. **Storage Profiling & Online Compaction**:
+   - Breaks storage down by category (chat and settings database, conversation state, agent workspaces, search index, long-term memory, activity logs, snapshots); a background job drops superseded conversation checkpoints and shrinks the checkpoint database once enough space is free, and the chat database can be compacted on demand while the app keeps running.
 
 ## Comparison with Competitors
 
@@ -232,7 +232,7 @@ Comparison targets: **Hermes**, **OpenClaw**, **Codex**, **DeepSeek-Harness**, *
 | **Two-Phase Sensitive Action Ticket** | ✅ Single-use signed ticket | ❌ No security ticket | ❌ No tickets | ❌ CLI direct write | ❌ Script direct write | ❌ No auth guard | ❌ No guard |
 | **Background Task Awareness (Anti-409 Tearing)** | ✅ Dynamic detection | ❌ Corrupts in-flight | ❌ Table locking | ❌ Kills processes | ❌ Write tearing | ❌ No detection | ❌ No detection |
 | **Sub-Second Atomic Rollback & 0-Remnant Cleanup** | ✅ Transactional rollback | ❌ Corrupt debris left | ❌ Manual repair | ❌ Requires recloning | ❌ Pollutes disk | ❌ Data loss | ❌ Data loss |
-| **Storage Profiling & Online Compaction (VACUUM)** | ✅ Reclaims 40-60% | ❌ Unbounded GB growth | ❌ Orphan FTS rows | ❌ Blackbox growth | ❌ Unmanaged outputs | ❌ No compaction | ❌ No compaction |
+| **Storage Profiling & Online Compaction** | ✅ Built in | ❌ Unbounded GB growth | ❌ Orphan FTS rows | ❌ Blackbox growth | ❌ Unmanaged outputs | ❌ No compaction | ❌ No compaction |
 | **Multi-Source Discovery** | ✅ (14 sources, 11 ready) | ❌ (1 source) | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Dry-Run Deterministic Preview** | ✅ Full structured preview | ✅ (plain text) | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Full Archive Backup / Selective Restore** | ✅ Structured JSON | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
