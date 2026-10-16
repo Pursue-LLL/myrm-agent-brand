@@ -145,8 +145,8 @@ For multi-agent collaboration (Agent-to-Agent, A2A) and external webhook ingress
    - Untrusted or anonymous requests are forcibly downgraded to `APPROVAL_PENDING`, rendering interactive review cards in the WebUI (`A2APeerRegistrySection`) for human sign-off.
 2. **UntrustedIngressFence Runtime Physical Privilege Severance**:
    - **No Soft Defenses**: Competitors (e.g. Hermes, OpenClaw) rely on system prompts like "please do not execute external commands", which are routinely bypassed by adversarial prompt injection.
-   - **Kernel-Level Tool De-registration**: For untrusted ingress, `UntrustedIngressFence` physically de-registers 10 high-risk privilege tools during tool dispatch, making them **physically invisible and uncallable** to the model:
-     - `code_interpreter`, `file_write`, `desktop_control`, `desktop_capture`, `mobile_control`, `mobile_capture`, `spawn_subagent`, `invoke_external_agent`, `cron_manage`, `skill_manage`.
+   - **Kernel-Level Tool De-registration**: For untrusted ingress, `UntrustedIngressFence` physically de-registers the tools behind 8 high-risk privilege types during tool dispatch, making them **physically invisible and uncallable** to the model:
+     - `code_interpreter`, `file_write`, `desktop_control`, `desktop_capture`, `spawn_subagent`, `invoke_external_agent`, `cron_manage`, `skill_manage`.
    - **Immune to YOLO Mode**: Even if `--yolo` auto-approval is globally active, `UntrustedIngressFence` strictly enforces privilege severance, eliminating privilege escalation and sandbox escapes.
 3. **Competitive Parity**:
    - Versus **Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi / OpenCode**, Myrm is the only platform providing an end-to-end A2A defense loop combining identity admission, physical privilege fences, and YOLO-immune execution barriers.
