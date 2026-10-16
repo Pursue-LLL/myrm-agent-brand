@@ -611,7 +611,7 @@ A comprehensive 40+ component interactive GUI replaces the traditional plain-tex
 
 The diagnostic system monitors memory quality with quantified health scores and provides actionable repair recommendations. Includes memory import/export for 18 ready sources, archive management, and recall benchmarking with IR metrics (NDCG, MRR, precision).
 
-**Memory Doctor (write-read conformance benchmark)** — one click runs a real consistency check: the agent actually writes and re-reads 16 scenarios across 8 memory categories, then scores recall quality (recall@5 / NDCG@5 / MRR) and retrieval latency (P50/P95/P99). Every run is archived in an audit ledger and rendered as a historical trend panel:
+**Memory Doctor (write-read conformance benchmark; part of Memory Labs, off by default)** — one click runs a real consistency check: the agent actually writes and re-reads 16 scenarios across 8 memory categories, then scores recall quality (recall@5 / NDCG@5 / MRR) and retrieval latency (P50/P95/P99). Every run is archived in an audit ledger and rendered as a historical trend panel:
 
 - **Latency P50/P95/P99 trend (unique)** — as memory grows, retrieval can get slower; P50/P95/P99 plotted over time is the only performance signal that catches an agent "silently getting slower" while quality metrics stay flat (P99 exposes the slowest 1% tail before averages move). Per-run deltas are colored (faster = green, slower = red) so regressions surface at a glance.
 - **Category pass rates** — regressions are localized to the exact memory category (profile, workflow, knowledge update, …) instead of a single aggregate score.
@@ -630,7 +630,7 @@ This is what keeps memory reliable in containers, read-only mounts, and capacity
 
 ### Persistence Visibility
 
-Myrm never lets "memory will be lost on restart" be a silent surprise. The **Memory Command Center** runtime panel exposes the actual vector-store persistence state as a three-state status — **Persistent** (stored on disk), **Memory fallback** (degraded to in-memory; memory survives this session but not a restart), or **Unavailable** (no vector store active). When the store has fallen back to memory, the row is highlighted with an alert so you know to fix disk/permissions before restarting. The same snapshot feeds the Doctor panel's vector-index check, which explains the impact and next steps. Persistence is contractually defined at the framework layer (`is_persistent` on the vector-store abstraction), so every backend — embedded Qdrant, remote, or in-memory — reports truthfully rather than guessing from storage mode.
+Myrm never lets "memory will be lost on restart" be a silent surprise. By default, a persistent, dismissible warning toast appears as soon as the memory store is not being saved (the vector store has degraded to in-memory mode). With Memory Labs enabled (experimental, off by default), the **Memory Command Center** runtime panel exposes the actual vector-store persistence state as a three-state status — **Persistent** (stored on disk), **Memory fallback** (degraded to in-memory; memory survives this session but not a restart), or **Unavailable** (no vector store active). When the store has fallen back to memory, the row is highlighted with an alert so you know to fix disk/permissions before restarting. The same snapshot feeds the Doctor panel's vector-index check, which explains the impact and next steps. Persistence is contractually defined at the framework layer (`is_persistent` on the vector-store abstraction), so every backend — embedded Qdrant, remote, or in-memory — reports truthfully rather than guessing from storage mode.
 
 ## Dataset Export
 
@@ -826,12 +826,12 @@ For users this means: switching embedding models (API or local Ollama) needs zer
 When you change the embedding model in Settings, previously stored memories are encoded with the old model's vectors and cannot be retrieved by the new model. Myrm handles this transparently:
 
 1. **Automatic Detection** — After saving a new embedding model, the system scans for "orphan collections" (memories stored under the previous model)
-2. **Inline Warning** — If orphan memories are found, an amber banner appears in Settings showing the count
-3. **One-Click Migration** — Click "Migrate" to re-embed all orphan memories using your new model. The process reuses the existing export/import pipeline
+2. **Inline Notice** — If memories from the previous model are found, a notice appears in Settings > Models > Embedding showing how many need migrating
+3. **One-Click Migration** — Click "Migrate" to re-embed those memories with your new model. It runs in the background, shows how many have been processed, and ends with how many were migrated, already present, or failed. Migrated memories keep their identity, owner scope, pin state and timestamps; if some fail, the notice stays and running it again only retries what is missing
 4. **Safe & Reversible** — Original collections are preserved (not deleted), so no data is lost even if migration is interrupted
-5. **Memory Doctor Integration** — The `probe_orphan_collections` check appears in Health diagnostics, ensuring long-term awareness
+5. **Memory Doctor Integration** — With Memory Labs enabled (off by default), the `probe_orphan_collections` check appears in Health diagnostics, ensuring long-term awareness
 
-**Cost note:** Migration re-embeds text through your configured embedding provider. The estimate shown before migration helps you anticipate API usage.
+**Cost note:** Migration re-embeds text through your configured embedding provider. The number of memories shown before migration helps you anticipate API usage. Migration does not start by itself when you switch models.
 
 ## Zero-Model-Cost Deterministic Behavioral Measurement
 
@@ -853,7 +853,7 @@ For frequent travelers and distributed teams, messages carry an explicit `offset
 Background measurement and persistence tasks are sliced into independent units by `(facet, time_window)`. Any isolated failure retries locally without stalling or failing global progress.
 
 ### 4. Memory Command Center (MCC) & Prompt Cache Immunity
-- **WebUI Visualization**: The `/settings/memory` "Understand" section displays dual-track histograms, latency pills, collaborator badges, and sample readiness bars with light/dark theme support.
+- **WebUI Visualization**: With Memory Labs enabled (experimental, off by default), the `/settings/memory` "Understand" section displays dual-track histograms, latency pills, collaborator badges, and sample readiness bars with light/dark theme support.
 - **Prompt Cache Protection**: High-frequency metrics remain strictly on the dashboard and are only committed to durable profile entries when sample thresholds ($N_{self} \ge 20$, $N_{latency} \ge 10$) are met, preventing System Prompt perturbations and preserving a 100% Prompt Prefix Cache hit rate.
 
 ## Knowledge Graph Induced Subgraph Pushdown & Anti-Pseudo-Cycle Traversal
@@ -864,7 +864,7 @@ Myrm provides **rigorous Induced Subgraph Pushdown and robust Causal Traversal**
 
 ### 1. Mathematical Induced Subgraph Pushdown
 - **The Problem**: Experimental graph features in traditional frameworks (e.g. Mem0/Letta) pull relationships using arbitrary `LIMIT` caps on global tables. As graph density grows, edges between visible viewport nodes get silently dropped, creating misleading "orphan islands" on force-directed canvases and zeroing out node degree metrics.
-- **Pushdown Solution**: The Memory Command Center route (`GET /api/memory/command-center/graph`) passes the exact viewport node IDs (`filtered_node_ids`) directly down to the storage engine.
+- **Pushdown Solution**: The Memory Command Center route (`GET /api/memory/command-center/graph`, mounted when Memory Labs is enabled) passes the exact viewport node IDs (`filtered_node_ids`) directly down to the storage engine.
 - **SQL Execution**: `sqlite_store.py` executes `WHERE source_id IN (...) AND target_id IN (...)` with parameterized bindings, short-circuiting on empty lists and guaranteeing 100% edge connectivity among active nodes.
 
 ### 2. Multi-Agent Namespace Pushdown
@@ -903,6 +903,7 @@ Visualized across four dynamic health tiers:
 - **Dual Remediations**: Supports one-click **Downgrade** to unpin from default injection, or **Batch Archive** to relocate out of active context into cold storage.
 
 ### 4. Memory Command Center 50-Turn Stateful Trajectory Dashboard
+- **Availability**: part of Memory Labs (experimental, off by default);
 - **4 KPI Metric Capsules**: Displays total injected turns, average context burden ratio, 3-phase average latency (P50/P90), and current long-horizon ROI rating;
 - **50-Turn Trajectory Graph**:
   - **Stacked Latency Bars**: Dissects retrieval, assembly, and injection time slices per turn;
@@ -946,4 +947,4 @@ Myrm provides a deterministic **Tool Guidance Ledger**:
 Tool rules are strictly sorted in lexicographical ascending order prior to system prompt injection. With hard circuit breakers (max 3 rules per tool, global cap of 9) and probe command filtering (`which`, `test -f`), prefix stability is 100% guaranteed, maximizing cloud LLM Prompt Cache hits.
 
 ### 2. Enterprise WebUI Command Center (`ToolGuidancePanel`)
-Integrated directly into the Memory Command Center, users can inspect, pin as permanent company rules, or revoke tool rules via a vector-native, zero-emoji UI.
+Integrated directly into the Memory Command Center (Memory Labs, off by default), users can inspect, pin as permanent company rules, or revoke tool rules via a vector-native, zero-emoji UI.
