@@ -947,28 +947,3 @@ Tool rules are strictly sorted in lexicographical ascending order prior to syste
 
 ### 2. Enterprise WebUI Command Center (`ToolGuidancePanel`)
 Integrated directly into the Memory Command Center, users can inspect, pin as permanent company rules, or revoke tool rules via a vector-native, zero-emoji UI.
-
-## Visual Memory Readiness & Vector Health Inspector
-
-Traditional agent memory frameworks (OpenClaw, Hermes, Codex, Pi, OpenCode) suffer from extreme operational black-box opacity. When semantic retrieval degrades or fails, users cannot determine whether the upstream Embedding API is offline, the vector dimension is mismatched, or local vector tables are corrupt. OpenClaw provides only a terminal-only CLI command (`memory status --deep`), completely leaving GUI users in the dark.
-
-Myrm introduces the **Visual Memory Readiness & Vector Health Inspector Suite** (`VisualMemoryHealthCard`):
-
-### 1. WebUI White-Box Health Cockpit
-- **Live Readiness Badges**: Real-time display of Provider status (`Ready` / `Degraded` / `Error`), active embedding model name, and backend vector engine (`SQLite-vec`, `Qdrant`, `PGVector`, or `Memory Ephemeral`);
-- **Dimensionality & Capacity Metrics**: Live stats for embedding dimensions (e.g. 1536), total indexed chunks, and full-text search (FTS) index entries.
-
-### 2. One-Click Deep Latency Diagnostic
-- **End-to-End Latency Breakdown**: Clicking "深度自检" initiates a synthetic micro-slice probe, displaying microsecond-accurate latency metrics across three core stages:
-  - **Embedding API Latency**
-  - **Vector Store Write Latency**
-  - **Cosine Search Latency**
-- **3-Tier Latency Rating**: Automatically grades total latency into `Optimal` (<100ms), `Acceptable` (100–300ms), or `Degraded` (>300ms).
-
-### 3. Real-Time Re-Indexing & Token Consumption Estimation
-- **Streamlined Workflow**: When switching embedding models or re-chunking, users can trigger full vector re-indexing with one click;
-- **Live Progress Visualization**: Displays dynamic progress bar, processed chunks vs. total chunks, and estimated token usage (`~250 tokens/chunk`), with support for graceful cancellation.
-
-### 4. Cross-Component Custom Event Bus
-- Emits standardized `myrm:memory-inspector-diagnostic` browser events, allowing the main chat window, status bars, and settings hub to react to memory health transitions synchronously.
-
