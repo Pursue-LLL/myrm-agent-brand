@@ -74,7 +74,7 @@ When something goes wrong, most competitors only offer raw log files with zero c
 
 **Our Advantage**:
 - **4D Real-Time Token Economics & Net ROI**: Complete multi-dimensional tracking across Prompt, Completion, Cache Read, Cache Write, Reasoning, and Citation tokens, providing financial-grade Net ROI calculations that account for cache-write premiums.
-- **24/7 Unattended Circuit Breaker & Smoke Alarm**: Strict `unattended_mode` detection cuts repetitive tool call death-loops in milliseconds via `RunawayCircuitBreakException`, while an in-memory 60s sliding window triggers instant TPM alarms before bills blow up.
+- **24/7 Unattended Circuit Breaker**: Strict `unattended_mode` detection cuts repetitive tool call death-loops in milliseconds via `RunawayCircuitBreakException`, and the scheduler cancels all retries and pauses the job so a runaway loop cannot repeat overnight.
 - **Stream-Native Thinking Scrubber & Anchor Preservation**: Efficient $O(N)$ sliding-window prefix state machine strips `<think>` tokens with zero delay on standard tokens, preserving decision anchors while sustaining a 90%+ Prompt Prefix Cache hit rate.
 - **Event-Sourced Model Viewport Replay**: Preserves full 32KB immutable raw prompt previews and structured System/User/Assistant/Tool cards, enabling instant 1-click session branching (fork) with zero prompt cache loss.
 - **Zero-Dependency Trace Continuity**: Every turn and HTTP request is tagged with unified `trace_id` and OpenTelemetry standard GenAI semantic conventions, with built-in air-gapped local trace guards and SRE posture probes. Combined with 20+ analytics dimensions, Myrm delivers the most complete observability stack in the open-source Agent ecosystem.

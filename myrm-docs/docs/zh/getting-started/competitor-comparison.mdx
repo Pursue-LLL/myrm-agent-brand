@@ -798,15 +798,6 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   5. **全套自动化测试 100% 满分通过**：17/17 前端 Playbook 单测、27/27 Harness 参数单测、4/4 网关发现单测与 34/34 前端 Provider 单测全部绿灯通过。
 - **SSOT 来源：** `myrm-agent-frontend/src/components/features/chat-window/ModelOrchestrationPlaybookDialog.tsx` · `myrm-agent-frontend/src/store/config/providerTypes.ts` · `myrm-agent-server/app/api/integrations/llms.py` · `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md`
 
-- **SearchQuotaAndBrowserComputeRuntimeCostMeter（对标 Hermes Agent @hooeem 仅在推文口头宣传“全天候 $10/月运行模型”但在开源仓内 0 水表、以及 OpenClaw / Codex / DeepSeek-Harness / Pi 在长程 24/7 常驻运行中遭遇外部搜索免费额度耗尽静默雪崩、浏览器自动化静默卡死空转耗尽沙箱算力与内存的致命盲区）：** Myrm 全面落地全要素白盒化运行水表与运行时算力监控闭环：
-  1. **Harness 框架层高内聚只读遥测（`WebSearchMetrics` & `BrowserRunTelemetry`）**：`WebSearchMetrics` 原生采集 Provider 级调用频次、成功率与配额超限度量；`BrowserObservability` 深度集成，流式捕获 `active_compute_seconds` 与 `total_bytes_transferred` 纯数字网络数据吞吐量；
-  2. **429 报错自愈感知与无感切流（Self-Healing Re-anchor & Quota Hop）**：`web_search/providers/chain.py` 引入 `ProviderQuotaStatus` 状态机与 Transient/Persistent 429 精准区分，遇到持久配额耗尽时毫秒级自动将本地水表对齐至限额上限，无感触发 `search_provider_chain` 向下跳过耗尽 Provider，彻底终结长程任务因单点限流全盘瘫痪；
-  3. **3 分钟防死循环长耗时看门狗（Watchdog Shield）**：`BrowserObservability.check_action_watchdog` 对超长浏览器操作进行非阻塞硬时限监测，超阈值安全熔断并累加看门狗触发计数，杜绝挂起网页无限空转耗尽沙箱 CPU 与电量；
-  4. **Server 业务层 SQLite 账本与并发安全防护**：`runtime_meter_service.py` 内置官方免费基线字典（Tavily 1000/Brave 2000 等），具备事务回滚与重查机制（Rollback & Re-query Safe Retry），消除高并发唯一键冲突；支持未计费无限专线豁免标签与沙箱折合算力开销自动折算（$0.001/分钟）；
-  5. **Frontend 表现层高质感双卡片仪表盘（`RuntimeCostMeterCard.tsx`）**：在系统用量统计页直观提供搜索配额水库（80%/95% 多阶色彩警示）、浏览器算力耗时与网络加载流量 MB 卡片、3 分钟防死循环看门狗说明、自定义配额弹窗与一键重置校准；全语言 6 套 i18n（zh, en, ja, ko, de, zh-TW）完全对齐，0 原生 emoji，PC/移动双端全自适应；
-  6. **全栈自动化测试 100% 满分通过**：Harness 7/7 单测、Server 10/10 路由单测、Frontend 2/2 Vitest 测试及 249 项静态契约测试全部绿灯通过。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/web_search/providers/chain.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/observability.py` · `myrm-agent-server/app/api/statistics/quota_runtime_router.py` · `myrm-agent-frontend/src/components/features/settings/sections/system/RuntimeCostMeterCard.tsx` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
-
 ## 最新验证快照（2026-09-05 · 生产级全流程 30 节点与三阶段六泳道生命周期闭环 · 工业级执行与反思核验完成）
 
 - **ProductionExecutionLifecycleLanesAndVerificationLoop（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在日常实体查询不调工具凭空捏造虚假订单号、任务执行黑盒无进度、参数格式校验缺失打崩下游接口、外部依赖宕机时抛原生堆栈崩溃、以及在最终答复时脱离物理证据信口开河的行业顽疾）：** Myrm 全面落地生产级三阶段、六泳道与 30 核心节点全流程闭环体系：
@@ -1766,15 +1757,12 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   5. **100% 测试覆盖与 Chrome E2E 真实闭环**：通过 Harness 100% 覆盖单测、Server API 集成测试及真实 Chrome E2E 真实大模型 + 浏览器端到端闭环验证。
 - **素材 SSOT：** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/event_log/_context_doctor.py` · `myrm-agent-server/app/api/statistics/session_analytics.py` · `myrm-agent-frontend/src/components/features/settings/sections/system/ContextBreakdownCard.tsx`
 
-## 最新验证快照（2026-09-07 · 透明化全沙箱执行算力计量水表、本地节省增益徽标与全场景审计账本导出 · 路线图 Topic 11 #14 达成）
+## 最新验证快照（2026-09-07 · 全场景审计账本导出 · 路线图 Topic 11 #14 达成）
 
-- **TransparentSandboxWorkloadMeterAndCostAuditDashboard（对比 Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi）：** Myrm 实现了业界首个将代码解释器通用沙箱与浏览器自动化统一归一化的算力水表、本地免算力费获得的经济效益量化，以及具备跨平台容灾与防乱码的企业级会话审计导出：
-  1. **多负载统一归一化沙箱算力水表（`SandboxWorkloadRecord` & `RuntimeMeterService`）**：超越竞品仅度量“浏览器”的单一局限，在服务端新增通用沙箱算力数据模型，聚合代码执行（Python/Bash）与浏览器自动化时长（`total_active_compute_minutes`）与流量，支持 429 配额耗尽毫秒级熔断与一键原子自愈重置；
-  2. **本地私有化部署算力获得感（Local Compute Free & Cloud Savings）**：在 WebUI 用量统计中心直观透出绿色「本地算力免费（Local Compute Free）」徽标，并以工业标准（$0.001/分钟）量化折算出「等效节省云端开销（Cloud Equivalent Saved）」，让私有化与单机用户的投资回报率清晰可见；
-  3. **高鲁棒合规审计账本导出与双重容灾降级（`SessionAnalyticsDialog.tsx`）**：提供 Markdown 审计卷宗与 CSV 详细账本一键导出：自研内网 LAN / 非安全非 HTTPS 部署环境隐藏 `textarea` 剪贴板降级机制（`document.execCommand('copy')`），复制成功率 100%；导出 CSV 头部原生注入 UTF-8 BOM（`\uFEFF`），杜绝 Windows Excel 中文乱码；
-  4. **超窄屏幕自适应与无原生 Emoji 现代规范**：移动端与分屏下自适应隐藏按钮文本保留图标（`hidden sm:inline`），全系统 6 语 i18n 完整对齐；
-  5. **100% 测试通过与真实 Chrome E2E 验证**：后端 Quota/Runtime 路由单测 13 项全绿、前端组件单测 10 项全绿、真实 Chrome 浏览器端到端测试 100% PASS（68.16s 真实 DOM 探查、Markdown 降级、CSV BOM 与 429 自愈重置闭环）。
-- **素材 SSOT：** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent/myrm-agent-server/app/database/models/runtime_quota_metric.py` · `myrm-agent/myrm-agent-server/app/services/observability/runtime_meter_service.py` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/system/SessionAnalyticsDialog.tsx`
+- **CostAuditLedgerExport（对比 Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi）：** Myrm 实现了具备跨平台容灾与防乱码的企业级会话审计导出：
+  1. **高鲁棒合规审计账本导出与双重容灾降级（`SessionAnalyticsDialog.tsx`）**：提供 Markdown 审计卷宗与 CSV 详细账本一键导出：自研内网 LAN / 非安全非 HTTPS 部署环境隐藏 `textarea` 剪贴板降级机制（`document.execCommand('copy')`），复制成功率 100%；导出 CSV 头部原生注入 UTF-8 BOM（`\uFEFF`），杜绝 Windows Excel 中文乱码；
+  2. **超窄屏幕自适应与无原生 Emoji 现代规范**：移动端与分屏下自适应隐藏按钮文本保留图标（`hidden sm:inline`），全系统 6 语 i18n 完整对齐；
+- **素材 SSOT：** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/system/SessionAnalyticsDialog.tsx`
 
 ## 最新验证快照（2026-10-01 · 纯净跨工具转录本导入、思维链剥离、凭据脱敏与全天候桌面睡眠自愈 · 路线图 Topic 06 #8 / Topic 09 #3 达成）
 

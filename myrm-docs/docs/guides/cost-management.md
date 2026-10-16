@@ -24,34 +24,20 @@ Myrm Agent tracks LLM usage and cost down to the message level, so the totals yo
 - **Usage radar & statistics** (`/statistics/usage/radar` and friends): built on the same exact totals.
 - **Budget dashboards**: budget enforcement reads from the same precise accounting, so warnings match real spend.
 
-## Full-Element Runtime Cost Meter: Free Search Quota & Browser Compute
+## Search Provider Quota Failover
 
-Beyond direct LLM token costs, long-horizon autonomous tasks frequently draw from third-party search API free tiers and local/cloud browser automation infrastructure. Myrm Agent provides end-to-end transparent watermarks and defense guards:
+Beyond direct LLM token costs, long-horizon autonomous tasks frequently draw from third-party search API free tiers. When one runs out, Myrm keeps the task going instead of stalling:
 
-### 1. Search Quota Reservoir
-- **Official Baselines & Level Tracking**: Built-in monthly baselines for major providers (Tavily: 1,000 req/mo, Brave: 2,000 req/mo), visualized in Settings with dual progress meters.
-- **429 Self-Healing Re-anchor**: When a third-party 429 quota-exceeded error occurs, Myrm automatically recalibrates the local ledger to 100% depleted and seamlessly fails over to backup providers via the Priority Chain without crashing the user's task.
-- **Graduated Alerts & Unmetered Exemptions**: Clear warnings at 80% and 95% capacity; self-hosted search engines (e.g. SearXNG) are automatically exempted as unmetered dedicated lines.
+- **Exhausted Providers Are Skipped, Then Probed Again**: A provider that reports an exhausted quota is skipped for an hour and then probed again by the next real search; a provider that answers with a rate limit (429) is retried after a few seconds. In the meantime the Priority Chain moves on to the next configured provider, so a spent free tier never crashes the user's task.
 
-### 2. Browser Automation Compute & Network Meter
-- **Second-Precision Duration & Bandwidth**: Non-intrusive CDP telemetry captures active compute seconds and transferred network megabytes (MB) across all browser automation tool calls.
-- **3-Minute Anti-Runaway Watchdog**: Automatic 180s hard timeout fuses prevent hung JavaScript loops and zombie browser processes from exhausting host CPU and memory.
-- **Full-Element Accounting**: Delivers 100% white-box operational observability for developers and enterprise teams running 24/7 background agent workflows.
-
-## Unattended Runaway Circuit Breaker & Smoke Alarm (Anti-Runaway Safety Net)
+## Unattended Runaway Circuit Breaker (Anti-Runaway Safety Net)
 
 For offline scheduled cron tasks and long-running unattended background automation, Myrm builds a resilient defense line spanning from the execution engine core to downstream schedulers:
 
-### 1. Engine-Level Physical Circuit Breaker (RunawayCircuitBreakException)
+### Engine-Level Physical Circuit Breaker (RunawayCircuitBreakException)
 - **Runaway Loop Detection**: `LoopGuard` activates strict defense policies in `unattended_mode`. When an agent enters an unprogressive repetitive tool-call loop, it immediately raises an uncatchable `RunawayCircuitBreakException`.
 - **Scheduler Retry Abortion**: The server-side `AgentJobRunner` and harness `CronExecutor` capture this exception, immediately **canceling all scheduled retries** to prevent recursive disaster amplification, and transitions the run into a `circuit_break` state.
 - **Job Suspension & Diagnostics**: The cron job is automatically paused with future runs cleared, while the WebUI displays an unmistakable pulsing rose badge and guided troubleshooting steps.
-
-### 2. In-Memory Sliding Window Smoke Alarm (BurnRateSmokeAlarmDetector)
-- **Ultra-Fast Sliding Window**: An in-memory 60-second sliding window monitors real-time token throughput velocity (TPM) without any database I/O overhead.
-- **Velocity Threshold Alerts**: If a single session experiences an unexpected burn spike (e.g. >80,000 TPM) or global system spikes, the alarm immediately fires and broadcasts via the event bus to prevent sudden financial catastrophe.
-
-
 
 ## Aggregated Gateway Spend Observability: Vercel AI Gateway
 
