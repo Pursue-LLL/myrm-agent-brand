@@ -66,6 +66,16 @@ hooks:
 | `user_turn` | On user input (fire-and-forget) | Prompt-level logging |
 | `approval_correction` | When a user edits tool call arguments in approval (no built-in handler) | Custom learning or audit signals |
 
+### Subagent start and stop
+
+Every subagent run fires `subagent_start` and ends with a `subagent_stop` — including runs that fail, run out of budget, hit a model error, or are cancelled — so a start/stop pair is enough to build a per-run record.
+
+- `subagent_start` carries `task_id`, `agent_type`, `task_description` and `trace_id`.
+- `subagent_stop` carries `task_id`, `agent_type`, `success`, `status` (for example `completed`, `failed`, `cancelled`, `pending_approval`), `duration_seconds`, `trace_id`, and either `result` or `error`.
+- Use `trace_id` to join a subagent's records with the rest of the task.
+- If a cancellation lands while the stop hooks are still running, you may receive a second `subagent_stop` with `status` `cancelled`; treat the last one for a `task_id` as final.
+- A subagent stopped by the hard timeout (three times its configured `timeout_seconds`) is reported as `timed_out` to the parent, but its `subagent_stop` hook reports `cancelled`.
+
 ## Where to go next
 
 - For the overall security model (sandboxing, permission engine, approval flow), see [Security Architecture](/core-concepts/security-architecture).

@@ -66,6 +66,16 @@ hooks:
 | `user_turn` | 用户输入时（fire-and-forget） | 提示词级日志 |
 | `approval_correction` | 用户在审批中编辑工具调用参数（无内置处理器） | 自定义学习或审计信号 |
 
+### 子代理的开始与结束
+
+每次子代理运行都会触发 `subagent_start`，并以 `subagent_stop` 收尾——包括失败、预算耗尽、模型报错或被取消的运行——所以只用这一对事件就能为每次运行建立一条完整记录。
+
+- `subagent_start` 携带 `task_id`、`agent_type`、`task_description` 和 `trace_id`。
+- `subagent_stop` 携带 `task_id`、`agent_type`、`success`、`status`（例如 `completed`、`failed`、`cancelled`、`pending_approval`）、`duration_seconds`、`trace_id`，以及 `result` 或 `error` 之一。
+- 用 `trace_id` 可以把子代理的记录和整个任务的其他记录串起来。
+- 如果取消恰好发生在结束钩子还在执行的时候，你可能会再收到一次 `status` 为 `cancelled` 的 `subagent_stop`；同一个 `task_id` 以最后一条为准。
+- 被硬超时（配置的 `timeout_seconds` 的 3 倍）强行停止的子代理，对父级报告为 `timed_out`，但它的 `subagent_stop` 钩子里状态是 `cancelled`。
+
 ## 延伸阅读
 
 - 整体安全模型（沙箱、权限引擎、审批流）见[安全架构](/zh/core-concepts/security-architecture)。
