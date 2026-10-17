@@ -153,8 +153,9 @@ Every run that uses a skill adds one usage record to its `.stats.json`. While ex
 | **Evolution history** | Full audit trail of all approved/rejected changes with inline Diff viewer |
 | **Inline revision** | Monaco DiffEditor for editing proposals in place (responsive: side-by-side on desktop, inline on mobile) |
 | **Review card** | Test result, verification proof and impact scope on every proposal before you approve |
+| **Undo states the reason** | Undoing a chat task-step batch restores the whole batch (every file the change touched, atomically). When an undo is impossible it is refused with a specific reason instead of reporting success — a batch a newer change has superseded, a batch already undone or whose link expired, or a skill deleted afterwards. A batch that only locked/unlocked changed no file and offers no undo. |
 
-**vs competitors:** Hermes/OpenClaw offer CLI or file-based rollback.
+**vs competitors:** OpenClaw ships a GUI revision picker for skills (rollback to a chosen revision); Hermes restores filesystem checkpoints through the CLI `/rollback`.
 
 ## Decision History: Dual-Loop Learning
 

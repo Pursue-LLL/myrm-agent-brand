@@ -153,8 +153,9 @@ description: 5계층 안전, GUI 승인 및 실패 기반 복구를 갖춘 40개
 | **Evolution history** | Full audit trail of all approved/rejected changes with inline Diff viewer |
 | **Inline revision** | Monaco DiffEditor for editing proposals in place (responsive: side-by-side on desktop, inline on mobile) |
 | **Review card** | Test result, verification proof and impact scope on every proposal before you approve |
+| **Undo states the reason** | Undoing a chat task-step batch restores the whole batch (every file the change touched, atomically). When an undo is impossible it is refused with a specific reason instead of reporting success — a batch a newer change has superseded, a batch already undone or whose link expired, or a skill deleted afterwards. A batch that only locked/unlocked changed no file and offers no undo. |
 
-**경쟁업체 대비:** Hermes/OpenClaw는 CLI 또는 파일 기반 롤백을 제공합니다.
+**경쟁업체 대비:** OpenClaw는 스킬 라이브러리에 GUI 리비전 선택기(선택한 리비전으로 롤백)를 제공하고, Hermes는 CLI `/rollback`으로 파일 시스템 체크포인트를 복원합니다.
 
 ## 결정 내역: 이중 루프 학습
 
