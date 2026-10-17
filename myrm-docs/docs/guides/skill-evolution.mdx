@@ -55,6 +55,16 @@ Every skill change is tracked:
 - **Versions panel** — Compare any two versions side by side.
 - **One-click rollback** — Revert to any previous version instantly.
 
+Undo restores a whole **mutation batch** (every file the change touched, atomically), not just `SKILL.md`. When an undo cannot be applied, Myrm refuses it with the reason instead of reporting success:
+
+| Situation | What you see |
+|-----------|--------------|
+| Undoing a change that a **newer change has superseded** | Refused, with "this skill was modified again after this batch — undo the newer change first, or restore a version from Settings → Skills → History" |
+| Undoing a batch that **was already undone or has expired** | Refused, with "this batch was already undone or the link no longer works" |
+| Undoing the change of a skill that **was deleted** | Refused, pointing to the version history |
+
+The undo hint inside a long-turn task step unfolds that skill's save step and offers the same rollback entry inline, so no separate panel is needed.
+
 When a skill draft is approved or rejected, the change is reflected in real time across the **Growth Center**, the **Evolution Rejections** dashboard, and the navigation badge — via a single event channel, so every review surface stays in sync without manual refresh.
 
 ## Background review
