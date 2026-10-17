@@ -106,9 +106,10 @@ Sensitive content is automatically routed to privacy-appropriate models based on
 
 ## Search Provider Failover
 
-Long autonomous tasks draw on third-party search APIs, and free tiers run out. With more than one search provider configured, a failing provider never stalls the task:
+Long autonomous tasks draw on third-party search APIs, and free tiers run out. With more than one search provider configured, a provider that fails or stops answering is passed over:
 
 - **Priority chain** — a provider that times out, answers with a server error or reports a spent quota is passed over, and the next configured provider answers the search
+- **Hung providers yield** — every provider except the last one is abandoned after half of the time the chain has left, so one that never answers cannot use up the whole budget; the last provider keeps the remaining time
 - **Exhausted quota is remembered, then probed again** — a provider that reports an exhausted quota is skipped for an hour, after which the next real search probes it again
 - **Rate limits are short** — a provider that answers with a rate limit (429) is skipped for a few seconds
 
@@ -180,7 +181,7 @@ Scheduled tasks run without anyone watching, so a loop has to stop itself:
 
 - **Loop detection** — in unattended mode the loop guard treats three consecutive tool failures, repeated identical failing calls, or the same error recurring as a runaway and raises a hard circuit break instead of a recoverable stuck-tool error
 - **No retry storm** — the scheduler records the run as `circuit_break`, pauses a recurring job and clears its next run, so no backoff retry fires
-- **Visible in the run history** — the run shows a pulsing rose "Circuit Break" badge, a banner, and an expanded panel with the reason
+- **Visible in the run history** — the run shows a pulsing rose "Circuit Break" badge, a banner, and an expanded panel explaining that the run was stopped to prevent runaway retries
 
 ## Output Compression
 
