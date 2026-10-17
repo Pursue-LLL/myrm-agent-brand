@@ -53,7 +53,7 @@ const BENTO_STATS: Record<BentoKey, string> = {
   security: '6',
   reliability: '6',
   costEfficiency: '86%',
-  visualControl: '25+',
+  visualControl: '26',
   taskModes: '5+',
 };
 

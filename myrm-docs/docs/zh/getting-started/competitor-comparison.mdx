@@ -596,7 +596,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
    - **Myrm 获益**：**Cloud 沙箱 HMAC 凭证防火墙** + **异构模型无缝热切换兼容盾**（`thinking_cleaner.py`，会话内随意切换 Claude/DeepSeek/GPT，零报错且保持 80%+ Prompt Cache 命中率）+ **动态能力发现**（Turn 1 仅 2,167 Token，节省 86% 成本）。
 2. **对标 OpenClaw**：
    - **痛点断点**：第一轮全量 bind 工具消耗 18,000+ Token 摧毁 KV 缓存；裸 `JSON.parse` 处理模型输出，遇到复杂散文或反思 Markdown 直接崩溃断流；单层静态权限易受 Confused Deputy 越权。
-   - **Myrm 获益**：**结构有界 JSON 多级自修复引擎**（`chat_utils.py`，收敛 17+ 模块，遇到畸形 JSON 100% 挽救）+ **6 层纵深防御与 YOLO 互斥** + **35+ 渠道（企微/飞书/钉钉/Telegram/Slack 等）开箱即用**。
+   - **Myrm 获益**：**结构有界 JSON 多级自修复引擎**（`chat_utils.py`，收敛 17+ 模块，遇到畸形 JSON 100% 挽救）+ **6 层纵深防御与 YOLO 互斥** + **26 渠道（企微/飞书/钉钉/Telegram/Slack 等）开箱即用**。
 3. **对标 Codex (Code-Centric)**：
    - **痛点断点**：场景单一聚焦于“写代码”，无法处理深度业务调研与个人知识沉淀；对话框常常“只打印代码却漏调工具写盘”，任务中断直接丢失；缺乏真实浏览器端到端闭环验证。
    - **Myrm 获益**：**启发式交付物嗅探与 Git 隔离暂存**（`deliverable_write_verifier.py`，自动识别长代码并强制反思落盘）+ **独创 Browser Orchestrator**（真实 Chrome :9333 多路复用与并行隔离调度）+ **Second Brain 个人与团队知识中枢**。
@@ -609,7 +609,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 6. **对标 OpenCode（The Open-Source AI Coding Agent）**：
    - **痛点断点**：OpenCode 是工程质量扎实的终端优先编码 Agent（v1.18，每日高频发版），LSP 锚定与原生 `code-mode` PTC 路径确实优秀，但能力止步于代码：**无内置记忆与知识库**（`packages/core/src` 下不存在任何 memory 模块）、**无任务看板治理**（无任务板、无 `IN_REVIEW` 人工审批门）、**无一方浏览器自动化工具**（Playwright 仅出现在其自身 E2E 测试工程内）、IM 渠道**仅有 Slack 一个**（无 Telegram、Discord、飞书、微信、钉钉）。且配置以文件为中心（`config.mdx`），非技术用户在看到价值前就要先跨过终端与配置文件门槛。
-   - **Myrm 获益**：**白盒 8 类记忆 + Second Brain Wiki + 3D 拓扑图谱 + 级联遗忘**（OpenCode 完全没有对应能力）+ **看板任务级模型重写 + 9 态生命周期 + `IN_REVIEW` 审批门** + **35+ 开箱即用渠道**（对方仅 Slack）+ **一方 Browser Orchestrator（真实 Chrome :9333 多路复用）** 让真实业务闭环可验证 + **GUI 优先上手**（2 分钟安装，无需写配置文件）。
+   - **Myrm 获益**：**白盒 8 类记忆 + Second Brain Wiki + 3D 拓扑图谱 + 级联遗忘**（OpenCode 完全没有对应能力）+ **看板任务级模型重写 + 9 态生命周期 + `IN_REVIEW` 审批门** + **26 开箱即用渠道**（对方仅 Slack）+ **一方 Browser Orchestrator（真实 Chrome :9333 多路复用）** 让真实业务闭环可验证 + **GUI 优先上手**（2 分钟安装，无需写配置文件）。
 
 
 ## 最新验证快照（2026-09-08 · 桌面运算符假键名双层护栏 · 堵住计算器空转烧 Token）
@@ -667,9 +667,9 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
 
 | 维度 | OpenCode | Myrm | 用户获益 |
 |------|----------|------|----------|
-| **内置 Agent 数量** | **4 个**原生 Agent（`build`、`plan`、`general` 子代理、`explore` 子代理，见 `packages/opencode/src/agent/agent.ts`） | **27 个内置 Agent**（5 核心 + 2 检索 + 5 扩展 + 15 垂直）+ GUI 画廊 + 自定义创建 | 直接选用现成角色（调研、设计、数据可视化、视频工作室…），不必手工调教一个通用 Agent。 |
+| **内置 Agent 数量** | **4 个**原生 Agent（`build`、`plan`、`general` 子代理、`explore` 子代理，见 `packages/opencode/src/agent/agent.ts`） | **28 个内置 Agent**（5 核心 + 2 检索 + 5 扩展 + 16 垂直）+ GUI 画廊 + 自定义创建 | 直接选用现成角色（调研、设计、数据可视化、视频工作室…），不必手工调教一个通用 Agent。 |
 | **记忆与知识** | **完全没有**——仓库中不存在记忆子系统，每次会话从零开始 | **8 类白盒记忆 + Wiki 知识库 + 3D 拓扑图谱 + 级联遗忘** | Agent 能跨周记住约定、决策与历史失败；知识沉淀为可复用资产。 |
-| **界面与触达** | 终端 TUI + 早期 Electron 桌面 Beta | **响应式 WebUI + 原生 Tauri 桌面 + 35+ IM 渠道** | 非开发者也能上手，手机即可审批，不必守着终端。 |
+| **界面与触达** | 终端 TUI + 早期 Electron 桌面 Beta | **响应式 WebUI + 原生 Tauri 桌面 + 26 IM 渠道** | 非开发者也能上手，手机即可审批，不必守着终端。 |
 | **自动化** | 仅手动触发，无调度器 | **19+ Cron API + 链式任务 + 心跳监控 + 渠道推送** | 周期性报表与维护任务无人值守执行，并在你常用的渠道通知你。 |
 | **任务治理** | 单会话，无看板与审批门 | **看板 9 态生命周期 + IN_REVIEW 人工审批 + 动态活体引导 (Live Steer)** | 长程多步任务全程可见可审计，不可逆动作前有人工闸门。 |
 | **安全纵深** | 配置文件驱动的 `permission` 规则集（单层） | **6 层纵深防御 (L1–L5.5) + PII 脱敏 + Taint Tracking + YOLO 互斥** | 提示词注入与 Confused Deputy 越权被物理阻断，而非仅靠配置劝导。 |
