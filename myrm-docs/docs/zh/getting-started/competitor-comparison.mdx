@@ -11,6 +11,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-10-18 · 技能上游更新可逆 + 上线文案完整性门禁 · 彻底消除「点下『应用更新』就成终局」与「机翻占位符直接呈现给读者」）
+
+- **技能更新可逆与文案完整性套件（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 在预置技能上游更新与已上线本地化文案两个环节：上游版本与本地改动之间要么没有对账，要么没有面向用户的撤销；翻译流水线还可能把占位标记写进用户读到的字符串）：** Myrm 用「按次可逆」与「失败即拒绝」堵住这两个缺口：
+  1. **覆盖前先快照，一次点击可撤销**：接受上游更新时，先把读者自己的版本写入 replace 批次快照，再应用随包版本；确认框明说「之后可在技能详情页撤销」，落盘后详情页给出撤销入口，点一下即还原改动前的内容（`myrm-agent-server/app/api/skills/prebuilt.py:134` · `SkillsSection.tsx:419-433`）。这里要诚实区分：OpenClaw 已有版本化技能库与 revert 命令（`claw/openclaw/src/skills/workshop/library.ts`），作用于它自己「学到」的技能变更；Hermes 则完全没有技能级回滚。两者都没有的是**把「上游版本 vs 我手改的版本」这一层冲突做成按次、按技能、可一键撤销的决定**——而这正是升级时最容易悄悄丢掉用户劳动的地方；
+  2. **三态哈希对账取代盲目覆盖**：同步时同时比对已存内容、记录的 origin 与随包源码；只有「读者改过 **且** 上游也前进」这一种情况才提交人工确认。读者没动过的副本静默升级，本地修改永不被静默替换（`prebuilt_sync.py:276-312`）；
+  3. **每种语言都说同一句实话**：确认框文案在德语与英语下都对**真实渲染出的页面**做断言，任何语言都无法一边写着「无法撤销」一边摆着可用的撤销按钮。完整 Chrome 流程把技能真实置入「上游更新待处理」状态、打开详情面板、唤起真实对话框并读取正文（77.5 秒，session `SUCCEEDED`，cleanup sealed）；
+  4. **对流水线残留失败即拒绝**：`scanTranslationArtifacts` 遍历 6 个语言包的全部叶子值，一旦残留机翻占位标记（`__BR_…__` / `__PHn__`）就让 ICU 门禁失败，坏掉的翻译流水线无法把占位符号送到读者眼前。实测 **116,634** 条文案全绿。
+- **单一事实源：** `myrm-agent-server/app/api/skills/prebuilt.py` · `myrm-agent-server/app/core/skills/prebuilt_sync.py` · `myrm-agent-frontend/src/components/features/settings/sections/ai-tools/SkillsSection.tsx` · `myrm-agent-frontend/scripts/icu-syntax-scan.ts` · `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md` · `temp-docs/materials/INTERNATIONALIZATION_LOCALIZATION_ADVANTAGE.md`
+
 ## 最新验证快照（2026-10-18 · PDF 逐页覆盖披露 + 扫描页可靠投递 · 彻底消除「正文 + 扫描混合文档被当成全文读完，扫描页静默消失」）
 
 - **PdfCoverageDisclosureSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode，场景是真实世界里最常见的混合合同——正文是排版好的印刷体，签字页是扫描件；以及同一份文档在辅助视觉模型下、在完全没有视觉能力时的表现）：** Myrm 如实报告"到底交付了什么"，而不是暗示"全文已读完"：
