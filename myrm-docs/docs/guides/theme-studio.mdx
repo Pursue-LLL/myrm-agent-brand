@@ -54,6 +54,17 @@ AI-generated HTML widgets (Artifacts) and MCP App iframes automatically inherit 
 
 Desk pet rarity glow and status bubbles use the same host subscription — when you tweak colors in Theme Studio live preview or switch presets, widgets and companion accents stay in sync without a page reload.
 
+## Reduced Motion
+
+If your operating system is set to reduce motion, Myrm honours it everywhere the interface renders — not only in the main window. The main UI, AI-generated widget and MCP-app iframes, the browser-extension side panel and popup, and the desktop privacy screen each stop their animation independently, because each is a separate document that the app stylesheet cannot reach.
+
+Two details that matter in practice:
+
+- **Positional animation stops; fades stay.** Large movement is what triggers discomfort, so slides and scale transitions complete instantly under the preference, while short opacity fades are preserved so you can still tell that something changed.
+- **Dialogs still close.** Overlays dismiss by listening for the end of their animation. A guard written as `animation: none` would silence that event and leave a dialog stuck open, so the animation is shortened to 0.01 ms with a single iteration instead — motion stops, and the close path keeps working.
+
+An automated check runs with the rest of the lint gates and fails the build if a new standalone document adds animation without a reduced-motion guard. Canvas-rendered showcase templates are not affected by the preference; that limitation is stated rather than hidden.
+
 ## Three-Deployment Consistency
 
 | Deployment | Theme Capabilities |

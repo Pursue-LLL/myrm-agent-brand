@@ -31,6 +31,34 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   6. **100% 全栈验证**：真实未 Mock 的 Chrome WebUI E2E——`test_clarify_skip_chrome_e2e.py::test_clarify_skip_button_resumes_agent_in_real_chat` **1 passed in 372.02s**、`test_goal_focus_chrome_e2e.py` **1 passed in 171.80s**、`test_reasoning_anchor_and_compaction_chrome_e2e.py` **1 passed in 26.29s**、`test_browser_takeover_chrome_e2e.py::test_extension_takeover_banner_shows_actions_and_dismisses_on_done` **1 passed in 27.25s**——四条均 `outcome: PASSED` 且 `cleanup.sealed`；全程真实 `minimax/MiniMax-M3.1-Flash-Preview` 推理，断言一直落到「消息真实落库」（`chat_user_message_count >= 1`）；18 例聚焦单测全绿；0 lint 错误、0 类型错误。
 - **SSOT 来源：** `myrm-agent/myrm-agent-frontend/src/store/chat/messageStream/handlers/handlerDeps.ts` · `.../handlers/completionEvents.ts` · `.../handlers/agentControlEvents.ts` · `.../handlers/toolsProgressEvents.ts` · `.../handlers/statusStreamProgressSteps.ts` · `.../messageStream/streamHelpers.ts` · `myrm-agent-server/tests/e2e/test_clarify_skip_chrome_e2e.py` · `temp-docs/materials/HITL_APPROVAL_CONCURRENCY_ADVANTAGE.md`
 
+## 最新验证快照（2026-10-18 · 跨宿主减少动态效果契约 · 彻底消除「只在主窗口写了媒体查询」，沙箱 Widget、扩展面板与桌面锁屏页仍在动的隐性缺陷）
+
+- **CrossHostReducedMotionSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode：用户在系统里开了「减少动态效果」后，仍会看到 Agent 生成的内嵌 Widget 里转圈的加载动画、浏览器扩展侧栏里持续脉动的指示灯、以及全屏桌面隐私帷幕继续呼吸）：** 动态偏好是**文档级**的请求，写在应用样式表里的一条规则，到该文档边界就失效了。Myrm 把这个偏好当作**每个渲染宿主都必须满足的契约**：
+  1. **五个独立文档逐一带守卫**：
+     - 主 WebUI（`src/app/globals.css`）；
+     - 由 `src/lib/widget-theme-bridge.ts` 拼 `<style>` 注入的沙箱产物 / MCP App `<iframe srcdoc>`；
+     - 扩展侧栏 `sidepanel.css`（14 处动效）与弹窗 `popup.html`（2 处）；
+     - Tauri 隐私帷幕 `privacy_curtain_page.rs`（2 处）；
+     各个独立文档都自带 `@media (prefers-reduced-motion: reduce)` 守卫，而不是指望主样式表穿透进去；
+  2. **CSS 管不到的那套动画引擎**：
+     - `framer-motion` 走 Web Animations API，`reducedMotion` 默认 `"never"`，任何媒体查询都拦不住它。页面根用 `<MotionConfig reducedMotion="user">` 包住：位移/缩放的位移动画立即完成，透明度淡入保留，状态切换仍然看得懂；
+  3. **卸载契约：用 `0.01ms`，绝不用 `animation: none`**：
+     - Radix 浮层靠 `animationend` 卸载。守卫若写成 `animation: none`，事件不触发，**弹窗永远关不掉**——无障碍修复反而把界面锁死。Myrm 用 `animation-duration: 0.01ms` + `animation-iteration-count: 1`，让事件照常触发；
+  4. **竞品逐条对照（结论来自已提交源码实测，不是推测）**：
+     - **OpenClaw**：`ui/src/styles/base.css` 里**同样有**全局守卫 —— `*, *::before, *::after` + `animation-duration: 0.01ms` + `animation-iteration-count: 1` + `scroll-behavior: auto`。**这一层我们与它同级，不是领先**；
+     - **DeepSeek-Harness**：同样有全局 `0.01ms` 上限（45 处引用 / 25 个文件）。主窗口这一层与我们同级；
+     - **OpenCode / Pi**：都处理了这个偏好，但偏**组件级**而非一条统管全局的规则（44 处 / 38 文件，39 处 / 26 文件）；OpenCode 还在个别组件里手写 `matchMedia` 判断（`packages/ui/src/navigation/segmented-control/segmented-control.tsx:111`），没有对它引入的 framer-motion 动画树做全局策略；
+     - **Hermes**：**完全没有守卫**。桌面渲染进程有 9 处动效（`apps/hermes-buddy-desktop/src/renderer/styles.css`），预测面板另有 3 处（`src/predict/predict-panel.css`），均未跟随该偏好 —— 这是六个竞品中唯一真实的动效缺口；
+     - **Codex**：全仓 `prefers-reduced-motion` **0 处**，但其内联可视化 iframe 样式表（`codex-rs/tui/src/assets/inline_visualization/visualize.css`）**根本没写动画**，所以谈不上缺口 —— 诚实记为零，而不是缺陷；
+  5. **我们到底强在哪、哪里并不强**：**我们不声称竞品不支持减少动效**。「主窗口一条媒体查询」这件事上，OpenClaw 与 DeepSeek-Harness 与我们同级，把它当差异化卖点就是虚假宣传。可衡量的领先更窄也更硬：**覆盖广度**（五个独立文档 vs 只管主窗口）、**动画引擎覆盖**（CSS 拦不住的 WAAPI 动画）、以及**回归门禁**；
+  6. **构建期门禁，挡住无声腐化**：
+     - 一条写对的样式表，撑不过下一个人新增动画。`verify:reduced-motion` 已接入 `run-lint-gates.ts`，扫描 **9244 个文件**，要求每个独立文档宿主自带守卫，并显式维护 2 条白名单及理由。未发现任何竞品有同类门禁；
+  7. **100% 真实浏览器验证（不猜计算值）**：
+     - 在真实 dev server 上四条断言：基线 `2s / infinite`；减少动态下 `1e-05s / 1`；偏好**双向切换且不刷新**能回到 `2s / infinite` 并再次折叠；以及减少动态下 `animationend` **仍触发**（即上面的卸载契约）。四条全绿，**1 passed in 20.97s**；
+  8. **真实模型全链路验证**：在模拟减少动态的状态下通过聊天桥发送提示词，由 `minimax/MiniMax-M3.1-Flash-Preview` 返回真实流式答复，并从渲染后的回合快照断言 —— **1 passed in 115.73s**；
+  9. **已知边界，明说而非隐藏**：部分预置展示模板用 Canvas `requestAnimationFrame` 绘制，CSS 媒体查询对它无效；Myrm 目前未在运行时降级这类动画，也不对此做任何宣传承诺。`prefers-reduced-transparency` 与 `forced-colors` 同样不在本次范围内。
+- **SSOT Sources:** `myrm-agent/myrm-agent-frontend/src/app/globals.css` · `.../src/components/layout/PageLayout.tsx` · `.../src/lib/widget-theme-bridge.ts` · `.../scripts/reduced-motion-scan.ts` · `myrm-agent/myrm-agent-extension/src/sidepanel/sidepanel.css` · `.../src/popup.html` · `myrm-agent/myrm-agent-desktop/src-tauri/src/commands/privacy_curtain_page.rs` · `myrm-agent-server/tests/e2e/test_reduced_motion_chrome_e2e.py` · `.../tests/e2e/test_reduced_motion_live_turn_chrome_e2e.py` · `temp-docs/materials/THEME_PERSONALIZATION_ADVANTAGE.md`
+
 ## 最新验证快照（2026-10-18 · 大文件与复杂图形预览秒开 · 彻底消除复杂 SVG 打开卡死数秒与连续查看劣化）
 
 - **SvgPreviewThresholdRasterizationSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 6 大竞品在大文件 SVG / 复杂图形预览中的共性隐患：同步清洗 + 数万 DOM 节点内联导致主线程阻塞 0.8-7 秒、连续打开多个大文件劣化卡死，以及同类产品因 SVG 内联注入引发的 XSS 安全事件）：** Myrm 交付了按体积智能分流的 SVG 预览引擎：
