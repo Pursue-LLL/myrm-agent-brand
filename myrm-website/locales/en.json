@@ -1180,6 +1180,12 @@
           "hermes": "Silent in-place overwrite, zero audit history, edits permanently destroy prior context",
           "openclaw": "Flat Markdown or vector overwrite without merge diffs or correction provenance; vulnerable to injection tampering",
           "myrmAgent": "**Full-Lifecycle White-Box Evolution Timeline**: Tracks 4-phase state transitions (Created, Corroborated, Expanded, Corrected) so users see exactly why and how facts evolve; **Single-Turn Merge Audit Sheet**: Field-level visual semantic diffs between pre- and post-merge versions, eliminating silent overwrite disasters; **Bidirectional Correction Chain (`correction_of`/`superseded_by`)**: Archived provenance keeps original evidence intact with 1-click lineage traversal; **Physical Anti-Tampering User Lock (`is_user_locked`)**: 1-click freeze of critical preferences blocks unwanted automated rewrites and prompt injection poisoning (**Chrome E2E PASS**)"
+        },
+        "parallelSessionIsolation": {
+          "feature": "Parallel Chats Stay Apart · Your plan, approvals and milestones belong to the chat you're reading, not whichever chat spoke last",
+          "hermes": "Isolates subagent progress per session, but panels beyond the subagent tree are not covered",
+          "openclaw": "Keys pending approvals by id, yet offers no plan/milestone panels to isolate",
+          "myrmAgent": "**One ownership rule, four panels**: plan steps, approvals, clarifications and context-compaction milestones all write only when the event belongs to the open chat, so a chat running in the background can never wipe or overwrite what you are reading; **Attribution travels with the event**: an approval card carries the turn that raised it (and that turn's execution mode), and a clarification decides resume-vs-legacy purely from its own source — the same rule the server persists — never from whichever chat happens to be open; **No silent dead-ends**: blocking consent and takeover prompts stay answerable for background turns, unanswered interrupts are reopened server-side and pending approvals are re-fetched globally, so a parallel session never waits forever. Honest trade-off: those blocking panels are single-slot, so simultaneous requests appear one after another rather than side by side — none is lost (**4 Chrome E2E PASS: clarify skip-resume 372s · goal/plan stream 172s · compaction 26s · takeover 27s; cleanups sealed**)"
         }
       }
     },

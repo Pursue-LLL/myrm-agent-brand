@@ -177,6 +177,7 @@ export const COMPARE_ROW_KEYS = [
   'newTaskWorkContextCard',
   'stopTransparency',
   'memoryEvolutionAudit',
+  'parallelSessionIsolation',
 ] as const;
 
 export type CompareRowKey = (typeof COMPARE_ROW_KEYS)[number];
@@ -265,7 +266,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'perAgentIterationBudget',
     'stopTransparency',
   ],
-  platform: ['gui', 'chatHistoryManagement', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'harnessUpgradeContract', 'codeGraph', 'crossPlatformHandoff', 'configSync', 'taskResilience', 'localIotBridge', 'steerToken', 'threeDGraph', 'chatOpsIM', 'serverless', 'smartCommandInput', 'agentPluginRuntime', 'newTaskWorkContextCard', 'desktopNativeBridge'],
+  platform: ['gui', 'chatHistoryManagement', 'parallelSessionIsolation', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'harnessUpgradeContract', 'codeGraph', 'crossPlatformHandoff', 'configSync', 'taskResilience', 'localIotBridge', 'steerToken', 'threeDGraph', 'chatOpsIM', 'serverless', 'smartCommandInput', 'agentPluginRuntime', 'newTaskWorkContextCard', 'desktopNativeBridge'],
 };
 
 export function highlightSlideBasePath(slideKey: HighlightSlideKey): string {
