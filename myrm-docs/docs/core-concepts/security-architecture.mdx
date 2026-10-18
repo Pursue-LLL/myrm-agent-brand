@@ -173,9 +173,16 @@ Every approval surfaces the same four actions across all channels:
 | Action | WebUI | Telegram/Slack/Feishu |
 |--------|-------|----------------------|
 | **Approve** (once) | Button | `/approve`, `1`, `y`, 👍 emoji |
+| **Approve with a note** | Button + note box under the card | N/A (note in WebUI) |
 | **Edit & Approve** | Inline editor with re-validation | N/A (edit in WebUI) |
 | **Reject** (with feedback) | Button + feedback textarea | `/deny`, `2`, `n`, 👎 emoji |
 | **Allow Always** | Button → confirmation dialog (4 scopes for shell: permission / tool / exact / **pattern**) | `/approve-always`, `!y`, ♾️ emoji |
+
+**The note you write is read.** When you approve with a note — "only staging, not prod", "keep it under $3", "use the REST API instead" — the agent runs the action and then **receives your note as your instruction**, so the next step follows it. An approval note and a rejection reason travel on separate channels internally, which is why a timer's own "auto-approved after timeout" line is never mistaken for something you typed. Notes are risk-screened and length-bounded before they reach the model.
+
+<Note>
+**Migration benefit:** Hermes accepts free text on deny only (`/deny <reason>`) and OpenClaw documents that its `--reason` is not persisted or forwarded to other approval surfaces, so a note on an *approval* has nowhere to go there. In Myrm both directions carry your own words, and the approval note is delivered **after** the action result so the agent can adapt what it does next rather than only explaining itself. Verified in a real browser (drawer note box) and through the production agent loop.
+</Note>
 
 **Allow Always** offers four granularity levels:
 - **Permission**: Allow all tools with this permission type (e.g., all file writes)
@@ -246,7 +253,7 @@ When the agent needs files **outside** the current workspace (e.g. `~/Downloads`
 | **Proactive Pre-authorization** | Users can authorize directories at any time via file picker or drag-and-drop in WebUI/Desktop (RO or RW) | Chips appear above the composer with RO/RW badges; click × to revoke immediately |
 | **Deployment-Aware Safety Floor** | High-risk paths (`~/.ssh`, `~/.aws`, `/etc`) and special device names (`CON`, `NUL`, `\\.\*`, `/dev/*`) are strictly denied by `SandboxMountSecurityGate`; cloud sandboxes enforce physical container isolation | Desktop/local enjoys fluid HITL UX while cloud remains fail-closed |
 | **Sandbox Mount Security Gate** | Prior to process launch in macOS Seatbelt, Linux Bwrap, or Windows AppContainer, all mounts pass through `mount_security_gate.py` with 10-fold dual-direction fail-closed assertions (source & target traversal, UNC/SMB hash exfiltration defense, container system root overwrite protection `/etc/ld.so.preload`, symlink escape, device blocking, APFS/NTFS case folding, batch target collision resolution, and RO least-privilege) | Hardens sandbox boundary against symlink escapes, container linker hijacking, and Windows NTLM relay attacks |
-| **Northeast Asia Data Residency & Pinning** | Cloud-hosted sandboxes enforce control-plane hard affinity pinning for Tokyo (NRT), Seoul (ICN), and Virginia (IAD), throwing `CrossRegionMigrationBlockedError` on cross-region volume reuse, with container `MYRM_DATA_REGION` injection and real-time WebUI shield badge disclosure | Complies with strict data localization laws (Japan APPI, South Korea PIPA), preventing silent cross-border data drift |
+| **Northeast Asia Data Residency & Pinning** | Cloud-hosted sandboxes enforce control-plane hard affinity pinning for Tokyo (NRT), Seoul (ICN), and Virginia (IAD), throwing `CrossRegionMigrationBlockedError` on cross-region volume reuse, with container `MYRM_DATA_REGION` injection and real-time WebUI shield badge disclosure | Keeps the sandbox and its persistent volume in the chosen region and blocks silent cross-region moves. Scope: sandbox and volume only — requests to the model providers you configure follow those providers' own regions, and this is not a legal certification |
 | **Cloud Sandbox Privacy Ladder** | During sandbox snapshots and per-turn event-driven persistence, `privacy_ladder.py` enforces a 3-tier fail-closed gate (Tier 1 file credential/system block, Tier 2 read-only session mutation freeze, Tier 3 workspace boundary & case-folding normalization) | Completely seals secret exfiltration and symlink persistence escapes, guaranteeing pristine cloud sandbox data hygiene |
 | **Persisted Write Corruption Detection & Sealing** | Persistence writes for snapshots and state use `sealed_io.py` 3-stage atomic sealed writes (Temp File -> Hardware fsync -> Atomic Replace) with SHA-256 Checksum envelopes, auto-quarantining tampered or truncated data into `.corrupted/` | Eliminates power-loss corruption crashes on restart, ensuring 100% industrial-grade storage crash consistency |
 
@@ -338,6 +345,33 @@ Unlike input-side guards (which protect the conversation), the write-path scanne
 - **Fake system-tag interception** — `System:`/`Assistant:` colon prefixes are treated as injection
 - **Every write path shares the guard** — manual stores, batch writes, updates, profile, rules, MCP tools, agent auto-extraction, and import recovery
 - **CI poisoning benchmark gate** — two-layer expectation tests (detection layer + extraction layer) run in CI to prevent regression
+
+### File Lock Symlink Defense
+
+Even with upstream content guards in place, a prompt-injected agent could still be coaxed into planting a **symlink** inside a framework directory that points at a sensitive file (e.g. `~/.env`, SSH keys). Any later code that opens that lock path with "create/truncate" semantics would then silently destroy the file it points at — a real data-loss path for a framework-level public API.
+
+The harness `FileLock` (used by the delivery queue) opens lock files with `O_NOFOLLOW` (guarded by `hasattr` on Windows), so a planted symlink is **rejected instead of followed**:
+
+| Behavior | Result |
+|----------|--------|
+| Symlink planted in lock dir → `acquire()` | Returns `False` (lock not granted), **victim file untouched** |
+| Lock file permissions | `0o600` — private to the sandbox owner |
+| Platform without `O_NOFOLLOW` (e.g. Windows) | Graceful degradation to plain `O_CREAT\|O_RDWR`, locking still works |
+| After symlink removed | Resource immediately re-acquirable — rejection never poisons the lock path |
+
+This is one more defense-in-depth layer: even if a prompt-injection attack succeeds at the filesystem level, arbitrary file truncation through the lock path is structurally impossible.
+
+Beyond symlink defense, the harness `FileLock` hardens the entire lock lifecycle against misuse and silent failure:
+
+| Guard | Behavior |
+|-------|----------|
+| **Mode whitelist** | Only `exclusive` / `shared` are accepted; a typo such as `exclusiv` fails fast instead of silently degrading to a shared lock and breaking mutual exclusion |
+| **Blocking fail-fast** | Synchronous `blocking=True` (which would freeze the asyncio event loop) raises `TypeError` instead of hanging |
+| **Lock-key sanitization** | Resource IDs are filtered to a safe charset, capped at 128 characters, and SHA-256-hashed — no path injection, no hidden files |
+| **No exception swallowing** | Business exceptions raised while the lock is held propagate as-is instead of being masked into a misleading error |
+| **Crash self-heal** | Locks are OS-level (`fcntl.flock`), so the kernel releases them the instant a process exits — no heartbeat, TTL, or manual cleanup; delivery dedup keeps messages at-most-once even across restarts |
+
+Cross-process mutual exclusion is verified in CI via subprocess tests (macOS) alongside the asyncio concurrency integration suite.
 
 ### Sub-Agent Security
 
@@ -849,6 +883,7 @@ Per-agent secrets (custom API keys, tokens, environment variables) use a **zero-
 | **Edit requires new value** | Password input field, placeholder "Enter new value to overwrite" |
 | **Sentinel protection unnecessary** | Since old values never reach the frontend, no "****" round-trip risk exists |
 | **Encrypted at rest** | AES-256-GCM via `DatabaseSecretBackend` with server-side master key |
+| **Atomic file writes** | `LocalSecretBackend` uses tempfile + `os.replace` + `fsync` for crash safety |
 | **Log auto-redaction** | `SensitiveDataFilter` replaces token/key/secret patterns with `***REDACTED***` |
 | **Agent isolation** | Each agent can only access its own secrets via `agent_id` scoping |
 
@@ -1153,15 +1188,12 @@ When external multi-user channels (Feishu, WeCom, Telegram, Discord, Slack) inte
 2. **Read-Plane Recall Isolation (`default_scope="same_source"`)**: Server-side conversation provider forcibly locks conversation history searches to the same source channel, blocking malicious prompt injection attacks from cross-recalling private WebUI conversations, credentials, or personal workflows.
 3. **Zero Prompt Token Overhead & 100% Cache Preservation**: Enforced entirely at the runtime execution layer with static tool descriptions, preserving full prompt cache hit rates.
 
-## Agentic Code Security Scan & Verify-then-Report Goal Gatekeeper
+## Agentic Code Security Scan (Verify-then-Report Skill)
 
-Myrm introduces an autonomous agentic vulnerability scanning and remediation verification pipeline:
+Myrm ships a prebuilt `security-diff-scan` skill that runs an autonomous agentic vulnerability scan on diffs and codebases:
 
-1. **Verify-then-Report Dynamic PoC Validation**: In contrast to traditional SAST tools that flood developers with false positives, `SecurityScanCriterion` executes Proof-of-Concept (PoC) exploits in an isolated shadow sandbox. Vulnerabilities are only confirmed and blocked when an exploit actually succeeds (`exit_code == 0`), eliminating alert fatigue.
-2. **Goal Acceptance Gatekeeper Integration**: Registered directly into the harness `VerificationGatekeeper`, preventing agents from falsely declaring tasks complete if high-severity vulnerabilities remain unmitigated.
-3. **Deterministic Finding Fingerprints**: Computes stable hashes across `CWE:rule_id:normalized_path:signature`, guaranteeing vulnerability identity remains intact across routine line number shifts and minor refactorings.
-4. **4-State Lifecycle Tracking & JSONL Persistence**: `ScanRunComparisonService` tracks findings across consecutive runs (`New`, `Persisting`, `Resolved`, `Regressed`) with automatic incremental JSONL persistence, preserving security baseline diffs across server restarts.
-5. **AST Incremental Slicing & Evidence Truncation**: Slices diff contexts to under 300 lines to maximize prompt cache hit rates, and strictly truncates sandbox PoC evidence to 4,096 characters to prevent SSE message channel overflows.
+1. **Verify-then-Report Dynamic PoC Validation**: In contrast to traditional SAST tools that flood developers with false positives, the skill requires a minimal Proof-of-Concept (PoC) exploit to run in the sandbox before a Critical or High finding is reported. Candidates whose exploit fails are discarded or downgraded to informational, eliminating alert fatigue.
+2. **AST Incremental Slicing**: Slices diff contexts to under 300 lines to maximize prompt cache hit rates.
 
 ## Control UI Surface Error Redaction
 
@@ -1329,17 +1361,16 @@ When autonomous LLM agents generate high-blast-radius or irreversibly destructiv
 
 ### 1. The Death of Ambient Authority in Multi-Agent Systems
 Traditional agent architectures suffer from **Ambient Authority**: spawned subagents inherit full environment permissions, allowing malicious prompt injections to pivot horizontally and exfiltrate secrets or corrupt critical databases.
-- **Hermes / OpenClaw / OpenCode**: Pass unstructured strings or tool arrays (`inheritedToolAllow`), leaving low-level file and socket operations completely unconstrained;
-- **DeepSeek-Harness**: Relies on coarse-grained profile switching (`dontAsk`, `acceptEdits`) without runtime monotonic attenuation;
-- **Myrm**: Employs mathematically verified **Object-Capability (OCap)** delegation, issuing unforgeable HMAC-SHA256 capability tokens that strictly shrink across child agents.
+- **Hermes / OpenClaw**: Restrict a subagent through tool allow and deny lists (`delegate_tool_toolsets.py`, `delegated-tool-policy.ts`); which paths an allowed tool may touch is not bounded per spawn;
+- **Claude Code / Codex**: A subagent inherits the parent's permission mode or sandbox policy, so the boundary belongs to the session rather than to each spawn;
+- **Myrm**: Employs **Object-Capability (OCap)** delegation, issuing every `delegate_task` subagent (single and batch modes) an unforgeable HMAC-SHA256 capability handle that the local file and shell executors enforce on each operation. Council, alternatives and Dynamic Workflow children do not receive one. Among the products we reviewed, none binds a per-spawn, path-scoped signed capability.
 
 ### 2. High-Performance Architecture Innovations
-1. **Unforgeable Token Signing & Monotonic Attenuation**: Child capabilities must be mathematical subsets of parent capabilities (paths, domains, methods, actions). Any escalation attempt raises `AttenuationError` instantaneously;
-2. **Amortized Self-Driving Garbage Collection (CWE-400 Proof)**: O(1) amortized cleanup embedded directly in the registration path (`len % 128 == 0`) purges expired and revoked tokens with <0.05ms overhead, eradicating daemon memory bloat without extra threads;
-3. **Hierarchical Path Escape Defense (CWE-59 Proof)**: Combines nanosecond lexical normalization (`os.path.normpath` <0.2μs) with physical topological path resolution (`os.path.realpath`) to strictly neutralize symlink boundary escape attacks;
+1. **Unforgeable Token Signing & Scoped Confinement**: Each subagent runs under a signed handle scoped to its parent's own workspace plus any extra directories the parent's path policy and the user's session grants already allow, whether a path is given directly or through a symlink; the model's own `context` never becomes the child's runtime context. A spawn from an already confined parent is attenuated from the parent's handle (`attenuate_capability` rejects any elevation with `AttenuationError`), so a child never exceeds its parent and a read-only parent only spawns read-only children. A read-only subagent is denied writes and shell execution, and an expired or tampered handle is denied. The handle bounds file operations to the granted paths and locks shell commands to the granted working directory; the command text itself is checked by the command validator, and strong isolation of what a command can reach is the job of the OS or cloud sandbox;
+2. **Stateless Validation (CWE-400 Proof)**: Handle validity is a signature and expiry check, so the framework retains nothing per spawn: there is no registry to grow, prune or leak in a long-running daemon;
+3. **Hierarchical Path Escape Defense (CWE-59 Proof)**: Combines lexical normalization with physical topological path resolution (`os.path.realpath`) to neutralize symlink boundary escape attacks; a full guard check (signature, expiry and scope) costs about 8–16 μs for a path that does not exist yet and about 50–60 μs when the path exists and must be resolved (range of four runs of 20,000 calls on the development machine);
 4. **100% Prompt Cache Preservation**: Capability enforcement executes purely in coroutine `ContextVar` and physical executor gates, introducing 0 bytes of dynamic pollution into system prompts.
 
 ### 3. Empirical Verification & Quality Gates
-- **Harness Core Coverage**: **92%** test coverage (13/13 passed in 4.14s) across `myrm_agent_harness.core.security.ocap`;
-- **Frontend Interaction State Machine**: 8/8 Vitest tests passed with Lucide iconography, zero raw emojis, and anti-hammering one-click revocation breakers;
-- **Chrome E2E Browser Orchestration**: Real Chrome (:9333) with real model `MiniMax-M3.1-Flash-Preview` verified via `test_delegation_permissions_chrome_e2e.py` (26.43s) and `test_security_preset_chrome_e2e.py` (86.17s) at 100% pass rate.
+- **Harness Core Tests**: unit tests for signing, attenuation, symlink containment and the guard in `core/security/test_ocap_mesh.py`;
+- **Spawn Trust Boundary**: entry-level tests driven from the `delegate_task` parameters (`test_spawn_trust_boundary.py`), and a scripted child run through the real executors (`test_spawn_capability_wiring.py`) that proves a read-only child cannot write and cannot spawn a writable child.
