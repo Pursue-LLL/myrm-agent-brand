@@ -416,7 +416,7 @@ Five-dimension forgetting strategy prevents memory bloat while preserving what m
 
 Three forgetting modes: **DELETE** (permanent remove), **ARCHIVE** (deactivate with metadata), **MARK** (log only, no mutation). Pinned memories, CRITICAL-priority procedural rules, and recently accessed items are automatically exempt.
 
-**Incognito Mode**: For sensitive conversations, the AI's memory tools are disabled for that session, so it neither reads nor writes memory. The conversation is marked as incognito in the database, hidden from the sidebar, search and session recall, stores no title or message preview, and is permanently deleted by a background job once it has been idle for an hour. Until then its messages stay in the local database, and your model provider still processes what you send.
+**Incognito Mode**: For sensitive conversations, the AI's memory tools are disabled for that session, so it neither reads nor writes memory. Switching incognito on or off always starts a **new chat** — the mode belongs to the chat, and the server reads that chat's `is_incognito` flag to decide what to delete and what to export, so an existing conversation can never become incognito. The conversation is marked as incognito in the database, hidden from the sidebar, search and session recall, stores no title or message preview, and is permanently deleted by a background job once it has been idle for an hour. Until then its messages stay in the local database, any files uploaded in it are bound to it and removed with it, and your model provider still processes what you send.
 
 ## Memory Staleness Defense
 

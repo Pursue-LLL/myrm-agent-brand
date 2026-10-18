@@ -711,11 +711,12 @@ Corporate networks often deploy TLS inspection proxies (Zscaler, Netskope, Palo 
 
 ### Incognito Mode Deep Dive
 
-One-click toggle in the message input area activates per-session privacy isolation:
+One click in the message input area switches incognito on or off, and either way it starts a **new chat**: incognito is a property of the chat itself, and the server decides what to delete and what to export from that chat's `is_incognito` flag, so a conversation that already exists can never become one. Expect the current conversation to be left behind and the composer to open empty.
 
 - **Event log**: no per-session event log is written, so prompts and tool results are not copied to disk outside the chat database
 - **Server layer**: Skips memory manager binding and all memory tools (`memory_search_tool`, `memory_save`, `memory_manage`), disables memory context injection, archive checkpoints, and session cleanup callbacks
-- **Database layer**: the `is_incognito` flag keeps the session out of the sidebar, full-text search, session recall, the Catchup Inbox and the memory export, and no title or message preview is stored; the messages stay in the local database until the session has been idle for an hour, then the session is permanently deleted
+- **Uploads follow the chat**: files attached in an incognito chat are bound to it, removed with it, kept out of exports and backups, and hidden from other chats' `@` suggestions
+- **Database layer**: the `is_incognito` flag keeps the session out of the sidebar, full-text search, session recall, the Catchup Inbox and the memory export, and no title or message preview is stored; the messages stay in the local database until the session has been idle for an hour, then the session is permanently deleted with its attachments
 - **Self-hosted**: chats are stored on your own deployment rather than on a vendor server; the model provider you configure still processes what each turn sends, incognito or not
 
 ## Credential Protection
