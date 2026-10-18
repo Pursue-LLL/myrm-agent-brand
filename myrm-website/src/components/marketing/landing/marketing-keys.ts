@@ -174,6 +174,7 @@ export const COMPARE_ROW_KEYS = [
   'agentPluginRuntime',
   'smartCommandInput',
   'newTaskWorkContextCard',
+  'stopTransparency',
   'memoryEvolutionAudit',
 ] as const;
 
@@ -261,6 +262,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'benchmarkProfile',
     'parallelE2eSignoff',
     'perAgentIterationBudget',
+    'stopTransparency',
   ],
   platform: ['gui', 'chatHistoryManagement', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'harnessUpgradeContract', 'codeGraph', 'crossPlatformHandoff', 'configSync', 'taskResilience', 'localIotBridge', 'steerToken', 'threeDGraph', 'chatOpsIM', 'serverless', 'smartCommandInput', 'agentPluginRuntime', 'newTaskWorkContextCard', 'desktopNativeBridge'],
 };

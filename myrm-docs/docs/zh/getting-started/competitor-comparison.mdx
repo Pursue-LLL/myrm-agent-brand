@@ -11,6 +11,22 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-10-18 · 检索降级不再吞掉「停止」 · 彻底消除「按了停止却还在跑」、工具超时失效与后台句柄泄漏）
+
+- **StopStaysStoppedRetrievalCancellationSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 6 大竞品在长耗时工具调用中的共性隐患：用户按下停止后，底层工具把这次「取消」当成一次普通失败转换成「降级成功」结果，回合因此继续跑下去，工具级超时同时失去上限，被取消的工作还继续占着数据库/向量句柄）：** Myrm 把 UI 的停止按钮与框架唯一的取消判定规则真正接通：
+
+  1. **降级不再吞掉停止（闭源 Harness 框架内核）**：
+     - 记忆检索必须 fail-open（存储卡住时降级召回，而不是阻塞回合）。但它的查询向量与知识图谱两段此前用了裸 `except BaseException`，而 `CancelledError` 也属于 `BaseException`（在 Python 3.13 实测 `issubclass(CancelledError, Exception) == False`），于是「用户停止」在到达框架早已写好的判定边界之前，就被换算成了一个普通的降级结果；该边界就是 `utils.runtime.cancellation.reraise_if_cancelled`——全框架唯一的判定 SSOT，用 `Task.cancelling()` 精确区分「确实冲本任务来的停止」与「SDK 漏出的取消」；
+     - 两处处理器现在都把取消交给这条规则：真正冲本任务来的停止立即上报；SDK 漏出的取消、以及 `gather(return_exceptions=True)` 交回的已取消子任务，仍照旧降级，行为逐字不变；
+  2. **被停止的收集阶段不留残余**：
+     - `asyncio.wait` 不会取消它正在等待的任务，于是停止发生在收集阶段时，仍持有 SQLite/向量句柄的存储任务会被留在后台。现在收集阶段会先取消自建的存储任务、等它们收尾，再让取消继续；
+  3. **直接竞品对比矩阵**：
+     - **Hermes**：同为 Python，但检索层没有暴露任何取消判定规则，停在慢工具里时没有单一权威可查；
+     - **OpenClaw / DeepSeek-Harness / Codex**：TypeScript + `AbortController`/`AbortSignal`，「宽泛捕获吞掉中止」这类缺陷在语言层就不存在——它们是**结构上免疫**，而不是设计上更正确；
+     - **Pi / OpenCode**：没有等价的单一判定边界，工具调用外层的宽泛 `except` 仍可能把停止变成普通结果；
+  4. **真实代码端到端验证（零 mock）**：真实 `MemoryManager` + 真实工具中间件下，真 `task.cancel()` 从 `stop ABSORBED -> returned []` 变为 `stop PROPAGATED`，回合从 `CONTINUES WITH: degraded(error)` 变为 `STOP REACHED THE TURN -> cancelled`，耗时 **0.50s**；泄漏的存储任务从 **1 变为 0**；4 个变异各自只让对应的回归用例失败；被改模块行覆盖率 92%。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/_internal/search_service.py` · `.../utils/runtime/cancellation.py` · `.../agent/middlewares/tooling/_tool_execution_lifecycle.py` · `temp-docs/materials/ERROR_RECOVERY_ROBUSTNESS_ADVANTAGE.md`
+
 ## 最新验证快照（2026-10-15 · 项 77~79 分布式多网关动态路由、图工程自适应准入门禁与正交双视角盲审门禁 · 彻底消除大模型自欺欺人偏见、伪图算力爆炸与跨机断网丢指令）
 
 - **DualOrthogonalReviewerAndElasticGraphFleetSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 6 大竞品在多智能体长程协作与代码审查中，普遍存在的“大模型自审自身代码带有自我合理化先验偏见（Self-Rationalization Bias）导致 70%+ 隐蔽 Bug 漏检；简单错别字或闲聊也盲目拉起图拓扑导致天价 Token 账单与突发 429 全盘崩溃；以及子智能体单机绑定断网即丢指令”等致命痛点）：** Myrm 全链路交付了涵盖闭源 Harness 框架内核与开源 Server/Frontend 产品的三位一体工业级解决方案：
