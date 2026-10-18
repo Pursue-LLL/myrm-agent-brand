@@ -190,6 +190,9 @@ Automated skill lifecycle management through the Curator system:
 - **Hermes migration usage preserved** — Imported call counts and last-used timestamps survive; Curator does not false-stale active skills
 - **History visualization** — GUI timeline; every sweep is traceable
 - **Single hygiene SSOT** — Stale/archive cleanup runs only via Settings Curator and Agent Smart Prune; chat discover does **not** mount a read-only analyze tool (7/7 peer repos have no equivalent Agent tool)
+- **Success-rate audit in System Doctor** — Usage counts alone cannot tell "used often" from "used and failed". The System Doctor page flags skills that keep running and keep failing, and says whether the curator could ever clean them up: pinned, installed, or still bound to an agent, a slash command or a scheduled task are reported as *protected — fix or unbind first*, never as "run a sweep". Three or more such skills raise the row from a warning to a failure, so the verdict matches the action a user can actually take.
+
+> Peer comparison: the skill and curator paths of Hermes, OpenClaw, deer-flow and DeepSeek-Harness track call counts and last-used timestamps but not per-skill success rate, so none of them can surface a skill that is frequently invoked and consistently wrong.
 
 ## Conversational Skill Management
 
