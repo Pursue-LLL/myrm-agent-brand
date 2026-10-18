@@ -20,6 +20,7 @@ When ingesting large books, complex documents, or hundreds of research files, ra
 | **Output Token Budget** | `max_article_length = 12000` + Auto-Repair | Strictly caps synthesized article lengths, auto-closing truncated Frontmatter and Markdown code fences. |
 | **Batch Resilience** | 10-doc batching + circuit breaker | Pauses compilation on rate limits or API credit exhaustion, preventing cascade failures. |
 | **Vector Overflow Failsafe** | `resolve_embed_failure` policy | Gracefully catches `EmbedInputTooLargeError` and pauses single documents without crashing the entire batch queue. |
+| **Dual-Lane Ingest & Bounded Backpressure** | Object/Job Lane dual stream + bounded queue | Parallel atomic chunks and bottom-up directory DAG summaries with constant $O(1)$ memory, preventing OOM during massive repo ingest. |
 | **Shared Workspace Trust Structure** | `FactTrustPolicy` (Truth 1.2x / Draft 0.3x / Deprecated 0.1x) + `StaleFileArchiver` | Distinguishes canonical truth, WIP drafts, and deprecated materials with dynamic retrieval weighting and automated stale draft archival. |
 | **HITL Approval** | `WikiPendingEdits` queue | User audits and approves all synthesized concepts before permanent disk commit. |
 | **Sandbox Git Snapshot** | `vault_git.py` SSOT hook | 13 mutation points automatically commit local Git snapshots for complete time-travel auditing without remote credential risks. |
@@ -531,9 +532,10 @@ Users simply share a link with the Agent and say "import this" — the system au
 When ingesting documents into the Wiki, Myrm automatically selects the optimal parsing strategy:
 
 - **Text-rich PDFs** — extracted via pdfplumber with parallel processing, bookmark injection, and font-based heading detection.
-- **Scanned PDFs** — auto-detected when text content is sparse (< 200 characters). Pages are rendered as PNG images and read by the **local PaddleOCR engine** (CJK-native, no cloud or vision-model dependency), then reassembled into searchable text. A vision model becomes a fallback option only when OCR is unavailable.
+- **Scanned PDFs** — pages are rendered as PNG images and read by the **local RapidOCR engine** (CJK-native, no cloud or vision-model dependency), then reassembled into searchable text. A vision model becomes a fallback option only when OCR is unavailable.
+- **Mixed PDFs** — a document whose typed pages sit alongside scanned ones is judged **per page** rather than by a whole-document character count, so the scanned pages are OCR'd instead of being classed as "has text" and skipped. Pages the parser could not read are reported explicitly, so the knowledge base never implies coverage it does not have.
 - **Hybrid PDFs** — text is extracted normally while embedded charts and photos are also captured and filtered through the smart image ablation filter (removes UI noise, logos, decorative elements).
-- **Images** — local PaddleOCR engine supports Chinese, Japanese, Korean, and English with no cloud dependency. Results include confidence scores and bounding boxes.
+- **Images** — the local RapidOCR engine supports Chinese, Japanese, Korean, and English with no cloud dependency. Results include confidence scores and bounding boxes.
 - **Office files** — native parsers for DOCX, XLSX, PPTX without external dependencies like MarkItDown.
 
 All strategies run asynchronously and feed into the same compilation pipeline — no manual selection required.

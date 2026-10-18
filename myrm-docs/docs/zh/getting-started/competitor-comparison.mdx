@@ -11,6 +11,28 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-10-18 · PDF 逐页覆盖披露 + 扫描页可靠投递 · 彻底消除「正文 + 扫描混合文档被当成全文读完，扫描页静默消失」）
+
+- **PdfCoverageDisclosureSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode，场景是真实世界里最常见的混合合同——正文是排版好的印刷体，签字页是扫描件；以及同一份文档在辅助视觉模型下、在完全没有视觉能力时的表现）：** Myrm 如实报告"到底交付了什么"，而不是暗示"全文已读完"：
+  1. **逐页判断有没有文字层，而不是拿全文总字数比阈值**：
+     - 旧口径把「3 页正文 + 5 页扫描」的合同判成"有文本"，于是只交出印刷体那 3 页，而 `parsedPages` 依然等于 `pageCount`——没有任何一个字段说过第 4-8 页不见了。现在按**页体是否为空**逐页判定；
+  2. **三条缺口各有独立通道，互不替代**：
+     - `image_trace.truncated` = 内嵌图版被上限截断；`parsedPages < pageCount` = 投递窗口截断了文档；`pagesWithoutText` = 已交付窗口里某页没有文字层。把三者合成一个标记，会同时犯"重复报一个缺口"和"隐藏另外两个"两种错；
+  3. **「已按图片发送」从假设变成可验证**：
+     - 每张交付的图都带真实源页码（`PDFImageContent.page_number`，wire 上为 `pageNumber`）。前端把它与 `pagesWithoutText` 取交集，拆成**两条**提示——真正发出去了哪几页，被单次投递上限扣下了哪几页。第一版文案对根本没离开服务器的页也说"已按图片发送"，那是假话，已修；
+  4. **扫描页与普通图片走同一套三层路由**：
+     - 原生视觉直接看页图；无视觉但配了辅助视觉链则逐页转成文字并标注**真实源页码**；两者都没有则走 OCR 层（此前纯图片只得到一行元数据）。页码必须是源页号而不是交付批次里的序号——把第 4-8 页标成 1-5，模型会按错误页码回答；
+  5. **六家竞品逐条对照**：
+     - **Hermes**：会输出 `[NEEDS OCR: pages N … MISSING]` 前缀并按页密度判定（`tools/read_extract.py:178-186`，`PDF_EMPTY_PAGE_CHARS = 20`）——六家里最接近的对手，前缀放在正文之前这个设计我们认同并采用；但它**不区分**"已发送"与"被投递上限扣下"，批量 OCR 还要装 marker-pdf（~3-5GB PyTorch + ~2.5GB 模型）；
+     - **OpenClaw**：走原生 provider 解析 PDF（`src/agents/tools/pdf-native-providers.ts`），没有任何逐页覆盖报告到达用户；
+     - **Codex**：原生 PDF 输入至今仍是 open issue（`openai/codex#1797`），扫描页要手动渲成 PNG 再用 `--image` 传，没有覆盖概念；
+     - **DeepSeek-Harness**：整仓没有 PDF 抽取代码；
+     - **Pi（pi-mono）**：没有 PDF 链路；
+     - **OpenCode**：没有 PDF 链路；
+  6. **我们强在哪，也诚实说弱在哪**：我们**不**声称竞品读不了扫描件——Hermes 能读，Codex 把页渲成图之后也能看图。我们强在**对覆盖范围的诚实**：六家里只有我们把"作为图片交付"和"被投递上限扣下"分开，也只有我们用**同一个字段**同时告诉用户和模型"哪几页读不到"。弱项也明说：我们没有 Codex Read 工具那样的页范围参数（`pages="4-8"`），替代方案是 `parse_mode='structure'` 大纲加 `[Partial Read]` 提示——对 GUI 用户不必记页码更友好，但确实不是同一种人机工效；
+  7. **100% 全链路验证**：真实未打桩的 Chrome WebUI E2E——`test_pdf_attachment_stream_chrome_e2e.py::test_pdf_attachment_discloses_scanned_pages_live_chrome_e2e` **1 passed in 213.19s**，`outcome: PASSED`、`cleanup.sealed`；PDF 经真实 `<input type="file">` + `DataTransfer` 注入，真实前端调用 `/files/extract-pdf`，真实 `minimax/MiniMax-M3.1-Flash-Preview` 推理，对「3 页正文 + 2 页扫描」的实测回答是**「共 5 页，其中第 4、5 页没有可提取的文本层（为扫描图片页）」**。另有边界矩阵（纯扫描 → `[1,2,3]`；纯文本 → `[]`；1+1 → `[2]`）、harness 1235 例、server API 17 例、前端 269 例、6 语言 parity、0 lint、0 类型错误。
+- **单一事实来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/file_parsers/pdf/pdf.py`（`pages_with_text` / `pages_without_text`）· `.../pdf/pdf_content_extractor.py`（`PDFImageContent.page_number`、`pages_without_text`）· `.../agent/meta_tools/file_ops/utils/pdf_reader.py`（三层投递、`[PDF coverage]` 前缀、`[Partial Read]`、RAG 免责）· `.../file_ops/core/file_read_handlers.py` · `.../toolkits/file_parsers/ocr.py`（RapidOCR）· `myrm-agent/myrm-agent-server/app/api/files/pdf_extract.py` · `myrm-agent/myrm-agent-frontend/src/store/chat/multimodalBuilder.ts` · `myrm-agent-server/tests/e2e/test_pdf_attachment_stream_chrome_e2e.py` · `temp-docs/materials/FILE_SYSTEM_INTELLIGENCE_ADVANTAGE.md`
+
 ## 最新验证快照（2026-10-18 · 会话级界面状态隔离 + 澄清路由单一来源 · 彻底消除「后台会话清空当前页计划」「里程碑数字串到别的会话」与「审批卡续错回合」）
 
 - **PerSessionUiStateIsolationSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode；场景是用户开着会话 B 干活，后台会话 A 的终止事件改写了 B 的计划面板、上下文里程碑或审批卡，以及澄清卡「续传还是旧接口」被按「当前开着哪个会话」去推断）：** Myrm 让每块可见面板只归属于拥有它的会话：
