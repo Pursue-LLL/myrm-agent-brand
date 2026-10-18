@@ -11,6 +11,24 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-10-18 · 历史单一权威 + 冻结技能目录基线 · 彻底消除「每轮重喂整段历史、前缀缓存每轮作废」的隐性失血）
+
+- **SkillCatalogMidSessionDriftTailDeltaNoteSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 6 大竞品在长会话中最隐蔽的两个缓存杀手：每轮把整段对话重喂给模型，以及技能目录一变就重写首条消息）：** Myrm 把模型自己的线程立为对话的唯一权威，并冻结技能目录基线：
+
+  1. **每轮一个权威（闭源 Harness 框架内核）**：
+     - 每轮显式声明它与线程的关系——`continue`（LangGraph 线程**就是**历史，只发新消息，前缀逐字不变）、`replace`（清空线程，从存储记录重建对话）、`append`（IM/定时/唤醒调用方沿用、不受影响的缺省）。空线程的 `continue` 自动降为 `replace`；清不掉线程的 `replace` 直接让回合失败，绝不冒着历史翻倍的风险继续跑；
+     - 产品侧用**摘要令牌**证明线程仍镜像存储的对话（`chats.history_sync_token` = 压缩摘要 + 活跃分支压缩锚点之后有序消息 id 的 sha256）。回合开始比对命中才 `continue`；其余一切——读失败、从未记录、撤销、编辑重发、重新生成、兄弟切换、压缩、服务端追加通知——都判 `replace` 并在下一轮重建。令牌**只在本回合完整成功、未取消、无致命错误、未等待用户确认之后才写入**；
+
+  2. **冻结基线 + 尾部注记送达**：
+     - bound 技能目录（`<bound_skills hash hidden_count>`）只在首条用户消息写入一次，之后**永不原地改写**。目录中途漂移时，回合在新消息前**前置** `<bound_skills_update hash>` 注记——落在**缓存前缀之后**——携带**完整当前清单**（声明取代此前所有清单；清单变空时明示 `No skills available.`）。仅在差异真正变化时发送；已投递清单从线程自身消息读回（断线续流或每轮重建 agent 都成立）；压缩把区块抹掉后下一轮自动重投基线；
+
+  3. **直接竞品对比矩阵**：
+     - **Hermes**：同样实现了技能漂移的尾部注记（`agent/skills_index_delta.py`，双方都引自 `cloudflare/cloudflare-os#267`）——但它的注记是**差量累积器**，需要叠加理解才能还原全貌；Myrm 的注记是**自描述的完整清单**，只看最新一条即完整；
+     - **OpenClaw / Codex / Pi / DeepSeek-Harness / OpenCode**：没有「线程镜像存储对话」的权威判定，也没有「冻结基线 + 尾部全量增量」链路——常见做法是每轮重建上下文或重喂历史，前缀不稳定，中途技能变化在压缩前一直不可见；
+
+  4. **真实代码端到端验证（零 mock）**：harness `turn_history` 与 `session_continuity` 行覆盖率均 **100%**（`skill_catalog_delivery` 99%、`skill_catalog_turn` 98%）；server `history_sync`、`turn_history_sync`、`chat_history_sync_repo` 均 **100%**；**83 项 harness + 87 项 server 测试通过**；真实 WebUI 的 Chrome E2E（同会话两轮 + 回退）对接真实 MiniMax-M3.1-Flash-Preview **连续 2 次通过**。
+- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/_internals/turn_history.py` · `.../agent/skills/runtime/skill_catalog_delivery.py` · `.../agent/_internals/skill_catalog_turn.py` · `.../runtime/context/session/session_continuity.py` · `myrm-agent/myrm-agent-server/app/services/chat/history_sync.py` · `.../app/services/agent/stream_session/turn_history_sync.py` · `temp-docs/materials/PROMPT_CACHE_ADVANTAGE.md`
+
 ## 最新验证快照（2026-10-18 · 检索降级不再吞掉「停止」 · 彻底消除「按了停止却还在跑」、工具超时失效与后台句柄泄漏）
 
 - **StopStaysStoppedRetrievalCancellationSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 6 大竞品在长耗时工具调用中的共性隐患：用户按下停止后，底层工具把这次「取消」当成一次普通失败转换成「降级成功」结果，回合因此继续跑下去，工具级超时同时失去上限，被取消的工作还继续占着数据库/向量句柄）：** Myrm 把 UI 的停止按钮与框架唯一的取消判定规则真正接通：
