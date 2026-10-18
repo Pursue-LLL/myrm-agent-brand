@@ -11,6 +11,44 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-10-18 · 会话级界面状态隔离 + 澄清路由单一来源 · 彻底消除「后台会话清空当前页计划」「里程碑数字串到别的会话」与「审批卡续错回合」）
+
+- **PerSessionUiStateIsolationSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode；场景是用户开着会话 B 干活，后台会话 A 的终止事件改写了 B 的计划面板、上下文里程碑或审批卡，以及澄清卡「续传还是旧接口」被按「当前开着哪个会话」去推断）：** Myrm 让每块可见面板只归属于拥有它的会话：
+  1. **单槽面板的归属门控**：
+     - 计划面板、上下文压缩里程碑、子代理/裂变条、审批与澄清面，全部在「这条流属于当前会话」时才写入（`isStreamForOpenChat`），并且判定放在**异步加载之后**——加载期间用户切了会话，这次写入会被丢弃，而不是落到新会话上；
+  2. **用事件自带的归属，而不是环境状态**：
+     - 审批卡带上**发起它的那条流**的 `chatId` 与 `actionMode`（发送时快照）；澄清卡走「续传还是旧接口」**只由事件自己的 `source` 决定**——这正是服务端持久化时用的同一规则，绝不读「屏幕上那个会话的执行模式」；
+  3. **不会把阻塞式请求变成死等**：
+     - 阻塞式授权与浏览器接管对后台轮次**同样开放可答**；未应答的中断由服务端重开、待处理审批由客户端全局补齐，所以并行会话不会有哪一轮永远等下去。诚实说明取舍：这类面板是单槽，同时到达的两个请求是**依次弹出**而不是并排，但**一个都不会丢**；
+  4. **与竞品的直接对照矩阵**：
+     - **Hermes**：子代理进度按会话分桶存放（`apps/desktop/src/store/subagents.ts:54`），切会话天然隔离——我们遵循同一原则，但它只覆盖子代理这一层；
+     - **OpenClaw**：待处理审批按 id 存在注册表（`src/shared/*approval-registry*`），不读环境中的当前会话模式；
+     - **Codex**：确认发生在编辑器内单次 run，本身没有多会话面板状态，因此也没有这类串台问题（同样也没有跨会话面板隔离能力可提供）；
+     - **DeepSeek-Harness**：审批 UI 按 `approval.callId` 归属（`packages/client/ui-approval/src/client/ApprovalPanel.tsx`），但它不提供计划/里程碑这类面板，该类缺陷不在它的作用域；
+     - **Pi (pi-mono)**：面向单会话轻量形态，没有多窗格面板归属模型；
+     - **OpenCode**：聚焦当前代码 diff，没有跨任务的面板状态；
+  5. **我们强在哪、不强在哪（诚实版）**：**不宣称竞品没有会话隔离**——Hermes、OpenClaw、DeepSeek-Harness 都做了。我们强在**覆盖面与单一来源**：一套共享归属判定覆盖计划、审批、澄清、压缩四类可见面板，且澄清的续传规则**只有一份定义**，实时链路与数据库 hydrate 共用，前后端不可能各说各话；
+  6. **100% 全栈验证**：真实未 Mock 的 Chrome WebUI E2E——`test_clarify_skip_chrome_e2e.py::test_clarify_skip_button_resumes_agent_in_real_chat` **1 passed in 372.02s**、`test_goal_focus_chrome_e2e.py` **1 passed in 171.80s**、`test_reasoning_anchor_and_compaction_chrome_e2e.py` **1 passed in 26.29s**、`test_browser_takeover_chrome_e2e.py::test_extension_takeover_banner_shows_actions_and_dismisses_on_done` **1 passed in 27.25s**——四条均 `outcome: PASSED` 且 `cleanup.sealed`；全程真实 `minimax/MiniMax-M3.1-Flash-Preview` 推理，断言一直落到「消息真实落库」（`chat_user_message_count >= 1`）；18 例聚焦单测全绿；0 lint 错误、0 类型错误。
+- **SSOT 来源：** `myrm-agent/myrm-agent-frontend/src/store/chat/messageStream/handlers/handlerDeps.ts` · `.../handlers/completionEvents.ts` · `.../handlers/agentControlEvents.ts` · `.../handlers/toolsProgressEvents.ts` · `.../handlers/statusStreamProgressSteps.ts` · `.../messageStream/streamHelpers.ts` · `myrm-agent-server/tests/e2e/test_clarify_skip_chrome_e2e.py` · `temp-docs/materials/HITL_APPROVAL_CONCURRENCY_ADVANTAGE.md`
+
+## 最新验证快照（2026-10-18 · 大文件与复杂图形预览秒开 · 彻底消除复杂 SVG 打开卡死数秒与连续查看劣化）
+
+- **SvgPreviewThresholdRasterizationSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 6 大竞品在大文件 SVG / 复杂图形预览中的共性隐患：同步清洗 + 数万 DOM 节点内联导致主线程阻塞 0.8-7 秒、连续打开多个大文件劣化卡死，以及同类产品因 SVG 内联注入引发的 XSS 安全事件）：** Myrm 交付了按体积智能分流的 SVG 预览引擎：
+
+  1. **阈值分流：大文件自动切换浏览器原生光栅化（开源 Frontend 产品层）**：
+     - 常规体积保留清洗后的内联渲染（可交互、随主题自适应）；
+     - 达到阈值（1MB）的大文件自动改走浏览器原生图片光栅化通道，跳过同步清洗与海量 DOM 构建；对象 URL 随内容变化与卸载自动回收，加载失败降级为明确提示；
+  2. **安全路径对齐业界最强实践**：
+     - 大文件经图片上下文加载，浏览器规范层强制禁用 SVG 脚本与外部资源——与业界头部产品在安全事件后的修复方向一致，我们直接以更安全路径为默认；
+  3. **直接竞品对比矩阵**：
+     - **Hermes**：工件预览为内联渲染且无大小保护，大文件同样阻塞主线程；
+     - **Codex**：TUI 采用后台栅格化 + 256KiB 源码上限；桌面版曾因大内容内联导致会话膨胀与 UI 冻结（官方 issue #34863 / #21232）——栅格化方向一致，我们以浏览器原生能力实现，且 1MB 内保留交互渲染；
+     - **Pi**：曾因 SVG 内联注入曝 XSS（issue #3552）后迁移图片加载——安全方向一致，我们同时兼顾性能分流；
+     - **OpenClaw**：大文本按块渲染，SVG 无专门性能路径；
+     - **DeepSeek-Harness / OpenCode**：无 Web 工件预览场景，无对比；
+  4. **真实全栈验证（零 mock）**：单元 7/7（阈值分流 / 边界 / 对象 URL 回收 / 失败降级 / 脚本清洗）；真实 Chrome 注入 E2E 验证两条渲染路径与脚本零执行；真实链路 E2E（工作区 6 文件，小 SVG 内联 + 超限截断诚实降级）；真实模型（MiniMax-M3.1-Flash-Preview）全流程 E2E：模型真实写入 SVG → 工作区浏览器预览渲染成功（131.75s 通过）；3.4MB 图形打开耗时从 0.8-7.2 秒降至 0.25-0.3 秒（Chrome 实测，快 2.8-24 倍）。
+- **SSOT 来源：** `myrm-agent/myrm-agent-frontend/src/components/features/artifacts/renderers/MediaPreview.tsx` · `myrm-agent/myrm-agent-server/tests/e2e/test_workspace_rich_media_preview_chrome_e2e.py` · `.../test_agent_svg_artifact_preview_chrome_e2e.py` · `temp-docs/materials/UI_STREAMING_RENDER_RELIABILITY_ADVANTAGE.md`
+
 ## 最新验证快照（2026-10-18 · 历史单一权威 + 冻结技能目录基线 · 彻底消除「每轮重喂整段历史、前缀缓存每轮作废」的隐性失血）
 
 - **SkillCatalogMidSessionDriftTailDeltaNoteSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 6 大竞品在长会话中最隐蔽的两个缓存杀手：每轮把整段对话重喂给模型，以及技能目录一变就重写首条消息）：** Myrm 把模型自己的线程立为对话的唯一权威，并冻结技能目录基线：
