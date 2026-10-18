@@ -131,6 +131,7 @@ export const COMPARE_ROW_KEYS = [
   'toolOutputIntelligence',
   'pixelDiff',
   'toolSecurity',
+  'approvalNoteToModel',
   'credentialVault',
   'visionFusion',
   'codeGraph',
@@ -210,7 +211,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'agentPluginMemory',
     'memoryEvolutionAudit',
   ],
-  security: ['sandbox', 'securityLayers', 'toolSecurity', 'skillPermissionGate', 'credentialVault', 'fileEditSafety', 'privacySafeShare', 'shareLink', 'cascadeDeletion', 'toolIntegration', 'toolProfileSsot', 'unifiedToolGateway'],
+  security: ['sandbox', 'securityLayers', 'toolSecurity', 'approvalNoteToModel', 'skillPermissionGate', 'credentialVault', 'fileEditSafety', 'privacySafeShare', 'shareLink', 'cascadeDeletion', 'toolIntegration', 'toolProfileSsot', 'unifiedToolGateway'],
   automation: [
     'subAgent',
     'kanbanUI',
