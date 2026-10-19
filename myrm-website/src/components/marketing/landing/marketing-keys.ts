@@ -71,6 +71,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'factCheckArbitration',
   'xLiveSearch',
   'functionHooks',
+  'truthfulVerification',
 ] as const;
 
 export type HighlightSlideKey = (typeof HIGHLIGHT_SLIDE_KEYS)[number];
