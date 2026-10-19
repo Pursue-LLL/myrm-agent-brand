@@ -11,6 +11,23 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-10-19 · 执行断言必须对上真实执行轨迹 + 每轮交付证据披露 · 彻底消除「测试全过了 / 已经发出去了」却毫无凭据的自信汇报，以及未落盘交付物的静默丢失）
+
+- **执行断言接地与交付证据披露套件（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 在「Agent 的完成声明是否可信」这一形态：模型说自己跑了测试、发了消息、改了代码，用户却无从判断）：** 竞品普遍把「完成」交给模型自律——有的只被动记账，有的完全没有机制。Myrm 在收尾时把承重断言与**本轮真实工具记录**对齐：
+  1. **三类承重断言必须取证（`myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/execution_claim_verifier.py`）**：① 验证结论（「所有测试全部通过」）——只认真实测试运行器**且真跑**：只收集用例（collect-only）、零用例输出、用 `PATH=` 改写指向的 runner、只读 MCP 调用一律不构成证据；② 外发/不可逆动作（「已发送」「已发布」「已部署」「已提交」）——只认发送语义的 MCP 调用、外发命令或外发工具名，只读调用（history/list/get）与写文件都不算；③ 代码修改（「已修复」「已实现」）——必须真有成功写操作。对不上就拦下，只给两条出路：**现在去取证**，或**如实改写**（说清做了什么、没做什么）。引用文档、条件句、否定句、讲解句、跨轮追问都不会误伤。
+  2. **每条回答自带证据档，用户一眼知深浅（`deliverable_confidence_tier.py` → 服务端 `stream_collector.py` → `deliverableTier` → WebUI 徽章）**：**已验证**（真跑过测试/lint/构建或通过复核）、**有工件**（真写了文件）、**有来源**（真检索到来源）、**计划**（暂时没有可验证产出）——「计划」档只在回答自称完成时出现，纯聊天不打扰；悬浮徽章即可看到物理证据（验证类别、写入的文件路径、来源条数）。
+  3. **未落盘的交付物会被披露，而不是悄悄消失**：模型把代码贴在正文却忘了写盘时，框架自动把草案安全暂存到 `.myrm/staged_artifacts/`，回答末尾给出「草案已暂存」横幅并列出文件名——「贴了代码忘了保存」不再是死胡同。
+  4. **证据扛得住审批与并发**：一轮任务被 HITL 审批拆成多段时，证据台账按回合累积（幂等去重），不会因为恢复而丢失；护栏的拦截预算按**轮次消息 id** 分桶，同一进程内的多会话、后台续跑与定时任务互不干扰、互不误放。
+  5. **真实模型 + 真实浏览器签收**：4 条真实 Chrome 用例——① 让模型创建文件 → 披露「有工件」档并渲染徽章；② 让模型**创建并执行脚本** → 运行输出出现在回答里；③ 纯闲聊 → 完全无徽章（不打扰）；④ 把消息卡压到 355px → 徽章与横幅均不越界——再加 seeded UI 契约车道，全部 `SUCCEEDED` 且 `cleanup.sealed=true`；另有 harness 单元/覆盖 359 项、静态契约 277 项、代码执行工具链回归 2,265 项全绿。
+  6. **六家竞品横向对照**：
+     - **Hermes Agent**：Evidence Ledger 只被动记录「Agent 自己跑过什么」，不拦「没跑就宣布完成」；用户读到最终答复前，没有任何环节把答复与记录对齐；
+     - **OpenClaw**：网关与定时任务为中心，完成可信度靠提示词约定与人工审查，没有面向每条回答、用户可见的证据档；
+     - **Codex**：会记录已执行工具调用用于审批与审计，但最终答复写什么完全自由，既无「断言对轨迹」的接地，也没有界面上的证据等级；
+     - **DeepSeek-Harness**：偏评测导向的 harness，工程笔记集中在 PTY/ACL/适配器，未见「汇报与实际执行对齐」的机制；
+     - **Pi（oh-my-pi）**：提示词与子代理工程很重，验证停留在提示词层面，模型可绕过，用户也分不清「这条回答有测试兜底」还是「只是个计划」；
+     - **OpenCode**：插件/技能生态灵活、终端优先，但可扩展性解决不了「完成可信」这一根本问题，未落盘的交付物在对话里直接丢失；
+  7. **SSOT 代码位置：** `temp-docs/materials/AGENT_VERIFICATION_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/execution_claim_verifier.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/completion_guard_state.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_confidence_tier.py` · `myrm-agent/myrm-agent-server/app/services/agent/streaming_support/stream_collector.py` · `myrm-agent/myrm-agent-server/tests/e2e/test_deliverable_disclosure_live_chrome_e2e.py`
+
 ## 最新验证快照（2026-10-18 · 搜索就绪判定前置到发消息之前 + 探测自有墙钟上限 · 彻底消除「半死的自托管搜索服务让首条消息静默卡住一分钟」）
 
 - **搜索就绪预检套件（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 在「搜索已配置但不可用」这一形态：密钥填错、凭据过期，或自托管 SearXNG 接受连接却永不回包）：** 竞品一律「用时再调、失败才报错」——用户必须先发出任务，才会在对话里撞上失败。Myrm 在发消息之前就先给出答案：每一条已配置的凭据都真实探测，整条优先级链作为一个整体探测（首跳坏、备跳能答时仍然放行，不会因为链首失效就否掉每一条消息），判定结果缓存 60 秒并供全部入口共用（Web、IM 渠道、语音、定时任务、看板、目标、评测、Wiki）。

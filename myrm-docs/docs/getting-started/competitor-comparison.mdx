@@ -11,6 +11,23 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Benchmark Snapshot (2026-10-19 · Grounded Completion Claims & Per-Turn Evidence Disclosure · Eliminating Confident "Tests Passed / Already Sent" Reports With Nothing Behind Them, and the Silent Loss of Unpersisted Deliverables)
+
+- **ExecutionClaimGroundingAndEvidenceDisclosure (Benchmarking Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi / OpenCode against trusting an agent's own completion claims):**
+  1. **Load-bearing claims must match this run's real tool record (`myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/execution_claim_verifier.py`)**: three claim families are grounded — verification results ("all tests pass"), outbound/irreversible actions ("sent", "published", "deployed") and code changes ("fixed", "implemented"). Test claims accept only a real test runner that actually executed: collect-only runs, zero-collected output, `PATH=`-rewritten runners and read-only MCP calls never count as evidence; outbound claims need a sending MCP call, an outbound command or an outbound tool name — a successful read (history/list/get) or a plain file write does not. When a claim cannot be grounded, the turn is blocked with two acceptable fixes: do it now, or state exactly what was and was not done. Quoted documentation, conditional, negated, explanatory and follow-up sentences are excluded, so honest answers are never touched.
+  2. **The user can see what a delivery is backed by (`agent/middlewares/completion/deliverable_confidence_tier.py` → server `stream_collector.py` → `deliverableTier` → WebUI badge)**: every answer carries an evidence tier — VERIFIED (real tests/lint/build or a passed review), ARTIFACT (files really written), RESEARCH (real sources), PLAN (nothing verifiable yet, shown **only** when the answer itself claims work, so small talk stays clean). Hovering the badge exposes the physical evidence (verification categories, written file paths, source counts).
+  3. **Unpersisted deliverables are disclosed instead of lost**: when a code-writing turn never writes its code block to disk, the harness stages the draft under `.myrm/staged_artifacts/` and the answer ends with a notice listing the preserved drafts — so "the model pasted code and forgot to save it" no longer ends in a silent dead end.
+  4. **Evidence survives approvals and concurrency**: a turn that is split across HITL approvals keeps one per-turn evidence ledger (idempotent, de-duplicated), and the guard's rejection budget is keyed by the turn's message id, so parallel chats, background reruns and cron turns can neither exhaust nor reset each other.
+  5. **Signed off in a real browser against a real model**: four live Chrome cases (create a file → disclosed `ARTIFACT` tier + badge; create **and run** a script → its stdout appears in the answer; small talk → no badge at all; the disclosure surfaces fit a 355px message card) plus the seeded UI contract lane — every session `SUCCEEDED` with `cleanup.sealed=true`, alongside 359 harness unit/coverage tests, 277 static-contract tests and the 2,265-test code-execution regression.
+  6. **Comprehensive Six-Competitor Analysis**:
+     - **Hermes Agent**: records an Evidence Ledger of the commands the agent itself ran (passive bookkeeping); an agent can still announce completion without running anything, because nothing compares the final answer against the record before the user reads it;
+     - **OpenClaw**: gateway- and cron-centric automation with plugin hooks; completion truthfulness is delegated to prompts and human review, and there is no per-answer, user-visible evidence tier;
+     - **Codex**: tracks executed tool calls for approvals and audit, but the final report is free to claim whatever the model writes; there is no claim-to-trace grounding and no evidence badge in the UI;
+     - **DeepSeek-Harness**: a benchmark-oriented harness whose notes cover PTY/ACL/adapter work; no mechanism aligns the assistant's finishing statement with the execution trace;
+     - **Pi (oh-my-pi)**: heavy prompt- and sub-agent engineering; verification stays prompt-level, which a model can bypass — and the user cannot tell "this answer is backed by tests" from "this answer is a plan";
+     - **OpenCode**: flexible plugin/skill ecosystem with a terminal-first UX; extensibility does not solve completion trust, and unpersisted deliverables are simply lost to the conversation;
+  7. **SSOT Sources:** `temp-docs/materials/AGENT_VERIFICATION_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/execution_claim_verifier.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/completion_guard_state.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_confidence_tier.py` · `myrm-agent/myrm-agent-server/app/services/agent/streaming_support/stream_collector.py` · `myrm-agent/myrm-agent-server/tests/e2e/test_deliverable_disclosure_live_chrome_e2e.py`
+
 ## Latest Benchmark Snapshot (2026-10-19 · Truthful @-Mention Context & Directory-Scoped Test Doubles · Eliminating Silent "File Too Large" Misreports, Order-Dependent Ghost Failures and Whole-Session Config Hijacks)
 
 - **TruthfulUnreadableInputDisclosureAndScopedVerification (Benchmarking Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi / OpenCode against honest unreadable-input reporting and self-verifying test infrastructure):**
@@ -26,6 +43,76 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
      - **Pi (oh-my-pi)**: advisor-style dual-model design with a lighter verification surface — headless mocks cannot distinguish "parsed to nothing" from "too large", which is exactly the misreport Myrm now refuses to produce;
      - **OpenCode**: a well-engineered terminal-first coding agent with real but desktop-attached browser tooling and a file-centric config; its verification is unit-test centric, so a whole-session config hijack by a leaked test double would not be detected;
   6. **SSOT Sources:** `temp-docs/materials/ENTERPRISE_RELIABILITY_AND_TESTING_ADVANTAGE.md` · `myrm-agent/myrm-agent-server/app/services/agent/params/mention.py` · `myrm-agent/myrm-agent-server/tests/api/agent/conftest.py` · `myrm-agent/myrm-agent-server/tests/e2e/test_tool_error_category_locale_payload_chrome_e2e.py` · `myrm-agent/myrm-agent-server/tests/e2e/test_pdf_attachment_stream_chrome_e2e.py`
+
+## Latest Benchmark Snapshot (2026-10-19 · Chief-of-Staff Front Door & True-Sandbox Fleet Isolation · Eliminating Babysitting Multi-Chat Chaos, Unplanned Multi-Agent Clashes and Same-Host Security Illusions)
+
+- **ChiefOfStaffFleetOrchestrationSuite (Benchmarking SpaceXAI / Grok Bot 5-Pillar Teams, OpenClaw, Codex, DeepSeek-Harness, Pi, and OpenCode against single-front-door routing, board-driven state machines, and hardware credential isolation):**
+  1. **Chief-of-Staff Front Door vs Chat Babysitting**:
+     - Replacing the fatigue of opening a new chat window for every task: users communicate with a single Chief of Staff that plans, delegates, and consolidates outcomes without writing business code itself, remaining silent during smooth task progression;
+  2. **Board-Centric State Machine (Work Lives on a Board, Not in a Chat)**:
+     - Eliminating multi-agent collisions where bots without shared state clash or overwrite files: tasks advance across a 31-component Kanban pipeline (`Todo → Working → Blocked → Ready for Review → Done`), exchanging dependencies via cards and resolving blocks autonomously;
+  3. **True-Sandbox Fleet Isolation vs Same-Computer Security Illusion**:
+     - Eliminating the vulnerability acknowledged by Grok Bot (where all bots share one cloud computer and access each other's logins/credentials): Myrm enforces physical `Agent-in-Sandbox` isolation where each specialist agent runs in a dedicated ephemeral sandbox with its own scoped memory and hardware vault credentials;
+  4. **5 a.m. Autonomous Standup & Unattended Draft Staging**:
+     - At dawn, agents convene an autonomous standup to realign dependencies and review nightly code audits. Tasks encountering human approvals during overnight runs gracefully stage as pending drafts instead of expiring after 10-minute timeouts;
+  5. **Dual-Role Memory Leak Detection & Automated Agent Fission**:
+     - Proactively detects when a single agent's memory spans conflicting domains (e.g. code review vs marketing copy) and offers a one-click recommendation to fisson into specialized domain agents with clean isolated personas;
+  6. **Direct Competitor Comparison Matrix**:
+     - **Grok Bot (SpaceXAI Architecture)**: Groundbreaking 5-pillar operational philosophy, but acknowledges that all bots share the same cloud machine without credential boundaries; lacks native physical sandbox isolation;
+     - **OpenClaw / Codex / Pi**: Operate primarily as single-agent or terminal-centric sessions without autonomous standup routines or board-driven multi-agent state machines.
+  7. **SSOT Sources:** `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md` (#360) · `temp-docs/materials/MULTI_AGENT_TEAM_COLLABORATION_ADVANTAGE.md` · `myrm-agent-server/app/api/kanban/`
+
+## Latest Benchmark Snapshot (2026-10-19 · Framework Triage Routing & Deprecated Syntax AST Scanners · Eliminating Stale Skill Code Pollution, License Incompatibilities and Blind-Box Project Cold Starts)
+
+- **FrameworkTriageRouterSuite (Benchmarking WordPress 18 Agent Skills, OpenClaw, Codex, DeepSeek-Harness, Pi, and OpenCode against vertical framework cold-starts, deprecated syntax generation, and license compatibility checks):**
+  1. **Framework Project Triage & Router**:
+     - Cold-starts on complex vertical ecosystems (WordPress, microservice monorepos) usually force LLMs to guess tooling and versions. Myrm runs a read-only triage probe upfront, profiling project kind, engine version, build tools, and existing test suites (PHPUnit, Playwright, Jest) before routing directly to specialized domain skills;
+  2. **Deprecation AST Scanner & Skill EOL Governance**:
+     - Resolving the stale skill problem where outdated community skills quietly instruct models to write obsolete code (e.g. legacy PHP templates instead of block themes, deprecated React 18 hooks): Myrm static-scans generated code against official deprecated API registries and automatically assigns a `Deprecated` badge to skills falling outside version compatibility matrices;
+  3. **Pre-Submission Open-Source License & Guidelines Gate**:
+     - Automated inspection of bundled third-party libraries across open-source license compatibility matrices (MIT, Apache 2.0, BSD, GPL, AGPL), flagging viral license conflicts and commercial policy violations before delivery;
+  4. **Declarative Blueprint Micro-Verification**:
+     - Adopts declarative Blueprint orchestration to launch disposable in-memory/Wasm sandboxes, executing end-to-end smoke verification in milliseconds without heavyweight external database or server setup;
+  5. **Domain Capability vs Projection Decoupling**:
+     - Core capabilities are defined once in the domain layer, while WebUI, Tauri desktop, and MCP server outputs act as thin adapter projections, ensuring 100% protocol-agnostic consistency;
+  6. **Direct Competitor Comparison Matrix**:
+     - **WordPress Official (agent-skills)**: Exemplary 18-skill domain ecosystem for PHP/WordPress, but strictly limited to WordPress development;
+     - **OpenClaw / Codex / Pi / OpenCode**: Lack vertical ecosystem triage probes and deprecated API static scanners, leaving agents susceptible to writing obsolete code.
+  7. **SSOT Sources:** `temp-docs/roadmap/topic_20_coding_agent_and_software_engineering_roadmap.md` (#61) · `temp-docs/materials/CODE_INTELLIGENCE_ADVANTAGE.md` · `external_reference_project/claw/wordpress-agent-skills/skills/wordpress-router/SKILL.md`
+
+## Latest Benchmark Snapshot (2026-10-19 · Compliance-Guarded Subscription Bridges & Multi-Account Quota Pools · Eliminating Ban Fears, Sudden Rate-Limit Halts and Headless OAuth Deadlocks)
+
+- **SubscriptionBridgeSecuritySuite (Benchmarking Hermes Antigravity OAuth, OpenClaw, Codex, DeepSeek-Harness, Pi, and OpenCode against personal subscription reuse, account-ban defense, and quota failover):**
+  1. **Ban-Defense Pacing & Jitter Smoothing**:
+     - Third-party agent scripts often trigger anti-bot bans by sending bursts of high-concurrency requests through user subscription tokens. Myrm injects humanized pacing and random millisecond jitter, smoothing traffic patterns to match native IDE behavior and isolating CLI subprocesses in unprivileged ephemeral sandboxes;
+  2. **Multi-Account Quota Pools & Two-Tier Instant Failover**:
+     - Resolving the sudden task abortion when a single account's 7-day rolling window is depleted: Myrm pools 2–3 subscription accounts with weighted load balancing. When the entire pool hits 429 rate limits, it microsecond-fails-over to user-configured commercial API keys (or local open-weight DeepSeek models), ensuring zero-interruption execution;
+  3. **Headless PTY OAuth Relay**:
+     - Solving the silent hang on remote Linux/SSH servers and cloud control-plane sandboxes where official CLIs wait indefinitely for standard input: Myrm relays browser-approved auth codes via a non-blocking pseudo-terminal (PTY) file pipe, enabling zero-friction remote cloud logins;
+  4. **Tool Adaptation Gateway & SOUL Fidelity**:
+     - Model calls to proprietary CLI tools (e.g. `run_command`, `view_file`) are transparently remapped into Myrm's internal secure toolsets, subject to four-tier physical approval gates and sandbox confinement;
+  5. **Direct Competitor Comparison Matrix**:
+     - **Hermes (hermes-antigravity-oauth)**: Connects Antigravity CLI via OAuth, but lacks multi-account quota rotation, ban-defense jitter pacing, and automated failover to commercial API keys;
+     - **OpenClaw / Codex**: No native subscription-pooling bridge; users must supply pay-per-token API keys or run separate CLIs;
+     - **DeepSeek-Harness / Pi / OpenCode**: Pure single-key providers without multi-account subscription load balancing.
+  6. **SSOT Sources:** `temp-docs/roadmap/topic_07_model_routing_roadmap.md` (#292) · `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md` · `external_reference_project/harness/hermes-antigravity-oauth/client.py`
+
+## Latest Benchmark Snapshot (2026-10-19 · Careful Execution Discipline & Three-Fixes Circuit Breakers · Eliminating Runaway Guessing Loops, Parallel Workspace File Collisions and Memory Scope Creep)
+
+- **CarefulExecutionDisciplineSuite (Benchmarking Oh-My-Hermes 3.0.2, OpenClaw, Codex, DeepSeek-Harness, Pi, and OpenCode against automated debugging runaway loops, multi-agent file overwrite collisions, and memory command poisoning):**
+  1. **Three-Fixes Failure Circuit Breaker**:
+     - When an agent encounters the same compilation or test failure, traditional agents repeatedly attempt 8–10 blind edits, mutating irrelevant files and burning thousands of tokens. Myrm enforces a hard circuit breaker: 3 consecutive failed fixes triggers an instant atomic snapshot rollback, pausing execution and presenting an architectural assumption critique to the user;
+  2. **Tool-Level Physical File FenceGuard**:
+     - Beyond fragile verbal prompt rules ("do not modify module B"), Myrm mounts physical write barriers directly on file tools (`write_file`, `edit_file`, `shell`). Touching protected paths throws immediate `PermissionDenied` errors, eliminating write collisions across concurrent subagents;
+  3. **Autonomous In-Scope Decisions & Capped Review Rounds**:
+     - Replaces both reckless unilateral mutations and paralyzing confirmation dialog floods. In-scope minor decisions are taken autonomously and logged to a tamper-proof decision ledger, while review rounds are strictly bounded to prevent endless back-and-forth prompts;
+  4. **SSOT Service Contract Gate & Canonical Memory Neutralizer**:
+     - Enforces a single authoritative contract (OpenAPI / Schema / Proto) per service boundary, failing builds instantly on contract drift; purges imperative "you must..." commands from memory and anchors single-use approvals to prevent cross-model semantic drift when switching models;
+  5. **Direct Competitor Comparison Matrix**:
+     - **Oh-My-Hermes (v3.0.2)**: Introduced the three-fix rule and SkillEx guidelines, but relies primarily on terminal prompts and local sandboxes; lacks cloud control-plane multi-sandbox orchestration;
+     - **OpenClaw**: Multi-agent file coordination depends on prompt conventions, leaving files vulnerable to write collisions under long contexts;
+     - **Codex / DeepSeek-Harness / Pi / OpenCode**: No circuit-breaker mechanisms for repeated debugging failures; no imperative memory sanitization.
+  6. **SSOT Sources:** `temp-docs/roadmap/topic_18_loop_engineering_goal_autonomous_scheduling_and_runtime_verification_roadmap.md` (#170) · `temp-docs/materials/CODE_REVIEW_DISCIPLINE_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/runtime/turn_loop.py`
 
 ## Latest Benchmark Snapshot (2026-10-19 · Verifiable Full-State Cloud Backups & Automated Recovery Drills · Eliminating Fragile State-Only Backups, Blind-Box Recovery and Destructive Upgrade Downtime)
 

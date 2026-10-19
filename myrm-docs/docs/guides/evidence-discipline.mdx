@@ -61,6 +61,17 @@ You can also:
 
 The skill's behavioral contract is guarded by **33 architecture contract tests** that assert every clause is present and the frontmatter version stays valid, so the skill can't silently drift or degrade. The full pipeline (sync → binding → visibility) is covered by integration tests without mocks.
 
+## Mechanism-level enforcement (harness gates)
+
+Prompt-level discipline depends on the model choosing to comply. The same contract is therefore enforced in the harness, where the model cannot argue its way past it:
+
+- **Completion claims are grounded in this run's tool record.** When an answer claims a verification result, an outbound action or a code change, the harness compares that claim with the turn's real tool calls before the answer reaches you. Test claims accept only a real test runner that actually executed — a collection-only run, a zero-collected result, a `PATH=`-rewritten runner or a read-only MCP call is not evidence; outbound claims need a sending action, so a read or a plain file write does not count. A claim that cannot be grounded is blocked with exactly two acceptable fixes: produce the evidence now, or state clearly what was and was not done.
+- **Every answer carries an evidence tier you can see.** Answers are labeled **Verified** (real tests/lint/build or a passed review), **Artifact** (files really written), **Research** (real sources) or **Plan** (nothing verifiable yet — shown only when the answer itself claims work, so small talk stays clean). Opening the badge shows the physical evidence behind it: verification categories, written file paths, source counts.
+- **Unpersisted deliverables are preserved and disclosed.** If a code-writing turn never writes its draft to disk, the harness stages it under `.myrm/staged_artifacts/` and the answer ends with a notice listing the preserved files, instead of the draft silently disappearing into the conversation.
+- **Evidence survives approvals, and turns cannot interfere with each other.** A turn split across HITL approvals keeps one evidence ledger, and every turn carries its own rejection budget, so parallel chats, background reruns and scheduled jobs neither exhaust nor reset one another.
+
+These gates, the disclosure and the staging are covered by unit and contract tests plus real-browser, real-model acceptance runs; see [Competitor Comparison](/docs/getting-started/competitor-comparison) for the six-competitor snapshot.
+
 ## Related
 
 - [Skill Discovery & Registry Mirror](/docs/guides/skill-discovery) — install and manage prebuilt skills
