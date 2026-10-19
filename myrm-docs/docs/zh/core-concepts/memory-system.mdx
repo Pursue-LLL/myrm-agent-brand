@@ -983,3 +983,18 @@ Myrm 在底层 Harness 认知引擎与 WebUI 侧边抽屉（`MemoryDetailSheet`�
 - 用户可在记忆卡片或抽屉中一键置顶锁定关键偏好（`is_user_locked=True`）；
 - 锁定后，底层合并与演化引擎对其施加**确定性旁路（Bypass）保护**，彻底切断大模型反思误修改与恶意提示词注入（Prompt Injection）毒化；
 - 全链路通过真实 Chrome E2E 自动化端到端测试（`test_memory_evolution_chrome_e2e.py` PASS），兼顾审计透明度与零数据篡改风险。
+## 零配置可用：稠密 + BM25 双驱与优雅降级
+
+很多产品把「语义记忆」绑死在 embedding 服务上：没有 Key、额度用尽或离线部署时，记忆写入会失败或静默丢失。Myrm 默认是**双驱**的：
+
+| 场景 | 写入 | 检索 | 你会看到什么 |
+| :--- | :--- | :--- | :--- |
+| 已配置 embedding | 稠密向量 + BM25 稀疏镜像 | 向量 + BM25 + 图谱 | 完整语义召回 |
+| 未配置 / 暂不可用 | BM25 稀疏镜像单写（写入不失败） | BM25 关键词 fan-out（含 CJK） | 记忆列表照常可见；聊天页明确提示「关键词模式」 |
+
+之后配置好 embedding，迁移任务会把镜像中的记忆重建为向量，无需重新录入。
+
+:::tip 验证范围
+- 无 embedding 的降级链路由 `test_sparse_only_degradation.py`（15 项）与 server 记忆面 1,025 项单测覆盖；
+- 真实 Chrome E2E 覆盖跨会话关键词召回、隐式纠正审批与 A/B 真实运行。
+:::
