@@ -179,6 +179,7 @@ export const COMPARE_ROW_KEYS = [
   'stopTransparency',
   'memoryEvolutionAudit',
   'parallelSessionIsolation',
+  'groundedClaims',
 ] as const;
 
 export type CompareRowKey = (typeof COMPARE_ROW_KEYS)[number];
@@ -213,7 +214,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'agentPluginMemory',
     'memoryEvolutionAudit',
   ],
-  security: ['sandbox', 'securityLayers', 'toolSecurity', 'approvalNoteToModel', 'skillPermissionGate', 'credentialVault', 'fileEditSafety', 'privacySafeShare', 'shareLink', 'cascadeDeletion', 'toolIntegration', 'toolProfileSsot', 'unifiedToolGateway'],
+  security: ['groundedClaims', 'sandbox', 'securityLayers', 'toolSecurity', 'approvalNoteToModel', 'skillPermissionGate', 'credentialVault', 'fileEditSafety', 'privacySafeShare', 'shareLink', 'cascadeDeletion', 'toolIntegration', 'toolProfileSsot', 'unifiedToolGateway'],
   automation: [
     'subAgent',
     'kanbanUI',
