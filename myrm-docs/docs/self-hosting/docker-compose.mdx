@@ -1,0 +1,154 @@
+---
+title: "Single-VM Docker Compose"
+description: "Deploy the Myrm control plane and per-user sandboxes on one Linux VM"
+---
+
+## Overview
+
+The supported private deployment runs on **one Linux VM** with Docker Compose. It starts the control plane, the WebUI, PostgreSQL, Redis and Caddy (automatic TLS). The control plane creates one sandbox container and one persistent volume per employee.
+
+<Note>
+  This page is for **company-hosted** deployments with OIDC SSO and central audit. For personal use, use the [Desktop App](/docs/getting-started/desktop-app) or [Local Deployment](/docs/getting-started/local-deployment).
+</Note>
+
+## Architecture
+
+```
+Browser ──HTTPS──► Caddy ──► WebUI (3000)
+                     │
+                     └─────► Control Plane (8003)
+                                   │
+                    ┌──────────────┼──────────────┐
+                    ▼              ▼              ▼
+              PostgreSQL        Redis       Host Docker
+                                                │
+                                   ┌────────────┴────────────┐
+                                   ▼                         ▼
+                            per-user sandbox          persistent volume
+```
+
+- **Caddy** terminates TLS and routes `/api`, `/proxy`, `/ws`, `/llm-relay`, `/tool-relay`, `/tunnel-relay`, `/vnc` to the control plane; everything else goes to the WebUI.
+- The control plane uses the host Docker socket to create sandboxes and proxies WebSocket/HTTP traffic to them.
+- PostgreSQL stores control-plane data; each sandbox keeps its workspace and memory in a Docker volume.
+
+## Prerequisites
+
+- Ubuntu 22.04/24.04, 8 vCPU / 16 GB RAM (20–50 active users)
+- Docker 24+ with Compose v2
+- A DNS record for your domain; ports 80/443 reachable
+- OIDC identity provider (Okta, Entra ID, Keycloak, etc.)
+- Signed enterprise license JWT and the vendor public key
+- Optional: `runsc` (gVisor) on the host for stronger sandbox isolation
+
+## Quick start
+
+```bash
+cd myrm-control-plane
+cp deploy/compose/.env.example deploy/compose/.env
+
+# Edit .env:
+#   MYRM_DOMAIN, POSTGRES_PASSWORD, DOCKER_GID
+#   MYRM_CP_ENTERPRISE_LICENSE_KEY / _PUBLIC_KEY
+#   MYRM_CP_JWT_SECRET, MYRM_CP_MASTER_ENCRYPTION_KEY
+#   MYRM_CP_OIDC_* and MYRM_CP_ADMIN_USER_IDS
+
+docker compose -f deploy/compose/docker-compose.yml up -d
+docker compose -f deploy/compose/docker-compose.yml ps
+```
+
+`DOCKER_GID` is the group id of the host Docker socket:
+
+```bash
+stat -c '%g' /var/run/docker.sock
+```
+
+By default the sandbox runtime is `docker`. If `runsc` is installed, set `MYRM_CP_RUNTIME=docker_gvisor` in `.env`.
+
+## Configuration
+
+| Variable | Purpose |
+|---|---|
+| `MYRM_DOMAIN` | Public hostname; Caddy obtains a certificate automatically |
+| `POSTGRES_PASSWORD` | PostgreSQL password, also used by the control-plane DSN |
+| `DOCKER_GID` | Host Docker socket group id |
+| `MYRM_CP_ENTERPRISE_LICENSE_KEY` | Signed license JWT |
+| `MYRM_CP_ENTERPRISE_LICENSE_PUBLIC_KEY` | Vendor public key for offline verification |
+| `MYRM_CP_JWT_SECRET` | API token signing secret |
+| `MYRM_CP_MASTER_ENCRYPTION_KEY` | 64 hex chars; encrypts sandbox secrets |
+| `MYRM_CP_OIDC_ISSUER_URL` / `_CLIENT_ID` / `_CLIENT_SECRET` | Enterprise SSO |
+| `MYRM_CP_ADMIN_USER_IDS` | First administrator(s), comma-separated |
+| `MYRM_CP_RUNTIME` | `docker` (default) or `docker_gvisor` |
+
+The OIDC redirect URI is:
+
+```
+https://<MYRM_DOMAIN>/api/auth/oauth/oidc/callback
+```
+
+## First administrator and organization
+
+1. Sign in once through OIDC.
+2. Read your user id:
+
+   ```bash
+   docker compose -f deploy/compose/docker-compose.yml exec postgres \
+     psql -U myrm -d myrm -c "select id, email from users;"
+   ```
+
+3. Put that id into `MYRM_CP_ADMIN_USER_IDS` in `.env` and restart the control plane:
+
+   ```bash
+   docker compose -f deploy/compose/docker-compose.yml up -d control-plane
+   ```
+
+4. Create the organization with the browser session token (the first authenticated user becomes owner):
+
+   ```bash
+   curl -X POST "https://$MYRM_DOMAIN/api/enterprise/org" \
+     -H "Authorization: Bearer <JWT>" \
+     -H "Content-Type: application/json" \
+     -d '{"name":"Company"}'
+   ```
+
+A first-run setup wizard is planned; until then these steps are manual.
+
+## Operations
+
+```bash
+# Logs
+docker compose -f deploy/compose/docker-compose.yml logs -f control-plane
+
+# Restart
+docker compose -f deploy/compose/docker-compose.yml restart
+
+# Upgrade (pin MYRM_VERSION in .env first)
+docker compose -f deploy/compose/docker-compose.yml pull
+docker compose -f deploy/compose/docker-compose.yml up -d
+```
+
+**Backup:** dump PostgreSQL and archive the `cp-data` volume:
+
+```bash
+docker compose -f deploy/compose/docker-compose.yml exec postgres \
+  pg_dump -U myrm myrm > myrm-$(date +%F).sql
+docker run --rm -v myrm_cp-data:/data -v "$PWD":/backup alpine \
+  tar czf /backup/myrm-cp-data-$(date +%F).tgz -C /data .
+```
+
+Restore into a fresh VM and verify login plus workspace data before switching traffic.
+
+## Scope and limits
+
+- **Single VM only.** No HA, clustering or multi-region failover.
+- **20–50 active users** per VM; size up or split by team beyond that.
+- **OIDC only.** SAML and SCIM are not part of this deployment.
+- **No BYOK/KMS or air-gapped mode.**
+- **Linux only** (the control plane and Caddy use host networking).
+- Supported OS: Ubuntu 22.04/24.04 with Docker from the official repository.
+
+## Security notes
+
+- Mounting the Docker socket gives the control plane host-level container control. Restrict SSH and Docker access to trusted administrators.
+- Sandboxes run as non-root with dropped capabilities and resource limits. Install `runsc` and use `docker_gvisor` when stronger isolation is required.
+- Each employee has a separate sandbox and volume; administrators see audit metadata, not conversation content by default.
+- Keep `.env` out of version control and rotate the JWT/master keys only with a planned migration.

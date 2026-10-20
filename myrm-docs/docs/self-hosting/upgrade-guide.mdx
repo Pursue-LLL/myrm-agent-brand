@@ -34,7 +34,7 @@ Myrm includes built-in **Gateway Drain Control** that protects in-flight Agent t
 
 The frontend's **ConnectionManager** automatically reconnects after the server restarts, ensuring a seamless experience.
 
-For Kubernetes deployments, set `terminationGracePeriodSeconds` to at least **150 seconds** (120s drain + 30s buffer) in your pod spec to allow the drain to complete before forced termination.
+For the single-VM Docker Compose deployment, let the control plane drain in-flight turns before recreating the container. Back up PostgreSQL and the `cp-data` volume, pin `MYRM_VERSION`, then run `docker compose pull && docker compose up -d`.
 
 ## Breaking Changes
 

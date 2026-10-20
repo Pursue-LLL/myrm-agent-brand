@@ -458,7 +458,7 @@ harness 的 `FileLock`（供投递队列使用）以 `O_NOFOLLOW` 打开锁文�
 - **数据外泄检测**：6 类模式（API 密钥、文件路径、base64、JWT、密钥模式、数据库连接串）防止敏感数据通过 URL 参数泄漏
 - **Domain HITL 审批**：非白名单域名自动触发人工审批（`domainHitlEnabled`），每个 Agent 可独立配置网络域名白名单
 - **URL 解析混淆防护**：阻断 Tab/换行/反斜杠等混淆字符，防止 urlparse 与 HTTP 客户端的解析歧义（CVE 级 SSRF 绕过防御）
-- **内网后缀阻断**：`.local`、`.svc`、`.cluster.local`、`.home.arpa` 等后缀默认拦截，防止 mDNS 和 Kubernetes 内网访问
+- **内网后缀阻断**：`.local`、`.svc`、`.cluster.local`、`.home.arpa` 等后缀默认拦截，防止 mDNS 和集群内网访问
 - **审计链**：拦截请求写入 `SSRF_BLOCKED` 安全决策，可在审计面板追溯
 - **Agent API 范围**：`/v1/chat/completions` 仅运行 Myrm 智能体（无 LLM 直通）。用户配置的 Provider apiUrl 在智能体内 LLM 调用路径仍执行 SSRF 检查，deploy 模式感知——本地模式允许 localhost/127.0.0.1 等 loopback（Ollama/vLLM），云/沙箱模式阻断私网和云元数据端点
 - **461+ 项专项测试**：覆盖核心守卫、Agent 安全、浏览器导航、DNS Pinning、媒体验证、A2A 解析、深度爬取、SessionVault、权限引擎和 Provider URL 校验
@@ -516,7 +516,7 @@ AI 分类器（`TranscriptClassifier`）审查工具调用是否符合用户原�
 |------|------|------|----------|
 | **个人信息** | 邮箱、手机号、身份证号、护照号、银行卡上下文、住址与简历相关表述 | 7 | 否 |
 | **安全凭证** | API 密钥与云凭据、私钥、JWT Token、会话令牌、连接串、kubeconfig、凭据赋值、环境变量密钥 | 8 | 是 |
-| **公司信息** | 内网地址、内部主机名、Kubernetes 服务 DNS、项目代号、组织花名册、薪酬数据 | 7 | 否 |
+| **公司信息** | 内网地址、内部主机名、集群服务 DNS、项目代号、组织花名册、薪酬数据 | 7 | 否 |
 | **客户数据** | 客户名单、合同与报价、CRM 或工单数据 | 3 | 否 |
 | **财务法务** | 财务指标、发票与税务信息、法务文件 | 3 | 否 |
 | **政治敏感** | 政治、军事与国家安全、极端主义相关表述 | 3 | 否 |

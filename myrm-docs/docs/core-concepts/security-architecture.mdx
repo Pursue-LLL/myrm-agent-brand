@@ -499,7 +499,7 @@ DNS Pinning prevents agents from being tricked into accessing internal networks 
 - **Data exfiltration detection**: 6 pattern categories (API keys, file paths, base64, JWT, secret keys, DB connection strings) prevent sensitive data leaking through URL parameters
 - **Domain HITL approval**: Non-allowlisted domains trigger human-in-the-loop approval when `domainHitlEnabled` is active — per-agent network allowlist configurable via UI
 - **Parser-confusing character defense**: Tab, newline, and backslash in URLs are blocked to prevent hostname extraction divergence between parsers (CVE-class SSRF bypass prevention)
-- **Internal hostname suffix blocking**: `.local`, `.svc`, `.cluster.local`, `.home.arpa` suffixes are blocked to prevent mDNS and Kubernetes internal network access
+- **Internal hostname suffix blocking**: `.local`, `.svc`, `.cluster.local`, `.home.arpa` suffixes are blocked to prevent mDNS and cluster-internal service access
 - **Audit trail**: Blocked requests emit `SSRF_BLOCKED` security decisions for SIEM and frontend audit views
 - **Agent API scope**: `/v1/chat/completions` runs Myrm agents only (no raw LLM passthrough). User-configured Provider apiUrl SSRF checks remain on in-agent LLM calls — deploy-mode-aware: local mode allows loopback hosts (Ollama/vLLM), cloud/sandbox mode blocks private networks and cloud metadata endpoints
 - **461+ dedicated SSRF tests**: Coverage across core guards, agent security, browser navigation, DNS pinning, media validation, A2A resolver, web fetch, SessionVault, permission engine, and provider URL validation
@@ -608,7 +608,7 @@ A complete bidirectional risk detection and governance framework with built-in r
 |----------|---------|-------|---------------|
 | **Personal** | Email, mobile number, Chinese ID number, passport, bank card context, address and résumé wording | 7 | No |
 | **Security** | API keys and cloud credentials, private keys, JWT tokens, session tokens, connection strings, kubeconfig, credential assignments, environment secrets | 8 | Yes |
-| **Company** | Private network addresses, internal hostnames, Kubernetes service DNS, project codenames, org rosters, salary data | 7 | No |
+| **Company** | Private network addresses, internal hostnames, cluster service DNS, project codenames, org rosters, salary data | 7 | No |
 | **Customer** | Customer lists, contracts and quotes, CRM or ticket data | 3 | No |
 | **Finance & Legal** | Financial metrics, invoice and tax information, legal documents | 3 | No |
 | **Political** | Political, military and security, extremism wording | 3 | No |

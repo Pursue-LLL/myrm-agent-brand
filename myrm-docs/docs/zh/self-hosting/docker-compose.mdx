@@ -1,0 +1,154 @@
+---
+title: "单机 Docker Compose"
+description: "在一台 Linux VM 上部署 Myrm 控制平面与每用户沙箱"
+---
+
+## 概述
+
+官方支持的企业私有化部署运行在**一台 Linux VM** 上，使用 Docker Compose 启动控制平面、WebUI、PostgreSQL、Redis 与 Caddy（自动 TLS）。控制平面会为每名员工创建一个独立沙箱容器和一个持久卷。
+
+<Note>
+  本页面向需要 **OIDC SSO 与集中审计** 的企业自托管场景。个人使用请选择[桌面客户端](/docs/zh/getting-started/desktop-app)或[本地部署](/docs/zh/getting-started/local-deployment)。
+</Note>
+
+## 架构
+
+```
+浏览器 ──HTTPS──► Caddy ──► WebUI (3000)
+                     │
+                     └─────► 控制平面 (8003)
+                                   │
+                    ┌──────────────┼──────────────┐
+                    ▼              ▼              ▼
+              PostgreSQL        Redis        宿主 Docker
+                                                │
+                                   ┌────────────┴────────────┐
+                                   ▼                         ▼
+                              每用户沙箱                 持久卷
+```
+
+- **Caddy** 负责 TLS，并把 `/api`、`/proxy`、`/ws`、`/llm-relay`、`/tool-relay`、`/tunnel-relay`、`/vnc` 反代到控制平面，其余请求转到 WebUI。
+- 控制平面通过宿主 Docker socket 创建沙箱，并向其转发 HTTP/WebSocket 流量。
+- PostgreSQL 保存控制平面数据；每名员工的工作区与记忆保存在独立 Docker 卷中。
+
+## 前置要求
+
+- Ubuntu 22.04/24.04，8 vCPU / 16 GB RAM（20–50 名活跃用户）
+- Docker 24+，Compose v2
+- 域名 DNS 记录，80/443 端口可达
+- OIDC 身份提供商（Okta、Entra ID、Keycloak 等）
+- 签名企业 License JWT 与厂商公钥
+- 可选：宿主机安装 `runsc`（gVisor）以获得更强隔离
+
+## 快速开始
+
+```bash
+cd myrm-control-plane
+cp deploy/compose/.env.example deploy/compose/.env
+
+# 编辑 .env：
+#   MYRM_DOMAIN、POSTGRES_PASSWORD、DOCKER_GID
+#   MYRM_CP_ENTERPRISE_LICENSE_KEY / _PUBLIC_KEY
+#   MYRM_CP_JWT_SECRET、MYRM_CP_MASTER_ENCRYPTION_KEY
+#   MYRM_CP_OIDC_* 与 MYRM_CP_ADMIN_USER_IDS
+
+docker compose -f deploy/compose/docker-compose.yml up -d
+docker compose -f deploy/compose/docker-compose.yml ps
+```
+
+`DOCKER_GID` 是宿主 Docker socket 的组 id：
+
+```bash
+stat -c '%g' /var/run/docker.sock
+```
+
+默认沙箱运行时为 `docker`。如果已安装 `runsc`，在 `.env` 中设置 `MYRM_CP_RUNTIME=docker_gvisor`。
+
+## 配置项
+
+| 变量 | 用途 |
+|---|---|
+| `MYRM_DOMAIN` | 公网域名；Caddy 自动申请证书 |
+| `POSTGRES_PASSWORD` | PostgreSQL 密码，同时用于控制平面 DSN |
+| `DOCKER_GID` | 宿主 Docker socket 组 id |
+| `MYRM_CP_ENTERPRISE_LICENSE_KEY` | 签名 License JWT |
+| `MYRM_CP_ENTERPRISE_LICENSE_PUBLIC_KEY` | 离线验签的厂商公钥 |
+| `MYRM_CP_JWT_SECRET` | API Token 签名密钥 |
+| `MYRM_CP_MASTER_ENCRYPTION_KEY` | 64 位十六进制；加密沙箱密钥 |
+| `MYRM_CP_OIDC_ISSUER_URL` / `_CLIENT_ID` / `_CLIENT_SECRET` | 企业 SSO |
+| `MYRM_CP_ADMIN_USER_IDS` | 首批管理员，逗号分隔 |
+| `MYRM_CP_RUNTIME` | `docker`（默认）或 `docker_gvisor` |
+
+OIDC 回调地址：
+
+```
+https://<MYRM_DOMAIN>/api/auth/oauth/oidc/callback
+```
+
+## 首个管理员与组织
+
+1. 先通过 OIDC 登录一次。
+2. 查询用户 id：
+
+   ```bash
+   docker compose -f deploy/compose/docker-compose.yml exec postgres \
+     psql -U myrm -d myrm -c "select id, email from users;"
+   ```
+
+3. 把该 id 写入 `.env` 的 `MYRM_CP_ADMIN_USER_IDS`，重启控制平面：
+
+   ```bash
+   docker compose -f deploy/compose/docker-compose.yml up -d control-plane
+   ```
+
+4. 使用浏览器会话 Token 创建组织（首个认证用户自动成为 owner）：
+
+   ```bash
+   curl -X POST "https://$MYRM_DOMAIN/api/enterprise/org" \
+     -H "Authorization: Bearer <JWT>" \
+     -H "Content-Type: application/json" \
+     -d '{"name":"Company"}'
+   ```
+
+首启向导尚未提供，当前需要手工执行以上步骤。
+
+## 运维
+
+```bash
+# 日志
+docker compose -f deploy/compose/docker-compose.yml logs -f control-plane
+
+# 重启
+docker compose -f deploy/compose/docker-compose.yml restart
+
+# 升级（先在 .env 固定 MYRM_VERSION）
+docker compose -f deploy/compose/docker-compose.yml pull
+docker compose -f deploy/compose/docker-compose.yml up -d
+```
+
+**备份**：导出 PostgreSQL，并归档 `cp-data` 卷：
+
+```bash
+docker compose -f deploy/compose/docker-compose.yml exec postgres \
+  pg_dump -U myrm myrm > myrm-$(date +%F).sql
+docker run --rm -v myrm_cp-data:/data -v "$PWD":/backup alpine \
+  tar czf /backup/myrm-cp-data-$(date +%F).tgz -C /data .
+```
+
+在全新 VM 上恢复，验证登录与工作区数据后再切换流量。
+
+## 范围与限制
+
+- **仅单机**：不支持 HA、集群或多区域故障转移。
+- **每台 VM 20–50 名活跃用户**；更多用户请按团队拆分或升配。
+- **仅 OIDC**：不包含 SAML 与 SCIM。
+- **不支持 BYOK/KMS 与气隙模式。**
+- **仅 Linux**（控制平面与 Caddy 使用 host network）。
+- 支持系统：Ubuntu 22.04/24.04，Docker 使用官方源安装。
+
+## 安全说明
+
+- 挂载 Docker socket 等于把宿主容器控制权交给控制平面；请限制 SSH 与 Docker 访问，仅信任管理员。
+- 沙箱以非 root 运行，丢弃多余 capability 并设置资源上限；需要更强隔离时安装 `runsc` 并使用 `docker_gvisor`。
+- 每名员工使用独立沙箱与卷；管理员默认只能看审计元数据，不能查看对话内容。
+- `.env` 不要提交到版本库；轮换 JWT/Master Key 必须按迁移流程执行。
