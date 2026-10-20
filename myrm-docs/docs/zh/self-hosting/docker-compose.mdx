@@ -112,6 +112,18 @@ https://<MYRM_DOMAIN>/api/auth/oauth/oidc/callback
 
 首启向导尚未提供，当前需要手工执行以上步骤。
 
+## 使用现有反向代理
+
+Caddy 是可选的：它运行在 `caddy` Compose profile 下（`.env` 中的 `COMPOSE_PROFILES=caddy`）。如果同一台机器上已有 Nginx/ALB，删除该行，并按以下规则转发：
+
+| 路径 | 上游 |
+|---|---|
+| `/api`、`/proxy`、`/ws`、`/llm-relay`、`/tool-relay`、`/tunnel-relay` | `127.0.0.1:8003` |
+| `/vnc` | `127.0.0.1:8002` |
+| 其余 | `127.0.0.1:3000` |
+
+在现有入口终止 TLS，并保持 CP API 端口不直接暴露公网。
+
 ## 运维
 
 ```bash

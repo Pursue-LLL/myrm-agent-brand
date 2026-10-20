@@ -112,6 +112,18 @@ https://<MYRM_DOMAIN>/api/auth/oauth/oidc/callback
 
 최초 실행 마법사는 아직 없으며, 현재는 위 단계를 수동으로 수행해야 합니다.
 
+## 기존 리버스 프록시 사용
+
+Caddy는 선택 사항입니다. `caddy` Compose 프로필(`.env`의 `COMPOSE_PROFILES=caddy`)로 실행됩니다. 같은 호스트에 Nginx/ALB가 이미 있다면 해당 줄을 제거하고 다음 규칙으로 라우팅하세요.
+
+| 경로 | 업스트림 |
+|---|---|
+| `/api`, `/proxy`, `/ws`, `/llm-relay`, `/tool-relay`, `/tunnel-relay` | `127.0.0.1:8003` |
+| `/vnc` | `127.0.0.1:8002` |
+| 나머지 | `127.0.0.1:3000` |
+
+기존 프록시에서 TLS를 종료하고 CP API 포트를 공용 인터넷에 직접 노출하지 마세요.
+
 ## 운영
 
 ```bash

@@ -112,6 +112,18 @@ https://<MYRM_DOMAIN>/api/auth/oauth/oidc/callback
 
 A first-run setup wizard is planned; until then these steps are manual.
 
+## Using an existing reverse proxy
+
+Caddy is optional: it runs under the `caddy` Compose profile (`COMPOSE_PROFILES=caddy` in `.env`). If you already run Nginx/ALB on the same host, remove that line and route:
+
+| Path | Upstream |
+|---|---|
+| `/api`, `/proxy`, `/ws`, `/llm-relay`, `/tool-relay`, `/tunnel-relay` | `127.0.0.1:8003` |
+| `/vnc` | `127.0.0.1:8002` |
+| everything else | `127.0.0.1:3000` |
+
+Terminate TLS at your proxy; keep the CP API port private.
+
 ## Operations
 
 ```bash
