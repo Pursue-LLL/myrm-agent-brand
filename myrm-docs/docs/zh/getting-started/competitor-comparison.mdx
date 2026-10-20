@@ -17,9 +17,10 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   1. **释放图灵完备控制流（`ptc_verifier.py`）**：彻底废除僵硬的 AST 节点白名单，允许模型自由生成包含循环（`for`、`while`）、条件分支（`if`）与错误捕获（`try-except`）的脚本；导入检查严格收敛至模块级白名单（仅允许 `skills.*`、`tools.*` 及 `_SAFE_STDLIB_MODULES`），支持函数别名导入（`from skills... import func as alias`）；
   2. **统一多别名路径拦截策略（`batch_processor.py` 与 `ipc_proxy.py`）**：在预执行审批层（静态推断）与 IPC 运行时代理层（动态拦截）统一对齐 `("path", "file_path", "target", "destination", "filepath")` 五大别名参数提取，杜绝路径越界逃逸；
   3. **运行时 Agent 级 MCP 作用域硬门禁（`ipc_proxy.py` 与 `scope_gate.py`）**：`ipc_proxy._check_scope_gate` 在每次 PTC 调用执行 `EmployeeScopedMcpDiscoveryGate.verify_tool_invocation`；策略键是请求里的 **`agent_id`**，由 `client_templates`/`prepare_mixin` 与会话 `session_id` 分开携带，脚本换 session 也无法绕过白名单；
-  4. **真实模型 + 真实浏览器端到端签收**：三条相关 Lane-C Chrome E2E 全部通过并封存（MiniMax-M3.1-Flash-Preview）：MCP agent turn 180.26s、技能版本/批次回滚 82.50s、Shell/eviction 135.90s；另有 997 项 Harness 单测/覆盖率测试通过，改动模块总覆盖率 96.18%；
-  5. **六家竞品横向对照**：
-     - **Hermes Agent**：仅依赖 Turn-1 提示词建议或单步 JSON FC，缺乏 AST 级预执行语法校验与 Unix Domain Socket Bearer Token 安全隔离；
+  4. **无人值守只读租约（`readonly_research_sandbox` · `research_lease.py` · `template_validation.py`）**：定时任务与外部不可信渠道触发的任务，全程运行在按次发放的只读租约下，带 TTL 自动过期与优雅回收（`agent_runner.py:898` 发放、`:1018` 回收；`readonly_lease_manager.py:60-73` 惰性过期）。四层独立防护，缺任一层都不足以开口子：① `script_all_spawns_readonly` 用 AST 校验定时任务绑定的工作流脚本，每个 `spawn_subagent` 必须传字面量 `readonly=True`，绑定与执行各校验一次；② `coerce_spawn_readonly` 在父代理不具备 WRITE 能力时强制子代理只读，即使脚本显式要求可写；③ 写类内置工具进黑名单，未声明只读的 MCP 工具直接摘除（`builder.py:114-128`）；④ 子代理记忆写入只落临时层、完全绕过数据库（`ephemeral.py:326-332`）。竞品只在单次调用发生时才做策略判定，没有任何一家具备「首次工具调用之前就已生效」的会话级只读状态；
+  5. **真实模型 + 真实浏览器端到端签收**：三条相关 Lane-C Chrome E2E 全部通过并封存（MiniMax-M3.1-Flash-Preview）：MCP agent turn 180.26s、技能版本/批次回滚 82.50s、Shell/eviction 135.90s；另有 997 项 Harness 单测/覆盖率测试通过，改动模块总覆盖率 96.18%；
+  6. **六家竞品横向对照**：
+     - **Hermes Agent**：仅依赖 Turn-1 提示词建议或单步 JSON FC，缺乏 AST 级预执行语法校验与 Unix Domain Socket Bearer Token 安全隔离；其 `execute_code` 仅做整脚本级审批，下游既无逐调用判定也无租约级约束；
      - **OpenClaw**：开箱默认 bypass 裸奔，缺乏 AST 路径参数预先提取机制与数字员工细粒度 MCP 隔离门禁；
      - **Codex**：局限于封闭沙箱命令执行，缺乏动态 MCP 技能绑定与 UDS IPC Token 通信代理；
      - **DeepSeek-Harness**：采用单单一 `run_code` 模式，缺乏对多别名路径的统一预审批与 Agent 级动态发现门禁；
