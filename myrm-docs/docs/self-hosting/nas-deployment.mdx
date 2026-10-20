@@ -10,7 +10,7 @@ One compose file on top of the production stack — no forked images, no extra c
 ## Start
 
 ```bash
-cd myrm
+# Run from the distribution root containing docker-compose.yml + docker-compose.nas.yml
 docker compose -f docker-compose.yml -f docker-compose.nas.yml --profile app up -d
 ```
 
@@ -33,7 +33,7 @@ Credentials stay encrypted inside `data.db`; there is deliberately no separate p
 Already running with `myrm-data`? Your data stays untouched in the old volume. To move it:
 
 ```bash
-docker compose --profile app stop myrm-server
+docker compose -f docker-compose.yml -f docker-compose.nas.yml --profile app stop myrm-server
 docker run --rm -v myrm-data:/from -v myrm-nas-data:/to alpine sh -c "cp -a /from/. /to/"
 docker run --rm -v myrm-data:/from -v myrm-nas-memory:/to alpine sh -c "cp -a /from/memory/. /to/ 2>/dev/null || true"
 docker compose -f docker-compose.yml -f docker-compose.nas.yml --profile app up -d
