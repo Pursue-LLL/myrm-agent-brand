@@ -33,7 +33,7 @@ Browser ──HTTPS──► Caddy ──► WebUI (3000)
 
 ## Prerequisites
 
-- Ubuntu 22.04/24.04, 8 vCPU / 16 GB RAM (20–50 active users)
+- Ubuntu 22.04/24.04, 8 vCPU / 16 GB RAM
 - Docker 24+ with Compose v2
 - A DNS record for your domain; ports 80/443 reachable
 - OIDC identity provider (Okta, Entra ID, Keycloak, etc.)
@@ -88,29 +88,20 @@ https://<MYRM_DOMAIN>/api/auth/oauth/oidc/callback
 ## First administrator and organization
 
 1. Sign in once through OIDC.
-2. Read your user id:
+2. Create the organization owned by that user:
 
    ```bash
-   docker compose -f deploy/compose/docker-compose.yml exec postgres \
-     psql -U myrm -d myrm -c "select id, email from users;"
+   docker compose -f deploy/compose/docker-compose.yml exec control-plane \
+     python -m myrm_control_plane.bootstrap --org "Company" --admin-email admin@company.com
    ```
 
-3. Put that id into `MYRM_CP_ADMIN_USER_IDS` in `.env` and restart the control plane:
+3. Put the printed `owner_user_id` into `MYRM_CP_ADMIN_USER_IDS` in `.env` and restart the control plane:
 
    ```bash
    docker compose -f deploy/compose/docker-compose.yml up -d control-plane
    ```
 
-4. Create the organization with the browser session token (the first authenticated user becomes owner):
-
-   ```bash
-   curl -X POST "https://$MYRM_DOMAIN/api/enterprise/org" \
-     -H "Authorization: Bearer <JWT>" \
-     -H "Content-Type: application/json" \
-     -d '{"name":"Company"}'
-   ```
-
-A first-run setup wizard is planned; until then these steps are manual.
+A browser setup wizard is planned; the CLI replaces the previous manual SQL + JWT API flow.
 
 ## Using an existing reverse proxy
 
@@ -138,24 +129,21 @@ docker compose -f deploy/compose/docker-compose.yml pull
 docker compose -f deploy/compose/docker-compose.yml up -d
 ```
 
-**Backup:** dump PostgreSQL and archive the `cp-data` volume:
+**Backup:** run the bundled script (PostgreSQL + `cp-data` + SHA256 + retention):
 
 ```bash
-docker compose -f deploy/compose/docker-compose.yml exec postgres \
-  pg_dump -U myrm myrm > myrm-$(date +%F).sql
-docker run --rm -v myrm_cp-data:/data -v "$PWD":/backup alpine \
-  tar czf /backup/myrm-cp-data-$(date +%F).tgz -C /data .
+BACKUP_DIR=/srv/myrm-backups RETENTION_DAYS=30 ./deploy/compose/backup.sh
 ```
 
-Restore into a fresh VM and verify login plus workspace data before switching traffic.
+Restore is destructive and requires an explicit `--yes` flag; test it on a fresh VM before switching traffic.
 
 ## Scope and limits
 
 - **Single VM only.** No HA, clustering or multi-region failover.
-- **20–50 active users** per VM; size up or split by team beyond that.
+- **Small teams**; benchmark with your workload before rollout and size up or split by team as needed.
 - **OIDC only.** SAML and SCIM are not part of this deployment.
 - **No BYOK/KMS or air-gapped mode.**
-- **Linux only** (the control plane and Caddy use host networking).
+- **Linux only** (the sandbox runtime uses the host Docker daemon).
 - Supported OS: Ubuntu 22.04/24.04 with Docker from the official repository.
 
 ## Security notes
