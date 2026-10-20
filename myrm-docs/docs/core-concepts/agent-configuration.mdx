@@ -45,6 +45,17 @@ You can inspect summary metrics from:
 
 - `GET /api/v1/statistics/turn-capability/summary`
 
+## Agent-Scoped MCP Permissions & Skill Rollback
+
+Agent-level MCP selection is not just a prompt hint:
+
+- **Build-time selection**: the Agent profile stores `mcp_ids` (server allowlist) and `mcp_tool_selections` (per-server tool allowlist). The UI exposes a per-server tool selector.
+- **Runtime enforcement**: every PTC MCP call passes through `ipc_proxy._check_scope_gate`, which resolves the policy by `agent_id` and rejects tools outside the allowlist. Changing the chat/session id does not bypass the policy.
+- **Skill rollback**: skill versions and batch snapshots live in the server DB (`write_orchestrator` + `skill_optimization` + `mutation_batch_service`), with real UI rollback. The harness does not keep a second JSONL history.
+- **Honest cache boundary**: Myrm does not claim a cross-session MCP schema disk cache. Routing uses the live server catalog; the old write-only cache was removed.
+
+This is the combination Myrm focuses on: **agent-scoped MCP runtime enforcement + server-side skill version SSOT**. Individual competitors may have one of these pieces; the combination is the differentiator. See the [Competitor Comparison](/docs/getting-started/competitor-comparison) for the honest matrix.
+
 ## Response Locale & Formality (SSOT)
 
 Saved Agents can declare an output locale policy in `engine_params.response_locale_policy` (locale + formality). Myrm appends a compact suffix to `user_instructions` at **every production entry point** — Web chat, channels, cron, Kanban, and Goal continuation — so the model keeps the same tone across turns.

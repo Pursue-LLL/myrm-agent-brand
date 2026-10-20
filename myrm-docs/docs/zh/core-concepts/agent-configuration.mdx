@@ -45,6 +45,17 @@ Myrm 在聊天页中直接内嵌了 Agent 配置面板，实现「修改配置 �
 
 - `GET /api/v1/statistics/turn-capability/summary`
 
+## Agent 级 MCP 权限与技能回滚
+
+Agent 级 MCP 选择不是提示词建议，而是可执行边界：
+
+- **构建期选择**：Agent 配置保存 `mcp_ids`（服务器白名单）与 `mcp_tool_selections`（按服务器的工具白名单）；界面提供按服务器选择工具的入口。
+- **运行时强制**：每次 PTC MCP 调用都会经过 `ipc_proxy._check_scope_gate`，按 `agent_id` 查策略并拒绝白名单外的工具。换聊天/会话 ID 不能绕过。
+- **技能回滚**：技能版本与批次快照存放在 server DB（`write_orchestrator` + `skill_optimization` + `mutation_batch_service`），前端有真实回滚入口；harness 不再保留第二套 JSONL history。
+- **诚实的缓存边界**：不宣称跨会话 MCP Schema 磁盘缓存；路由使用当前服务器目录，旧的只写不读缓存已删除。
+
+Myrm 强调的是组合能力：**Agent 级 MCP 运行时门禁 + server 侧技能版本 SSOT**。竞品可能具备其中一项，但组合不同。完整对比见[竞品对比](/docs/zh/getting-started/competitor-comparison)。
+
 ## 输出 Locale 与敬语（SSOT）
 
 Saved Agent 可在 `engine_params.response_locale_policy` 声明输出 locale 与 formality。Myrm 在 **全部生产入口**（Web 聊天、渠道、Cron、Kanban、Goal 续跑）向 `user_instructions` 追加紧凑后缀，保证多轮语气一致。
