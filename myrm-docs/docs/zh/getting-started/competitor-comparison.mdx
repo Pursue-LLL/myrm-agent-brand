@@ -16,8 +16,8 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **解除PTC控制流限制与运行时作用域门禁套件（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 在「程序化工具调用图灵完备性、AST 静态预审、全别名路径拦截与运行时 Agent 级 MCP 权限隔离」这一形态）：**
   1. **释放图灵完备控制流（`ptc_verifier.py`）**：彻底废除僵硬的 AST 节点白名单，允许模型自由生成包含循环（`for`、`while`）、条件分支（`if`）与错误捕获（`try-except`）的脚本；导入检查严格收敛至模块级白名单（仅允许 `skills.*`、`tools.*` 及 `_SAFE_STDLIB_MODULES`），支持函数别名导入（`from skills... import func as alias`）；
   2. **统一多别名路径拦截策略（`batch_processor.py` 与 `ipc_proxy.py`）**：在预执行审批层（静态推断）与 IPC 运行时代理层（动态拦截）统一对齐 `("path", "file_path", "target", "destination", "filepath")` 五大别名参数提取，杜绝路径越界逃逸；
-  3. **运行时数字员工 MCP 作用域硬门禁（`ipc_proxy.py` 与 `scope_gate.py`）**：在 IPC 请求链条中连通 `EmployeeScopedMcpDiscoveryGate.verify_tool_invocation`，针对未授权服务器或细粒度白名单外的工具调用实施 Fail-Closed 拦截，彻底打通 Agent 权限隔离；
-  4. **真实模型 + 真实浏览器端到端签收**：通过 Lane-C 真实浏览器 E2E 测试 `test_catalog_mcp_agent_tool_call_lane_c_chrome_e2e.py`（MiniMax M3.1 Flash Preview 在线模型连续触发 6 次 Microsoft Learn 文档工具调用并产出专业技术解答，耗时 170.78s，`state=SUCCEEDED`，`cleanup.sealed=true`）；结合 42 项 Harness 语法校验与 IPC 传输单测（覆盖率达 95%）全绿；
+  3. **运行时 Agent 级 MCP 作用域硬门禁（`ipc_proxy.py` 与 `scope_gate.py`）**：`ipc_proxy._check_scope_gate` 在每次 PTC 调用执行 `EmployeeScopedMcpDiscoveryGate.verify_tool_invocation`；策略键是请求里的 **`agent_id`**，由 `client_templates`/`prepare_mixin` 与会话 `session_id` 分开携带，脚本换 session 也无法绕过白名单；
+  4. **真实模型 + 真实浏览器端到端签收**：三条相关 Lane-C Chrome E2E 全部通过并封存（MiniMax-M3.1-Flash-Preview）：MCP agent turn 180.26s、技能版本/批次回滚 82.50s、Shell/eviction 135.90s；另有 997 项 Harness 单测/覆盖率测试通过，改动模块总覆盖率 96.18%；
   5. **六家竞品横向对照**：
      - **Hermes Agent**：仅依赖 Turn-1 提示词建议或单步 JSON FC，缺乏 AST 级预执行语法校验与 Unix Domain Socket Bearer Token 安全隔离；
      - **OpenClaw**：开箱默认 bypass 裸奔，缺乏 AST 路径参数预先提取机制与数字员工细粒度 MCP 隔离门禁；
