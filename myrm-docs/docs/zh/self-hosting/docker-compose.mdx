@@ -149,6 +149,6 @@ docker run --rm -v myrm_cp-data:/data -v "$PWD":/backup alpine \
 ## 安全说明
 
 - 挂载 Docker socket 等于把宿主容器控制权交给控制平面；请限制 SSH 与 Docker 访问，仅信任管理员。
-- 沙箱以非 root 运行，丢弃多余 capability 并设置资源上限；需要更强隔离时安装 `runsc` 并使用 `docker_gvisor`。
-- 每名员工使用独立沙箱与卷；管理员默认只能看审计元数据，不能查看对话内容。
+- 沙箱会降权运行、丢弃多余 capability，并设置 CPU/内存/PID 上限；Docker 安全选项附加 seccomp/AppArmor。需要更强隔离时安装 `runsc` 并使用 `docker_gvisor`。
+- 每名员工使用独立沙箱与卷。管理员可以查看审计事件与用量；保留期与访问权限请按公司策略配置。
 - `.env` 不要提交到版本库；轮换 JWT/Master Key 必须按迁移流程执行。

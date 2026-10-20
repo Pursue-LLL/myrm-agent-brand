@@ -149,6 +149,6 @@ Restore into a fresh VM and verify login plus workspace data before switching tr
 ## Security notes
 
 - Mounting the Docker socket gives the control plane host-level container control. Restrict SSH and Docker access to trusted administrators.
-- Sandboxes run as non-root with dropped capabilities and resource limits. Install `runsc` and use `docker_gvisor` when stronger isolation is required.
-- Each employee has a separate sandbox and volume; administrators see audit metadata, not conversation content by default.
+- Sandboxes drop privileges and unnecessary capabilities, and enforce CPU/memory/PID limits. Docker security options add seccomp/AppArmor. Install `runsc` and use `docker_gvisor` when stronger isolation is required.
+- Each employee has a separate sandbox and volume. Administrators can review audit events and usage; configure retention and access according to company policy.
 - Keep `.env` out of version control and rotate the JWT/master keys only with a planned migration.
