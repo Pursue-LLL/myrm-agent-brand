@@ -11,6 +11,22 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-10-20 · 解除 PTC 僵硬控制流限制、模块白名单导入收敛与运行时数字员工 MCP 作用域门禁 · 彻底消除 AST 节点死板拦截、脚本内代码注入绕过与权限隔离死代码路径）
+
+- **解除PTC控制流限制与运行时作用域门禁套件（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 在「程序化工具调用图灵完备性、AST 静态预审、全别名路径拦截与运行时 Agent 级 MCP 权限隔离」这一形态）：**
+  1. **释放图灵完备控制流（`ptc_verifier.py`）**：彻底废除僵硬的 AST 节点白名单，允许模型自由生成包含循环（`for`、`while`）、条件分支（`if`）与错误捕获（`try-except`）的脚本；导入检查严格收敛至模块级白名单（仅允许 `skills.*`、`tools.*` 及 `_SAFE_STDLIB_MODULES`），支持函数别名导入（`from skills... import func as alias`）；
+  2. **统一多别名路径拦截策略（`batch_processor.py` 与 `ipc_proxy.py`）**：在预执行审批层（静态推断）与 IPC 运行时代理层（动态拦截）统一对齐 `("path", "file_path", "target", "destination", "filepath")` 五大别名参数提取，杜绝路径越界逃逸；
+  3. **运行时数字员工 MCP 作用域硬门禁（`ipc_proxy.py` 与 `scope_gate.py`）**：在 IPC 请求链条中连通 `EmployeeScopedMcpDiscoveryGate.verify_tool_invocation`，针对未授权服务器或细粒度白名单外的工具调用实施 Fail-Closed 拦截，彻底打通 Agent 权限隔离；
+  4. **真实模型 + 真实浏览器端到端签收**：通过 Lane-C 真实浏览器 E2E 测试 `test_catalog_mcp_agent_tool_call_lane_c_chrome_e2e.py`（MiniMax M3.1 Flash Preview 在线模型连续触发 6 次 Microsoft Learn 文档工具调用并产出专业技术解答，耗时 170.78s，`state=SUCCEEDED`，`cleanup.sealed=true`）；结合 42 项 Harness 语法校验与 IPC 传输单测（覆盖率达 95%）全绿；
+  5. **六家竞品横向对照**：
+     - **Hermes Agent**：仅依赖 Turn-1 提示词建议或单步 JSON FC，缺乏 AST 级预执行语法校验与 Unix Domain Socket Bearer Token 安全隔离；
+     - **OpenClaw**：开箱默认 bypass 裸奔，缺乏 AST 路径参数预先提取机制与数字员工细粒度 MCP 隔离门禁；
+     - **Codex**：局限于封闭沙箱命令执行，缺乏动态 MCP 技能绑定与 UDS IPC Token 通信代理；
+     - **DeepSeek-Harness**：采用单单一 `run_code` 模式，缺乏对多别名路径的统一预审批与 Agent 级动态发现门禁；
+     - **Pi（oh-my-pi）**：缺乏执行前的 AST 路径安全审查，工具可见性依赖手动前缀规则，无法做到运行时硬拦截；
+     - **OpenCode**：缺乏沙箱内 UDS Token 安全传输与多数字员工间的 MCP 细粒度调用硬门禁；
+  6. **SSOT 代码位置：** `temp-docs/materials/PROGRAMMATIC_TOOL_CALLING_ADVANTAGE.md` · `temp-docs/materials/SKILL_PERMISSION_SECURITY_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/security/ptc_verifier.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/approval/batch_processor.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/skills/mcp/ipc_proxy.py`
+
 ## 最新验证快照（2026-10-19 · 执行断言必须对上真实执行轨迹 + 每轮交付证据披露 · 彻底消除「测试全过了 / 已经发出去了」却毫无凭据的自信汇报，以及未落盘交付物的静默丢失）
 
 - **执行断言接地与交付证据披露套件（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 在「Agent 的完成声明是否可信」这一形态：模型说自己跑了测试、发了消息、改了代码，用户却无从判断）：** 竞品普遍把「完成」交给模型自律——有的只被动记账，有的完全没有机制。Myrm 在收尾时把承重断言与**本轮真实工具记录**对齐：

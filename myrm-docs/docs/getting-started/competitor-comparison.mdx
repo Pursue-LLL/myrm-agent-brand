@@ -11,6 +11,22 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. For plugin-centric users (for example Grok Build), Myrm installs a **full Agent package** in one step (model + skills + MCP + subagents + safety profile), instead of making you assemble multiple plugins manually. Docs are available in **6 languages** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit (RFC 7231 Accept-Language negotiation) across all deployment modes — WebUI, Cloud-hosted, and Tauri desktop.
 </Note>
 
+## Latest Benchmark Snapshot (2026-10-20 · Liberated PTC Control Flow, Strict Import Whitelisting & Runtime MCP Scope Gating · Eliminating Rigid AST Whitelist Rejections, In-Script RCE Bypass and Dead Scope Security Paths)
+
+- **LiberatedPTCControlFlowAndRuntimeScopeGateSuite (Benchmarking Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi / OpenCode against Programmatic Tool Calling flexibility, AST pre-execution verification, multi-alias path governance, and runtime MCP agent isolation):**
+  1. **Liberated Turing-Complete Control Flow (`ptc_verifier.py`)**: Replaced rigid AST node whitelists with an import-level check permitting loops (`for`, `while`), branching (`if`), and error handling (`try-except`) while strictly confining imports to `skills.*`, `tools.*`, and safe stdlib modules (`json`, `re`, `math`, `datetime`, `collections`, `itertools`, `typing` etc.), supporting function alias imports (`from skills... import func as alias`).
+  2. **Unified Multi-Alias Path Policy Enforcement (`batch_processor.py` & `ipc_proxy.py`)**: Synchronized path parameter detection across pre-execution static approval and runtime IPC proxy layers (`path`, `file_path`, `target`, `destination`, `filepath`), preventing traversal and workspace escape.
+  3. **Runtime Employee Scoped MCP Scope Gate (`ipc_proxy.py` & `scope_gate.py`)**: Wired `EmployeeScopedMcpDiscoveryGate.verify_tool_invocation` into IPC request handling, enforcing fail-closed MCP server and tool allowlists for individual subagents.
+  4. **Signed off in a real browser against a real model**: Executed real Lane-C Chrome E2E test `test_catalog_mcp_agent_tool_call_lane_c_chrome_e2e.py` on port :9333 with MiniMax M3.1 Flash Preview performing 6 live MCP calls to Microsoft Learn docs, passing with `rc=0` (state `SUCCEEDED`, `cleanup.sealed=true`) alongside 42 harness security & IPC unit/integration tests with 95% coverage.
+  5. **Comprehensive Six-Competitor Analysis**:
+     - **Hermes Agent**: Relies on turn-1 prompt suggestions and JSON tool calls without pre-execution AST syntax verification or Unix socket bearer token isolation;
+     - **OpenClaw**: Defaults to bypass mode without AST-level path parameter extraction or employee-level MCP scope gate;
+     - **Codex**: Confined to sandbox code execution without dynamic MCP skill binding or UDS IPC token proxy;
+     - **DeepSeek-Harness**: Uses single `run_code` mode without fine-grained import whitelisting or agent-scoped discovery gates;
+     - **Pi (oh-my-pi)**: Lacks AST pre-execution path policy enforcement and relies on manual tool exposure prefixes;
+     - **OpenCode**: Lacks in-sandbox UDS token transport and agent-scoped runtime invocation gating.
+  6. **SSOT Sources:** `temp-docs/materials/PROGRAMMATIC_TOOL_CALLING_ADVANTAGE.md` · `temp-docs/materials/SKILL_PERMISSION_SECURITY_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/security/ptc_verifier.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/approval/batch_processor.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/skills/mcp/ipc_proxy.py`
+
 ## Latest Benchmark Snapshot (2026-10-19 · Grounded Completion Claims & Per-Turn Evidence Disclosure · Eliminating Confident "Tests Passed / Already Sent" Reports With Nothing Behind Them, and the Silent Loss of Unpersisted Deliverables)
 
 - **ExecutionClaimGroundingAndEvidenceDisclosure (Benchmarking Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi / OpenCode against trusting an agent's own completion claims):**
