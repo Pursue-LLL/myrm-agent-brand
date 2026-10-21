@@ -14,7 +14,7 @@
  * ① 锚点文件里仍能找到期望值（防止注册表自己过期）；② 三语官网的对应数字与期望值一致；
  * ③ 轮播没有 100% 磁贴；④ 官网不含未交付能力词。
  */
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -94,6 +94,15 @@ const COUNT_CLAIMS = [
     locales: { zh: [/(\d+)\+?\s*生命周期钩点/], en: [/(\d+)\+?\s*lifecycle hooks/], ko: [] },
   },
   {
+    id: 'artifactPreviewTypes',
+    anchor: 'myrm-agent/myrm-agent-frontend/src/components/features/artifacts/renderers',
+    expect: 11,
+    literal: null,
+    dirCount: { exclude: ['_ARCH.md', '__tests__', 'SkeletonLoader.tsx', 'NoPreview.tsx'] },
+    slide: 'filePreview',
+    locales: { zh: [], en: [], ko: [] },
+  },
+  {
     id: 'mermaidDslKinds',
     anchor: 'myrm-agent/myrm-agent-frontend/src/components/features/artifacts/renderers/architecture/ArchitecturePreview.tsx',
     expect: 4,
@@ -132,7 +141,8 @@ function main(): void {
       errors.push(`[${claim.id}] 锚点文件不存在: ${claim.anchor}`);
       continue;
     }
-    const anchorText = readFileSync(anchorPath, 'utf8');
+    // 目录型锚点没有正文可读，跳过正文校验（由 dirCount 分支负责）
+    const anchorText = statSync(anchorPath).isDirectory() ? '' : readFileSync(anchorPath, 'utf8');
 
     // ① 锚点仍能复现期望值（注册表自身不能过期）
     if ('literal' in claim && claim.literal) {
@@ -146,6 +156,14 @@ function main(): void {
       const total = [...anchorText.matchAll(re)].reduce((acc, m) => acc + Number(m[1]), 0);
       if (total !== claim.expect) {
         errors.push(`[${claim.id}] 锚点求和 ${total} ≠ 期望值 ${claim.expect}: ${claim.anchor}`);
+        continue;
+      }
+    }
+    if ('dirCount' in claim && claim.dirCount) {
+      const dir = join(REPO_ROOT, claim.anchor);
+      const entries = readdirSync(dir).filter((e) => !claim.dirCount.exclude.includes(e));
+      if (entries.length !== claim.expect) {
+        errors.push(`[${claim.id}] 锚点目录计数 ${entries.length} ≠ 期望值 ${claim.expect}: ${claim.anchor}`);
         continue;
       }
     }
