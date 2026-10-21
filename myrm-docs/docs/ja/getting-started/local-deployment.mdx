@@ -1,0 +1,133 @@
+---
+title: ローカルデプロイ
+description: Docker または手動手順で Myrm をセルフホストします。
+---
+
+# ローカルデプロイ
+
+自分のマシンで Myrm を動かし、データを完全に自分の管理下に置きます。
+
+## 1 行コマンドでインストール（最速）
+
+**macOS / Linux / Git Bash**
+
+```bash
+curl -fsSL https://myrmagent.ai/install.sh | bash
+myrm start
+```
+
+**Windows（PowerShell）**
+
+```powershell
+irm https://myrmagent.ai/install.ps1 | iex
+myrm start
+```
+
+**http://localhost:3000** を開き、設定で LLM の API Key を追加します。Harness は PyPI から入ります。セルフホストで harness リポジトリを別途用意する必要はありません。
+
+## クローンして開発（オープンソースリポジトリ）
+
+```bash
+git clone https://github.com/Pursue-LLL/myrm-agent.git
+cd myrm-agent
+myrm setup          # uv sync + bun install
+myrm start          # バックエンド (:8080) + フロントエンド (:3000)
+```
+
+`myrm start` はバックエンドとフロントエンドを同時にバックグラウンドで起動し、準備ができてから <http://localhost:3000> を開きます。フロントエンド UI 自体をデバッグするときだけ、フロントエンドを単独で実行してください（`cd myrm-agent-frontend && bun run dev`）。
+
+開発スクリプトはオープンソースリポジトリの `scripts/` にあります。貢献者は一度クローンするだけでローカル実行できます。
+
+<Callout type="tip">
+  **分離開発時の注意:** WebUI だけ（ポート 3000）を起動してバックエンドが動いていない場合、界面には完全なサービスの起動方法を案内する親切な Banner が出て、分かりにくいエラーにはなりません。設定はオフラインにキャッシュされ、バックエンド復旧後に自動同期されます。
+</Callout>
+
+## 前提条件（Docker ルート）
+
+- Docker 24+ と Docker Compose v2
+- CPU 2 コア以上
+- メモリ 4GB 以上（8GB 推奨）
+- ディスク 10GB
+
+使用強度ごとの構成段階は[システム要件](/ja/self-hosting/system-requirements)を参照してください。
+
+## Docker Compose
+
+```bash
+git clone https://github.com/Pursue-LLL/myrm-agent.git
+cd myrm-agent/myrm-agent-server
+cp .env.example .env
+docker compose --profile app up -d
+```
+
+## 設定
+
+プロバイダーの認証情報は**環境変数ではありません**。WebUI の**設定 > モデルサービス**で追加してください。プロバイダーごとにそれぞれの Key を保存し、Myrm はそれを暗号化してローカルデータディレクトリ（`MYRM_DATA_DIR`、既定 `~/.myrm`）に保管します。
+
+`.env` が扱うのはプロセス級・運用級の設定のみです（ポート、データディレクトリ、サンドボックス資源制限など）。詳細は[環境変数](/ja/self-hosting/environment-variables)を参照してください。
+
+## 中国本土での高速化
+
+インストールスクリプトは中国本土のネットワークを自動検出（タイムゾーン + 接続性チェック）し、国内ミラーへ自動的に切り替えます。
+
+- **PyPI** → pypi.tuna.tsinghua.edu.cn
+- **npm** → registry.npmmirror.com
+- **Playwright** → cdn.npmmirror.com
+
+Docker ビルド時は `--build-arg USE_CN_MIRROR=1` を渡します。
+
+```bash
+docker build --build-arg USE_CN_MIRROR=1 -f myrm-agent-server/Dockerfile -t myrm-server .
+```
+
+手動で制御することもできます。`MYRM_USE_CN_MIRROR=1` で国内ミラーを強制、または `MYRM_NO_CN_MIRROR=1` で自動検出を無効にできます。
+
+## インストールの確認
+
+```bash
+curl http://localhost:3000/api/health
+```
+
+想定される応答:
+
+```json
+{ "status": "ok" }
+```
+
+## 本番用 Docker ビルド（オープンソースのサーバーイメージ）
+
+ビルド済み harness wheel からオープンソースのサーバーイメージを構築するとき、ビルダは BuildKit の `TARGETPLATFORM` で正しいプラットフォームの core wheel を選び、イメージの準備が終わる前に `verify-harness-distribution` を実行します。不一致や不完全なインストールは、会話の途中でなく**ビルド / 起動時に失敗**します。
+
+詳細は monorepo 内の harness 配布ガイド `myrm-agent-harness/harness_packaging/DISTRIBUTION_SYSTEM.md` を参照してください。
+
+## モジュール式エンジンのパッケージング（二次開発者向け）
+
+Harness コアの**ランタイム依存は 24 個**のみで、ほかに **11 組の任意 Extras**（ブラウザ、検索、ACP、可観測性など）があります。`install.sh`、Docker、Tauri で導入する一般利用者は、サーバーに必要な完全な組み合わせを自動的に得ます — **Extras を手動で選ぶ必要はありません**。
+
+自分の Python サービスにエンジンを組み込む場合は、必要に応じて導入します。
+
+```bash
+pip install 'myrm-agent-harness[fastapi,web,compiled-core]==0.1.0'
+```
+
+Extra が欠けている場合は、会話の途中で静かにクラッシュするのではなく、呼び出し箇所で明確なインストール指示が出ます。アーキテクチャテストがコアの依存リストを固定し、silent な膨張を防ぎます — **327** 件の harness アーキテクチャテストが検証済みです（2026-07）。
+
+## 依存関係の自動管理
+
+Myrm は依存関係のインストールを自動処理します。手動操作は不要です。
+
+- **チャネル SDK** — Matrix / Discord / Feishuなどのチャネルを有効化すると、必要な Python パッケージが安全な許可リスト機構で必要に応じてインストールされ、サービスの再起動は不要です
+- **任意の Skill 拡張** — 一部のプリセット Skill は追加の Python パッケージを必要とします。例えば WeChat 記事フォーマット Skill（`wechat-article-formatter`）は `markdown` + `pygments` が必要で、`uv sync --extra wechat-formatter` で導入します（Docker の `--all-extras` には既に含まれます。軽量デスクトップパッケージは GPL / 重い optional を除外します）
+- **MCP サーバー** — 外部ツールは `npx` / `uvx` で実行され、それぞれの環境を自動で管理します。GUI にサーバーを追加するだけで使えます
+- **Doctor 診断** — `myrm doctor` でシステムの健全性を確認します。Python バージョン、コア依存、ブラウザ利用可否など。チェックが失敗するたびに修復手順が表示されます
+- **安全優先** — 自動インストールされるのは事前承認されたパッケージだけです。MCP サーバーは有効化前にマルウェア（OSV）とプロンプトインジェクションのスキャンを受けます
+
+**Agent スタック SSOT:** `litellm` / `langchain` は harness パッケージで 1 度だけ pin され、サーバーは推移的依存として消費します。二重 pin によるバージョン漂移を避けています。
+
+## アップデート
+
+```bash
+git pull
+docker compose --profile app pull
+docker compose --profile app up -d
+```
