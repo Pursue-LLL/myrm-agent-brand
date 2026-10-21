@@ -15,6 +15,7 @@ import {
   BENTO_KEYS,
   COMPARE_ROW_FIELDS,
   COMPARE_ROW_KEYS,
+  PARKED_COMPARE_ROW_KEYS,
   COMPARE_TAB_KEYS,
   COMPARE_TAB_ROWS,
   FAQ_ITEM_KEYS,
@@ -305,6 +306,21 @@ for (const locale of LOCALES) {
   for (const rowKey of COMPARE_ROW_KEYS) {
     for (const field of COMPARE_ROW_FIELDS) {
       assertKey(locale, marketing, 'marketing', `whyMyrmAgent.rows.${rowKey}.${field}`, errors);
+    }
+  }
+
+  // Locale compare rows must be registered (rendered) or explicitly parked —
+  // otherwise comparison copy silently goes dark and drifts out of date.
+  const parkedRows = new Set<string>(PARKED_COMPARE_ROW_KEYS);
+  const registeredRows = new Set<string>(COMPARE_ROW_KEYS);
+  const localeRows = getAt(marketing, 'whyMyrmAgent.rows');
+  if (localeRows !== null && typeof localeRows === 'object') {
+    for (const key of Object.keys(localeRows as Record<string, unknown>)) {
+      if (!registeredRows.has(key) && !parkedRows.has(key)) {
+        errors.push(
+          `[${locale}] unregistered marketing.whyMyrmAgent.rows.${key} (register it in COMPARE_ROW_KEYS or park it in PARKED_COMPARE_ROW_KEYS)`,
+        );
+      }
     }
   }
 

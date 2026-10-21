@@ -11,6 +11,25 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-10-21 · 私有回归资产与评测可信度：把踩过的坑变成回归护栏 · 彻底消除「换模型 / 改提示词后 Agent 悄悄退步，而公开题库测不出你的业务坑」）
+
+- **私有回归资产与评测可信度套件（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 在「换配置会不会退步、有没有防倒退护栏」这一形态）：** 竞品普遍把质量交给开发者离线脚本或公开题库 —— 改完模型只能靠人肉回归；Anthropic 官方 `claude-api` skill 虽已提供 `build-eval` / `hillclimb` 与一整套评测健康检查，但它是 2026-09 之后才起步的 **CLI 开发者工具**，走 Claude Code、无 GUI、不沉淀用户私有用例。Myrm 把这件事做成**产品能力**：
+  1. **私有用例即资产（`app/core/eval/capture.py` → `.myrm/eval_datasets/`）**：任意会话右键「淬炼为评测用例」，Base64 图片自动洗成轻量元数据（2.4MB → 3.8KB，编辑器秒开）；换模型 / 改提示词 / 升级技能之前一键复跑，逐用例给出通过率、耗时与 token；
+  2. **防作弊防污染四层（`eval/canary.py` · `app/core/eval/wb_bench/workspace.py:83-87` · `eval/contamination.py` · `eval/leakage_guard.py` · `eval/decontam.py:26-39`）**：金丝雀隔离（对齐 SWE-bench / BIG-bench 口径）、隐藏测试只读挂载（Agent 执行期物理不可达）、轨迹级作弊审计、提案器与测试集物理隔离（Train/Val/Test 三分法 + 稳定哈希分层，不按分数挑用例）、HF 域名与查询双 blocklist —— 竞品普遍只有「别泄漏」一句提示；
+  3. **统计显著性（`eval/significance.py`）**：McNemar 精确二项 + Edwards 连续性校正、1000 次配对 Bootstrap 95% 置信区间、Pass@k 与难度分层 —— 分数变化小于区间宽度时它就只是噪声，不是「退步」；
+  4. **平台期四机制诊断（`eval/plateau.py`）**：区分「统计功效不足 / 能力饱和 / 跨模型分歧 / 难例子集瓶颈」，明确劝阻无意义的提示词微调 —— 避免「调了三十版提示词，分数一直在噪声里」；
+  5. **失败会分锅（`eval/trajectory_analysis.py:30-54` + 故障侧归因）**：9 类轨迹失败根因 + Pareto 分布 + 故障侧即时归因（模型幻觉 / 工具执行 / 流程 / 环境 / 评测 / 用户指令），告诉你 30% 到底败在哪；
+  6. **诚实披露（`eval-lab/_ARCH.md:18` 环境披露网格 + 轨迹披露徽标）**：模型、thinking 档、判官模型、harness 版本、题集指纹、Profile、工具策略、运行预算、去污染状态、抽样与中止徽标、预算截断 `limit_hit` 与去污染拦截 `blocked` 计数同屏可见 —— 两次分数能不能比，报告上写得清清楚楚，不拿「跑通了一半」冒充「全绿」；
+  7. **多维 A/B 与消融**：分层评测（裸基座 → 核心 → 技能 → 记忆）、记忆开 / 关 A/B、技能三臂（无 / 基线 / 候选）、跨 Profile 矩阵并自动点名「只在某些配置下失败」的用例（`eval/matrix.py:119`）。
+  8. **六家竞品横向对照**：
+     - **Hermes Agent**：评测是开发者专属离线 Python 脚本（`evals/readtool/`、`evals/compaction/`），仅终端可用，无 GUI、无「从日常会话沉淀为私有用例」的通路；
+     - **OpenClaw**：评测与主对话界面割裂，依赖外部公开数据集静态文件，私有业务用例无处安放；ClawEval 是模型选型 CLI 工具，不是回归评测；
+     - **Codex（ArkClaw）**：长程执行与工件归档为主，没有内置评测实验室与回归套件，模型退化后只能人工重排查；
+     - **DeepSeek-Harness**：聚焦官方模型 Benchmark，用例标准为特定推理模型定制，缺多模态 Base64 防爆清洗，图片膨胀易导致解析崩溃；
+     - **Pi / 其他通用助手**：无评测概念，单向问答，踩坑轨迹无法沉淀为资产；
+     - **补充对照 · Anthropic `claude-api` skill**：方法论（成对盲评、参照冻结、噪声地板、过拟合三防、成本爬坡搜索序）相当先进，但定位是「有评测集、会读代码的开发者工具」且刚起步 —— Myrm 走的是 **GUI + 私有用例 + 产品化报告**的另一条路，不是同形态复制；
+  9. **SSOT 代码位置：** `temp-docs/materials/EVAL_LAB_BENCHMARK_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/eval/` · `myrm-agent/myrm-agent-server/app/core/eval/` · `myrm-agent/myrm-agent-frontend/src/components/features/eval-lab/_ARCH.md`
+
 ## 最新验证快照（2026-10-20 · 解除 PTC 僵硬控制流限制、模块白名单导入收敛与运行时数字员工 MCP 作用域门禁 · 彻底消除 AST 节点死板拦截、脚本内代码注入绕过与权限隔离死代码路径）
 
 - **解除PTC控制流限制与运行时作用域门禁套件（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 在「程序化工具调用图灵完备性、AST 静态预审、全别名路径拦截与运行时 Agent 级 MCP 权限隔离」这一形态）：**
