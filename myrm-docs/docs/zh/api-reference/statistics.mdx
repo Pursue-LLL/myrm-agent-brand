@@ -308,12 +308,12 @@ Myrm Engine 在 `/metrics` 暴露 Prometheus 遥测，零运维开销，供 DevO
 ### 高级 Agent 指标
 
 - `myrm_time_to_first_action_seconds`（Histogram）：精确 TTFA，从收到用户指令到首次调用工具的时间。
-- `myrm_policy_denial_total`（Counter）：被安全护栏与路径策略阻断、脱敏或拒绝的次数。
+- 策略拒绝：判定逻辑已存在（harness 安全审计模块的 `is_policy_denial`），但**尚未暴露专用 Prometheus Counter**——请基于审计事件做告警，不要依赖一个并不存在的指标。
 - `myrm_tool_execution_total` & `myrm_tool_execution_failed_total`（Counter）：各技能执行结果，用于 Grafana 计算「工具有效率」。
 
 ### 生产级告警规则（云托管部署）
 
-云托管部署内置 12 条生产级 Prometheus 告警规则，覆盖沙箱健康与可靠性：
+云托管部署内置 **16 条**生产级 Prometheus 告警规则（见 `myrm-agent-server/deployments/prometheus/rules.yml`），覆盖沙箱健康与可靠性：
 
 | 告警 | 级别 | 触发条件 |
 |------|------|---------|

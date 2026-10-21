@@ -308,12 +308,12 @@ The Myrm Engine exposes underlying Prometheus telemetry metrics for deep DevOps 
 ### Advanced Agent Metrics
 
 - `myrm_time_to_first_action_seconds` (Histogram): Captures the precise Time-To-First-Action (TTFA), calculating the exact time from receiving a user's instruction until the agent invokes its first tool.
-- `myrm_policy_denial_total` (Counter): Tracks the number of times agent actions were blocked, redacted, or denied by the Security Guardrails and Path Policies.
+- Policy denials: the decision logic exists (`is_policy_denial` in the harness security audit module), but **no dedicated Prometheus counter is exposed yet** — alert on the audit events instead of a metric that does not exist.
 - `myrm_tool_execution_total` & `myrm_tool_execution_failed_total` (Counters): Monitors execution results for all individual skills, providing real-time data for calculating the overall "Tool Effectiveness Ratio" on Grafana dashboards.
 
 ### Production Alerting Rules (Cloud Deployment)
 
-For cloud-hosted deployments, Myrm ships with 12 production-grade Prometheus alerting rules covering sandbox health and reliability:
+For cloud-hosted deployments, Myrm ships with 16 production-grade Prometheus alerting rules (see `myrm-agent-server/deployments/prometheus/rules.yml`) covering sandbox health and reliability:
 
 | Alert | Severity | Trigger |
 |-------|----------|---------|
