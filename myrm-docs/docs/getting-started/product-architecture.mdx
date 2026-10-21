@@ -60,6 +60,18 @@ Architecture CI in `myrm-agent-server` blocks `from myrm_agent_harness.*._*` imp
 | **SaaS** | Teams without ops burden | Managed sandboxes, Work Units, optional tool gateway |
 | **PWA** | Mobile add-to-home | Install from browser after building `myrm-agent-frontend` (see [Development Setup](/docs/contributing/development-setup)) |
 
+## Device & hardware layer: what works today, what does not
+
+"Personal AI companion" competitors put the agent onto your own board, watch, or old phone. Here is our split, stated plainly:
+
+| Form factor | Status | What you get |
+|-------------|--------|--------------|
+| **Phone / tablet browser** | ✅ Shipped | Installable PWA (offline cache + install guide + automatic version updates); four voice modes (pure voice I/O, server-side agent bridge, OpenAI Realtime, Gemini Live with native function calling) and **barge-in awareness** — you talk and it stops, carrying "I hadn't finished that" into the model so it continues naturally |
+| **Phone as command deck** | ✅ Shipped | Once paired, the phone dispatches tasks, watches progress, approves, and emergency-stops; the host keeps full capability |
+| **Custom hardware (ESP32 / watch / your own board)** | ⛔ Not shipped | We do **not** produce device firmware and we do not claim support we do not have. The open device protocol, the hardware-free simulator, and the per-model verification matrix are on the roadmap (`topic_19 #60` / `#67` / `#68`) and their status is **planned**, not delivered |
+
+**Honest difference from the competition**: Hermes Gadget already ships an open SDK, a desktop simulator (the same firmware core runs in a desktop window, so you can develop and accept without hardware), and a per-model physical verification matrix. We agree with that path and plan the same discipline (a passing build is not a working device; unverified items must be written down explicitly) — but it is **not shipped today**, so we do not market it.
+
 ## Migrating from other agents
 
 - **Config:** import paths for Hermes / OpenClaw-style exports (see **Quick Start**).

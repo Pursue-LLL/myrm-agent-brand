@@ -158,7 +158,6 @@ export const COMPARE_ROW_KEYS = [
   'modelArenaRanking',
   'dynamicArtifacts',
   'officialDocuments',
-  'localIotBridge',
   'longTaskOrchestration',
   'harnessUpgradeContract',
   'benchmarkProfile',
@@ -278,7 +277,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'stopTransparency',
     'modelFailoverKeepsContext',
   ],
-  platform: ['gui', 'chatHistoryManagement', 'parallelSessionIsolation', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'harnessUpgradeContract', 'codeGraph', 'crossPlatformHandoff', 'configSync', 'taskResilience', 'localIotBridge', 'steerToken', 'threeDGraph', 'chatOpsIM', 'serverless', 'smartCommandInput', 'agentPluginRuntime', 'newTaskWorkContextCard', 'desktopNativeBridge'],
+  platform: ['gui', 'chatHistoryManagement', 'parallelSessionIsolation', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'harnessUpgradeContract', 'codeGraph', 'crossPlatformHandoff', 'configSync', 'taskResilience', 'steerToken', 'threeDGraph', 'chatOpsIM', 'serverless', 'smartCommandInput', 'agentPluginRuntime', 'newTaskWorkContextCard', 'desktopNativeBridge'],
 };
 
 export function highlightSlideBasePath(slideKey: HighlightSlideKey): string {
@@ -292,6 +291,6 @@ export const USE_CASE_KEYS = ['research', 'coding', 'automation', 'content', 'te
 
 export type UseCaseKey = (typeof USE_CASE_KEYS)[number];
 
-export const FAQ_ITEM_KEYS = ['what', 'pronounce', 'local', 'data', 'embedWindow', 'cloudResources', 'optionalExtras', 'commerceSupport', 'migrate', 'personalAgent', 'ghostError', 'captcha', 'ecosystem', 'regression', 'openSource'] as const;
+export const FAQ_ITEM_KEYS = ['what', 'pronounce', 'local', 'data', 'embedWindow', 'cloudResources', 'optionalExtras', 'commerceSupport', 'migrate', 'personalAgent', 'ghostError', 'captcha', 'ecosystem', 'regression', 'openSource', 'deviceHardware'] as const;
 
 export type FaqItemKey = (typeof FAQ_ITEM_KEYS)[number];
