@@ -1,0 +1,32 @@
+---
+title: MCP 経由での図の描画
+description: Excalidraw や tldraw の MCP サービスを使って、組み込み Canvas モジュールなしで編集可能なホワイトボードを扱います。
+---
+
+Myrm は**無限キャンバスを内蔵しません**。アーキテクチャのスケッチ、フローチャート、共同での描画作業は MCP 拡張経由で行い、コア产品的のシンプルさを保ちます。
+
+**ユーザーにとっての利点**: OpenClaw などの競合は内蔵 canvas プラグインを同梱することが多く、デフォルトのツール schema が膨らみ、保守コストも嵩みます。Myrm は**Mermaid アーティファクト**で出図シーンの大半をカバーし（追加インストール不要）、確認系の対話は**`structured_clarify`** が会話内のフォームで受け持ちます。手描きで共同編集できるホワイトボードが要るときは **Excalidraw / tldraw MCP** を導入してください — 機能は失われず、既定はより軽く、Prompt 前置きもより安定します。
+
+## 内蔵の代替手段（MCP 不要）
+
+- 会話内の **Mermaid アーティファクト** — マインドマップ、フローチャート、シーケンス図、ガントチャートなど
+- **`structured_clarify`** — 会話内の構造化フォーム（選択肢ボタン、複数選択、自由記述）
+- **HTML / SVG アーティファクト** — 書き出して共有できる
+
+## 推奨する MCP 拡張
+
+| シーン | MCP | 説明 |
+| --- | --- | --- |
+| 手描き風 | [Excalidraw MCP App](https://github.com/excalidraw/excalidraw-mcp) | 公式のリモート HTTP。Goose などにも記載あり |
+| プログラム生成の `.tldr` | [tldraw-mcp-server](https://github.com/AndresMuelas2004/tldraw-mcp-server) | Node.js。30 ツール、ブラウザ不要 |
+| Codex プラグインの参考 | [Cowart](https://github.com/zhongerxin/cowart) | Codex プラグイン + MCP widget（競合事例） |
+
+## 設定（設定 → MCP）
+
+1. リモート MCP（Excalidraw MCP App の URL）**または**ローカル stdio サービス（tldraw / excalidraw-mcp-server）を追加します。
+2. エージェント設定その MCP を有効にします。
+3. MCP ツールで図を作成・編集します。永続化は MCP アプリ側が担うため、Myrm のサーバーには保存されません。
+
+## 旧 Canvas からの移行
+
+削除済みの内蔵 **Canvas** ツールを有効にしていた場合、保存済みの設定ではその ID が自動的に無視されます。すばやく出図したいときは Mermaid、編集可能なホワイトボードが必要なら Excalidraw MCP を導入してください。
