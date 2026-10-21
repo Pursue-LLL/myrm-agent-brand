@@ -115,6 +115,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **新增一条尚未交付的路线图条目**：`topic_16 #411`（媒体产物的素材来源与许可谱系套件，**待分析**）。
 - **SSOT**：`temp-docs/materials/AI_CREATION_WORKFLOW_AND_MODEL_ORCHESTRATION_ADVANTAGE.md`（创作与多模态轴主文档，2026-10-22 新增段）· `temp-docs/roadmap/topic_16_office_agent_specialty_suites_and_deliverable_bundle_roadmap.md`（#411）· `external_reference_project/harness/OpenMontage`
 
+## 最新验证快照（2026-10-22 · 官方把「Agent Skills」和「subagents」写进了认证课程 · 证书是副产品，**路径顺序**才是关键 · 我方「教 AI 写技能」已是完整闭环且官网已表述，缺的是面向用户的能力路径）
+
+- **触发事件**：X @Amelia_With_Ai（Amelia Brooks）《Claude is offering 18 official AI courses with certificates. And it's 100% free》（`https://x.com/Amelia_With_Ai/status/2108142676881362977`，2026-10-08 18:29；**2,292 浏览 / 19 回复 / 43 转推 / 75 赞 / 37 书签**）—— Anthropic Academy（`anthropic.skilljar.com`）18 门免费课，其中第 5 门「Introduction to Agent Skills」、第 18 门「Introduction to subagents」、第 8/9 门 MCP、第 7 门 Claude Code in Action。本轮用 ChromeAgent :9410 + chrome-devtools MCP 抽取主帖全文 + **17 条回复**。
+- **信号**：技能、子代理、MCP 已进入**官方认证课程的一级目录**（不是社区教程，是课程 + 证书）→ 技能从「玩票」变成**可教、可考、可写进简历**的职业能力。这与本仓路线图里已有的判断（topic_08「Apple 官方将技能作为一等公民内置」）是同一趋势的**第二次独立确认**。
+- **评论区唯一有信息的一条（@AleksejAros，42 赞）**：「18 free courses is a lot of homework, but Claude 101 then the Cowork workflows one is a sensible order. **Certificates I'd treat as a side effect.**」→ **证书是副产品，路径顺序才是关键**。
+- **生态侧更可借的一件**：「教 AI 写技能」已被做成**可安装的技能**——镜像里至少四处存在 `skill-creator`（`external_reference_project/claw/anthropics-skills/skills/skill-creator`、`openclaw/skills/skill-creator`、`LobsterAI/SKILLs/skill-creator`、`awesome-claude-skills/skill-creator`）。
+- **我方现状（均已用真实代码核对）**：**我们比通用 `skill-creator` 多做了一整圈闭环**——入口 `myrm-agent-frontend/src/lib/skills/composeLearnSlashMessage.ts:51`（构造 `/learn`）+ 官网已表述的「Settings 学习向导：目录+URL+说明+五场景 chip → 一键 `/learn` → 草稿审阅 → `[use skill]` 调用引导」；沉淀与把关 `myrm-agent-harness/.../agent/skills/evolution/core/engine.py`（进化引擎）+ `eval_regression.py`（进化后回归断言）+ `myrm-agent-server/app/services/skills/evolution_review/actions.py`（人工审核）；门禁为安装前 26 类 / 113 条静态扫描 + 信任四档 + 用户可撤销。**⇒ 这条优势官网已有如实表述，本轮无需新增宣传。**
+- **我们不宣称的（诚实差距）**：① **没有面向用户的「能力路径 / 学习地图」**——134 内置技能、26 类扫描规则、26 渠道与四层渐进披露是**平铺**的；竞品至少给了**一条有顺序的入门路径**。@AleksejAros 那句「缺的不是证书，是顺序」正指这一格。② **本轮不开新路线图条目**：这是**产品形态**而非运行机制，且与同轴 `SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md`（技能市场与采纳）相邻，**为避免同轴重复建设，只登记诉求与现状**，由那条统一承接。
+- **SSOT**：`temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（技能与插件生态轴主文档，2026-10-22 新增段）· `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md`（同轴采纳轴，唯一承接处）· `https://x.com/Amelia_With_Ai/status/2108142676881362977`
+
 ## 最新验证快照（2026-10-21 · 竞品把 Agent 塞进任意设备：Hermes Gadget SDK 的四个可核对机制 · 我方的诚实差距，以及两条尚未交付的路线图条目）
 
 - **触发事件**：社区帖 @adolandev（`https://x.com/adolandev/status/2107813150686888407`）——「Three days ago, Hermes Gadget was an open SDK and a demo. Then the community got hold of it -- shoutout @NousResearch. LilyGO watches. AIPI Lite. Desk gadgets. Old Android phones. People are getting Hermes running on all kinds of devices and sharing their work.」我们把该 SDK 仓库（`external_reference_project/claw/hermes-gadget-sdk`，MIT，v0.2.0）拉到本地逐文件核对。**注意：它是 Hermes 的第三方插件，不是 Nous Research 的官方产品**。

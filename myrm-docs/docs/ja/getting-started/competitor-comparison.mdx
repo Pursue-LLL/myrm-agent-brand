@@ -120,10 +120,20 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
 - **主張しないもの（正直なギャップ）**:
   1. **「素材の出典とライセンスの系譜」が無い**——`app/api/artifacts` と `app/services/artifacts` 配下で `copyright` / `attribution` / `license` / `授权` / `版权` を検索して **0 件**。
   2. **体系的な動画パイプラインは無い**——`topic_16` の第 12 / 33 / 35 条はすべて**未分析**であり、納品済みとして示してはならない。
-  3. **規模では競い合わない**——技能の数を競い合うのではなく「**すべての 1 つが安全と証拠のゲートを通る**」で競う。
+  3. **規模では競い合わない**——スキルの数を競い合うのではなく「**すべての 1 つが安全と証拠のゲートを通る**」で競う。
   4. **相手のコスト数値を引用しない**——「60 秒で 1.33 ドル」は相手のデモ口径。
 - **まだ納めていないロードマップ項目 1 件を新規追加**: `topic_16 #411`（メディア成果物の素材出典とライセンス系譜套件、**未分析**）。
 - **SSOT**: `temp-docs/materials/AI_CREATION_WORKFLOW_AND_MODEL_ORCHESTRATION_ADVANTAGE.md`（創作とマルチモーダルの軸の主ドキュメント、2026-10-22 追記段）· `temp-docs/roadmap/topic_16_office_agent_specialty_suites_and_deliverable_bundle_roadmap.md`（#411）· `external_reference_project/harness/OpenMontage`
+
+## 最新検証スナップショット (2026-10-22 · 公式が「Agent Skills」と「subagents」を認証コースに収録 · 証明証書は副産物で、**道筋の順序**才是肝 · 我々の「AI に書かせる」クローズドループはすでに完成し公式サイトにも明記済みで、足りないのは利用者に向け能力パス)
+
+- **きっかけ**: X @Amelia_With_Ai（Amelia Brooks）「Claude is offering 18 official AI courses with certificates. And it's 100% free」（`https://x.com/Amelia_With_Ai/status/21081426768412742977`... 実際は `https://x.com/Amelia_With_Ai/status/2108142676881362977`、2026-10-08 18:29。**2,292 閲覧 / 19 リプライ / 43 リポスト / 75 いいね / 37 ブックマーク**）—— Anthropic Academy（`anthropic.skilljar.com`）の無料コース 18 門。うち第 5 門「Introduction to Agent Skills」、第 18 門「Introduction to subagents」、第 8 / 9 門が MCP、第 7 門が Claude Code in Action。ChromeAgent :9410 + chrome-devtools MCP で本文全文と **17 件の返信**を抽出。
+- **シグナル**: スキル・subagent・MCP が**公式認証コースの最上位カタログ**に入った（コミュニティのチュートリアルではなく、課程 + 証明書）→ スキルは「相対愛玩」から**教えられ・試験され・履歴書に乗る**職業能力へ。これは本仓のロードマップが既に記録した趨勢（topic_08「公式ベンダーがスキルを一等市民として扱う」）の**二度目の独立確認**。
+- **コメント欄で唯一情報のある一文（@AleksejAros、42 いいね）**: 「18 free courses is a lot of homework, but Claude 101 then the Cowork workflows one is a sensible order. **Certificates I'd treat as a side effect.**」→ **証明書は副産物で、順序こそが本質**。
+- **より借りられる生態側の事実**: 「AI に書かせる」こと自体が**インストール可能なスキル**になっている——ミラーには少なくとも 4 つの `skill-creator` がある（`external_reference_project/claw/anthropics-skills/skills/skill-creator`、`openclaw/skills/skill-creator`、`LobsterAI/SKILLs/skill-creator`、`awesome-claude-skills/skill-creator`）。
+- **我々の現状（実コードで照合済み）**: **汎用 `skill-creator` よりさらに一周分.Done**——入口 `myrm-agent-frontend/src/lib/skills/composeLearnSlashMessage.ts:51`（`/learn` メッセージ生成）+ 公式サイトが明文で記載している「Settings 学習ウィザード：ディレクトリ + URL + 説明 + 5 つのシナリオ chip → ワンクリック `/learn`（チャットを自動起動）→ 下書きレビュー → `[use skill]` 呼び出しガイド」；蒸留と把关 `myrm-agent-harness/.../agent/skills/evolution/core/engine.py`（進化エンジン）+ `eval_regression.py`（進化後の回帰アサーション）+ `myrm-agent-server/app/services/skills/evolution_review/actions.py`（人手レビュー動作）；関門は導入前 26 類 / 113 条の静的スキャン + 信頼 4 段 + ユーザーによる昇格・取消。**⇒ この強みは公式サイトに既に正直に載っており、本ラウンドで新たな宣伝は不要。**
+- **主張しないもの（正直なギャップ）**: ① **利用者向けの「能力パス / 学習マップ」が無い**——134 個の組込みスキル、26 類のスキャン規則、26 チャネル、4 層の漸進開示は**平置き**であり、競至少有**順序のある入門道**がある（Claude 101 → Cowork）。@AleksejAros の「足りないのは証明書ではなく順序」という指摘がまさにこの一枠に当たる。② **本ラウンドでは新しいロードマップ項目を作らない**——これは**プロダクト形状**であって実行時メカニズムではなく、同じ軸の `SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md`（スキル市場と採用）と隣接しており、**同一軸での重複建設を避けるため、要望と現状の記録に留める**。
+- **SSOT**: `temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（スキルとプラグインの軸の主ドキュメント、2026-10-22 追記段）· `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md`（同一軸の採用側、唯一の承接先）· `https://x.com/Amelia_With_Ai/status/2108142676881362977`
 
 ## 最新検証スナップショット (2026-10-21 · 競合がエージェントをあらゆるデバイスに放り込んだ · Hermes Gadget SDK の 4 つの検証済み機構 · 我々の正直なギャップと、まだ納品されていないロードマップ 2 件)
 
