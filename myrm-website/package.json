@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "dev:3002": "next dev --webpack -p 3002",
-    "build": "bun run validate:locales && bun run validate:docs-slugs && bun run bake:release && next build",
+    "build": "bun run validate:locales && bun run validate:claims && bun run validate:docs-slugs && bun run bake:release && next build",
     "bake:release": "bun run scripts/bake-desktop-release.ts",
     "lint": "tsc --noEmit",
     "test": "bun test scripts/desktop-release.test.ts scripts/baked-manifest-smoke.test.ts scripts/deploy-paths.test.ts scripts/docs-contract.test.ts scripts/detect-browser-locale.test.ts scripts/release-website.test.ts scripts/check-fractal-docs.test.ts",
@@ -13,7 +13,8 @@
     "validate:locales": "bun run scripts/validate-marketing-locales.ts",
     "validate:docs-slugs": "bun run scripts/validate-docs-slugs.ts",
     "release:website": "bun run scripts/release-website.ts",
-    "release:website:dry-run": "bun --no-env-file run scripts/release-website.ts"
+    "release:website:dry-run": "bun --no-env-file run scripts/release-website.ts",
+    "validate:claims": "bun run scripts/check-marketing-claims.ts"
   },
   "dependencies": {
     "@lobehub/icons": "^5.10.0",

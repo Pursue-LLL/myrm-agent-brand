@@ -1,0 +1,196 @@
+/**
+ * [INPUT]
+ * - myrm-website/locales/{zh,en,ko}.json（落地页对比表与轮播磁贴）
+ * - myrm-agent / myrm-agent-harness 仓库内的代码锚点（数量型宣称的 SSOT）
+ *
+ * [OUTPUT]
+ * - CI 校验：官网上的**数量型宣称**必须与代码 SSOT 一致；轮播磁贴不得出现
+ *   「100%」这类读起来像统计结论的绝对表述；官网不得出现未交付能力的宣称
+ *
+ * [POS]
+ * 营销数字守门人。背景：一次日译/改写里先后出现过「内置智能体 25 vs 代码 28」、
+ * 「技能模式 113 vs 文档 108」、「IoT 桥能力根本不存在」等漂移。人工核对无法防止复发，
+ * 因此把「数量 → 代码锚点 → 期望值」写成注册表，由本脚本在 CI 里持续断言：
+ * ① 锚点文件里仍能找到期望值（防止注册表自己过期）；② 三语官网的对应数字与期望值一致；
+ * ③ 轮播没有 100% 磁贴；④ 官网不含未交付能力词。
+ */
+import { readFileSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const REPO_ROOT = join(fileURLToPath(new URL('.', import.meta.url)), '..', '..', '..');
+const WEBSITE_ROOT = join(REPO_ROOT, 'myrm-agent-brand', 'myrm-website');
+
+/** 数量型宣称注册表：概念 → 代码锚点（相对仓库根）→ 期望值 → 锚点里必须出现的字面量。 */
+const COUNT_CLAIMS = [
+  {
+    id: 'builtinAgents',
+    anchor: 'myrm-agent/myrm-agent-server/app/services/agent/builtin_agent_specs.py',
+    expect: 28,
+    literal: '28 built-in agent specs',
+    slide: 'i18nLocalization',
+    locales: {
+      zh: [/(\d+)\s*个内置智能体/, /(\d+)×6/],
+      en: [/(\d+)\s*built-in agents/, /(\d+)×6/],
+      ko: [/(\d+)×6/],
+    },
+  },
+  {
+    id: 'channels',
+    anchor: 'myrm-agent/myrm-agent-server/app/channels/providers/registry.py',
+    expect: 26,
+    literal: null, // 数量由注册项计数得到，见 countMatches
+    countPattern: /^\s{4}"([a-z_]+)":\s*ChannelSpec\(/gm,
+    locales: { zh: [/(\d+)\s*(?:个)?渠道/], en: [/(\d+)\s*(?:IM )?channels/], ko: [/(\d+)\s*채널/] },
+  },
+  {
+    id: 'skillPatterns',
+    anchor: 'myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/patterns.py',
+    expect: 113,
+    literal: '113 patterns',
+    locales: { zh: [/(\d+)\s*条模式/], en: [/(\d+)\s*patterns/], ko: [/(\d+)\s*개 패턴/] },
+  },
+  {
+    id: 'skillHighRisk',
+    anchor: 'myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/patterns.py',
+    expect: 94,
+    literal: null,
+    countPattern: /ScanSeverity\.(CRITICAL|HIGH)/g,
+    locales: { zh: [/(\d+)\s*条为 CRITICAL\/HIGH/], en: [/(\d+)\s*CRITICAL\/HIGH/], ko: [/(\d+)\s*개 CRITICAL\/HIGH/] },
+  },
+  {
+    id: 'evalBenchmarkTasks',
+    anchor: 'myrm-agent/myrm-agent-server/app/core/eval/wb_bench/download.py',
+    expect: 260,
+    literal: null,
+    slide: 'evalLab',
+    sumPattern: /task_count\s*=\s*(\d+)/g,
+    locales: { zh: [/(\d+)\s*(?:个)?(?:真实)?基准任务/], en: [/(\d+)\s*(?:real )?benchmark tasks/], ko: [] },
+  },
+  {
+    id: 'connectorDoctorCodes',
+    anchor: 'myrm-agent/myrm-agent-server/app/services/connect/doctor_check.py',
+    expect: 9,
+    literal: null,
+    countPattern: /^DOCTOR_[A-Z_]+ = /gm,
+    locales: { zh: [/(\d+)\s*种机器可读诊断码/], en: [/(\d+)\s*machine-readable diagnosis codes/], ko: [/(\d+)\s*가지 기계 판독 진단 코드/] },
+  },
+  {
+    id: 'humanizeModes',
+    anchor: 'myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/pool/config.py',
+    expect: 3,
+    literal: null,
+    slide: 'humanizedBrowsing',
+    countPattern: /^\s{4}(FAST|DEFAULT|CAREFUL) = /gm,
+    locales: { zh: [/(\d+)\s*档拟人化等级/], en: [/(\d+)\s*humanization levels/], ko: [] },
+  },
+] as const;
+
+/** 轮播磁贴不得出现的绝对表述。 */
+const FORBIDDEN_STATS = ['100%'];
+
+/** 未交付能力词：出现即说明官网把路线图当现货宣传。 */
+const UNDELIVERED_WORDS = [
+  '外设状态总线', 'Peripheral State Bus', '开放 Vault', '热词', 'YoooClaw', '无损迁移',
+  '环回内录', 'mDNS', 'UPnP',
+];
+
+function readLocale(loc: string): Record<string, unknown> {
+  return JSON.parse(readFileSync(join(WEBSITE_ROOT, 'locales', `${loc}.json`), 'utf8'));
+}
+
+function countMatches(text: string, pattern: RegExp): number {
+  const re = new RegExp(pattern.source, pattern.flags.includes('g') ? pattern.flags : `${pattern.flags}g`);
+  return [...text.matchAll(re)].length;
+}
+
+function main(): void {
+  const errors: string[] = [];
+  const locales = { zh: readLocale('zh'), en: readLocale('en'), ko: readLocale('ko') } as Record<string, Record<string, unknown>>;
+
+  for (const claim of COUNT_CLAIMS) {
+    const anchorPath = join(REPO_ROOT, claim.anchor);
+    if (!existsSync(anchorPath)) {
+      errors.push(`[${claim.id}] 锚点文件不存在: ${claim.anchor}`);
+      continue;
+    }
+    const anchorText = readFileSync(anchorPath, 'utf8');
+
+    // ① 锚点仍能复现期望值（注册表自身不能过期）
+    if ('literal' in claim && claim.literal) {
+      if (!anchorText.includes(claim.literal)) {
+        errors.push(`[${claim.id}] 锚点里找不到 ${claim.literal}（期望值 ${claim.expect} 可能已过期）: ${claim.anchor}`);
+        continue;
+      }
+    }
+    if ('sumPattern' in claim && claim.sumPattern) {
+      const re = new RegExp(claim.sumPattern.source, 'g');
+      const total = [...anchorText.matchAll(re)].reduce((acc, m) => acc + Number(m[1]), 0);
+      if (total !== claim.expect) {
+        errors.push(`[${claim.id}] 锚点求和 ${total} ≠ 期望值 ${claim.expect}: ${claim.anchor}`);
+        continue;
+      }
+    }
+    if ('countPattern' in claim && claim.countPattern) {
+      const n = countMatches(anchorText, claim.countPattern);
+      if (n !== claim.expect) {
+        errors.push(`[${claim.id}] 锚点计数 ${n} ≠ 期望值 ${claim.expect}: ${claim.anchor}`);
+        continue;
+      }
+    }
+
+    // ②a 轮播磁贴 stat 精确匹配（若有声明）
+    if ('slide' in claim && claim.slide) {
+      for (const [loc, data] of Object.entries(locales)) {
+        const slide = (data as any)?.marketing?.highlightsCarousel?.slides?.[claim.slide];
+        if (!slide) continue;
+        const stat = String(slide.stat ?? '');
+        const digits = stat.match(/\d+/);
+        if (!digits) continue;
+        if (Number(digits[0]) !== claim.expect) {
+          errors.push(`[${claim.id}] ${loc} 轮播磁贴 ${claim.slide}.stat = ${stat}，与代码 SSOT ${claim.expect} 不一致`);
+        }
+      }
+    }
+
+    // ②b 三语官网正文里出现的对应数字必须与期望值一致
+    for (const [loc, patterns] of Object.entries(claim.locales)) {
+      const blob = JSON.stringify(locales[loc]);
+      for (const pattern of patterns) {
+        const m = blob.match(pattern);
+        if (!m) continue; // 该语言未出现此宣称，跳过（不是错误）
+        const value = Number(m[1]);
+        if (value !== claim.expect) {
+          errors.push(`[${claim.id}] ${loc} 官网数字 ${value} ≠ 代码 SSOT ${claim.expect}（${pattern.source}）`);
+        }
+      }
+    }
+  }
+
+  // ③ 轮播磁贴不得出现 100%
+  for (const [loc, data] of Object.entries(locales)) {
+    const slides = (data as any)?.marketing?.highlightsCarousel?.slides ?? {};
+    for (const [key, slide] of Object.entries(slides as Record<string, { stat?: string }>)) {
+      for (const bad of FORBIDDEN_STATS) {
+        if (slide?.stat === bad) errors.push(`[stat] ${loc} 轮播磁贴 ${key} 的 stat 仍是 ${bad}，请改为机制表述`);
+      }
+    }
+  }
+
+  // ④ 官网不得出现未交付能力词
+  for (const [loc, data] of Object.entries(locales)) {
+    const blob = JSON.stringify(data);
+    for (const word of UNDELIVERED_WORDS) {
+      if (blob.includes(word)) errors.push(`[claim] ${loc} 官网出现未交付能力词「${word}」`);
+    }
+  }
+
+  if (errors.length) {
+    console.error(`[error] 营销宣称守门失败，共 ${errors.length} 条:`);
+    for (const e of errors) console.error(`  ${e}`);
+    process.exit(1);
+  }
+  console.log(`Marketing claims check OK (${COUNT_CLAIMS.length} count claims, ${FORBIDDEN_STATS.length} forbidden stat, ${UNDELIVERED_WORDS.length} undelivered words)`);
+}
+
+main();
