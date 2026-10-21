@@ -183,7 +183,7 @@
         },
         "migrate": {
           "question": "What do I gain migrating from WorkBuddy, OpenClaw, or Hermes?",
-          "answer": "Zero-friction handover: no need to rewrite rules—existing rule files from Cursor, Claude Code, Hermes and more are picked up automatically; in-meeting notes roll out live with decisions, open risks, and action items; offline tasks survive lid closure—cloud sandboxes freeze compute to zero when idle and thaw fast via container pause/unpause, with headless virtual display enabling Computer Use visual control; tri-deploy isomorphism across WebUI, Desktop, and Cloud keeps your data completely under your control."
+          "answer": "Zero-friction takeover: you don't rewrite your rules — Cursor, Claude Code and Hermes rule files are auto-detected and loaded; meeting notes don't wait for the meeting to end — conclusions, decisions, risks and action items are distilled live and filed into your knowledge base; offline long runs don't fear a closed lid — cloud sandboxes freeze in seconds (0 compute charge, woken via container pause/unpause) and support Computer Use on a headless virtual desktop; local web, desktop and cloud-hosted share one capability and data model, so your data can stay on your own machine. **And more importantly: you do not have to swap your operating system or your device to use AI** — cross-app work rides on our own sandbox and computer-control layer instead of asking you to reinstall a machine; **approval is not just a yes/no** — the multi-step plan is shown before it runs, every edit streams a diff, and a wrong turn rolls back in one click; **automation is not only scheduled** — external systems and incoming files trigger work on their own, and nothing burns tokens when nothing changed; simple commands answer instantly in your channels at zero token cost."
         },
         "personalAgent": {
           "question": "How does MyrmAgent differ from cloud personal assistants like Meta Muse or 360 Nano Work?",
@@ -1100,6 +1100,12 @@
           "hermes": "Bring your own comparison scripts",
           "openclaw": "_no",
           "myrmAgent": "Rerun your own regression cases before changing anything: right-click a solved task in a chat and \"distill it into a test case\" — it becomes a private asset, with no Python test writing · **Cross-profile matrix eval names the cases that only fail under some configurations** (point-blank regression points after a model or profile switch, no manual spreadsheet digging) · **Layered ablation**: bare base → core → skills → memory, so you can see what each extra layer is actually worth · **Memory on/off and three-arm skill A/B**, all readable in one GUI view · **Every report carries a full environment disclosure grid** (model, judge model, harness version, case-set fingerprint, run budget, decontamination status) — whether two scores are comparable is visible at a glance, not remembered"
+        },
+        "approvalDiffRollback": {
+          "feature": "Approval & rollback · plan review + incremental diff + one-click revert",
+          "hermes": "CLI approval prompt, no change preview and nothing to roll back",
+          "openclaw": "Approve / deny only — no diff of what changed, no snapshot rollback",
+          "myrmAgent": "**A three-part handoff (plan → change → revert)**: ① the plan comes first — the first multi-step to-do list (≥3 items) is confirmed by you before anything runs; ② the change is visible — every file edit streams an incremental diff into the conversation instead of a bare \"done\"; ③ there is a handle to revert — a shadow Git snapshot is taken before the action (physically isolated from your own git repository, zero pollution), the approval card carries a single undo button, and the backend one-click rollback endpoint applies it, so a wrong turn costs neither rework nor history archaeology · **A deterministic permission gate**: ALLOW / ASK / DENY are constants in code, the evaluation involves no model at all, DENY cannot even be overturned by an LLM, and sensitive directories such as `~/.ssh` are hard-forbidden · **Every action is on the ledger**: allow / deny / escalation are recorded one by one, and approvals expire"
         }
       }
     },
@@ -1942,6 +1948,16 @@
           "tag1": "Real Chrome + real model sign-off",
           "tag2": "No text layer? Reported, not \"too large\"",
           "tag3": "Escaped test double removed at the root"
+        },
+        "planDiffRollback": {
+          "label": "Approval & rollback",
+          "title": "See what it will change before you approve — roll back with one click",
+          "desc": "**Approval is not just \"allowed or not\"; it also has to answer \"what changed, and how do I undo it\".** Myrm turns that into a three-part handoff: the first version of a multi-step plan is shown to you before any action runs; every file edit streams an incremental diff into the conversation instead of a bare \"done\"; and a shadow Git snapshot (physically isolated from your own repository, so your working tree stays clean) is taken before the action, which puts a single undo button on the approval card — if it went wrong you roll it back on the spot, with no rework and no digging through history.",
+          "stat": "1 click",
+          "statLabel": "Rollback · shadow snapshot + incremental diff + plan review",
+          "tag1": "Plan reviewed before it runs",
+          "tag2": "Incremental diffs stream live",
+          "tag3": "Shadow snapshot, one-click undo"
         }
       }
     }

@@ -89,3 +89,17 @@ Most coding agents assume you have Git credentials, a commit identity, and a web
 - **Self-service PR webhooks**: The webhook URL is shown with a copy button in Settings, and the secret verification (`X-Hub-Signature-256`) is wired end-to-end, so PR / issue / push events reliably land back in your chat.
 
 Ask "push this and open a PR" and it just works — credentials, identity, and events included.
+
+## 11. Approve With Eyes Open — Plan, Diff, Roll Back
+
+An agent that can touch your whole machine raises one unavoidable question: "If I approve this, what exactly changes — and how do I undo it?" Most agents answer with a yes/no prompt and a line of log.
+
+**Our Advantage**:
+- **The plan comes first**: before a multi-step task starts running, the first version of the plan is shown to you for review, so you can redirect it before any file is touched.
+- **The change is visible**: every file edit streams an incremental diff into the conversation instead of a bare "done" — you read the real change, not a summary of it.
+- **There is a handle to revert**: before the action runs, Myrm takes a **shadow Git snapshot** (physically isolated from your own repository, so your working tree and history stay untouched), and the approval card carries an undo button wired to a one-click rollback endpoint. A wrong turn costs neither rework nor history archaeology.
+- **A deterministic gate, not a model opinion**: ALLOW / ASK / DENY are constants in code, the evaluation involves no model at all, `DENY` cannot be overturned by an LLM, and sensitive directories such as `~/.ssh` are hard-forbidden by path policy.
+
+And you do not have to change operating systems to get any of this: cross-app work rides on our own sandbox and computer-control layer, so your current machine stays your machine.
+
+**Competitor reality check (2026-10-22)**: Herald OS — the largest community "agent inside the OS" project — does ship approve-before-change plus a real on-disk audit log, and its permission tiers genuinely are defined in code (we verified this against its source). What it does not have is the third leg: no diff of what changed, and no per-action rollback. That is precisely the gap this section closes.
