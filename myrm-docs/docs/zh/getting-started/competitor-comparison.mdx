@@ -58,6 +58,24 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **新增一条尚未交付的路线图条目**：`topic_08 #479`（第三方凭据可重算性与能力分级降级纪律套件，**待分析**）。
 - **SSOT**：`temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（技能与插件生态轴主文档，2026-10-22 新增段）· `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`（#479）· `external_reference_project/claw/priors` · `https://x.com/priors_trade/status/2107819071836147885`
 
+## 最新验证快照（2026-10-22 · 竞品把团队 Agent 接上 X 来触发工作 · 按责任找人 + 让人能拒绝的认领式派单 · 评论区 11 条质疑比主帖更有价值，我们七条诚实差距与一条尚未交付的路线图条目）
+
+- **触发事件**：X @steipete（OpenClaw 创始人）`https://x.com/steipete/status/2107697554448421160`（2026-10-07 17:00；**6.1 万浏览 / 74 回复 / 25 转推 / 306 赞 / 75 书签**），帖内引用其团队 bot @roboclawbot 开出的 PR 审查会话（PR #166379）。本轮用 ChromeAgent :9410 + chrome-devtools MCP 抽取主帖全文 + **60 余条回复**。
+- **竞品做了什么（三件事接在一起）**：① 用 **X（Twitter）当工作触发入口**；② **未分配会话对所有人开放，先到先领**；③ **Agent 查「最后动过这段代码的人」并在团队服务器上直接 ping 他**；整件事「只是一个提示 + 团队服务器因插件可热重载而自我扩展」。
+- **社区当场指出的代价（信息价值高于主帖）**：@JMkernt「这本质是自助式寻呼……**有意思的失败模式是 Agent 半夜三点 ping 错人，吵醒一年没碰过那段代码的人**」；@leohuanfang「ping 到最后改动者后，**是等认领还是超时改派**？」；@mynameisdesmond「两个人抢同一会话怎么办？**清晰的声明和释放机制**」；@jjfleagle「**让人能带理由拒绝**，能教会它区分『谁改了代码』和『谁拥有它』」；@jeffbruchado「**最后碰过文件的人不应自动成为它的 owner**」；@Atlas_fomo「ping 最后作者就是一次 git log 查询，**比轮转队列强，因为那个人已经把上下文加载好了**；风险是热点文件上同一个人被反复 ping」；@sakshjn「希望它遵守 **.git-blame-ignore-revs**」；@emonuxui「未分配会话把 backlog 变成 **pull 系统**」；@wlodarczykacper「工作从 X 进来，**X 触发的会话也能写插件吗？公开帖是不可信输入** 🙂」。
+- **我方现状（均已用真实代码核对）**：**认领的原子性已有**（`app/core/kanban/adapters/sqlalchemy_store.py:730-758` 的 `claim_task`：`READY → RUNNING` + `worker_id` 落 metadata）；**心跳超时判僵尸已有**（同文件 `:376-378`、`:825-828`）；**`git blame` 可执行已有**（`toolkits/code_execution/security/safe_command_configs/git.py:183`）；**外部入口的写入围栏已有**（不可信入口只读白名单，归 topic_03 #423）。
+- **我们不宣称的（诚实差距）**：
+  1. **没有「最后修改者」这个一等结构化事实**——server 侧零模块产出「谁最后动过这段代码」的结构化结果，模型只能自己跑 blame 拿一段自由文本。
+  2. **认领之后没有「释放 / 带理由拒绝」**——`grep "release_claim\|reassign"` 零命中。
+  3. **没有超时改派**——心跳超时只判僵尸，任务不回池、不改派。
+  4. **不尊重 `.git-blame-ignore-revs`**——批量改写提交会把信号全部指向同一个人。
+  5. **路由信号无热度衰减、无免打扰护栏**——「同一个人被 ping 一切」在我们这里同样成立。
+  6. **公共渠道不是我们的工作触发入口**——我们有 X 实时检索与取证，但不是派单入口；且从 X 触发属不可信输入，须先按围栏定写入边界，**不照抄「X 里一句话就能改服务器」**。
+  7. **队列范式仍是 push**——没有「未分配即领」的 pull 语义。
+  8. **不借鉴「服务器自我扩展」**——我方是用户自持沙箱 + 三端同构，不做运行时自我扩展。
+- **新增一条尚未交付的路线图条目**：`topic_20 #64`（最后修改者责任路由与可拒绝的认领式派单套件，**待分析**）。
+- **SSOT**：`temp-docs/materials/GIT_PR_DELIVERY_ADVANTAGE.md`（Git 交付轴既有文档，2026-10-22 新增段）· `temp-docs/roadmap/topic_20_coding_agent_and_software_engineering_roadmap.md`（#64）· `https://x.com/steipete/status/2107697554448421160`
+
 ## 最新验证快照（2026-10-21 · 竞品把 Agent 塞进任意设备：Hermes Gadget SDK 的四个可核对机制 · 我方的诚实差距，以及两条尚未交付的路线图条目）
 
 - **触发事件**：社区帖 @adolandev（`https://x.com/adolandev/status/2107813150686888407`）——「Three days ago, Hermes Gadget was an open SDK and a demo. Then the community got hold of it -- shoutout @NousResearch. LilyGO watches. AIPI Lite. Desk gadgets. Old Android phones. People are getting Hermes running on all kinds of devices and sharing their work.」我们把该 SDK 仓库（`external_reference_project/claw/hermes-gadget-sdk`，MIT，v0.2.0）拉到本地逐文件核对。**注意：它是 Hermes 的第三方插件，不是 Nous Research 的官方产品**。

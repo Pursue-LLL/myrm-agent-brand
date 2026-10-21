@@ -58,6 +58,24 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 - **아직 인도되지 않은 로드맵 항목 1건 신규 추가**: `topic_08 #479`(제3자 증명 재계산 가능성과 능력 단계적 축소 규율 스위트, **미분석**).
 - **SSOT**: `temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`(스킬·플러그인 축 주 문서, 2026-10-22 추가 절) · `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`(#479) · `external_reference_project/claw/priors` · `https://x.com/priors_trade/status/2107819071836147885`
 
+## 최신 검증 스냅샷 (2026-10-22 · 경쟁사가 팀 에이전트를 X에 연결해 작업을 시작 · 책임 기반 라우팅과 '거절할 수 있는' 인수 기반 디스패치 · 댓글 11건의 지적이 본문보다 가치 큼 · 우리의 정직한 격차 7건과 아직 인도되지 않은 로드맵 항목 1건)
+
+- **계기**: X @steipete(OpenClaw 설립자) `https://x.com/steipete/status/2107697554448421160`(2026-10-07 17:00. **6.1만 조회 / 74 리플 / 25 리포스트 / 306 좋아요 / 75 북마크**), 팀 봇 @roboclawbot 이 연 PR 리뷰 세션(PR #166379)을 인용. ChromeAgent :9410 + chrome-devtools MCP로 본문 전문과 **60개 이상의 리플**을 추출.
+- **경쟁사가 한 일(셋을 연결)**: ① **X(Twitter)를 작업 트리거 진입점으로 사용**, ② **미할당 세션을 모두에게 열어 선착순으로 인수**, ③ **Agent가 '그 코드를 마지막으로 건드린 사람'을 찾아 팀 서버에서 직접 ping**. 전체는 '프롬프트 하나 + 플러그인이 이제 핫 리로드되니 팀 서버가 스스로 확장됐다'.
+- **커뮤니티가 그 자리에서 바로 제기한 대가(본문보다 가치 큼)**: @JMkernt "이건 사실상 **셀프서버 페이징**이고 마음에 듭니다. 흥미로운 실패 모드는 **Agent가 새벽 3시에 엉뚱한 사람을 ping해 1년째 건드리지 않은 코드를 깨우는 것**" / @leohuanfang "마지막 변경자에게 ping 후 **인수를 기다리다 타임아웃 후 재배정하나요?**" / @mynameisdesmond "두 사람이 같은 세션을 잡으면? **명확한 주장과 해제 메커니즘**" / @jjfleagle "**사유를 갖고 거절할 수 있게 하면** 팀 claw는 '코드를 바꾼 사람'과 '소유자'를 구분할 수 있게 됩니다" / @jeffbruchado "**마지막으로 파일을 건드린 사람이 자동으로 소유자가 되어서는 안 됩니다**" / @Atlas_fomo "마지막 작성자 ping은 **git log 한 번이면 되고, 라운드 로빈보다 나은 이유는 그 사람이 이미 컨텍스트를 로드했기 때문**. 위험은 핫 파일에서 같은 이름이 계속 ping받는 것" / @sakshjn "**.git-blame-ignore-revs를 존중해 주길**" / @emonuxui "미할당 세션은 **backlog를 pull 시스템으로** 바꿔줍니다" / @wlodarczykacper "이제 작업이 X로 들어오는데 **X에서 트리거된 세션도 플러그인을 쓸 수 있나요? 공개 게시물은 신뢰할 수 없는 입력** 🙂".
+- **우리의 현황(실 코드로 대조)**: **인수의 원자성은 이미 있음**(`app/core/kanban/adapters/sqlalchemy_store.py:730-758`의 `claim_task`: `READY → RUNNING` + `worker_id`를 metadata에 기록) / **하트비트 타임아웃 좀비 판정도 이미 있음**(같은 파일 `:376-378`, `:825-828`) / **`git blame` 실행도 이미 가능**(`toolkits/code_execution/security/safe_command_configs/git.py:183`) / **신뢰할 수 없는 진입 경로의 쓰기 펜스도 이미 있음**(읽기 전용 화이트리스트, topic_03 #423).
+- **주장하지 않는 것(정직한 격차)**:
+  1. **'마지막 변경자'라는 일급 구조화 사실이 없습니다** — 서버 쪽에 '누가 이 코드를 마지막으로 건드렸는가'를 구조화해 내는 모듈이 없어, 모델은 blame을 직접 실행해 자유 텍스트로 읽을 뿐입니다.
+  2. **인수 후 해제도 '사유를 갖춘 거절'도 없습니다** — `grep "release_claim\|reassign"` 0건.
+  3. **타임아웃 재배정이 없습니다** — 하트비트 초과 시 좀비 후보로만 세고, 풀에 되돌리거나 다른 사람에게 넘기지 않습니다.
+  4. **`.git-blame-ignore-revs`를 존중하지 않습니다** — 일괄 포맷 커밋이 신호를 한 사람에게 몰아줍니다.
+  5. **라우팅 신호 감쇠도 '방해 금지' 가드도 없습니다** — '같은 3명이 모든 일을 ping받는다'는 우리 쪽에도 그대로 성립합니다.
+  6. **공공 채널은 우리의 작업 트리거 진입점이 아닙니다** — X 실시간 검색과 증거 수집은 있지만 디스패치 진입점은 아니며, X 트리거는 신뢰할 수 없는 입력이므로 쓰기 경계를 먼저 정해야 하고 **"X 한마디로 서버를 고치는" 형태는 베끼지 않습니다**.
+  7. **큐는 여전히 push 방식** — '미할당이면 누구나 가져간다'는 pull 시맨틱이 없습니다.
+  8. **"서버가 스스로 확장한다" 형태는 취하지 않습니다** — 우리는 사용자 소유 샌드박스 + 세 단 동형이며, 런타임 자기 확장은 하지 않습니다.
+- **아직 인도되지 않은 로드맵 항목 1건 신규 추가**: `topic_20 #64`(최종 변경자 책임 라우팅과 거절 가능한 인수 디스패치 스위트, **미분석**).
+- **SSOT**: `temp-docs/materials/GIT_PR_DELIVERY_ADVANTAGE.md`(Git 전달 축 기존 문서, 2026-10-22 추가 절) · `temp-docs/roadmap/topic_20_coding_agent_and_software_engineering_roadmap.md`(#64) · `https://x.com/steipete/status/2107697554448421160`
+
 ## 최신 검증 스냅샷 (2026-10-21 · 경쟁사가 에이전트를 온갖 기기에 넣어 버린 방법 · Hermes Gadget SDK의 검증된 4가지 메커니즘 · 우리의 정직한 격차와 아직 인도되지 않은 로드맵 2건)
 
 - **계기**: 커뮤니티 게시글 @adolandev (`https://x.com/adolandev/status/2107813150686888407`) — "Three days ago, Hermes Gadget was an open SDK and a demo. Then the community got hold of it -- shoutout @NousResearch. LilyGO watches. AIPI Lite. Desk gadgets. Old Android phones. People are getting Hermes running on all kinds of devices and sharing their work." SDK 저장소(`external_reference_project/claw/hermes-gadget-sdk`, MIT, v0.2.0)를 로컬에 받아 파일 단위로 확인. **주의: Hermes의 서드파티 플러그인이며 Nous Research 공식 제품이 아니다**.

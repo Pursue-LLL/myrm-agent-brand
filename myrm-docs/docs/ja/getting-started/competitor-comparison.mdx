@@ -58,6 +58,24 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
 - **まだ納めていないロードマップ項目 1 件を新規追加**: `topic_08 #479`（第三者憑証の再計算可能性と能力段階的縮退の規律套件、**未分析**）。
 - **SSOT**: `temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（スキルとプラグインの軸の主ドキュメント、2026-10-22 追記段）· `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`（#479）· `external_reference_project/claw/priors` · `https://x.com/priors_trade/status/2107819071836147885`
 
+## 最新検証スナップショット (2026-10-22 · 競争相手がチームエージェントを X に接続して作業を起動 · 責任に基づくルーティングと「断れる」認領式ディスパッチ · コメント 11 件の指摘が主帖より価値が高い · 我々の 7 つの正直なギャップと、まだ納めていないロードマップ項目 1 件)
+
+- **きっかけ**: X @steipete（OpenClaw 設立者）`https://x.com/steipete/status/2107697554448421160`（2026-10-07 17:00。**6.1 万閲覧 / 74 リプライ / 25 リポスト / 306 いいね / 75 ブックマーク**）。チームボット @roboclawbot が開いた PR レビューセッション（PR #166379）を帖内で引用。ChromeAgent :9410 + chrome-devtools MCP で本文全文と **60 以上の返信**を抽出。
+- **競争相手がやったこと（3 つを接続）**: ① **X（Twitter）を作業トリガーの入口にする**、② **未割り当てセッションを全員に開放（先着順で claiming）**、③ **Agent が「そのコードに最後に触った人」を調べてチームサーバー上で直接 ping する**。全体は「プロンプト一つ + プラグインがホットリロード可能になったのでチームサーバーが自分で拡張した」。
+- **コミュニティがその場で挙げた代償（主帖より価値が高い）**: @JMkernt「これは **セルフサーブの呼び出し**。興味深い失敗モードは **Agent が深夜 3 時に Lymph 人を ping して、その人が 1 年触っていないコードを叩き起こすこと**」/ @leohuanfang「最後に変更した人に ping した後、**claiming を待つかタイムアウト後に付け替えるか**？」/ @mynameisdesmond「2 人が同じセッションを取り合う場合は？ **明確な宣言と解放の仕組み**」/ @jjfleagle「**理由を付けて断れるようにすれば**、チーム claw は『コードを変えた人』と『所有者』を区別できる」/ @jeffbruchado「**最後にファイルに触れた人が自動的に所有者になってはいけない**」/ @Atlas_fomo「最後に変更した人への ping は **git log 1 回で済み、輪番キューより良く、その人は既に文脈を読み込んでいる**。リスクはホットファイルで同じ名前が繰り返し ping される」/ @sakshjn「**.git-blame-ignore-revs を尊重してほしい**」/ @emonuxui「未割り当てセッションは **backlog を pull システムに変える**」/ @wlodarczykacper「X から入った場合、**X トリガーのセッションも plugin を書けるのか？ 公開投稿は信頼できない入力** 🙂」。
+- **我々の現状（実コードで照合済み）**: **claiming の原子性は既にある**（`app/core/kanban/adapters/sqlalchemy_store.py:730-758` の `claim_task`：`READY → RUNNING` ＋ `worker_id` を metadata へ）/ **ハートビートタイムアウトのゾンビ判定も既にある**（同ファイル `:376-378`、`:825-828`）/ **`git blame` の実行可否も既にある**（`toolkits/code_execution/security/safe_command_configs/git.py:183`）/ **信頼できない入口の書き込みフェンスも既にある**（読み取り専用ホワイトリスト、topic_03 #423）。
+- **主張しないもの（正直なギャップ）**:
+  1. **「最後に変更した人」という一級構造化事実が無い** —— server 側に「誰がこのコードを最後に触ったか」を構造化して出すモジュールが無く、モデルは blame を自分で走らせて自由文を読むだけ。
+  2. **claiming 後の解放も「理由付き辞退」も無い** —— `grep "release_claim\|reassign"` は 0 件。
+  3. **タイムアウト後の付け替えが無い** —— ハートビート超過はゾンビ候補を数えるだけで、プールへ戻したり他者へ付け替えたりしない。
+  4. **`.git-blame-ignore-revs` を尊重しない** —— 一括整形コミットが信号を一人に集中させる。
+  5. **ルーティング信号の減衰も「起こすな」ガードも無い** —— 「同じ 3 人に全部が ping される」は我々にも成り立つ。
+  6. **公共チャネルは我々の作業トリガー入口ではない** —— X のリアルタイム検索と証拠取得はあるがディスパッチ入口ではない；X トリガーは信頼できない入力なので書き込み境界を先に決める必要があり、**「X のひとこと」でサーバーを書き換えられる形は真似ない**。
+  7. **キューのを外向き方式（push）のまま** —— 「未割り当てなら誰でも取れる」pull 意味論が無い。
+  8. **「サーバーが自分で拡張する」形態は採らない** —— 我々はユーザー所有のサンドボックス＋三端同型で、実行時の自己拡張はしない。
+- **まだ納めていないロードマップ項目 1 件を新規追加**: `topic_20 #64`（最終変更者ルーティングと断れる認領式ディスパッチ套件、**未分析**）。
+- **SSOT**: `temp-docs/materials/GIT_PR_DELIVERY_ADVANTAGE.md`（Git 交付軸の既存ドキュメント、2026-10-22 追記段）· `temp-docs/roadmap/topic_20_coding_agent_and_software_engineering_roadmap.md`（#64）· `https://x.com/steipete/status/2107697554448421160`
+
 ## 最新検証スナップショット (2026-10-21 · 競合がエージェントをあらゆるデバイスに放り込んだ · Hermes Gadget SDK の 4 つの検証済み機構 · 我々の正直なギャップと、まだ納品されていないロードマップ 2 件)
 
 - **きっかけ**: コミュニティの投稿 @adolandev (`https://x.com/adolandev/status/2107813150686888407`) —「Three days ago, Hermes Gadget was an open SDK and a demo. Then the community got hold of it -- shoutout @NousResearch. LilyGO watches. AIPI Lite. Desk gadgets. Old Android phones. People are getting Hermes running on all kinds of devices and sharing their work.」SDK リポジトリ (`external_reference_project/claw/hermes-gadget-sdk`、MIT、v0.2.0) をローカルで精読。**注意: これは Hermes のサードパーティ製プラグインであり、Nous Research の公式製品ではない**。
