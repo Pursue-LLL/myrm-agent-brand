@@ -116,6 +116,13 @@ const COUNT_CLAIMS = [
 /** 轮播磁贴不得出现的绝对表述。 */
 const FORBIDDEN_STATS = ['100%'];
 
+/**
+ * 归属拔高词：把**我方内部对照实验**说成竞品实测。真实案例：600 条语料 0 命中是
+ * 我方旧版 legacy 通道的对照（materials/MEMORY_ADVANTAGE.md:502,519），官网曾写成
+ * 「竞品式通道」，读者会误以为是竞品数据。
+ */
+const MISATTRIBUTED_PHRASES = ['竞品式通道', 'capped channel matched'];
+
 /** 未交付能力词：出现即说明官网把路线图当现货宣传。 */
 const UNDELIVERED_WORDS = [
   '外设状态总线', 'Peripheral State Bus', '开放 Vault', '热词', 'YoooClaw', '无损迁移',
@@ -213,6 +220,14 @@ function main(): void {
     }
   }
 
+  // ③b 官网不得把内部对照实验说成竞品实测
+  for (const [loc, data] of Object.entries(locales)) {
+    const blob = JSON.stringify(data);
+    for (const phrase of MISATTRIBUTED_PHRASES) {
+      if (blob.includes(phrase)) errors.push(`[attribution] ${loc} 官网出现归属拔高表述「${phrase}」`);
+    }
+  }
+
   // ④ 官网不得出现未交付能力词
   for (const [loc, data] of Object.entries(locales)) {
     const blob = JSON.stringify(data);
@@ -226,7 +241,7 @@ function main(): void {
     for (const e of errors) console.error(`  ${e}`);
     process.exit(1);
   }
-  console.log(`Marketing claims check OK (${COUNT_CLAIMS.length} count claims, ${FORBIDDEN_STATS.length} forbidden stat, ${UNDELIVERED_WORDS.length} undelivered words)`);
+  console.log(`Marketing claims check OK (${COUNT_CLAIMS.length} count claims, ${FORBIDDEN_STATS.length} forbidden stat, ${MISATTRIBUTED_PHRASES.length} attribution phrases, ${UNDELIVERED_WORDS.length} undelivered words)`);
 }
 
 main();
