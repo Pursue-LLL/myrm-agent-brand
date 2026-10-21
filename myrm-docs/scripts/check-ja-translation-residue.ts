@@ -140,6 +140,13 @@ function main(): void {
         if (errors.length > 200) break;
       }
     }
+    // U+FFFD（替换字符）：多字节字符被截断或解码失败的痕迹，读者看到的是乱码
+    if (prose.includes('\uFFFD')) {
+      const idx = prose.indexOf('\uFFFD');
+      errors.push(
+        `${rel}: 乱码残留 → U+FFFD（${prose.slice(Math.max(0, idx - 20), idx + 20).replace(/\n/g, ' ')}）`,
+      );
+    }
     // 简体专用汉字：日文里不存在这些字形，出现即残留
     for (const ch of SIMPLIFIED_ONLY_CHARS) {
       if (prose.includes(ch)) {
