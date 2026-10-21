@@ -79,9 +79,17 @@ Installing a skill is not set-and-forget — the more you install, the more cont
 
 1. **Lifecycle State Machine**: Skills unused for 30 days automatically transition to **stale**, and to **archived** after 90 days — zombie skills stop occupying context and list space. An automatic curation sweep runs every 7 days.
 2. **Usage-Quality Driven**: Skills with low call success rates (below 30% with ≥5 samples) are flagged for quality review and stop polluting task performance.
-3. **Duplicate Clustering & Consolidation**: Highly similar (≥0.75) redundant skills are automatically clustered and consolidated by the curation engine.
+3. **Duplicate Clustering & Consolidation**: Highly similar (≥0.75) redundant skills are clustered by the curation engine; merging them is opt-in and always shows you a preview to confirm, so nothing is consolidated behind your back.
 4. **Protection & Grace Period**: Pinned skills are exempt from all automatic curation; newly installed skills enjoy a 7-day grace period so fresh capabilities are never mistakenly archived.
 5. **Forensic Cascade Uninstall**: Uninstalling reads the install receipt for precise forensic accounting; removing a parent plugin cascades to all its registered child skills — clean removals, zero residue.
+
+## Import Conflict Preflight, Pre-Install Security Scan & Deterministic Compile-Time Guards
+
+Installing popular community skills usually brings three traps — name clashes, supply-chain poisoning, and unreadable themes:
+
+1. **Import Conflict Preflight & Per-Item Decision**: When a batch import hits a name clash, Myrm shows the clash **before anything is written** and lets you decide per skill — rename on import or keep both side by side. Adopting a local skill directory goes through the same preview: only skills that are **not conflicted** and that **pass the security gate (score ≥ 50)** are checked by default; everything else needs your explicit confirmation.
+2. **Zero-Runtime Pre-Install Security Scan**: Before adding any remote or local skill, Myrm evaluates the files for high-risk commands (`sudo`, `rm -rf`), undeclared external network egress, and sensitive environment variable probing, outputting a clear visual health report to stop poisoned packages before activation.
+3. **Deterministic Compile-Time Guards (Zero LLM)**: The theme engine compiles your colour recipe with deterministic rules and asserts **WCAG AA** foreground contrast for the primary and button surfaces in both light and dark mode. Formatting regressions are therefore caught at compile time with **zero LLM tokens consumed**, reserving model reasoning exclusively for creative and architectural logic.
 
 ## Related
 

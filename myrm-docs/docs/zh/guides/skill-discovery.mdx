@@ -94,6 +94,14 @@ Myrm 内置全自动**已安装技能供应链重扫系统（Installed Skill Sup
 4. **保护与宽限**：钉住（pinned）的技能豁免一切自动治理；新装技能享有 7 天宽限期，绝不误伤刚装的能力。
 5. **取证级联卸载**：卸载技能时系统读取安装回执（receipt）精确审计，卸载"套装"父插件时自动级联清理其注册的全部子技能——删了什么一目了然，绝不留残骸。
 
+## 导入冲突预检、装前安全扫描与确定性编译期守卫 (Import Conflict Preflight, Pre-Install Security Scan & Deterministic Compile-Time Guards)
+
+装社区热门技能通常会遇到三类坑——**重名冲突**、**供应链投毒**、**主题不可读**：
+
+1. **导入冲突预检 + 逐项决策 (Import Conflict Preflight & Per-Item Decision)**：批量导入遇到重名时，**在写入任何东西之前**先把冲突摆给你看，并逐项决定——导入时改名，或让两者并存。采纳本地技能目录走同一套预览：**默认只勾选「无冲突」且通过安全门禁（score ≥ 50）的技能**，其余需要你显式确认。
+2. **装前零运行时安全扫描 (Zero-Runtime Pre-Install Security Scan)**：任何远程或本地技能在装入之前都会逐文件静态检查——高危命令（`sudo`、`rm -rf`）、未申报的外网出口、敏感环境变量批量探测——并给出可视化体检报告，**在激活之前**拦住投毒包。
+3. **编译期确定性守卫，零 LLM (Deterministic Compile-Time Guards, Zero LLM)**：主题引擎编译配色配方时用确定性规则断言**WCAG AA** 对比度（浅色与深色下的主色与按钮前景色），格式回归在编译期就被拦下，**不消耗任何 LLM token**，模型推理只留给创意与架构决策。
+
 ## 相关文档
 
 - [技能创建](/docs/zh/tutorials/skill-creation) — 把对话沉淀为可复用技能
