@@ -19,8 +19,8 @@ myrm setup
 
 | 终端 | 命令 |
 |----------|---------|
-| 后端 | `myrm start` 或 `./scripts/dev/run_server.sh --webui` |
-| 前端 | `cd myrm-agent-frontend && bun run dev` |
+| 后端 + 前端 | `myrm start` —— 后台同时拉起两端（`:8080` + `:3000`） |
+| 仅前端 | `cd myrm-agent-frontend && bun run dev` —— 只在调试前端 UI 时使用；**不要**与 `myrm start` 同时跑（都会占用 `:3000`） |
 
 在 monorepo 中以 editable 方式安装 harness 后，请使用 `.venv/bin/python run.py`（或 `myrm start`），不要用 `uv run run.py` — macOS 上锁文件含 Windows-only wheel 时 `uv run` 可能重新解析锁并失败。
 

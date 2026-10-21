@@ -19,8 +19,8 @@ myrm setup
 
 | Terminal | Command |
 |----------|---------|
-| Backend | `myrm start` or `./scripts/dev/run_server.sh --webui` |
-| Frontend | `cd myrm-agent-frontend && bun run dev` |
+| Backend + frontend | `myrm start` — starts both (`:8080` + `:3000`) in the background |
+| Frontend only | `cd myrm-agent-frontend && bun run dev` — only while iterating on the UI, and **not** together with `myrm start` (both would bind `:3000`) |
 
 Use `.venv/bin/python run.py` (or `myrm start`) instead of `uv run run.py` after editable harness installs in a monorepo — `uv run` can re-resolve locks and fail on macOS when Windows-only wheels are in the lockfile.
 
