@@ -57,7 +57,7 @@ The desktop app provides deep system integration that no browser-based AI tool c
 - **Boot screen backend gate** — On cold start, the boot animation waits until the Python backend `/health` succeeds before entering the main UI, avoiding connection-error floods; Rust also polls health for up to 30s
 - **Local dev browser parity** — When developing with `bun run dev` on `:3000`, API rewrites authenticate correctly even when the proxy connects via IPv4-mapped loopback (`::ffff:127.0.0.1` on macOS); no ConfigSync 401 on first load
 - **Sidecar build CLI** — Maintainers run `./myrm desktop sidecar` to build release binaries; `./myrm desktop check-sidecar` fails on empty placeholders
-- **Public Ingress** — Paste your own HTTPS tunnel URL (cpolar, NATAPP, frp, etc.); see [Tunnel Guide](/docs/guides/tunnel)
+- **Public Ingress** — Paste your own HTTPS tunnel URL (cpolar, NATAPP, frp, etc.); see [Tunnel Guide](/guides/tunnel)
 - **macOS Quarantine Fix** — Detect and auto-heal `com.apple.quarantine` attributes
 
 ## Global Screen AI (Appshot + FlowPad)
@@ -216,6 +216,6 @@ When the agent finishes, generated files (documents, code, HTML pages, images, e
 
 All 16 artifact types are supported. No backend changes are needed — the data is already present in the message stream. This means you can review, approve, or request changes to AI deliverables from your phone — no need to "go back to the desk."
 
-Pair tokens are scoped: the Hub list token cannot control chats until you open a session; control tokens bind to one `chat_id`. See [Tunnel Guide](/docs/guides/tunnel) for detailed configuration.
+Pair tokens are scoped: the Hub list token cannot control chats until you open a session; control tokens bind to one `chat_id`. See [Tunnel Guide](/guides/tunnel) for detailed configuration.
 
 **Honest note:** You bring the tunnel; Myrm does not host your traffic. End-to-end encrypted relay (G2) is on the roadmap — today, security relies on HTTPS + scoped pair tokens + session binding.

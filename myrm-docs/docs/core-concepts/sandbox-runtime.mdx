@@ -167,16 +167,16 @@ The result: ask the agent to "push this and open a PR" and it works end-to-end �
 
 Sandboxes go through three resource stages to minimize cost while maximizing responsiveness:
 
-1. **CPU Throttle** — after a short idle period, the `ResourceScaler` reduces CPU quota to 25% of full allocation. When a new task arrives, `boost_sandbox()` instantly restores full CPU — no cold start delay.
-2. **Sleep** — after a longer idle period (plan-dependent: 5 min for Free → 24 hours for Max), the `SandboxRecycler` stops the container but preserves the persistent Volume. Sleep periods incur zero WU cost.
+1. **CPU Throttle** — after 5 idle minutes with no agent run or background shell job in progress, the `ResourceScaler` reduces CPU quota to 25% of the plan's CPU allocation. The next request instantly restores full CPU — no cold start delay.
+2. **Sleep** — after a longer idle period (plan-dependent: 5 min for Free → 24 hours for Max), the `SandboxRecycler` suspends the container but preserves the persistent Volume. Docker pauses it (processes freeze and memory state is kept; a host that cannot pause falls back to a full stop), and Fly.io stops the machine. Sleep periods incur zero WU cost.
 3. **Destroy** — after extended inactivity (configurable, default 7 days), the sandbox is fully reclaimed.
 
-**Idle detection** uses two complementary signals to prevent false positives:
+**Idle detection** pairs an activity timestamp with a check for work still running inside the sandbox, because suspending a sandbox interrupts everything running in it:
 
-- **Reverse-proxy activity tracking** — every user HTTP/WebSocket request through the proxy refreshes the sandbox's activity timestamp (throttled to one DB write per 5 minutes to avoid overhead).
-- **WebSocket connection guard** — if the sandbox has an active WebSocket connection to the control plane (e.g., during background deep-research or long-running tasks), the recycler skips sleep regardless of the activity timestamp.
+- **Reverse-proxy activity tracking** — every user HTTP request and every new WebSocket connection through the proxy refreshes the sandbox's activity timestamp (throttled to one DB write per minute to avoid overhead).
+- **Running-work check** — before pausing an idle sandbox, the recycler asks the sandbox's agent-server whether an agent run is in progress (a conversation turn, a scheduled, board, channel or evaluation run, or a detached sub-agent) and whether a background shell job is running. Either keeps the sandbox awake. A background shell job holds the pause off for at most one hour beyond the plan's idle limit, so a forgotten dev server cannot keep a sandbox awake forever.
 
-This dual-signal approach ensures active users and background tasks are never interrupted, while genuinely idle sandboxes are reclaimed efficiently.
+This keeps sandboxes with active users or running work awake while genuinely idle ones are reclaimed efficiently. A sandbox that cannot answer the running-work check is treated as idle, so an unresponsive sandbox is never held awake.
 
 ## Enterprise Org Management & Volume Handoff
 

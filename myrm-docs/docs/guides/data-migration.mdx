@@ -7,7 +7,9 @@ description: "Import your data from other AI assistants with a zero-risk, GUI-gu
 
 Myrm provides a complete data migration system that lets you transfer your AI assistant data from other platforms — including memories, skills, API keys, MCP configurations, and workspace rules — with full preview, conflict resolution, and one-click rollback.
 
-**Supported Sources (14, 11 ready)**: Hermes, OpenClaw, **Pi**, Claude Code, Cursor, Codex, ChatGPT, gbrain, Mem0, native JSON, Myrm Archive, AgentMemory — Windsurf, Trae, and MemWeaver are on the roadmap (in development).
+**Supported Sources**: The local and desktop builds auto-discover Hermes, OpenClaw, Claude Code, Codex, and **Pi** data on your machine; the cloud-hosted build recognizes an uploaded archive (ChatGPT exports, gbrain, and more). Memory Center can additionally import 18 ready sources (19 registered; MemWeaver is not ready yet), including Cursor, Windsurf, Trae, Mem0, Letta, LangChain, Zep, Hindsight, PLUR, AgentMemory, ChatGPT, and gbrain.
+
+**Known boundary**: Hermes session history can currently be imported only from exported JSON/JSONL files; the wizard does not read Hermes's local `state.db` directly yet. Kanban boards are not migrated automatically.
 
 ## Migration Wizard (3-Step GUI)
 
@@ -122,7 +124,7 @@ When migrating from **Claude Code**, **OpenAI Codex CLI**, or **Cursor** to Myrm
 | **Protocol Normalization** | Claude Code JSONL stream vs Codex chunked JSON format mismatch | `CanonicalTranscriptParser` extracts clean turns and strips platform-specific `<system-reminder>` artifacts | `claude_parser.py` · `codex_parser.py` |
 | **Sandbox Workspace Re-anchoring** | Hardcoded host paths (e.g. `/Users/dev/...`) cause `FileNotFoundError` in sandbox | `SandboxPathRemapper` detects `host_root` and recursively normalizes all tool paths to container `/workspace` | `path_remapper.py` |
 | **Context Window Preservation** | Massive raw compile or installation logs flood prompt and overflow context | `ToolOutputCompactor` two-stage compaction keeps head/tail 25/15 lines and collapses middle logs, saving 90%+ tokens | `tool_compactor.py` |
-| **Instant Handoff Loop** | Unclear where imported sessions go or how to resume work | Preview Step renders `SessionPreviewCard`; Result Step provides instant **Go to Session & Resume** button | `MigrationWizardSteps.tsx` |
+| **Instant Handoff Loop** | Unclear where imported sessions go or how to resume work | Preview Step renders `SessionPreviewCard`; Result Step provides instant **Go to Session & Resume** button | `memory-migration-wizard/` |
 
 **Honest Boundaries:**
 - Transcripts are ingested into structured canonical turns bound to the target Agent Profile and persisted in SQLite;
@@ -145,6 +147,18 @@ Every import can be fully reversed:
 
 ## Backup & Remote Sync
 
+### Whole-App Backup and Restore
+
+Open **Settings → My Workbench → Backup and restore** to move everything in the app — chats, agents, skills, memory and settings — to another device, or to keep a safe copy:
+
+- **Create a backup**: packs your data into one file. Model keys and connections stay out of it unless you include them, sealed with a passphrase only you know; if you forget the passphrase, those keys can't be recovered
+- **Check before anything changes**: restoring first verifies the file and shows what it contains and what it will replace. If some items couldn't be read when the backup was made, you are warned that they are not included
+- **Finish on restart**: the restore is applied while the app restarts, before your data is opened
+- **Undo**: **Undo restore** puts everything back the way it was before the last restore
+- **Automatic backup**: saves a full copy on a schedule to a folder you choose. Automatic backups are ordinary, unencrypted files and never include logins, model keys or connections
+- **New device**: the first screen of the welcome wizard offers **Restore from a backup**, so you can restore before setting anything up
+- **Before updates**: a database snapshot is taken before each update, so a failed update can be rolled back
+
 ### Local Backup
 
 Create manual backups of all memories at any time:
@@ -162,7 +176,7 @@ Configure automatic sync to cloud storage:
 
 ## New User Onboarding
 
-When you first launch Myrm, the **Onboarding Wizard** automatically checks for existing AI assistant data on your system. If found, it offers a one-click migration path — so your first conversation already has your personality, memories, and tools.
+When you first launch the local or desktop build of Myrm, the **Onboarding Wizard** automatically checks for existing Hermes, OpenClaw, Claude Code, Codex, and Pi data on your machine. If found, it offers a one-click migration path — so your first conversation already has your personality, memories, and tools.
 
 A **Discovery Banner** also appears in the chat window when external data is detected, providing quick access to the migration wizard.
 
@@ -181,10 +195,12 @@ This is the recommended path for disaster recovery, cross-instance cloning, or t
 
 ### Cross-Deployment Migration (Local ↔ Cloud)
 
-Myrm uses SQLite as its single data store across all deployment modes. Migrating between Local WebUI, Tauri Desktop, and Cloud-hosted is seamless:
+Migrating between Local WebUI, Tauri Desktop, and Cloud-hosted goes through a backup:
 
-- **Volume Copy**: Simply copy the SQLite database file between deployments — zero data loss, zero format conversion
+- **Backup and restore**: Create a backup on one deployment and restore it on another (see above). Settings that describe the machine itself — security rules, approvals, paired channels — stay as they are on the target, and saved secrets that can't be decrypted elsewhere are entered again
 - **Archive Route**: Export a full archive from one deployment, restore on another with section selection
+
+Don't copy individual database files between deployments: your data lives in several databases and files, and part of it is bound to the machine it was created on.
 
 No competitor supports this level of deployment portability; most are locked to a single deployment mode.
 
@@ -233,7 +249,7 @@ Comparison targets: **Hermes**, **OpenClaw**, **Codex**, **DeepSeek-Harness**, *
 | **Background Task Awareness (Anti-409 Tearing)** | ✅ Dynamic detection | ❌ Corrupts in-flight | ❌ Table locking | ❌ Kills processes | ❌ Write tearing | ❌ No detection | ❌ No detection |
 | **Sub-Second Atomic Rollback & 0-Remnant Cleanup** | ✅ Transactional rollback | ❌ Corrupt debris left | ❌ Manual repair | ❌ Requires recloning | ❌ Pollutes disk | ❌ Data loss | ❌ Data loss |
 | **Storage Profiling & Online Compaction** | ✅ Built in | ❌ Unbounded GB growth | ❌ Orphan FTS rows | ❌ Blackbox growth | ❌ Unmanaged outputs | ❌ No compaction | ❌ No compaction |
-| **Multi-Source Discovery** | ✅ (14 sources, 11 ready) | ❌ (1 source) | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Multi-Source Discovery** | ✅ (5 auto-discovered local sources; 18 ready import sources) | ❌ (1 source) | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Dry-Run Deterministic Preview** | ✅ Full structured preview | ✅ (plain text) | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Full Archive Backup / Selective Restore** | ✅ Structured JSON | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Cross-Deployment Portability (Local ↔ Cloud)** | ✅ 3 modes direct | ❌ Single mode | ❌ Single mode | ❌ CLI only | ❌ Script only | ❌ | ❌ |
@@ -247,7 +263,7 @@ There is no one-click importer yet (WorkBuddy is closed-source with no export fo
 | Your workflow | What you get in Myrm |
 |---|---|
 | WorkBuddy meeting minutes (decisions + owners + deadlines) | Meeting-minutes skill extracts all three into structured minutes **and** dispatches kanban tasks automatically |
-| WorkBuddy daily briefings pushed to mini-programs | Cron jobs with the same prompt/plan/capability structure, delivered across 35+ channels |
+| WorkBuddy daily briefings pushed to mini-programs | Cron jobs with the same prompt/plan/capability structure, delivered across 26 channels |
 | WorkBuddy prompt-enhance / Ask / Plan modes | Goal + acceptance criteria + HtmlPreview today; one-click prompt polish and read-only Ask mode are on the roadmap |
 | WeKnora RAG Q&A over company docs | Same BM25 + Dense + RRF hybrid retrieval over your Wiki, plus per-agent memory on top |
 | WeKnora Wiki Mode (docs → maintained wiki) | Wiki governance workbench + source sync + scheduled refresh today; agent-authored wiki generation with rollback is on the roadmap |

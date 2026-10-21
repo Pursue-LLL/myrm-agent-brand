@@ -11,10 +11,10 @@ Communicate with your agent using voice on supported channels.
 
 ### Text-to-Speech (TTS)
 
-5 TTS engines available for agent voice output.
+7 TTS engines available for agent voice output: OpenAI, ElevenLabs, Fish Audio, MiniMax, free Edge, and the local Piper and Voicebox.
 
 **Two TTS paths (by design):**
-- **Settings > Voice** — channel replies, WebRTC, and IM voice bubbles (5 providers + free Edge fallback, streaming, smart summary)
+- **Settings > Voice** — channel replies, WebRTC, and IM voice bubbles (7 engines, streaming, smart summary)
 - **Agent config TTS** — chat command "read this out loud" produces an **Audio artifact** via the `tts_generate` tool (OpenAI/ElevenLabs + Gateway billing)
 
 Both paths are production-tested: 632+ channel voice tests + 23 harness `llms/tts` unit tests (98% coverage).
@@ -103,4 +103,4 @@ In the Tauri desktop client, voice interaction is seamlessly unified with the fl
 
 ## Security
 
-All voice data is processed with end-to-end encryption (E2EE). Audio is not stored unless explicitly configured.
+Where your audio goes depends on the engines you choose. With Local Whisper for speech recognition and Piper for speech synthesis, audio is processed on your own machine. With cloud engines (OpenAI, Groq, Deepgram, xAI, ElevenLabs and others), the audio or text is sent to the provider you selected, under that provider's terms. In a WebUI voice session, the temporary audio file used for transcription is deleted as soon as transcription finishes.

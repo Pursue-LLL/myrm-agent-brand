@@ -111,14 +111,16 @@ GET /api/v1/memory/command-center?project_id=<可选>
 ### 获取统一学习演化时间线
 
 ```bash
-GET /api/v1/statistics/learning-timeline?kind=all&limit=30&before_timestamp=1724150400000
+GET /api/v1/statistics/learning-timeline?days=30&limit=50&kind_filter=fact_memory,skill_evolution&cursor=2026-10-01T08:00:00+00:00|mem_123
 ```
 
 | 参数 | 类型 | 默认值 | 说明 |
 |------|------|--------|------|
-| `kind` | string | `all` | 节点类型筛选：`all`, `memory`, `skill`, `user_rule` |
-| `limit` | int | 30 | 单次拉取数量（1-100） |
-| `before_timestamp` | int | — | 游标时间戳（毫秒），用于向前分页 |
+| `days` | int | 30 | 回溯天数（1-365） |
+| `agent_id` | string | — | 仅保留该智能体的节点（无智能体归属的节点始终保留） |
+| `kind_filter` | string | 全部 | 逗号分隔的节点类型：`fact_memory`、`preference_memory`、`procedural_memory`、`episodic_memory`、`skill_evolution`、`skill_draft` |
+| `limit` | int | 50 | 单页数量（1-100） |
+| `cursor` | string | — | 上一页返回的不透明 `next_cursor` |
 
 响应示例：
 
@@ -127,36 +129,43 @@ GET /api/v1/statistics/learning-timeline?kind=all&limit=30&before_timestamp=1724
   "items": [
     {
       "id": "mem_123",
-      "kind": "fact",
-      "title": "TypeScript 编码偏好",
+      "kind": "fact_memory",
+      "title": "Factual Knowledge",
       "content": "用户偏好使用严格的 TypeScript 类型检查与纯函数",
-      "timestamp": 1724150400000,
-      "source": "memory",
+      "created_at": "2026-10-01T08:00:00+00:00",
       "importance": 0.9,
-      "is_user_locked": true,
-      "confidence": 0.95
+      "confidence": 0.95,
+      "is_user_protected": false,
+      "metadata": { "memory_type": "semantic" }
     }
   ],
   "has_more": true,
-  "next_cursor": 1724140000000,
+  "next_cursor": "2026-10-01T08:00:00+00:00|mem_123",
   "total_count": 42
 }
 ```
 
+`total_count` 为满足全部过滤条件的节点总数（每个来源最多取最新 500 条）。技能节点携带 `metadata.manageable`、`metadata.archived`、`metadata.pinned`。`cursor` 或 `kind_filter` 非法时返回 400。
+
+`is_user_protected` 表示用户已保护该记忆（已固定，或被锁定的程序性规则）；`source_chat_id` 是记忆被提取时所在的对话；程序性规则没有重要度评分，其 `importance` 仅为占位值。
+
 ### 更新时间线记忆规则
 
 ```bash
-PUT /api/v1/statistics/learning-timeline/memory/:type/:id
+PUT /api/v1/statistics/learning-timeline/memory/:memory_type/:id
 ```
+
+`:memory_type` 取节点的 `metadata.memory_type`（`semantic`、`episodic` 或 `procedural`）。
 
 ```json
 {
   "content": "修改后的规则正文",
   "importance": 0.9,
-  "reasoning": "用户在时间线编辑器中显式纠错",
-  "is_user_locked": true
+  "reasoning": "用户在时间线编辑器中显式纠错"
 }
 ```
+
+`importance` 为可选项，仅在传入时生效。编辑会保护该记忆：程序性规则被锁定，语义/情景记忆被固定，自动遗忘、合并与改写都会跳过它们；记忆条目以 `is_user_locked: true` 表示这一保护状态。记忆不存在返回 404，内容被拒绝返回 400。
 
 ### 删除时间线记忆条目
 
@@ -164,15 +173,21 @@ PUT /api/v1/statistics/learning-timeline/memory/:type/:id
 DELETE /api/v1/statistics/learning-timeline/memory/:id?memory_type=semantic
 ```
 
-### 归档 / 取消归档技能
+语义与情景记忆为软删除（进入记忆回收站，可通过 `POST /api/v1/memory/trash/:id/restore` 恢复）；程序性规则为永久删除。
+
+### 归档 / 恢复技能
 
 ```bash
-POST /api/v1/statistics/learning-timeline/skill/:id/archive
+POST /api/v1/statistics/learning-timeline/skill/:skill_name/archive?active=false
 ```
+
+`active=false` 归档技能，`active=true` 恢复。已固定的技能返回 409，技能不存在返回 404。
 
 ```json
 {
-  "archived": true
+  "skill_name": "code-reviewer",
+  "is_active": false,
+  "message": "Skill archived"
 }
 ```
 

@@ -111,14 +111,16 @@ Unified memory and skill lifecycle chronological stream with inline governance.
 ### Get Unified Learning Timeline
 
 ```bash
-GET /api/v1/statistics/learning-timeline?kind=all&limit=30&before_timestamp=1724150400000
+GET /api/v1/statistics/learning-timeline?days=30&limit=50&kind_filter=fact_memory,skill_evolution&cursor=2026-10-01T08:00:00+00:00|mem_123
 ```
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `kind` | string | `all` | Filter by node kind: `all`, `memory`, `skill`, `user_rule` |
-| `limit` | int | 30 | Batch limit (1-100) |
-| `before_timestamp` | int | — | Cursor timestamp in milliseconds for pagination |
+| `days` | int | 30 | Lookback window in days (1-365) |
+| `agent_id` | string | — | Keep only nodes of this agent (nodes without an agent always stay) |
+| `kind_filter` | string | all | Comma-separated node kinds: `fact_memory`, `preference_memory`, `procedural_memory`, `episodic_memory`, `skill_evolution`, `skill_draft` |
+| `limit` | int | 50 | Items per page (1-100) |
+| `cursor` | string | — | Opaque `next_cursor` returned by the previous page |
 
 Response:
 
@@ -127,36 +129,43 @@ Response:
   "items": [
     {
       "id": "mem_123",
-      "kind": "fact",
-      "title": "TypeScript Preference",
+      "kind": "fact_memory",
+      "title": "Factual Knowledge",
       "content": "User prefers strict TypeScript type checking",
-      "timestamp": 1724150400000,
-      "source": "memory",
+      "created_at": "2026-10-01T08:00:00+00:00",
       "importance": 0.9,
-      "is_user_locked": true,
-      "confidence": 0.95
+      "confidence": 0.95,
+      "is_user_protected": false,
+      "metadata": { "memory_type": "semantic" }
     }
   ],
   "has_more": true,
-  "next_cursor": 1724140000000,
+  "next_cursor": "2026-10-01T08:00:00+00:00|mem_123",
   "total_count": 42
 }
 ```
 
+`total_count` is the number of nodes matching all filters (each source contributes at most its 500 newest records). Skill nodes carry `metadata.manageable`, `metadata.archived` and `metadata.pinned`. An invalid `cursor` or `kind_filter` returns 400.
+
+`is_user_protected` is true when the user protects the memory (pinned, or a locked procedural rule). `source_chat_id` is the conversation a memory was extracted from. Procedural rules carry no importance score, so their `importance` is a placeholder.
+
 ### Update Timeline Memory Item
 
 ```bash
-PUT /api/v1/statistics/learning-timeline/memory/:type/:id
+PUT /api/v1/statistics/learning-timeline/memory/:memory_type/:id
 ```
+
+`:memory_type` is the node's `metadata.memory_type` (`semantic`, `episodic` or `procedural`).
 
 ```json
 {
   "content": "Updated rule content",
   "importance": 0.9,
-  "reasoning": "Explicit user correction via Timeline Editor",
-  "is_user_locked": true
+  "reasoning": "Explicit user correction via Timeline Editor"
 }
 ```
+
+`importance` is optional and only applied when supplied. An edit protects the memory: procedural rules are locked and semantic/episodic memories are pinned, so automated forgetting, merging and rewriting skip them. Memory items report this protection as `is_user_locked: true`. Returns 404 when the memory does not exist and 400 for rejected content.
 
 ### Delete Timeline Memory Item
 
@@ -164,15 +173,21 @@ PUT /api/v1/statistics/learning-timeline/memory/:type/:id
 DELETE /api/v1/statistics/learning-timeline/memory/:id?memory_type=semantic
 ```
 
-### Archive / Unarchive Timeline Skill Item
+Semantic and episodic memories are archived (recoverable from the memory trash via `POST /api/v1/memory/trash/:id/restore`); procedural rules are removed permanently.
+
+### Archive / Restore Timeline Skill
 
 ```bash
-POST /api/v1/statistics/learning-timeline/skill/:id/archive
+POST /api/v1/statistics/learning-timeline/skill/:skill_name/archive?active=false
 ```
+
+`active=false` archives the skill, `active=true` restores it. Pinned skills return 409; unknown skills return 404.
 
 ```json
 {
-  "archived": true
+  "skill_name": "code-reviewer",
+  "is_active": false,
+  "message": "Skill archived"
 }
 ```
 

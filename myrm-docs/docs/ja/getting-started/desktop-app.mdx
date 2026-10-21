@@ -57,7 +57,7 @@ Myrm Desktopは賢いクロスプラットフォーム配布システムを備�
 - **ブート画面バックエンドゲート** — コールドスタート時、Pythonバックエンド`/health`成功までブートアニメーションが待機。接続エラー洪水を回避。Rust側も最大30秒ヘルスをポーリング
 - **ローカル開発ブラウザ等価性** — `bun run dev`の`:3000`開発時も、プロキシがIPv4マップループバック（macOSの`::ffff:127.0.0.1`）経由でもAPIリライトが正しく認証。初回ロードのConfigSync 401なし
 - **SidecarビルドCLI** — メンテナは`./myrm desktop sidecar`でリリースバイナリをビルド。`./myrm desktop check-sidecar`は空プレースホルダで失敗します
-- **Public Ingress** — 自前のHTTPSトンネルURL（cpolar・NATAPP・frp等）を貼付け。[トンネルガイド](/docs/guides/tunnel)参照
+- **Public Ingress** — 自前のHTTPSトンネルURL（cpolar・NATAPP・frp等）を貼付け。[トンネルガイド](/guides/tunnel)参照
 - **macOS Quarantine修復** — `com.apple.quarantine`属性を検知・自動修復
 
 ## スタック更新パネル
@@ -209,7 +209,7 @@ Desktop Inspectorパネルを更新すると、ライブスクショの操作可
 
 16種のartifact全対応。バックエンド変更不要——データは既にメッセージストリームにあります。つまり机に戻らずスマホでAI成果物の確認・承認・修正依頼ができます。
 
-ペアトークンはスコープ付き：Hub一覧トークンではセッションを開くまで操作不可。操作トークンは1`chat_id`に束縛。詳細は[トンネルガイド](/docs/guides/tunnel)。
+ペアトークンはスコープ付き：Hub一覧トークンではセッションを開くまで操作不可。操作トークンは1`chat_id`に束縛。詳細は[トンネルガイド](/guides/tunnel)。
 
 **正直メモ：** トンネルは持ち込み制。Myrmはトラフィックをホストしません。E2E暗号化リレー（G2）はロードマップ——今日の安全はHTTPS＋スコープ付きペアトークン＋セッション束縛です。
 
