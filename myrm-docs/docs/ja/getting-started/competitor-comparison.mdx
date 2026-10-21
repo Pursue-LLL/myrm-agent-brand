@@ -11,6 +11,17 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
 **移行における安心ポイント** — SaaS・セルフホスト・デスクトップから自由に選択でき、HermesのスキルはGUI経由のZIPで直接インポート可能です。以下の詳細比較表でチャンネル・メモリ・セキュリティを行単位で確認した上でご検討いただけます。Grok Buildなどのプラグイン中心の製品をお使いの場合、Myrmはモデル・スキル・MCP・サブエージェント・安全プロファイルを**ワンクリックで一括セットアップ**するエージェントパッケージを提供します。ドキュメントとアプリは**6言語**(zh/en/ja/ko/de/zh-TW)に対応しており、WebUI・クラウドホスト・Tauriデスクトップのすべてで、初回アクセス時にブラウザ言語を自動判別します。
 </Note>
 
+## 最新検証スナップショット (2026-10-21 · スキルエコシステムの「star 順ランキング」実測 · star は 1  MONTHで 43% 漂い順位も入れ替わる · 信頼できる順位信号は実インストール数と評判しかない)
+
+- **スキルエコシステムの現在の順位信号とその実測漂移 (X 帖 @I_am_Aiabir「Top 10 Hermes skills ranked by Github stars」 を対照)**: コミュニティは現在 GitHub Star をスキル品質の代用指標として使っているが、この代用指標は**安定していない**。
+  1. **図版の実測 (skillleaderboard.com、データは 2026-09-20 まで)**: superpowers 289k · ponytail 143k · graphify 120k · caveman 107k · Understand-Anything 83.4k · last30days 62.4k · i-have-adhd 49.1k · agentic-awesome-skills 46.6k · scientific-agent-skills 45.7k · diagram-design 41.5k;
+  2. **同一口径の GitHub API 実測 (2026-10-21)**: 302,914 / 170,840 / 131,042 / 114,028 / 87,395 / — / 58,109 / 48,249 / 53,497 / 59,330 → **diagram-design は第 10 位 (41.5k) から第 6-7 位台 (59,330、1 か月 +43%) へ**、scientific-agent-skills と agentic-awesome-skills は順位が入れ替わった;
+  3. **結論**: star は操作されうる上、注目度とともに動くため「どのスキルを入れる価値があるか」の判定材料にはならない。信頼できる順位は**実アクティブインストール数 + 継続率 + 監査無違反記録**からしか得られない（我々: `topic_08 #279④`、**計画中であり、納品前に「実装済み」として宣伝してはならない**）;
+  4. **もう一つの構造的事実**: star 上位 10 件は**ほぼ全てコーディング系**（方法論フレームワーク / コードベース知識グラフ / token 節約の書き方 / 出力スタイル / 横断調査 / 図解デザイン）だが、我々は **GUI 汎用オフィス・パーソナルエージェント** → 我々の選品戦場は star 版の主流スキルと**同一象限ではなく**、「コーディングコミュニティで最も-hotなスキル」を既定の選品基準にしてはならない;
+  5. **借鉴可能な 4 機構 (ソースはすべて `external_reference_project/harness/` に浅克隆済み)**: ① **再利用優先規律** (`ponytail` の `AGENTS.md`「Before you write」「The smallest complete change」) —— 我々はスキル市場・`/learn` スキル抽出・コード/知識グラフを持つが、**「まず既存解を探す」を既定の行動規律として持つ**がない; ② **コードベース/ナレッジベース → 対話可能ナレッジグラフ** (`Understand-Anything`: 複数エージェントのパイプラインがファイル/関数/クラス/依存をノード化し、各ノードに平易な要約とガイドを組み合わせる) —— 我々はコードグラフとメモリ知識グラフを持ち、**ノード単位の要約とガイド**が差分; ③ **成果物の外観とアクセシビリティの実行可能パラメータ** (`diagram-design`: 単一アクセントカラー / 1px ヘアライン / 影なし / 4px グリッド / コントラスト自動チェック / アクセシビリティ標準 / オフラインフォント / 自己完結の HTML+SVG 1 ファイル、かつ「diff できないので公開用図专用」という正直な注記) —— `topic_14 #255` に統合済み; ④ **領域/データソース単位のスキルパック + examples と security report の同梱** (`scientific-agent-skills`: 科学領域別ディレクトリに examples / security report / スポンサー透明性を同梱) —— 我々は 14 種の絞り込みと信頼グレードを持ち、パック単位の同梱と透明性が補強点;
+  6. **リンク検証**: 帖内の GitHub パスは**著者が切断**しており (`github.com/obra/superpowe` 等) 直接開けない → 完全なリポジトリ名と star は GitHub API で特定; ローカルの `Understand-Anything` は `Lum1104` フォークで、帖面は上流 `Egonex-AI/Understand-Anything` を指す;
+  7. **SSOT:** `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md`「コミュニティのスキル順位付け」節 · `external_reference_project/harness/{ponytail,Understand-Anything,diagram-design,scientific-agent-skills}` · `https://api.github.com/repos/NousResearch/hermes-agent`
+
 ## 最新検証スナップショット (2026-10-21 · オープンソースコミュニティ規模の実測体检 · 競合 25.5 万スター vs 我々 0 · 「機能差ではない一处のギャップ」を正直に記録)
 
 - **コミュニティ規模の実測比較 (Nous Research 起源Stories の投稿を機に実施した規模点検)**: 資金調達のナラティブ自体（$90M / $1.5B 評価額 / 2270 万ダウンロード）には新机制は含まれないが、**競合のオープンソース配布は実際にどこまで到達し、我々はどこにいるのか**という問いに正直に答える必要を生んだ。

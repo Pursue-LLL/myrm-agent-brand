@@ -11,6 +11,17 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-10-21 · 技能生态的「按 star 排序」实测：star 一月漂 43% 且名次换位 · 真正可信的排序信号只能来自真实安装量与口碑）
+
+- **社区技能生态的排序现状与漂移实测（对标 X 帖 @I_am_Aiabir「Top 10 Hermes skills ranked by Github stars」）**：社区当下正是拿 GitHub Star 当技能质量代理，但这个代理**不稳态**。
+  1. **帖图口径（skillleaderboard.com，数据截至 2026-09-20）**：superpowers 289k · ponytail 143k · graphify 120k · caveman 107k · Understand-Anything 83.4k · last30days 62.4k · i-have-adhd 49.1k · agentic-awesome-skills 46.6k · scientific-agent-skills 45.7k · diagram-design 41.5k；
+  2. **同口径 GitHub API 实测（2026-10-21）**：302,914 / 170,840 / 131,042 / 114,028 / 87,395 / — / 58,109 / 48,249 / 53,497 / 59,330 → **diagram-design 由第 10 位（41.5k）升至约第 6-7 位（59,330，一月 +43%）**，scientific-agent-skills 与 agentic-awesome-skills 位次互换；
+  3. **结论**：star 既可被刷、也会随热度漂移，**不能作为「哪个技能更值得装」的判据**；可信排序必须来自**真实活跃安装量 + 留存 + 审计无报警**（我方 `topic_08 #279④`，**规划中，交付前严禁宣传为已实现**）；
+  4. **另一个结构性事实**：star 榜前十**几乎全是编码向技能**（方法论框架 / 代码库知识图谱 / 省 token 写法 / 输出风格 / 跨平台调研 / 图表审美），而我方是 **GUI 通用办公与个人助理** → 我们的选品战场与 star 榜主流技能**不在同一象限**，不能拿「编码社区最热门的技能」当默认选品依据；
+  5. **四个可借鉴机制（源码均已在本地 `external_reference_project/harness/`，已浅克隆）**：① **复用优先纪律**（`ponytail` 的 `AGENTS.md`「Before you write」「The smallest complete change」）——我方有技能市场、`/learn` 提炼技能与代码/知识图谱，但**缺一条默认的「先找现成方案 + 最小完整改动」行为纪律**；② **代码库/知识库 → 可交互知识图谱**（`Understand-Anything`：多 Agent 管线把文件/函数/类/依赖建成节点，节点带自然语言摘要与导览）——我方有代码关系图与记忆知识图谱，**节点级摘要与导览**可补；③ **产物审美与可访问性硬参数**（`diagram-design`：单一强调色 / 1px 细线 / 无阴影 / 4px 网格 / 对比度自动检查 / 可访问性默认 / 离线字体 / 自包含 HTML+SVG，并诚实自述产物不可 diff → 只用于「要发布的图」）——已并入 `topic_14 #255`；④ **按领域/数据源成包 + 示例与安全报告随包发布**（`scientific-agent-skills`：按科学领域分目录，附 examples / security report / 赞助商透明化）——我方已有 14 类筛选与信任分级，可补成包与随包透明化；
+  6. **链接核对**：帖内 t.co 指向的 GitHub 路径**被作者截断**（如 `github.com/obra/superpowe`），无法直接访问 → 完整仓库名与 star 均由 GitHub API 反查核验；本地 `Understand-Anything` 为 `Lum1104` 分叉，帖面指向上游 `Egonex-AI/Understand-Anything`；
+  7. **SSOT：** `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md`「社区怎么给技能排序」小节 · `external_reference_project/harness/{ponytail,Understand-Anything,diagram-design,scientific-agent-skills}` · `https://api.github.com/repos/NousResearch/hermes-agent`
+
 ## 最新验证快照（2026-10-21 · 开源社区规模实测体检：竞品 25.5 万星 vs 我方 0 · 诚实记录一处「非功能差距」）
 
 - **社区规模实测对比（Nous Research 起源叙事帖触发的量级体检）**：社区帖里的融资叙事（$90M / $1.5B 估值 / 2270 万次下载）本身不含新机制，但它逼出一个必须诚实回答的问题——**竞品的开源分发已经跑到多大规模，我们又在哪里**。
