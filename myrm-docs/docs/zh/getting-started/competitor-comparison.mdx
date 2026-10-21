@@ -135,6 +135,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **我们不宣称的（诚实边界）**：① **不引用对方的规模预测数字**（McKinsey 3–5 万亿美元、Deloitte 400 亿美元是**第三方预测**，不是实测能力）；② **不做 ZKP 与链上身份**——我们的路径是本地可核对、可离线自持的证据链 + 审批归属；③ **我们没有「对外第三方可独立验证的身份卡」这一层**——若你的业务硬性要求对方能独立验你，那是他们的主场，我们不假装有；④ 本条**不开新路线图条目**——缺口需链上或第三方服务，与本地自持路线冲突；形态诉求已落在 `topic_20 #64`（责任路由与可拒绝的认领式派单）与 `topic_01 #211`（归属判据与统一时间线）。
 - **SSOT**：`temp-docs/materials/COMMERCE_AGENT_TRANSACTIONAL_ADVANTAGE.md`（商业与组织能力轴主文档，2026-10-22 新增第八节）· `temp-docs/materials/SECURITY_ADVANTAGE.md`（计划→变更→回滚三段交接面）· `https://x.com/billions_ntwk/status/2108212989585154475`
 
+## 最新验证快照（2026-10-22 · 竞品给出 24 个组件的安装目录，评论区一句「装了 24 个只有 3 个在用」 · 装得下 ≠ 用得上：我方把这件事做成**可测的**，但「一个关键词就触发」我方还没有）
+
+- **触发事件**：X @charliejhills《These are the 24 installs worth adding》（`https://x.com/charliejhills/status/2108222962306548005`，2026-10-08 23:48；**2.7 万查看 / 27 回复 / 26 转推 / 251 赞 / 323 书签**）——插件 8 / 按需加载 Skills 8 / MCP servers 8。本轮用 ChromeAgent :9410 + chrome-devtools MCP 抽取主帖全文 + **22 条回复**。
+- **可核对的事实**：插件侧 `claude-skills` 声称打开 **263+** 技能、`marketingskills` 一次装 **40** 个、`gstack` 一次装 **23** 个；技能侧点名 `frontend-design` / `skill-creator` / `hyperframes` / `mcp-builder` / `claude-seo` / `find-skills` / `humanizer` / `caveman`，并写明「**One keyword fires each one from any chat.**」；MCP 侧点名 Notion / Slack / Higgsfield / Zapier（9000+ 应用）/ `agent-browser`（更少 token 驱动浏览器）/ Perplexity / Granola / Kondo。主帖核心主张：「**The install is the easy part. Chaining them is the win.**」
+- **评论区最锋利的一句（@squirrelprompts，65 赞）**：「Installed 3. The other 21 went wherever my buried acorns go. **If you could only keep one, which one earns the spot?**」→ **装 24 个、3 个在用、21 个吃灰：安装数不是能力**。（作者本人（170 赞）亦接：「Exactly the magic happens between the tools.」）
+- **我方现状（均已用真实代码核对）**：**「装得下 ≠ 用得上」我方是可测的**——三态归因（`backends/skills/types/types_usage.py:101` 的「selections without tool calls and ambiguous runs are not」、`backends/skills/stats_collector.py:88` 的「the skill was only loaded, or several loaded skills made the owner ambiguous」）；**技能来源已接同一生态**（`agent/skills/market/sources/clawhub.py:1-4`：「ClawHub 是最大的技能生态平台，6 个主流竞品均已接入」）；自带 **134 个 `SKILL.md`**。
+- **我们不宣称的（诚实差距）**：**我方没有「一个关键词即从对话确定性触发某个技能」的关键词触发表**——`backends/skills/market_protocols.py:40` 的 `keywords` 是**市场源元数据字段**，不是运行时触发规则；我方隐式触发靠模型语义判断 + 会话级技能精选（人工指定子集）。**规模不与对方比大小**（对方 263+ 是社区插件池，我方 134 是出厂自带，量纲不同）。
+- **本轮不开新路线图条目**：关键词确定性触发与使用率度量已并入 `topic_08 #480`（渐进披露的加载-卸载闭环与选中可追溯）的增补，**不另开同轴条目**。
+- **SSOT**：`temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（技能与插件生态轴主文档，2026-10-22 增补）· `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`（#480 含增补）· `https://x.com/charliejhills/status/2108222962306548005`
+
 ## 最新验证快照（2026-10-21 · 竞品把 Agent 塞进任意设备：Hermes Gadget SDK 的四个可核对机制 · 我方的诚实差距，以及两条尚未交付的路线图条目）
 
 - **触发事件**：社区帖 @adolandev（`https://x.com/adolandev/status/2107813150686888407`）——「Three days ago, Hermes Gadget was an open SDK and a demo. Then the community got hold of it -- shoutout @NousResearch. LilyGO watches. AIPI Lite. Desk gadgets. Old Android phones. People are getting Hermes running on all kinds of devices and sharing their work.」我们把该 SDK 仓库（`external_reference_project/claw/hermes-gadget-sdk`，MIT，v0.2.0）拉到本地逐文件核对。**注意：它是 Hermes 的第三方插件，不是 Nous Research 的官方产品**。
