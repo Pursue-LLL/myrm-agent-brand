@@ -84,6 +84,24 @@ const COUNT_CLAIMS = [
     countPattern: /^\s{4}(FAST|DEFAULT|CAREFUL) = /gm,
     locales: { zh: [/(\d+)\s*档拟人化等级/], en: [/(\d+)\s*humanization levels/], ko: [] },
   },
+  {
+    id: 'lifecycleHooks',
+    anchor: 'myrm-agent-harness/src/myrm_agent_harness/core/hooks/types.py',
+    expect: 13,
+    literal: null,
+    countPattern: /^\s{4}([A-Z_]+)\s*=\s*"([a-z_]+)"$/gm,
+    slide: 'functionHooks',
+    locales: { zh: [/(\d+)\+?\s*生命周期钩点/], en: [/(\d+)\+?\s*lifecycle hooks/], ko: [] },
+  },
+  {
+    id: 'mermaidDslKinds',
+    anchor: 'myrm-agent/myrm-agent-frontend/src/components/features/artifacts/renderers/architecture/ArchitecturePreview.tsx',
+    expect: 4,
+    literal: null,
+    countPattern: /content\.includes\('(graph |flowchart |sequenceDiagram|classDiagram)'\)/g,
+    slide: 'richRendering',
+    locales: { zh: [/(\d+)\s*类 DSL/], en: [/(\d+)\s*DSL kinds/], ko: [] },
+  },
 ] as const;
 
 /** 轮播磁贴不得出现的绝对表述。 */
