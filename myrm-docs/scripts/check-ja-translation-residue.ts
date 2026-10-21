@@ -12,7 +12,7 @@
  * 该守卫的直接来源：一次日译里混入了韩文碎片（`3 種類の)に会遇到입니다`）与中文残留
  * （`技能マーケット`），而首轮扫描词表没覆盖韩文区间，导致漏检。
  */
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -84,6 +84,38 @@ function collectMdx(dir: string, out: string[] = []): string[] {
   return out;
 }
 
+/** 语料推导的候选简体字：出现在 zh 语料、但整个 ja 语料里从未出现过的汉字。 */
+function deriveSimplifiedCandidates(): Set<string> {
+  const zhRoot = join(DOCS_ROOT, 'docs', 'zh');
+  const jaRoot = join(DOCS_ROOT, 'docs', 'ja');
+  if (!existsSync(zhRoot) || !existsSync(jaRoot)) return new Set();
+  const zh = new Set(collectMdx(zhRoot).join(''));
+  const ja = new Set(collectMdx(jaRoot).join(''));
+  const candidates = new Set<string>();
+  for (const ch of zh) {
+    if (ja.has(ch)) continue;
+    if (!/[\u4e00-\u9fff]/.test(ch)) continue;
+    candidates.add(ch);
+  }
+  return candidates;
+}
+
+/** 列出 ja 语料下的页面（相对 DOCS_ROOT）。 */
+function listJaPages(): string[] {
+  const root = join(DOCS_ROOT, 'docs', 'ja');
+  if (!existsSync(root)) return [];
+  const out: string[] = [];
+  const walk = (dir: string) => {
+    for (const entry of readdirSync(dir)) {
+      const full = join(dir, entry);
+      if (statSync(full).isDirectory()) walk(full);
+      else if (entry.endsWith('.mdx')) out.push(relative(DOCS_ROOT, full));
+    }
+  };
+  walk(root);
+  return out;
+}
+
 function main(): void {
   const files = collectMdx(JA_ROOT);
   const errors: string[] = [];
@@ -117,6 +149,20 @@ function main(): void {
     for (const word of CN_SOFT) {
       const count = (prose.match(new RegExp(word, 'g')) ?? []).length;
       if (count > 0) warnings.push(`${rel}: 共用词「${word}」出现 ${count} 次（人工复核）`);
+    }
+  }
+
+  // 语料推导候选：出现在 zh 语料但 ja 语料完全没有的汉字，出现在 ja 页面即需人工复核
+  const candidates = deriveSimplifiedCandidates();
+  if (candidates.size) {
+    for (const file of collectMdx(join(DOCS_ROOT, 'docs', 'ja'))) {
+      void file;
+    }
+    for (const rel of listJaPages()) {
+      const text = readFileSync(join(DOCS_ROOT, rel), 'utf8');
+      const prose = text.replace(/```[\s\S]*?```/g, '').replace(/`[^`\n]*`/g, '');
+      const found = [...new Set([...prose].filter((c) => candidates.has(c)))];
+      if (found.length) warnings.push(`${rel}: 语料推导候选简体字 ${found.join('')}（需人工复核）`);
     }
   }
 
