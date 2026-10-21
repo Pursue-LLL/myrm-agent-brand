@@ -180,6 +180,9 @@ export const COMPARE_ROW_KEYS = [
   'memoryEvolutionAudit',
   'parallelSessionIsolation',
   'groundedClaims',
+  'publishComplianceGate',
+  'deliverableBundle',
+  'modelFailoverKeepsContext',
 ] as const;
 
 export type CompareRowKey = (typeof COMPARE_ROW_KEYS)[number];
@@ -214,7 +217,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'agentPluginMemory',
     'memoryEvolutionAudit',
   ],
-  security: ['groundedClaims', 'sandbox', 'securityLayers', 'toolSecurity', 'approvalNoteToModel', 'skillPermissionGate', 'credentialVault', 'fileEditSafety', 'privacySafeShare', 'shareLink', 'cascadeDeletion', 'toolIntegration', 'toolProfileSsot', 'unifiedToolGateway'],
+  security: ['groundedClaims', 'sandbox', 'securityLayers', 'toolSecurity', 'approvalNoteToModel', 'skillPermissionGate', 'credentialVault', 'fileEditSafety', 'privacySafeShare', 'shareLink', 'cascadeDeletion', 'toolIntegration', 'toolProfileSsot', 'unifiedToolGateway', 'publishComplianceGate'],
   automation: [
     'subAgent',
     'kanbanUI',
@@ -230,6 +233,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'browserEngine',
     'multimodalGeneration',
     'webFetch',
+    'deliverableBundle',
     'tunnel',
     'mobileRemote',
     'cron',
@@ -267,6 +271,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'parallelE2eSignoff',
     'perAgentIterationBudget',
     'stopTransparency',
+    'modelFailoverKeepsContext',
   ],
   platform: ['gui', 'chatHistoryManagement', 'parallelSessionIsolation', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'harnessUpgradeContract', 'codeGraph', 'crossPlatformHandoff', 'configSync', 'taskResilience', 'localIotBridge', 'steerToken', 'threeDGraph', 'chatOpsIM', 'serverless', 'smartCommandInput', 'agentPluginRuntime', 'newTaskWorkContextCard', 'desktopNativeBridge'],
 };
