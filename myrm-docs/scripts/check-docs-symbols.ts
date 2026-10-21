@@ -17,12 +17,13 @@
  * - `test_*`（我方测试命名）
  * 其余反引号符号（第三方库名、竞品参数、协议字段、英文散文）不纳入判定，避免误报。
  */
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const REPO_ROOT = join(fileURLToPath(new URL('.', import.meta.url)), '..', '..', '..');
 const DOCS_DIR = join(REPO_ROOT, 'myrm-agent-brand', 'myrm-docs', 'docs');
+const WEBSITE_LOCALES = join(REPO_ROOT, 'myrm-agent-brand', 'myrm-website', 'locales');
 const CODE_ROOTS = [
   'myrm-agent/myrm-agent-server/app',
   'myrm-agent/myrm-agent-server/tests',
@@ -76,6 +77,26 @@ function main(): void {
 
   const errors: string[] = [];
   let checked = 0;
+
+  // 官网落地页文案里的我方符号同样要真实存在
+  for (const loc of ['zh', 'en', 'ko', 'ja']) {
+    const file = join(WEBSITE_LOCALES, `${loc}.json`);
+    if (!existsSync(file)) continue;
+    const text = readFileSync(file, 'utf8');
+    for (const m of text.matchAll(SYMBOL_RE)) {
+      const symbol = m[1];
+      checked += 1;
+      if (ALLOW.has(symbol)) continue;
+      let resolved = false;
+      for (const id of ids) {
+        if (id === symbol || id.startsWith(symbol)) {
+          resolved = true;
+          break;
+        }
+      }
+      if (!resolved) errors.push(`myrm-website/locales/${loc}.json: 官网文案引用的我方符号在代码中不存在 → ${symbol}`);
+    }
+  }
 
   for (const file of collect(DOCS_DIR)) {
     const rel = relative(REPO_ROOT, file);
