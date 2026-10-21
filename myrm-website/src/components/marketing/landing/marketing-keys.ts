@@ -189,39 +189,6 @@ export const COMPARE_ROW_KEYS = [
 
 export type CompareRowKey = (typeof COMPARE_ROW_KEYS)[number];
 
-/**
- * Compare rows that still carry copy in the locale files but are **not** rendered.
- *
- * Why they exist: an earlier batch of comparison rows was written into the locales
- * without being registered in `COMPARE_ROW_KEYS`, so the copy went dark silently.
- * `validate-marketing-locales.ts` now rejects any compare row that is neither
- * registered nor listed here, which keeps the dead-copy set explicit and bounded
- * instead of letting it drift. Each parked row must be either wired up (moved
- * into `COMPARE_ROW_KEYS` plus a category tab) or deleted from the locales.
- */
-export const PARKED_COMPARE_ROW_KEYS = [
-  'deployment',
-  'sessionHandoff',
-  'credentialPooling',
-  'directRouting',
-  'oobeMigration',
-  'webuiSecurity',
-  'smartConcurrency',
-  'headlessZeroDeadlock',
-  'selfCleanup',
-  'zeroCostTools',
-  'executionLifecycle',
-  'mcpArchitecture',
-  'externalAgentAcp',
-  'enterpriseAuth',
-  'acpToolchainHardening',
-  'localModelCookbook',
-  'smallModelAutoTune',
-  'vercelGatewayObservability',
-  'observabilityBase',
-  'artifactsDelivery',
-  'workflowIntegration',
-] as const;
 
 export const COMPARE_TAB_KEYS = ['all', 'coding', 'memory', 'security', 'automation', 'reliability', 'platform'] as const;
 
