@@ -1,0 +1,103 @@
+---
+title: 階層検証プレイブック
+description: 低負荷条件のもとで、再現可能な証拠によって「初字応答が速い」「長時間タスクが安定している」を検証し、オープンソースの製品層と harness ランタイムの両方を覆う。
+---
+
+# 階層検証プレイブック
+
+必要なのが「それなりに良さそう」という印象ではなく**証拠**であるとき（たとえば「初字が速い」「長時間タスクが安定している」「競合のデフォルト体験より良い」など）、この手順どおりに実行してください。
+
+## なぜこの手順が必要か
+
+多くの Agent 製品は能力のリストを見せるだけで、再現できる実証は示しません。Myrm の検証ループは 3 層をまとめて受入します。
+
+1. **Harness ランタイム層**（オープンソースのランタイム、server から呼び出される）
+2. **オープンソースの製品層**（`myrm-agent-server` + `myrm-agent-frontend`）
+3. **ユーザーが感じ取れる表現層**（docs + 公式サイトobesの訴求コピー）
+
+## 階層と証拠の対応
+
+| 層 | 検証の目標 | 典型的な証拠 |
+|----|------------|--------------|
+| Harness ランタイム | 起動プローブの安定性、キャッシュ挙動の制御可能性 | `backend_detector` のテスト + 定向カバレッジ |
+| オープンソース server | TTFT のエンドツーエンド収集と永続化集計の正しさ | stream loop / collector / usage aggregation のテスト |
+| フロントエンドと docs | 実際のメリットを利用者が理解できる | 二言語文案の同期 + 正直な範囲説明 |
+
+## 第一歩：まずマシンを止まらないようにする
+
+**小さなバッチ**で実行し、リソース境界を記録します。
+
+```bash
+/usr/bin/time -l bash scripts/dev/run-pytest-safe.sh -- ./myrm test <target> -q
+```
+
+少なくとも次を記録します。
+
+- `/usr/bin/time -l` のピーク RSS
+- 現在のマシンで利用できるメモリ（`available`、`used_percent`）
+- 連続再実行で単調なメモリ増加が起きていないか
+
+## 第二歩：harness の起動経路を検証する
+
+定型コマンド:
+
+```bash
+bash scripts/dev/run-pytest-safe.sh -- ./myrm test myrm-agent-harness/tests/toolkits/acp/test_backend_detector.py -q --cov=myrm_agent_harness.toolkits.acp.core.backend_detector --cov-report=term
+```
+
+受入基準:
+
+- テストが通る
+- 定向カバレッジがキャッシュ / リフレッシュの重要経路を十分に覆っている
+- 再実行で異常なメモリ傾向がない
+
+## 第三歩：製品層の TTFT 経路を検証する
+
+定型コマンド:
+
+```bash
+bash scripts/dev/run-pytest-safe.sh -- ./myrm test myrm-agent/myrm-agent-server/tests/services/agent/stream_session/test_stream_loop_ttft.py myrm-agent/myrm-agent-server/tests/api/statistics/test_usage_aggregation_coverage.py -q --cov=app.services.agent.stream_session.stream_loop --cov=app.api.statistics.usage_aggregation --cov-report=term
+
+bash scripts/dev/run-pytest-safe.sh -- ./myrm test myrm-agent/myrm-agent-server/tests/api/agent/test_stream_collector_coverage.py -q --cov=app.services.agent.streaming_support.stream_collector --cov-report=term
+```
+
+受入基準:
+
+- 可視テキスト payload 上の TTFT 収集が通る
+- TTFT が `message_end` に注入され、統計集計がそれを読み取れる
+- カバレッジが主要経路を実テストで覆っていることを示しており、外周の mock だけではない
+
+## 第四歩：ブラウザ実景での受入（リソースが許す場合）
+
+説得力をさらに高めたい場合は、軽量な MCP ブラウザ実証を 1 つ足せます。
+
+- `new_page` で WebUI を開く
+- `take_snapshot` で可視状態を確認する
+- `evaluate_script` で操作結果を確認する
+
+CPU / メモリ保護のためスキップする場合は、**ドキュメントに明記し、直近に完了したブラウザ実測のスナップショットを参照**しなければなりません。
+
+## 第五歩：証拠を公開し、過度な宣伝を避ける
+
+3 つの面が同期していなければなりません。
+
+1. `temp-docs/materials/*_ADVANTAGE.md`（完全な証拠）
+2. docs の競合比較ページ（最新の検証スナップショット）
+3. 公式サイトのランディングページの訴求コピー（ユーザー表現）
+
+制約:
+
+- 競合に関する結論はテスト証拠に紐付ける
+- 「何を測り、何を測らなかったか」を明示する
+- 公式サイトコピーは下層の専門用語の羅列を避ける。明示の要望が無い限り「六項のコア能力」セクションは変更しない
+
+## 合格基準
+
+次の 4 つをすべて満たして初めて「検証済み」と対外して主張できます。
+
+- 定向テストが通る
+- リソース境界が許容範囲
+- TTFT / プローブ契約に隠れたフォールバックが無い
+- docs と公式サイトコピーが実測証拠と一致している
+
+これが「速い + 安定 + 証明できる」の最小公開基準です。
