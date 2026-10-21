@@ -104,6 +104,17 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **新增一条尚未交付的路线图条目**：`topic_01 #211`（记忆·技能·工件的归属判据与统一时间线套件，**待分析**）。
 - **SSOT**：`temp-docs/materials/MEMORY_ADVANTAGE.md`（记忆与知识体系轴主文档，2026-10-22 新增段）· `temp-docs/roadmap/topic_01_memory_roadmap.md`（#211）· `https://x.com/witcheer/status/2107866669041283548`
 
+## 最新验证快照（2026-10-22 · 竞品把「对编程 Agent 说人话，它自己剪片」做到 6.5 万 star · 评论区问出三个真问题：失败该不该停、素材能不能商用、改一处要不要重跑全片 · 我们的三项强项与一个明确缺口）
+
+- **触发事件**：X @0xGky《一个在 GitHub 上直接屠榜的开源项目，OpenMontage》（`https://x.com/0xGky/status/2108006966974972326`，2026-10-08 09:30；**2.7 万浏览 / 20 回复 / 77 转推 / 371 赞 / 473 书签**）。本轮用 ChromeAgent :9410 + chrome-devtools MCP 抽取主帖全文 + **23 条回复**，并把源码镜像拉到本地（`external_reference_project/harness/OpenMontage`，**AGPL-3.0**）。
+- **竞品形态**：你对着 Claude Code / Cursor 说人话，它自己**写脚本 → 搜素材 → 配音 → 上字幕 → 合成收尾**；还能**反向拆解爆款视频**（脚本节奏、镜头关键帧、风格），给出 2–3 条不同路子的方案。
+- **⚠️ 规模口径校正（本地镜像实测 vs 帖内宣传）**：镜像 `SKILL.md` = **139** 个、工具脚本 = **265** 个、`pipeline` 目录 = **4** 个；帖内称「12 条流水线、100+ 工具、700+ agent skills」，**两者不一致**。**对外一律用镜像实测数并标注快照日期。**
+- **社区问出的三个真问题（比主帖有价值）**：@llloooo24（615 赞）「**我想看的是失败的那次。素材找不到、配音和画面对不上的时候，它停下来问，还是继续把一条完整视频交出来？能交作业很容易。知道哪一步不该继续，才像能用的流水线。**」· @hinanwang（698 赞）「**素材版权**：AI 自己搜来的素材和配的 BGM，**商用会不会埋雷**？没交代清楚之前不敢拿来接单」· @linyiq（421 赞）「最怕『**成片很快，改一处又得重抽奖**』……得能单改镜头、换 BGM、锁字幕，**不用重跑全片**；产出的时间线和素材引用能进常用剪辑软件继续改吗？」
+- **我方现状（均已用真实代码核对）**：**完成与否由物理事实判定**（`agent/_internals/_agent_build.py:98-107` 的中间件链含 `CompletionGuard()` 与 `ToolApprovalMiddleware`）——**「失败就停」在我方是既有机制，在竞品侧还是社区的开放问题**；**交付的是可编辑的中间产物**（`agent/artifacts/vault.py:35-45,42` 的 `VAULT_PREFIX` 与 `sha256_hash`、`core/artifacts/manifest.py:110-140` 的 `DeliverableItem` 含 `version_id` / `vault_uri`、增量 diff 上屏 `fileDiffEvents.ts:31`）；**许可自由度**：我方双仓均 MIT，竞品为 AGPL-3.0。
+- **我们不宣称的（诚实差距）**：① **没有「素材来源与许可谱系」**——在 `app/api/artifacts` 与 `app/services/artifacts` 下检索 `copyright` / `attribution` / `license` / `授权` / `版权` **零命中**；② **我们没有成体系的视频流水线**（`topic_16` 第 12 / 33 / 35 条均为**待分析**，不得当作已交付）；③ **规模不与对手比**：我们不比技能条数，比「每一条都过安全与证据门禁」；④ **不引用对方成本数字**（「1.33 刀 / 60 秒」是对方演示口径）。
+- **新增一条尚未交付的路线图条目**：`topic_16 #411`（媒体产物的素材来源与许可谱系套件，**待分析**）。
+- **SSOT**：`temp-docs/materials/AI_CREATION_WORKFLOW_AND_MODEL_ORCHESTRATION_ADVANTAGE.md`（创作与多模态轴主文档，2026-10-22 新增段）· `temp-docs/roadmap/topic_16_office_agent_specialty_suites_and_deliverable_bundle_roadmap.md`（#411）· `external_reference_project/harness/OpenMontage`
+
 ## 最新验证快照（2026-10-21 · 竞品把 Agent 塞进任意设备：Hermes Gadget SDK 的四个可核对机制 · 我方的诚实差距，以及两条尚未交付的路线图条目）
 
 - **触发事件**：社区帖 @adolandev（`https://x.com/adolandev/status/2107813150686888407`）——「Three days ago, Hermes Gadget was an open SDK and a demo. Then the community got hold of it -- shoutout @NousResearch. LilyGO watches. AIPI Lite. Desk gadgets. Old Android phones. People are getting Hermes running on all kinds of devices and sharing their work.」我们把该 SDK 仓库（`external_reference_project/claw/hermes-gadget-sdk`，MIT，v0.2.0）拉到本地逐文件核对。**注意：它是 Hermes 的第三方插件，不是 Nous Research 的官方产品**。

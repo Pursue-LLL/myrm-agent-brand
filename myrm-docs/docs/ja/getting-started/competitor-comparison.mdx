@@ -104,6 +104,27 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
 - **まだ納めていないロードマップ項目 1 件を新規追加**: `topic_01 #211`（記憶・スキル・成果物の所属判断基準と統合タイムライン套件、**未分析**）。
 - **SSOT**: `temp-docs/materials/MEMORY_ADVANTAGE.md`（記憶と知識体系の軸の主ドキュメント、2026-10-22 追記段）· `temp-docs/roadmap/topic_01_memory_roadmap.md`（#211）· `https://x.com/witcheer/status/2107866669041283548`
 
+## 最新検証スナップショット (2026-10-22 · 競争相手が「コーディング Agent に人語で話すと動画編集してくれる」を 6.5 万 star にした · コメント欄が出した 3 つの本質的な問い：失敗した工程で止まるべきか、素材は商用できるか、1 箇所変えたら全工程を作り直さないか · 我々の強み 3 つと明確な不足 1 つ)
+
+- **きっかけ**: X @0xGky「GitHub を席巻いたオープンソースプロジェクト、OpenMontage」（`https://x.com/0xGky/status/2108006966974972326`、2026-10-08 09:30。**2.7 万閲覧 / 20 リプライ / 77 リポスト / 371 いいね / 473 ブックマーク**）。ChromeAgent :9410 + chrome-devtools MCP で本文全文と **23 件の返信**を抽出し、ソースミラー（`external_reference_project/harness/OpenMontage`、**AGPL-3.0**）をローカルに取得した。
+- **競争相手の形**: Claude Code / Cursor に人語で話すと、**脚本を書いて → 素材を探して → 配音して → 字幕を入れて → 仕上げ合成**まで自動でやり、**ヒット動画の逆解析**（脚本のリズム、ショットのキーフレーム、スタイル）も行って、2〜3 通りの案を出してくれる。
+- **⚠️ 規模の口径補正（ミラー実測 vs 帖の主張）**: ミラー内の `SKILL.md` は **139** 個、ツールスクリプトは **265** 個、`pipeline` ディレクトリは **4** 個。帖の「12 本のパイプライン、100+ のツール、700+ の agent skills」とは**一致しない**。**対外引用はミラー実測値 + スナップショット日**を用いる。
+- **コメントが出した 3 つの本質的な問い（本文より価値がある）**:
+  - @llloooo24（615 いいね）「**失敗した回を見たい。素材が見つからないとき、ボイスと画が合わないとき、そこで止めて尋ねるのか、それとも完成した動画を出してしまうのか。宿題を出すのは簡単。どの工程で続けてはならないかを知，才能amy 使えるパイプラインになる。**」
+  - @hinanwang（698 いいね）「**素材の権利**：AI が自分で見つけた素材と生成した BGM、**商用で地雷を踏まないか**。この点が明示されない限り、客の仕事を引き受けられない」
+  - @linyiq（421 いいね）「このようなツールの最悪の点は『**完成は速いが、1 箇所変えると運Geom を振り直す**』……ショットの差し替え、BGM の入れ替え、字幕の固定が**全工程を作り直さずに**できること、そして**タイムラインと素材参照**が普段使う編集ソフトで開けることが必要」
+- **我々の現状（実コードで照合済み）**:
+  - **完了の判定は物理事実**——`agent/_internals/_agent_build.py:98-107` の中間ウェアチェーンに `CompletionGuard()` と `ToolApprovalMiddleware` が並び、**「失敗したら止まる」は我々には既存の仕組み、競争相手側ではまだコメントoutuの未解決の問い**。
+  - **納品するのは編集できる中間産物**——`agent/artifacts/vault.py:35-45,42` の `VAULT_PREFIX` と `sha256_hash`、`core/artifacts/manifest.py:110-140` の `DeliverableItem` が `version_id` / `vault_uri` を保持、増分 diff は `fileDiffEvents.ts:31` で提示。
+  - **ライセンスの自由度**——我々 2 リポジトリとも MIT、競争相手は AGPL-3.0。
+- **主張しないもの（正直なギャップ）**:
+  1. **「素材の出典とライセンスの系譜」が無い**——`app/api/artifacts` と `app/services/artifacts` 配下で `copyright` / `attribution` / `license` / `授权` / `版权` を検索して **0 件**。
+  2. **体系的な動画パイプラインは無い**——`topic_16` の第 12 / 33 / 35 条はすべて**未分析**であり、納品済みとして示してはならない。
+  3. **規模では競い合わない**——技能の数を競い合うのではなく「**すべての 1 つが安全と証拠のゲートを通る**」で競う。
+  4. **相手のコスト数値を引用しない**——「60 秒で 1.33 ドル」は相手のデモ口径。
+- **まだ納めていないロードマップ項目 1 件を新規追加**: `topic_16 #411`（メディア成果物の素材出典とライセンス系譜套件、**未分析**）。
+- **SSOT**: `temp-docs/materials/AI_CREATION_WORKFLOW_AND_MODEL_ORCHESTRATION_ADVANTAGE.md`（創作とマルチモーダルの軸の主ドキュメント、2026-10-22 追記段）· `temp-docs/roadmap/topic_16_office_agent_specialty_suites_and_deliverable_bundle_roadmap.md`（#411）· `external_reference_project/harness/OpenMontage`
+
 ## 最新検証スナップショット (2026-10-21 · 競合がエージェントをあらゆるデバイスに放り込んだ · Hermes Gadget SDK の 4 つの検証済み機構 · 我々の正直なギャップと、まだ納品されていないロードマップ 2 件)
 
 - **きっかけ**: コミュニティの投稿 @adolandev (`https://x.com/adolandev/status/2107813150686888407`) —「Three days ago, Hermes Gadget was an open SDK and a demo. Then the community got hold of it -- shoutout @NousResearch. LilyGO watches. AIPI Lite. Desk gadgets. Old Android phones. People are getting Hermes running on all kinds of devices and sharing their work.」SDK リポジトリ (`external_reference_project/claw/hermes-gadget-sdk`、MIT、v0.2.0) をローカルで精読。**注意: これは Hermes のサードパーティ製プラグインであり、Nous Research の公式製品ではない**。

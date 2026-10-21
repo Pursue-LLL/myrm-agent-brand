@@ -104,6 +104,17 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 - **아직 인도되지 않은 로드맵 항목 1건 신규 추가**: `topic_01 #211`(메모리·스킬·산출물의 소속 판단 기준과 통합 타임라인 스위트, **미분석**).
 - **SSOT**: `temp-docs/materials/MEMORY_ADVANTAGE.md`(메모리·지식 체계 축 주 문서, 2026-10-22 추가 절) · `temp-docs/roadmap/topic_01_memory_roadmap.md`(#211) · `https://x.com/witcheer/status/2107866669041283548`
 
+## 최신 검증 스냅샷 (2026-10-22 · 경쟁사가 '코딩 에이전트에게 말하면 영상을 편집해준다'를 6.5만 스타로 만들었습니다 · 댓글이 던진 세 가지 핵심 질문: 단계가 실패하면 멈춰야 하나, 소재는 상업적으로 써도 되나, 한 곳을 고치면 전체를 다시 돌려야 하나 · 우리의 강점 3가지와 명확한 격차 1가지)
+
+- **계기**: X @0xGky "GitHub을 휩쓴 오픈소스 프로젝트, OpenMontage"(`https://x.com/0xGky/status/2108006966974972326`, 2026-10-08 09:30. **2.7만 조회 / 10 리플... 정확히는 20 리플 / 77 리포스트 / 371 좋아요 / 473 북마크**). ChromeAgent :9410 + chrome-devtools MCP로 본문 전문과 **23개 리플**을 추출하고, 소스 미러(`external_reference_project/harness/OpenMontage`, **AGPL-3.0**)를 로컬에 받았습니다.
+- **경쟁사의 형태**: Claude Code / Cursor에 말로 설명하면 **스크립트 작성 → 소재 검색 → 성우 → 자막 → 최종 합성**을 스스로 하고, **히트 영상 역분석**(스크립트 리듬, 샷 키프레임, 스타일)도 해서 2~3가지 방향을 제시해줍니다.
+- **⚠️ 규모 기준 보정(미러 실측 vs 게시물 주장)**: 미러의 `SKILL.md`는 **139**개, 도구 스크립트는 **265**개, `pipeline` 디렉터리는 **4**개입니다. 게시물의 "12개 파이프라인, 100+ 도구, 700+ agent skills"와 **일치하지 않습니다**. **외부 인용은 미러 실측값 + 스냅샷 날짜**를 씁니다.
+- **댓글이 던진 세 가지 핵심 질문(본문보다 가치가 큼)**: @llloooo24(615 좋아요) "**실패한 그 회를 보고 싶습니다. 소재를 못 찾았거나 보이스와 화면이 안 맞을 때, 거기서 멈추고 묻나요, 아니면 완성된 영상을 그냥 넘기나요? 과제 제출은 쉬워요. 어떤 단계에서 계속하면 안 되는지를 아는 것이 쓸 만한 파이프라인입니다**" / @hinanwang(698 좋아요) "**소재 권리**: AI가 알아서 찾은 소자와 생성한 BGM, **상업적으로 지뢰를 밟지 않을까요?** 이게 명확히 설명되기 전엔 고객 일을 맡을 수가 없습니다" / @linyiq(421 좋아요) "이런 도구 제일 무서운 건 '**완성이 빠른데 한 군데 고치면 운을 다시 굴려야 한다**'… 샷 교체, BGM 교체, 자막 고정을 **전체 재생 없이** 할 수 있어야 하고, 나온 **타임라인과 소재 참조**가 평소 쓰는 편집기에서 열려야 합니다".
+- **우리의 현황(실 코드로 대조)**: **완료 판정이 물리적 사실로** — `agent/_internals/_agent_build.py:98-107`의 미들웨어 체인에 `CompletionGuard()`와 `ToolApprovalMiddleware`가 나란히 배치되어, **"실패하면 멈춘다"는 우리에게 이미 있는 Mechanism이며 경쟁사 쪽에서는 아직 댓글로 남은 열린 질문**입니다. **산출물은 편집 가능한 중간 결과물**(`agent/artifacts/vault.py:35-45,42`의 `VAULT_PREFIX`와 `sha256_hash`, `core/artifacts/manifest.py:110-140`의 `DeliverableItem`이 `version_id` / `vault_uri` 보유, 증분 diff는 `fileDiffEvents.ts:31`로 표시). **라이선스 자유도**: 우리 두 저장소 모두 MIT, 경쟁사는 AGPL-3.0.
+- **주장하지 않는 것(정직한 격차)**: ① **"소재 출처와 라이선스 이력"이 없습니다** — `app/api/artifacts`와 `app/services/artifacts` 하에서 `copyright` / `attribution` / `license` / `授权` / `版权` 검색 결과 **0건**. ② **체계적인 영상 파이프라인이 없습니다**(`topic_16`의 12 / 33 / 35 항목은 모두 **미분석**이며 인도된 것으로 제시하면 안 됨). ③ **규모로競우지 않습니다** — 스킬 개수를競우지 않고 "**하나하나가 안전·증거 게이트를 통과한다**"로競습니다. ④ **상대 비용 숫자를 인용하지 않습니다**("60초에 1.33달러"는 상대 데모 기준).
+- **아직 인도되지 않은 로드맵 항목 1건 신규 추가**: `topic_16 #411`(미디어 산출물의 소재 출처와 라이선스 이력 스위트, **미분석**).
+- **SSOT**: `temp-docs/materials/AI_CREATION_WORKFLOW_AND_MODEL_ORCHESTRATION_ADVANTAGE.md`(창작·멀티모달 축 주 문서, 2026-10-22 추가 절) · `temp-docs/roadmap/topic_16_office_agent_specialty_suites_and_deliverable_bundle_roadmap.md`(#411) · `external_reference_project/harness/OpenMontage`
+
 ## 최신 검증 스냅샷 (2026-10-21 · 경쟁사가 에이전트를 온갖 기기에 넣어 버린 방법 · Hermes Gadget SDK의 검증된 4가지 메커니즘 · 우리의 정직한 격차와 아직 인도되지 않은 로드맵 2건)
 
 - **계기**: 커뮤니티 게시글 @adolandev (`https://x.com/adolandev/status/2107813150686888407`) — "Three days ago, Hermes Gadget was an open SDK and a demo. Then the community got hold of it -- shoutout @NousResearch. LilyGO watches. AIPI Lite. Desk gadgets. Old Android phones. People are getting Hermes running on all kinds of devices and sharing their work." SDK 저장소(`external_reference_project/claw/hermes-gadget-sdk`, MIT, v0.2.0)를 로컬에 받아 파일 단위로 확인. **주의: Hermes의 서드파티 플러그인이며 Nous Research 공식 제품이 아니다**.
