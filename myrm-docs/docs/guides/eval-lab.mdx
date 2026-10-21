@@ -295,7 +295,7 @@ Eval Lab is not just a place to produce a score — it is also a closed loop aga
 ### 1. Private regression assets: solve it once, keep it forever
 
 - Right-click any solved problem in a conversation and "distill it into a test case"; the case lands in your local `.myrm/eval_datasets/` — **no Python test writing**.
-- Automatic multimodal cleanup: Base64 images are replaced with lightweight metadata, shrinking a 2.4MB case to 3.8KB so the local editor opens instantly.
+- Automatic multimodal cleanup: base64 image payloads are replaced with placeholder metadata before the case is written (`myrm-agent-server/app/core/eval/capture.py:32-45`), shrinking a 2.4MB case to 3.8KB so the local editor opens instantly.
 - Before switching models, editing prompts or upgrading skills, rerun those cases: the report gives you per-case pass rate, latency and tokens.
 
 ### 2. Statistical significance: a regression claim arrives with an interval

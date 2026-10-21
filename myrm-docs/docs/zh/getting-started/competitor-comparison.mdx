@@ -14,7 +14,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 ## 最新验证快照（2026-10-21 · 私有回归资产与评测可信度：把踩过的坑变成回归护栏 · 彻底消除「换模型 / 改提示词后 Agent 悄悄退步，而公开题库测不出你的业务坑」）
 
 - **私有回归资产与评测可信度套件（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 在「换配置会不会退步、有没有防倒退护栏」这一形态）：** 竞品普遍把质量交给开发者离线脚本或公开题库 —— 改完模型只能靠人肉回归；Anthropic 官方 `claude-api` skill 虽已提供 `build-eval` / `hillclimb` 与一整套评测健康检查，但它是 2026-09 之后才起步的 **CLI 开发者工具**，走 Claude Code、无 GUI、不沉淀用户私有用例。Myrm 把这件事做成**产品能力**：
-  1. **私有用例即资产（`app/core/eval/capture.py` → `.myrm/eval_datasets/`）**：任意会话右键「淬炼为评测用例」，Base64 图片自动洗成轻量元数据（2.4MB → 3.8KB，编辑器秒开）；换模型 / 改提示词 / 升级技能之前一键复跑，逐用例给出通过率、耗时与 token；
+  1. **私有用例即资产（`app/core/eval/capture.py` → `.myrm/eval_datasets/`）**：任意会话右键「淬炼为评测用例」，Base64 图片载荷在入库前被替换为占位元数据（`app/core/eval/capture.py:32-45`），2.4MB → 3.8KB，编辑器秒开；换模型 / 改提示词 / 升级技能之前一键复跑，逐用例给出通过率、耗时与 token；
   2. **防作弊防污染四层（`eval/canary.py` · `app/core/eval/wb_bench/workspace.py:83-87` · `eval/contamination.py` · `eval/leakage_guard.py` · `eval/decontam.py:26-39`）**：金丝雀隔离（对齐 SWE-bench / BIG-bench 口径）、隐藏测试只读挂载（Agent 执行期物理不可达）、轨迹级作弊审计、提案器与测试集物理隔离（Train/Val/Test 三分法 + 稳定哈希分层，不按分数挑用例）、HF 域名与查询双 blocklist —— 竞品普遍只有「别泄漏」一句提示；
   3. **统计显著性（`eval/significance.py`）**：McNemar 精确二项 + Edwards 连续性校正、1000 次配对 Bootstrap 95% 置信区间、Pass@k 与难度分层 —— 分数变化小于区间宽度时它就只是噪声，不是「退步」；
   4. **平台期四机制诊断（`eval/plateau.py`）**：区分「统计功效不足 / 能力饱和 / 跨模型分歧 / 难例子集瓶颈」，明确劝阻无意义的提示词微调 —— 避免「调了三十版提示词，分数一直在噪声里」；
