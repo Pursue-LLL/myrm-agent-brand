@@ -11,6 +11,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-10-21 · 开源社区规模实测体检：竞品 25.5 万星 vs 我方 0 · 诚实记录一处「非功能差距」）
+
+- **社区规模实测对比（Nous Research 起源叙事帖触发的量级体检）**：社区帖里的融资叙事（$90M / $1.5B 估值 / 2270 万次下载）本身不含新机制，但它逼出一个必须诚实回答的问题——**竞品的开源分发已经跑到多大规模，我们又在哪里**。
+  1. **竞品实测（GitHub API，2026-10-21）**：`NousResearch/hermes-agent` **255,767 stars / 55,740 forks**；帖中当时的口径是「214K stars」，说明仍在快速增长；OpenRouter 侧（社区帖口径，**未独立核验**）：累计 51T+ tokens、约 500 个模型、在 Productivity / Coding / Personal & CLI Agents 四类目居首，周增量约 13.9T tokens（+11%）。
+  2. **我方实测（同日同口径）**：`Pursue-LLL/myrm-agent` **0 stars / 0 forks**（仓库已公开、代码持续推送，尚未形成社区规模）。
+  3. **差距定性**：这不是能力差距，是**分发与社区冷启动差距**——我们的技能市场、装前体检、原子安装、信任分级做得更细，但「有多少人真装了、在用、说好」目前**无法证明**。
+  4. **对应待办（**规划中，交付前严禁宣传为已实现**）**：`topic_08 #279④ 真实活跃安装量与好评信任榜`、`topic_08 #280 真实活跃安装量信誉榜`。
+  5. **对外口径纪律**：当前**不宣传社区规模**（0 就是 0）；等真实安装量与口碑可验证后，只讲可核验数字，不讲「有多少人用」这类无法举证的形容。
+  6. **SSOT：** `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md`「社区规模」小节 · `https://api.github.com/repos/NousResearch/hermes-agent` · `https://api.github.com/repos/Pursue-LLL/myrm-agent`
+
 ## 最新验证快照（2026-10-21 · 私有回归资产与评测可信度：把踩过的坑变成回归护栏 · 彻底消除「换模型 / 改提示词后 Agent 悄悄退步，而公开题库测不出你的业务坑」）
 
 - **私有回归资产与评测可信度套件（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 在「换配置会不会退步、有没有防倒退护栏」这一形态）：** 竞品普遍把质量交给开发者离线脚本或公开题库 —— 改完模型只能靠人肉回归；Anthropic 官方 `claude-api` skill 虽已提供 `build-eval` / `hillclimb` 与一整套评测健康检查，但它是 2026-09 之后才起步的 **CLI 开发者工具**，走 Claude Code、无 GUI、不沉淀用户私有用例。Myrm 把这件事做成**产品能力**：
