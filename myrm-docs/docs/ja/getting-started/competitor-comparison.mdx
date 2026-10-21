@@ -13,7 +13,7 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
 
 ## 最新検証スナップショット (2026-10-21 · 競合がエージェントをあらゆるデバイスに放り込んだ · Hermes Gadget SDK の 4 つの検証済み機構 · 我々の正直なギャップと、まだ納品されていないロードマップ 2 件)
 
-- **きっかけ**: コミュニティの投稿 @adolandev (`https://x.com/adolandev/status/2107813150686888407`) —「Three days ago, Hermes Gadget was an open SDK and a demo. Then the community got hold of it -- shoutout @NousResearch. LilyGO watches. AIPI Lite. Desk gadgets. Old Android phones. People are getting Hermes running on all kinds of devices and sharing their work.」SDK リポジトリ (`external_reference_project/claw/hermes-gadget-sdk`、MIT、v0.2.0) をローカルで精読。**注意:  이는 Hermes のサードパーティ製プラグインであり、Nous Research の公式製品ではない**。
+- **きっかけ**: コミュニティの投稿 @adolandev (`https://x.com/adolandev/status/2107813150686888407`) —「Three days ago, Hermes Gadget was an open SDK and a demo. Then the community got hold of it -- shoutout @NousResearch. LilyGO watches. AIPI Lite. Desk gadgets. Old Android phones. People are getting Hermes running on all kinds of devices and sharing their work.」SDK リポジトリ (`external_reference_project/claw/hermes-gadget-sdk`、MIT、v0.2.0) をローカルで精読。**注意: これは Hermes のサードパーティ製プラグインであり、Nous Research の公式製品ではない**。
 - **検証済みの 4 つの機構**:
   1. **1 つのデバイスコアを 3 つの実行形態で (MCU / Linux / デスクトップ)** — `docs/simulator.md:5`「runs the **production device core** (`firmware/core`) as a shared library inside a Python host」、`:23`「A bug reproduced in the simulator is therefore a bug in the firmware.」、`python/hermes_gadget/sim/native.py:1-5`（差し替えられるのはドライバだけ、状態機械は同一）、`pyproject.toml:35-39`（開発サーバとテストは**ゲートウェイがロードするのと同一のコード**をロードする）。
   2. **ハードウェアなしで開発・試走・受入できる** — Hermes 不要の代替ゲートウェイ (`docs/simulator.md:42`)、デスクトップシミュレータ、14 種のボードプロファイル (`python/hermes_gadget/sim/runner.py:44`)、デバイスの画面状態を検証するヘッドレススクリプト DSL (`docs/simulator.md:104-120`、画面状態の一覧は `:125`)。
@@ -22,7 +22,7 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
 - **我々の現状 (実コードで照合済み、誇張なし)**:
   1. **デバイスチャネルは未実装** — `app/channels/providers/` は IM / メール / 音声 24 実装で、デバイスチャネルは 0。デバイスチャネル本体はロードマップ `topic_19 #60` のまま (**待分析 / 未納品**)。
   2. **仮想ツインは未実装** — `myrm-agent` 全体で `esp32` / `gadget` の検索結果は 0。`simulator` という名前のモジュールは記憶リコールシミュレータのみ (`app/services/memory/recall_simulator_service.py`)。新条目 `topic_19 #67` (**待分析**)。
-  3. **能力検証マトリクスは未整備** — プラットフォーム切替は場外的서에埋め込まれており (`myrm-agent-desktop/src-tauri/src/commands/screen_lock.rs:82`)、ドキュメントは検証状態を示すことなく各プラットフォームの能力を均一に記述している (`docs/getting-started/desktop-app.mdx:30,44,53`)。それなのに我々のロードマップには既に「未検証：Windows 実機」の尻尾が残っている。新条目 `topic_19 #68` (**待分析**)。
+  3. **能力検証マトリクスは未整備** — プラットフォーム切替は個別に埋め込まれており (`myrm-agent-desktop/src-tauri/src/commands/screen_lock.rs:82`)、ドキュメントは検証状態を示すことなく各プラットフォームの能力を均一に記述している (`docs/getting-started/desktop-app.mdx:30,44,53`)。それなのに我々のロードマップには既に「未検証：Windows 実機」の尻尾が残っている。新条目 `topic_19 #68` (**待分析**)。
   4. **すでに納品している部分 (ハードウェア不要のもの)** — 音声バージイン (`app/api/voice/agent_bridge.py:187-206`)、会議中のリアルタイム議事録 (`app/services/meeting_notes/live_notes.py:42,59,183`)、モバイル指揮台 (`app/remote_access/mobile_hub_payload.py:20,28,45` と `components/features/mobile/`)、ウェブクリップのナレッジ化 (`app/services/wiki/clip/runner.py:37-45,82`)。
 - **主張しないもの**: オープンな外設バス、ローカル Vault、ループバック会議録音、個人ホットワード辞書、YoooClaw 資産移行は**いずれも未実装** — `temp-docs/materials/PHYSICAL_COMPANION_AND_CONTEXT_ASSETS_ADVANTAGE.md` の「未納品一覧（宣伝禁止）」表を参照。
 - **SSOT:** `temp-docs/materials/PHYSICAL_COMPANION_AND_CONTEXT_ASSETS_ADVANTAGE.md` · `temp-docs/roadmap/topic_19_cross_device_mobile_remote_and_physical_companion_roadmap.md` (#67 / #68) · `external_reference_project/claw/hermes-gadget-sdk` · `https://x.com/adolandev/status/2107813150686888407`
