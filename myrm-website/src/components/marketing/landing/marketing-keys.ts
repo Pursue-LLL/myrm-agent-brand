@@ -162,6 +162,8 @@ export const COMPARE_ROW_KEYS = [
   'longTaskOrchestration',
   'harnessUpgradeContract',
   'benchmarkProfile',
+  'evalFramework',
+  'regressionGuard',
   'gitPrPipeline',
   'codeReviewDiscipline',
   'workspaceReviewDiff',
@@ -268,6 +270,8 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'datasetsExport',
     'agentSkills',
     'benchmarkProfile',
+    'evalFramework',
+    'regressionGuard',
     'parallelE2eSignoff',
     'perAgentIterationBudget',
     'stopTransparency',
@@ -287,6 +291,6 @@ export const USE_CASE_KEYS = ['research', 'coding', 'automation', 'content', 'te
 
 export type UseCaseKey = (typeof USE_CASE_KEYS)[number];
 
-export const FAQ_ITEM_KEYS = ['what', 'pronounce', 'local', 'data', 'embedWindow', 'cloudResources', 'optionalExtras', 'commerceSupport', 'migrate', 'personalAgent', 'ghostError', 'captcha', 'ecosystem'] as const;
+export const FAQ_ITEM_KEYS = ['what', 'pronounce', 'local', 'data', 'embedWindow', 'cloudResources', 'optionalExtras', 'commerceSupport', 'migrate', 'personalAgent', 'ghostError', 'captcha', 'ecosystem', 'regression'] as const;
 
 export type FaqItemKey = (typeof FAQ_ITEM_KEYS)[number];

@@ -288,6 +288,40 @@ Large-scale agent evaluations suffer from stochastic variance and wasted compute
    - Filter and schedule runs by `easy` / `medium` / `hard` difficulty tags;
    - Visualizes performance breakdown across difficulty levels to pinpoint agent architectural bottlenecks.
 
+## Regression guardrails: private cases become assets, regressions come with confidence intervals
+
+Eval Lab is not just a place to produce a score — it is also a closed loop against regressions.
+
+### 1. Private regression assets: solve it once, keep it forever
+
+- Right-click any solved problem in a conversation and "distill it into a test case"; the case lands in your local `.myrm/eval_datasets/` — **no Python test writing**.
+- Automatic multimodal cleanup: Base64 images are replaced with lightweight metadata, shrinking a 2.4MB case to 3.8KB so the local editor opens instantly.
+- Before switching models, editing prompts or upgrading skills, rerun those cases: the report gives you per-case pass rate, latency and tokens.
+
+### 2. Statistical significance: a regression claim arrives with an interval
+
+- **Paired significance testing** (exact McNemar with Edwards continuity correction) and **1000× paired bootstrap 95% confidence intervals**: when the score change is smaller than the interval width, it is noise.
+- **Multi-attempt variance**: mean, σ, Pass@1 and Pass@k, reported per difficulty tier.
+
+### 3. Plateau diagnosis: when to stop editing prompts
+
+When the score refuses to move, the diagnosis separates four causes and prescribes the matching remedy:
+
+- **Insufficient statistical power** (too few cases or discordant pairs) → add cases or more repetitions;
+- **Capability saturation** (both sides already score high) → use a finer metric, or move the goal to cost and latency;
+- **Cross-model divergence** (noise mixed with regressions) → raise the repetition count and look again;
+- **Hard-subset bottleneck** (almost no discordant pairs) → fix the case set, not the prompt.
+
+The point is blunt: **avoid "thirty prompt revisions while the score never left the noise band".**
+
+### 4. Cross-profile matrix: names the cases that fail only under some configurations
+
+One case set run across multiple Agent Profiles; the report splits cases into "stable across profiles" and "fails under some configurations", so the exact regression point after a model switch is named instead of hunted by eye.
+
+### 5. Environment disclosure grid in every report
+
+Each report carries: model and thinking tier, **judge model**, harness version, case-set fingerprint, profile, tool policy, run budget (`max_tool_calls` / `max_iterations`), decontamination status badge, plus trajectory disclosure (budget truncation `limit_hit`, decontamination interceptions `blocked` count and tool-call count). **Whether two scores are comparable is visible in the report, not remembered.**
+
 ## Writing test cases
 
 Test cases are JSONL files where each line is a JSON object:

@@ -200,6 +200,10 @@
         "ecosystem": {
           "question": "MyrmAgent 与 OpenClaw、微软 Autopilot 等生态是什么关系？",
           "answer": "开放共赢，而非站队。MyrmAgent 的 myrm-agent 开源框架与 OpenClaw 一样属于开放 agent 底盘路线，同时自带完整的闭源控制平面（沙箱调度、企业治理、审批策略、预算与审计）——这正是 2026 年微软 Autopilot 选择「不自研 runtime、掌控控制面」战略所验证的方向。更进一步，MyrmAgent 全面兼容 Google A2A v1.0 标准协议：你可以像雇佣员工一样接入并治理任意第三方 agent（身份验证、审批约束、审计追踪），做「所有 agent 的企业管家」，而不只是自家 agent 的管家。"
+        },
+        "regression": {
+          "question": "换模型或改了提示词，之前的本事会不会退步？",
+          "answer": "会——这是所有 Agent 产品的通病，所以 Myrm 把「防倒退」做成一等能力：在任意会话里右键把一次调通的复杂任务「淬炼为评测用例」，它就变成你私有的回归资产（用例与判分器都存在你自己的设备上，数据不出本地）。之后换模型、改提示词、升级技能之前一键复跑：报告给你逐用例通过率、耗时与 token，并附一张环境披露网格（模型、判官模型、harness 版本、题集指纹、运行预算、去污染状态），一眼看清两次到底是不是同一套条件；再跑一次跨配置矩阵评测，系统会直接点名「哪些用例只在某些配置下失败」。"
         }
       }
     },
@@ -1032,10 +1036,10 @@
           "myrmAgent": "产品内嵌 7 层 Trace 可视化（ProgressSteps 原地增强执行步骤树 + 单步耗时微标 duration_ms + 故障归因 fault_side + >8 步智能折叠展开 + 详情下钻弹窗 + 思考过程 + 17 项 tooltip + 缓存节省 banner + ExecutionTraceTimeline + SessionReplayPlayer + SessionAnalyticsDialog）· **只追加事件日志守护与 64KB 平滑扩容（Append-Only EventLog & Safe Overflow）**：彻底根除 4KB 粗暴截断导致的 JSON 损坏崩溃，Prompt Preview 扩展至 32KB 保障 Prompt Cache 零污染；close() 阶段挂载运行期完整性不变式自愈门禁（`verify_session_enclosure` & `verify_sequence_continuity`）；会话分叉（Fork）注入不可变 `fork_point` 锚点事件 · 原生 OpenTelemetry Thread->Trace->Span · @trace_async 零侵入 · OTLP 导出至 Jaeger/Datadog — 无需外部 SaaS · 所有入口自动注入 trace_id + session_id（HTTP + Cron + Webhook，零依赖 ContextVar）· **入站 X-Trace-Id / W3C traceparent 自动传播**（反向代理/API 网关的 trace-id 自动采纳，分布式链路不断裂 + hex 验证防日志注入——竞品不支持或无验证）· 并发任务 trace 隔离 · JSON 结构化日志一键切换 · **三层渐进隐私脱敏过滤器与全自动化合规审查门禁**（Layer 1 键名白名单 + Layer 2 递归敏感值正则擦除 + Layer 3 超长安全截断与 SHA-256 完整性指纹，从 Harness Tracing 到 Server API 出口 100% 闭环，零凭证泄漏风险）· 日志内敏感信息自动脱敏 · SSE 分通道（工具进度 / 配对看板 btw / 指标）——比单一 EventBus 竞品更少串台与漏报 · **Agent Liveness SSOT**（单 API 聚合全局三态 busy/idle/degraded + 活跃会话 + 并发槽位 + 渠道健康摘要 + 内存压力等级 + uptime——竞品仅文件轮询或无此能力）· **Agent Fleet Overview**（多 Agent 聚合仪表盘：4 项全局 KPI + 每 Agent 实时状态/月度统计/Cron 绑定/待审批数——竞品需独立部署或无此能力）"
         },
         "evalFramework": {
-          "feature": "智能评估 · 能力持续进化",
-          "hermes": "_no",
-          "openclaw": "_no (ClawEval: CLI 59角色模型选型工具)",
-          "myrmAgent": "GUI 集成评测引擎 — 4 类 15+ 种断言体系（Tool+State+Sandbox+Semantic LLM 裁判，支持自定义 judge_prompt/model/threshold）· 多轮对话评测，支持 on_turn_fail 策略（continue/skip_remaining/abort——级联失败时节省 LLM 开销，对标 skill-up 并独占 abort 模式）· 三通道评测用例产生：一键从真实聊天捕获（GUI Flywheel——基于真实会话，质量高于 LLM 推断生成）+ 静态技能脚手架（build_skill_eval_cases 服务于进化回归）+ 进化管线自动生成（reviewer+extractor 双通道）· 自适应资源让步（AdaptiveEvalManager 前台活跃时自动暂停）· 多数据集管理 + A/B 基准模式（一键剥离所有技能/工具/MCP 获得裸模型基线）+ 历史趋势折线图 · SSE 实时进度 · 7 项评估指标（Recall/Precision/NDCG/MRR/HitRate/FalsePositiveRate/Latency）· ModelTier 自动调优（STRONG/MEDIUM/WEAK）· 评测工作空间物理防污染隔离（并发用例零竞态）· 记忆检索质量评测子系统 · EvalManifest 环境快照（10 维可复现性：模型/工具/提示词指纹/数据集哈希/推理深度——自动嵌入每份报告，确保 A/B 对比公平）· Per-Skill eval_cases SSOT + 进化前非阻塞 penalty 门控 · 自动化技能进化闭环（SkillEvolutionEngine 自动分析 trace → 生成变体 → regression 门控 → 提案审核——超越手动修复循环）· 唯一具备完整评测 GUI + AI 裁判 + 并发执行 + 三通道评测捕获 + 环境可复现快照 + 自动化技能协同进化回归门控的 Agent 框架 · 162 项 eval 模块测试全通过（2026-08-01 实测）"
+          "feature": "智能评估 · 私有回归用例 + 防污染隔离 + 统计置信区间",
+          "hermes": "开发者专属离线 Python 脚本（仅终端可用，无 GUI、无私有用例沉淀）",
+          "openclaw": "_no（ClawEval 是 CLI 选型工具，不是回归评测）",
+          "myrmAgent": "GUI 集成评测引擎 — 4 类 15+ 种断言（工具/状态/沙箱/语义 LLM 判官，判官模型与提示词可自定义）· **私有回归用例**：会话右键「淬炼为评测用例」，一次调通的业务场景立刻变成防倒退资产；换模型、改提示词后一键复跑对比通过率（竞品要么只有开发者脚本、要么只能跑公开数据集，你的私有踩坑谁也测不出来）· **防作弊防污染四件套**：金丝雀隔离（对齐 SWE-bench / BIG-bench 口径）、隐藏测试只读挂载（Agent 跑的时候根本看不到答案）、轨迹级作弊审计、提案器与测试集物理隔离（Train/Val/Test 三分法 + 稳定哈希分层，不按分数挑用例）· **统计不靠感觉**：McNemar 配对检验 + 1000 次配对 Bootstrap 置信区间，回归结论带区间而不是一个好看的百分比 · **失败会分锅**：9 类失败模式归因 + Pareto 分布，告诉你 30% 到底败在哪而不是只给一个通过率 · **报告诚实**：模型、判官模型、harness 版本、抽样、中止、预算上限、去污染状态全部写在报告里，不用「跑通了」掩盖「只跑了一半」"
         },
         "artifactsDelivery": {
           "feature": "结果交付 · 富媒体产物与一键部署",
@@ -1210,6 +1214,12 @@
           "hermes": "未见额度耗尽自动接力",
           "openclaw": "未见额度耗尽自动接力",
           "myrmAgent": "**换模型不用重讲一遍**：12 个模型槽位按任务角色自动分工；某个供应商额度耗尽或被限流时，自动切到备用模型并**完整保留对话上下文**，同时用冷却与健康探针避免反复撞同一堵墙。竞品的常见体验是「额度没了，换个模型把刚才聊过的再说一遍」。"
+        },
+        "regressionGuard": {
+          "feature": "换模型 / 换提示词不倒退 · 私有回归护栏",
+          "hermes": "需自行写脚本比对",
+          "openclaw": "_no",
+          "myrmAgent": "改配置前先复跑你自己的回归用例：会话右键「淬炼为评测用例」，一次调通的业务场景立刻变成私人资产，不用写一行 Python 测试 · **跨配置矩阵评测替你标出「在某些配置下才失败」的用例**（换模型/换 Profile 后的失分点直接点名，不靠肉眼翻表）· **分层消融**：裸基座 → 核心 → 技能 → 记忆，逐层看清「多开一层能力到底值多少」· **记忆开与关、候选技能与基线技能三臂对照**，GUI 一屏看完全部差异 · **报告带完整环境披露网格**（模型、判官模型、harness 版本、题集指纹、运行预算、去污染状态）——两个分数能不能比，你一眼看得到，而不是靠记忆"
         }
       }
     },
