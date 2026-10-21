@@ -1,0 +1,55 @@
+---
+title: コンパニオンシステム
+description: ゲーム化した AI コンパニオン：15 種族、感情感知、コミュニティ精霊ギャラリー、成長進行。
+---
+
+# AI コンパニオンシステム
+
+コンパニオンシステムは、Agent に個性・感情感知・ゲーム化された成長を与える仮想コンパニオンに変えます。
+
+## 特性
+
+<CardGroup cols={2}>
+  <Card title="15 種族 + 9 帽子" icon="paw">
+    15 種のコンパニオン種族と 9 種類の帽子を、それぞれ独自の SVG アイコンとレア度光彩で。Agent 外観の自動関連付けに対応（開発者🤖🔥、研究者🦉🎓、書き手🦊🌸 など）。
+  </Card>
+  <Card title="Hermes 7 状態 Petdex エンジン" icon="wand-magic-sparkles">
+    精霊レイヤーは **7 状態の Petdex セマンティクス**（idle/run/review/jump/wave/failed/**waiting**）を採用。承認・澄清・デスクトップやブラウザのtakeover といった HITL ブロック時は **waiting** を表示し、誤って手を振ることはありません。SSE ワークフローイベントは transient/sticky/release とハートビートでフリーズを防ぎます。
+  </Card>
+  <Card title="デスクトップネイティブのデスクトップペット" icon="desktop">
+    Tauri デスクトップ：既定ではメインウィンドウ内に精霊を埋め込み、右クリックの **「デスクトップへ取り出す」** や **Shift+クリック** で透明・常に手前の外側ウィンドウ（PSUA）を開けます。メインウィンドウを最小化しても状態は見え続けます。外側ウィンドウはドラッグ、状態バブル、単击で mini-composer から送信、ダブルクリックでメインウィンドウと切替、Shift で收回、透明領域のクリックスルー、終了時のオフスクリーン mail 通知に対応。WebUI/SaaS：ページ内ドラッグ可能なオーバーレイ（OS 外側ウィンドウなし）。
+  </Card>
+  <Card title="成長と進化" icon="arrow-up">
+    5 段階のレア度（Common→Legendary）+ 属性の進化 + XP 経験値 + 毎日のおやつ交流 + 誕生日検出。
+  </Card>
+  <Card title="コミュニティ精霊ギャラリー" icon="store">
+    内蔵の petdex.dev コミュニティギャラリー。Canvas サムネイルのプレビュー + 遅延読み込み + 検索フィルタ + ワンクリックインストール。URL を手で入力する必要はありません。
+  </Card>
+  <Card title="動的精霊画像の互換性" icon="puzzle-piece">
+    `resolveAnimRow` エンジンがエイリアスマッピングを使い、Codex 9 行 / Legacy 8 行、さらに任意の行数の精霊画像へ自動で適合。コミュニティ素材は「入れたらすぐ動く」。
+  </Card>
+  <Card title="疲労 quitter な UX" icon="shield-heart">
+    通常のエラーは、驚愕した失敗の表情ではなく静かな「レビュー」アニメーションへマッピング。承認要求は読み込みスピナーではなく友好的な握手アニメーションを再生します。
+  </Card>
+  <Card title="クロスデバイス設定同期" icon="cloud">
+    コンパニオン設定（精霊画像の選択を含む）は `/companion/config` API でサーバーに永続化され、デバイスを跨いでもパーソナライズされた選択は失われません。
+  </Card>
+  <Card title="セッション /pet コマンド" icon="terminal">
+    チャット入力に `/pet` と打つだけで Pet Palette が開きます。送信の割り込みはローカルで処理され、**LLM 消費ゼロ**、Agent のターンも不要です。
+  </Card>
+  <Card title="インストール済みペットの管理" icon="trash">
+    ギャラリー上部の chip 行にインストール済みペットが表示されます。メニューから削除して確認。現在有効な精霊を削除した場合は選択が自動的にクリアされ、サーバー設定にも同期されます。
+  </Card>
+  <Card title="オフライン fail-open" icon="wifi-slash">
+    petdex.dev の図鑑が取得できない場合も、インストール済みペットは切り替えvets続けて使用でき、manifest の復旧を待つ必要がありません。
+  </Card>
+  <Card title="Atlas 解像度事前チェック" icon="magnifying-glass">
+    インストール時に精霊画像のサイズを自動検証（Codex 8×9 / Legacy 8×8 / 非標準 / 不合格）。不合格な素材はインストール前に遮断され、ぼやけた・破損した精霊画像がコレクションに入ることを防ぎます。
+  </Card>
+  <Card title="GUI ヘルスチェック Doctor" icon="stethoscope">
+    ワンクリック 6 項目の診断：feature gate / 設定 / ディスク / atlas 形式 / SHA 完全性 / ローカル serve。結果は中英バイリンガル i18n、ギャラリーから手動起動、または精霊の読み込み失敗時に自動表示されます。
+  </Card>
+  <Card title="ゼロコンフィグのテーマ連動" icon="palette">
+    デスクトップペットのアクセントカラー（レア度光彩、ring 影、状態バブルの枠）は Theme Profile の CSS 変数 token から派生し、ワークスペースのテーマに自動追従します。「外観」設定でテーマを切り替えると、ペットは即座に追従し追加設定は不要。Tauri の外側ウィンドウ（`/pet-overlay`）は軽量に保ちます：壁紙 / ArtLayer の読み込みをスキップし、アクセント token のみを窓間で同期します。
+  </Card>
+</CardGroup>
