@@ -11,6 +11,22 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-10-21 · 竞品把 Agent 塞进任意设备：Hermes Gadget SDK 的四个可核对机制 · 我方的诚实差距，以及两条尚未交付的路线图条目）
+
+- **触发事件**：社区帖 @adolandev（`https://x.com/adolandev/status/2107813150686888407`）——「Three days ago, Hermes Gadget was an open SDK and a demo. Then the community got hold of it -- shoutout @NousResearch. LilyGO watches. AIPI Lite. Desk gadgets. Old Android phones. People are getting Hermes running on all kinds of devices and sharing their work.」我们把该 SDK 仓库（`external_reference_project/claw/hermes-gadget-sdk`，MIT，v0.2.0）拉到本地逐文件核对。**注意：它是 Hermes 的第三方插件，不是 Nous Research 的官方产品**。
+- **四个可核对的机制**：
+  1. **一份设备核心，三处形态（MCU / Linux / 桌面）**——`docs/simulator.md:5`「runs the **production device core** (`firmware/core`) as a shared library inside a Python host」；`:23`「A bug reproduced in the simulator is therefore a bug in the firmware.」；`python/hermes_gadget/sim/native.py:1-5`（被替换的只是驱动，状态机不换）；`pyproject.toml:35-39`（开发服务器与测试加载的就是**网关加载的那份代码**）。
+  2. **没有硬件也能开发、试跑与验收**——可独立于 Hermes 的替身网关（`docs/simulator.md:42`）、桌面模拟器、14 个板型档案（`python/hermes_gadget/sim/runner.py:44`）、以设备屏幕态为断言对象的无头脚本 DSL（`docs/simulator.md:104-120`，屏幕态枚举见 `:125`）。
+  3. **逐型号的硬件验证矩阵 + 只有两档的支持标签**——`docs/hardware-validation.md:7`（「A passing build alone does not establish that a microphone, power circuit, or display works on a device」）、19 行型号表各自带验证列（`:11-31`，旗舰开发板那格写的是「CI build; physical report not recorded」）、两档标签 Experimental / Hardware verified（`:236-239`），以及「一份报告只覆盖一个型号或修订版」「新增端口或改变已验证能力时必须同 PR 更新本页」两条纪律（`:241`）。
+  4. **社区硬件生态，逐型号列出已验证与未验证项**——LilyGO T-Display-S3（`:29`）、Xorigin AIPI Lite（`:24`）、Elecrow CrowPanel Advanced P4（`:23`）、Espressif ESP-VoCat（`:22`）、Spotpear 1.28-BOX（`:25`）、Waveshare AMOLED 1.75 / 1.8 / 2.06 / 2.16（`:16-19`）。
+- **我方现状（均已用真实代码核对，不做夸大）**：
+  1. **尚无设备渠道**——`app/channels/providers/` 下是 24 个 IM / 邮件 / 语音实现，零设备渠道；设备渠道本体仍是路线图条目 `topic_19 #60`（**待分析 / 未交付**）。
+  2. **尚无虚拟替身**——`myrm-agent` 全仓检索 `esp32` / `gadget` 零命中，唯一名为 `simulator` 的模块是记忆召回模拟器（`app/services/memory/recall_simulator_service.py`）；新增条目 `topic_19 #67`（**待分析**）。
+  3. **尚无能力验证矩阵**——平台开关是零散内联的（`myrm-agent-desktop/src-tauri/src/commands/screen_lock.rs:82`），而文档用统一口径陈述平台能力（`docs/getting-started/desktop-app.mdx:30,44,53`）却不标验证状态，尽管我们自己的路线图里已经留着「未验证：Windows 真机」的尾巴；新增条目 `topic_19 #68`（**待分析**）。
+  4. **我方已交付的部分（不依赖硬件的那部分）**——语音打断（`app/api/voice/agent_bridge.py:187-206`）、会中实时纪要（`app/services/meeting_notes/live_notes.py:42,59,183`）、移动端指挥台（`app/remote_access/mobile_hub_payload.py:20,28,45` 加 `components/features/mobile/`）、网页剪藏入知识库（`app/services/wiki/clip/runner.py:37-45,82`）。
+- **我们不宣称的**：开放外设状态总线、本地开放 Vault、环回会议内录、个人专属热词库、YoooClaw 资产迁移**均未实现**——见 `temp-docs/materials/PHYSICAL_COMPANION_AND_CONTEXT_ASSETS_ADVANTAGE.md` 的「未交付清单（禁止宣传）」表。
+- **SSOT：** `temp-docs/materials/PHYSICAL_COMPANION_AND_CONTEXT_ASSETS_ADVANTAGE.md` · `temp-docs/roadmap/topic_19_cross_device_mobile_remote_and_physical_companion_roadmap.md`（#67 / #68）· `external_reference_project/claw/hermes-gadget-sdk` · `https://x.com/adolandev/status/2107813150686888407`
+
 ## 最新验证快照（2026-10-21 · Nous Research 官方确认 Series B · 社区情绪实测：融资叙事被调侃、企业版与消费版分裂被批评、用户真正要的是「Web 同能力 + 连远端」）
 
 - **一手事实（官方帖 + WSJ 原文截图，均已核对）**：@NousResearch 官方帖（2026-10-07，25.5 万查看 / 368 回复 / 4,074 喜欢）原文「As reported in the @WSJ, we have raised a Series B to bring Hermes Agent to new frontiers (**and, yes, build a mobile app**)」，投资人含 @nvidia @M12vc @SamsungNext @robotventures @usv @ycombinator @MenloVentures；帖内配图为 WSJ 独家报道截图（Yuliya Chernova，WSJ PRO，2026-10-07 06:00 ET）：「**Nous Research Scores $90 Million to Bring Open-Source AI Assistant to Enterprises**」；CEO @dillonrolnick 同步发帖「我们这对笨蛋干得还不错」。

@@ -11,6 +11,22 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
 **移行における安心ポイント** — SaaS・セルフホスト・デスクトップから自由に選択でき、HermesのスキルはGUI経由のZIPで直接インポート可能です。以下の詳細比較表でチャンネル・メモリ・セキュリティを行単位で確認した上でご検討いただけます。Grok Buildなどのプラグイン中心の製品をお使いの場合、Myrmはモデル・スキル・MCP・サブエージェント・安全プロファイルを**ワンクリックで一括セットアップ**するエージェントパッケージを提供します。ドキュメントとアプリは**6言語**(zh/en/ja/ko/de/zh-TW)に対応しており、WebUI・クラウドホスト・Tauriデスクトップのすべてで、初回アクセス時にブラウザ言語を自動判別します。
 </Note>
 
+## 最新検証スナップショット (2026-10-21 · 競合がエージェントをあらゆるデバイスに放り込んだ · Hermes Gadget SDK の 4 つの検証済み機構 · 我々の正直なギャップと、まだ納品されていないロードマップ 2 件)
+
+- **きっかけ**: コミュニティの投稿 @adolandev (`https://x.com/adolandev/status/2107813150686888407`) —「Three days ago, Hermes Gadget was an open SDK and a demo. Then the community got hold of it -- shoutout @NousResearch. LilyGO watches. AIPI Lite. Desk gadgets. Old Android phones. People are getting Hermes running on all kinds of devices and sharing their work.」SDK リポジトリ (`external_reference_project/claw/hermes-gadget-sdk`、MIT、v0.2.0) をローカルで精読。**注意:  이는 Hermes のサードパーティ製プラグインであり、Nous Research の公式製品ではない**。
+- **検証済みの 4 つの機構**:
+  1. **1 つのデバイスコアを 3 つの実行形態で (MCU / Linux / デスクトップ)** — `docs/simulator.md:5`「runs the **production device core** (`firmware/core`) as a shared library inside a Python host」、`:23`「A bug reproduced in the simulator is therefore a bug in the firmware.」、`python/hermes_gadget/sim/native.py:1-5`（差し替えられるのはドライバだけ、状態機械は同一）、`pyproject.toml:35-39`（開発サーバとテストは**ゲートウェイがロードするのと同一のコード**をロードする）。
+  2. **ハードウェアなしで開発・試走・受入できる** — Hermes 不要の代替ゲートウェイ (`docs/simulator.md:42`)、デスクトップシミュレータ、14 種のボードプロファイル (`python/hermes_gadget/sim/runner.py:44`)、デバイスの画面状態を検証するヘッドレススクリプト DSL (`docs/simulator.md:104-120`、画面状態の一覧は `:125`)。
+  3. **機種ごとのハードウェア検証マトリクスとサポートラベルは 2 段階のみ** — `docs/hardware-validation.md:7`（「A passing build alone does not establish that a microphone, power circuit, or display works on a device」）、19 行の機種表が各行に検証列を持つ (`:11-31`、主力のブレッドボードの欄は「CI build; physical report not recorded」)、Experimental / Hardware verified の 2 ラベル (`:236-239`)、さらに「1 つのレポートが別の機種やリビジョンを検証することはない」「ポート追加や検証済み能力の変更は同じ PR でこの頁を更新すること」の 2 規則 (`:241`)。
+  4. **コミュニティのデバイス群 — 機種ごとに検証済み / 未検証を明記** — LilyGO T-Display-S3 (`:29`)、Xorigin AIPI Lite (`:24`)、Elecrow CrowPanel Advanced P4 (`:23`)、Espressif ESP-VoCat (`:22`)、Spotpear 1.28-BOX (`:25`)、Waveshare AMOLED 1.75 / 1.8 / 2.06 / 2.16 (`:16-19`)。
+- **我々の現状 (実コードで照合済み、誇張なし)**:
+  1. **デバイスチャネルは未実装** — `app/channels/providers/` は IM / メール / 音声 24 実装で、デバイスチャネルは 0。デバイスチャネル本体はロードマップ `topic_19 #60` のまま (**待分析 / 未納品**)。
+  2. **仮想ツインは未実装** — `myrm-agent` 全体で `esp32` / `gadget` の検索結果は 0。`simulator` という名前のモジュールは記憶リコールシミュレータのみ (`app/services/memory/recall_simulator_service.py`)。新条目 `topic_19 #67` (**待分析**)。
+  3. **能力検証マトリクスは未整備** — プラットフォーム切替は場外的서에埋め込まれており (`myrm-agent-desktop/src-tauri/src/commands/screen_lock.rs:82`)、ドキュメントは検証状態を示すことなく各プラットフォームの能力を均一に記述している (`docs/getting-started/desktop-app.mdx:30,44,53`)。それなのに我々のロードマップには既に「未検証：Windows 実機」の尻尾が残っている。新条目 `topic_19 #68` (**待分析**)。
+  4. **すでに納品している部分 (ハードウェア不要のもの)** — 音声バージイン (`app/api/voice/agent_bridge.py:187-206`)、会議中のリアルタイム議事録 (`app/services/meeting_notes/live_notes.py:42,59,183`)、モバイル指揮台 (`app/remote_access/mobile_hub_payload.py:20,28,45` と `components/features/mobile/`)、ウェブクリップのナレッジ化 (`app/services/wiki/clip/runner.py:37-45,82`)。
+- **主張しないもの**: オープンな外設バス、ローカル Vault、ループバック会議録音、個人ホットワード辞書、YoooClaw 資産移行は**いずれも未実装** — `temp-docs/materials/PHYSICAL_COMPANION_AND_CONTEXT_ASSETS_ADVANTAGE.md` の「未納品一覧（宣伝禁止）」表を参照。
+- **SSOT:** `temp-docs/materials/PHYSICAL_COMPANION_AND_CONTEXT_ASSETS_ADVANTAGE.md` · `temp-docs/roadmap/topic_19_cross_device_mobile_remote_and_physical_companion_roadmap.md` (#67 / #68) · `external_reference_project/claw/hermes-gadget-sdk` · `https://x.com/adolandev/status/2107813150686888407`
+
 ## 最新検証スナップショット (2026-10-21 · Nous Research が Series B を公式確認 · コミュニティの反応を実測 · 資金調達ナラティブは皮肉とされたが「企業版とコンシューマー版が一つになる」「Web でデスクトップ同等功能 + リモート接続」が本命だった)
 
 - **一次情報 (公式ポスト + WSJ 報道のスクリーンショット、双方とも照合済み)**: @NousResearch 公式ポスト (2026-10-07、25.5 万表示 / 368 リプライ / 4,074 いいね) は「As reported in the @WSJ, we have raised a Series B to bring Hermes Agent to new frontiers (**and, yes, build a mobile app**)」と記し、出資者に @nvidia @M12vc @SamsungNext @robotventures @usv @ycombinator @MenloVentures を列挙。添付画像は WSJ 独自報道のスクリーンショット (Yuliya Chernova, WSJ PRO, 2026-10-07 06:00 ET)「**Nous Research Scores $90 Million to Bring Open-Source AI Assistant to Enterprises**」。CEO @dillonrolnick も「我々はただのばかばかな連中だが悪くない」と投稿。

@@ -11,6 +11,22 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-10-21 · 경쟁사가 에이전트를 온갖 기기에 넣어 버린 방법 · Hermes Gadget SDK의 검증된 4가지 메커니즘 · 우리의 정직한 격차와 아직 인도되지 않은 로드맵 2건)
+
+- **계기**: 커뮤니티 게시글 @adolandev (`https://x.com/adolandev/status/2107813150686888407`) — "Three days ago, Hermes Gadget was an open SDK and a demo. Then the community got hold of it -- shoutout @NousResearch. LilyGO watches. AIPI Lite. Desk gadgets. Old Android phones. People are getting Hermes running on all kinds of devices and sharing their work." SDK 저장소(`external_reference_project/claw/hermes-gadget-sdk`, MIT, v0.2.0)를 로컬에 받아 파일 단위로 확인. **주의: Hermes의 서드파티 플러그인이며 Nous Research 공식 제품이 아니다**.
+- **검증된 4가지 메커니즘**:
+  1. **하나의 디바이스 코어를 3가지 실행 형태(MCU / Linux / 데스크톱)에서** — `docs/simulator.md:5` "runs the **production device core** (`firmware/core`) as a shared library inside a Python host", `:23` "A bug reproduced in the simulator is therefore a bug in the firmware.", `python/hermes_gadget/sim/native.py:1-5`(대체되는 것은 드라이버뿐이고 상태 기계는 동일), `pyproject.toml:35-39`(개발 서버와 테스트가 **게이트웨이가 로드하는 것과 정확히 같은 코드**를 로드).
+  2. **하드웨어 없이 개발·시행·검증** — Hermes 없이도 뜨는 대체 게이트웨이(`docs/simulator.md:42`), 데스크톱 시뮬레이터, 14개 보드 프로파일(`python/hermes_gadget/sim/runner.py:44`), 디바이스 화면 상태를 어서션하는 헤드리스 스크립트 DSL(`docs/simulator.md:104-120`, 화면 상태 목록은 `:125`).
+  3. **기종별 하드웨어 검증 매트릭스와 2단계 지원 라벨** — `docs/hardware-validation.md:7`("A passing build alone does not establish that a microphone, power circuit, or display works on a device"), 19개 기종 행이 각각 검증 열을 갖는 구조(`:11-31`, 주력 브레드보드 칸은 "CI build; physical report not recorded"), Experimental / Hardware verified 두 라벨(`:236-239`), 그리고 "한 기종 또는 리비전의 리포트가 다른 기종을 검증하지 않는다" "포트 추가나 검증된 능력 변경은 같은 PR에서 이 페이지를 갱신한다" 규칙(`:241`).
+  4. **커뮤니티 디바이스 군 — 기종마다 검증됨/미검증 항목을 명시** — LilyGO T-Display-S3(`:29`), Xorigin AIPI Lite(`:24`), Elecrow CrowPanel Advanced P4(`:23`), Espressif ESP-VoCat(`:22`), Spotpear 1.28-BOX(`:25`), Waveshare AMOLED 1.75 / 1.8 / 2.06 / 2.16(`:16-19`).
+- **우리 쪽 현황 (실제 코드로 대조, 과장 없음)**:
+  1. **디바이스 채널 아직 없음** — `app/channels/providers/`에는 IM / 이메일 / 음성 구현 24개가 있고 디바이스 채널은 0개. 디바이스 채널 본체는 로드맵 항목 `topic_19 #60` 상태 그대로(**待分析 / 미인도**).
+  2. **가상 트윈 아직 없음** — `myrm-agent` 전체에서 `esp32` / `gadget` 검색 결과 0건. `simulator`라는 이름의 모듈은 메모리 리콜 시뮬레이터뿐(`app/services/memory/recall_simulator_service.py`). 신규 항목 `topic_19 #67`(**待分析**).
+  3. **능력 검증 매트릭스 아직 없음** — 플랫폼 스위치는 산재된 인라인 구현(`myrm-agent-desktop/src-tauri/src/commands/screen_lock.rs:82`)이고, 문서는 검증 상태 표기 없이 플랫폼별 능력들을 균일하게 서술(`docs/getting-started/desktop-app.mdx:30,44,53`)하는 반면 우리 로드맵에는 이미 "미검증: Windows 실기" 꼬리가 남아 있음. 신규 항목 `topic_19 #68`(**待分析**).
+  4. **이미 인도한 부분(하드웨어 불필요한 영역)** — 음성 바지인(`app/api/voice/agent_bridge.py:187-206`), 회의 중 실시간 회의록(`app/services/meeting_notes/live_notes.py:42,59,183`), 모바일 지휘 데스크(`app/remote_access/mobile_hub_payload.py:20,28,45` 및 `components/features/mobile/`), 웹 클립의 지식베이스화(`app/services/wiki/clip/runner.py:37-45,82`).
+- **주장하지 않는 것**: 오픈 외설 버스, 로컬 오픈 Vault, 루프백 회의 녹음, 개인 핫워드 사전, YoooClaw 자산 이전은 **모두 미구현** — `temp-docs/materials/PHYSICAL_COMPANION_AND_CONTEXT_ASSETS_ADVANTAGE.md`의 "미인도 목록(홍보 금지)" 표 참조.
+- **SSOT:** `temp-docs/materials/PHYSICAL_COMPANION_AND_CONTEXT_ASSETS_ADVANTAGE.md` · `temp-docs/roadmap/topic_19_cross_device_mobile_remote_and_physical_companion_roadmap.md`(#67 / #68) · `external_reference_project/claw/hermes-gadget-sdk` · `https://x.com/adolandev/status/2107813150686888407`
+
 ## 최신 검증 스냅샷 (2026-10-21 · Nous Research 공식 Series B 확인 · 커뮤니티 반응 실측 · 자금 조달 서사는 조롱받았고, '기업판 vs 소비자판' 분리는 비판받았으며, 사용자가 실제로 원하는 건 '데스크톱과 동등한 웹 + 원격 접속')
 
 - **1차 정보 (공식 게시 + WSJ 보도 스크린샷, 양쪽 모두 대조 확인)**: @NousResearch 공식 게시 (2026-10-07, 25.5만 조회 / 368 답글 / 4,074 좋아요) — "As reported in the @WSJ, we have raised a Series B to bring Hermes Agent to new frontiers (**and, yes, build a mobile app**)", 투자자로 @nvidia @M12vc @SamsungNext @robotventures @usv @ycombinator @MenloVentures 등 기재. 첨부 이미지는 WSJ 독점 보도 스크린샷 (Yuliya Chernova, WSJ PRO, 2026-10-07 06:00 ET) "**Nous Research Scores $90 Million to Bring Open-Source AI Assistant to Enterprises**". CEO @dillonrolnick 도 "우리는 그냥 멍청이들인데 그래도 잘하고 있다"는 게시를 함께 올림.
