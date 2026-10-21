@@ -156,6 +156,14 @@ const UNDELIVERED_WORDS = [
   '环回内录', 'mDNS', 'UPnP',
 ];
 
+/**
+ * ko 落地域名里只允许出现「品牌专名」里的汉字，其余一律视为漏翻的中文。
+ * 背景：ko 落地的 `marketing.integrations.toolsList` 有 40 多项仍是中文原文，
+ * 韩国访客在官网上直接看到一整段中文工具清单——这不是排版问题，是漏翻。
+ */
+const KO_ALLOWED_CJK = new Set(['雪', '球']);
+const CJK_RE = /[\u4e00-\u9fff]+/g;
+
 function readLocale(loc: string): Record<string, unknown> {
   return JSON.parse(readFileSync(join(WEBSITE_ROOT, 'locales', `${loc}.json`), 'utf8'));
 }
@@ -262,6 +270,17 @@ function main(): void {
     const blob = JSON.stringify(data);
     for (const word of UNDELIVERED_WORDS) {
       if (blob.includes(word)) errors.push(`[claim] ${loc} 官网出现未交付能力词「${word}」`);
+    }
+  }
+
+  // ⑤ ko 落地不得混入中文（品牌专名除外）——漏翻的中文工具清单会让韩国访客直接读中文
+  {
+    const koBlob = JSON.stringify(locales.ko);
+    for (const m of koBlob.matchAll(CJK_RE)) {
+      const bad = [...new Set(m[0])].filter((ch) => !KO_ALLOWED_CJK.has(ch));
+      if (bad.length) {
+        errors.push(`[i18n] ko 官网出现中文残留「${bad.join('')}」（${m[0]}）——漏翻请补译，品牌专名请加入 KO_ALLOWED_CJK`);
+      }
     }
   }
 
