@@ -8,7 +8,7 @@ description: Myrm을 인기 있는 AI 에이전트 플랫폼과 비교하는 방
 Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다. 터미널 전용 코딩 에이전트와 달리 Myrm은 전체 코딩 기능을 유지하면서 영구 샌드박스, 교차 세션 메모리 및 엔터프라이즈급 보안을 갖춘 GUI 최초의 경험을 제공합니다.
 
 <Note>
-**마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
+**마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보안을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
 ## 최신 검증 스냅샷 (2026-10-22 · 경쟁사가 에이전트를 OS로 넣는 방식 · Herald OS의 권한 계층, 제로 모델 경로, 크래시 백화어 설명 · 우리도 소스를 한 줄씩 확인했고, 그 자신의 아키텍처 그림도 바로잡았다)
@@ -67,9 +67,9 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
   3. **기종별 하드웨어 검증 매트릭스와 2단계 지원 라벨** — `docs/hardware-validation.md:7`("A passing build alone does not establish that a microphone, power circuit, or display works on a device"), 19개 기종 행이 각각 검증 열을 갖는 구조(`:11-31`, 주력 브레드보드 칸은 "CI build; physical report not recorded"), Experimental / Hardware verified 두 라벨(`:236-239`), 그리고 "한 기종 또는 리비전의 리포트가 다른 기종을 검증하지 않는다" "포트 추가나 검증된 능력 변경은 같은 PR에서 이 페이지를 갱신한다" 규칙(`:241`).
   4. **커뮤니티 디바이스 군 — 기종마다 검증됨/미검증 항목을 명시** — LilyGO T-Display-S3(`:29`), Xorigin AIPI Lite(`:24`), Elecrow CrowPanel Advanced P4(`:23`), Espressif ESP-VoCat(`:22`), Spotpear 1.28-BOX(`:25`), Waveshare AMOLED 1.75 / 1.8 / 2.06 / 2.16(`:16-19`).
 - **우리 쪽 현황 (실제 코드로 대조, 과장 없음)**:
-  1. **디바이스 채널 아직 없음** — `app/channels/providers/`에는 IM / 이메일 / 음성 구현 24개가 있고 디바이스 채널은 0개. 디바이스 채널 본체는 로드맵 항목 `topic_19 #60` 상태 그대로(**待分析 / 미인도**).
-  2. **가상 트윈 아직 없음** — `myrm-agent` 전체에서 `esp32` / `gadget` 검색 결과 0건. `simulator`라는 이름의 모듈은 메모리 리콜 시뮬레이터뿐(`app/services/memory/recall_simulator_service.py`). 신규 항목 `topic_19 #67`(**待分析**).
-  3. **능력 검증 매트릭스 아직 없음** — 플랫폼 스위치는 산재된 인라인 구현(`myrm-agent-desktop/src-tauri/src/commands/screen_lock.rs:82`)이고, 문서는 검증 상태 표기 없이 플랫폼별 능력들을 균일하게 서술(`docs/getting-started/desktop-app.mdx:30,44,53`)하는 반면 우리 로드맵에는 이미 "미검증: Windows 실기" 꼬리가 남아 있음. 신규 항목 `topic_19 #68`(**待分析**).
+  1. **디바이스 채널 아직 없음** — `app/channels/providers/`에는 IM / 이메일 / 음성 구현 24개가 있고 디바이스 채널은 0개. 디바이스 채널 본체는 로드맵 항목 `topic_19 #60` 상태 그대로(**미분석 / 미인도**).
+  2. **가상 트윈 아직 없음** — `myrm-agent` 전체에서 `esp32` / `gadget` 검색 결과 0건. `simulator`라는 이름의 모듈은 메모리 리콜 시뮬레이터뿐(`app/services/memory/recall_simulator_service.py`). 신규 항목 `topic_19 #67`(**미분석**).
+  3. **능력 검증 매트릭스 아직 없음** — 플랫폼 스위치는 산재된 인라인 구현(`myrm-agent-desktop/src-tauri/src/commands/screen_lock.rs:82`)이고, 문서는 검증 상태 표기 없이 플랫폼별 능력들을 균일하게 서술(`docs/getting-started/desktop-app.mdx:30,44,53`)하는 반면 우리 로드맵에는 이미 "미검증: Windows 실기" 꼬리가 남아 있음. 신규 항목 `topic_19 #68`(**미분석**).
   4. **이미 인도한 부분(하드웨어 불필요한 영역)** — 음성 바지인(`app/api/voice/agent_bridge.py:187-206`), 회의 중 실시간 회의록(`app/services/meeting_notes/live_notes.py:42,59,183`), 모바일 지휘 데스크(`app/remote_access/mobile_hub_payload.py:20,28,45` 및 `components/features/mobile/`), 웹 클립의 지식베이스화(`app/services/wiki/clip/runner.py:37-45,82`).
 - **주장하지 않는 것**: 오픈 외설 버스, 로컬 오픈 Vault, 루프백 회의 녹음, 개인 핫워드 사전, YoooClaw 자산 이전은 **모두 미구현** — `temp-docs/materials/PHYSICAL_COMPANION_AND_CONTEXT_ASSETS_ADVANTAGE.md`의 "미인도 목록(홍보 금지)" 표 참조.
 - **SSOT:** `temp-docs/materials/PHYSICAL_COMPANION_AND_CONTEXT_ASSETS_ADVANTAGE.md` · `temp-docs/roadmap/topic_19_cross_device_mobile_remote_and_physical_companion_roadmap.md`(#67 / #68) · `external_reference_project/claw/hermes-gadget-sdk` · `https://x.com/adolandev/status/2107813150686888407`
@@ -643,7 +643,7 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
   5. **100% 아키텍처 및 단위 테스트 커버리지**: 빈 매니페스트 팩토리 폴백, 정상 버전 승격, 오류 시 자동 롤백 및 이중 장애 팩토리 바이너리 폴백을 검증하는 Rust 단위 테스트 전량 통과 (100% 그린, 0 린트 오류).
 - **SSOT 출처:** `myrm-agent/myrm-agent-desktop/src-tauri/src/runtime/sidecar_version_manager.rs` · `myrm-agent/myrm-agent-desktop/src-tauri/src/runtime/python_backend.rs` · `myrm-agent/myrm-agent-desktop/src-tauri/src/runtime/_ARCH.md`
 
-## 최신 검증 스냅샷 (2026-08-27 · 크론 자동화 수동 성공 선험적 게이트 및 단계별 가독성 Trace 패널 · 자동话 신뢰성 완료)
+## 최신 검증 스냅샷 (2026-08-27 · 크론 자동화 수동 성공 선험적 게이트 및 단계별 가독성 Trace 패널 · 자동화 신뢰성 완료)
 
 - **CronAutomationManualSuccessPrerequisiteGate (Hermes CLI 전용 설정 맹목 실행 / OpenClaw 선험적 방어 부재 / Claude Code 단계별 화이트박스 Trace 부재 대비):** Myrm은 업계 최초의 자동화 사전 검증 게이트 및 단계별 화이트박스 감사 패널 시스템을 구축했습니다:
   1. **결정론적 워크플로 지문 및 사전 검증 게이트 집계 (`prerequisite_service.py`)**: `compute_workflow_fingerprint`를 통해 프롬프트, Agent 바인딩, 워크플로 템플릿, 허용 도구 화이트리스트의 표준 SHA-256 해시를 계산하고, 사용자가 크론 작업을 생성하기 전에 Chat 기록 및 Kanban(`status='done'`)의 실제 수동 성공 횟수를 자동 교차 집계하여 미성숙한 프롬프트로 인한 맹목적인 토큰 소진 및 실패 연쇄를 방지;
@@ -867,7 +867,7 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 ## 최신 검증 스냅샷 (2026-08-26 · 멀티 턴 이미지 누적 페이로드 동적 거버넌스 및 점진적 다운샘플링 · Roadmap Topic 15 #3 완료)
 
-- **CumulativeImagePayloadBudgetGovernor 멀티 턴 이미지 누적 페이로드 거버넌스 (vs DeepSeek Harness / OpenClaw / 커뮤니티 멀티모달 에이전트):** Myrm은 멀티 턴 이미지 대화에서 `HTTP 400 Payload Too Large` 충돌을 방지하고 프롬프트 캐시 불变성을 유지하는 3단계 시각적 다운샘플링 파이프라인을 구축했습니다:
+- **CumulativeImagePayloadBudgetGovernor 멀티 턴 이미지 누적 페이로드 거버넌스 (vs DeepSeek Harness / OpenClaw / 커뮤니티 멀티모달 에이전트):** Myrm은 멀티 턴 이미지 대화에서 `HTTP 400 Payload Too Large` 충돌을 방지하고 프롬프트 캐시 불변성을 유지하는 3단계 시각적 다운샘플링 파이프라인을 구축했습니다:
   1. **3단계 시각적 다운샘플링 사다리 (`media_budget_governor.py`)**: Tier 1은 최근 포커스 턴의 2048px 고해상도를 온전히 보호하고, Tier 2는 누적 페이로드 초과 시 이전 이미지를 512px WebP로 자동 비동기 다운샘플링(페이로드 85-95% 감소)하며, Tier 3는 극단적 예산 한도 내에서 구조화된 텍스트 요약으로 안전하게 전환;
   2. **게이트웨이 페이로드 수렴 (`MediaBudgetGovernorProcessor`)**: 세션 전반의 Base64 이미지 바이트를 안전한 게이트웨이 한도(기본 10MB) 내로 엄격히 관리하여 API 거부 오류 제거;
   3. **프롬프트 캐시 불변성 유지**: 이전 이미지 교체 후 Base64 상태를 고정하여 후속 멀티 턴 요청에서 접두사 프롬프트 캐시 적중률 유지;
@@ -1059,7 +1059,7 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 ## 최신 검증 스냅샷 (2026-08-22 · 채팅 내 상주 경량 모니터링 스트립 및 서브 에이전트 종합 거버넌스 · 멀티 에이전트 Roadmap Topic 12 #2 & #4 완료)
 
-- **채팅 내 상주 경량 모니터링 스트립 및 서브 에이전트 종합 거버넌스 (vs WorkBuddy / Codex / Hermes / OpenClaw):** Myrm은 가벼운 인채팅 인지와 심층 진단을 결합한 다중 에이战 모니터링 및 거버넌스 스위트를 제공합니다:
+- **채팅 내 상주 경량 모니터링 스트립 및 서브 에이전트 종합 거버넌스 (vs WorkBuddy / Codex / Hermes / OpenClaw):** Myrm은 가벼운 인채팅 인지와 심층 진단을 결합한 다중 에이전트 모니터링 및 거버넌스 스위트를 제공합니다:
   1. **전 수명주기 경량 인채팅 스트립 (`ChatInlineTeamRunVisibilityStrip.tsx`)**: WorkBuddy `WorkerEventProjector`를 벤치마킹하여, 단순 회전/완료 상태를 넘어 `pending` / `running` / `verifying` / `pending_approval` / `interrupted` / `checkpoint` 및 `stale` 지연 감지까지 전 수명주기를 완벽 지원;
   2. **우선순위 선점형 동적 알림 메커니즘**: 최고 위험 상태를 상단 배너로 즉시 승격 표시(`pending_approval` 승인 대기 차단 > `stale` 이상 지연 알림 > `running`), 가중치 마이크로 진행 표시줄 및 2.5초 자연스러운 완료 페이드아웃 버퍼 제공;
   3. **원클릭 아바타 딥링크 (Deep-linking)**: 스트립 내 워커 아바타 클릭 시 `SubagentDashboard` 트리/그래프 뷰로 매끄럽게 이동하여 해당 노드를 포커스/하이라이트;
