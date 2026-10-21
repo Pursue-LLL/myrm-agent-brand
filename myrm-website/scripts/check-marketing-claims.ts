@@ -94,6 +94,33 @@ const COUNT_CLAIMS = [
     locales: { zh: [/(\d+)\+?\s*生命周期钩点/], en: [/(\d+)\+?\s*lifecycle hooks/], ko: [] },
   },
   {
+    id: 'sandboxPeekBandwidth',
+    anchor: 'temp-docs/materials/BROWSER_AUTOMATION_ADVANTAGE.md',
+    expect: 90,
+    literal: '带宽消耗较纯 VNC 骤降 90%',
+    slide: 'agentSandbox',
+    slideOnlyIf: '%',
+    locales: { zh: [], en: [], ko: [] },
+  },
+  {
+    id: 'subagentTokenSaving',
+    anchor: 'temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md',
+    expect: 85,
+    literal: '节省 85%+ Token',
+    slide: 'multiAgent',
+    slideOnlyIf: '%',
+    locales: { zh: [], en: [], ko: [] },
+  },
+  {
+    id: 'adversarialDefectMiss',
+    anchor: 'temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md',
+    expect: 70,
+    literal: '隐蔽缺陷漏检率直接降低',
+    slide: 'asyncReview',
+    slideOnlyIf: '%',
+    locales: { zh: [], en: [], ko: [] },
+  },
+  {
     id: 'artifactPreviewTypes',
     anchor: 'myrm-agent/myrm-agent-frontend/src/components/features/artifacts/renderers',
     expect: 11,
@@ -188,6 +215,8 @@ function main(): void {
         const slide = (data as any)?.marketing?.highlightsCarousel?.slides?.[claim.slide];
         if (!slide) continue;
         const stat = String(slide.stat ?? '');
+        // 部分语言的轮播磁贴是另写的（内容不同），只有形态匹配时才断言
+        if ('slideOnlyIf' in claim && claim.slideOnlyIf && !new RegExp(claim.slideOnlyIf).test(stat)) continue;
         const digits = stat.match(/\d+/);
         if (!digits) continue;
         if (Number(digits[0]) !== claim.expect) {
