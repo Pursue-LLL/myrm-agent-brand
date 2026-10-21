@@ -11,6 +11,25 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보安을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-10-21 · 개인 회귀 자산과 평가 신뢰성 · 밟아본 함정을 회귀 가드레일로 바꾸기 · 「모델이나 프롬프트를 바꾸면 에이전트가 조용히 퇴행하는」현상 완전 제거)
+
+- **개인 회귀 자산과 평가 신뢰성 스위트 (Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi / OpenCode의 "설정을 바꿔도 퇴행이 생기는가, 이를 막는 가드레일이 있는가" 비교)**: 경쟁 제품은 품질 평가를 대체로 개발자 전용 오프라인 스크립트나 공개 데이터셋에 맡기고 있습니다 — 모델을 바꾼 뒤에는 사람이 직접 회귀 확인을 해야 합니다. Anthropic 공식 `claude-api` 스킬은 2026-09에 `build-eval` / `hillclimb`과 평가 건강성 체크를一套 제공하기 시작했지만, 이는 **CLI 개발자 도구**로 Claude Code 위에서 돌아가고 GUI도 없고 사용자의 사적 케이스도 누적되지 않습니다. Myrm은 이를 **제품 기능**으로 구현했습니다:
+  1. **사적 케이스가 곧 자산 (`app/core/eval/capture.py` → `.myrm/eval_datasets/`)**: 임의 대화에서 해결한 작업을 우클릭해 '평가 케이스로 정련'하면 로컬에落地되고, Base64 이미지는 경량 메타데이터로 자동 정제(2.4MB → 3.8KB, 편집기 즉시 오픈). 모델 교체·프롬프트 수정·스킬 업그레이드 전에 1클릭으로 재실행해 케이스 단위 통과율·지연·토큰을 확인;
+  2. **오염·부정 방지 4중 방어 (`eval/canary.py` · `app/core/eval/wb_bench/workspace.py:83-87` · `eval/contamination.py` · `eval/leakage_guard.py` · `eval/decontam.py:26-39`)**: 카나리 격리(SWE-bench·BIG-bench 기준 정렬), 은닉 테스트 읽기 전용 마운트(실행 중 물리적으로 도달 불가), 궤적 수준 부정 사용 감사, 제안자·테스트셋 물리 분리(Train/Val/Test 3분할 + 안정 해시 분층, 점수 기준 선별 금지), HF 도메인·쿼리 이중 블록리스트 — 경쟁 제품은 대부분 "유출하지 마라"는 한 문장이 전부;
+  3. **통계적 유의성 (`eval/significance.py`)**: McNemar 정확한 이항 + Edwards 연속성 보정, 1000회 짝대 부트스트랩 95% 신뢰구간, Pass@k와 난이도 계층 — 변화폭이 구간폭보다 작으면 그것은 노이즈이지 '퇴행'이 아닙니다;
+  4. **플라토 4요인 진단 (`eval/plateau.py`)**: 검출력 부족 / 능력 포화 / 모델 간 괴리 / 난이도 케이스 병목 4분류를 명시하고 의미 없는 프롬프트 미세 조정을 경계 — "프롬프트를 서른 번 바꿔도 점수는 노이즈 안" 을 방지;
+  5. **실패 원인 분류 (`eval/trajectory_analysis.py:30-54` + 장애 측 귀속)**: 궤적 실패 9분류 + 파레토 분포 + 즉시 장애 측 귀속(모델 환각 / 도구 실행 / 흐름 / 환경 / 평가 / 사용자 지시) — 3할이 어디서 깨졌는지;
+  6. **정직한 공개 (`eval-lab/_ARCH.md:18` 환경 공개 그리드 + 궤적 공개 배지)**: 모델, thinking 등급, 판정 모델, harness 버전, 케이스셋 지문, 실행 예산, 오염 방어 상태, 샘플링·중단 배지, 예산 잘림 `limit_hit`과 오염 차단 `blocked` 카운트까지 동일 화면에 — "절반만 돌았는데 전부 통과" 로 위장하지 않음;
+  7. **다차원 A/B와 abl**: 계층 평가(베이스 → 코어 → 스킬 → 메모리), 메모리 on/off A/B, 스킬 3주(없음/기준/후보), Profile 횡단 매트릭스가 '일부 구성에서만 실패하는' 케이스를 자동 지목.
+  8. **6개 경쟁사 비교**:
+     - **Hermes Agent**: 평가는 개발자 전용 오프라인 Python 스크립트(`evals/readtool/`, `evals/compaction/`)로, 터미널 전용·GUI 없음·실제 대화에서 사적 케이스로 가는 경로 없음;
+     - **OpenClaw**: 평가가 메인 대화 UI와 분리되어 외부 공개 데이터셋 정적 파일에 의존, 사적 업무 케이스 보존처 없음. ClawEval은 모델 선정용 CLI이며 회귀 평가가 아님;
+     - **Codex (ArkClaw)**: 장기 실행과 산출물 보관 중심으로, 평가 랩·회귀 스위트 내장 없음. 모델 퇴행 시 수동 재조사;
+     - **DeepSeek-Harness**: 공식 모델 벤치마크 지향, 특정 추론 모델용 과제 기준. 멀티모달 Base64 정제 없이 이미지 증가로 파싱이 깨질 수 있음;
+     - **Pi / 범용 어시스턴트**: 평가 개념 자체가 없어, 밟아본 함정이 자산이 되지 않음;
+     - **보충 비교 · Anthropic `claude-api` 스킬**: 방법론(쌍 비교, 참조 동결, 노이즈 플로어, 과적합 3대 방어, 비용 탐색 순서)은 뛰어나지만 대상은 '평가 세트를 갖고 코드를 읽을 수 있는 개발자'이며 막 시작한 상태. Myrm은 **GUI + 사적 케이스 + 제품 리포트**라는 다른 길을 가며 동일 형태 복제는 하지 않음;
+  9. **SSOT 코드 위치:** `temp-docs/materials/EVAL_LAB_BENCHMARK_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/eval/` · `myrm-agent/myrm-agent-server/app/core/eval/` · `myrm-agent/myrm-agent-frontend/src/components/features/eval-lab/_ARCH.md`
+
 ## 최신 검증 스냅샷 (2026-09-28 · 설치 전 71개 정적 패턴 스캔, 0~100 정량 보안 게이트, AST 위험 호출 침투 분석 및 구조화 감사 로깅 스위트)
 
 - **SkillSpectorHighRiskPatternScannerAndPreflightSecurityScoringGateSuite (Hermes, OpenClaw, Codex, DeepSeek-Harness, Pi 및 OpenCode의 서드파티 스킬 생태계 도입 및 공급망 보안 대조: 설치 전 정적 코드 검사 부재, 리버스 셸 및 프롬프트 탈옥 코드 무조건 원형 주입, 기본 bypass 상태 동작, 0점/None 거짓값 탈출 취약점 및 관리자 강제 승인 감사 추적 부재):** Myrm은 설치 전 71개 정적 패턴 스캔, 0~100 정량 보안 점수 게이트, Python AST 위험 호출 침투 분석 및 구조화 규정 준수 감사 스위트를 전면 인도했습니다:
