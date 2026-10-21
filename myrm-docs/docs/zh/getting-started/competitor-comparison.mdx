@@ -125,6 +125,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **我们不宣称的（诚实差距）**：① **没有面向用户的「能力路径 / 学习地图」**——134 内置技能、26 类扫描规则、26 渠道与四层渐进披露是**平铺**的；竞品至少给了**一条有顺序的入门路径**。@AleksejAros 那句「缺的不是证书，是顺序」正指这一格。② **本轮不开新路线图条目**：这是**产品形态**而非运行机制，且与同轴 `SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md`（技能市场与采纳）相邻，**为避免同轴重复建设，只登记诉求与现状**，由那条统一承接。
 - **SSOT**：`temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（技能与插件生态轴主文档，2026-10-22 新增段）· `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md`（同轴采纳轴，唯一承接处）· `https://x.com/Amelia_With_Ai/status/2108142676881362977`
 
+## 最新验证快照（2026-10-22 · 竞品给「让 Agent 花你的钱」立了两道闸门：事实可信 + 归属可查 · 评论区一句「信任要证明不要承诺」 · 我们多出第三格「买错了怎么退」，但不引用对方的预测数字，也不做链上身份）
+
+- **触发事件**：X @billions_ntwk《How to let your OpenClaw agent spend your money safely (full guide)》（`https://x.com/billions_ntwk/status/2108212989585154475`，2026-10-08 23:08；**3 万查看 / 420 回复 / 305 转推 / 354 赞**），合作方 @Verona_dev。本轮用 ChromeAgent :9410 + chrome-devtools MCP 抽取主帖全文 + **132 条回复**。
+- **竞品的两道闸门**：① 「**What it's acting on is real.** The price, the seller, the ticket: none of it can be fake.」——Verona 用**零知识证明**核事实（自称 500 万+ 用户、7000 万+ 次交互已验证）；② 「**The agent is really yours.** It has to be clear who the agent buys for, and who answers if it makes a mistake.」——Billions 给每个 Agent 一张绑定已验证真人的「ID 卡」（自称 250 万+ 实名用户、25000+ 个 Agent 带 ID）。
+- **他们自己的一句行业判断**：「So far, most of the effort has gone into making agents smarter. **Much less has gone into making sure they're safe to hand your wallet to.**」
+- **评论区唯一有信息量的一句（@INIODU 💛，112 赞）**：「**trust needs proof not promises** — appreciate the guide!」→ **信任要的是证明，不是承诺。**
+- **我方现状（均已用真实代码核对）**：**归属这一半有本地可核对的对应物**——统一审批记录表 `approvals`（`myrm-agent-server/app/database/models/approval.py:15-30`：含 `agent_id` / `chat_id` / `thread_id` / `action_type` / `reason` / 状态与到期）+ 审计账本逐条记（`myrm-agent-harness/.../core/security/audit.py:191-200` 的 `record_decision`）+ **Agent 能力范围用签名令牌限定**（`core/security/ocap/token.py:49-53` 的 `sign_capability_handle`：HMAC-SHA256 签名、常数时间验签、可衰减）；**事实这一半走可回溯**（有据声明 / 发布合规门禁 / 数字回溯官方披露的事实仲裁 / 全链证据溯源）；**「买错了怎么办」是我方多出的一格**：计划预审 → 增量 diff → 影子快照 → 一键回滚。
+- **我们不宣称的（诚实边界）**：① **不引用对方的规模预测数字**（McKinsey 3–5 万亿美元、Deloitte 400 亿美元是**第三方预测**，不是实测能力）；② **不做 ZKP 与链上身份**——我们的路径是本地可核对、可离线自持的证据链 + 审批归属；③ **我们没有「对外第三方可独立验证的身份卡」这一层**——若你的业务硬性要求对方能独立验你，那是他们的主场，我们不假装有；④ 本条**不开新路线图条目**——缺口需链上或第三方服务，与本地自持路线冲突；形态诉求已落在 `topic_20 #64`（责任路由与可拒绝的认领式派单）与 `topic_01 #211`（归属判据与统一时间线）。
+- **SSOT**：`temp-docs/materials/COMMERCE_AGENT_TRANSACTIONAL_ADVANTAGE.md`（商业与组织能力轴主文档，2026-10-22 新增第八节）· `temp-docs/materials/SECURITY_ADVANTAGE.md`（计划→变更→回滚三段交接面）· `https://x.com/billions_ntwk/status/2108212989585154475`
+
 ## 最新验证快照（2026-10-21 · 竞品把 Agent 塞进任意设备：Hermes Gadget SDK 的四个可核对机制 · 我方的诚实差距，以及两条尚未交付的路线图条目）
 
 - **触发事件**：社区帖 @adolandev（`https://x.com/adolandev/status/2107813150686888407`）——「Three days ago, Hermes Gadget was an open SDK and a demo. Then the community got hold of it -- shoutout @NousResearch. LilyGO watches. AIPI Lite. Desk gadgets. Old Android phones. People are getting Hermes running on all kinds of devices and sharing their work.」我们把该 SDK 仓库（`external_reference_project/claw/hermes-gadget-sdk`，MIT，v0.2.0）拉到本地逐文件核对。**注意：它是 Hermes 的第三方插件，不是 Nous Research 的官方产品**。
