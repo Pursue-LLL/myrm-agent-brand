@@ -40,6 +40,24 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 - **이번 라운드에 사이트를 건드리지 않은 이유**: 우리가 실제로 더 강하다고 확인할 수 있는 부분(결정적 권한 게이트, 계획 → 변경 → 되돌리기, 진짜 ACP 위임)은 **이미 사이트에 대응하는 표현이 있다**. 이번 라운드에 새로 나온 3건은 전부 **아직 인도되지 않은 격차**이며, 이 프로젝트의 "미구현 능력을 홍보하지 않는다" 규칙에 따라 **사이트에 쓸 수 없다**. 6개 핵심 능력 블록은 손대지 않았다.
 - **SSOT**: `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/materials/AUTOMATION_CRON_ADVANTAGE.md` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_18_loop_engineering_goal_autonomous_scheduling_and_runtime_verification_roadmap.md`(#178) · `temp-docs/roadmap/topic_10_runtime_reliability_roadmap.md`(#253) · `external_reference_project/desktop/Herald-OS` · `https://x.com/iamlukethedev/status/2107765448343261506`
 
+## 최신 검증 스냅샷 (2026-10-22 · 타사가 주는 '신뢰 점수'를 누구나 재계산할 수 있는가 · Priors의 재계산 가능한 기록, 공개된 공격 비용, 능력 단계적 축소 · 우리의 정직한 격차와 아직 인도되지 않은 로드맵 항목 1건)
+
+- **계기**: 커뮤니티 게시글 @priors_trade (`https://x.com/priors_trade/status/2107819071836147885`, 2026-10-07 21:03. **3,477 조회 / 15 리플 / 12 리포스트 / 90 좋아요 / 4 북마크**)가 ClawHub 스킬 출시를 알렸습니다(게시글 표기 "90+ 다운로드"). ChromeAgent :9410 + chrome-devtools MCP로 본문 전문, **14개 리플**, 15초 데모 영상 3프레임을 추출하고, 소스 미러(`external_reference_project/claw/priors`, MIT)를 로컬에서 읽어 파일 단위로 확인했습니다.
+- **먼저 정직한 경계**: 이는 **토큰 홍보 게시글**입니다. 리플창은 거의 전부 $PRIORS 응원봉과 밈이고 도달도 낮습니다. **메커니즘 정보는 거의 전부 저장소 쪽이며 게시글이 아닙니다.** 그것이 만드는 것은 **온체인 암호화폐 신용 풀**(무담보 USDG 대출 + ERC-8004 아이덴티티 + x402 결제)로, 우리의 오피스 / 코딩 / 로컬 샌드박스 세계와 거의 겹치지 않습니다. **우리는 '체인에 올리는' 것 자체를 빌리지 않고 '증거 규율' 층만 빌립니다.**
+- **빌려올 수 있는 4가지 메커니즘(소스에서 대조)**:
+  1. **증명은 제3자가 독립적으로 재계산할 수 있고, 공격 비용과 남은 공격 면이 공개됩니다** — `README.md:12`: "Reviews are cheap to fake. Repaid debt isn't. … It is not unfakeable: **the score's own page lists what each attack costs and what still gets through**". `docs/SCORE-v2.md:109`는 공격별 대조표입니다(헤더 `| attack | stopped by |`). `README.md:618`: "regression guard: **it runs the attack move for move and asserts containment. Revert the fix and it fails**" — **공격 자체가 회귀 가드가 됩니다.**
+  2. **접속면의 능력 단계적 축소(전면 중단 아님)** — `packages/mcp/README.md:166`: 결제 상태 디렉터리가 소유자 전용이 아니면 "**the money tools refuse … and the read-only tools still answer**". `skills/README.md:24-27`의 호스팅 MCP 자체가 "**Read-only, no key**"이며, 쓰기 도구는 소유자 확인 뒤에만 링크를 만듭니다.
+  3. **스킬이 '조작하지 말라 / 거절되면 그대로 말하라 / 키를 명령줄에 넣지 말라' 경계를 스스로 갖습니다** — `skills/priors/SKILL.md:25-27`: "⛔ Never invent a pool address … **when they refuse, say it plainly.**", `:41-42`: "⛔ The key goes in the environment or `.env`, **never on the command line**", `:114`: "`status` showing no loan proves nothing yet. The CLI refuses `borrow` … until the record is real."
+  4. **배포 사실을 정직하게 말합니다** — 같은 배치 표에 "배포 기록이 없으면 체인 위에는 아무것도 없다. **그대로 말하고 가장한 척 말하지 말라**"는 내용이 있습니다.
+- **우리의 현황(실 코드로 대조)**: 스킬 신뢰 4단계와 사용자 승격·강등(`app/core/skills/models.py:74,356`, `runtime_metadata.py:31,38`, 프런트엔드 `SkillDetailSheetContent.tsx:255`), 설치 전 정적 스캔(`backends/skills/scanning/patterns.py:4`의 26종 / 113 패턴)과 탐지 건수 표시(`SkillCard.tsx:254-255`), '조작하지 말라'는 실행 계층 게이트가 뒷받침, '미검증 항목은 명시'는 하드웨어 능력 매트릭스에 같은 구조의 선례가 있음.
+- **주장하지 않는 것(정직한 격차)**:
+  1. **우리가 보여주는 제3자 신뢰 요소는 전부 '플랫폼 자기 증명'** — 스캔 결과, star, 다운로드 수, 사용자가 직접 올린 TRUSTED 중 어느 것도 제3자가 독립적으로 재계산할 수 없고, 그래서 사용자가 "스캔됨 / 탐지 0"을 봐도 **스스로 재계산할 수 없습니다.**
+  2. **'공격 비용 / 남은 공격 면' 대조표가 공개되어 있지 않습니다** — 탐지 건수만 보여주고 이 스캔이 **무엇을 막고 무엇을 막지 못하는지는** 알려주지 않습니다.
+  3. **신뢰할 수 없는 MCP 연결 시 능력 단계적 축소가 없습니다** — 현행은 도구 사용 불가 → 해당 실행 실패(민감 도구는 거절, 읽기 전용 도구는 계속 동작이 아님).
+  4. **스킬 저자 규약에 '조작하지 말라 / 거절되면 그대로 말하라 / 키를 명령줄에 넣지 말라' 강제 조항이 없습니다** — 실행 계층 게이트가 뒷받침하지만 **스킬 본문 자체**에는 그 요구가 없습니다.
+- **아직 인도되지 않은 로드맵 항목 1건 신규 추가**: `topic_08 #479`(제3자 증명 재계산 가능성과 능력 단계적 축소 규율 스위트, **미분석**).
+- **SSOT**: `temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`(스킬·플러그인 축 주 문서, 2026-10-22 추가 절) · `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`(#479) · `external_reference_project/claw/priors` · `https://x.com/priors_trade/status/2107819071836147885`
+
 ## 최신 검증 스냅샷 (2026-10-21 · 경쟁사가 에이전트를 온갖 기기에 넣어 버린 방법 · Hermes Gadget SDK의 검증된 4가지 메커니즘 · 우리의 정직한 격차와 아직 인도되지 않은 로드맵 2건)
 
 - **계기**: 커뮤니티 게시글 @adolandev (`https://x.com/adolandev/status/2107813150686888407`) — "Three days ago, Hermes Gadget was an open SDK and a demo. Then the community got hold of it -- shoutout @NousResearch. LilyGO watches. AIPI Lite. Desk gadgets. Old Android phones. People are getting Hermes running on all kinds of devices and sharing their work." SDK 저장소(`external_reference_project/claw/hermes-gadget-sdk`, MIT, v0.2.0)를 로컬에 받아 파일 단위로 확인. **주의: Hermes의 서드파티 플러그인이며 Nous Research 공식 제품이 아니다**.
