@@ -76,6 +76,24 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 - **아직 인도되지 않은 로드맵 항목 1건 신규 추가**: `topic_20 #64`(최종 변경자 책임 라우팅과 거절 가능한 인수 디스패치 스위트, **미분석**).
 - **SSOT**: `temp-docs/materials/GIT_PR_DELIVERY_ADVANTAGE.md`(Git 전달 축 기존 문서, 2026-10-22 추가 절) · `temp-docs/roadmap/topic_20_coding_agent_and_software_engineering_roadmap.md`(#64) · `https://x.com/steipete/status/2107697554448421160`
 
+## 최신 검증 스냅샷 (2026-10-22 · 스킬 점진적 공개에 마침내 비교 가능한 숫자가 나왔습니다: 인덱스 1.2k / 본문 3.1k–5.2k / 인도 후 언로드로 회귀 · 댓글은 실패 지점이 '어떤 스킬을 고르는가'로 옮겨갔다고 지적 · 우리는 '로드됨은 제대로 쓰였음은 아님'귀속 기준을 이미 갖고 있으나, 동일 기준 공개 숫자·언로드·모호성 검사는 모두 없음)
+
+- **계기**: X @vibelancer(`https://x.com/vibelancer/status/2107773037739204914`, 2026-10-07)가 **SKILL FORGE**를 공개했습니다. Claude Skills를 '공장 바닥'으로 만든 구성 — 12개의 SKILL.md 카트리지를 선반에 놓고, 200k 컨텍스트 에이전트 코어 하나에, 프롬프트 네 개가 각각 스킬 하나를 나르며 **실제 그 작업이 필요할 때만 로드**됩니다. ChromeAgent :9410 + chrome-devtools MCP로 본문 전문, **14개 리플**, 데모 영상을 추출했습니다.
+- **경쟁사가 낸 3단 비교 가능 숫자**:
+  1. **인덱스 상시 유지**: "INDEXER drone: reads only the YAML frontmatter, name + description · **12 × ~100 tokens = 1.2k always in context** · scans the whole shelf in 1.05s"
+  2. **본문은 필요 시 로드**: "base context **8.4k** · the SKILL.md body lands on plug: **pptx 4.8k, xlsx 3.9k, docx 5.2k, pdf 3.1k**"
+  3. **인도 후 언로드**: "**unloads after ship, budget drops back to ~9.8k**", 전체 경로는 **PROMPT → MATCH → LOAD → RUN → SHIP → UNLOAD** — 4권짜리 17k token 매뉴얼을 모든 요청에 stuffing하지 않는 것이 요점입니다.
+- **댓글들이 짚은 실패 지점(가장 가치 있는 부분)**: @asmirkn "**어떤 카트리지를 골랐는지 로그**가 필요합니다. 백엔드가 없으니 출력이 틀렸을 때 스킬이 나쁜지 **엉뚱한 스킬이 로드된 건지** 알 수 없습니다" / @lunkertw "성패를 가르는 건 **각 스킬의 한 줄 설명**입니다. 언제 로드할지 판단 못 하면 12개 카트리지는 12번의 추측이 됩니다" / @chaka_kuka "활성 컨텍스트는 가볍게 유지하지만 **실패 지점을 라우팅으로 옮깁니다** — 설명이 비슷한 두 스킬은 높은 점수로도 잘못 고를 수 있어 **실행 전 모호성 검사**가 필요합니다" / @kartikb753 "인덱서는 100 token 프론트매터만으로 라우팅하니 설명이 모호하면 5k짜리 엉뚱한 본문을 낭비합니다" / @BoazWith(재사용 가능한 실측) "오케스트레이터 에이전트 파일 세 개가 **651 / 533 / 844줄**에서 **37 / 34 / 38줄**이 됐습니다 — 세부를 그 단계가 필요할 때만 읽히는 reference 파일로 옮겼습니다".
+- **우리의 현황(실 코드로 대조)**: **'로드됨'이 '제대로 쓰였음'을 뜻하지 않는다는 점이 통계의 일급 요소** — `backends/skills/types/types_usage.py:101`("Uses whose outcome was observable (**selections without tool calls and ambiguous runs are not**)") · `backends/skills/stats_collector.py:88`("the skill was only loaded, or several loaded skills made the owner ambiguous") — **바로 @asmirkn의 요구 사항**입니다. 턴마다 선택 스킬 수가 저장·집계됩니다(`app/database/models/turn_capability_metric.py:32`의 `selected_skill_count`, `app/api/statistics/turn_capability.py:93`의 `avg_selected_skill_count`). 비슷한 스킬은 **직접 고를 수 있고**(세션 레벨 스킬 선별 + `MigrationWizardDrawer.tsx:33`) 하나의 높은 점수에 걸지 않아도 됩니다. 4단계 점진적 공개와 Turn-1 도구 세트·시스템 프롬프트 토큰 예산 CI 게이트도 이미 갖췄습니다.
+- **주장하지 않는 것(정직한 격차)**:
+  1. **동일 기준의 공개 숫자가 없습니다** — 경쟁사는 인덱스·본문·회귀 3단을 보여주는데 우리는 동등 기준 공개 숫자가 없어 '누가 더 아끼는가'는 지금 형용사로만 말할 수 있습니다.
+  2. **스킬급 '인도 후 언로드'가 없습니다** — `grep "unload\|evict_skill\|drop_skill"`이 스킬 도메인과 컨텍스트 압축 도메인 **0건**. 사후 압축만 있습니다.
+  3. **실행 전 모호성 검사가 없습니다** — `grep "ambigu\|similar_desc\|description_similarity"` **0건**. 방어선은 수동 대체 경로이지 자동 '둘이 비슷하니 먼저 묻자'가 아닙니다.
+  4. **'어떤 스킬을 골랐는지'는 개수만 있고 동일성이 없습니다** — 커뮤니티가 요구한 턴별 동일성이 세션 통계 쪽에 아직 열로 없습니다.
+  5. **동일 기준 자가 실측이 나오기 전에는 '누가 더 아끼는가'를 선결정하지 않습니다.**
+- **아직 인도되지 않은 로드맵 항목 1건 신규 추가**: `topic_08 #480`(스킬 점진적 공개의 로드–언로드 클로저와 선택 추적 스위트, **미분석**).
+- **SSOT**: `temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`(스킬·플러그인 축 주 문서, 2026-10-22 추가 절) · `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`(#480) · `https://x.com/vibelancer/status/2107773037739204914`
+
 ## 최신 검증 스냅샷 (2026-10-21 · 경쟁사가 에이전트를 온갖 기기에 넣어 버린 방법 · Hermes Gadget SDK의 검증된 4가지 메커니즘 · 우리의 정직한 격차와 아직 인도되지 않은 로드맵 2건)
 
 - **계기**: 커뮤니티 게시글 @adolandev (`https://x.com/adolandev/status/2107813150686888407`) — "Three days ago, Hermes Gadget was an open SDK and a demo. Then the community got hold of it -- shoutout @NousResearch. LilyGO watches. AIPI Lite. Desk gadgets. Old Android phones. People are getting Hermes running on all kinds of devices and sharing their work." SDK 저장소(`external_reference_project/claw/hermes-gadget-sdk`, MIT, v0.2.0)를 로컬에 받아 파일 단위로 확인. **주의: Hermes의 서드파티 플러그인이며 Nous Research 공식 제품이 아니다**.

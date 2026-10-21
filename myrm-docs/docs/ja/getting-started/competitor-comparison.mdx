@@ -76,6 +76,24 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
 - **まだ納めていないロードマップ項目 1 件を新規追加**: `topic_20 #64`（最終変更者ルーティングと断れる認領式ディスパッチ套件、**未分析**）。
 - **SSOT**: `temp-docs/materials/GIT_PR_DELIVERY_ADVANTAGE.md`（Git 交付軸の既存ドキュメント、2026-10-22 追記段）· `temp-docs/roadmap/topic_20_coding_agent_and_software_engineering_roadmap.md`（#64）· `https://x.com/steipete/status/2107697554448421160`
 
+## 最新検証スナップショット (2026-10-22 · スキル漸進開示に终于比較できる数字が出た：索引 1.2k / 本文 3.1k–5.2k / 納品後にアンロードで回落 · コメントは失敗点が「どのスキルを選ぶか」に移ったと指摘 · 我々は「ロード＝正しく使われたではない」の帰属口径を既にもち、しかし同一物差しの公開数字・アンロード・曖昧性チェックはいずれも欠く)
+
+- **きっかけ**: X @vibelancer (`https://x.com/vibelancer/status/2107773037739204914`、2026-10-07) が **SKILL FORGE** を公開。Claude Skills を「工場の床」にする構成——12 個の SKILL.md カートリッジを棚に並べ、200k コンテキストの Agent コア 1 体に、4 つのプロンプトが 1 つずつ技能を運び、**実際にその作業が必要な瞬間だけロード**される。ChromeAgent :9410 + chrome-devtools MCP で本文全文、**14 件の返信**、デモ動画を抽出した。
+- **競品が出した 3 段の比較可能数値**:
+  1. **索引常時保持**: 「INDEXER drone: reads only the YAML frontmatter, name + description · **12 × ~100 tokens = 1.2k always in context** · scans the whole shelf in 1.05s」
+  2. **本文を必要な時にロード**: 「base context **8.4k** · the SKILL.md body lands on plug: **pptx 4.8k, xlsx 3.9k, docx 5.2k, pdf 3.1k**」
+  3. **納品後にアンロード**: 「**unloads after ship, budget drops back to ~9.8k**」、全経路は **PROMPT → MATCH → LOAD → RUN → SHIP → UNLOAD**——「17k token の 4 冊のマニュアルを全リクエストに詰め込まない」のが要点。
+- **コメントが挙げた失敗点（最も価値が高い部分）**: @asmirkn「**どのカートリッジを選んだかのログ**が要る。バックエンドがないので出力が間違っても、**技能が悪いのか正要でない技能がロードされたのか**が分からない」/ @lunkertw「成否を分けるのは**各技能の一行の説明**だ。いつロードすべきか判断できなければ 12 個のカートリッジは 12 回当て推量になるになる」/ @chaka_kuka「有効なコンテキストは軽く保てるが、**失敗点はルーティングに移る**——説明が近い 2 osto品では高スコアでも誤選択になり、**実行前の曖昧性チェック**が要る」/ @kartikb753「索引は 100 token の frontmatter だけでルーティングするので、説明が曖昧だと 5k の誤った本文を無駄に積む」/ @BoazWith（我々に再利用できる実測）「3 つの orchestrator agent ファイルが **651 / 533 / 844 行**から **37 / 34 / 38 行**に。細部を、そのステップが必要なときだけ読まれる reference ファイルへ移した」。
+- **我々の現状（実コードで照合済み）**: **「ロードされた＝正しく使われたわけではない」が統計の一等市民**——`backends/skills/types/types_usage.py:101`（「Uses whose outcome was observable (**selections without tool calls and ambiguous runs are not**）」）· `backends/skills/stats_collector.py:88`（「the skill was only loaded, or several loaded skills made the owner ambiguous」）——**まさに @asmirkn の要求**。回合ごとに選択技能数を保存し集計可能（`app/database/models/turn_capability_metric.py:32` の `selected_skill_count`、`app/api/statistics/turn_capability.py:93` の `avg_selected_skill_count`）。似た技能同士は**手動で指定できる**（セッション級 Skill 精选 + `MigrationWizardDrawer.tsx:33`）ので、高スコア 1 発に賭けなくてよい。4 層の漸進開示と Turn-1 ツールセット／システムプロンプトの token 予算 CI ゲートも既にある。
+- **主張しないもの（正直なギャップ）**:
+  1. **同一物差しの公開数字が無い**——競品は索引 / 本文 / 回落の 3 段を示すが、我々は同等口径の公開数字が無く、「どちらが省くか」は今は形容詞でしか語れない。
+  2. **技能級の「納品後アンロード」が無い**——`grep "unload\|evict_skill\|drop_skill"` は技能ドメインでもコンテキスト圧縮ドメインでも **0 件**。 事後の圧縮のみ。
+  3. **実行前の曖昧性チェックが無い**——`grep "ambigu\|similar_desc\|description_similarity"` は **0 件**。守りは手動の代替経路であり自動の「この 2 つは似ている、先に聞く」ではない。
+  4. **「どの技能を選んだか」は個数のみで同一性がない**——コミュニティが求めた回合ごとの同一性が、セッション統計側にまだ列として存在しない。
+  5. **同一物差しの自前実測が出るまで「どちらが省くか」は先決めしない**。
+- **まだ納めていないロードマップ項目 1 件を新規追加**: `topic_08 #480`（技能漸進開示のロード–アンロード閉ループと選択追跡套件、**未分析**）。
+- **SSOT**: `temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（スキルとプラグインの軸の主ドキュメント、2026-10-22 追記段）· `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`（#480）· `https://x.com/vibelancer/status/2107773037739204914`
+
 ## 最新検証スナップショット (2026-10-21 · 競合がエージェントをあらゆるデバイスに放り込んだ · Hermes Gadget SDK の 4 つの検証済み機構 · 我々の正直なギャップと、まだ納品されていないロードマップ 2 件)
 
 - **きっかけ**: コミュニティの投稿 @adolandev (`https://x.com/adolandev/status/2107813150686888407`) —「Three days ago, Hermes Gadget was an open SDK and a demo. Then the community got hold of it -- shoutout @NousResearch. LilyGO watches. AIPI Lite. Desk gadgets. Old Android phones. People are getting Hermes running on all kinds of devices and sharing their work.」SDK リポジトリ (`external_reference_project/claw/hermes-gadget-sdk`、MIT、v0.2.0) をローカルで精読。**注意: これは Hermes のサードパーティ製プラグインであり、Nous Research の公式製品ではない**。

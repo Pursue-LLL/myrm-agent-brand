@@ -76,6 +76,24 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **新增一条尚未交付的路线图条目**：`topic_20 #64`（最后修改者责任路由与可拒绝的认领式派单套件，**待分析**）。
 - **SSOT**：`temp-docs/materials/GIT_PR_DELIVERY_ADVANTAGE.md`（Git 交付轴既有文档，2026-10-22 新增段）· `temp-docs/roadmap/topic_20_coding_agent_and_software_engineering_roadmap.md`（#64）· `https://x.com/steipete/status/2107697554448421160`
 
+## 最新验证快照（2026-10-22 · 技能渐进披露终于有了可对标的数字：索引 1.2k / 正文 3.1k–5.2k / 交付后卸载回落 · 评论区指出失败点搬到了「选哪个技能」上 · 我们已有「装了不等于用对了」的归因口径，但缺同口径公开数字、缺卸载、缺歧义检查）
+
+- **触发事件**：X @vibelancer（`https://x.com/vibelancer/status/2107773037739204914`，2026-10-07）发布 **SKILL FORGE**——把 Claude Skills 做成「工厂车间」：12 个 SKILL.md 弹匣上架、一个 200k 上下文的 Agent 核心、4 个提示各带一个技能，**只在活干到那一步时才装入**。本轮用 ChromeAgent :9410 + chrome-devtools MCP 抽取主帖全文 + **14 条回复** + 演示视频抽帧。
+- **竞品给出的三段可核对口径**：
+  1. **索引常驻**：「INDEXER drone: reads only the YAML frontmatter, name + description · **12 × ~100 tokens = 1.2k always in context** · scans the whole shelf in 1.05s」；
+  2. **正文按需装入**：「base context **8.4k** · the SKILL.md body lands on plug: **pptx 4.8k, xlsx 3.9k, docx 5.2k, pdf 3.1k**」；
+  3. **用完卸载**：「**unloads after ship, budget drops back to ~9.8k**」，全链路 **PROMPT → MATCH → LOAD → RUN → SHIP → UNLOAD**——省下的正是「不把 17k token 的四本手册塞进每个请求」。
+- **评论区指出的失败点（很有价值）**：@asmirkn「我会想要一份**选了哪个弹匣的日志**——没有后端时，输出错了你分不清是技能不好还是**装错了技能**」；@lunkertw「决定成败的是**每个技能那一行描述**，Agent 判断不出何时该装载它，12 个弹匣就变成 12 次猜测」；@chaka_kuka「它把活跃上下文保持精简，**但把失败点搬到了路由上**——两条描述相似时高分仍会选错，**执行前需要歧义检查**」；@kartikb753「索引器只靠 100 token 的 frontmatter 路由，描述含糊就会白白装进 5k 的错正文」；@BoazWith（对我方可复用的实测）「三个 orchestrator agent 文件从 **651 / 533 / 844 行**降到 **37 / 34 / 38 行**——细节移进只在该步骤需要时才载入的 reference 文件」。
+- **我方现状（均已用真实代码核对）**：**「装了不等于用对了」已是统计口径的一等公民**（`backends/skills/types/types_usage.py:101`：「Uses whose outcome was observable (**selections without tool calls and ambiguous runs are not**)」· `backends/skills/stats_collector.py:88`：「the skill was only loaded, or several loaded skills made the owner ambiguous」）——**正对 @asmirkn 的问题**；每回合选中技能数已落库可聚合（`app/database/models/turn_capability_metric.py:32` 的 `selected_skill_count`、`app/api/statistics/turn_capability.py:93` 的 `avg_selected_skill_count`）；相似技能之间可人工指定（会话级 Skill 精选 + `MigrationWizardDrawer.tsx:33`），**不必赌一次高分匹配**；四层渐进披露 + Turn-1 工具集与系统提示词 Token 预算 CI 门禁已成体系。
+- **我们不宣称的（诚实差距）**：
+  1. **没有对外可核对的同口径数字**——竞品给出索引/正文/回落三段，我方缺同等口径的公开数字，「谁更省」目前只能说形容词。
+  2. **没有技能级「用完即卸」**——`grep "unload\|evict_skill\|drop_skill"` 在技能域与上下文压缩域**零命中**，我们只有事后压缩，没有「本次交付后撤掉该技能正文」。
+  3. **没有描述歧义的执行前检查**——`grep "ambigu\|similar_desc\|description_similarity"` **零命中**；护栏是人工旁路，不是自动的「这两条太像，先问一句」。
+  4. **「选了哪个技能」只有个数没有身份**——社区要的逐次可追溯身份我方在会话统计侧尚未成列。
+  5. **在拿到同口径实测数字之前，不预设「谁更省」**。
+- **新增一条尚未交付的路线图条目**：`topic_08 #480`（技能渐进披露的加载-卸载闭环与选中可追溯套件，**待分析**）。
+- **SSOT**：`temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（技能与插件生态轴主文档，2026-10-22 新增段）· `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`（#480）· `https://x.com/vibelancer/status/2107773037739204914`
+
 ## 最新验证快照（2026-10-21 · 竞品把 Agent 塞进任意设备：Hermes Gadget SDK 的四个可核对机制 · 我方的诚实差距，以及两条尚未交付的路线图条目）
 
 - **触发事件**：社区帖 @adolandev（`https://x.com/adolandev/status/2107813150686888407`）——「Three days ago, Hermes Gadget was an open SDK and a demo. Then the community got hold of it -- shoutout @NousResearch. LilyGO watches. AIPI Lite. Desk gadgets. Old Android phones. People are getting Hermes running on all kinds of devices and sharing their work.」我们把该 SDK 仓库（`external_reference_project/claw/hermes-gadget-sdk`，MIT，v0.2.0）拉到本地逐文件核对。**注意：它是 Hermes 的第三方插件，不是 Nous Research 的官方产品**。
