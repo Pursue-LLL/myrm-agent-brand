@@ -1106,6 +1106,12 @@
           "hermes": "CLI 审批提示，无变更预览，也无从退回",
           "openclaw": "仅批准 / 拒绝，缺变更差异与快照回滚",
           "myrmAgent": "**三段交接面（计划 → 变更 → 退回）**：① 计划先过目——首个多步待办（≥3 项）先给你确认再动手；② 变更看得见——每次改文件都有增量差异实时上屏，不是「已完成」四个字；③ 退回有把手——动手前自动留影子 Git 快照（与你自己的 git 仓库物理隔离、零污染），审批卡上挂一枚撤销按钮，后端一键回滚接口直接生效，改错了不用重做也不用翻历史 · **确定性权限闸门**：ALLOW / ASK / DENY 三档写死在代码里，评估过程零模型参与，DENY 连 LLM 都翻不动，`~/.ssh` 等敏感目录统一硬禁区 · **每个动作有账本**：放行 / 拒绝 / 升级逐条落库可查，审批有到期时间"
+        },
+        "skillEffectAttribution": {
+          "feature": "技能效果归因 · 装了 ≠ 用对了 · 归属歧义显式建模",
+          "hermes": "镜像全仓检索未见同形的「选中未执行 / 归属歧义」建模（本次未逐文件穷举）",
+          "openclaw": "未见技能效果归因台账（镜像检索无同形口径）",
+          "myrmAgent": "**三态归因写进统计口径本身**——`backends/skills/types/types_usage.py:101`：「Uses whose outcome was observable (**selections without tool calls and ambiguous runs are not**)」；`backends/skills/stats_collector.py:88`：「observable (**the skill was only loaded, or several loaded skills made the owner ambiguous**)」——**「装了就用对了」「只加载没执行」「几个技能导致归属歧义」分开记，不混进成功率**；每回合技能用量台账（`app/database/models/turn_capability_metric.py:32` 的 `selected_skill_count`、`app/api/statistics/turn_capability.py:93` 的 `avg_selected_skill_count`）→ 你能直接问「这次到底哪个技能起了作用」，而不是读模型自述"
         }
       }
     },
@@ -1958,6 +1964,16 @@
           "tag1": "计划先过目再动手",
           "tag2": "增量差异实时上屏",
           "tag3": "影子快照一键退回"
+        },
+        "skillEffectAttribution": {
+          "label": "技能效果归因",
+          "title": "它说「用了这个技能」，我们能证明它到底产生了什么",
+          "desc": "**技能被加载，不等于产生了可归因的结果。** 中间隔着三道判定：有没有真的执行、结果可不可观测、归属是不是唯一。我们把这三态直接写进统计口径——**选而不用的、只加载没执行的、几个技能一起跑导致说不清是谁的，都单独记、单独看，绝不混进「成功率」**。配套每回合的技能用量台账（平均选中几个技能、有多少真正可归因），你可以直接问「这次到底哪个技能起了作用」，而不是读模型的自我陈述。",
+          "stat": "3 态",
+          "statLabel": "选中未执行 / 执行但不可观测 / 归属歧义",
+          "tag1": "装了 ≠ 用对了",
+          "tag2": "归属歧义单独记",
+          "tag3": "每回合技能用量台账"
         }
       }
     }

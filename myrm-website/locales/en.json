@@ -1106,6 +1106,12 @@
           "hermes": "CLI approval prompt, no change preview and nothing to roll back",
           "openclaw": "Approve / deny only — no diff of what changed, no snapshot rollback",
           "myrmAgent": "**A three-part handoff (plan → change → revert)**: ① the plan comes first — the first multi-step to-do list (≥3 items) is confirmed by you before anything runs; ② the change is visible — every file edit streams an incremental diff into the conversation instead of a bare \"done\"; ③ there is a handle to revert — a shadow Git snapshot is taken before the action (physically isolated from your own git repository, zero pollution), the approval card carries a single undo button, and the backend one-click rollback endpoint applies it, so a wrong turn costs neither rework nor history archaeology · **A deterministic permission gate**: ALLOW / ASK / DENY are constants in code, the evaluation involves no model at all, DENY cannot even be overturned by an LLM, and sensitive directories such as `~/.ssh` are hard-forbidden · **Every action is on the ledger**: allow / deny / escalation are recorded one by one, and approvals expire"
+        },
+        "skillEffectAttribution": {
+          "feature": "Skill effect attribution · loaded ≠ used · ambiguity modelled explicitly",
+          "hermes": "No same-shape \"selected-but-not-run / ambiguous attribution\" modelling found by a full mirror sweep (not enumerated file by file)",
+          "openclaw": "No skill-effect attribution ledger found in the mirror",
+          "myrmAgent": "**All three states are part of the accounting itself** — `backends/skills/types/types_usage.py:101`: \"Uses whose outcome was observable (**selections without tool calls and ambiguous runs are not**)\"; `backends/skills/stats_collector.py:88`: \"observable (**the skill was only loaded, or several loaded skills made the owner ambiguous**)\" — **\"loaded and used\", \"loaded but never ran\" and \"several skills make the owner ambiguous\" are counted apart and never folded into a success rate**; plus a per-turn skill usage ledger (`selected_skill_count` in `app/database/models/turn_capability_metric.py:32`, `avg_selected_skill_count` in `app/api/statistics/turn_capability.py:93`) → you can ask which skill actually did the work instead of reading the model's self-report"
         }
       }
     },
@@ -1958,6 +1964,16 @@
           "tag1": "Plan reviewed before it runs",
           "tag2": "Incremental diffs stream live",
           "tag3": "Shadow snapshot, one-click undo"
+        },
+        "skillEffectAttribution": {
+          "label": "Skill effect attribution",
+          "title": "It says it used the skill — we can show what it actually produced",
+          "desc": "**A skill being loaded is not the same as an attributable outcome.** Three questions sit in between: did it actually run, is the result observable, and is the attribution unique. We model all three states directly in our accounting — **selections that never ran, skills that were only loaded, and runs where several skills make the owner ambiguous are counted separately and never folded into a success rate**. Alongside it sits a per-turn skill usage ledger (how many skills were selected on average, how much of it is attributable), so you can ask \"which skill actually did the work here?\" instead of reading the model's own account of itself.",
+          "stat": "3 states",
+          "statLabel": "Selected-not-run / ran-but-unobservable / ambiguous attribution",
+          "tag1": "Loaded ≠ used",
+          "tag2": "Ambiguity counted apart",
+          "tag3": "Per-turn skill usage ledger"
         }
       }
     }

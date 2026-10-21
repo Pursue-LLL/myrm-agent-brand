@@ -1106,6 +1106,12 @@
           "hermes": "CLI 승인 프롬프트만 있고, 변경 미리보기도 되돌릴 수단도 없음",
           "openclaw": "승인 / 거절만 가능하고, 변경 diff도 스냅샷 되돌리기도 없음",
           "myrmAgent": "**3단 인수인계(계획 → 변경 → 되돌리기)**: ① 계획부터 — 첫 다단계 할 일 목록(3개 이상)을 실행 전에 먼저 확인받고 진행; ② 변경이 보인다 — 파일을 고칠 때마다 증분 diff가 대화창에 실시간으로 올라오며 '완료했습니다'만 남기지 않음; ③ 되돌릴 손잡이 — 동작 직전에 그림자 Git 스냅샷(사용자의 git 저장소와 물리적으로 분리되어 오염 없음)을 남기고, 승인 카드에 되돌리기 버튼 하나를 붙이며, 백엔드 한 번 되돌리기 API가 바로 적용해 잘못된 손은 다시 만들 필요도 기록 뒤질 필요도 없습니다 · **결정적 권한 게이트**: ALLOW / ASK / DENY 3단계가 코드 상수로 고정되고 평가에 모델이 개입하지 않으며 DENY는 LLM도 뒤집을 수 없고 `~/.ssh` 등 민감 디렉터리는 하드 금지 · **모든 동작이 장부에 남음**: 허용 / 거절 / 승격이 한 건씩 기록되고 승인은 만료 시각이 있음"
+        },
+        "skillEffectAttribution": {
+          "feature": "스킬 효과 귀속 · 로드 ≠ 사용 · 귀속 모호성 명시적 모델링",
+          "hermes": "미러 전체 검색에서 '선택만 되고 실행되지 않음 / 귀속 모호' 같은 형태의 모델링 미발견(파일 단위 전수 조사는 아님)",
+          "openclaw": "스킬 효과 귀속 대장이 미러에서 확인되지 않음",
+          "myrmAgent": "**세 상태가 곧 통계 기준입니다** — `backends/skills/types/types_usage.py:101`: \"Uses whose outcome was observable (**selections without tool calls and ambiguous runs are not**)\", `backends/skills/stats_collector.py:88`: \"observable (**the skill was only loaded, or several loaded skills made the owner ambiguous**)\" — **'로드했고 사용함' / '로드만 하고 실행 안 됨' / '여러 스킬이 겹쳐 귀속 모호'는 따로 세고 성공률에 섞지 않습니다**, 매 턴 스킬 사용 대장(`app/database/models/turn_capability_metric.py:32`의 `selected_skill_count`, `app/api/statistics/turn_capability.py:93`의 `avg_selected_skill_count`) → 모델 자기 설명 대신 '실제로 어떤 스킬이 일했나'를 물을 수 있음"
         }
       }
     },
@@ -1958,6 +1964,16 @@
           "tag1": "실행 전에 계획부터 확인",
           "tag2": "증분 diff 실시간 표시",
           "tag3": "그림자 스냅샷 한 번에 되돌리기"
+        },
+        "skillEffectAttribution": {
+          "label": "스킬 효과 귀속",
+          "title": "\"이 스킬을 썼습니다\"라고 할 때, 실제로 무엇을 만들었는지 증명합니다",
+          "desc": "**스킬이 로드되었다는 것이 귀속 가능한 결과가 되었다는 뜻이 아닙니다.** 그 사이에는 세 가지 판정이 있습니다: 실제로 실행했는가, 결과가 관측 가능한가, 귀속이 유일한가. 우리는 이 세 상태를 그대로 통계 기준에 넣었습니다 — **선택만 되고 실행되지 않은 것, 로드만 되고 실행되지 않은 것, 여러 스킬이 함께 돌아 귀속이 모호해진 것**을 따로 세고 성공률에 섞지 않습니다. 함께 매 턴 스킬 사용 대장(평균 선택 스킬 수, 귀속 가능한 비율)이 있으므로 모델의 자기 설명을 읽는 대신 '이번 건에서 실제로 어떤 스킬이 일했나'라고 물을 수 있습니다.",
+          "stat": "3상태",
+          "statLabel": "선택 미실행 / 실행 비관측 / 귀속 모호",
+          "tag1": "로드 ≠ 사용",
+          "tag2": "모호성은 별도 계상",
+          "tag3": "매 턴 스킬 사용 대장"
         }
       }
     }
