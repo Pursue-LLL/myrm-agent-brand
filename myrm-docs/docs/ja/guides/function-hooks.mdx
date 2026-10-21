@@ -1,0 +1,82 @@
+---
+title: "関数フック：製品ソースを変えずにエージェントを拡張する"
+description: 4 種類のフック（Python 関数・Shell コマンド・Webhook・LLM 自然言語）が 12 以上のライフサイクルイベントをカバー。SKILL.md での宣言的 YAML マウント、引数書き換え後の再権限チェック、SSRF 防御と署名付き Webhook。
+---
+
+# 関数フック
+
+関数フックは、エージェントのライフサイクルの重要な地点（ツール呼び出しの前後、セッションの開始と終了、サブエージェントの調度）に独自のロジックを注入できます — **製品ソースは一切変更せずに**。すべてのツール呼び出しを監査し、危険な操作を遮断し、引数を書き換え、運用グループへ通知できます。あなたのロジック、あなたのルール。
+
+## 得られるもの
+
+- **4 種類のフックタイプ** — 場面に合う道具を選べます:
+  - **Python 関数（callable）**: プロセス内で登録する async 関数。子プロセスもネットワーク往復もゼロ
+  - **Shell コマンド**: 1 行の shell コマンド。`$ARGUMENTS` は JSON 形式のイベントペイロードとして展開され、**常にデータとして**渡され、shell コードとして解析されることはありません
+  - **HTTP Webhook**: 任意の URL へ POST。SSRF 防御（イントラネット IP の遮断）付き、任意の HMAC-SHA256 署名（`X-Webhook-Signature`、GitHub / Stripe と同じ流儀）、通知系イベントには非ブロッキングの fire-and-forget モード
+  - **LLM スマートフック**: 自然言語で条件を書き、モデルが通過可否を判定（`quick` / `thorough` の 2 段深度）
+- **12 以上の組み込みライフサイクルイベント（実際の Emission 地点付き）+ 任意のカスタムイベントキー** — `pre_tool_use`、`post_tool_use`、`post_tool_use_failure` / `_cancelled`、`session_start`、`session_end`、サブエージェントの start / stop / cancel、`user_turn`、`approval_correction` など。任意のカスタムイベントキーも使えます
+- **宣言的なゼロコードのマウント** — `SKILL.md` の frontmatter にフックを宣言します。**あなたが自分でその技能を選んだときだけ**（スラッシュパネルでの選択、または `[use 技能名]` で始まるメッセージ）フックが有効になり、**そのランのみ**に適用されます。モデルが自分でロードした技能はフックを一切登録しません — サードパーティのフックはあなたの明示的な同意が必要です
+- **コンテキストの発散防止** — フック出力が上限を超えると自動的にファイルへ退避され、注入されるのはプレビューの要約だけです
+- **ラン単位の分離** — フックレジストリはセッションの非同期コンテキスト（ContextVar）で分離され、技能のフックはその実行終了の瞬間に解放されます。並行セッション・連続ラン・他の技能のあいだでフックが継承されることはありません
+- **失敗の分離** — 個々のフックがクラッシュまたはタイムアウトしても、他のフックと本流には一切影響しません。必要ならフック単位で fail-closed を有効にできます
+
+## 二重の安全保証
+
+- **引数書き換え後は自動で権限ゲートを通し直します**: `pre_tool_use` フックが引数を書き換えた（例えば危険コマンドに `--dry-run` を足した）場合、書き換え結果は**実行前に再度コンプライアンスゲートと権限エンジンでレビューされます** — 拡張が承認を迂回するバックドアになることはありません
+- **コマンドフックはエージェントと同じ安全ゲートを通ります**: フックが宣言する shell コマンドは、エージェント自身の shell コマンドと同じ静的コマンド解析器（破壊的コマンド検出、BLOCK / ESCALATE の脅威レベル）を使います。外部ソース（技能 / プラグイン / ユーザー設定）からのフックはより厳格な細い道を通り、standalone モードでは外部ソースに対して既定で fail-closed です
+
+## SKILL.md でフックを宣言する
+
+```yaml
+---
+name: my-audit-skill
+hooks:
+  BeforeToolUse:
+    - script: 'echo "$ARGUMENTS" >> ~/.myrm/audit.log'
+      tools: ["bash_*"]
+  SessionEnd:
+    - url: https://ops.example.com/agent-webhook
+      secret: ${OPS_WEBHOOK_SECRET}
+      fire_and_forget: true
+---
+```
+
+- 認識されるイベント名: `SessionStart`、`SessionEnd`（`Stop` と書いても可）、`BeforeToolUse` / `PreToolUse`、`AfterToolUse` / `PostToolUse`、`PostToolUseFailure`。他の名前はスキップされ、ログに警告が出ます。`hooks` やイベント値の書き方が上の例の構造と異なる（イベント名の下はリスト）場合もスキップされ、警告されます
+- `script` でコマンドフックを、`url` で HTTP フックを構成します。`secret` は HMAC 署名を有効にし、`fire_and_forget` は呼び出しを非ブロッキングにします
+- `tools` はフックが見えるツールを絞ります: パターン 1 つ、またはリスト（`bash_*`、`[bash_*, write_file_tool]`）。実行時のツール名に fnmatch で照合します（bash ツール名は `bash_code_execute_tool`）。`tools` の書き方が不正な場合、そのフックはスキップされ「全ツール一致」に緩められません
+- `failure_mode: fail_closed` は、フックが失敗または拒否された場合に該当の操作をブロックします（既定は `fail_open`: スキップしてログに残す）。`timeout` の単位は秒（既定 10、範囲 1〜600）。無効な項目はスキップされ警告が出ますが、同じ技能の他のフックには影響しません
+
+## コマンドフックの書き方
+
+- **`$ARGUMENTS` はコードではなくデータ**: JSON 形式のイベントペイロード（ひとまとまりの文字列）へ展開され、`HOOK_PAYLOAD` 環境変数で渡されます。悪意あるツール引数やセッション ID が shell コードとして解析されることは決してありません。そのまま書く（`printf "%s" $ARGUMENTS`）か、二重引用符に入れてください。単一引用符の中ならリテラルのまま保持されます。`HOOK_EVENT` にはイベント名が入ります
+- **完全なペイロードは標準入力にも書き出されます**（`cat | jq .tool_name`）。Linux では 1 個の環境変数のサイズに上限があるため、`HOOK_PAYLOAD` が 96 KiB を超えると切り詰められ、長い文字列値は短くされ `"payload_truncated": true` が付きます。全内容を確認したいフック（書き込み中の大きなファイルから鍵を探す等）は標準入力を読んでください
+- **実際に受け取るペイロードではなく、書いたコマンドを基準に審査されます** そのため、同じフックはどのイベントでも同じ審査結果になります。通常の shell 構文（パイプ、リダイレクト、`;`、`$(…)`、`${…}`）はそのまま使えます
+- **すべてのフックに一律で拒否**: 破壊的・権限昇格系のコマンド（`sudo`、`rm -rf /`、`history -c`、`~/.ssh/authorized_keys` やシェル起動ファイルへの書き込み）と、難読化した書き方。**技能 / プラグイン / ユーザー設定からのフックにはさらに追加で拒否**: 人の判断が必要なコマンド（`eval`、`curl … | sh`、`crontab` の変更）
+- **拒否されたフックは失敗として扱われます**: 既定ではスキップしてログに残します。そのフックが `failure_mode: fail_closed` を設定していれば、該当の操作をブロックします
+- **インラインなインタプリタコードは非対応**: `python3 -c …`、`node -e …` は拒否されます。ロジックはスクリプトファイルへ書いて呼び出してください
+
+## イベント早見表
+
+| イベント | 発火タイミング | 典型的な用途 |
+|---------|---------------|-------------|
+| `pre_tool_use` | 各ツール呼び出しの前 | 遮断、監査、引数書き換え |
+| `post_tool_use` / `post_tool_use_failure` / `post_tool_use_cancelled` | 各ツール呼び出しの後（成功 / 失敗 / 取消） | 結果の記録、失敗アラート |
+| `session_start` / `session_end` | セッションのライフサイクル境界 | 初期化、コスト / 使用量の上報 |
+| `subagent_start` / `subagent_stop` / `subagent_cancel_complete` | サブエージェントの調度 | オーケストレーションの可観測性 |
+| `user_turn` | ユーザー入力時（fire-and-forget） | プロンプト単位のログ |
+| `approval_correction` | ユーザーが承認時にツール呼び出し引数を編集（組み込みハンドラなし） | 独自の学習や監査シグナル |
+
+### サブエージェントの開始と終了
+
+サブエージェントの実行ごとに `subagent_start` が発火し、`subagent_stop` で終わります — 失敗・予算切れ・モデルエラー・取消された実行も含めてです。この 1 組だけで、実行ごとの完全な記録を作れます。
+
+- `subagent_start` は `task_id`、`agent_type`、`task_description`、`trace_id` を持ちます
+- `subagent_stop` は `task_id`、`agent_type`、`success`、`status`（`completed` / `failed` / `cancelled` / `pending_approval` など）、`duration_seconds`、`trace_id`、そして `result` か `error` のどちらかを持ちます
+- `trace_id` を使うと、サブエージェントの記録とタスク全体の他の記録を紐づけられます
+- 取消が残り時間を超えて終了フックの実行中に起きた場合、`status` が `cancelled` の `subagent_stop` がもう 1 回届くことがあります。同じ `task_id` では最後の 1 件が正です
+- ハードタイムアウト（設定した `timeout_seconds` の 3 倍）で強制停止されたサブエージェントは、親へは `timed_out` と報告されますが、その `subagent_stop` フック内の status は `cancelled` です
+
+## 延伸読書
+
+- セキュリティモデル全体（サンドボックス、権限エンジン、承認フロー）: [セキュリティアーキテクチャ](/ja/core-concepts/security-architecture)
+- パッケージングと再利用: [Agent Plugins](/ja/guides/agent-templates)
