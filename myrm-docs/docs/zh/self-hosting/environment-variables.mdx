@@ -7,20 +7,13 @@ description: 自托管 Myrm 环境变量完整参考。
 
 通过环境变量配置 Myrm 实例。复制 `.env.example` 为 `.env` 并按需修改。
 
-## 必填
+## LLM 提供商（在 WebUI 中配置，不是环境变量）
 
-| 变量 | 说明 | 示例 |
-|----------|-------------|---------|
-| `OPENAI_API_KEY` | OpenAI API Key（或任意一个 LLM Key） | `sk-...` |
+提供商凭据**不是**环境变量。请在 WebUI 的**设置 > 模型服务**中添加：每个提供商各自保存自己的 Key，
+Myrm 会将其加密存储在本地数据目录（`MYRM_DATA_DIR`，默认 `~/.myrm`）。`.env` 仅承载进程级与运维级配置。
 
-## LLM 提供商
-
-| 变量 | 说明 |
-|----------|-------------|
-| `OPENAI_API_KEY` | OpenAI |
-| `ANTHROPIC_API_KEY` | Anthropic Claude |
-| `DEEPSEEK_API_KEY` | DeepSeek |
-| `GOOGLE_API_KEY` | Google Gemini |
+> 服务端随附的 `.env.example` 写明了同一策略：`.env` 中只放 `[P]` 进程级与 `[O]` 运维级变量；
+> 业务能力（LLM、向量化、搜索、提供商）一律在 WebUI 设置中管理。
 
 ## 应用
 

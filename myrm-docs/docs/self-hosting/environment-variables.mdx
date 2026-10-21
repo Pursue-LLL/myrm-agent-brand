@@ -7,20 +7,14 @@ description: Complete reference of environment variables for self-hosting.
 
 Configure your Myrm instance with environment variables. Copy `.env.example` to `.env` and customize.
 
-## Required
+## LLM Providers (WebUI, not environment variables)
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `OPENAI_API_KEY` | OpenAI API key (or any one LLM key) | `sk-...` |
+Provider credentials are **not** environment variables. Add them in the WebUI under **Settings > Model Service**:
+every provider keeps its own key, and Myrm stores it encrypted in the local data directory (`MYRM_DATA_DIR`,
+`~/.myrm` by default). `.env` carries process and ops settings only.
 
-## LLM Providers
-
-| Variable | Description |
-|----------|-------------|
-| `OPENAI_API_KEY` | OpenAI |
-| `ANTHROPIC_API_KEY` | Anthropic Claude |
-| `DEEPSEEK_API_KEY` | DeepSeek |
-| `GOOGLE_API_KEY` | Google Gemini |
+> The `.env.example` shipped with the server states the same policy: only `[P]` process and `[O]` ops variables
+> belong in `.env`; business capabilities (LLM, embedding, search, providers) live in WebUI Settings.
 
 ## Application
 

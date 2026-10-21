@@ -31,9 +31,11 @@ Open **http://localhost:3000** and add your LLM API key in Settings. Harness com
 git clone https://github.com/Pursue-LLL/myrm-agent.git
 cd myrm-agent
 myrm setup          # uv sync + bun install
-myrm start          # backend (terminal 1)
-cd myrm-agent-frontend && bun run dev   # frontend (terminal 2)
+myrm start          # backend (:8080) + frontend (:3000)
 ```
+
+`myrm start` launches both processes in the background — open <http://localhost:3000> when they are up.
+Run the frontend alone (`cd myrm-agent-frontend && bun run dev`) only when you iterate on the UI itself.
 
 Dev scripts live under `scripts/` in the open-source repo so contributors clone once and run locally.
 
@@ -61,19 +63,12 @@ docker compose --profile app up -d
 
 ## Configuration
 
-Edit `.env` to set your API keys:
+Provider credentials are **not** environment variables. Add them in the WebUI under
+**Settings > Model Service**, where every provider keeps its own key and Myrm stores it encrypted in the local
+data directory (`MYRM_DATA_DIR`, `~/.myrm` by default).
 
-```env
-# LLM Provider (at least one required)
-OPENAI_API_KEY=sk-...
-ANTHROPIC_API_KEY=sk-ant-...
-
-# Optional: Additional providers
-DEEPSEEK_API_KEY=...
-GOOGLE_API_KEY=...
-```
-
-See [Environment Variables](/docs/self-hosting/environment-variables) for the full reference.
+`.env` carries process and ops settings only — port, data directory, sandbox limits — and is described in
+[Environment Variables](/docs/self-hosting/environment-variables).
 
 ## China Mainland Acceleration
 

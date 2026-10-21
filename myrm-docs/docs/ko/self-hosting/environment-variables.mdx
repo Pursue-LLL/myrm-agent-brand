@@ -8,20 +8,14 @@ description: 자체 호스팅을 위한 환경 변수에 대한 전체 참조입
 
 환경 변수를 사용하여 Myrm 인스턴스를 구성합니다. `.env.example`을 `.env`에 복사하고 사용자 정의합니다.
 
-## 필수의
+## LLM 제공업체(WebUI에서 설정, 환경 변수가 아님)
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `OPENAI_API_KEY` | OpenAI API key (or any one LLM key) | `sk-...` |
+제공업체 자격 증명은 **환경 변수가 아닙니다**. WebUI의 **설정 > 모델 서비스**에서 추가하세요. 각 제공업체는
+자체 키를 보관하며, Myrm은 해당 키를 로컬 데이터 디렉터리(`MYRM_DATA_DIR`, 기본값 `~/.myrm`)에 암호화하여
+저장합니다. `.env`에는 프로세스 및 운영 설정만 담깁니다.
 
-## LLM 제공업체
-
-| Variable | Description |
-|----------|-------------|
-| `OPENAI_API_KEY` | OpenAI |
-| `ANTHROPIC_API_KEY` | Anthropic Claude |
-| `DEEPSEEK_API_KEY` | DeepSeek |
-| `GOOGLE_API_KEY` | Google Gemini |
+> 서버와 함께 배포되는 `.env.example`에 동일한 정책이 명시되어 있습니다. `.env`에는 `[P]` 프로세스 및 `[O]`
+> 운영 변수만 두며, 업무 기능(LLM, 임베딩, 검색, 제공업체)은 WebUI 설정에서 관리합니다.
 
 ## 애플리케이션
 

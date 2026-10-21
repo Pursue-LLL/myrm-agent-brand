@@ -31,9 +31,11 @@ myrm start
 git clone https://github.com/Pursue-LLL/myrm-agent.git
 cd myrm-agent
 myrm setup          # uv sync + bun install
-myrm start          # 后端（终端 1）
-cd myrm-agent-frontend && bun run dev   # 前端（终端 2）
+myrm start          # 后端 (:8080) + 前端 (:3000)
 ```
+
+`myrm start` 会在后台同时拉起后端与前端，服务就绪后打开 <http://localhost:3000>。
+只有在前端 UI 本身需要调试时，才单独运行前端（`cd myrm-agent-frontend && bun run dev`）。
 
 开发脚本位于开源仓库的 `scripts/` 下，贡献者克隆一次即可本地运行。
 
@@ -61,19 +63,11 @@ docker compose --profile app up -d
 
 ## 配置
 
-编辑 `.env` 设置 API Key：
+提供商凭据**不是**环境变量。请在 WebUI 的**设置 > 模型服务**中添加：每个提供商各自保存自己的 Key，
+Myrm 会将其加密存储在本地数据目录（`MYRM_DATA_DIR`，默认 `~/.myrm`）。
 
-```env
-# LLM 提供商（至少需要一个）
-OPENAI_API_KEY=sk-...
-ANTHROPIC_API_KEY=sk-ant-...
-
-# 可选：其他提供商
-DEEPSEEK_API_KEY=...
-GOOGLE_API_KEY=...
-```
-
-完整参考见[环境变量](/zh/self-hosting/environment-variables)。
+`.env` 仅承载进程级与运维级配置（端口、数据目录、沙箱资源限制等），详见
+[环境变量](/zh/self-hosting/environment-variables)。
 
 ## 中国大陆加速
 
