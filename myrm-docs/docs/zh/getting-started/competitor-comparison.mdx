@@ -94,6 +94,16 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **新增一条尚未交付的路线图条目**：`topic_08 #480`（技能渐进披露的加载-卸载闭环与选中可追溯套件，**待分析**）。
 - **SSOT**：`temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（技能与插件生态轴主文档，2026-10-22 新增段）· `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`（#480）· `https://x.com/vibelancer/status/2107773037739204914`
 
+## 最新验证快照（2026-10-22 · 记忆该怎么放、怎么改、能不能只看一处：Hermes 记忆五条 + 社区追问 · 我们四项基础能力已与竞品同构，真正的差距只有「判据 / 统一时间线 / 冲突检测 / 边界表述」）
+
+- **触发事件**：X @witcheer（Nous 社区成员）《memory in Hermes Agent, here are five tips》（`https://x.com/witcheer/status/2107866669041283548`，2026-10-08 12:12；**9,317 浏览 / 10 回复 / 8 转推 / 192 赞 / 255 书签**）。本轮用 ChromeAgent :9410 + chrome-devtools MCP 抽取主帖全文 + **10 条回复**。
+- **竞品的五条（可直接照做）**：① **原生记忆默认开**——笔记写 `~/.hermes/memories/MEMORY.md`、你的画像写 `USER.md`，**每个会话开始就载入**；记忆 provider 并行提供语义检索、知识图谱与自动事实抽取（`hermes memory setup` / `status`）。② **记忆完全留在本地**，全部历史对话在 `~/.hermes/state.db`，Agent 可检索。③ **开箱即用的 wiki**：`llm-wiki` 技能**随 Hermes 预装**，把资料做成 `~/wiki` 下互链 markdown，**这个文件夹就是一个 Obsidian vault**。④ **事实进记忆、步骤进技能**（最值得抄的一条判据）：「memory is for facts the agent needs in every session, so they sit in its prompt from the start. a skill loads only when it's relevant, which often makes it the better home for what a recurring task needs」。⑤ **能看能改能审批**：`hermes journey` 把**记忆条目与学到的技能放在同一条时间线**，`journey edit` / `delete` 可纠正；`config.yaml` 里 `memory: write_approval: true` 后**每次保存都要先批准**。
+- **社区补上的三件事（作者没讲）**：@hypermageia「我经常遇到 **Agent 把记忆存错地方、或记录互相冲突**」；@humblyonline（对第 4 条的补充）「有时事实**该进数据库，用 CLI 或 MCP 接上**」；@juliusg「本机跑本地 LLM + Nous 云端代理时，**云端能读本地产物，那还算私有吗**？」
+- **我方现状（均已用真实代码核对）**：**纯文本记忆面同构**（`app/schemas/profile_notes.py:59-60,68-69` 的 `user_content` / `memory_content`，字段描述直写「Updated USER.md content」/「Updated MEMORY.md content」；`app/schemas/markdown_chunker.py:58` 的 `source_path` 默认 `"MEMORY.md"`）· **写入审批已有**（`app/schemas/memory/command_center.py:657`「Candidate memory awaiting user approval or graduation」、`app/schemas/memory/crud.py:93`「Pending memory item awaiting user approval」）· **Obsidian 友好导出已有**（`app/api/wiki/router.py:2905` `export_wiki_vault`、`:2920` `build_wiki_export_zip`）· **记忆侧时间线 + 纠正链已交付**（`temp-docs/materials/MEMORY_ADVANTAGE.md:187`）· 存储可插拔与语义检索 / 知识图谱 / 自动事实抽取（`MEMORY_ADVANTAGE.md:168`）。
+- **我们不宣称的（诚实差距）**：① **没有「这条该放哪」的统一判据**（记忆 / 技能 / 工具 / 知识库四类去处各有机制，但写入前无统一归属判定）② **记忆与技能不在同一条时间线**（技能进化审核在另一套面板）③ **写入前的位置正确性与冲突检测缺位** ④ **「本地 ≠ 私有」这条边界要讲得更硬**（云托管沙箱产物与本机产物的可见性必须说清，不能只说「本地存储」）。
+- **新增一条尚未交付的路线图条目**：`topic_01 #211`（记忆·技能·工件的归属判据与统一时间线套件，**待分析**）。
+- **SSOT**：`temp-docs/materials/MEMORY_ADVANTAGE.md`（记忆与知识体系轴主文档，2026-10-22 新增段）· `temp-docs/roadmap/topic_01_memory_roadmap.md`（#211）· `https://x.com/witcheer/status/2107866669041283548`
+
 ## 最新验证快照（2026-10-21 · 竞品把 Agent 塞进任意设备：Hermes Gadget SDK 的四个可核对机制 · 我方的诚实差距，以及两条尚未交付的路线图条目）
 
 - **触发事件**：社区帖 @adolandev（`https://x.com/adolandev/status/2107813150686888407`）——「Three days ago, Hermes Gadget was an open SDK and a demo. Then the community got hold of it -- shoutout @NousResearch. LilyGO watches. AIPI Lite. Desk gadgets. Old Android phones. People are getting Hermes running on all kinds of devices and sharing their work.」我们把该 SDK 仓库（`external_reference_project/claw/hermes-gadget-sdk`，MIT，v0.2.0）拉到本地逐文件核对。**注意：它是 Hermes 的第三方插件，不是 Nous Research 的官方产品**。
