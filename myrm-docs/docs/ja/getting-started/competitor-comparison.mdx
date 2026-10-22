@@ -11,6 +11,28 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
 **移行における安心ポイント** — SaaS・セルフホスト・デスクトップから自由に選択でき、HermesのスキルはGUI経由のZIPで直接インポート可能です。以下の詳細比較表でチャンネル・メモリ・セキュリティを行単位で確認した上でご検討いただけます。Grok Buildなどのプラグイン中心の製品をお使いの場合、Myrmはモデル・スキル・MCP・サブエージェント・安全プロファイルを**ワンクリックで一括セットアップ**するエージェントパッケージを提供します。ドキュメントとアプリは**6言語**(zh/en/ja/ko/de/zh-TW)に対応しており、WebUI・クラウドホスト・Tauriデスクトップのすべてで、初回アクセス時にブラウザ言語を自動判別します。
 </Note>
 
+## 最新検証スナップショット (2026-10-22 · 透析論文がオフライン利用ログからスキルを掘る · ログは既にある、足りないのは「物差し」 · ついでに我々のロードマップ記述の 1 か所を訂正する)
+
+- **きっかけ**: X @rohanpaul_ai（`https://x.com/rohanpaul_ai/status/2108543003505705304`、2026-10-09 21:00 北京時間。**25 リプライ / 18 リポスト / 87 いいね / 58 ブックマーク**、画像 1 枚）による **TeleTune**（Microsoft + UNC Chapel Hill、`arXiv:2610.05437`）の紹介。本ラウンドでは ChromeAgent :9410 + chrome-devtools MCP で本文と**可視の返信 11 件**を抽出した。
+- **論文よりこの追加で価値があるのは「適用境界の明示」**: 「利用ログには大量の専門知識が入っているが、**目標は記録されず**、**複数のタスクが混在し**、**再生もできない**。Agent Workflow Memory のような初期手法は、目標ラベル付きのサンプルか**リアルタイム環境**を要求する」。做法は、各セッションの目的を推測し、テキストのスキル庫で記録済みの各行動を予測させ、**残したログで精度が上がった編集だけを残す**。対象も明示されている:「利用を記録している製品なら、そこからスキルを掘り出せ」。
+- **コメントの新規 4 件**（同スレッドの残りは既にロードマップ `topic_08 #439` に収録済み）:
+  - @Greg_GL_87（**57 いいね**）:「Would this work for a **Chrome extension that records browser tasks**, or only for the benchmark sites?」—— まさに我々の主戦場に刺さる問い。
+  - @overshadowed_x（43）:「**most skill libraries I see just grow forever**」—— エントロピー。
+  - @lwkfFiki9496664（56）:「real usage logs are usually a **noisy mess**」—— ログのノイズ。
+  - @rafaelibayev（40）:「wonder how it handles users who **do things the weird way on purpose**」—— 異常サンプル。
+- **我々の現状（2026-10-22 に実測して再確認）**:
+  - **前提は我々は満たしている**: セッション軌跡（`myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/review/reviewer.py`）、長期記憶、カン，工件はいずれも既に残っているユーザー活動ログ ——「製品が利用を記録している」は我々に当てはまる。
+  - **足りないのは物差し**: `teacher_forced`、`next_action_accuracy`、残したログの門禁、`progress_gate` を全倉検索して**ヒット 0** ——「この編集で次の行動の確率が上がったか」は、我々の側では**自動計算できる数値になっていない**。
+  - **未解決のまま**: 純プロンプトスキルはサンドボックス検証を飛ばす（`agent/skills/evolution/execution/sandbox_validator.py:64` と `:109`）、ユーザテキスト軌跡が無い場合の「空軌跡」ハードコード（`eval/builder.py:49`）。
+  - **我々の記述の 1 か所を訂正**: 「`evolution_rejections` は書くだけで読まれず、最適化器にも注入されない」と書いたのは 2 つの表を混ぜたものだった。**拒否された教訓は実際に読み戻され次の生成へ注入される**（`agent/skills/evolution/core/engine.py:141` と `:217` → `agent/skills/evolution/pipeline/variant_generator.py:158` と `:259`「Historical Constraints (MUST obey or rejection is guaranteed)」、読取口は `agent/skills/evolution/db/_store_evolution_tracking.py:180`）。一方 `evolution_rejections` 表は**クールダウン判定にのみ**使われる（`agent/skills/evolution/pipeline/screener.py:269`）。
+- **我々が主張しない部分（正直な差距）**:
+  1. **オフラインの残したログによる物差しが無い** ——「この編集で次の行動が正しくなりやすい」とはまだ言えず、論文の中心指標は未実装。
+  2. **論文のように生の行動ログからスキルを掘っていない** —— 我々のスキル進化はセッション復盤とフラストレーション信号が起点であり、「目的を推測して各行動を予測する」段階は無い。
+  3. **ノイズと意図的な異常は未対策** —— ユーザーがわざと奇妙な操作をした，把它蒸留したスキルにしておくと止める仕組みが無い。事後の手当てではなく設計制約にすべきである。
+  4. **対外には宣伝しない** —— 中心能力は未納品のため、materials のみ。
+- **ロードマップ項目は 1 件、ただし新設ではなく増補**: `topic_08 #439`（オフラインテレメトリ軌跡の Teacher-Forced 次行動予測プログレス門禁）—— 論文の機構は既に同条で 1 行ずつ留証されている。本ラウンドは新規コメント 4 件、再確認した欠口状態、そして上記の訂正を追記し、**ログは有るが物差しが無い**ことを明記した。
+- **SSOT**: `temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（スキルとプラグイン生態軸の主文書、2026-10-22 新規節）· `temp-docs/materials/GENERAL_AI_ASSISTANT_COMPETITIVE_ADVANTAGE.md`（競合早見表 26 行目）· `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`（#439）· `https://arxiv.org/abs/2610.05437` · `https://x.com/rohanpaul_ai/status/2108543003505705304`
+
 ## 最新検証スナップショット (2026-10-22 · パッケージマネージャもスキルを導入できるようになった · pnpm v12.11 が Agent Skills を出し、公式ドキュメント自身が代償を書き記した ——「一度の承認は以降のすべてのバージョンを覆う」 · 公式ページを読みonation、我々の答えは「変更ごとに見える」こと)
 
 - **きっかけ**: X @pnpmjs（pnpm 公式アカウント）「pnpm v12.11 can install skills. related docs: https://pnpm.io/agent-skills」（`https://x.com/pnpmjs/status/2108646891902640466`、2026-10-10 03:52 北京時間。**28 リプライ / 71 リポスト / 568 いいね / 130 ブックマーク**、画像 1 枚）。本ラウンドでは ChromeAgent :9410 + chrome-devtools MCP で本文と**可視の返信 17 件**を抽出し、公式ページ pnpm.io/agent-skills を節ごとに読んだ。

@@ -34,6 +34,28 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **一条路线图条目，只做增补不重复开条**：`topic_08 #457`（技能演进的异构评审与有界收敛闭环套件）—— 本轮独立复核了它的核心判断成立，并补上它原本没覆盖的另一半：**解耦评审者还不够，尺子也要解耦**。
 - **SSOT**：`temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（技能与插件生态轴主文档，2026-10-22 新增段）· `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`（#457）· `https://x.com/dingyi/status/2108395750128542180`
 
+## 最新验证快照（2026-10-22 · 微软论文：用离线使用日志挖技能 · 我们早就有这些日志，缺的是那把尺子 · 顺带订正我们路线图里自己写的一处口径）
+
+- **触发来源**：X @rohanpaul_ai（`https://x.com/rohanpaul_ai/status/2108543003505705304`，2026-10-09 21:00 北京时间；**25 回复 / 18 转推 / 87 赞 / 58 书签**，附 1 张图）解读微软 + UNC Chapel Hill 的 **TeleTune**（`arXiv:2610.05437`）。本轮用 ChromeAgent :9410 + chrome-devtools MCP 抽主帖 + **11 条可见回复**。
+- **本帖比论文多讲清的一件事（适用边界）**：「使用日志包含大量专业知识，但它们**不记录目标**、经常**混合多个任务**、且**无法重放**。早期方法（如 Agent Workflow Memory）需要**带目标标注的样本**或**实时环境**来测试改动。」做法是：猜每个会话的目标 → 用文本技能库预测每个记录动作 → **只在留出日志上准确率上升时才保留编辑**。适用对象也被点名：「如果你的产品记录用户活动」。
+- **评论区新增四条**（该线程其余内容已在路线图 `topic_08 #439` 收录）：
+  - @Greg_GL_87（**57 赞**）：「Would this work for a **Chrome extension that records browser tasks**, or only for the benchmark sites?」—— 正好问在我们主战场上。
+  - @overshadowed_x（43）：「**most skill libraries I see just grow forever**」—— 熵增。
+  - @lwkfFiki9496664（56）：「real usage logs are usually a **noisy mess**」—— 日志噪声。
+  - @rafaelibayev（40）：「wonder how it handles users who **do things the weird way on purpose**」—— 异常样本。
+- **我方现状（2026-10-22 逐条实测）**：
+  - **前提我们天然满足**：会话轨迹（`myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/review/reviewer.py`）、长期记忆、看板与工件都是现成的用户活动日志 —— 「产品本来就在记用户活动」这条我们成立。
+  - **缺的是那把尺子**：全仓检索 `teacher_forced`、`next_action_accuracy`、留出日志门禁与 `progress_gate` **零命中** —— 「改完之后到底更好了吗」在我们这边**还不是一个能自动算出来的数**。
+  - **仍开着**：纯提示词技能跳过沙箱验证（`agent/skills/evolution/execution/sandbox_validator.py:64` 与 `:109`）；无用户文本轨迹时的「空轨迹」硬编码回退（`eval/builder.py:49`）。
+  - **订正我们自己的一处口径**：我们此前写「`evolution_rejections` 只写不读、从未注入优化器」—— 这把两张表混为一谈了。**被拒教训确实会读回并注入下一次生成**（`agent/skills/evolution/core/engine.py:141` 与 `:217` → `agent/skills/evolution/pipeline/variant_generator.py:158` 与 `:259`「Historical Constraints (MUST obey or rejection is guaranteed)」，读回接口 `agent/skills/evolution/db/_store_evolution_tracking.py:180`），而 `evolution_rejections` 表**只用于冷却期判定**（`agent/skills/evolution/pipeline/screener.py:269`）。
+- **我们不宣称的部分（诚实差距）**：
+  1. **没有离线留出判据** —— 我们还不能说「这次技能编辑让下一个动作更可能被做对」，论文的核心指标未实现。
+  2. **我们没有像论文那样从原始动作日志挖技能** —— 我们的技能演化由会话复盘与挫败信号触发，没有「猜目标 → 逐动作预测」这一步。
+  3. **噪声与故意异常尚无对策** —— 用户有意为之的怪操作目前没有任何机制阻止它被蒸馏成技能；这必须进该条的设计约束，而不是事后补丁。
+  4. **不对外宣传** —— 核心能力未交付，只进 materials。
+- **一条路线图条目，只做增补不重复开条**：`topic_08 #439`（离线遥测轨迹 Teacher-Forced 下一动作预测进度门禁套件）—— 论文机制早已在该条逐段留证；本轮补入四条新评论、复核后的缺口状态与上面那处订正，并明确写下：**我们的日志已经有了，尺子还没有**。
+- **SSOT**：`temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（技能与插件生态轴主文档，2026-10-22 新增段）· `temp-docs/materials/GENERAL_AI_ASSISTANT_COMPETITIVE_ADVANTAGE.md`（竞品对照速查表第 26 行）· `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`（#439）· `https://arxiv.org/abs/2610.05437` · `https://x.com/rohanpaul_ai/status/2108543003505705304`
+
 ## 最新验证快照（2026-10-22 · 包管理器也能装技能了 · pnpm v12.11 发布 Agent Skills，而它自己的文档就写明了代价：一次批准覆盖后续所有版本 · 我们读了官方文档，我们的答案是「逐次改动可见」）
 
 - **触发来源**：X @pnpmjs（pnpm 官方账号）：「pnpm v12.11 can install skills. related docs: https://pnpm.io/agent-skills」（`https://x.com/pnpmjs/status/2108646891902640466`，2026-10-10 03:52 北京时间；**28 回复 / 72 转推 / 568 赞 / 130 书签**，附 1 张图）。本轮用 ChromeAgent :9410 + chrome-devtools MCP 抽取主帖与 **17 条可见回复**，并逐段读了官方文档 pnpm.io/agent-skills。

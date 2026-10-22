@@ -11,6 +11,28 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보안을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-10-22 · MS 논문이 오프라인 사용 기록에서 스킬을 발굴 · 우리는 이미 그 기록을 갖고 있고, 없는 것은 '자'다 · 아울러 우리 로드맵 서술의 한 곳을 바로잡는다)
+
+- **계기**: X @rohanpaul_ai(`https://x.com/rohanpaul_ai/status/2108543003505705304`, 2026-10-09 21:00(베이징). **25 리플 / 18 리포스트 / 87 좋아요 / 58 북마크**, 이미지 1장)가 **TeleTune**(Microsoft + UNC Chapel Hill, `arXiv:2610.05437`)을 소개. 이번 라운드에서는 ChromeAgent :9410 + chrome-devtools MCP로 본문과 **보이는 리플 11개**를 추출했다.
+- **논문보다 이 글의 가치가 있는 지점 — 적용 경계의 명시**: "사용 기록에는 전문 지식이 산더미지만 **목표는 기록되지 않고**, **여러 작업이 섞여 있으며**, **재생도 불가능**합니다. Agent Workflow Memory 같은 초기 방법은 목표 라벨이 붙은 예시나 **실시간 환경**을 요구합니다." 방식은 세션마다 목적을 추측해 텍스트 스킬 라이브러리로 기록된 각 행동을 예측하고, **보류 로그에서 정확도가 오른 편집만 남깁니다.** 대상도 명시했습니다: "사용 기록을 남기는 제품이라면 거기서 스킬을 발굴하세요."
+- **댓글의 신규 4건**(해당 스레드의 나머지는 이미 로드맵 `topic_08 #439`에 수록됨):
+  - @Greg_GL_87(**좋아요 57**): "Would this work for a **Chrome extension that records browser tasks**, or only for the benchmark sites?" — 정�� 우리 주전장에 꽂히는 질문.
+  - @overshadowed_x(43): "**most skill libraries I see just grow forever**" — 엔트로피.
+  - @lwkfFiki9496664(56): "real usage logs are usually a **noisy mess**" — 로그 노이즈.
+  - @rafaelibayev(40): "wonder how it handles users who **do things the weird way on purpose**" — 이상 샘플.
+- **우리 쪽(2026-10-22 실제 코드로 재확인)**:
+  - **전제는 우리는 이미 충족**: 세션 트라젝토리(`myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/review/reviewer.py`), 장기 기억, 보드, 산출물은 모두 이미 남겨 둔 사용자 활동 로그 — "제품이 사용을 기록한다"는 우리에게 성립한다.
+  - **없는 것은 '자'다**: `teacher_forced`, `next_action_accuracy`, 보류 로그 게이트, `progress_gate` 전仓 검색 결과 **히트 0** — "이 편집이 다음 행동을 더 잘 맞게 만들었나"가 아직 자동 계산되는 숫자가 아니다.
+  - **열린 상태 유지**: 순수 프롬프트 스킬은 샌드박스 검증을 건너뛴다(`agent/skills/evolution/execution/sandbox_validator.py:64` 와 `:109`), 사용자 텍스트 트라젝토리 없을 때의 "빈 트라젝토리" 하드코딩(`eval/builder.py:49`).
+  - **우리 서술 한 곳 정정**: "`evolution_rejections`는 쓰기만 하고 읽히지 않으며 최적화기에 주입되지 않는다"는 서술이 두 표를 섞은 것이었다. **거절된 교훈은 실제로 되읽혀 다음 생성에 주입된다**(`agent/skills/evolution/core/engine.py:141` 과 `:217` → `agent/skills/evolution/pipeline/variant_generator.py:158` 과 `:259` "Historical Constraints (MUST obey or rejection is guaranteed)", 읽기 경로는 `agent/skills/evolution/db/_store_evolution_tracking.py:180`). 반면 `evolution_rejections` 표는 **쿨다운 판단에만** 쓰인다(`agent/skills/evolution/pipeline/screener.py:269`).
+- **우리가 주장하지 않는 것(정직한 차이)**:
+  1. **오프라인 보류 로그 판정 도구가 없다** — "이 편집이 다음 행동을 더 맞게 만들었다"고 말할 수 없고, 논문의 핵심 지표는 미구현.
+  2. **논문처럼 원본 행동 로그에서 스킬을 발굴하지 않는다** — 우리 스킬 진화는 세션 회고와 좌절 신호에서 출발하며 "목표 추론 → 행동별 예측" 단계가 없다.
+  3. **노이즈와 의도적 이상 동작에 대응하지 못한다** — 사용자가 일부러 이상하게 조작한 행동을 스킬로 증류시키는 것을 막는 장치가 없다. 사후 패치가 아니라 설계 제약으로 다뤄야 한다.
+  4. **홍보하지 않는다** — 핵심 능력이 인도되지 않았으므로 materials에만 적는다.
+- **로드맵 항목 1건, 신규가 아니라 보강**: `topic_08 #439`(오프라인 텔레메트리 트라젝토리 Teacher-Forced 다음 행동 예측 진행 게이트) — 논문 메커니즘은 이미 이 항목에 한 줄씩 남아 있다. 이번 라운드에는 신규 댓글 4건, 재확인한 결함 상태, 위 정정을 덧붙이고 **로그는 있는데 자는 없다**를 분명히 적었다.
+- **SSOT**: `temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`(스킬·플러그인 생태축 주 문서, 2026-10-22 신규 절) · `temp-docs/materials/GENERAL_AI_ASSISTANT_COMPETITIVE_ADVANTAGE.md`(경쟁사 요약표 26행) · `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`(#439) · `https://arxiv.org/abs/2610.05437` · `https://x.com/rohanpaul_ai/status/2108543003505705304`
+
 ## 최신 검증 스냅샷 (2026-10-22 · 패키지 매니저도 이제 스킬을 설치할 수 있게 됨 · pnpm v12.11이 Agent Skills를 내놓았고, 공식 문서가 스스로 대가를 적어 놓음 — "한 번 승인은 이후 모든 버전을 덮는다" · 공식 문서를 읽고 나서 우리가 드리는 답은 "변경마다 보이는 것")
 
 - **계기**: X @pnpmjs(pnpm 공식 계정) "pnpm v12.11 can install skills. related docs: https://pnpm.io/agent-skills"(`https://x.com/pnpmjs/status/2108646891902640466`, 2026-10-10 03:52(베이징). **28 리플 / 72 리포스트 / 568 좋아요 / 130 북마크**, 이미지 1장). 이번 라운드에서는 ChromeAgent :9410 + chrome-devtools MCP로 본문과 **보이는 리플 17개**를 추출하고, 공식 문서 pnpm.io/agent-skills를 문단별로 읽었다.
