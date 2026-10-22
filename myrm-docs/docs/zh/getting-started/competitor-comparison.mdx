@@ -34,6 +34,26 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **一条路线图条目，只做增补不重复开条**：`topic_08 #457`（技能演进的异构评审与有界收敛闭环套件）—— 本轮独立复核了它的核心判断成立，并补上它原本没覆盖的另一半：**解耦评审者还不够，尺子也要解耦**。
 - **SSOT**：`temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（技能与插件生态轴主文档，2026-10-22 新增段）· `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`（#457）· `https://x.com/dingyi/status/2108395750128542180`
 
+## 最新验证快照（2026-10-22 · 竞品给 2027 总统候选人做语音辩论陪练 · 我们核对了源码：Hermes 只提供语音底座，最出彩的那部分并不存在 · 我们这边是完整闭环 —— 实时语音、对齐看板真相的复盘、以及能留下经验的技能）
+
+- **触发来源**：X @leploutos（`https://x.com/leploutos/status/2108497163688779891`，2026-10-09 17:57 北京时间；**56 回复 / 31 转推 / 276 赞 / 117 书签**），法语原帖：2027 法国总统候选人团队请作者用 **Hermes Agent** 做一个**辩论与政治访谈模拟器**。每次会话前 Agent 扮演一名不留情面的记者（点名模仿 @PascalPraud 的风格）并带着上下文进场 —— 谁在提问、谁是对手、当前政治局势，**尤其是候选人的弱点**；随后候选人**用语音与 AI 对抗 10 到 20 分钟**，模拟记者与对手轮流施压把他逼入死角；会后 Agent 打分（不只看回答内容，还看**情绪、停顿、「呃」、犹豫**），产出给候选人与传播团队的改进清单报告，这份报告成为团队备战下一场辩论的共同底稿。本轮用 ChromeAgent :9410 + chrome-devtools MCP 抽取主帖与 **27 条可见回复**，再逐文件检索源码镜像 `external_reference_project/claw/hermes-agent`。
+- **源码给出的事实（本快照的重点）**：
+  1. **Hermes 的语音是「打包的可选件」，不是产品面** —— `pm/extras.py:28-34` 把 `edge-tts`、`neutts`、`kittentts`、`tts-premium`（elevenlabs）、`voice`（faster_whisper）、`stt-whisper` 做成 extras；`pm/packages.py:1318-1327` 为 Windows ARM64 备 whisper.cpp 本地 STT；`ui-tui/README.md:268` 提供 `/voice` 命令。
+  2. **最出彩的那部分根本不在 Hermes 里** —— 全仓检索 `emotion`、`filler`、`hesitat`、`prosody` 与语音语义级 `sentiment` **零命中**（`pm/store.py` 的 `pause_event` 是下载取消事件，与语音停顿无关），角色化陪练与复盘报告也**都是作者自建**。⇒ **这条帖不能记成竞品机制，只能记成一条真实付费需求**（团队内部已在用）。
+  3. **评论区的锋利质疑**（@0xR4vens 171 赞：「情绪与语气分析用的什么工具？也自托管吗？」；@patrickflouriot 201 赞：「用 Agent 的意义是什么？每个人在 ChatGPT 上不都能做吗？」；@its_hebilicious 166 赞：「怎么收费？工具访问还是交付试点代码？」「语音用 Eleven Labs 吗？」「模型有什么要求？」；@romainbiava 117 赞：「第一个真正不用人工复核的流程是哪个？」；@somekindofuser 83 赞：接这类单子的伦理）。
+- **我方现状（经真实代码核对）** —— 同一需求，我们已是闭环：
+  - **实时语音四模式** —— 浏览器经 WebRTC 直连 OpenAI Realtime（**API key 不出浏览器**）；**Voice Agent Bridge** 在 STT 出终稿时**服务端直接调 Agent**，流式输出按句切分实时送 TTS；第四模式是 Gemini Live（`myrm-agent/myrm-agent-server/app/api/voice/realtime.py:1-11`、`app/api/voice/agent_bridge.py:1-9`、`app/api/voice/gemini_live.py`）。
+  - **双向语音通道** —— 入站 TwiML → ConversationRelay WebSocket → STT，出站文本 → WebSocket → TTS（`app/channels/providers/voice_channel.py:1-6`）。
+  - **全离线零 API 语音** —— 本地 Piper TTS + faster-whisper STT + 本地模型：**0 字节出机、0 元账单**（`app/channels/voice/tts.py:20,83-86`、`app/api/health/router.py:150-167`）。对候选人的语音与政治观点来说，这不是加分项，而是**能不能入场的门槛**。
+  - **复盘是真工件，不是聊天气泡** —— `/memo` 把语音备忘拆成四份资产（Markdown 纪要 + 看板待办 + 记忆事实 + Excel 数据表），配 Actionability 门禁与确定性幂等键；`/review-week` 拉全跨会话素材、按严格时间窗收敛、**与真实看板交叉比对**、按四维根因归因并落成 Markdown 报告工件（`app/channels/routing/command_defs.py:278-279` 与 `:288`）。
+  - **经验不会随会话蒸发** —— 轨迹复盘把这次陪练沉淀成可复用技能，且有改进闸与回归门禁兜底（`myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:430`、`agent/skills/evolution/infra/integration.py:255`）。
+- **我们不宣称的部分（诚实差距）**：
+  1. **没有非言语表现分析** —— 情绪、停顿、口头禅、语速在**竞品镜像里零命中、在我方也零命中**，演示里那套是手工自建；**双方都没有**，因此只登记为需求，不作可借鉴机制。
+  2. **没有开箱即用的「对手陪练」产品形态** —— 我们能做 persona 与多角色编排，但没有一个现成的「记者 / 对手」陪练器。
+  3. **我们的复盘面向工作与项目**（看板、记忆、工件、周报），**不是个人表现评估**，两者不混为一谈。
+- **一条路线图条目，只做增补不重复开条**：`topic_16 #84`（本地优先音视频引擎）—— 本轮补入：竞品的语音是打包可选件、我们的实时语音桥与复盘闭环已交付、以及**隐私与自托管必须写进价值主张本身**而不是脚注。
+- **SSOT**：`temp-docs/materials/VOICE_MULTIMODAL_ADVANTAGE.md`（语音多模态轴 SSOT，2026-10-22 新增段）· `temp-docs/materials/GENERAL_AI_ASSISTANT_COMPETITIVE_ADVANTAGE.md`（竞品对照速查表第 23 行）· `temp-docs/roadmap/topic_16_office_agent_specialty_suites_and_deliverable_bundle_roadmap.md`（#84）· `https://x.com/leploutos/status/2108497163688779891`
+
 ## 最新验证快照（2026-10-22 · 竞品把 Word / Excel / PowerPoint 装进操作系统 · 我们逐行核对了它的源码 —— 它不是从零自研，安全网只是一条撤销栈 · 我们这边是「写完自动体检」+「可退到任意一版」）
 
 - **触发来源**：X @iamlukethedev（`https://x.com/iamlukethedev/status/2108520360052433317`，2026-10-09 19:30 北京时间；**5,701 查看 / 21 回复 / 10 转推 / 102 赞 / 64 书签**，附 0:55 演示视频）：「I just built Word, Excel, and PowerPoint into Herald OS … 'Make this document more professional.' Hermes rewrites it. 'Calculate my monthly expenses.' Hermes builds the formulas. 'Turn this document into slides.' Hermes creates the deck. Supports opening and saving .docx, .xlsx and .pptx files. No subscription. No switching between apps. Free and open source.」本轮用 ChromeAgent :9410 + chrome-devtools MCP 抽取主帖、视频缩略图与 **14 条可见回复**，再把源码镜像 `external_reference_project/desktop/Herald-OS` 拉到本地逐文件核对。

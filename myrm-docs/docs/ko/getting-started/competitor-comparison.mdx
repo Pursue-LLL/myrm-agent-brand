@@ -11,6 +11,26 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보안을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-10-22 · 경쟁사가 2027년 대통령 후보자를 위한 음성 토론 리허설을 돌림 · 소스를 확인해 보니 Hermes가 가진 건 음성 밑부분뿐이고, 데모에서 가장 인상적이었던 부분은 실제로 없음 · 우리는 실시간 음성, 보드와 대조하는 회고, 교훈을 남기는 스킬까지 완결된 고리를 가짐)
+
+- **계기**: X @leploutos(`https://x.com/leploutos/status/2108497163688779891`, 2026-10-09 17:57(베이징). **56 리플 / 31 리포스트 / 276 좋아요 / 117 북마크**). 2027년 프랑스 대통령 후보자 팀이 작성자에게 **Hermes Agent**로 **토론·정치 인터뷰 시뮬레이터**를 만들어 달라고 맡겼습니다. 매 세션 전에 에이전트가 가차 없는 기자 역할(누구냐면 @PascalPraud 스타일을 언급하며)을 겸해 들어오고, 누가 물어보고 누가 상대인지, 지금의 정치 상황, 그리고 무엇보다 **후보자의 약점**을 단서로 듭니다. 후보자는 **음성으로 10분에서 20분** AI와 대결하고, 가짜 기자와 상대가 번갈아 몰아붙입니다. 세션이 끝나면 에이전트가 채점합니다(답변 내용뿐 아니라 **감정, 침묵, "어", 망설임**까지) 그리고 후보자와 홍보팀을 위한 개선 항목 보고서를 내며, 이 보고서가 다음 토론 준비의 공통 밑원이 됐습니다. 이번 라운드에서는 ChromeAgent :9410 + chrome-devtools MCP로 본문과 **보이는 리플 27개**를 추출하고 소스 미러 `external_reference_project/claw/hermes-agent`를 파일 단위로 검색했다.
+- **소스가 말해주는 것(이 스냅샷의 핵심)**:
+  1. **Hermes의 음성은 "패키징된 추가 기능"이지 제품 면이 아님** — `pm/extras.py:28-34`이 `edge-tts`, `neutts`, `kittentts`, `tts-premium`(elevenlabs), `voice`(faster_whisper), `stt-whisper`를 extras로 두고, `pm/packages.py:1318-1327`은 Windows ARM64용 whisper.cpp 로컬 STT를, `ui-tui/README.md:268`은 `/voice` 명령을 제공한다.
+  2. **가장 인상적이었던 부분은 Hermes에 없음** — 미러 전체에서 `emotion`, `filler`, `hesitat`, `prosody`, 음성 의미상의 `sentiment`를 검색하면 **히트 0**(`pm/store.py`의 `pause_event`는 다운로드 취소 이벤트이지 음성 침묵이 아니다). 상대 역할 연습과 복기 보고서도 **모두 작성자가 직접 만든 것**이다. ⇒ **이 게시물은 경쟁사 기능으로 기록하면 안 되고, 실수요로 기록해야 한다**(팀 내부에서 이미 실제 사용 중).
+  3. **댓글의 날카로운 질문**(@0xR4vens 좋아요 171: "감정과 어조 분석은 뭘 쓰는데? 그것도 셀프호스트까지 하나요?"、@patrickflouriot 201: "여기서 agent의 의미가 뭔가요? ChatGPT로도 다 할 수 있는 거 아닌가요?"、@its_hebilicious 166: "어떻게 과금했나요? 도구 접근권인가요 파일럿 코드를 넘긴 건가요?" "음성은 Eleven Labs인가요?" "모델 제약이 있었나요?"、@romainbiava 117: "사람이 손으로 다시 검토하지 않고 진짜 맡긴 첫 흐름은 무엇인가요?"、@somekindofuser 83: 이런 계약의 윤리 문제).
+- **우리 쪽(실제 코드로 확인)** — 같은 수요는 이미 닫힌 고리:
+  - **실시간 음성 4가지 모드** — 브라우저가 WebRTC로 OpenAI Realtime에 직접 붙고(**API 키는 브라우저를 나가지 않음**), **Voice Agent Bridge**가 STT가 확정 문장을 내는 즉시 **서버에서 Agent를 직접 호출**해 스트림 출력을 문장 단위로 잘라 실시간 TTS로 넘긴다. 네 번째는 Gemini Live(`myrm-agent/myrm-agent-server/app/api/voice/realtime.py:1-11`, `app/api/voice/agent_bridge.py:1-9`, `app/api/voice/gemini_live.py`).
+  - **양방향 음성 채널** — 수신 TwiML → ConversationRelay WebSocket → STT, 발신 텍스트 → WebSocket → TTS(`app/channels/providers/voice_channel.py:1-6`).
+  - **완전 오프라인, API 불필요 음성** — 로컬 Piper TTS와 faster-whisper STT, 로컬 모델로 **밖으로 나가는 바이트 0, API 비용 0**(`app/channels/voice/tts.py:20,83-86`, `app/api/health/router.py:150-167`). 후보자의 음성과 정치적 발언에 대해서는 점수 추가가 아니라 **입장 조건**이다.
+  - **회고는 진짜 산출물** — `/memo`는 음성 메모를 네 가지 자산(Markdown 회의록, 보드 할 일, 기억 사실, Excel 시트)으로 분해하고 Actionability 게이트와 결정적 멱등 키를 함께 쓰고, `/review-week`는 세션 전반의 소재를 모아 엄격한 시간창으로 좁힌 뒤 **실제 보드와 대조**하고 4차원 근본 원인으로 분류해 Markdown 보고서 산출물로 남긴다(`app/channels/routing/command_defs.py:278-279` 와 `:288`).
+  - **교훈이 세션과 함께 사라지지 않음** — 궤적 회고가 재사용 가능한 스킬로 정제되고 개선 게이트와 회귀 게이트가 그 품질을 지킨다(`myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:430`, `agent/skills/evolution/infra/integration.py:255`).
+- **우리가 주장하지 않는 것(정직한 차이)**:
+  1. **비언어 표현 분석이 없음** — 감정, 침묵, 습관어, 말 속도는 **경쟁사 미러에서도 우리 쪽에서도 히트 0**. 데모의 그것은 손으로 만든 것이고 **양쪽 다 없으니** 빌려올 수 있는 장치가 아니라 수요로 기록한다.
+  2. **바로 쓸 수 있는 "상대 역할 연습" 형태가 없음** — persona와 여러 역할 오케스트레이션은 할 수 있지만, 준비된 기자·상대 상대역 훈련 도구는 없다.
+  3. **우리의 회고는 업무와 프로젝트 지향**(보드, 기억, 산출물, 주간 보고)이며 **개인 평가 도구가 아님** — 둘을 같은 것으로 말하지 않는다.
+- **로드맵 항목 1건, 신규가 아니라 보강**: `topic_16 #84`(로컬 우선 오디오·비주얼 엔진) — 이번 라운드에 더하는 것은 경쟁사의 음성이 패키징된 추가 기능이라는 점, 우리의 실시간 음성 브리지와 회고 고리가 이미 구현됐다는 점, 그리고 **프라이버시(셀프호스트)는 각주가 아니라 가치 제안 본문에 써야 한다**는 점이다.
+- **SSOT**: `temp-docs/materials/VOICE_MULTIMODAL_ADVANTAGE.md`(음성 멀티모달 축 SSOT, 2026-10-22 신규 절) · `temp-docs/materials/GENERAL_AI_ASSISTANT_COMPETITIVE_ADVANTAGE.md`(경쟁사 요약표 23행) · `temp-docs/roadmap/topic_16_office_agent_specialty_suites_and_deliverable_bundle_roadmap.md`(#84) · `https://x.com/leploutos/status/2108497163688779891`
+
 ## 최신 검증 스냅샷 (2026-10-22 · 경쟁사가 Word / Excel / PowerPoint를 OS 안에 넣어버림 · 소스를 한 줄씩 확인한 결과, 처음부터 만든 제품이 아니라 안전망은 undo 스택 하나뿐이었음 · 우리는 "쓰고 나면 자동 점검"과 "어느 판으로든 되돌리기"를 가짐)
 
 - **계기**: X @iamlukethedev(`https://x.com/iamlukethedev/status/2108520360052433317`, 2026-10-09 19:30(베이징). **5,701 조회 / 21 리플 / 10 리포스트 / 102 좋아요 / 64 북마크**, 0:55 데모 영상 포함). "I just built Word, Excel, and PowerPoint into Herald OS … 'Make this document more professional.' Hermes rewrites it. 'Calculate my monthly expenses.' Hermes builds the formulas. 'Turn this document into slides.' Hermes creates the deck. Supports opening and saving .docx, .xlsx and .pptx files. No subscription. No switching between apps. Free and open source." 이번 라운드에서는 ChromeAgent :9410 + chrome-devtools MCP로 본문과 영상 썸네일, **보이는 리플 14개**를 추출한 뒤 소스 미러 `external_reference_project/desktop/Herald-OS`를 받아 파일 단위로 확인했다.

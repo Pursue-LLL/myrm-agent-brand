@@ -11,6 +11,26 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
 **移行における安心ポイント** — SaaS・セルフホスト・デスクトップから自由に選択でき、HermesのスキルはGUI経由のZIPで直接インポート可能です。以下の詳細比較表でチャンネル・メモリ・セキュリティを行単位で確認した上でご検討いただけます。Grok Buildなどのプラグイン中心の製品をお使いの場合、Myrmはモデル・スキル・MCP・サブエージェント・安全プロファイルを**ワンクリックで一括セットアップ**するエージェントパッケージを提供します。ドキュメントとアプリは**6言語**(zh/en/ja/ko/de/zh-TW)に対応しており、WebUI・クラウドホスト・Tauriデスクトップのすべてで、初回アクセス時にブラウザ言語を自動判別します。
 </Note>
 
+## 最新検証スナップショット (2026-10-22 · 競争相手が 2027 年大統領候補者向けに音声の討論リハーサルを走らせた · ソースを確認すると、Hermes が持つのは音声の土台だけで、デモで最も光っていた部分は実際には無い · 我々はリアルタイム音声・盤面と照合するふりかえり・学びを残すスキルという閉ループを持つ)
+
+- **きっかけ**: X @leploutos (`https://x.com/leploutos/status/2108497163688779891`、2026-10-09 17:57 北京時間。**56 リプライ / 31 リポスト / 276 いいね / 117 ブックマーク**)。2027 年フランス大統領候補者のチームが作者に **Hermes Agent** での **討論・政治インタビュー模擬装置** の制作を依頼した。セッション前に agent は容赦のない記者役（@PascalPraud のスタイルを名指しでまね）を演じ、誰が問うのか、誰が相手か、今の政治情况、そして**候補者の弱点**を持ち込んで場に入る。候補者は**音声で 10 から 20 分**AI と対峙し、模擬記者と相手が交代で仕掛けて窮地将させる。終えると agent が採点し（答えの中身だけでなく**感情・間・うirected「えっと」・迷い**も）、候補者と広報チーム向けの改善リストを出し、その報告が次の討論準備の共有土台になった。本ラウンドでは ChromeAgent :9410 + chrome-devtools MCP で本文と**可視の返信 27 件**を抽出し、ソースミラー `external_reference_project/claw/hermes-agent` を 1 ファイルずつ検索した。
+- **ソースが示すこと（本スナップショットの要点）**:
+  1. **Hermes の音声は「梱包された追加機能」であって製品面ではない** —— `pm/extras.py:28-34` が `edge-tts`、`neutts`、`kittentts`、`tts-premium`(elevenlabs)、`voice`(faster_whisper)、`stt-whisper` を extras として用意し、`pm/packages.py:1318-1327` が Windows ARM64 向けの whisper.cpp ローカル STT を、`ui-tui/README.md:268` が `/voice` コマンドを用意している。
+  2. **最も光っていた部分は Hermes には無い** —— ミラー全体から `emotion`、`filler`、`hesitat`、`prosody`、音声意味の `sentiment` を検索すると**ヒット 0**（`pm/store.py` の `pause_event` はダウンロードの中止イベントで、音声の間ではない）。演じた役割も評価レポートも**すべて作者が自前制作**したものである。⇒ **この投稿は競合の機構として記録してはならず、動機として記録すべき案件である**（チーム内で既に実運用されている）。
+  3. **コメント欄の鋭い問い**（@0xR4vens いいね 171：「感情やトーンの分析には何を使っている？　セルフホストもある？」、@patrickflouriot 201：「ここで agent の意味は？　ChatGPT で直接できるのでは？」、@its_hebilicious 166：「請求はどうした？　ツール利用料か、riksert を渡した形か」「音声は Eleven Labs か」「モデルの制約は？」、@romainbiava 117：「手作業での再確認なしで本当に任せられた最初の流れはどれか？」、@somekindofuser 83：ethical 面の疑虑）。
+- **我々の現状（実コードで確認）** —— 同じ需要はすでに閉ループである:
+  - **リアルタイム音声 4 モード** —— ブラウザが WebRTC で OpenAI Realtime に直接繋がる（**API key はブラウザに出ない**）。**Voice Agent Bridge** は STT が確定文を出した瞬間に**サーバー側で Agent を直接呼び**、ストリーム出力を文ごとに分割してリアルタイムに TTS へ渡す。4 つめは Gemini Live（`myrm-agent/myrm-agent-server/app/api/voice/realtime.py:1-11`、`app/api/voice/agent_bridge.py:1-9`、`app/api/voice/gemini_live.py`）。
+  - **双方向音声チャンネル** —— 入着 TwiML → ConversationRelay WebSocket → STT、出着テキスト → WebSocket → TTS（`app/channels/providers/voice_channel.py:1-6`）。
+  - **完全オフラインで API 従属なしの音声** —— ローカル Piper TTS + faster-whisper STT + ローカルモデルで、**外へ出るバイト 0、API 費用 0**（`app/channels/voice/tts.py:20,83-86`、`app/api/health/router.py:150-167`）。候補者の音声と政治的発言にとって、これは加点要素ではなく**参加できるかどうかの入場条件**である。
+  - **ふりかえりは本物の成果物** —— `/memo` は音声メモを 4 つの資産（Markdown の議事録・盤面の todo・記憶事実・Excel シート）へ分解し、Actionability ゲートと決定的な冪等鍵を添えて、`/review-week` はセッション横断の素材全体を集めて厳密な時間窓で絞り、**実際の盤面と突き合わせ**、4 次元の根本原因で分類し、Markdown のレポート成果物として残す（`app/channels/routing/command_defs.py:278-279` と `:288`）。
+  - **学びはセッションとともに消えない** —— 軌跡のふりかえりが再利用できるスキルへ蒸留され、改善ゲートと回帰ゲートがその品質を守る（`myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:430`、`agent/skills/evolution/infra/integration.py:255`）。
+- **我々が主張しない部分（正直な差距）**:
+  1. **非言語Guarantee ではなく、非言語の表現分析は無い** —— 感情・間・う分配的語・話す速さは**競合ミラーでも我方でもヒット 0**。デモ版は手自社製であり、**どちらにも無い**ので、借用できる機構ではなく需要として記録する。
+  2. **「対抗相手役の sparring」製品形态が無い** —— persona と複数役の連携は作れるが、「記者役」「相手役」の練習相手になる製品が無い。
+  3. **我々のふりかえりは仕事とプロジェクト面向**（盤面・記憶・成果物・週報）であり、**個人のパフォーマンス評価ではない**。両者を同じものとしない。
+- **ロードマップ項目は 1 件、ただし新設ではなく増補**: `topic_16 #84`（local-first の音声映像エンジン）—— このラウンドで加えるのは、競合の音声が梱包された追加機能であること、我々のリアルタイム音声ブリッジとふりかえり閉ループはすでに実装済みであること、そして**プライバシー（セルフホスト）は注記ではなく価値主張本体に書くべき**こと。
+- **SSOT**: `temp-docs/materials/VOICE_MULTIMODAL_ADVANTAGE.md`（音声マルチモーダル軸 SSOT、2026-10-22 新規節）· `temp-docs/materials/GENERAL_AI_ASSISTANT_COMPETITIVE_ADVANTAGE.md`（競合早見表 23 行目）· `temp-docs/roadmap/topic_16_office_agent_specialty_suites_and_deliverable_bundle_roadmap.md`（#84）· `https://x.com/leploutos/status/2108497163688779891`
+
 ## 最新検証スナップショット (2026-10-22 · 競争相手が Word / Excel / PowerPoint を OS に入れた · ソースを 1 行ずつ確認した結果、ゼロから起こした製品ではなく、安全網は undo スタックだけだった · 我々は「書き終えたら自動点検」と「任意の版へ戻せる」を持つ)
 
 - **きっかけ**: X @iamlukethedev (`https://x.com/iamlukethedev/status/2108520360052433317`、2026-10-09 19:30 北京時間。**5,701 閲覧 / 21 リプライ / 10 リポスト / 102 いいね / 64 ブックマーク**、0:55 のデモ動画つき)。「I just built Word, Excel, and PowerPoint into Herald OS … 'Make this document more professional.' Hermes rewrites it. 'Calculate my monthly expenses.' Hermes builds the formulas. 'Turn this document into slides.' Hermes creates the deck. Supports opening and saving .docx, .xlsx and .pptx files. No subscription. No switching between apps. Free and open source.」本ラウンドでは ChromeAgent :9410 + chrome-devtools MCP で本文・動画のサムネイル・**可視の返信 14 件**を抽出し、ソースミラー `external_reference_project/desktop/Herald-OS` を取り込んで 1 ファイルずつ確認した。
