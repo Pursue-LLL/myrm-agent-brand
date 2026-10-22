@@ -116,3 +116,32 @@ Handing a .docx or .xlsx to an agent is rarely scary because it refused to edit.
 - **Readable output, not a raw file**: styled Excel exports come from a theme engine (title row, zebra rows, borders, number formats) and slides from a rendering pipeline, so what you hand over opens correctly in any Office app.
 
 **Competitor reality check (2026-10-22)**: Herald OS — the community project that put Word, Excel and PowerPoint inside its own operating system — does genuinely good fidelity work, on the **reading** side: its spreadsheet layer keeps the data validation, filter conditions, links, defined names, theme, charts, pivot tables, slicers and drawings that generic libraries drop, and it validates the Office package itself. But its safety net for a bad rewrite is an editor-level undo stack, and we found no per-write snapshot or diff-to-accept anywhere in its source. We are not stronger at *being* an office suite: it ships resident document and slide editors we do not have, and that box is honestly its own.
+
+## 13. You Can See the Work — and It Cannot Approve Itself
+
+The uncomfortable part of multi-agent and long-running work is not that it is slow. It is that you cannot tell what it is doing. Approvals have the same problem: when the only answer is a single "yes", what you actually agreed to is not the thing that runs.
+
+**Our Advantage**:
+- **A running subagent is in plain sight**: a horizontal swimlane strip for concurrently running subagents lives right in the chat (`myrm-agent-frontend/src/components/features/chat-window/in-flight-steer/ActiveSubagentSwimlanesBar.tsx`, mounted by `ChatWindowSatellites.tsx:37`), so you can see who is busy and steer it on the spot.
+- **Finding a conversation is not a scroll**: pinned conversations are drag-sortable in the sidebar (`ChatHistoryList.tsx:224`/`:248`, persisted by `src/services/chat.ts:1379`) and time groups are collapsible (`:29`/`:222`).
+- **The version you approved is the version that is kept**: every approval stores the exact payload it authorised (`app/database/models/approval.py:34`) together with its action type (`:27`) and risk grade (`:31`).
+- **Expiry never means silent consent**: an unanswered approval is auto-rejected on expiry with the timeout stated (`app/services/approvals/registry.py:43-72`), and the suspended agent is resumed by the harness (`:45`).
+- **Credentials do not travel with it**: child processes do not inherit credential-bearing environment variables by default (`myrm-agent-harness/.../code_execution/security/env_isolation.py:37`/`:110`, `shell_bleed.py:55`, `blacklist.py:290`), and desktop-only instructions are injected only when desktop control is actually part of the task (`app/ai_agents/general_agent/mount_resolver.py:54`/`:41`).
+- **Honest boundary**: "approval must happen outside the agent" and "the executed payload is the approved payload" are still roadmap items (`topic_03 #458`). We do not claim tamper-proof approvals.
+
+**Competitor reality check (2026-10-22)**: Hermes Desktop's maintainer publicly asked users whether things had got steadier; among 104 replies the sharpest was that **the sidebar loses its "in progress" state while a subagent runs** — the maintainer replied "you're right, that could be improved on the UX side" — plus messages occasionally rendering twice and credential variables leaking into terminals. The community also carries a screenshot of a coding agent that **published a `.env` to public hosting on its own**, leaking a key and producing a **$90,000 external bill**. Our difference is not "has approvals"; it is that approvals here are visible, stored verbatim, and never expire quietly.
+
+
+## 14. Your Agent Has an Identity Today — No Need to Wait for a $227,000 TLD
+
+The loudest way to give an agent "a place of its own on the internet" is to hand it a top-level domain. Domains, it turns out, have a price and a queue.
+
+**Our Advantage**:
+- **The identity card already exists**: the AgentCard is displayable, revocable at any moment and auditable, and it never leaks the agent's internal instructions (`app/services/a2a/card_generator.py:60`).
+- **The door is not open to anyone**: inbound agent traffic is checked against a per-agent enable switch (`app/database/models/agent.py:79`) and a trusted-peer allowlist (`:80`); a peer that is not on the list does not get silently believed — the task it sends lands in the approval queue first (`app/api/a2a/router.py:97`/`:126`).
+- **The short address comes from what you already have**: a readable identifier already exists in your system (`app/services/plugins/agent_surface.py:291`, plus harness profiles named `ai.myrm/agents/<slug>.md`), so a short address and bring-your-own-domain can be derived from it — no new domain procurement, no waiting.
+- **We did not buy a TLD either**: that is a deliberate trade-off, not an oversight.
+
+**Honest boundary**: a readable *public* address is **designed, not shipped** (`topic_13 #91` is still `待分析`). We can say "we chose not to buy a top-level domain and we designed the alternative"; we cannot yet say "your agent already has a public short address".
+
+**Competitor reality check (2026-10-22)**: the OpenClaw Foundation announced it won the `.claw` application in ICANN's 2026 round. The official notice puts it at **Application ID `OF2656T-T69841`**, still in **`Pre-Evaluation Processing`**, with a reported cost of **$227,000** and a landing window of **late 2027 – early 2028** — and its own repository still contains **not a single line** of top-level-domain or DNS implementation (every `.claw` hit there is a `claw` word-root false positive). The sharpest question in the community thread was: *"tell me the conditions for registering — could I register a .dsb TLD myself?"* For an individual or a small team, the answer is no. **We give you the identity today, on the domain you already own.**
