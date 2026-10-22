@@ -219,3 +219,16 @@ All 16 artifact types are supported. No backend changes are needed — the data 
 Pair tokens are scoped: the Hub list token cannot control chats until you open a session; control tokens bind to one `chat_id`. See [Tunnel Guide](/guides/tunnel) for detailed configuration.
 
 **Honest note:** You bring the tunnel; Myrm does not host your traffic. End-to-end encrypted relay (G2) is on the roadmap — today, security relies on HTTPS + scoped pair tokens + session binding.
+
+## What You See While Your Agent Works
+
+A desktop agent that is busy should never look idle — and it should never look busy when it is not. Three things are guaranteed on your screen:
+
+- **It never goes quiet on you.** The sidebar keeps showing which of your agents are working right now (it aggregates live subagent state, so a session that is delegating stays visibly "in progress" instead of looking untouched).
+- **Messages do not double.** A message is rendered once. If a run is retried, the delivered result is not re-delivered as a second copy.
+- **Your credentials stay in their lane.** Anything the agent runs in a terminal starts from a deliberately narrow environment: credential-bearing variables are not inherited, so a login token cannot drift out of the app and into a shell that happens to record it.
+- **Desktop-only behaviour stays on the desktop.** Desktop control instructions are injected only when desktop control is actually part of the task, so your agent behaves identically in the browser, in a scheduled job, and in a channel chat.
+
+<Note>
+**Honest note.** These four guarantees are about *visibility and isolation*, not about a flawless runtime: the current approval design stores what you approved and expires it on time, but it does not yet fingerprint-compare the payload at execution time. Treat "what you approved is on record and cannot expire silently" as true today; treat "the exact payload cannot be swapped" as still on the roadmap.
+</Note>

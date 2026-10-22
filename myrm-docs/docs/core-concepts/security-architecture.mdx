@@ -1375,3 +1375,17 @@ Traditional agent architectures suffer from **Ambient Authority**: spawned subag
 ### 3. Empirical Verification & Quality Gates
 - **Harness Core Tests**: unit tests for signing, attenuation, symlink containment and the guard in `core/security/test_ocap_mesh.py`;
 - **Spawn Trust Boundary**: entry-level tests driven from the `delegate_task` parameters (`test_spawn_trust_boundary.py`), and a scripted child run through the real executors (`test_spawn_capability_wiring.py`) that proves a read-only child cannot write and cannot spawn a writable child.
+
+## What Gets Stored When You Approve, and What Happens When You Don't
+
+Approvals are where trust is actually spent, so they are worth reading closely.
+
+**What is kept.** Every approval stores the exact request it authorised — not just the words "approved". The record carries the action type and a risk grade, so a later audit can tell *what* was permitted, not merely *that* something was.
+
+**What happens when you walk away.** An approval that nobody answers is not left hanging, and it is never quietly treated as consent: it is rejected on expiry, the record says so explicitly, and the task waiting on that decision is woken so it can continue with a "no".
+
+**How that shows up in the UI.** The expiry moment is visible on the approval card, and the same separation you get in the note channel also holds here: a machine-written line such as "auto-approved" can never be presented as if it were something you said.
+
+<Note>
+**Honest note.** "The approval record keeps the approved payload and expires on time" is true today. "The executed action is guaranteed to be byte-identical to what you approved, and only a human outside the agent can approve it" are still roadmap items — the domain knowledge for that lives in `topic_03 #458`. Do not read a well-kept approval log as a tamper-proof one.
+</Note>
