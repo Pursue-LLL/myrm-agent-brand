@@ -297,6 +297,20 @@ Discover and integrate third-party agents via the standard Google Agent-to-Agent
 
 See [Kanban & Orchestration](/core-concepts/kanban-orchestration) for details.
 
+
+### Your Agent's Outward Identity
+
+An agent that talks to the outside world needs an identity that is **displayable, revocable and auditable** — and that never leaks its internal instructions. That is what the **AgentCard** is: the card an agent publishes about itself when another system asks who it is, resolvable over the standard Google Agent-to-Agent protocol (with SSRF protection and TTL caching on the resolution path).
+
+Two deliberate choices make it safe to expose:
+
+- **The card never carries `system_prompt`.** What leaves the sandbox is the agent's outward self-description, not its internal configuration.
+- **The door is not open to anyone.** Outbound agent traffic is gated on an explicit per-agent enable switch plus a **trusted-peer allowlist** — you decide which peers may reach this agent, and you can revoke any of them at any time.
+
+<Note>
+**Honest note.** A *readable public address* for an agent — a short vanity handle, or bring-your-own-domain — is a **designed, not-yet-shipped** capability; today what you can rely on is the identity card and its revocation semantics. We would rather state that boundary than let a roadmap item read as a feature.
+</Note>
+
 ## Agent Profile: Precision Without Crosstalk
 
 Each Agent Profile is a full-dimension configuration unit — far beyond simple skill grouping.
