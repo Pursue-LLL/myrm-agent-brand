@@ -300,7 +300,7 @@ GUI 配置编辑器提供 5 个独立面板（技能 / MCP / 内置工具 / 子�
 
 ### Agent 的对外身份
 
-一个要与外界对话的 Agent，需要一个**可展示、可撤销、可审计**的身份，而且**绝不泄露它的内部设定**。这正是 **AgentCard** 的用途：别的系统问「你是谁」时，Agent 递出的那张名片；它通过标准的 Google Agent-to-Agent 协议解析（解析路径自带 SSRF 防护与 TTL 缓存）。
+一个要与外界对话的 Agent，需要一个**可展示、可撤销、可审计**的身份，而且**绝不泄露它的内部设定**。这正是 **AgentCard** 的用途：别的系统问「你是谁」时，Agent 递出的那张名片（`myrm-agent-server/app/services/a2a/card_generator.py:60` `AgentCardGenerator`）；它通过标准的 Google Agent-to-Agent 协议解析（`app/api/a2a/router.py:97` `peer_registry.verify_inbound_authorization`，解析路径自带 SSRF 防护与 TTL 缓存）。
 
 两个刻意为之的设计让它可以放心对外：
 

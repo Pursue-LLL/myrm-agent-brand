@@ -224,7 +224,7 @@ Pair tokens are scoped: the Hub list token cannot control chats until you open a
 
 A desktop agent that is busy should never look idle — and it should never look busy when it is not. Three things are guaranteed on your screen:
 
-- **You can see the work, not just the result.** A horizontal swimlane strip for concurrently running subagents sits right in the chat, so you can steer a running subagent instead of guessing what it is doing. In the sidebar, pinned conversations are **drag-sortable** and time groups are **collapsible** — the conversations you care about stay one drag away.
+- **You can see the work, not just the result.** A horizontal swimlane strip for concurrently running subagents sits right in the chat (`myrm-agent-frontend/src/components/features/chat-window/in-flight-steer/ActiveSubagentSwimlanesBar.tsx`, mounted by `ChatWindowSatellites.tsx:37`), so you can steer a running subagent instead of guessing what it is doing. In the sidebar, pinned conversations are **drag-sortable** and time groups are **collapsible** — the conversations you care about stay one drag away.
 - **Your credentials stay in their lane.** Anything the agent runs in a terminal starts from a deliberately narrow environment: credential-bearing variables are not inherited, so a login token cannot drift out of the app and into a shell that happens to record it.
 - **Desktop-only behaviour stays on the desktop.** Desktop control instructions are injected only when desktop control is actually part of the task, so your agent behaves identically in the browser, in a scheduled job, and in a channel chat.
 

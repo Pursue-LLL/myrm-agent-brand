@@ -300,7 +300,7 @@ See [Kanban & Orchestration](/core-concepts/kanban-orchestration) for details.
 
 ### Your Agent's Outward Identity
 
-An agent that talks to the outside world needs an identity that is **displayable, revocable and auditable** — and that never leaks its internal instructions. That is what the **AgentCard** is: the card an agent publishes about itself when another system asks who it is, resolvable over the standard Google Agent-to-Agent protocol (with SSRF protection and TTL caching on the resolution path).
+An agent that talks to the outside world needs an identity that is **displayable, revocable and auditable** — and that never leaks its internal instructions. That is what the **AgentCard** is: the card an agent publishes about itself when another system asks who it is (`myrm-agent-server/app/services/a2a/card_generator.py:60` `AgentCardGenerator`), resolvable over the standard Google Agent-to-Agent protocol (`app/api/a2a/router.py:97` `peer_registry.verify_inbound_authorization`, with SSRF protection and TTL caching on the resolution path).
 
 Two deliberate choices make it safe to expose:
 
