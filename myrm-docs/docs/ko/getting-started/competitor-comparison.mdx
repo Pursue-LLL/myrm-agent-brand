@@ -11,6 +11,35 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보안을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-10-22 · 폴더 하나 + symlink 두 줄로 같은 규칙과 스킬을 모든 에이전트 클라이언트에 전달 · 댓글은 그 구성의 구멍을 정확히 짚었고, 우리가 진짜로 강한 부분도 짚었다)
+
+- **계기**: X @sairahul1(Rahul)가 전한 내용 — OpenClaw 만든이 Peter Steinberger가 자기 에이전트 설정 전체를 오픈소스로 공개(`https://x.com/sairahul1/status/2108559612173574533`, 2026-10-09. **28 리플 / 27 리포스트 / 104 좋아요 / 129 북마크**, 이미지 2장. 글에 나온 저장소 `steipete/agent-scripts` 링크 글은 758 좋아요). 이번 라운드에서는 ChromeAgent :9410 + chrome-devtools MCP로 본문 2단락과 **보이는 리플 17개**를 추출했다.
+- **그 설정이 실제로는 무엇인가**:
+  1. **폴더 하나**를 머신의 모든 에이전트가 거기서 읽는다.
+  2. **AGENTS.MD 하나와 symlink 두 개** — 스크립트가 `~/.claude/CLAUDE.md`와 `~/.codex/AGENTS.md`로 symlink 하므로 Claude Code와 Codex가 항상 같은 지시를 따른다.
+  3. **저장소마다 한 줄만**("무엇이든 하기 전에 ~/Projects/agent-scripts/AGENTS.MD 읽기") → **규칙을 한 번 고치면 모든 프로젝트에 반영**.
+  4. **스킬도 같은 방식** — **스킬 69개**를 한 곳에 두고 각각 짧은 설명을 붙여 에이전트가 그 설명을 읽어 무엇을 로드할지 정하게 하며, `scripts/sync-skills`가 두 에이전트에 링크한다.
+  5. **fork와 삭제를 권장** — 그의 규칙을 자기 것으로 바꾸고 필요 없는 스킬은 지워라(단 **그의 AGENTS.MD에는 자기 머신과 계정 정보가 잔뜩 있다**고 경고).
+- **댓글이 제기한 여섯 질문(글에서 가장 가치 있는 부분)**:
+  - @johnroodepic(**좋아요 32**): "the rules are the part you can symlink. **everything the agent figured out about a repo while working doesn't travel, so the next session gets the same rules and none of the learning. a good AGENTS.md reads like continuity. it isn't."
+  - @scrblanc(**29**): 공유 파일 하나가 모든 규칙을 모든 저장소로 보내지만 "**nothing tells you which line actually changed behavior**", 파일은 자라서 "**instructions fall past the model's attention**"까지 간다 → 도메인으로 쪼개고 관련도만큼 읽어야 한다.
+  - @yevloop(27): "until its **2000 lines and half the rules contradict the other half**. how long before it rots"
+  - @landoclusters(**25**): "**Handoffs are where it still breaks for us**: when Claude Code passes work to Codex, we log **delivered, acknowledged and consumed as separate records**, so we can tell a task that arrived from one that actually got picked up."
+  - @catmanyau(**22**): 전역 지시 파일이 각 저장소에 "**inherit assumptions that do not fit**"을 조용히 심어 넣는다.
+  - @nexusai_apps: "**machine-specific paths and credentials**"는 공유 파일에 넣지 말 것.
+- **우리 쪽(실제 코드로 확인)**:
+  - **동기화하는 것은 규칙만이 아니라 배운 것도** — 세션 트라젝토리가 재사용 스킬로 정제되고(`myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:430`의 `capture_skill_from_trajectory`) 장기 기억과 보드가 더해진다 → **다음 턴은 같은 규칙에 더해 지난번 배운 것까지 받는다.** @johnroodepic이 짚은 그 구멍 그 자체다.
+  - **한 걸음마다 귀속이 추적된다** — 승인 대장, 건별 감사 기록, OCAP 서명 능력 토큰(`myrm-agent-harness/src/myrm_agent_harness/core/security/ocap/token.py:49-53`)이 "delivered / acknowledged / consumed"의 검사 가능한 형태가 된다.
+  - **머신 경로와 자격 증명은 공유면에 넣지 않는다** — 민감 경로 하드 차단(`myrm-agent-harness/src/myrm_agent_harness/core/security/path/filesystem.py:60`의 "~/.ssh")과 자격 증명·지시 형태 분류(`core/security/detection/pii_classifier.py:92`, `core/security/detection/instruction_shape.py:79`).
+  - **스킬은 쌓기만 하는 게 아니라 회수할 수 있다** — Curator 라이프사이클(`myrm-agent-harness/src/myrm_agent_harness/agent/skills/curator/`), 의미 중복 제거로 엔트로피 방지, 설치 전 26개 분류/113개 패턴 정적 검사(`backends/skills/scanning/patterns.py:1-13`), 설치 후 채택 계약(`myrm-agent/myrm-agent-server/app/core/skills/discovery/adopt.py:1-17`).
+- **우리가 주장하지 않는 것(정직한 차이)**:
+  1. **"사용자 단위 규칙을 한 곳에 두고 여러 클라이언트에 동기화하는" 제품 형태가 없다** — 실재하는 격차이며, 뒤의 로드맵 항목은 아직 진행 중이다. 경쟁사의 **단순함**(symlink 두 개)은 진짜 제품력이고 **우리는 아직 그 정도의 단순함을 내지 못한다.**
+  2. **우리의 프로젝트 규칙은 여전히 한 덩어리로 정적 주입**(`myrm-agent-harness/src/myrm_agent_harness/agent/workspace_rules/scanner.py`와 `middleware.py`)이며 **도메인 분할도 관련도 기반 로딩도 없다.**
+  3. **우리것은 다른 도구로 데려갈 수 없다** — 기억·스킬·감사가 우리 제품 안에 갇혀 **도구를 바꾸면 끊긴다.**
+  4. **"남의 설정 전체를 fork 해서 걸러내는" 형태가 없다** — 우리 스킬은 마켓과 내장 세트에서 오며 설정 묶음을 fork 하는 것이 아니다.
+- **로드맵 항목 1건, 신규가 아니라 보강**: `topic_08 #54`(프로젝트 루트 규약 [CLAUDE.md/.cursorrules/AGENTS.md] 다중 규격 감지·의미 구조화·원클릭 스킬화 브리지) — 이번 라운드에 더한 것은 **포인터 방식**(저장소당 한 줄 + symlink + 한 곳 관리)과, 같은 항목이 계획한 **파싱 방식**(감지 → 구조화 → 스킬화 → 온디맨드 로딩)의 방식 대비이며, 여섯 댓글을 그 항목의 인수 기준으로 넣었다.
+- **SSOT**: `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md`(스킬·플러그인 생태축 · 채택 측 문서, 2026-10-22 신규 절) · `temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`(스킬 축 주 문서, 상호 참조 행) · `temp-docs/materials/GENERAL_AI_ASSISTANT_COMPETITIVE_ADVANTAGE.md`(경쟁사 요약표 27행) · `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`(#54) · `https://x.com/sairahul1/status/2108559612173574533`
+
 ## 최신 검증 스냅샷 (2026-10-22 · MS 논문이 오프라인 사용 기록에서 스킬을 발굴 · 우리는 이미 그 기록을 갖고 있고, 없는 것은 '자'다 · 아울러 우리 로드맵 서술의 한 곳을 바로잡는다)
 
 - **계기**: X @rohanpaul_ai(`https://x.com/rohanpaul_ai/status/2108543003505705304`, 2026-10-09 21:00(베이징). **25 리플 / 18 리포스트 / 87 좋아요 / 58 북마크**, 이미지 1장)가 **TeleTune**(Microsoft + UNC Chapel Hill, `arXiv:2610.05437`)을 소개. 이번 라운드에서는 ChromeAgent :9410 + chrome-devtools MCP로 본문과 **보이는 리플 11개**를 추출했다.

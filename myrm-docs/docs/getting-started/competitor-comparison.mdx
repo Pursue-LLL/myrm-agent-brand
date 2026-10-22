@@ -34,6 +34,35 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 - **One roadmap entry, extended rather than duplicated**: `topic_08 #457` (heterogeneous review and bounded convergence for skill evolution) — this round independently re-verified its core judgment and added the half it did not cover: **decoupling the reviewer is not enough; the yardstick has to be decoupled too**.
 - **SSOT**: `temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md` (main document of the skill & plugin axis, new 2026-10-22 section) · `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md` (#457) · `https://x.com/dingyi/status/2108395750128542180`
 
+## Latest Benchmark Snapshot (2026-10-22 · One Folder, Two Symlinks: Shipping the Same Rules and Skills to Every Agent Client · The Comments Name the Hole in That Setup — and Name the Part We Are Actually Stronger At)
+
+- **What triggered this**: X @sairahul1 (Rahul) relaying that Peter Steinberger, the creator of OpenClaw, has open-sourced his complete agent setup (`https://x.com/sairahul1/status/2108559612173574533`, 2026-10-09; **21 replies / 27 reposts / 104 likes / 129 bookmarks**, two images; the linked repository `steipete/agent-scripts` has 758 likes). We extracted the post (both parts) and **17 visible replies** with ChromeAgent :9410 + chrome-devtools MCP.
+- **What the setup actually is**:
+  1. **One folder** that every agent on the machine reads from.
+  2. **One AGENTS.MD plus two symlinks** — a script symlinks it to `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md`, so Claude Code and Codex always follow the same instructions.
+  3. **One line per repository** ("read ~/Projects/agent-scripts/AGENTS.MD before doing anything"), so **changing the rules once updates every project**.
+  4. **Skills work the same way**: **69 skills** live in one place, each with a short description the agent reads to decide what to load, and `scripts/sync-skills` links them into both agents.
+  5. **You are invited to fork it** — replace his rules with yours and delete the skills you do not need (and he warns that his AGENTS.MD is full of his own machine and account details).
+- **The six questions the comments raise (the most valuable part)**:
+  - @johnroodepic (**32 likes**): "the rules are the part you can symlink. **everything the agent figured out about a repo while working doesn't travel, so the next session gets the same rules and none of the learning. a good AGENTS.md reads like continuity. it isn't.**"
+  - @scrblanc (**29**): one shared file ships every rule to every project, and "**nothing tells you which line actually changed behavior**. the file grows until **instructions fall past the model's attention**. shard by domain, load by relevance."
+  - @yevloop (27): "one AGENTS.md for every agent sounds clean until its **2000 lines and half the rules contradict the other half**. how long before it rots"
+  - @landoclusters (**25**): "**Handoffs are where it still breaks for us**: when Claude Code passes work to Codex, we log **delivered, acknowledged and consumed as separate records**, so we can tell a task that arrived from one that actually got picked up."
+  - @catmanyau (**22**): a global instruction file "can quietly make every repo **inherit assumptions that do not fit**".
+  - @nexusai_apps: keep "**machine-specific paths and credentials out of it**".
+- **Our side (re-verified against real code)**:
+  - **We sync what was learned, not just the rules** — session trajectories are distilled into reusable skills (`myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:430`, `capture_skill_from_trajectory`), on top of long-term memory and the kanban → **the next turn gets the same rules *and* the things the agent learned**. This is exactly the gap @johnroodepic names.
+  - **Every step is attributable** — the approval ledger, per-action audit trail and OCAP-signed capability tokens (`myrm-agent-harness/src/myrm_agent_harness/core/security/ocap/token.py:49-53`) give us a checkable version of "delivered / acknowledged / consumed".
+  - **Machine paths and credentials stay out** — sensitive path hard-blocks (`myrm-agent-harness/src/myrm_agent_harness/core/security/path/filesystem.py:60`, "~/.ssh") plus credential and instruction-shape classification (`core/security/detection/pii_classifier.py:92`, `core/security/detection/instruction_shape.py:79`).
+  - **Skills can be retired, not just accumulated** — Curator lifecycle (`myrm-agent-harness/src/myrm_agent_harness/agent/skills/curator/`), semantic de-duplication, the pre-install scan of 26 threat categories / 113 patterns (`backends/skills/scanning/patterns.py:1-13`) and the post-install adoption contract (`myrm-agent/myrm-agent-server/app/core/skills/discovery/adopt.py:1-17`).
+- **What we do not claim (honest gaps)**:
+  1. **We have no product form for "one user-level rules folder synced to several clients"** — that is a real gap and the roadmap entry behind it is still in progress. The competitor's **simplicity** (two symlink scripts) is genuine product strength we do not match yet.
+  2. **Our project rules are still injected as one static block** (`myrm-agent-harness/src/myrm_agent_harness/agent/workspace_rules/scanner.py` and `middleware.py`) — not yet sharded by domain or loaded by relevance.
+  3. **Nothing of ours travels to another tool** — memory, skills and audit stay inside our product.
+  4. **We have no "fork someone's whole setup and trim it" form** — our skills come from the marketplace and the built-in set, not from forking a configuration bundle.
+- **One roadmap entry, extended rather than duplicated**: `topic_08 #54` (project rule files across CLAUDE.md / .cursorrules / AGENTS.md — multi-spec detection, semantic structuring and one-click skill bridging) — this round adds the **pointer-style route** (one line per repository, symlinked, managed in one place) as a counterpart to that entry's **parse-style route** (detect, structure, bridge into skills, load on demand), plus the six comments as constraints on its acceptance criteria.
+- **SSOT**: `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md` (adoption-side document of the skill & plugin axis, new 2026-10-22 section) · `temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md` (cross-reference line) · `temp-docs/materials/GENERAL_AI_ASSISTANT_COMPETITIVE_ADVANTAGE.md` (competitor quick-reference table, row 27) · `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md` (#54) · `https://x.com/sairahul1/status/2108559612173574533`
+
 ## Latest Benchmark Snapshot (2026-10-22 · A Microsoft Paper Mines Skills From Offline Usage Logs · We Already Have the Logs — What We Still Lack Is the Ruler · One Correction to an Earlier Note in Our Own Roadmap)
 
 - **What triggered this**: X @rohanpaul_ai (`https://x.com/rohanpaul_ai/status/2108543003505705304`, 2026-10-09 21:00 Beijing; **25 replies / 18 reposts / 87 likes / 58 bookmarks**, plus one image) on **TeleTune** (Microsoft + UNC Chapel Hill, `arXiv:2610.05437`). We extracted the post and **11 visible replies** with ChromeAgent :9410 + chrome-devtools MCP.

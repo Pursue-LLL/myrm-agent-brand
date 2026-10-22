@@ -11,6 +11,35 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
 **移行における安心ポイント** — SaaS・セルフホスト・デスクトップから自由に選択でき、HermesのスキルはGUI経由のZIPで直接インポート可能です。以下の詳細比較表でチャンネル・メモリ・セキュリティを行単位で確認した上でご検討いただけます。Grok Buildなどのプラグイン中心の製品をお使いの場合、Myrmはモデル・スキル・MCP・サブエージェント・安全プロファイルを**ワンクリックで一括セットアップ**するエージェントパッケージを提供します。ドキュメントとアプリは**6言語**(zh/en/ja/ko/de/zh-TW)に対応しており、WebUI・クラウドホスト・Tauriデスクトップのすべてで、初回アクセス時にブラウザ言語を自動判別します。
 </Note>
 
+## 最新検証スナップショット (2026-10-22 · フォルダ 1 つ + symlink 2 行で同じ規則とスキルを全 Agent クライアントへ配る · コメント欄はその構成の穴を名指しし、同時に我々が本当に強い箇所も指した)
+
+- **きっかけ**: X @sairahul1（Rahul）が relayed、OpenClaw の作者 Peter Steinberger が自分のエージェント設定一式を开源した（`https://x.com/sairahul1/status/2108559612173574533`、2026-10-09。**21 リプライ / 27 リポスト / 104 いいね / 129 ブックマーク**、画像 2 枚。帖が示したリポジトリ `steipete/agent-scripts` のリンク帖は 758 いいね）。本ラウンドでは ChromeAgent :9410 + chrome-devtools MCP で本文 2 段と**可視の返信 17 件**を抽出した。
+- **その設定の中身**:
+  1. **フォルダ 1 つ**を、マシンのすべてのエージェントがそこから読む。
+  2. **AGENTS.MD 1 つと symlink 2 つ** —— スクリプトが `~/.claude/CLAUDE.md` と `~/.codex/AGENTS.md` へ symlink するので、Claude Code と Codex は常に同じ指示に従う。
+  3. **リポジトリごとに 1 行だけ**（「何かをする前に ~/Projects/agent-scripts/AGENTS.MD を読む」）で、**規則を 1 回直せば全プロジェクトに反映**される。
+  4. **スキルも同じ方式**：**69 個のスキル**を 1 箇所に置き、各々に短い説明を付けてエージェントが thereof を読んで何を読み込むかを決め、`scripts/sync-skills` が 2 つのエージェントへリンクする。
+  5. **fork と削除を encouraged** —— 彼の規則を自分のものへ差し替え、不要なスキルを消す（ただし**彼の AGENTS.MD には彼のマシンとアカウント情報が詰まっている**と注意）。
+- **コメント欄が出した 6 つの問い（本帖で最も価値のある部分）**:
+  - @johnroodepic（**32 いいね**）:「the rules are the part you can symlink. **everything the agent figured out about a repo while working doesn't travel, so the next session gets the same rules and none of the learning. a good AGENTS.md reads like continuity. it isn't.」
+  - @scrblanc（**29**）: 共有ファイルは全規則を全リポジトリへ配るが「**nothing tells you which line actually changed behavior**」、ファイルは伸びて「**instructions fall past the model's attention**」まで行く → ドメインで分割し、関連度で読むべき。
+  - @yevloop（27）:「until its **2000 lines and half the rules contradict the other half**. how long before it rots」
+  - @landoclusters（**25**）:「**Handoffs are where it still breaks for us**: when Claude Code passes work to Codex, we log **delivered, acknowledged and consumed as separate records**, so we can tell a task that arrived from one that actually got picked up.」
+  - @catmanyau（**22**）: 全体共通の指示ファイルは各リポジトリに「**inherit assumptions that do not fit**」を静かに持ち込む。
+  - @nexusai_apps:「**machine-specific paths and credentials**」は共有ファイルへ入れるな。
+- **我々の現状（実コードで確認）**:
+  - **同期するのは規則だけでなく、学びも** —— セッション軌跡が再利用可能なスキルへ蒸留される（`myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:430` の `capture_skill_from_trajectory`）＋ 長期記憶 ＋ カンボード → **次のターンは同じ規則だけでなく、前回学んだものまで受け取る**。これは @johnroodepic が名指しした穴そのもの。
+  - **一歩ごとに帰属が追える** —— 承認台帳・逐次監査・OCAP 署名済み能力トークン（`myrm-agent-harness/src/myrm_agent_harness/core/security/ocap/token.py:49-53`）が「delivered / acknowledged / consumed」の検査可能な形になる。
+  - **マシン固有パスと資格情報は共有面に入れない** —— 機密パスのハード禁止（`myrm-agent-harness/src/myrm_agent_harness/core/security/path/filesystem.py:60` の "~/.ssh"）＋ 資格情報と命令形態の分類（`core/security/detection/pii_classifier.py:92`、`core/security/detection/instruction_shape.py:79`）。
+  - **スキルは溜め込むだけでなく回収できる** —— Curator ライフサイクル（`myrm-agent-harness/src/myrm_agent_harness/agent/skills/curator/`）、意味重複排除によるエントロピー防止、導入前 26 カテゴリ / 113 パターンの静的検査（`backends/skills/scanning/patterns.py:1-13`）、導入後の採用契約（`myrm-agent/myrm-agent-server/app/core/skills/discovery/adopt.py:1-17`）。
+- **我々が主張しない部分（正直な差距）**:
+  1. **「ユーザー階層の規則を 1 箇所に置き、複数クライアントへ同期する」製品形態が無い** —— これは実在する差距で、背後にあるロードマップ項目はまだ進行中。競争相手の**単純さ**（symlink 2 本）は本物の製品力で、**我々はまだ同等な単純さを出せない**。
+  2. **我々のプロジェクト規則は今も 1 块的の静的注入**（`myrm-agent-harness/src/myrm_agent_harness/agent/workspace_rules/scanner.py` と `middleware.py`）で、**ドメイン分割も関連度ローディングも未実装**。
+  3. **我々のものは他ツールへ持ち出せない** —— 記憶・スキル・監査は我々の製品内に留まり、**ツールを跨ぐと切れる**。
+  4. **「誰かの設定一式を fork して間引く」形態が無い** —— 我々のスキルはマーケットと同梱集から来るもので、設定一式を fork するものではない。
+- **ロードマップ項目は 1 件、ただし新設ではなく増補**: `topic_08 #54`（プロジェクト直下の規定 [CLAUDE.md/.cursorrules/AGENTS.md] の複数仕様検知・意味構造解析・ワンタッチスキル化ブリッジ）—— このラウンドで加えたのは**ポインタ方式**（リポジトリ 1 行 + symlink + 1 箇所管理）と、同項目の**解析方式**（検知 → 構造化 → スキル化 → オンデマンド読み込み）の方式対比、そして 6 つのコメントを同項目の受入条件として写入したこと。
+- **SSOT**: `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md`（スキルとプラグイン生態軸 · 採用側文書、2026-10-22 新規節）· `temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（スキル軸主文書、相互参照行）· `temp-docs/materials/GENERAL_AI_ASSISTANT_COMPETITIVE_ADVANTAGE.md`（競合早見表 27 行目）· `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`（#54）· `https://x.com/sairahul1/status/2108559612173574533`
+
 ## 最新検証スナップショット (2026-10-22 · 透析論文がオフライン利用ログからスキルを掘る · ログは既にある、足りないのは「物差し」 · ついでに我々のロードマップ記述の 1 か所を訂正する)
 
 - **きっかけ**: X @rohanpaul_ai（`https://x.com/rohanpaul_ai/status/2108543003505705304`、2026-10-09 21:00 北京時間。**25 リプライ / 18 リポスト / 87 いいね / 58 ブックマーク**、画像 1 枚）による **TeleTune**（Microsoft + UNC Chapel Hill、`arXiv:2610.05437`）の紹介。本ラウンドでは ChromeAgent :9410 + chrome-devtools MCP で本文と**可視の返信 11 件**を抽出した。

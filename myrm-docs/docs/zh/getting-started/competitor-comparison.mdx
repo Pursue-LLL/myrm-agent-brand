@@ -34,6 +34,35 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **一条路线图条目，只做增补不重复开条**：`topic_08 #457`（技能演进的异构评审与有界收敛闭环套件）—— 本轮独立复核了它的核心判断成立，并补上它原本没覆盖的另一半：**解耦评审者还不够，尺子也要解耦**。
 - **SSOT**：`temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（技能与插件生态轴主文档，2026-10-22 新增段）· `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`（#457）· `https://x.com/dingyi/status/2108395750128542180`
 
+## 最新验证快照（2026-10-22 · 一个文件夹 + 两行 symlink：把同一份规则与技能送到每个 Agent 客户端 · 评论区点名了这套方案真正的洞，也点出了我们真正更强的那一格）
+
+- **触发来源**：X @sairahul1（Rahul）转述：OpenClaw 创始人 Peter Steinberger 开源了他的整套 Agent 设置（`https://x.com/sairahul1/status/2108559612173574533`，2026-10-09；**21 回复 / 27 转推 / 104 赞 / 129 书签**，2 张图；帖中给出的仓库 `steipete/agent-scripts` 链接帖 758 赞）。本轮用 ChromeAgent :9410 + chrome-devtools MCP 抽主帖（两段）+ **17 条可见回复**。
+- **这套设置到底是什么**：
+  1. **一个文件夹**，机器上每个 Agent 都从它读。
+  2. **一份 AGENTS.MD + 两个 symlink** —— 脚本把它 symlink 到 `~/.claude/CLAUDE.md` 与 `~/.codex/AGENTS.md`，于是 Claude Code 与 Codex 总是遵循同一份指令。
+  3. **每个仓库只加一行**（「做任何事之前先读 ~/Projects/agent-scripts/AGENTS.MD」）→ **改一次规则，每个项目自动更新**。
+  4. **技能同样一处管理**：**69 个技能**放一处，每个配一句简短描述，Agent 读描述决定加载什么，`scripts/sync-skills` 把它们链接进两个 Agent。
+  5. **鼓励 fork 与删减** —— 用你自己的规则替换他的规则、删掉用不上的技能（并提醒：**他的 AGENTS.MD 满是他自己的主机与账户信息**）。
+- **评论区提出的六个问题（本帖最有价值的部分）**：
+  - @johnroodepic（**32 赞**）：「the rules are the part you can symlink. **everything the agent figured out about a repo while working doesn't travel, so the next session gets the same rules and none of the learning. a good AGENTS.md reads like continuity. it isn't.**」
+  - @scrblanc（**29 赞**）：共享一份文件把全部规则送到每个仓库，而「**nothing tells you which line actually changed behavior**」，文件会一直长到「**instructions fall past the model's attention**」→ 应按域分片、按相关加载。
+  - @yevloop（27 赞）：「one AGENTS.md for every agent sounds clean until its **2000 lines and half the rules contradict the other half**」。
+  - @landoclusters（**25 赞**）：「**Handoffs are where it still breaks for us**：Claude Code 把活交给 Codex 时，我们把 **delivered / acknowledged / consumed 分三条记录**，这样才能分清「送到了」和「真被接手了」。」
+  - @catmanyau（**22 赞**）：全局指令文件会让每个仓库「quietly **inherit assumptions that do not fit**」。
+  - @nexusai_apps：「**machine-specific paths and credentials** 不该进共享文件」。
+- **我方现状（经真实代码核对）**：
+  - **我们同步的不只是规则，还有学到的东西** —— 会话轨迹被蒸馏成可复用技能（`myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:430` 的 `capture_skill_from_trajectory`），叠加长期记忆与看板 → **下一轮拿到的不只是同一份规则，还有上次学会的**。这正是 @johnroodepic 点的那个洞。
+  - **每一步都能追到人** —— 审批台账 + 逐动作审计 + OCAP 签名能力令牌（`myrm-agent-harness/src/myrm_agent_harness/core/security/ocap/token.py:49-53`）＝ 一版可核对的「送达 / 接收 / 消费」语义。
+  - **机器路径与凭据不进共享面** —— 敏感路径硬禁区（`myrm-agent-harness/src/myrm_agent_harness/core/security/path/filesystem.py:60` 的 "~/.ssh"）+ 凭据与指令形态分类（`core/security/detection/pii_classifier.py:92`、`core/security/detection/instruction_shape.py:79`）。
+  - **技能可以回收，不只是堆积** —— Curator 生命周期（`myrm-agent-harness/src/myrm_agent_harness/agent/skills/curator/`）、语义去重防熵增、装前 26 类 / 113 条扫描（`backends/skills/scanning/patterns.py:1-13`）、装后采纳契约（`myrm-agent/myrm-agent-server/app/core/skills/discovery/adopt.py:1-17`）。
+- **我们不宣称的部分（诚实差距）**：
+  1. **我们没有「用户级规则一处存放 + 跨客户端同步」的产品形态** —— 这是真实差距，背后那条路线图仍在进行中。竞品方案的**极简**（两个 symlink 脚本）是真实产品力，**我们目前给不出同等简单度**。
+  2. **我们的项目规则仍是整块静态注入**（`myrm-agent-harness/src/myrm_agent_harness/agent/workspace_rules/scanner.py` 与 `middleware.py`），**尚未按域分片与按需加载**。
+  3. **我们的一切带不走** —— 记忆、技能与审计都锁在我方产品内，**换工具就断**。
+  4. **我们没有「fork 别人整套设置再删减」的形态** —— 我们的技能来自市场与内置集，不是 fork 一个配置包。
+- **一条路线图条目，只做增补不重复开条**：`topic_08 #54`（项目根目录规程 [CLAUDE.md/.cursorrules/AGENTS.md] 多规范智能感知、语义结构化解析与一键无缝技能化桥接套件）—— 本轮补入 **指针式路线**（每仓库一行 + symlink + 一处管理）与该条规划的**解析式路线**（感知 → 结构化 → 技能化 → 按需加载）的路线对照，并把六条评论写成该条的验收约束。
+- **SSOT**：`temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md`（技能与插件生态轴 · 采纳侧文档，2026-10-22 新增段）· `temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（技能轴主文档，交叉引用行）· `temp-docs/materials/GENERAL_AI_ASSISTANT_COMPETITIVE_ADVANTAGE.md`（竞品对照速查表第 27 行）· `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`（#54）· `https://x.com/sairahul1/status/2108559612173574533`
+
 ## 最新验证快照（2026-10-22 · 微软论文：用离线使用日志挖技能 · 我们早就有这些日志，缺的是那把尺子 · 顺带订正我们路线图里自己写的一处口径）
 
 - **触发来源**：X @rohanpaul_ai（`https://x.com/rohanpaul_ai/status/2108543003505705304`，2026-10-09 21:00 北京时间；**25 回复 / 18 转推 / 87 赞 / 58 书签**，附 1 张图）解读微软 + UNC Chapel Hill 的 **TeleTune**（`arXiv:2610.05437`）。本轮用 ChromeAgent :9410 + chrome-devtools MCP 抽主帖 + **11 条可见回复**。
