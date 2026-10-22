@@ -22,7 +22,7 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
   4. **合意の偏り**——@An_yhl（98 いいね）:「数体のボットが話していたら、いつの間にかお互い褒め合っていないか」。
   併記: @CrazySoyo（328 いいね）は bot が Cursor から別の AI を一隊招集して議論させ、最初こそ同調するが、そのあとは互いに衝突し合う場面を綴っている。@ren3634421（701 いいね）は自己進化の第一歩が電気代を自分で払うことだと冗談めかして言い、@PANewsLab（655 いいね）は「便利だがプランが分かりにくい」と評し、@DesignerBingyi（571 いいね）はプロダクトの発想とエンジニアの発想の隔たりを指摘している。
 - **我々の現状（実コードで確認）——難問 4 つすべてに対応策がある**:
-  - **「このラウンドはよくなったか」→ 改善ゲートが原版を基準候補として追加する**: `myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:241-252` が原スキルの内容を基準候補として評価に投入し、**どの変案も原版を上回らなければ進化そのものを中止する**。FIX 経路も対称で同じ構造（`engine.py:194`、`engine.py:271`）。
+  - **「このラウンドはよくなったか」→ 改善ゲートが原版を基準候補として追加する**: `myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:241-253` が原スキルの内容を基準候補として評価に投入し、**どの変案も原版を上回らなければ進化そのものを中止する**。FIX 経路も対称で同じ構造（`engine.py:194`、`engine.py:271`）。
   - **「よくなったのか、ただ盛り上がっただけか」→ 回帰ケース門番**: `agent/skills/evolution/core/eval_regression.py:34` が守る用例は原スキルが元から通るものだけ。変案が守備用例を 1 つ失うごとに 0.15 の減点（`eval_regression.py:30`）、すべて失った場合は hard filter で弾かれる。
   - **「お互い褒め合う / 偽の合格」→ 空心テストの検出**: `agent/skills/evolution/execution/hollow_detector.py:40` と `execution/sandbox_validator.py:140-146` が、形式だけの断言・意味のない print・空っぽの検証スクリプトを拒否する。
   - **「自己最適化以外に何を出せるのか」→ 成果物は物理的証拠を通ること**: `agent/goals/verification/gatekeeper.py:44` が判定基準で検める、`agent/goals/verification/fault_attribution.py:132` がアプリロジック / コンパイル / テスト断言の失敗を切り分ける——「終わった」をモデル自身の宣言で済ませるわけではない。

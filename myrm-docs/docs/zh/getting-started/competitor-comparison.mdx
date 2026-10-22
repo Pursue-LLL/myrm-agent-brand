@@ -22,7 +22,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   4. **共识塌缩**——@An_yhl（98 赞）：「几个 bot 聊着聊着会不会开始互相捧场。」
   另记：@CrazySoyo（328 赞）bot 从 Cursor 拉一队不同 AI 激辩、先附和再开撕；@ren3634421（701 赞）「自我进化第一步：自己交电费」；@PANewsLab（655 赞）「好用，就是有点乱」；@DesignerBingyi（571 赞）谈产品/设计思维与工程师思维的差距。
 - **我方现状（经真实代码核对）——四个问题逐条有对应物**：
-  - **「这轮改好了」→ 改进闸把原版摆上台面竞争**：`myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:241-252` 把原技能作为 baseline 候选注入评测，**没有变体分数更高就跳过这次进化**；FIX 路径同构（`engine.py:194`、`engine.py:271`）。
+  - **「这轮改好了」→ 改进闸把原版摆上台面竞争**：`myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:241-253` 把原技能作为 baseline 候选注入评测，**没有变体分数更高就跳过这次进化**；FIX 路径同构（`engine.py:194`、`engine.py:271`）。
   - **「是变好还是只是聊得更起劲」→ 回归用例门禁**：`agent/skills/evolution/core/eval_regression.py:34` 只守护原技能本身能通过的用例，变体每丢一个守护用例扣 0.15（`eval_regression.py:30`），全丢则硬过滤。
   - **「互相捧场 / 假通过」→ 空心测试拦截**：`agent/skills/evolution/execution/hollow_detector.py:40` 与 `execution/sandbox_validator.py:140-146` 拒绝平凡断言、假打印与空验证脚本。
   - **「除了自我优化还能输出什么」→ 产出必须过物理证据**：`agent/goals/verification/gatekeeper.py:44` 按判据核验，`agent/goals/verification/fault_attribution.py:132` 区分应用逻辑 / 编译 / 测试断言类故障——「做完了」不是模型自己说了算。

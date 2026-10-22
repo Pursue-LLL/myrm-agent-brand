@@ -22,7 +22,7 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
   4. **합의 왜곡** — @An_yhl(98 좋아요): "몇 개 봇이 대화하다 보면 어쩌다 서로 맞장구치게 되지는 않는가."
   덧붙이면 @CrazySoyo(328 좋아요)는 bot이 Cursor에서 서로 다른 AI를 한 팀 불러들여 토론하고, 처음에는 동조하다가 곧 서로 부딪히는 모습을 서술했다. @ren3634421(701 좋아요)는 자기 진화의 첫 단계가 스스로 전기 요금을 내는 것이라고 농담했고, @PANewsLab(655 좋아요)는 "편리한데 요금제가 복잡하다"고 평했고, @DesignerBingyi(571 좋아요)는 제품 사고와 엔지니어 사고의 차이를 짚었다.
 - **우리 쪽 (실제 코드로 확인) — 어려운 질문 4가지 모두에 대응책이 있다**:
-  - **"이번 라운드가 좋아졌나" → 개선 게이트가 원본을 기준 후보로 세운다**: `myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:241-252`가 원본 스킬 내용을 기준 후보로 평가에 넣고, **어떤 변형도 원본을 이기지 못하면 진화 자체를 중단한다**. FIX 경로도 대칭으로 같은 구조다(`engine.py:194`, `engine.py:271`).
+  - **"이번 라운드가 좋아졌나" → 개선 게이트가 원본을 기준 후보로 세운다**: `myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:241-253`가 원본 스킬 내용을 기준 후보로 평가에 넣고, **어떤 변형도 원본을 이기지 못하면 진화 자체를 중단한다**. FIX 경로도 대칭으로 같은 구조다(`engine.py:194`, `engine.py:271`).
   - **"좋아진 건지 merely 떠들기만 한 건지" → 회귀 케이스 문지기**: `agent/skills/evolution/core/eval_regression.py:34`가 지키는 것은 원본 스킬이 원래 통과하는 케이스뿐이다. 변형이 지킨 케이스 하나를 잃을 때마다 0.15 감점(`eval_regression.py:30`), 전부 잃으면 hard filter로 걸러진다.
   - **"맞장구치기 / 가짜 통과" → 빈껍데기 테스트 탐지**: `agent/skills/evolution/execution/hollow_detector.py:40`와 `execution/sandbox_validator.py:140-146`가 형식만 맞춘 단언, 의미 없는 print, 빈 검증 스크립트를 거부한다.
   - **"자기 최적화 말고 무엇을 내놓나" → 산출물은 물리적 증거를 통과해야 한다**: `agent/goals/verification/gatekeeper.py:44`가 기준대로 검증하고 `agent/goals/verification/fault_attribution.py:132`가 애플리케이션 로직 / 컴파일 / 테스트 단언 실패를 구분한다 — "끝났다"를 모델이 스스로 선언하고 마치는 일이 아니다.
