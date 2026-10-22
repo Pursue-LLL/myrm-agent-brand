@@ -34,6 +34,24 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **一条路线图条目，只做增补不重复开条**：`topic_08 #457`（技能演进的异构评审与有界收敛闭环套件）—— 本轮独立复核了它的核心判断成立，并补上它原本没覆盖的另一半：**解耦评审者还不够，尺子也要解耦**。
 - **SSOT**：`temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（技能与插件生态轴主文档，2026-10-22 新增段）· `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`（#457）· `https://x.com/dingyi/status/2108395750128542180`
 
+## 最新验证快照（2026-10-22 · Hyperliquid 上出现「自主交易代理」 · 我们读了四个真实项目，而不是照信帖子 · 他们共同的安全模型是「凭据分层 + 硬性上限」，我方在「花钱」这一侧是同构形态且已交付）
+
+- **触发来源**：X @mariagpts（`https://x.com/mariagpts/status/2108508768111624330`，2026-10-09 18:43 北京时间；**10 回复 / 15 转推 / 150 赞 / 45 书签**，附演示视频）：「HYPERLIQUID 上刚刚出现了一个自主交易代理：集成策略、扫描市场、进入仓位并在交易中学习，作为 CLI 为 Claude、OpenAI 和 OpenClaw 工作 —— 现在 AI 在你睡觉时交易永续合约。」
+- **我们核对到的四个真实项目（不是帖子的说法）**：
+  1. **`hypurrclaw/hyperliquid-cli`**（MIT，Rust 单二进制；其 README 明确「**与 Hyperliquid 无官方关联**」）—— 给 Agent 一个 CLI **和一个钱包**：**API/代理钱包可交易但永远不能提现**（协议层保证）、主网变更需确认、`--dry-run` 预演副作用、testnet 一个开关、金额用 `rust_decimal` 精确计算、**每个变更命令都带机器可读 schema（含风险等级、是否需确认、是否支持 dry-run）**；`api-wallet revoke` 用短命一次性代理替换长期代理。
+  2. **`Chris0x88/hyperliquid-agent`** —— 「守护进程的每个决定都是确定性的，**循环里没有 LLM**」；先 watch-only，再逐步放权到自动再平衡。
+  3. **`federiconuss/hyperagent`**（MIT）—— 其 README 写明**不含交易策略、不含模型运行时、不含自主执行循环、不含仓位策略**，是一把刻意「不带脑子」的工具。
+  4. **`sanketagarwal/hyperliquid-trading-agent`** —— Claude 决策 buy/sell/hold，**硬编码仓位上限、杠杆上限与亏损保护**，亏损 ≥20% 强制平仓。
+- **他们共同的安全模型**：凭据分层 + 硬性上限。最有分量的一句是「代理钱包能交易、**不能提现**」—— 给 Agent 的钱被**用协议**锁在一小块面上，而不是靠提示词劝阻。
+- **我方现状（经真实代码核对）** —— 同一形态，用在「花钱」上，且已交付：**预占—核销—释放**三态（`myrm-agent-harness/src/myrm_agent_harness/core/security/egress/spend_governor.py:163`/`:259`/`:319`）、**整型美分记账**与单笔/日累计硬限额（`:78`）、启动自愈对账（`:131`）、**HMAC 签名且常数时间验签的防伪凭证**（`:330`/`:339`/`:355-356`）、商户域名与类目白名单（`myrm-agent/myrm-agent-server/app/api/commerce/spending_router.py:82`）、**紧急一键冻结**（`:88-94`）、命令风险等级（`myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/bash/_executor/command_classifier.py:34-39`）。Hermes 与 OpenClaw 的镜像里这些**全部零命中**。
+- **我们不宣称的部分（诚实差距）**：
+  1. **是不同的钱、不同的风险，不可相提并论**：他们交易带杠杆的永续合约、承担行情风险；我们管的是支出。**我们不做投资决策、不下单、不持仓** —— 这是定位取舍，不是待补的功能。
+  2. **没有链上或交易所接入**：没有钱包、没有撮合、没有资金费、没有强平。
+  3. 我们的限额语义是「商户 + 类目 + 金额」，不是交易所级的「仓位上限 + 杠杆上限 + 强平线」；**没有逐仓风控，也没有自动平仓**。
+  4. **我们不提供「把签名器交给外部 CLI」的形态**：我方是产品内的工作流与审批面（WebUI / 桌面端 / 渠道）。
+- **一条路线图条目，只做增补不重复开条**：`topic_16 #320`（预算即授权预审批契约、无感自主支付限额与合格交付总成本 TCQT 全景对账套件）—— 本轮补入：他们「凭据分层」的写法值得抄进我方对外话术，以及我方一处真实缺口 —— **没有统一的「按工具」机器可读风险契约，也没有 dry-run 预演面**，而那个生态的每个变更命令都带一份。
+- **SSOT**：`temp-docs/materials/COMMERCE_AGENT_TRANSACTIONAL_ADVANTAGE.md`（商业与组织能力轴主文档，2026-10-22 新增段）· `temp-docs/materials/GENERAL_AI_ASSISTANT_COMPETITIVE_ADVANTAGE.md`（竞品对照速查表第 24 行）· `temp-docs/roadmap/topic_16_office_agent_specialty_suites_and_deliverable_bundle_roadmap.md`（#320）· `https://x.com/mariagpts/status/2108508768111624330`
+
 ## 最新验证快照（2026-10-22 · 竞品给 2027 总统候选人做语音辩论陪练 · 我们核对了源码：Hermes 只提供语音底座，最出彩的那部分并不存在 · 我们这边是完整闭环 —— 实时语音、对齐看板真相的复盘、以及能留下经验的技能）
 
 - **触发来源**：X @leploutos（`https://x.com/leploutos/status/2108497163688779891`，2026-10-09 17:57 北京时间；**56 回复 / 31 转推 / 276 赞 / 117 书签**），法语原帖：2027 法国总统候选人团队请作者用 **Hermes Agent** 做一个**辩论与政治访谈模拟器**。每次会话前 Agent 扮演一名不留情面的记者（点名模仿 @PascalPraud 的风格）并带着上下文进场 —— 谁在提问、谁是对手、当前政治局势，**尤其是候选人的弱点**；随后候选人**用语音与 AI 对抗 10 到 20 分钟**，模拟记者与对手轮流施压把他逼入死角；会后 Agent 打分（不只看回答内容，还看**情绪、停顿、「呃」、犹豫**），产出给候选人与传播团队的改进清单报告，这份报告成为团队备战下一场辩论的共同底稿。本轮用 ChromeAgent :9410 + chrome-devtools MCP 抽取主帖与 **27 条可见回复**，再逐文件检索源码镜像 `external_reference_project/claw/hermes-agent`。
