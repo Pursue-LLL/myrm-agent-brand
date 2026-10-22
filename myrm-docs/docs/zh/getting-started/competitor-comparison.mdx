@@ -2337,7 +2337,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   - @souvik101990：「**Bot Screen leaks XDG_CONFIG_HOME into terminals, so gh says logged out.**」与「**It pins Chromium 145; profiles last opened by 149 crash ('CDP response channel closed'): #135932**」。
   - @alanscodelog：「**it has desktop only prompts which confused my agent.**」
 - **我们这边（对着真实代码核过）**：
-  - **「进行中」不会凭空消失** —— 侧栏聚合活跃子代理状态而非丢弃它（`myrm-agent-frontend/src/components/features/sidebar/ChatHistoryList.tsx:29` 的 `groupChatsByDate` 与顶部 Working 聚合区），会话组织可拖拽排序、可折叠（`ChatHistoryRow.tsx:517` `SortablePinnedRow`；`ChatHistoryList.tsx:222` `useCollapsedGroups()`）。
+  - **「你看得见过程，而不只是结果」** —— 对话区有**并发子代理的横向泳道条**（`myrm-agent-frontend/src/components/features/chat-window/in-flight-steer/ActiveSubagentSwimlanesBar.tsx`，由 `ChatWindowSatellites.tsx:37` 挂载）；侧栏里置顶会话可拖拽排序、时间分组可折叠（`ChatHistoryList.tsx:29` `groupChatsByDate`；`:222` `useCollapsedGroups()`；`:224`/`:248` `reorderPinnedChats` + `arrayMove`，落库见 `src/services/chat.ts:1379`）。
   - **「凭据不会漏进子进程」** —— 子进程环境继承是显式策略，凭据类变量按名屏蔽：`myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/security/env_isolation.py:37`（Subprocess environment inheritance strategy）与 `:110`（明确列出 `XDG_CONFIG_HOME`），另有 `security/shell_bleed.py:55`、`security/blacklist.py:290`。
   - **「桌面专属指令不会污染 Agent」** —— 桌面规则**仅在真正挂载了桌面操控能力时才注入**，且 IM 渠道被禁止泄漏 browser / desktop / CLI 工具与提示词：`myrm-agent-server/app/ai_agents/general_agent/mount_resolver.py:54`、`:41`，`factory.py:537`。
   - **「审批可核对，且不会静默过期」** —— 每条审批**存住它批的那份载荷**（`app/database/models/approval.py:34` `payload`），并带**动作类型**（`:27`）与**风险分级**（`:31` `severity`）；到期审批**自动拒绝并唤醒被挂起的任务**（`app/services/approvals/registry.py:56-57` 的到期扫描、`:149` 记录里带出到期时间、`:178` 把到期时间展示给用户）。

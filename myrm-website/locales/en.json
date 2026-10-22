@@ -1133,19 +1133,19 @@
           "feature": "Agent outward identity · a passport you can revoke at any time",
           "hermes": "Has an outbound-communication plugin and a trusted-peer allowlist",
           "openclaw": "Not verified",
-          "myrmAgent": "**Every one of your agents carries an outward passport: displayable, revocable at any moment, auditable, and it never leaks the agent’s internal instructions** (identity card `AgentCard` · revocable, auditable, no `system_prompt` leak). The entry point admits **only the peers you switched on yourself and trust** (`a2a_enabled` + trusted-peer allowlist) — not an open door for anyone."
+          "myrmAgent": "**Every one of your agents carries an outward passport: displayable, revocable at any moment, auditable, and it never leaks the agent's internal instructions** (identity card `AgentCard` · revocable, auditable, no `system_prompt` leak). Inbound agent traffic is checked against a **per-agent enable switch** (`a2a_enabled`) and a **trusted-peer allowlist** (`a2a_trusted_peer_ids`) that you control — a peer that is not on the list does not get silently believed: **the task it sends lands in the approval queue first**."
         },
         "desktopStateVisibility": {
-          "feature": "Desktop state you can actually see · never vanishes, never double, never leaks keys",
+          "feature": "Desktop visibility · concurrent subagents in plain sight, no credential leaks, desktop behaviour stays put",
           "hermes": "Community reports: the sidebar loses its \"in progress\" state while a subagent works (confirmed by its author); messages occasionally show twice",
           "openclaw": "Not verified",
-          "myrmAgent": "**While your agent works, the sidebar keeps showing what it is doing — it never goes quiet on you** (the sidebar aggregates live subagents). **Switch tools, switch machines, and your credentials still do not travel with it** (child processes do not inherit credential-bearing environment variables). **Desktop-only behaviour is injected only when desktop control is actually needed**, so your agent behaves the same everywhere else."
+          "myrmAgent": "**You can see your agent working**: a horizontal swimlane strip for concurrent subagents sits right in the chat, so you can steer them instead of guessing; in the sidebar pinned conversations are **drag-sortable** and time groups **collapsible**, so the ones you care about stay one drag away. **Switch tools, switch machines, and your credentials still do not travel with it** (child processes do not inherit credential-bearing environment variables). **Desktop-only behaviour is injected only when desktop control is actually needed**, so your agent behaves the same everywhere else."
         },
         "approvalPayloadAudit": {
           "feature": "Risky actions need your yes · we keep what you approved, and it never slips through",
           "hermes": "Has approvals with a timeout",
           "openclaw": "Has approval routing and notice timeouts; the expiry behaviour of the approval itself was not verified",
-          "myrmAgent": "**Every risky action you approve keeps a verbatim record of exactly what you approved** (including its action type and risk grade). **If you walk away, it is auto-rejected on expiry and the task you left behind is woken** — never silently let through, never left hanging when you come back."
+          "myrmAgent": "**Every risky action you approve keeps a verbatim record of exactly what you approved** (including its action type and risk grade). **If you walk away, it is auto-rejected on expiry with the timeout stated**, and the suspended agent is resumed by the harness — never silently let through, never left hanging when you come back."
         }
       }
     },
@@ -2027,15 +2027,15 @@
           "statLabel": "No TLD wait · derived from the domain and identifier you already have",
           "tag1": "Revocable, auditable identity card",
           "tag2": "Short address on your own domain",
-          "tag3": "Only peers you trust get in"
+          "tag3": "Unlisted peers land in approval first"
         },
         "desktopStateVisible": {
           "label": "Desktop visibility",
-          "title": "You can see it working — it never vanishes, messages never double, credentials never leak",
-          "desc": "**A competitor desktop maintainer publicly asked users whether things got steadier; among 104 replies the sharpest one was that the sidebar loses its in-progress state while a subagent runs — the maintainer themselves replied that you are right and that it could be improved on the UX side — plus messages occasionally rendering twice and credential variables leaking into terminals.** We put each of those on the code path: the sidebar **aggregates live subagents**, so a session that is delegating stays visibly in progress; pinned conversations are **drag-sortable** and time groups **collapsible**; child processes **do not inherit credential-bearing environment variables** by name (XDG_CONFIG_HOME and friends are blocked), so a login token cannot drift into a shell that happens to record it; and desktop-only instructions are **injected only when desktop control is actually part of the task**, so your agent behaves identically in the browser, in scheduled jobs and in channel chats.",
-          "stat": "Never vanishes",
-          "statLabel": "In-progress stays visible · no duplicate messages · no credential leaks",
-          "tag1": "Subagent in-progress state never lost",
+          "title": "You can see it working — concurrent subagents in plain sight, credentials never leak",
+          "desc": "**A competitor desktop maintainer publicly asked users whether things got steadier; among 104 replies the sharpest one was that the sidebar loses its in-progress state while a subagent runs — the maintainer themselves replied that you are right and that it could be improved on the UX side — plus messages occasionally rendering twice and credential variables leaking into terminals.** We put on the code path everything we could actually stand behind: a **horizontal swimlane strip for concurrent subagents** right in the chat (steer them directly); **drag-sortable pins** and **collapsible time groups** in the sidebar; child processes **do not inherit credential-bearing environment variables** by name (XDG_CONFIG_HOME and friends are blocked), so a login token cannot drift into a shell that happens to record it; and desktop-only instructions are **injected only when desktop control is actually part of the task**, so your agent behaves identically in the browser, in scheduled jobs and in channel chats.",
+          "stat": "Visible",
+          "statLabel": "Concurrent subagents visible and steerable · drag-sortable pins · no credential leaks",
+          "tag1": "Swimlane strip for concurrent subagents",
           "tag2": "Credentials not inherited by child processes",
           "tag3": "Desktop behaviour stays on the desktop"
         }

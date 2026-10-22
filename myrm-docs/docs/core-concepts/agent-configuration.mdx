@@ -305,7 +305,7 @@ An agent that talks to the outside world needs an identity that is **displayable
 Two deliberate choices make it safe to expose:
 
 - **The card never carries `system_prompt`.** What leaves the sandbox is the agent's outward self-description, not its internal configuration.
-- **The door is not open to anyone.** Outbound agent traffic is gated on an explicit per-agent enable switch plus a **trusted-peer allowlist** — you decide which peers may reach this agent, and you can revoke any of them at any time.
+- **The door is not open to anyone.** Inbound agent traffic is checked against a **per-agent enable switch** and a **trusted-peer allowlist** you control. A peer that is not on the list is not silently believed: **the task it sends lands in the approval queue first**, and you can register or revoke peers at any time.
 
 <Note>
 **Honest note.** A *readable public address* for an agent — a short vanity handle, or bring-your-own-domain — is a **designed, not-yet-shipped** capability; today what you can rely on is the identity card and its revocation semantics. We would rather state that boundary than let a roadmap item read as a feature.
