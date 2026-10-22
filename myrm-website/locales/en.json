@@ -216,6 +216,10 @@
         "platformVerification": {
           "question": "Does it really work on Windows / Linux, or is it just claimed support?",
           "answer": "**Others say \"works on all three platforms.\" We label every capability with its verification status, platform by platform.**\n\n- **macOS**: real-stack and real-binary test records — window lifecycle, privacy curtain (screen-lock unlock + full-screen cover), approval highlight structure, screen-lock detection;\n- **Windows / Linux**: the code paths are complete (the desktop shell has 46 Windows-specific branches), but **physical-machine verification is incomplete**, and we write the gaps down: hot-start deep-link hand-off, real click-through of the approval highlight, the screen-lock unlock matrix. The privacy curtain is **explicitly disabled in code on Linux**;\n- **Everything that does not depend on the desktop OS is identical on all three**: four voice modes + barge-in, the phone command deck + PWA, live meeting notes archived to the wiki.\n\n**What it means for you**: if a deep link does nothing on Windows, you can immediately see it is a publicly flagged unverified item on our side rather than your mistake — we only promise what we actually verified. This \"unlabelled means unverified\" discipline is something competitors generally do not do (they just say \"full platform support\")."
+        },
+        "agentAddress": {
+          "question": "Does my agent get its own public address? Do I have to wait for a top-level domain like .claw?",
+          "answer": "**No waiting, no buying.** A competitor just announced it won the `.claw` application, but the official notice puts it at **pre-evaluation**, costing **$227,000**, landing in the root zone around **late 2027 – early 2028** — and their own repository still has not a single line of TLD implementation. Myrm goes the other way: **every agent has an outward identity card right now** — displayable, revocable at any moment, auditable, and it never leaks internal instructions — and the entry point admits **only the peers you explicitly enabled and trust**. A **short address and bring-your-own-domain** can be derived from a readable identifier that already exists in your system: **no domain procurement, no gTLD wait, available today**."
         }
       }
     },
@@ -2014,6 +2018,26 @@
           "tag1": "Formula-set diff · formulas never silently flattened to values",
           "tag2": "Recalc catches #REF! / #NAME? · unreadable packages warn",
           "tag3": "Immutable artifact versions · one-click rollback"
+        },
+        "agentIdentityAddress": {
+          "label": "Identity & addressability",
+          "title": "Your agent has an identity today — no need to wait for a $227,000 TLD that lands in five years",
+          "desc": "**A competitor just announced it won a top-level-domain application and is still queuing for review — the official notice puts it at pre-evaluation only, with a reported cost of $227,000 and a landing window from late 2027 to early 2028 — and their own repository still contains not a single line of TLD implementation.** We took the opposite route: **every agent carries an outward identity card that is displayable, revocable at any moment, and auditable** (`AgentCard`, and it **never leaks the agent internal instructions**); the entry point **admits only the peers you switched on yourself and trust**, not an open door for anyone; and **a readable identifier already exists in your system** (the slug of a plugin-style agent profile, and `ai.myrm/agents/<slug>.md` on the harness side), so a short address and **bring-your-own-domain** can be derived from it — **no domain procurement, no gTLD wait, available today**.",
+          "stat": "Zero wait",
+          "statLabel": "No TLD wait · derived from the domain and identifier you already have",
+          "tag1": "Revocable, auditable identity card",
+          "tag2": "Short address on your own domain",
+          "tag3": "Only peers you trust get in"
+        },
+        "desktopStateVisible": {
+          "label": "Desktop visibility",
+          "title": "You can see it working — it never vanishes, messages never double, credentials never leak",
+          "desc": "**A competitor desktop maintainer publicly asked users whether things got steadier; among 104 replies the sharpest one was that the sidebar loses its in-progress state while a subagent runs — the maintainer themselves replied that you are right and that it could be improved on the UX side — plus messages occasionally rendering twice and credential variables leaking into terminals.** We put each of those on the code path: the sidebar **aggregates live subagents**, so a session that is delegating stays visibly in progress; pinned conversations are **drag-sortable** and time groups **collapsible**; child processes **do not inherit credential-bearing environment variables** by name (XDG_CONFIG_HOME and friends are blocked), so a login token cannot drift into a shell that happens to record it; and desktop-only instructions are **injected only when desktop control is actually part of the task**, so your agent behaves identically in the browser, in scheduled jobs and in channel chats.",
+          "stat": "Never vanishes",
+          "statLabel": "In-progress stays visible · no duplicate messages · no credential leaks",
+          "tag1": "Subagent in-progress state never lost",
+          "tag2": "Credentials not inherited by child processes",
+          "tag3": "Desktop behaviour stays on the desktop"
         }
       }
     }

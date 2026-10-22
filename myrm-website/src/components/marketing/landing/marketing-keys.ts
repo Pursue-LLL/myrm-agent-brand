@@ -75,6 +75,8 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'functionHooks',
   'truthfulVerification',
   'officeFidelity',
+  'agentIdentityAddress',
+  'desktopStateVisible',
 ] as const;
 
 export type HighlightSlideKey = (typeof HIGHLIGHT_SLIDE_KEYS)[number];
@@ -304,6 +306,6 @@ export const USE_CASE_KEYS = ['research', 'coding', 'automation', 'content', 'te
 
 export type UseCaseKey = (typeof USE_CASE_KEYS)[number];
 
-export const FAQ_ITEM_KEYS = ['what', 'pronounce', 'local', 'data', 'embedWindow', 'cloudResources', 'optionalExtras', 'commerceSupport', 'migrate', 'personalAgent', 'ghostError', 'captcha', 'ecosystem', 'regression', 'openSource', 'deviceHardware', 'platformVerification'] as const;
+export const FAQ_ITEM_KEYS = ['what', 'pronounce', 'local', 'data', 'embedWindow', 'cloudResources', 'optionalExtras', 'commerceSupport', 'migrate', 'personalAgent', 'ghostError', 'captcha', 'ecosystem', 'regression', 'openSource', 'deviceHardware', 'platformVerification', 'agentAddress'] as const;
 
 export type FaqItemKey = (typeof FAQ_ITEM_KEYS)[number];
