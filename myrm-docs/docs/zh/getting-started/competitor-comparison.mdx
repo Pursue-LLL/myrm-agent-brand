@@ -34,6 +34,34 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **一条路线图条目，只做增补不重复开条**：`topic_08 #457`（技能演进的异构评审与有界收敛闭环套件）—— 本轮独立复核了它的核心判断成立，并补上它原本没覆盖的另一半：**解耦评审者还不够，尺子也要解耦**。
 - **SSOT**：`temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（技能与插件生态轴主文档，2026-10-22 新增段）· `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`（#457）· `https://x.com/dingyi/status/2108395750128542180`
 
+## 最新验证快照（2026-10-22 · 包管理器也能装技能了 · pnpm v12.11 发布 Agent Skills，而它自己的文档就写明了代价：一次批准覆盖后续所有版本 · 我们读了官方文档，我们的答案是「逐次改动可见」）
+
+- **触发来源**：X @pnpmjs（pnpm 官方账号）：「pnpm v12.11 can install skills. related docs: https://pnpm.io/agent-skills」（`https://x.com/pnpmjs/status/2108646891902640466`，2026-10-10 03:52 北京时间；**28 回复 / 72 转推 / 568 赞 / 130 书签**，附 1 张图）。本轮用 ChromeAgent :9410 + chrome-devtools MCP 抽取主帖与 **17 条可见回复**，并逐段读了官方文档 pnpm.io/agent-skills。
+- **官方文档实际写了什么（逐条）**：
+  1. 包可用 \`skills/<name>/SKILL.md\` 携带技能（pnpm **只看一层深**）；「A package can consist of nothing but skills.」
+  2. **未批准前一个链接都不建**：「A skill is instructions that an agent follows **in every session**, and it may include scripts the agent runs. So pnpm links nothing until you approve the package.」
+  3. 用 \`pnpm approve\` 审阅，决定写进 \`pnpm-workspace.yaml\` 的 \`permissions: { drizzle-kit: { skills: true } }\`。
+  4. **待审批不阻塞安装**：「A pending skill never fails the install.」
+  5. **代价**：「**An approval covers every skill of the package, in every later version.**」
+  6. 链接落到工作区根的各 Agent 技能目录（\`.claude/skills\`、\`.cursor/skills\`、\`.gemini/skills\`、\`.agents/skills\`、\`.github/skills\`），按环境变量自动创建；\`skills.dirs\` 可自定义，空列表=关闭。
+  7. 链接名为 \`pnpm-<package>-<skill>\`，pnpm 会在每个目录写一条 \`pnpm-*\` 的 \`.gitignore\`。
+  8. 清理克制：包移除 / 审批撤销 / 包不再带该技能时移除链接，且「**It never replaces or removes an entry it did not create, and fails if one is in the way.**」
+  9. 边界：全局安装、\`pnpm dlx\`、\`pnpm deploy\` 不链接技能；工作区多版本时**最高版本**决定。
+- **最关键的一条评论**（@NickCostaES，34 赞）：「your docs say the part that matters: **an approval covers every skill of the package in every later version. So the text your agent follows can change on the next install and nothing asks again. I'd want pnpm approve to show the diff when a skill changed.**」—— 这句几乎逐字复述了官方文档，也点破了唯一的洞。
+- **一个值得记住的形态信号**：同一个帖子里既有 481 赞的「Awesome」，也有「Why?」「what does it mean」「you lost it wtf」—— **多数人其实仍不知道 skill 是什么**。
+- **我方现状（经真实代码核对）**：
+  - **逐次可见，而不是整包批准**：增量差异实时上屏（\`myrm-agent/myrm-agent-frontend/src/store/chat/messageStream/handlers/fileDiffEvents.ts:31\`）、动手前影子 Git 快照（\`myrm-agent-harness/src/myrm_agent_harness/agent/file_snapshot/shadow_git_store.py:97\`）、审批卡一键回退（\`myrm-agent/myrm-agent-server/app/api/approvals/router.py:350-351\`、\`myrm-agent/myrm-agent-frontend/src/components/approval/DestructiveUndoCard.tsx:51\`）。
+  - **粒度到技能**：逐技能信任由用户覆写（\`myrm-agent/myrm-agent-server/app/core/skills/store/service.py:185-201\`）+ 工作区信任三档（\`myrm-agent-harness/src/myrm_agent_harness/agent/security/workspace_trust/types.py:24-30\`）。
+  - **装前而不是装后**：26 类威胁 / 113 条静态模式在装前跑（\`myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/patterns.py:1-13\`）。
+  - **装完确实生效**：采纳桥把新技能追加到非空 allowlist，下一轮即可加载（\`myrm-agent/myrm-agent-server/app/core/skills/discovery/adopt.py:1-17\`）；ClawHub 已是已接入的上游市场源（\`myrm-agent-harness/src/myrm_agent_harness/backends/skills/market/sources/clawhub.py:1-4\`）。
+- **我们不宣称的部分（诚实差距）**：
+  1. **我们没有包管理器这条分发渠道 —— 这是真实差距**：pnpm/npm 把技能带进**项目依赖树**，自带版本锁定、供应链审计与离线可复现；我们的市场源是**目录式**，没有依赖树语义，也没有版本锁定。
+  2. **我们不提供「整包一次批准」的轻量模式**：我们是逐技能准入 + 逐次差异，**更严但也更啰嗦**；对只想「一次装一包」的用户，pnpm 确实更省事。
+  3. **技能目录的白话可读性不足**：pnpm 靠一条命令 + 社区漫画把概念讲清楚；**我们若要接包管理器渠道，先要修的是「技能目录的白话说明」，而不是再加一个安装入口**。
+  4. **我们没有 pnpm 那套克制的链接语义**（链接 + \`.gitignore\` + 绝不碰非自己创建的条目），我们的技能安装是目录式接管，两者不可直接比较。
+- **一条路线图条目，只做增补不重复开条**：\`topic_08 #49\`（技能三方合并安全更新与装前沙箱安全审计套件）—— 本轮补入的是该条最强的外部证据：**竞品自己的文档写明一次批准会静默覆盖该包后续版本的每个技能，而它的用户已经在要求「技能变了就把差异给我看」**。
+- **SSOT**：\`temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md\`（技能与插件生态轴 · 采纳侧文档，2026-10-22 新增段）· \`temp-docs/materials/GENERAL_AI_ASSISTANT_COMPETITIVE_ADVANTAGE.md\`（竞品对照速查表第 25 行）· \`temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md\`（#49）· \`https://pnpm.io/agent-skills\` · \`https://x.com/pnpmjs/status/2108646891902640466\`
+
 ## 最新验证快照（2026-10-22 · Hyperliquid 上出现「自主交易代理」 · 我们读了四个真实项目，而不是照信帖子 · 他们共同的安全模型是「凭据分层 + 硬性上限」，我方在「花钱」这一侧是同构形态且已交付）
 
 - **触发来源**：X @mariagpts（`https://x.com/mariagpts/status/2108508768111624330`，2026-10-09 18:43 北京时间；**10 回复 / 15 转推 / 150 赞 / 45 书签**，附演示视频）：「HYPERLIQUID 上刚刚出现了一个自主交易代理：集成策略、扫描市场、进入仓位并在交易中学习，作为 CLI 为 Claude、OpenAI 和 OpenClaw 工作 —— 现在 AI 在你睡觉时交易永续合约。」

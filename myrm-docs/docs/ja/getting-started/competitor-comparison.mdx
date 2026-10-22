@@ -11,6 +11,34 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
 **移行における安心ポイント** — SaaS・セルフホスト・デスクトップから自由に選択でき、HermesのスキルはGUI経由のZIPで直接インポート可能です。以下の詳細比較表でチャンネル・メモリ・セキュリティを行単位で確認した上でご検討いただけます。Grok Buildなどのプラグイン中心の製品をお使いの場合、Myrmはモデル・スキル・MCP・サブエージェント・安全プロファイルを**ワンクリックで一括セットアップ**するエージェントパッケージを提供します。ドキュメントとアプリは**6言語**(zh/en/ja/ko/de/zh-TW)に対応しており、WebUI・クラウドホスト・Tauriデスクトップのすべてで、初回アクセス時にブラウザ言語を自動判別します。
 </Note>
 
+## 最新検証スナップショット (2026-10-22 · パッケージマネージャもスキルを導入できるようになった · pnpm v12.11 が Agent Skills を出し、公式ドキュメント自身が代償を書き記した ——「一度の承認は以降のすべてのバージョンを覆う」 · 公式ページを読みonation、我々の答えは「変更ごとに見える」こと)
+
+- **きっかけ**: X @pnpmjs（pnpm 公式アカウント）「pnpm v12.11 can install skills. related docs: https://pnpm.io/agent-skills」（`https://x.com/pnpmjs/status/2108646891902640466`、2026-10-10 03:52 北京時間。**28 リプライ / 71 リポスト / 568 いいね / 130 ブックマーク**、画像 1 枚）。本ラウンドでは ChromeAgent :9410 + chrome-devtools MCP で本文と**可視の返信 17 件**を抽出し、公式ページ pnpm.io/agent-skills を節ごとに読んだ。
+- **公式ドキュメントが実際に述べていること**:
+  1. パッケージは `skills/<name>/SKILL.md` でスキルを同梱できる（pnpm は**1 階層だけ**を見る）。「A package can consist of nothing but skills.」
+  2. **承認するまでリンクは一切作られない**：「A skill is instructions that an agent follows **in every session**, and it may include scripts the agent runs. So pnpm links nothing until you approve the package.」
+  3. 承認は `pnpm approve` で確認し、`pnpm-workspace.yaml` の `permissions: { drizzle-kit: { skills: true } }` に記録される。
+  4. **承認待ちでも install は失敗しない**：「A pending skill never fails the install.」
+  5. **代償**：「**An approval covers every skill of the package, in every later version.**」
+  6. リンク先はワークスペース直下の Agent スキルディレクトリ（`.claude/skills`、`.cursor/skills`、`.gemini/skills`、`.agents/skills`、`.github/skills`）。環境変数で識別して無ければ作る。`skills.dirs` で指定でき、空リストなら機能 Off。
+  7. リンク名は `pnpm-<package>-<skill>`、pnpm は各ディレクトリに `pnpm-*` の `.gitignore` を書く。
+  8. 後片付けは慎重 —— パッケージ撤去 / 承認取り消し / スキル同梱終了のときだけリンクを消し、「**It never replaces or removes an entry it did not create, and fails if one is in the way.**」
+  9. 境界 —— グローバル install、`pnpm dlx`、`pnpm deploy` はリンクしない。ワークスペースに複数版があるときは**最も新しい版**がリンクを決める。
+- **最も効くコメント**（@NickCostaES、34 いいね）:「your docs say the part that matters: **an approval covers every skill of the package in every later version. So the text your agent follows can change on the next install and nothing asks again. I'd want pnpm approve to show the diff when a skill changed.**」—— ほぼ原文の言い換えであり、唯一の穴を正確に指している。
+- **残しておく価値のある形態の信号**: 同じスレッドには 481 いいねの「Awesome」と同時に「Why?」「what does it mean」「you lost it wtf」も並ぶ —— **そもそも skill を知らない人が多数**。
+- **我々の現状（実コードで確認）**:
+  - **整包承認ではなく、変更ごとに見える** —— 差分は会話にストリーム（`myrm-agent/myrm-agent-frontend/src/store/chat/messageStream/handlers/fileDiffEvents.ts:31`）、着手前に shadow Git スナップショット（`myrm-agent-harness/src/myrm_agent_harness/agent/file_snapshot/shadow_git_store.py:97`）、承認カードにワンクリック rollback（`myrm-agent/myrm-agent-server/app/api/approvals/router.py:350-351`、`myrm-agent/myrm-agent-frontend/src/components/approval/DestructiveUndoCard.tsx:51`）。
+  - **粒度はスキル単位** —— ユーザーによる信頼度の上書き（`myrm-agent/myrm-agent-server/app/core/skills/store/service.py:185-201`）とワークスペース信頼 3 段（`myrm-agent-harness/src/myrm_agent_harness/agent/security/workspace_trust/types.py:24-30`）。
+  - **install の前**に —— 26 脅威カテゴリ / 113 の静的パターンが入る前に走る（`myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/patterns.py:1-13`）。
+  - **入れたら実際に効く** —— 採用ブリッジが新しいスキル_dst を空でない allowed list へ追加し、次のターンから読み込める（`myrm-agent/myrm-agent-server/app/core/skills/discovery/adopt.py:1-17`）；ClawHub は既に接続済みの上流マーケットソース（`myrm-agent-harness/src/myrm_agent_harness/backends/skills/market/sources/clawhub.py:1-4`）。
+- **我々が主張しない部分（正直な差距）**:
+  1. **パッケージマネージャという配布経路が無いのは実在する差距** —— pnpm/npm はスキルを**プロジェクトの依存ツリー**に載せるため、バージョン固定・サプライチェーン監査・オフライン再現が付いてくる。我々のマーケットソースは**ディレクトリ型**で、依存ツリーの意味もバージョン固定も無い。
+  2. **「まとめて 1 回承認」という軽-weight な形は提供しない** —— 我々はスキル単位の准入判定判定と変更ごとの差分。**厳しくは-noise は多い**。「一度入れたいだけ」の利用者には pnpm のほうが本当に楽である。
+  3. **カタログの平易さに欠ける** —— pnpm は 1 つのコマンドと Sheng の漫画で概念を説明している。我々がパッケージマネージャ経路を足すなら、まず直すのは**「スキルとは何か」の可読性**で、インストール口を増やすことではない。
+  4. **pnpm の慎重なリンク意味論（リンク + `.gitignore` + 他者のエントリに绝不触る）は無い** —— 我々のスキル導入はディレクトリ接管であり、直接比較できない。
+- **ロードマップ項目は 1 件、ただし新設ではなく増補**: `topic_08 #49`（スキルの三方マージ安全更新と導入前サンドボックスセキュリティ監査）—— このラウンドで加えたのは当該項目にとって最強の外部証拠であり、**競合の公式ドキュメント自身が「一度の承認が後続すべてのバージョンを静かに覆う」と書き記し、利用者はすでに「スキルが変わったら差分を示してほしい」と demanded している**。
+- **SSOT**: `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md`（スキルとプラグイン生態軸 · 採用側文書、2026-10-22 新規節）· `temp-docs/materials/GENERAL_AI_ASSISTANT_COMPETITIVE_ADVANTAGE.md`（競合早見表 25 行目）· `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`（#49）· `https://pnpm.io/agent-skills` · `https://x.com/pnpmjs/status/2108646891902640466`
+
 ## 最新検証スナップショット (2026-10-22 · Hyperliquid 上に自律取引エージェントが出現 · 帖を信じず実在する 4 プロジェクトを読んだ · 彼らの共通安全モデルは「資格の階層化 + 硬い上限」で、我々は「出金」側で同じ形をすでに届けている)
 
 - **きっかけ**: X @mariagpts (`https://x.com/mariagpts/status/2108508768111624330`、2026-10-09 18:43 北京時間。**10 リプライ / 15 リポスト / 150 いいね / 45 ブックマーク**、デモ動画つき)。「HYPERLIQUID 上に自律取引エージェントが現れた —— 戦略を内蔵し、市場を走査し、ポジションに入り、取引しながら学び、Claude・OpenAI・OpenClaw の CLI として動く。今は AI が眠っている間に無期限先物を売買する。」
