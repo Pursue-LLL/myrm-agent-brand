@@ -324,7 +324,7 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 - **시그널**: 스킬·서브에이전트·MCP가 **공식 인증 과정의 최상위 카탈로그**에 들어갔습니다(커뮤니티 튜토리얼이 아니라 과정 + 증명서) → 스킬이 취미에서 **가르치고 시험 받고 이력서에 오를 수 있는 직업 능력**으로 이동. 이는 우리 로드맵이 이미 기록한 흐름(topic_08 "공식 벤더가 스킬을 일급 시민으로 취급")의 **두 번째 독립 확인**입니다.
 - **댓글 중 유일하게 정보 있는 한 줄(@AleksejAros, 42 좋아요)**: "18 free courses is a lot of homework, but Claude 101 then the Cowork workflows one is a sensible order. **Certificates I'd treat as a side effect.**" → **증명은 부산물이고 순서가 핵심**입니다.
 - **더 빌려올 만한 생태계 사실**: 'AI에게 쓰게 하기' 자체가 **설치 가능한 스킬**이 되었습니다 — 미러에 최소 네 개의 `skill-creator`가 있습니다(`external_reference_project/claw/anthropics-skills/skills/skill-creator`, `openclaw/skills/skill-creator`, `LobsterAI/SKILLs/skill-creator`, `awesome-claude-skills/skill-creator`).
-- **우리의 현황(실 코드로 대조)**: **범용 `skill-creator`보다 한 바퀴 더 합니다** — 진입점 `myrm-agent-frontend/src/lib/skills/composeLearnSlashMessage.ts:51`(`/learn` 메시지 생성) + 웹사이트에 이미 명시된 "Settings 학습 위저드: 디렉터리 + URL + 설명 + 5개 시나리오 chip → 한 번의 클릭으로 `/learn`(대화 자동 개방) → 초안 리뷰 → `[use skill]` 호출 가이드"; 증착과 게이트는 `myrm-agent-harness/.../agent/skills/evolution/core/engine.py`(진화 엔진) + `eval_regression.py`(진화 후 회귀 어서션) + `myrm-agent-server/app/services/skills/evolution_review/actions.py`(수동 검토 액션); 게이트 자체는 설치 전 26종 / 113 패턴 정적 스캔 + 신뢰 4단계 + 사용자 승격·취소. **⇒ 이 강점은 웹사이트에 이미 정직하게 기재되어 있어 이번 라운드에 새 홍보가 필요 없습니다.**
+- **우리의 현황(실 코드로 대조)**: **범용 `skill-creator`보다 한 바퀴 더 합니다** — 진입점 `myrm-agent-frontend/src/lib/skills/composeLearnSlashMessage.ts:51`(`/learn` 메시지 생성) + 웹사이트에 이미 명시된 "Settings 학습 위저드: 디렉터리 + URL + 설명 + 5개 시나리오 chip → 한 번의 클릭으로 `/learn`(대화 자동 개방) → 초안 리뷰 → `[use skill]` 호출 가이드"; 증착과 게이트는 `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py`(진화 엔진) + `eval_regression.py`(진화 후 회귀 어서션) + `myrm-agent-server/app/services/skills/evolution_review/actions.py`(수동 검토 액션); 게이트 자체는 설치 전 26종 / 113 패턴 정적 스캔 + 신뢰 4단계 + 사용자 승격·취소. **⇒ 이 강점은 웹사이트에 이미 정직하게 기재되어 있어 이번 라운드에 새 홍보가 필요 없습니다.**
 - **주장하지 않는 것(정직한 격차)**: ① **사용자 대상 '역량 경로 / 학습 맵'이 없습니다** — 내장 스킬 134개, 스캔 규칙 26종, 채널 26개, 4단계 점진적 공개가 **평평하게** 놓여 있고, 경쟁사는 최소한 **순서가 있는 입문 경로**(Claude 101 → Cowork)를 제공합니다. @AleksejAros의 "부족한 건 증명이 아니라 순서"가 정확히 이 자리에 해당합니다. ② **이번 라운드에는 새 로드맵 항목을 만들지 않습니다** — 이는 런타임 메커니즘이 아니라 **제품 형태**이고 같은 축의 `SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md`(스킬 마켓·채택)와 인접하므로, **동일 축 중복 구축을 막기 위해 수요와 현황만 기록**합니다.
 - **SSOT**: `temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`(스킬·플러그인 축 주 문서, 2026-10-22 추가 절) · `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md`(동일 축 채택 측, 유일한 인계처) · `https://x.com/Amelia_With_Ai/status/2108142676881362977`
 
@@ -334,7 +334,7 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 - **경쟁사의 두 문**: ① "**What it's acting on is real.** The price, the seller, the ticket: none of it can be fake." — Verona는 **zero-knowledge proof**로 사실을 검증합니다(사용자 500만+, 검증된 상호작용 7000만+ 라고 주장). ② "**The agent is really yours.** It has to be clear who the agent buys for, and who answers if it makes a mistake." — Billions는 검증된 실사람에 연결된 ID 카드를 각 에이전트에 부여합니다(실명 사용자 250만+, ID를 가진 에이전트 25,000+ 라고 주장).
 - **상대 자신의 업계 판단**: "So far, most of the effort has gone into making agents smarter. **Much less has gone into making sure they're safe to hand your wallet to.**"
 - **댓글 중 유일하게 정보 있는 한 줄(@INIODU 💛, 112 좋아요)**: "**trust needs proof not promises** — appreciate the guide!" → **신뢰는 약속이 아니라 증명이 필요합니다.**
-- **우리의 현황(실 코드로 대조)**: **귀속 쪽 절반에는 로컬에서 대조할 대응물이 있습니다** — 통일 승인 원장 `approvals`(`myrm-agent-server/app/database/models/approval.py:15-30`: `agent_id` / `chat_id` / `thread_id` / `action_type` / `reason` / 상태와 만료) + 액션별 감사 기록(`myrm-agent-harness/.../core/security/audit.py:191-200`의 `record_decision`) + **에이전트의 권한 범위는 서명 토큰으로 제한**(`core/security/ocap/token.py:49-53`의 `sign_capability_handle`: HMAC-SHA256 서명, 상수 시간 검증, 감쇠 가능). **사실 쪽 절반은 암호학적이 아니라 추적 가능**입니다(근거 있는 주장 / 발행 컴플라이언스 게이트 / 1차 출처로의 숫자 중재 / 전 체인 증거 추적). **그리고 '잘못 사면 어떻게 하나'는 우리만 가진 세 번째 다리** — 계획 사전 확인 → 증분 diff → 그림자 스냅샷 → 원클릭 되돌리기.
+- **우리의 현황(실 코드로 대조)**: **귀속 쪽 절반에는 로컬에서 대조할 대응물이 있습니다** — 통일 승인 원장 `approvals`(`myrm-agent-server/app/database/models/approval.py:15-30`: `agent_id` / `chat_id` / `thread_id` / `action_type` / `reason` / 상태와 만료) + 액션별 감사 기록(`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/audit.py:191-200`의 `record_decision`) + **에이전트의 권한 범위는 서명 토큰으로 제한**(`core/security/ocap/token.py:49-53`의 `sign_capability_handle`: HMAC-SHA256 서명, 상수 시간 검증, 감쇠 가능). **사실 쪽 절반은 암호학적이 아니라 추적 가능**입니다(근거 있는 주장 / 발행 컴플라이언스 게이트 / 1차 출처로의 숫자 중재 / 전 체인 증거 추적). **그리고 '잘못 사면 어떻게 하나'는 우리만 가진 세 번째 다리** — 계획 사전 확인 → 증분 diff → 그림자 스냅샷 → 원클릭 되돌리기.
 - **주장하지 않는 것(정직한 경계)**: ① **상대의 규모 예측 수치를 인용하지 않습니다**(McKinsey 3~5조 달러, Deloitte 400억 달러는 **제3자 예측**이며 실측된 능력이 아닙니다). ② **ZKP도 온체인 신원도 만들지 않습니다** — 우리의 길은 대조 가능하고 오프라인에서도 성립하는 증거 체인과 승인 귀속입니다. ③ **"제3자가 독립적으로 검증할 수 있는 신원 카드"가 없습니다** — 상대가 나를 독립적으로 검증해야 한다는 것이 사업상 필수라면 그건 상대의 홈그라운드이며, 가지고 있다고 주장하지 않습니다. ④ 본건은 **새 로드맵 항목을 만들지 않습니다** — 부족분에는 온체인 또는 제3자 서비스가 필요해 로컬 자립 경로와 충돌합니다. 형태 수준의 요구는 이미 `topic_20 #64`(책임 라우팅과 거절 가능한 인수)와 `topic_01 #211`(배치 판단 기준과 통합 타임라인)에 있습니다.
 - **SSOT**: `temp-docs/materials/COMMERCE_AGENT_TRANSACTIONAL_ADVANTAGE.md`(상업·조직 축 주 문서, 2026-10-22 제 8 절 추가) · `temp-docs/materials/SECURITY_ADVANTAGE.md`(계획 → 변경 → 되돌리기) · `https://x.com/billions_ntwk/status/2108212989585154475`
 
@@ -749,7 +749,7 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
   4. **절대 URL 표준화 정규화**: `urllib.parse.urljoin(current_url, raw_url)` 강제로 상대 경로로 인한 데드 링크 완전 박멸;
   5. **프롬프트 접두사 캐시 제로 파괴**: 매칭 도메인 접속 시에만 Harness `DomainSkillStore`를 통해 최소 툴 시그니처(~20 토큰)를 동적 주입하여 대형 모델 KV Cache 100% 보존;
   6. **100% 풀스택 자동화 테스트 통과**: `test_cn_social_tools.py` 6/6 통과, `test_domain_skill_store.py` 59/59 통과, API 스키마 검증 테스트 25/25 전량 통과.
-- **SSOT 출처:** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/domain_skills/builtin/` · `myrm-agent-harness/tests/toolkits/browser/domain_skills/test_cn_social_tools.py` · `temp-docs/materials/BROWSER_AUTOMATION_ADVANTAGE.md`
+- **SSOT 출처:** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/domain_skills/builtin/` · `myrm-agent/myrm-agent-harness/tests/toolkits/browser/domain_skills/test_cn_social_tools.py` · `temp-docs/materials/BROWSER_AUTOMATION_ADVANTAGE.md`
 
 ## 최신 검증 스냅샷 (2026-09-04 · 세션 수준 통합 지식 베이스 피커 및 다중 소스 하이브리드 검색 · 지식 및 위키 완료)
 
@@ -971,7 +971,7 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
   3. **표준 이벤트 분배 및 취소 토큰 연동 (`stream_dispatcher.py`)**: 차단 즉시 `CancellationToken`을 트리거하여 상위 LLM 생성을 중단하고 표준 `AgentEventType.ERROR` 이벤트를 브로드캐스트하여 WebUI에 우아한 재시도 복구 카드를 렌더링;
   4. **제로 토큰 팽창 및 프롬프트 캐시 안정성**: 결정론적 스트리밍 엔진 계층에서 순수하게 동작하여 시스템 프롬프트 오염 없이 KV Cache 히트율 90% 이상 유지;
   5. **100% 테스트 커버리지 및 제로 부채**: 88개 스트리밍 파이프라인 단위/통합 테스트 전량 통과 (100% 그린, 0 린트 오류, 0 좀비 프로세스).
-- **SSOT 출처:** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/streaming/repetition_scrubber.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/streaming/stream_dispatcher.py` · `myrm-agent-harness/tests/agent/streaming/`
+- **SSOT 출처:** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/streaming/repetition_scrubber.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/streaming/stream_dispatcher.py` · `myrm-agent/myrm-agent-harness/tests/agent/streaming/`
 
 ## 최신 검증 스냅샷 (2026-08-27 · 표준 Streamable HTTP MCP 메모리 엔드포인트 및 GUI 연결 마법사 · 로드맵 Topic 01 #8 완료)
 
@@ -1110,7 +1110,7 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
   3. **프롬프트 캐시 접두사 불변성 보장**: 시스템 동작 규칙 및 보안 경계 규칙의 불변성을 검증하여 다회차 턴 및 테넌트 간 KV Cache 히트율을 극대화;
   4. **Code-as-Action 일괄 스크립트 실행 유도**: `browser_execute_script_tool` 안내를 개선하여 $\ge 3$ 단계 연속 브라우저 상호작용 시 Python 배치 스크립트 작성을 유도, 다회차 라운드트립 지연 및 토큰 낭비를 절감;
   5. **전체 스택 테스트 검증**: 토큰 예산 게이트, 프롬프트 무결성 및 규율 테스트 100% 통과, 0 오류, 0 경고, 0 좀비 프로세스.
-- **자료 SSOT:** `temp-docs/roadmap/topic_06_context_session_roadmap.md` · `myrm-agent-harness/scripts/measure_tool_schema_tokens.py` · `myrm-agent-harness/tests/architecture/test_prompt_token_budget_gate.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/tool_management/DEFAULT_AGENT_TOKEN_INVENTORY.md`
+- **자료 SSOT:** `temp-docs/roadmap/topic_06_context_session_roadmap.md` · `myrm-agent/myrm-agent-harness/scripts/measure_tool_schema_tokens.py` · `myrm-agent/myrm-agent-harness/tests/architecture/test_prompt_token_budget_gate.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/tool_management/DEFAULT_AGENT_TOKEN_INVENTORY.md`
 
 ## 최신 검증 스냅샷 (2026-08-26 · 스트리밍 중단 시 잔여 콘텐츠 접두사 보존 및 대화 분기 상속 · Roadmap Topic 15 #4 완료)
 
