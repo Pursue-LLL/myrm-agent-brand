@@ -34,6 +34,23 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **一条路线图条目，只做增补不重复开条**：`topic_08 #457`（技能演进的异构评审与有界收敛闭环套件）—— 本轮独立复核了它的核心判断成立，并补上它原本没覆盖的另一半：**解耦评审者还不够，尺子也要解耦**。
 - **SSOT**：`temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（技能与插件生态轴主文档，2026-10-22 新增段）· `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`（#457）· `https://x.com/dingyi/status/2108395750128542180`
 
+## 最新验证快照（2026-10-22 · 「做 2–3 次，然后喂会话 ID 生成技能」 · 一份被 130 赞验证过的**人工版**技能蒸馏配方 · 我们做的是同一件事，但自动、并且多两道它没有的质量门）
+
+- **触发来源**：X @shannholmberg（Shann³）《The simplest way to turn a marketing task you're already doing into a repeatable workflow》（`https://x.com/shannholmberg/status/2108459414961389680`，2026-10-09 15:27 北京时间；**23 回复 / 13 转推 / 130 赞 / 170 书签**，2 张图）。本轮用 ChromeAgent :9410 + chrome-devtools MCP 抽主帖 + **18 条可见回复**。
+- **配方原文**：让 Agent 端到端做完，你负责引导、纠正与判断；**重复 2–3 次**以捕捉常见边缘情况、弄清你希望它怎么做；满意后把**会话 ID 或记录**交给 Agent，让它回顾你们一起做的事；再用这句提示产出技能 ——「创建一个技能，重复我们在 [会话 ID 1]、[会话 ID 2]、[会话 ID 3] 中完成的任务。**包括参考文件、我的更正、决策点和良好输出的示例**」；你就得到一份按你和公司工作方式写的技能；**在新任务上跑一遍、检查结果并补上遗漏**；然后分享给同事，或放进自主营销 Bot 按计划跑。
+- **评论区补上的东西**：@thekuchh（**152 赞**）「what kind of task could this be?」（**最难的不是技巧，是知道哪个重复任务值得沉淀**）· @shannholmberg 回复（111 赞）以跨 2 个会话开发的 lead magnet 合并成一个技能为例 · @seeksahib（80 赞）「大多数团队每周都在解同一个问题」· @Kelvin_json（23 赞）「**技能从你改过的地方学到的品味，比从你说的话多得多**」· @chenzhangreal（13 赞）「**一次跑必然漏掉那些奇怪的小毛病**」· @MauroJPelle（14 赞）沉淀也要有阈值。
+- **我方现状（经真实代码核对）—— 同一件事，我们交给系统，并多两道它没有的关**：
+  - **轨迹直接变成技能草稿**：`review_trajectory_with_llm()` 分析剪枝后的会话轨迹，产出 skill draft / semantic memory / 「无价值」判定（`myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/review/reviewer.py`、`agent/skills/evolution/core/engine.py:430`）。
+  - **你的更正进技能正文**：骨架含 `## User Preference Embedding` 与 `## Failure Attribution`，运行时注入 `## Historical Constraints (MUST obey or rejection is guaranteed)` 与执行轨迹（`agent/skills/evolution/pipeline/variant_generator.py:91`、`:80`、`:259`、`:239`）。
+  - **它没有的两道质量门**：技能**自带回归用例**（`variant_generator.py:104`、`agent/skills/evolution/pipeline/structured_extractor.py:113`）；**改进闸**把原版作基线候选一起参评，没有变体更好就跳过这次进化（`agent/skills/evolution/core/engine.py:241-253`）；**回归门禁**只守护原技能已通过的用例（`agent/skills/evolution/core/eval_regression.py:30,34`）。
+  - **最后仍要人签字**：草稿列表 / 详情 / 批准 / 驳回端点 + 实体化（`myrm-agent/myrm-agent-server/app/api/skills/drafts.py:104,125`、`app/api/skills/draft_materialize.py:99`、前端 `myrm-agent/myrm-agent-frontend/src/services/skill/core.ts:709-762`）。
+- **我们不宣称的部分（诚实差距）**：
+  1. **我们的技能产物缺两段显式结构：决策点与良好输出示例**。原帖明确要求「参考文件、我的更正、**决策点**和**良好输出的示例**」；我们的骨架（`variant_generator.py:51-111`）有 Editing Principles / Hard Constraints / Conservative Editing / Failure Attribution / User Preference Embedding / Bound EvalCases / Output Requirements —— **更正与参考都有，决策点与好输出示例没有**。这条低成本缺口已写入 `topic_08 #71`。
+  2. **没有「采样 2–3 次」的显式要求，也没有跨任务验收闭环** —— 我们的改进闸是**同一技能内**与原版基线竞争，不是**在新任务上验证再回补**。
+  3. **没有「什么时候该沉淀」的引导** —— @thekuchh 的 152 赞问题在我们这边同样成立，属能力路径条目的范畴，未交付、不宣传。
+- **一条路线图条目，只做增补不重复开条**：`topic_08 #71`（会话成功经验一键逆向固化为技能与跨会话交接档案套件）—— 本轮证明**这条要自动化的东西已被社区当成人人可用的配方在用**，并把缺的两段结构写成了验收标准。
+- **SSOT**：`temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（技能与插件生态轴主文档，2026-10-22 新增段）· `temp-docs/materials/GENERAL_AI_ASSISTANT_COMPETITIVE_ADVANTAGE.md`（竞品对照速查表第 28 行）· `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`（#71）· `https://x.com/shannholmberg/status/2108459414961389680`
+
 ## 最新验证快照（2026-10-22 · 一个文件夹 + 两行 symlink：把同一份规则与技能送到每个 Agent 客户端 · 评论区点名了这套方案真正的洞，也点出了我们真正更强的那一格）
 
 - **触发来源**：X @sairahul1（Rahul）转述：OpenClaw 创始人 Peter Steinberger 开源了他的整套 Agent 设置（`https://x.com/sairahul1/status/2108559612173574533`，2026-10-09；**21 回复 / 27 转推 / 104 赞 / 129 书签**，2 张图；帖中给出的仓库 `steipete/agent-scripts` 链接帖 758 赞）。本轮用 ChromeAgent :9410 + chrome-devtools MCP 抽主帖（两段）+ **17 条可见回复**。

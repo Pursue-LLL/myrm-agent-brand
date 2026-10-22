@@ -11,6 +11,23 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보안을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-10-22 · "두세 번 한 다음 세션 ID를 넘겨라" · 좋아요 130으로 확인된 **수동 버전** 스킬 증류 레시피 · 우리는 같은 일을 자동��로 하고, 레시피에 없는 품질 게이트 두 개를 더 갖는다)
+
+- **계기**: X @shannholmberg(Shann³) "The simplest way to turn a marketing task you're already doing into a repeatable workflow"(`https://x.com/shannholmberg/status/2108459414961389680`, 2026-10-09 15:27(베이징). **23 리플 / 13 리포스트 / 130 좋아요 / 170 북마크**, 이미지 2장). 이번 라운드에서는 ChromeAgent :9410 + chrome-devtools MCP로 본문과 **보이는 리플 18개**를 추출했다.
+- **레시피 본문**: 에이전트에게 작업을 끝까지 맡기고 사람은 유도·교정·판단을 한다. **이를 두세 번 반복**해 흔한 함정을 잡고 원하는 방식�� 굳힌다. 만족하면 **세션 ID나 기록**를 에이전트에 건네 함께 한 일을 되짚어 달라 하고, 이 구절을 쓴다 —— "[세션 ID 1], [세션 ID 2], [세션 ID 3]에서 우리가 한 일을 반복하는 스킬을 만들어. **참조 파일, 나의 정정, 의사결정 지점, 좋은 출력 예시를 포함해서**". 그러면 나와 회사 방식에 맞는 워크플로 스킬이 생긴다. **새 작업에 돌려 보고 빠진 걸 고친 뒤** 동료에게 공유하거나 자율 마케팅 봇에 넣어 예약 실행한다.
+- **댓글이 덧붙인 것**: @thekuchh(**좋아요 152**): "what kind of task could this be?" (**어려운 건 절차가 아니라 어떤 반복 작업을 스킬로 만들지 가르는 일**) · @shannholmberg(111): 두 세션에 걸친 리드 마그네트워크 개발을 한 스킬로 합치는 예 · @seeksahib(80): "Most teams keep solving the same problem every week." · @Kelvin_json(23): "**the skill picks up your taste from what you fixed way more than from what you asked for**" · @chenzhangreal(13): "**one run always misses weird little snags**" · @MauroJPelle(14): 침전에도 기준선이 필요.
+- **우리 쪽(실제 코드로 확인)** — 같은 일을 시스템이 맡고, 레시피에 없는 품질 게이트 두 개를 더 갖는다:
+  - **궤적이 그대로 스킬 초안이 된다**: `review_trajectory_with_llm()`이 다듬어진 대화 궤적을 분석해 스킬 초안·의미 기억·"가치 없음" 판정을 돌려준다(`myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/review/reviewer.py`, `agent/skills/evolution/core/engine.py:430`).
+  - **당신의 정정이 스킬 본문에 들어간다**: 편집 뼈대에 `## User Preference Embedding`과 `## Failure Attribution`이 있고, 실행 시 `## Historical Constraints (MUST obey or rejection is guaranteed)`과 실행 궤적을 주입한다(`agent/skills/evolution/pipeline/variant_generator.py:91`, `:80`, `:259`, `:239`).
+  - **레시피에 없는 품질 게이트**: 스킬이 자체 회귀 테스트 케이스를 함께 갖는다(`variant_generator.py:104`, `agent/skills/evolution/pipeline/structured_extractor.py:113`), **개선 게이트**가 원본을 기준 후보로 올려 평가하고 이길 후보가 없으면 진화 자체를 중단한다(`agent/skills/evolution/core/engine.py:241-253`), **회귀 게이트**는 원본이 이미 통과하던 케이스만 지킨다(`agent/skills/evolution/core/eval_regression.py:30,34`).
+  - **마지막은 사람이 서명한다**: 초안 목록/상세/승인/반려 엔드포인트와 실체화(`myrm-agent/myrm-agent-server/app/api/skills/drafts.py:104,125`, `app/api/skills/draft_materialize.py:99`, 프런트 `myrm-agent/myrm-agent-frontend/src/services/skill/core.ts:709-762`).
+- **우리가 주장하지 않는 것(정직한 차이)**:
+  1. **우리 스킬 산출물에 명시적 두 절이 없다: 의사결정 지점과 좋은 출력 예시**. 레시피는 "참조 파일, 나의 정정, **의사결정 지점**과 **좋은 출력 예시**"를 요구하지만 우리 편집 뼈대(`variant_generator.py:51-111`)는 Editing Principles / Hard Constraints / Conservative Editing / Failure Attribution / User Preference Embedding / Bound EvalCases / Output Requirements —— **정정과 참조는 있는데 의사결정 지점과 좋은 출력 예시는 없다**. 값싸고 구체적인 결함으로 `topic_08 #71`에 기록했다.
+  2. **"두세 번 샘플링"이라는 명시 요구도, 새 작업에서 검증해 되돌리는 순환도 없다** — 우리 개선 게이트는 **하나의 스킬 안에서** 원본과 경쟁하는 것이지 **새 작업에서 검증하는** 것이 아니다.
+  3. **"언제 스킬로 만들어야 하는가" 안내가 없다** — @thekuchh의 좋아요 152 질문은 우리 쪽에서도 그대로 남아 있고, 능력 경로 항목의 영역이며 인도되지 않았으므로 홍보하지 않는다.
+- **로드맵 항목 1건, 신규가 아니라 보강**: `topic_08 #71`(세션 성공 경험의 원클릭 역방향 스킬 고정과 크로스 채팅 인수인계 문서) — 이번 라운드로 **이 항목이 자동화하려는 대상이 이미 커뮤니티에서 실제로 쓰이는 레시피로 확인**되었고, 빠진 두 절을 인수 기준으로 넣었다.
+- **SSOT**: `temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`(스킬·플러그인 생태축 주 문서, 2026-10-22 신규 절) · `temp-docs/materials/GENERAL_AI_ASSISTANT_COMPETITIVE_ADVANTAGE.md`(경쟁사 요약표 28행) · `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`(#71) · `https://x.com/shannholmberg/status/2108459414961389680`
+
 ## 최신 검증 스냅샷 (2026-10-22 · 폴더 하나 + symlink 두 줄로 같은 규칙과 스킬을 모든 에이전트 클라이언트에 전달 · 댓글은 그 구성의 구멍을 정확히 짚었고, 우리가 진짜로 강한 부분도 짚었다)
 
 - **계기**: X @sairahul1(Rahul)가 전한 내용 — OpenClaw 만든이 Peter Steinberger가 자기 에이전트 설정 전체를 오픈소스로 공개(`https://x.com/sairahul1/status/2108559612173574533`, 2026-10-09. **28 리플 / 27 리포스트 / 104 좋아요 / 129 북마크**, 이미지 2장. 글에 나온 저장소 `steipete/agent-scripts` 링크 글은 758 좋아요). 이번 라운드에서는 ChromeAgent :9410 + chrome-devtools MCP로 본문 2단락과 **보이는 리플 17개**를 추출했다.
