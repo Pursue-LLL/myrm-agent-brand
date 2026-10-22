@@ -28,8 +28,8 @@ const CODE_ROOTS = [
   'myrm-agent/myrm-agent-server/app',
   'myrm-agent/myrm-agent-server/tests',
   'myrm-agent/myrm-agent-frontend/src',
-  'myrm-agent-harness/src',
-  'myrm-agent-harness/tests',
+  'myrm-agent/myrm-agent-harness/src',
+  'myrm-agent/myrm-agent-harness/tests',
 ];
 const SKIP_DIRS = new Set([
   '.venv', 'site-packages', 'node_modules', '__pycache__', '.git', 'dist', 'build', '.next', '.myrm',
