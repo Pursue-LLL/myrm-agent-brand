@@ -45,14 +45,14 @@ const COUNT_CLAIMS = [
   },
   {
     id: 'skillPatterns',
-    anchor: 'myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/patterns.py',
+    anchor: 'myrm-agent/myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/patterns.py',
     expect: 113,
     literal: '113 patterns',
     locales: { zh: [/(\d+)\s*条模式/], en: [/(\d+)\s*patterns/], ko: [/(\d+)\s*개 패턴/] },
   },
   {
     id: 'skillHighRisk',
-    anchor: 'myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/patterns.py',
+    anchor: 'myrm-agent/myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/patterns.py',
     expect: 94,
     literal: null,
     countPattern: /ScanSeverity\.(CRITICAL|HIGH)/g,
@@ -77,7 +77,7 @@ const COUNT_CLAIMS = [
   },
   {
     id: 'humanizeModes',
-    anchor: 'myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/pool/config.py',
+    anchor: 'myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/pool/config.py',
     expect: 3,
     literal: null,
     slide: 'humanizedBrowsing',
@@ -86,7 +86,7 @@ const COUNT_CLAIMS = [
   },
   {
     id: 'lifecycleHooks',
-    anchor: 'myrm-agent-harness/src/myrm_agent_harness/core/hooks/types.py',
+    anchor: 'myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/hooks/types.py',
     expect: 13,
     literal: null,
     countPattern: /^\s{4}([A-Z_]+)\s*=\s*"([a-z_]+)"$/gm,
@@ -132,7 +132,7 @@ const COUNT_CLAIMS = [
   {
     id: 'officeWriteAuditSignals',
     anchor:
-      'myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_ops/validators/office_bash_audit.py',
+      'myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_ops/validators/office_bash_audit.py',
     expect: 6,
     literal: null,
     countPattern: /warnings\.(append|extend)\(/g,

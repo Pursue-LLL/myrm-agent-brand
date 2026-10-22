@@ -20,7 +20,7 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
   - **どう書くか**: **description にはトリガー場面と利用者が実際に入力する語句を入れる**（「多くの skill は一度も発動しないまま失敗する」）、**プログレッシブ開示**（SKILL.md 本文は薄く、長い資料は附属ファイルに置いて必要時に読む。本文は発動のたびにコンテキストに入るため）、skill 同士は互いを参照してよい、**検証用 skill を upkeep** してエージェントが自分の成果物を検査できるようにし、改善ループを閉じる。
 - **コメントの追加**: **@Thomas3cnl（88 いいね）**「トリガー場面を description に書いても確率が上がるだけだ。これは pinned skills と同じトレードオフ —— **利用者が明示したパスは指示をそのまま注入する方が、モデルが description を読んで要不要を読むのを待つより确实**」、@gamescrazy_jj（57）「あなたが繰り返し正した場所から整理すると本当に必要な手順が見つかる。**正しい例を一緒に保存することもできる**」」、@ChrisLee207（25）「**受け入れ基準を skill に書くこと**」、@llgoder15（68）「高頻度ワークフローを Skill テンプレートにしたら**設定のずれが減った**」。
 - **我々の現状（実コードで確認）** —— 講義ノートの指針のほとんどは既に従っている:
-  - **プログレッシブ開示は既定動作**: スキルメタデータは宣言と実行時計算の項目だけを保持し、「**Full content and resources are loaded on-demand (progressive loading)**」、本文の token コストは事前計算する（`myrm-agent-harness/src/myrm_agent_harness/backends/skills/types/types_metadata.py:30-35,48-50`）。
+  - **プログレッシブ開示は既定動作**: スキルメタデータは宣言と実行時計算の項目だけを保持し、「**Full content and resources are loaded on-demand (progressive loading)**」、本文の token コストは事前計算する（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/backends/skills/types/types_metadata.py:30-35,48-50`）。
   - **@Thomas3cnl の「明示指定」側は既に実装済み**: セッション単位のスキル選択で、モデルに判断させるのではなく利用者が今ターンの技能を直接選ぶ。効果の帰属は 3 状態（選択 / 実際に実行 / 結果を帰属可能）（`myrm-agent/myrm-agent-frontend/src/components/features/chat-window/MessageInput.tsx`、`backends/skills/types/types_usage.py:101`）。
   - **受け入れ基準は skill の中へ**: スキルは束縛された回帰テストケースを自带し（取得時に生成）、改善ゲートと回帰ゲートの背後にある（`agent/skills/evolution/pipeline/structured_extractor.py:113`、`pipeline/variant_generator.py:104`、`core/engine.py:241-253`、`core/eval_regression.py:30,34`）。
   - **「介入ポイント = スキルポイント」を自動化した**: 軌跡レビューがセッションをスキル草稿へ変換し（価値なしと判断することも）、失敗の帰属を skill 本文へ書き込む（`agent/skills/evolution/review/reviewer.py`、`core/engine.py:430`、`pipeline/variant_generator.py:80`）。
@@ -37,7 +37,7 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
 - **レシピ本文**: エージェントにタスクを端から端までやらせ、人は誘導・訂正・判断する。**それを 2〜3 回繰り返し**、よくある落とし穴を捕まえて「どうやった Departments したいか」を固める。満足したら**会話 ID や記録**をエージェントに渡し、二人でやったことを回顾させ、次の指示を使う ——「[セッション ID 1]、[セッション ID 2]、[セッション ID 3] で行ったことを繰り返すスキルを作って。**参照ファイル、私の訂正、判断点、よい出力の例**を含めて」。これで、あなたと会社の働き方に合ったワークフロースキルが手に入る。**新しいタスクで走らせ、結果を見て抜けを補い**、同僚に共有するか、自律マーケティング bot に入れて定時実行する。
 - **コメントが加えたもの**: @thekuchh（**152 いいね**）「what kind of task could this be?」（**難しいのは手順ではなく、同じ繰り返しタスクをスキルにすべきかを見極めること**）· @shannholmberg（111）2 つのセッションにまたがるリードマグネットの開発を 1 つのスキルにまとめる例 · @seeksahib（80 ）「Most teams keep solving the same problem every week.」· @Kelvin_json（23）「**the skill picks up your taste from what you fixed way more than from what you asked for**」· @chenzhangreal（13）「**one run always misses weird little snags**」· @MauroJPelle（14）沉淀にも閾値が必要。
 - **我々の現状（実コードで確認）** —— 同じ Jobs をシステムに任せ、レシピにない 2 つの品質ゲートを足す:
-  - **軌跡がそのままスキル草稿になる**: `review_trajectory_with_llm()` が剪枝した会話軌跡を解析し、skill draft / semantic memory /「価値なし」を返す（`myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/review/reviewer.py`、`agent/skills/evolution/core/engine.py:430`）。
+  - **軌跡がそのままスキル草稿になる**: `review_trajectory_with_llm()` が剪枝した会話軌跡を解析し、skill draft / semantic memory /「価値なし」を返す（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/review/reviewer.py`、`agent/skills/evolution/core/engine.py:430`）。
   - **あなたの訂正がスキル本文に入る**: 編集骨格に `## User Preference Embedding` と `## Failure Attribution` があり、実行時は `## Historical Constraints (MUST obey or rejection is guaranteed)` と実行軌跡を注入する（`agent/skills/evolution/pipeline/variant_generator.py:91`、`:80`、`:259`、`:239`）。
   - **レシピにない品質ゲート**: スキルは自分の回帰テスト用例を自带（`variant_generator.py:104`、`agent/skills/evolution/pipeline/structured_extractor.py:113`）、**改善ゲート**は原版を基準候補として評価に載せ、勝者が居なければ進化自体を中止する（`agent/skills/evolution/core/engine.py:241-253`）、**回帰ゲート**は元スキルが元々通っていた用例だけを守る（`agent/skills/evolution/core/eval_regression.py:30,34`）。
   - **最後は人が署名する**: 下書きの一覧 / 詳細 / 承認 / 却下エンドポイントと実体化（`myrm-agent/myrm-agent-server/app/api/skills/drafts.py:104,125`、`app/api/skills/draft_materialize.py:99`、フロント `myrm-agent/myrm-agent-frontend/src/services/skill/core.ts:709-762`）。
@@ -65,13 +65,13 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
   - @catmanyau（**22**）: 全体共通の指示ファイルは各リポジトリに「**inherit assumptions that do not fit**」を静かに持ち込む。
   - @nexusai_apps:「**machine-specific paths and credentials**」は共有ファイルへ入れるな。
 - **我々の現状（実コードで確認）**:
-  - **同期するのは規則だけでなく、学びも** —— セッション軌跡が再利用可能なスキルへ蒸留される（`myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:430` の `capture_skill_from_trajectory`）＋ 長期記憶 ＋ カンボード → **次のターンは同じ規則だけでなく、前回学んだものまで受け取る**。これは @johnroodepic が名指しした穴そのもの。
-  - **一歩ごとに帰属が追える** —— 承認台帳・逐次監査・OCAP 署名済み能力トークン（`myrm-agent-harness/src/myrm_agent_harness/core/security/ocap/token.py:49-53`）が「delivered / acknowledged / consumed」の検査可能な形になる。
-  - **マシン固有パスと資格情報は共有面に入れない** —— 機密パスのハード禁止（`myrm-agent-harness/src/myrm_agent_harness/core/security/path/filesystem.py:60` の "~/.ssh"）＋ 資格情報と命令形態の分類（`core/security/detection/pii_classifier.py:92`、`core/security/detection/instruction_shape.py:79`）。
-  - **スキルは溜め込むだけでなく回収できる** —— Curator ライフサイクル（`myrm-agent-harness/src/myrm_agent_harness/agent/skills/curator/`）、意味重複排除によるエントロピー防止、導入前 26 カテゴリ / 113 パターンの静的検査（`backends/skills/scanning/patterns.py:1-13`）、導入後の採用契約（`myrm-agent/myrm-agent-server/app/core/skills/discovery/adopt.py:1-17`）。
+  - **同期するのは規則だけでなく、学びも** —— セッション軌跡が再利用可能なスキルへ蒸留される（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:430` の `capture_skill_from_trajectory`）＋ 長期記憶 ＋ カンボード → **次のターンは同じ規則だけでなく、前回学んだものまで受け取る**。これは @johnroodepic が名指しした穴そのもの。
+  - **一歩ごとに帰属が追える** —— 承認台帳・逐次監査・OCAP 署名済み能力トークン（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/ocap/token.py:49-53`）が「delivered / acknowledged / consumed」の検査可能な形になる。
+  - **マシン固有パスと資格情報は共有面に入れない** —— 機密パスのハード禁止（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/path/filesystem.py:60` の "~/.ssh"）＋ 資格情報と命令形態の分類（`core/security/detection/pii_classifier.py:92`、`core/security/detection/instruction_shape.py:79`）。
+  - **スキルは溜め込むだけでなく回収できる** —— Curator ライフサイクル（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/curator/`）、意味重複排除によるエントロピー防止、導入前 26 カテゴリ / 113 パターンの静的検査（`backends/skills/scanning/patterns.py:1-13`）、導入後の採用契約（`myrm-agent/myrm-agent-server/app/core/skills/discovery/adopt.py:1-17`）。
 - **我々が主張しない部分（正直な差距）**:
   1. **「ユーザー階層の規則を 1 箇所に置き、複数クライアントへ同期する」製品形態が無い** —— これは実在する差距で、背後にあるロードマップ項目はまだ進行中。競争相手の**単純さ**（symlink 2 本）は本物の製品力で、**我々はまだ同等な単純さを出せない**。
-  2. **我々のプロジェクト規則は今も 1 块的の静的注入**（`myrm-agent-harness/src/myrm_agent_harness/agent/workspace_rules/scanner.py` と `middleware.py`）で、**ドメイン分割も関連度ローディングも未実装**。
+  2. **我々のプロジェクト規則は今も 1 块的の静的注入**（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/workspace_rules/scanner.py` と `middleware.py`）で、**ドメイン分割も関連度ローディングも未実装**。
   3. **我々のものは他ツールへ持ち出せない** —— 記憶・スキル・監査は我々の製品内に留まり、**ツールを跨ぐと切れる**。
   4. **「誰かの設定一式を fork して間引く」形態が無い** —— 我々のスキルはマーケットと同梱集から来るもので、設定一式を fork するものではない。
 - **ロードマップ項目は 1 件、ただし新設ではなく増補**: `topic_08 #54`（プロジェクト直下の規定 [CLAUDE.md/.cursorrules/AGENTS.md] の複数仕様検知・意味構造解析・ワンタッチスキル化ブリッジ）—— このラウンドで加えたのは**ポインタ方式**（リポジトリ 1 行 + symlink + 1 箇所管理）と、同項目の**解析方式**（検知 → 構造化 → スキル化 → オンデマンド読み込み）の方式対比、そして 6 つのコメントを同項目の受入条件として写入したこと。
@@ -87,7 +87,7 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
   - @lwkfFiki9496664（56）:「real usage logs are usually a **noisy mess**」—— ログのノイズ。
   - @rafaelibayev（40）:「wonder how it handles users who **do things the weird way on purpose**」—— 異常サンプル。
 - **我々の現状（2026-10-22 に実測して再確認）**:
-  - **前提は我々は満たしている**: セッション軌跡（`myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/review/reviewer.py`）、長期記憶、カン，工件はいずれも既に残っているユーザー活動ログ ——「製品が利用を記録している」は我々に当てはまる。
+  - **前提は我々は満たしている**: セッション軌跡（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/review/reviewer.py`）、長期記憶、カン，工件はいずれも既に残っているユーザー活動ログ ——「製品が利用を記録している」は我々に当てはまる。
   - **足りないのは物差し**: `teacher_forced`、`next_action_accuracy`、残したログの門禁、`progress_gate` を全倉検索して**ヒット 0** ——「この編集で次の行動の確率が上がったか」は、我々の側では**自動計算できる数値になっていない**。
   - **未解決のまま**: 純プロンプトスキルはサンドボックス検証を飛ばす（`agent/skills/evolution/execution/sandbox_validator.py:64` と `:109`）、ユーザテキスト軌跡が無い場合の「空軌跡」ハードコード（`eval/builder.py:49`）。
   - **我々の記述の 1 か所を訂正**: 「`evolution_rejections` は書くだけで読まれず、最適化器にも注入されない」と書いたのは 2 つの表を混ぜたものだった。**拒否された教訓は実際に読み戻され次の生成へ注入される**（`agent/skills/evolution/core/engine.py:141` と `:217` → `agent/skills/evolution/pipeline/variant_generator.py:158` と `:259`「Historical Constraints (MUST obey or rejection is guaranteed)」、読取口は `agent/skills/evolution/db/_store_evolution_tracking.py:180`）。一方 `evolution_rejections` 表は**クールダウン判定にのみ**使われる（`agent/skills/evolution/pipeline/screener.py:269`）。
@@ -115,10 +115,10 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
 - **最も効くコメント**（@NickCostaES、34 いいね）:「your docs say the part that matters: **an approval covers every skill of the package in every later version. So the text your agent follows can change on the next install and nothing asks again. I'd want pnpm approve to show the diff when a skill changed.**」—— ほぼ原文の言い換えであり、唯一の穴を正確に指している。
 - **残しておく価値のある形態の信号**: 同じスレッドには 481 いいねの「Awesome」と同時に「Why?」「what does it mean」「you lost it wtf」も並ぶ —— **そもそも skill を知らない人が多数**。
 - **我々の現状（実コードで確認）**:
-  - **整包承認ではなく、変更ごとに見える** —— 差分は会話にストリーム（`myrm-agent/myrm-agent-frontend/src/store/chat/messageStream/handlers/fileDiffEvents.ts:31`）、着手前に shadow Git スナップショット（`myrm-agent-harness/src/myrm_agent_harness/agent/file_snapshot/shadow_git_store.py:97`）、承認カードにワンクリック rollback（`myrm-agent/myrm-agent-server/app/api/approvals/router.py:350-351`、`myrm-agent/myrm-agent-frontend/src/components/approval/DestructiveUndoCard.tsx:51`）。
-  - **粒度はスキル単位** —— ユーザーによる信頼度の上書き（`myrm-agent/myrm-agent-server/app/core/skills/store/service.py:185-201`）とワークスペース信頼 3 段（`myrm-agent-harness/src/myrm_agent_harness/agent/security/workspace_trust/types.py:24-30`）。
-  - **install の前**に —— 26 脅威カテゴリ / 113 の静的パターンが入る前に走る（`myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/patterns.py:1-13`）。
-  - **入れたら実際に効く** —— 採用ブリッジが新しいスキル_dst を空でない allowed list へ追加し、次のターンから読み込める（`myrm-agent/myrm-agent-server/app/core/skills/discovery/adopt.py:1-17`）；ClawHub は既に接続済みの上流マーケットソース（`myrm-agent-harness/src/myrm_agent_harness/backends/skills/market/sources/clawhub.py:1-4`）。
+  - **整包承認ではなく、変更ごとに見える** —— 差分は会話にストリーム（`myrm-agent/myrm-agent-frontend/src/store/chat/messageStream/handlers/fileDiffEvents.ts:31`）、着手前に shadow Git スナップショット（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/file_snapshot/shadow_git_store.py:97`）、承認カードにワンクリック rollback（`myrm-agent/myrm-agent-server/app/api/approvals/router.py:350-351`、`myrm-agent/myrm-agent-frontend/src/components/approval/DestructiveUndoCard.tsx:51`）。
+  - **粒度はスキル単位** —— ユーザーによる信頼度の上書き（`myrm-agent/myrm-agent-server/app/core/skills/store/service.py:185-201`）とワークスペース信頼 3 段（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/security/workspace_trust/types.py:24-30`）。
+  - **install の前**に —— 26 脅威カテゴリ / 113 の静的パターンが入る前に走る（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/patterns.py:1-13`）。
+  - **入れたら実際に効く** —— 採用ブリッジが新しいスキル_dst を空でない allowed list へ追加し、次のターンから読み込める（`myrm-agent/myrm-agent-server/app/core/skills/discovery/adopt.py:1-17`）；ClawHub は既に接続済みの上流マーケットソース（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/backends/skills/market/sources/clawhub.py:1-4`）。
 - **我々が主張しない部分（正直な差距）**:
   1. **パッケージマネージャという配布経路が無いのは実在する差距** —— pnpm/npm はスキルを**プロジェクトの依存ツリー**に載せるため、バージョン固定・サプライチェーン監査・オフライン再現が付いてくる。我々のマーケットソースは**ディレクトリ型**で、依存ツリーの意味もバージョン固定も無い。
   2. **「まとめて 1 回承認」という軽-weight な形は提供しない** —— 我々はスキル単位の准入判定判定と変更ごとの差分。**厳しくは-noise は多い**。「一度入れたいだけ」の利用者には pnpm のほうが本当に楽である。
@@ -136,7 +136,7 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
   3. **`federiconuss/hyperagent`**（MIT）—— README は**取引戦略もモデルランタイムも自律実行ループもポジション sizing も持たない**と明記し、意図的に「頭を持たない道具」としている。
   4. **`sanketagarwal/hyperliquid-trading-agent`** —— Claude が buy/sell/hold を決め、**ポジション上限/leverage 上限/損失保護はハードコード**され、損失 20% 以上で強制決済。
 - **彼らの共通安全モデル**: 資格の階層化 + 硬い上限。決定的特点是「エージェントウォレットは売買できるが**出金はできない**」—— Agent に渡す資金は**プロトコル**で極小の面へ封じ込め、prompt で頼むのではない。
-- **我々の現状（実コードで確認）** —— 同じ形を「出金」に当てて、すでに届いている: **予約 → 確定 → 解放**の 3 段（`myrm-agent-harness/src/myrm_agent_harness/core/security/egress/spend_governor.py:163`/`:259`/`:319`）、**整数のセント勘定**と単発・日次の硬い上限（`:78`）、起動時の自己修復照合（`:131`）、**HMAC 署名かつ定数時間照合の改ざん防止バウチャー**（`:330`/`:339`/`:355-356`）、加盟店ドメインと区分の許可リスト（`myrm-agent/myrm-agent-server/app/api/commerce/spending_router.py:82`）、**ワンクリックの緊急凍結**（`:88-94`）、コマンドの risk level（`myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/bash/_executor/command_classifier.py:34-39`）。Hermes と OpenClaw のミラーにはこれら**一切ヒットしない**。
+- **我々の現状（実コードで確認）** —— 同じ形を「出金」に当てて、すでに届いている: **予約 → 確定 → 解放**の 3 段（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/egress/spend_governor.py:163`/`:259`/`:319`）、**整数のセント勘定**と単発・日次の硬い上限（`:78`）、起動時の自己修復照合（`:131`）、**HMAC 署名かつ定数時間照合の改ざん防止バウチャー**（`:330`/`:339`/`:355-356`）、加盟店ドメインと区分の許可リスト（`myrm-agent/myrm-agent-server/app/api/commerce/spending_router.py:82`）、**ワンクリックの緊急凍結**（`:88-94`）、コマンドの risk level（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/bash/_executor/command_classifier.py:34-39`）。Hermes と OpenClaw のミラーにはこれら**一切ヒットしない**。
 - **我々が主張しない部分（正直な差距）**:
   1. **別のお金、別のリスクで比べる対象ではない** —— 彼らは leverage 付きの無期限先物を扱い値幅のリスクを負うが、我々は支出を管理する。**我々は投資判断をせず、指値を出しせず、ポジションを持たない**。これは positioning の選択であり、埋めるべき機能ではない。
   2. **オンチェーン／取引所との接続は皆無** —— ウォレット、fluid な約定、funding rate、清算のいずれも無い。
@@ -157,7 +157,7 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
   - **双方向音声チャンネル** —— 入着 TwiML → ConversationRelay WebSocket → STT、出着テキスト → WebSocket → TTS（`app/channels/providers/voice_channel.py:1-6`）。
   - **完全オフラインで API 従属なしの音声** —— ローカル Piper TTS + faster-whisper STT + ローカルモデルで、**外へ出るバイト 0、API 費用 0**（`app/channels/voice/tts.py:20,83-86`、`app/api/health/router.py:150-167`）。候補者の音声と政治的発言にとって、これは加点要素ではなく**参加できるかどうかの入場条件**である。
   - **ふりかえりは本物の成果物** —— `/memo` は音声メモを 4 つの資産（Markdown の議事録・盤面の todo・記憶事実・Excel シート）へ分解し、Actionability ゲートと決定的な冪等鍵を添えて、`/review-week` はセッション横断の素材全体を集めて厳密な時間窓で絞り、**実際の盤面と突き合わせ**、4 次元の根本原因で分類し、Markdown のレポート成果物として残す（`app/channels/routing/command_defs.py:278-279` と `:288`）。
-  - **学びはセッションとともに消えない** —— 軌跡のふりかえりが再利用できるスキルへ蒸留され、改善ゲートと回帰ゲートがその品質を守る（`myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:430`、`agent/skills/evolution/infra/integration.py:255`）。
+  - **学びはセッションとともに消えない** —— 軌跡のふりかえりが再利用できるスキルへ蒸留され、改善ゲートと回帰ゲートがその品質を守る（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:430`、`agent/skills/evolution/infra/integration.py:255`）。
 - **我々が主張しない部分（正直な差距）**:
   1. **非言語Guarantee ではなく、非言語の表現分析は無い** —— 感情・間・う分配的語・話す速さは**競合ミラーでも我方でもヒット 0**。デモ版は手自社製であり、**どちらにも無い**ので、借用できる機構ではなく需要として記録する。
   2. **「対抗相手役の sparring」製品形态が無い** —— persona と複数役の連携は作れるが、「記者役」「相手役」の練習相手になる製品が無い。
@@ -180,8 +180,8 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
   - @bitares（23 いいね）：「Can the slide deck stay linked when the source document changes?」→ 回答は無く、スキルは一度きりの複製しか使わないので**どちらにも無い**。
   - @boardyai（83 いいね）：「shrinking subscription stacks to one app」——立場づけの語り。
 - **我々の現状（実コードで確認）**:
-  - **undo スタックではなく「書き終えたら点検」** —— `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_ops/validators/office_bash_audit.py:108-152` が Excel の**数式集合**を前後で突き合わせる（`:138`）、docx の package 構造を確かめる（`:137`）、読めない package を警告する（`:130`）、比較できる基線が無い場合も警告する（`:140`）、docx の版面 QA を走らせる（`:147`）、再計算で `#REF!` / `#NAME?` を拾う（`:150`）——**計 6 種のシグナル**。いずれも `Office:` を冠して tool output に入る（`myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_ops/core/file_operation_service.py:606`）ので、**Agent が使用者より先に気づく**。
-  - **直前の数手ではなく任意の版へ戻せる** —— 不変の成果物版（`myrm-agent/myrm-agent-server/app/database/models/artifact.py:43-46`、監査ログ `:59`、固定された `version_id` は `myrm-agent-harness/src/myrm_agent_harness/core/artifacts/manifest.py:127`）と、作業領域ファイルの shadow スナップショットおよびワンタッチ rollback。
+  - **undo スタックではなく「書き終えたら点検」** —— `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_ops/validators/office_bash_audit.py:108-152` が Excel の**数式集合**を前後で突き合わせる（`:138`）、docx の package 構造を確かめる（`:137`）、読めない package を警告する（`:130`）、比較できる基線が無い場合も警告する（`:140`）、docx の版面 QA を走らせる（`:147`）、再計算で `#REF!` / `#NAME?` を拾う（`:150`）——**計 6 種のシグナル**。いずれも `Office:` を冠して tool output に入る（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_ops/core/file_operation_service.py:606`）ので、**Agent が使用者より先に気づく**。
+  - **直前の数手ではなく任意の版へ戻せる** —— 不変の成果物版（`myrm-agent/myrm-agent-server/app/database/models/artifact.py:43-46`、監査ログ `:59`、固定された `version_id` は `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/artifacts/manifest.py:127`）と、作業領域ファイルの shadow スナップショットおよびワンタッチ rollback。
   - **表計算はブラウザ上で直接編集** —— `myrm-agent/myrm-agent-frontend/src/components/features/artifacts/renderers/SpreadsheetEditor/index.tsx:135` と `:253` が xlsx と表モデルを行き来しながら数式を保持し、グラフ・マクロ・ピボットテーブルを含むファイルは開前に警告し、未保存の下書きはクラッシュ後に復元できる。
   - **比較表の 2 社にはどちらの機構も無い** —— Hermes の Excel 支援は選択型スキルの中の manual な再計算スクリプト 1 本（`external_reference_project/claw/hermes-agent/optional-skills/finance/excel-author/scripts/recalc.py`）、OpenClaw には office ファイルの編集が無く、office に関わるのは錯覚した拡張子を正す引数検証だけ（`external_reference_project/claw/openclaw/src/agents/agent-tools.params.ts:24-27`）。
 - **我々が主張しない部分（正直な差距）**:
@@ -202,7 +202,7 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
   4. **合意の偏り**——@An_yhl（98 いいね）:「数体のボットが話していたら、いつの間にかお互い褒め合っていないか」。
   併記: @CrazySoyo（328 いいね）は bot が Cursor から別の AI を一隊招集して議論させ、最初こそ同調するが、そのあとは互いに衝突し合う場面を綴っている。@ren3634421（701 いいね）は自己進化の第一歩が電気代を自分で払うことだと冗談めかして言い、@PANewsLab（655 いいね）は「便利だがプランが分かりにくい」と評し、@DesignerBingyi（571 いいね）はプロダクトの発想とエンジニアの発想の隔たりを指摘している。
 - **我々の現状（実コードで確認）——難問 4 つすべてに対応策がある**:
-  - **「このラウンドはよくなったか」→ 改善ゲートが原版を基準候補として追加する**: `myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:241-253` が原スキルの内容を基準候補として評価に投入し、**どの変案も原版を上回らなければ進化そのものを中止する**。FIX 経路も対称で同じ構造（`engine.py:194`、`engine.py:271`）。
+  - **「このラウンドはよくなったか」→ 改善ゲートが原版を基準候補として追加する**: `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:241-253` が原スキルの内容を基準候補として評価に投入し、**どの変案も原版を上回らなければ進化そのものを中止する**。FIX 経路も対称で同じ構造（`engine.py:194`、`engine.py:271`）。
   - **「よくなったのか、ただ盛り上がっただけか」→ 回帰ケース門番**: `agent/skills/evolution/core/eval_regression.py:34` が守る用例は原スキルが元から通るものだけ。変案が守備用例を 1 つ失うごとに 0.15 の減点（`eval_regression.py:30`）、すべて失った場合は hard filter で弾かれる。
   - **「お互い褒め合う / 偽の合格」→ 空心テストの検出**: `agent/skills/evolution/execution/hollow_detector.py:40` と `execution/sandbox_validator.py:140-146` が、形式だけの断言・意味のない print・空っぽの検証スクリプトを拒否する。
   - **「自己最適化以外に何を出せるのか」→ 成果物は物理的証拠を通ること**: `agent/goals/verification/gatekeeper.py:44` が判定基準で検める、`agent/goals/verification/fault_attribution.py:132` がアプリロジック / コンパイル / テスト断言の失敗を切り分ける——「終わった」をモデル自身の宣言で済ませるわけではない。
@@ -225,20 +225,20 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
   5. **クラッシュを平易な言葉で説明する** — デモ動画 80 秒時点の「Crashes, explained in plain words」に 4 段構成がある。何が起きたか → ふたたび起こるか（決定性の判定）→ メモリ / ディスクの空き量など具体的な数値で環境要因を排除し「This is a code bug, not an environmental one」と判定 → 修正位置。
 - **この回で見つかった「主張 ≠ 実行」の 1 件**: 構成図は `Filesystem` ドメインに `Watch folders` を描いているが、**ソースには利用者向けのディレクトリ監視機能が存在しない**。リポジトリ全体の `fs.watch` はいずれも内部実装である（プラグインフォルダのホットリロード `apps/desktop/electron/plugins/host.ts:375-380` · クラッシュレポートディレクトリ `apps/desktop/electron/crash/watch.ts:66` · Studio プロジェクトフォルダのリフレッシュ `apps/desktop/electron/ipc/fs.ts:901-910` · 開いている Office 文書の外部変更検知 `apps/desktop/electron/office/file-watch.ts:8-13`）。自動化トリガーは **cron の予約だけ**（`apps/desktop/src/features/automations/api.ts:54-56`）であり、`Find by content` も **macOS でのみ成立**する（Spotlight の `kMDItemTextContent`、`plugins/herald-os-bridge/bridge/host/darwin.py:148`、Linux ではファイル名の一部一致に落ちる——`plugins/herald-os-bridge/bridge/host/linux.py:397` のコメント原文は "Linux has no content index comparable to Spotlight"、リポジトリ全体に ripgrep は一つも無い）。**我々がこれを記録するのは、これがまさに本プロジェクトの「未納の能力を宣伝しない」という規則が直すべき同種の穴だからです。**
 - **我々の現状（すべて実コードで照合し、誇張なし）**:
-  1. **権限 3 段はコード定数** — `myrm-agent-harness/src/myrm_agent_harness/core/security/types.py:60-65` の `PermissionAction.ALLOW/ASK/DENY` と `:107-120` の `DEFAULT_RULESET`。決定的な評価入口は `myrm-agent-harness/src/myrm_agent_harness/agent/security/engine.py:281-300` で、`DENY` は LLM のレビューが覆せない硬い線である。
-  2. **機微なディレクトリは硬い禁止区画** — `myrm-agent-harness/src/myrm_agent_harness/core/security/path/filesystem.py:59-71`（`~/.ssh`、`~/.gnupg`、`~/.gpg`、`~/.aws`、`~/.config/gcloud`、`~/.azure`、`~/.config`、`~/.docker`、`~/.kube` とシェル履歴 2 件、合計 11 件）。
-  3. **計画 → 変更の中身 → どう戻すか の 3 段の引き継ぎ面** — `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/plan_confirm_middleware.py:49-63`（計画を先に利用者へ見せる）+ 利用者が使う git と分離したシャドウ Git スナップショット（`myrm-agent-harness/src/myrm_agent_harness/agent/file_snapshot/shadow_git_store.py:97`）+ `POST /api/v1/approvals/{id}/rollback`（`myrm-agent/myrm-agent-server/app/api/approvals/router.py:350-351`）+ フロントエンドの一括取り消しカード `myrm-agent/myrm-agent-frontend/src/components/approval/DestructiveUndoCard.tsx:51`。
-  4. **外部コーディング CLI は本物の子プロセスで動く** — `myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/runtime/cli_runtime.py:135-164` が実際にプロセスを起動して NDJSON を解釈する。生産マウントは `myrm-agent/myrm-agent-server/app/ai_agents/general_agent/external_agents.py:179-187` と `factory.py:228`。
-  5. **イベント型トリガーは 5 系、競合には cron の予約だけ** — `myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/triggers.py:38-45` の `TriggerKind`（EVENT / SYSTEM_EVENT / WEBHOOK / POLL / STREAM）+ 生産配線 `myrm-agent/myrm-agent-server/app/channels/routing/router.py:678` → `myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/engine/scheduler.py:297,321`。
+  1. **権限 3 段はコード定数** — `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/types.py:60-65` の `PermissionAction.ALLOW/ASK/DENY` と `:107-120` の `DEFAULT_RULESET`。決定的な評価入口は `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/security/engine.py:281-300` で、`DENY` は LLM のレビューが覆せない硬い線である。
+  2. **機微なディレクトリは硬い禁止区画** — `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/path/filesystem.py:59-71`（`~/.ssh`、`~/.gnupg`、`~/.gpg`、`~/.aws`、`~/.config/gcloud`、`~/.azure`、`~/.config`、`~/.docker`、`~/.kube` とシェル履歴 2 件、合計 11 件）。
+  3. **計画 → 変更の中身 → どう戻すか の 3 段の引き継ぎ面** — `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/plan_confirm_middleware.py:49-63`（計画を先に利用者へ見せる）+ 利用者が使う git と分離したシャドウ Git スナップショット（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/file_snapshot/shadow_git_store.py:97`）+ `POST /api/v1/approvals/{id}/rollback`（`myrm-agent/myrm-agent-server/app/api/approvals/router.py:350-351`）+ フロントエンドの一括取り消しカード `myrm-agent/myrm-agent-frontend/src/components/approval/DestructiveUndoCard.tsx:51`。
+  4. **外部コーディング CLI は本物の子プロセスで動く** — `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/runtime/cli_runtime.py:135-164` が実際にプロセスを起動して NDJSON を解釈する。生産マウントは `myrm-agent/myrm-agent-server/app/ai_agents/general_agent/external_agents.py:179-187` と `factory.py:228`。
+  5. **イベント型トリガーは 5 系、競合には cron の予約だけ** — `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/triggers.py:38-45` の `TriggerKind`（EVENT / SYSTEM_EVENT / WEBHOOK / POLL / STREAM）+ 生産配線 `myrm-agent/myrm-agent-server/app/channels/routing/router.py:678` → `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/engine/scheduler.py:297,321`。
   6. **決定的なコマンド表はすでにチャンネル入口、配線済み** — `myrm-agent/myrm-agent-server/app/channels/routing/command_defs.py:24-56`（25 種のコマンドアクション）+ `command_registry.py:115-131` の純引き当て表 + `myrm-agent/myrm-agent-server/app/channels/routing/router.py:664-668` で一致すれば短絡し、**メッセージが LLM に到達しない**。
 - **主張しないもの（正直な穴、すべて実コードで照合）**:
-  1. **通常の書き換えにはスナップショットも巻き戻しもない** — `ASK` に格上げされた破壊的操作だけが `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/approval/batch_processor.py:609-627` でスナップショットを撮る。通常の `file_write` は基準の `ALLOW` に落ち、スナップショットも diff も一括取り消し も生まれない。
-  2. **Layer-1 の能力柵は生産側で死んだコード** — `myrm-agent-harness/src/myrm_agent_harness/core/security/types.py:38-57` は deny-by-default な `Capability` / `CapabilitySet` を定義するが、生産は一律 `Capability("*","*")` で構築し、実質的に絞られたことはない。
+  1. **通常の書き換えにはスナップショットも巻き戻しもない** — `ASK` に格上げされた破壊的操作だけが `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/approval/batch_processor.py:609-627` でスナップショットを撮る。通常の `file_write` は基準の `ALLOW` に落ち、スナップショットも diff も一括取り消し も生まれない。
+  2. **Layer-1 の能力柵は生産側で死んだコード** — `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/types.py:38-57` は deny-by-default な `Capability` / `CapabilitySet` を定義するが、生産は一律 `Capability("*","*")` で構築し、実質的に絞られたことはない。
   3. **双軌の監査収集器に生産側の書き込みが無い** — `myrm-agent/myrm-agent-server/app/services/security/dual_track_audit.py:34` はメモリ上のリングバッファで、`log_intent` / `complete_act` に生産コード内の呼び出しが無い。**「承認と動作に監査台帳がある」とは言えるが、「双軌監査ダッシュボードが全動作をリアルタイム表示する」とは言えない。**
   4. **承認の待ち合わせ中は利用者がキューに積んだり割り込んだりできない** — `myrm-agent/myrm-agent-server/app/services/agent/stream_session/stream_finalize.py:511` がストリーム終了時に steering token を解除するため、承認の `interrupt()` 中は `POST /chats/{id}/steer` が 404 を返す。承認中に残るのは guidance のテキスト経路 1 本だけである。
   5. **クラッシュの平易な説明は配線されていない** — `myrm-agent/myrm-agent-frontend/src/components/features/diagnostics/stderrClassifier.ts:34` の中国語分類器は `useStderrDiagnosticStore.ts:27` からしか呼ばれず、そのストアもテスト内からのみ呼ばれる。`ActionableDiagnosticSurfaceCard` の描画箇所は 0。`POST /api/system/failure-triage` の `TriageReport`（`myrm-agent/myrm-agent-server/app/core/infra/health/failure_triage.py:63-80`）にもフロントエンドの消費者が無い。**システム健康度は書き込まれた偽データ「98/100」である（`myrm-agent/myrm-agent-server/app/api/system_assistant/routes.py:64`）ため、いかなる対外資料からも引用してはならない。**
   6. **プラグインに「実行前の能力一覧」の UX が無い** — 競合の「一覧 + 既定で無効 + 1 項ごとの提示」に対応するものが我々には無い。**「権限ゲートがある」と「実行前に能力の一覧を提示する」は同じではない。**
-  7. **ファイル監視トリガーが無く、WebUI の会話経路にも決定的な分配が無い** — `TriggerKind` の 7 段 file-watch は無い（`watchdog` はスキルライブラリのホットリロードにしか使われない、`myrm-agent-harness/src/myrm_agent_harness/backends/skills/watcher.py:21-23`）。決定的なコマンド表はチャンネル入口の経路だけにある。
+  7. **ファイル監視トリガーが無く、WebUI の会話経路にも決定的な分配が無い** — `TriggerKind` の 7 段 file-watch は無い（`watchdog` はスキルライブラリのホットリロードにしか使われない、`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/backends/skills/watcher.py:21-23`）。決定的なコマンド表はチャンネル入口の経路だけにある。
 - **新しく増えた、まだ納めていないロードマップ項目 2 件**: `topic_18 #178`（ファイルシステム観測トリガーとゼロモデルのネイティブコマンド経路、**未分析**）· `topic_10 #253`（ランタイムクラッシュの平易な説明と再発可能性判定の配線、**未分析**）。
 - **このラウンドでサイトを触らなかった理由**: 我々が本当に強いと確認できる部分（決定的な権限ゲート、計画 → 変更 → 巻き戻し、本物の ACP 委譲）は **すでにサイトに対応の記述がある**。このラウンドで新しく見つかった 3 件は **すべて未納の穴** であり、本プロジェクトの「未納の能力を宣伝しない」規則により **サイトには書けない**。6 項の中核能力ブロックは動かしていない。
 - **SSOT**: `temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/materials/AUTOMATION_CRON_ADVANTAGE.md` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_18_loop_engineering_goal_autonomous_scheduling_and_runtime_verification_roadmap.md`（#178）· `temp-docs/roadmap/topic_10_runtime_reliability_roadmap.md`（#253）· `external_reference_project/desktop/Herald-OS` · `https://x.com/iamlukethedev/status/2107765448343261506`
@@ -425,7 +425,7 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
      - **DeepSeek-Harness**: 公式モデル評価指向で、特定推論モデル向けの課題基準。多モーダル Base64 洗浄がないため画像増でパースが落ちる;
      - **Pi / その他の汎用アシスタント**: 評価という概念自体がなく、踏んだ穴は資産にならない;
      - **補足比較 · Anthropic `claude-api` スキル**: 手法（ペア比較、参照凍結、ノイズフロア、過剰適合3対策、コスト探索順序）は高度だが、対象は「評価セットを持ちコードを読める開発者」で起動したばかり。Myrm は **GUI + プライベートケース + 製品レポート**という別の道を進め、同じ形の複製はしない;
-  9. **SSOT コード位置:** `temp-docs/materials/EVAL_LAB_BENCHMARK_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/eval/` · `myrm-agent/myrm-agent-server/app/core/eval/` · `myrm-agent/myrm-agent-frontend/src/components/features/eval-lab/_ARCH.md`
+  9. **SSOT コード位置:** `temp-docs/materials/EVAL_LAB_BENCHMARK_ADVANTAGE.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/eval/` · `myrm-agent/myrm-agent-server/app/core/eval/` · `myrm-agent/myrm-agent-frontend/src/components/features/eval-lab/_ARCH.md`
 
 ## 最新検証スナップショット (2026-10-18 · 検索レディネス判定を送信前に前倒し + プローブ自身のウォールクロック上限 · 「半分死んだセルフホスト検索サービスが最初のメッセージを無言で一分間止める」を完全解消)
 
@@ -444,7 +444,7 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
   5. **構造化コンプライアンス監査ログ (`SKILL_SECURITY_OVERRIDE`)**: 管理者が低スコアスキルを明示的に許可した場合、操作者ID・スキル指紋・違反ルール・タイムスタンプを構造化監査ログとして永続化し、追跡可能性を100%担保;
   6. **リスク感知型WebUIおよび動的警告スタイル (`adoptWithRisk`)**: WebUIドロワーでCritical（深紅）、High（橙）、Safe（緑）の視覚的バッジを表示。高リスク選択時はボタンが動的に警告スタイルへ変化;
   7. **100%フルスタックテスト検証済み**: Harness単体テストカバレッジ93%（178件パス）、Serverテスト22件パス、Frontendテスト6件パス、Chrome 9333 CDP実機E2Eテスト100%パス。
-- **SSOTリファレンス:** `myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/scanner.py` · `scoring.py` · `service.py` · `myrm-agent-server/app/api/v1/endpoints/skills.py` · `myrm-agent-frontend/src/components/features/settings/SkillMarketplaceDrawer.tsx` · `temp-docs/materials/SKILL_PERMISSION_SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md`
+- **SSOTリファレンス:** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/scanner.py` · `scoring.py` · `service.py` · `myrm-agent-server/app/api/v1/endpoints/skills.py` · `myrm-agent-frontend/src/components/features/settings/SkillMarketplaceDrawer.tsx` · `temp-docs/materials/SKILL_PERMISSION_SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md`
 
 ## 最新検証スナップショット (2026-09-27 · 2段階見出しアンカー直達リゾルバおよびゴーストスクロール根絶スイート)
 

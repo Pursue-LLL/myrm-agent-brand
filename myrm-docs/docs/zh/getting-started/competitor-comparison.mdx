@@ -22,7 +22,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   4. **共识塌缩**——@An_yhl（98 赞）：「几个 bot 聊着聊着会不会开始互相捧场。」
   另记：@CrazySoyo（328 赞）bot 从 Cursor 拉一队不同 AI 激辩、先附和再开撕；@ren3634421（701 赞）「自我进化第一步：自己交电费」；@PANewsLab（655 赞）「好用，就是有点乱」；@DesignerBingyi（571 赞）谈产品/设计思维与工程师思维的差距。
 - **我方现状（经真实代码核对）——四个问题逐条有对应物**：
-  - **「这轮改好了」→ 改进闸把原版摆上台面竞争**：`myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:241-253` 把原技能作为 baseline 候选注入评测，**没有变体分数更高就跳过这次进化**；FIX 路径同构（`engine.py:194`、`engine.py:271`）。
+  - **「这轮改好了」→ 改进闸把原版摆上台面竞争**：`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:241-253` 把原技能作为 baseline 候选注入评测，**没有变体分数更高就跳过这次进化**；FIX 路径同构（`engine.py:194`、`engine.py:271`）。
   - **「是变好还是只是聊得更起劲」→ 回归用例门禁**：`agent/skills/evolution/core/eval_regression.py:34` 只守护原技能本身能通过的用例，变体每丢一个守护用例扣 0.15（`eval_regression.py:30`），全丢则硬过滤。
   - **「互相捧场 / 假通过」→ 空心测试拦截**：`agent/skills/evolution/execution/hollow_detector.py:40` 与 `execution/sandbox_validator.py:140-146` 拒绝平凡断言、假打印与空验证脚本。
   - **「除了自我优化还能输出什么」→ 产出必须过物理证据**：`agent/goals/verification/gatekeeper.py:44` 按判据核验，`agent/goals/verification/fault_attribution.py:132` 区分应用逻辑 / 编译 / 测试断言类故障——「做完了」不是模型自己说了算。
@@ -46,7 +46,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   - @gamescrazy_jj（57 赞）：「从反复纠正的地方整理很容易找到真正需要的流程，**还可以连同一个改对的例子一起存下来**，光写『保持风格一致』下一次还是可能各自理解一套」。
   - @ChrisLee207（25 赞）：「**把验收标准写进 skill**」；@llgoder15（68 赞）：「抽成 Skill 模板后**配置漂移的问题也少了**」。
 - **我方现状（经真实代码核对）—— 讲义里的建议我们大多已是产品默认**：
-  - **渐进披露是默认行为**：技能元数据只留声明与运行时计算字段 ——「**Full content and resources are loaded on-demand (progressive loading)**」，正文 token 成本**预计算**（`myrm-agent-harness/src/myrm_agent_harness/backends/skills/types/types_metadata.py:30-35,48-50`）。
+  - **渐进披露是默认行为**：技能元数据只留声明与运行时计算字段 ——「**Full content and resources are loaded on-demand (progressive loading)**」，正文 token 成本**预计算**（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/backends/skills/types/types_metadata.py:30-35,48-50`）。
   - **@Thomas3cnl 说的「显式指定」那一半我们已交付**：会话级技能精选 —— 你直接选定本轮要用的技能，不必等模型读完描述再决定；技能使用另有**三态归因**（选中 / 真被执行 / 结果可归因）（`myrm-agent/myrm-agent-frontend/src/components/features/chat-window/MessageInput.tsx`、`backends/skills/types/types_usage.py:101`）。
   - **验收标准写在技能里**：技能自带绑定回归用例（捕获时生成），背后是改进闸与回归门禁（`agent/skills/evolution/pipeline/structured_extractor.py:113`、`pipeline/variant_generator.py:104`、`core/engine.py:241-253`、`core/eval_regression.py:30,34`）。
   - **「干预点 = 技能点」我们做成了自动的**：轨迹复盘把会话变成技能草稿（或判定无价值），失败归因写进技能正文（`agent/skills/evolution/review/reviewer.py`、`core/engine.py:430`、`pipeline/variant_generator.py:80`）。
@@ -63,7 +63,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **配方原文**：让 Agent 端到端做完，你负责引导、纠正与判断；**重复 2–3 次**以捕捉常见边缘情况、弄清你希望它怎么做；满意后把**会话 ID 或记录**交给 Agent，让它回顾你们一起做的事；再用这句提示产出技能 ——「创建一个技能，重复我们在 [会话 ID 1]、[会话 ID 2]、[会话 ID 3] 中完成的任务。**包括参考文件、我的更正、决策点和良好输出的示例**」；你就得到一份按你和公司工作方式写的技能；**在新任务上跑一遍、检查结果并补上遗漏**；然后分享给同事，或放进自主营销 Bot 按计划跑。
 - **评论区补上的东西**：@thekuchh（**152 赞**）「what kind of task could this be?」（**最难的不是技巧，是知道哪个重复任务值得沉淀**）· @shannholmberg 回复（111 赞）以跨 2 个会话开发的 lead magnet 合并成一个技能为例 · @seeksahib（80 赞）「大多数团队每周都在解同一个问题」· @Kelvin_json（23 赞）「**技能从你改过的地方学到的品味，比从你说的话多得多**」· @chenzhangreal（13 赞）「**一次跑必然漏掉那些奇怪的小毛病**」· @MauroJPelle（14 赞）沉淀也要有阈值。
 - **我方现状（经真实代码核对）—— 同一件事，我们交给系统，并多两道它没有的关**：
-  - **轨迹直接变成技能草稿**：`review_trajectory_with_llm()` 分析剪枝后的会话轨迹，产出 skill draft / semantic memory / 「无价值」判定（`myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/review/reviewer.py`、`agent/skills/evolution/core/engine.py:430`）。
+  - **轨迹直接变成技能草稿**：`review_trajectory_with_llm()` 分析剪枝后的会话轨迹，产出 skill draft / semantic memory / 「无价值」判定（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/review/reviewer.py`、`agent/skills/evolution/core/engine.py:430`）。
   - **你的更正进技能正文**：骨架含 `## User Preference Embedding` 与 `## Failure Attribution`，运行时注入 `## Historical Constraints (MUST obey or rejection is guaranteed)` 与执行轨迹（`agent/skills/evolution/pipeline/variant_generator.py:91`、`:80`、`:259`、`:239`）。
   - **它没有的两道质量门**：技能**自带回归用例**（`variant_generator.py:104`、`agent/skills/evolution/pipeline/structured_extractor.py:113`）；**改进闸**把原版作基线候选一起参评，没有变体更好就跳过这次进化（`agent/skills/evolution/core/engine.py:241-253`）；**回归门禁**只守护原技能已通过的用例（`agent/skills/evolution/core/eval_regression.py:30,34`）。
   - **最后仍要人签字**：草稿列表 / 详情 / 批准 / 驳回端点 + 实体化（`myrm-agent/myrm-agent-server/app/api/skills/drafts.py:104,125`、`app/api/skills/draft_materialize.py:99`、前端 `myrm-agent/myrm-agent-frontend/src/services/skill/core.ts:709-762`）。
@@ -91,13 +91,13 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   - @catmanyau（**22 赞**）：全局指令文件会让每个仓库「quietly **inherit assumptions that do not fit**」。
   - @nexusai_apps：「**machine-specific paths and credentials** 不该进共享文件」。
 - **我方现状（经真实代码核对）**：
-  - **我们同步的不只是规则，还有学到的东西** —— 会话轨迹被蒸馏成可复用技能（`myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:430` 的 `capture_skill_from_trajectory`），叠加长期记忆与看板 → **下一轮拿到的不只是同一份规则，还有上次学会的**。这正是 @johnroodepic 点的那个洞。
-  - **每一步都能追到人** —— 审批台账 + 逐动作审计 + OCAP 签名能力令牌（`myrm-agent-harness/src/myrm_agent_harness/core/security/ocap/token.py:49-53`）＝ 一版可核对的「送达 / 接收 / 消费」语义。
-  - **机器路径与凭据不进共享面** —— 敏感路径硬禁区（`myrm-agent-harness/src/myrm_agent_harness/core/security/path/filesystem.py:60` 的 "~/.ssh"）+ 凭据与指令形态分类（`core/security/detection/pii_classifier.py:92`、`core/security/detection/instruction_shape.py:79`）。
-  - **技能可以回收，不只是堆积** —— Curator 生命周期（`myrm-agent-harness/src/myrm_agent_harness/agent/skills/curator/`）、语义去重防熵增、装前 26 类 / 113 条扫描（`backends/skills/scanning/patterns.py:1-13`）、装后采纳契约（`myrm-agent/myrm-agent-server/app/core/skills/discovery/adopt.py:1-17`）。
+  - **我们同步的不只是规则，还有学到的东西** —— 会话轨迹被蒸馏成可复用技能（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:430` 的 `capture_skill_from_trajectory`），叠加长期记忆与看板 → **下一轮拿到的不只是同一份规则，还有上次学会的**。这正是 @johnroodepic 点的那个洞。
+  - **每一步都能追到人** —— 审批台账 + 逐动作审计 + OCAP 签名能力令牌（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/ocap/token.py:49-53`）＝ 一版可核对的「送达 / 接收 / 消费」语义。
+  - **机器路径与凭据不进共享面** —— 敏感路径硬禁区（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/path/filesystem.py:60` 的 "~/.ssh"）+ 凭据与指令形态分类（`core/security/detection/pii_classifier.py:92`、`core/security/detection/instruction_shape.py:79`）。
+  - **技能可以回收，不只是堆积** —— Curator 生命周期（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/curator/`）、语义去重防熵增、装前 26 类 / 113 条扫描（`backends/skills/scanning/patterns.py:1-13`）、装后采纳契约（`myrm-agent/myrm-agent-server/app/core/skills/discovery/adopt.py:1-17`）。
 - **我们不宣称的部分（诚实差距）**：
   1. **我们没有「用户级规则一处存放 + 跨客户端同步」的产品形态** —— 这是真实差距，背后那条路线图仍在进行中。竞品方案的**极简**（两个 symlink 脚本）是真实产品力，**我们目前给不出同等简单度**。
-  2. **我们的项目规则仍是整块静态注入**（`myrm-agent-harness/src/myrm_agent_harness/agent/workspace_rules/scanner.py` 与 `middleware.py`），**尚未按域分片与按需加载**。
+  2. **我们的项目规则仍是整块静态注入**（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/workspace_rules/scanner.py` 与 `middleware.py`），**尚未按域分片与按需加载**。
   3. **我们的一切带不走** —— 记忆、技能与审计都锁在我方产品内，**换工具就断**。
   4. **我们没有「fork 别人整套设置再删减」的形态** —— 我们的技能来自市场与内置集，不是 fork 一个配置包。
 - **一条路线图条目，只做增补不重复开条**：`topic_08 #54`（项目根目录规程 [CLAUDE.md/.cursorrules/AGENTS.md] 多规范智能感知、语义结构化解析与一键无缝技能化桥接套件）—— 本轮补入 **指针式路线**（每仓库一行 + symlink + 一处管理）与该条规划的**解析式路线**（感知 → 结构化 → 技能化 → 按需加载）的路线对照，并把六条评论写成该条的验收约束。
@@ -113,7 +113,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   - @lwkfFiki9496664（56）：「real usage logs are usually a **noisy mess**」—— 日志噪声。
   - @rafaelibayev（40）：「wonder how it handles users who **do things the weird way on purpose**」—— 异常样本。
 - **我方现状（2026-10-22 逐条实测）**：
-  - **前提我们天然满足**：会话轨迹（`myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/review/reviewer.py`）、长期记忆、看板与工件都是现成的用户活动日志 —— 「产品本来就在记用户活动」这条我们成立。
+  - **前提我们天然满足**：会话轨迹（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/review/reviewer.py`）、长期记忆、看板与工件都是现成的用户活动日志 —— 「产品本来就在记用户活动」这条我们成立。
   - **缺的是那把尺子**：全仓检索 `teacher_forced`、`next_action_accuracy`、留出日志门禁与 `progress_gate` **零命中** —— 「改完之后到底更好了吗」在我们这边**还不是一个能自动算出来的数**。
   - **仍开着**：纯提示词技能跳过沙箱验证（`agent/skills/evolution/execution/sandbox_validator.py:64` 与 `:109`）；无用户文本轨迹时的「空轨迹」硬编码回退（`eval/builder.py:49`）。
   - **订正我们自己的一处口径**：我们此前写「`evolution_rejections` 只写不读、从未注入优化器」—— 这把两张表混为一谈了。**被拒教训确实会读回并注入下一次生成**（`agent/skills/evolution/core/engine.py:141` 与 `:217` → `agent/skills/evolution/pipeline/variant_generator.py:158` 与 `:259`「Historical Constraints (MUST obey or rejection is guaranteed)」，读回接口 `agent/skills/evolution/db/_store_evolution_tracking.py:180`），而 `evolution_rejections` 表**只用于冷却期判定**（`agent/skills/evolution/pipeline/screener.py:269`）。
@@ -141,10 +141,10 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **最关键的一条评论**（@NickCostaES，34 赞）：「your docs say the part that matters: **an approval covers every skill of the package in every later version. So the text your agent follows can change on the next install and nothing asks again. I'd want pnpm approve to show the diff when a skill changed.**」—— 这句几乎逐字复述了官方文档，也点破了唯一的洞。
 - **一个值得记住的形态信号**：同一个帖子里既有 481 赞的「Awesome」，也有「Why?」「what does it mean」「you lost it wtf」—— **多数人其实仍不知道 skill 是什么**。
 - **我方现状（经真实代码核对）**：
-  - **逐次可见，而不是整包批准**：增量差异实时上屏（\`myrm-agent/myrm-agent-frontend/src/store/chat/messageStream/handlers/fileDiffEvents.ts:31\`）、动手前影子 Git 快照（\`myrm-agent-harness/src/myrm_agent_harness/agent/file_snapshot/shadow_git_store.py:97\`）、审批卡一键回退（\`myrm-agent/myrm-agent-server/app/api/approvals/router.py:350-351\`、\`myrm-agent/myrm-agent-frontend/src/components/approval/DestructiveUndoCard.tsx:51\`）。
-  - **粒度到技能**：逐技能信任由用户覆写（\`myrm-agent/myrm-agent-server/app/core/skills/store/service.py:185-201\`）+ 工作区信任三档（\`myrm-agent-harness/src/myrm_agent_harness/agent/security/workspace_trust/types.py:24-30\`）。
-  - **装前而不是装后**：26 类威胁 / 113 条静态模式在装前跑（\`myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/patterns.py:1-13\`）。
-  - **装完确实生效**：采纳桥把新技能追加到非空 allowlist，下一轮即可加载（\`myrm-agent/myrm-agent-server/app/core/skills/discovery/adopt.py:1-17\`）；ClawHub 已是已接入的上游市场源（\`myrm-agent-harness/src/myrm_agent_harness/backends/skills/market/sources/clawhub.py:1-4\`）。
+  - **逐次可见，而不是整包批准**：增量差异实时上屏（\`myrm-agent/myrm-agent-frontend/src/store/chat/messageStream/handlers/fileDiffEvents.ts:31\`）、动手前影子 Git 快照（\`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/file_snapshot/shadow_git_store.py:97\`）、审批卡一键回退（\`myrm-agent/myrm-agent-server/app/api/approvals/router.py:350-351\`、\`myrm-agent/myrm-agent-frontend/src/components/approval/DestructiveUndoCard.tsx:51\`）。
+  - **粒度到技能**：逐技能信任由用户覆写（\`myrm-agent/myrm-agent-server/app/core/skills/store/service.py:185-201\`）+ 工作区信任三档（\`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/security/workspace_trust/types.py:24-30\`）。
+  - **装前而不是装后**：26 类威胁 / 113 条静态模式在装前跑（\`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/patterns.py:1-13\`）。
+  - **装完确实生效**：采纳桥把新技能追加到非空 allowlist，下一轮即可加载（\`myrm-agent/myrm-agent-server/app/core/skills/discovery/adopt.py:1-17\`）；ClawHub 已是已接入的上游市场源（\`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/market/sources/clawhub.py:1-4\`）。
 - **我们不宣称的部分（诚实差距）**：
   1. **我们没有包管理器这条分发渠道 —— 这是真实差距**：pnpm/npm 把技能带进**项目依赖树**，自带版本锁定、供应链审计与离线可复现；我们的市场源是**目录式**，没有依赖树语义，也没有版本锁定。
   2. **我们不提供「整包一次批准」的轻量模式**：我们是逐技能准入 + 逐次差异，**更严但也更啰嗦**；对只想「一次装一包」的用户，pnpm 确实更省事。
@@ -162,7 +162,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **`federiconuss/hyperagent`**（MIT）—— 其 README 写明**不含交易策略、不含模型运行时、不含自主执行循环、不含仓位策略**，是一把刻意「不带脑子」的工具。
   4. **`sanketagarwal/hyperliquid-trading-agent`** —— Claude 决策 buy/sell/hold，**硬编码仓位上限、杠杆上限与亏损保护**，亏损 ≥20% 强制平仓。
 - **他们共同的安全模型**：凭据分层 + 硬性上限。最有分量的一句是「代理钱包能交易、**不能提现**」—— 给 Agent 的钱被**用协议**锁在一小块面上，而不是靠提示词劝阻。
-- **我方现状（经真实代码核对）** —— 同一形态，用在「花钱」上，且已交付：**预占—核销—释放**三态（`myrm-agent-harness/src/myrm_agent_harness/core/security/egress/spend_governor.py:163`/`:259`/`:319`）、**整型美分记账**与单笔/日累计硬限额（`:78`）、启动自愈对账（`:131`）、**HMAC 签名且常数时间验签的防伪凭证**（`:330`/`:339`/`:355-356`）、商户域名与类目白名单（`myrm-agent/myrm-agent-server/app/api/commerce/spending_router.py:82`）、**紧急一键冻结**（`:88-94`）、命令风险等级（`myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/bash/_executor/command_classifier.py:34-39`）。Hermes 与 OpenClaw 的镜像里这些**全部零命中**。
+- **我方现状（经真实代码核对）** —— 同一形态，用在「花钱」上，且已交付：**预占—核销—释放**三态（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/egress/spend_governor.py:163`/`:259`/`:319`）、**整型美分记账**与单笔/日累计硬限额（`:78`）、启动自愈对账（`:131`）、**HMAC 签名且常数时间验签的防伪凭证**（`:330`/`:339`/`:355-356`）、商户域名与类目白名单（`myrm-agent/myrm-agent-server/app/api/commerce/spending_router.py:82`）、**紧急一键冻结**（`:88-94`）、命令风险等级（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/bash/_executor/command_classifier.py:34-39`）。Hermes 与 OpenClaw 的镜像里这些**全部零命中**。
 - **我们不宣称的部分（诚实差距）**：
   1. **是不同的钱、不同的风险，不可相提并论**：他们交易带杠杆的永续合约、承担行情风险；我们管的是支出。**我们不做投资决策、不下单、不持仓** —— 这是定位取舍，不是待补的功能。
   2. **没有链上或交易所接入**：没有钱包、没有撮合、没有资金费、没有强平。
@@ -183,7 +183,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   - **双向语音通道** —— 入站 TwiML → ConversationRelay WebSocket → STT，出站文本 → WebSocket → TTS（`app/channels/providers/voice_channel.py:1-6`）。
   - **全离线零 API 语音** —— 本地 Piper TTS + faster-whisper STT + 本地模型：**0 字节出机、0 元账单**（`app/channels/voice/tts.py:20,83-86`、`app/api/health/router.py:150-167`）。对候选人的语音与政治观点来说，这不是加分项，而是**能不能入场的门槛**。
   - **复盘是真工件，不是聊天气泡** —— `/memo` 把语音备忘拆成四份资产（Markdown 纪要 + 看板待办 + 记忆事实 + Excel 数据表），配 Actionability 门禁与确定性幂等键；`/review-week` 拉全跨会话素材、按严格时间窗收敛、**与真实看板交叉比对**、按四维根因归因并落成 Markdown 报告工件（`app/channels/routing/command_defs.py:278-279` 与 `:288`）。
-  - **经验不会随会话蒸发** —— 轨迹复盘把这次陪练沉淀成可复用技能，且有改进闸与回归门禁兜底（`myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:430`、`agent/skills/evolution/infra/integration.py:255`）。
+  - **经验不会随会话蒸发** —— 轨迹复盘把这次陪练沉淀成可复用技能，且有改进闸与回归门禁兜底（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:430`、`agent/skills/evolution/infra/integration.py:255`）。
 - **我们不宣称的部分（诚实差距）**：
   1. **没有非言语表现分析** —— 情绪、停顿、口头禅、语速在**竞品镜像里零命中、在我方也零命中**，演示里那套是手工自建；**双方都没有**，因此只登记为需求，不作可借鉴机制。
   2. **没有开箱即用的「对手陪练」产品形态** —— 我们能做 persona 与多角色编排，但没有一个现成的「记者 / 对手」陪练器。
@@ -206,8 +206,8 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   - @bitares（23 赞）：「Can the slide deck stay linked when the source document changes?」→ 未答；技能只提供一次性复制，**双方都缺**。
   - @boardyai（83 赞）：「shrinking subscription stacks to one app」——定位叙事。
 - **我方现状（经真实代码核对）**：
-  - **写完自动体检，而不是撤销栈** —— `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_ops/validators/office_bash_audit.py:108-152` 改前改后比对 Excel **公式集合**（`:138`）、检查 docx 包结构（`:137`）、文件包读不出来告警（`:130`）、没有可比基线时告警（`:140`）、docx 排版 QA（`:147`）、重算抓 `#REF!` / `#NAME?`（`:150`）——**共 6 类信号**，且每一条都以 `Office:` 前缀写进工具输出（`myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_ops/core/file_operation_service.py:606`），**Agent 比你先看到问题**。
-  - **能退到任意一版，不只是最近几步** —— 交付物不可变版本（`myrm-agent/myrm-agent-server/app/database/models/artifact.py:43-46`，审计日志 `:59`，锁定版本 `myrm-agent-harness/src/myrm_agent_harness/core/artifacts/manifest.py:127`）+ 工作区文件的影子快照与一键回退。
+  - **写完自动体检，而不是撤销栈** —— `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_ops/validators/office_bash_audit.py:108-152` 改前改后比对 Excel **公式集合**（`:138`）、检查 docx 包结构（`:137`）、文件包读不出来告警（`:130`）、没有可比基线时告警（`:140`）、docx 排版 QA（`:147`）、重算抓 `#REF!` / `#NAME?`（`:150`）——**共 6 类信号**，且每一条都以 `Office:` 前缀写进工具输出（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_ops/core/file_operation_service.py:606`），**Agent 比你先看到问题**。
+  - **能退到任意一版，不只是最近几步** —— 交付物不可变版本（`myrm-agent/myrm-agent-server/app/database/models/artifact.py:43-46`，审计日志 `:59`，锁定版本 `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/artifacts/manifest.py:127`）+ 工作区文件的影子快照与一键回退。
   - **浏览器里直接改表格** —— `myrm-agent/myrm-agent-frontend/src/components/features/artifacts/renderers/SpreadsheetEditor/index.tsx:135` 与 `:253` 在 xlsx 与表格模型之间双向转换且保住公式，打开含图表 / 宏 / 透视表的文件先警告，崩溃后未保存草稿可恢复。
   - **对比表里的两个竞品两样都没有** —— Hermes 的 Excel 能力是可选技能里的一支手动重算脚本（`external_reference_project/claw/hermes-agent/optional-skills/finance/excel-author/scripts/recalc.py`）；OpenClaw 没有办公文件改稿，与办公相关的只有一处参数校验 —— 纠正幻觉出的文件扩展名（`external_reference_project/claw/openclaw/src/agents/agent-tools.params.ts:24-27`）。
 - **我们不宣称的部分（诚实差距）**：
@@ -229,20 +229,20 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   5. **崩溃用大白话解释**——演示视频第 80 秒画面「Crashes, explained in plain words」给出四段式：发生了什么 → 会不会再发生（确定性判定）→ 用具体资源数字排除环境假设（内存/磁盘余量）并判「这是代码 bug，不是环境 bug」→ 指出修复位置。
 - **本次核对纠正的一处「宣称 ≠ 交付」**：架构图在 `Filesystem` 域里画了 `Watch folders`，但源码里**没有面向用户的目录监听功能**——全仓 `fs.watch` 都是内部实现（插件目录热重载 `apps/desktop/electron/plugins/host.ts:375-380` · 崩溃报告目录 `apps/desktop/electron/crash/watch.ts:66` · Studio 项目目录刷新 `apps/desktop/electron/ipc/fs.ts:901-910` · Office 文档外部改动检测 `apps/desktop/electron/office/file-watch.ts:8-13`），其自动化触发器**只有 cron 排期**（`apps/desktop/src/features/automations/api.ts:54-56`）；`Find by content` 也**只在 macOS 成立**（Spotlight `kMDItemTextContent`，`plugins/herald-os-bridge/bridge/host/darwin.py:148`；Linux 退化为只匹配文件名，`plugins/herald-os-bridge/bridge/host/linux.py:397` 注释原文「Linux has no content index comparable to Spotlight」，全仓没有 ripgrep）。**我们把这条记下来，是因为它正是本项目「不宣传未交付能力」纪律要治的同类病。**
 - **我方现状（均已用真实代码核对，不做夸大）**：
-  1. **权限三档是代码常量**——`myrm-agent-harness/src/myrm_agent_harness/core/security/types.py:60-65` 的 `PermissionAction.ALLOW/ASK/DENY`、`:107-120` 的 `DEFAULT_RULESET`；确定性评估入口 `myrm-agent-harness/src/myrm_agent_harness/agent/security/engine.py:281-300`，`DENY` 是硬线、LLM 审查器翻不动。
-  2. **敏感目录硬禁区**——`myrm-agent-harness/src/myrm_agent_harness/core/security/path/filesystem.py:59-71`（`~/.ssh`、`~/.gnupg`、`~/.gpg`、`~/.aws`、`~/.config/gcloud`、`~/.azure`、`~/.config`、`~/.docker`、`~/.kube` 与两条 shell 历史，共 11 个）。
-  3. **计划 → 变更 → 回滚三段交接面**——`myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/plan_confirm_middleware.py:49-63`（计划先给用户过目）+ 影子 Git 快照（`myrm-agent-harness/src/myrm_agent_harness/agent/file_snapshot/shadow_git_store.py:97`，与用户自己的 git 隔离）+ `POST /api/v1/approvals/{id}/rollback`（`myrm-agent/myrm-agent-server/app/api/approvals/router.py:350-351`）+ 前端一键回滚卡片 `myrm-agent/myrm-agent-frontend/src/components/approval/DestructiveUndoCard.tsx:51`。
-  4. **外部编码 CLI 走真实子进程**——`myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/runtime/cli_runtime.py:135-164` 真起进程 + NDJSON 流，生产挂载在 `myrm-agent/myrm-agent-server/app/ai_agents/general_agent/external_agents.py:179-187` 与 `factory.py:228`。
-  5. **事件型触发器五路，竞品只有 cron 排期**——`myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/triggers.py:38-45` 的 `TriggerKind`（EVENT / SYSTEM_EVENT / WEBHOOK / POLL / STREAM）+ 生产接线 `myrm-agent/myrm-agent-server/app/channels/routing/router.py:678` → `myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/engine/scheduler.py:297,321`。
+  1. **权限三档是代码常量**——`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/types.py:60-65` 的 `PermissionAction.ALLOW/ASK/DENY`、`:107-120` 的 `DEFAULT_RULESET`；确定性评估入口 `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/security/engine.py:281-300`，`DENY` 是硬线、LLM 审查器翻不动。
+  2. **敏感目录硬禁区**——`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/path/filesystem.py:59-71`（`~/.ssh`、`~/.gnupg`、`~/.gpg`、`~/.aws`、`~/.config/gcloud`、`~/.azure`、`~/.config`、`~/.docker`、`~/.kube` 与两条 shell 历史，共 11 个）。
+  3. **计划 → 变更 → 回滚三段交接面**——`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/plan_confirm_middleware.py:49-63`（计划先给用户过目）+ 影子 Git 快照（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/file_snapshot/shadow_git_store.py:97`，与用户自己的 git 隔离）+ `POST /api/v1/approvals/{id}/rollback`（`myrm-agent/myrm-agent-server/app/api/approvals/router.py:350-351`）+ 前端一键回滚卡片 `myrm-agent/myrm-agent-frontend/src/components/approval/DestructiveUndoCard.tsx:51`。
+  4. **外部编码 CLI 走真实子进程**——`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/runtime/cli_runtime.py:135-164` 真起进程 + NDJSON 流，生产挂载在 `myrm-agent/myrm-agent-server/app/ai_agents/general_agent/external_agents.py:179-187` 与 `factory.py:228`。
+  5. **事件型触发器五路，竞品只有 cron 排期**——`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/triggers.py:38-45` 的 `TriggerKind`（EVENT / SYSTEM_EVENT / WEBHOOK / POLL / STREAM）+ 生产接线 `myrm-agent/myrm-agent-server/app/channels/routing/router.py:678` → `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/engine/scheduler.py:297,321`。
   6. **确定性命令表已挂在渠道入站**——`myrm-agent/myrm-agent-server/app/channels/routing/command_defs.py:24-56`（25 个命令动作）+ `command_registry.py:115-131` 纯查表 + `myrm-agent/myrm-agent-server/app/channels/routing/router.py:664-668` 命中即短路，**消息不再进 LLM**。
 - **我们不宣称的（诚实差距，全部已用真实代码核对）**：
-  1. **普通写操作没有快照也没有回滚**——只有被升级为 `ASK` 的破坏性动作才在 `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/approval/batch_processor.py:609-627` 打快照；普通 `file_write` 走基线 `ALLOW`，不产生快照、不产生 diff、不可一键回滚。
-  2. **Layer-1 能力栅栏在生产侧是死代码**——`myrm-agent-harness/src/myrm_agent_harness/core/security/types.py:38-57` 的 deny-by-default `Capability` / `CapabilitySet`，生产构造一律 `Capability("*","*")`，从未真正收窄。
+  1. **普通写操作没有快照也没有回滚**——只有被升级为 `ASK` 的破坏性动作才在 `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/approval/batch_processor.py:609-627` 打快照；普通 `file_write` 走基线 `ALLOW`，不产生快照、不产生 diff、不可一键回滚。
+  2. **Layer-1 能力栅栏在生产侧是死代码**——`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/types.py:38-57` 的 deny-by-default `Capability` / `CapabilitySet`，生产构造一律 `Capability("*","*")`，从未真正收窄。
   3. **双轨审计采集器没有生产写入方**——`myrm-agent/myrm-agent-server/app/services/security/dual_track_audit.py:34` 是内存环形缓冲，`log_intent` / `complete_act` 在生产代码无调用方。**可对外讲「审批与动作有审计账本」，不可讲「双轨审计看板实时呈现全量动作」。**
   4. **审批挂起期间用户不能排队或插话**——`myrm-agent/myrm-agent-server/app/services/agent/stream_session/stream_finalize.py:511` 在流结束时注销 steering token，审批 `interrupt()` 期间 `POST /chats/{id}/steer` 返回 404；审批期只有一条 guidance 文本通道。
   5. **崩溃白话诊断没有接线**——`myrm-agent/myrm-agent-frontend/src/components/features/diagnostics/stderrClassifier.ts:34` 的中文分类器只被 `useStderrDiagnosticStore.ts:27` 调用，而该 store 只在测试里被调用；`ActionableDiagnosticSurfaceCard` 零渲染点；`POST /api/system/failure-triage` 的 `TriageReport`（`myrm-agent/myrm-agent-server/app/core/infra/health/failure_triage.py:63-80`）无前端消费者；**系统健康分是写死的「98/100」假数据（`myrm-agent/myrm-agent-server/app/api/system_assistant/routes.py:64`），任何对外材料不得引用**。
   6. **插件没有「启用前能力清单」这一层 UX**——竞品那套「清单 + 默认关闭 + 逐条展示」我方没有等价物。**禁止把「有权限门禁」说成「有启用前能力披露」——两者不是一回事。**
-  7. **没有文件监听触发源，WebUI 对话路径也没有确定性分派**——`TriggerKind` 七档里没有 file-watch（`watchdog` 只用于技能库热重载，`myrm-agent-harness/src/myrm_agent_harness/backends/skills/watcher.py:21-23`）；确定性命令表只在渠道入站路径。
+  7. **没有文件监听触发源，WebUI 对话路径也没有确定性分派**——`TriggerKind` 七档里没有 file-watch（`watchdog` 只用于技能库热重载，`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/backends/skills/watcher.py:21-23`）；确定性命令表只在渠道入站路径。
 - **新增两条尚未交付的路线图条目**：`topic_18 #178`（文件系统观察触发源与零模型原生命令通路，**待分析**）· `topic_10 #253`（运行时崩溃白话诊断与复现性判定接线，**待分析**）。
 - **官网本轮未改动的理由**：可核对的、我方确实更强的部分（确定性权限闸门、计划→变更→回滚、真实 ACP 委派）**官网已有对应表述**；本轮新发现的三条全部是**尚未交付的差距**，按本项目「不宣传未交付能力」的纪律**不得写进官网**；六项核心能力版块未动。
 - **SSOT**：`temp-docs/materials/SECURITY_ADVANTAGE.md` · `temp-docs/materials/AUTOMATION_CRON_ADVANTAGE.md` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_18_loop_engineering_goal_autonomous_scheduling_and_runtime_verification_roadmap.md`（#178）· `temp-docs/roadmap/topic_10_runtime_reliability_roadmap.md`（#253）· `external_reference_project/desktop/Herald-OS` · `https://x.com/iamlukethedev/status/2107765448343261506`
@@ -419,7 +419,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
      - **DeepSeek-Harness**：聚焦官方模型 Benchmark，用例标准为特定推理模型定制，缺多模态 Base64 防爆清洗，图片膨胀易导致解析崩溃；
      - **Pi / 其他通用助手**：无评测概念，单向问答，踩坑轨迹无法沉淀为资产；
      - **补充对照 · Anthropic `claude-api` skill**：方法论（成对盲评、参照冻结、噪声地板、过拟合三防、成本爬坡搜索序）相当先进，但定位是「有评测集、会读代码的开发者工具」且刚起步 —— Myrm 走的是 **GUI + 私有用例 + 产品化报告**的另一条路，不是同形态复制；
-  9. **SSOT 代码位置：** `temp-docs/materials/EVAL_LAB_BENCHMARK_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/eval/` · `myrm-agent/myrm-agent-server/app/core/eval/` · `myrm-agent/myrm-agent-frontend/src/components/features/eval-lab/_ARCH.md`
+  9. **SSOT 代码位置：** `temp-docs/materials/EVAL_LAB_BENCHMARK_ADVANTAGE.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/eval/` · `myrm-agent/myrm-agent-server/app/core/eval/` · `myrm-agent/myrm-agent-frontend/src/components/features/eval-lab/_ARCH.md`
 
 ## 最新验证快照（2026-10-20 · 解除 PTC 僵硬控制流限制、模块白名单导入收敛与运行时数字员工 MCP 作用域门禁 · 彻底消除 AST 节点死板拦截、脚本内代码注入绕过与权限隔离死代码路径）
 
@@ -436,12 +436,12 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
      - **DeepSeek-Harness**：采用单单一 `run_code` 模式，缺乏对多别名路径的统一预审批与 Agent 级动态发现门禁；
      - **Pi（oh-my-pi）**：缺乏执行前的 AST 路径安全审查，工具可见性依赖手动前缀规则，无法做到运行时硬拦截；
      - **OpenCode**：缺乏沙箱内 UDS Token 安全传输与多数字员工间的 MCP 细粒度调用硬门禁；
-  6. **SSOT 代码位置：** `temp-docs/materials/PROGRAMMATIC_TOOL_CALLING_ADVANTAGE.md` · `temp-docs/materials/SKILL_PERMISSION_SECURITY_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/security/ptc_verifier.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/approval/batch_processor.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/skills/mcp/ipc_proxy.py`
+  6. **SSOT 代码位置：** `temp-docs/materials/PROGRAMMATIC_TOOL_CALLING_ADVANTAGE.md` · `temp-docs/materials/SKILL_PERMISSION_SECURITY_ADVANTAGE.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/security/ptc_verifier.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/approval/batch_processor.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/mcp/ipc_proxy.py`
 
 ## 最新验证快照（2026-10-19 · 执行断言必须对上真实执行轨迹 + 每轮交付证据披露 · 彻底消除「测试全过了 / 已经发出去了」却毫无凭据的自信汇报，以及未落盘交付物的静默丢失）
 
 - **执行断言接地与交付证据披露套件（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 在「Agent 的完成声明是否可信」这一形态：模型说自己跑了测试、发了消息、改了代码，用户却无从判断）：** 竞品普遍把「完成」交给模型自律——有的只被动记账，有的完全没有机制。Myrm 在收尾时把承重断言与**本轮真实工具记录**对齐：
-  1. **三类承重断言必须取证（`myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/execution_claim_verifier.py`）**：① 验证结论（「所有测试全部通过」）——只认真实测试运行器**且真跑**：只收集用例（collect-only）、零用例输出、用 `PATH=` 改写指向的 runner、只读 MCP 调用一律不构成证据；② 外发/不可逆动作（「已发送」「已发布」「已部署」「已提交」）——只认发送语义的 MCP 调用、外发命令或外发工具名，只读调用（history/list/get）与写文件都不算；③ 代码修改（「已修复」「已实现」）——必须真有成功写操作。对不上就拦下，只给两条出路：**现在去取证**，或**如实改写**（说清做了什么、没做什么）。引用文档、条件句、否定句、讲解句、跨轮追问都不会误伤。
+  1. **三类承重断言必须取证（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/execution_claim_verifier.py`）**：① 验证结论（「所有测试全部通过」）——只认真实测试运行器**且真跑**：只收集用例（collect-only）、零用例输出、用 `PATH=` 改写指向的 runner、只读 MCP 调用一律不构成证据；② 外发/不可逆动作（「已发送」「已发布」「已部署」「已提交」）——只认发送语义的 MCP 调用、外发命令或外发工具名，只读调用（history/list/get）与写文件都不算；③ 代码修改（「已修复」「已实现」）——必须真有成功写操作。对不上就拦下，只给两条出路：**现在去取证**，或**如实改写**（说清做了什么、没做什么）。引用文档、条件句、否定句、讲解句、跨轮追问都不会误伤。
   2. **每条回答自带证据档，用户一眼知深浅（`deliverable_confidence_tier.py` → 服务端 `stream_collector.py` → `deliverableTier` → WebUI 徽章）**：**已验证**（真跑过测试/lint/构建或通过复核）、**有工件**（真写了文件）、**有来源**（真检索到来源）、**计划**（暂时没有可验证产出）——「计划」档只在回答自称完成时出现，纯聊天不打扰；悬浮徽章即可看到物理证据（验证类别、写入的文件路径、来源条数）。
   3. **未落盘的交付物会被披露，而不是悄悄消失**：模型把代码贴在正文却忘了写盘时，框架自动把草案安全暂存到 `.myrm/staged_artifacts/`，回答末尾给出「草案已暂存」横幅并列出文件名——「贴了代码忘了保存」不再是死胡同。
   4. **证据扛得住审批与并发**：一轮任务被 HITL 审批拆成多段时，证据台账按回合累积（幂等去重），不会因为恢复而丢失；护栏的拦截预算按**轮次消息 id** 分桶，同一进程内的多会话、后台续跑与定时任务互不干扰、互不误放。
@@ -453,7 +453,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
      - **DeepSeek-Harness**：偏评测导向的 harness，工程笔记集中在 PTY/ACL/适配器，未见「汇报与实际执行对齐」的机制；
      - **Pi（oh-my-pi）**：提示词与子代理工程很重，验证停留在提示词层面，模型可绕过，用户也分不清「这条回答有测试兜底」还是「只是个计划」；
      - **OpenCode**：插件/技能生态灵活、终端优先，但可扩展性解决不了「完成可信」这一根本问题，未落盘的交付物在对话里直接丢失；
-  7. **SSOT 代码位置：** `temp-docs/materials/AGENT_VERIFICATION_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/execution_claim_verifier.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/completion_guard_state.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_confidence_tier.py` · `myrm-agent/myrm-agent-server/app/services/agent/streaming_support/stream_collector.py` · `myrm-agent/myrm-agent-server/tests/e2e/test_deliverable_disclosure_live_chrome_e2e.py`
+  7. **SSOT 代码位置：** `temp-docs/materials/AGENT_VERIFICATION_ADVANTAGE.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/execution_claim_verifier.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/completion_guard_state.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_confidence_tier.py` · `myrm-agent/myrm-agent-server/app/services/agent/streaming_support/stream_collector.py` · `myrm-agent/myrm-agent-server/tests/e2e/test_deliverable_disclosure_live_chrome_e2e.py`
 
 ## 最新验证快照（2026-10-18 · 搜索就绪判定前置到发消息之前 + 探测自有墙钟上限 · 彻底消除「半死的自托管搜索服务让首条消息静默卡住一分钟」）
 
@@ -491,7 +491,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
      - **OpenCode**：没有 PDF 链路；
   6. **我们强在哪，也诚实说弱在哪**：我们**不**声称竞品读不了扫描件——Hermes 能读，Codex 把页渲成图之后也能看图。我们强在**对覆盖范围的诚实**：六家里只有我们把"作为图片交付"和"被投递上限扣下"分开，也只有我们用**同一个字段**同时告诉用户和模型"哪几页读不到"。弱项也明说：我们没有 Codex Read 工具那样的页范围参数（`pages="4-8"`），替代方案是 `parse_mode='structure'` 大纲加 `[Partial Read]` 提示——对 GUI 用户不必记页码更友好，但确实不是同一种人机工效；
   7. **100% 全链路验证**：真实未打桩的 Chrome WebUI E2E——`test_pdf_attachment_stream_chrome_e2e.py::test_pdf_attachment_discloses_scanned_pages_live_chrome_e2e` **1 passed in 213.19s**，`outcome: PASSED`、`cleanup.sealed`；PDF 经真实 `<input type="file">` + `DataTransfer` 注入，真实前端调用 `/files/extract-pdf`，真实 `minimax/MiniMax-M3.1-Flash-Preview` 推理，对「3 页正文 + 2 页扫描」的实测回答是**「共 5 页，其中第 4、5 页没有可提取的文本层（为扫描图片页）」**。另有边界矩阵（纯扫描 → `[1,2,3]`；纯文本 → `[]`；1+1 → `[2]`）、harness 1235 例、server API 17 例、前端 269 例、6 语言 parity、0 lint、0 类型错误。
-- **单一事实来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/file_parsers/pdf/pdf.py`（`pages_with_text` / `pages_without_text`）· `.../pdf/pdf_content_extractor.py`（`PDFImageContent.page_number`、`pages_without_text`）· `.../agent/meta_tools/file_ops/utils/pdf_reader.py`（三层投递、`[PDF coverage]` 前缀、`[Partial Read]`、RAG 免责）· `.../file_ops/core/file_read_handlers.py` · `.../toolkits/file_parsers/ocr.py`（RapidOCR）· `myrm-agent/myrm-agent-server/app/api/files/pdf_extract.py` · `myrm-agent/myrm-agent-frontend/src/store/chat/multimodalBuilder.ts` · `myrm-agent-server/tests/e2e/test_pdf_attachment_stream_chrome_e2e.py` · `temp-docs/materials/FILE_SYSTEM_INTELLIGENCE_ADVANTAGE.md`
+- **单一事实来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/file_parsers/pdf/pdf.py`（`pages_with_text` / `pages_without_text`）· `.../pdf/pdf_content_extractor.py`（`PDFImageContent.page_number`、`pages_without_text`）· `.../agent/meta_tools/file_ops/utils/pdf_reader.py`（三层投递、`[PDF coverage]` 前缀、`[Partial Read]`、RAG 免责）· `.../file_ops/core/file_read_handlers.py` · `.../toolkits/file_parsers/ocr.py`（RapidOCR）· `myrm-agent/myrm-agent-server/app/api/files/pdf_extract.py` · `myrm-agent/myrm-agent-frontend/src/store/chat/multimodalBuilder.ts` · `myrm-agent-server/tests/e2e/test_pdf_attachment_stream_chrome_e2e.py` · `temp-docs/materials/FILE_SYSTEM_INTELLIGENCE_ADVANTAGE.md`
 
 ## 最新验证快照（2026-10-18 · 会话级界面状态隔离 + 澄清路由单一来源 · 彻底消除「后台会话清空当前页计划」「里程碑数字串到别的会话」与「审批卡续错回合」）
 
@@ -575,7 +575,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
      - **OpenClaw / Codex / Pi / DeepSeek-Harness / OpenCode**：没有「线程镜像存储对话」的权威判定，也没有「冻结基线 + 尾部全量增量」链路——常见做法是每轮重建上下文或重喂历史，前缀不稳定，中途技能变化在压缩前一直不可见；
 
   4. **真实代码端到端验证（零 mock）**：harness `turn_history` 与 `session_continuity` 行覆盖率均 **100%**（`skill_catalog_delivery` 99%、`skill_catalog_turn` 98%）；server `history_sync`、`turn_history_sync`、`chat_history_sync_repo` 均 **100%**；**83 项 harness + 87 项 server 测试通过**；真实 WebUI 的 Chrome E2E（同会话两轮 + 回退）对接真实 MiniMax-M3.1-Flash-Preview **连续 2 次通过**。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/_internals/turn_history.py` · `.../agent/skills/runtime/skill_catalog_delivery.py` · `.../agent/_internals/skill_catalog_turn.py` · `.../runtime/context/session/session_continuity.py` · `myrm-agent/myrm-agent-server/app/services/chat/history_sync.py` · `.../app/services/agent/stream_session/turn_history_sync.py` · `temp-docs/materials/PROMPT_CACHE_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/_internals/turn_history.py` · `.../agent/skills/runtime/skill_catalog_delivery.py` · `.../agent/_internals/skill_catalog_turn.py` · `.../runtime/context/session/session_continuity.py` · `myrm-agent/myrm-agent-server/app/services/chat/history_sync.py` · `.../app/services/agent/stream_session/turn_history_sync.py` · `temp-docs/materials/PROMPT_CACHE_ADVANTAGE.md`
 
 ## 最新验证快照（2026-10-18 · 检索降级不再吞掉「停止」 · 彻底消除「按了停止却还在跑」、工具超时失效与后台句柄泄漏）
 
@@ -591,7 +591,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
      - **OpenClaw / DeepSeek-Harness / Codex**：TypeScript + `AbortController`/`AbortSignal`，「宽泛捕获吞掉中止」这类缺陷在语言层就不存在——它们是**结构上免疫**，而不是设计上更正确；
      - **Pi / OpenCode**：没有等价的单一判定边界，工具调用外层的宽泛 `except` 仍可能把停止变成普通结果；
   4. **真实代码端到端验证（零 mock）**：真实 `MemoryManager` + 真实工具中间件下，真 `task.cancel()` 从 `stop ABSORBED -> returned []` 变为 `stop PROPAGATED`，回合从 `CONTINUES WITH: degraded(error)` 变为 `STOP REACHED THE TURN -> cancelled`，耗时 **0.50s**；泄漏的存储任务从 **1 变为 0**；4 个变异各自只让对应的回归用例失败；被改模块行覆盖率 92%。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/_internal/search_service.py` · `.../utils/runtime/cancellation.py` · `.../agent/middlewares/tooling/_tool_execution_lifecycle.py` · `temp-docs/materials/ERROR_RECOVERY_ROBUSTNESS_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/_internal/search_service.py` · `.../utils/runtime/cancellation.py` · `.../agent/middlewares/tooling/_tool_execution_lifecycle.py` · `temp-docs/materials/ERROR_RECOVERY_ROBUSTNESS_ADVANTAGE.md`
 
 ## 最新验证快照（2026-10-15 · 项 77~79 分布式多网关动态路由、图工程自适应准入门禁与正交双视角盲审门禁 · 彻底消除大模型自欺欺人偏见、伪图算力爆炸与跨机断网丢指令）
 
@@ -613,7 +613,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
      - **Pi**：依赖社区插件拼装，缺乏跨机多网关拓扑感知与离线缓冲自愈能力，合盖或断网指令直接丢失；
      - **OpenCode**：单一只读子代理，无法形成正交双重视角审查，面对 `Any` 类型逃逸与隐蔽边界缺陷缺乏拦截能力；
   5. **100% 全栈实测验证**：Harness 框架单测 19/19 passed，Server 业务单测 15/15 passed，前端 Vitest 15/15 passed（单测耗时 <1s），`bunx oxlint` 0 warnings 0 errors，所有组件行数严控 ≤ 400 行，0 Any 类型，无障碍 live output 100% 达标。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/orthogonal_reviewer/` · `.../graph_triage/` · `.../fleet_router/` · `myrm-agent-server/app/api/agents/` · `myrm-agent-frontend/src/components/features/chat-window/` · `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/orthogonal_reviewer/` · `.../graph_triage/` · `.../fleet_router/` · `myrm-agent-server/app/api/agents/` · `myrm-agent-frontend/src/components/features/chat-window/` · `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md`
 
 ## 最新验证快照（2026-10-04 · 智能体长任务主动异步汇报与非阻塞双向双工通信循环套件 · 彻底消除长任务黑盒盲等失联、中途无法微调纠偏、刷新页面药丸失效与竞态 409 丢字）
 
@@ -624,7 +624,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   4. **历史反序列化强健水合（Hydration Resilience）**：前端反序列化层双重清洗与强类型绑定，无论是刷新页面、切换标签页还是历史会话重载，所有卡片与药丸均 100% 保留交互能力；
   5. **Hermes 终端与 CLI 优雅退化**：在无 GUI 纯终端环境下无缝降级为序号选择与自然语言回显，一套协议全端同构；
   6. **100% 满分全栈实测验证**：真实无 Mock Chrome 浏览器真机并行 E2E 双用例（`test_async_user_message_steer_chrome_e2e.py`）**2 passed in 133.76s 满分通过**；Lane-A（Harness + Server）46 passed in 9.68s，Monorepo 服务端 337 passed；Lane-B 前端 Vitest 15 passed 8.82s，0 lint error，0 type error，0 i18n missing；商业模型 MiniMax-M3.1-Flash-Preview 真实返回 522 tokens 状态 SUCCESS。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/communication/send_user_message_async_tool.py` · `myrm-agent-server/app/api/chats/` · `myrm-agent-frontend/src/store/chat/messageManagement.ts` · `.../components/features/message-box/MessageBox.tsx` · `temp-docs/materials/ASYNC_USER_MESSAGE_AND_STEER_LOOPBACK_ADVANTAGE.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/communication/send_user_message_async_tool.py` · `myrm-agent-server/app/api/chats/` · `myrm-agent-frontend/src/store/chat/messageManagement.ts` · `.../components/features/message-box/MessageBox.tsx` · `temp-docs/materials/ASYNC_USER_MESSAGE_AND_STEER_LOOPBACK_ADVANTAGE.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md`
 
 ## 最新验证快照（2026-10-02 · 云端托管沙箱秒级冷冻休眠与无头虚拟桌面 Computer Use 套件 · 彻底消除 Mac Mini 7x24 耗电折旧、VPS 丢失屏幕视觉操控与云端冷启动环境丢失）
 
@@ -634,7 +634,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **云端无头虚拟显示（Xvfb/Wayland）与双模穿透 Computer Use 视觉引擎（Headless Virtual Display & WebRTC Streaming）**：攻破传统云端 VPS 无法执行桌面操作的致命死穴。在云端 Docker 容器中内置轻量级 Xvfb/Wayland 虚拟屏幕缓冲与低延迟 WebRTC 流化通道，云端沙箱具备与本地桌面 100% 一致的多模态屏幕截图、DOM/OCR 识别与鼠标键盘交互能力；
   4. **宿主侧 Governed Egress Proxy 盲盒凭据防护（Governed Blind Egress）**：沙箱内部绝对不注入真实明文 API Key，LLM 请求统一强制经由宿主侧代理透明签名与审计，第三方开源脚本或恶意代码完全无法刺探主 Key；
   5. **Local WebUI / Desktop / Cloud 三端同构与一键双向漫游向导（Three-Tier Isomorphic Roaming）**：打破“本地单机”与“云端黑盒”的阵营对立。支持在本地 Desktop 发起长任务后一键「关盖托管至云端」脱机自主运行，并在次日一键全量打包下载回迁本地物理 Mac Mini，兼具银行级隐私主权与云端弹性低成本。
-- **SSOT 来源：** `myrm-control-plane/` · `myrm-agent-server/app/core/sandbox/` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/` · `temp-docs/materials/PLATFORM_AND_DEPLOYMENT_ADVANTAGE.md` · `temp-docs/roadmap/topic_05_desktop_release_engineering_ci_roadmap.md`
+- **SSOT 来源：** `myrm-control-plane/` · `myrm-agent-server/app/core/sandbox/` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/` · `temp-docs/materials/PLATFORM_AND_DEPLOYMENT_ADVANTAGE.md` · `temp-docs/roadmap/topic_05_desktop_release_engineering_ci_roadmap.md`
 
 ## 最新验证快照（2026-10-02 · 双旗舰 SOTA 盲审对质、100% 共识提炼与轻中度负载秒级直通套件 · 彻底消除单模型决策幻觉盲区、多模型手忙脚乱切换与日常轻任务黏滞等待）
 
@@ -643,7 +643,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   2. **100% 共识确定性提取与分歧决策卡片（Consensus Synthesizer & Trade-Off Arbiter）**：自动提炼出两大模型完全一致的重叠结论（交集部分），标记为「100% 高置信度共识」并直接采纳；对双方分歧点结构化提炼优劣对比（Pros & Cons）与风险边界，生成优雅的卡片供用户定夺；
   3. **轻中度日常办公负载启发式自适应分流与零等待秒级直通（Light-Medium Zero-Wait Fast-Path Pipeline）**：基于轻量语义探针（<10ms）快速判定任务负载属性，凡文字润色、日常问答、多源摘要等轻中度任务直连极速低延迟模型（如 GPT-6 Luna、Claude Haiku 或端侧量化模型），首字延迟压降至 <200ms，赋予普通白领“纯魔法”般丝滑交互；代码攻坚与复杂重构时自动平滑接力移交主推演模型；
   4. **全端同构与算力经济学双重保障**：WebUI / Desktop / 云托管独立沙箱全端统一交互，日常办公零额外 Token 开销，关键任务一键解锁世界最高智商上限。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/_orchestrator_council.py` · `temp-docs/materials/MULTI_MODEL_CONSENSUS_ADVANTAGE.md` · `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md` · `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/_orchestrator_council.py` · `temp-docs/materials/MULTI_MODEL_CONSENSUS_ADVANTAGE.md` · `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md` · `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md`
 
 ## 最新验证快照（2026-10-01 · macOS AMFI 签名派生阻断、进程锁沙箱治理与 0 孤儿泄露闭环 · 彻底消除浏览器幽灵克隆吞噬磁盘、后台孤儿僵尸进程与沙箱死锁崩溃）
 
@@ -652,7 +652,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   2. **带活跃进程保护的沙箱精准识别与安全粉碎**：在 `orphans.py` 中将 `code_sign_clone.*` 纳入沙箱候选管理；在清理前严格调用 `lsof +D` 进行活跃进程占用检测，对被打开的候选予以安全保护，无进程占用的陈旧沙箱秒级安全 `rmtree` 粉碎；
   3. **服务端口端点与前端 WebUI 实时联动**：服务端清理端点 `DELETE /api/v1/health/browser/orphans` 在确认清理时默认按即时生命周期执行，配合前端设置页 BrowserDoctor 卡片，让管理员一键直观透视并释放数 GB 真实硬盘空间；
   4. **100% 全栈实测与 E2E 验证**：Harness 孤儿治理模块覆盖率达到 90%，58 项单测全绿；Server 接口 9 项全绿；Chrome MCP 真实用户交互 E2E 测试全绿（136.98s），无任何僵尸进程残留，开发机保持 160+ GiB 黄金健康空间。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/doctor/orphans.py` · `.../pool/browser_launcher.py` · `myrm-agent/myrm-agent-server/app/api/health/browser.py` · `myrm-agent-frontend/src/components/features/settings/sections/system/BrowserDoctorCard.tsx` · `temp-docs/materials/ACTIVE_BROWSER_DEBUG_AND_E2E_VERIFICATION_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/doctor/orphans.py` · `.../pool/browser_launcher.py` · `myrm-agent/myrm-agent-server/app/api/health/browser.py` · `myrm-agent-frontend/src/components/features/settings/sections/system/BrowserDoctorCard.tsx` · `temp-docs/materials/ACTIVE_BROWSER_DEBUG_AND_E2E_VERIFICATION_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-30 · 会话级自适应指数退避自唤醒轮询调度引擎、目标驱动终止闭环与 WebUI 悬浮胶囊全链路交付 · 彻底消除长任务轮询空转、无目标无休止死循环、黑盒盲盒调度与突发并发惊群）
 
@@ -662,7 +662,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **前后端同构自然语言解析与即时首跑验证（Homomorphic NLP & Immediate First-run）**：彻底修复历史前导 `/loop`、`/repeat` 命令未剥离导致时间间隔解析失效回退到 `self_paced` 的历史缺陷，引入 `_LOOP_COMMAND_PREFIX_RE` 正则实现前后端同构解析；创建后不干等下一个周期，而是立即触发首次真实任务执行并在当前会话直接流式呈现，肉眼验收通过后无缝转入持久化循环；
   4. **WebUI 玻璃拟态悬浮胶囊状态栏（LoopStatusBar）与精准静默取消**：会话激活 loop 时，页面底部常驻玻璃拟态 `LoopStatusBar` 胶囊，动态显示当前轮次（如 `第 2/5 轮`）、运行间隔、倒计时微动画与 Target 徽章；点击红色停止按钮触发 `user_stopped` 安全停机，胶囊平滑淡出，不向用户抛出任何干扰报错；用户正在输入内容时自动进入挂起态，绝不争抢光标与输入锁；
   5. **100% 满分全栈实测验证**：Harness 算法与单元测试 12/12 专测全绿（3.35s）；真实无头 Chrome 9333 端口驱动 WebUI 真实端到端测试（`test_session_loop_chrome_e2e.py`，242 行严控红线）覆盖 HTTP 周期启停与 Chrome CDP 真实点击停止胶囊交互，2 passed in 72.07s，退出码 0，全生命周期 0 僵尸残留。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/runtime/loop/parser.py` · `scheduler.py` · `myrm-agent-server/app/api/chats/chat/session_loop.py` · `myrm-agent-frontend/src/components/features/chat/LoopStatusBar.tsx` · `temp-docs/materials/AUTOMATION_CRON_ADVANTAGE.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/runtime/loop/parser.py` · `scheduler.py` · `myrm-agent-server/app/api/chats/chat/session_loop.py` · `myrm-agent-frontend/src/components/features/chat/LoopStatusBar.tsx` · `temp-docs/materials/AUTOMATION_CRON_ADVANTAGE.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md`
 
 ## 最新验证快照（2026-09-29 · 会中实时结构化纪要、转写幂等摄入与撞名不丢场次归档套件 · 彻底消除会后回忆、逐字稿重复、会议静默丢失与模型啰嗦导致的 500）
 
@@ -686,7 +686,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   4. **归档回调成功判定正确（Correct Offload Success Check）**：使用 `succeeded` 属性（path 非空且无 failure_kind）替代恒真的 classmethod 引用；
   5. **死代码清零（Dead-Code Zeroing）**：删除 3 处生产 0 调用路径（`_replace_content`、`sanitize_multimodal_content`、`LocalWorkingMemoryBlock.flush_stale` / `WorkingMemoryFlushResult`）；
   6. **100% 全栈测试验证**：上下文管理 1,445 项单元/集成测试全绿，改动模块覆盖率 ≥90%；真实 LLM 全链路 E2E + 上下文预算 / 上下文留存 Chrome E2E 全部通过。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/pipeline/processors/active_tool_result_prune_processor.py` · `.../working_memory/block.py` · `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/context_management/pipeline/processors/active_tool_result_prune_processor.py` · `.../working_memory/block.py` · `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-28 · 安装前 71 项前置静态模式扫描、0~100 风险量化门禁、Python AST 语法树危险调用穿透与合规审计留痕全链路交付 · 彻底消除第三方技能生态盲装盲信、恶意越狱代码直灌、0分假值逃逸与无痕越界放行）
 
@@ -698,7 +698,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   5. **结构化合规审计留痕与全生命周期追踪（Audit Override Log）**：针对企业管理员显式放行低分技能场景，服务端原生打点记录 `AUDIT_EVENT: SKILL_SECURITY_OVERRIDE`，完整持久化操作人 ID、技能指纹、违规规则列表与免责放行时间戳，确保合规与责任链百分之百可追溯；
   6. **动态风险感知 WebUI 交互与破坏性警告样式（Risk-Aware UI & AdoptWithRisk）**：WebUI 采纳面板以 Critical（深红）、High（橙红）、Safe（翠绿）透明呈现各风险项与检测规则；一旦用户勾选低分或高危技能，主采纳按钮动态绑定破坏性警告样式（`adoptWithRisk`），让风险看得见、管得住；
   7. **100% 满分全栈实测验证**：Harness 核心模块实测单测覆盖率达到 **93%**（178 项单测全绿，耗时 9.61s），Server 端 22 项测试全绿，Frontend 6 项单测全绿，`bun run lint` 0 错误，`bun run verify:i18n` 扫描 1917 个代码文件 0 missing keys，真实 Chrome 9333 端口驱动 WebUI 3000 设置页集成 E2E 测试 100% 通过。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/scanner.py` · `scoring.py` · `service.py` · `myrm-agent-server/app/api/v1/endpoints/skills.py` · `myrm-agent-frontend/src/components/features/settings/SkillMarketplaceDrawer.tsx` · `temp-docs/materials/SKILL_PERMISSION_SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/scanner.py` · `scoring.py` · `service.py` · `myrm-agent-server/app/api/v1/endpoints/skills.py` · `myrm-agent-frontend/src/components/features/settings/SkillMarketplaceDrawer.tsx` · `temp-docs/materials/SKILL_PERMISSION_SECURITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md`
 
 ## 最新验证快照（2026-09-27 · 会话日志扩展私有状态与模型可见消息物理解耦与全生命周期协同交付 · 彻底消除内部状态污染LLM、Token意外泄露、压缩遗留过期告警与前端无障碍缺失）
 
@@ -708,7 +708,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **Compaction 临时消息自愈淘汰机制（Ephemeral Message Eviction）**：引入 `retention: Literal["ephemeral", "persistent"]` 生命周期声明；在 `message_io.py` 上下文压缩流程中，自动对带有 `ephemeral` 标记的临时通知卡片（如环境检测、临时确认）进行物理剥离，保持长程压缩上下文的绝对纯净；
   4. **Trace 级全链路结构化可观测性聚合（TraceBuilder Aggregation）**：在 `ExecutionTrace` 与 `TraceBuilder` 中原生支持 `custom_messages` 拓扑聚合，让开发者与运维人员在单次调试中对会话扩展事件与底层执行链路一目了然；
   5. **前端无障碍与主题自适应卡片渲染（Accessible & Themed CustomMessageCard）**：前端重构 `CustomMessageCard.tsx`，严格遵循 WAI-ARIA 规范（`aria-expanded`, `aria-controls`），支持 `display === false` 零开销短路与深浅双主题无缝自适应，孤儿模块门禁 100% 满分通过。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/event_log/types.py` · `myrm-agent-server/app/core/utils/chat_utils.py` · `myrm-agent-server/app/services/chat/compact/message_io.py` · `myrm-agent-frontend/src/components/features/chat/CustomMessageCard.tsx` · `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/event_log/types.py` · `myrm-agent-server/app/core/utils/chat_utils.py` · `myrm-agent-server/app/services/chat/compact/message_io.py` · `myrm-agent-frontend/src/components/features/chat/CustomMessageCard.tsx` · `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md`
 
 ## 最新验证快照（2026-09-27 · 动态思考算力分配、反向访谈澄清防自嗨、沙箱深水区工程压测与多流程演练全链路交付 · 彻底消除高Effort需求误读飙升88%、口头免责慢算法与静态伪完成交付）
 
@@ -718,7 +718,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **Zero Cache-Busting 全端动态算力调控（`/effort` Slash + GUI 强度按键 + 智能体 Persona 预设）**：智能体（Persona）配置层原生支持持久化预设默认 Effort 档位（日常助手秒回省钱，投研专家深度深思）；WebUI 聊天框通过快捷 `/effort` 斜杠命令与可视化 6 档按键实时双向绑定，外部 IM 渠道（飞书/企微）无缝支持；请求体外挂透传 100% 保护 Prompt Cache 零击穿；桌面端长任务联动系统原生托盘通知，离屏无忧；
   4. **工件区多流程交互演练矩阵（Walkthroughs 4 态交互步进器）**：告别单张静态截图与静态代码伪交付！工件区原生内嵌 4 态交互步进器（Normal 正常/Empty 空数据/Error 报错/Back 回退），在侧边栏一键切换检验全部业务状态分支，彻底告别“一跑全是空数据未处理报错”；
   5. **安全请求主动跨模型交接与物理离线断网沙箱（Air-Gapped Sandbox）**：高敏安全任务前置自动交接至高安全旗舰模型，Control Plane 动态切断沙箱外部网络，纯离线无网闭环执行，杜绝数据外泄风险。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/` · `myrm-agent-server/app/ai_agents/general_agent/tool_setup.py` · `myrm-agent-frontend/src/components/features/message-input-actions/ThinkingIntensityButton.tsx` · `temp-docs/materials/AGENT_VERIFICATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_09_frontend_ux_roadmap.md` · `temp-docs/roadmap/topic_18_loop_engineering_goal_autonomous_scheduling_and_runtime_verification_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/` · `myrm-agent-server/app/ai_agents/general_agent/tool_setup.py` · `myrm-agent-frontend/src/components/features/message-input-actions/ThinkingIntensityButton.tsx` · `temp-docs/materials/AGENT_VERIFICATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_09_frontend_ux_roadmap.md` · `temp-docs/roadmap/topic_18_loop_engineering_goal_autonomous_scheduling_and_runtime_verification_roadmap.md`
 
 ## 最新验证快照（2026-09-27 · 活动 Chrome 扩展免密直连、E2E 闭环自验证与午休无人值守挂机全链路交付 · 彻底消除遇登录必卡死、索要明文密码、人肉贴图与改完代码不经验证的半吊子交付）
 
@@ -730,7 +730,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   5. **画中画实时调试置顶悬浮窗（Picture-in-Picture Live Debugging Viewport）**：前端 WebUI 与 Tauri 桌面端原生提供画中画（PiP）悬浮小窗，长任务执行时将实时 DOM 视口与网络请求流以独立半透明小窗置顶在屏幕角落，用户写代码或摸鱼看视频时，随时能瞥一眼 AI 正在点哪个按钮、查哪个接口；
   6. **多梯队算力精益运营（0x 免费辅助模型 + 4 折夜间错峰 + BYOK 混合路由）**：查看报错截图、语法补全等轻量高频辅助任务默认走 **0x 免费轻量模型（如 Qwen-Flash）不扣 Credits**；长批处理任务在夜间低峰期享受 **4 折倍率优惠**；支持绑定用户自有 API Key（BYOK），自付账单与平台额度按任务类型智能分流，海外模型遇 403 阻断自动热切备用源，综合节省算力 60% 以上；
   7. **三大部署形态同构（Local / Tauri / 云托管沙箱）**：摆脱单一商业客户端绑架，支持纯本地离线部署、Tauri 跨平台客户端与云端独立沙箱实例，数据资产完全归属用户。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/` · `myrm-agent-frontend/src/components/features/chat-window/sandbox/` · `myrm-agent-server/app/core/llm/` · `temp-docs/materials/ACTIVE_BROWSER_DEBUG_AND_E2E_VERIFICATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md` · `temp-docs/roadmap/topic_18_loop_engineering_goal_autonomous_scheduling_and_runtime_verification_roadmap.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/` · `myrm-agent-frontend/src/components/features/chat-window/sandbox/` · `myrm-agent-server/app/core/llm/` · `temp-docs/materials/ACTIVE_BROWSER_DEBUG_AND_E2E_VERIFICATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md` · `temp-docs/roadmap/topic_18_loop_engineering_goal_autonomous_scheduling_and_runtime_verification_roadmap.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md`
 
 ## 最新验证快照（2026-09-27 · 子 Agent 运行时检查点 SQLite 持久化与断点自愈套件 · 彻底消除进程内存丢失、长任务中断全盘推倒重来与跨沙箱休眠恢复失败）
 
@@ -835,7 +835,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **零 Token 沙箱本地漫游**：用户与智能体在概念网络与领域知识树间下钻、跳转与反向溯源全部在沙箱本地 SQLite + AST 解析器完成，具备毫秒级响应，0 额外 LLM Token 消耗；
   4. **严格的单机沙箱物理隔离**：基于每用户独立沙箱 + 专属持久化存储卷设计，杜绝外部网络竞态与多租户权限穿透风险，保障 100% 确定性与数据主权；
   5. **100% 满分全栈实测验证**：底层双向链接提取单元测试全绿、服务端概念链接接口门禁全绿、前端领域树与反向链接导航端到端验证 0 回归。
-- **SSOT 来源：** `myrm_agent_harness/toolkits/memory/store/sqlite.py` · `myrm-agent-harness/src/myrm_agent_harness/api/` · `WikiDomainTreeSection.tsx` · `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md`
+- **SSOT 来源：** `myrm_agent_harness/toolkits/memory/store/sqlite.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/api/` · `WikiDomainTreeSection.tsx` · `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-24 · 长会话与 IM 渠道技能自我进化防膨胀与上下文过载主动守卫全链路交付 · 彻底消除 400k 长会话递归压缩崩溃与微技能无限失控堆叠）
 
@@ -899,7 +899,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **零误逐出冷热生命周期治理**：恢复的记忆无缝保留历史访问权重，完全免疫牛顿冷却衰减下的零计数误逐出与优先级反转；
   4. **多存储审计与防篡改验证**：由 SQLite 仅追加审计轨迹、Qdrant 向量索引一致性检查与加密封装签名三重背书；
   5. **100% 满分全栈测试验证**：111/111 记忆 Harness/Server 单元与集成测试全绿，0 僵尸进程与 0 内存泄漏。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/cube.py` · `test_memcube_scheduler.py` · `temp-docs/materials/MEMORY_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/cube.py` · `test_memcube_scheduler.py` · `temp-docs/materials/MEMORY_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-17 · 双轨工作记忆看板、陷阱自愈与超短期状态向长期自动固化体系全链路交付 · 彻底消除黑盒易失、重复踩坑死循环与认知断层）
 
@@ -930,7 +930,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **显式锁定保全（Lock Invariance）**：用户一键开启金色锁定徽章后，后续对话中的任何模型意图与隐式反馈严格 bypass，绝不篡改用户的显式调谐偏好；
   4. **自然语言隐式拟合（Implicit Feedback Adaptation）**：解锁状态下识别用户自然语言（如“只要代码不要废话”），自适应调谐行动性与精炼度，实现无感长程陪伴；
   5. **100% 全链路自动化与真实 Chrome E2E 测试实证**：`test_memory_citations_chrome_e2e.py` 真实 CDP 浏览器 3/3 绿灯通过，后端 9 项全场景集成测试与前端 10 项 Vitest 全绿，0 僵尸残留。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/strategies/dynamic_preference.py` · `app/api/memory/operations/radar.py` · `PreferenceRadarToggle.tsx` · `temp-docs/materials/MEMORY_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/strategies/dynamic_preference.py` · `app/api/memory/operations/radar.py` · `PreferenceRadarToggle.tsx` · `temp-docs/materials/MEMORY_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-10 · 沙箱智能体实时画面窥视、DOM/ARIA 结构化点击纠偏与多会话强隔离全链路交付 · 彻底告别黑盒盲跑与公网高带宽裸 VNC 风险）
 
@@ -951,7 +951,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **分类目录防覆灭与重解析点穿透拦截（`path_security.py`）**：严格断言物理沙箱根目录边界，物理拦截符号链接与 Windows NTFS Junction 逃逸；自动阻断名为 `category` 的单技能覆盖现有同名多技能聚合目录，资产 100% 安全；
   4. **原生 Android 11+ 无线 ADB 语义化驱动（`mobile_adb`）**：内置 `MobileSession` 与 `AdbDeviceDriver`，提供 UIAutomator XML 解析与 `@mref` 语义化节点引用，供 WebUI 设备检查器使用（配对、快照、触控中继），不作为工具暴露给 Agent；
   5. **全量单元测试 14/14 全部绿灯通过**：覆盖设备解析、依赖检测与安全路径拦截，0 僵尸进程，0 内存泄漏。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/backends/skills/prerequisites/` · `myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/path_security.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/mobile_adb/` · `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md` · `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/backends/skills/prerequisites/` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/path_security.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/mobile_adb/` · `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md` · `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`
 
 ## 最新验证快照（2026-09-09 · 接管驾驶盘人机协同控制流、VNC 原生视口与外带凭据零暴露直填全面交付 · 彻底消除 Bot 偷跑、2FA 锁号与密文泄露风险）
 
@@ -961,7 +961,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **内存标签化凭据金库（`CredentialVault` & `fill_credential`）**：静态配置凭据通过内存引用直填目标 DOM 元素，LLM 提示词、会话历史与账本日志 100% 免除明文暴露风险；
   4. **接管恢复后强制刷新 Chromium 快照（`snapshot(force=True)`）**：用户交还控制权后，底层执行引擎强制废弃旧快照并全量重新拉取真实 DOM 状态，彻底杜绝状态脱节与幻觉；
   5. **自动化测试 100% 满分通过与零僵尸进程保障**：28 项单元测试与 3 项 API/流式集成测试全部绿色通过，零内存泄漏，零僵尸进程。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/tools/takeover.py` · `myrm-agent-frontend/src/store/useBrowserTakeoverStore.ts` · `temp-docs/materials/BROWSER_AUTOMATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/tools/takeover.py` · `myrm-agent-frontend/src/store/useBrowserTakeoverStore.ts` · `temp-docs/materials/BROWSER_AUTOMATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md`
 
 ## 最新验证快照（2026-09-09 · 多渠道多用户私信上下文隔离、陌生人提权逃逸防御与长期记忆防投毒网关全面交付 · 彻底消除跨用户私信串台、开放提权后门与 Prompt 注入投毒）
 
@@ -980,7 +980,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **商品多规格变体选项收敛与容量配额硬防御（`Variant Options Gate` & `Cap Governance`）**：自动拦截包含未决规格（颜色/尺码/型号）的模糊操作，自动转为芯片引导用户快速确认确切子规格 ID；强制校验单项数量上限与购物车行数熔断，杜绝恶意刷单超卖；
   4. **金融级交易风控与防篡改加密凭证账本（`spend_governance.py` · HMAC-SHA256）**：针对涉及真实资金与库存的操作，自动生成防篡改链式哈希签名凭证（`SpendReceipt`），结合单次/会话支出上限守卫，提供商用交易的安全兜底；
   5. **WebUI / Tauri 桌面端双端现代化商业向导与开箱即用行业模板**：摆脱竞品仅能在 CLI 敲命令的简陋体验，WebUI 提供可视化商业搭建向导，预置零售、旅游、电信、票务四大垂直行业模板，助力企业客户购物车转化率提升 35%~60%。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/core/security/spend_governance.py` · `temp-docs/materials/COMMERCE_AGENT_TRANSACTIONAL_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/spend_governance.py` · `temp-docs/materials/COMMERCE_AGENT_TRANSACTIONAL_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-09 · 全会话轻量大纲投影、无抖动连续加载与固定步长时间线导航轨全面交付 · 彻底消除长任务早期决策盲视、DOM 视口塌陷跳跃与刻度拥挤）
 
@@ -999,7 +999,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   4. **尾部瞬态注入保全 >95% KV-Cache 命中率（`_inject_advisor_block_cache_safe`）**：严格将参谋破局意见注入在当前回合提示词尾部，绝不篡改历史上下文与 System 前缀，保持上游 Prompt Cache 命中率恒定 >95%；
   5. **WebUI / 桌面端 / 云端三端同构可视化开箱即用（`AgentCapabilitiesMoaOverlaySection.tsx`）**：在智能体 Capabilities 面板原生暴露 4 档触发模式（Standard / Deep Review / Fast / `risk_triggered`），配套 6 国语言国际化字典，彻底消除 Dead Feature Path；
   6. **100% 满分全栈实测闭环**：Lane-A 核心单测 21 passed (Harness) + 10 passed (Server)；Lane-B 真实 Chrome 浏览器配置持久化 2 passed (123.6s)；Lane-C 真实模型全链路业务 Universal Task Flow E2E 2 passed (172s，真实捕获流式 SSE 与 WebUI 聊天 DOM 渲染卡片)。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/advisor_risk_trigger_router.py` · `myrm-agent-server/app/services/agent/stream_session/moa_overlay_setup.py` · `myrm-agent-frontend/src/components/features/agent-profile/AgentCapabilitiesMoaOverlaySection.tsx` · `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/advisor_risk_trigger_router.py` · `myrm-agent-server/app/services/agent/stream_session/moa_overlay_setup.py` · `myrm-agent-frontend/src/components/features/agent-profile/AgentCapabilitiesMoaOverlaySection.tsx` · `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md`
 
 ## 最新验证快照（2026-09-09 · MoA 跨参谋凭证深度脱敏、物理截断防暴涨与根智能体特权隔离全面交付 · 彻底消除账单背刺、隐私扩散与子任务弹窗骚扰）
 
@@ -1009,7 +1009,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **动态预算预检与静默避坑（`moa_overlay_setup.py`）**：当检测到上下文预算压力（`budget_pressure`）或无可用有效参考模型时，自动安全跳过 MoA 顾问叠加并下发 `moa_overlay_skipped` SSE 事件，绝不盲目浪费配额；
   4. **构建期根智能体专属特权物理级剔除（`types.py:75-108` · `builder.py:90-130` · `_tool_layer_bootstrap.py:42`）**：彻底超越 Codex 在 Handler 报错的事后拦截设计（浪费 Token 与重试死循环），Myrm 在子 Agent 实例化阶段通过 L1 `leaf_blocked_tools` 与 `register_leaf_blocked_tools` 从工具注册表中物理剔除 `ask_question_tool`、`channel_notify_tool` 与委派工具，子 Agent 0 机会骚扰用户，且节约 100% 的子 Agent 工具 Schema Token 开销；
   5. **100% 满分单测与 E2E 绿色通过**：Harness 核心单测与 Server 端流式装配测试全量通过，0 内存泄漏与 0 linter 告警。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/` · `myrm-agent-server/app/services/agent/stream_session/` · `temp-docs/materials/MULTI_MODEL_CONSENSUS_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/` · `myrm-agent-server/app/services/agent/stream_session/` · `temp-docs/materials/MULTI_MODEL_CONSENSUS_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md`
 
 ## 最新验证快照（2026-09-09 · 沙箱智能体全景实时窥视、结构化 Inspector 与内嵌 VNC 桌面全面交付 · 彻底消除远程 VM 黑盒与卡顿高延迟串流）
 
@@ -1019,7 +1019,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **结构化 ARIA / SOM 元素级指选协同（`ElementOverlay` · `InspectorInstructionInput`）**：用户可直接在画面中点选目标控件并注入自然语言引导，实现真正的“所见即所指”人机协同；
   4. **内嵌式 VisualDesktop 与 Managed Takeover（`VisualDesktopToggle.tsx` · `VisualDesktop.tsx`）**：原生集成 `@novnc/novnc` 嵌入式沙箱桌面，遇滑块验证码或 2FA 时自动弹出，配合接管状态机实现无缝人机协作；
   5. **严格多 Pane 隔离与安全门控**：严格按会话 `chatId` 隔离视口，严禁多任务画面串台，并在破坏性操作前强制触发物理级审批卡。
-- **SSOT 来源：** `myrm-agent/myrm-agent-frontend/src/components/features/` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/` · `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-frontend/src/components/features/` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/` · `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md`
 
 ## 最新验证快照（2026-09-08 · 多模型家族推理参数全协议重映射、前缀缓存安全解耦与输入区就地极速换模全面交付 · 彻底终结 400 崩溃与 415% 成本黑洞）
 
@@ -1029,7 +1029,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **聊天输入区常驻 BaseModelSelector 快速换模 Chip（`MessageInput.tsx` · `BaseModelSelector.tsx`）**：在输入框底部原生常驻模型切换 Chip，一键点选 Primary / Fallback / Safety 容灾槽位，并可直接直切 MoA 预设（default/review/fast）与 Smart Routing（✨ Auto）；结合服务端长上下文预检，0 页面刷新、0 服务重建、即选即用；
   4. **独立 visionFallback 双槽级联与纯本地感知闭环（`DefaultModelSection.tsx`）**：原生提供 Primary + Fallback 独立视觉降级双槽与毫秒级实机链路健康探活，配合 `isLoopbackApiUrl` 本地端点探测，完美支持纯本地 Ollama/LM Studio 视觉小模型（如 Qwen2.5-VL/LFM）零云感知闭环；
   5. **100% 满分全矩阵测试通过**：Harness 核心单测与全场景回归套件全部绿色通过，0 内存泄漏与 0 linter 告警。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/core/` · `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/core/` · `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md`
 
 ## 最新验证快照（2026-09-08 · 多维表格/电子表格侧边栏交互 CoPilot 全面交付 · 彻底消除机械人肉搬运与 Schema 幻觉）
 
@@ -1049,7 +1049,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **技能市场与预览结构化报告透出（`SkillPreviewResult.prerequisites`）**：在 WebUI 预览与安装技能时即时呈现前置健康状态，支持一键复制安装命令，小白用户亦可秒级排除环境故障；
   4. **分类桶碰撞与目录联接穿透免疫盾（`category_guard.py`）**：严格拦截 Symlink/Junction 重定向穿越攻击，杜绝安装同名分类目录技能时误删兄弟技能的严重数据丢失隐患；
   5. **0 Token 消耗与 100% 满分单元测试**：纯本地物理环境检测，0 大模型 Token 账单开销，100% 保护 Prompt Cache 命中率；自动化测试 4/4 100% PASS。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/backends/skills/` · `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md` · `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/` · `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md` · `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`
 
 ## 最新验证快照（2026-09-08 · 事件源模型视口全景回放、时空穿梭调试器与对话语义分支全面交付 · 彻底告别排障黑盒与前缀缓存暴跌）
 
@@ -1059,7 +1059,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **Frontend 表现层四色角色结构化解构与三栏时空穿梭（`viewportParser.ts` · `ModelViewportView.tsx` · `SessionReplayPlayer.tsx`）**：纯函数微秒级解构 System/User/Assistant/Tool 角色卡片与字数统计；时间轴 Scrubber 原生集成 `snapToNearestEventTime`（Turn Boundary Snap）；支持一键从当前断点派生并显示确定性保留轮次 Toast（`t('forkSuccessDetail', { count })`）；
   4. **Prompt Cache 100% 保护与调试降本 80%+**：派生分支严格对齐轮次边界，100% 继承上游会话前缀与系统提示，大模型 Provider 端 KV-Cache 命中率达 90%+，多轮交互调试改写成本降低 80%+；
   5. **100% 满分全矩阵测试通过**：Harness 单测全绿、Server 业务单测 7 项全绿、前端 Vitest 单测 27 项全绿，真实浏览器 Chrome E2E 自动化测试 100% PASS（`test_fork_chrome_e2e.py` 真实沙箱创建与语义标题断言一致）。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/event_log/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/event_log/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
 
 ## 最新验证快照（2026-09-08 · 全景生产级可观测性、4D 实时 Token 经济学与流式思维链剥离全面交付 · 彻底终结算力黑盒与长思考失控）
 
@@ -1069,7 +1069,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **Zero-LLM 确定性洞察聚合引擎（`EventLogAnalytics` · `types.py`）**：纯确定性算法聚合跨会话全局活动模式、日常趋势分布与工具使用排行，零边际大模型开销；
   4. **因果追踪调用树与多层立体健康探针（`trace_builder.py` · `manager.py`）**：递归构建因果执行调用链，精准分离自愈性重试与不可挽回的根因错误；为 SQLite、Qdrant 及 Graph Embedding 提供标准化健康探针与超时并发隔离；
   5. **100% 满分全矩阵测试通过**：Harness 框架层单测、Server 统计分析 API 单测及前端组件 Vitest 测试 100% 通过，零内存泄漏，零 linter 错误。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/utils/token_economics/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/utils/token_economics/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
 
 ## 最新验证快照（2026-09-08 · 端侧弱模型 Grammar 结构化约束解码与本地弱端点自适应感知已交付 · 降低本地小模型 Tool Call 外层 JSON 破损）
 
@@ -1079,7 +1079,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **前置硬约束 + 后置柔性容错双保险（`tool_recovery.py` · `tool_call_parsers.py`）**：即使遇到极端畸变，后置 8 阶容错解析器自动进行字段自愈、HTML Entity 还原与多格式转译，确保执行流绝对不断流；
   4. **零破坏 Prompt Cache 与云端原生 FC**：前置约束作为采样器独立参数透传，主干 System Prompt 前缀 100% 固化，KV-Cache 命中率达到最大化；
   5. **13 项全矩阵单元测试 100% 满分通过**：耗时 2.71s，覆盖端点探测、大小写不敏感防御与云端模型安全旁路，零内存泄漏，零僵尸进程。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/adapters/` · `temp-docs/materials/COMPETITIVE_ADVANTAGE_LOCAL_MODEL.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/adapters/` · `temp-docs/materials/COMPETITIVE_ADVANTAGE_LOCAL_MODEL.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md`
 
 ## 最新验证快照（2026-09-07 · 三维正交认知模型与五级强类型记忆治理全面交付 · 彻底终结多智能体记忆串扰与权限失控）
 
@@ -1088,7 +1088,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   2. **五级细粒度作用域与跨 Agent 隔离（`MemoryScopeLevel` · `AgentMemoryPolicy`）**：支持 `GLOBAL`、`AGENT`、`CHANNEL`、`CONVERSATION`、`TASK` 五级作用域划分，配合命名空间（`agent:<id>` / `user:<id>` / `shared:<ns>`）严格阻断不同智能体间的越权读取与篡改；
   3. **运行时管道安全隔离注入（`MemoryContextMiddleware` · `memory_context_format.py`）**：动态检索结果自动包裹 `<untrusted_memory_content>` 防投毒转义标签，配合 Token Budget 自适应裁剪与 L0 显式画像置顶注入特权（`priority=1`），保障 100% 前缀 Prompt Cache 命中；
   4. **308 项四层立体测试 100% 满分通过**：Harness 单元 126 项、Harness 真实 SQLite 集成 11 项、Server API/DB 46 项、Frontend Vitest 125 项全部通过，0 失败，0 僵尸进程。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/` · `temp-docs/materials/MEMORY_ADVANTAGE.md` · `temp-docs/roadmap/topic_01_memory_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/` · `temp-docs/materials/MEMORY_ADVANTAGE.md` · `temp-docs/roadmap/topic_01_memory_roadmap.md`
 
 ## 最新验证快照（2026-09-08 · macOS Sequoia+ iPhone 镜像窗自动化与安全连接门控闭环全面交付 · 彻底攻克移动端原生 App 与 2FA 审批）
 
@@ -1097,7 +1097,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   2. **系统配对与待连接弹窗物理防越权（`safety.py:200-225` · `is_iphone_mirror_blocked_action`）**：严格拦截 Agent 自动代点苹果系统级“连接确认”与生物识别授权，杜绝安全合规风险；
   3. **Server 提示词 When-Not-To-Use 黄金守门（`shared_rules.py:108,126`）**：凡可通过网页/API/桌面原生 App 解决的任务坚决不切入手机镜像，保持 SDC 极简 3 核心工具矩阵不变，Prompt Cache 100% 满命中；
   4. **全套自动化测试 100% 绿灯通过**：72 项 Harness 底层感知测试 + 41 项 Server 提示词契约测试全绿，零内存泄漏，零僵尸进程。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/iphone_mirror.py` · `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md` · `temp-docs/roadmap/topic_05_desktop_release_engineering_ci_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/iphone_mirror.py` · `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md` · `temp-docs/roadmap/topic_05_desktop_release_engineering_ci_roadmap.md`
 
 ## 最新验证快照（2026-09-07 · Windows UIA 原生 Pattern 语义控制与跨端自愈同构全面交付 · 彻底攻克复杂企业桌面折叠树与多态控件）
 
@@ -1107,7 +1107,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **三态多选（Indeterminate）状态机自愈与幂等（`windows_ax.py:300-325`）**：原生支持 `check`/`uncheck` 幂等状态机；针对 Windows 三态 Checkbox（Indeterminate ➔ On ➔ Off）实现标准多轮步进自愈，杜绝死循环；
   4. **Win / Mac / Linux 三端 100% 语义同构（`types.py:25` · `macos_ax.py` · `linux_ax.py`）**：在大模型交互层统一抽象为 `toggle`、`expand`、`collapse`、`invoke`、`check`、`uncheck` 动作，System Prompt 前缀缓存 100% 保护；
   5. **171 项单元/模块测试 + 2 项 Chrome E2E 真实链路测试 100% 通过**：Harness 底层 132 项全绿，Server 提示词 39 项全绿，真实 Chrome 浏览器面板生命周期闭环通过（123.02s）。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/perception/` · `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md` · `temp-docs/roadmap/topic_05_desktop_release_engineering_ci_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/perception/` · `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md` · `temp-docs/roadmap/topic_05_desktop_release_engineering_ci_roadmap.md`
 
 ## 最新验证快照（2026-09-07 · 用户模型偏好记忆与透明认知推导全面交付 · 彻底终结黑盒擅自切模与选模疲劳）
 
@@ -1116,7 +1116,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   2. **严格遵循确定性优先级分层（Deterministic Preference Hierarchy）**：确立「显式配置 > 全局默认 > 偏好建议」不可逾越的铁律，杜绝竞品黑盒篡改模型的缺陷，兼顾人性化体验与执行确定性；
   3. **零边际成本与 Prompt Cache 100% 保护**：偏好提取完全运行在后台异步任务流中，Agent 运行主干的 System Prompt 前缀完全固化，KV-Cache 命中率达到最大化；
   4. **全套自动化测试 100% 通过**：183 项 Harness 记忆策略单元测试全绿（耗时 3.00s），零内存泄漏与零僵尸进程。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/strategies/` · `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/strategies/` · `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md`
 
 ## 最新验证快照（2026-09-07 · 四层 ARIA 空间快照与轻量无图坐标投射全面交付 · 告别私有 VOM DSL 语法与 2K 全屏大图 Token 烧穿）
 
@@ -1126,7 +1126,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **Compact 单行极简无图观测流（`aria_renderer.py:28-80`）**：单步仅消耗 100~300 tokens，相较传输 2K 大图节省 80%+ 费用，极大降低单步决策延迟；
   4. **BBox Healer 空间物理自愈与语义否决（`self_healer.py:170-176`）**：动态 DOM 突变时自动触发就近中心点物理点击，配合 `FORBIDDEN_WORDS` 语义否决门禁，形成高容错安全闭环；
   5. **113 项跨模块单元/集成/性能测试 100% 通过**：数千节点大树压测单次仅耗 2.83ms (OPS ~352)，0 内存泄漏与 0 僵尸进程残留。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/snapshot/` · `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/snapshot/` · `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md`
 
 ## 最新验证快照（2026-09-07 · 只追加事件完整性守护、防破坏截断与步骤执行视图全面交付 · 彻底根除 JSON 破坏崩溃与长任务瀑布流刷屏）
 
@@ -1136,7 +1136,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **Server 业务层会话分叉不可变因果链（`conversation_fork_manager.py:150-185`）**：在会话克隆与分叉时原子写入持久化 `fork_point` 锚点事件，完成多分支血缘与分支因果溯源；
   4. **Frontend 表现层执行步骤树原地增强与下钻弹窗（`ProgressSteps.tsx:68` · `StepDetailModal.tsx`）**：单步耗时徽标（`duration_ms`）、故障归因徽标（`fault_side`）、>8 步长任务阶段智能折叠展开与点击 Dialog 查看完整出入参，全语言 6 语 i18n（zh, en, ja, ko, de, zh-TW）完全对齐；
   5. **测试门禁 100% 满分通过**：Harness 单测 199 项全绿、Server 集成测试 35+12 项全绿、前端 Vitest 71 项全绿，零内存泄漏，零僵尸进程。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/event_log/` · `myrm-agent/myrm-agent-server/app/services/chat/` · `myrm-agent/myrm-agent-frontend/src/components/features/message-box/progress-steps/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/event_log/` · `myrm-agent/myrm-agent-server/app/services/chat/` · `myrm-agent/myrm-agent-frontend/src/components/features/message-box/progress-steps/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md`
 
 ## 最新验证快照（2026-09-07 · 零子进程 Git 语义规范打标、高基数指标防火墙与双通道守护线程超时防挂死全面交付 · 彻底终结子进程泄漏与时序爆炸）
 
@@ -1146,7 +1146,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **双通道 1500ms 守护线程超时防挂死（`tracer.py` · `exporter.py`）**：Tracing 与 Metrics 双通道独立并发冲刷，配备 1500ms 守护线程硬超时，即使远端 OTLP Collector 网络黑洞或发生死锁，服务也能瞬间 Fail-Open 安全退出；
   4. **Frontend 表现层 Git 代码环境动态徽章与一键配置脚手架（`TelemetryPostureCard.tsx`）**：在开发者设置中心以高质感翡翠绿徽章展示当前分支与 Commit 散列，非 Git 环境优雅降级，支持一键刷新态势与配置模板复制；
   5. **自动化测试 100% 满分通过**：Harness 44 项、Server 8 项、前端 4 项全绿，真实 Chrome MCP E2E 真实浏览器 100% PASS（76.31s 完整 DOM 与双按钮交互闭环）。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/infra/tracing/` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/system/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/infra/tracing/` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/system/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
 
 - **UniversalOpenTelemetryTracerAndOtlpSuite（对标 Hermes Agent @alexander-akhmetov/grafana-agento11y-hermes、OpenClaw、Codex、DeepSeek-Harness 与 Pi 在监控领域普遍存在的“强绑定私有厂商变量、OTLP 导出失败静默降级假装在线（False Active）、只读环境变量导致动态参数失联（State Disconnect）、网络挂起阻塞退出等致命痛点）：** Myrm 全面交付了工业级标准 OpenTelemetry 遥测与 SRE 态势闭环：
   1. **工业级 OTLP 双模协议自适应（`tracer.py:275-370`）**：原生支持 W3C/OTel 官方标准 HTTP/Protobuf（`:4318`）与 gRPC（`:4317`），支持标准 Header 解析与 Bearer 鉴权凭据安全脱敏，无缝对接 Datadog、Grafana Tempo、NewRelic 等企业 APM 平台；
@@ -1154,7 +1154,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **消除静默降级假象（Anti-Silent Fallback Illusion）**：当远程 Exporter 不可用时，系统自动安全降级至控制台标准输出（Fail-Open 保活），同时显式标记 `status="degraded_console"` 并暴露详细报错原因 `degraded_reason`；
   4. **Frontend 表现层 4 格 SRE 态势仪表盘与琥珀色排错横幅（`TelemetryPostureCard.tsx`）**：在开发者设置页中直观呈现协议、端点、特性与鉴权状态，检测到降级时自动展示排错指引与一键配置复制；
   5. **有界防卡死关机与全套自动化测试 100% 通过**：`shutdown_tracing(timeout_ms=1500.0)` 引入独立 Daemon Thread 隔离超时退出；Harness 单测 30 项、Server 集成 3 项、Frontend 单测 3 项全绿，真实 Chrome MCP E2E 真实大模型与浏览器交互闭环通过（87.74s）。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/infra/tracing/` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/system/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/infra/tracing/` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/system/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
 
 ## 六大标杆竞品（Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode）深度横向对标与核心获益
 
@@ -1202,7 +1202,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   2. **执行层 lone-operator 拒绝**：`safety.is_operator_as_key_name` 拦截单独 `*`/`/`/`+`/`-`/`%`/`=`（先 strip，避免 `+` 被 combo 分隔吃掉），返回 Safety + REMEDY；**允许** `ctrl+/` 等合法 combo；
   3. **零工具膨胀**：不新增 Top-Level 工具、否决平台键位大表，静态 EN 单例保住 Prompt Cache；
   4. **验收**：Harness operator 单测绿；Prompt integrity 绿；真实 agent-stream Lane-C（强制 `key=*`）通过；**真实 Chrome WebUI E2E**（YOLO 无人值守 · `gemini-3.8-flash-high`）通过。
-- **SSOT 来源：** `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md` · `temp-docs/roadmap/topic_05_desktop_release_engineering_ci_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/safety.py` · `myrm-agent-server/.../shared_rules.py`
+- **SSOT 来源：** `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md` · `temp-docs/roadmap/topic_05_desktop_release_engineering_ci_roadmap.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/safety.py` · `myrm-agent-server/.../shared_rules.py`
 
 ## 最新验证快照（2026-09-07 · 语义深树穿透搜索与原子化延时等待闭环全面交付 · 突破 500 节点硬截断与告别长操作 Polling 轮询）
 
@@ -1212,7 +1212,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **单步原子化 `wait_seconds` 终态等待（`desktop_session.py:165,335`）**：在操作后自动等待界面稳定（0~30s 防御截断）并返回终态快照，消除以往需多轮 LLM 发起 `wait` 轮询的往返开销，**端到端提速 50%+，节省 50%+ 轮询 Token**；
   4. **Desktop Inspector 实时高亮与搜索联动（`DesktopInspectorToolbar.tsx` · `DesktopLiveView.tsx`）**：WebUI 纯客户端 `useMemo` 毫秒级多字段（`refId` / `name` / `role` / `value`）模糊高亮过滤，支持 6 语系国际化与零技术泄露，人机协同认知 100% 对齐；
   5. **全套自动化测试 100% 满分通过**：Harness AX 与 Session 单测 73/73 通过、Server 提示词契约 39/39 通过、Frontend 组件测试 9/9 通过、真实 Chrome E2E 真实大模型全链路闭环通过。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/` · `myrm-agent/myrm-agent-frontend/src/components/features/desktop-inspector/` · `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md` · `temp-docs/roadmap/topic_05_desktop_release_engineering_ci_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/` · `myrm-agent/myrm-agent-frontend/src/components/features/desktop-inspector/` · `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md` · `temp-docs/roadmap/topic_05_desktop_release_engineering_ci_roadmap.md`
 
 ## 最新验证快照（2026-09-07 · 授权≠可捕获 GUI 就绪门禁 · 拆穿 TCC 假绿）
 
@@ -1231,7 +1231,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   3. **SQLite Event Sourcing 0-Token 秒级断点续跑（`durable_execution`）**：确定性哈希签名存证，崩溃或网络中断重启后已执行节点 0ms、0 Token 秒级重放，杜绝重复计费；
   4. **AST 静态安全审查器与 CancelToken 0ms 物理级联熔断（`llm_query_tool.py:75-120` · `__init__.py`）**：主进程代码执行前 AST 语法树拦截动态反射与高危原语；内置双重安全栅栏，用户点击终止瞬间 0 毫秒物理熔断排队任务；
   5. **全套自动化测试 100% 满分通过**：Harness DW PTC 单测 35/35 通过、Server 会话路由 3/3 通过、Chrome 真实浏览器真实大模型全链路闭环通过。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/EXECUTION_SYSTEM.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/dynamic_workflow/` · `temp-docs/materials/PROGRAMMATIC_TOOL_CALLING_ADVANTAGE.md` · `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/EXECUTION_SYSTEM.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/dynamic_workflow/` · `temp-docs/materials/PROGRAMMATIC_TOOL_CALLING_ADVANTAGE.md` · `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`
 
 ## 最新验证快照（2026-09-07 · 标准三层追踪、因果重试透视、轻量启发式异常归因与缓存雷达全面交付 · 彻底终结长程 Agent 排障盲盒）
 
@@ -1240,7 +1240,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   2. **轻量纯函数启发式异常自动归因（`trace_builder.py:280-360` · `ExecutionTraceTimeline.tsx:210-260`）**：0 外部依赖、0 额外 LLM Token 开销，在事件聚合阶段自动捕捉工具死循环（`tool_loop`）、Token 陡增（`token_surge`）与模型重试退避（`retry_backoff`），在会话轨迹顶部毫秒级挂载红/黄分级智能警示横幅；
   3. **异步非阻塞全局 Prompt Cache 雷达（`prompt_cache_radar.py:40-110` · `UsageStatisticsSection.tsx:320-370`）**：彻底重构跨会话日志统计，利用 `asyncio.to_thread` 卸载至工作线程，结合数据库索引秒级聚合 7/30/90 天 Prompt Cache 命中率、缓存读取 Token 量与真金白银折算节省金额（USD），让长文本优化成效直观可见；
   4. **全套自动化测试 100% 满分通过**：静态契约测试 254 项全绿（2.82s）、后端统计模块 215 项单元测试（211 passed, 4 skipped，7.02s）、前端 Vitest 742 个测试套件 5186 项测试全绿通过（196s），零 Lint 告警。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/event_log/` · `myrm-agent-server/app/api/statistics/` · `myrm-agent-frontend/src/components/features/settings/sections/system/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/event_log/` · `myrm-agent-server/app/api/statistics/` · `myrm-agent-frontend/src/components/features/settings/sections/system/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
 
 ## vs OpenCode（anomalyco/opencode）— 开源终端编码 Agent
 
@@ -1269,7 +1269,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   4. **四层 ARIA 快照与 3 层视觉验证漏斗（`aria_enhancer.py:180-320` · `vision_verifier.py:38-110`）**：具备 `Modal Blocking` 顶层模态窗锁定、`Hover Pre-discovery` 悬停预感知及 `DOM Mutation ➔ dHash 感知哈希 ➔ Vision LLM 评分` 完整 3 层验证漏斗，确保操作真实生效；
   5. **多维主动安全围栏与防自杀保护（`safety.py:1-200`）**：物理拦截高危组合键（Cmd+Q 等）、危险 Shell 命令与银行/密码管理等敏感应用，并配备 `is_self_app` 防自杀保护；
   6. **全套自动化测试 100% 满分通过**：Harness 层 SDC 单测 35/35 通过、ARIA 快照与视觉单测 20/20 通过、Server 层集成测试 20/20 通过、技能录制与 MCP 适配测试 14/14 通过，总计 89 项用例 100% 绿灯全过。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/` · `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/` · `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md`
 
 ## 最新验证快照（2026-09-06 · 飞行记录仪级确定性保序日志与防破损时间线 · 上下文与会话治理全面完成）
 
@@ -1279,7 +1279,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **运行期会话闭合性与连续性门禁（`logger.py:186-215` · `integrity_gate.py`）**：在 `EventLogger.close()` 阶段集成零开销被动自检门禁，自动校验单调递增序号与会话生命周期闭合，从源头消灭静默事件损毁；
   4. **会话分叉不可变审计锚点（`conversation_fork_manager.py:353-385` · `types.py:155-160`）**：在执行 `fork_conversation` 时自动向持久化事件流注入结构化不可变 `fork_point` 事件，精准记录父子 DAG 谱系与沙箱 Checkpoint 映射；
   5. **全套自动化测试 100% 满分通过**：Harness 层 191 项单测、Server 层 27 项分叉测试、真实 LLM 端到端分叉流转测试及真实 Chrome WebUI E2E 测试（`test_reasoning_anchor_and_compaction_chrome_e2e.py`）全部绿灯通过。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/event_log/logger.py` · `myrm-agent-server/app/services/chat/conversation_fork_manager.py` · `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/event_log/logger.py` · `myrm-agent-server/app/services/chat/conversation_fork_manager.py` · `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md`
 
 ## 最新验证快照（2026-09-06 · 跨生态 A2A v1.0 服务端与零信任客户端委托闭环 · 多智能体编排全面演进）
 
@@ -1289,7 +1289,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **三模式自适应扇出编排（`tools.py:90-180`）**：原生提供 `a2a_orchestrate` 工具，支持 `all`（全量并发收集）、`first`（极速短路响应并自动取消其余等待）、`best`（按输出丰满度与产物质量自动选优）三种多智能体编排策略；
   4. **防重放 HMAC-SHA256 签名 Webhook 与结构化审计（`security.py` · `audit.py`）**：任务状态变更通过带 `X-A2A-Signature` 与时间戳防重放校验的 Webhook 异步回调调用方，全生命周期事件同步写入 `~/.myrm/logs/a2a_audit.jsonl`；
   5. **全套自动化测试 100% 满分通过**：Harness 层 A2A 工具包单测 8/8 通过，A2A 客户端与扇出编排单测 4/4 通过，Server 层 A2A 发现与 JSON-RPC 任务生命周期集成测试 6/6 通过，架构测试 5/5 通过，总计 23 项用例 100% 满分通过。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/a2a/` · `myrm-agent-server/app/services/a2a/` · `myrm-agent-server/app/api/a2a/` · `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/a2a/` · `myrm-agent-server/app/services/a2a/` · `myrm-agent-server/app/api/a2a/` · `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md`
 
 ## 最新验证快照（2026-09-06 · 工业级视频生产加固与长任务透明阶段流 · 浏览器与媒体采集全面完成）
 
@@ -1298,7 +1298,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   2. **422 状态码风控精准消歧与容灾降级守护（`generator.py:312-332`）**：严格约束判定规则，HTTP 422 必须伴随风控特征词（`content_filter`、`nsfw`、`moderation`、`safety` 等）联合判定才触发不可重试的 `ModerationBlockedError` 熔断；纯参数格式错误归为标准 `InvalidRequestError` 或 `VideoGenerationError`，保留完整的 Failover 跨供应商备用降级能力，杜绝乱扣“风控违规”帽子；
   3. **前端长任务细粒度阶段感知（`VideoTaskCard.tsx` · `TaskCardPlaceholder.tsx`）**：`TaskCardPlaceholder` 扩展 `statusMessage?: string` 属性，`VideoTaskCard.tsx` 在排队与运行态实时消费透传后端的 `task.progress_message`（排队等待集群、关键帧渲染、动作插帧与音频合成），适配 Tailwind 双主题与无原生 emoji 规范，彻底终结用户面对冷冰冰百分比的渲染盲等焦虑；
   4. **全套自动化测试 100% 满分通过**：Server 12 项单测、Harness 44 项单测、前端 4 项单测与真实 Chrome E2E 浏览器端到端测试（`test_video_tool_fal_provider_chrome_e2e.py`、`test_media_settings_fal_chrome_e2e.py`、`test_media_background_tasks_panel_chrome_e2e.py`）全绿灯通过。
-- **SSOT 来源：** `myrm-agent-server/app/ai_agents/media_tools/video_agent_tool.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/video/generator.py` · `temp-docs/materials/MULTIMODAL_CAPABILITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md`
+- **SSOT 来源：** `myrm-agent-server/app/ai_agents/media_tools/video_agent_tool.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/video/generator.py` · `temp-docs/materials/MULTIMODAL_CAPABILITY_ADVANTAGE.md` · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md`
 
 ## 最新验证快照（2026-09-06 · 长周期自主目标推进与四层完成阶梯物理事实门禁 · 自动化调度全面完成）
 
@@ -1312,7 +1312,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   7. **18+ 款工业级业务蓝图开箱即用（`blueprints.py`）**：原生内置涵盖早报摘要、竞品全网追踪、社交舆情、知识库巡检自愈与财务对账的完整蓝图矩阵，搭配前端 WebUI `TemplateMarket` 强类型槽位，实现 10 秒级一键启用；
   8. **原生 `/loop` 斜杠命令与自然语言自适应解析（`loopSlashCommand.ts` · `parser.py`）**：支持在聊天框输入 `/loop 10m`、`/loop 每隔半小时` 一秒建任务，支持别名 `/repeat`、`/cron`；独创**即时首跑验证策略（Immediate First-run Policy）**，创建即触发真实执行，用户当场验收质量后再沉淀至后台持久化调度，杜绝黑盒等待；
   9. **全套自动化测试 100% 满分通过**：前端单测 23 项、Harness 调度解析 34 项、Server API 全生命周期 44 项、真实 LLM 断点恢复与 Chrome MCP E2E 真实浏览器全链路测试全绿灯通过。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/goals/continuation.py` · `myrm-agent-server/app/core/cron/blueprints.py` · `temp-docs/materials/AUTOMATION_CRON_ADVANTAGE.md` · `temp-docs/roadmap/topic_18_loop_engineering_goal_autonomous_scheduling_and_runtime_verification_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/goals/continuation.py` · `myrm-agent-server/app/core/cron/blueprints.py` · `temp-docs/materials/AUTOMATION_CRON_ADVANTAGE.md` · `temp-docs/roadmap/topic_18_loop_engineering_goal_autonomous_scheduling_and_runtime_verification_roadmap.md`
 
 ## 最新验证快照（2026-09-06 · 全生命周期模型路由与前缀缓存感知自适应算力经济学 · 模型路由全面完成）
 
@@ -1323,7 +1323,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   4. **双聚合网关归属头与 OpenRouter 免费配额自动合规注入（`llm.py:240-265`）**：底层原生检测 Vercel AI Gateway 与 OpenRouter 端点，自动注入 `HTTP-Referer: https://myrmagent.ai` 与 `X-Title: Myrm Agent`，既在 Vercel 控制台提供完备支出可观测性，又确保 OpenRouter 免费模型池（`:free`）零频控阻断，零配置享受官方应用审计与开发者榜单赋能；
   5. **六语系无障碍智能路由用量徽章与真实 Chrome E2E 闭环（`TokenUsageDisplay.tsx` · `test_smart_routing_tier_chrome_e2e.py`）**：Token 用量徽章支持 6 大语系自适应展示当前所处认知层级（Fast / Standard / Reasoning），同级内联 `sr-only` 无障碍标签，并通过真实 Chrome E2E 自动化测试全流程 100% 验证；
   6. **全套自动化测试 100% 满分通过**：Topic 07 全量 187 项路线图提案全部地毯式核验，零遗漏闭环完成。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/routing/complexity_router.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/pipeline/processors/thinking_cleaner.py` · `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/routing/complexity_router.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/context_management/pipeline/processors/thinking_cleaner.py` · `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md`
 
 ## 最新验证快照（2026-09-06 · 看板任务级模型思考深度调控与动态活体引导 · 多智能体编排完成）
 
@@ -1332,7 +1332,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   2. **多协议深度思考强度自适应映射（`deepseek_reasoning.py` · `openrouter_verbosity.py`）**：自动将界面选择的思考强度翻译为 OpenAI（`reasoning_effort`）、Anthropic（`thinking.budget_tokens`）或 DeepSeek 原生字段，从协议层杜绝啰嗦思考与 Token 浪费；
   3. **非阻塞动态活体引导句柄（`steer_child` · `executor_helpers.py`）**：原生提供异步运行时引导句柄，支持在不中断任务执行图的前提下动态注入指令矫偏；
   4. **全套自动化测试 100% 满分通过**：Harness 框架层、Server 调度层与前端 Chrome E2E 真实任务流（`test_kanban_chrome_e2e.py`）全绿灯通过，零 Lint 告警。
-- **SSOT 来源：** `myrm-agent-frontend/src/components/features/kanban/KanbanTaskDrawerDetails.tsx` · `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/executor_helpers.py` · `temp-docs/materials/KANBAN_TASK_SCHEDULING_ADVANTAGE.md` · `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md`
+- **SSOT 来源：** `myrm-agent-frontend/src/components/features/kanban/KanbanTaskDrawerDetails.tsx` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/executor_helpers.py` · `temp-docs/materials/KANBAN_TASK_SCHEDULING_ADVANTAGE.md` · `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md`
 
 ## 最新验证快照（2026-09-06 · 内核级本地追踪隔离门禁与知识图谱维度自检 · 数据安全与合规可观测性闭环）
 
@@ -1341,7 +1341,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   2. **Doctor 隔离自检与合规审计（`check_local_trace_export_audit`）**：在诊断自检体系中新增本地 Trace 隔离状态审计探针，并提供结构化自愈修复指引；
   3. **知识图谱向量维度自检（`check_graph_embedding_health`）**：在 Doctor 诊断探针中集成向量索引连通性与维度探测，防止冷启动时因模型与向量库维度失配造成隐蔽故障；
   4. **全套自动化测试 100% 满分通过**：相关单元测试全部通过，无任何 Lint 警告与环境残留。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/infra/tracing/tracer.py` · `myrm-agent-harness/src/myrm_agent_harness/observability/diagnostics/probes.py` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/infra/tracing/tracer.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/observability/diagnostics/probes.py` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
 
 ## 最新验证快照（2026-09-06 · 三层隐私脱敏与 OTel 原生清洗闭环 · 数据安全与合规可观测性闭环）
 
@@ -1351,7 +1351,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **Server 业务层统一轨迹导出脱敏出口**：在 `/session/{id}/trace` 与 `/traces/search` 接口中无损接入 `sanitize_trace_payload` 递归脱敏，保障 WebUI 调试面板绝对安全；
   4. **Prompt Cache 零污染保障**：脱敏处理严格发生在下游遥测管道中，绝不反向污染正在推理的模型 Prompt，Prompt Cache 极致命中率 100% 保持；
   5. **全套自动化测试 100% 满分通过**：Harness 专属单测 5/5 与 Server 业务端点单测 3/3 全部绿灯通过，无任何 Lint 警告与环境残留。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/infra/tracing/sanitizer.py` · `myrm-agent-harness/src/myrm_agent_harness/infra/tracing/tracer.py` · `myrm-agent-server/app/api/statistics/session_trace.py` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/infra/tracing/sanitizer.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/infra/tracing/tracer.py` · `myrm-agent-server/app/api/statistics/session_trace.py` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
 
 ## 最新验证快照（2026-09-06 · 模型编排四大经典范式全景指南与多级有序回退体系 · 模型路由与用户体验完成）
 
@@ -1393,7 +1393,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   7. **基于影响面的自适应动态放权矩阵（`batch_processor.py` · `spend_governance.py` · 节点 16 & 16.1）**：只读操作 100% 毫秒级静默自动放行；资金退款与不可逆外部操作实施 YOLO 免疫绝对锁定，必须携带金额与哈希触发多端全双工审批；
   8. **终态事实反向溯源与结构化引用链上屏（`CompletionGuard` · `stream_finalize.py` · 节点 28）**：答复收尾前强制与 `CallRecord` 执行流水双向对账；自动解析提取 `<cite:...>` 结构化引用，前端 Citation 微标点击高亮定位原始工具调用证据；
   9. **技能优先与子智能体严苛裂变准入（`workflow_escalation.py` · `builder.py` · 节点 6.4 & 7）**：简单查询 100% 旁路绕过工作流；仅对复合长任务准入裂变，子智能体严格执行 Child ⊆ Parent 权限衰减、Token 预算熔断与 `<handover>` 强契约交付。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/` · `myrm-agent-frontend/src/components/features/message-box/progress-steps/ExecutionPhaseStepper.tsx`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/` · `myrm-agent-frontend/src/components/features/message-box/progress-steps/ExecutionPhaseStepper.tsx`
 
 ## 最新验证快照（2026-09-05 · 交付物未落盘嗅探、多模态 400 逆向脱水自愈与本地技能安全采纳 · 运行时耐久性与资产安全闭环）
 
@@ -1404,7 +1404,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   4. **多模态 400/413 超限逆向脱水与原地重发自愈（`classifier.py` · `media_budget_governor.py` · `stream_recovery_oneshot.py`）**：前置视觉预算阶梯治理结合网关 400/413 精准捕获；自动将历史图片逆向聚合脱水至 512px WebP 并原地重试，彻底杜绝长图会话永久报废；
   5. **本地技能路径 Dry-Run 预检与原子采纳（`local_preview.py` · `LocalSkillPathScanPreviewBeforeAdoptDialog.tsx`）**：导入外部技能前提供无副作用预览、AST 安全审计与多选采纳，杜绝恶意技能隐蔽攻击；
   6. **全栈自动化测试 100% 满分通过**：37 项交付物验证单测、12 项多模态自愈单测、真实 Chrome E2E 全链路 100% 绿灯。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_write_verifier.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/streaming/recovery/stream_recovery_oneshot.py`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_write_verifier.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/streaming/recovery/stream_recovery_oneshot.py`
 
 ## 最新验证快照（2026-09-05 · 交付物未落盘嗅探、多模态 400 逆向脱水自愈与本地技能安全采纳 · 运行时耐久性与资产安全闭环）
 
@@ -1433,7 +1433,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **测试环境零垃圾污染与防僵尸进程治理**：加固全局 `.gitignore`，利用 `run-pytest-safe.sh` 进程组隔离与超时防僵尸机制，杜绝临时日志与覆盖率二进制污染工作区；
   4. **大模型提示词缓存（Prompt Cache）100% 绝对保护**：系统提示词与 Tool Schema 零变动，杜绝动态前缀污染，保障生产级 LLM 推理成本与缓存命中率；
   5. **全栈多级自动化测试 100% 绿灯通过**：249 项静态契约测试、138 项技能系统核心测试、110 项 MCP 内存测试、60 项记忆工具面测试全部通过。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/scanning_write_backend.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/agent_surface/` · `temp-docs/materials/HARNESS_ARCHITECTURE_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/scanning_write_backend.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/agent_surface/` · `temp-docs/materials/HARNESS_ARCHITECTURE_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-05 · 交互式系统架构图与多版本演进三态 Diff 工件套件 · 前端 UX 与设计生态全面闭环）
 
@@ -1463,7 +1463,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **100% 保护 Prompt Cache 稳定性（`_web_search_tool_description.py`）**：在系统提示词中规范化引导模型保留原始专业标识符，不引入动态多变前缀，确保大模型上下文 KV Cache 100% 命中；
   4. **WebUI 双主题响应式垂直意图微型胶囊（`QueryItemsRenderer.tsx`）**：在搜索进度追踪条中动态呈现矢量图标徽章（`Security CVE`、`Academic DOI`、`Finance Market`、`Code Package`），完全自适应 Dark/Light 主题，0 原生廉价 Emoji；
   5. **全栈多级自动化测试 100% 满分通过**：Harness 93 项单元测试（覆盖率 100%）、17 项搜索编排集成测试、13 项前端组件测试及 249 项全局静态契约测试全部绿灯通过。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/web_search/processing/intent_optimizer.py` · `myrm-agent-frontend/src/components/features/message-box/progress-steps/renderers/QueryItemsRenderer.tsx` · `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/web_search/processing/intent_optimizer.py` · `myrm-agent-frontend/src/components/features/message-box/progress-steps/renderers/QueryItemsRenderer.tsx` · `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-05 · Flash 智能体落盘耐久性、未落盘工件自动保全与多模态超限自愈体系 · 运行时韧性全面闭环）
 
@@ -1472,7 +1472,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   2. **沙箱草案自动保全与 LRU 防爆安全机制（`deliverable_auto_staging.py`）**：若模型达到重试上限仍死锁，自动将其未落盘代码提取并安全暂存至工作区 `.myrm/staged_artifacts/`，同时自动维护 `.gitignore` 防止 Git 污染，并实施容量与时间双重 LRU 淘汰保全，0 代码丢失；
   3. **多模态 Payload 400/413 超限自适应脱水与原地重试（`classifier.py` · `stream_recovery_oneshot.py`）**：支持三级视觉预算天梯（`1280px` / `768px` / `512px`）前置管控；当因历史图片累积突发遭遇上游大模型 API 400/413 报错时，精准捕获并在当前轮次自动逆向将历史图片脱水降采样为 512px WebP，发起原地自愈重发，彻底根除多模态会话永久报废的顽疾；
   4. **全链路自动化测试 100% 满分通过**：涵盖交付物启发式嗅探、沙箱草案暂存安全与 Git 隔离、多次驳回拦截、多模态超限逆向脱水与自愈的专项测试全部满分绿灯通过。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_write_verifier.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_auto_staging.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/streaming/recovery/stream_recovery_oneshot.py` · `temp-docs/materials/ERROR_RECOVERY_ROBUSTNESS_ADVANTAGE.md` · `temp-docs/materials/MULTIMODAL_CAPABILITY_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_write_verifier.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_auto_staging.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/streaming/recovery/stream_recovery_oneshot.py` · `temp-docs/materials/ERROR_RECOVERY_ROBUSTNESS_ADVANTAGE.md` · `temp-docs/materials/MULTIMODAL_CAPABILITY_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-05 · Zero-Disk 硬件密钥环托管、默认回环锁死与受保护指令文件防投毒体系 · 安全与供应链治理全面闭环）
 
@@ -1481,7 +1481,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   2. **默认 127.0.0.1 回环硬门禁与 HostAllowlist 防 DNS 重绑定（`host_allowlist.py`）**：默认物理锁死 127.0.0.1，远程模式强制生成高熵 Token，严格拦截非法 Host 与外部浏览器 Origin 跨站请求，彻底杜绝公网裸奔与 DNS 重绑定提权；
   3. **受保护指令文件内核级只读与 Shell 重定向 AST 管道全扫描（`shell_command_analyzer.py` · `path_security.py`）**：针对 `AGENTS.md`、`SOUL.md`、`CLAUDE.md`、`.cursorrules` 等人设与规则文件，实施内核只读挂载与终端管道覆写一票否决；任何修改强制唤起 Monaco Diff 人工审批，彻底杜绝跨会话隐蔽后门；
   4. **全栈自动化测试 100% 满分通过**：涵盖主密钥钥匙串存取、Loopback 回环拦截、AST 语法树重定向扫描以及真实 Monaco 审批卡片全流程测试全部绿灯通过。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/path_security.py` · `myrm-agent-server/app/core/security/master_key.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/path_security.py` · `myrm-agent-server/app/core/security/master_key.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-05 · 使用中数据防泄漏 DLP 与沙箱物理流向治理架构审查 · 安全与合规完成）
 
@@ -1491,7 +1491,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **五层防御洋葱圈与物理断点审批（`engine.py` · LangGraph `interrupt()`）**：高危外联、文件与危险 Shell 命令强制挂起 Monaco Diff 审批，必须经由人类显式授权，100% 杜绝模型自主越权与越狱风险；
   4. **双轨 SHA-256 密码学因果审计证据包（`DualTrackAuditCollector`）**：完整记录带 OpenTelemetry `trace_id` 与时间戳的防篡改因果哈希链，天然满足企业金融级 SOC2 合规追溯需求；
   5. **全栈 560 项自动化测试 100% 满分通过**：涵盖凭据打码、PII 分类、污点追踪、提示词防护、路径安全以及真实 Agent 边界交互测试全部绿灯通过。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/core/security/` · `myrm-agent-server/tests/api/agent/` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/` · `myrm-agent-server/tests/api/agent/` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-05 · 多级模型前缀幂等规范化与本地模式全局 DNS-Rebinding 纵深防御 · 协议与网关安全完成）
 
@@ -1521,7 +1521,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   5. **运行中会话拒绝与逐会话拆除**：网关登记的会话仍在运行时直接拒绝（HTTP 409），清空不会在进行中的一轮对话下面删行；每个被清空的会话先清运行时缓存、checkpoint 线程与会话授权，聊天行删除后再批量移除其 git worktree 与工作空间（拒绝判断是快照：清空窗口内新开的一轮不会被拦住）；
   6. **设置 → 安全策略 → 数据流向与隐私披露内的一键入口**：二次确认的「清空全部会话」调用同一协议，保留记忆、智能体、API 密钥与渠道设置，会话仍在运行时给出可重试提示；
   7. **100% 自动化测试通过**：Harness 14/14 项底层 FTS5 测试与 Server 6/6 项清库测试（4 项 API/集成 + 2 项服务层）全绿通过，0 警告 0 错误 0 僵尸进程。
-- **SSOT 来源：** `myrm-agent-server/app/services/system/vault_purge_service.py` · `myrm-agent-harness/src/myrm_agent_harness/utils/db/fts5.py` · `temp-docs/materials/STORAGE_CRASH_CONSISTENCY_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent-server/app/services/system/vault_purge_service.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/utils/db/fts5.py` · `temp-docs/materials/STORAGE_CRASH_CONSISTENCY_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-05 · 插件打包完整性与静态构建产物前置校验门禁 · 安全治理完成）
 
@@ -1531,7 +1531,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **全解释器参数自适应剥离**：智能跳过 `-u`、`--config` 等标志参数，完美适配 `node`、`bun`、`python3`、`bash`、`deno`、`ts-node` 等所有主流解释器，统一样式化 Windows 反斜杠、`${PLUGIN_ROOT}` 宏与裸相对路径；
   4. **WebUI 工业级防呆与防护**：展示醒目红色警告徽章并说明缺失文件，附带 `npm run build` 修复指引，默认决议为 `skip` 并禁用单项启用，批量全选自动防误触；
   5. **100% 自动化测试通过**：Harness 插件解析器 50/50 项单测全绿通过，0 警告 0 错误 0 僵尸进程。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/plugins/integrity.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/plugins/parser.py` · `myrm-agent-frontend/src/components/features/plugins/PluginImportDialog.tsx` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/plugins/integrity.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/plugins/parser.py` · `myrm-agent-frontend/src/components/features/plugins/PluginImportDialog.tsx` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-05 · 插件分级沙箱权限模型与能力推导闭环 · 安全治理完成）
 
@@ -1542,7 +1542,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   4. **彻底消灭 Dead Feature Path 的持久化闭环**：在 `/preview` 接口结构化下发权限元数据并在落库持久化时固化至 `mcpServers.extra_params["capabilities"]`，让权限元数据在全生命周期内真正沉淀并供后续运行时动态鉴权；
   5. **落盘默认全量禁用与前端知情同意**：`_mcp_persist.py` 强制在持久化时将所有第三方 MCP 服务默认置为 `enabled: False`；`PluginImportDialog.tsx` 动态渲染分色胶囊徽章、提权警告条并支持损坏产物自动跳过；
   6. **100% 自动化测试通过**：Harness 74 项插件测试全绿、Server 5 项服务测试全绿、前端 21 项 Vitest 测试全绿，全链路 100% 绿灯。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/plugins/models.py` · `myrm-agent-server/app/services/plugins/_mcp_persist.py` · `myrm-agent-frontend/src/components/features/plugins/PluginImportDialog.tsx` · `temp-docs/materials/PLUGIN_ECOSYSTEM_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/plugins/models.py` · `myrm-agent-server/app/services/plugins/_mcp_persist.py` · `myrm-agent-frontend/src/components/features/plugins/PluginImportDialog.tsx` · `temp-docs/materials/PLUGIN_ECOSYSTEM_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-05 · 子进程敏感凭据隔离门禁与脚本操作数 TOCTOU 校验 · 安全治理完成）
 
@@ -1552,7 +1552,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **脚本操作数 TOCTOU 散列验签门禁（`script_operand_verifier.py`）**：在审批评估阶段自动抓取可变外部脚本（如 `python test.py`、`bash deploy.sh`）并生成 SHA-256 快照，在执行边界实时重验内容；若脚本在审批弹窗停留期间被外部进程篡改或软链接偷换，立即以 `SCRIPT_OPERAND_DRIFT_REJECT` 强行阻断；
   4. **高危脚本强制单次审批（Hide Allow Always）**：针对包含外部可变脚本的操作彻底禁用「永久允许」，从根源封死基于时间差的命令替换漏洞；
   5. **100% 自动化测试通过**：87 项 Harness 核心安全测试、脚本操作数验证与环境变量隔离测试全绿通过，0 警告 0 错误 0 僵尸进程。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/security/env_isolation.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/security/script_operand_verifier.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/security/env_isolation.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/security/script_operand_verifier.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-06 · 三层渐进隐私脱敏过滤器与全自动化 Trace 审查门禁 · 可观测与审计完成）
 
@@ -1562,7 +1562,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **Layer 3 超长安全截断与 SHA-256 完整性指纹（Bounded Truncation with Fingerprint）**：属性超长时保留头部并打上 `[TRUNCATED:len=X:sha256=Y]` 完整性指纹，既防止 OTel 收集器与前端 Trace 瀑布图 OOM，又保留机器审计完整性证据；
   4. **全链路闭环与出口门禁（`SanitizingSpanProcessor` · `session_trace.py`）**：在 Harness Span 结束落盘时透明清洗 `BoundedAttributes`，并在 Server API `/api/v1/statistics/session/{id}/trace` 出口处统一经由 `sanitize_trace_payload` 过滤，确保前后端与外部导出 100% 凭证无泄漏；
   5. **100% 全栈自动化测试通过**：Harness `test_sanitizer.py` 与 Server `test_session_trace_sanitizer.py` 全部绿灯通过，0 警告 0 错误 0 僵尸进程。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/infra/tracing/sanitizer.py` · `myrm-agent-server/app/api/statistics/session_trace.py` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/infra/tracing/sanitizer.py` · `myrm-agent-server/app/api/statistics/session_trace.py` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-05 · 压缩换窗前工具原话可召回与安全隔离归档 · 上下文管线完成）
 
@@ -1571,7 +1571,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   2. **零模型开销受保护里程碑注入（`MemoryPreCompactService`）**：在 Compaction 压缩触发前，`_fetch_archive_checkpoint_milestone` 自动提取最近归档工具检查点（`## Recent Archive Checkpoints`）并硬性注入受保护上下文，模型换窗后 100% 记住过去的错误与执行轨迹；
   3. **严格人机对话检索库白名单（`chat_helpers.py` · `ALLOWED_MESSAGE_ROLES`）**：坚守 `{"user", "assistant"}` 白名单硬隔离，彻底杜绝机器报错日志污染面向用户的 SQLite FTS5 对话检索库，Prompt Cache 100% 保持；
   4. **100% 全栈自动化测试通过**：37 项单元测试、32 项管线集成测试与 249 项静态 SSOT 契约测试全绿通过，0 警告 0 错误 0 僵尸进程。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/` · `myrm-agent-server/app/services/chat/chat_helpers.py` · `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/context_management/` · `myrm-agent-server/app/services/chat/chat_helpers.py` · `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-05 · Control UI 全表面错误安全脱敏与异常出口门禁 · 安全治理完成）
 
@@ -1608,7 +1608,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   1. **Fail-Closed 子进程源头物理脱敏基线（`env_isolation.py:175-225` · `executor.py:560-565`）**：在子进程创建时强制清洗包含 `KEY`、`TOKEN`、`SECRET`、`AUTH_` 等敏感变量，第三方脚本无论如何 `printenv` 绝无可能读取到密钥明文；
   2. **受控底座内存内联调用**：Agent 核心大模型推理直接在受控底层进程内存中安全完成加密 TLS 握手，0 证书报错，0 代理损耗，杜绝中间人劫持；
   3. **专属容器沙箱隔离（Agent-in-Sandbox）**：结合独立 Volume，从操作系统和网络物理层面提供极致防护，实现 0 配置负担下的企业级凭据安全。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/security/env_isolation.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/security/env_isolation.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
 
 
 ## 最新验证快照（2026-09-05 · 确定性代码调用图谱与测试爆炸半径定位技能包 · 技能与工具链完成）
@@ -1631,7 +1631,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   4. **链接标准化绝对路径归一**：强制使用 `urllib.parse.urljoin(current_url, raw_url)`，彻底根除相对路径导致的死链缺陷；
   5. **零破坏 Prompt Cache**：仅在导航到特定域名时由 Harness `DomainSkillStore` 按需注入工具签名（~20 tokens），全局提示词零污染，大模型 KV Cache 命中率 100% 保持锁定；
   6. **100% 自动化测试全绿与 0 Lints**：`test_cn_social_tools.py` 6/6 passed、`test_domain_skill_store.py` 59/59 passed、API 端点与 Schema 校验测试 25/25 passed 全部绿灯，0 错误 0 警告。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/domain_skills/builtin/` · `myrm-agent-harness/tests/toolkits/browser/domain_skills/test_cn_social_tools.py` · `temp-docs/materials/BROWSER_AUTOMATION_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/domain_skills/builtin/` · `myrm-agent-harness/tests/toolkits/browser/domain_skills/test_cn_social_tools.py` · `temp-docs/materials/BROWSER_AUTOMATION_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-05 · 私人评测题目包脚手架与日常会话一键沉淀闭环 · 评测与测试完成）
 
@@ -1651,7 +1651,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **自动模式 Shell 意图全面分类审判（`classify_all_shell_in_auto_mode`）**：确保配置时所有 Shell 命令无遗漏通过安全分类器，杜绝看似普通读取（如读取私钥或凭证）带来的隐蔽越权；
   4. **前端安全态感知与预警横幅（`PolymorphicApprovalCard.tsx`）**：前端审批卡片自动识别自动模式熔断冻结状态与不可逆操作标签，并向用户呈现显著的警示与原因说明，中英双语无缝支持；
   5. **100% 全栈自动化测试与 0 Lints**：Harness 安全核心测试 3/3 项（`test_spend_governance.py` & `test_approval_edge_cases.py`）、审批流回归测试 49/49 项、前端 Vitest 测试 19/19 项（`PolymorphicApprovalCard.spend.test.tsx` & `.test.tsx`）100% 绿灯全量通过，0 警告 0 错误。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/core/security/spend_governance.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/approval/batch_processor.py` · `myrm-agent-frontend/src/components/approval/PolymorphicApprovalCard.tsx` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/spend_governance.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/approval/batch_processor.py` · `myrm-agent-frontend/src/components/approval/PolymorphicApprovalCard.tsx` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-04 · 会话级统一知识库选择器、跨库联邦混合检索与全生命周期治理工作台 · 知识与 Wiki 完成）
 
@@ -1671,7 +1671,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **CompletionGuard 收尾强制拦截改写（`completion_guard.py:380-485`）**：在模型试图结束时执行最后一公里卡点，将消息动态改写为系统 `_completion_check` 工具调用，注入最高优先级自愈指令，迫使大模型在下一个 ReAct 循环中显式调用 `file_write_tool` 落盘；
   4. **沙箱物理草案原子自动暂存（`deliverable_auto_staging.py:30-110`）**：自动将未落盘交付物向 `.myrm/staged_artifacts/` 存入草案快照，配备 SHA-256 内容哈希去重与 LRU 20 份容量修剪，杜绝极端异常下的代码资产丢失；
   5. **100% 自动化测试全绿与 0 Lints**：`test_deliverable_write_verifier.py`（28/28 passed）、`test_deliverable_auto_staging.py`（6/6 passed，92% 覆盖率）及 249 项静态契约测试全量通过，0 警告 0 错误。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_write_verifier.py` · `completion_guard.py` · `deliverable_auto_staging.py` · `temp-docs/materials/ENTERPRISE_RELIABILITY_AND_TESTING_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_write_verifier.py` · `completion_guard.py` · `deliverable_auto_staging.py` · `temp-docs/materials/ENTERPRISE_RELIABILITY_AND_TESTING_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-04 · 浏览器自动化预置技能视觉工作流与三轨操作规程 · 浏览器与媒体完成）
 
@@ -1691,7 +1691,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **高危操作防呆告警与永久授权熔断**：当操作匹配高危 Shell 正则或关键敏感目录时，自动阻断或弹出强二次警示，杜绝给破坏性命令赋予永久特权；
   4. **已生效临时权限可视化管理与一键撤销（`AllowlistSection.tsx`）**：在系统设置面板清晰呈现时限徽章（如“限时 · 1h”）与精确到期时间戳，并支持随时一键手动吊销；
   5. **100% 全自动化测试矩阵**：Harness 安全测试 12 项（`test_approval_flow.py`）、中间件生命周期测试 1 项（`test_approval_edge_cases.py`）、Server API 测试 9 项（`test_allowlist_api.py`）、前端 Vitest 测试 11 项（`AllowlistSection.test.tsx`）及真实 Chrome E2E 测试全量通过，0 错误 0 警告。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/security/approval_flow.py` · `app/database/models/security.py` · `AllowAlwaysConfirmDialog.tsx` · `AllowlistSection.tsx` · `temp-docs/materials/SKILL_PERMISSION_SECURITY_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/security/approval_flow.py` · `app/database/models/security.py` · `AllowAlwaysConfirmDialog.tsx` · `AllowlistSection.tsx` · `temp-docs/materials/SKILL_PERMISSION_SECURITY_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-04 · 超长截图自适应切片与无损分段转写 · 媒体与多模态完成）
 
@@ -1701,7 +1701,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **Prompt Cache 100% 锁定与零 Schema 膨胀**：彻底摒弃竞品 DSH 外挂 10 个独立 RPC 工具的落后反模式，底层几何自适应透明分流，0 新增工具 Schema，系统提示词零膨胀，大模型 KV Cache 命中率稳守 95%+；
   4. **Canvas 原生像素比对与 UI 逆向还原 SOP（`accurate_comparator.py` & `ui-design-restoration/SKILL.md`）**：采用浏览器原生 Canvas API 达成 100ms 无依赖高精度像素比对；配合预置官方技能标准化沙箱内提取色板与组件重构，全方位覆盖竞品视觉工具能力；
   5. **100% 自动化测试全绿与健壮容错**：涵盖主流手机比例、极端长图、损坏二进制流回退、解码异常静默降级等 11 类边缘场景，`test_vision_toolkit.py` 8/8 项单测、全量 72 项视觉测试 100% 全绿通过，0 错误 0 告警。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/utils/media/image_compressor.py` · `toolkits/llms/vision/fallback_engine.py` · `accurate_comparator.py` · `assets/prebuilt_skills/ui-design-restoration/SKILL.md` · `temp-docs/materials/MULTIMODAL_CAPABILITY_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/utils/media/image_compressor.py` · `toolkits/llms/vision/fallback_engine.py` · `accurate_comparator.py` · `assets/prebuilt_skills/ui-design-restoration/SKILL.md` · `temp-docs/materials/MULTIMODAL_CAPABILITY_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-04 · 压缩前确定性工具结果修剪与安全短路机制 · 上下文与会话治理完成）
 
@@ -1711,7 +1711,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **沙箱卷持久化归档与纯内存 Head/Tail 截断双轨兜底**：优先将超大工具输出持久化落盘至沙箱持久卷（生成 `[Tool Result Archive Reference]` 句柄，模型可随时按需反查召回），在缺乏持久化回调时平滑退化为确定性首尾保留的内存截断，兼顾极速执行与事实可召回性；
   4. **紧急紧缩（Emergency Compact）Phase 1 确定性优先救援（`agent_recovery.py:45-75`）**：全面升级极端溢出容灾机制，优先执行 Phase 1 确定性工具脱水，再执行 Phase 2 消息紧缩，最大限度保全真实对话历史轮次；
   5. **100% 全链路自动化测试与 0 Lints**：Active Prune 单元测试 26 项、Summarize 单元测试 55 项、Recovery 单元测试 24 项及流水线全链路集成测试 100% 全绿通过，0 警告 0 错误。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/pipeline/processors/active_tool_result_prune_processor.py` · `summarize_processor.py` · `agent_recovery.py` · `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/context_management/pipeline/processors/active_tool_result_prune_processor.py` · `summarize_processor.py` · `agent_recovery.py` · `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-04 · FAL.ai 开放生态与连贯分镜提供商包 · 媒体与多模态完成）
 
@@ -1723,7 +1723,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   5. **电影级运镜技能与分镜 SOP（`flux3-prompting-guide`）**：官方预置分镜指南技能，规范化运镜词汇（Pan / Tilt / Tracking / Orbit）与首尾帧插值 SOP，Agent 自动感知分镜逻辑，创作 30s~60s 角色不脸崩、镜头不漂移的高清连贯短片；
   6. **`secure_get` SSRF 物理防线与流式熔断**：在 DNS 解析阶段阻断私有网段与本地回环 IP，并在传输过程中施加 200MB 大小熔断，防止内网穿透与超大 4K 视频打爆沙箱内存；
   7. **自动化测试 100% 全绿与 0 Lints**：Harness 单元测试 `test_fal_provider.py`（30/30，覆盖率 99%）、Server 业务测试 `test_media_fal_provider.py`（6/6）全部通过，相关代码 0 Linter 错误。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/video/providers/fal_provider.py` · `app/api/agents/media.py` · `assets/prebuilt_skills/flux3-prompting-guide/SKILL.md` · `MediaGenerationSection.tsx` · `temp-docs/materials/MULTIMODAL_CAPABILITY_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/video/providers/fal_provider.py` · `app/api/agents/media.py` · `assets/prebuilt_skills/flux3-prompting-guide/SKILL.md` · `MediaGenerationSection.tsx` · `temp-docs/materials/MULTIMODAL_CAPABILITY_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-04 · 防自强化坍缩蒸馏守卫与身份三态防御体系 · 记忆系统完成）
 
@@ -1733,7 +1733,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **自动化 Bot 模式与告警特征前置过滤**：识别 Prometheus、Grafana、Sentry、CI/CD 及打卡机器人等特征，毫秒级直接剥离高频运维与系统噪音，保护个人与工作画像纯净度；
   4. **证据链真实性与防木马伪造守卫（Anti-Trojan & Verbatim Quote Verification）**：拒绝空壳证据，杜绝将 Agent 声明为证据作者的木马证据；强制要求提取的事实必须绑定原始交互凭据，并严格比对 `quote_snippet` 是否真实存在于用户的原始发言文本中，彻底杜绝大模型伪造引用；
   5. **全链路自动化测试 100% 满分通过**：`test_distillation_guards.py`（21 项针对性攻防用例）与核心记忆边界测试（`test_wiki_memory_boundary.py`、`test_transient_fact_boundary.py`，共 39 项）全量通过，0 Lints 0 告警。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/strategies/distillation_guards.py` · `extractor.py` · `channel_data_plane.py` · `temp-docs/materials/MEMORY_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/strategies/distillation_guards.py` · `extractor.py` · `channel_data_plane.py` · `temp-docs/materials/MEMORY_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-04 · 会话级统一知识库选择器与跨源混合检索 · 知识与 Wiki 完成）
 
@@ -1792,7 +1792,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **延迟二级索引与视图重建 + 优化器统计预热**：堆表注入完成后批量重建二级索引与视图，避免频繁 B-Tree 分裂开销，最后执行 `PRAGMA optimize;` 预热优化器统计，杜绝全表扫描；
   4. **三段式优雅停机与物理排空屏障（Three-Stage Drain Barrier · `shutdown.py` & `lifespan.py`）**：在途会话 Drain 结算 ➔ 强制 `PRAGMA wal_checkpoint(TRUNCATE)` 将 WAL 清零刷盘 ➔ 有序释放 MCP 与资源，彻底消除写撕裂；
   5. **100% 自动化测试全绿**：全套 14 项物理坏页模拟单测与 4 项停机排空回归测试 100% 满分通过。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/infra/sqlite_salvage.py` · `myrm-agent/myrm-agent-server/app/api/system/shutdown.py` · `temp-docs/materials/STORAGE_CRASH_CONSISTENCY_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/infra/sqlite_salvage.py` · `myrm-agent/myrm-agent-server/app/api/system/shutdown.py` · `temp-docs/materials/STORAGE_CRASH_CONSISTENCY_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-03 · 多步规划 Todo 智能换道与物理证据链完工验收 · Planning 与 Goal 完成）
 
@@ -1802,7 +1802,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **`CompletionGuard` 物理重跑测试与精准裁剪自愈指引**：任务修改代码后，结项强制要求测试套件真实 Exit 0 通过凭据；对外部受阻任务精准引导模型通过 `todo_write` 裁剪说明，坚决拦截假完成；
   4. **零破坏前缀缓存（Prompt Cache）**：动态任务列表仅在最后一个用户消息尾部临时挂载，下轮对话前自动剥离，KV Cache 命中率 100% 锁死；
   5. **100% 自动化测试全绿与 Chrome E2E 真实商用大模型实测**：跨 Harness 单测（44 项）、Server 业务集成测试（8 项）、前端 Vitest（12 项）及无头 Chrome 驱动 MiniMax-M3 商用大模型全链路实测（172s, exit=0）100% 通过。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/progress/` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/progress_middleware.py` · `temp-docs/materials/TASK_CONTINUITY_AND_PLANNING_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/progress/` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/progress_middleware.py` · `temp-docs/materials/TASK_CONTINUITY_AND_PLANNING_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-03 · 会话盲区自动提炼知识补丁与人机协同自进化 · 记忆生态完成）
 
@@ -1812,7 +1812,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **多态人机协同审批卡片（`PolymorphicApprovalCard`）**：WebUI 审批中心以直观卡片渲染补丁内容与缺失前置条件，用户一键审核放行或驳回；
   4. **原子化双向沉淀**：批准后原子写入 Wiki 知识库与全局长期记忆，彻底杜绝相同业务场景二次踩坑；
   5. **100% 自动化架构与集成测试全绿**：全套单元与集成测试 100% 满分通过。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/strategies/blind_spot.py` · `myrm-agent/myrm-agent-server/tests/api/approvals/test_knowledge_patch_approval_integration.py` · `temp-docs/materials/MEMORY_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/strategies/blind_spot.py` · `myrm-agent/myrm-agent-server/tests/api/approvals/test_knowledge_patch_approval_integration.py` · `temp-docs/materials/MEMORY_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-03 · 子智能体结构化交接协议与不可篡改证据链单真理源 · 多智能体协作完成）
 
@@ -1822,7 +1822,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **Token 开销压缩 85%+ 与叶子安全硬围栏**：协作沟通成本锐减，底层物理封禁子智能体执行 `cron_manage_tool` 或递归无限制派生，防止权限泄露；
   4. **WebUI 详情抽屉可视化透出**：`SubagentDetailDrawer` 原生以高亮徽标呈现事实发现、置信度等级与代码真实凭据，技术与产品体验全链路闭环；
   5. **100% 自动化测试全绿**：全套单测与集成测试 100% 满分通过。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/` · `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/` · `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-03 · 全渠道长程任务托管委托、动态转向与富交付枢纽 · 渠道生态完成）
 
@@ -1862,7 +1862,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **Prebuilt Skill PTC 预置稳定 CLI 资产**：第三方垂直业务（如 Twitter 搜索、SaaS 接口）随技能预置经过 100% 单元测试的稳定 CLI 脚本，模型仅需传参运行，彻底拔除 Server 层硬编码专有工具；
   4. **DW PTC 动态工作流编排并发打满**：仅在多子 Agent 编排与大任务批处理时启用 Python 沙箱代码执行，一次调度搞定数十步并发，中间数据在沙箱内存直接清洗，节省 80%+ 对话上下文；
   5. **100% 自动化测试与 Chrome E2E 验证**：跨单元测试（63/63 passed）、跨模块集成测试（12/12 passed）与真实 Chrome 浏览器全链路 E2E 测试（100% passed in 118s）全绿灯通过。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/tool_management/tool_layers.py` · `temp-docs/repair/PREBUILT_SKILL_PTC_VENDOR_DECOUPLING_ROADMAP.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/EXECUTION_SYSTEM.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/tool_management/tool_layers.py` · `temp-docs/repair/PREBUILT_SKILL_PTC_VENDOR_DECOUPLING_ROADMAP.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/EXECUTION_SYSTEM.md`
 
 ## 最新验证快照（2026-09-03 · 语义桌面控制 SDC 标准化 MCP Server 输出 · 计算机桌面操作完成）
 
@@ -1872,7 +1872,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **三平台后台静默输入（不抢鼠标焦点）**：基于 macOS / Windows / Linux 原生事件注入，在后台窗口静默操作，用户在前台使用电脑丝毫不受干扰；
   4. **三级敏感应用物理防线与审批门禁**：密码管理、金融支付等敏感窗口自动物理拦截并弹出前端人机审批门禁（Approval Gate）；
   5. **100% 自动化测试全绿**：全栈 548 项跨三平台单元测试 + 真实 Chrome 浏览器端到端闭环验证 100% 通过（0 僵尸残留）。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/mcp_server.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/desktop_session.py` · `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/mcp_server.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/desktop_session.py` · `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-03 · Agent 主动出站通知工业级加固 · 只读安全阻断与 0 Token Opt-in 完成）
 
@@ -1892,7 +1892,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **首跑即时触发策略（Immediate First-run Policy）**：任务创建后立即触发第 1 次执行，用户瞬间获得任务执行回执与初步产出，无需漫长等待定时周期首次到达，随后进入平滑的周期性续跑；
   4. **智能体 Profile 上下文无缝绑定**：循环任务自动绑定当前会话正在使用的 Agent Profile（自定义模型、提示词、工具与专属记忆），而非粗暴回退到单一大模型；
   5. **100% 全栈自动化测试覆盖**：跨前端 Vitest（19/19 passed）与后端 Harness Pytest（31/31 passed）共 50 项测试 100% 绿色通过，0 Lint 报错。
-- **SSOT 来源：** `myrm-agent-frontend/src/store/builtinActions.ts` · `myrm-agent-frontend/src/services/commands/loopSlashCommand.ts` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/engine/parser.py`
+- **SSOT 来源：** `myrm-agent-frontend/src/store/builtinActions.ts` · `myrm-agent-frontend/src/services/commands/loopSlashCommand.ts` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/engine/parser.py`
 
 ## 最新验证快照（2026-09-01 · DshCcTuiStreamingRenderLaneAndSelfHealingGuard · 流式渲染可靠性）
 
@@ -1907,7 +1907,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
 
 - **GatewayZeroPayloadRuntimeVitals（对标 Hermes CLI doctor / OpenClaw 文件轮询 / 无统一 liveness）：** Myrm 在 `GET /api/v1/health/liveness` 与 Prometheus（`myrm_gateway_event_loop_lag_ms`、RSS、asyncio 任务数、健康码）导出**零用户内容**网关体征；Harness `GatewayHealthInspector` 测量事件循环延迟与 OTLP 装配态，**严格不含 prompt/聊天内容**——运维可在用户感知卡顿前对 degraded/unhealthy 告警。
 - **DevGateDomainRepack（对标零散维护脚本）：** monorepo `scripts/dev/lib/` flat 模块迁入域子包（`phase_c/`、`dgep/`、`e2e_detach/` 等），零行为变更；legacy e2e marathon supervisor 退役；**`scripts/dev/tests/` 2151 项通过**，含 harness+server 混合 pytest 分拆契约测。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/observability/diagnostics/gateway_health.py` · `myrm-agent/myrm-agent-server/app/api/health/liveness.py` · `scripts/dev/lib/DOMAIN_REPACK_PLAN.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/observability/diagnostics/gateway_health.py` · `myrm-agent/myrm-agent-server/app/api/health/liveness.py` · `scripts/dev/lib/DOMAIN_REPACK_PLAN.md`
 
 ## 最新验证快照（2026-08-31 · 团队知识复利周报与全链路白盒化可观测性套件 · 可观测性完成）
 
@@ -1917,7 +1917,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **算子错误脱敏器（`operator_error_sanitizer.py`）**：统一清洗底层异常堆栈与敏感绝对路径，在保障模型自愈能力的同时杜绝工程细节向用户侧泄漏；
   4. **桌面端防睡眠与红绿灯自适应（`SleepInhibitor` & `useTrafficLightInsets`）**：在长任务执行期间自动持有系统电源锁防止休眠中断，macOS 沉浸式窗口自适应留白杜绝控件遮挡；
   5. **100% 全栈自动化测试覆盖**：跨 Harness 引擎、Server API 与前端 Vitest 共 416+ 项测试 100% 绿灯。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/observability/digest/` · `myrm-agent-frontend/src/components/features/growth/TeamWeeklyDigestView.tsx` · `myrm-agent-server/app/services/infra/sleep_inhibitor.py`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/observability/digest/` · `myrm-agent-frontend/src/components/features/growth/TeamWeeklyDigestView.tsx` · `myrm-agent-server/app/services/infra/sleep_inhibitor.py`
 
 ## 最新验证快照（2026-08-30 · 四层工具拓扑与双语动态 Schema 智能解析 · 核心工具完成）
 
@@ -1927,7 +1927,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **长期目标物理完工硬护栏（`CompletionGuard`）**：严格校验前置 Todo 清单与验收标准（Acceptance Criteria），杜绝模型因轮数耗尽或遇到卡点而提前调用完工工具谎报完成；
   4. **Dynamic Workflow 运行时动态纠偏与人机门禁（`myrm_tools.steer_child` / `human_ask`）**：编排脚本支持运行时向子智能体注入修正指令与中途挂起人机决策，告别全量推倒重来的低效开销；
   5. **100% 全栈自动化测试覆盖**：跨 Harness 引擎与 Server 业务层共 2,277 项单元/集成测试 100% 绿色通过，0 Lint 报错。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/goals/goal_agent_tools.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/dynamic_workflow/tools.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/tool_management/tool_layers.py`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/goals/goal_agent_tools.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/dynamic_workflow/tools.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/tool_management/tool_layers.py`
 
 ## 最新验证快照（2026-08-30 · 桌面端无侵入原生桥接与 WebUI 插件插槽自适应协议 · 桌面与 Web 同构完成）
 
@@ -1947,7 +1947,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **单轮多次 Tool 调用注入幂等清洗**：注入前通过正则自动剥离历史残留，杜绝多工具交互下 Prompt 末尾重复堆积垃圾指令块；
   4. **重大 Re-plan 动态拦截与人机双重把关（`plan_confirm_middleware.py`）**：引入目标感知 ContextVar，当中途用户推翻诉求、Agent 生成新目标时，系统自动挂起并再次触发 LangGraph `interrupt()`，在 WebUI/桌面端重新弹出审核卡片，用户点击确认后方可执行；
   5. **100% 测试覆盖与零破坏性**：通过 23 项中间件单元测试（覆盖率 94%）与 13 项真实 SQLite / Goal 链路集成测试，0 破坏性接口变更，0 业务侵入。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/progress_middleware.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/plan_confirm_middleware.py`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/progress_middleware.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/plan_confirm_middleware.py`
 
 ## 最新验证快照（2026-08-30 · 合成异常日志防静默错位校验与不合规事件严格拒载门禁 · 可观测性完成）
 
@@ -1955,7 +1955,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   1. **严格括号闭包断言（Step/Turn Enclosure）**：`check_step_enclosure` 严格校验事件流中的消息、工具交互及思考过程必须被 Step/Turn 边界闭包包裹，精准捕获孤立事件与未闭合步骤；
   2. **中间序列号断层防篡改自检（Sequence Continuity）**：`check_sequence_continuity` 严格校验事件流全局 `seq` 单调自增且无断层（Gap-Free），精确定量断层缺失帧数 `gap_size`；
   3. **毫秒级 Fail-Fast 严格拒载**：通过 `RuntimeInvariantRegistry` 统一编排，纯 CPU 线性扫描，0 额外外部依赖，0 LLM Token 开销，100% 保护 Prompt Cache 命中率。全套 7 组不变式测试全部 100% 绿色通过。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/observability/invariants/core_pack.py` · `myrm-agent-harness/src/myrm_agent_harness/observability/invariants/__init__.py`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/observability/invariants/core_pack.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/observability/invariants/__init__.py`
 
 ## 最新验证快照（2026-08-28 · 零噪音多语言 SSOT 与 5 大结构化定时自动化工具链 · 工具生态完成）
 
@@ -1965,7 +1965,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **按需渐进式披露守护 Turn1 Prompt Cache 100% 命中**：蓝图模板通过 `action='blueprints'` 按需动态拉取，避免在 Turn1 系统提示词中全量注入模板目录，保障 100% KV Cache 命中率；
   4. **多渠道与会话语言自动感知注入（`tool_setup.py`）**：无缝将 `tool_description_locale` 与用户当前会话或 IM 渠道语言强绑定；
   5. **100% 全栈测试覆盖与零技术债**：通过 116 项 `test_cron_manage_tool.py` 单元测试、87 项 Server Cron 生命周期 API 测试以及 676 项 Harness Cron 回归测试套件（884 项测试全部通过，100% 绿灯，0 Lint 错误，0 僵尸进程）。
-- **SSOT 来源：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/_cron_tool_description.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/cron_agent_tools.py` · `myrm-agent-server/app/ai_agents/general_agent/tool_setup.py`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/_cron_tool_description.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/cron_agent_tools.py` · `myrm-agent-server/app/ai_agents/general_agent/tool_setup.py`
 
 
 ## 最新验证快照（2026-08-28 · 动作空间复杂度收敛与自愈型进度元工具 · 规划精准度与弱模型兼容达成）
@@ -1976,7 +1976,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **面向弱模型的自愈型错误诊断引导**：当遇到非法状态字符串时，错误响应自动附带合法状态枚举集（`['pending', 'in_progress', 'completed', 'cancelled']`），引导 7B/8B 等开源弱模型在单轮内一次性自愈纠错，杜绝死循环幻觉；
   4. **目标达成幂等防护屏障（`goal_agent_tools.py`）**：为 `complete_goal_tool` 提供原子幂等保障，目标完成后重复触发立即返回成功，杜绝重复验证风暴、多工具并发竞争与无谓预算损耗；
   5. **100% 架构与全栈测试覆盖**：经由 66 项 Harness 元工具与注册表单测、3 项 Server 真实 LLM API 端到端测试以及 Chrome MCP 真实 WebUI E2E 全量验证（100% 绿灯，0 Lint 错误，0 僵尸残留）。
-- **素材 SSOT：** `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/progress/todo_write_tool.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/progress/storage.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/goals/goal_agent_tools.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/tool_management/tool_layers.py`
+- **素材 SSOT：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/progress/todo_write_tool.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/progress/storage.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/goals/goal_agent_tools.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/tool_management/tool_layers.py`
 
 ## 最新验证快照（2026-08-27 · 多模态动态背景引擎与本地系统字体排版发现 · 桌面与 Web 体验达成）
 
@@ -2016,7 +2016,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **GUI 优先本地模型连通性探测（`SecurityPrivacyPanel.tsx`）**：WebUI 内置毫秒级连通性探针（`/config/test-local-model`）、防呆告警与丰富的 S2/S3 降级策略配置；
   4. **标准透明 BaseChatModel 包装**：`PrivacyRoutingModel` 完整适配流式生成（`astream`）与工具调用绑定（`bind_tools`），对系统前缀缓存（KV Cache）零破坏；
   5. **100% 架构与全栈测试覆盖**：经由 44 项隐私路由单测、51 项级联降级单测与安全全套套件验证（2123 项测试全绿，100% 通过，0 Lint 报错，0 僵尸残留）。
-- **素材 SSOT：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/routing/privacy_routing.py` · `myrm-agent-harness/src/myrm_agent_harness/core/security/guards/privacy_tracker.py` · `myrm-agent-frontend/src/components/features/settings/sections/system/SecurityPrivacyPanel.tsx`
+- **素材 SSOT：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/routing/privacy_routing.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/guards/privacy_tracker.py` · `myrm-agent-frontend/src/components/features/settings/sections/system/SecurityPrivacyPanel.tsx`
 
 ## 最新验证快照（2026-08-27 · 层次化上下文压缩与三视图动态画像个性化记忆 · 路线图 Topic 01 #11 达成）
 
@@ -2027,7 +2027,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   4. **辩证认知风格与深度推导（$\mathcal{D}_r$）**：`strategies/extractor.py:292-297` 自动推导 `reply_style`、`cognitive_depth` 与 `proactivity` 并作为 `ProfileEntry` 注入 System Prompt，受半衰期衰减保护；
   5. **零额外 Token 膨胀与 100% 保护 Prompt 缓存**：会话收尾时单次伴随完成，0 额外后台 Agent 启动（节省 >80% 算力账单），100% 保持 KV Cache 命中率并杜绝 >30s 后台挂死；
   6. **100% 架构与全生命周期测试覆盖**：经由 182 项记忆提取测试、54 项模式发现测试及 68 项巩固/稳定性测试全量验证（100% 绿灯，0 Lint 错误，0 僵尸残留）。
-- **素材 SSOT：** `temp-docs/roadmap/topic_01_memory_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/strategies/pattern_discovery.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/strategies/extractor.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/strategies/implicit_feedback.py`
+- **素材 SSOT：** `temp-docs/roadmap/topic_01_memory_roadmap.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/strategies/pattern_discovery.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/strategies/extractor.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/strategies/implicit_feedback.py`
 
 ## 最新验证快照（2026-08-27 · 定时任务手动成功先验门禁与逐步可读 Trace 面板 · 自动化高可靠达成）
 
@@ -2037,7 +2037,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **逐步可读 Tool Trace 与一键诊断导出（`CronRunItem.tsx`）**：在执行记录展开层展示结构化 `executionSteps` 步骤流（工具名、入参、耗时、异常断点与指示灯），并支持一键 `copyAuditTrace` 导出标准 JSON 诊断包；
   4. **零 Token 膨胀与 100% 保护 Prompt 缓存**：全套门禁与白盒审计在调度层与 WebUI 层闭环，0 Prompt 污染，100% 保持 KV Cache 命中率；
   5. **100% 架构与全栈集成测试覆盖**：经由 Harness 指纹算法单测、Server 前置验证单测、Cron 全生命周期集成测试及前端 Vitest 审计测试全量验证（100% 绿灯，0 Lint 错误，0 僵尸残留）。
-- **素材 SSOT：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/engine/fingerprint.py` · `myrm-agent-server/app/services/cron/prerequisite_service.py` · `myrm-agent-frontend/src/components/features/cron/CronPrerequisiteCard.tsx` · `myrm-agent-frontend/src/components/features/cron/CronRunItem.tsx`
+- **素材 SSOT：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/engine/fingerprint.py` · `myrm-agent-server/app/services/cron/prerequisite_service.py` · `myrm-agent-frontend/src/components/features/cron/CronPrerequisiteCard.tsx` · `myrm-agent-frontend/src/components/features/cron/CronRunItem.tsx`
 
 ## 最新验证快照（2026-08-27 · 非标 OpenAI 中转推理字段自愈提取与自适应 400 参数降级重试 · 网关鲁棒性达成）
 
@@ -2046,7 +2046,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   2. **自适应 400 参数剥离与无感重试（`gateway_normalizer.py`）**：在遇到非标网关不支持可选高级参数（如 `stream_options`、`parallel_tool_calls`、`reasoning_effort`）导致的 HTTP 400 报错时，自动识别并精准剔除冲突参数，立即执行就地降级重试，保证用户任务流不中断；
   3. **零 Token 膨胀与 100% 保护 Prompt 前缀缓存**：纯客户端与适配层自愈，0 额外 Prompt 消耗，100% 维持 KV Cache 命中率；
   4. **100% 架构与单元测试覆盖**：经由 16 项专项测试与完整流式回归套件全量验证（100% 绿灯，0 Lint 错误，0 僵尸残留）。
-- **素材 SSOT：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/adapters/gateway_normalizer.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/adapters/streaming.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/adapters/chat_model/sync_mixin.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/adapters/chat_model/async_mixin.py`
+- **素材 SSOT：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/adapters/gateway_normalizer.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/adapters/streaming.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/adapters/chat_model/sync_mixin.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/adapters/chat_model/async_mixin.py`
 
 ## 最新验证快照（2026-08-27 · 企业级生命周期出站 Webhook 与即时连通性探测 · 可观测性达成）
 
@@ -2067,7 +2067,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **500 行流式低内存分页与精准高亮跳转（`EvictedOutputDrawer.tsx`）**：按 500 行流式分页加载，单次内存占用降低 95% 以上，彻底杜绝数万行 DOM 导致的前端页面卡死白屏；原生支持关键词防抖高亮搜索与双重 `requestAnimationFrame` 平滑滚动定位；
   4. **SSOT 严苛白名单与路径穿越防御（`evicted.py`）**：严格通过 `EVICTED_BASENAME_PATTERN` 正则白名单与沙箱目录边界校验，彻底封死目录穿越安全漏洞；
   5. **100% 架构与 Chrome E2E 真实闭环验证**：经由 4 个端到端单元测试、API 边界安全测试与真实 Chrome MCP E2E 双抽屉流程全量验证（100% 绿灯，0 Lint 错误，0 僵尸残留）。
-- **素材 SSOT：** `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/bash/_compression/output_eviction.py` · `myrm-agent-server/app/api/files/evicted.py` · `myrm-agent-frontend/src/components/features/message-box/progress-steps/renderers/EvictedOutputDrawer.tsx`
+- **素材 SSOT：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/bash/_compression/output_eviction.py` · `myrm-agent-server/app/api/files/evicted.py` · `myrm-agent-frontend/src/components/features/message-box/progress-steps/renderers/EvictedOutputDrawer.tsx`
 
 ## 最新验证快照（2026-08-27 · 流式 In-Flight 实时死循环熔断器与语法感知断路器 · 流式鲁棒性增强达成）
 
@@ -2077,7 +2077,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **标准事件分发与链路协同（`stream_dispatcher.py`）**：Scrubber 拦截后联动 `CancellationToken` 强行掐断上游连接，广播标准 `AgentEventType.ERROR` 业务事件，WebUI 优雅弹出带一键重试的止损卡片；
   4. **零 Token 膨胀与 100% 保护 Prompt 前缀缓存**：全套逻辑纯运行于底层流式分发引擎，0 Prompt 膨胀，100% 保持前缀 KV Cache 命中率；
   5. **100% 架构与全生命周期测试覆盖**：经由 88 项流式管道、分发器、代码块感知与恢复测试全量验证（100% 绿灯，0 Lint 错误，0 僵尸残留）。
-- **素材 SSOT：** `myrm-agent-harness/src/myrm_agent_harness/agent/streaming/repetition_scrubber.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/streaming/stream_dispatcher.py` · `myrm-agent-harness/tests/agent/streaming/`
+- **素材 SSOT：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/streaming/repetition_scrubber.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/streaming/stream_dispatcher.py` · `myrm-agent-harness/tests/agent/streaming/`
 
 ## 最新验证快照（2026-08-27 · 字符集自适应探测与结构化数据直通解析 · Web Fetch 鲁棒性增强达成）
 
@@ -2087,7 +2087,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **零 Token 膨胀与 100% 保护 Prompt 前缀缓存**：全套探测与直通逻辑运行于底层引擎，消耗 0 LLM Token，完全不改动工具 Schema 与系统提示词；
   4. **全端部署模式自适应**：在 Local WebUI、Tauri 桌面端与 Cloud 独立沙箱模式下完全一致运行；
   5. **100% 架构与测试覆盖**：经由 20 项专项单元测试覆盖全部 CJK 编码、非法 Header 容错、二进制兜底与截断保护（模块覆盖率达 98%，`web_fetch` 511 项套件全绿，0 Lint 错误，0 僵尸残留）。
-- **素材 SSOT：** `myrm-agent-harness/src/myrm_agent_harness/toolkits/web_fetch/probe/charset_detector.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/web_fetch/processing/pipeline.py` · `myrm-agent-harness/tests/toolkits/web_fetch/test_charset_and_pipeline_bypass.py`
+- **素材 SSOT：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/web_fetch/probe/charset_detector.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/web_fetch/processing/pipeline.py` · `myrm-agent-harness/tests/toolkits/web_fetch/test_charset_and_pipeline_bypass.py`
 
 ## 最新验证快照（2026-08-27 · 健壮的后台进程全生命周期管理与增量对齐日志轮询 · 路线图 Topic 08 达成）
 
@@ -2097,7 +2097,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **环形缓冲区溢出自动关联持久化落盘日志（`_background/registry.py` 与 `bash_process_tools.py`）**：当内存 200 行环形缓冲区溢出（`dropped=True`）时，自动向负载中注入 `spill_log_ref` 文件名，为 Agent 提供自愈式按需读取磁盘全量日志的通道；
   4. **极简 Action 空间与 Prompt 前缀缓存最大化**：后台进程管理工具整体仅占 107 tokens，附带标准小样本提示词（`(e.g. 'ERROR|WARN')`），Prompt Prefix Cache 命中率 100% 保持；
   5. **100% 架构与全生命周期测试覆盖**：经由 106 个单元测试与真实子进程集成测试全量验证（100% 绿灯，0 Lint 错误，0 僵尸残留）。
-- **素材 SSOT：** `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/bash/` · `tests/agent/meta_tools/bash/`
+- **素材 SSOT：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/bash/` · `tests/agent/meta_tools/bash/`
 
 ## 最新验证快照（2026-08-27 · 标准 Streamable HTTP MCP 记忆端点与 GUI 连接向导 · 路线图 Topic 01 #8 达成）
 
@@ -2116,7 +2116,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **严苛的前缀缓存（Prefix Cache）对齐保护**：压缩过程严格冻结 `protected_head`（系统规则与工具定义），仅在消息尾部提炼结构化摘要，后续轮次 KV Cache 命中率稳定保持 85% 以上；
   4. **全端部署模式自适应**：在 Local WebUI、Tauri 桌面端与 Cloud 独立沙箱模式下完全一致运行；
   5. **100% 架构与测试覆盖**：经由 80 项单元/架构测试与 75 项集成测试全量验证（100% 绿灯，0 Lint 错误，0 僵尸残留）。
-- **素材 SSOT：** `temp-docs/roadmap/topic_06_context_session_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/_factory/builder.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/context_management/pipeline/processors/summarize_processor.py`
+- **素材 SSOT：** `temp-docs/roadmap/topic_06_context_session_roadmap.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/_factory/builder.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/context_management/pipeline/processors/summarize_processor.py`
 
 ## 最新验证快照（2026-08-26 · Tauri 桌面端 Pet 伴侣悬浮窗与 Voice Orb 深度融合 · 路线图 Topic 04 #3 达成）
 
@@ -2136,7 +2136,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **结构化验收判定可视化 GUI**：前端看板详情抽屉原生集成 `ReviewCommentThread`，精细化渲染各项验收准则通过/失败徽章、耗时诊断、错误原因及精确定位到代码行与修复建议的评审意见；
   4. **全端部署模式自适应**：在 Local WebUI、Tauri 桌面端与 Cloud 独立沙箱模式下完全一致运行，不破坏 Prompt Cache；
   5. **100% 架构与测试覆盖**：经由 78 项 Harness 看板调度测试、11 项 Server Goal 模式单元测试及真实 Chrome MCP E2E 浏览器测试全量验证（100% 绿灯，0 Lint 错误，0 僵尸残留）。
-- **素材 SSOT：** `temp-docs/roadmap/topic_10_runtime_reliability_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/kanban/` · `myrm-agent/myrm-agent-server/app/services/kanban/` · `myrm-agent/myrm-agent-frontend/src/components/features/kanban/`
+- **素材 SSOT：** `temp-docs/roadmap/topic_10_runtime_reliability_roadmap.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/kanban/` · `myrm-agent/myrm-agent-server/app/services/kanban/` · `myrm-agent/myrm-agent-frontend/src/components/features/kanban/`
 
 ## 最新验证快照（2026-08-26 · 动态工作流校验与多怀疑者多数决编排体系 · 路线图 Topic 12 #3 达成）
 
@@ -2146,7 +2146,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **多怀疑者多数决裁决（`multi_skeptic`）**：并行并发启动 3 个具备温度多样性的独立怀疑者校验员，应用 2/3 多数投票决机制，并内嵌严苛的 Fail-Closed 熔断机制（校验员沙箱崩溃或致命异常直接判定未通过，杜绝误放行）；
   4. **全环境 0 提示词缓存损耗**：在 Local WebUI、Tauri 桌面端与 Cloud 独立沙箱模式下完全一致运行，不破坏系统提示词前缀缓存；
   5. **100% 架构与测试覆盖**：经由 43 项 Harness 校验测试与 3 项 Server 动态工作流 E2E 测试全量验证（100% 绿灯，0 Lint 错误，0 僵尸残留）。
-- **素材 SSOT：** `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/_orchestrator_verification.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/_verifier_round.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/dynamic_workflow/tools.py`
+- **素材 SSOT：** `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/_orchestrator_verification.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/_verifier_round.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/dynamic_workflow/tools.py`
 
 ## 最新验证快照（2026-08-26 · 桌面跨应用工作流录制与技能合成编译器 · 路线图 Topic 14 #5 达成）
 
@@ -2156,7 +2156,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **动态槽位提取与泛化（`extract_parameter_slots`）**：自动识别录制数据中的文件路径、ISO 日期与邮箱地址为可配置插槽（如 `{{input_path}}`、`{{target_date}}`），使生成的技能具备跨机器与跨环境泛化能力；
   4. **标准 YAML Frontmatter + Markdown 渲染（`render_skill_markdown`）**：自动产出符合规范的 `SKILL.md`，并在前端提供实时步骤流审查、变量插槽微调与一键发布持久化闭环；
   5. **100% 测试覆盖与零债务交付**：经由 9 项 Harness 纯算法测试、1 项 Server 会话生命周期测试与 5 项前端交互测试全量验证（100% 绿灯，0 Lint 错误，0 僵尸残留）。
-- **素材 SSOT：** `temp-docs/roadmap/topic_14_workflow_eval_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/recording/` · `myrm-agent/myrm-agent-server/app/api/skills/desktop_recorder/schemas.py` · `myrm-agent/myrm-agent-frontend/src/components/features/message-box/SessionRecordingCard.tsx`
+- **素材 SSOT：** `temp-docs/roadmap/topic_14_workflow_eval_roadmap.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/recording/` · `myrm-agent/myrm-agent-server/app/api/skills/desktop_recorder/schemas.py` · `myrm-agent/myrm-agent-frontend/src/components/features/message-box/SessionRecordingCard.tsx`
 
 ## 最新验证快照（2026-08-26 · 中途人机决策门控与多阶段协同自愈体系 · 路线图 Topic 12 #5 达成）
 
@@ -2166,7 +2166,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **取消令牌毫秒级短路与超时默认安全兜底（`stream_lane_factory.py`）**：服务端注入 `cancel_token` 前置检查，主动取消时毫秒级跳出等待，配合可配倒计时（默认 300s）超时自动应用默认动作，绝不挂起后台僵尸任务；
   4. **全端部署模式自适应与 0 提示词缓存损耗**：在 WebUI、Tauri 桌面端与 Cloud 独立沙箱模式下完全一致运行，门控过程作为纯运行时工具通信流转，100% 保持 Prompt Cache 高速命中；
   5. **100% 测试覆盖与零债务交付**：通过 73 项 Harness 动态工作流单测、23 项 Server 门控路由单测及 7 项前端交互单测全量验证（100% 绿灯，0 Lint 错误，0 僵尸残留）。
-- **素材 SSOT：** `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/dynamic_workflow/tools.py` · `myrm-agent/myrm-agent-server/app/services/agent/stream_session/stream_lane_factory.py` · `myrm-agent/myrm-agent-frontend/src/components/features/message-box/HumanGateCard.tsx`
+- **素材 SSOT：** `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/dynamic_workflow/tools.py` · `myrm-agent/myrm-agent-server/app/services/agent/stream_session/stream_lane_factory.py` · `myrm-agent/myrm-agent-frontend/src/components/features/message-box/HumanGateCard.tsx`
 
 ## 最新验证快照（2026-08-26 · 空闲会话重型资源自动回收与多级内存紧凑器 · 路线图 Topic 10 #3 达成）
 
@@ -2185,7 +2185,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   2. **多代分叉族谱与层级深度追溯（`get_fork_info`）**：递归分析全分支层级深度与根祖先节点，内嵌循环引用防御算法，为多代派生会话提供完整清晰的血缘追溯；
   3. **存储自由页增量真空回收原语（`incremental_vacuum_sync` 与 `incremental_vacuum_async`）**：在 Harness 数据库硬化层提供安全、非阻塞的 `PRAGMA incremental_vacuum` 存储紧凑回收工具，有效防止 Agent 长周期运行下的 SQLite 磁盘文件体积膨胀；
   4. **100% 单元测试与零债品质**：经由 26 项 Server 分叉管理器单元测试与 31 项 Harness 数据库完整性测试全量验证（100% 绿灯，0 Lint 错误，0 僵尸残留）。
-- **素材 SSOT：** `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/utils/db/sqlite/integrity.py` · `myrm-agent/myrm-agent-server/app/services/chat/conversation_fork_manager.py`
+- **素材 SSOT：** `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/utils/db/sqlite/integrity.py` · `myrm-agent/myrm-agent-server/app/services/chat/conversation_fork_manager.py`
 
 ## 最新验证快照（2026-08-26 · 定时自动化连接器健康感知与降级结构化告警包 · 路线图 Topic 11 #7 达成）
 
@@ -2196,7 +2196,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   4. **全任务健康矩阵聚合接口（`GET /api/v1/cron/connectors/health`）**：统一聚合全局与单任务连接器健康状态（`HEALTHY` / `DEGRADED` / `DOWN`）、交付成功率及绑定任务列表；
   5. **即时测试自愈闭环（Test-to-Heal）**：在 WebUI 连接器编辑区点击「测试交付」成功后，系统即刻清空连续失败计数并恢复健康状态，提供实时的排障正向反馈；
   6. **100% 全栈测试与 6 语言 UI 对齐**：通过 77 项 Harness 单元测试、57 项 Server 路由与生命周期测试，以及 Lane-B Chrome MCP 真实端到端测试（100% 绿灯，0 Lint 错误，0 僵尸残留）。
-- **素材 SSOT：** `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/engine/connector_health.py` · `myrm-agent/myrm-agent-server/app/services/cron/connector_health_service.py` · `myrm-agent/myrm-agent-frontend/src/components/features/cron/CronDeliveryEditors.tsx`
+- **素材 SSOT：** `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/engine/connector_health.py` · `myrm-agent/myrm-agent-server/app/services/cron/connector_health_service.py` · `myrm-agent/myrm-agent-frontend/src/components/features/cron/CronDeliveryEditors.tsx`
 
 ## 最新验证快照（2026-08-26 · 会话工作流重放确定性与抗漂移度量门禁 · 路线图 Topic 14 #5 达成）
 
@@ -2205,7 +2205,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   2. **会话级一键重放与非破坏性沙箱调度（`POST /chats/{chat_id}/replay`）**：安全提取历史对话 Prompt 并执行隔离重放，不污染当前活跃会话消息；
   3. **前端一键验证徽章与 TrajectoryDiffModal 顺畅联动（`ReplayAction.tsx`）**：在顶部操作栏以百分比徽章直观呈现确定性指标，并可一键呼出时序瀑布流 Diff 窗口定位漂移细节；
   4. **100% 单元测试与双语多语言对齐**：全栈测试通过，0 Lint 错误，0 僵尸进程。
-- **素材 SSOT：** `temp-docs/roadmap/topic_14_workflow_eval_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/eval/assertions.py` · `myrm-agent/myrm-agent-server/app/api/chats/chat/replay.py` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/ReplayAction.tsx`
+- **素材 SSOT：** `temp-docs/roadmap/topic_14_workflow_eval_roadmap.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/eval/assertions.py` · `myrm-agent/myrm-agent-server/app/api/chats/chat/replay.py` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/ReplayAction.tsx`
 
 ## 最新验证快照（2026-08-26 · 推理档位自动触发多模型 MoA 顾问审查门禁 · 路线图 Topic 07 #2 达成）
 
@@ -2224,7 +2224,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   2. **非侵入式轻量工作区浏览器与内嵌 Unified Diff 审查（`workspace-browser`）**：提供目录树导航、右键「设为项目根目录」快捷指引及 `InlineWorkspaceDiff` / `InlineDiffViewer` 代码差异审查面板，无需三栏重型 IDE 挤占宝贵的聊天工作台空间；
   3. **重型编码任务无缝委托专业子 Agent**：复杂编码与重构任务通过 ACP（`invoke_acp_agent_tool`）清晰委托给独立 Coding Agent，主 Agent 上下文保持清晰聚焦；
   4. **全栈测试验证与零技术债**：符号检索单测、前端 Unified Diff 单测、六语言 i18n 门禁及 Chrome MCP E2E 测试 100% 绿灯通过，0 Lint 错误、0 僵尸进程。
-- **素材 SSOT：** `temp-docs/roadmap/topic_09_frontend_ux_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_search/grep_tool.py` · `myrm-agent/myrm-agent-frontend/src/components/features/workspace-browser/InlineWorkspaceDiff.tsx`
+- **素材 SSOT：** `temp-docs/roadmap/topic_09_frontend_ux_roadmap.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_search/grep_tool.py` · `myrm-agent/myrm-agent-frontend/src/components/features/workspace-browser/InlineWorkspaceDiff.tsx`
 
 ## 最新验证快照（2026-08-26 · MCP 跨源重定向凭据防泄露安全守门人 · 路线图 Topic 03 #7 达成）
 
@@ -2235,7 +2235,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   4. **全量出网 HTTP 基础服务赋能（`secure_fetch.py`）**：将该 Guard 深度整合进统一出网层 `secure_fetch.py`，全方位防护系统级资源下载、API 调用与 MCP 服务通信；
   5. **0 Token 损耗与 100% 提示词缓存保持**：纯网络传输层微秒级计算，0 LLM 上下文污染，100% 保护 Prompt Cache 命中率；
   6. **全栈测试验证**：118 项单元测试与集成测试 100% 绿灯通过，0 Lint 错误、0 僵尸残留。
-- **素材 SSOT：** `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/core/security/http/redirect_guard.py` · `myrm-agent-harness/src/myrm_agent_harness/core/security/http/secure_fetch.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/mcp/client.py`
+- **素材 SSOT：** `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/http/redirect_guard.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/http/secure_fetch.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/mcp/client.py`
 
 
 ## 最新验证快照（2026-08-26 · 多档演化策略状态机与沙箱真实回归防护门禁 · 路线图 Topic 08 达成）
@@ -2246,7 +2246,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **子进程编译与独立沙箱 Dry-Run（`SandboxValidator`）**：真实验证 Python 语法编译（`py_compile`）与沙箱试运行，彻底抛弃 EvoMap 依赖本地自报 `success_streak`（可刷分）的脆弱机制；
   4. **EvalCase 确定性回归测试断言矩阵（`eval_regression.py`）**：演化变体强制绑定已有评测用例与断言矩阵（`SandboxAssertion`、`StateAssertion`、`SemanticAssertion`），空洞测试无法通过；
   5. **全栈测试验证**：Harness 演化生命周期 12 项测试与 Server 端 API/E2E 38 项演化测试 100% 绿灯通过，0 Lint 错误、0 僵尸残留。
-- **素材 SSOT：** `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/pipeline/screener.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/execution/sandbox_validator.py` · `myrm-agent/myrm-agent-server/app/api/skills/evolution/pending.py`
+- **素材 SSOT：** `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/pipeline/screener.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/execution/sandbox_validator.py` · `myrm-agent/myrm-agent-server/app/api/skills/evolution/pending.py`
 
 ## 最新验证快照（2026-08-26 · Turn-1 默认工具集与系统提示词 Token 预算 CI 门禁 · 路线图 Topic 06 #9 达成）
 
@@ -2256,7 +2256,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **Prompt Cache 前缀稳定性保障**：验证系统行为规则与边界规则的不可变性，确保跨轮次与跨用户的 KV Cache 命中率；
   4. **Code-as-Action 批量脚本执行引导**：在 `browser_execute_script_tool` 中优化引导，在处理 ≥ 3 步连续交互时优先编写 Python 脚本执行，降低多轮交互 Round-trip 延迟与 Token 消耗；
   5. **全栈测试验证**：`test_prompt_token_budget_gate.py`、`test_prompt_integrity.py`、`test_model_discipline.py` 等 100% 绿灯通过，0 错误、0 警告、0 僵尸残留。
-- **素材 SSOT：** `temp-docs/roadmap/topic_06_context_session_roadmap.md` · `myrm-agent-harness/scripts/measure_tool_schema_tokens.py` · `myrm-agent-harness/tests/architecture/test_prompt_token_budget_gate.py` · `myrm-agent-harness/src/myrm_agent_harness/agent/tool_management/DEFAULT_AGENT_TOKEN_INVENTORY.md`
+- **素材 SSOT：** `temp-docs/roadmap/topic_06_context_session_roadmap.md` · `myrm-agent-harness/scripts/measure_tool_schema_tokens.py` · `myrm-agent-harness/tests/architecture/test_prompt_token_budget_gate.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/tool_management/DEFAULT_AGENT_TOKEN_INVENTORY.md`
 
 ## 最新验证快照（2026-08-26 · 流式中断残存内容前缀留存与会话分叉继承 · 路线图 Topic 15 #4 达成）
 
@@ -2276,7 +2276,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **零动态 Schema 膨胀与 100% Prompt Cache 前缀稳定性**：通过统一工具入参进行实例路由，完全避免动态注册爆炸破坏 LLM 提示词前缀缓存；
   4. **参数防重与幂等注入**：严格检查现有命令行参数，已包含的 flag 不重复追加；
   5. **全栈测试验证**：`test_cli_runtime.py` 90 项单元与集成测试 100% 绿灯通过，0 错误、0 警告、0 僵尸残留。
-- **素材 SSOT：** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/auth/_profiles.py` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/runtime/cli_runtime.py`
+- **素材 SSOT：** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/auth/_profiles.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/runtime/cli_runtime.py`
 
 ## 最新验证快照（2026-08-26 · Ollama 拉取自动派生 64K Agentic Modelfile 与 Doctor 深度诊断 · 路线图 Topic 06 #1 达成）
 
@@ -2309,7 +2309,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **Zero-LLM Quick Lane 极速知识响应（`wiki_knowledge_lane.py`）**：对于高确定性事实查询，直接走轻量知识通道进行结果组装与引用提取并流式打回前端，将常见问答的 Token 消耗与模型耗时降至 0；
   4. **静态工具 Schema 与标签指纹缓存隔离（`get_wiki_archiver`）**：工具定义保持 100% 恒定不变，维持 95%+ KV Cache 命中率；底层 Archiver 实例按排序标签指纹安全缓存复用；
   5. **全栈测试验证**：35 项 Harness 单元测试 + 6 项 Server 集成测试 + 17 项 Frontend 单元测试 + 真实 Chrome DevTools 协议全链路 E2E 测试 100% 绿灯通过。
-- **素材 SSOT：** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `temp-docs/roadmap/topic_02_knowledge_wiki_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/wiki/` · `myrm-agent-server/app/services/wiki/` · `myrm-agent/myrm-agent-frontend/src/components/features/message-input-actions/KnowledgePickerPopover.tsx`
+- **素材 SSOT：** `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md` · `temp-docs/roadmap/topic_02_knowledge_wiki_roadmap.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/wiki/` · `myrm-agent-server/app/services/wiki/` · `myrm-agent/myrm-agent-frontend/src/components/features/message-input-actions/KnowledgePickerPopover.tsx`
 
 ## 最新验证快照（2026-09-06 · 纯本地 Trace 物理门禁与 Doctor 零远程外发硬断言 · 路线图 Topic 11 #21/#22 达成）
 
@@ -2319,7 +2319,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **Doctor 专属安全合规探针（`TraceExportSecurityDiagnostic`）**：严格实现 `DiagnosticProtocol` 契约，自动纳入系统健康巡检中心；在本地模式下若检测到外部远程 OTLP 配置立即触发预警（`WARN_REMOTE_TRACE_IN_LOCAL_MODE`）并输出修复指引；
   4. **全端部署模式自适应**：在 Local WebUI、Tauri 桌面端与 Cloud 独立沙箱模式下完全一致运行；
   5. **100% 架构与测试覆盖**：经由 Harness 脱敏器单元测试、Server 端 Trace 导出安全探针专项测试全量验证（100% 绿灯，0 Lint 错误，0 僵尸残留）。
-- **素材 SSOT：** `temp-docs/roadmap/topic_11_observability_roadmap.md` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `myrm-agent-harness/src/myrm_agent_harness/infra/tracing/sanitizer.py` · `myrm-agent/myrm-agent-server/app/core/infra/health/trace_security_diagnostic.py`
+- **素材 SSOT：** `temp-docs/roadmap/topic_11_observability_roadmap.md` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/infra/tracing/sanitizer.py` · `myrm-agent/myrm-agent-server/app/core/infra/health/trace_security_diagnostic.py`
 
 ## 最新验证快照（2026-09-06 · 模型编排四大经典范式看板与 Vercel AI Gateway 统一网关一等公民预置 · 路线图 Topic 07 #35/#36 达成）
 
@@ -2328,7 +2328,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   2. **一等公民 Vercel AI Gateway 原生预置（`ProviderList.tsx` + `providerTypes.ts`）**：WebUI 列表原生收录并提供专属品牌 SVG 图标，自动注入 `openai/` 防劫持包裹层，底层 Harness（`create_litellm_model`）原生装配 `HTTP-Referer: https://myrmagent.ai` 与 `X-Title: Myrm Agent` 归属头，并在卡片直接提供控制台支出仪表盘深链直达；
   3. **Hermes 零摩擦配置平移**：全面兼容 `.env` 中的 `AI_GATEWAY_API_KEY` 与 `VERCEL_AI_GATEWAY_KEY`，用户从 Hermes 迁移无需重新申请凭证，即开即用；
   4. **全端 100% 自动化测试验证**：覆盖 17 项前端 Playbook 单测、27 项模型参数单测与真实 Chrome E2E 浏览器自动化测试（`test_model_orchestration_playbook_chrome_e2e.py` 与 `test_vercel_ai_gateway_chrome_e2e.py`），100% 绿灯全流程闭环通过。
-- **素材 SSOT：** `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/playbook/ModelOrchestrationPlaybookDialog.tsx` · `myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/core/llm.py`
+- **素材 SSOT：** `temp-docs/materials/INTELLIGENT_ROUTING_ADVANTAGE.md` · `temp-docs/roadmap/topic_07_model_routing_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/chat-window/playbook/ModelOrchestrationPlaybookDialog.tsx` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/llms/core/llm.py`
 
 ## 最新验证快照（2026-09-07 · Context Doctor 四色开销拆解与 Token 烧钱热点可视化 · 路线图 Topic 11 #9 达成）
 
@@ -2338,7 +2338,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **100% 捍卫大模型 KV Cache 前缀缓存**：坚决摒弃竞品诱导用户手动删除历史消息的反模式（破坏前缀导致二次推理成本激增），由底层 `ActiveToolResultPruneProcessor` 自动进行安全裁剪，前端仅做透明、直观的上下文健康审计；
   4. **全端响应式双主题组件与全语言支持（`ContextBreakdownCard.tsx`）**：无原生 emoji，自适应双主题设计语言，移动端与 PC 端自适应多列平铺，6 语 i18n 完整对齐；
   5. **100% 测试覆盖与 Chrome E2E 真实闭环**：通过 Harness 100% 覆盖单测、Server API 集成测试及真实 Chrome E2E 真实大模型 + 浏览器端到端闭环验证。
-- **素材 SSOT：** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent-harness/src/myrm_agent_harness/agent/event_log/_context_doctor.py` · `myrm-agent-server/app/api/statistics/session_analytics.py` · `myrm-agent-frontend/src/components/features/settings/sections/system/ContextBreakdownCard.tsx`
+- **素材 SSOT：** `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/event_log/_context_doctor.py` · `myrm-agent-server/app/api/statistics/session_analytics.py` · `myrm-agent-frontend/src/components/features/settings/sections/system/ContextBreakdownCard.tsx`
 
 ## 最新验证快照（2026-09-07 · 全场景审计账本导出 · 路线图 Topic 11 #14 达成）
 
@@ -2378,7 +2378,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   - @alanscodelog：「**it has desktop only prompts which confused my agent.**」
 - **我们这边（对着真实代码核过）**：
   - **「你看得见过程，而不只是结果」** —— 对话区有**并发子代理的横向泳道条**（`myrm-agent-frontend/src/components/features/chat-window/in-flight-steer/ActiveSubagentSwimlanesBar.tsx`，由 `ChatWindowSatellites.tsx:37` 挂载）；侧栏里置顶会话可拖拽排序、时间分组可折叠（`ChatHistoryList.tsx:29` `groupChatsByDate`；`:222` `useCollapsedGroups()`；`:224`/`:248` `reorderPinnedChats` + `arrayMove`，落库见 `src/services/chat.ts:1379`）。
-  - **「凭据不会漏进子进程」** —— 子进程环境继承是显式策略，凭据类变量按名屏蔽：`myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/security/env_isolation.py:37`（Subprocess environment inheritance strategy）与 `:110`（明确列出 `XDG_CONFIG_HOME`），另有 `security/shell_bleed.py:55`、`security/blacklist.py:290`。
+  - **「凭据不会漏进子进程」** —— 子进程环境继承是显式策略，凭据类变量按名屏蔽：`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/security/env_isolation.py:37`（Subprocess environment inheritance strategy）与 `:110`（明确列出 `XDG_CONFIG_HOME`），另有 `security/shell_bleed.py:55`、`security/blacklist.py:290`。
   - **「桌面专属指令不会污染 Agent」** —— 桌面规则**仅在真正挂载了桌面操控能力时才注入**，且 IM 渠道被禁止泄漏 browser / desktop / CLI 工具与提示词：`myrm-agent-server/app/ai_agents/general_agent/mount_resolver.py:54`、`:41`，`factory.py:537`。
   - **「审批可核对，且不会静默过期」** —— 每条审批**存住它批的那份载荷**（`app/database/models/approval.py:34` `payload`），并带**动作类型**（`:27`）与**风险分级**（`:31` `severity`）；到期审批**自动拒绝并唤醒被挂起的任务**（`app/services/approvals/registry.py:56-57` 的到期扫描、`:149` 记录里带出到期时间、`:178` 把到期时间展示给用户）。
   - **「Agent 的对外身份是一张可撤销的卡，门也不是对所有人敞开」** —— AgentCard 身份卡可展示、可撤销、可审计，且**不泄露 `system_prompt`**（`app/services/a2a/card_generator.py:60` `AgentCardGenerator`）；入口只放行**你显式开启**且**你信任**的对端（`app/database/repositories/agent_repo.py:111-112` 的 `a2a_enabled` / `a2a_trusted_peer_ids`）。
