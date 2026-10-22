@@ -2272,3 +2272,28 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   5. **100% 测试通过与真实 Chrome E2E 验证**：前端自愈单测 12 项全绿、Tauri Hooks 单测 62 项全绿、Rust 看门狗单测 4 项全绿、真实 Chrome 浏览器无 mock 端到端测试 100% 满分通过（489.38s 真实 DOM 点击、React 受控输入状态注入、压缩率计算、路由跳转与大模型续聊全流程闭环）。
 - **素材 SSOT：** `temp-docs/materials/GENERAL_AGENT_MIGRATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md` · `myrm-agent/myrm-agent-frontend/src/components/features/sidebar/SessionImportModal.tsx` · `myrm-agent/myrm-agent-frontend/src/services/desktopWakeRecovery.ts` · `myrm-agent/myrm-agent-server/tests/e2e/test_import_session_chrome_e2e.py`
 
+
+## 最新对标快照（2026-10-22 · 桌面端主动问用户「哪里坏了」、Agent 泄露 9 万美元密钥、顶级域要 22.7 万美元且 2028 年才落地 · 同一周的三条一手信号，逐条对着我们的真实代码核过）
+
+- **触发了什么** —— 同一周三条独立话题，都在回答「拥有自己的 Agent 到底要付什么代价」：
+  1. **X @imbabybrooklyn**（Brooklyn!，Hermes Desktop 维护者）：「So I've been **on pause from making any UI/UX changes for Desktop for a few weeks now to let other work go through to get us to better stability, consistency**… Has Hermes Desktop felt like it's improved, in terms of reliability and stability, **for you** over the last few weeks?」（`https://x.com/imbabybrooklyn/status/2108372568843448769`；**102 回复 / 226 喜欢 / 29905 次观看**）。我们用 ChromeAgent :9410 + chrome-devtools MCP 提取了该串 **104 条真实评论**与 **5 张截图**。
+  2. **X @weswinder** 贴出本周最贵的一课：某用户发现密钥已泄露并且 **「got the $90,000 bill from google」**——按他自己的说法，是 **「Opus 5.5 said codex had PUBLISHED MY *****ING .ENV TO CLOUDFLARE PAGES」**。
+  3. **X @drodecker / @davemorin / @object_nullll** 宣布 OpenClaw 基金会拿下 **ICANN 2026 轮 `.claw` 申请**（`https://x.com/drodecker/status/2108372568843448769`；**403 喜欢 / 196879 次观看**；中文社区帖 `https://x.com/object_nullll/status/2108404009870807040`；**78 喜欢 / 13343 次观看**）。社区里最锋利的一问来自 @openanywhere：**「告诉我他们为什么能注册成功，注册的基础条件是什么？我个人能注册一个 .dsb 顶级域名吗？」**
+- **社区到底反馈了什么（逐字，不改写）**：
+  - @brunooliveira：「when a session has a subagent running, **the session in the sidebar loses that 'in progress' state** … it looks like nothing happened from that session」——而**竞品自己的维护者回复「Yes, I think you're right — one thing that could be improved on the UX side.」**
+  - @ykzirddev：「messages would be sent twice for a period of time (**only visually**)」；@The_Hauke：「some messages would be displayed **doubled** and sometimes in the middle of the session.」
+  - @Terrally：「**A useful stability check: after a disconnect, can the UI distinguish completed actions from pending ones? That matters before anyone hits retry.**」
+  - @souvik101990：「**Bot Screen leaks XDG_CONFIG_HOME into terminals, so gh says logged out.**」与「**It pins Chromium 145; profiles last opened by 149 crash ('CDP response channel closed'): #135932**」。
+  - @alanscodelog：「**it has desktop only prompts which confused my agent.**」
+- **我们这边（对着真实代码核过）**：
+  - **「进行中」不会凭空消失** —— 侧栏聚合活跃子代理状态而非丢弃它（`myrm-agent-frontend/src/components/features/sidebar/ChatHistoryList.tsx:29` 的 `groupChatsByDate` 与顶部 Working 聚合区），会话组织可拖拽排序、可折叠（`ChatHistoryRow.tsx:517` `SortablePinnedRow`；`ChatHistoryList.tsx:222` `useCollapsedGroups()`）。
+  - **「凭据不会漏进子进程」** —— 子进程环境继承是显式策略，凭据类变量按名屏蔽：`myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/security/env_isolation.py:37`（Subprocess environment inheritance strategy）与 `:110`（明确列出 `XDG_CONFIG_HOME`），另有 `security/shell_bleed.py:55`、`security/blacklist.py:290`。
+  - **「桌面专属指令不会污染 Agent」** —— 桌面规则**仅在真正挂载了桌面操控能力时才注入**，且 IM 渠道被禁止泄漏 browser / desktop / CLI 工具与提示词：`myrm-agent-server/app/ai_agents/general_agent/mount_resolver.py:54`、`:41`，`factory.py:537`。
+  - **「审批可核对，且不会静默过期」** —— 每条审批**存住它批的那份载荷**（`app/database/models/approval.py:34` `payload`），并带**动作类型**（`:27`）与**风险分级**（`:31` `severity`）；到期审批**自动拒绝并唤醒被挂起的任务**（`app/services/approvals/registry.py:56-57` 的到期扫描、`:149` 记录里带出到期时间、`:178` 把到期时间展示给用户）。
+  - **「Agent 的对外身份是一张可撤销的卡，门也不是对所有人敞开」** —— AgentCard 身份卡可展示、可撤销、可审计，且**不泄露 `system_prompt`**（`app/services/a2a/card_generator.py:60` `AgentCardGenerator`）；入口只放行**你显式开启**且**你信任**的对端（`app/database/repositories/agent_repo.py:111-112` 的 `a2a_enabled` / `a2a_trusted_peer_ids`）。
+  - **「不用等顶级域，也能给 Agent 一个地址」** —— OpenClaw 的 `.claw` **仍处 ICANN `Pre-Evaluation Processing`**（Application ID `OF2656T-T69841`），成本 **22.7 万美元**、预计 **2027 年底–2028 年初** 入根区；而**竞品自己的仓库里至今没有任何顶级域 / DNS 实现**（其中所有 `.claw` 命中都是 `claw` 词根假阳性，如 `ui/src/components/lobster-pet-identity.ts:242`、`src/infra/sqlite-worker-claw-read.test.ts:84`）。我们的路线正相反：**可读标识本来就有**（`app/services/plugins/agent_surface.py:291` 的 `agent.metadata.get("slug")`；harness 侧 profile 以 `ai.myrm/agents/<slug>.md` 命名），地址可以直接由它派生。
+- **我们自己的三个诚实差距（未交付、不宣传）**：
+  1. **9 万美元那则故事暴露的审批缺口，我们这边仍开着**：「批准必须发生在 Agent 之外」与「执行的就是被批准的那份载荷」目前是**路线图条目、不是已上线行为**——我们的审批记录确实存住了载荷、也确实按期过期回收，但**执行点还没有做载荷指纹比对**。**不要把「审批可核对」读成「审批防篡改」。**
+  2. **短句柄与自带域名是「已设计」而非「已上线」**：`topic_13 #91` 仍是 `待分析`，所以我们可以诚实地说「我们选择不花 22.7 万美元买顶级域，并给出了替代设计」，但**还不能说「你的 Agent 已经有一个公开短地址」**。
+  3. **竞品的 A2A 与可信对端门禁不是我们可以宣称的独有物**：Hermes 也提供带可信对端白名单的 A2A 插件（`external_reference_project/claw/hermes-agent/plugins/platforms/a2a/adapter.py:242`、`:334-335`）。这一行我们的差异在**身份卡**（可撤销、可审计、不泄露 `system_prompt`）与**显式开关**，**不在于「有 A2A」本身**。
+- **SSOT**：`temp-docs/materials/DESKTOP_APP_ADVANTAGE.md`（桌面端状态一致性与恢复面）· `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md`（异步委派结果回传契约）· `temp-docs/materials/HITL_APPROVAL_CONCURRENCY_ADVANTAGE.md`（审批载荷与到期回收）· `temp-docs/materials/PLATFORM_AND_DEPLOYMENT_ADVANTAGE.md`（不等顶级域的 Agent 地址）· `temp-docs/roadmap/topic_13/channel_integration_roadmap.md`（#91 Agent 专属地址别名与数字身份卡）· `temp-docs/roadmap/topic_03/security_governance_supplychain_roadmap.md`（#458 带外批准与已批准载荷保真）· `temp-docs/roadmap/topic_12/multiagent_orchestration_roadmap.md`（#366 异步委派结果回传契约）

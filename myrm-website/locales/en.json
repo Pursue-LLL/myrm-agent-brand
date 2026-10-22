@@ -1124,6 +1124,24 @@
           "hermes": "No matching autonomous-payment budget governance",
           "openclaw": "No matching autonomous-payment budget governance",
           "myrmAgent": "**Reserve → commit → release, three phases**: the budget is reserved and signed first, the real charge is committed only against a valid signature, and a failed or cancelled payment releases the reservation with nothing lost; **integer-cent accounting** (no float drift) plus hard per-transaction and daily caps; **merchant-domain and category allowlists**; **one-click emergency freeze** that cuts every autonomous micro-payment channel at once; **HMAC-signed tamper-evident vouchers** verified in constant time; **per-payment audit trail**; **self-healing reconciliation on boot** that replays the ledger and rebuilds the daily watermark, so a restart never loses or inflates the budget. **In plain terms: let it spend for you, while you keep the ceiling, can stop it instantly, and can trace every cent.**"
+        },
+        "agentPublicIdentity": {
+          "feature": "Agent public identity · a revocable, auditable identity card",
+          "hermes": "Has an A2A plugin and a trusted-peer allowlist",
+          "openclaw": "Not verified",
+          "myrmAgent": "**AgentCard identity card is live**: the outward identity is displayable, revocable and auditable, and **never leaks system_prompt**; the entry point only admits peers you **explicitly enabled** (a2a_enabled) and **trust** (a2a_trusted_peer_ids) — not an open door for anyone."
+        },
+        "desktopStateVisibility": {
+          "feature": "Desktop state visibility · in-progress never vanishes, no duplicate messages, no credential leaks",
+          "hermes": "Community reports: the sidebar loses its \"in progress\" state while a subagent runs (confirmed by its author); messages occasionally render twice",
+          "openclaw": "Not verified",
+          "myrmAgent": "The sidebar **aggregates active subagents** and the \"in progress\" state never vanishes; **child processes do not inherit credential-bearing environment variables** by default (XDG_CONFIG_HOME and friends are blocked); **desktop-only instructions are injected on demand** (only when desktop control is needed), so Agent behaviour stays identical elsewhere."
+        },
+        "approvalPayloadAudit": {
+          "feature": "Auditable approvals · the approved payload is stored, risk-graded, and never silently expired",
+          "hermes": "Has approvals with a timeout (timeout: 60)",
+          "openclaw": "Has approval routing and notice TTL; the expiry behaviour of the approval itself was not verified",
+          "myrmAgent": "**Every approval stores the exact payload it approved** (payload), tagged with **action type** and **risk grade** (severity); **an expired approval is auto-rejected and the suspended task is woken** — come back after lunch and you will not find a task parked on an approval nobody watched, nor one silently let through."
         }
       }
     },

@@ -191,6 +191,9 @@ export const COMPARE_ROW_KEYS = [
   'modelFailoverKeepsContext',
   'officeFidelity',
   'controlledSpend',
+  'agentPublicIdentity',
+  'desktopStateVisibility',
+  'approvalPayloadAudit',
 ] as const;
 
 export type CompareRowKey = (typeof COMPARE_ROW_KEYS)[number];
@@ -226,7 +229,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'agentPluginMemory',
     'memoryEvolutionAudit',
   ],
-  security: ['groundedClaims', 'sandbox', 'securityLayers', 'toolSecurity', 'approvalNoteToModel', 'approvalDiffRollback', 'skillEffectAttribution', 'skillPermissionGate', 'credentialVault', 'fileEditSafety', 'privacySafeShare', 'shareLink', 'cascadeDeletion', 'toolIntegration', 'toolProfileSsot', 'unifiedToolGateway', 'publishComplianceGate'],
+  security: ['groundedClaims', 'sandbox', 'securityLayers', 'toolSecurity', 'approvalNoteToModel', 'approvalDiffRollback', 'skillEffectAttribution', 'skillPermissionGate', 'credentialVault', 'fileEditSafety', 'privacySafeShare', 'shareLink', 'cascadeDeletion', 'toolIntegration', 'toolProfileSsot', 'unifiedToolGateway', 'publishComplianceGate', 'approvalPayloadAudit'],
   automation: [
     'subAgent',
     'kanbanUI',
@@ -285,8 +288,9 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'perAgentIterationBudget',
     'stopTransparency',
     'modelFailoverKeepsContext',
+    'desktopStateVisibility',
   ],
-  platform: ['gui', 'chatHistoryManagement', 'parallelSessionIsolation', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'harnessUpgradeContract', 'codeGraph', 'crossPlatformHandoff', 'configSync', 'taskResilience', 'steerToken', 'threeDGraph', 'chatOpsIM', 'serverless', 'smartCommandInput', 'agentPluginRuntime', 'newTaskWorkContextCard', 'desktopNativeBridge'],
+  platform: ['gui', 'chatHistoryManagement', 'parallelSessionIsolation', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'harnessUpgradeContract', 'codeGraph', 'crossPlatformHandoff', 'configSync', 'taskResilience', 'steerToken', 'threeDGraph', 'chatOpsIM', 'serverless', 'smartCommandInput', 'agentPluginRuntime', 'newTaskWorkContextCard', 'desktopNativeBridge', 'agentPublicIdentity'],
 };
 
 export function highlightSlideBasePath(slideKey: HighlightSlideKey): string {
