@@ -11,6 +11,26 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
 **移行における安心ポイント** — SaaS・セルフホスト・デスクトップから自由に選択でき、HermesのスキルはGUI経由のZIPで直接インポート可能です。以下の詳細比較表でチャンネル・メモリ・セキュリティを行単位で確認した上でご検討いただけます。Grok Buildなどのプラグイン中心の製品をお使いの場合、Myrmはモデル・スキル・MCP・サブエージェント・安全プロファイルを**ワンクリックで一括セットアップ**するエージェントパッケージを提供します。ドキュメントとアプリは**6言語**(zh/en/ja/ko/de/zh-TW)に対応しており、WebUI・クラウドホスト・Tauriデスクトップのすべてで、初回アクセス時にブラウザ言語を自動判別します。
 </Note>
 
+## 最新検証スナップショット (2026-10-22 · 名門大学が Agent Skills だけで 1 週間割いた · スタンフォード CS146S 第 3 週は「Agent Skills と CLI」 · 講義ノートの指針のほとんどは我々の既定動作で、足りない 2 点が我々の実装対象)
+
+- **きっかけ**: X @shao__meng が傳えたスタンフォード **CS146S: The Modern Software Developer**（@mihail_eric 教授）**第 3 週: Agent Skills and CLI**（ゲスト講師 @leerob）（`https://x.com/shao__meng/status/2108400281402908960`、2026-10-09 11:32。**10 リプライ / 17 リポスト / 72 いいね / 100 ブックマーク**、画像 2 枚。講座サイト `themodernsoftware.dev`）。本ラウンドでは ChromeAgent :9410 + chrome-devtools MCP で本文と**可視の返信 9 件**を抽出した。
+- **講義ノートが実際に述べていること**:
+  - **講座自体が能力経路である**: Week 1 = コーディングエージェントの内部（Agent Loop、read/write/edit/bash、system prompt の組み立て方）、Week 2 = コンテキスト工学と MCP（RePPIT、SDD、ツールの Agent Ergonomics）、**Week 3 = Agent Skills と CLI**、Week 4 = CLAUDE.md / AGENTS.md / hooks（リポジトリ単位のカスタマイズ）、Week 5 = agent-ready コードベース。ノートは Skills を**「エージェントに与える能力」と「エージェントに与える環境」の間**に置く。
+  - **何を書くか**: 1 つの skill は 1 つのことだけ、移植可能な個人スキル集を保つ、**自分の会話履歴から掘る** ——「自分のチャットを遡り、エージェントをあなたが正した場所を探せ。そこにコード化する価値のある skill がある。**あなたの介入ポイントがあなたのスキルポイントだ**」、車輪を作り直さない（エージェントに CLI を与え定型手順を skill に包む）。
+  - **どう書くか**: **description にはトリガー場面と利用者が実際に入力する語句を入れる**（「多くの skill は一度も発動しないまま失敗する」）、**プログレッシブ開示**（SKILL.md 本文は薄く、長い資料は附属ファイルに置いて必要時に読む。本文は発動のたびにコンテキストに入るため）、skill 同士は互いを参照してよい、**検証用 skill を upkeep** してエージェントが自分の成果物を検査できるようにし、改善ループを閉じる。
+- **コメントの追加**: **@Thomas3cnl（88 いいね）**「トリガー場面を description に書いても確率が上がるだけだ。これは pinned skills と同じトレードオフ —— **利用者が明示したパスは指示をそのまま注入する方が、モデルが description を読んで要不要を読むのを待つより确实**」、@gamescrazy_jj（57）「あなたが繰り返し正した場所から整理すると本当に必要な手順が見つかる。**正しい例を一緒に保存することもできる**」」、@ChrisLee207（25）「**受け入れ基準を skill に書くこと**」、@llgoder15（68）「高頻度ワークフローを Skill テンプレートにしたら**設定のずれが減った**」。
+- **我々の現状（実コードで確認）** —— 講義ノートの指針のほとんどは既に従っている:
+  - **プログレッシブ開示は既定動作**: スキルメタデータは宣言と実行時計算の項目だけを保持し、「**Full content and resources are loaded on-demand (progressive loading)**」、本文の token コストは事前計算する（`myrm-agent-harness/src/myrm_agent_harness/backends/skills/types/types_metadata.py:30-35,48-50`）。
+  - **@Thomas3cnl の「明示指定」側は既に実装済み**: セッション単位のスキル選択で、モデルに判断させるのではなく利用者が今ターンの技能を直接選ぶ。効果の帰属は 3 状態（選択 / 実際に実行 / 結果を帰属可能）（`myrm-agent/myrm-agent-frontend/src/components/features/chat-window/MessageInput.tsx`、`backends/skills/types/types_usage.py:101`）。
+  - **受け入れ基準は skill の中へ**: スキルは束縛された回帰テストケースを自带し（取得時に生成）、改善ゲートと回帰ゲートの背後にある（`agent/skills/evolution/pipeline/structured_extractor.py:113`、`pipeline/variant_generator.py:104`、`core/engine.py:241-253`、`core/eval_regression.py:30,34`）。
+  - **「介入ポイント = スキルポイント」を自動化した**: 軌跡レビューがセッションをスキル草稿へ変換し（価値なしと判断することも）、失敗の帰属を skill 本文へ書き込む（`agent/skills/evolution/review/reviewer.py`、`core/engine.py:430`、`pipeline/variant_generator.py:80`）。
+- **我々が主張しない部分（正直な差距）**:
+  1. **「多くの skill は一度も発動しない」問題.description 側は未解決** —— 講義が示すのは確率的対策（トリガー語句を書く）で、@Thomas3cnl は明示指定の方が确实だと指摘する。我々は明示指定を実装済みだが、**良い description を自動で書かせるツールは無い**（`topic_08 #480` と同族）。
+  2. **スキル成果物に「正しい例」の節がまだ無い** —— 講義とコミュニティの双方が挙げている（`topic_08 #71` に登記済み）。
+  3. **講座型の学習経路は無い** —— スタンフォードは 5 週間で「ツールを呼べる」から「エージェントのために整えられたコードベース」まで進む。我々側の能力経路項目は未納品のため宣伝しない。
+- **ロードマップ項目は 1 件、ただし新設ではなく増補**: `topic_08 #481`（能力経路と渐进オンボーディング）—— このラウンドで最強の外部証拠（名門大学が skill だけで 1 週間割いた）と「明示指定は description の確率より確実」という境界を補足。`topic_08 #71` には外部裏付けを 1 行追加。
+- **SSOT**: `temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（スキルとプラグイン生態軸の主文書、2026-10-22 新規節）· `temp-docs/materials/GENERAL_AI_ASSISTANT_COMPETITIVE_ADVANTAGE.md`（競合早見表 29 行目）· `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`（#481、#71）· `https://themodernsoftware.dev` · `https://x.com/shao__meng/status/2108400281402908960`
+
 ## 最新検証スナップショット (2026-10-22 · 「2〜3 回やってから会話 ID を渡す」 · いいね 130 で確認された**人手版**スキル蒸留レシピ · 我々はその同じことを自動で行い、さらにレシピにない品質ゲートを 2 つ持つ)
 
 - **きっかけ**: X @shannholmberg（Shann³）《The simplest way to turn a marketing task you're already doing into a repeatable workflow》（`https://x.com/shannholmberg/status/2108459414961389680`、2026-10-09 15:27 北京時間。**23 リプライ / 13 リポスト / 130 いいね / 170 ブックマーク**、画像 2 枚）。本ラウンドでは ChromeAgent :9410 + chrome-devtools MCP で本文と**可視の返信 18 件**を抽出した。

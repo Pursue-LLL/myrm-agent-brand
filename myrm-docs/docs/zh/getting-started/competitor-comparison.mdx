@@ -34,6 +34,29 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **一条路线图条目，只做增补不重复开条**：`topic_08 #457`（技能演进的异构评审与有界收敛闭环套件）—— 本轮独立复核了它的核心判断成立，并补上它原本没覆盖的另一半：**解耦评审者还不够，尺子也要解耦**。
 - **SSOT**：`temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（技能与插件生态轴主文档，2026-10-22 新增段）· `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`（#457）· `https://x.com/dingyi/status/2108395750128542180`
 
+## 最新验证快照（2026-10-22 · 顶级高校用整整一周讲 Agent Skills · 斯坦福 CS146S 第三周就是「Agent Skills 与 CLI」 · 讲义里的规矩我们大多已是产品默认，缺的那两条正是我们要补的）
+
+- **触发来源**：X @shao__meng 转述斯坦福 **CS146S: The Modern Software Developer**（@mihail_eric 教授）**第三周：Agent Skills 与 CLI**（客座 @leerob）（`https://x.com/shao__meng/status/2108400281402908960`，2026-10-09 11:32；**10 回复 / 17 转推 / 72 赞 / 100 书签**，2 张图；课程站 `themodernsoftware.dev`）。本轮用 ChromeAgent :9410 + chrome-devtools MCP 抽主帖 + **9 条可见回复**。
+- **讲义实际讲了什么**：
+  - **课程本身就是一条能力路径**：Week 1 = Coding Agent 内部机制（Agent Loop、read/write/edit/bash 四件套、system prompt 怎么组织）；Week 2 = 上下文工程与 MCP（RePPIT、SDD、工具的 Agent Ergonomics）；**Week 3 = Agent Skills 与 CLI**；Week 4 = CLAUDE.md / AGENTS.md / hooks（仓库级定制）；Week 5 = agent-ready codebase。讲义把 Skills 放在**「给 agent 的能力」与「给 agent 的环境」之间**。
+  - **写什么**：一个 skill 只做一件事；维护可跨项目移植的技能集；**从自己的对话记录里挖** ——「翻你自己的聊天记录，看你在哪些地方出手纠正过 agent，那里就藏着一个值得编码的 skill。**你的干预点 = 你的技能点**」；别重造轮子，给 agent 配 CLI、把样板流程包进 skill。
+  - **怎么写**：**description 要包含触发场景和用户实际会输入的短语**（「大多数 skill 失败于从未被触发」）；**渐进式披露**（SKILL.md 正文精简、长参考资料放附属文件按需引用，因为正文每次触发都会进上下文）；skill 之间可互相引用；**维护一个验证 skill**，让 agent 能检查自己的产出，形成改进闭环。
+- **评论区补上的**：
+  - **@Thomas3cnl（88 赞）**：「description 里写触发场景只能提高概率，这跟 pinned skills 是同一个取舍 —— **用户显式指定的路径直接注入指令，比等模型读完描述再决定要不要加载稳得多**」。
+  - @gamescrazy_jj（57 赞）：「从反复纠正的地方整理很容易找到真正需要的流程，**还可以连同一个改对的例子一起存下来**，光写『保持风格一致』下一次还是可能各自理解一套」。
+  - @ChrisLee207（25 赞）：「**把验收标准写进 skill**」；@llgoder15（68 赞）：「抽成 Skill 模板后**配置漂移的问题也少了**」。
+- **我方现状（经真实代码核对）—— 讲义里的建议我们大多已是产品默认**：
+  - **渐进披露是默认行为**：技能元数据只留声明与运行时计算字段 ——「**Full content and resources are loaded on-demand (progressive loading)**」，正文 token 成本**预计算**（`myrm-agent-harness/src/myrm_agent_harness/backends/skills/types/types_metadata.py:30-35,48-50`）。
+  - **@Thomas3cnl 说的「显式指定」那一半我们已交付**：会话级技能精选 —— 你直接选定本轮要用的技能，不必等模型读完描述再决定；技能使用另有**三态归因**（选中 / 真被执行 / 结果可归因）（`myrm-agent/myrm-agent-frontend/src/components/features/chat-window/MessageInput.tsx`、`backends/skills/types/types_usage.py:101`）。
+  - **验收标准写在技能里**：技能自带绑定回归用例（捕获时生成），背后是改进闸与回归门禁（`agent/skills/evolution/pipeline/structured_extractor.py:113`、`pipeline/variant_generator.py:104`、`core/engine.py:241-253`、`core/eval_regression.py:30,34`）。
+  - **「干预点 = 技能点」我们做成了自动的**：轨迹复盘把会话变成技能草稿（或判定无价值），失败归因写进技能正文（`agent/skills/evolution/review/reviewer.py`、`core/engine.py:430`、`pipeline/variant_generator.py:80`）。
+- **我们不宣称的部分（诚实差距）**：
+  1. **「大多数技能失败于从未被触发」这一格的 description 侧我们还没解** —— 课程给的是概率性建议，@Thomas3cnl 指出显式指定更稳，我们交付了显式指定，**但没有帮用户自动写出好 description 的工具**（与 `topic_08 #480` 同族）。
+  2. **技能产物仍缺「改对的例子」段** —— 讲义与社区都提了（已登记在 `topic_08 #71`）。
+  3. **我们没有课程化的学习路径** —— 斯坦福用五周从「Agent 会用工具」走到「代码库为 Agent 而生」，我方对应的能力路径条目尚未交付，**不宣传**。
+- **一条路线图条目，只做增补不重复开条**：`topic_08 #481`（能力路径与渐进上手套件）—— 本轮补入它最强的外部证据（顶级高校单开一周讲技能）与「显式路径优于描述概率」的边界；`topic_08 #71` 追加一句外部印证。
+- **SSOT**：`temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（技能与插件生态轴主文档，2026-10-22 新增段）· `temp-docs/materials/GENERAL_AI_ASSISTANT_COMPETITIVE_ADVANTAGE.md`（竞品对照速查表第 29 行）· `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`（#481、#71）· `https://themodernsoftware.dev` · `https://x.com/shao__meng/status/2108400281402908960`
+
 ## 最新验证快照（2026-10-22 · 「做 2–3 次，然后喂会话 ID 生成技能」 · 一份被 130 赞验证过的**人工版**技能蒸馏配方 · 我们做的是同一件事，但自动、并且多两道它没有的质量门）
 
 - **触发来源**：X @shannholmberg（Shann³）《The simplest way to turn a marketing task you're already doing into a repeatable workflow》（`https://x.com/shannholmberg/status/2108459414961389680`，2026-10-09 15:27 北京时间；**23 回复 / 13 转推 / 130 赞 / 170 书签**，2 张图）。本轮用 ChromeAgent :9410 + chrome-devtools MCP 抽主帖 + **18 条可见回复**。

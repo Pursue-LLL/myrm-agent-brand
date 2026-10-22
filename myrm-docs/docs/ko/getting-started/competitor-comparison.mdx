@@ -11,6 +11,26 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보안을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-10-22 · 명문대 unilaterally Agent Skills만 한 주를 따로 썼다 · 스탠포드 CS146S 3주는 "Agent Skills와 CLI" · 강의 노트의 지침은 대부분 우리 제품 기본값이고, 없는 두 항목이 우리가 만들어야 할 것)
+
+- **계기**: X @shao__meng가 전한 스탠포드 **CS146S: The Modern Software Developer**(@mihail_eric 교수) **3주: Agent Skills and CLI**(게스트 강사 @leerob)(`https://x.com/shao__meng/status/2108400281402908960`, 2026-10-09 11:32. **10 리플 / 17 리포스트 / 72 좋아요 / 100 북마크**, 이미지 2장. 강좌 사이트 `themodernsoftware.dev`). 이번 라운드에서는 ChromeAgent :9410 + chrome-devtools MCP로 본문과 **보이는 리플 9개**를 추출했다.
+- **강의 노트가 실제로 말하는 것**:
+  - **강좌 자체가 능력 경로다**: Week 1 = 코딩 에이전트 내부(에이전트 루프, read/write/edit/bash, 시스템 프롬프트 구성), Week 2 = 컨텍스트 엔지니어링과 MCP(RePPIT, SDD, 도구의 Agent Ergonomics), **Week 3 = Agent Skills와 CLI**, Week 4 = CLAUDE.md / AGENTS.md / hooks(저장소 단위 커스터마이징), Week 5 = agent-ready 코드베이스. 노트는 스킬을 **"에이전트에게 주는 능력"과 "에이전트에게 주는 환경" 사이**에 둔다.
+  - **무엇을 쓸까**: 스킬 하나는 한 가지 일만, 이식 가능한 개인 스킬 집합 유지, **내 대화 기록에서 발굴** — "내 채팅을 뒤져보며 내가 에이전트를 제대로 교정한 자리를 찾아라. 거기에 코드할 가치가 있는 스킬이 있다. **나의 개입 지점이 곧 나의 스킬 지점이다**", 바퀴를 다시 만들지 말 것(에이전트에 CLI를 주고 정형화된 절차를 스킬로 감싸라).
+  - **어떻게 쓸까**: **description에는 트리거 상황과 사용자가 실제로 입력할 문구를 넣을 것**("대부분의 스킬은 한 번도 발동되지 않은 채 실패한다"), **점진적 공개**(SKILL.md 본문은 간결하게, 긴 참고자료는 부속 파일에 두어 필요할 때 읽게 — 본문은 발동할 때마다 컨텍스트에 들어가므로), 스킬끼리 서로 참조 가능, **검증용 스킬을 유지**해 에이전트가 자기 산출물을 점검하게 하면 개선 루프가 닫힌다.
+- **댓글이 덧붙인 것**: **@Thomas3cnl(좋아요 88)** "description에 트리거 상황을 적어도 확률만 올라갈 뿐이다. 이건 pinned skills와 같은 트레이드오프다 — **사용자가 명시적으로 지정한 경로는 지시를 그대로 주입하는 편이, 모델이 description을 읽고 로드할지 판단할 때까지 기다리는 것보다 확실**", @gamescrazy_jj(57) "내가 계속 고친 지점부터 정리하면 진짜 필요한 절차를 찾게 된다. **고친 예시를 함께 저장할 수도 있다**", @ChrisLee207(25) "**수용 기준을 스킬에 써라**", @llgoder15(68) "고빈도 워크플로를 Skill 템플릿으로 바꾸니 **설정 드리프트가 줄었다**".
+- **우리 쪽(실제 코드로 확인)** — 강의 노트의 지침은 대부분 이미 우리 제품 기본값이다:
+  - **점진적 공개가 기본 동작**: 스킬 메타데이터는 선언과 런타임 계산 항목만 유지하고 "**Full content and resources are loaded on-demand (progressive loading)**", 본문 token 비용은 사전 계산한다(`myrm-agent-harness/src/myrm_agent_harness/backends/skills/types/types_metadata.py:30-35,48-50`).
+  - **@Thomas3cnl의 "명시적 지정" 쪽은 이미 제공**: 세션 단위 스킬 선택으로 모델이 판단하기 전에 이번 턴의 스킬을 직접 고르고, 스킬 사용은 3상태(선택 / 실제 실행 / 결과 귀속)로 추적한다(`myrm-agent/myrm-agent-frontend/src/components/features/chat-window/MessageInput.tsx`, `backends/skills/types/types_usage.py:101`).
+  - **수용 기준이 스킬 안에**: 스킬은 묶인 회귀 테스트 케이스를 함께 갖고(획득 시 생성)하며 개선 게이트와 회귀 게이트 뒤에 있다(`agent/skills/evolution/pipeline/structured_extractor.py:113`, `pipeline/variant_generator.py:104`, `core/engine.py:241-253`, `core/eval_regression.py:30,34`).
+  - **"개입 지점 = 스킬 지점"을 자동화**: 궤적 리뷰가 세션을 스킬 초안으로 바꾸고(가치 없음이라 판정하기도 함) 실패 귀속을 스킬 본문에 적는다(`agent/skills/evolution/review/reviewer.py`, `core/engine.py:430`, `pipeline/variant_generator.py:80`).
+- **우리가 주장하지 않는 것(정직한 차이)**:
+  1. **"대부분의 스킬은 한 번도 발동되지 않는다"의 description 쪽은 미해결** — 강의는 확률적 처방(트리거 문구 작성)을 제안하고 @Thomas3cnl은 명시적 지정이 확실하다고 지적한다. 우리는 명시적 지정은 제공하지만 **좋은 description을 자동으로 쓰게 하는 도구는 없다**(`topic_08 #480`과 같은 계열).
+  2. **스킬 산출물에 "고친 예시" 절이 아직 없다** — 강의와 커뮤니티가 둘 다 말한 항목(`topic_08 #71`에 기재).
+  3. **강좌 형태의 학습 경로가 없다** — 스탠포드는 5주에 걸쳐 "도구를 부르는 에이전트"에서 "에이전트를 위해 정리된 코드베이스"까지 간다. 우리 쪽 능력 경로 항목은 아직 인도되지 않아 홍보하지 않는다.
+- **로드맵 항목 1건, 신규가 아니라 보강**: `topic_08 #481`(능력 경로와 점진적 온보딩) — 이번 라운드에 가장 강한 외부 증거(명문대가 스킬만으로 한 주를 썼다)와 "명시적 경로가 description 확률보다 확실"이라는 경계를 보강. `topic_08 #71`에는 외부 확인 한 줄 추가.
+- **SSOT**: `temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`(스킬·플러그인 생태축 주 문서, 2026-10-22 신규 절) · `temp-docs/materials/GENERAL_AI_ASSISTANT_COMPETITIVE_ADVANTAGE.md`(경쟁사 요약표 29행) · `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`(#481, #71) · `https://themodernsoftware.dev` · `https://x.com/shao__meng/status/2108400281402908960`
+
 ## 최신 검증 스냅샷 (2026-10-22 · "두세 번 한 다음 세션 ID를 넘겨라" · 좋아요 130으로 확인된 **수동 버전** 스킬 증류 레시피 · 우리는 같은 일을 자동��로 하고, 레시피에 없는 품질 게이트 두 개를 더 갖는다)
 
 - **계기**: X @shannholmberg(Shann³) "The simplest way to turn a marketing task you're already doing into a repeatable workflow"(`https://x.com/shannholmberg/status/2108459414961389680`, 2026-10-09 15:27(베이징). **23 리플 / 13 리포스트 / 130 좋아요 / 170 북마크**, 이미지 2장). 이번 라운드에서는 ChromeAgent :9410 + chrome-devtools MCP로 본문과 **보이는 리플 18개**를 추출했다.
