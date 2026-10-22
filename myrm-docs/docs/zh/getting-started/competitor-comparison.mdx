@@ -11,6 +11,29 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 最新验证快照（2026-10-22 · 「拉几个 bot 在一个群聊，几个 bot 互相聊天，自己优化自己」 · Grok Bot 的自我进化叙事，以及「这一轮到底改好了没有」怎么判 · 评论区把「Agent 自我进化」的四个最难问题问到底，我们逐条有对应物，也如实登记我们自己的两处缺口）
+
+- **触发来源**：X @dingyi（`https://x.com/dingyi/status/2108395750128542180`，2026-10-09 11:14；**2.7 万查看 / 23 回复 / 6 转推 / 143 赞 / 60 书签**）：主帖称「看到很多朋友慢慢发现 Grok Bot 的好处了，这玩意真的能自我进化，拉几个 bot 在一个群聊，几个 bot 互相聊天，自己优化自己，我都不需要插手」；并在回复里称「Cursor web 版的云电脑和 bot 一模一样，就是换了一种交互方式」，同时给出「三大趋势（VS Code 套壳、Codex、Bot），有两个是 Cursor 发明的」这一定位。本轮用 ChromeAgent :9410 + chrome-devtools MCP 抽取了主帖全文 + **23 条回复**。
+- **诚实边界**：**Grok Bot 与 Cursor 均为闭源产品、本机无源码镜像** → 对其实现**一律不下断言**，只记录帖子自述。帖中**没有任何可核对指标**：无 token 数、无耗时、无前后对比、无评测集、无成功率。
+- **评论区比主帖更有价值——「Agent 自我进化」的四个真问题**：
+  1. **判据**——@Thomas3cnl（**445 赞**）：「那 bot 之间聊到哪一步算这轮改好了？群聊的对话本身会越滚越长，没个能判对错的活儿，它们自己很难分出是变好还是只是聊得更起劲。」
+  2. **产出**——@0xYaCo（**497 赞**）：「几个 bot 聊天除了自己优化自己，能对输出什么？」
+  3. **独立性**——@0xArisUniverse：「群聊互评最后全成近亲繁殖了，没外部输入哪来的进化。」
+  4. **共识塌缩**——@An_yhl（98 赞）：「几个 bot 聊着聊着会不会开始互相捧场。」
+  另记：@CrazySoyo（328 赞）bot 从 Cursor 拉一队不同 AI 激辩、先附和再开撕；@ren3634421（701 赞）「自我进化第一步：自己交电费」；@PANewsLab（655 赞）「好用，就是有点乱」；@DesignerBingyi（571 赞）谈产品/设计思维与工程师思维的差距。
+- **我方现状（经真实代码核对）——四个问题逐条有对应物**：
+  - **「这轮改好了」→ 改进闸把原版摆上台面竞争**：`myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:241-252` 把原技能作为 baseline 候选注入评测，**没有变体分数更高就跳过这次进化**；FIX 路径同构（`engine.py:194`、`engine.py:271`）。
+  - **「是变好还是只是聊得更起劲」→ 回归用例门禁**：`agent/skills/evolution/core/eval_regression.py:34` 只守护原技能本身能通过的用例，变体每丢一个守护用例扣 0.15（`eval_regression.py:30`），全丢则硬过滤。
+  - **「互相捧场 / 假通过」→ 空心测试拦截**：`agent/skills/evolution/execution/hollow_detector.py:40` 与 `execution/sandbox_validator.py:140-146` 拒绝平凡断言、假打印与空验证脚本。
+  - **「除了自我优化还能输出什么」→ 产出必须过物理证据**：`agent/goals/verification/gatekeeper.py:44` 按判据核验，`agent/goals/verification/fault_attribution.py:132` 区分应用逻辑 / 编译 / 测试断言类故障——「做完了」不是模型自己说了算。
+  - **进化管道已生产接线**：`agent/skills/evolution/infra/integration.py:214` 构造引擎；server 侧 `app/api/skills/evolution/derive.py:55` 与 `app/api/skills/evolution/fix.py:45`；人工审批闸在前面（`app/services/agent/confidence_approval_flow.py:52`，自动合并阈值 0.8）。
+- **我们自己两处诚实差距（未交付，不得宣传）**：
+  1. **评审者与提案者是同一个模型** —— `agent/skills/evolution/core/engine.py:105-106` 用同一 LLM 实例既生成变体又打分；专为「异源评审」造的独立 judge 通道 `agent/skills/evolution/safety/judge.py:46` **全仓无任何构造点**。⇒ 「近亲繁殖」这条批评，用在我们身上也成立一部分。已由 `topic_08 #457` 承接。
+  2. **回归门禁的尺子本身可被提案者改写** —— `agent/skills/evolution/pipeline/variant_generator.py:320-336` 让同一个模型把 `eval_cases` 随内容一起共演化，`app/services/agent/confidence_approval_flow.py:140` 把它写回技能记录，于是**下一轮**的门禁（`agent/skills/evolution/core/eval_regression.py:49`）就是用被改写后的用例在量。**单轮内不漂移**（原版是基线），**跨轮会漂移**。
+  3. **我们不做「多 bot 群聊自改」这个形态** —— 我方是单 Agent 技能演化 + 子代理编排（`toolkits/swarm/swarm_engine.py:24`）；不抄这个形态，也不宣称我们在「群体智能」上更强。
+- **一条路线图条目，只做增补不重复开条**：`topic_08 #457`（技能演进的异构评审与有界收敛闭环套件）—— 本轮独立复核了它的核心判断成立，并补上它原本没覆盖的另一半：**解耦评审者还不够，尺子也要解耦**。
+- **SSOT**：`temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（技能与插件生态轴主文档，2026-10-22 新增段）· `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`（#457）· `https://x.com/dingyi/status/2108395750128542180`
+
 ## 最新验证快照（2026-10-22 · 竞品把 Agent 装进操作系统：Herald OS 的权限分层、零模型快路径与崩溃白话诊断 · 我们逐条核对了它的源码，也纠正了它自己的架构图）
 
 - **触发事件**：社区帖 @iamlukethedev（`https://x.com/iamlukethedev/status/2107765448343261506`，2026-10-07 17:30）宣布 **Herald OS** 开源（MIT、`README.md:32`「Status: alpha (0.1)」、`SECURITY.md:16`「Herald OS is pre-1.0」，作者声明与 Nous Research 无隶属关系）；**11.4 万浏览 / 136 回复 / 160 转推 / 1,092 赞 / 1,320 书签**，社区称其为「把 Agent 嵌进操作系统的最大社区作品」。本轮用 ChromeAgent :9410 + chrome-devtools MCP 逐条抽取：**主帖 note tweet 全文 + 191 条回复（含折叠区「显示可能的垃圾信息」已展开）+ 架构图 1 张 + 147 秒演示视频抽 10 帧**；并把它的源码镜像拉到本地（`external_reference_project/desktop/Herald-OS`）逐文件核对。
