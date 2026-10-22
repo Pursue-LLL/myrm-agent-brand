@@ -1112,6 +1112,12 @@
           "hermes": "镜像全仓检索未见同形的「选中未执行 / 归属歧义」建模（本次未逐文件穷举）",
           "openclaw": "未见技能效果归因台账（镜像检索无同形口径）",
           "myrmAgent": "**三态归因写进统计口径本身**——`backends/skills/types/types_usage.py:101`：「Uses whose outcome was observable (**selections without tool calls and ambiguous runs are not**)」；`backends/skills/stats_collector.py:88`：「observable (**the skill was only loaded, or several loaded skills made the owner ambiguous**)」——**「装了就用对了」「只加载没执行」「几个技能导致归属歧义」分开记，不混进成功率**；每回合技能用量台账（`app/database/models/turn_capability_metric.py:32` 的 `selected_skill_count`、`app/api/statistics/turn_capability.py:93` 的 `avg_selected_skill_count`）→ 你能直接问「这次到底哪个技能起了作用」，而不是读模型自述"
+        },
+        "officeFidelity": {
+          "feature": "办公文档改稿 · 改完自动体检，改坏能退回",
+          "hermes": "Excel 侧只有可选技能里的一支手动重算脚本",
+          "openclaw": "没有办公文件改稿与写后校验（只纠正幻觉出的文件后缀）",
+          "myrmAgent": "**写完自动体检**：改前改后比对 **Excel 公式集合**（公式被压成死值当场报出）、docx 包结构变化、LibreOffice 重算抓 `#REF!` / `#NAME?`、文件包读不出来直接告警而不是静默交付、docx 再跑一次排版检查 —— **坏掉的公式自己会冒出来，你不用逐个点开查**；**交付物是不可变版本 + 一键回退**，改坏能退到任意一版，不只是撤销最近几步；**浏览器内直接改 Excel**，公式不丢，含宏 / 图表 / 透视表的文件先给降级警告再动手。"
         }
       }
     },
@@ -1974,6 +1980,16 @@
           "tag1": "装了 ≠ 用对了",
           "tag2": "归属歧义单独记",
           "tag3": "每回合技能用量台账"
+        },
+        "officeFidelity": {
+          "label": "改完自动体检",
+          "title": "AI 改完你的表，公式还在吗？——我们替你查过，也给你留了退路",
+          "desc": "把 .docx / .xlsx 交给 Agent 改写，最怕的不是它没改，而是它改完了说一句「已完成」。Myrm 的文件操作在写完之后会自动体检一遍：改前改后比对 Excel 的公式集合（公式被压成死值当场报出）、用 LibreOffice 重算抓 `#REF!` / `#NAME?`、文件包读不出来直接告警而不是静默交付、docx 再跑一次排版检查。**6 类写后体检信号**都会以 `Office:` 前缀写进工具输出，**Agent 自己先看到、自己改**。改坏了也不怕：交付物是不可变版本，能退回改之前的那一版；工作区文件还有影子快照与一键回退。**说人话：AI 改完你的表格，公式还在不在、文件有没有坏、排版有没有塌，它替你查过；查不过就退回去。**",
+          "stat": "6",
+          "statLabel": "类写后体检信号 · 每次写完自动查",
+          "tag1": "公式集合比对 · 公式不会被悄悄压成死值",
+          "tag2": "重算抓 #REF! / #NAME? · 损坏包当场告警",
+          "tag3": "交付物不可变版本 · 改坏一键退回"
         }
       }
     }

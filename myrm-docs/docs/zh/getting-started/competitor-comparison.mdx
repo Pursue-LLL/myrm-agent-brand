@@ -34,6 +34,33 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **一条路线图条目，只做增补不重复开条**：`topic_08 #457`（技能演进的异构评审与有界收敛闭环套件）—— 本轮独立复核了它的核心判断成立，并补上它原本没覆盖的另一半：**解耦评审者还不够，尺子也要解耦**。
 - **SSOT**：`temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（技能与插件生态轴主文档，2026-10-22 新增段）· `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`（#457）· `https://x.com/dingyi/status/2108395750128542180`
 
+## 最新验证快照（2026-10-22 · 竞品把 Word / Excel / PowerPoint 装进操作系统 · 我们逐行核对了它的源码 —— 它不是从零自研，安全网只是一条撤销栈 · 我们这边是「写完自动体检」+「可退到任意一版」）
+
+- **触发来源**：X @iamlukethedev（`https://x.com/iamlukethedev/status/2108520360052433317`，2026-10-09 19:30 北京时间；**5,701 查看 / 21 回复 / 10 转推 / 102 赞 / 64 书签**，附 0:55 演示视频）：「I just built Word, Excel, and PowerPoint into Herald OS … 'Make this document more professional.' Hermes rewrites it. 'Calculate my monthly expenses.' Hermes builds the formulas. 'Turn this document into slides.' Hermes creates the deck. Supports opening and saving .docx, .xlsx and .pptx files. No subscription. No switching between apps. Free and open source.」本轮用 ChromeAgent :9410 + chrome-devtools MCP 抽取主帖、视频缩略图与 **14 条可见回复**，再把源码镜像 `external_reference_project/desktop/Herald-OS` 拉到本地逐文件核对。
+- **竞品实际做了什么（读源码得出，不是照抄帖子）**：
+  1. **三个办公应用内置** —— `docs/manual/office.md:1-8`：「Herald Office is three apps built into Herald OS … They open and save Word, Excel and PowerPoint files, and Hermes can work in them with you」。
+  2. **五个专职技能**把操作手册写成可教流程 —— `plugins/herald-os-bridge/skills/herald-{docs,sheets,slides,calc,canvas}/SKILL.md`。
+  3. **它不是从零自研** —— `NOTICE` 逐项列明：Sheets 基于 **Univer**（Apache-2.0）、Docs 与 Slides 文本编辑用 **TipTap + ProseMirror**（MIT）、Office 文件读写用 **ExcelJS + docx + PptxGenJS + JSZip**（MIT）、图表 **Apache ECharts**、Calc **math.js**、Canvas **ONNX Runtime Web + ag-psd**。社区问的正是这个（@kcwolfy_，41 赞：「did you build these MS Office replacements from scratch, or did you fork an existing open source project?」），帖里没答，**源码给了答案**。
+  4. **它自己的增量在「保真」而不在编辑器** —— `apps/desktop/shared/office/xlsx/keep/`（16 个文件）保留通用库会丢的东西：数据验证、筛选条件、链接、定义名称、主题、图表、透视表、切片器与绘图；`apps/desktop/shared/office/xlsx/read.ts:22-27` 报告这次打开丢了什么；`apps/desktop/shared/office/xlsx/keep/checks.ts:6-14` 做包级合法性检查（关系指向缺失部件、部件缺 content type、同一 id 重复、schema 顺序错乱、透视缓存与透视表互相矛盾）。
+  5. **它的安全网是编辑器级撤销栈** —— `plugins/herald-os-bridge/skills/herald-docs/SKILL.md:44-45`：「Every call is one step the person can undo (Ctrl+Z, ⌘Z on a Mac, or `docs action=undo`, with `steps=3` for several)」。
+- **评论区比主帖更有价值**：
+  - @Mr_RyanLewis（**56 赞**）：「An agent rewriting documents is only scary if the edits are irreversible. The move is snapshotning before every agent write and showing a diff to accept. Does Herald keep a version per Hermes edit, or is one bad rewrite the user's problem to fix?」→ 源码给的答案是撤销栈，**全仓找不到「每次写入前快照 + 差异确认」的产物级机制**。
+  - @kcwolfy_（**41 赞**）：从零自研还是 fork？→ 由 `NOTICE` 回答（见上）。
+  - @bitares（23 赞）：「Can the slide deck stay linked when the source document changes?」→ 未答；技能只提供一次性复制，**双方都缺**。
+  - @boardyai（83 赞）：「shrinking subscription stacks to one app」——定位叙事。
+- **我方现状（经真实代码核对）**：
+  - **写完自动体检，而不是撤销栈** —— `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_ops/validators/office_bash_audit.py:108-152` 改前改后比对 Excel **公式集合**（`:138`）、检查 docx 包结构（`:137`）、文件包读不出来告警（`:130`）、没有可比基线时告警（`:140`）、docx 排版 QA（`:147`）、重算抓 `#REF!` / `#NAME?`（`:150`）——**共 6 类信号**，且每一条都以 `Office:` 前缀写进工具输出（`myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_ops/core/file_operation_service.py:606`），**Agent 比你先看到问题**。
+  - **能退到任意一版，不只是最近几步** —— 交付物不可变版本（`myrm-agent/myrm-agent-server/app/database/models/artifact.py:43-46`，审计日志 `:59`，锁定版本 `myrm-agent-harness/src/myrm_agent_harness/core/artifacts/manifest.py:127`）+ 工作区文件的影子快照与一键回退。
+  - **浏览器里直接改表格** —— `myrm-agent/myrm-agent-frontend/src/components/features/artifacts/renderers/SpreadsheetEditor/index.tsx:135` 与 `:253` 在 xlsx 与表格模型之间双向转换且保住公式，打开含图表 / 宏 / 透视表的文件先警告，崩溃后未保存草稿可恢复。
+  - **对比表里的两个竞品两样都没有** —— Hermes 的 Excel 能力是可选技能里的一支手动重算脚本（`external_reference_project/claw/hermes-agent/optional-skills/finance/excel-author/scripts/recalc.py`）；OpenClaw 没有办公文件改稿，与办公相关的只有一处参数校验 —— 纠正幻觉出的文件扩展名（`external_reference_project/claw/openclaw/src/agents/agent-tools.params.ts:24-27`）。
+- **我们不宣称的部分（诚实差距）**：
+  1. **我们没有常驻的 Word / PowerPoint 编辑面**。我们交付工件 + 高保真预览 + 可编辑的表格编辑器；他们的 Docs 覆盖页眉页脚、脚注、分节、目录域、带回复的批注与模板，Slides 覆盖母版、版式、主题、切换与演讲者备注。**这一格目前属于他们。**
+  2. **没有独立的精确计算面**（他们的 Calc 做精确算术、单位、汇率、时区与函数作图）。
+  3. **我们的写后体检是 warn-only，不是 fail-closed**；云端没有 LibreOffice 时，重算与排版 QA 会被跳过 —— 这一点我方 materials 里已如实写明。
+  4. **幻灯片与源文档联动**双方都缺，不作可借鉴机制。
+- **一条路线图条目，只做增补不重复开条**：`topic_16 #365`（真实保真探测、无损保存与「用户手改 → Agent 可见」变更摘要闭环）—— 本轮补入的事实是：竞品的保真报告发生在**读取**侧，安全网是撤销栈，而我们要覆盖的是**写回**侧。
+- **SSOT**：`temp-docs/materials/OFFICE_DELIVERY_ADVANTAGE.md`（办公与交付物轴主文档，2026-10-22 新增段）· `temp-docs/materials/GENERAL_AI_ASSISTANT_COMPETITIVE_ADVANTAGE.md`（竞品对照速查表第 22 行）· `temp-docs/roadmap/topic_16_office_agent_specialty_suites_and_deliverable_bundle_roadmap.md`（#365）· `https://x.com/iamlukethedev/status/2108520360052433317`
+
 ## 最新验证快照（2026-10-22 · 竞品把 Agent 装进操作系统：Herald OS 的权限分层、零模型快路径与崩溃白话诊断 · 我们逐条核对了它的源码，也纠正了它自己的架构图）
 
 - **触发事件**：社区帖 @iamlukethedev（`https://x.com/iamlukethedev/status/2107765448343261506`，2026-10-07 17:30）宣布 **Herald OS** 开源（MIT、`README.md:32`「Status: alpha (0.1)」、`SECURITY.md:16`「Herald OS is pre-1.0」，作者声明与 Nous Research 无隶属关系）；**11.4 万浏览 / 136 回复 / 160 转推 / 1,092 赞 / 1,320 书签**，社区称其为「把 Agent 嵌进操作系统的最大社区作品」。本轮用 ChromeAgent :9410 + chrome-devtools MCP 逐条抽取：**主帖 note tweet 全文 + 191 条回复（含折叠区「显示可能的垃圾信息」已展开）+ 架构图 1 张 + 147 秒演示视频抽 10 帧**；并把它的源码镜像拉到本地（`external_reference_project/desktop/Herald-OS`）逐文件核对。

@@ -103,3 +103,16 @@ An agent that can touch your whole machine raises one unavoidable question: "If 
 And you do not have to change operating systems to get any of this: cross-app work rides on our own sandbox and computer-control layer, so your current machine stays your machine.
 
 **Competitor reality check (2026-10-22)**: Herald OS — the largest community "agent inside the OS" project — does ship approve-before-change plus a real on-disk audit log, and its permission tiers genuinely are defined in code (we verified this against its source). What it does not have is the third leg: no diff of what changed, and no per-action rollback. That is precisely the gap this section closes.
+
+
+## 12. Documents and Spreadsheets That Survive the Edit — Checked After Every Write, Reversible to Any Version
+
+Handing a .docx or .xlsx to an agent is rarely scary because it refused to edit. It is scary when it edited, said "done", and quietly flattened every formula into a dead value — or left you a file it could not even read back.
+
+**Our Advantage**:
+- **The file is checked after it is written, not when you get round to opening it**: every write to an Office file runs a post-write pass that compares the Excel **formula set** before and after (a formula that became a static value is reported on the spot), checks the docx package structure, warns when the package cannot be read instead of delivering it silently, runs a docx layout check, and re-runs recalculation to catch `#REF!` and `#NAME?`. Six signals in total, and every one of them lands in the tool output with an `Office:` prefix — so the agent sees them before you do and fixes them before you ask.
+- **You get versions, not just an undo key**: a deliverable is an immutable version, a bad rewrite rolls back to any earlier version, and workspace files additionally carry shadow Git snapshots with one-click revert.
+- **The spreadsheet is editable in the browser**: formulas survive the round trip, a file carrying macros, charts or pivot tables warns you about what would be lost before you touch it, and unsaved drafts are recovered after a crash.
+- **Readable output, not a raw file**: styled Excel exports come from a theme engine (title row, zebra rows, borders, number formats) and slides from a rendering pipeline, so what you hand over opens correctly in any Office app.
+
+**Competitor reality check (2026-10-22)**: Herald OS — the community project that put Word, Excel and PowerPoint inside its own operating system — does genuinely good fidelity work, on the **reading** side: its spreadsheet layer keeps the data validation, filter conditions, links, defined names, theme, charts, pivot tables, slicers and drawings that generic libraries drop, and it validates the Office package itself. But its safety net for a bad rewrite is an editor-level undo stack, and we found no per-write snapshot or diff-to-accept anywhere in its source. We are not stronger at *being* an office suite: it ships resident document and slide editors we do not have, and that box is honestly its own.

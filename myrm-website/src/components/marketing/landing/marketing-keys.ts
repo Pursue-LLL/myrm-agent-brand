@@ -74,6 +74,7 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'xLiveSearch',
   'functionHooks',
   'truthfulVerification',
+  'officeFidelity',
 ] as const;
 
 export type HighlightSlideKey = (typeof HIGHLIGHT_SLIDE_KEYS)[number];
@@ -188,6 +189,7 @@ export const COMPARE_ROW_KEYS = [
   'publishComplianceGate',
   'deliverableBundle',
   'modelFailoverKeepsContext',
+  'officeFidelity',
 ] as const;
 
 export type CompareRowKey = (typeof COMPARE_ROW_KEYS)[number];
@@ -250,6 +252,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'longTaskOrchestration',
     'dynamicArtifacts',
     'officialDocuments',
+    'officeFidelity',
   ],
   reliability: [
     'tokenEfficiency',

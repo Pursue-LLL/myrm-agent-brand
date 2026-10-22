@@ -130,6 +130,16 @@ const COUNT_CLAIMS = [
     locales: { zh: [], en: [], ko: [] },
   },
   {
+    id: 'officeWriteAuditSignals',
+    anchor:
+      'myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_ops/validators/office_bash_audit.py',
+    expect: 6,
+    literal: null,
+    countPattern: /warnings\.(append|extend)\(/g,
+    slide: 'officeFidelity',
+    locales: { zh: [/(\d+)\s*类写后体检信号/], en: [/(\d+)\s*post-write check signals/], ko: [] },
+  },
+  {
     id: 'mermaidDslKinds',
     anchor: 'myrm-agent/myrm-agent-frontend/src/components/features/artifacts/renderers/architecture/ArchitecturePreview.tsx',
     expect: 4,

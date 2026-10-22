@@ -1112,6 +1112,12 @@
           "hermes": "No same-shape \"selected-but-not-run / ambiguous attribution\" modelling found by a full mirror sweep (not enumerated file by file)",
           "openclaw": "No skill-effect attribution ledger found in the mirror",
           "myrmAgent": "**All three states are part of the accounting itself** — `backends/skills/types/types_usage.py:101`: \"Uses whose outcome was observable (**selections without tool calls and ambiguous runs are not**)\"; `backends/skills/stats_collector.py:88`: \"observable (**the skill was only loaded, or several loaded skills made the owner ambiguous**)\" — **\"loaded and used\", \"loaded but never ran\" and \"several skills make the owner ambiguous\" are counted apart and never folded into a success rate**; plus a per-turn skill usage ledger (`selected_skill_count` in `app/database/models/turn_capability_metric.py:32`, `avg_selected_skill_count` in `app/api/statistics/turn_capability.py:93`) → you can ask which skill actually did the work instead of reading the model's self-report"
+        },
+        "officeFidelity": {
+          "feature": "Office file edits · auto-checked after every write, reversible to any version",
+          "hermes": "On the Excel side, one manual recalc script inside an optional skill",
+          "openclaw": "No Office file editing and no post-write checks (it only corrects hallucinated file extensions)",
+          "myrmAgent": "**Auto-checked after every write**: compares the **Excel formula set** before and after (a formula flattened into a dead value is reported on the spot), checks docx package structure, re-runs LibreOffice recalc to catch `#REF!` / `#NAME?`, warns instead of silently delivering a package it cannot read, and runs a docx layout check — **broken formulas surface by themselves, you never have to open every sheet to hunt them**; **immutable artifact versions plus one-click revert** roll a bad edit back to any earlier version, not just the last few steps; **edit Excel right in the browser** with formulas intact, and files carrying macros, charts or pivot tables get a degradation warning before you touch them."
         }
       }
     },
@@ -1974,6 +1980,16 @@
           "tag1": "Loaded ≠ used",
           "tag2": "Ambiguity counted apart",
           "tag3": "Per-turn skill usage ledger"
+        },
+        "officeFidelity": {
+          "label": "Auto-checked after every write",
+          "title": "AI rewrote your spreadsheet — are the formulas still there? We checked, and left you a way back",
+          "desc": "Handing a .docx or .xlsx to an Agent is rarely scary because it refused to edit; it is scary when it edited, then said \"done\". Myrm runs a check pass after every file write: it diffs the Excel formula set before and after (a formula flattened into a dead value is reported on the spot), re-runs LibreOffice recalc to catch `#REF!` / `#NAME?`, warns instead of silently delivering a package it cannot read, and runs a docx layout check. All **6 post-write check signals** land in the tool output with an `Office:` prefix, so **the Agent sees them first and fixes them first**. If the edit is wrong, the deliverable is an immutable version you can roll back, while workspace files also carry shadow snapshots and one-click revert. **In plain terms: after AI edits your spreadsheet, whether the formulas survived, whether the file is intact and whether the layout held up — it has been checked for you, and if it fails, it goes back.**",
+          "stat": "6",
+          "statLabel": "post-write check signals · run after every write",
+          "tag1": "Formula-set diff · formulas never silently flattened to values",
+          "tag2": "Recalc catches #REF! / #NAME? · unreadable packages warn",
+          "tag3": "Immutable artifact versions · one-click rollback"
         }
       }
     }

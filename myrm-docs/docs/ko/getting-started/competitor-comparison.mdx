@@ -11,6 +11,32 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 **마이그레이션 안심 포인트** — SaaS·자체 호스팅·데스크톱 중 선택할 수 있고, Hermes 스킬은 GUI ZIP으로 가져올 수 있습니다. 아래 표에서 채널·메모리·보안을 행 단위로 비교한 뒤 결정하세요. Grok Build 같은 플러그인 중심 제품 사용자는 Myrm이 모델·스킬·MCP·서브 Agent·안전 프로필을 **한 번에** 설치하는 Agent 패키지를 제공합니다. 문서와 앱은 **6개 언어**(zh/en/ja/ko/de/zh-TW)를 지원하며, WebUI·클라우드·Tauri 데스크톱 모두 첫 방문 시 브라우저 언어를 자동 감지합니다.
 </Note>
 
+## 최신 검증 스냅샷 (2026-10-22 · 경쟁사가 Word / Excel / PowerPoint를 OS 안에 넣어버림 · 소스를 한 줄씩 확인한 결과, 처음부터 만든 제품이 아니라 안전망은 undo 스택 하나뿐이었음 · 우리는 "쓰고 나면 자동 점검"과 "어느 판으로든 되돌리기"를 가짐)
+
+- **계기**: X @iamlukethedev(`https://x.com/iamlukethedev/status/2108520360052433317`, 2026-10-09 19:30(베이징). **5,701 조회 / 21 리플 / 10 리포스트 / 102 좋아요 / 64 북마크**, 0:55 데모 영상 포함). "I just built Word, Excel, and PowerPoint into Herald OS … 'Make this document more professional.' Hermes rewrites it. 'Calculate my monthly expenses.' Hermes builds the formulas. 'Turn this document into slides.' Hermes creates the deck. Supports opening and saving .docx, .xlsx and .pptx files. No subscription. No switching between apps. Free and open source." 이번 라운드에서는 ChromeAgent :9410 + chrome-devtools MCP로 본문과 영상 썸네일, **보이는 리플 14개**를 추출한 뒤 소스 미러 `external_reference_project/desktop/Herald-OS`를 받아 파일 단위로 확인했다.
+- **상대가 실제로 하는 일(본문 번역이 아니라 소스 확인)**:
+  1. **오피스 앱 3개가 내장** — `docs/manual/office.md:1-8`: "Herald Office is three apps built into Herald OS … They open and save Word, Excel and PowerPoint files, and Hermes can work in them with you".
+  2. **전담 스킬 5개**가 작업 절차를 가르칠 수 있는 형태로 적혀 있음 — `plugins/herald-os-bridge/skills/herald-{docs,sheets,slides,calc,canvas}/SKILL.md`.
+  3. **처음부터 만든 게 아니다** — `NOTICE`가 의존성을 전부 밝힌다. Sheets는 **Univer**(Apache-2.0), Docs와 Slides 본문 편집은 **TipTap + ProseMirror**(MIT), Office 파일 읽기 쓰기는 **ExcelJS + docx + PptxGenJS + JSZip**(MIT), 차트는 **Apache ECharts**, Calc는 **math.js**, Canvas는 **ONNX Runtime Web + ag-psd**. 커뮤니티가 정확히 이걸 물었다(@kcwolfy_, 좋아요 41: "did you build these MS Office replacements from scratch, or did you fork an existing open source project?"). 본문엔 답이 없고 **소스에는 있다**.
+  4. **자체적으로 더한 부분은 편집 화면이 아니라 "보존"** — `apps/desktop/shared/office/xlsx/keep/`(16개 파일)가 범용 라이브러리가 버리는 것을 유지한다. 데이터 검증, 필터 조건, 링크, 정의 이름, 테마, 차트, 피벗 테이블, 슬라이서, 도형. `apps/desktop/shared/office/xlsx/read.ts:22-27`은 이번에 무엇을 버렸는지 보고하고, `apps/desktop/shared/office/xlsx/keep/checks.ts:6-14`는 패키지 정합성을 점검한다(없는 파트를 가리키는 관계, content type 누락, 같은 id 중복, schema 순서 뒤섞임, 피벗 캐시와 피벗 테이블 불일치).
+  5. **안전망은 편집 화면의 undo 스택** — `plugins/herald-os-bridge/skills/herald-docs/SKILL.md:44-45`: "Every call is one step the person can undo (Ctrl+Z, ⌘Z on a Mac, or `docs action=undo`, with `steps=3` for several)".
+- **댓글이 본문보다 가치 있음**:
+  - @Mr_RyanLewis(좋아요 **56**): "An agent rewriting documents is only scary if the edits are irreversible. The move is snapshotning before every agent write and showing a diff to accept. Does Herald keep a version per Hermes edit, or is one bad rewrite the user's problem to fix?" → 소스로 확인되는 답은 undo 스택이며, **"쓰기마다 스냅샷을 찍고 차이를 보여줘 승인받는" 제품급 장치는 보이지 않는다**.
+  - @kcwolfy_(좋아요 **41**): 처음부터냐 fork냐 → `NOTICE`가 답한다(위와 동일).
+  - @bitares(좋아요 23): "Can the slide deck stay linked when the source document changes?" → 답이 없고 스킬도 일회성 복사만 제공하므로 **양쪽 다 없음**.
+  - @boardyai(좋아요 83): "shrinking subscription stacks to one app" — 포지셔닝 서사.
+- **우리 쪽(실제 코드로 확인)**:
+  - **undo 스택이 아니라 "쓰고 나면 점검"** — `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_ops/validators/office_bash_audit.py:108-152`가 Excel **수식 집합**을 전후로 대조(`:138`), docx 패키지 구조를 확인(`:137`), 읽히지 않는 패키지를 경고(`:130`), 비교 기준선이 없는 경우도 경고(`:140`), docx 레이아웃 QA를 수행(`:147`), 재계산으로 `#REF!` / `#NAME?`를 잡음(`:150`) — **총 6종 신호**. 모두 `Office:` 머리말과 함께 도구 출력에 들어가므로 **에이전트가 사용자보다 먼저 알아챈다**.
+  - **몇 단계 전이 아니라 어느 판으로든 되돌리기** — 불변 산출물 버전(`myrm-agent/myrm-agent-server/app/database/models/artifact.py:43-46`, 감사 로그 `:59`, 고정된 `version_id`는 `myrm-agent-harness/src/myrm_agent_harness/core/artifacts/manifest.py:127`)과 작업 공간 파일의 그림자 스냅샷 및 원클릭 롤백.
+  - **스프레드시트는 브라우저에서 바로 편집** — `myrm-agent/myrm-agent-frontend/src/components/features/artifacts/renderers/SpreadsheetEditor/index.tsx:135`과 `:253`가 xlsx와 표 모델을 오가며 수식을 보존하고, 차트·매크로·피벗 테이블이 든 파일은 열기 전에 경고하며, 저장하지 않은 초안은 충돌 뒤에도 복구된다.
+  - **비교표의 두 경쟁사는 둘 다 없음** — Hermes의 엑셀 지원은 선택형 스킬 안의 수동 재계산 스크립트 한 개(`external_reference_project/claw/hermes-agent/optional-skills/finance/excel-author/scripts/recalc.py`), OpenClaw엔 오피스 파일 편집이 없고 오피스 관련 코드는 환각으로 만든 확장자를 바로잡는 매개변수 검증뿐(`external_reference_project/claw/openclaw/src/agents/agent-tools.params.ts:24-27`).
+- **우리가 주장하지 않는 것(정직한 차이)**:
+  1. **항시 떠 있는 Word / PowerPoint 편집 화면이 없음**. 우리는 결과물을 넘기고 충실히 미리 보고하고 표 편집 화면을 제공한다. 상대의 Docs는 머리글과 꼬리글, 각주, 절, 목차 필드, 답글이 달린 코멘트, 템플릿을 다루고 Slides는 마스터, 레이아웃, 테마, 전환, 발표자 노트를 다룬다. **이 칸은 지금은 상대 몫**이다.
+  2. **독립된 정밀 계산 화면이 없음**(상대의 Calc는 정밀 연산, 단위, 환율, 시간대, 함수 그래프를 다룬다).
+  3. **우리의 쓰기 뒤 점검은 warn-only지 fail-closed가 아님**. 클라우드에 LibreOffice가 없으면 재계산과 레이아웃 QA가 조용히 건너뛰어짐 — 이건 우리 materials에도 이미 밝혀 적어 두었다.
+  4. **슬라이드와 원본의 연동은 양쪽 다 없으므로** 빌려올 수 있는 장치가 아니다.
+- **로드맵 항목 1건, 신규가 아니라 보강**: `topic_16 #365`(정직한 보존 탐지, 무손실 저장, 사용자 수정이 에이전트에게 보이는 변경 요약 폐쇄 루프) — 이번 라운드에 더하는 사실은 **상대의 보존 보고가 "읽는 쪽"에서 일어나고 안전망은 undo 스택**이라는 점, 그리고 **우리의 항목은 "다시 쓰는 쪽"을 덮어야 한다**는 점이다.
+- **SSOT**: `temp-docs/materials/OFFICE_DELIVERY_ADVANTAGE.md`(오피스·산출물 축 주 문서, 2026-10-22 신규 절) · `temp-docs/materials/GENERAL_AI_ASSISTANT_COMPETITIVE_ADVANTAGE.md`(경쟁사 요약표 22행) · `temp-docs/roadmap/topic_16_office_agent_specialty_suites_and_deliverable_bundle_roadmap.md`(#365) · `https://x.com/iamlukethedev/status/2108520360052433317`
 ## 최신 검증 스냅샷 (2026-10-22 · "몇 개의 봇을 한 그룹에 모아 서로 떠들게 하면 스스로 개선된다" · Grok Bot의 자기 진화 서사, 그리고 "이번 라운드가 정말 좋아졌는지"를 어떻게 판단할 것인가 · 댓글이 던진 자기 진화의 어려운 질문 4가지 · 우리는 각각에 대응책이 있고, 우리 자신의 약점 2가지도 정직하게 적는다)
 
 - **계기**: X @dingyi(`https://x.com/dingyi/status/2108395750128542180`, 2026-10-09 11:14. **2.7만 조회 / 23 리플 / 6 리포스트 / 143 좋아요 / 60 북마크**). 본문은 "Grok Bot의 장점을 알아가는 사람이 늘고 있는데, 이건 정말로 자기 진화한다. 몇 개 봇을 한 그룹에 모아 서로 대화시키면 스스로 최적화해 나간다. 내가 손댈 필요가 없다"고 말한다. 같은 스레드에서는 "Cursor 웹판 클라우드 PC와 bot은 사실 같은 것, 다른 건 조작 방식뿐"이며 "bot이 스스로 다른 bot을 그룹으로 부른다"고 답하고, 업계를 "VS Code 껍데기, Codex, bot" 세 가지 흐름으로 정리해 그중 둘을 Cursor의 손으로 돌린다. 이번 라운드에서는 ChromeAgent :9410 + chrome-devtools MCP로 본문 전문과 **23개 리플**을 추출했다.

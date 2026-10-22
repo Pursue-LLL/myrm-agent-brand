@@ -11,6 +11,32 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
 **移行における安心ポイント** — SaaS・セルフホスト・デスクトップから自由に選択でき、HermesのスキルはGUI経由のZIPで直接インポート可能です。以下の詳細比較表でチャンネル・メモリ・セキュリティを行単位で確認した上でご検討いただけます。Grok Buildなどのプラグイン中心の製品をお使いの場合、Myrmはモデル・スキル・MCP・サブエージェント・安全プロファイルを**ワンクリックで一括セットアップ**するエージェントパッケージを提供します。ドキュメントとアプリは**6言語**(zh/en/ja/ko/de/zh-TW)に対応しており、WebUI・クラウドホスト・Tauriデスクトップのすべてで、初回アクセス時にブラウザ言語を自動判別します。
 </Note>
 
+## 最新検証スナップショット (2026-10-22 · 競争相手が Word / Excel / PowerPoint を OS に入れた · ソースを 1 行ずつ確認した結果、ゼロから起こした製品ではなく、安全網は undo スタックだけだった · 我々は「書き終えたら自動点検」と「任意の版へ戻せる」を持つ)
+
+- **きっかけ**: X @iamlukethedev (`https://x.com/iamlukethedev/status/2108520360052433317`、2026-10-09 19:30 北京時間。**5,701 閲覧 / 21 リプライ / 10 リポスト / 102 いいね / 64 ブックマーク**、0:55 のデモ動画つき)。「I just built Word, Excel, and PowerPoint into Herald OS … 'Make this document more professional.' Hermes rewrites it. 'Calculate my monthly expenses.' Hermes builds the formulas. 'Turn this document into slides.' Hermes creates the deck. Supports opening and saving .docx, .xlsx and .pptx files. No subscription. No switching between apps. Free and open source.」本ラウンドでは ChromeAgent :9410 + chrome-devtools MCP で本文・動画のサムネイル・**可視の返信 14 件**を抽出し、ソースミラー `external_reference_project/desktop/Herald-OS` を取り込んで 1 ファイルずつ確認した。
+- **相手が実際にやっていること（帖の言い換えではなくソースから確認）**:
+  1. **オフィスアプリ 3 つが内蔵** —— `docs/manual/office.md:1-8`：「Herald Office is three apps built into Herald OS … They open and save Word, Excel and PowerPoint files, and Hermes can work in them with you」。
+  2. **5 つの専用スキル**が操作手順を教えられる形に書き下している —— `plugins/herald-os-bridge/skills/herald-{docs,sheets,slides,calc,canvas}/SKILL.md`。
+  3. **ゼロから作ったわけではない** —— `NOTICE` が依存をすべて明かしている。Sheets は **Univer**（Apache-2.0）、Docs と Slides の本文編集は **TipTap + ProseMirror**（MIT）、Office ファイルの読み書きは **ExcelJS + docx + PptxGenJS + JSZip**（MIT）、グラフは **Apache ECharts**、Calc は **math.js**、Canvas は **ONNX Runtime Web + ag-psd**。コミュニティがちょうどこの点を尋ねている（@kcwolfy_、41 いいね：「did you build these MS Office replacements from scratch, or did you fork an existing open source project?」）が、帖には答えが無く、**ソースにはある**。
+  4. **単独の追加は編集画面ではなく「保真」** —— `apps/desktop/shared/office/xlsx/keep/`（16 ファイル）が一般的なライブラリが落とすものを保持する。データ検証、抽出条件、リンク、定義名、テーマ、グラフ、ピボットテーブル、スライサー、図形。`apps/desktop/shared/office/xlsx/read.ts:22-27` は今回何を落としたかを報告し、`apps/desktop/shared/office/xlsx/keep/checks.ts:6-14` は package の妥当性を点検する（存在しない部品を指す関係、content type の欠落、同じ id の重複、schema 順の崩れ、ピボットキャッシュとピボットテーブルの食い違い）。
+  5. **安全網は編集画面の undo スタック** —— `plugins/herald-os-bridge/skills/herald-docs/SKILL.md:44-45`：「Every call is one step the person can undo (Ctrl+Z, ⌘Z on a Mac, or `docs action=undo`, with `steps=3` for several)」。
+- **コメント欄のほうが主帖より有益**:
+  - @Mr_RyanLewis（**56 いいね**）：「An agent rewriting documents is only scary if the edits are irreversible. The move is snapshotning before every agent write and showing a diff to accept. Does Herald keep a version per Hermes edit, or is one bad rewrite the user's problem to fix?」→ ソース上の答えは undo スタックであり、**「書き込みごとにスナップショットを取り、差分を見せて承認させる」製品級の仕組みは見当たらない**。
+  - @kcwolfy_（**41 いいね**）：ゼロからか fork か → `NOTICE` が答える（上記）。
+  - @bitares（23 いいね）：「Can the slide deck stay linked when the source document changes?」→ 回答は無く、スキルは一度きりの複製しか使わないので**どちらにも無い**。
+  - @boardyai（83 いいね）：「shrinking subscription stacks to one app」——立場づけの語り。
+- **我々の現状（実コードで確認）**:
+  - **undo スタックではなく「書き終えたら点検」** —— `myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_ops/validators/office_bash_audit.py:108-152` が Excel の**数式集合**を前後で突き合わせる（`:138`）、docx の package 構造を確かめる（`:137`）、読めない package を警告する（`:130`）、比較できる基線が無い場合も警告する（`:140`）、docx の版面 QA を走らせる（`:147`）、再計算で `#REF!` / `#NAME?` を拾う（`:150`）——**計 6 種のシグナル**。いずれも `Office:` を冠して tool output に入る（`myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/file_ops/core/file_operation_service.py:606`）ので、**Agent が使用者より先に気づく**。
+  - **直前の数手ではなく任意の版へ戻せる** —— 不変の成果物版（`myrm-agent/myrm-agent-server/app/database/models/artifact.py:43-46`、監査ログ `:59`、固定された `version_id` は `myrm-agent-harness/src/myrm_agent_harness/core/artifacts/manifest.py:127`）と、作業領域ファイルの shadow スナップショットおよびワンタッチ rollback。
+  - **表計算はブラウザ上で直接編集** —— `myrm-agent/myrm-agent-frontend/src/components/features/artifacts/renderers/SpreadsheetEditor/index.tsx:135` と `:253` が xlsx と表モデルを行き来しながら数式を保持し、グラフ・マクロ・ピボットテーブルを含むファイルは開前に警告し、未保存の下書きはクラッシュ後に復元できる。
+  - **比較表の 2 社にはどちらの機構も無い** —— Hermes の Excel 支援は選択型スキルの中の manual な再計算スクリプト 1 本（`external_reference_project/claw/hermes-agent/optional-skills/finance/excel-author/scripts/recalc.py`）、OpenClaw には office ファイルの編集が無く、office に関わるのは錯覚した拡張子を正す引数検証だけ（`external_reference_project/claw/openclaw/src/agents/agent-tools.params.ts:24-27`）。
+- **我々が主張しない部分（正直な差距）**:
+  1. **常駐する Word / PowerPoint の編集面は無い**。我々は成果物を渡して忠実に preview し、表計算の編集画面を用意する。相手の Docs はヘッダとフッタ、脚注、節、目次のフィールド、返信つきのコメント、テンプレートを扱い、Slides はマスター、レイアウト、テーマ、切り替え、発表者ノートを扱う。**この枠は今なら相手のもの**。
+  2. **独立した精密計算の画面は無い**（相手の Calc は精密演算、単位、為替レート、タイムゾーン、関数のグラフを扱う）。
+  3. **我々の書き終え点検は warn-only で fail-closed ではない**。cloud に LibreOffice が無い場合、再計算と版面 QA は黙って飛ばされる —— これは我々の materials にも既に明記している。
+  4. **スライドと原文の連動はどちらにも無い**ので、借りられる機構ではない。
+- **ロードマップ項目は 1 件、ただし新設ではなく増補**: `topic_16 #365`（誠実な保真探査、無損保存と「利用者の手直し → Agent へ渡す」変更要約の閉ループ）—— このラウンドで加える事実は、**相手の保真報告は「読む側」で起き、安全網は undo スタックである**こと、そして**我々の項目は「書き戻す側」を覆う必要がある**こと。
+- **SSOT**: `temp-docs/materials/OFFICE_DELIVERY_ADVANTAGE.md`（office と成果物軸の主文書、2026-10-22 新規節）· `temp-docs/materials/GENERAL_AI_ASSISTANT_COMPETITIVE_ADVANTAGE.md`（競合早見表 22 行目）· `temp-docs/roadmap/topic_16_office_agent_specialty_suites_and_deliverable_bundle_roadmap.md`（#365）· `https://x.com/iamlukethedev/status/2108520360052433317`
 ## 最新検証スナップショット (2026-10-22 · 「グループチャットに数体のボットを集めてお互い話させたら自分で改良する」 · Grok Bot の自己進化の語り方と、「このラウンドは本当によくなったのか」の判定方法 · コメント欄が問いかけた自己進化の難問 4 つ · 我々にはすべて対応策があり、我々の弱点 2 つも正直に記す)
 
 - **きっかけ**: X @dingyi (`https://x.com/dingyi/status/2108395750128542180`、2026-10-09 11:14。**2.7 万閲覧 / 23 リプライ / 6 リポスト / 143 いいね / 60 ブックマーク**)。主帖は「Grok Bot の長所に気づいてきた人が少しずつ増えていて、これは本当に自己進化する。グループチャットに数体のボットを一同に集めてお互い話させれば、自分で最適化下去る。人が介入する必要はない」と語っている。同じスレッドでは「Cursor の Web 版クラウド PC と bot はまったく同じもの。違うのは操作の面だけだ」「bot 自身が他の bot をグループへ招集させる」と答え、「業界の流れは VS Code の殻、Codex、bot の 3 つで、そのうち 2 つは Cursor が手がけたもの」（原文の漢字混じりの表現は意訳している）。本ラウンドでは ChromeAgent :9410 + chrome-devtools MCP により主帖全文と **23 件の返信**を抽出した。
