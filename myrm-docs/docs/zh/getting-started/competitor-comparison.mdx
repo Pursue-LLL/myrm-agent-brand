@@ -18,8 +18,11 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | MCP 工具披露 | **三级：目录 → 带类型签名 → 按需文档；3,000 token 预算** | — | — | CLI 工具 | — | codemode + exposure + inline budget | 终端工具 |
 | 上下文可见性 | **按类分项面板（messages / system / MCP / skills / builtin / memory / rules / other）** | — | — | — | — | — | — |
 | 部署形态 | **WebUI + Tauri 桌面 + 云托管沙箱，同一套 server** | 自托管 / 多通道 | 网关 | CLI | 桌面 / 框架 | CLI | CLI |
+| 子代理目录 | **默认不挂；6 个精选 + 22 个双语 Agent/团队模板 + 4 个按会话临时工** | 通用 delegate | `sessions_spawn` + `allowAgents` | `multi_agent` / `spawn_agent` | base subagent + presets | 示例扩展 | 3 个内置 + task 权限 |
 
 > **诚实口径**——同一任务（12306）、同一模型（MiniMax-M3.1-Flash-Preview）：Myrm **10/10**（3.3 轮，18.6 秒），Pi **20/20**（5.7 轮），OpenClaw **16/16**（8.0 轮）。复杂任务仍有 50–75% 概率读 L3；k≤2 的简单任务 Pi 可能更便宜。Myrm 计 `prompt − cached`，Pi 计 `input + cacheRead`，token 总量**不可直接横比**。标 `—` 的单元格表示本轮未验证，不代表竞品没有该能力。
+
+**子代理默认干净**：默认 Agent 不预置隐藏专家，也不带 delegate schema；在 Agent 编辑器里显式绑定 6 个精选专家之一（Office 3 个、浏览器、代码探索、cron 专用审查）。Office 3 个可见；浏览器专家需先开启 Browser。团队也可以从 22 个双语 Agent/团队模板开始，或加 4 个按会话临时工。我们不宣称 per-message `@` 专家调用；我们的模型是 Agent-centric。
 
 ## 最新验证快照（2026-10-22 · 「拉几个 bot 在一个群聊，几个 bot 互相聊天，自己优化自己」 · Grok Bot 的自我进化叙事，以及「这一轮到底改好了没有」怎么判 · 评论区把「Agent 自我进化」的四个最难问题问到底，我们逐条有对应物，也如实登记我们自己的两处缺口）
 

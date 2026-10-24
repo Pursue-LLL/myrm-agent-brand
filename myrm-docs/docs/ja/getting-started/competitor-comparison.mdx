@@ -18,8 +18,11 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
 | MCP ツール開示 | **3段階：カタログ → 型付きシグネチャ → オンデマンド文書、3,000 token 予算** | — | — | CLI ツール | — | codemode + exposure + inline budget | ターミナルツール |
 | コンテキスト可視性 | **カテゴリ別パネル（messages / system / MCP / skills / builtin / memory / rules / other）** | — | — | — | — | — | — |
 | 配備形態 | **WebUI + Tauri デスクトップ + クラウドサンドボックス、同一 server** | セルフホスト / チャネル | ゲートウェイ | CLI | デスクトップ / フレームワーク | CLI | CLI |
+| サブエージェントカタログ | **既定はなし。厳選 6 + 22 のバイリンガル Agent/チームテンプレート + 4 のセッション別ワーカー** | 汎用 delegate | `sessions_spawn` + `allowAgents` | `multi_agent` / `spawn_agent` | base subagent + presets | サンプル拡張 | 3 組み込み + task 権限 |
 
 > **正直な範囲**——同一タスク（12306）・同一モデル（MiniMax-M3.1-Flash-Preview）：Myrm **10/10**（3.3 ターン、18.6 秒）、Pi **20/20**（5.7）、OpenClaw **16/16**（8.0）。複雑なタスクでは依然 50–75% が L3 を読みます。k≤2 の単純タスクでは Pi の方が安い場合があります。Myrm は `prompt − cached`、Pi は `input + cacheRead` で計上するため、token 合計は**直接比較できません**。`—` は本轮未検証であり、競合に能力がないという主張ではありません。
+
+**サブエージェントは既定でクリーン**：デフォルト Agent には隠し専門家も delegate schema もありません。Agent エディタで厳選 6 専門家（Office 3、Browser、Explore、cron 専用レビュアー）を明示的にバインドします。Office 3 は表示され、Browser は Browser 有効化が前提です。22 のバイリンガル Agent/チームテンプレート、4 のセッション別ワーカーも利用できます。per-message `@` は主張しません（Agent-centric 設計）。
 
 ## 最新検証スナップショット (2026-10-22 · 名門大学が Agent Skills だけで 1 週間割いた · スタンフォード CS146S 第 3 週は「Agent Skills と CLI」 · 講義ノートの指針のほとんどは我々の既定動作で、足りない 2 点が我々の実装対象)
 
