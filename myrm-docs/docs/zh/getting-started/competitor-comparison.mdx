@@ -17,6 +17,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 |---|---|---|---|---|---|---|---|
 | MCP 工具披露 | **三级：目录 → 带类型签名 → 按需文档；3,000 token 预算** | — | — | CLI 工具 | — | codemode + exposure + inline budget | 终端工具 |
 | 上下文可见性 | **按类分项面板（messages / system / MCP / skills / builtin / memory / rules / other）** | — | — | — | — | — | — |
+| 思考过程可视 + 可停止 | **实时逐秒 + 一键停止 + 真实 reasoning token + 历史回放 + 6 语言** | 仅状态行（TUI） | 默认关闭（`chatShowThinking`） | reasoning summary | 仅 `reasoning_effort` 参数 | Ctrl+T 折叠块 | Thinking + 主题副标题 |
 | 跨会话任务状态 | **TaskDigest 自动写入 + 手动编辑 + priority=0 + 7 天 TTL + Chat Badge** | memory 文件手写 | USER.md active-project context 手写 | Goals + memories；无活动任务便签 | 同会话 goal + memory MCP | 未核验 | 会话内 todo/plan |
 | 部署形态 | **WebUI + Tauri 桌面 + 云托管沙箱，同一套 server** | 自托管 / 多通道 | 网关 | CLI | 桌面 / 框架 | CLI | CLI |
 | 子代理目录 | **默认不挂；6 个精选 + 22 个双语 Agent/团队模板 + 4 个按会话临时工** | 通用 delegate | `sessions_spawn` + `allowAgents` | `multi_agent` / `spawn_agent` | base subagent + presets | 示例扩展 | 3 个内置 + task 权限 |
@@ -24,6 +25,20 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 > **诚实口径**——同一任务（12306）、同一模型（MiniMax-M3.1-Flash-Preview）：Myrm **10/10**（3.3 轮，18.6 秒），Pi **20/20**（5.7 轮），OpenClaw **16/16**（8.0 轮）。复杂任务仍有 50–75% 概率读 L3；k≤2 的简单任务 Pi 可能更便宜。Myrm 计 `prompt − cached`，Pi 计 `input + cacheRead`，token 总量**不可直接横比**。标 `—` 的单元格表示本轮未验证，不代表竞品没有该能力。
 
 **子代理默认干净**：默认 Agent 不预置隐藏专家，也不带 delegate schema；在 Agent 编辑器里显式绑定 6 个精选专家之一（Office 3 个、浏览器、代码探索、cron 专用审查）。Office 3 个可见；浏览器专家需先开启 Browser。团队也可以从 22 个双语 Agent/团队模板开始，或加 4 个按会话临时工。我们不宣称 per-message `@` 专家调用；我们的模型是 Agent-centric。
+
+
+## 思考过程：可见、可停、可回看（2026-10-25 实测）
+
+多数 Agent 在模型思考的几十秒里只给一个静止骨架：Hermes 只显示一行 debounced 状态、OpenClaw 默认隐藏 reasoning、OpenCode 只有标题没有停止入口。Myrm 把思考过程做成消息的一部分：
+
+- **实时可见**：`reasoning` 增量直接挂在 assistant 消息上，卡片显示「思考中 Ns」+ 思考文本；实测单轮 3,491 字符思考链正常流式渲染。
+- **可停止**：点「停止思考」提前结束推理、用已知信息作答；请求带 10 秒上限，后端无响应时按钮自动恢复（竞品普遍没有这个入口）。
+- **完成后只折叠一次**（延迟 1 秒），之后随时可展开回看，不会被「点开又立刻收起」。
+- **真实 token**：优先显示服务端 `reasoning_tokens`，缺失时才回落估算并标 `≈`（中文推理下字数估算会差约 3 倍）。
+- **三档偏好**：`off / collapsed / inline` 随请求下发；`off` 时后端直接不传思考内容，省带宽也更隐私。
+- **六语言 + 40px 触控**：思考卡文案与 aria 全量 i18n，手机上一次点中。
+
+> 诚实边界：正文是否逐字出现取决于模型/网关是否真增量输出；我们不做「伪流式」回放来掩盖真实卡顿。
 
 ## 最新验证快照（2026-10-22 · 「拉几个 bot 在一个群聊，几个 bot 互相聊天，自己优化自己」 · Grok Bot 的自我进化叙事，以及「这一轮到底改好了没有」怎么判 · 评论区把「Agent 自我进化」的四个最难问题问到底，我们逐条有对应物，也如实登记我们自己的两处缺口）
 

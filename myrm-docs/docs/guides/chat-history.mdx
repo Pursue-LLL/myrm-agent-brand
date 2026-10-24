@@ -199,3 +199,34 @@ Most competitors (e.g., Hermes Agent) use a separate `/history` page that duplic
 The sidebar approach keeps your workflow uninterrupted. You never leave your current conversation to search, export, or manage history.
 </Tip>
 
+
+
+## Reasoning and streaming
+
+Models often think for tens of seconds before answering. Myrm makes that phase part of the message instead of leaving you with a static skeleton.
+
+### Watching the chain
+
+- While thinking, the assistant bubble shows "Thinking · Ns" plus the live reasoning text.
+- When the answer starts, the card collapses to a one-line summary after 1 second and **can be reopened at any time**.
+- After reloading or reopening the chat, the persisted chain is still available.
+
+### Three display modes
+
+Settings → Personalization → Reasoning display:
+
+| Mode | Behaviour | Best for |
+| --- | --- | --- |
+| `collapsed` (default) | Expands while thinking, collapses after the answer, reopenable | Most users |
+| `inline` | Always expanded | Users who audit the reasoning |
+| `off` | Hidden, and the server stops sending reasoning | Privacy/cost-sensitive users |
+
+### Stop thinking
+
+The card exposes **Stop thinking** during the reasoning phase: it ends reasoning early and answers with what is known. The request is bounded to 10 seconds, so the button recovers instead of staying stuck.
+
+### Token count
+
+The card shows the provider-reported `reasoning_tokens`; only when the provider omits it do we show an estimate prefixed with `≈`.
+
+> Note: whether the answer appears token by token depends on the provider/gateway. Myrm never fakes streaming to hide a stall.
