@@ -595,11 +595,11 @@ Myrm 对后台辅助任务（如自动生成会话标题）的 Token 消耗进�
 3. **极速对话 (Quick Chat)**：
    - 面向免工作区的快速问答与通用咨询，不占用工作区存储资源。
 
-## 工作记忆标签治理与选择性折叠驱逐（Working Memory Marks & Selective Eviction）
+## 驱逐免疫标记治理与选择性折叠驱逐（Eviction Marks & Selective Eviction）
 
 在复杂多步骤任务中，Agent 会频繁调用外部工具（如批量抓取网页、读取大型源码、运行长命令）。如果一味全量保留，上下文会迅速耗尽；如果粗暴截断，又会破坏工具调用配对不变式。
 
-Myrm 实现了消息级工作记忆标签（Working Memory Marks）治理与选择性折叠驱逐机制：
+Myrm 实现了消息级驱逐免疫标记（Eviction Marks）治理与选择性折叠驱逐机制：
 
 1. **纯函数数学幂等性保证（$f(f(x)) = f(x)$）**：
    - 驱逐处理器（`SelectiveEvictionProcessor`）在完成成对工具折叠后，立即调用 `remove_message_marks` 剥离已消费的目标标记；
