@@ -137,7 +137,6 @@ The uncomfortable part of multi-agent and long-running work is not that it is sl
 The loudest way to give an agent "a place of its own on the internet" is to hand it a top-level domain. Domains, it turns out, have a price and a queue.
 
 **Our Advantage**:
-- **The door is not open to anyone**: inbound agent traffic is checked against a per-agent enable switch (`app/database/models/agent.py:79`) and a trusted-peer allowlist (`:80`); a peer that is not on the list does not get silently believed — the task it sends lands in the approval queue first (`app/api/a2a/router.py:97`/`:126`).
 - **The short address comes from what you already have**: a readable identifier already exists in your system (`app/services/plugins/agent_surface.py:291`, plus harness profiles named `ai.myrm/agents/<slug>.md`), so a short address and bring-your-own-domain can be derived from it — no new domain procurement, no waiting.
 - **We did not buy a TLD either**: that is a deliberate trade-off, not an oversight.
 
