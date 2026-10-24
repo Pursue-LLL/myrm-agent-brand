@@ -291,43 +291,6 @@ The `invoke_acp_agent_tool` tool allows seamless handoff with full context injec
 
 **Migrating from Hermes or AionUi-style tools:** keep your installed Claude Code / Codex / Gemini CLI — Myrm auto-detects them in Settings. You gain optional delegation on top of Myrm's own agent engine, MCP ecosystem, 5-layer approvals, and SubAgent orchestration without giving up external CLI strengths. Deleting a chat immediately stops any pooled external CLI process—no orphaned background agents.
 
-### Google A2A Protocol
-
-Discover and integrate third-party agents via the standard Google Agent-to-Agent protocol. AgentCard resolution includes SSRF protection and TTL caching.
-
-See [Kanban & Orchestration](/core-concepts/kanban-orchestration) for details.
-
-
-### Your Agent's Outward Identity
-
-An agent that talks to the outside world needs an identity that is **displayable, revocable and auditable** — and that never leaks its internal instructions. That is what the **AgentCard** is: the card an agent publishes about itself when another system asks who it is (`myrm-agent-server/app/services/a2a/card_generator.py:60` `AgentCardGenerator`), resolvable over the standard Google Agent-to-Agent protocol (`app/api/a2a/router.py:97` `peer_registry.verify_inbound_authorization`, with SSRF protection and TTL caching on the resolution path).
-
-Two deliberate choices make it safe to expose:
-
-- **The card never carries `system_prompt`.** What leaves the sandbox is the agent's outward self-description, not its internal configuration.
-- **The door is not open to anyone.** Inbound agent traffic is checked against a **per-agent enable switch** and a **trusted-peer allowlist** you control. A peer that is not on the list is not silently believed: **the task it sends lands in the approval queue first**, and you can register or revoke peers at any time.
-
-<Note>
-**Honest note.** A *readable public address* for an agent — a short vanity handle, or bring-your-own-domain — is a **designed, not-yet-shipped** capability; today what you can rely on is the identity card and its revocation semantics. We would rather state that boundary than let a roadmap item read as a feature.
-</Note>
-
-## Agent Profile: Precision Without Crosstalk
-
-Each Agent Profile is a full-dimension configuration unit — far beyond simple skill grouping.
-
-| Dimension | Configurable |
-|-----------|:---:|
-| **Skills** | `skill_ids[]` — exact set of skills this agent can use |
-| **Model** | Per-agent model selection (different agents, different models) |
-| **Built-in Tools** | `enabled_builtin_tools[]` — whitelist of 18 canonical tool IDs (16 GUI-togglable + 2 agent baseline) (py↔ts contract; legacy IDs like `image_gen` rejected with 422) |
-| **MCP Tools** | `mcp_tool_selections{}` — per-server tool selection |
-| **Security** | `security_overrides{}` — independent security policy |
-| **Sub-Agents** | `subagent_ids[]` — opt-in multi-layer collaboration. Multiple agents in a unified sandbox natively share files and browser with zero sync cost. When enabled, agents can delegate sub-tasks to specialists automatically |
-| **Notifications** | `notify_targets[]` — proactive push; dynamic running-channel picker + pairing recipient whitelist + workspace-bounded attachments; tool loads only when configured (zero token otherwise) |
-| **Browser Config** | 4-axis: engine (Chromium/Firefox), source (auto/extension/launch), dialog policy, session recording |
-| **System Prompt** | Custom personality and behavioral rules |
-| **Memory** | Independent memory + global shared memory |
-
 ### How It Prevents Skill Crosstalk
 
 When an agent has too many skills loaded, the LLM may invoke irrelevant ones — a problem known as "crosstalk." Myrm solves this with 5 layers:

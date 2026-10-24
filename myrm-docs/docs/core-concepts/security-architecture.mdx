@@ -17,6 +17,7 @@ Myrm implements a defense-in-depth security model with six layers, ensuring agen
 | **L4** | Loop Detection | 7 detectors (repetition, ping-pong, no-progress, divergence, output-diminishing, consecutive-failures, error-signature) + FrequencyGuard (100 calls/60s global, 30/tool/60s) + progressive WARN→BREAK hard-stop |
 | **L5** | PII Protection | Automatic PII detection, redaction, and taint tracking |
 | **L5.5** | Trajectory Classification | Behavioral analysis with blind trajectory classifier for anomaly detection |
+| **L6** | Untrusted Ingress Sandbox | Physical decoupling of external input data from system instructions; immune to forged `<system_prompt>` attacks |
 
 ## Approval Modes
 
@@ -135,22 +136,15 @@ Myrm introduces a pure-Python lexical state machine and AST analyzer (`ast_parse
 | **Pi (oh-my-pi)** | ❌ Command allowlist | ❌ Compound bypass | ❌ Flag evasion | ❌ None | ❌ Throws on complex pipes |
 | **OpenCode** | ❌ Prompt-only boundaries | ❌ Prompt injection bypass | ❌ No AST inspection | ❌ None | ❌ High alert fatigue |
 
-### External Inbox Zero-Trust Whitelist & Prompt Poisoning Defense (A2A & Ingress Fence)
+### External Inbox Zero-Trust Whitelist & Prompt Poisoning Defense (Ingress Fence)
 
-For multi-agent collaboration (Agent-to-Agent, A2A) and external webhook ingress scenarios, Myrm implements a financial-grade zero-trust perimeter and physical privilege fence:
+For external webhook and channel ingress, Myrm implements a financial-grade zero-trust perimeter and physical privilege fence:
 
-1. **A2A Trusted Peer Registry & Automated Admission**:
-   - Inbound requests are verified against the `a2a_peers` registry with Bearer Token or HMAC signature authentication.
-   - Whitelisted peers pass directly to secure execution.
-   - Untrusted or anonymous requests are forcibly downgraded to `APPROVAL_PENDING`, rendering interactive review cards in the WebUI (`A2APeerRegistrySection`) for human sign-off.
-2. **UntrustedIngressFence Runtime Physical Privilege Severance**:
+1. **UntrustedIngressFence Runtime Physical Privilege Severance**:
    - **No Soft Defenses**: Competitors (e.g. Hermes, OpenClaw) rely on system prompts like "please do not execute external commands", which are routinely bypassed by adversarial prompt injection.
    - **Kernel-Level Tool De-registration**: For untrusted ingress, `UntrustedIngressFence` physically de-registers the tools behind 8 high-risk privilege types during tool dispatch, making them **physically invisible and uncallable** to the model:
      - `code_interpreter`, `file_write`, `desktop_control`, `desktop_capture`, `spawn_subagent`, `invoke_external_agent`, `cron_manage`, `skill_manage`.
    - **Immune to YOLO Mode**: Even if `--yolo` auto-approval is globally active, `UntrustedIngressFence` strictly enforces privilege severance, eliminating privilege escalation and sandbox escapes.
-3. **Competitive Parity**:
-   - Versus **Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi / OpenCode**, Myrm is the only platform providing an end-to-end A2A defense loop combining identity admission, physical privilege fences, and YOLO-immune execution barriers.
-
 ### Skill Frontmatter Defense & Zero-Trust Secret Vault (Sentinel & Vault)
 
 To counter the supply-chain vulnerabilities and secret exfiltration highlighted by the 2026 paper *Agent Skills in the Wild*, Myrm provides enterprise-grade runtime guarantees:
@@ -502,7 +496,7 @@ DNS Pinning prevents agents from being tricked into accessing internal networks 
 - **Internal hostname suffix blocking**: `.local`, `.svc`, `.cluster.local`, `.home.arpa` suffixes are blocked to prevent mDNS and cluster-internal service access
 - **Audit trail**: Blocked requests emit `SSRF_BLOCKED` security decisions for SIEM and frontend audit views
 - **Agent API scope**: `/v1/chat/completions` runs Myrm agents only (no raw LLM passthrough). User-configured Provider apiUrl SSRF checks remain on in-agent LLM calls — deploy-mode-aware: local mode allows loopback hosts (Ollama/vLLM), cloud/sandbox mode blocks private networks and cloud metadata endpoints
-- **461+ dedicated SSRF tests**: Coverage across core guards, agent security, browser navigation, DNS pinning, media validation, A2A resolver, web fetch, SessionVault, permission engine, and provider URL validation
+- **461+ dedicated SSRF tests**: Coverage across core guards, agent security, browser navigation, DNS pinning, media validation, web fetch, SessionVault, permission engine, and provider URL validation
 
 ### Malicious URL Architectural Immunity
 

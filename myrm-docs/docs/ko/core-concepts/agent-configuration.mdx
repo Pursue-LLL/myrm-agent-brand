@@ -270,29 +270,6 @@ ACP 프로토콜을 통해 외부 코딩 에이전트에 작업을 위임합니�
 
 **Hermes 또는 AionUi 스타일 도구에서 마이그레이션:** 설치된 Claude Code / Codex / Gemini CLI를 유지합니다. — Myrm은 설정에서 이를 자동 감지합니다. 외부 CLI 장점을 포기하지 않고도 Myrm의 자체 에이전트 엔진, MCP 에코시스템, 5계층 승인 및 SubAgent 오케스트레이션을 기반으로 선택적 위임을 얻을 수 있습니다. 채팅을 삭제하면 풀링된 외부 CLI 프로세스가 즉시 중지됩니다. 분리된 백그라운드 에이전트는 없습니다.
 
-### Google A2A 프로토콜
-
-표준 Google Agent-to-Agent 프로토콜을 통해 타사 에이전트를 검색하고 통합합니다. AgentCard 해상도에는 SSRF 보호 및 TTL 캐싱이 포함됩니다.
-
-자세한 내용은 [칸반 및 오케스트레이션](/core-concepts/kanban-orchestration)을 참조하세요.
-
-## 에이전트 프로필: 혼선 없는 정밀도
-
-각 상담원 프로필은 단순한 기술 그룹화를 훨씬 넘어서는 전체 차원의 구성 단위입니다.
-
-| Dimension | Configurable |
-|-----------|:---:|
-| **Skills** | `skill_ids[]` — exact set of skills this agent can use |
-| **Model** | Per-agent model selection (different agents, different models) |
-| **Built-in Tools** | `enabled_builtin_tools[]` — whitelist of 18 canonical tool IDs (16 GUI-togglable + 2 agent baseline) (py↔ts contract; legacy IDs like `image_gen` rejected with 422) |
-| **MCP Tools** | `mcp_tool_selections{}` — per-server tool selection |
-| **Security** | `security_overrides{}` — independent security policy |
-| **Sub-Agents** | `subagent_ids[]` — opt-in multi-layer collaboration. Multiple agents in a unified sandbox natively share files and browser with zero sync cost. When enabled, agents can delegate sub-tasks to specialists automatically |
-| **Notifications** | `notify_targets[]` — proactive push; dynamic running-channel picker + pairing recipient whitelist + workspace-bounded attachments; tool loads only when configured (zero token otherwise) |
-| **Browser Config** | 4-axis: engine (Chromium/Firefox), source (auto/extension/launch), dialog policy, session recording |
-| **System Prompt** | Custom personality and behavioral rules |
-| **Memory** | Independent memory + global shared memory |
-
 ### 스킬 크로스톡을 방지하는 방법
 
 에이전트에 로드된 기술이 너무 많으면 LLM이 관련 없는 기술을 호출할 수 있습니다. 이 문제를 '혼선'이라고 합니다. Myrm은 5개 레이어로 이 문제를 해결합니다.

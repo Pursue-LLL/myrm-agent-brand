@@ -291,43 +291,6 @@ GUI 配置编辑器提供 5 个独立面板（技能 / MCP / 内置工具 / 子�
 
 **从 Hermes / AionUi 迁移：** 保留已安装的 Claude Code / Codex / Gemini CLI（Settings 自动检测），在自有 Agent 引擎与 MCP 生态之上可选委派，并额外获得 5 层审批与 SubAgent 编排。删除对话会立即释放已池化的外部 CLI 进程，不留后台僵尸任务。
 
-### Google A2A 协议
-
-通过标准 Google Agent-to-Agent 协议发现和集成第三方 Agent。AgentCard 解析含 SSRF 防护和 TTL 缓存。
-
-详见[看板与编排](/zh/core-concepts/kanban-orchestration)。
-
-
-### Agent 的对外身份
-
-一个要与外界对话的 Agent，需要一个**可展示、可撤销、可审计**的身份，而且**绝不泄露它的内部设定**。这正是 **AgentCard** 的用途：别的系统问「你是谁」时，Agent 递出的那张名片（`myrm-agent-server/app/services/a2a/card_generator.py:60` `AgentCardGenerator`）；它通过标准的 Google Agent-to-Agent 协议解析（`app/api/a2a/router.py:97` `peer_registry.verify_inbound_authorization`，解析路径自带 SSRF 防护与 TTL 缓存）。
-
-两个刻意为之的设计让它可以放心对外：
-
-- **名片里永远不会带 `system_prompt`。** 出沙箱的是这个 Agent 的对外自述，不是它的内部配置。
-- **门不是对所有人敞开。** 外部发来的 Agent 流量要先过**逐 Agent 的开关**与**你掌控的可信对端白名单**；不在名单里的对端**不会被静默相信——它发来的任务会先落到审批队列**，而名单本身随时可增删。
-
-<Note>
-**诚实注记。** Agent 的**可读公开地址**（短句柄，或自带自有域名）目前是**已设计、尚未上线**的能力；今天你可以依赖的是**身份卡本身及其撤销语义**。我们宁愿把这条边界写明，也不让路线图条目被读成现成功能。
-</Note>
-
-## Agent Profile：精确无串扰
-
-每个 Agent Profile 是全维度配置单元 — 远非简单技能分组。
-
-| 维度 | 可配置 |
-|-----------|:---:|
-| **Skills** | `skill_ids[]` — 该 Agent 可用技能集 |
-| **Model** | 按 Agent 选模型 |
-| **Built-in Tools** | `enabled_builtin_tools[]` — 18 类 canonical 工具白名单（16 项 GUI 可切换 + 2 项 Agent 基线）（py↔ts 契约锁死；legacy ID 如 `image_gen` 明确拒绝） |
-| **MCP Tools** | `mcp_tool_selections{}` — 按服务选工具 |
-| **Security** | `security_overrides{}` — 独立安全策略 |
-| **Sub-Agents** | `subagent_ids[]` — 按需多层协作。统一沙箱内多 Agent 天然共享文件系统和浏览器，零同步成本无缝接力。启用后 Agent 可自动将子任务委派给专业 Agent |
-| **Notifications** | `notify_targets[]` — 主动推送；动态 running 渠道下拉 + pairing 收件人白名单 + 附件 workspace 边界；未配置时不加载工具、不占 token |
-| **Browser Config** | 4 轴：引擎（Chromium/Firefox）、来源（auto/extension/launch）、弹窗策略、会话录制 |
-| **System Prompt** | 自定义人格与行为规则 |
-| **Memory** | 独立记忆 + 全局共享 |
-
 ### 如何防止技能串扰
 
 技能过多时 LLM 可能调用无关技能（「串扰」）。Myrm 五层解决：

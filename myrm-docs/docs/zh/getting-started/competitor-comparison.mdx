@@ -1271,16 +1271,6 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   5. **全套自动化测试 100% 满分通过**：Harness 层 191 项单测、Server 层 27 项分叉测试、真实 LLM 端到端分叉流转测试及真实 Chrome WebUI E2E 测试（`test_reasoning_anchor_and_compaction_chrome_e2e.py`）全部绿灯通过。
 - **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/event_log/logger.py` · `myrm-agent-server/app/services/chat/conversation_fork_manager.py` · `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md`
 
-## 最新验证快照（2026-09-06 · 跨生态 A2A v1.0 服务端与零信任客户端委托闭环 · 多智能体编排全面演进）
-
-- **A2AProviderServer & RemoteClientDelegateToolSuite（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在跨智能体协作中存在的“单体死板绑定无沙箱、外部入参盲目注入受攻、出站 HTTP 裸奔诱发 SSRF 穿透窃取云元数据、以及长任务缺乏异步流式与状态感知”四大痛点）：** Myrm 交付了业内领先的 A2A v1.0 全双工协议互操作、零信任出站安全防御与三模式自适应扇出编排体系：
-  1. **全生态 A2A v1.0 双向标准化互操作（`types.py:1-240` · `router.py:1-170`）**：完整对齐 Google/Linux Foundation A2A v1.0 标准。入站暴露 `GET /.well-known/agent-card.json` 与 `/api/v1/a2a/agents/{agent_id}/.well-known/agent-card.json`，根据 Agent Profile SSOT 动态暴露技能与能力清单；JSON-RPC 2.0 端点 `/api/v1/a2a/rpc` 支持 `tasks/send`、`tasks/get`、`tasks/cancel` 与 `agent/card`，外部框架（Hermes、LangChain、AutoGen）可无缝发现并安全调用；
-  2. **零信任出站 SSRF 物理防御（`client.py:40-120`）**：针对竞品出站裸调 HTTP 极易被间接提示词注入（Prompt Injection）诱导攻击云端元数据 `169.254.169.254` 或内网私有服务的致命安全漏洞，Myrm 出站强制经过 DNS Pinning 与逐跳重定向安全检查，100% 物理切断内网穿透风险；
-  3. **三模式自适应扇出编排（`tools.py:90-180`）**：原生提供 `a2a_orchestrate` 工具，支持 `all`（全量并发收集）、`first`（极速短路响应并自动取消其余等待）、`best`（按输出丰满度与产物质量自动选优）三种多智能体编排策略；
-  4. **防重放 HMAC-SHA256 签名 Webhook 与结构化审计（`security.py` · `audit.py`）**：任务状态变更通过带 `X-A2A-Signature` 与时间戳防重放校验的 Webhook 异步回调调用方，全生命周期事件同步写入 `~/.myrm/logs/a2a_audit.jsonl`；
-  5. **全套自动化测试 100% 满分通过**：Harness 层 A2A 工具包单测 8/8 通过，A2A 客户端与扇出编排单测 4/4 通过，Server 层 A2A 发现与 JSON-RPC 任务生命周期集成测试 6/6 通过，架构测试 5/5 通过，总计 23 项用例 100% 满分通过。
-- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/a2a/` · `myrm-agent-server/app/services/a2a/` · `myrm-agent-server/app/api/a2a/` · `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md`
-
 ## 最新验证快照（2026-09-06 · 工业级视频生产加固与长任务透明阶段流 · 浏览器与媒体采集全面完成）
 
 - **VideoToolchainProductionHardeningPack（对标 Hermes Agent / OpenClaw / Deer-Flow / Codex / Pi 在长耗时视频生成任务中存在的“跨模型动态指定入参被 Pydantic 误杀拦截、普通参数错误被粗暴扣上敏感词风控帽子掐断容灾、以及长达 1~2 分钟界面盲等”三大高频痛点）：** Myrm 交付了业内领先的工业级视频生产自适应容灾与端到端透明交互体系：
@@ -2371,12 +2361,10 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   - **「凭据不会漏进子进程」** —— 子进程环境继承是显式策略，凭据类变量按名屏蔽：`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/security/env_isolation.py:37`（Subprocess environment inheritance strategy）与 `:110`（明确列出 `XDG_CONFIG_HOME`），另有 `security/shell_bleed.py:55`、`security/blacklist.py:290`。
   - **「桌面专属指令不会污染 Agent」** —— 桌面规则**仅在真正挂载了桌面操控能力时才注入**，且 IM 渠道被禁止泄漏 browser / desktop / CLI 工具与提示词：`myrm-agent-server/app/ai_agents/general_agent/mount_resolver.py:54`、`:41`，`factory.py:537`。
   - **「审批可核对，且不会静默过期」** —— 每条审批**存住它批的那份载荷**（`app/database/models/approval.py:34` `payload`），并带**动作类型**（`:27`）与**风险分级**（`:31` `severity`）；到期审批**自动拒绝并唤醒被挂起的任务**（`app/services/approvals/registry.py:56-57` 的到期扫描、`:149` 记录里带出到期时间、`:178` 把到期时间展示给用户）。
-  - **「Agent 的对外身份是一张可撤销的卡，门也不是对所有人敞开」** —— AgentCard 身份卡可展示、可撤销、可审计，且**不泄露 `system_prompt`**（`app/services/a2a/card_generator.py:60` `AgentCardGenerator`）；入口只放行**你显式开启**且**你信任**的对端（`app/database/repositories/agent_repo.py:111-112` 的 `a2a_enabled` / `a2a_trusted_peer_ids`）。
   - **「不用等顶级域，也能给 Agent 一个地址」** —— OpenClaw 的 `.claw` **仍处 ICANN `Pre-Evaluation Processing`**（Application ID `OF2656T-T69841`），成本 **22.7 万美元**、预计 **2027 年底–2028 年初** 入根区；而**竞品自己的仓库里至今没有任何顶级域 / DNS 实现**（其中所有 `.claw` 命中都是 `claw` 词根假阳性，如 `ui/src/components/lobster-pet-identity.ts:242`、`src/infra/sqlite-worker-claw-read.test.ts:84`）。我们的路线正相反：**可读标识本来就有**（`app/services/plugins/agent_surface.py:291` 的 `agent.metadata.get("slug")`；harness 侧 profile 以 `ai.myrm/agents/<slug>.md` 命名），地址可以直接由它派生。
 - **我们自己的三个诚实差距（未交付、不宣传）**：
   1. **9 万美元那则故事暴露的审批缺口，我们这边仍开着**：「批准必须发生在 Agent 之外」与「执行的就是被批准的那份载荷」目前是**路线图条目、不是已上线行为**——我们的审批记录确实存住了载荷、也确实按期过期回收，但**执行点还没有做载荷指纹比对**。**不要把「审批可核对」读成「审批防篡改」。**
   2. **短句柄与自带域名是「已设计」而非「已上线」**：`topic_13 #91` 仍是 `待分析`，所以我们可以诚实地说「我们选择不花 22.7 万美元买顶级域，并给出了替代设计」，但**还不能说「你的 Agent 已经有一个公开短地址」**。
-  3. **竞品的 A2A 与可信对端门禁不是我们可以宣称的独有物**：Hermes 也提供带可信对端白名单的 A2A 插件（`external_reference_project/claw/hermes-agent/plugins/platforms/a2a/adapter.py:242`、`:334-335`）。这一行我们的差异在**身份卡**（可撤销、可审计、不泄露 `system_prompt`）与**显式开关**，**不在于「有 A2A」本身**。
 - **SSOT**：`temp-docs/materials/DESKTOP_APP_ADVANTAGE.md`（桌面端状态一致性与恢复面）· `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md`（异步委派结果回传契约）· `temp-docs/materials/HITL_APPROVAL_CONCURRENCY_ADVANTAGE.md`（审批载荷与到期回收）· `temp-docs/materials/PLATFORM_AND_DEPLOYMENT_ADVANTAGE.md`（不等顶级域的 Agent 地址）· `temp-docs/roadmap/topic_13/channel_integration_roadmap.md`（#91 Agent 专属地址别名与数字身份卡）· `temp-docs/roadmap/topic_03/security_governance_supplychain_roadmap.md`（#458 带外批准与已批准载荷保真）· `temp-docs/roadmap/topic_12/multiagent_orchestration_roadmap.md`（#366 异步委派结果回传契约）
 
 
