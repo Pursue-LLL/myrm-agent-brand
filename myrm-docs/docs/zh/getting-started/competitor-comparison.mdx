@@ -628,17 +628,6 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   5. **100% 全栈实测验证**：Harness 框架单测 19/19 passed，Server 业务单测 15/15 passed，前端 Vitest 15/15 passed（单测耗时 <1s），`bunx oxlint` 0 warnings 0 errors，所有组件行数严控 ≤ 400 行，0 Any 类型，无障碍 live output 100% 达标。
 - **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/orthogonal_reviewer/` · `.../graph_triage/` · `.../fleet_router/` · `myrm-agent-server/app/api/agents/` · `myrm-agent-frontend/src/components/features/chat-window/` · `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md` · `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md`
 
-## 最新验证快照（2026-10-04 · 智能体长任务主动异步汇报与非阻塞双向双工通信循环套件 · 彻底消除长任务黑盒盲等失联、中途无法微调纠偏、刷新页面药丸失效与竞态 409 丢字）
-
-- **AgentAsyncUserMessageAndNonBlockingSteerLoopbackSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 6 大竞品在执行 5~30 分钟长任务中，普遍缺乏中途主动向用户反馈阶段性进展与关键抉择的结构化通道，导致用户长时间面对转圈黑盒盲等失联；中途发现跑偏只能掐死重跑浪费巨额 Token；缺乏交互式建议药丸导致用户手动打字门槛高；以及前端刷新后交互药丸丢失反序列化等致命痛点）：** Myrm 全面交付了智能体长任务中途主动异步汇报与非阻塞双向双工通信循环套件：
-  1. **主动结构化异步汇报协议（`send_user_message_async`）与 6 大语义徽章**：Agent 执行中途可随时向用户发射轻量结构化异步事件，涵盖 `progress`（进度）、`checkpoint`（检查点）、`question`（主动求助）、`milestone`（里程碑）、`warning`（风险预警）、`recommendation`（专家建议）六大语义分类，完全不中断当前工具流水线；
-  2. **建议选项药丸一键回填与高亮推荐预案（Suggested Replies Pills & 1-Click Prefill）**：卡片携带结构化 `suggested_replies` 药丸按钮与推荐预案高亮徽章，用户单点药丸即可秒级回填输入框或一键下发指令，告别打字折磨；
-  3. **全双工非阻塞 Steering 转向闭环与 409 竞态三级降级**：用户输入的指令直接在下一步原子注入，执行流零摩擦掉头；遇竞态临界点（409 Conflict）全自动按 `Redirect → Steer → SendMessage` 三级降级，1 字节输入都不丢；
-  4. **历史反序列化强健水合（Hydration Resilience）**：前端反序列化层双重清洗与强类型绑定，无论是刷新页面、切换标签页还是历史会话重载，所有卡片与药丸均 100% 保留交互能力；
-  5. **Hermes 终端与 CLI 优雅退化**：在无 GUI 纯终端环境下无缝降级为序号选择与自然语言回显，一套协议全端同构；
-  6. **100% 满分全栈实测验证**：真实无 Mock Chrome 浏览器真机并行 E2E 双用例（`test_async_user_message_steer_chrome_e2e.py`）**2 passed in 133.76s 满分通过**；Lane-A（Harness + Server）46 passed in 9.68s，Monorepo 服务端 337 passed；Lane-B 前端 Vitest 15 passed 8.82s，0 lint error，0 type error，0 i18n missing；商业模型 MiniMax-M3.1-Flash-Preview 真实返回 522 tokens 状态 SUCCESS。
-- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/communication/send_user_message_async_tool.py` · `myrm-agent-server/app/api/chats/` · `myrm-agent-frontend/src/store/chat/messageManagement.ts` · `.../components/features/message-box/MessageBox.tsx` · `temp-docs/materials/ASYNC_USER_MESSAGE_AND_STEER_LOOPBACK_ADVANTAGE.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md`
-
 ## 最新验证快照（2026-10-02 · 云端托管沙箱秒级冷冻休眠与无头虚拟桌面 Computer Use 套件 · 彻底消除 Mac Mini 7x24 耗电折旧、VPS 丢失屏幕视觉操控与云端冷启动环境丢失）
 
 - **CloudSandboxSubSecondHibernationAndHeadlessComputerUseSuite（对标 DigitalOcean Managed Agents、Hermes、OpenClaw、Codex 6 大竞品以及 Mac Mini 本地 7x24 常驻模式，针对开发者在“买台 Mac Mini 7×24 本地开机耗电折旧发热 vs 云端托管暂停计费但丢失 Computer Use 桌面视觉与冷启动丢环境依赖”之间的痛苦割裂）：** Myrm 全面交付了云端托管沙箱秒级冷冻休眠、用户独享持久卷与无头虚拟桌面双模 Computer Use 套件：
@@ -697,9 +686,9 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   2. **真降本才替换（Real-Reduction-Only Replacement）**：跳过无法缩短的候选，仅在占位符真正降低 token 数时才替换工具结果，消除不可缩短替换抖动与负节省；
   3. **占位符提示语义真实（Truthful Placeholder Semantics）**：仅在内容确实被截断时才声明「Preserved head & tail」，提示语义与行为 100% 一致；
   4. **归档回调成功判定正确（Correct Offload Success Check）**：使用 `succeeded` 属性（path 非空且无 failure_kind）替代恒真的 classmethod 引用；
-  5. **死代码清零（Dead-Code Zeroing）**：删除 3 处生产 0 调用路径（`_replace_content`、`sanitize_multimodal_content`、`LocalWorkingMemoryBlock.flush_stale` / `WorkingMemoryFlushResult`）；
+  5. **死代码清零（Dead-Code Zeroing）**：删除 2 处生产 0 调用路径（`_replace_content`、`sanitize_multimodal_content`）；
   6. **100% 全栈测试验证**：上下文管理 1,445 项单元/集成测试全绿，改动模块覆盖率 ≥90%；真实 LLM 全链路 E2E + 上下文预算 / 上下文留存 Chrome E2E 全部通过。
-- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/context_management/pipeline/processors/active_tool_result_prune_processor.py` · `.../working_memory/block.py` · `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/context_management/pipeline/processors/active_tool_result_prune_processor.py` · `temp-docs/materials/CONTEXT_COMPRESSION_PIPELINE_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-28 · 安装前 71 项前置静态模式扫描、0~100 风险量化门禁、Python AST 语法树危险调用穿透与合规审计留痕全链路交付 · 彻底消除第三方技能生态盲装盲信、恶意越狱代码直灌、0分假值逃逸与无痕越界放行）
 
@@ -913,17 +902,6 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   4. **多存储审计与防篡改验证**：由 SQLite 仅追加审计轨迹、Qdrant 向量索引一致性检查与加密封装签名三重背书；
   5. **100% 满分全栈测试验证**：111/111 记忆 Harness/Server 单元与集成测试全绿，0 僵尸进程与 0 内存泄漏。
 - **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/memory/cube.py` · `test_memcube_scheduler.py` · `temp-docs/materials/MEMORY_ADVANTAGE.md`
-
-## 最新验证快照（2026-09-17 · 双轨工作记忆看板、陷阱自愈与超短期状态向长期自动固化体系全链路交付 · 彻底消除黑盒易失、重复踩坑死循环与认知断层）
-
-- **WorkingMemoryBoardAndStateConsolidationSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi 与 OpenCode 在复杂任务与长程执行中普遍存在的“超短期子任务状态仅靠滑动上下文黑盒维护、工具调用报错后缺乏结构化陷阱防御导致反复在同一参数死循环、动态运行状态塞入 System Prompt 导致 90% 前缀缓存击穿 Token 暴涨、以及任务结束后临时经验随进程销毁产生严重认知断层”等痛点）：** Myrm 全面交付了强类型超短期工作记忆块、Turn Tail 提示词缓存保全、终态自愈飞轮与 Chrome E2E 闭环体系：
-  1. **强类型超短期工作记忆块与协程无锁隔离（`LocalWorkingMemoryBlock`）**：在底层核心执行流基于 ContextVar 实现协程安全隔离，结构化治理核心目标、子任务进阶树（带 `SubtaskStatus`：PENDING / IN_PROGRESS / COMPLETED / FAILED / SKIPPED 状态机）、踩坑记录（`TrapRecord` 搭配 `resolve_trap` 缺陷自愈标记）与临时轻量记事本（`scratchpad`）；
-  2. **Turn Tail 提示词缓存绝对保全（Prompt Cache Invariance）**：动态工作台与避坑备忘录 `<working_board>` 严格注入在单次回合尾部（Turn Tail），系统前缀 100% 字节不变，稳享主流大模型 90% 缓存折扣；
-  3. **聊天区原生折叠工作看板与状态徽标（`WorkingStateBadge.tsx` / `WorkingMemoryBoard.tsx`）**：在 WebUI 与桌面端对话流原生嵌入响应式视觉徽标，仅在避坑自愈时低干扰透出盾牌，严禁原生 emoji 污染，适配暗黑/明亮双主题，人机协同状态完全透明；
-  4. **`HyperConsolidator` 任务终态自愈飞轮（`consolidation_service.py`）**：在智能体任务收敛或阶段推进时，自动将工作记忆块中已规避的避坑动作按错误指纹提炼去重，升维固化为通用长效规程记忆（`MemoryType.PROCEDURAL`），实现跨任务“吃一堑，长一智”的真自愈；
-  5. **零模型损耗确定性行为特征测量体系（`ZeroModelCostBehavioralMeasurement`）**：24h 工作日/周末双轨作息微直方图与跨时区峰值活跃窗口，纯 SQLite 数学算子毫秒级聚合 0 Token 消耗，彻底杜绝大模型时间戳计算幻觉；
-  6. **100% 满分全栈自动化与真实 Chrome E2E 实测验证**：后端单测 10/10 全绿、API 契约 11/11 全绿、前端 Vitest 4/4 全绿、真实 DB 接口集成测试 13/13 全绿、真实 Chrome 浏览器 E2E 端到端（`test_memory_behavioral_metrics_chrome_e2e.py`）在 169.86s 内满分通过，0 僵尸进程与 0 内存泄漏。
-- **SSOT 来源：** `myrm_agent_harness/agent/context_management/working_memory/` · `WorkingStateBadge.tsx` · `consolidation_service.py` · `test_memory_behavioral_metrics_chrome_e2e.py` · `temp-docs/materials/MEMORY_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-17 · NAS 与家庭实验室一键部署、三卷物理持久隔离与宿主 Ollama 零配置自适应全链路交付 · 彻底消除单体数据丢失与容器断流顽疾）
 
@@ -1183,7 +1161,6 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 | **安全与沙箱隔离** | **6 层纵深防御 (L1~L5.5) + Cloud 沙箱 HMAC 凭证防火墙 + YOLO 互斥** | IronProxy (依赖 MITM CA，易断) | 单层权限声明，易受 Confused Deputy 越权 | 本地无保护执行或受限沙箱 | 无沙箱凭证防护 | 无外部执行权限 | 按工具权限配置；无多租户沙箱防火墙 |
 | **知识与第二大脑** | **Second Brain 原子预设 + 三大维护 Cron 蓝图 + 多源安全同步 + 白盒 8 类记忆与 3D 拓扑图谱 + 三维正交认知 (SOUL/MEMORY/USER) 五级作用域隔离** | 仅粗糙 CLI 脚本，3 类单选记忆 | 3 类基础内存缓存，无第二大脑预设 | 无个人知识库 | 无记忆状态持久化 | 黑盒不可视不可导出的记忆 | **无内置记忆与知识库** |
 | **真实业务闭环** | **独创 Browser Orchestrator 真实 Chrome 多路复用 + 真实 LLM 全链路 E2E** | 模拟器或简单无头浏览器 | 简易无头脚本 | 无浏览器集成 | 无图形浏览器 | 无浏览器与系统操作 | 桌面端挂载式浏览器工具（`@opencode/plugin-browser`），无无头 Chrome 编排 |
-| **长任务异步汇报与 Steering 闭环** | **`send_user_message_async` 原生协议 + 6 类语义徽章 + 推荐预案与建议药丸秒级回填 + 409 竞态三级降级自愈（0丢字）+ 刷新/重载 100% 水合保留 + Chrome E2E 满分通过** | 单向终端阻塞执行，中途完全黑盒失联，无法动态注入 Steering | 无独立汇报协议，日志混杂，刷新页面药丸失效，易误杀打断 | 仅单回合批处理，不支持长跑中途主动推送选项与非阻塞 Steering | 算法评测离线批跑，无面向终端用户的双工事件流与交互药丸 | 纯单向对话，无长任务异步汇报与在线 Steering | `question` 工具可选选项 + session-inbox `steer`/`queue` 投递；但无统一异步汇报协议、无语义徽章、无刷新水合保留、无渠道推送 |
 
 ### 核心技术压制与用户切实收益
 

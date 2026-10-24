@@ -552,9 +552,9 @@ Myrm은 비LLM 결정론적 추출과 4기둥 Lean 압축으로 이를 해결했
    - LLM 요약에 의존하지 않고 결정론적 규칙과 AST 분석을 통해 파일 경로, 코드 식별자, Git Commit SHA, 예외 오류 원문(`[A-Za-z0-9_.]*(?:Error|Exception|Fault|Failure)`) 및 핵심 설정값을 기계적으로 추출하여 불변 앵커 테이블을 구축합니다. 압축 시 핵심 팩트 손실률 0%를 보장합니다.
 2. **4기둥 Lean 압축 모델(Lean Structured Summary)**:
    - 비대한 요약 구조를 4개 필수 필드(`completed_actions`, `verified_state`, `critical_anchors`, `pending_plan`)로 집약하여 요약 토큰을 **65% 이상 절감**하며, 시퀀스 단조 증가성을 엄격히 보존하여 프롬프트 캐시/KV 캐시를 100% 보호합니다.
-3. **온디맨드 단일 턴 리패치(On-Demand Turn Refetcher, harness 도구, 기본 에이전트에는 마운트되지 않음)**:
+3. **온디맨드 단일 턴 리패치(On-Demand Turn Refetcher, 압축 파이프라인 내부 엔진, LLM 도구 아님)**:
    - 압축된 히스토리는 로컬 DB에 보존되어, 후속 추론 과정에서 특정 압축 턴의 전체 원본 입력/출력이 필요할 경우 밀리초 단위로 단일 턴 정밀 재호출 및 무손실 주입을 지원합니다.
-   - harness는 이 기능을 `refetch_historical_turn` 도구로 구현합니다. 기본 에이전트는 이 도구를 마운트하지 않으므로 제품의 1턴(Turn 1) 도구 표면에 포함되지 않습니다.
+   - 이 기능은 압축 파이프라인 내부의 리패치 함수로 구현되며, LLM 도구로 노출하지 않으므로 제품의 1턴(Turn 1) 도구 표면을 차지하지 않습니다.
 
 ### 6대 경쟁사 횡적 비교 매트릭스
 
