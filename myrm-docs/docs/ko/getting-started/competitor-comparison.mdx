@@ -2039,3 +2039,27 @@ Hermes Agent는 강력한 함수 호출과 스킬 진화 기능으로 잘 알려
 
 
 
+
+
+## 최신 벤치마크 스냅샷 (2026-10-24 · Revolut AIR의 "카드 정보는 은행 안에" · 신뢰의 닻은 은행에 둘 것인가, Agent 런타임에 둘 것인가 · 댓글이 실제로 물은 것과 우리가 이미 출시한 것)
+
+- **무엇이 계기가 되었나**: X @linasbeliunas(`https://x.com/linasbeliunas/status/2108520403186454811`, 2026-10-09, **224 좋아요 / 21 답글 / 19,265 조회**)가 Revolut CEO Nik Storonsky의 **AIR**를 인용했다. 카드 정보가 Revolut 환경 안에 머물며 완전히 안전하다는 주장이다. 우리는 원문, **답글 21개 전부**, 작성자의 장문 후속 글(`linas.substack.com/p/fintechpulse1110`)을 추출했다.
+- **댓글이 실제로 물은 것**:
+  1. **신뢰의 닻은 은행에 있고 Agent에는 없다**: @hecodesforme는 카드 정보가 은행 안에 있는 것이 구매자가 신뢰하는 유일한 방식이라고 말한다. 이 문장은 업계의 기본값을 인정하는 것이기도 하다 — **Agent 쪽에는 자체 방어선이 없다**.
+  2. **Agent별 카드 발급은 아직 제안 단계**: @8eanmurray는 발급사가 Agent별 가상 카드, 유효기간, 지출 한도를 기본 제공해야 한다고 제안했다. 방향은 맞지만 여전히 발급사가 출시해야 하는 기능이며, 사용자가 직접 검증할 수도, 다른 플랫폼으로 가져갈 수도 없다.
+  3. **보증은 사용자를 따라오지 않는다**: Revolut 고객이 Revolut 카드로 결제할 때만 성립한다. 다른 도우미나 다른 가맹점으로 바꾸면 보호는 사라진다.
+- **우리 쪽(실제 코드로 확인)**:
+  - **자격 증명은 모델에 도달하지 않는다**: 금고 + 라벨 참조 주입(`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/credential_vault.py:39-78`), 브라우저와 데스크톱이 `fill_credential`을 공유한다. 모델은 라벨만 보고 비밀은 보지 못한다 — AIR의 "모델에 불투명" 원칙을 비밀번호, 일회용 비밀번호, API 키까지 확장한 것이다.
+  - **예산이 곧 승인이다**: 예약 → 확정 → 해제 3단계, 정수 센트 회계, 건당·일일 하드 한도, 재시작 시 원장 재생으로 당일 수위 복원(`myrm-agent/myrm-agent-server/app/commerce/budget_service.py:107-245`). 또한 가맹점과 금액으로 상한이 걸린 **일회용 바우처**를 발급할 수 있다(`budget_service.py:256-300`, 기본 300초) — 이것은 **내부 제한 바우처**이며 발급사가 발행한 실제 카드 번호가 아니다.
+  - **서명 바우처 + 가맹점 허용 목록**: 금액과 가맹점에 묶인 서명 바우처가 있어야 청구되며 상수 시간 검증(`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/egress/spend_governor.py`, `myrm-agent/myrm-agent-server/app/api/commerce/spending_router.py`). 허용 목록에 없는 가맹점은 거부된다.
+  - **돈은 자동 승인되지 않는다**: 금융 도구는 자동 모드의 자동 승인에서 제외되고(`batch_processor.py:265-293`), 허용 목록으로도 우회할 수 없다(`:550-554`). 결제 고위험 클릭은 도구 안에서 직접 중단되며 대화형 세션이 없으면 실패 시 거부로 처리된다(`semantic_dom_hitl.py:82-97`).
+  - **패널에서 확인하고 멈춘다**: 일일 한도, 가맹점 허용 목록, 실시간 원장, 원클릭 긴급 동결(`myrm-agent-frontend/src/components/features/settings/sections/system/AgentCommerceBudgetSection.tsx`).
+  - **세 가지 배포 형태에서 동일하게 동작**: 로컬 WebUI, Tauri 데스크톱, 클라우드 샌드박스. 보호가 Agent 런타임 안에 있으므로 어떤 은행을 쓰는지와 무관하다.
+- **정직한 격차(미출시, 홍보 금지)**:
+  1. **카드 발급은 범위 밖**: 가상 카드를 발행하지 않는다(카드 네트워크, BIN, PCI-DSS). "실제 카드 없음 + 통제된 예산 + 사전 승인"으로 같은 목표를 달성하며 발급사라고 주장하지 않는다.
+  2. **카드 필드 쓰기 가드 미출시**: 카드 번호 필드에 대한 일반 fill/type을 거부하고 사람이 인수하도록 강제하는 것은 `topic_04 #109` ④의 분석 대기 항목이다. 현재 쓰기 경로 가드는 `type=password`만 거부하며(`toolkits/browser/session/interactor.py:371`), 의미 계층에는 카드 어휘가 없다(`core/security/detection/semantic_risk.py`). **"모든 카드 입력이 차단된다"고 말하지 말 것.**
+  3. **서드파티 지갑 어댑터**: 첫 제공자 구현만 있으며 적용 범위와 지역 가용성은 미측정이다.
+  4. **채널 간 결제 승인**: IM에서 결제를 승인하는 것은 `topic_13 #128`(계획)이며, 현재 출시된 것은 GUI 승인 경로다.
+  5. **주문 3요소 카드(가맹점 / 총액 / 배송 시간)**: `topic_03 #124` ②에 속하며 아직 출시되지 않았다. 지금은 결제 클릭이 항상 묻지만, 묻기 전에 세 가지 사실을 보여주지는 않는다. 둘을 혼동하지 말 것.
+- **마이그레이션 관점**: AIR를 쓰려면 그 보증을 얻기 위해 은행 관계를 한 은행으로 옮겨야 한다. Myrm에서는 보증이 자신의 Agent 런타임 안에 있는 "자격 증명 금고 + 예산 + 승인 + 원장"이다. 가맹점, 채널, 배포 형태를 넘어 이식 가능하고 한 줄씩 감사할 수 있다.
+- **SSOT**: `temp-docs/materials/COMMERCE_AGENT_TRANSACTIONAL_ADVANTAGE.md` §12 · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` #124 · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md` #109 · `temp-docs/roadmap/topic_13_channel_integration_roadmap.md` #128

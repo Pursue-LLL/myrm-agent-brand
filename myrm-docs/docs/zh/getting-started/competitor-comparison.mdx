@@ -2398,3 +2398,27 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   2. **短句柄与自带域名是「已设计」而非「已上线」**：`topic_13 #91` 仍是 `待分析`，所以我们可以诚实地说「我们选择不花 22.7 万美元买顶级域，并给出了替代设计」，但**还不能说「你的 Agent 已经有一个公开短地址」**。
   3. **竞品的 A2A 与可信对端门禁不是我们可以宣称的独有物**：Hermes 也提供带可信对端白名单的 A2A 插件（`external_reference_project/claw/hermes-agent/plugins/platforms/a2a/adapter.py:242`、`:334-335`）。这一行我们的差异在**身份卡**（可撤销、可审计、不泄露 `system_prompt`）与**显式开关**，**不在于「有 A2A」本身**。
 - **SSOT**：`temp-docs/materials/DESKTOP_APP_ADVANTAGE.md`（桌面端状态一致性与恢复面）· `temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md`（异步委派结果回传契约）· `temp-docs/materials/HITL_APPROVAL_CONCURRENCY_ADVANTAGE.md`（审批载荷与到期回收）· `temp-docs/materials/PLATFORM_AND_DEPLOYMENT_ADVANTAGE.md`（不等顶级域的 Agent 地址）· `temp-docs/roadmap/topic_13/channel_integration_roadmap.md`（#91 Agent 专属地址别名与数字身份卡）· `temp-docs/roadmap/topic_03/security_governance_supplychain_roadmap.md`（#458 带外批准与已批准载荷保真）· `temp-docs/roadmap/topic_12/multiagent_orchestration_roadmap.md`（#366 异步委派结果回传契约）
+
+
+## 最新对标快照（2026-10-24 · Revolut AIR 把「卡数据留在银行内」称作完全安全 · 这句承诺背后的诚实拆解：银行侧发卡与 Agent 运行时凭证加预算的分工 · 评论区真正问的问题与我们已交付的答案）
+
+- **触发了什么**：X @linasbeliunas（`https://x.com/linasbeliunas/status/2108520403186454811`，2026-10-09，**224 赞 / 21 回复 / 19,265 浏览**）转述 Revolut CEO Nik Storonsky 的 AIR：助手可以替你购物，且卡数据全程留在 Revolut 的环境内，他把这称为完全安全。我们提取了主帖、**全部 21 条回复**与作者长文（`linas.substack.com/p/fintechpulse1110`）。
+- **评论区真正问的问题**（比发布本身有用）：
+  1. **信任锚在银行，不在 Agent**：@hecodesforme 认为卡数据留在银行内是买家唯一会信任的方式。这句话同时也承认了行业默认：**Agent 一侧自己没有任何防线**。
+  2. **按 Agent 发卡仍是设想**：@8eanmurray 提议发卡方原生提供按 Agent 的虚拟卡、有效期与消费上限。方向没错，但它仍是发卡方要排期交付的功能，用户无法自行验证，也无法跨平台复用。
+  3. **保证不随用户迁移**：这份保护只对 Revolut 客户、用 Revolut 卡付款时成立；换一个助手或换一个商户，这层安全就消失。
+- **我们这边（已对真实代码核对）**：
+  - **凭据不进模型**：凭据金库加标签引用注入（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/credential_vault.py:39-78`，浏览器与桌面统一走 `fill_credential`），模型只见标签不见明文——与 AIR「对模型不透明」同一原则，但覆盖密码、动态口令与 API 密钥，不限于银行卡。
+  - **额度即授权**：预占、核销、释放三态，整型美分记账，单笔与日累计硬限额，账本持久化并在启动时重放流水重建当日水位（`myrm-agent/myrm-agent-server/app/commerce/budget_service.py:107-245`）；还可签发**按商户与金额封顶的一次性凭证**（`budget_service.py:256-300` 的 `create_virtual_card_voucher`，默认 300 秒有效）——这是**内部受限凭证，不是发卡方签发的真实卡号**。评论区要的消费上限，我们已经交付且可核对。
+  - **签名凭证加商户白名单**：扣款必须持有与金额、商户绑定的签名凭证并做常数时间验签（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/egress/spend_governor.py`；接口面 `myrm-agent/myrm-agent-server/app/api/commerce/spending_router.py`）；不在白名单的商户直接拒绝。
+  - **钱永远不会被自动放行**：财务类工具免疫自动模式的自动批准（`batch_processor.py:265-293`），也无法借「始终允许」白名单旁路（`:550-554`）；结账类高风险点击在工具内直接中断，没有可交互会话时按失败即拒绝处理（`semantic_dom_hitl.py:82-97`）。
+  - **面板是看账与叫停的地方**：日限额、商户白名单、实时流水与一键紧急冻结（`myrm-agent-frontend/src/components/features/settings/sections/system/AgentCommerceBudgetSection.tsx`）。
+  - **三端同构**：本地 WebUI、Tauri 桌面与云沙箱行为一致——保护长在 Agent 运行时里，不取决于你用哪家银行。
+- **诚实差距（未交付，禁止宣传）**：
+  1. **发卡是域外能力**：我们不发行虚拟卡（卡组织、BIN、PCI-DSS 范围）；以「不发真卡 + 受控额度 + 审批前置」达成同一目标，绝不宣称自己是发卡方。
+  2. **卡号字段写入面校验仍是路线图项**：拒绝普通 fill/type 写入卡号字段并强制人工接管，是 `topic_04 #109` ④ 的待分析项；现状写入面校验只拒绝 `type=password`（`toolkits/browser/session/interactor.py:371`），语义层没有卡号词表（`core/security/detection/semantic_risk.py`）。**不得宣称「已能拦截所有卡号输入」。**
+  3. **第三方钱包适配**：目前只有首个提供方实现，覆盖率与地区可用性未实测。
+  4. **跨渠道付款审批**：在 IM 里批准付款归 `topic_13 #128`（规划中），当前三端可用的是图形界面审批。
+  5. **订单三要素卡片（商户、总价、送达时间）**：归 `topic_03 #124` ②，尚未交付。现状是「结账点击每次必问」，**还不是「问之前先把三要素摆清楚」**——不要把两者混为一谈。
+- **对迁移意味着什么**：用 AIR，你必须把银行关系搬进一家银行才能得到那份保证；用 Myrm，保证是长在你自己 Agent 运行时里的「凭据金库 + 预算 + 审批 + 账本」，跨商户、跨渠道、跨部署形态可迁移，且逐笔可查。
+- **素材来源（单一事实源）**：`temp-docs/materials/COMMERCE_AGENT_TRANSACTIONAL_ADVANTAGE.md` 第十二节 · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` #124 · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md` #109 · `temp-docs/roadmap/topic_13_channel_integration_roadmap.md` #128

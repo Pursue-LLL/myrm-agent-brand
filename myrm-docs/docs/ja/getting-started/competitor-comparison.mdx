@@ -109,7 +109,7 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
 - **ロードマップ項目は 1 件、ただし新設ではなく増補**: `topic_08 #439`（オフラインテレメトリ軌跡の Teacher-Forced 次行動予測プログレス門禁）—— 論文の機構は既に同条で 1 行ずつ留証されている。本ラウンドは新規コメント 4 件、再確認した欠口状態、そして上記の訂正を追記し、**ログは有るが物差しが無い**ことを明記した。
 - **SSOT**: `temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（スキルとプラグイン生態軸の主文書、2026-10-22 新規節）· `temp-docs/materials/GENERAL_AI_ASSISTANT_COMPETITIVE_ADVANTAGE.md`（競合早見表 26 行目）· `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`（#439）· `https://arxiv.org/abs/2610.05437` · `https://x.com/rohanpaul_ai/status/2108543003505705304`
 
-## 最新検証スナップショット (2026-10-22 · パッケージマネージャもスキルを導入できるようになった · pnpm v12.11 が Agent Skills を出し、公式ドキュメント自身が代償を書き記した ——「一度の承認は以降のすべてのバージョンを覆う」 · 公式ページを読みonation、我々の答えは「変更ごとに見える」こと)
+## 最新検証スナップショット (2026-10-22 · パッケージマネージャもスキルを導入できるようになった · pnpm v12.11 が Agent Skills を出し、公式ドキュメント自身が代償を書き記した ——「一度の承認は以降のすべてのバージョンを覆う」 · 公式ページを読み込み、我々の答えは「変更ごとに見える」こと)
 
 - **きっかけ**: X @pnpmjs（pnpm 公式アカウント）「pnpm v12.11 can install skills. related docs: https://pnpm.io/agent-skills」（`https://x.com/pnpmjs/status/2108646891902640466`、2026-10-10 03:52 北京時間。**28 リプライ / 71 リポスト / 568 いいね / 130 ブックマーク**、画像 1 枚）。本ラウンドでは ChromeAgent :9410 + chrome-devtools MCP で本文と**可視の返信 17 件**を抽出し、公式ページ pnpm.io/agent-skills を節ごとに読んだ。
 - **公式ドキュメントが実際に述べていること**:
@@ -551,3 +551,27 @@ OpenCodeは堅実なMITライセンスのターミナル型コーディングAge
 
 ---
 *本ドキュメントは一次情報およびコードベースの実装実績（SSOT）に基づき、2026-09-27に最終更新されました。*
+
+
+## 最新ベンチマークスナップショット (2026-10-24 · Revolut AIR の「カード情報は銀行の中に」 · 信頼の錨は銀行に置くのか、Agent ランタイムに置くのか · コメント欄が実際に問うたことと、私たちがすでに出荷しているもの)
+
+- **きっかけ**: X @linasbeliunas(`https://x.com/linasbeliunas/status/2108520403186454811`、2026-10-09、**224 いいね / 21 返信 / 19,265 表示**)が Revolut CEO Nik Storonsky の **AIR** を引用した。カード情報は Revolut の環境内にとどまり完全に安全だと説明している。私たちは元投稿、**返信 21 件すべて**、筆者の長文フォロー(`linas.substack.com/p/fintechpulse1110`)を抽出した。
+- **コメント欄が実際に問うたこと**:
+  1. **信頼の錨は銀行にあり、Agent にはない**: @hecodesforme はカード情報が銀行の中にあることが購入者が信頼する唯一の方法だと述べる。この一文は業界の既定値を認めている — **Agent 側には自前の防衛線がない**。
+  2. **Agent ごとのカード発行はまだ提案段階**: @8eanmurray は発行会社が Agent ごとのバーチャルカード、有効期限、支出上限を標準で提供すべきだと提案した。方向は正しいが、発行会社が出荷すべき機能であり、利用者が自分で検証することも、他プラットフォームへ持ち運ぶこともできない。
+  3. **保証は利用者に付いてこない**: Revolut の顧客が Revolut カードで支払うときにしか成立しない。別のアシスタントや別の加盟店に替えれば保護は消える。
+- **私たちの側(実コードで確認)**:
+  - **資格情報はモデルに届かない**: 金庫 + ラベル参照注入(`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/credential_vault.py:39-78`)。ブラウザとデスクトップが `fill_credential` を共有する。モデルはラベルだけを見て秘密は見ない — AIR の「モデルに不透明」という原則を、パスワード、ワンタイムパスワード、API キーまで広げたものだ。
+  - **予算がすなわち承認**: 予約 → 確定 → 解放の 3 段階、整数セント会計、1 件あたりと日次のハード上限、再起動時に台帳を再生して当日の水位を復元(`myrm-agent/myrm-agent-server/app/commerce/budget_service.py:107-245`)。さらに加盟店と金額で上限を設けた**ワンタイムバウチャー**を発行できる(`budget_service.py:256-300`、既定 300 秒) — これは**内部の制限付きバウチャー**であり、発行会社が発行した実カード番号ではない。
+  - **署名バウチャー + 加盟店許可リスト**: 金額と加盟店に紐づく署名バウチャーがないと請求できず、定数時間で検証する(`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/egress/spend_governor.py`、`myrm-agent/myrm-agent-server/app/api/commerce/spending_router.py`)。許可リストにない加盟店は拒否される。
+  - **お金は自動承認されない**: 金融系ツールは自動モードの自動承認の対象外で(`batch_processor.py:265-293`)、許可リストでも迂回できない(`:550-554`)。決済の高リスククリックはツール内で直接中断し、対話セッションがない場合は失敗時拒否として扱う(`semantic_dom_hitl.py:82-97`)。
+  - **パネルで確認し、止める**: 日次上限、加盟店許可リスト、リアルタイム台帳、ワンクリック緊急凍結(`myrm-agent-frontend/src/components/features/settings/sections/system/AgentCommerceBudgetSection.tsx`)。
+  - **3 つの配備形態で同じ動作**: ローカル WebUI、Tauri デスクトップ、クラウドサンドボックス。保護が Agent ランタイムの中にあるため、どの銀行を使うかとは無関係だ。
+- **正直な差分(未出荷、宣伝禁止)**:
+  1. **カード発行は範囲外**: バーチャルカードは発行しない(カードネットワーク、BIN、PCI-DSS)。「実カードなし + 統制された予算 + 事前承認」で同じ目標を達成し、発行会社だと主張しない。
+  2. **カードフィールドの書き込みガードは未出荷**: カード番号フィールドへの通常の fill/type を拒否し人が引き継ぐよう強制することは `topic_04 #109` ④ の分析待ち項目だ。現状の書き込みガードは `type=password` のみを拒否し(`toolkits/browser/session/interactor.py:371`)、意味層にカード語彙はない(`core/security/detection/semantic_risk.py`)。**「すべてのカード入力を遮断している」と言ってはならない。**
+  3. **サードパーティウォレットアダプタ**: 最初の提供者実装のみで、適用範囲と地域の可用性は未測定だ。
+  4. **チャネル間の支払い承認**: IM で支払いを承認することは `topic_13 #128`(計画)であり、現在出荷されているのは GUI 承認経路だ。
+  5. **注文 3 要素カード(加盟店 / 合計 / 配送時間)**: `topic_03 #124` ② に属し未出荷だ。今は決済クリックが毎回尋ねるが、尋ねる前に 3 要素を示すわけではない。両者を混同してはならない。
+- **移行の観点**: AIR を使うなら、その保証を得るために銀行関係を 1 つの銀行へ移す必要がある。Myrm では保証が自分の Agent ランタイム内の「資格情報金庫 + 予算 + 承認 + 台帳」だ。加盟店、チャネル、配備形態を越えて持ち運べ、1 行ずつ監査できる。
+- **SSOT**: `temp-docs/materials/COMMERCE_AGENT_TRANSACTIONAL_ADVANTAGE.md` §12 · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` #124 · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md` #109 · `temp-docs/roadmap/topic_13_channel_integration_roadmap.md` #128
