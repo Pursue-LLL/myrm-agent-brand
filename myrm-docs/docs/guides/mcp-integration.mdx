@@ -11,6 +11,19 @@ Myrm supports the [Model Context Protocol (MCP)](https://modelcontextprotocol.io
 
 MCP is an open standard that lets AI agents connect to external data sources and tools through a unified protocol. Instead of building custom integrations, you can connect any MCP-compatible server.
 
+## How Myrm Loads Large MCP Servers
+
+Myrm treats every MCP server as a Skill, so a large tool catalog does not have to be pasted into the context on every turn:
+
+- **L1 — Skill catalog:** only a token-budgeted set of short capability summaries is kept in the conversation.
+- **L2 — Tool signatures:** selecting the skill loads the server's compact function signatures, not the full JSON Schema.
+- **L3 — One tool at a time:** read `/mcp/<skill>/<function>.md` only when the parameters or return shape matter.
+- **Search:** if a skill is not in the current catalog, `skill_search_tool` finds it by capability; a known name can be selected directly.
+- **Execution:** calls run through Python PTC, so independent lookups can be combined in one script instead of one model round trip per call.
+
+This is different from exposing every MCP tool as a first-class JSON function. It keeps the model's action space small for large MCP fleets while preserving the real tool schema for execution.
+
+
 ## Service Catalog (One-Click Connect)
 
 The fastest way to connect popular services. Navigate to **Settings > Integrations > Service Catalog** to browse 37 prebuilt integrations across 9 categories:
