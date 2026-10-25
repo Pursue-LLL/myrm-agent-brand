@@ -1220,13 +1220,13 @@
           "title": "Six layers of protection — you confirm sensitive actions",
           "desc": "Sensitive actions require your confirmation — runtime risks visible, credentials kept out of chat, new capabilities pre-scanned, fully auditable. Smart Approval progressively learns your trust, so interruptions vanish after the first click.",
           "point1": "Auto-detect risky pages and terminal commands with clear explanation before approval; 'Always Allow' remembers your choice; destructive commands (e.g. bulk deletion/hard resets) are strictly blocked until explicit CONFIRM is typed, backed by an exclusive 10-minute zero-copy workspace snapshot rollback undo card to eliminate catastrophic repository wipes",
-          "point2": "Hardware-backed credential vault; dedicated sandbox volume hardware-level isolation",
+          "point2": "Hardware-backed credential vault & encryption-at-rest: LLM API keys encrypted with OS Keyring / AES-256-GCM; progressive IP lockout (5 fails → 15m ban, 10 fails → 24h ban) with Tarpit delays and anomaly spend circuit breaker to prevent brute-force attacks on self-hosted instances; dedicated sandbox volume hardware-level isolation",
           "point3": "External skills are isolated as read-only by default with frontmatter privilege escalation blocking; pre-import CVE supply-chain scanning; strict 127.0.0.1 loopback binding blocks DNS rebinding and cross-site hijacking"
         },
         "reliability": {
           "title": "Long jobs stay steady — resume where you left off",
           "desc": "Big goals auto-breakdown + duplex steering + 4-layer durable execution — complex projects steer without interruptions and resume steadily after a break.",
-          "point1": "Goal mode: task dependencies with cost and time caps — progress and spend under control on long runs",
+          "point1": "Long-horizon workflow state machine: supports 30-day cross-cycle workflows (tasks, authorizations, and evidence chain survive restarts); strict 'reconcile-first' protocol on write timeouts (state=UNKNOWN->reconcile) prevents duplicate orders and charges; task dependencies with cost and time caps keep long projects under control",
           "point2": "6-layer resilience & session-tree branch isolation: lazy persistence until first token (zero disk write on cancel) + bidirectional session-tree branch state binding (governing all 6 mutation lifecycles via atomic os.replace and preserve_on_empty physical safeguards, achieving zero brain-split and atomic todo folding across branches) + crash-resilient subagent checkpoints (automatic in-memory fallback, zero-loss HITL resume) + two-phase safe rollback, keeping sandbox workspace and conversation history strictly 1:1 synchronized on any branch exploration or rewind",
           "point3": "Non-blocking steering loopback: online in-flight steering with 3-tier 409 conflict fallback (Redirect → Steer → SendMessage) losing zero keystrokes; concurrent file edits queued, Singleflight deduplicated, and loop circuit breakers prevent idle spins"
         },
@@ -1249,7 +1249,7 @@
           "desc": "Quick search, all-round assistant, kanban teamwork, scheduled jobs, and goal-driven autonomous loops — one workspace for every scenario; what others offer, we cover — built to be the only tool you need.",
           "point1": "Quick search with traceable citations — fewer unsupported claims",
           "point2": "Kanban Goal Mode: task cards run multi-turn loops until objective met, with 4D budget control",
-          "point3": "Scheduled jobs and external event triggers for unattended execution"
+          "point3": "Scheduled jobs & event triggers: 3-5min sliding debounce batching with 3-tier 'Stay Quiet' eye-contact triage (urgent call, morning/evening digest, silent routine) eliminates alert fatigue; pre-flight liveness and credential probing with one-click re-login ticket dispatch"
         }
       }
     },
