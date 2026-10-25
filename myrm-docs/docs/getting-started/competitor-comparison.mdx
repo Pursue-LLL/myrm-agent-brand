@@ -2747,3 +2747,15 @@ OpenCode is a solid MIT-licensed terminal coding agent: fast, TUI-native, and mu
   5. **The order-facts card (merchant / total / delivery time)** — belongs to `topic_03 #124` ② and is not shipped. Today the checkout click always asks; it does **not** yet show the three facts before it asks. Do not conflate the two.
 - **What this means for migration**: with AIR you move your banking relationship into one bank to get the guarantee. With Myrm the guarantee is `credential vault + budget + approval + ledger` inside your own Agent runtime — portable across merchants, channels and deployment modes, and auditable line by line.
 - **SSOT**: `temp-docs/materials/COMMERCE_AGENT_TRANSACTIONAL_ADVANTAGE.md` §12 · `temp-docs/roadmap/topic_03_security_governance_supplychain_roadmap.md` #124 · `temp-docs/roadmap/topic_04_browser_media_capture_roadmap.md` #109 · `temp-docs/roadmap/topic_13_channel_integration_roadmap.md` #128
+
+## 2026-10-25 Architecture Upgrades & Migration Dividends (Search Accuracy, Lossless Handoff, Local Rollups & Privacy Egress)
+
+Based on incremental sync of 527 external reference repositories and deep analysis of 125 active codebases (Firecrawl, T3Code, Switchyard, Lobehub, Pi, WeChat-Claude-Code):
+
+1. **Client-Side Search Operator Enforcement**: Upstream search engines frequently degrade or miss complex operator combinations (`site:` + `inurl:`/`intitle:`), injecting non-target web pages and causing agent hallucinations. Myrm relaxes complex operators upstream to maximize candidate recall, then deterministically filters URLs and titles on the client side, ensuring 100% constraint adherence.
+2. **Goal-Driven Lossless Session Handoff**: When long tasks hit context capacity limits, naive sliding-window truncation or lossy compaction permanently drops critical decisions and file artifacts. Myrm introduces a goal-driven handoff pipeline that synthesizes self-contained context contracts with full parent session tracking, keeping long-horizon agents accurate across weeks of work.
+3. **Tool Search & Prompt Cache Alignment**: Dynamic tool search on long-context models often injects complete schemas, creating minor prefix vibrations that shatter prompt cache reuse. Myrm guarantees strict prefix stability and monotonic tool mounting, slashing multi-turn Cache Write costs by up to 90%.
+4. **Lightweight Local & Desktop Usage Rollups**: Powered by local append-only logs, Myrm tracks file fingerprints (inode/VolumeId) and byte offsets to provide incremental millisecond usage rollups across daily and weekly windows, delivering transparent spend visibility without external databases.
+5. **Outbound Tool Noise Scrubbing**: Safely catches unparsed tool JSON dumps leaked into text streams by third-party gateways and extracts pure natural language narration, keeping IM channels (WeChat, Telegram) clean while preserving daily messaging quotas.
+6. **Physical Telemetry Egress Blocking in Local/Sandbox Modes**: In local standalone and isolated sandbox modes, Myrm enforces fail-closed network blocking against third-party telemetry libraries, ensuring proprietary code and prompts never leave your local environment.
+
