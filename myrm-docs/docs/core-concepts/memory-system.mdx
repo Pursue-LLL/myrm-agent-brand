@@ -266,7 +266,7 @@ The AMO paradigm (2025-2026) defines four core operations that a complete memory
 |-----------|-------------|-------------------|
 | **Store** | Structured write with provenance tracking | 8 types + 5-level scope + correction chains + confidence scoring |
 | **Forget** | Compliance deletion + temporal decay + cognitive noise reduction | 5-dimension retention scoring + 3 modes (soft/hard/archive) + preference lifecycle |
-| **Retrieve** | Intent-aware multi-signal retrieval | 7-signal fusion (semantic + BM25 + entity + recency + frequency + importance + preference) + MMR diversity |
+| **Retrieve** | Intent-aware multi-signal retrieval | 7-signal fusion (semantic + BM25 + entity + recency + rating + importance + preference) + MMR diversity |
 | **Synthetize** | Cross-session knowledge distillation | Consolidation (5 operations) + pattern discovery + subsumption + hierarchical tree summarization |
 
 ## 7-Signal Retrieval Fusion
@@ -277,9 +277,11 @@ Unlike traditional vector-only search, Myrm combines 7 independent scoring signa
 2. **Keyword match** — SQLite FTS5 + BM25 precise recall
 3. **Entity match** — Graph-enhanced multi-hop traversal
 4. **Recency** — Exponential time decay (configurable half-life per type)
-5. **Frequency** — Access count with logarithmic saturation
+5. **Rating** — Your feedback on a memory: a bad rating lowers its weight faster than a good rating restores it
 6. **Importance** — User-assigned or LLM-extracted importance scores
 7. **Preference** — Preference-type boost for preference queries
+
+How often a memory has been recalled does not affect its rank: every returned hit counts as used, so the count measures exposure rather than usefulness, and ranking by it would keep re-showing the same memories while new facts never surface. Usage records serve only forgetting and staleness defense (see below).
 
 ## Int8 Per-Row Dynamic Vector Quantization (4x Memory Compression & Zero GC Dot Product)
 

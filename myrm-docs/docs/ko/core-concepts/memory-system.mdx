@@ -188,7 +188,7 @@ AMO 패러다임(2025-2026)은 완전한 메모리 시스템이 지원해야 하
 |-----------|-------------|-------------------|
 | **Store** | Structured write with provenance tracking | 8 types + 5-level scope + correction chains + confidence scoring |
 | **Forget** | Compliance deletion + temporal decay + cognitive noise reduction | 5-dimension retention scoring + 3 modes (soft/hard/archive) + preference lifecycle |
-| **Retrieve** | Intent-aware multi-signal retrieval | 7-signal fusion (semantic + BM25 + entity + recency + frequency + importance + preference) + MMR diversity |
+| **Retrieve** | Intent-aware multi-signal retrieval | 7-signal fusion (semantic + BM25 + entity + recency + rating + importance + preference) + MMR diversity |
 | **Synthetize** | Cross-session knowledge distillation | Consolidation (5 operations) + pattern discovery + subsumption + hierarchical tree summarization |
 
 ## 7-신호 검색 융합
@@ -199,9 +199,11 @@ AMO 패러다임(2025-2026)은 완전한 메모리 시스템이 지원해야 하
 2. **키워드 일치** — SQLite FTS5 + BM25 정밀 리콜
 3. **엔티티 일치** — 그래프로 강화된 다중 홉 순회
 4. **최신성** — 지수적 시간 감쇠(유형별로 구성 가능한 반감기)
-5. **빈도** — 로그 포화도를 사용한 액세스 횟수
+5. **평가** — 기억에 대한 사용자 피드백: 낮은 평가가 높은 평가보다 가중치를 더 빠르게 낮춥니다
 6. **중요도** — 사용자 할당 또는 LLM 추출 중요도 점수
 7. **기본 설정** — 기본 설정 쿼리에 대한 기본 설정 유형 부스트
+
+기억이 얼마나 자주 불러와졌는지는 순위에 영향을 주지 않습니다. 반환된 모든 결과가 사용된 것으로 기록되므로 횟수는 유용성이 아니라 노출 정도를 나타내며, 이를 기준으로 정렬하면 같은 기억만 반복해서 보여 주고 새로운 사실은 앞쪽에 오르지 못합니다. 사용 기록은 망각과 오래된 정보 방어에만 쓰입니다(아래 참조).
 
 ## Anti-Chitchat 메모리(무작동 기본값)
 
