@@ -703,24 +703,15 @@ This prevents the common industry problem of agents burning tokens and time on i
 | Lost context after intervention | Captures post-human page state and adapts |
 | Agent retries blocked domain endlessly | 0ms fast-fail for remembered terminal challenges |
 
-## Parallel Browser Task Spaces & User Takeover Hard-Stop Policy
+## Taking Over the Browser
 
-When multiple sub-agents execute concurrent web workflows (such as cross-source comparative research or multi-account scraping), traditional architectures suffer from cookie bleed, session collisions, and orphaned browser memory leaks. Myrm delivers an end-to-end task space lifecycle and intervention architecture:
+Watch the agent's browser on the sandbox desktop and step in whenever you need to: sign in, pass a CAPTCHA, or fix a form.
 
-### 1. Physical Isolation & Quota Guard
-- **Independent Execution Containers**: Each sub-task is bound to an isolated `BrowserContext` and `BrowserSession`, maintaining dedicated cookies and LocalStorage to eliminate state crosstalk.
-- **Dedicated Concurrency Mutex**: Each task space is guarded by a dedicated `asyncio.Lock`, preventing parallel action race conditions.
-- **Hard Quotas & Automatic TTL Pruning**: `HarnessTaskSpaceManager` enforces strict capacity limits (defaulting to 5 active task spaces) combined with an automated 900s idle TTL eviction mechanism, eliminating zombie browser processes and container OOM risks.
-
-### 2. Floating Perception Dock (`TaskSpaceDock`)
-A lightweight, adaptive floating pill rendered at the bottom-right of the WebUI:
-- **Adaptive Polling**: Automatically throttles polling frequency when idle/collapsed and scales up during active tasks or inspection.
-- **Mobile Responsive**: Fully compliant with mobile `safe-area-inset-bottom` and responsive screen breakpoints.
-- **Card-Based Inspection**: Expandable overview card showcasing active sub-agents, running task spaces, and instant takeover actions.
-
-### 3. User-Initiated Takeover Hard-Stop & Auto-Resume Policy
-- **Physical Hard Stop**: Clicking "Takeover" immediately triggers `session.pause()` in the harness engine, locking out agent actions and completely avoiding cursor-fighting between user and model.
-- **State Realignment on Resume**: Releasing the takeover triggers `session.resume()` and automatically recaptures the fresh DOM accessibility tree, allowing the agent to seamlessly continue execution from the user-updated state.
+- **View-only by default**: The desktop panel shows what the agent is doing without accepting clicks or keystrokes, so a stray click cannot disturb a running task.
+- **Take control and hand back**: Choose *Take control* to click and type yourself. The agent's browser and desktop tools wait while you work, reads included, so nothing is captured while you type a password. Choose *Hand back* or close the panel to let the agent continue (unless the agent is waiting for you to press *Done* or *Skip*).
+- **Look before acting**: After you hand back, the agent re-reads the page before it clicks or types, so it never acts on a page you have since changed.
+- **Never stuck**: If you leave without handing back, control returns to the agent automatically after a few minutes.
+- **Agent asks for help**: When the agent needs a login, 2FA code, or CAPTCHA, the same panel opens. Press *Done* or *Skip* to hand back.
 
 ## Resource-Efficient Browsing — Run Anywhere
 

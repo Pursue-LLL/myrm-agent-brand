@@ -1812,17 +1812,6 @@ Most agents leave a static skeleton for the tens of seconds the model spends thi
 - **SSOT Sources:** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/security/env_isolation.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
 
 
-## Latest Validation Snapshot (2026-09-05 · Parallel Browser Task Spaces & User Takeover Hard-Stop Policy · Browser Automation Completed)
-
-- **ParallelBrowserTaskSpaceWebUiPack / BrowserUserInitiatedTakeoverHardStopResumePolicy (vs Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi suffering from cookie collisions across concurrent agents, action race conditions, unmanaged headless browser zombie leaks causing container OOM, and cursor-fighting during manual human takeover):** Myrm delivers an enterprise-grade isolated task space container and resilient human takeover architecture:
-  1. **Physical Container Isolation (`BrowserTaskSpace` · `space_manager.py`)**: Dedicates independent `BrowserContext` and `BrowserSession` instances to each concurrent sub-agent, maintaining fully isolated cookies and LocalStorage to eliminate state crosstalk;
-  2. **Dedicated Concurrency Mutex (`asyncio.Lock`)**: Guards each task space with an exclusive mutex lock, preventing parallel action trampling at the lowest scheduling layer;
-  3. **Hard Capacity Quotas & 900s Idle TTL Auto-Pruning**: Implements strict concurrency limits (default max 5 active spaces) alongside automated idle timeout eviction, permanently eradicating headless browser leaks and system freezes;
-  4. **Floating Perception Dock (`TaskSpaceDock.tsx`)**: Lightweight adaptive pill at the bottom-right of the WebUI supporting adaptive polling, mobile safe-area insets, multi-space expand cards, and one-click takeover switching;
-  5. **Physical Hard Stop & State Realignment on Resume**: Clicking "Takeover" immediately dispatches low-level `session.pause()` to suspend agent actions and prevent cursor-fighting; releasing takeover triggers `session.resume()` and automatically recaptures the fresh DOM tree to ensure seamless continuation;
-  6. **100% Automated Test Suite Passing**: Harness task space unit tests, server lifecycle routes, frontend components, and real Chrome MCP Task Flow E2E tests all pass with 0 errors.
-- **SSOT Sources:** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/browser/spaces/` · `myrm-agent-server/app/services/browser_spaces/` · `myrm-agent-frontend/src/components/features/browser/TaskSpaceDock.tsx` · `temp-docs/materials/BROWSER_AUTOMATION_ADVANTAGE.md`
-
 ## Latest Validation Snapshot (2026-09-05 · Zero-Model-Cost Deterministic Behavioral Measurement & Decoupled Workday/Weekend Routines · Memory Completed)
 
 - **ZeroModelCostDeterministicBehavioralMeasurement (vs Mem0 / Letta / OpenClaw / Hermes / Codex / DeepSeek-Harness / Pi periodically waking up background LLMs to compute user active routines, peak hours, and response latency resulting in exploding token bills, frequent numerical timestamp hallucinations, cross-timezone routine distortion during travel, and cascading batch failures upon single 429 errors):** Myrm delivers an enterprise-grade pure deterministic behavioral measurement and fault-isolated architecture:
