@@ -1146,7 +1146,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/infra/tracing/` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/system/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
 
 - **UniversalOpenTelemetryTracerAndOtlpSuite（对标 Hermes Agent @alexander-akhmetov/grafana-agento11y-hermes、OpenClaw、Codex、DeepSeek-Harness 与 Pi 在监控领域普遍存在的“强绑定私有厂商变量、OTLP 导出失败静默降级假装在线（False Active）、只读环境变量导致动态参数失联（State Disconnect）、网络挂起阻塞退出等致命痛点）：** Myrm 全面交付了工业级标准 OpenTelemetry 遥测与 SRE 态势闭环：
-  1. **标准 OTLP 配置，双协议原生支持（`otlp/config.py` · `otlp/exporters.py`）**：遵循官方 `OTEL_EXPORTER_OTLP_*` 语义（按信号配置的端点原样使用，通用 HTTP 端点自动补全 `/v1/traces` 与 `/v1/metrics`，协议优先级为信号级 > 通用 > 默认），HTTP/Protobuf（`:4318`）与 gRPC（`:4317`）均经官方 Exporter 导出，端点 URL 与请求头中的凭据在任何展示处都会脱敏；
+  1. **标准 OTLP 配置，双协议原生支持（`otlp/config.py` · `otlp/exporters.py`）**：遵循官方 `OTEL_EXPORTER_OTLP_*` 语义（按信号配置的端点原样使用，通用 HTTP 端点自动补全 `/v1/traces` 与 `/v1/metrics`，协议优先级为信号级 > 通用 > 端点自带的提示（端口 `4317` 即 gRPC）> 默认），HTTP/Protobuf（`:4318`）与 gRPC（`:4317`）均经官方 Exporter 导出，端点 URL 与请求头中的凭据在任何展示处都会脱敏；
   2. **实测态势而非断言（`otlp/posture.py` · `otlp/stats.py`）**：导出器自身统计已导出 Span、失败批次与丢弃 Span，并记录最近成功/失败时间；态势、实际采样器与指标管线状态均由这些实测值得出，代码传参的配置与环境变量配置同样被如实反映；
   3. **消除静默降级假象（Anti-Silent Fallback Illusion）**：无法按配置运行（缺少 gRPC 依赖、宿主已安装 Provider）时导出保持关闭，并上报 `status="degraded"` 与确切的 `degraded_reason`；收集器拒收批次时上报 `failing`；不静默切换协议，也不回退到标准输出；
   4. **Frontend 导出卡片（`TelemetryPostureCard.tsx`）**：展示端点、协议、采样器、提示词与回复内容是否外发（默认仅元数据）、指标导出、送达计数与最近成功/失败时间；状态点仅在导出真正活跃时呼吸，六种语言同步；
