@@ -320,7 +320,7 @@ harness 的 `FileLock`（供投递队列使用）以 `O_NOFOLLOW` 打开锁文�
 | 控制 | 机制 |
 |---------|-----------|
 | **工具白名单** | `DelegationCapabilityManifest` |
-| **记忆隔离** | EPHEMERAL / READ_ONLY_GLOBAL / COLLABORATIVE |
+| **记忆隔离** | 子智能体不能调用 `memory_save_tool` / `memory_manage_tool`，继承的记忆管理器是只读视图：可检索父级记忆，不能写入 |
 | **污点传播** | `TaintTracker` 子→父；外网数据污染则父会话污点 |
 | **Sink 策略** | 污点会话对危险工具组合升级 HITL |
 | **预算边界** | 4 维 `DelegationBudget` 防失控子 Agent 链 |
@@ -938,7 +938,7 @@ MyRM 实施 5 层隔离防护：
 | **L3** | 子⊆父工具交集（子代理的工具永远不会多于父代理） |
 | **L4** | 双重深度限制（全局最大 3 层 + 按配置 max_spawn_depth） |
 
-额外安全网：Payload hash 去重防止委派循环、结果缓存避免冗余工作、3 种记忆隔离策略（EPHEMERAL / READ_ONLY_GLOBAL / COLLABORATIVE_SESSION）防止跨代理数据污染。
+额外安全网：Payload hash 去重防止委派循环、结果缓存避免冗余工作、子智能体没有记忆写入工具，只持有只读记忆视图，防止跨代理数据污染。
 
 ## 多代理文件保护：8 层纵深防护
 

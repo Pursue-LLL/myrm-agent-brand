@@ -225,7 +225,7 @@ LLM 컨텍스트에 들어가기 전에 모든 외부 컨텐츠와 도구 출력
 | Control | Mechanism |
 |---------|-----------|
 | **Tool Whitelisting** | `DelegationCapabilityManifest` — parent explicitly declares which tools each child agent can access |
-| **Memory Isolation** | 3 policies: `EPHEMERAL_SESSION` (clean slate), `READ_ONLY_GLOBAL` (read but not write), `COLLABORATIVE_SESSION` (shared with audit) |
+| **Memory Isolation** | A sub-agent cannot call `memory_save_tool` or `memory_manage_tool`, and the memory manager it inherits is a read-only view: it can search the parent's memory but not write to it |
 | **Taint Propagation** | `TaintTracker` labels flow from child → parent. If a child touches external network data, the parent session is automatically tainted |
 | **Sink Policies** | Tainted sessions escalate to HITL approval for dangerous tool combinations (e.g., `EXTERNAL_NETWORK` taint + `bash_tool` = blocked without approval) |
 | **Budget Boundary** | 4-dimension `DelegationBudget` (token + USD + time + max descendants) prevents runaway sub-agent chains |
@@ -887,7 +887,7 @@ MyRM은 5개 계층의 격리를 시행합니다.
 | **L3** | Child ⊆ Parent tool intersection (child can never have more tools than parent) |
 | **L4** | Dual depth limits (global max 3 + per-config max_spawn_depth) |
 
-추가 안전망: 페이로드 해시 중복 제거는 위임 루프를 방지하고, 결과 캐싱은 중복 작업을 방지하며, 3가지 메모리 격리 전략(EPHEMERAL / READ_ONLY_GLOBAL / COLLABORATIVE_SESSION)은 에이전트 간 데이터 오염을 방지합니다.
+추가 안전망: 페이로드 해시 중복 제거는 위임 루프를 방지하고, 결과 캐싱은 중복 작업을 방지하며, 하위 에이전트에는 메모리 쓰기 도구가 없고 읽기 전용 메모리 뷰만 주어져 에이전트 간 데이터 오염을 방지합니다.
 
 ## 다중 에이전트 파일 보호: 8계층 방어
 
