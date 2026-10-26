@@ -53,6 +53,7 @@ Myrm 会将其加密存储在本地数据目录（`MYRM_DATA_DIR`，默认 `~/.m
 | `OTEL_EXPORTER_OTLP_HEADERS` | （空） | 鉴权请求头，格式 `key=value,key2=value2`（如 `Authorization=Bearer%20<token>`），不会在界面中显示 |
 | `OTEL_TRACES_SAMPLER` / `OTEL_TRACES_SAMPLER_ARG` | `parentbased_always_on` | 标准采样配置，例如 `parentbased_traceidratio` 配 `0.1` 表示保留 10% 的链路 |
 | `OTEL_SDK_DISABLED` | `false` | 设为 `true` 时关闭全部链路与指标导出 |
+| `OTEL_TRACES_EXPORTER` / `OTEL_METRICS_EXPORTER` | `otlp` | 设为 `none` 时只关闭对应的那一路导出。只接收链路的后端会拒收指标批次（Jaeger 返回 `404`，服务端会为每次失败的导出记录日志），此时请设置 `OTEL_METRICS_EXPORTER=none` |
 | `OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT` | `false` | 主动开启后，导出的 Span 才包含提示词、回复与工具内容；关闭时只导出元数据 |
 | `MYRM_LOCAL_TRACE_ONLY` | `0` | 纯本地 Trace 模式：设为 `1` 时物理拦截任何远端导出，确保 Trace 100% 留在本地 |
 | `MYRM_CARDINALITY_FIREWALL` | `1` | 激活指标高基数隔离防火墙，杜绝 Prometheus 内存溢出 |

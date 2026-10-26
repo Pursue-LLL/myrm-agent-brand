@@ -54,6 +54,7 @@ every provider keeps its own key, and Myrm stores it encrypted in the local data
 | `OTEL_EXPORTER_OTLP_HEADERS` | (empty) | Auth headers as `key=value,key2=value2` (e.g. `Authorization=Bearer%20<token>`); never shown in the UI |
 | `OTEL_TRACES_SAMPLER` / `OTEL_TRACES_SAMPLER_ARG` | `parentbased_always_on` | Standard sampling, e.g. `parentbased_traceidratio` with `0.1` keeps 10% of traces |
 | `OTEL_SDK_DISABLED` | `false` | `true` switches all trace and metric export off |
+| `OTEL_TRACES_EXPORTER` / `OTEL_METRICS_EXPORTER` | `otlp` | `none` switches that one signal off. A traces-only backend rejects metric batches (Jaeger answers `404` and the server logs each failed export); set `OTEL_METRICS_EXPORTER=none` for it |
 | `OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT` | `false` | Opt-in: include prompt, reply and tool content in exported spans; off exports metadata only |
 | `MYRM_LOCAL_TRACE_ONLY` | `0` | Air-gapped local mode: `1` enforces zero remote OTel export and keeps all traces purely local |
 | `MYRM_CARDINALITY_FIREWALL` | `1` | Enforces metric label sanitization to prevent Prometheus high-cardinality OOM |
