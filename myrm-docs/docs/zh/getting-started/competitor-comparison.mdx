@@ -1320,14 +1320,13 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   4. **全套自动化测试 100% 满分通过**：Harness 框架层、Server 调度层与前端 Chrome E2E 真实任务流（`test_kanban_chrome_e2e.py`）全绿灯通过，零 Lint 告警。
 - **SSOT 来源：** `myrm-agent-frontend/src/components/features/kanban/KanbanTaskDrawerDetails.tsx` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/executor_helpers.py` · `temp-docs/materials/KANBAN_TASK_SCHEDULING_ADVANTAGE.md` · `temp-docs/roadmap/topic_12_multiagent_orchestration_roadmap.md`
 
-## 最新验证快照（2026-09-06 · 内核级本地追踪隔离门禁与知识图谱维度自检 · 数据安全与合规可观测性闭环）
+## 最新验证快照（2026-09-06 · 本地追踪隔离门禁与 Doctor 追踪外发审计 · 数据安全与合规可观测性闭环）
 
-- **LocalTraceOnlyGateAndCodebaseDoctorCheckIntegration（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在本地私有化或离线运行时，后台遥测组件可能仍尝试向外部 OTel 收集器外发 Trace 数据导致网络泄漏，或向量数据库索引维度配置失配导致检索静默失效的风险）：** Myrm 交付了内核级本地追踪物理阻断与健康自检探针：
-  1. **内核级物理阻断门禁（`LocalTraceOnlyEnforcer` / `assert_local_trace_only`）**：在 Harness 执行底座直接识别 `MYRM_LOCAL_TRACE_ONLY=1`，物理阻断一切向非 localhost/127.0.0.1 远端 OTLP Collector 的数据上报，阻断越界导出风险；
-  2. **Doctor 隔离自检与合规审计（`check_local_trace_export_audit`）**：在诊断自检体系中新增本地 Trace 隔离状态审计探针，并提供结构化自愈修复指引；
-  3. **知识图谱向量维度自检（`check_graph_embedding_health`）**：在 Doctor 诊断探针中集成向量索引连通性与维度探测，防止冷启动时因模型与向量库维度失配造成隐蔽故障；
-  4. **全套自动化测试 100% 满分通过**：相关单元测试全部通过，无任何 Lint 警告与环境残留。
-- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/infra/tracing/tracer.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/observability/diagnostics/probes.py` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
+- **LocalTraceOnlyGateAndCodebaseDoctorCheckIntegration（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在本地私有化或离线运行时，后台遥测组件可能仍尝试向外部 OTel 收集器外发 Trace 数据导致网络泄漏的风险）：** Myrm 交付了本地追踪外发门禁与 Doctor 审计探针：
+  1. **本地追踪外发门禁（`apply_local_isolation` / `assert_local_trace_only`）**：`MYRM_LOCAL_TRACE_ONLY=1` 时，任何按解析后主机判断不在本机的 OTLP 目标（通用端点与分信号端点同样适用）在构建导出器之前即被拒绝并抛出 `PermissionError`；仅由调用方要求本地导出时，远端目标会被丢弃并记录警告；
+  2. **Doctor 隔离自检与合规审计（`check_local_trace_export_audit`）**：在诊断自检体系中新增本地 Trace 隔离状态审计探针（报告中的端点已脱敏凭据），并提供结构化自愈修复指引；
+  3. **全套自动化测试 100% 满分通过**：相关单元测试全部通过，无任何 Lint 警告与环境残留。
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/infra/tracing/tracer.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/infra/tracing/otlp/config.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/observability/diagnostics/trace_probe.py` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
 
 ## 最新验证快照（2026-09-06 · 三层隐私脱敏与 OTel 原生清洗闭环 · 数据安全与合规可观测性闭环）
 
