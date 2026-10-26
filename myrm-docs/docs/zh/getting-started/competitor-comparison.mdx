@@ -1138,19 +1138,19 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 ## 最新验证快照（2026-09-07 · 零子进程 Git 语义规范打标、高基数指标防火墙与双通道守护线程超时防挂死全面交付 · 彻底终结子进程泄漏与时序爆炸）
 
 - **ZeroSubprocessGitMetadataTaggingAndBoundedFlushResilienceEngine（对标 Hermes Agent @alexander-akhmetov/grafana-agento11y-hermes、OpenClaw、Codex、DeepSeek-Harness 与 Pi 在生产可观测性中普遍存在的“依赖外部 git 子进程解析导致进程卡死与延迟激增、无界高散列标签导致 Prometheus/OTel Collector 内存爆炸 OOM、以及网络异常时关机同步阻塞挂起”等致命痛点）：** Myrm 全面交付了工业级纯 Python 零子进程 Git 语义打标、高基数指标防火墙与双通道有界冲刷闭环：
-  1. **零子进程纯 Python Git 语义打标（`git_resolver.py` · `tracer.py`）**：纯 Python 读取 `.git/HEAD`、Linked Worktree 与 packed-refs 引用，彻底杜绝派生外部 `git` CLI 进程带来的 15~35ms 延迟损耗与子进程悬挂风险，耗时 <0.5ms；遵循 OpenTelemetry 官方 VCS 语义规范（`vcs.ref.head.name`, `vcs.repository.change.id`）原生注入 Resource 属性；
+  1. **零子进程纯 Python Git 语义打标（`git_resolver.py` · `otlp/resource.py`）**：纯 Python 读取 `.git/HEAD`、Linked Worktree 与 packed-refs 引用，彻底杜绝派生外部 `git` CLI 进程带来的 15~35ms 延迟损耗与子进程悬挂风险，耗时 <0.5ms；遵循 OpenTelemetry 官方 VCS 语义规范（`vcs.ref.head.name`, `vcs.repository.change.id`）原生注入 Resource 属性；
   2. **指标高基数隔离防火墙（`cardinality.py` · `collector.py`）**：严格拦截剥离 `session_id`、`turn_id`、`workspace` 等无界离散标签，避免时序爆炸；配合 `DynamicLabelManager` 的 LRU 频次过滤，自动将低频离散值归纳为 `'other'`，从根源锁死指标基数，保护下游存储；
   3. **双通道 1500ms 守护线程超时防挂死（`tracer.py` · `exporter.py`）**：Tracing 与 Metrics 双通道独立并发冲刷，配备 1500ms 守护线程硬超时，即使远端 OTLP Collector 网络黑洞或发生死锁，服务也能瞬间 Fail-Open 安全退出；
-  4. **Frontend 表现层 Git 代码环境动态徽章与一键配置脚手架（`TelemetryPostureCard.tsx`）**：在开发者设置中心以高质感翡翠绿徽章展示当前分支与 Commit 散列，非 Git 环境优雅降级，支持一键刷新态势与配置模板复制；
-  5. **自动化测试 100% 满分通过**：Harness 44 项、Server 8 项、前端 4 项全绿，真实 Chrome MCP E2E 真实浏览器 100% PASS（76.31s 完整 DOM 与双按钮交互闭环）。
+  4. **Frontend 表现层 Git 代码环境徽章与一键配置脚手架（`TelemetryPostureCard.tsx`）**：在开发者设置中心展示当前分支与 Commit 散列，非 Git 环境优雅降级，支持一键刷新态势与配置模板复制；
+  5. **自动化验证**：Harness 测试在真实 OTLP 接收端解码出的 Resource 上断言 VCS 属性；前端 Vitest 覆盖分支与 Commit 的渲染及非 Git 降级。
 - **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/infra/tracing/` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/system/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
 
 - **UniversalOpenTelemetryTracerAndOtlpSuite（对标 Hermes Agent @alexander-akhmetov/grafana-agento11y-hermes、OpenClaw、Codex、DeepSeek-Harness 与 Pi 在监控领域普遍存在的“强绑定私有厂商变量、OTLP 导出失败静默降级假装在线（False Active）、只读环境变量导致动态参数失联（State Disconnect）、网络挂起阻塞退出等致命痛点）：** Myrm 全面交付了工业级标准 OpenTelemetry 遥测与 SRE 态势闭环：
-  1. **工业级 OTLP 双模协议自适应（`tracer.py:275-370`）**：原生支持 W3C/OTel 官方标准 HTTP/Protobuf（`:4318`）与 gRPC（`:4317`），支持标准 Header 解析与 Bearer 鉴权凭据安全脱敏，无缝对接 Datadog、Grafana Tempo、NewRelic 等企业 APM 平台；
-  2. **权威运行时态势内存单源追踪（`tracer.py:60,135` · `_active_posture`）**：彻底消除依赖 `os.environ` 导致的 State Disconnect 缺陷，即使通过代码传参注入配置，态势也能 100% 精确反映；
-  3. **消除静默降级假象（Anti-Silent Fallback Illusion）**：当远程 Exporter 不可用时，系统自动安全降级至控制台标准输出（Fail-Open 保活），同时显式标记 `status="degraded_console"` 并暴露详细报错原因 `degraded_reason`；
-  4. **Frontend 表现层 4 格 SRE 态势仪表盘与琥珀色排错横幅（`TelemetryPostureCard.tsx`）**：在开发者设置页中直观呈现协议、端点、特性与鉴权状态，检测到降级时自动展示排错指引与一键配置复制；
-  5. **有界防卡死关机与全套自动化测试 100% 通过**：`shutdown_tracing(timeout_ms=1500.0)` 引入独立 Daemon Thread 隔离超时退出；Harness 单测 30 项、Server 集成 3 项、Frontend 单测 3 项全绿，真实 Chrome MCP E2E 真实大模型与浏览器交互闭环通过（87.74s）。
+  1. **标准 OTLP 配置，双协议原生支持（`otlp/config.py` · `otlp/exporters.py`）**：遵循官方 `OTEL_EXPORTER_OTLP_*` 语义（按信号配置的端点原样使用，通用 HTTP 端点自动补全 `/v1/traces` 与 `/v1/metrics`，协议优先级为信号级 > 通用 > 默认），HTTP/Protobuf（`:4318`）与 gRPC（`:4317`）均经官方 Exporter 导出，端点 URL 与请求头中的凭据在任何展示处都会脱敏；
+  2. **实测态势而非断言（`otlp/posture.py` · `otlp/stats.py`）**：导出器自身统计已导出 Span、失败批次与丢弃 Span，并记录最近成功/失败时间；态势、实际采样器与指标管线状态均由这些实测值得出，代码传参的配置与环境变量配置同样被如实反映；
+  3. **消除静默降级假象（Anti-Silent Fallback Illusion）**：无法按配置运行（缺少 gRPC 依赖、宿主已安装 Provider）时导出保持关闭，并上报 `status="degraded"` 与确切的 `degraded_reason`；收集器拒收批次时上报 `failing`；不静默切换协议，也不回退到标准输出；
+  4. **Frontend 导出卡片（`TelemetryPostureCard.tsx`）**：展示端点、协议、采样器、提示词与回复内容是否外发（默认仅元数据）、指标导出、送达计数与最近成功/失败时间；状态点仅在导出真正活跃时呼吸，六种语言同步；
+  5. **有界防卡死关机与真实接收端验证**：`shutdown_observability(timeout_ms=1500.0)` 在独立 Daemon 线程中冲刷追踪与指标；Harness 与 Server 测试对进程内 OTLP 接收端通过 HTTP/Protobuf 与 gRPC 断言真实送达，前端 Vitest 覆盖每一种状态。
 - **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/infra/tracing/` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/sections/system/` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md` · `temp-docs/roadmap/topic_11_observability_roadmap.md`
 
 ## 六大标杆竞品（Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode）深度横向对标与核心获益
@@ -1332,8 +1332,8 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
 ## 最新验证快照（2026-09-06 · 三层隐私脱敏与 OTel 原生清洗闭环 · 数据安全与合规可观测性闭环）
 
 - **ThreeLayerPrivacySanitizerAndAutomatedTraceReviewGate（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi / 《Agent Tracing》在可观测性与排障日志中“要么完全不记录排障全靠盲猜，要么记录详尽却将 API Key、密码与私密文件路径明文落盘外发导致灾难性隐私泄漏”、竞品采用私有白名单误杀官方规范、缺乏防 ReDoS 机制且粗暴丢弃超长数据导致证据链断裂的行业痛点）：** Myrm 交付了业内领先的三层渐进脱敏拦截器与 OpenTelemetry 原生清洗闭环：
-  1. **三层渐进隐私脱敏过滤器（`TraceSpanSanitizer` & `SanitizingSpanProcessor`）**：在 OpenTelemetry 导出前原生挂载。第一层执行安全命名空间白名单精确划分（全面兼容 OpenTelemetry GenAI 官方语义标准 `gen_ai.*` 与 `tool.*`，零误杀）；第二层执行防回溯 ReDoS 免疫的敏感模式扫描（微秒级覆盖 Bearer 凭据、API Key、Password、Token 等高频私密签名并脱敏掩码为 `[REDACTED]`）；第三层对超长文本（>2048 字符）执行安全有界截断，同时贴上防篡改的不可逆 SHA-256 事实指纹，既防止日志爆炸又保全排障因果证据链；
-  2. **原生 SpanProcessor 原地拦截清洗**：在 Span 结束且交付下游 Batch/OTLP Exporter 之前原地清洗 `span._attributes`，确保发往第三方 APM（Jaeger/Datadog/Grafana）的网络数据包 100% 物理脱敏；
+  1. **三层渐进隐私脱敏过滤器（`TraceSpanSanitizer` & `PrivacyGuardExporter`）**：包裹 OTLP Exporter，每个 Span 批次都在遥测离开进程的唯一出口被清洗；默认只放行元数据，提示词、回复与工具载荷类属性仅在标准开关 `OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT` 开启时才会导出。第一层执行安全命名空间白名单精确划分（全面兼容 OpenTelemetry GenAI 官方语义标准 `gen_ai.*` 与 `tool.*`，零误杀）；第二层执行防回溯 ReDoS 免疫的敏感模式扫描（微秒级覆盖 Bearer 凭据、API Key、Password、Token 等高频私密签名并脱敏掩码为 `[REDACTED]`）；第三层对超长文本（>2048 字符）执行安全有界截断，同时贴上防篡改的不可逆 SHA-256 事实指纹，既防止日志爆炸又保全排障因果证据链；
+  2. **导出边界复制式清洗，失败即丢弃**：在导出边界为已结束的 Span 构造脱敏副本（不修改原 Span），确保发往第三方 APM（Jaeger/Datadog/Grafana）的网络数据包 100% 物理脱敏；无法脱敏的 Span 会被丢弃并计数，绝不原样外发；
   3. **Server 业务层统一轨迹导出脱敏出口**：在 `/session/{id}/trace` 与 `/traces/search` 接口中无损接入 `sanitize_trace_payload` 递归脱敏，保障 WebUI 调试面板绝对安全；
   4. **Prompt Cache 零污染保障**：脱敏处理严格发生在下游遥测管道中，绝不反向污染正在推理的模型 Prompt，Prompt Cache 极致命中率 100% 保持；
   5. **全套自动化测试 100% 满分通过**：Harness 专属单测 5/5 与 Server 业务端点单测 3/3 全部绿灯通过，无任何 Lint 警告与环境残留。
@@ -1546,7 +1546,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   1. **Layer 1 键名白名单物理过滤（`TraceSpanSanitizer.is_safe_key`）**：严格遵循 OpenTelemetry GenAI 语义规范（`gen_ai.*`、`rpc.*`、`http.*` 等），敏感键名（包含 `password`、`token`、`secret`、`api_key` 等）直接拦截替换为 `[REDACTED_SENSITIVE_KEY]`；
   2. **Layer 2 递归敏感值正则擦除与嵌套 JSON 深度脱敏（`sanitize_string_value` · `sanitize_payload`）**：自动探测并递归解析嵌套 JSON 字符串/对象/数组，精准抹除 Bearer Token、`sk-` API 密钥、数据库 URL 密码，彻底消除嵌套序列化泄密死角；
   3. **Layer 3 超长安全截断与 SHA-256 完整性指纹（Bounded Truncation with Fingerprint）**：属性超长时保留头部并打上 `[TRUNCATED:len=X:sha256=Y]` 完整性指纹，既防止 OTel 收集器与前端 Trace 瀑布图 OOM，又保留机器审计完整性证据；
-  4. **全链路闭环与出口门禁（`SanitizingSpanProcessor` · `session_trace.py`）**：在 Harness Span 结束落盘时透明清洗 `BoundedAttributes`，并在 Server API `/api/v1/statistics/session/{id}/trace` 出口处统一经由 `sanitize_trace_payload` 过滤，确保前后端与外部导出 100% 凭证无泄漏；
+  4. **全链路闭环与出口门禁（`PrivacyGuardExporter` · `session_trace.py`）**：在 OTLP 导出边界清洗 Span，并在 Server API `/api/v1/statistics/session/{id}/trace` 出口处统一经由 `sanitize_trace_payload` 过滤，确保前后端与外部导出 100% 凭证无泄漏；
   5. **100% 全栈自动化测试通过**：Harness `test_sanitizer.py` 与 Server `test_session_trace_sanitizer.py` 全部绿灯通过，0 警告 0 错误 0 僵尸进程。
 - **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/infra/tracing/sanitizer.py` · `myrm-agent-server/app/api/statistics/session_trace.py` · `temp-docs/materials/OBSERVABILITY_ANALYTICS_ADVANTAGE.md`
 
@@ -2300,7 +2300,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
 ## 最新验证快照（2026-09-06 · 纯本地 Trace 物理门禁与 Doctor 零远程外发硬断言 · 路线图 Topic 11 #21/#22 达成）
 
 - **LocalTraceOnlyGateAndPrivacySanitizer（对比 Hermes / OpenClaw / Codex / Pi / DeepSeek-Harness）：** Myrm 实现了业界首个面向金融合规与企业内网环境的纯本地 Trace 物理隔离门禁、三层渐进式隐私脱敏与 Doctor 零外发合规巡检探针闭环：
-  1. **纯本地 Trace 内核硬断言（`is_local_trace_only` & `assert_local_trace_only`）**：在 Harness `tracer.py` 中原生支持 `MYRM_LOCAL_TRACE_ONLY=1` 环境变量；当激活时，内核物理级阻断远程 OTLP 外发通道，自动过滤忽略误配的外部端点并安全回退为本地 NoOp/纯文件归档，杜绝内网运行数据静默泄露；
+  1. **纯本地 Trace 内核硬断言（`is_local_trace_only` & `assert_local_trace_only`）**：在 Harness `otlp/config.py` 中原生支持 `MYRM_LOCAL_TRACE_ONLY=1` 环境变量；当激活时，内核物理级阻断远程 OTLP 外发通道，自动过滤忽略误配的外部端点并安全回退为本地 NoOp/纯文件归档，杜绝内网运行数据静默泄露；
   2. **三层渐进式隐私脱敏引擎（`TraceSpanSanitizer`）**：严格执行第一层高危键过滤（屏蔽 API 密钥与敏感 Token）、第二层高危敏感文本正则遮蔽（包括裸 Bearer 凭证自动打码）与第三层超长内容 SHA-256 哈希保真截断；
   3. **Doctor 专属安全合规探针（`TraceExportSecurityDiagnostic`）**：严格实现 `DiagnosticProtocol` 契约，自动纳入系统健康巡检中心；在本地模式下若检测到外部远程 OTLP 配置立即触发预警（`WARN_REMOTE_TRACE_IN_LOCAL_MODE`）并输出修复指引；
   4. **全端部署模式自适应**：在 Local WebUI、Tauri 桌面端与 Cloud 独立沙箱模式下完全一致运行；
