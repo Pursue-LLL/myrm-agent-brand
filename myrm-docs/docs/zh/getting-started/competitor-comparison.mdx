@@ -261,7 +261,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
   1. **权限三档是代码常量**——`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/types.py:60-65` 的 `PermissionAction.ALLOW/ASK/DENY`、`:107-120` 的 `DEFAULT_RULESET`；确定性评估入口 `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/security/engine.py:281-300`，`DENY` 是硬线、LLM 审查器翻不动。
   2. **敏感目录硬禁区**——`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/path/filesystem.py:59-71`（`~/.ssh`、`~/.gnupg`、`~/.gpg`、`~/.aws`、`~/.config/gcloud`、`~/.azure`、`~/.config`、`~/.docker`、`~/.kube` 与两条 shell 历史，共 11 个）。
   3. **计划 → 变更 → 回滚三段交接面**——`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/plan_confirm_middleware.py:49-63`（计划先给用户过目）+ 影子 Git 快照（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/file_snapshot/shadow_git_store.py:97`，与用户自己的 git 隔离）+ `POST /api/v1/approvals/{id}/rollback`（`myrm-agent/myrm-agent-server/app/api/approvals/router.py:350-351`）+ 前端一键回滚卡片 `myrm-agent/myrm-agent-frontend/src/components/approval/DestructiveUndoCard.tsx:51`。
-  4. **外部编码 CLI 走真实子进程**——`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/runtime/cli_runtime.py:135-164` 真起进程 + NDJSON 流，生产挂载在 `myrm-agent/myrm-agent-server/app/ai_agents/general_agent/external_agents.py:179-187` 与 `factory.py:228`。
+  4. **外部编码 CLI 走真实子进程**——`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/runtime/cli/process.py:144-168` 真起进程 + NDJSON 流，生产挂载在 `myrm-agent/myrm-agent-server/app/ai_agents/general_agent/external_agents.py:180-193` 与 `factory.py:228`。
   5. **事件型触发器五路，竞品只有 cron 排期**——`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/triggers.py:38-45` 的 `TriggerKind`（EVENT / SYSTEM_EVENT / WEBHOOK / POLL / STREAM）+ 生产接线 `myrm-agent/myrm-agent-server/app/channels/routing/router.py:678` → `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/engine/scheduler.py:297,321`。
   6. **确定性命令表已挂在渠道入站**——`myrm-agent/myrm-agent-server/app/channels/routing/command_defs.py:24-56`（25 个命令动作）+ `command_registry.py:115-131` 纯查表 + `myrm-agent/myrm-agent-server/app/channels/routing/router.py:664-668` 命中即短路，**消息不再进 LLM**。
 - **我们不宣称的（诚实差距，全部已用真实代码核对）**：
@@ -2256,12 +2256,12 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
 ## 最新验证快照（2026-08-26 · 外部 CLI 子代理非交互权限自动注入与多命名实例池编排 · 路线图 Topic 15 #5 达成）
 
 - **ClaudeCodeCodexMultiNamedSubagentInstanceAndAutoPermissionPreset（对比 DeepSeek Harness RC.8 / OpenClaw / Hermes-Agent / 独立外部 CLI 子代理）：** Myrm 构建了业界领先的多命名子代理实例池与非交互权限参数自适应注入引擎：
-  1. **非交互权限参数自适应注入（`_profiles.py` & `cli_runtime.py`）**：针对 `permission_mode` 为 `allow_all` 或 `bypass` 的无人值守沙箱容器环境，自动解析注入各 CLI 专属的免交互标志（Claude Code `--dangerously-skip-permissions`、Codex CLI `--full-auto`、Gemini/Qwen `-y`），彻底杜绝无 TTY 交互提示符死锁与 300s 超时崩溃；
+  1. **非交互权限参数自适应注入（`_profiles.py` & `runtime/cli/`）**：针对 `permission_mode` 为 `allow_all` 或 `bypass` 的无人值守沙箱容器环境，自动解析注入各 CLI 专属的免交互标志（Claude Code `--dangerously-skip-permissions`、Codex CLI `--full-auto`、Gemini/Qwen `-y`），彻底杜绝无 TTY 交互提示符死锁与 300s 超时崩溃；
   2. **多命名子代理实例独立配置与并发调度（`pool.py` & `invoke_acp_agent_tool`）**：支持在统一 `RuntimePool` 下注册多个命名子代理实例（如 `claude-auditor`、`codex-builder`、`gemini-tester`），各实例拥有独立命令、权限模式与参数配置；
   3. **零动态 Schema 膨胀与 100% Prompt Cache 前缀稳定性**：通过统一工具入参进行实例路由，完全避免动态注册爆炸破坏 LLM 提示词前缀缓存；
   4. **参数防重与幂等注入**：严格检查现有命令行参数，已包含的 flag 不重复追加；
   5. **全栈测试验证**：`test_cli_runtime.py` 90 项单元与集成测试 100% 绿灯通过，0 错误、0 警告、0 僵尸残留。
-- **素材 SSOT：** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/auth/_profiles.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/runtime/cli_runtime.py`
+- **素材 SSOT：** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/auth/_profiles.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/runtime/cli/runtime.py`
 
 ## 最新验证快照（2026-08-26 · Ollama 拉取自动派生 64K Agentic Modelfile 与 Doctor 深度诊断 · 路线图 Topic 06 #1 达成）
 

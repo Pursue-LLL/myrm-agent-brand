@@ -242,7 +242,7 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
   1. **권한 3단계는 코드 상수** — `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/types.py:60-65`의 `PermissionAction.ALLOW/ASK/DENY`와 `:107-120`의 `DEFAULT_RULESET`. 결정적 평가 진입점은 `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/security/engine.py:281-300`이며, `DENY`는 LLM 검토자가 뒤집을 수 없는 경선이다.
   2. **민감 디렉터리는 하드 금지 구역** — `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/path/filesystem.py:59-71`(`~/.ssh`, `~/.gnupg`, `~/.gpg`, `~/.aws`, `~/.config/gcloud`, `~/.azure`, `~/.config`, `~/.docker`, `~/.kube`와 셸 히스토리 2개, 총 11개).
   3. **계획 → 변경 내용 → 되돌리기 3단 인수인계면** — `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/plan_confirm_middleware.py:49-63`(계획을 먼저 사용자에게 보여줌) + 사용자의 git과 분리된 섀도 Git 스냅샷(`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/file_snapshot/shadow_git_store.py:97`) + `POST /api/v1/approvals/{id}/rollback`(`myrm-agent/myrm-agent-server/app/api/approvals/router.py:350-351`) + 프론트엔드 원클릭 실행 취소 카드 `myrm-agent/myrm-agent-frontend/src/components/approval/DestructiveUndoCard.tsx:51`.
-  4. **외부 코딩 CLI는 진짜 자식 프로세스로 실행** — `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/runtime/cli_runtime.py:135-164`가 실제 프로세스를 띄우고 NDJSON을 파싱한다. 프로덕션 마운트는 `myrm-agent/myrm-agent-server/app/ai_agents/general_agent/external_agents.py:179-187`와 `factory.py:228`.
+  4. **외부 코딩 CLI는 진짜 자식 프로세스로 실행** — `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/runtime/cli/process.py:144-168`가 실제 프로세스를 띄우고 NDJSON을 파싱한다. 프로덕션 마운트는 `myrm-agent/myrm-agent-server/app/ai_agents/general_agent/external_agents.py:180-193`와 `factory.py:228`.
   5. **이벤트형 트리거 5종, 경쟁사에는 cron 예약만** — `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/triggers.py:38-45`의 `TriggerKind`(EVENT / SYSTEM_EVENT / WEBHOOK / POLL / STREAM) + 프로덕션 배선 `myrm-agent/myrm-agent-server/app/channels/routing/router.py:678` → `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/cron/engine/scheduler.py:297,321`.
   6. **결정적 명령 테이블은 이미 채널 인입 경로에 붙어 있다** — `myrm-agent/myrm-agent-server/app/channels/routing/command_defs.py:24-56`(명령 액션 25종) + `command_registry.py:115-131`의 순수 조회 + `myrm-agent/myrm-agent-server/app/channels/routing/router.py:664-668`에서 일치하면 즉시 단락하며, **메시지가 LLM에 도달하지 않는다**.
 - **주장하지 않는 것(정직한 격차. 전부 실제 코드로 대조)**:
@@ -1118,12 +1118,12 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 ## 최신 검증 스냅샷 (2026-08-26 · 외부 CLI 서브에이전트 비대화형 권한 자동 주입 및 다중 명명 인스턴스 풀 오케스트레이션 · Roadmap Topic 15 #5 완료)
 
 - **ClaudeCodeCodexMultiNamedSubagentInstanceAndAutoPermissionPreset (vs DeepSeek Harness RC.8 / OpenClaw / Hermes-Agent / 독립 외부 CLI 서브에이전트):** Myrm은 업계 최고의 다중 명명 서브에이전트 인스턴스 풀 및 비대화형 권한 파라미터 자동 주입 엔진을 구축했습니다:
-  1. **비대화형 권한 파라미터 자동 주입 (`_profiles.py` & `cli_runtime.py`)**: `permission_mode`가 `allow_all` 또는 `bypass`인 무인 샌드박스 환경에서 각 CLI 전용 비대화형 플래그(Claude Code `--dangerously-skip-permissions`, Codex CLI `--full-auto`, Gemini/Qwen `-y`)를 자동으로 주입하여 TTY 없는 환경에서의 교착 상태 및 300초 타임아웃 장애를 완전 차단;
+  1. **비대화형 권한 파라미터 자동 주입 (`_profiles.py` & `runtime/cli/`)**: `permission_mode`가 `allow_all` 또는 `bypass`인 무인 샌드박스 환경에서 각 CLI 전용 비대화형 플래그(Claude Code `--dangerously-skip-permissions`, Codex CLI `--full-auto`, Gemini/Qwen `-y`)를 자동으로 주입하여 TTY 없는 환경에서의 교착 상태 및 300초 타임아웃 장애를 완전 차단;
   2. **다중 명명 서브에이전트 인스턴스 독립 구성 및 동시 스케줄링 (`pool.py` & `invoke_acp_agent_tool`)**: 단일 `RuntimePool` 하에서 여러 명명된 서브에이전트 인스턴스(예: `claude-auditor`, `codex-builder`, `gemini-tester`)를 독립 명령, 권한 및 인자 구성으로 등록하고 오케스트레이션 지원;
   3. **동적 스키마 팽창 제로 및 100% 프롬프트 캐시 불변성**: 도구 인자를 통해 라우팅하여 동적 도구 등록 폭발 및 LLM 접두사 캐시 무효화를 완벽 방지;
   4. **파라미터 중복 방지 및 멱등성 보장**: 기존 CLI 인자를 점검하여 중복 주입 방지;
   5. **전체 스택 테스트 검증**: `test_cli_runtime.py` 90개 단위 및 통합 테스트 100% 통과, 0 오류, 0 경고, 0 좀비 프로세스.
-- **자료 SSOT:** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/auth/_profiles.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/runtime/cli_runtime.py`
+- **자료 SSOT:** `temp-docs/materials/TOOL_ECOSYSTEM_ADVANTAGE.md` · `temp-docs/roadmap/topic_15_dsh_harness_desktop_codex_preset_ptc_trace_onboarding_roadmap.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/auth/_profiles.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/acp/runtime/cli/runtime.py`
 
 ## 최신 검증 스냅샷 (2026-08-26 · Ollama 64K Agentic Modelfile 자동 파생 및 Doctor 진단 · Roadmap Topic 06 #1 완료)
 
