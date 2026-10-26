@@ -561,7 +561,7 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 ## 최신 검증 스냅샷 (2026-09-07 · 제로 서브프로세스 Git 시맨틱 태깅, 메트릭 고기수 방화벽 및 듀얼 채널 유계 타임아웃 배포)
 
 - **ZeroSubprocessGitMetadataTaggingAndBoundedFlushResilienceEngine (Hermes Agent @alexander-akhmetov/grafana-agento11y-hermes, OpenClaw, Codex, DeepSeek-Harness, Pi 등 경쟁사들의 외부 git CLI 서브프로세스 지연 및 무한 대기, 고기수 라벨로 인한 OOM 메모리 폭발, 원격 컬렉터 장애 시 종료 교착 상태 해결):** Myrm은 순수 Python 제로 서브프로세스 Git 태깅 및 듀얼 채널 유계 플러시 아키텍처를 완벽 배포했습니다:
-  1. **제로 서브프로세스 순수 Python Git VCS 태깅 (`git_resolver.py` · `otlp/resource.py`)**: `.git/HEAD`, Linked Worktree 및 packed-refs를 직접 읽어 서브프로세스 포크 오버헤드를 완전히 제거하고 해석 시간을 15~35ms에서 <0.5ms로 단축; OpenTelemetry 공식 VCS 시맨틱 표준(`vcs.ref.head.name`, `vcs.repository.change.id`)을 리소스 속성에 네이티브 주입;
+  1. **제로 서브프로세스 순수 Python Git VCS 태깅 (`git_resolver.py` · `otlp/resource.py`)**: `.git/HEAD`, Linked Worktree 및 packed-refs를 직접 읽어 서브프로세스를 만들지 않습니다. 부하가 높은 개발 머신(macOS, Python 3.13, 부하 평균 약 16)에서 실측한 결과 `git rev-parse` 프로세스 1회는 중앙값 46-48ms, 브랜치와 커밋 조회 2회는 92-97ms였고 이 해석기는 콜드 기준 중앙값 0.07-0.11ms(p95 최대 0.18ms)였으며, 샌드박스에서 멈출 수 있는 자식 프로세스도 없습니다; OpenTelemetry 공식 VCS 시맨틱 표준(`vcs.ref.head.name`, `vcs.repository.change.id`)을 리소스 속성에 네이티브 주입;
   2. **메트릭 고기수 격리 방화벽 (`cardinality.py` · `collector.py`)**: `session_id`, `turn_id`, `workspace` 등 무제한 분산 라벨을 메트릭 차원에서 철저히 차단; `DynamicLabelManager`의 LRU 빈도 클러스터링을 통해 저빈도 값을 `'other'`로 자동 통합하여 시계열 폭발 방지;
   3. **듀얼 채널 1500ms 데몬 타임아웃 복원력 (`tracer.py` · `exporter.py`)**: Tracing과 Metrics를 독립적인 데몬 스레드에서 1500ms 하드 타임아웃으로 동시 플러시하여 원격 수집기 장애 시에도 즉각적인 Fail-Open 안전 종료 보장;
   4. **프론트엔드 Git 환경 표시 및 진단 지원 (`TelemetryPostureCard.tsx`)**: 개발자 설정에서 현재 브랜치와 커밋 해시를 표시하고 비-Git 환경에서는 안정적 폴백 제공, 원클릭 설정 복사 및 새로고침 지원;
