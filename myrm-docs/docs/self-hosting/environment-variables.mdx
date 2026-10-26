@@ -57,3 +57,9 @@ every provider keeps its own key, and Myrm stores it encrypted in the local data
 | `OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT` | `false` | Opt-in: include prompt, reply and tool content in exported spans; off exports metadata only |
 | `MYRM_LOCAL_TRACE_ONLY` | `0` | Air-gapped local mode: `1` enforces zero remote OTel export and keeps all traces purely local |
 | `MYRM_CARDINALITY_FIREWALL` | `1` | Enforces metric label sanitization to prevent Prometheus high-cardinality OOM |
+
+### How a request's trace lines up
+
+For one HTTP request the same 32-hex id is the `X-Trace-Id` response header, the `error.trace_id` of an error response, the id in the server log lines and the trace id of the exported spans, so an id quoted from an error message finds its trace directly. A caller that sends a valid `X-Trace-Id` (32 hex characters, not all zero) or W3C `traceparent` keeps its own id (`X-Trace-Id` wins); any other value is replaced by a fresh one.
+
+The spans are agent runs, model calls, tool calls and, for chat channels, one `stream_reply` trace per streamed reply. HTTP requests produce no spans of their own, since health probes would only add noise. The `OTEL_*` variables are read by the server only: programs the agent runs (terminal commands, scripts, background processes, the browser) do not inherit them, and one that needs OpenTelemetry sets its own on its command line.

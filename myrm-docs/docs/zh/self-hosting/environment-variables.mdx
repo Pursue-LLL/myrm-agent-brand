@@ -56,3 +56,9 @@ Myrm 会将其加密存储在本地数据目录（`MYRM_DATA_DIR`，默认 `~/.m
 | `OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT` | `false` | 主动开启后，导出的 Span 才包含提示词、回复与工具内容；关闭时只导出元数据 |
 | `MYRM_LOCAL_TRACE_ONLY` | `0` | 纯本地 Trace 模式：设为 `1` 时物理拦截任何远端导出，确保 Trace 100% 留在本地 |
 | `MYRM_CARDINALITY_FIREWALL` | `1` | 激活指标高基数隔离防火墙，杜绝 Prometheus 内存溢出 |
+
+### 一次请求的链路如何对上
+
+同一个 HTTP 请求只有一个 32 位十六进制 ID：它同时是响应头 `X-Trace-Id`、错误响应里的 `error.trace_id`、服务端日志行里的 ID，以及导出 Span 的 trace ID，所以从错误提示里抄下的 ID 能直接查到对应链路。调用方带上合法的 `X-Trace-Id`（32 位十六进制、不全为 0）或 W3C `traceparent` 时沿用它自己的 ID（`X-Trace-Id` 优先），其他取值一律换成新生成的 ID。
+
+导出的 Span 包括智能体运行、模型调用、工具调用，以及聊天渠道中每条流式回复对应的一条 `stream_reply` 链路。HTTP 请求本身不产生 Span（健康检查只会制造噪音）。`OTEL_*` 变量只有服务端读取：智能体运行的程序（终端命令、脚本、后台进程、浏览器）不会继承它们，需要 OpenTelemetry 的程序请在自己的命令行里设置。
