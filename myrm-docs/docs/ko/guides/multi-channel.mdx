@@ -872,7 +872,7 @@ Myrm의 Feishu 지원은 기본적인 메시징에 그치지 않습니다. 내�
 2. 에이전트는 댓글과 답글, 문서 제목과 링크를 읽고, 새 형식 문서(docx)라면 전문도 읽습니다.
 3. 댓글 스레드에 대한 답변 및 자동 게시를 생성합니다.
 
-앱에 `docs:document.content:read` 권한이 없거나, 문서가 10 MB를 넘거나, 새 형식 문서가 아니면 에이전트는 문서 본문을 읽을 수 없다는 사실을 전달받습니다. 그래서 추측으로 답하지 않고 그 사실을 설명할 수 있습니다.
+`docs:document.content:read`(Markdown) 또는 `docx:document:readonly`(일반 텍스트) 중 하나만 있으면 에이전트가 문서를 읽을 수 있으며, 표·임베드 시트·화이트보드·이미지는 빠지거나 평면화될 수 있습니다. 앱에 두 권한이 모두 없거나, 앱이 해당 문서에 추가되지 않았거나, 문서가 10 MB를 넘거나, 새 형식 문서가 아니면 에이전트는 문서 본문을 읽을 수 없다는 사실을 전달받습니다. 그래서 추측으로 답하지 않고 그 사실을 설명할 수 있습니다.
 
 ### 설정
 
@@ -881,7 +881,7 @@ Myrm의 Feishu 지원은 기본적인 메시징에 그치지 않습니다. 내�
 3. **WebSocket 긴 연결** 활성화(공용 IP 필요 없음)
 4. 필요에 따라 Feishu 앱 권한을 활성화합니다.
    - `drive:drive` — 문서 액세스
-   - `docs:document.content:read` — 문서 전문 읽기(댓글 Q&A에 첨부)
+   - `docs:document.content:read` — 문서 전문 읽기(댓글 Q&A에 첨부). `docx:document:readonly`는 텍스트만 읽는 대체 권한
    - `wiki:wiki` — 위키 액세스
    - `im:message` — 메시징
    - `contact:user.id:readonly` — 사용자 식별

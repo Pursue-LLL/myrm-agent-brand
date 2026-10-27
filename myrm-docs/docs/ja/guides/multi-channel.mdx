@@ -902,7 +902,7 @@ MyrmのFeishu対応は基本送信にとどまらない——組込SDKが文書�
 2. エージェントがコメントと返信、文書タイトルとリンクを読み、新形式文書（docx）なら全文も読む
 3. 返答生成してコメントスレッドへ自動投稿
 
-アプリに `docs:document.content:read` 権限がない、文書が10 MBを超える、または新形式文書ではない場合、エージェントには文書本文が読めないと伝わる。推測で答えず、その旨を説明できる。
+`docs:document.content:read`（Markdown）または `docx:document:readonly`（プレーンテキスト）のどちらかがあれば、エージェントは文書を読める。表、埋め込みシート、ホワイトボード、画像は欠けたり平坦化されたりすることがある。アプリにどちらの権限もない、アプリがその文書に追加されていない、文書が10 MBを超える、または新形式文書ではない場合、エージェントには文書本文が読めないと伝わる。推測で答えず、その旨を説明できる。
 
 ### セットアップ
 
@@ -911,7 +911,7 @@ MyrmのFeishu対応は基本送信にとどまらない——組込SDKが文書�
 3. **WebSocket長接続**を有効化（公開IP不要）
 4. 必要に応じFeishuアプリ権限を有効化：
    - `drive:drive` — 文書到達
-   - `docs:document.content:read` — 文書全文の読取（コメントQ&Aに添付）
+   - `docs:document.content:read` — 文書全文の読取（コメントQ&Aに添付）。`docx:document:readonly` はテキストのみの代替
    - `wiki:wiki` — Wiki到達
    - `im:message` — 送信
    - `contact:user.id:readonly` — ユーザー識別

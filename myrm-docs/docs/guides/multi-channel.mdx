@@ -902,7 +902,7 @@ When a user @mentions AI in a Feishu document comment:
 2. Agent reads the comment and its replies, the document title and link, and — for new-style documents (docx) — the full document text
 3. Generates reply and auto-posts to comment thread
 
-If the app lacks the `docs:document.content:read` permission, the document is larger than 10 MB, or it is not a new-style document, the agent is told the document text is unavailable, so it can say so instead of answering from guesses.
+Either `docs:document.content:read` (Markdown) or `docx:document:readonly` (plain text) lets the agent read the document; tables, embedded sheets, whiteboards and images may be missing or flattened. If the app has neither permission, has not been added to that document, the document is larger than 10 MB, or it is not a new-style document, the agent is told the document text is unavailable, so it can say so instead of answering from guesses.
 
 ### Setup
 
@@ -911,7 +911,7 @@ If the app lacks the `docs:document.content:read` permission, the document is la
 3. Enable **WebSocket long connection** (no public IP required)
 4. Enable Feishu app permissions as needed:
    - `drive:drive` — Document access
-   - `docs:document.content:read` — Read the full document text (attached to comment Q&A)
+   - `docs:document.content:read` — Read the full document text (attached to comment Q&A); `docx:document:readonly` works as a text-only alternative
    - `wiki:wiki` — Wiki access
    - `im:message` — Messaging
    - `contact:user.id:readonly` — User identification

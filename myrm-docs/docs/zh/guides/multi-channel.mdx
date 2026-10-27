@@ -748,7 +748,7 @@ Myrm 对飞书的支持不止基础消息收发——内置 SDK 覆盖文档评�
 2. Agent 读取评论及回复、文档标题与链接；新版文档（docx）还会读取全文
 3. 生成回复并自动发布到评论区
 
-应用没有开通 `docs:document.content:read` 权限、文档超过 10 MB 或不是新版文档时，Agent 会被告知读不到文档正文，以便如实说明而不是凭空作答。
+开通 `docs:document.content:read`（Markdown）或 `docx:document:readonly`（纯文本）任一权限，Agent 就能读取文档；表格、嵌入表格、白板和图片可能缺失或被拍平。应用两项权限都没有、应用没有被加入该文档、文档超过 10 MB 或不是新版文档时，Agent 会被告知读不到文档正文，以便如实说明而不是凭空作答。
 
 ### 设置方法
 
@@ -757,7 +757,7 @@ Myrm 对飞书的支持不止基础消息收发——内置 SDK 覆盖文档评�
 3. 启用 **WebSocket 长连接**（无需公网 IP）
 4. 按需开启飞书应用权限：
    - `drive:drive` — 文档读取
-   - `docs:document.content:read` — 读取整篇文档正文（评论问答附带文档内容）
+   - `docs:document.content:read` — 读取整篇文档正文（评论问答附带文档内容）；`docx:document:readonly` 可作为只读文字的替代
    - `wiki:wiki` — Wiki 访问
    - `im:message` — 消息收发
    - `contact:user.id:readonly` — 用户标识
