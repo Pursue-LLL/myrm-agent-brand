@@ -316,7 +316,7 @@ Data returned by third-party MCP tools is automatically passed through all 5 def
 
 ### Intake Dangerous-Intent Safety Router (Pre-LLM Gate)
 
-Before any LLM invocation or ReAct iteration, user prompts pass through the zero-latency Intake Safety Router (<0.15ms):
+Before any LLM invocation or ReAct iteration, user prompts pass through the Intake Safety Router, a rule-based check that takes well under a millisecond for a short prompt (about 2 ms for an 8 KB paste):
 
 - **Three High-Risk Dimensions**: Flags `MASS_DESTRUCTION` (e.g., `rm -rf /`, `DROP DATABASE`, `TRUNCATE TABLE`, disk wipe), `MASS_EXFILTRATION` (bulk export of keys/credentials/.env), and `PRIVILEGE_MUTATION` (disabling safety barriers, sandbox escape).
 - **Dual-Tier Zero False-Positive Funnel**: Strips Markdown code blocks and detects informational/code-generation syntax (e.g., "why drop table failed", "write a cleanup script") to guarantee 100% pass-through for benign software engineering questions.
@@ -1300,21 +1300,21 @@ To enable agents to autonomously execute micro-payments during long-running work
 4. **Competitive Parity vs. Six Major Frameworks**:
    - Unlike **Hermes, OpenClaw, Codex, DeepSeek-Harness, Pi, and OpenCode**—which either completely lack micro-payment sandboxes or expose raw credentials to LLM prompt injection—Myrm provides the industry's first defense-in-depth commerce spending safety suite, backed by 100% statement test coverage.
 
-## Prompt Injection Honeytoken Traps & Autonomous Tool Exfiltration Defense Suite
+## Session Canary, Honeytoken Decoys & Egress Proxy
 
-When agents browse the open web, parse untrusted third-party search results, or process public documentation, hidden **Indirect Prompt Injections** (e.g. text in matching background colors or hidden inside HTML comments) represent a catastrophic threat to host security and credential secrecy. To overcome competitors' lack of egress safeguards or their flawed practice of injecting dynamic tokens directly into system prompts (which destroys prompt cache efficiency), Myrm introduces an enterprise-grade, zero-cache-busting honeytoken and egress firewall architecture:
+Hidden **indirect prompt injections** (text in matching background colors or inside HTML comments) can steer an agent into leaking what it knows. Three mechanisms address this. Only the session canary is on by default; decoy minting and the taint gate are harness capabilities that the product does not switch on.
 
-### 1. Zero Cache-Busting Honeytokens via Sandbox Environment Injection
-- **Polymorphic High-Entropy Honeytokens**: The `HoneytokenTrap` dynamically mints realistic honeypot credentials across four high-risk pattern classes: AWS Access Keys (`AKIA...`), OpenAI API keys (`sk-proj-...`), GitHub personal access tokens (`ghp_...`), and database connection passwords;
-- **Transparent Subprocess Environment Mounting**: Mounted via `inject_canary_environment_variables` directly into the sandbox runtime environment. **No dynamic tokens are ever appended to system prompts**, ensuring 100% byte-exact KV cache hits on modern LLM providers. This achieves a 350ms+ time-to-first-token (TTFT) latency advantage and reduces inference costs by 85%+.
+### 1. Session Canary (on by default)
+- **Per-session token**: every agent session gets a random `CANARY-...` token. It is appended to the system prompt together with an instruction never to repeat it, so the system prompt differs from session to session;
+- **Leak detection**: after every model turn the guardrail checks the reply text and the tool-call arguments for the token. A hit is recorded in the audit log as `CANARY_LEAKED` and the token is scrubbed from the reply text. Tool calls are not blocked.
 
-### 2. Dual-Layer Egress Firewall (403 Handshake Veto + Sliding-Window TCP RST Teardown)
-- **Pre-Flight 403 Handshake Veto**: When a tainted session initiates an outbound connection, `LoopbackEgressProxy` pre-emptively evaluates the target host during the CONNECT / HTTP handshake. Non-allowlisted external endpoints are immediately denied with `403 Forbidden` and the TCP connection is cleanly dropped before any egress handshake occurs;
-- **Microsecond Sliding-Window Stream Inspection**: For traffic destined to allowed endpoints, the proxy mounts a `StreamingHoneytokenScanner` (with a sliding window of $2 \times \text{MaxTokenLength}$) across HTTP headers and streaming bodies. The instant a honeytoken pattern is intercepted, a low-level `TCP RST` packet forcefully tears down the socket, completely neutralizing exfiltration attempts.
+### 2. Honeytoken Decoys (armed by the host)
+- `HoneytokenTrap.generate_sandbox_canaries()` mints decoy AWS, OpenAI, GitHub and database credentials that a host can mount as sandbox environment variables. No decoy text enters the system prompt;
+- When a registered decoy appears in a request body, `LoopbackEgressProxy` closes both sockets. Nothing in the product calls `generate_sandbox_canaries`, so no decoys are mounted and this scan stays idle.
 
-### 3. Empirical Evidence & Competitive Parity vs. Six Major Frameworks
-- **Benchmark Comparison (Myrm vs. Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi / OpenCode)**: Competitors either lack egress proxies entirely or rely on prompt-based soft guardrails easily bypassed by Base64 or obfuscation. Myrm provides the industry's only defense suite combining 100% prompt cache purity with microsecond TCP RST socket teardown;
-- **Quality Gates & Test Coverage**: Core Harness module `honeytoken.py` achieves **94% statement coverage** (exceeding the strict ≥90% bar); all **2,347 security suite tests pass with 100% success**; both Python `ruff check` and frontend `bun run lint` maintain 0 errors and 0 warnings.
+### 3. Egress Proxy Taint Gate (needs a gateway)
+- `LoopbackEgressProxy` is started by the local executor when a credential placeholder is tracked, and substitutes the real secret into outbound requests;
+- With a `TaintedEgressGateway` attached, a tainted session's connections to hosts outside the allowlist get `403 Forbidden`. The proxy the product starts has no gateway, so this gate is off.
 
 ## Irreversible Destructive Action Hard Stop Line & Workspace Snapshot Rollback Suite
 

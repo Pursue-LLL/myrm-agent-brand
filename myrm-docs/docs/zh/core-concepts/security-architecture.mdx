@@ -268,7 +268,7 @@ Agent 可以使用 `ask_question_tool` 在执行操作前向用户提出结构�
 
 ### Intake 危险意图前置路由器（Layer 0.5 模型前门禁）
 
-在进入大模型推理及 ReAct 循环之前，用户输入通过零延迟（<0.15ms）前置安全路由器完成句级高危意图识别：
+在进入大模型推理及 ReAct 循环之前，用户输入通过前置安全路由器完成句级高危意图识别，它是基于规则的检查，短提示词耗时远低于 1 毫秒（约 8 KB 的粘贴文本约 2 毫秒）：
 
 - **三维高危意图识别**：覆盖 `MASS_DESTRUCTION`（`rm -rf /`、`DROP DATABASE`、`TRUNCATE TABLE`、磁盘格式化及删库跑路俚语）、`MASS_EXFILTRATION`（批量凭证/.env 外发）与 `PRIVILEGE_MUTATION`（越权关闭安全防御、绕过沙箱）；
 - **双阶零误报漏斗**：自动剥离 Markdown 代码块内容，结合句法行动性/代码生成分析（识别“为什么/如何分析/写一个清理脚本”为良性分析与生成），保障正常开发问答 100% 放行；
@@ -1147,21 +1147,21 @@ CaMeL 单信任边界；Myrm **6 层**洋葱防御、5 域循环检测、3 层�
 4. **六大主流竞品对比**：
    - 对标 **Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi / OpenCode**，Myrm 是业界唯一具备“整型分位记账 + 两阶段签名凭据 + 冷重启自愈对账 + WebUI 消费保险箱”全栈闭环的商业智能体执行底座，核心模块实现 100% 满分语句覆盖。
 
-## 对抗性提示词注入暗桩与自主工具外溢防护套件 (Prompt Injection Honeytokens & Exfiltration Firewall)
+## 会话金丝雀、暗桩诱饵与出网代理 (Session Canary, Honeytoken Decoys & Egress Proxy)
 
-在智能体访问开放互联网、检索第三方网页内容或解析外部文件时，潜藏在网页文本或 HTML 注释中的**间接提示词注入（Indirect Prompt Injection）**是导致智能体被劫持甚至泄露核心资产的致命威胁。针对竞品“零防御裸奔”或“在系统提示词拼接随机 Token 导致 Prompt Cache 严重劣化”的缺陷，Myrm 构筑了业界首个零 Cache-Busting 的全栈暗桩与出网强掐断防御套件：
+网页文本或 HTML 注释中潜藏的**间接提示词注入（Indirect Prompt Injection）**可能诱导智能体泄露它掌握的内容。对应有三种机制，其中只有会话金丝雀默认开启；暗桩诱饵的生成与污点闸门是 harness 提供的能力，产品目前没有启用。
 
-### 1. 环境变量拟真金丝雀与 Zero Cache-Busting 纯净缓存
-- **多态高熵拟真暗桩**：`HoneytokenTrap` 动态生成覆盖 AWS AKIA、OpenAI sk-proj、GitHub ghp_、通用 DB Token 四类高敏感模式的拟真金丝雀；
-- **沙箱环境变量透明挂载**：通过 `inject_canary_environment_variables` 将暗桩挂载于沙箱子进程运行环境，**绝对不向系统提示词（System Prompt）拼接任何动态 Token**，确保大模型厂商 Prompt Cache 前缀 100% 纯净命中，相比竞品首 Token 生成提速 350ms+，推理成本降低 85%+。
+### 1. 会话金丝雀（默认开启）
+- **每会话随机令牌**：每个智能体会话生成一个随机的 `CANARY-...` 令牌，连同“绝不重复该令牌”的指令追加到系统提示词中，因此各会话的系统提示词并不相同；
+- **泄露检测**：每轮模型输出后，安全护栏检查回复文本与工具调用参数是否含该令牌。命中时在审计日志记录 `CANARY_LEAKED`，并从回复文本中抹除令牌，不会拦截工具调用。
 
-### 2. 双重出网物理防御中枢（403 握手阻断 + 流式 TCP RST 强掐断）
-- **未受信白名单前置握手阻断**：受污染会话发起网络请求时，`LoopbackEgressProxy` 代理层在 CONNECT / HTTP 握手阶段前置校验目标主机，未加白域名直接返回 `403 Forbidden` 并切断连接，外部 TCP 连通率从源头降为零；
-- **微秒级滑动窗口流式嗅探**：对于受信任白名单域名的外发流量，代理层挂载 `StreamingHoneytokenScanner`（滑动窗口尺寸为 $2 \times \text{MaxTokenLength}$），在 HTTP 请求头与流式请求体传输中实时扫描；一旦检测到拟真金丝雀特征，底层立即发送 `TCP RST` 强行掐断 Socket，彻底杜绝数据微渗漏。
+### 2. 暗桩诱饵（需宿主启用）
+- `HoneytokenTrap.generate_sandbox_canaries()` 生成拟真的 AWS、OpenAI、GitHub 与数据库凭证，供宿主挂载为沙箱环境变量，不向系统提示词写入任何诱饵内容；
+- 请求体中一旦出现已登记的诱饵，`LoopbackEgressProxy` 会关闭两端连接。产品代码没有调用 `generate_sandbox_canaries`，因此不会挂载任何诱饵，这项扫描处于空转状态。
 
-### 3. 实测数据与六大主流竞品对比
-- **全息对比（Myrm vs Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi / OpenCode）**：竞品在遭遇注入时要么直接将凭证发送给外部攻击者，要么依赖模型自身的拒答道德感，极易被 Base64 或字符隐写绕过；Myrm 建立出网代理物理截断与诱饵暗桩防线，是业界唯一同时兼顾 100% Prompt Cache 命中率与微秒级出网 TCP RST 掐断的智能体平台；
-- **质量门禁与覆盖率背书**：Harness 执行内核 `honeytoken.py` 达到 **94% 测试覆盖率**（远超 ≥90% 门禁红线）；全量安全测试套件 **2,347 项 100% 满分通过**；Python `ruff check` 与前端 `bun run lint` 实现 0 errors, 0 warnings，零僵尸进程残留。
+### 3. 出网代理污点闸门（需配置网关）
+- 本地执行器在跟踪到凭证占位符时启动 `LoopbackEgressProxy`，由它把真实密钥替换进出站请求；
+- 挂载 `TaintedEgressGateway` 后，受污染会话对白名单之外主机的连接返回 `403 Forbidden`。产品启动的代理没有配置网关，这道闸门处于关闭状态。
 
 ## 不可逆破坏性操作硬阻断与工作区影子快照回滚套件 (Irreversible Destructive Action Hard Stop & Workspace Snapshot Rollback Suite)
 
