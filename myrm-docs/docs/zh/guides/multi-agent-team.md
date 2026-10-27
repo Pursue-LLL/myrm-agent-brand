@@ -117,6 +117,16 @@ Codex 行内评论只活在代码 diff 里；Hermes、OpenClaw、pi、opencode�
 
 Codex、OpenClaw、Hermes、pi、opencode、DeepSeek-Harness 经实证均无“预置业务主干流+类型化交接+准入门禁”闭环（2026-09-26 对比）。
 
+### 14. 可评审的团队产出：契约、独立评审、可分享交付
+
+团队有没有用，取决于产出能不能被检查。Myrm 把三件事做成显式的：
+
+1. **契约有正式载体** —— 项目规则落在 `AGENTS.md` / 工作区规则里，团队 Blueprint 可跨项目复用，不用每次重新讲一遍规则。
+2. **规划、执行、独立评审三权分立** —— 评审是独立角色，产出先被挑刺再交到你手上，而不是由干活的 Agent 自证合格。
+3. **产物可验证、可分享** —— Agent 试玩可录屏，UI 改动可做像素对比，完成的工件有可分享链接，而不是一段本地 demo 录屏。
+
+实证：Hermes 的多 Agent 游戏 demo 依赖一份 `ENGINE_CONTRACT` 加一个 critic agent，但没有可玩的部署入口，也没有记录每个 Agent 当时遵守的是哪一版契约（2026-10-27 对比）。Myrm 的契约可复用、评审是独立角色、每个交付物都打得开。
+
 ## 如何开始使用？
 
 1.  打开 **Myrm Agent WebUI**，进入工作流（Workflow）或看板（Kanban）界面。

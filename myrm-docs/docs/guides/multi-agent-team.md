@@ -107,6 +107,16 @@ Stop dictating every process from scratch. For the five highest-frequency chains
 
 Verified: none of Codex, OpenClaw, Hermes, pi, opencode or DeepSeek-Harness ships prebuilt business trunk flows with typed handoff and admission gates (compared 2026-09-26).
 
+### 13. Reviewed Team Deliverables: Contract, Independent Review, Shareable Output
+
+A team is only useful if what it ships can be checked. Myrm makes three things explicit:
+
+1. **A shared contract with a real home** — project rules live in `AGENTS.md` / workspace rules, and a team blueprint can be reused across projects instead of re-explaining the rules every run.
+2. **Plan, execute, and a separate review role** — the plan/execute/critique split runs as an independent evaluator, so a deliverable is challenged before it reaches you rather than self-certified by the agent that produced it.
+3. **Deliverables you can verify and share** — agent playtests can be recorded, UI changes can be compared with pixel diffs, and finished artifacts get a shareable link instead of a screen recording of a local demo.
+
+Verified: Hermes' multi-agent game demo relies on an `ENGINE_CONTRACT` plus a critic agent, yet shipped no playable deployment and no runtime record of which contract version each agent followed (compared 2026-10-27). Myrm keeps the contract reusable, makes review a separate role, and keeps every deliverable openable.
+
 ## How to Get Started
 
 1.  Open the **Myrm Agent WebUI**, and navigate to the Workflow or Kanban section.
