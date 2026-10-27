@@ -268,6 +268,31 @@ Live updates require the Settings Wiki page to stay open (EventSource subscripti
 
 **Tests (2026-07-30):** gdrive 3 + gmail/rss/status/oauth 12 + state/config/defaults/blueprint/hygiene/second_brain 15 + gmail_html 2 = **32 pytest passed** (mock Gmail/Drive API; no Chrome MCP this round).
 
+## Tencent ima knowledge bases (Settings Overview)
+
+The **Tencent ima knowledge bases** card (**Settings → Wiki → Overview**, directly below External sources) imports the knowledge bases and notes you keep in ima into `wiki/raw/` and keeps them current. It is read-only: Myrm never writes anything back to ima.
+
+| Step | What you do | What happens |
+|---|---|---|
+| **Connect** | Paste the **Client ID** and **API Key** you created in ima, then press **Connect** | ima checks the pair before anything is saved. The key is stored encrypted, used only to read your ima content, and never shown again. One connection serves all your agents |
+| **Choose** | Tick the knowledge bases to import (up to 50); optionally turn on **Also import my notes** | The list comes from ima itself. **Change what is imported** edits the choice later |
+| **Start import** | Press **Start import** | The first import reads everything and can take a few minutes or longer. It runs in the background; you can leave the page or pause at any time |
+| **Stay current** | Nothing | ima is re-checked every 6 hours, and **Sync now** checks at once. New items, files replaced in ima and edited notes are imported; unchanged ones are skipped |
+
+**What is imported:** web pages, WeChat articles, PDF, Word, PPT, Excel, Markdown, text, e-books and notes. Images, audio, video, mind maps and ima's own AI chats are skipped and listed as not supported yet. Files larger than about 50 MB are skipped too.
+
+**Details and retries:** **View details** opens three lists. **Needs attention** holds what was not imported or failed (**Retry N failed items** queues them again). **Simplified** holds what was imported but differs from the original: images keep pointing to the original page, a very long article keeps only its first part, tables or layout are flattened, sensitive information is masked. **Gone from ima** holds items that are no longer there under their old name or place.
+
+**Compile:** importing only fills `wiki/raw/`. **Compile imported documents** has the AI read and organize them, which uses more quota when there are many. The shared **Auto-compile after sync** switch under External sources compiles later changes automatically, and documents waiting in Duplicate Review are compiled once you have dealt with them.
+
+**Pause, change or disconnect:** **Pause sync**, **Change what is imported** and **Disconnect** stop a running import after the document being read at that moment (a large one can take up to about 2.5 minutes). Disconnect deletes the saved key and stops automatic sync for every agent; documents already imported stay in the Wiki.
+
+<Note>
+**Honest boundary:** nothing is ever deleted from your Wiki because it disappeared in ima. Those items appear under **Gone from ima**, and a file renamed or moved in ima can be imported again as a new document, so you may see two copies. A document you delete from the imported raw files is not imported again. Notes need a key that is allowed to read notes, and only notes you wrote are imported. Web pages are opened live, so pages that need a login or a verification step land under **Needs attention**. Automatic sync is a scheduled task: if your plan has no scheduled-task capacity left, the card asks you to free one up. If ima rejects the key, the card asks you to reconnect. Not yet verified against a real ima account.
+</Note>
+
+**Tests (2026-10-27):** ima source + API routes + scheduler contract = **265 pytest passed, 1 skipped** (mock ima API; the skipped test is a read-only live check that runs only with your own ima key; no Chrome MCP this round).
+
 ## Evolution synthesis at compile (CCSP)
 
 When you **Compile Wiki**, Step 2.5 runs a **Compile-Time Contradiction Synthesis Pass** after normal article generation:
