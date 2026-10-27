@@ -25,6 +25,15 @@ Most agents leave a static skeleton for the tens of seconds the model spends thi
 
 > Honest limit: token-by-token text depends on whether the model/gateway actually streams increments; we do not fake streaming to hide stalls.
 
+## Model routing & provenance (verified 2026-10-27)
+
+Most agents advertise "we pick the best model for you" but leave users guessing which model actually answered. Myrm exposes the routing decision per answer:
+
+- **Two routing engines, wired in production**: `route_task` classifies SIMPLE / STANDARD / REASONING, and `route_task_specialty` classifies CODE / LONG_DOC / REASONING / MULTIMODAL / CASUAL / GENERAL, each with a fallback chain (`myrm-agent-harness/.../toolkits/llms/routing/specialty_router.py`, production wiring in `myrm-agent-server/app/services/agent/params/converter.py:195-260,273-336`).
+- **Per-answer provenance**: the usage popover and specialty chip show the actual model, routing tier, task specialty, routing reason, cost, and privacy route (`routingMetaEvents.ts:204`, `TokenUsageDisplay.tsx:619-623`, `ModelSpecialtyChip.tsx:85,96`).
+- **Honest scope**: routing is opt-in per Agent — pick light/reasoning models under Smart Routing (3 Pareto presets ship configured). It is not default-on for every Agent, and we do **not** run multiple models per request and pick the best output; that would trade latency and cost for marginal gains.
+- **Why it matters**: model swaps should never silently change answer quality or cost. Users can see which model answered, why it was chosen, and what it cost — instead of trusting a black box.
+
 ## At a Glance (2026-10-24)
 
 | | Myrm | Hermes | OpenClaw | Codex | DeepSeek-Harness | Pi | OpenCode |
