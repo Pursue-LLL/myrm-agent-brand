@@ -970,7 +970,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 - **SandboxAgentLivePeekPanelAndStructuredControlSuite（对标 Grok @Bot click-to-control VM、Hermes、OpenClaw、Codex、DeepSeek-Harness 与 Pi 在沙箱图形化执行中普遍存在的“后台黑盒盲跑无法感知卡顿死锁、粗暴公网裸 VNC 消耗 5~15MB/s 带宽且延迟高达数百毫秒、纯像素画面无法基于元素语义进行人机协同纠偏、以及多任务并发时画面串扰泄漏”等痛点）：** Myrm 全面交付了实时画面窥视、结构化元素指控与多会话强隔离闭环体系：
   1. **300ms 智能消抖流式推流（`browser_view_update` / `desktop_view_update`）**：Harness 底层事件驱动节流，经 300ms 防抖算法压缩，以原生 Server-Sent Events (SSE) 流式分发，较传统 VNC 视频流暴降 90% 带宽（实测 ~120KB/s），保持 100% 原始视口无损分辨率；
-  2. **三位一体实时 Inspector 矩阵（`ChatWindowSatellites.tsx`）**：集中调度 `BrowserLiveView`（浏览器）、`DesktopLiveView`（桌面沙箱）与 `DeviceLiveView`（移动真机），根据活跃工具毫秒级自动就绪；
+  2. **双路实时 Inspector 矩阵（`ChatWindowSatellites.tsx`）**：集中调度 `BrowserLiveView`（浏览器）与 `DesktopLiveView`（桌面沙箱），根据活跃工具毫秒级自动就绪；
   3. **结构化 ARIA / DOM 元素级指选协同（`ElementOverlay` + `InspectorInstructionInput`）**：实时视口无缝叠加高精度 ARIA 角色与 DOM 边界框，鼠标悬停即查语义，点击控件直接将元素句柄（`@dref`）注入指令输入框，实现自然语言人机纠偏；
   4. **严格的多会话强隔离与确定性会话清理（`useClosePanelOnChatSwitch`）**：通过 `selectScopedBrowserViewData` 严格按 `chatId` 过滤视口数据，切换会话瞬间毫秒级卸载清理 Inspector，彻底根除画面串台与幽灵连接残留；
   5. **嵌入式桌面接管与微缩悬停预览（Micro Peek）**：支持桌面微缩卡片悬停动态透视；遇复杂验证码一键唤起嵌入式 `@novnc/novnc` 视口，结合 LangGraph `interrupt()` 物理冻结 Agent 动作，杜绝人机抢光标；
@@ -979,13 +979,12 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 ## 最新验证快照（2026-09-09 · 宿主依赖毫秒级嗅探、全平台自愈修复与分类目录防碰撞网关全面交付 · 彻底消除技能依赖缺失崩溃与同名覆盖覆灭风险）
 
-- **SkillPrerequisitesAndCategoryCollisionGuardSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness 与 Pi 在技能生态与真机控制中普遍存在的“安装需要 ffmpeg/pandas 的技能但因宿主缺少依赖导致运行时连续报错崩溃、缺乏自愈引导让小白用户排查碰壁、安装同名单技能意外抹除整个分类目录、以及缺乏原生无线真机调试”等痛点）：** Myrm 全面交付了宿主环境嗅探、跨系统一键自愈与路径碰撞物理防御闭环体系：
+- **SkillPrerequisitesAndCategoryCollisionGuardSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness 与 Pi 在技能生态中普遍存在的“安装需要 ffmpeg/pandas 的技能但因宿主缺少依赖导致运行时连续报错崩溃、缺乏自愈引导让小白用户排查碰壁、以及安装同名单技能意外抹除整个分类目录”等痛点）：** Myrm 全面交付了宿主环境嗅探、跨系统一键自愈与路径碰撞物理防御闭环体系：
   1. **零 Token 宿主依赖嗅探引擎（`HostPrerequisiteProbe`）**：在技能市场预览阶段以纯本地纳秒级 API（`shutil.which` 与 `importlib.metadata`）动态检测系统 CLI 二进制与 Python 依赖，0 运行时 Token 消耗，100% 维持模型 Prompt Cache 黄金命中率；
   2. **全平台一键自愈修复命令生成（`RemediationEngine`）**：根据用户真实宿主系统（macOS / Ubuntu / Debian / Fedora / Arch / Windows）自动生成零配置自愈安装命令（如 `brew install ffmpeg`、`winget install ffmpeg`、`uv pip install <pkg>`），在 WebUI 卡片一键复制解决；
   3. **分类目录防覆灭与重解析点穿透拦截（`path_security.py`）**：严格断言物理沙箱根目录边界，物理拦截符号链接与 Windows NTFS Junction 逃逸；自动阻断名为 `category` 的单技能覆盖现有同名多技能聚合目录，资产 100% 安全；
-  4. **原生 Android 11+ 无线 ADB 语义化驱动（`mobile_adb`）**：内置 `MobileSession` 与 `AdbDeviceDriver`，提供 UIAutomator XML 解析与 `@mref` 语义化节点引用，供 WebUI 设备检查器使用（配对、快照、触控中继），不作为工具暴露给 Agent；
-  5. **全量单元测试 14/14 全部绿灯通过**：覆盖设备解析、依赖检测与安全路径拦截，0 僵尸进程，0 内存泄漏。
-- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/backends/skills/prerequisites/` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/path_security.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/mobile_adb/` · `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md` · `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`
+  4. **依赖检测与安全路径拦截单元测试全部绿灯通过**：0 僵尸进程，0 内存泄漏。
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/backends/skills/prerequisites/` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/path_security.py` · `temp-docs/materials/SKILL_MARKET_AND_ADOPTION_ADVANTAGE.md` · `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`
 
 ## 最新验证快照（2026-09-09 · 接管驾驶盘人机协同控制流、VNC 原生视口与外带凭据零暴露直填全面交付 · 彻底消除 Bot 偷跑、2FA 锁号与密文泄露风险）
 
@@ -1048,7 +1047,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 ## 最新验证快照（2026-09-09 · 沙箱智能体全景实时窥视、结构化 Inspector 与内嵌 VNC 桌面全面交付 · 彻底消除远程 VM 黑盒与卡顿高延迟串流）
 
 - **SandboxAgentLivePeekPanel（对标 Grok @Bot、Hermes、OpenClaw、Codex、DeepSeek-Harness 与 Pi 在沙箱环境与远程执行中普遍存在的“智能体在远端闭源 VM 中盲盒执行缺失实时预览、公网裸露 VNC 画面延迟卡顿且耗费巨额带宽、纯像素传输缺乏 DOM/AX 元素感知、以及用户介入时无权限围栏导致智能体偷跑误操作破坏业务”等痛点）：** Myrm 全面交付了企业级沙箱全景实时窥视、结构化元素协同 Inspector 与内嵌式 VNC 工作台闭环：
-  1. **三位一体多分屏实时 Inspector 矩阵（`ChatWindowSatellites.tsx:144-152`）**：在 WebUI 与桌面端原生集成浏览器（`BrowserLiveView.tsx`）、桌面系统（`DesktopLiveView.tsx`）与移动真机/模拟器（`DeviceLiveView.tsx`）分屏监视器，根据活跃工具毫秒级自动就绪；
+  1. **双路多分屏实时 Inspector 矩阵（`ChatWindowSatellites.tsx:144-152`）**：在 WebUI 与桌面端原生集成浏览器（`BrowserLiveView.tsx`）与桌面系统（`DesktopLiveView.tsx`）分屏监视器，根据活跃工具毫秒级自动就绪；
   2. **Harness 底层 300ms 智能消抖节流推流（`browser_view_update` / `desktop_view_update`）**：采用事件驱动的高清帧流管道，网络带宽占用较传统视频流骤降 90% 以上，丝滑不卡顿；
   3. **结构化 ARIA / SOM 元素级指选协同（`ElementOverlay` · `InspectorInstructionInput`）**：用户可直接在画面中点选目标控件并注入自然语言引导，实现真正的“所见即所指”人机协同；
   4. **内嵌式 VisualDesktop 与 Managed Takeover（`VisualDesktopToggle.tsx` · `VisualDesktop.tsx`）**：原生集成 `@novnc/novnc` 嵌入式沙箱桌面，遇滑块验证码或 2FA 时自动弹出，配合接管状态机实现无缝人机协作；
@@ -1767,16 +1766,6 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   5. **100% 全链路自动化测试验证**：Harness 框架层多库单元测试（35/35 passed in 2.06s）、Server 业务层联邦问答测试（6/6 passed in 9.55s）、前端 Store/Popover/ContextChip 测试（17/17 passed in 13.40s）、真实浏览器端到端 Task Flow E2E（1/1 passed in 137.87s，真实 MiniMax-M3 流式大模型问答全链路闭环通过）、249 项静态契约测试（249/249 passed in 4.22s）全部 100% 绿灯通过，0 僵尸残留，0 缺失翻译键。
 - **SSOT 来源：** `myrm-agent-server/app/services/wiki/vault/` · `myrm-agent-server/app/services/agent/stream_session/lanes/wiki_knowledge_lane.py` · `myrm-agent-frontend/src/components/features/message-input-actions/KnowledgePickerPopover.tsx` · `temp-docs/materials/WIKI_KNOWLEDGE_BASE_ADVANTAGE.md`
 
-## 最新验证快照（2026-09-04 · 移动设备协同巡检面板与 ADB 双向触控中继 · 自动化与端侧控制完成）
-
-- **MobileDeviceBridgeInspectorPane（对标 Hermes #63 / OpenClaw / Claude Code / Codex / DeepSeek-Harness / Pi 在移动端操控与视觉协同完全割裂、缺少持久分屏与双向中继、以及私密通知泄露进入大模型视觉 Prompt 的痛点）：** Myrm 交付了端到端的三位一体（Browser/Desktop/Mobile Device）持久分屏巡检与安全中继体系：
-  1. **Browser / Desktop / Mobile Device 三位一体 Inspector 矩阵**：同一个工作台统一承载网页（Browser）、桌面窗口（Desktop）、移动真机（Mobile Device）持久并列分屏与交互中继，提供一致的丝滑协同体验；
-  2. **物理级状态栏纯黑隐私遮蔽（Notification Redaction）**：在图像转码进入管道前，使用 PIL 对顶部状态栏区域直接覆写纯黑掩码（RGB 20, 20, 20），从物理根源杜绝短信验证码与私人通知渗入视觉 Prompt，彻底根治前端 CSS 伪脱敏安全漏洞；
-  3. **真实 ADB 异步非阻塞手势中继**：实现 Tap、Swipe、Hold、Keyevent 指令的标准化封装与分发，全量调用绑定 `asyncio.wait_for(timeout=3.5)` 异步超时并在超时时强制终止子进程，以正则白名单过滤恶意 keycode 输入，杜绝僵尸进程与请求池挂死；
-  4. **前端参数规范与 Doctor 诊断卡片**：规范传递 `chat_id` 与 `redact_notifications`；`DeviceLiveView.tsx` 针对离线与无环境状态呈现结构化 Doctor 诊断卡，提供 ADB 与设备连接排查指引，移除非标 emoji；
-  5. **全链路自动化测试与 0 Lints**：`tests/api/test_device_bridge_routes.py`（6/6）通过 `./myrm test` 100% 绿灯通过；E2E 测试 `test_mobile_device_bridge_inspector_chrome_e2e.py` 验证真实 API 契约与前端状态机；ReadLints 检查 0 错误 0 警告。
-- **SSOT 来源：** `myrm-agent-server/app/services/device/bridge_service.py` · `useDeviceInspectorStore.ts` · `DeviceLiveView.tsx` · `temp-docs/materials/COMPUTER_USE_ADVANTAGE.md`
-
 ## 最新验证快照（2026-09-04 · 穿戴与移动随身转向控制及长按防误触闭环 · 交互与执行控制完成）
 
 - **WearableAndMobileSteeringWithHoldToApproveClosure（对标 Hermes #73/#99 / Auto-Atlas / OpenClaw / AstrBot 强行开发小众独立 Wear OS APK 导致仅能覆盖 <15% 硬件生态且无法覆盖 Apple Watch、转向动作降级与小屏幕审批一键误触高危灾难）：** Myrm 交付了通用随身穿戴转向协议加固与端侧防误触体系：
@@ -1853,10 +1842,11 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   2. **飞行中实时动态转向（In-Flight Steering）**：任务在后台沙箱深跑时，用户在原 IM 渠道直接回复自然语言或补充要求，调度中枢精准捕捉当前活跃任务并动态挂载转向约束，无需推倒重来；
   3. **结果原样推回原对话并随发送者语言**：任务结束后，把执行器的最终回复（全文、附件、所在话题）加一行本地化状态页眉（任务编号与耗时）推回原渠道；渠道文案目录内置英文、简体中文与日文，其他语言回退英文；失败只展示成员安全文案，原始错误只进日志；超时任务如实标记为已中止，绝不报成完成；
   4. **并发与配额保护**：对单用户单渠道限制最大并发长任务数，超限友好拦截并引导，保护宿主机器与大模型账单；
-  5. **`/stop` 可取消后台任务**：同一会话里 `/stop` 先停前台回合，前台没有任务时停掉自己发起的后台任务；任务标记为已取消并释放并发名额，接收回执里附带取消提示；超时的任务由看门狗直接取消（令牌与协程一并取消，卡死的运行同样会被停掉）；
+  5. **`/stop` 可取消后台任务**：同一会话里 `/stop` 先停前台回合（回复里写明仍在后台运行的任务编号），前台没有任务时停掉自己发起的后台任务（回复里写明已停止的任务编号）；群聊里别人的 `/stop` 够不到你的任务；任务标记为已取消并释放并发名额，接收回执里附带取消提示；`/stop` 与 `/new` 同时结束该会话正在等待的审批的超时计时，停掉的会话不会被计时器之后又自行恢复；超时的任务由看门狗直接取消（令牌与协程一并取消，卡死的运行同样会被停掉）；
   6. **工具审批回到聊天**：需要工具审批的委派任务把审批提示（含批准、拒绝按钮）发到聊天，`/approve`、`/deny`、按钮与 reaction 和前台审批走同一条路径，批准后作为该聊天的普通回合继续；该聊天已有进行中的前台回合时，它的审批位置不被抢占；
-  7. **测试覆盖**：`tests/channels/delegation/` 下 58 项单元、生命周期与路由测试通过，含真实 `AgentRouter` 加脚本化执行器覆盖交接、`/approve` 恢复、`/stop` 与回收（2026-10-27 实测）；在真实 LangGraph Agent 上「停在审批 → 批准 → 恢复」的整条链路与真实 IM 平台上的端到端投递（话题、长文分段）尚未验收；
-  8. **已知限制，审批超时**：交接的审批超时后自动恢复时，路由器会留下一个过期的审批标记（前台审批同样如此），尚未修复。
+  7. **长任务心跳**：委派任务静默满 5 分钟起，聊天里出现一条写明任务编号的「仍在运行」消息并原地更新已用时间、步数与当前阶段，任务时限内最多每 5 分钟一次；任务结束、被 `/stop` 或停在审批处时随之结束，不能编辑消息的渠道只发第一条；
+  8. **验证方式**：真实 `AgentRouter` 加脚本化执行器（审批超时用真实调度器）覆盖交接、`/approve` 恢复、`/stop`（含停止后审批超时不再触发）、群聊成员隔离、回收与心跳（2026-10-27 实测）；在真实 LangGraph Agent 上「停在审批 → 批准 → 恢复」的整条链路与真实 IM 平台上的端到端投递（话题、长文分段）尚未验收；
+  9. **已知限制，审批超时**：交接的审批超时后自动恢复时，路由器会留下一个过期的审批标记（前台审批同样如此），尚未修复。
 - **SSOT 来源：** `myrm-agent-server/app/channels/delegation/` · `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-03 · 输入区内联统一上下文胶囊流与超载治理 · 前端交互与上下文治理完成）
