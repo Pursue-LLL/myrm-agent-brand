@@ -48,6 +48,7 @@ The most common complaint about always-on agents is not capability — it is **b
 Installing a skill does not change the model — it only adds text to the context. The question that matters is therefore twofold: **did the agent follow the skill (adherence), and did following it actually improve the result (effect)?** Tracking only outcomes kills good ideas with weak wording and keeps bad ideas with strong wording.
 
 - **Shipped**: three-state skill usage attribution (selected / used / observable), 26-category / 113-pattern static scanning, permission templates with a skill doctor, and progressive disclosure so a large library never floods every prompt.
+- **Project-scoped skills**: any `SKILL.md` under the workspace (depth 3) is discovered with a workspace trust gate and an SQLite snapshot, so a repo can version its own expert modes — `.claude/skills/` works as-is.
 - **Roadmap**: the two-score evaluation itself — activation → fidelity → benefit decomposition (`topic_14 #198`), sandboxed golden trajectories (`topic_14 #178`), and selection-aware A/B (`topic_14 #171`).
 - **Honest scope**: we do not claim every skill passed a two-score eval, and we publish no "best skill" rankings — star counts drift ~43% per month and are not a quality signal.
 
@@ -541,7 +542,7 @@ Installing a skill does not change the model — it only adds text to the contex
      - **DeepSeek-Harness**: a benchmark-oriented harness whose notes cover PTY/ACL/adapter work; no mechanism aligns the assistant's finishing statement with the execution trace;
      - **Pi (oh-my-pi)**: heavy prompt- and sub-agent engineering; verification stays prompt-level, which a model can bypass — and the user cannot tell "this answer is backed by tests" from "this answer is a plan";
      - **OpenCode**: flexible plugin/skill ecosystem with a terminal-first UX; extensibility does not solve completion trust, and unpersisted deliverables are simply lost to the conversation;
-  7. **SSOT Sources:** `temp-docs/materials/AGENT_VERIFICATION_ADVANTAGE.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/execution_claim_verifier.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/completion_guard_state.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_confidence_tier.py` · `myrm-agent/myrm-agent-server/app/services/agent/streaming_support/stream_collector.py` · `myrm-agent/myrm-agent-server/tests/e2e/test_deliverable_disclosure_live_chrome_e2e.py`
+  7. **SSOT Sources:** `temp-docs/materials/AGENT_VERIFICATION_ADVANTAGE.md` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/execution_claim_verifier.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/completion_guard/state.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/middlewares/completion/deliverable_confidence_tier.py` · `myrm-agent/myrm-agent-server/app/services/agent/streaming_support/stream_collector.py` · `myrm-agent/myrm-agent-server/tests/e2e/test_deliverable_disclosure_live_chrome_e2e.py`
 
 ## Latest Benchmark Snapshot (2026-10-19 · Truthful @-Mention Context & Directory-Scoped Test Doubles · Eliminating Silent "File Too Large" Misreports, Order-Dependent Ghost Failures and Whole-Session Config Hijacks)
 
