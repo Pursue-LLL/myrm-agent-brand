@@ -2004,7 +2004,7 @@ Most agents leave a static skeleton for the tens of seconds the model spends thi
 ## Latest Validation Snapshot (2026-09-03 · Multi-Step Planning Auto-Steering & Terminal Evidence Verification · Planning & Goal Completed)
 
 - **PlanningTodoBlockedAutoSteeringAndCompletionGuardClosure (vs Claude Code 2.1.88 / Cursor / OpenManus / Hermes deadlocking on missing dependencies / verbal collusion with fake completion):** Myrm delivers an enterprise-grade planning management and completion verification loop:
-  1. **Workspace Physical SSOT (`.myrm/progress/todos.json`)**: Persisted directly in sandbox workspace files, recovering losslessly across process restarts and tab reloads, synchronized in real time via SSE;
+  1. **Workspace Physical SSOT (`.myrm/progress/<chat>/todos.json`)**: Persisted directly in sandbox workspace files, recovering losslessly across process restarts and tab reloads, synchronized in real time via SSE;
   2. **`blocked` State & Automatic Concurrency Release**: Marking blocked immediately yields concurrency slots, letting the middleware seamlessly skip blocked steps and focus on the next actionable task, eliminating infinite retries;
   3. **`CompletionGuard` Re-run Verification & Precision Diagnostics**: Code modifications mandate real Exit 0 test evidence; blocked tasks receive targeted instructions to cancel with rationale via `todo_write`, preventing premature sign-offs;
   4. **100% Prompt Cache Golden Prefix Protection**: Dynamic task lists attach only at the tail of the final user message and strip before the next round, preserving KV Cache hit rates;

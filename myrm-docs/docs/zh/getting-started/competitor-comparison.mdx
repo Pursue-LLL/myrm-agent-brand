@@ -1782,7 +1782,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
 ## 最新验证快照（2026-09-03 · 多步规划 Todo 智能换道与物理证据链完工验收 · Planning 与 Goal 完成）
 
 - **PlanningTodoBlockedAutoSteeringAndCompletionGuardClosure（对标 Claude Code 2.1.88 / Cursor / OpenManus / Hermes 复杂多步长任务因缺少外部依赖机械死锁卡死 / 仅凭自然语言回复口头放行假完成）：** Myrm 交付了针对规划管理与目标完成的工业级闭环：
-  1. **工作区物理文件 SSOT（`.myrm/progress/todos.json`）**：任务清单持久化于沙箱文件系统，进程重启、页面刷新 100% 无损恢复，前后端事件流与状态树秒级同步；
+  1. **工作区物理文件 SSOT（`.myrm/progress/<chat>/todos.json`）**：任务清单持久化于沙箱文件系统，进程重启、页面刷新 100% 无损恢复，前后端事件流与状态树秒级同步；
   2. **`blocked` 状态与单并发席位自动释放**：遇到外部依赖或客观权限受阻时，主动置为 `blocked` 并自动让出运行席位，中间件智能绕开阻塞项并聚焦下一个就绪任务，彻底打破死循环；
   3. **`CompletionGuard` 物理重跑测试与精准裁剪自愈指引**：任务修改代码后，结项强制要求测试套件真实 Exit 0 通过凭据；对外部受阻任务精准引导模型通过 `todo_write` 裁剪说明，坚决拦截假完成；
   4. **零破坏前缀缓存（Prompt Cache）**：动态任务列表仅在最后一个用户消息尾部临时挂载，下轮对话前自动剥离，KV Cache 命中率 100% 锁死；
