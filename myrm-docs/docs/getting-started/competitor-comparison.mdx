@@ -33,6 +33,8 @@ Most agents advertise "we pick the best model for you" but leave users guessing 
 - **Per-answer provenance**: the usage popover and specialty chip show the actual model, routing tier, task specialty, routing reason, cost, and privacy route (`routingMetaEvents.ts:204`, `TokenUsageDisplay.tsx:619-623`, `ModelSpecialtyChip.tsx:85,96`).
 - **Honest scope**: routing is opt-in per Agent — pick light/reasoning models under Smart Routing (3 Pareto presets ship configured). It is not default-on for every Agent, and we do **not** run multiple models per request and pick the best output; that would trade latency and cost for marginal gains.
 - **Why it matters**: model swaps should never silently change answer quality or cost. Users can see which model answered, why it was chosen, and what it cost — instead of trusting a black box.
+- **A cheap judge never gets the final say**: whether an action needs your approval is computed from rules, not judged by a classifier (`myrm-agent-harness/.../security/self_rule_integrity_guard.py:103-154`); spend and irreversible actions simply have no "always allow" button (`PolymorphicApprovalCard.tsx:360-372`); and a secret typed into the masked card is bound to the SHA-256 of the approved command and consumed exactly once (`executors/local/executor.py:685-693`). **A wrong classification costs a retry — not a silently dropped task, and not a leaked key.**
+- **What we have not shipped, stated plainly**: typed decision primitives (`choice` / `score` / `noul` with calibrated probabilities) and shadow-mode router ledgers are still on the roadmap (`topic_07 #299`, `#97`) — they are not in the delivered list.
 
 ## Hands-off delegation: leave, come back to a result (verified 2026-10-27)
 
