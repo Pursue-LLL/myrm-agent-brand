@@ -370,17 +370,23 @@ GET /api/v1/health/liveness
   },
   "gatewayRuntime": {
     "status": "HEALTHY",
-    "eventLoopLagMs": 2.1,
-    "processRssMb": 512.4,
-    "activeAsyncioTasks": 18,
-    "otlpTracingReady": true,
-    "otlpMetricsReady": true
+    "vitals": {
+      "event_loop_lag_ms": 2.1,
+      "memory_rss_mb": 512.4,
+      "uptime_seconds": 3600.5,
+      "active_tasks": 18
+    },
+    "otlp_endpoint_configured": true,
+    "otlp_connected": true,
+    "redacted_diagnostics": []
   },
   "uptimeSeconds": 3600.5
 }
 ```
 
 `gatewayRuntime` 为**零负载脱敏**字段——不含 prompt、聊天内容或用户标识。同一组体征会以 Prometheus gauge（`myrm_gateway_event_loop_lag_ms`、`myrm_gateway_process_rss_mb`、`myrm_gateway_active_asyncio_tasks`、`myrm_gateway_health_status_code`）暴露在 `/metrics`，供 Grafana 告警。
+
+`otlp_connected` 是实测值而非假设：只有最近一次 OTLP 导出被接收、且没有任何一路在失败时才为 `true`。采集端拒收批次（例如只接收链路的后端对指标返回 `404`）时它保持 `false`，并由 `redacted_diagnostics` 指出失败的那一路。OTLP 问题只会追加这条诊断说明，不会改变 `status`；按信号区分的完整情况见 设置 → 开发者 与 `GET /api/v1/system/telemetry-posture`。
 
 ### 状态派生逻辑
 

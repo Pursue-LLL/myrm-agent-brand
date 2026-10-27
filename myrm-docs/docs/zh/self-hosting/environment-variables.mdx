@@ -58,6 +58,12 @@ Myrm 会将其加密存储在本地数据目录（`MYRM_DATA_DIR`，默认 `~/.m
 | `MYRM_LOCAL_TRACE_ONLY` | `0` | 纯本地 Trace 模式：设为 `1` 时物理拦截任何远端导出，确保 Trace 100% 留在本地 |
 | `MYRM_CARDINALITY_FIREWALL` | `1` | 激活指标高基数隔离防火墙，杜绝 Prometheus 内存溢出 |
 
+### 确认导出是否生效
+
+设置 → 开发者 → OpenTelemetry 遥测导出展示的是每条管线实际投递的结果，而不是配置了什么。链路在第一批数据被送达或被拒收之前显示「已就绪」，之后按最近一次结果显示「运行中」或「导出失败」。指标有独立的状态（「未开启」「已就绪」「运行中」「导出失败」），因为后端可能接收链路却拒收指标。`GET /api/v1/system/telemetry-posture` 返回同一组实测字段（`status`、`metrics_status`、`exported_spans`、`failed_batches`、`last_success_at`、`last_failure_at`），`GET /api/v1/health/liveness` 的 `gatewayRuntime` 中的 `otlp_connected` 也由它们得出：只有最近一次导出被接收时才为 `true`。
+
+平台托管（云托管）实例的采集端归运营者所有，因此该卡片不显示，接口也不披露采集端地址。
+
 ### 一次请求的链路如何对上
 
 同一个 HTTP 请求只有一个 32 位十六进制 ID：它同时是响应头 `X-Trace-Id`、错误响应里的 `error.trace_id`、服务端日志行里的 ID，以及导出 Span 的 trace ID，所以从错误提示里抄下的 ID 能直接查到对应链路。调用方带上合法的 `X-Trace-Id`（32 位十六进制、不全为 0）或 W3C `traceparent` 时沿用它自己的 ID（`X-Trace-Id` 优先），其他取值一律换成新生成的 ID。

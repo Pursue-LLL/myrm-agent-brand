@@ -59,6 +59,12 @@ every provider keeps its own key, and Myrm stores it encrypted in the local data
 | `MYRM_LOCAL_TRACE_ONLY` | `0` | Air-gapped local mode: `1` enforces zero remote OTel export and keeps all traces purely local |
 | `MYRM_CARDINALITY_FIREWALL` | `1` | Enforces metric label sanitization to prevent Prometheus high-cardinality OOM |
 
+### Check that export works
+
+Settings → Developer → OpenTelemetry export shows what each pipeline actually delivered, not what is configured. Traces read `Ready` until the first batch has been delivered or refused, then `Active` or `Failing` by the latest outcome. Metrics have their own state (`Off`, `Ready`, `Active`, `Failing`), because a backend can accept traces and refuse metrics. `GET /api/v1/system/telemetry-posture` returns the same measured fields (`status`, `metrics_status`, `exported_spans`, `failed_batches`, `last_success_at`, `last_failure_at`), and `otlp_connected` in the `gatewayRuntime` block of `GET /api/v1/health/liveness` is derived from them: it is `true` only while the latest export was accepted.
+
+On a platform-managed (cloud-hosted) instance the collector belongs to the operator, so the card is hidden and the API withholds the collector address.
+
 ### How a request's trace lines up
 
 For one HTTP request the same 32-hex id is the `X-Trace-Id` response header, the `error.trace_id` of an error response, the id in the server log lines and the trace id of the exported spans, so an id quoted from an error message finds its trace directly. A caller that sends a valid `X-Trace-Id` (32 hex characters, not all zero) or W3C `traceparent` keeps its own id (`X-Trace-Id` wins); any other value is replaced by a fresh one.

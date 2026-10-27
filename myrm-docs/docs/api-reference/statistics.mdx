@@ -374,17 +374,23 @@ GET /api/v1/health/liveness
   },
   "gatewayRuntime": {
     "status": "HEALTHY",
-    "eventLoopLagMs": 2.1,
-    "processRssMb": 512.4,
-    "activeAsyncioTasks": 18,
-    "otlpTracingReady": true,
-    "otlpMetricsReady": true
+    "vitals": {
+      "event_loop_lag_ms": 2.1,
+      "memory_rss_mb": 512.4,
+      "uptime_seconds": 3600.5,
+      "active_tasks": 18
+    },
+    "otlp_endpoint_configured": true,
+    "otlp_connected": true,
+    "redacted_diagnostics": []
   },
   "uptimeSeconds": 3600.5
 }
 ```
 
 `gatewayRuntime` is **zero-payload redacted** — no prompts, chat content, or user identifiers. The same vitals are exported as Prometheus gauges (`myrm_gateway_event_loop_lag_ms`, `myrm_gateway_process_rss_mb`, `myrm_gateway_active_asyncio_tasks`, `myrm_gateway_health_status_code`) on `/metrics` for Grafana alerting.
+
+`otlp_connected` is measured, not assumed: it is `true` only while the latest OTLP export was accepted and no signal is failing. A collector that refuses the batches (for example a traces-only backend answering `404` to metrics) keeps it `false`, and `redacted_diagnostics` names the failing signal. An OTLP problem adds that diagnostics line but never changes `status`; the full per-signal picture is in Settings → Developer and `GET /api/v1/system/telemetry-posture`.
 
 ### State Logic
 
