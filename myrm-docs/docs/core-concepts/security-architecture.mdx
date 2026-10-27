@@ -1293,7 +1293,7 @@ To eliminate persistent backdoor infection through indirect prompt injection att
 
 1. **Protected Instruction Hardening**: Core steering assets including `AGENTS.md`, `SOUL.md`, `CLAUDE.md`, and `.cursorrules` are registered under protected path defense (`path_security.py`). Any mutation attempt forfeits "Allow Always" exemptions and triggers mandatory Monaco Diff approval cards.
 2. **Kernel Read-Only Mounts & Shell AST Redirect Veto**: In sandbox environments, steering files are mounted read-only (`--ro-bind`). In shell executors (`shell_command_analyzer.py`), AST-driven full-pipe parsing vetos redirection commands (`echo > AGENTS.md`, `sed -i`, `tee`), halting persistent jailbreaks at the system boundary.
-3. **Strictly Zero-Disk Native OS Keychain Integration**: Master encryption keys are delegated directly to OS-native hardware security backends (macOS Keychain, Linux SecretService, Windows Credential Manager). Local SQLite stores only AES-256-GCM ciphertexts, ensuring enterprise secrets remain secure even if worktrees are leaked.
+3. **Zero-Disk OS Keychain Custody of the Vault Master Key, AES-256-GCM Ciphertext for Saved Keys**: The agent vault's master key is delegated to the OS keyring (macOS Keychain, Linux SecretService, Windows Credential Manager). Keys saved in settings (model providers, search, MCP, channel credentials, the local-model key) are stored in SQLite only as AES-256-GCM ciphertext; their encryption key comes from an environment variable or a mode-0600 `.encryption_key` file in the state directory, not from the OS keychain, so a copy of the database without that file does not expose them.
 
 ## Multi-Channel DM Session Enclave & Anti-Poisoning Gate
 

@@ -1499,7 +1499,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
 ## 最新验证快照（2026-09-05 · Zero-Disk 硬件密钥环托管、默认回环锁死与受保护指令文件防投毒体系 · 安全与供应链治理全面闭环）
 
 - **ZeroDiskKeyringAndProtectedInstructionShield（对标 Hermes Agent / OpenClaw / Pi 商业密钥明文落盘被恶意脚本偷刷、默认 0.0.0.0 裸奔遭公网扫描与 DNS 重绑定 RCE、以及提示词注入篡改 AGENTS.md 埋藏持久后门的致命缺陷）：** Myrm 交付了业内领先的零磁盘与指令文件防线：
-  1. **Strictly Zero-Disk 硬件钥匙串托管（`master_key.py`）**：主加密密钥直接委托 macOS Keychain / Linux SecretService / Windows Credential Manager，磁盘绝对零明文；配合 Sentinel 动态不透明占位符（`myrm-sent-v1...`），沙箱子进程无论如何执行 `printenv` 绝无可能拿到真实 API Key，出网代理微秒级内存代填；
+  1. **金库主密钥 Zero-Disk 硬件钥匙串托管（`master_key.py`）**：智能体金库的主密钥委托 macOS Keychain / Linux SecretService / Windows Credential Manager，不写明文文件；设置里保存的密钥以 AES-256-GCM 密文落盘，其加密密钥来自环境变量或状态目录下权限为 0600 的 `.encryption_key` 文件（不在钥匙串里）；配合 Sentinel 动态不透明占位符（`myrm-sent-v1...`），沙箱子进程无论如何执行 `printenv` 绝无可能拿到真实 API Key，出网代理微秒级内存代填；
   2. **默认 127.0.0.1 回环硬门禁与 HostAllowlist 防 DNS 重绑定（`host_allowlist.py`）**：默认物理锁死 127.0.0.1，远程模式强制生成高熵 Token，严格拦截非法 Host 与外部浏览器 Origin 跨站请求，彻底杜绝公网裸奔与 DNS 重绑定提权；
   3. **受保护指令文件内核级只读与 Shell 重定向 AST 管道全扫描（`shell_command_analyzer.py` · `path_security.py`）**：针对 `AGENTS.md`、`SOUL.md`、`CLAUDE.md`、`.cursorrules` 等人设与规则文件，实施内核只读挂载与终端管道覆写一票否决；任何修改强制唤起 Monaco Diff 人工审批，彻底杜绝跨会话隐蔽后门；
   4. **全栈自动化测试 100% 满分通过**：涵盖主密钥钥匙串存取、Loopback 回环拦截、AST 语法树重定向扫描以及真实 Monaco 审批卡片全流程测试全部绿灯通过。

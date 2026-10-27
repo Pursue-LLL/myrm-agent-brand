@@ -1118,14 +1118,14 @@ CaMeL 单信任边界；Myrm **6 层**洋葱防御、5 域循环检测、3 层�
 
 1. **绝对禁写白名单剥夺**：系统对 `AGENTS.md`、`SOUL.md`、`CLAUDE.md`、`.cursorrules` 等核心指令文件实施全方位受保护文件监控（`path_security.py`），任何写入或覆盖企图永久剥夺自动放行（Allow Always）特权，强制拉起 Monaco Diff 高亮审查卡。
 2. **内核只读挂载与 Shell AST 重定向一票否决**：在沙箱内核中将此类关键文件实施只读挂载；在 Shell 命令执行器（`shell_command_analyzer.py`）中进行 AST 语法全管道机检，严密拦截 `echo "hacked" > AGENTS.md`、`sed -i`、`tee` 等命令伪装，直接返回硬拒绝（DENY）。
-3. **严格 Zero-Disk 原生 OS 硬件密钥环中枢**：主加密密钥直接委托宿主操作系统硬件级安全管线（macOS Keychain / Linux SecretService / Windows Credential Manager），磁盘 100% 仅以 AES-256-GCM 密文存储，彻底终结开源 Agent 生态中明文存 Key 遭盗刷的灾难。
+3. **金库主密钥 Zero-Disk 托管于 OS 密钥环，设置里的密钥以 AES-256-GCM 密文落盘**：智能体金库的主密钥委托宿主操作系统的密钥环（macOS Keychain / Linux SecretService / Windows Credential Manager）；设置里保存的模型服务商、搜索、MCP、渠道凭据与本地模型密钥在 SQLite 中只以 AES-256-GCM 密文存储，其加密密钥来自环境变量或状态目录下权限为 0600 的 `.encryption_key` 文件，不在系统钥匙串里。
 
 ## 零信任金库静态加密与 Sentinel 运行时防窥体系 (Zero-Trust Vault & Sentinel)
 
 针对 API Key 和企业 Token 在多端运行时的存储与外泄威胁：
 
-1. **严格 Zero-Disk 原生 OS 密钥环托管**：集成 `MasterKeyProvider`，原生对接 macOS Keychain、Linux SecretService 与 Windows Credential Manager，主加密密钥绝不以任何明文形式落盘。
-2. **AES-256-GCM 数据库透明信封加密**：本地持久化数据库与配置中的所有 `AgentSecret` 在写入存储时强制执行 AES-256-GCM 工业级加密，物理窃取数据库文件亦无法解密。
+1. **严格 Zero-Disk 原生 OS 密钥环托管**：集成 `MasterKeyProvider`，原生对接 macOS Keychain、Linux SecretService 与 Windows Credential Manager，金库主密钥绝不以任何明文形式落盘。
+2. **AES-256-GCM 数据库加密落盘**：金库里的 `AgentSecret` 与设置里保存的各类密钥（模型服务商、搜索、MCP、渠道凭据、本地模型密钥等）在写入存储前强制执行 AES-256-GCM 加密；只拿到数据库文件、没有对应密钥时无法解密。设置里的密钥由环境变量或状态目录下权限为 0600 的 `.encryption_key` 文件解开，同时拿到数据库与该文件的人读得到。
 3. **Sentinel 运行时零明文不透明占位符**：沙箱代码执行时仅注入单向不透明占位符（`myrm-sent-v1...`），真实密钥仅在白名单出站环回代理（Loopback Egress Proxy）层由网关即时代填，模型即使执行 `env`、`cat .env` 也无法获得真实明文密钥。
 4. **前端全流程脱敏防窥**：WebUI 与桌面端设置面板实施强力掩码展示（`sk-****abcd`），支持一键平滑无感轮换与屏幕共享防窥保护。
 
