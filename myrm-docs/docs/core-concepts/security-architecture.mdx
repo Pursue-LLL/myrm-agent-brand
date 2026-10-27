@@ -320,7 +320,7 @@ Before any LLM invocation or ReAct iteration, user prompts pass through the zero
 
 - **Three High-Risk Dimensions**: Flags `MASS_DESTRUCTION` (e.g., `rm -rf /`, `DROP DATABASE`, `TRUNCATE TABLE`, disk wipe), `MASS_EXFILTRATION` (bulk export of keys/credentials/.env), and `PRIVILEGE_MUTATION` (disabling safety barriers, sandbox escape).
 - **Dual-Tier Zero False-Positive Funnel**: Strips Markdown code blocks and detects informational/code-generation syntax (e.g., "why drop table failed", "write a cleanup script") to guarantee 100% pass-through for benign software engineering questions.
-- **Per-Channel Handling**: By default every channel prepends a `[SAFETY_CAUTION]` notice to a flagged prompt (`hitl`), telling the model not to run destructive changes without explicit confirmation. A host can set `dangerous_intent_policy` to `fail_closed` to block the prompt before any model call. Unattended Cron runs add their own gates: untrusted-content injection screening is `fail_closed`, and tool calls are checked against the job's declared capabilities, with anything undeclared denied.
+- **Per-Channel Handling**: By default every channel prepends a `[SAFETY_CAUTION]` notice to a flagged prompt (`hitl`), telling the model not to run destructive changes without explicit confirmation. A host can set `dangerous_intent_policy` to `fail_closed` to replace a flagged prompt with a `[BLOCKED_INTENT]` notice, so the model never sees the original text. Unattended Cron runs add their own gates: untrusted-content injection screening is `fail_closed`, and tool calls are checked against the job's declared capabilities, with anything undeclared denied.
 
 ### Prompt Guard (Input-Side)
 
