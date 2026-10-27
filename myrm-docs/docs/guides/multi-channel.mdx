@@ -881,39 +881,28 @@ This ensures a "notify only when needed" experience — your agent only sends me
 
 ## Deep Feishu Integration
 
-Myrm's Feishu support goes far beyond basic messaging — the built-in SDK deeply integrates 6 capability modules, allowing you to operate Feishu documents, spreadsheets, Wiki, and comments directly in conversations.
+Myrm's Feishu support goes beyond basic messaging — the built-in SDK covers document comment Q&A, syncing cloud documents into the knowledge base, and streaming cards.
 
 ### Supported Capabilities
 
 | Module | Capability | Use Case |
 |--------|-----------|----------|
-| Drive Meta | File listing, metadata, permission queries | "List all documents in the shared folder" |
-| Docx Blocks | Block-level document read/write | "Read meeting minutes and extract action items" |
-| Comments | Batch query, create, reply to comments | "@AI in a document comment, AI auto-replies" |
-| Wiki | Knowledge base node search | "Find the deployment guide in Wiki" |
-| Bitable | Multi-dimensional table CRUD | "Write analysis results to project tracking table" |
+| Comments | Read comments and replies, reply, whole-document comments, reactions | "@AI in a document comment, AI auto-replies" |
+| Docx | Whole-document Markdown for comment Q&A; document blocks for knowledge-base sync | "Ask in a comment what section 3 promises" |
+| Drive | Document title and link, folder listing, media download | "Sync the documents of a shared folder into the knowledge base" |
+| Wiki | Resolve Wiki links in comments to the underlying document | "Reference a Wiki page in a comment" |
 | CardKit | Card message streaming updates | "Send progress card and update status in real-time" |
 
 ### Typical Workflows
-
-**Scenario: Read meeting minutes → Extract action items → Write to spreadsheet**
-
-```
-User: Please read last week's project meeting minutes, extract all action items, and write them to the project tracking Bitable
-```
-
-Agent automatically:
-1. Locates target document via Drive Meta
-2. Reads full document using Docx Blocks
-3. LLM extracts structured action items (assignee, deadline, priority)
-4. Writes to project tracking table via Bitable
 
 **Scenario: Document comment-driven Q&A**
 
 When a user @mentions AI in a Feishu document comment:
 1. Feishu WebSocket pushes comment event in real-time
-2. Agent reads comment content + document context
+2. Agent reads the comment and its replies, the document title and link, and — for new-style documents (docx) — the full document text
 3. Generates reply and auto-posts to comment thread
+
+If the app lacks the `docs:document.content:read` permission, the document is larger than 10 MB, or it is not a new-style document, the agent is told the document text is unavailable, so it can say so instead of answering from guesses.
 
 ### Setup
 
@@ -922,8 +911,8 @@ When a user @mentions AI in a Feishu document comment:
 3. Enable **WebSocket long connection** (no public IP required)
 4. Enable Feishu app permissions as needed:
    - `drive:drive` — Document access
+   - `docs:document.content:read` — Read the full document text (attached to comment Q&A)
    - `wiki:wiki` — Wiki access
-   - `bitable:bitable` — Table operations
    - `im:message` — Messaging
    - `contact:user.id:readonly` — User identification
 

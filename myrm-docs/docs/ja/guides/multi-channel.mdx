@@ -881,39 +881,28 @@ WebUI承認と併用可——両経路とも同一永続記録へ。
 
 ## Deep Feishu統合
 
-MyrmのFeishu対応は基本送信を超える——組込SDKが6機能 module に深層統合。会話内で直接Feishu文書・表・Wiki・コメントを操作可。
+MyrmのFeishu対応は基本送信にとどまらない——組込SDKが文書コメントQ&A、クラウド文書のナレッジベース同期、streaming カードをカバー。
 
 ### 対応機能
 
 | Module | 機能 | 用途 |
 |--------|-----------|----------|
-| Drive Meta | ファイル一覧・メタ・権限照会 | 「共有フォルダの文書一覧」 |
-| Docx Blocks | ブロック単位文書読書 | 「議事録を読んで action item 抽出」 |
-| コメント | 一括照会・作成・返信 | 「文書コメントで@AI、AI自動返答」 |
-| Wiki | ナレッジ節点検索 | 「Wikiでデプロイガイドを探す」 |
-| Bitable | 多次元表CRUD | 「分析結果を project 追跡表へ書込」 |
+| コメント | コメントと返信の読取・返信・文書全体コメント・リアクション | 「文書コメントで@AI、AI自動返答」 |
+| Docx | コメントQ&A時は文書全体を Markdown で読取。ナレッジベース同期時はブロック単位で読取 | 「コメントで第3節の約束内容を質問」 |
+| Drive | 文書タイトルとリンク・フォルダ一覧・メディア取得 | 「共有フォルダの文書をナレッジベースへ同期」 |
+| Wiki | コメント内のWikiリンクを元の文書へ解決 | 「コメントでWikiページを参照」 |
 | CardKit | カード文 streaming 更新 | 「進捗カード送信＋状態リアルタイム更新」 |
 
 ### 典型ワークフロー
-
-**シナリオ：議事録読み→ action item 抽出→表へ書込**
-
-```
-User: Please read last week's project meeting minutes, extract all action items, and write them to the project tracking Bitable
-```
-
-エージェント自動動作：
-1. Drive Metaで対象文書を特定
-2. Docx Blocksで全文読み
-3. LLMが構造化 action item 抽出（担当・期限・優先度）
-4. Bitableで project 追跡表へ書込
 
 **シナリオ：文書コメント駆動Q&A**
 
 ユーザー@言及がFeishu文書コメントにある場合：
 1. Feishu WebSocketがコメントイベントをリアルタイムpush
-2. エージェントがコメント内容＋文書文脈を読み
+2. エージェントがコメントと返信、文書タイトルとリンクを読み、新形式文書（docx）なら全文も読む
 3. 返答生成してコメントスレッドへ自動投稿
+
+アプリに `docs:document.content:read` 権限がない、文書が10 MBを超える、または新形式文書ではない場合、エージェントには文書本文が読めないと伝わる。推測で答えず、その旨を説明できる。
 
 ### セットアップ
 
@@ -922,8 +911,8 @@ User: Please read last week's project meeting minutes, extract all action items,
 3. **WebSocket長接続**を有効化（公開IP不要）
 4. 必要に応じFeishuアプリ権限を有効化：
    - `drive:drive` — 文書到達
+   - `docs:document.content:read` — 文書全文の読取（コメントQ&Aに添付）
    - `wiki:wiki` — Wiki到達
-   - `bitable:bitable` — 表操作
    - `im:message` — 送信
    - `contact:user.id:readonly` — ユーザー識別
 
