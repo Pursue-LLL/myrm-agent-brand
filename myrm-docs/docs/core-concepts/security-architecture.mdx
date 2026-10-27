@@ -1115,9 +1115,9 @@ MyRM enforces 5 layers of isolation:
 
 Additional safety nets: payload hash deduplication prevents delegation loops, result caching avoids redundant work, and sub-agents get no memory write tools and only a read-only memory view, which prevents cross-agent data contamination.
 
-## Multi-Agent File Protection: 8-Layer Defense
+## Multi-Agent File Protection: 6-Layer Defense
 
-When multiple agents work in the same workspace simultaneously, file conflicts are the #1 source of data corruption. MyRM enforces 8 layers of defense — all code-enforced, zero Prompt reliance:
+When multiple agents work in the same workspace simultaneously, file conflicts are the #1 source of data corruption. MyRM enforces 6 layers of defense — all code-enforced, zero Prompt reliance:
 
 | Layer | Mechanism | What It Prevents |
 |-------|-----------|-----------------|
@@ -1126,18 +1126,15 @@ When multiple agents work in the same workspace simultaneously, file conflicts a
 | **L3** | **Full-Read-Before-Edit** (file_integrity_guard) | Partial reads — rejects edits if only part of a file was read |
 | **L4** | **Line-Level Conflict Detection** (file_conflict_guard) | Overlapping edits — detects when two agents modify the same line range |
 | **L5** | **Cross-Agent Activity Tracking** (file_activity_tracker) | Untracked concurrent access — records every agent's write activity per file |
-| **L6** | **Automatic Workspace Isolation** (workspace_policy) | Shared-state corruption — auto-upgrades to ISOLATED_COPY when multiple agents write in parallel |
-| **L7** | **Deferred Serial Merge** (batch_merge) | Merge conflicts — isolated workspaces merge back one-at-a-time |
-| **L8** | **Auto-Cleanup on Completion** (subagent_manager) | Stale tracking data — clears all tracking records when a subagent finishes |
+| **L6** | **Auto-Cleanup on Completion** (subagent_manager) | Stale tracking data — clears all tracking records when a subagent finishes |
 
 **How it works in practice:**
 
 1. A parent agent delegates 3 coding tasks to parallel subagents
-2. `workspace_policy` detects ≥2 parallel writers → auto-upgrades to ISOLATED_COPY
-3. Each subagent gets its own COW (Copy-on-Write) workspace clone
-4. Subagents work independently — no lock contention, no blocking
-5. On completion, `batch_merge` applies changes back to the parent workspace one-at-a-time
-6. If two subagents edited overlapping lines, `file_conflict_guard` raises a conflict at merge time
+2. All three work in the same workspace — no copies, no merge step
+3. Before each write, `file_activity_tracker` is checked for another agent's recent edits to the same file
+4. If the line ranges overlap, `file_conflict_guard` blocks the write; an edit to another region of the same file only produces a warning
+5. When a subagent finishes, `subagent_manager` clears its tracking records
 
 **vs competitors:** AWS Codex Agent Team relies on Prompt instructions ("no two active tasks may write the same file") — LLMs can ignore this constraint. MyRM enforces every layer in application code — impossible to bypass regardless of model behavior.
 

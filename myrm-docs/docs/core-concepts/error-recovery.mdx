@@ -23,16 +23,6 @@ When the server process crashes mid-turn, Myrm does not leave you guessing:
 **Honest parity note vs Hermes v0.19:** Hermes also triggers auto-continue when you **reopen a chat session**. Myrm currently resumes on **server restart/warmup**; chat-reopen + live SSE trigger is on the roadmap (not yet shipped). We document only what is live today.
 </Note>
 
-## Parallel Workspace Merge Failures (GUI)
-
-When parallel sub-agents use isolated workspaces (`ISOLATED_COPY`) and a **batch merge** or **sync_back** fails, Myrm does not hide the failure in logs only:
-
-- A **warning banner** and **expandable panel** (`WorkspaceMergeWarning`) appear on the assistant message in chat
-- Failures are persisted in message metadata (`workspaceMergeFailures`) and **survive page reload**
-- The turn completes with `completionStatus: warning` so you know output may be incomplete
-
-Competitors such as Claude Code and OpenClaw typically surface merge errors only in CLI/terminal output — easy to miss after parallel runs.
-
 ## 14-Layer Recovery Architecture
 
 | Layer | Mechanism | What It Handles |

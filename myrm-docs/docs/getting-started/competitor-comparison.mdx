@@ -2581,7 +2581,7 @@ OpenClaw is a widely adopted open-source terminal coding agent designed for sing
 
 | Area | OpenClaw | Myrm | User Benefit |
 |------|-----------|------|--------------|
-| **Workspace & File Isolation** | Direct modification on single directory, prone to dirty writes | **Physical Git Worktree Isolation + ISOLATED_COPY Mode** | Zero file conflict during parallel tasks; experimental branches can be visually merged or discarded with one click. |
+| **Workspace & File Isolation** | Direct modification on single directory, prone to dirty writes | **Physical Git Worktree Isolation** | Overlapping edits by parallel agents are blocked at write time; experimental branches can be visually merged or discarded with one click. |
 | **Tool Architecture & Token Cost** | Static flattening of all tool schemas, consuming 3,000+ tokens on Turn 1 | **Four-Tier Decoupled Layering (CORE Direct-FC + Skill PTC)** | Turn 1 strictly loads only 8 core atomic tools, locking Prompt Cache at 95%+ and cutting token overhead by 80%+. |
 | **User Experience & Collaboration** | Terminal CLI-only, difficult to navigate long streaming logs | **Modern Responsive WebUI + Native Tauri Desktop** | Complete step execution trees, rich Markdown/Diff syntax rendering, approval cards, and global intent capture. |
 | **Persistence & Disaster Recovery** | Naive single-file state serialization, prone to corruption on abort | **Atomic Checkpoint Sealing (`SealManifest`) & Point-in-Time Rollback** | Millisecond-level lossless rollback upon crash; corrupted sessions are automatically quarantined without polluting the workspace. |

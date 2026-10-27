@@ -264,11 +264,8 @@ When multiple agents collaborate on related tasks, they can communicate directly
 
 ### Workspace Isolation & UI Blacklisting
 
-Each sub-agent runs in an isolated workspace and system sandbox:
+Each sub-agent runs in the system sandbox; a task with Git worktree isolation (see above) works in its own worktree. Housekeeping and safeguards:
 
-- **CoW cloning** — Copy-on-Write workspace duplication
-- **Precise sync** — Only modified files are synced back
-- **.git protection** — Git directory is excluded from operations
 - **Automatic GC** — Three-layer garbage collection (stale events, run records, workspace dirs) runs every 6 hours and on startup. Archived task workspaces are safely deleted with harness-dir boundary checks, and DB paths are nulled to prevent repeated scans — zero manual maintenance required
 - **UI Interaction Blacklisting** — Sub-agents running in the background are completely physically blocked from using UI interaction interfaces (like `interactive_feedback` or `send_message`), ensuring they never pop up windows to interrupt the user unexpectedly.
 

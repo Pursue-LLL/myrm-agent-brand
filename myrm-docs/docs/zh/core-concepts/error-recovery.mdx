@@ -23,16 +23,6 @@ Myrm 错误恢复确保 Agent 在网络故障、模型宕机、限流与意外�
 **相对 Hermes v0.19 的诚实说明：** Hermes 在你 **重开聊天会话** 时也会触发自动续跑。Myrm 当前在 **服务重启/warmup** 时恢复；重开聊天页 + live SSE 触发仍在 roadmap，尚未上线。官网/文档只写已上线能力。
 </Note>
 
-## 并行工作区合并失败（GUI）
-
-当并行子代理使用隔离工作区（`ISOLATED_COPY`）且 **batch_merge** 或 **sync_back** 失败时，Myrm 不会在日志里悄悄吞掉：
-
-- 聊天界面展示 **warning 横幅** 与 **可折叠错误面板**（`WorkspaceMergeWarning`）
-- 失败信息写入消息 metadata（`workspaceMergeFailures`），**刷新页面后仍可见**
-- 本轮以 `completionStatus: warning` 结束，提示产出可能不完整
-
-Claude Code、OpenClaw 等竞品通常只在 CLI/终端输出合并错误，并行跑完后极易被忽略。
-
 ## 14 层恢复架构
 
 | 层 | 机制 | 处理场景 |

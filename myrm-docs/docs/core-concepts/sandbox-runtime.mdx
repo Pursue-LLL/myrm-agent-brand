@@ -141,9 +141,9 @@ This is ideal for:
 - Letting the agent explore multiple solutions in parallel
 - Code reviews where you want to test changes before accepting
 
-**Parallel Sub-Agent Isolation**: When running multi-agent tasks, each sub-agent gets its own Copy-on-Write workspace clone (ISOLATED_COPY policy) with a 1 GiB safety guard. Changes are safely merged back in serial order after parallel execution — no file conflicts, no data loss.
+**Parallel Sub-Agent Workspace**: Parallel sub-agents work in the chat's one workspace. A write whose line range overlaps another agent's recent edit to the same file is blocked; `alternatives` candidates are read-only (write, edit and command tools are removed), so they cannot change the workspace.
 
-Seven orchestration modes (Spawn / Chain / Batch / DAG / Verified / Swarm Fission / Alternatives), cascade cancellation, and delegation budgets ensure safe, cost-controlled parallel execution. 3-tier sandbox (OS namespace / Docker container / Workspace COW) starts in milliseconds without Docker dependency. **1,101 tests verify the full sub-agent & sandbox stack.**
+Seven orchestration modes (Spawn / Chain / Batch / DAG / Verified / Swarm Fission / Alternatives), cascade cancellation, and delegation budgets ensure safe, cost-controlled parallel execution. 2-tier sandbox (OS namespace / Docker container) starts in milliseconds without Docker dependency. **1,101 tests verify the full sub-agent & sandbox stack.**
 
 **Robustness guarantees:**
 - Locale-safe: All git commands use `LANG=C` to prevent parsing failures on non-English systems
