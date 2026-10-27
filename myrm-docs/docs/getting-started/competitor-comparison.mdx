@@ -52,6 +52,14 @@ Installing a skill does not change the model — it only adds text to the contex
 - **Roadmap**: the two-score evaluation itself — activation → fidelity → benefit decomposition (`topic_14 #198`), sandboxed golden trajectories (`topic_14 #178`), and selection-aware A/B (`topic_14 #171`).
 - **Honest scope**: we do not claim every skill passed a two-score eval, and we publish no "best skill" rankings — star counts drift ~43% per month and are not a quality signal.
 
+## Agent teams: verification over headcount (verified 2026-10-27)
+
+Competitors market agent counts ("25+ agents", "200+ agents"). Agent count is not a capability — **a team that cannot verify its work is just noise**. Myrm is built around verification:
+
+- **Shipped**: 5 team templates (leader + members), Kanban worker/lead with a task DAG, goals acceptance criteria verified with real shell/semantic checks (failed criteria pause the goal instead of faking completion), unattended approvals bounded to a declared capability set, completion delivery over 26 channels, and a fleet KPI board.
+- **Roadmap**: the full Chief-of-Staff role (topic_18 #52) and the `/fleet` command center are still roadmap items.
+- **Honest scope**: we do not sell "how many agents" — we sell "an agent's output is not accepted until it passes verification".
+
 ## At a Glance (2026-10-24)
 
 | | Myrm | Hermes | OpenClaw | Codex | DeepSeek-Harness | Pi | OpenCode |
@@ -2078,7 +2086,7 @@ Installing a skill does not change the model — it only adds text to the contex
   5. **Final Reply Delivered As-Is, In The Sender's Language**: When the run ends, the executor's own final reply (full text, attachments, thread) is pushed back to the origin chat under a one-line localized status header with the task id and duration; English, Simplified Chinese and Japanese ship in the channel catalog, other languages fall back to English;
   6. **`/stop` Cancels A Delegated Run**: In the same chat, `/stop` ends the foreground turn first and, when there is none, the background tasks the sender started; the task is marked cancelled, its slot is freed, and the delegation receipt tells the user so;
   7. **Tool Approvals Reach The Chat**: A delegated run that needs a tool approval sends the prompt with approve and deny buttons to the chat; `/approve`, `/deny`, the buttons and reactions use the same path as a foreground approval, and an approved run continues as an ordinary turn of that chat. When the chat already has a foreground turn in flight, it keeps its approval slot;
-  8. **Test Coverage**: 54 unit, lifecycle and router tests in `tests/channels/delegation/` pass, including a real `AgentRouter` with a scripted executor for the hand-over, `/approve` resume, `/stop` and reaper paths (2026-10-27); the approve-then-resume run on a live LangGraph agent and delivery on real IM platforms (topics, long-message splitting) are not verified end to end;
+  8. **Test Coverage**: 56 unit, lifecycle and router tests in `tests/channels/delegation/` pass, including a real `AgentRouter` with a scripted executor for the hand-over, `/approve` resume, `/stop` and reaper paths (2026-10-27); the approve-then-resume run on a live LangGraph agent and delivery on real IM platforms (topics, long-message splitting) are not verified end to end;
   9. **Known Limit, Approval Timeout**: When a handed-over approval times out and resumes by itself, the router keeps a stale approval marker, as it already does for a foreground approval; this is not fixed yet.
 - **SSOT Sources:** `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md` · `temp-docs/roadmap/topic_13_channel_integration_roadmap.md` · `myrm-agent/myrm-agent-server/app/channels/delegation/` · `myrm-agent/myrm-agent-server/tests/channels/delegation/test_delegation_pipeline.py`
 
