@@ -11,6 +11,15 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 **迁移信心**——数据与节奏在你手里：可选 SaaS、自托管或桌面三模；Hermes 技能可 GUI 拖拽 ZIP 导入；先对照下方能力表与分竞品章节再决定。对于插件中心化用户（如 Grok Build），Myrm 支持一键安装**完整 Agent 能力包**（模型 + 技能 + MCP + 子代理 + 安全策略），无需手工拼装多插件。文档与产品均支持 **6 种语言**（zh/en/ja/ko/de/zh-TW）；首次访问自动识别浏览器语言（RFC 7231 Accept-Language 协商），三种部署模式（WebUI / 云托管 / Tauri 桌面端）均适用。
 </Note>
 
+## 模型路由与逐答案归属（2026-10-27 实测）
+
+竞品都在讲「自动帮你选最好的模型」，但用户真正会问的是：**这条回答到底是谁写的、为什么换模型了？** Myrm 把路由决策摊开到每条回答上：
+
+- **两套路由引擎已在生产接线**：`route_task` 负责 SIMPLE / STANDARD / REASONING 三档，`route_task_specialty` 负责 CODE / LONG_DOC / REASONING / MULTIMODAL / CASUAL / GENERAL 六类，均带 fallback chain（`myrm-agent-harness/.../toolkits/llms/routing/specialty_router.py`，生产接线见 `myrm-agent-server/app/services/agent/params/converter.py:195-260,273-336`）。
+- **逐答案归属**：用量面板与模型专长徽章会显示实际模型、路由档位、任务域、路由原因、成本与隐私路由（`routingMetaEvents.ts:204`、`TokenUsageDisplay.tsx:619-623`、`ModelSpecialtyChip.tsx:85,96`）。
+- **诚实边界**：路由是**按 Agent 开启**的——需要在 Smart Routing 里选择轻量/推理模型后生效（3 个 Pareto 预置已内置配置），不是所有 Agent 默认开启；我们也**不会**为每次请求并行调用多个模型再挑最好（拿延迟和成本换边际收益，不划算）。
+- **为什么重要**：换模型不应该悄悄改变回答质量与账单。用户能看见谁答的、为什么是它、花了多少，而不是信任一个黑盒。
+
 ## 一眼对比（2026-10-24）
 
 | | Myrm | Hermes | OpenClaw | Codex | DeepSeek-Harness | Pi | OpenCode |
