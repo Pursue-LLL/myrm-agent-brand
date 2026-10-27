@@ -1170,19 +1170,15 @@ CaMeL 单信任边界；Myrm **6 层**洋葱防御、5 域循环检测、3 层�
 4. **六大主流竞品对比**：
    - 对标 **Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi / OpenCode**，Myrm 是业界唯一具备“整型分位记账 + 两阶段签名凭据 + 冷重启自愈对账 + WebUI 消费保险箱”全栈闭环的商业智能体执行底座，核心模块实现 100% 满分语句覆盖。
 
-## 会话金丝雀、暗桩诱饵与出网代理 (Session Canary, Honeytoken Decoys & Egress Proxy)
+## 会话金丝雀与出网代理 (Session Canary & Egress Proxy)
 
-网页文本或 HTML 注释中潜藏的**间接提示词注入（Indirect Prompt Injection）**可能诱导智能体泄露它掌握的内容。对应有三种机制，其中只有会话金丝雀默认开启；暗桩诱饵的生成与污点闸门是 harness 提供的能力，产品目前没有启用。
+网页文本或 HTML 注释中潜藏的**间接提示词注入（Indirect Prompt Injection）**可能诱导智能体泄露它掌握的内容。对应有两种机制，其中只有会话金丝雀默认开启；污点闸门是 harness 提供的能力，产品目前没有启用。
 
 ### 1. 会话金丝雀（默认开启）
 - **每会话随机令牌**：每个智能体会话生成一个随机的 `CANARY-...` 令牌，连同“绝不重复该令牌”的指令追加到系统提示词中，因此各会话的系统提示词并不相同；
 - **泄露检测**：每轮模型输出后，安全护栏检查回复文本与工具调用参数是否含该令牌。命中时在审计日志记录 `CANARY_LEAKED`，并从回复文本中抹除令牌，不会拦截工具调用。
 
-### 2. 暗桩诱饵（需宿主启用）
-- `HoneytokenTrap.generate_sandbox_canaries()` 生成拟真的 AWS、OpenAI、GitHub 与数据库凭证，供宿主挂载为沙箱环境变量，不向系统提示词写入任何诱饵内容；
-- 请求体中一旦出现已登记的诱饵，`LoopbackEgressProxy` 会关闭两端连接。产品代码没有调用 `generate_sandbox_canaries`，因此不会挂载任何诱饵，这项扫描处于空转状态。
-
-### 3. 出网代理污点闸门（需配置网关）
+### 2. 出网代理污点闸门（需配置网关）
 - 本地执行器在跟踪到凭证占位符时启动 `LoopbackEgressProxy`，由它把真实密钥替换进出站请求；
 - 挂载 `TaintedEgressGateway` 后，受污染会话对白名单之外主机的连接返回 `403 Forbidden`。产品启动的代理没有配置网关，这道闸门处于关闭状态。
 

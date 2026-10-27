@@ -1323,19 +1323,15 @@ To enable agents to autonomously execute micro-payments during long-running work
 4. **Competitive Parity vs. Six Major Frameworks**:
    - Unlike **Hermes, OpenClaw, Codex, DeepSeek-Harness, Pi, and OpenCode**—which either completely lack micro-payment sandboxes or expose raw credentials to LLM prompt injection—Myrm provides the industry's first defense-in-depth commerce spending safety suite, backed by 100% statement test coverage.
 
-## Session Canary, Honeytoken Decoys & Egress Proxy
+## Session Canary & Egress Proxy
 
-Hidden **indirect prompt injections** (text in matching background colors or inside HTML comments) can steer an agent into leaking what it knows. Three mechanisms address this. Only the session canary is on by default; decoy minting and the taint gate are harness capabilities that the product does not switch on.
+Hidden **indirect prompt injections** (text in matching background colors or inside HTML comments) can steer an agent into leaking what it knows. Two mechanisms address this. Only the session canary is on by default; the taint gate is a harness capability that the product does not switch on.
 
 ### 1. Session Canary (on by default)
 - **Per-session token**: every agent session gets a random `CANARY-...` token. It is appended to the system prompt together with an instruction never to repeat it, so the system prompt differs from session to session;
 - **Leak detection**: after every model turn the guardrail checks the reply text and the tool-call arguments for the token. A hit is recorded in the audit log as `CANARY_LEAKED` and the token is scrubbed from the reply text. Tool calls are not blocked.
 
-### 2. Honeytoken Decoys (armed by the host)
-- `HoneytokenTrap.generate_sandbox_canaries()` mints decoy AWS, OpenAI, GitHub and database credentials that a host can mount as sandbox environment variables. No decoy text enters the system prompt;
-- When a registered decoy appears in a request body, `LoopbackEgressProxy` closes both sockets. Nothing in the product calls `generate_sandbox_canaries`, so no decoys are mounted and this scan stays idle.
-
-### 3. Egress Proxy Taint Gate (needs a gateway)
+### 2. Egress Proxy Taint Gate (needs a gateway)
 - `LoopbackEgressProxy` is started by the local executor when a credential placeholder is tracked, and substitutes the real secret into outbound requests;
 - With a `TaintedEgressGateway` attached, a tainted session's connections to hosts outside the allowlist get `403 Forbidden`. The proxy the product starts has no gateway, so this gate is off.
 
