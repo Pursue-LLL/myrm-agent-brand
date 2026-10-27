@@ -154,9 +154,10 @@ To counter the supply-chain vulnerabilities and secret exfiltration highlighted 
    - Frontmatter declarations strictly act as prompt context filters; real execution authorization is governed by the underlying five-layer security engine (`engine.py`). Untrusted third-party skills default to `SkillTrust.INSTALLED = 0` (read-only confinement).
 2. **SHA-256 Tamper Protection & Runtime Quarantine**:
    - Computes cross-platform LF-normalized SHA-256 content hashes at load time. If unauthorized code drift occurs, `QuarantineAwareSkillBackend` blocks execution at runtime (`is_active=False`), shutting down downstream poisoning.
-3. **OS Keyring Zero-Disk Master Key & AES-256-GCM Envelope Encryption**:
-   - `MasterKeyProvider` integrates natively with macOS Keychain, Linux SecretService, and Windows DPAPI under a strict **Zero-Disk** policy.
-   - All credentials in SQLite are transparently AES-256-GCM encrypted at rest. Child processes in sandboxes receive only `myrm-sent-v1...` opaque tokens—`env` calls reveal no raw keys. The loopback egress proxy dynamically substitutes valid Authorization headers on-the-fly for whitelisted domains.
+3. **Zero-Disk Vault Master Key & AES-256-GCM Encryption of Saved Keys**:
+   - The master key of the agent secret vault (`agent_secrets`, `vault_credentials`) is held by `MasterKeyProvider`: it comes from an environment variable, macOS Keychain, Linux SecretService, Windows Credential Manager, or an unlock passphrase, and is never written to a plaintext file (**Strictly Zero-Disk**).
+   - The keys saved in settings (model providers, search, MCP and similar) are AES-256-GCM encrypted at rest in the local SQLite database. The encryption key comes from the `CONFIG_ENCRYPTION_KEY` environment variable or a `.encryption_key` file (mode 0600) in the state directory, not from the OS keychain, so anyone who obtains both the database and that file can read those keys. Whole-instance backups leave these keys out by default; they travel only in a passphrase-protected export and are re-encrypted to the target instance's key on import.
+   - Child processes in sandboxes receive only `myrm-sent-v1...` opaque tokens—`env` calls reveal no raw keys. The loopback egress proxy dynamically substitutes valid Authorization headers on-the-fly for whitelisted domains.
 4. **Strict 127.0.0.1 Loopback Hardlock & Anti-DNS-Rebinding Shield**:
    - Local services strictly bind to `127.0.0.1` by default. Robust CORS and LoopbackAuthToken enforcement prevent cross-site request forgery and DNS rebinding attacks against high-privilege local agents.
 
@@ -379,6 +380,28 @@ Multi-agent workflows introduce identity drift and privilege escalation risks. M
 | **Sink Policies** | Tainted sessions escalate to HITL approval for dangerous tool combinations (e.g., `EXTERNAL_NETWORK` taint + `bash_tool` = blocked without approval) |
 | **Budget Boundary** | 4-dimension `DelegationBudget` (token + USD + time + max descendants) prevents runaway sub-agent chains |
 | **Recursion Guard** | 5-layer progressive defense: L1 global depth hard limit (max 3) + L2 per-config depth (LEAF agents forced to depth=0) + L3 descendant budget (max 20 including parallel branches, atomic reserve) + L4 concurrency limits (semaphore=5 + per-agent children=5) + L5 LoopGuard 7-class behavioral detection (repetition/ping-pong/no-progress/divergence/diminishing). Rejections emit frontend STATUS events with actionable suggestions for LLM self-correction. Cascade cancellation of all descendants on parent abort |
+
+### Per-Agent Isolation & Access Visibility
+
+An assistant is more than a prompt: it owns a memory namespace, a browser login store, a tool/MCP allowlist and a schedule. Myrm keeps those boundaries separate so one assistant's logins or files do not silently become another's.
+
+| Layer | What is isolated | Where to verify |
+|---|---|---|
+| Memory | `agent:{agent_id}` namespace; preferences, facts and rules do not mix | Agent settings → Memory |
+| Browser logins | Encrypted per-agent session vault; two assistants can sign in to the same site without overwriting each other | Settings → System → Saved Sessions (list / delete / clean up expired) |
+| Tools & MCP | Per-agent tool allowlist plus MCP server/tool allowlist; a missing policy is fail-closed | Agent settings → Tools / MCP |
+| Outbound actions | Allow / ask / deny plus approvals; cron runs fail closed on integration writes, credential egress and out-of-scope writes | Settings → Approvals / Security |
+| Schedule | Every cron job is bound to an assistant (or the default assistant) | Settings → Cron |
+
+**A 5-minute access audit you can run today**
+
+1. Open each assistant and list its tools/MCP servers; remove anything the job does not need.
+2. Open Settings → System → Saved Sessions; delete logins you no longer use and clean up expired sessions.
+3. Check the assistant's workspace/path policy: it should only read the project folders it needs.
+4. Review Approvals and long-lived grants; revoke anything you do not remember granting.
+5. Review the assistant's cron jobs; delete paused or duplicate routines.
+
+**Current boundary.** Deleting an assistant removes its profile and cascades skills, channel bindings and Kanban/Cron references, but it does not yet purge workspace files, saved browser sessions or vault credentials. Review Saved Sessions and the workspace before deleting. A unified per-assistant access-audit report with one-click revocation is on the roadmap, not shipped yet.
 
 ## Skill Installation Security
 

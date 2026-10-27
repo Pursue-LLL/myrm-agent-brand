@@ -115,9 +115,10 @@ Agent 可以使用 `ask_question_tool` 在执行操作前向用户提出结构�
    - 任何技能 frontmatter 中的 `allowed-tools` 仅作为提示词中的可用工具池过滤，真实执行决策牢牢掌控在底层五层洋葱圈（`engine.py`）手中；外部第三方技能强制赋予 `SkillTrust.INSTALLED = 0`（只读收敛）。
 2. **技能内容 SHA-256 防篡改与运行时自动隔离**：
    - 加载阶段实时执行 LF 归一化 SHA-256 校验；一旦上游或磁盘发生非授权代码漂移，`QuarantineAwareSkillBackend` 在运行时强行阻断（`is_active=False`），彻底消灭可变脚本投毒风险。
-3. **OS Keyring 零落盘主密钥与落盘透明 AES-256-GCM 信封加密**：
-   - `MasterKeyProvider` 原生托管至 macOS Keychain / Linux SecretService / Windows Credential Manager，贯彻 **Strictly Zero-Disk** 零落盘铁律；
-   - 本地 SQLite 凭证全量经 AES-256-GCM 加密落盘；子进程与沙箱仅能获取 `myrm-sent-v1...` 占位符，环境变量执行 `env` 绝无可能窃取明文 Key；出站白名单网关（Loopback Egress Proxy）动态透明代填。
+3. **金库主密钥零落盘与设置里密钥的 AES-256-GCM 加密落盘**：
+   - 智能体机密金库（`agent_secrets`、`vault_credentials`）的主密钥由 `MasterKeyProvider` 托管：来自环境变量、macOS Keychain / Linux SecretService / Windows Credential Manager 或解锁口令，绝不写入明文文件，贯彻 **Strictly Zero-Disk** 零落盘铁律；
+   - 设置里保存的模型服务商、搜索、MCP 等密钥在本地 SQLite 中以 AES-256-GCM 加密落盘；加密密钥来自环境变量 `CONFIG_ENCRYPTION_KEY` 或状态目录下权限为 0600 的 `.encryption_key` 文件，不在系统钥匙串里，同时拿到数据库与该文件的人读得到这些密钥；整实例备份默认不含这些密钥，设置口令导出时才以口令保护携带，导入时重新加密到目标实例的密钥；
+   - 子进程与沙箱仅能获取 `myrm-sent-v1...` 占位符，环境变量执行 `env` 绝无可能窃取明文 Key；出站白名单网关（Loopback Egress Proxy）动态透明代填。
 4. **默认 127.0.0.1 回环硬门禁与防 DNS 重绑定攻击**：
    - 本地服务绝对强制仅绑定 `127.0.0.1` 环回接口，消灭意外局域网/公网裸奔；严格的 CORS 与 LoopbackAuthToken 彻底防范跨站请求伪造与 DNS Rebinding 提权攻击。
 
@@ -325,6 +326,28 @@ harness 的 `FileLock`（供投递队列使用）以 `O_NOFOLLOW` 打开锁文�
 | **Sink 策略** | 污点会话对危险工具组合升级 HITL |
 | **预算边界** | 4 维 `DelegationBudget` 防失控子 Agent 链 |
 | **递归熔断** | 5 层递进防护：L1 全局深度硬限（最多 3 层）+ L2 配置级深度（LEAF 强制 depth=0）+ L3 后代预算制（最多 20 含并行分支，原子预扣）+ L4 并发限制（信号量=5 + 每 Agent 子代=5）+ L5 LoopGuard 7 类行为检测（重复/乒乓/无进展/发散/递减）。拒绝时发送前端 STATUS 事件 + 结构化建议行动帮助 LLM 自纠正。父中止时级联取消全部后代 |
+
+### 每助手隔离与访问可见性
+
+一个助手不只是提示词：它有自己的记忆域、浏览器登录态、工具/MCP 白名单与定时任务。Myrm 把这些边界分开，避免 A 助手的登录态或文件悄悄变成 B 助手的权限。
+
+| 层 | 隔离什么 | 在哪里核对 |
+|---|---|---|
+| 记忆 | `agent:{agent_id}` 命名空间；偏好、事实与规则互不污染 | 助手设置 → 记忆 |
+| 浏览器登录态 | 每助手独立加密会话金库；两个助手登录同一站点不会互相覆盖 | 设置 → 系统 → Saved Sessions（查看 / 删除 / 清理过期） |
+| 工具与 MCP | 每助手工具白名单 + MCP server/tool 白名单；未注册策略默认 Fail-Closed | 助手设置 → 工具 / MCP |
+| 外发动作 | allow / ask / deny + 审批；cron 对集成写、凭据外泄、越界写 Fail-Closed | 设置 → 审批 / 安全 |
+| 定时任务 | 每个 Cron 任务绑定到某个助手（或默认助手） | 设置 → 定时任务 |
+
+**今天就能做的 5 分钟访问审计**
+
+1. 逐个打开助手，列出它的工具与 MCP server，删掉这个职责不需要的。
+2. 打开设置 → 系统 → Saved Sessions，删除不再使用的登录态，清理过期会话。
+3. 检查助手的工作区/路径策略：它只应该读到需要的项目目录。
+4. 查看审批与长期授权清单，撤销不记得授予过的权限。
+5. 查看该助手的 Cron 任务，删除暂停或重复的例程。
+
+**当前边界**：删除助手会删除配置并级联技能、渠道绑定与 Kanban/Cron 引用，但**不会**自动清理工作区文件、浏览器会话与凭据；删除前请先查看 Saved Sessions 与工作区。按助手的统一访问审计报告与一键撤销仍在路线图中，尚未交付。
 
 ## 技能安装安全
 

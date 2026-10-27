@@ -231,6 +231,28 @@ LLM 컨텍스트에 들어가기 전에 모든 외부 컨텐츠와 도구 출력
 | **Budget Boundary** | 4-dimension `DelegationBudget` (token + USD + time + max descendants) prevents runaway sub-agent chains |
 | **Recursion Guard** | 5-layer progressive defense: L1 global depth hard limit (max 3) + L2 per-config depth (LEAF agents forced to depth=0) + L3 descendant budget (max 20 including parallel branches, atomic reserve) + L4 concurrency limits (semaphore=5 + per-agent children=5) + L5 LoopGuard 7-class behavioral detection (repetition/ping-pong/no-progress/divergence/diminishing). Rejections emit frontend STATUS events with actionable suggestions for LLM self-correction. Cascade cancellation of all descendants on parent abort |
 
+### 에이전트별 격리 및 접근 가시성
+
+어시스턴트는 단순한 프롬프트가 아닙니다. 자체 메모리 네임스페이스, 브라우저 로그인 저장소, 도구/MCP 허용 목록, 일정을 가집니다. Myrm은 이 경계를 분리하여 한 어시스턴트의 로그인이나 파일이 다른 어시스턴트의 권한으로 조용히 넘어가지 않게 합니다.
+
+| 계층 | 격리 대상 | 확인 위치 |
+|---|---|---|
+| 메모리 | `agent:{agent_id}` 네임스페이스; 선호·사실·규칙이 섞이지 않음 | 에이전트 설정 → 메모리 |
+| 브라우저 로그인 | 에이전트별 암호화 세션 금고; 같은 사이트에 로그인해도 서로 덮어쓰지 않음 | 설정 → 시스템 → Saved Sessions(조회 / 삭제 / 만료 정리) |
+| 도구 & MCP | 에이전트별 도구 허용 목록 + MCP 서버/도구 허용 목록; 정책이 없으면 Fail-Closed | 에이전트 설정 → 도구 / MCP |
+| 외부 작업 | allow / ask / deny + 승인; cron은 통합 쓰기·자격 증명 유출·범위 밖 쓰기에서 Fail-Closed | 설정 → 승인 / 보안 |
+| 일정 | 모든 Cron 작업은 특정 에이전트(또는 기본 에이전트)에 바인딩 | 설정 → Cron |
+
+**지금 바로 할 수 있는 5분 접근 감사**
+
+1. 각 어시스턴트의 도구/MCP 서버를 확인하고 업무에 필요 없는 항목을 제거합니다.
+2. 설정 → 시스템 → Saved Sessions에서 더 이상 쓰지 않는 로그인을 삭제하고 만료 세션을 정리합니다.
+3. 어시스턴트의 작업 공간/경로 정책이 필요한 프로젝트 폴더만 읽는지 확인합니다.
+4. 승인 및 장기 권한 목록을 검토하고 기억나지 않는 권한을 취소합니다.
+5. 해당 어시스턴트의 Cron 작업을 검토하고 중지·중복 루틴을 삭제합니다.
+
+**현재 경계**: 어시스턴트를 삭제하면 프로필과 스킬·채널 바인딩·Kanban/Cron 참조는 정리되지만, 작업 공간 파일·브라우저 세션·자격 증명은 아직 자동으로 삭제되지 않습니다. 삭제 전에 Saved Sessions와 작업 공간을 확인하세요. 에이전트별 통합 접근 감사 보고서와 원클릭 취소는 로드맵에 있으며 아직 출시되지 않았습니다.
+
 ## 스킬 설치 보안
 
 모든 소스(GitHub, SkillHub, 파일 업로드)에서 기술을 설치할 때 모든 기술은 활성화되기 전에 **3중 보안 게이트**를 통과합니다.

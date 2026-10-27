@@ -34,6 +34,15 @@ Most agents advertise "we pick the best model for you" but leave users guessing 
 - **Honest scope**: routing is opt-in per Agent — pick light/reasoning models under Smart Routing (3 Pareto presets ship configured). It is not default-on for every Agent, and we do **not** run multiple models per request and pick the best output; that would trade latency and cost for marginal gains.
 - **Why it matters**: model swaps should never silently change answer quality or cost. Users can see which model answered, why it was chosen, and what it cost — instead of trusting a black box.
 
+## Hands-off delegation: leave, come back to a result (verified 2026-10-27)
+
+The most common complaint about always-on agents is not capability — it is **babysitting**: watching streams, answering "checking…" prompts, and paying attention while nothing happens. Myrm is built to be left alone:
+
+- **Durable background work**: offline tasks survive disconnect/restart and are resumed from the database; the desktop keeps the machine awake while a long task runs.
+- **Completion reaches you**: 26 channel providers, in-app notifications, and a Catchup inbox that summarizes what finished, what is blocked on you, and what failed while you were away.
+- **No empty pings**: cron jobs support a `[SILENT]` contract, so a routine check with no change does not notify you.
+- **Honest scope**: fine-grained visibility modes (result / milestones / full trace, `topic_09 #226`) and notification coalescing (`topic_09 #448`) are roadmap items, not shipped features. Today you delegate through background tasks, cron, and Goal Mode; there is no one-click "focus hour" wrapper yet.
+
 ## At a Glance (2026-10-24)
 
 | | Myrm | Hermes | OpenClaw | Codex | DeepSeek-Harness | Pi | OpenCode |
@@ -64,7 +73,7 @@ Most agents advertise "we pick the best model for you" but leave users guessing 
      - *Myrm advantage*: Implements a 3–5 minute sliding debounce window on incoming multi-source triggers (emails, webhooks, group mentions) to coalesce bursts, paired with three-tier interruption triage (P0 Immediate Alert for critical failures/auth blocks, P1 Morning/Evening Digest batching for milestone completions, P2 Silent Routine `[SILENT]` archival for routine green checks).
   3. **Ingress Brute-Force Progressive Lockout & Credential-at-Rest Encryption**:
      - *Competitor flaw*: When exposed to public VPS or home server ports, competitors lack progressive IP lockout and store API keys in plaintext `.env` or SQLite, allowing automated dictionary scanners to steal user keys and incur runaway bills.
-     - *Myrm advantage*: Protects self-hosted ingress with progressive IP lockout (5 fails → 15m ban, 10 fails → 24h ban) and Tarpit delay defenses, encrypts provider API keys at rest via OS Keyring / AES-256-GCM envelope encryption, and triggers instant circuit breakers on 1-hour anomalous spend spikes (`topic_03 #115`).
+     - *Myrm advantage*: Protects self-hosted ingress with progressive IP lockout (5 fails → 15m ban, 10 fails → 24h ban) and Tarpit delay defenses, encrypts provider API keys at rest with AES-256-GCM, and triggers instant circuit breakers on 1-hour anomalous spend spikes (`topic_03 #115`).
 - **Our side (checked against real code)**:
   - Agent-in-Sandbox architecture (`FRAMEWORK_DESIGN_PRINCIPLES.md:42`, `EXECUTION_SYSTEM.md`) mounts dedicated user volume with zero copy (`vault://<uuid>`);
   - MCP two-outcome gate (Direct FC vs MCP PTC progressive disclosure) guarantees prompt cache stability without third-party proxy gate overhead;

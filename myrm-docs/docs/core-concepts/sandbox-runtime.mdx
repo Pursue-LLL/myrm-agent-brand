@@ -30,6 +30,15 @@ This guarantee covers the state that matters most:
 
 Competitors typically use direct overwrite writes (`open(path, "w")`), which truncate the original file before writing — a crash mid-write leaves a corrupted, unparseable file and permanent data loss. Myrm's atomic writes make "crash = data loss" a non-event.
 
+### Dedicated Persistent Volumes vs Ephemeral Cloud Wipes
+
+Conventional stateless cloud agents (like some public cloud VMs) frequently restart containers in the background, causing tasks to "fake run" for days while silently wiping workspace data.
+
+Myrm deploys **Per-User Dedicated Persistent Volumes**:
+
+- **True State Persistence**: Sandboxes are bound to dedicated persistent NVMe storage. Machine reboots, container cold-freeze (Scale-to-Zero), or host rescheduling preserve 100% of your filesystem and database state — zero data wipes.
+- **Physical Output Completion Gates**: Paired with `VerificationGatekeeper` and 7-layer loop detectors, tasks finish based on tangible artifacts (code generation, test assertions) rather than model self-praise; repetitive calls trip hard-stops immediately, eliminating overnight runaway loops.
+
 ## Isolation
 
 Each sandbox runs in an isolated environment with:

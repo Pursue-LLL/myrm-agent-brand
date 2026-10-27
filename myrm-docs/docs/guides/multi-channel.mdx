@@ -119,11 +119,21 @@ Both WeChat and WhatsApp use the same `AsyncLoginProtocol` — consistent UX acr
 
 **Smart HTML Cleaning**: When emails contain only HTML (Amazon orders, Jira notifications, Outlook rich text), the content is automatically converted to clean Markdown — preserving tables, links, and lists while reducing content size by 65–74% (measured), so the Agent understands faster and more accurately.
 
-**Multi-Agent Email Routing**: If you have multiple Agents configured, start your email body with a slash command to route to a specific agent:
+**Multi-Agent Email Routing & Dedicated Identity**:
 
-- `/coder review this PR` → routes to your "coder" agent
-- `/accountant expense this` → routes to your "accountant" agent
-- No command → routes to default agent
+- If you have multiple Agents configured, route incoming messages using prefixes or slash commands: `/coder review this PR` routes to your "coder" agent, `/accountant expense this` routes to your "accountant" agent.
+- **BYOD Custom Domain Support**: Protect sender reputation by connecting your own domain or private SMTP instead of a public shared domain (which competitors found immediately blacklisted by Outlook/Exchange).
+- **Rename & Release Window**: Dedicated agent email handles support safe renaming and tombstone releases without locking an account forever.
+- **Zero-Token System Command Bypass**: Diagnostics and status management commands run locally at zero token cost and remain accessible even if conversation quotas hit 100%.
+
+**Bot-to-Bot Communication & Infinite Loop Defense**:
+
+- **Strict 4-Hop Limit**: Each inter-agent email increments `X-Myrm-Hop-Count`, cutting off runaway threads at 4 hops.
+- **Terminal Courtesy Ack Suppression**: When a peer agent sends pure acknowledgements ("Thanks!", "Confirmed"), the receiving agent silently terminates rather than triggering another round, eliminating token-burning ping-pong loops.
+- **Outbound Human Approval**: Any outgoing email addressed to external humans requires explicit approval in the UI before transmission.
+- **Attachment Text Extraction**: PDF and Office attachments (docx / xlsx / xls / pptx / ppt) are text-extracted by default and handed to the Agent together with the message body. Up to 4 attachments per email are processed, each at most 20 MB; text beyond 200,000 characters is cut off with a note stating the full length. Other attachment types (JSON, archives, ...) are announced by file name only and their content is not read.
+- **Sandbox Magic Link Auto-Activation**: When signing up for third-party services, incoming verification emails automatically have their confirmation links extracted and safely verified inside a sandboxed browser (`browser_navigate`), turning unclickable text into full service onboarding.
+- **4-Tuple Enclave Multi-User Sharing**: Allows multiple users (e.g., family members sharing a household budget agent) to communicate with the same bot instance; 4-tuple enclave routing (`routing_enclave_key`) guarantees personal conversations remain strictly isolated while common ledgers stay shared.
 
 ### Telegram
 

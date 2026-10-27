@@ -66,6 +66,14 @@ Myrm provides 6 paths to sync and export files to any cloud storage service — 
 Unlike competitors that lock you into a single cloud ecosystem, Myrm's open architecture lets you connect to **any** storage service through multiple paths. The Agent automatically chooses the best approach based on your request.
 :::
 
+## Cross-Agent Sharing & Native Outward MCP Endpoints
+
+Unlike proxy tools (such as personalagentproxy) that force models through 4 awkward round-trips (`start_task ➔ list_tools ➔ read/run`) and destroy prompt caching, Myrm natively exposes a **standard outward MCP endpoint** (`/api/v1/mcp`):
+
+- **Seamless External Agent Mounting**: Whether you run Claude Code in your terminal, Cursor in your IDE, or an open agent on mobile, simply point their MCP client to Myrm's URL to share your personal long-term memory ledger and Obsidian wiki.
+- **Direct FC with Zero Proxy Overhead**: Eliminates unnecessary proxy layers; tool calls resolve in a single round-trip with 95%+ permanent prompt cache lock and strict schema validation.
+- **Sandbox Isolation & OCAP Token Decay**: Third-party credentials remain securely sealed in your local sandbox volume. Task-scoped OCAP capability tokens decay automatically upon completion, preventing centralized single-point-of-failure leaks.
+
 ## Integration Memory (Workspace Sync)
 
 Any connected MCP server can be automatically used as a knowledge source. Navigate to **Settings > Integrations > Integration Memory** to sync external data into your AI's long-term memory.
