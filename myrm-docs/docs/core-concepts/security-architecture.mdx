@@ -110,7 +110,7 @@ Myrm introduces a pure-Python lexical state machine and AST analyzer (`ast_parse
    - Self-contained 420-line lexer without heavy C/tree-sitter dependencies.
    - Decomposes pipelines (`|`), logical chaining (`&&`, `||`), subshells, quotes, and redirects into structured syntax trees.
 2. **Environment Variable Decoupling & Git Global Flag Penetration**:
-   - Strips leading variable assignments (`KEY=val cmd`) before resolving command tokens.
+   - Strips leading variable assignments (`KEY=val cmd`) before resolving command tokens. Read-only auto-approval is kept only for assignments that merely shape output (`LC_ALL=C ls`, `PAGER=cat git log`); any other one (`GIT_EXTERNAL_DIFF=./x git diff`, `FOO=bar ls`) goes to approval, because a variable can make a read-only command run a program.
    - Intelligently extracts Git global parameters (`-C`, `-c`, `--git-dir`, `--work-tree`) to accurately inspect the underlying sub-action (e.g., distinguishing `git status` from `git push` or `git reset`).
 3. **Four-Tier Capability Classification (`CommandCapability`)**:
    - `READ`: Safe observation commands (e.g., `git status`, `cat`, `ls`, `grep`) bypass approval fatigue alerts.
@@ -157,7 +157,7 @@ To counter the supply-chain vulnerabilities and secret exfiltration highlighted 
 3. **Zero-Disk Vault Master Key & AES-256-GCM Encryption of Saved Keys**:
    - The master key of the agent secret vault (`agent_secrets`, `vault_credentials`) is held by `MasterKeyProvider`: it comes from an environment variable, macOS Keychain, Linux SecretService, Windows Credential Manager, or an unlock passphrase, and is never written to a plaintext file (**Strictly Zero-Disk**).
    - The keys saved in settings (model providers, search, MCP and similar) are AES-256-GCM encrypted at rest in the local SQLite database. The encryption key comes from the `CONFIG_ENCRYPTION_KEY` environment variable or a `.encryption_key` file (mode 0600) in the state directory, not from the OS keychain, so anyone who obtains both the database and that file can read those keys. Whole-instance backups leave these keys out by default; they travel only in a passphrase-protected export and are re-encrypted to the target instance's key on import.
-   - A sandbox command receives credentials only through its own environment: the user's connected-account tokens (for a skill command, only the issuers that skill declares) and one-time credentials approved for exactly that command are exported before it runs and removed when it ends, so the long-lived shell holds none between commands. The command can still read what it was given, so tool output passes through pattern-based secret redaction before it reaches the model; that redaction is not a guarantee for values with no recognizable shape.
+   - A sandbox command receives credentials only through its own environment: the user's connected-account tokens (for a skill command, only the issuers that skill declares) and one-time credentials approved for exactly that command are exported before it runs and removed when it ends, so the long-lived shell holds none between commands. The command can still read what it was given, so a credential handed to it is replaced by `***` wherever its exact value appears in that command's output (also when the output is read in pieces), and tool output passes through pattern-based secret redaction before it reaches the model. Neither is a guarantee for a value the command re-encodes (for example base64), a value shorter than 4 characters, or a secret with no recognizable shape.
 4. **Strict 127.0.0.1 Loopback Hardlock & Anti-DNS-Rebinding Shield**:
    - Local services strictly bind to `127.0.0.1` by default. Robust CORS and LoopbackAuthToken enforcement prevent cross-site request forgery and DNS rebinding attacks against high-privilege local agents.
 
@@ -650,7 +650,7 @@ Commands are analyzed through a 5-layer quote-aware pipeline before execution:
 |-------|-----------|----------|
 | **L1** | Binary characters, 12 invisible Unicode categories (zero-width, direction overrides) | BLOCK |
 | **L1.5** | ANSI-C quoting `$'...'` and locale quoting `$"..."` | BLOCK |
-| **L2** | 6 injection vectors (`$()`, backtick, `${}`, `;`, process substitution) + 70+ dangerous command patterns | BLOCK → DENY |
+| **L2** | 6 injection vectors (`$()`, backtick, `${}`, `;`, process substitution) + 70 dangerous command patterns + a shell-word check that denies leaving a code-injection variable (`BASH_ENV`, `LD_PRELOAD`, `GIT_EXTERNAL_DIFF`…) in the persistent shell with `export` / `readonly` / `declare -x` | BLOCK → DENY |
 | **L2.5** | SQL syntax-level guard: detects destructive SQL in DB client commands (`psql`, `mysql`, `sqlite3`, etc.) — handles multi-statement injection and WITH CTE bypass vectors | ESCALATE → ASK |
 | **L3** | Suspicious patterns (`curl\|sh`, `eval`, `base64 -d`, kill/pkill) | ESCALATE → ASK |
 | **L4** | Recursive analysis of nested commands in `bash -c '...'`, `sh -lc '...'`, `zsh -c '...'`, `trap '...'` wrappers — depth-limited to prevent DoS | Recursive BLOCK/ESCALATE |

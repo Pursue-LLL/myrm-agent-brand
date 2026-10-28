@@ -455,7 +455,7 @@ AI 분류자(`TranscriptClassifier`)는 도구 호출을 검토하여 사용자�
 |-------|-----------|----------|
 | **L1** | Binary characters, 12 invisible Unicode categories (zero-width, direction overrides) | BLOCK |
 | **L1.5** | ANSI-C quoting `$'...'` and locale quoting `$"..."` | BLOCK |
-| **L2** | 6 injection vectors (`$()`, backtick, `${}`, `;`, process substitution) + 70+ dangerous command patterns | BLOCK → DENY |
+| **L2** | 6 injection vectors (`$()`, backtick, `${}`, `;`, process substitution) + 70 dangerous command patterns + a shell-word check that denies leaving a code-injection variable (`BASH_ENV`, `LD_PRELOAD`, `GIT_EXTERNAL_DIFF`…) in the persistent shell with `export` / `readonly` / `declare -x` | BLOCK → DENY |
 | **L2.5** | SQL syntax-level guard: detects destructive SQL in DB client commands (`psql`, `mysql`, `sqlite3`, etc.) — handles multi-statement injection and WITH CTE bypass vectors | ESCALATE → ASK |
 | **L3** | Suspicious patterns (`curl\|sh`, `eval`, `base64 -d`, kill/pkill) | ESCALATE → ASK |
 | **L4** | Recursive analysis of nested commands in `bash -c '...'`, `sh -lc '...'`, `zsh -c '...'`, `trap '...'` wrappers — depth-limited to prevent DoS | Recursive BLOCK/ESCALATE |
