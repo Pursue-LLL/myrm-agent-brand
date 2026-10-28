@@ -770,9 +770,9 @@ For enterprise environments requiring centralized secret management without expo
 4. **Non-Interactive Execution Isolation (`_build_noninteractive_env`)**:
    - Resolvers strip all interactive prompts, desktop notifications, and GUI popups, enforcing deterministic non-blocking execution in headless backend and CI/CD environments.
 5. **Command-Scoped Delivery**:
-   - A resolved secret reaches a sandbox command only through that command's environment and is removed when the command ends; the shell itself starts with no credentials.
+   - A resolved secret reaches a sandbox command only through that command's environment and is removed when the command ends; the shell itself starts with no credentials. Commands of one conversation share that shell, so this limits what is delivered; it does not contain a command that deliberately tampers with the shell (for example by installing a trap).
 6. **Rigorous Verification**:
-   - **98.86% harness unit test coverage** across `core/security/external_secrets/` (15/15 tests green).
+   - **92.1% statement coverage** across `core/security/external_secrets/` from its 10 harness unit tests, all passing (measured with `pytest --cov`, 2026-10-28).
    - **100% Chrome real-browser E2E verification** (`test_external_secrets_settings_chrome_e2e.py` executed in exclusive isolation, 1 passed in 248.02s).
 
 ### Leak Detection

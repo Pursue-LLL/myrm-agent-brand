@@ -868,7 +868,7 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
   3. **内存 TTL 缓存与 401 动态轮转自愈**：解析后的临时凭据严格限制在内存且设 600s TTL；遇到上游 401/403 权限失效时，静默剔除陈旧缓存并即时触发轮转重解析，保障长程自主任务 0 中断；
   4. **非交互式安全隔离执行（`_build_noninteractive_env`）**：剥离所有 GUI 弹窗、终端 Prompt 拦截与桌面提示，杜绝无头后台 Worker 假死挂起；
   5. **按命令交付凭据**：解算出的密钥只写入有权使用它的那条命令的环境变量，命令结束即移除，长驻 Shell 在两条命令之间不持有；命令本身仍能读到交给它的值，所以工具输出进入模型之前要经过基于模式的密钥脱敏；
-  6. **100% 满分全栈实测验证**：Harness 外部机密核心套件语句覆盖率达到 **98.86%**（15/15 专测全绿），Server 端凭据池 API 100% 全绿，无头 Chrome 真实 CDP E2E（`test_external_secrets_settings_chrome_e2e.py`）单任务独占验证 100% 通过（1 passed in 248.02s）。
+  6. **100% 满分全栈实测验证**：Harness 外部机密核心套件语句覆盖率达到 **92.1%**（10/10 专测全绿，2026-10-28 实测），Server 端凭据池 API 100% 全绿，无头 Chrome 真实 CDP E2E（`test_external_secrets_settings_chrome_e2e.py`）单任务独占验证 100% 通过（1 passed in 248.02s）。
 - **SSOT 来源：** `myrm_agent_harness/core/security/external_secrets/manager.py` · `app/api/settings/credential_pool.py` · `test_external_secrets_settings_chrome_e2e.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-26 · 双模启发式脚本装甲、防哨兵吞噬、Exit 拦截保活与孤儿脚本启动自愈 GC 全链路交付 · 彻底消除常驻 Shell 误杀崩溃、输出截断丢失退出码、行尾注释失效与持久卷磁盘泄露）
