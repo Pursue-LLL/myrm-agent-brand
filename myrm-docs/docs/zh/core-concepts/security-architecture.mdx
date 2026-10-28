@@ -106,7 +106,7 @@ Agent 可以使用 `ask_question_tool` 在执行操作前向用户提出结构�
    - **底层物理下线**：对外部非受信来源输入，底层 `UntrustedIngressFence` 在工具动态绑定与调度阶段，对 8 大核心高危特权实施物理硬下线，使其对大模型**物理不可见、接口不可调**：
      - `code_interpreter`（代码执行）、`file_write`（文件写入/覆盖）、`desktop_control`（桌面鼠标键盘操作）、`desktop_capture`（屏幕截屏）、`spawn_subagent`（派生子智能体）、`invoke_external_agent`（级联调用外部智能体）、`cron_manage`（定时任务调度）、`skill_manage`（动态技能安装与修改）；
    - **YOLO 穿透绝对免疫**：即便用户全局开启了 `--yolo` 自动放行模式，`UntrustedIngressFence` 依然强制生效，杜绝外部输入借由 YOLO 模式发生提权渗透与沙箱逃逸。
-### 技能元数据防提权与运行时零知识凭证保险库（Sentinel & Vault）
+### 技能元数据防提权与凭证保险库
 
 针对 2026 年权威论文《Agent Skills in the Wild》披露的第三方技能提权后门与凭据外泄灾难，Myrm 构筑了工业级防线：
 
@@ -118,7 +118,7 @@ Agent 可以使用 `ask_question_tool` 在执行操作前向用户提出结构�
 3. **金库主密钥零落盘与设置里密钥的 AES-256-GCM 加密落盘**：
    - 智能体机密金库（`agent_secrets`、`vault_credentials`）的主密钥由 `MasterKeyProvider` 托管：来自环境变量、macOS Keychain / Linux SecretService / Windows Credential Manager 或解锁口令，绝不写入明文文件，贯彻 **Strictly Zero-Disk** 零落盘铁律；
    - 设置里保存的模型服务商、搜索、MCP 等密钥在本地 SQLite 中以 AES-256-GCM 加密落盘；加密密钥来自环境变量 `CONFIG_ENCRYPTION_KEY` 或状态目录下权限为 0600 的 `.encryption_key` 文件，不在系统钥匙串里，同时拿到数据库与该文件的人读得到这些密钥；整实例备份默认不含这些密钥，设置口令导出时才以口令保护携带，导入时重新加密到目标实例的密钥；
-   - 子进程与沙箱仅能获取 `myrm-sent-v1...` 占位符，环境变量执行 `env` 绝无可能窃取明文 Key；出站白名单网关（Loopback Egress Proxy）动态透明代填。
+   - 沙箱里的命令只通过自己的环境变量拿到凭证：用户已连接账号的令牌（技能命令只拿到该技能声明的发放者）与为这一条命令批准的一次性凭证，在命令执行前导出、结束后移除，长驻 Shell 在两条命令之间不持有任何凭证；命令本身仍能读到交给它的值，所以工具输出进入模型之前要经过基于模式的密钥脱敏，对没有可识别形状的值，脱敏不构成保证。
 4. **默认 127.0.0.1 回环硬门禁与防 DNS 重绑定攻击**：
    - 本地服务绝对强制仅绑定 `127.0.0.1` 环回接口，消灭意外局域网/公网裸奔；严格的 CORS 与 LoopbackAuthToken 彻底防范跨站请求伪造与 DNS Rebinding 提权攻击。
 
@@ -1120,13 +1120,13 @@ CaMeL 单信任边界；Myrm **6 层**洋葱防御、5 域循环检测、3 层�
 2. **内核只读挂载与 Shell AST 重定向一票否决**：在沙箱内核中将此类关键文件实施只读挂载；在 Shell 命令执行器（`shell_command_analyzer.py`）中进行 AST 语法全管道机检，严密拦截 `echo "hacked" > AGENTS.md`、`sed -i`、`tee` 等命令伪装，直接返回硬拒绝（DENY）。
 3. **金库主密钥 Zero-Disk 托管于 OS 密钥环，设置里的密钥以 AES-256-GCM 密文落盘**：智能体金库的主密钥委托宿主操作系统的密钥环（macOS Keychain / Linux SecretService / Windows Credential Manager）；设置里保存的模型服务商、搜索、MCP、渠道凭据与本地模型密钥在 SQLite 中只以 AES-256-GCM 密文存储，其加密密钥来自环境变量或状态目录下权限为 0600 的 `.encryption_key` 文件，不在系统钥匙串里。
 
-## 零信任金库静态加密与 Sentinel 运行时防窥体系 (Zero-Trust Vault & Sentinel)
+## 零信任金库静态加密与按命令交付凭证 (Zero-Trust Vault & Command-Scoped Credentials)
 
 针对 API Key 和企业 Token 在多端运行时的存储与外泄威胁：
 
 1. **严格 Zero-Disk 原生 OS 密钥环托管**：集成 `MasterKeyProvider`，原生对接 macOS Keychain、Linux SecretService 与 Windows Credential Manager，金库主密钥绝不以任何明文形式落盘。
 2. **AES-256-GCM 数据库加密落盘**：金库里的 `AgentSecret` 与设置里保存的各类密钥（模型服务商、搜索、MCP、渠道凭据、本地模型密钥等）在写入存储前强制执行 AES-256-GCM 加密；只拿到数据库文件、没有对应密钥时无法解密。设置里的密钥由环境变量或状态目录下权限为 0600 的 `.encryption_key` 文件解开，同时拿到数据库与该文件的人读得到。
-3. **Sentinel 运行时零明文不透明占位符**：沙箱代码执行时仅注入单向不透明占位符（`myrm-sent-v1...`），真实密钥仅在白名单出站环回代理（Loopback Egress Proxy）层由网关即时代填，模型即使执行 `env`、`cat .env` 也无法获得真实明文密钥。
+3. **凭证按命令交付**：沙箱里的命令只在自己执行期间持有被授权给它的凭证（用户账号令牌、为该命令批准的一次性凭证），命令结束即移除，长驻 Shell 本身不带凭证；命令能读到交给它的值，进入模型的工具输出经过基于模式的密钥脱敏。
 4. **前端全流程脱敏防窥**：WebUI 与桌面端设置面板实施强力掩码展示（`sk-****abcd`），支持一键平滑无感轮换与屏幕共享防窥保护。
 
 ## 多渠道多用户私信飞地与记忆防投毒网关 (Multi-Channel DM Enclave & Anti-Poisoning Gate)
@@ -1170,17 +1170,12 @@ CaMeL 单信任边界；Myrm **6 层**洋葱防御、5 域循环检测、3 层�
 4. **六大主流竞品对比**：
    - 对标 **Hermes / OpenClaw / Codex / DeepSeek-Harness / Pi / OpenCode**，Myrm 是业界唯一具备“整型分位记账 + 两阶段签名凭据 + 冷重启自愈对账 + WebUI 消费保险箱”全栈闭环的商业智能体执行底座，核心模块实现 100% 满分语句覆盖。
 
-## 会话金丝雀与出网代理 (Session Canary & Egress Proxy)
+## 会话金丝雀 (Session Canary)
 
-网页文本或 HTML 注释中潜藏的**间接提示词注入（Indirect Prompt Injection）**可能诱导智能体泄露它掌握的内容。对应有两种机制，其中只有会话金丝雀默认开启；污点闸门是 harness 提供的能力，产品目前没有启用。
+网页文本或 HTML 注释中潜藏的**间接提示词注入（Indirect Prompt Injection）**可能诱导智能体泄露它掌握的内容。会话金丝雀默认开启。
 
-### 1. 会话金丝雀（默认开启）
 - **每会话随机令牌**：每个智能体会话生成一个随机的 `CANARY-...` 令牌，连同“绝不重复该令牌”的指令追加到系统提示词中，因此各会话的系统提示词并不相同；
 - **泄露检测**：每轮模型输出后，安全护栏检查回复文本与工具调用参数是否含该令牌。命中时在审计日志记录 `CANARY_LEAKED`，并从回复文本中抹除令牌，不会拦截工具调用。
-
-### 2. 出网代理污点闸门（需配置网关）
-- 本地执行器在跟踪到凭证占位符时启动 `LoopbackEgressProxy`，由它把真实密钥替换进出站请求；
-- 挂载 `TaintedEgressGateway` 后，受污染会话对白名单之外主机的连接返回 `403 Forbidden`。产品启动的代理没有配置网关，这道闸门处于关闭状态。
 
 ## 不可逆破坏性操作硬阻断与工作区影子快照回滚套件 (Irreversible Destructive Action Hard Stop & Workspace Snapshot Rollback Suite)
 

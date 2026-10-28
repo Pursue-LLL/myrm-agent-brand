@@ -145,7 +145,7 @@ For external webhook and channel ingress, Myrm implements a financial-grade zero
    - **Kernel-Level Tool De-registration**: For untrusted ingress, `UntrustedIngressFence` physically de-registers the tools behind 8 high-risk privilege types during tool dispatch, making them **physically invisible and uncallable** to the model:
      - `code_interpreter`, `file_write`, `desktop_control`, `desktop_capture`, `spawn_subagent`, `invoke_external_agent`, `cron_manage`, `skill_manage`.
    - **Immune to YOLO Mode**: Even if `--yolo` auto-approval is globally active, `UntrustedIngressFence` strictly enforces privilege severance, eliminating privilege escalation and sandbox escapes.
-### Skill Frontmatter Defense & Zero-Trust Secret Vault (Sentinel & Vault)
+### Skill Frontmatter Defense & Zero-Trust Secret Vault
 
 To counter the supply-chain vulnerabilities and secret exfiltration highlighted by the 2026 paper *Agent Skills in the Wild*, Myrm provides enterprise-grade runtime guarantees:
 
@@ -157,7 +157,7 @@ To counter the supply-chain vulnerabilities and secret exfiltration highlighted 
 3. **Zero-Disk Vault Master Key & AES-256-GCM Encryption of Saved Keys**:
    - The master key of the agent secret vault (`agent_secrets`, `vault_credentials`) is held by `MasterKeyProvider`: it comes from an environment variable, macOS Keychain, Linux SecretService, Windows Credential Manager, or an unlock passphrase, and is never written to a plaintext file (**Strictly Zero-Disk**).
    - The keys saved in settings (model providers, search, MCP and similar) are AES-256-GCM encrypted at rest in the local SQLite database. The encryption key comes from the `CONFIG_ENCRYPTION_KEY` environment variable or a `.encryption_key` file (mode 0600) in the state directory, not from the OS keychain, so anyone who obtains both the database and that file can read those keys. Whole-instance backups leave these keys out by default; they travel only in a passphrase-protected export and are re-encrypted to the target instance's key on import.
-   - Child processes in sandboxes receive only `myrm-sent-v1...` opaque tokens—`env` calls reveal no raw keys. The loopback egress proxy dynamically substitutes valid Authorization headers on-the-fly for whitelisted domains.
+   - A sandbox command receives credentials only through its own environment: the user's connected-account tokens (for a skill command, only the issuers that skill declares) and one-time credentials approved for exactly that command are exported before it runs and removed when it ends, so the long-lived shell holds none between commands. The command can still read what it was given, so tool output passes through pattern-based secret redaction before it reaches the model; that redaction is not a guarantee for values with no recognizable shape.
 4. **Strict 127.0.0.1 Loopback Hardlock & Anti-DNS-Rebinding Shield**:
    - Local services strictly bind to `127.0.0.1` by default. Robust CORS and LoopbackAuthToken enforcement prevent cross-site request forgery and DNS rebinding attacks against high-privilege local agents.
 
@@ -769,8 +769,8 @@ For enterprise environments requiring centralized secret management without expo
    - Upon encountering HTTP 401/403 authorization failures during API calls, the gateway instantly invalidates cached tokens and transparently re-resolves the rotated secret, guaranteeing uninterrupted long-running task autonomy.
 4. **Non-Interactive Execution Isolation (`_build_noninteractive_env`)**:
    - Resolvers strip all interactive prompts, desktop notifications, and GUI popups, enforcing deterministic non-blocking execution in headless backend and CI/CD environments.
-5. **Sentinel In-Container Voucher Protection**:
-   - Secrets decrypted for sandbox usage are encapsulated into AES-256-GCM Sentinel Vouchers. Agents running `printenv` or third-party malicious scripts inside sandboxes only see opaque placeholder tokens, while the egress proxy substitutes actual credentials in-flight.
+5. **Command-Scoped Delivery**:
+   - A resolved secret reaches a sandbox command only through that command's environment and is removed when the command ends; the shell itself starts with no credentials.
 6. **Rigorous Verification**:
    - **98.86% harness unit test coverage** across `core/security/external_secrets/` (15/15 tests green).
    - **100% Chrome real-browser E2E verification** (`test_external_secrets_settings_chrome_e2e.py` executed in exclusive isolation, 1 passed in 248.02s).
@@ -1278,7 +1278,7 @@ To counter third-party dependency vulnerabilities (CVEs) and eliminate sandbox e
 2. **Default-Deny Network Boundary**: Sandbox code execution is strictly network-isolated (`--unshare-net`) by default. Malicious CVE payloads cannot reverse-shell or exfiltrate local data.
 3. **Google OSV.dev Intelligence & Offline Advisory Catalog**: Combines real-time Google OSV.dev CVE batch queries (`osv_scanner.py`) with offline known-compromised package catalogs (`security_advisories.py`) and install-script audits (`package_audit.py`).
 
-## Enterprise Outbound Proxy & Ephemeral Loopback Architecture
+## Enterprise Outbound Proxy & Loopback Exemption
 
 To ensure seamless, secure outbound connectivity across complex corporate firewall and TLS-inspection environments:
 
@@ -1323,17 +1323,12 @@ To enable agents to autonomously execute micro-payments during long-running work
 4. **Competitive Parity vs. Six Major Frameworks**:
    - Unlike **Hermes, OpenClaw, Codex, DeepSeek-Harness, Pi, and OpenCode**—which either completely lack micro-payment sandboxes or expose raw credentials to LLM prompt injection—Myrm provides the industry's first defense-in-depth commerce spending safety suite, backed by 100% statement test coverage.
 
-## Session Canary & Egress Proxy
+## Session Canary
 
-Hidden **indirect prompt injections** (text in matching background colors or inside HTML comments) can steer an agent into leaking what it knows. Two mechanisms address this. Only the session canary is on by default; the taint gate is a harness capability that the product does not switch on.
+Hidden **indirect prompt injections** (text in matching background colors or inside HTML comments) can steer an agent into leaking what it knows. The session canary is on by default.
 
-### 1. Session Canary (on by default)
 - **Per-session token**: every agent session gets a random `CANARY-...` token. It is appended to the system prompt together with an instruction never to repeat it, so the system prompt differs from session to session;
 - **Leak detection**: after every model turn the guardrail checks the reply text and the tool-call arguments for the token. A hit is recorded in the audit log as `CANARY_LEAKED` and the token is scrubbed from the reply text. Tool calls are not blocked.
-
-### 2. Egress Proxy Taint Gate (needs a gateway)
-- `LoopbackEgressProxy` is started by the local executor when a credential placeholder is tracked, and substitutes the real secret into outbound requests;
-- With a `TaintedEgressGateway` attached, a tainted session's connections to hosts outside the allowlist get `403 Forbidden`. The proxy the product starts has no gateway, so this gate is off.
 
 ## Irreversible Destructive Action Hard Stop Line & Workspace Snapshot Rollback Suite
 
