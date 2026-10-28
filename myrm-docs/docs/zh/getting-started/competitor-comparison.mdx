@@ -49,6 +49,26 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **roadmap（未交付）**：完整 Chief of Staff 角色（topic_18 #52）与 `/fleet` 指挥台。
 - **诚实边界**：我们不卖「支持多少 Agent」，卖的是「没过验收就不算完成」。
 
+## 复杂任务：完成条件、独立验收、结构化交接（2026-10-21 实测）
+
+X @nvandewetering 的 351 回复长帖，是「个人 Agent 为什么完不成复杂工作」最清晰的一份现场报告：问题不在模型智力，而在 7 个 harness 断点。下表把每条吐槽对到 Myrm 今天真正交付的能力——以及我们仍然不宣称的部分。
+
+| 断点 | 用户实际遇到 | Myrm 今天 |
+|---|---|---|
+| 没有完成条件 | 「vague asks are where they all fall apart」 | Kanban 任务 DAG + 可编辑完成条件；验收不通过就 pause，而不是假装完成 |
+| Agent 说 done ≠ done | 「all 6 said done, none passed every hidden test」 | Kanban CompletionVerifier：shell 硬指标 + 语义判断；模型不能自己宣布完成 |
+| 会话一断就丢 | 「most agents restart cold every run」 | 持久会话日志 + 上下文压缩 + ACP CLI 会话续接 |
+| 没有在飞任务登记处 | 「one registry of everything in flight so nothing gets built twice」 | Kanban 任务图 + 依赖/owner + heartbeat/zombie + 阻塞原因 |
+| Agent 之间交接失真 | 「each interaction the idea gets lost」 | AgentHandoverState + Kanban handoff metadata；8 字段回执仍在 roadmap |
+| 人成为瓶颈 | 「more permissions requested, intervention more often」 | 三档自主权限（strict / semi-auto / full-auto）+ TOTP 金库 + 移动 HITL |
+| Agent 不在你的环境里 | 「you must control the substrate」 | 本地 WebUI / Tauri 桌面 / 每用户独立沙箱 + 持久卷 |
+
+**已交付**：Kanban、完成条件、CompletionVerifier、持久会话、结构化交接 metadata、needs-you 队列、三档权限、TOTP 金库、本地/桌面/沙箱、ACP 外部 Agent、cron 蓝图。
+
+**未交付、也不对外宣称**：独立对抗性 evaluator、跨会话 ArtifactManifest、8 字段 HandoffReceipt、签名的运行证据包。它们在交付前只属于 roadmap。
+
+**诚实边界**：Myrm 是「有界自主」——用户定义完成条件、写操作要审批、任何运行可随时停止；不是「设完就不管」，我们也不这样卖。
+
 ## 一眼对比（2026-10-24）
 
 | | Myrm | Hermes | OpenClaw | Codex | DeepSeek-Harness | Pi | OpenCode |

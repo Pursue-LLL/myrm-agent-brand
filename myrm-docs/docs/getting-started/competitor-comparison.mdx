@@ -63,6 +63,26 @@ Competitors market agent counts ("25+ agents", "200+ agents"). Agent count is no
 - **Roadmap**: the full Chief-of-Staff role (topic_18 #52) and the `/fleet` command center are still roadmap items.
 - **Honest scope**: we do not sell "how many agents" — we sell "an agent's output is not accepted until it passes verification".
 
+## Complex work: completion, verification, handoff (verified 2026-10-21)
+
+X @nvandewetering's 351-reply thread is the clearest field report on why personal agents stall: not model intelligence, but seven harness breakpoints. The table maps each complaint to what Myrm ships today — and what we still do not claim.
+
+| Breakpoint | What users hit | Myrm today |
+|---|---|---|
+| No definition of done | "vague asks are where they all fall apart" | Kanban task DAG + editable completion criteria; goals pause when criteria fail |
+| Agent says done, but isn't | "all 6 said done, none passed every hidden test" | Kanban CompletionVerifier: shell hard checks + semantic judge; the model cannot declare done by itself |
+| Context dies with the session | "most agents restart cold every run" | Durable session log + context compression + ACP CLI session resume |
+| No in-flight registry | "one registry of everything in flight so nothing gets built twice" | Kanban task graph with dependencies, owners, heartbeat/zombie detection, and blocked reasons |
+| Handoff loses fidelity | "each interaction the idea gets lost" | Structured AgentHandoverState + Kanban handoff metadata; the 8-field receipt is roadmap |
+| The human is the bottleneck | "more permissions requested, intervention more often" | 3-tier autonomy (strict / semi-auto / full-auto), TOTP vault, mobile HITL |
+| Agent is not in your environment | "you must control the substrate" | Local WebUI, Tauri desktop, per-user sandbox + persistent volume |
+
+**Shipped**: Kanban, completion criteria, CompletionVerifier, durable sessions, structured handoff metadata, needs-you queue, 3-tier permissions, TOTP vault, local/desktop/sandbox, ACP external agents, cron blueprints.
+
+**Not shipped — and not advertised**: independent adversarial evaluator, cross-session ArtifactManifest, 8-field HandoffReceipt, and a signed run-evidence pack. They stay on the roadmap until delivered.
+
+**Honest boundary**: Myrm is bounded autonomy. Users define done, approve writes, and can stop any run. It is not "set it and forget it", and we do not sell it that way.
+
 ## At a Glance (2026-10-24)
 
 | | Myrm | Hermes | OpenClaw | Codex | DeepSeek-Harness | Pi | OpenCode |
