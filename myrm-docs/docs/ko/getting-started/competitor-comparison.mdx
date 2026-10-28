@@ -150,7 +150,7 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
   3. **`federiconuss/hyperagent`**(MIT) — README가 **거래 전략도 모델 런타임도 자율 실행 루프도 포지션 사이징도 없다**고 명시한, 의도적으로 "머리를 안 쓰는 공구".
   4. **`sanketagarwal/hyperliquid-trading-agent`** — Claude가 buy/sell/hold를 정하고, **포지션 한도·레버리지 상한·손실 보호는 하드코딩**이며 손실 20% 이상이면 강제 청산.
 - **그들의 공통 안전 모델**: 자격의 계층화 + 단단한 상한. 결정적인 문장은 "에이전트 지갑은 거래는 되지만 **출금은 안 된다**" — 에이전트에 주는 돈은 프롬프트로 정중히 부탁하는 게 아니라 **프로토콜로** 아주 작은 면에 가둔다.
-- **우리 쪽(실제 코드로 확인)** — 같은 형태를 "지출"에 적용했고 이미 구현돼 있다: **예약 → 정산 → 해제** 3단계(`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/egress/spend_governor.py:163`/`:259`/`:319`), **정수 센트 회계**와 건별·일일 단단한 상한(`:78`), 부팅 시 자가 복구 대사(`:131`), **HMAC 서명 + 상수 시간 검증 변조 방지 바우처**(`:330`/`:339`/`:355-356`), 가맹점 도메인·분류 허용 목록(`myrm-agent/myrm-agent-server/app/api/commerce/spending_router.py:82`), **원클릭 긴급 동결**(`:88-94`), 명령 위험 등급(`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/bash/_executor/command_classifier.py:34-39`). Hermes와 OpenClaw 미러에는 이 중 **어떤 것도 히트하지 않는다**.
+- **우리 쪽(실제 코드로 확인)** — 같은 형태를 "지출"에 적용했고 이미 구현돼 있다: **예약 → 정산 → 해제** 3단계(`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/spend/spend_governor.py:163`/`:259`/`:319`), **정수 센트 회계**와 건별·일일 단단한 상한(`:78`), 부팅 시 자가 복구 대사(`:131`), **HMAC 서명 + 상수 시간 검증 변조 방지 바우처**(`:330`/`:339`/`:355-356`), 가맹점 도메인·분류 허용 목록(`myrm-agent/myrm-agent-server/app/api/commerce/spending_router.py:82`), **원클릭 긴급 동결**(`:88-94`), 명령 위험 등급(`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/bash/_executor/command_classifier.py:34-39`). Hermes와 OpenClaw 미러에는 이 중 **어떤 것도 히트하지 않는다**.
 - **우리가 주장하지 않는 것(정직한 차이)**:
   1. **다른 돈, 다른 리스크로 비교 대상이 아님** — 그들은 레버리지 무기한 선물을 거래하며 시세 리스크를 지지만 우리는 지출을 관리한다. **우리는 투자 판단을 하지 않고, 주문하지 않고, 포지션을 갖지 않는다.** 이는 포지셔닝 선택이지 채워야 할 기능이 아니다.
   2. **온체인·거래소 연동이 전혀 없음** — 지갑, 매칭 엔진, 펀딩 비율, 청산 없음.
@@ -2027,7 +2027,7 @@ Hermes Agent는 강력한 함수 호출과 스킬 진화 기능으로 잘 알려
 - **우리 쪽(실제 코드로 확인)**:
   - **자격 증명은 모델에 도달하지 않는다**: 금고 + 라벨 참조 주입(`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/credential_vault.py:39-78`), 브라우저와 데스크톱이 `fill_credential`을 공유한다. 모델은 라벨만 보고 비밀은 보지 못한다 — AIR의 "모델에 불투명" 원칙을 비밀번호, 일회용 비밀번호, API 키까지 확장한 것이다.
   - **예산이 곧 승인이다**: 예약 → 확정 → 해제 3단계, 정수 센트 회계, 건당·일일 하드 한도, 재시작 시 원장 재생으로 당일 수위 복원(`myrm-agent/myrm-agent-server/app/commerce/budget_service.py:107-245`). 또한 가맹점과 금액으로 상한이 걸린 **일회용 바우처**를 발급할 수 있다(`budget_service.py:256-300`, 기본 300초) — 이것은 **내부 제한 바우처**이며 발급사가 발행한 실제 카드 번호가 아니다.
-  - **서명 바우처 + 가맹점 허용 목록**: 금액과 가맹점에 묶인 서명 바우처가 있어야 청구되며 상수 시간 검증(`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/egress/spend_governor.py`, `myrm-agent/myrm-agent-server/app/api/commerce/spending_router.py`). 허용 목록에 없는 가맹점은 거부된다.
+  - **서명 바우처 + 가맹점 허용 목록**: 금액과 가맹점에 묶인 서명 바우처가 있어야 청구되며 상수 시간 검증(`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/spend/spend_governor.py`, `myrm-agent/myrm-agent-server/app/api/commerce/spending_router.py`). 허용 목록에 없는 가맹점은 거부된다.
   - **돈은 자동 승인되지 않는다**: 금융 도구는 자동 모드의 자동 승인에서 제외되고(`batch_processor.py:265-293`), 허용 목록으로도 우회할 수 없다(`:550-554`). 결제 고위험 클릭은 도구 안에서 직접 중단되며 대화형 세션이 없으면 실패 시 거부로 처리된다(`semantic_dom_hitl.py:82-97`).
   - **패널에서 확인하고 멈춘다**: 일일 한도, 가맹점 허용 목록, 실시간 원장, 원클릭 긴급 동결(`myrm-agent-frontend/src/components/features/settings/sections/system/AgentCommerceBudgetSection.tsx`).
   - **세 가지 배포 형태에서 동일하게 동작**: 로컬 WebUI, Tauri 데스크톱, 클라우드 샌드박스. 보호가 Agent 런타임 안에 있으므로 어떤 은행을 쓰는지와 무관하다.

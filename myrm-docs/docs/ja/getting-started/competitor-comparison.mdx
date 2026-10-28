@@ -149,7 +149,7 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
   3. **`federiconuss/hyperagent`**（MIT）—— README は**取引戦略もモデルランタイムも自律実行ループもポジション sizing も持たない**と明記し、意図的に「頭を持たない道具」としている。
   4. **`sanketagarwal/hyperliquid-trading-agent`** —— Claude が buy/sell/hold を決め、**ポジション上限/leverage 上限/損失保護はハードコード**され、損失 20% 以上で強制決済。
 - **彼らの共通安全モデル**: 資格の階層化 + 硬い上限。決定的特点是「エージェントウォレットは売買できるが**出金はできない**」—— Agent に渡す資金は**プロトコル**で極小の面へ封じ込め、prompt で頼むのではない。
-- **我々の現状（実コードで確認）** —— 同じ形を「出金」に当てて、すでに届いている: **予約 → 確定 → 解放**の 3 段（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/egress/spend_governor.py:163`/`:259`/`:319`）、**整数のセント勘定**と単発・日次の硬い上限（`:78`）、起動時の自己修復照合（`:131`）、**HMAC 署名かつ定数時間照合の改ざん防止バウチャー**（`:330`/`:339`/`:355-356`）、加盟店ドメインと区分の許可リスト（`myrm-agent/myrm-agent-server/app/api/commerce/spending_router.py:82`）、**ワンクリックの緊急凍結**（`:88-94`）、コマンドの risk level（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/bash/_executor/command_classifier.py:34-39`）。Hermes と OpenClaw のミラーにはこれら**一切ヒットしない**。
+- **我々の現状（実コードで確認）** —— 同じ形を「出金」に当てて、すでに届いている: **予約 → 確定 → 解放**の 3 段（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/spend/spend_governor.py:163`/`:259`/`:319`）、**整数のセント勘定**と単発・日次の硬い上限（`:78`）、起動時の自己修復照合（`:131`）、**HMAC 署名かつ定数時間照合の改ざん防止バウチャー**（`:330`/`:339`/`:355-356`）、加盟店ドメインと区分の許可リスト（`myrm-agent/myrm-agent-server/app/api/commerce/spending_router.py:82`）、**ワンクリックの緊急凍結**（`:88-94`）、コマンドの risk level（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/bash/_executor/command_classifier.py:34-39`）。Hermes と OpenClaw のミラーにはこれら**一切ヒットしない**。
 - **我々が主張しない部分（正直な差距）**:
   1. **別のお金、別のリスクで比べる対象ではない** —— 彼らは leverage 付きの無期限先物を扱い値幅のリスクを負うが、我々は支出を管理する。**我々は投資判断をせず、指値を出しせず、ポジションを持たない**。これは positioning の選択であり、埋めるべき機能ではない。
   2. **オンチェーン／取引所との接続は皆無** —— ウォレット、fluid な約定、funding rate、清算のいずれも無い。
@@ -566,7 +566,7 @@ OpenCodeは堅実なMITライセンスのターミナル型コーディングAge
 - **私たちの側(実コードで確認)**:
   - **資格情報はモデルに届かない**: 金庫 + ラベル参照注入(`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/credential_vault.py:39-78`)。ブラウザとデスクトップが `fill_credential` を共有する。モデルはラベルだけを見て秘密は見ない — AIR の「モデルに不透明」という原則を、パスワード、ワンタイムパスワード、API キーまで広げたものだ。
   - **予算がすなわち承認**: 予約 → 確定 → 解放の 3 段階、整数セント会計、1 件あたりと日次のハード上限、再起動時に台帳を再生して当日の水位を復元(`myrm-agent/myrm-agent-server/app/commerce/budget_service.py:107-245`)。さらに加盟店と金額で上限を設けた**ワンタイムバウチャー**を発行できる(`budget_service.py:256-300`、既定 300 秒) — これは**内部の制限付きバウチャー**であり、発行会社が発行した実カード番号ではない。
-  - **署名バウチャー + 加盟店許可リスト**: 金額と加盟店に紐づく署名バウチャーがないと請求できず、定数時間で検証する(`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/egress/spend_governor.py`、`myrm-agent/myrm-agent-server/app/api/commerce/spending_router.py`)。許可リストにない加盟店は拒否される。
+  - **署名バウチャー + 加盟店許可リスト**: 金額と加盟店に紐づく署名バウチャーがないと請求できず、定数時間で検証する(`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/spend/spend_governor.py`、`myrm-agent/myrm-agent-server/app/api/commerce/spending_router.py`)。許可リストにない加盟店は拒否される。
   - **お金は自動承認されない**: 金融系ツールは自動モードの自動承認の対象外で(`batch_processor.py:265-293`)、許可リストでも迂回できない(`:550-554`)。決済の高リスククリックはツール内で直接中断し、対話セッションがない場合は失敗時拒否として扱う(`semantic_dom_hitl.py:82-97`)。
   - **パネルで確認し、止める**: 日次上限、加盟店許可リスト、リアルタイム台帳、ワンクリック緊急凍結(`myrm-agent-frontend/src/components/features/settings/sections/system/AgentCommerceBudgetSection.tsx`)。
   - **3 つの配備形態で同じ動作**: ローカル WebUI、Tauri デスクトップ、クラウドサンドボックス。保護が Agent ランタイムの中にあるため、どの銀行を使うかとは無関係だ。

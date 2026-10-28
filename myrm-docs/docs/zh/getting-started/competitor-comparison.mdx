@@ -249,7 +249,7 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
   3. **`federiconuss/hyperagent`**（MIT）—— 其 README 写明**不含交易策略、不含模型运行时、不含自主执行循环、不含仓位策略**，是一把刻意「不带脑子」的工具。
   4. **`sanketagarwal/hyperliquid-trading-agent`** —— Claude 决策 buy/sell/hold，**硬编码仓位上限、杠杆上限与亏损保护**，亏损 ≥20% 强制平仓。
 - **他们共同的安全模型**：凭据分层 + 硬性上限。最有分量的一句是「代理钱包能交易、**不能提现**」—— 给 Agent 的钱被**用协议**锁在一小块面上，而不是靠提示词劝阻。
-- **我方现状（经真实代码核对）** —— 同一形态，用在「花钱」上，且已交付：**预占—核销—释放**三态（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/egress/spend_governor.py:163`/`:259`/`:319`）、**整型美分记账**与单笔/日累计硬限额（`:78`）、启动自愈对账（`:131`）、**HMAC 签名且常数时间验签的防伪凭证**（`:330`/`:339`/`:355-356`）、商户域名与类目白名单（`myrm-agent/myrm-agent-server/app/api/commerce/spending_router.py:82`）、**紧急一键冻结**（`:88-94`）、命令风险等级（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/bash/_executor/command_classifier.py:34-39`）。Hermes 与 OpenClaw 的镜像里这些**全部零命中**。
+- **我方现状（经真实代码核对）** —— 同一形态，用在「花钱」上，且已交付：**预占—核销—释放**三态（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/spend/spend_governor.py:163`/`:259`/`:319`）、**整型美分记账**与单笔/日累计硬限额（`:78`）、启动自愈对账（`:131`）、**HMAC 签名且常数时间验签的防伪凭证**（`:330`/`:339`/`:355-356`）、商户域名与类目白名单（`myrm-agent/myrm-agent-server/app/api/commerce/spending_router.py:82`）、**紧急一键冻结**（`:88-94`）、命令风险等级（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/meta_tools/bash/_executor/command_classifier.py:34-39`）。Hermes 与 OpenClaw 的镜像里这些**全部零命中**。
 - **我们不宣称的部分（诚实差距）**：
   1. **是不同的钱、不同的风险，不可相提并论**：他们交易带杠杆的永续合约、承担行情风险；我们管的是支出。**我们不做投资决策、不下单、不持仓** —— 这是定位取舍，不是待补的功能。
   2. **没有链上或交易所接入**：没有钱包、没有撮合、没有资金费、没有强平。
@@ -2434,7 +2434,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
 - **我们这边（已对真实代码核对）**：
   - **凭据不进模型**：凭据金库加标签引用注入（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/credential_vault.py:39-78`，浏览器与桌面统一走 `fill_credential`），模型只见标签不见明文——与 AIR「对模型不透明」同一原则，但覆盖密码、动态口令与 API 密钥，不限于银行卡。
   - **额度即授权**：预占、核销、释放三态，整型美分记账，单笔与日累计硬限额，账本持久化并在启动时重放流水重建当日水位（`myrm-agent/myrm-agent-server/app/commerce/budget_service.py:107-245`）；还可签发**按商户与金额封顶的一次性凭证**（`budget_service.py:256-300` 的 `create_virtual_card_voucher`，默认 300 秒有效）——这是**内部受限凭证，不是发卡方签发的真实卡号**。评论区要的消费上限，我们已经交付且可核对。
-  - **签名凭证加商户白名单**：扣款必须持有与金额、商户绑定的签名凭证并做常数时间验签（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/egress/spend_governor.py`；接口面 `myrm-agent/myrm-agent-server/app/api/commerce/spending_router.py`）；不在白名单的商户直接拒绝。
+  - **签名凭证加商户白名单**：扣款必须持有与金额、商户绑定的签名凭证并做常数时间验签（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/spend/spend_governor.py`；接口面 `myrm-agent/myrm-agent-server/app/api/commerce/spending_router.py`）；不在白名单的商户直接拒绝。
   - **钱永远不会被自动放行**：财务类工具免疫自动模式的自动批准（`batch_processor.py:265-293`），也无法借「始终允许」白名单旁路（`:550-554`）；结账类高风险点击在工具内直接中断，没有可交互会话时按失败即拒绝处理（`semantic_dom_hitl.py:82-97`）。
   - **面板是看账与叫停的地方**：日限额、商户白名单、实时流水与一键紧急冻结（`myrm-agent-frontend/src/components/features/settings/sections/system/AgentCommerceBudgetSection.tsx`）。
   - **三端同构**：本地 WebUI、Tauri 桌面与云沙箱行为一致——保护长在 Agent 运行时里，不取决于你用哪家银行。
