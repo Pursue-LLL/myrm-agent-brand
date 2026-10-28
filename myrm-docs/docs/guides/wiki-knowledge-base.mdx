@@ -525,7 +525,7 @@ When **version control** is enabled on a wiki vault (Local/Tauri defaults it on 
 **Tests (Jul 2026):** 5 targeted pytest for vault git (`test_wiki_vault_git_mutation` 2 + Harness `test_vault_git` 3 — no Chrome MCP E2E).
 
 <Note>
-**Honest limits:** No in-Settings commit list UI — use `git log` or Obsidian Git for deep history. Download Obsidian pack ZIP does **not** include `.git`. Cloud deployments do not promise vault git.
+**Honest limits:** No in-Settings commit list UI — use `git log` or Obsidian Git for deep history. Download Obsidian pack ZIP does **not** include `.git`. Cloud deployments do not promise vault git. Myrm's own snapshot commands run without any hook, `fsmonitor` or filter program that the vault's `.git` configures, so a vault that arrives as a ZIP or sync folder cannot run programs through them; the side effect is that hooks you place in `.git/hooks` do not run during Myrm snapshots (your own git and Obsidian Git are unaffected). A vault whose git config uses a conditional include (`includeIf`) is skipped instead of committed.
 </Note>
 
 ## Search imported images (Obsidian assets)

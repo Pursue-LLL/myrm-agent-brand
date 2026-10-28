@@ -441,7 +441,7 @@ Wiki Vault에서 **버전 제어**가 활성화되면(Local/Tauri은 세션 아�
 **테스트(2026년 7월):** Vault git에 대해 5개 대상 pytest(`test_wiki_vault_git_mutation` 2 + Harness `test_vault_git` 3 — Chrome 없음 MCP E2E).
 
 <Note>
-**정직한 제한:** 설정 내 커밋 목록 UI가 없습니다. 자세한 기록을 보려면 `git log` 또는 Obsidian Git을 사용하세요. Obsidian 팩 다운로드 ZIP에는 `.git`이 포함되지 **않습니다**. 클라우드 배포는 Vault git을 약속하지 않습니다.
+**정직한 제한:** 설정 내 커밋 목록 UI가 없습니다. 자세한 기록을 보려면 `git log` 또는 Obsidian Git을 사용하세요. Obsidian 팩 다운로드 ZIP에는 `.git`이 포함되지 **않습니다**. 클라우드 배포는 Vault git을 약속하지 않습니다. Myrm이 직접 실행하는 스냅샷 명령은 Vault의 `.git`이 설정한 훅, `fsmonitor`, 필터 프로그램을 실행하지 않으므로 ZIP이나 동기화 폴더로 들어온 Vault가 이를 통해 프로그램을 실행할 수 없습니다. 그 부작용으로 `.git/hooks`에 둔 훅은 Myrm 스냅샷 중에는 실행되지 않습니다(직접 사용하는 git과 Obsidian Git에는 영향이 없습니다). git 설정에 조건부 포함(`includeIf`)이 있는 Vault는 커밋하지 않고 건너뜁니다.
 </Note>
 
 ## 가져온 이미지 검색(흑요석 자산)
