@@ -532,7 +532,7 @@ Settings → Wiki → Overview 的 **Obsidian Vault** 卡片提供反向打开�
 **回归测试（2026-07-29）：** 5 项 #23 定向 pytest（`test_wiki_vault_git_mutation` 2 + Harness `test_vault_git` 3 · 无 Chrome MCP E2E）。
 
 <Note>
-**诚实边界：** Settings 无提交列表 UI — 深度历史请用 `git log` 或 Obsidian Git。下载 Obsidian 包 ZIP **不含** `.git`。Cloud 不承诺 vault git。Myrm 自己保存快照时，不会运行 vault 的 git 设置里指定的任何外部程序（钩子等），所以从别处拿来的 vault 文件夹无法借此执行代码；因此你放在 `.git/hooks` 里的钩子不会在 Myrm 的快照中运行（你自己使用 git 与 Obsidian Git 不受影响）。git 设置里使用了条件包含（`includeIf`）的 vault，Myrm 会跳过自己的快照；vault 的 `.git` 不是 vault 内的普通文件夹（软链接、独立 git 目录、linked worktree），或设置把 git 指向别的文件夹时，也会跳过，而不是写入别的仓库。
+**诚实边界：** Settings 无提交列表 UI — 深度历史请用 `git log` 或 Obsidian Git。下载 Obsidian 包 ZIP **不含** `.git`。Cloud 不承诺 vault git。Myrm 自己保存快照时，不会运行 vault 的 git 设置里指定的任何外部程序（钩子等），所以从别处拿来的 vault 文件夹无法借此执行代码；因此你放在 `.git/hooks` 里的钩子不会在 Myrm 的快照中运行（你自己使用 git 与 Obsidian Git 不受影响）。git 设置里使用了条件包含（`includeIf`）的 vault，Myrm 会跳过自己的快照；vault 的 `.git` 不是 vault 自己的仓库（软链接、指向另一个仓库的文件、独立 git 目录），或设置把 git 指向别的文件夹时，也会跳过，而不是写入别的仓库；vault 本身是另一个仓库的 linked worktree 时，快照会记在它自己的分支上。
 </Note>
 
 ## 搜索已导入图片（Obsidian assets）
