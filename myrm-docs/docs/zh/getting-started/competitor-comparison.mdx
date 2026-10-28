@@ -1792,7 +1792,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
 - **WearableAndMobileSteeringWithHoldToApproveClosure（对标 Hermes #73/#99 / Auto-Atlas / OpenClaw / AstrBot 强行开发小众独立 Wear OS APK 导致仅能覆盖 <15% 硬件生态且无法覆盖 Apple Watch、转向动作降级与小屏幕审批一键误触高危灾难）：** Myrm 交付了通用随身穿戴转向协议加固与端侧防误触体系：
   1. **全穿戴 100% 硬件生态覆盖（Channel-as-UI）**：无需在手表端安装任何私有 App，即可在 Apple Watch（>50% 份额）、Wear OS 及各类智能手环上直接接收 IM 富文本通知并手腕语音回复实现毫秒级纠偏；
   2. **底层并发与动作保真（SteeringToken & SteeringRegistry）**：Harness `reset_turn()` 增加互斥锁彻底杜绝跨轮次竞态，注册表以元组精确区分并保真还原紧急重定向阻断（`redirect`）与平滑转向（`steer`），引入 10s TTL 过期自动剪枝与 10 条上限杜绝悬挂泄露；
-  3. **自然语言自动转向分流（busy_input_mode）**：运行中任务配置对应模式时，用户发送的普通消息直接分流注入转向队列并回推预览回执，同时严密旁路未知斜杠命令；
+  3. **显式运行中转向（`/steer`）**：在任意 IM 会话里发送 `/steer <新指令>`，即把纠偏注入正在运行的回合并回推预览回执（群聊中仅发起该次运行的人可用）；运行中发送的普通消息作为下一回合排队，排队确认里会提示 `/steer` 用法；
   4. **移动端/手表 700ms 动态进度长按防误触（`HoldToApproveButton`）**：在随身看板装配 700ms 动态进度环长按确认，支持触摸屏滑屏滚动（`pointercancel`）与移出即时中止复位，消除小屏幕误触放行高危权限的隐患；
   5. **全链路 70+ 单测/集成与真实 Chrome E2E 100% 全绿**：跨 Harness 单测（14 项）、Server 注册表与网关分流（50 项）、前端 Vitest（6 项）及真实 Chrome E2E（`test_channel_routing_general_only_chrome_e2e.py` 40s）满分通过。
 - **SSOT 来源：** `myrm_agent_harness/utils/runtime/steering.py` · `app/services/agent/steering/` · `app/channels/routing/router.py` · `HoldToApproveButton.tsx` · `temp-docs/materials/MULTICHANNEL_ADVANTAGE.md`
