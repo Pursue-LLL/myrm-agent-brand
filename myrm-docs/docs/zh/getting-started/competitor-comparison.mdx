@@ -867,7 +867,7 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
   2. **Single-Flight 防击穿合并原语（`_FlightCall`）**：针对同一机密引用的高并发请求自动合并为单次 CLI 解析，彻底封死进程风暴拒绝服务与锁竞态死锁；
   3. **内存 TTL 缓存与 401 动态轮转自愈**：解析后的临时凭据严格限制在内存且设 600s TTL；遇到上游 401/403 权限失效时，静默剔除陈旧缓存并即时触发轮转重解析，保障长程自主任务 0 中断；
   4. **非交互式安全隔离执行（`_build_noninteractive_env`）**：剥离所有 GUI 弹窗、终端 Prompt 拦截与桌面提示，杜绝无头后台 Worker 假死挂起；
-  5. **沙箱 Sentinel 凭据守卫**：向沙箱注入不透明 Sentinel 令牌并通过出网代理内存即时置换，恶意或幻觉脚本运行 `printenv` 绝无法窃取真实上游 API Key；
+  5. **按命令交付凭据**：解算出的密钥只写入有权使用它的那条命令的环境变量，命令结束即移除，长驻 Shell 在两条命令之间不持有；命令本身仍能读到交给它的值，所以工具输出进入模型之前要经过基于模式的密钥脱敏；
   6. **100% 满分全栈实测验证**：Harness 外部机密核心套件语句覆盖率达到 **98.86%**（15/15 专测全绿），Server 端凭据池 API 100% 全绿，无头 Chrome 真实 CDP E2E（`test_external_secrets_settings_chrome_e2e.py`）单任务独占验证 100% 通过（1 passed in 248.02s）。
 - **SSOT 来源：** `myrm_agent_harness/core/security/external_secrets/manager.py` · `app/api/settings/credential_pool.py` · `test_external_secrets_settings_chrome_e2e.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
 
@@ -1519,7 +1519,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
 ## 最新验证快照（2026-09-05 · Zero-Disk 硬件密钥环托管、默认回环锁死与受保护指令文件防投毒体系 · 安全与供应链治理全面闭环）
 
 - **ZeroDiskKeyringAndProtectedInstructionShield（对标 Hermes Agent / OpenClaw / Pi 商业密钥明文落盘被恶意脚本偷刷、默认 0.0.0.0 裸奔遭公网扫描与 DNS 重绑定 RCE、以及提示词注入篡改 AGENTS.md 埋藏持久后门的致命缺陷）：** Myrm 交付了业内领先的零磁盘与指令文件防线：
-  1. **金库主密钥 Zero-Disk 硬件钥匙串托管（`master_key.py`）**：智能体金库的主密钥委托 macOS Keychain / Linux SecretService / Windows Credential Manager，不写明文文件；设置里保存的密钥以 AES-256-GCM 密文落盘，其加密密钥来自环境变量或状态目录下权限为 0600 的 `.encryption_key` 文件（不在钥匙串里）；配合 Sentinel 动态不透明占位符（`myrm-sent-v1...`），沙箱子进程无论如何执行 `printenv` 绝无可能拿到真实 API Key，出网代理微秒级内存代填；
+  1. **金库主密钥 Zero-Disk 硬件钥匙串托管（`master_key.py`）**：智能体金库的主密钥委托 macOS Keychain / Linux SecretService / Windows Credential Manager，不写明文文件；设置里保存的密钥以 AES-256-GCM 密文落盘，其加密密钥来自环境变量或状态目录下权限为 0600 的 `.encryption_key` 文件（不在钥匙串里）；沙箱里的命令只在自己执行期间拿到被授权给它的凭据，命令结束即移除，长驻 Shell 在两条命令之间不持有；
   2. **默认 127.0.0.1 回环硬门禁与 HostAllowlist 防 DNS 重绑定（`host_allowlist.py`）**：默认物理锁死 127.0.0.1，远程模式强制生成高熵 Token，严格拦截非法 Host 与外部浏览器 Origin 跨站请求，彻底杜绝公网裸奔与 DNS 重绑定提权；
   3. **受保护指令文件内核级只读与 Shell 重定向 AST 管道全扫描（`shell_command_analyzer.py` · `path_security.py`）**：针对 `AGENTS.md`、`SOUL.md`、`CLAUDE.md`、`.cursorrules` 等人设与规则文件，实施内核只读挂载与终端管道覆写一票否决；任何修改强制唤起 Monaco Diff 人工审批，彻底杜绝跨会话隐蔽后门；
   4. **全栈自动化测试 100% 满分通过**：涵盖主密钥钥匙串存取、Loopback 回环拦截、AST 语法树重定向扫描以及真实 Monaco 审批卡片全流程测试全部绿灯通过。
