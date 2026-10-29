@@ -879,7 +879,7 @@ Share links are **revocable at any time**, for both artifacts and conversations:
 | **One-click revoke** | Revoking a link makes it return `404 Link Revoked` **immediately** — no grace period, no cache bypass |
 | **Revoked password-protected links** | Lifecycle checks run *before* the password gate — a revoked protected link shows the dead-link page to fresh visitors, never a password prompt |
 | **Revocation cannot be bypassed by caching** | All public share responses carry `X-Robots-Tag: noindex, nofollow` + `Cache-Control: no-store` + `Referrer-Policy: no-referrer` (shared `share_headers` helper for chat & artifact) |
-| **Revoked tokens never resurrect** | The current `share_token_fingerprint` and the `share_revoked_fingerprints` set are persisted; the public entry first checks the revoked set — re-sharing later always issues a brand-new token, the old one stays 404 forever |
+| **Revoked tokens never resurrect** | The current `share_token_fingerprint` and the `share_revoked_fingerprints` set are persisted; the public entry first checks the revoked set — re-sharing later always issues a brand-new token, the old one stays 404 forever. Creating a new link retires the one it replaces, so a chat has one live link at a time |
 | **Status always honest** | `GET /chats/{id}/share` reports four states — `unshared` / `revoked` / `active` / `password_protected`; expired links (password-protected or not) correctly report `unshared` |
 | **Revocation audit log** | Every revoke operation is recorded, giving you a trace of when access was withdrawn |
 | **Conversation deletion cascades** | Deleting the source conversation immediately invalidates its share (`404 Content Unavailable`) |

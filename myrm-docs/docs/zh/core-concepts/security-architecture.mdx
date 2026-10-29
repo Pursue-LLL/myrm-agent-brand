@@ -778,7 +778,7 @@ Provider 训练政策在可能时链接官方文档。启用 Privacy Routing 且
 | **一键撤销** | 撤销后链接**立即**返回 404「Link Revoked」——无宽限期、缓存不可绕过 |
 | **已撤销密码链接** | 生命周期校验（撤销/删除）**前置干密码门**——已撤销密码链接对新访客直接显示失效页，绝不弹出密码框 |
 | **撤销后缓存不可绕过** | 所有公开分享响应统一携带 `X-Robots-Tag: noindex, nofollow` + `Cache-Control: no-store` + `Referrer-Policy: no-referrer`（chat/artifact 双端共享 `share_headers`） |
-| **撤销过的 token 永不复活** | 持久化 `share_token_fingerprint`（活跃）+ `share_revoked_fingerprints`（已撤销集合）；公开入口先查已撤销集合——撤销后重新分享永远签发全新 token，旧链接永久 404 |
+| **撤销过的 token 永不复活** | 持久化 `share_token_fingerprint`（活跃）+ `share_revoked_fingerprints`（已撤销集合）；公开入口先查已撤销集合——撤销后重新分享永远签发全新 token，旧链接永久 404；新建链接时也会让它所替换的旧链接失效，一个会话同一时刻只有一条有效链接 |
 | **状态始终诚实** | `GET /chats/{id}/share` 返回四态：`unshared` / `revoked` / `active` / `password_protected`；已过期链接（无论是否密码保护）一律返回 `unshared`，不误报生效中 |
 | **撤销审计日志** | 每次撤销操作均记入审计日志，随时可追溯访问撤回轨迹 |
 | **删除会话级联失效** | 删除源会话立即令其分享失效（404「Content Unavailable」） |
