@@ -230,7 +230,7 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 ## 최신 검증 스냅샷 (2026-10-22 · 경쟁사가 에이전트를 OS로 넣는 방식 · Herald OS의 권한 계층, 제로 모델 경로, 크래시 백화어 설명 · 우리도 소스를 한 줄씩 확인했고, 그 자신의 아키텍처 그림도 바로잡았다)
 
-- **계기**: 커뮤니티 게시글 @iamlukethedev (`https://x.com/iamlukethedev/status/2107765448343261506`, 2026-10-07 17:30)가 **Herald OS**를 오픈소스로 공개(`README.md:32` "Status: alpha (0.1)", `SECURITY.md:16` "Herald OS is pre-1.0", 작성자는 Nous Research와 무관하다고 명시). **11.4만 조회 / 136 리플 / 160 리포스트 / 1,092 좋아요 / 1,320 북마크**. 커뮤니티는 이를 "에이전트를 OS에 서브로 돌린 최대 규모 커뮤니티 작품"으로 부른다. 이번 라운드에서는 ChromeAgent :9410 + chrome-devtools MCP로 직접 추출했다 — **주요 노트 트윗 전문, 191개 리플(<<"표시 가능한 스팸" 섹션 포함>도 펼침), 아키텍처 그림 1장, 147초 데모 영상에서 추출한 10프레임**. 이어서 소스 미러를 로컬로 받아(`Herald-OS`) 파일 단위로 확인했다.
+- **계기**: 커뮤니티 게시글 @iamlukethedev (`https://x.com/iamlukethedev/status/2107765448343261506`, 2026-10-07 17:30)가 **Herald OS**를 오픈소스로 공개(`README.md:32` "Status: alpha (0.1)", `SECURITY.md:16` "Herald OS is pre-1.0", 작성자는 Nous Research와 무관하다고 명시). **11.4만 조회 / 136 리플 / 160 리포스트 / 1,092 좋아요 / 1,320 북마크**. 커뮤니티는 이를 "에이전트를 OS에 서브로 돌린 최대 규모 커뮤니티 작품"으로 부른다. 이번 라운드에서는 ChromeAgent :9410 + chrome-devtools MCP로 직접 추출했다 — **주요 노트 트윗 전문, 191개 리플("표시 가능한 스팸" 섹션도 펼침), 아키텍처 그림 1장, 147초 데모 영상에서 추출한 10프레임**. 이어서 소스 미러를 로컬로 받아(`Herald-OS`) 파일 단위로 확인했다.
 - **검증된 경쟁 메커니즘(소스 레벨)**:
   1. **권한은 4단계 상수 열거형이며, 코드가 정하고 모델은 정하지 않는다** — `plugins/herald-os-bridge/bridge/permissions.py:28-32`(`Tier.READ` / `ACT` / `MUTATE` / `DESTRUCTIVE`). `tools.py:1112-1123`의 `SYSTEM_OS_TIERS`가 **호출 지점**에서 단계를 묶는다(`remove_app` / `suspend`는 `DESTRUCTIVE`). `permissions.py:45-49`와 `:206-209`의 `BUILTIN_PROTECTED`(`~/.ssh`, `~/.gnupg`, `~/Library/Keychains`, `~/Library/Cookies`, `$HERMES_HOME/.env`, `auth.json`)는 **어떤 프롬프트보다 먼저 직전 거부**된다. `permissions.py:215-217`은 파괴적 동작에 **호출마다 다른 규칙 키**를 만들어 "항상 허용"이 절대 붙지 못하게 하고, `permissions.py:88-91`은 정책이 `allow`여도 `destructive`를 `confirm`으로 되돌리며, `tools.py:1593-1594`는 단계를 절대 낮추지 않는다. 사용자는 Settings > Privacy의 `permissions.yaml`로 더 조일 수 있다.
   2. **감사 로그는 진짜로 디스크에 떨어지고, 사용자도 볼 수 있다** — `plugins/herald-os-bridge/bridge/audit.py:33-54`가 도구 호출마다 JSON 한 줄을 `~/.hermes/herald-os/audit.jsonl`에 덧붙인다(tier / decision / ok / summary / error, 시크릿 필드는 `[redacted]`, 5 MB 로테이션). `tools.py:81-82`가 모든 호출의 기록을 보장한다. 프론트엔드에는 `apps/desktop/src/features/settings/sections/AgentsSection.tsx:480-531`의 "Activity history" 목록이 있다. **정직한 공백**: 사용자나 음성이 직접 띄운 네이티브 OS 명령은 메모리 안의 50개 HUD 로그에만 남고 **디스크에 저장되지 않는다**.
@@ -962,7 +962,7 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 ## 최신 검증 스냅샷 (2026-08-27 · 실시간 스트리밍 루프 차단기 및 문법 인식 회로 차단기 · 스트리밍 복원력 완료)
 
 - **InFlightStreamRepetitionScrubber (Hermes 8K 토큰 소진 후 수동 감지 / OpenClaw 무차별 타임아웃 / Claude Code 수동 Ctrl+C 대비):** Myrm은 밀리초 수준의 실시간 스트리밍 반복 회로 차단기 및 문법 인식 구문 보호 아키텍처를 제공합니다:
-  1. **실시간 In-Flight $O(N/k)$ 회로 차단기 (`repetition_scrubber.py`)**: 토큰당 <0.005ms 오버헤드로 스트리밍 출력을 실시간 모니터링하여, LLM이 반복 루프에 진입할 경우 1초 이내(~400자 시점)에 즉시 회로를 차단하고 **폭주 토큰 비용의 98% 이상을 절감**하며 브라우저 탭 멈춤 현상을 완벽 방지;
+  1. **실시간 In-Flight $O(N/k)$ 회로 차단기 (`repetition_scrubber.py`)**: 토큰당 &lt;0.005ms 오버헤드로 스트리밍 출력을 실시간 모니터링하여, LLM이 반복 루프에 진입할 경우 1초 이내(~400자 시점)에 즉시 회로를 차단하고 **폭주 토큰 비용의 98% 이상을 절감**하며 브라우저 탭 멈춤 현상을 완벽 방지;
   2. **전역 누적 Markdown 코드 블록 문법 인식**: 전역 누적 백틱 추적(`count("```") % 2 == 1`)을 적용하여 청크 경계가 나뉘더라도 코드 블록을 정확히 감지하고, 대규모 SQL/JSON/Markdown 테이블 출력 시 임계값을 자동으로 2배 확대하여 **오탐률 0% 달성**;
   3. **표준 이벤트 분배 및 취소 토큰 연동 (`stream_dispatcher.py`)**: 차단 즉시 `CancellationToken`을 트리거하여 상위 LLM 생성을 중단하고 표준 `AgentEventType.ERROR` 이벤트를 브로드캐스트하여 WebUI에 우아한 재시도 복구 카드를 렌더링;
   4. **제로 토큰 팽창 및 프롬프트 캐시 안정성**: 결정론적 스트리밍 엔진 계층에서 순수하게 동작하여 시스템 프롬프트 오염 없이 KV Cache 히트율 90% 이상 유지;
@@ -1297,7 +1297,7 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 ## 최신 검증 스냅샷 (2026-08-22 · 분기 스코프 하위 에이전트 산출물 및 인계 결과 결정론적 병합 · 컨텍스트 및 세션 Roadmap Topic 06 #7 완료)
 
 - **분기 스코프 하위 에이전트 산출물 및 인계 결과 결정론적 병합 (vs Pi Agent / OpenClaw / Hermes / DeepSeek Harness):** Myrm은 엔터프라이즈급 멀티 에이전트 분기 스코프 압축 및 결과 무손실 병합 체계를 구축했습니다:
-  1. **제로 LLM 비용 결정론적 병합 (`branch_scoped_compaction.py`)**: 주 세션 컨텍스트 압축 시 순수 Python 메모리 알고리즘을 통해 <0.2ms 내에 하위 에이전트의 물리적 변경 파일 및 구조화된 인계 상태(완료 항목, 잔여 TODO, 핵심 발견 및 위험)를 자동 수집하여 2차 LLM 요약 오버헤드와 지연을 100% 제거;
+  1. **제로 LLM 비용 결정론적 병합 (`branch_scoped_compaction.py`)**: 주 세션 컨텍스트 압축 시 순수 Python 메모리 알고리즘을 통해 &lt;0.2ms 내에 하위 에이전트의 물리적 변경 파일 및 구조화된 인계 상태(완료 항목, 잔여 TODO, 핵심 발견 및 위험)를 자동 수집하여 2차 LLM 요약 오버헤드와 지연을 100% 제거;
   2. **멀티 에이전트 물리 파일 재귀 대사**: `ExecutionStateValidator`를 업그레이드하여 연결된 하위 세션의 `ArtifactTracker` 기록을 재귀적으로 수집하고 주 에이전트가 하위 에이전트의 파일 수정을 잊는 환각을 철저히 차단;
   3. **100% Prompt Cache 고정 유지**: 병합된 하위 작업 결과는 부모 세션의 HumanMessage 메모리 컨텍스트에 캡슐화되어 시스템 프롬프트 접두사를 완전히 보존;
   4. **전체 스택 테스트 검증**: Harness 측 61개 테스트 스위트(`test_branch_scoped_compaction.py`, `test_execution_state_validator.py`, `test_stream_recovery_overflow_failover.py`) 100% 통과.
@@ -1444,7 +1444,7 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 ## 최신 검증 스냅샷 (2026-08-21 · 음성 듀얼 트랙 패스트레인 및 15초 Supervisor 백그라운드 핸드오프 · 음성 미디어 Roadmap Topic 04 #3 완료)
 
 - **음성 듀얼 트랙 패스트레인 및 15초 Supervisor 백그라운드 핸드오프 (vs Qwen Audio Agent / ChatGPT Voice / Claude Voice):** Myrm은 산업용 듀얼 트랙 음성 실행 엔진과 긴 작업 감독자 상태 머신을 구축했습니다:
-  1. **듀얼 트랙 패스트레인 초고속 출력 (`_is_fast_lane_query`)**: 간단한 인사 및 사실 확인 질의(`RoutingTier.SIMPLE`)에 대해 무거운 Agent 프로필 로드와 불필요한 대기 음성을 건너뛰어 TTFT <1.5s 초고속 응답 실현 및 자동 자가 치유 폴백 지원;
+  1. **듀얼 트랙 패스트레인 초고속 출력 (`_is_fast_lane_query`)**: 간단한 인사 및 사실 확인 질의(`RoutingTier.SIMPLE`)에 대해 무거운 Agent 프로필 로드와 불필요한 대기 음성을 건너뛰어 TTFT &lt;1.5s 초고속 응답 실현 및 자동 자가 치유 폴백 지원;
   2. **15초 Supervisor 시간 초과 핸드오프 (`_consume_agent_stream_supervised`)**: 15초 초과 긴 작업 감지 시 구두 전환 안내 음성을 출력하고, 활성 음성 채널을 즉시 해제하며 지속형 Kanban 백그라운드 작업으로 위임;
   3. **백그라운드 작업 완료 능동 음성 안내**: 기존 `voice_background_task_done` 이벤트 대기열과 완벽 통합되어 작업 완료 시 현재 음성 발화를 방해하지 않고 결과 요약을 능동 안내;
   4. **전체 스택 테스트 검증**: 173개 음성 통합 테스트 및 43개 단위 테스트 100% 정상 통과, 0 Lint 에러.

@@ -216,29 +216,29 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
 
 - **触发来源**：X @pnpmjs（pnpm 官方账号）：「pnpm v12.11 can install skills. related docs: https://pnpm.io/agent-skills」（`https://x.com/pnpmjs/status/2108646891902640466`，2026-10-10 03:52 北京时间；**28 回复 / 72 转推 / 568 赞 / 130 书签**，附 1 张图）。本轮用 ChromeAgent :9410 + chrome-devtools MCP 抽取主帖与 **17 条可见回复**，并逐段读了官方文档 pnpm.io/agent-skills。
 - **官方文档实际写了什么（逐条）**：
-  1. 包可用 \`skills/<name>/SKILL.md\` 携带技能（pnpm **只看一层深**）；「A package can consist of nothing but skills.」
+  1. 包可用 `skills/<name>/SKILL.md` 携带技能（pnpm **只看一层深**）；「A package can consist of nothing but skills.」
   2. **未批准前一个链接都不建**：「A skill is instructions that an agent follows **in every session**, and it may include scripts the agent runs. So pnpm links nothing until you approve the package.」
-  3. 用 \`pnpm approve\` 审阅，决定写进 \`pnpm-workspace.yaml\` 的 \`permissions: { drizzle-kit: { skills: true } }\`。
+  3. 用 `pnpm approve` 审阅，决定写进 `pnpm-workspace.yaml` 的 `permissions: { drizzle-kit: { skills: true } }`。
   4. **待审批不阻塞安装**：「A pending skill never fails the install.」
   5. **代价**：「**An approval covers every skill of the package, in every later version.**」
-  6. 链接落到工作区根的各 Agent 技能目录（\`.claude/skills\`、\`.cursor/skills\`、\`.gemini/skills\`、\`.agents/skills\`、\`.github/skills\`），按环境变量自动创建；\`skills.dirs\` 可自定义，空列表=关闭。
-  7. 链接名为 \`pnpm-<package>-<skill>\`，pnpm 会在每个目录写一条 \`pnpm-*\` 的 \`.gitignore\`。
+  6. 链接落到工作区根的各 Agent 技能目录（`.claude/skills`、`.cursor/skills`、`.gemini/skills`、`.agents/skills`、`.github/skills`），按环境变量自动创建；`skills.dirs` 可自定义，空列表=关闭。
+  7. 链接名为 `pnpm-<package>-<skill>`，pnpm 会在每个目录写一条 `pnpm-*` 的 `.gitignore`。
   8. 清理克制：包移除 / 审批撤销 / 包不再带该技能时移除链接，且「**It never replaces or removes an entry it did not create, and fails if one is in the way.**」
-  9. 边界：全局安装、\`pnpm dlx\`、\`pnpm deploy\` 不链接技能；工作区多版本时**最高版本**决定。
+  9. 边界：全局安装、`pnpm dlx`、`pnpm deploy` 不链接技能；工作区多版本时**最高版本**决定。
 - **最关键的一条评论**（@NickCostaES，34 赞）：「your docs say the part that matters: **an approval covers every skill of the package in every later version. So the text your agent follows can change on the next install and nothing asks again. I'd want pnpm approve to show the diff when a skill changed.**」—— 这句几乎逐字复述了官方文档，也点破了唯一的洞。
 - **一个值得记住的形态信号**：同一个帖子里既有 481 赞的「Awesome」，也有「Why?」「what does it mean」「you lost it wtf」—— **多数人其实仍不知道 skill 是什么**。
 - **我方现状（经真实代码核对）**：
-  - **逐次可见，而不是整包批准**：增量差异实时上屏（\`myrm-agent/myrm-agent-frontend/src/store/chat/messageStream/handlers/fileDiffEvents.ts:31\`）、动手前影子 Git 快照（\`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/file_snapshot/shadow_git_store.py:97\`）、审批卡一键回退（\`myrm-agent/myrm-agent-server/app/api/approvals/router.py:350-351\`、\`myrm-agent/myrm-agent-frontend/src/components/approval/DestructiveUndoCard.tsx:51\`）。
-  - **粒度到技能**：逐技能信任由用户覆写（\`myrm-agent/myrm-agent-server/app/core/skills/store/service.py:185-201\`）+ 工作区信任三档（\`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/security/workspace_trust/types.py:24-30\`）。
-  - **装前而不是装后**：26 类威胁 / 113 条静态模式在装前跑（\`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/patterns.py:1-13\`）。
-  - **装完确实生效**：采纳桥把新技能追加到非空 allowlist，下一轮即可加载（\`myrm-agent/myrm-agent-server/app/core/skills/discovery/adopt.py:1-17\`）；ClawHub 已是已接入的上游市场源（\`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/market/sources/clawhub.py:1-4\`）。
+  - **逐次可见，而不是整包批准**：增量差异实时上屏（`myrm-agent/myrm-agent-frontend/src/store/chat/messageStream/handlers/fileDiffEvents.ts:31`）、动手前影子 Git 快照（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/file_snapshot/shadow_git_store.py:97`）、审批卡一键回退（`myrm-agent/myrm-agent-server/app/api/approvals/router.py:350-351`、`myrm-agent/myrm-agent-frontend/src/components/approval/DestructiveUndoCard.tsx:51`）。
+  - **粒度到技能**：逐技能信任由用户覆写（`myrm-agent/myrm-agent-server/app/core/skills/store/service.py:185-201`）+ 工作区信任三档（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/security/workspace_trust/types.py:24-30`）。
+  - **装前而不是装后**：26 类威胁 / 113 条静态模式在装前跑（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/backends/skills/scanning/patterns.py:1-13`）。
+  - **装完确实生效**：采纳桥把新技能追加到非空 allowlist，下一轮即可加载（`myrm-agent/myrm-agent-server/app/core/skills/discovery/adopt.py:1-17`）；ClawHub 已是已接入的上游市场源（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/market/sources/clawhub.py:1-4`）。
 - **我们不宣称的部分（诚实差距）**：
   1. **我们没有包管理器这条分发渠道 —— 这是真实差距**：pnpm/npm 把技能带进**项目依赖树**，自带版本锁定、供应链审计与离线可复现；我们的市场源是**目录式**，没有依赖树语义，也没有版本锁定。
   2. **我们不提供「整包一次批准」的轻量模式**：我们是逐技能准入 + 逐次差异，**更严但也更啰嗦**；对只想「一次装一包」的用户，pnpm 确实更省事。
   3. **技能目录的白话可读性不足**：pnpm 靠一条命令 + 社区漫画把概念讲清楚；**我们若要接包管理器渠道，先要修的是「技能目录的白话说明」，而不是再加一个安装入口**。
-  4. **我们没有 pnpm 那套克制的链接语义**（链接 + \`.gitignore\` + 绝不碰非自己创建的条目），我们的技能安装是目录式接管，两者不可直接比较。
-- **一条路线图条目，只做增补不重复开条**：\`topic_08 #49\`（技能三方合并安全更新与装前沙箱安全审计套件）—— 本轮补入的是该条最强的外部证据：**竞品自己的文档写明一次批准会静默覆盖该包后续版本的每个技能，而它的用户已经在要求「技能变了就把差异给我看」**。
-- **SSOT**：\`https://pnpm.io/agent-skills\` · \`https://x.com/pnpmjs/status/2108646891902640466\`
+  4. **我们没有 pnpm 那套克制的链接语义**（链接 + `.gitignore` + 绝不碰非自己创建的条目），我们的技能安装是目录式接管，两者不可直接比较。
+- **一条路线图条目，只做增补不重复开条**：`topic_08 #49`（技能三方合并安全更新与装前沙箱安全审计套件）—— 本轮补入的是该条最强的外部证据：**竞品自己的文档写明一次批准会静默覆盖该包后续版本的每个技能，而它的用户已经在要求「技能变了就把差异给我看」**。
+- **SSOT**：`https://pnpm.io/agent-skills` · `https://x.com/pnpmjs/status/2108646891902640466`
 
 ## 最新验证快照（2026-10-22 · Hyperliquid 上出现「自主交易代理」 · 我们读了四个真实项目，而不是照信帖子 · 他们共同的安全模型是「凭据分层 + 硬性上限」，我方在「花钱」这一侧是同构形态且已交付）
 
@@ -698,13 +698,13 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
      - **DeepSeek-Harness**：热衷于静态多节点编排，但缺乏自适应节流与提前局部归约，并发失控时直接 429 报错崩溃全盘作废；
      - **Pi**：依赖社区插件拼装，缺乏跨机多网关拓扑感知与离线缓冲自愈能力，合盖或断网指令直接丢失；
      - **OpenCode**：单一只读子代理，无法形成正交双重视角审查，面对 `Any` 类型逃逸与隐蔽边界缺陷缺乏拦截能力；
-  5. **100% 全栈实测验证**：Harness 框架单测 19/19 passed，Server 业务单测 15/15 passed，前端 Vitest 15/15 passed（单测耗时 <1s），`bunx oxlint` 0 warnings 0 errors，所有组件行数严控 ≤ 400 行，0 Any 类型，无障碍 live output 100% 达标。
+  5. **100% 全栈实测验证**：Harness 框架单测 19/19 passed，Server 业务单测 15/15 passed，前端 Vitest 15/15 passed（单测耗时 &lt;1s），`bunx oxlint` 0 warnings 0 errors，所有组件行数严控 ≤ 400 行，0 Any 类型，无障碍 live output 100% 达标。
 - **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/orthogonal_reviewer/` · `.../graph_triage/` · `.../fleet_router/` · `myrm-agent-server/app/api/agents/` · `myrm-agent-frontend/src/components/features/chat-window/`
 
 ## 最新验证快照（2026-10-02 · 云端托管沙箱秒级冷冻休眠与无头虚拟桌面 Computer Use 套件 · 彻底消除 Mac Mini 7x24 耗电折旧、VPS 丢失屏幕视觉操控与云端冷启动环境丢失）
 
 - **CloudSandboxSubSecondHibernationAndHeadlessComputerUseSuite（对标 DigitalOcean Managed Agents、Hermes、OpenClaw、Codex 6 大竞品以及 Mac Mini 本地 7x24 常驻模式，针对开发者在“买台 Mac Mini 7×24 本地开机耗电折旧发热 vs 云端托管暂停计费但丢失 Computer Use 桌面视觉与冷启动丢环境依赖”之间的痛苦割裂）：** Myrm 全面交付了云端托管沙箱秒级冷冻休眠、用户独享持久卷与无头虚拟桌面双模 Computer Use 套件：
-  1. **空闲 5 分钟秒级冷冻与入站事件 <300ms 极速原地解冻（Scale-to-Zero & Sub-Second Thaw）**：颠覆传统 VPS 7×24 全天开机扣费或本地主机长年耗电发热模式。当沙箱超过 5 分钟无活动时，底层自动通过 cgroup 冻结 CPU/GPU 算力消耗，计费归零；一旦收到入站 Webhook、IM 消息或用户输入，在 300ms 内瞬间原地解冻执行现场，彻底实现按需唤醒；
+  1. **空闲 5 分钟秒级冷冻与入站事件 &lt;300ms 极速原地解冻（Scale-to-Zero & Sub-Second Thaw）**：颠覆传统 VPS 7×24 全天开机扣费或本地主机长年耗电发热模式。当沙箱超过 5 分钟无活动时，底层自动通过 cgroup 冻结 CPU/GPU 算力消耗，计费归零；一旦收到入站 Webhook、IM 消息或用户输入，在 300ms 内瞬间原地解冻执行现场，彻底实现按需唤醒；
   2. **用户专属 Persistent Volume 与工作区增量差异持久化（Dedicated Persistent Volume）**：沙箱计算实例与存储彻底物理解耦。容器即使休眠、缩容或跨宿主机漂移，用户专属 NVMe 卷保持不变，自行安装的 pip/npm 工具包、环境配置、本地知识库与工程资产 100% 完整保留，彻底粉碎云托管冷启动重装环境的顾虑；
   3. **云端无头虚拟显示（Xvfb/Wayland）与双模穿透 Computer Use 视觉引擎（Headless Virtual Display & WebRTC Streaming）**：攻破传统云端 VPS 无法执行桌面操作的致命死穴。在云端 Docker 容器中内置轻量级 Xvfb/Wayland 虚拟屏幕缓冲与低延迟 WebRTC 流化通道，云端沙箱具备与本地桌面 100% 一致的多模态屏幕截图、DOM/OCR 识别与鼠标键盘交互能力；
   4. **宿主侧 Governed Egress Proxy 盲盒凭据防护（Governed Blind Egress）**：沙箱内部绝对不注入真实明文 API Key，LLM 请求统一强制经由宿主侧代理透明签名与审计，第三方开源脚本或恶意代码完全无法刺探主 Key；
@@ -716,7 +716,7 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
 - **DualFlagshipMoAAndLightMediumZeroWaitSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 6 大竞品在面对行业顶级双旗舰 SOTA 模型同日撞车正面对决时，普遍缺乏异构多提供商的自动化盲测交叉审查机制，导致用户在两大旗舰之间纠结且单模型存在自洽幻觉与认知偏差；同时在海量日常轻中度办公中，缺乏亚秒级极速直通管道导致简单任务仍需苦等几十秒思考）：** Myrm 全链路交付了双旗舰异构盲审协同与轻中度负载直通套件：
   1. **双旗舰异构并联推演与双盲去指纹交叉审查（Dual-Flagship Parallel Blind Cross-Critique）**：当用户在 WebUI 开启「✨ 双旗舰共识模式」或系统判定为重大关键决策时，系统将上下文同时分发给两大 SOTA 旗舰（如 OpenAI 旗舰与 Claude 旗舰）；系统自动抹去模型提供商标注与方言提示词，将 A 方案交由 B 模型以挑剔视角展开审计质询，将 B 方案交由 A 模型进行边界压力攻击，彻底粉碎单模型自审的自洽幻觉；
   2. **100% 共识确定性提取与分歧决策卡片（Consensus Synthesizer & Trade-Off Arbiter）**：自动提炼出两大模型完全一致的重叠结论（交集部分），标记为「100% 高置信度共识」并直接采纳；对双方分歧点结构化提炼优劣对比（Pros & Cons）与风险边界，生成优雅的卡片供用户定夺；
-  3. **轻中度日常办公负载启发式自适应分流与零等待秒级直通（Light-Medium Zero-Wait Fast-Path Pipeline）**：基于轻量语义探针（<10ms）快速判定任务负载属性，凡文字润色、日常问答、多源摘要等轻中度任务直连极速低延迟模型（如 GPT-6 Luna、Claude Haiku 或端侧量化模型），首字延迟压降至 <200ms，赋予普通白领“纯魔法”般丝滑交互；代码攻坚与复杂重构时自动平滑接力移交主推演模型；
+  3. **轻中度日常办公负载启发式自适应分流与零等待秒级直通（Light-Medium Zero-Wait Fast-Path Pipeline）**：基于轻量语义探针（&lt;10ms）快速判定任务负载属性，凡文字润色、日常问答、多源摘要等轻中度任务直连极速低延迟模型（如 GPT-6 Luna、Claude Haiku 或端侧量化模型），首字延迟压降至 &lt;200ms，赋予普通白领“纯魔法”般丝滑交互；代码攻坚与复杂重构时自动平滑接力移交主推演模型；
   4. **全端同构与算力经济学双重保障**：WebUI / Desktop / 云托管独立沙箱全端统一交互，日常办公零额外 Token 开销，关键任务一键解锁世界最高智商上限。
 - **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/sub_agents/_orchestrator_council.py`
 
@@ -767,7 +767,7 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
 
 - **SkillSpectorHighRiskPatternScannerAndPreflightSecurityScoringGateSuite（对标 Hermes、OpenClaw、Codex、DeepSeek-Harness、Pi、OpenCode 6 大竞品在第三方技能生态与开源技能市场中普遍存在的“安装前完全缺乏静态代码体检与威胁模式分析、面对恶意提示词注入/反弹 Shell/凭据嗅探直接无条件原样注入、开箱默认 bypass 裸奔、缺乏 0~100 量化准入门禁导致 0 分假值逃逸以及管理员放行无审计追踪”等致命安全盲区）：** Myrm 全面交付了安装前 71 项前置行为模式扫描、0~100 风险量化门禁、AST 语法树危险调用穿透与结构化合规审计套件：
   1. **安装前 71 项深度行为模式扫描与 AST 语法树穿透分析（Preflight Static Threat Scanner）**：在技能市场（Marketplace）与本地技能目录导入前，自动对 `.py`, `.sh`, `.js`, `.ts`, `.json`, `.yaml`, `.md` 等文件执行 71 项前置特征体检。深度识别隐藏反弹 Shell、`eval`/`exec`/`__import__` 动态混淆调用、环境变量嗅探、敏感文件遍历与暗藏提示词越狱注入，彻底终结开源技能生态的“盲装盲信”；
-  2. **0~100 风险量化评分与 <50 分自动阻断门禁（Security Scoring Gate）**：构建确定性量化打分算法（基础分 100 分，按高危特征扣分并设定类别扣分封顶，避免极端单一场景过杀）。若综合得分低于 50 分，系统触发强制硬阻断，拒绝直接加载至运行时；
+  2. **0~100 风险量化评分与 &lt;50 分自动阻断门禁（Security Scoring Gate）**：构建确定性量化打分算法（基础分 100 分，按高危特征扣分并设定类别扣分封顶，避免极端单一场景过杀）。若综合得分低于 50 分，系统触发强制硬阻断，拒绝直接加载至运行时；
   3. **Fail-Closed 闭环严防 0 分与空值假值逃逸（Zero-False-Positive Fail-Closed）**：彻底修复将 `score=0` 判定为 falsy 而跳过门禁的致命漏洞。无论评分返回 0 还是 `None`，统一强制进入 Fail-Closed 阻断通路，杜绝利用解析异常偷渡执行；
   4. **防 OOM 与二进制防崩溃守卫（512KB Limit & Null-Byte Filter）**：针对畸形或恶意构造的第三方技能包，严格设定单文件 512KB 读取上限，毫秒级过滤 `\x00` 二进制空字节文件，保护 Scanner 进程免于内存耗尽（OOM）与解释器崩溃；
   5. **结构化合规审计留痕与全生命周期追踪（Audit Override Log）**：针对企业管理员显式放行低分技能场景，服务端原生打点记录 `AUDIT_EVENT: SKILL_SECURITY_OVERRIDE`，完整持久化操作人 ID、技能指纹、违规规则列表与免责放行时间戳，确保合规与责任链百分之百可追溯；
@@ -1215,7 +1215,7 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
 | **产品形态** | **全栈 AI 工作站 (WebUI + Tauri 桌面 + 云控制平面)** | CLI/TUI 为主，简易 Web | 命令行/脚本为主 | IDE 插件/单体代码补丁 | 算法评测/推理框架 | 纯情感陪聊 Bot | 终端优先编码 Agent + Web/Electron 桌面/IDE 客户端 |
 | **浏览器内助手** | **Chrome 侧边栏对话，伴随任意网页**（自动附带页面上下文、选中文本转发、右键「问 Myrm」、工具审批内嵌，零后端改动） | 无浏览器扩展 | 有扩展但 CDP relay 已移除——无对话 UI、无侧边栏 | 仅 VS Code WebView，开放网页上无入口 | 无 | 无 | `@opencode/plugin-browser` 只能触达桌面客户端已挂载的标签页；无侧边栏 |
 | **首轮 Token 开销** | **2,167 tokens** (动态按需披露，节省 86%+) | 15,520+ (全量加载 73% 固定开销) | 18,000+ (Turn1 全量 bind) | 单次文件大上下文打满 | 无动态披露，按提示词硬拼 | 仅对话上下文 | 静态会话工具与技能注册表（无实测渐进披露层级） |
-| **程序化工具调用 (PTC) 与多步合并** | **两轨制 PTC (MCP+DW)，多步依赖沙箱内存原子串联（1 轮搞定、耗时缩短 90%、Token 降 85%），三级渐进披露 (<200 Token)，Durable 0-Token 秒级断点续跑** | 单步 JSON FC，多步骤需 4 轮大模型往返 (25s+)，大量原始报文回灌污染上下文 | Turn 1 全量 bind 工具 (45,000+ Token 爆仓)，无沙箱代码原子串联，多次往返 | 仅单向数据计算沙箱，外部多工具仍走传统多轮 JSON 交互 | 单一 `run_code` 编译模式，无三级渐进披露，缺乏持久化状态账本 | 无工具调用与代码执行力 | 原生 `code-mode` PTC 路径；无三级渐进披露与持久化状态账本 |
+| **程序化工具调用 (PTC) 与多步合并** | **两轨制 PTC (MCP+DW)，多步依赖沙箱内存原子串联（1 轮搞定、耗时缩短 90%、Token 降 85%），三级渐进披露 (&lt;200 Token)，Durable 0-Token 秒级断点续跑** | 单步 JSON FC，多步骤需 4 轮大模型往返 (25s+)，大量原始报文回灌污染上下文 | Turn 1 全量 bind 工具 (45,000+ Token 爆仓)，无沙箱代码原子串联，多次往返 | 仅单向数据计算沙箱，外部多工具仍走传统多轮 JSON 交互 | 单一 `run_code` 编译模式，无三级渐进披露，缺乏持久化状态账本 | 无工具调用与代码执行力 | 原生 `code-mode` PTC 路径；无三级渐进披露与持久化状态账本 |
 | **模型切换与缓存** | **全生命周期自适应路由，同会话随意切模型，`<think>` 自动清洗，Prompt Cache 97% 命中** | 换模型强制 `/new` 清空会话，否则报 400 格式错误 | 无法平滑转译，频繁打碎云端 KV 缓存 | 固定绑定单一模型 | 偏固定单点模型测试 | 固定闭源托管模型 | 依赖 provider 配置；无跨家族会话内清洗盾 |
 | **执行可靠性与自愈** | **14 层恢复网格 + 结构有界 json_repair + 交付物未落盘反思拦截** | 基础重试，缺少未落盘检测 | 裸 `JSON.parse`，带 markdown 或反思散文即崩溃 | 依赖人工在 IDE 检查补丁 | 简单超时重试 | 无代码或工具执行力 | LSP 锚定 `apply_patch`；无交付物落盘拦截 |
 | **多智能体与任务治理**| **看板任务级模型重写 + 9 态生命周期 + IN_REVIEW 人工审批门 + 动态活体引导 (Live Steer)** | 基础子任务，无动态活体干预 | 无子代理任务看板 | 仅单智能体生成 | 批量单任务推理 | 无任务分解与执行 | 子代理 `task` 工具；无看板与审批门 |
@@ -1278,7 +1278,7 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
 
 - **ProgrammaticToolCallingDualTrackAndMultiStepMergeSuite（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi 在工具调用与长链路执行中普遍存在的“多步骤依赖必须经历多次 LLM 网络往返（如查车站代码➔查票➔余票过滤需 4 轮耗时 25s+）、中间庞大原始 JSON 报文撑爆上下文稀释注意力、首轮 50+ 工具 Schema 强灌消耗数万 Token、以及任务中断只能从头重跑重复计费”等致命痛点）：** Myrm 全面交付了两轨制程序化工具调用（PTC）体系：
   1. **多步骤依赖链沙箱内存原子串联（`EXECUTION_SYSTEM.md` · `llm_query_tool.py` · `tools.py`）**：将传统单步 JSON FC 拆散的依赖链彻底折叠至沙箱 Python 脚本，以经典订票为例，从 4 轮模型网络交互缩短为 1 轮单次脚本执行，端到端耗时从 25 秒缩短至 1.8 秒（提速 90%），中间 60 趟车次原始报文完全在沙箱吸收，Token 消耗骤降 85%；
-  2. **三级渐进披露与常驻连接池（`mcp_routing.py` · `core_generator.py`）**：L1 紧凑意图元数据常驻 <200 Token（初始体积降低 99.5%），通过 Unix Domain Socket 常驻 IPC Daemon 实现 <0.8ms 连接复用延迟（比冷启子进程快 400 倍）；
+  2. **三级渐进披露与常驻连接池（`mcp_routing.py` · `core_generator.py`）**：L1 紧凑意图元数据常驻 &lt;200 Token（初始体积降低 99.5%），通过 Unix Domain Socket 常驻 IPC Daemon 实现 &lt;0.8ms 连接复用延迟（比冷启子进程快 400 倍）；
   3. **SQLite Event Sourcing 0-Token 秒级断点续跑（`durable_execution`）**：确定性哈希签名存证，崩溃或网络中断重启后已执行节点 0ms、0 Token 秒级重放，杜绝重复计费；
   4. **AST 静态安全审查器与 CancelToken 0ms 物理级联熔断（`llm_query_tool.py:75-120` · `__init__.py`）**：主进程代码执行前 AST 语法树拦截动态反射与高危原语；内置双重安全栅栏，用户点击终止瞬间 0 毫秒物理熔断排队任务；
   5. **全套自动化测试 100% 满分通过**：Harness DW PTC 单测 35/35 通过、Server 会话路由 3/3 通过、Chrome 真实浏览器真实大模型全链路闭环通过。
@@ -1767,7 +1767,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
 
 ## 最新验证快照（2026-09-04 · 防自强化坍缩蒸馏守卫与身份三态防御体系 · 记忆系统完成）
 
-- **AntiDriftDistillationGuardsAndSelfExclusion（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi / Mem0 在多轮自主对话后 Agent 自产内容倒灌导致画像口吻自强化坍缩、群聊身份未认证模糊猜测造成交叉污染、自动化告警 Bot 灌水以及凭空捏造无源证据的痛点）：** Myrm 交付了业内首个零网络开销（<1ms）全链路确定性记忆准入防线：
+- **AntiDriftDistillationGuardsAndSelfExclusion（对标 Hermes Agent / OpenClaw / Codex / DeepSeek-Harness / Pi / Mem0 在多轮自主对话后 Agent 自产内容倒灌导致画像口吻自强化坍缩、群聊身份未认证模糊猜测造成交叉污染、自动化告警 Bot 灌水以及凭空捏造无源证据的痛点）：** Myrm 交付了业内首个零网络开销（&lt;1ms）全链路确定性记忆准入防线：
   1. **数字人自产消息永久物理阻断（`origin === 'agent'`）**：在抽取管道前置建立不可逾越的物理硬隔离，彻底杜绝 Agent 将自己上一轮给出的建议、假设或回复口吻作为用户偏好提取入库，根除长期运行必现的回音壁坍缩（Persona Echo Chamber / Drift）；
   2. **严格身份三态模型（`SelfIdentityState.SELF / OTHER / UNCONFIRMED`）**：群聊与多成员协同场景中，未确认身份一律拒绝入库，拒绝任何基于姓名或默认值的模糊猜测；第三方发言严格标记为对话背景（`_third_party_context`），杜绝张冠李戴与身份冒认；
   3. **自动化 Bot 模式与告警特征前置过滤**：识别 Prometheus、Grafana、Sentry、CI/CD 及打卡机器人等特征，毫秒级直接剥离高频运维与系统噪音，保护个人与工作画像纯净度；
@@ -1779,7 +1779,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
 
 - **UnifiedKnowledgeBasePickerAndCrossSourceHybridSearch（对标 Hermes / OpenClaw / Codex / Pi / Octop 等产品在单会话内无法临时多挂载外部知识库、动态工具描述导致提示词前缀缓存频频击穿、以及缺失零 LLM 极速检索专用车道的架构缺陷）：** Myrm 交付了企业级会话级动态知识库挂载与跨源联邦检索体系：
   1. **会话级零心智临时挂载（KnowledgePickerPopover.tsx · MessageInput.tsx / MobileActionSheet.tsx）**：支持用户在桌面端与移动端输入框内一键调出多选面板，动态挂载/解挂最多 6 个知识库；选中的知识库以紫色 `knowledge` 胶囊展示于输入框上下文栏，支持单项一键移除，完全不污染全局智能体持久配置；
-  2. **进程内零网络跳转 SQLite `ATTACH DATABASE` 联邦检索（WikiStructure & WikiIndexer）**：通过 SQLite 原生原子挂载只读库，在单连接单进程内以 <10ms 极致延迟执行跨库 FTS5 BM25 全文搜索与 RRF 倒数秩融合，彻底消除跨进程 IPC 与分布式网络开销；
+  2. **进程内零网络跳转 SQLite `ATTACH DATABASE` 联邦检索（WikiStructure & WikiIndexer）**：通过 SQLite 原生原子挂载只读库，在单连接单进程内以 &lt;10ms 极致延迟执行跨库 FTS5 BM25 全文搜索与 RRF 倒数秩融合，彻底消除跨进程 IPC 与分布式网络开销；
   3. **零 LLM 消耗 Quick Lane 极速知识响应车道（wiki_knowledge_lane.py）**：对于确定性知识库问答，毫秒级直接产出结构化引用来源（`SourceSnippet`）流式推送到前端，无需消耗高昂的 LLM Token 与等待推理轮次；
   4. **100% 静态工具契约与归档器缓存隔离（get_wiki_archiver）**：保证 LLM 工具定义完全静态化，稳守 95%+ 提示词前缀缓存命中率；同时在 Archiver 缓存 Key 注入排序后的公共路径哈希与标签指纹，彻底根治跨会话串库与缓存污染风险；
   5. **100% 全链路自动化测试验证**：Harness 框架层多库单元测试（35/35 passed in 2.06s）、Server 业务层联邦问答测试（6/6 passed in 9.55s）、前端 Store/Popover/ContextChip 测试（17/17 passed in 13.40s）、真实浏览器端到端 Task Flow E2E（1/1 passed in 137.87s，真实 MiniMax-M3 流式大模型问答全链路闭环通过）、249 项静态契约测试（249/249 passed in 4.22s）全部 100% 绿灯通过，0 僵尸残留，0 缺失翻译键。
@@ -1787,7 +1787,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
 
 ## 最新验证快照（2026-09-04 · 穿戴与移动随身转向控制及长按防误触闭环 · 交互与执行控制完成）
 
-- **WearableAndMobileSteeringWithHoldToApproveClosure（对标 Hermes #73/#99 / Auto-Atlas / OpenClaw / AstrBot 强行开发小众独立 Wear OS APK 导致仅能覆盖 <15% 硬件生态且无法覆盖 Apple Watch、转向动作降级与小屏幕审批一键误触高危灾难）：** Myrm 交付了通用随身穿戴转向协议加固与端侧防误触体系：
+- **WearableAndMobileSteeringWithHoldToApproveClosure（对标 Hermes #73/#99 / Auto-Atlas / OpenClaw / AstrBot 强行开发小众独立 Wear OS APK 导致仅能覆盖 &lt;15% 硬件生态且无法覆盖 Apple Watch、转向动作降级与小屏幕审批一键误触高危灾难）：** Myrm 交付了通用随身穿戴转向协议加固与端侧防误触体系：
   1. **全穿戴 100% 硬件生态覆盖（Channel-as-UI）**：无需在手表端安装任何私有 App，即可在 Apple Watch（>50% 份额）、Wear OS 及各类智能手环上直接接收 IM 富文本通知并手腕语音回复实现毫秒级纠偏；
   2. **底层并发与动作保真（SteeringToken & SteeringRegistry）**：Harness `reset_turn()` 增加互斥锁彻底杜绝跨轮次竞态，注册表以元组精确区分并保真还原紧急重定向阻断（`redirect`）与平滑转向（`steer`），引入 10s TTL 过期自动剪枝与 10 条上限杜绝悬挂泄露；
   3. **显式运行中转向（`/steer`）**：在任意 IM 会话里发送 `/steer <新指令>`，即把纠偏注入正在运行的回合并回推预览回执（群聊中仅发起该次运行的人可用）；运行中发送的普通消息作为下一回合排队，排队确认里会提示 `/steer` 用法；
@@ -2106,7 +2106,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
 ## 最新验证快照（2026-08-27 · 流式 In-Flight 实时死循环熔断器与语法感知断路器 · 流式鲁棒性增强达成）
 
 - **InFlightStreamRepetitionScrubber（对比 Hermes 烧光 8K 被动检测 / OpenClaw 粗暴超时硬等 / Claude Code 依赖人工 Ctrl+C）：** Myrm 构建了业界首个毫秒级流式死循环断路器与全局语法感知防御体系：
-  1. **流式 In-Flight 毫秒级断路器（`repetition_scrubber.py`）**：单 Token 检测开销 <0.005ms（对首字与流式打字 0 延迟）；当大模型因微调缺陷陷入复读死循环时，在 1 秒内（仅吐出约 400 字符时）毫秒级自动跳闸断路，**Token 异常止损率达 98% 以上**，彻底杜绝打字机假死崩溃与 IM 机器人刷屏；
+  1. **流式 In-Flight 毫秒级断路器（`repetition_scrubber.py`）**：单 Token 检测开销 &lt;0.005ms（对首字与流式打字 0 延迟）；当大模型因微调缺陷陷入复读死循环时，在 1 秒内（仅吐出约 400 字符时）毫秒级自动跳闸断路，**Token 异常止损率达 98% 以上**，彻底杜绝打字机假死崩溃与 IM 机器人刷屏；
   2. **全局累加 Markdown 代码块语法感知**：通过全局累加反引号计数（`count("```") % 2 == 1`）实现代码块感知，遇到跨 SSE Chunk 分片割裂（如 `` + `）自愈识别，代码块内部自动放宽 2 倍门限，**对大段 SQL/JSON/Markdown 表格生成 0 误杀**；
   3. **标准事件分发与链路协同（`stream_dispatcher.py`）**：Scrubber 拦截后联动 `CancellationToken` 强行掐断上游连接，广播标准 `AgentEventType.ERROR` 业务事件，WebUI 优雅弹出带一键重试的止损卡片；
   4. **零 Token 膨胀与 100% 保护 Prompt 前缀缓存**：全套逻辑纯运行于底层流式分发引擎，0 Prompt 膨胀，100% 保持前缀 KV Cache 命中率；
