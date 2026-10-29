@@ -418,11 +418,11 @@ Every inbound message passes through 5 layers of zero-LLM-cost processing before
 
 | Layer | What it does | Latency |
 |-------|-------------|---------|
-| **Message Dedup** | TTL-based deduplication (`channel:message_id`) prevents Webhook retries from triggering duplicate processing | <0.1ms |
-| **Slash Commands** | 21 system commands + dynamic Skill bindings + Agent routing — O(1) registry lookup | <0.1ms |
-| **Risk Detection** | Compiled regex engine blocks or warns on sensitive content; ReDoS-safe with audit trail | <1ms |
+| **Message Dedup** | TTL-based deduplication (`channel:message_id`) prevents Webhook retries from triggering duplicate processing | &lt;0.1ms |
+| **Slash Commands** | 21 system commands + dynamic Skill bindings + Agent routing — O(1) registry lookup | &lt;0.1ms |
+| **Risk Detection** | Compiled regex engine blocks or warns on sensitive content; ReDoS-safe with audit trail | &lt;1ms |
 | **FAQ Semantic Cache** | Embedding similarity + score/gap dual verification — cache hits return template answers instantly (40–100× faster than LLM) | 5–20ms |
-| **Policy + Session Gate** | DM/Group policy enforcement, message debouncing (300ms), merge, and concurrency control | <1ms |
+| **Policy + Session Gate** | DM/Group policy enforcement, message debouncing (300ms), merge, and concurrency control | &lt;1ms |
 
 ### What this means for users
 
@@ -700,9 +700,11 @@ The gateway runs a periodic health check cycle (60s interval). If a channel fail
 3. **Full restart** — executes `stop()` (releases all handles) then `start()` (fresh initialization)
 4. **Status broadcast** — frontend `ConnectionBadge` updates in real-time via EventEmitter
 
-### Message Recovery (InboundJournal)
+### Message Recovery
 
-Messages received during a crash window are **never lost**. The `InboundJournal` persists incoming messages before processing. On restart, unprocessed entries are automatically replayed through the routing pipeline — the user never knows a crash happened.
+A message is written to a local journal when its turn starts and removed when that turn ends. If the service crashes or restarts in between, the message is replayed on the next start, as long as it is less than 10 minutes old. Messages still waiting in a chat's queue when the service is stopped normally are written to the journal and replayed the same way.
+
+What is not covered: a message that was still being received when the process was killed, a message that arrives while the service is shutting down, and the request that was running at a normal shutdown (it is not run again, so send it again if you get no answer).
 
 ### Dead Letter Queue
 
@@ -967,7 +969,7 @@ Both modes support:
 
 When initiating complex, long-running deployments or operational workflows from mobile IM apps:
 
-1. **High-Entropy Terminal Log Distillation (`TerminalLogDistiller`)**: Strips ANSI noise and carriage return animations, pinpoints key diagnostic signatures (`HTTP 403`, `EADDRINUSE`, tracebacks), and retains tail context to compress thousands of lines into <50 high-signal lines (**>96% token reduction**).
+1. **High-Entropy Terminal Log Distillation (`TerminalLogDistiller`)**: Strips ANSI noise and carriage return animations, pinpoints key diagnostic signatures (`HTTP 403`, `EADDRINUSE`, tracebacks), and retains tail context to compress thousands of lines into &lt;50 high-signal lines (**>96% token reduction**).
 2. **Troubleshooting Budget & Anti-Oscillation State Machine (`TroubleshootingBudgetManager`)**: Provides 5 autonomous retry attempts across domestic mirror failovers, port probing, and dependency remediation. Deduplicates retry strategies using SHA256 hashes to prevent infinite retry loops and broadcasts progress beacons to IM channels. High-risk operations (e.g. `rm -rf /`) escalate to interactive approval cards immediately.
 3. **Idempotent Patch Replay Depot**: Packages successful deployment recipes into idempotent `deploy.sh` scripts with `[0/N]` phase markers, returned as downloadable artifacts for seamless replayability after software upgrades.
 
@@ -1017,7 +1019,7 @@ Long jobs and quiet threads get closed without babysitting:
 
 Managing token usage, rate limits, and member permissions across messaging channels requires zero-latency transparency without consuming LLM inference budgets:
 
-1. **Zero-LLM Token Direct Output (< 2ms)**:
+1. **Zero-LLM Token Direct Output (&lt; 2ms)**:
    - When a user sends `/quota` (or `@bot /quota` in groups), the router intercepts the request in the Inbound Pipeline and immediately aggregates usage records from local SQLite;
    - Consumes **0 LLM Tokens**, eliminates API network latency, and preserves Prompt Cache prefix hit rates;
 2. **Group RBAC & Bypass White-listing**:
