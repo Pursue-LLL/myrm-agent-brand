@@ -126,7 +126,7 @@ Myrm Agent 在 Agent 中间件栈中实现了透明的自愈机制：每次 LLM 
 - **找会话不用靠翻**：侧栏的置顶会话**可拖拽排序**（`ChatHistoryList.tsx:224`/`:248`，落库 `src/services/chat.ts:1379`），时间分组**可折叠**（`:29`/`:222`）；
 - **你批的是哪一版，存的就是哪一版**：每条审批都把它授权的那份载荷原样存下（`app/database/models/approval.py:34`），并带**动作类型**（`:27`）与**风险分级**（`:31`）；
 - **到点不会偷跑**：没人处理的审批到期会**自动拒绝并写明超时原因**（`app/services/approvals/registry.py:43-72`），被挂起的 Agent 由 harness 侧恢复（`:45`）；
-- **密钥不会跟着走**：子进程**默认不继承带凭据的环境变量**（`myrm-agent/myrm-agent-harness/.../code_execution/security/env_isolation.py:37`/`:110`、`shell_bleed.py:55`、`blacklist.py:290`）；桌面专属指令**只在真的要操控桌面时才注入**（`app/ai_agents/general_agent/mount_resolver.py:54`/`:41`）；
+- **密钥不会跟着走**：子进程**默认不继承带凭据的环境变量**（`myrm-agent/myrm-agent-harness/.../core/security/process_env/env_isolation.py:37`/`:110`、`shell_bleed.py:55`、`blacklist.py:290`）；桌面专属指令**只在真的要操控桌面时才注入**（`app/ai_agents/general_agent/mount_resolver.py:54`/`:41`）；
 - **诚实边界**：「批准必须发生在 Agent 之外」与「执行的就是被批准的那份载荷」**仍在路线图上**（`topic_03 #458`），我们不宣称已防篡改。
 
 **竞品实况核对（2026-10-22）**：Hermes Desktop 维护者公开征集「最近是否变稳了」，104 条回复里最扎眼的是**子 Agent 干活时侧栏丢掉「进行中」状态**（对方维护者本人回复「你说得对，这是 UX 上可以改进的」），以及消息偶发重复渲染、凭据变量漏进终端。社区还流传着一次**编程 Agent 自主把 `.env` 发布到公开托管**、密钥泄露后产生**9 万美元外部账单**的实测截图。我们这一节的差别不在「有审批」，而在**审批看得见、存得下、到点不偷跑**。

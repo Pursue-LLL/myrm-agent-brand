@@ -1594,7 +1594,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   3. **脚本操作数 TOCTOU 散列验签门禁（`script_operand_verifier.py`）**：在审批评估阶段自动抓取可变外部脚本（如 `python test.py`、`bash deploy.sh`）并生成 SHA-256 快照，在执行边界实时重验内容；若脚本在审批弹窗停留期间被外部进程篡改或软链接偷换，立即以 `SCRIPT_OPERAND_DRIFT_REJECT` 强行阻断；
   4. **高危脚本强制单次审批（Hide Allow Always）**：针对包含外部可变脚本的操作彻底禁用「永久允许」，从根源封死基于时间差的命令替换漏洞；
   5. **100% 自动化测试通过**：87 项 Harness 核心安全测试、脚本操作数验证与环境变量隔离测试全绿通过，0 警告 0 错误 0 僵尸进程。
-- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/security/env_isolation.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/security/script_operand_verifier.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/process_env/env_isolation.py` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/security/script_operand_verifier.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
 
 ## 最新验证快照（2026-09-06 · 三层渐进隐私脱敏过滤器与全自动化 Trace 审查门禁 · 可观测与审计完成）
 
@@ -1650,7 +1650,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   1. **Fail-Closed 子进程源头物理脱敏基线（`env_isolation.py:175-225` · `executor.py:560-565`）**：在子进程创建时强制清洗包含 `KEY`、`TOKEN`、`SECRET`、`AUTH_` 等敏感变量，第三方脚本无论如何 `printenv` 绝无可能读取到密钥明文；
   2. **受控底座内存内联调用**：Agent 核心大模型推理直接在受控底层进程内存中安全完成加密 TLS 握手，0 证书报错，0 代理损耗，杜绝中间人劫持；
   3. **专属容器沙箱隔离（Agent-in-Sandbox）**：结合独立 Volume，从操作系统和网络物理层面提供极致防护，实现 0 配置负担下的企业级凭据安全。
-- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/security/env_isolation.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
+- **SSOT 来源：** `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/process_env/env_isolation.py` · `temp-docs/materials/SECURITY_ADVANTAGE.md`
 
 
 ## 最新验证快照（2026-09-05 · 确定性代码调用图谱与测试爆炸半径定位技能包 · 技能与工具链完成）
@@ -2414,7 +2414,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   - @alanscodelog：「**it has desktop only prompts which confused my agent.**」
 - **我们这边（对着真实代码核过）**：
   - **「你看得见过程，而不只是结果」** —— 对话区有**并发子代理的横向泳道条**（`myrm-agent-frontend/src/components/features/chat-window/in-flight-steer/ActiveSubagentSwimlanesBar.tsx`，由 `ChatWindowSatellites.tsx:37` 挂载）；侧栏里置顶会话可拖拽排序、时间分组可折叠（`ChatHistoryList.tsx:29` `groupChatsByDate`；`:222` `useCollapsedGroups()`；`:224`/`:248` `reorderPinnedChats` + `arrayMove`，落库见 `src/services/chat.ts:1379`）。
-  - **「凭据不会漏进子进程」** —— 子进程环境继承是显式策略，凭据类变量按名屏蔽：`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/code_execution/security/env_isolation.py:37`（Subprocess environment inheritance strategy）与 `:110`（明确列出 `XDG_CONFIG_HOME`），另有 `security/shell_bleed.py:55`、`security/blacklist.py:290`。
+  - **「凭据不会漏进子进程」** —— 子进程环境继承是显式策略，凭据类变量按名屏蔽：`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/process_env/env_isolation.py:37`（Subprocess environment inheritance strategy）与 `:110`（明确列出 `XDG_CONFIG_HOME`），另有 `security/shell_bleed.py:55`、`security/blacklist.py:290`。
   - **「桌面专属指令不会污染 Agent」** —— 桌面规则**仅在真正挂载了桌面操控能力时才注入**，且 IM 渠道被禁止泄漏 browser / desktop / CLI 工具与提示词：`myrm-agent-server/app/ai_agents/general_agent/mount_resolver.py:54`、`:41`，`factory.py:537`。
   - **「审批可核对，且不会静默过期」** —— 每条审批**存住它批的那份载荷**（`app/database/models/approval.py:34` `payload`），并带**动作类型**（`:27`）与**风险分级**（`:31` `severity`）；到期审批**自动拒绝并唤醒被挂起的任务**（`app/services/approvals/registry.py:56-57` 的到期扫描、`:149` 记录里带出到期时间、`:178` 把到期时间展示给用户）。
   - **「不用等顶级域，也能给 Agent 一个地址」** —— OpenClaw 的 `.claw` **仍处 ICANN `Pre-Evaluation Processing`**（Application ID `OF2656T-T69841`），成本 **22.7 万美元**、预计 **2027 年底–2028 年初** 入根区；而**竞品自己的仓库里至今没有任何顶级域 / DNS 实现**（其中所有 `.claw` 命中都是 `claw` 词根假阳性，如 `ui/src/components/lobster-pet-identity.ts:242`、`src/infra/sqlite-worker-claw-read.test.ts:84`）。我们的路线正相反：**可读标识本来就有**（`app/services/plugins/agent_surface.py:291` 的 `agent.metadata.get("slug")`；harness 侧 profile 以 `ai.myrm/agents/<slug>.md` 命名），地址可以直接由它派生。
