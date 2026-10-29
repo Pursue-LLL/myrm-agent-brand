@@ -887,8 +887,17 @@ Share links are **revocable at any time**, for both artifacts and conversations:
 The web UI share dialog shows the live status (link URL, remaining expiry, revoke button) every time you open it — matching the ChatGPT/Notion share-dialog baseline — and stays open showing a "revoked" state after you revoke, so the control is never unreachable.
 
 <Note>
-No competitors (Hermes, OpenClaw, LobsterAI, CoPaw, deer-flow, jiuwenclaw) offer artifact or conversation sharing, let alone password protection or revocation. Myrm is the only AI assistant with both capabilities. Even mainstream products (ChatGPT Shared Links, Claude Shared Chats) lack TTL auto-expiry, password protection, and search-engine blocking — Myrm adds all three on top of the immediate-revoke baseline they share.
+Hermes, LobsterAI, CoPaw, deer-flow, and jiuwenclaw offer no artifact or conversation sharing. OpenClaw publishes a whole thread at its normal chat address behind a public-access switch, including images and tool-call summaries; a Myrm conversation link is time-limited, can be password-protected, is revoked per link, and shows only the user and assistant text. Even mainstream products (ChatGPT Shared Links, Claude Shared Chats) lack TTL auto-expiry, password protection, and search-engine blocking — Myrm adds all three on top of the immediate-revoke baseline they share.
 </Note>
+
+#### What a conversation link shows
+
+| Surface | Behavior |
+|---------|----------|
+| **Content** | Only user and assistant text — never tool traces or system notes — and the latest 200 messages |
+| **Credentials** | API keys, tokens, and similar secrets pasted into the chat are masked in the messages, the page title, and the link preview (best effort — review the conversation before sharing) |
+| **Later messages** | The page is rendered live, so messages added after sharing are visible until the link expires or is revoked; the share dialog says so |
+| **Copies** | Revoking a link cannot recall copies others have already saved |
 
 ### Agent Secret Management — Zero Plaintext Exposure
 
