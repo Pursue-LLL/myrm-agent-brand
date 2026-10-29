@@ -801,7 +801,7 @@ WebUI 分享对话框每次打开都展示实时状态（链接地址、剩余�
 | **无需 sentinel 防护** | 旧值从未到达前端，不存在 "****" 回传覆盖风险 |
 | **静态加密** | AES-256-GCM + 服务端主密钥 |
 | **原子文件写入** | tempfile + `os.replace` + `fsync` 防崩溃 |
-| **日志自动脱敏** | `SensitiveDataFilter` 自动替换 token/key/secret 为 `***REDACTED***` |
+| **日志自动脱敏** | 每条日志消息写出前都经过 harness 脱敏器（文本日志用 `RedactingFormatter`，JSON 日志用同一个 `redact_sensitive_text`） |
 | **Agent 隔离** | 每个 Agent 只能通过 `agent_id` 访问自己的密钥 |
 
 <Note>

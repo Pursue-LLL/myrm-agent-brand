@@ -675,7 +675,7 @@ No competitors (Hermes, OpenClaw, LobsterAI, CoPaw, deer-flow, jiuwenclaw) offer
 | **Edit requires new value** | Password input field, placeholder "Enter new value to overwrite" |
 | **Sentinel protection unnecessary** | Since old values never reach the frontend, no "****" round-trip risk exists |
 | **Encrypted at rest** | AES-256-GCM via `DatabaseSecretBackend` with server-side master key |
-| **Log auto-redaction** | `SensitiveDataFilter` replaces token/key/secret patterns with `***REDACTED***` |
+| **Log auto-redaction** | Every log message passes through the harness redactor before it is written (`RedactingFormatter` for text logs, the same `redact_sensitive_text` for JSON logs) |
 | **Agent isolation** | Each agent can only access its own secrets via `agent_id` scoping |
 
 <Note>

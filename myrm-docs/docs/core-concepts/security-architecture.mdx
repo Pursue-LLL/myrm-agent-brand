@@ -902,7 +902,7 @@ Per-agent secrets (custom API keys, tokens, environment variables) use a **zero-
 | **Sentinel protection unnecessary** | Since old values never reach the frontend, no "****" round-trip risk exists |
 | **Encrypted at rest** | AES-256-GCM via `DatabaseSecretBackend` with server-side master key |
 | **Atomic file writes** | `LocalSecretBackend` uses tempfile + `os.replace` + `fsync` for crash safety |
-| **Log auto-redaction** | `SensitiveDataFilter` replaces token/key/secret patterns with `***REDACTED***` |
+| **Log auto-redaction** | Every log message passes through the harness redactor before it is written (`RedactingFormatter` for text logs, the same `redact_sensitive_text` for JSON logs) |
 | **Agent isolation** | Each agent can only access its own secrets via `agent_id` scoping |
 
 <Note>
