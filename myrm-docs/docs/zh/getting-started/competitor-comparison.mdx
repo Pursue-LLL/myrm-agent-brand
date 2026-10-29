@@ -117,7 +117,7 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
 - **我们自己两处诚实差距（未交付，不得宣传）**：
   1. **评审者与提案者是同一个模型** —— `agent/skills/evolution/core/engine.py:105-106` 用同一 LLM 实例既生成变体又打分；专为「异源评审」造的独立 judge 通道 `agent/skills/evolution/safety/judge.py:46` **全仓无任何构造点**。⇒ 「近亲繁殖」这条批评，用在我们身上也成立一部分。已由 `topic_08 #457` 承接。
   2. **回归门禁的尺子本身可被提案者改写** —— `agent/skills/evolution/pipeline/variant_generator.py:320-336` 让同一个模型把 `eval_cases` 随内容一起共演化，`app/services/agent/confidence_approval_flow.py:140` 把它写回技能记录，于是**下一轮**的门禁（`agent/skills/evolution/core/eval_regression.py:49`）就是用被改写后的用例在量。**单轮内不漂移**（原版是基线），**跨轮会漂移**。
-  3. **我们不做「多 bot 群聊自改」这个形态** —— 我方是单 Agent 技能演化 + 子代理编排（`toolkits/swarm/swarm_engine.py:24`）；不抄这个形态，也不宣称我们在「群体智能」上更强。
+  3. **我们不做「多 bot 群聊自改」这个形态** —— 我方是单 Agent 技能演化 + 子代理编排（`agent/sub_agents/`）；不抄这个形态，也不宣称我们在「群体智能」上更强。
 - **一条路线图条目，只做增补不重复开条**：`topic_08 #457`（技能演进的异构评审与有界收敛闭环套件）—— 本轮独立复核了它的核心判断成立，并补上它原本没覆盖的另一半：**解耦评审者还不够，尺子也要解耦**。
 - **SSOT**：`temp-docs/materials/SKILL_EVOLUTION_ADVANTAGE.md`（技能与插件生态轴主文档，2026-10-22 新增段）· `temp-docs/roadmap/topic_08_skill_toolchain_roadmap.md`（#457）· `https://x.com/dingyi/status/2108395750128542180`
 
