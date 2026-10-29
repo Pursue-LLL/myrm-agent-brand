@@ -117,6 +117,26 @@ A team is only useful if what it ships can be checked. Myrm makes three things e
 
 Verified: Hermes' multi-agent game demo relies on an `ENGINE_CONTRACT` plus a critic agent, yet shipped no playable deployment and no runtime record of which contract version each agent followed (compared 2026-10-27). Myrm keeps the contract reusable, makes review a separate role, and keeps every deliverable openable.
 
+### 15. Coordination Layers Compared: BAND and Friends
+
+Tools like BAND put a shared room around local coding agents (Claude Code, Codex, Hermes): shared context, task ownership, handoffs, and human approvals. That is a good idea, and Myrm covers the same ground differently — plus a few things a coordination layer cannot.
+
+**Where Myrm matches or exceeds**
+
+- **External CLIs join as workers** — Myrm installs and authenticates Claude Code, Codex and other CLIs as external agent backends, then delegates tasks to them with streaming and session resume. You keep the subscriptions you already pay for.
+- **Human approval is a gate, not a chat message** — approval cards, a replay-safe approval journal, and a pre-flight cost estimate before a multi-agent run spends anything.
+- **Completion is verified, not claimed** — a separate verifier inspects the workspace diff; an agent saying "done" is not evidence.
+- **Parallel work is isolated** — per-task git worktrees plus a project-level turn lock, so two agents editing the same repository do not overwrite each other.
+- **Cost and model per agent** — each agent can run a different model and budget, with per-agent usage breakdown afterwards.
+
+**Where BAND is still ahead — honestly**
+
+- **One task-room surface** — BAND's single room ("who is working, what is blocked, who is waiting on you") is tighter than Myrm's current split across Kanban, the subagent dashboard and approval cards.
+- **Free-form room conversation** — in Myrm, external CLIs participate as delegated workers/backends; they do not chat freely as peers in a room.
+- **Cross-owner rooms** — Myrm deliberately does not do cross-organization agent rooms today (privacy and credential boundaries outweigh the benefit).
+
+If you are migrating from BAND: your external CLIs still work, your approval habits carry over, and you gain verification, cost visibility, persistent memory and MIT-licensed self-hosting. The one thing you may miss is the room view — it is on our roadmap, not in the product yet.
+
 ## How to Get Started
 
 1.  Open the **Myrm Agent WebUI**, and navigate to the Workflow or Kanban section.
