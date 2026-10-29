@@ -302,7 +302,7 @@ export function highlightSlideBasePath(slideKey: HighlightSlideKey): string {
 /** Compare table row fields required in both locales. */
 export const COMPARE_ROW_FIELDS = ['feature', 'hermes', 'openclaw', 'myrmAgent'] as const;
 
-export const USE_CASE_KEYS = ['research', 'coding', 'automation', 'content', 'team'] as const;
+export const USE_CASE_KEYS = ['research', 'coding', 'automation', 'content', 'office', 'team'] as const;
 
 export type UseCaseKey = (typeof USE_CASE_KEYS)[number];
 

@@ -15,6 +15,7 @@
 import { useTranslations } from 'next-intl';
 import {
   PencilEdit01Icon,
+  Presentation01Icon,
   RepeatIcon,
   Search01Icon,
   SourceCodeIcon,
@@ -29,6 +30,7 @@ const USE_CASE_ICONS: Record<UseCaseKey, typeof Search01Icon> = {
   coding: SourceCodeIcon,
   automation: RepeatIcon,
   content: PencilEdit01Icon,
+  office: Presentation01Icon,
   team: UserGroupIcon,
 };
 
