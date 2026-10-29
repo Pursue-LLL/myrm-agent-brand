@@ -93,7 +93,7 @@ function usage(): never {
     [
       'Usage: bun run release:website -- website-v1.2.0 [--dry-run]',
       '',
-      'Preflight (clean tree, sync main, tag check, build, test) → git tag → push tag.',
+      'Preflight (clean tree, sync main, tag check, claims, build, test) → git tag → push tag.',
       'Tag push triggers GHA website-release.yml → POST CF Deploy Hook (secret only in GitHub).',
       'Use --dry-run to validate preflight without tag push.',
     ].join('\n'),
@@ -164,7 +164,9 @@ function ensureMainSyncedWithOrigin(): void {
 }
 
 function runReleasePreflight(): void {
-  console.info('[release-website] Running build + test preflight…');
+  console.info('[release-website] Running claims + build + test preflight…');
+  // 宣称门禁的锚点在 monorepo 的 myrm-agent/ 里，只有本地 preflight 能满足，CF Pages 与 GHA 的单仓检出不能。
+  runInWebsite('bun run validate:claims');
   runInWebsite('bun run build');
   runInWebsite('bun run test');
 }

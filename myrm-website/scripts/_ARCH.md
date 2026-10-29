@@ -10,7 +10,8 @@
 | `i18n-ko-bulk-translate.py` | 辅助 | 从 en SSOT 批量机翻 `locales/ko.json`（Google Translate + placeholder 保护；缓存 `locales/.ko-translate-cache.json`） | ✅ |
 | `validate-docs-slugs.ts` | 核心 | 营销 slug ↔ Mintlify nav ↔ MDX orphan（en/zh/ko 三语） | ✅ |
 | `bake-desktop-release.ts` | 核心 | 构建前写入 `public/desktop-release.json` | ✅ |
-| `release-website.ts` | 核心 | 本地应急：preflight + push tag（GHA POST Hook） | ✅ |
+| `release-website.ts` | 核心 | 本地应急：preflight（claims + build + test）+ push tag（GHA POST Hook） | ✅ |
+| `check-marketing-claims.ts` | 核心 | 营销宣称守门：数量型宣称对照 monorepo 里的代码锚点（`myrm-agent/…`），轮播不得出现 100% 磁贴，官网不得含未交付能力词；锚点只在 monorepo 检出里存在，所以只在本地 preflight 运行，不进 `bun run build` | ✅ |
 | `check-fractal-docs.ts` | 核心 | 品牌仓 _ARCH 存在 + 核心文件 IOP 门禁 | ✅ |
 | `docs-contract.test.ts` | 辅助 | docs-contract locale 单测 | — |
 | `desktop-release.test.ts` | 辅助 | desktop-release 解析单测 | — |
@@ -24,7 +25,7 @@
 
 `bun run build` → `validate:locales` → `validate:docs-slugs` → `bake:release` → `next build`
 
-CF Pages / 本地 `bun run build` 按序执行 `validate:locales` → `validate:docs-slugs` → `bake:release` → `next build`。
+CF Pages / 本地 `bun run build` 按序执行 `validate:locales` → `validate:docs-slugs` → `bake:release` → `next build`。`validate:claims` 需要 monorepo 里的 `myrm-agent/` 锚点，单仓检出（CF Pages、GHA）里找不到，因此只在 `release:website` 的本地 preflight 里先于 build 运行。
 
 **部署仅两条路径**（见仓根 `ARCHITECTURE.md`）：
 

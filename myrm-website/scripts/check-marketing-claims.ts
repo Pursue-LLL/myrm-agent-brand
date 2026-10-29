@@ -4,13 +4,13 @@
  * - myrm-agent / myrm-agent-harness 仓库内的代码锚点（数量型宣称的 SSOT）
  *
  * [OUTPUT]
- * - CI 校验：官网上的**数量型宣称**必须与代码 SSOT 一致；轮播磁贴不得出现
+ * - 发布前校验：官网上的**数量型宣称**必须与代码 SSOT 一致；轮播磁贴不得出现
  *   「100%」这类读起来像统计结论的绝对表述；官网不得出现未交付能力的宣称
  *
  * [POS]
  * 营销数字守门人。背景：一次日译/改写里先后出现过「内置智能体 25 vs 代码 28」、
  * 「技能模式 113 vs 文档 108」、「IoT 桥能力根本不存在」等漂移。人工核对无法防止复发，
- * 因此把「数量 → 代码锚点 → 期望值」写成注册表，由本脚本在 CI 里持续断言：
+ * 因此把「数量 → 代码锚点 → 期望值」写成注册表，由本脚本在本地发布 preflight（`release:website`）里持续断言：
  * ① 锚点文件里仍能找到期望值（防止注册表自己过期）；② 三语官网的对应数字与期望值一致；
  * ③ 轮播没有 100% 磁贴；④ 官网不含未交付能力词。
  */
@@ -93,9 +93,10 @@ const COUNT_CLAIMS = [
     slide: 'functionHooks',
     locales: { zh: [/(\d+)\+?\s*生命周期钩点/], en: [/(\d+)\+?\s*lifecycle hooks/], ko: [] },
   },
+  // 以下三条百分比没有可复现的公开测量依据：锚点是站点或产品自己的文案，只防轮播磁贴与文案互相漂移，不构成性能证据。
   {
     id: 'sandboxPeekBandwidth',
-    anchor: 'temp-docs/materials/BROWSER_AUTOMATION_ADVANTAGE.md',
+    anchor: 'myrm-agent-brand/myrm-website/locales/zh.json',
     expect: 90,
     literal: '带宽消耗较纯 VNC 骤降 90%',
     slide: 'agentSandbox',
@@ -104,18 +105,18 @@ const COUNT_CLAIMS = [
   },
   {
     id: 'subagentTokenSaving',
-    anchor: 'temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md',
+    anchor: 'myrm-agent/myrm-agent-frontend/locales/zh.json',
     expect: 85,
-    literal: '节省 85%+ Token',
+    literal: 'Token 账单立降 ~85%',
     slide: 'multiAgent',
     slideOnlyIf: '%',
     locales: { zh: [], en: [], ko: [] },
   },
   {
     id: 'adversarialDefectMiss',
-    anchor: 'temp-docs/materials/SUBAGENT_AND_ORCHESTRATION_ADVANTAGE.md',
+    anchor: 'myrm-agent-brand/myrm-website/locales/zh.json',
     expect: 70,
-    literal: '隐蔽缺陷漏检率直接降低',
+    literal: '隐蔽缺陷漏检率降低 70%+',
     slide: 'asyncReview',
     slideOnlyIf: '%',
     locales: { zh: [], en: [], ko: [] },
@@ -155,7 +156,7 @@ const FORBIDDEN_STATS = ['100%'];
 
 /**
  * 归属拔高词：把**我方内部对照实验**说成竞品实测。真实案例：600 条语料 0 命中是
- * 我方旧版 legacy 通道的对照（materials/MEMORY_ADVANTAGE.md:502,519），官网曾写成
+ * 我方旧版 legacy 通道的对照，官网曾写成
  * 「竞品式通道」，读者会误以为是竞品数据。
  */
 const MISATTRIBUTED_PHRASES = ['竞品式通道', 'capped channel matched'];
