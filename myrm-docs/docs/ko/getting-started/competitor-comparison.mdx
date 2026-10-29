@@ -1137,7 +1137,7 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
   3. **Doctor Fail-Loud 진단 프로브 (`server_diagnostics.py::OllamaModelContextDiagnostic`)**: 활성 Ollama 모델 상태 및 64K agentic 별칭 비율을 능동적으로 점검하여 `/health/doctor`에 보고;
   4. **KV Cache VRAM 분석 및 24/7 상주/해제 가이드 (`HardwareCookbook.tsx`)**: 64K Agentic 배지, 동적 FP16/Q8 KV 캐시 VRAM 분석 및 24/7 keep-alive 봇 운영 vs 의도적 GPU VRAM 해제 가이드를 제공;
   5. **전체 스택 테스트 검증**: `test_hardware_api.py`에서 샌드박스 격리, 자동 Modelfile 생성, 모델 연동 삭제 테스트 100% 통과.
-- **자료 SSOT:** `temp-docs/materials/COMPETITIVE_ADVANTAGE_LOCAL_MODEL.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md` · `myrm-agent/myrm-agent-server/app/api/integrations/hardware.py` · `myrm-agent/myrm-agent-server/app/core/infra/health/server_diagnostics.py` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/model-service/HardwareCookbook.tsx`
+- **자료 SSOT:** `temp-docs/materials/COMPETITIVE_ADVANTAGE_LOCAL_MODEL.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md` · `myrm-agent/myrm-agent-server/app/api/integrations/hardware/cookbook.py` · `myrm-agent/myrm-agent-server/app/core/infra/health/server_diagnostics.py` · `myrm-agent/myrm-agent-frontend/src/components/features/settings/model-service/HardwareCookbook.tsx`
 
 ## 최신 검증 스냅샷 (2026-08-26 · 기업급 중립 플랫폼 업무 자산 보존 HUD 및 데이터 주권 안내 · Roadmap Topic 07 #1 완료)
 
@@ -1205,11 +1205,11 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
 
 
 - **Reference Ladder 등급 차트 및 64K KV 캐시 하드웨어 쿡북 (vs Hermes Reference Ladder / whichllm CLI / Open WebUI):** Myrm은 실시간 하드웨어 감지, Transformer 레벨 64K KV 캐시 메모리 예측 및 대화형 하드웨어 시뮬레이터 파이프라인을 구축했습니다:
-  1. **Transformer 64K KV 캐시 메모리 물리 모델링 (`hardware_calculator.py`)**: 멀티헤드/GQA 어텐션 구조를 기반으로 동적 KV 메모리($VRAM_{KV} = 2 \cdot L \cdot H_{kv} \cdot D \cdot C \cdot B / 1024^3$)를 FP16 (2.0B), Q8 (1.0B), Q4 (0.5B) 3단계로 정밀 계산하여 긴 컨텍스트 실행 시 발생하는 메모리 부족(OOM) 오류를 원천 방지;
+  1. **Transformer 64K KV 캐시 메모리 물리 모델링 (`hardware/calculator.py`)**: 멀티헤드/GQA 어텐션 구조를 기반으로 동적 KV 메모리($VRAM_{KV} = 2 \cdot L \cdot H_{kv} \cdot D \cdot C \cdot B / 1024^3$)를 FP16 (2.0B), Q8 (1.0B), Q4 (0.5B) 3단계로 정밀 계산하여 긴 컨텍스트 실행 시 발생하는 메모리 부족(OOM) 오류를 원천 방지;
   2. **5단계 Reference Ladder 등급 분류 (Rung 1 ~ Rung 5)**: 사용 가능한 VRAM(Apple Silicon 통합 메모리 OS 예약 포함)을 Entry(`<10GB`, 0.5B-3B)부터 Flagship(`80GB+`, 70B+)까지의 표준 능력 사다리에 자동 매핑;
   3. **대화형 크로스 머신 하드웨어 시뮬레이터 (`HardwareCookbook.tsx` & `hardwareSimulator.ts`)**: 사용자가 WebUI에서 4GB~128GB VRAM 슬라이더를 조절하여 다양한 기기에서의 모델 Fit Score, 생성 속도(~tok/s) 및 64K 안전 마진을 실시간 시뮬레이션 가능;
   4. **전체 스택 테스트 검증**: 백엔드 단위/통합 테스트 25개 및 프론트엔드 Vitest 단언 23개 100% 통과, 0 에러, 0 좀비 프로세스.
-- **자료 SSOT:** `temp-docs/materials/COMPETITIVE_ADVANTAGE_LOCAL_MODEL.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md` · `myrm-agent-server/app/api/integrations/hardware_calculator.py` · `myrm-agent-frontend/src/components/features/settings/model-service/HardwareCookbook.tsx`
+- **자료 SSOT:** `temp-docs/materials/COMPETITIVE_ADVANTAGE_LOCAL_MODEL.md` · `temp-docs/roadmap/topic_06_context_session_roadmap.md` · `myrm-agent-server/app/api/integrations/hardware/calculator.py` · `myrm-agent-frontend/src/components/features/settings/model-service/HardwareCookbook.tsx`
 
 ## 최신 검증 스냅샷 (2026-08-23 · 결측 시맨틱 계약 매트릭스 및 페일클로즈 베어메탈 실행 금지 게이트 · Roadmap Topic 15 #5 완료)
 
