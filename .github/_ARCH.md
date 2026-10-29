@@ -14,7 +14,7 @@
 
 | 文件 | 触发 | 职责 |
 |------|------|------|
-| `pr-check.yml` | PR → `main`（`myrm-website/**`、`myrm-docs/**`、workflows） | `lint` + `validate:locales` + `validate:docs-slugs` + `test` |
+| `pr-check.yml` | PR → `main`（`myrm-website/**`、`myrm-docs/**`、workflows） | `lint` + `validate:locales` + `validate:docs-slugs` + `test`；docs 侧 `validate:fractal-docs` + `validate:private-refs` + `test` |
 | `website-release.yml` | `website-v*` tag push | preflight → assert `origin/main == tag` → POST `CF_PAGES_DEPLOY_HOOK` → smoke |
 
 详情见 [workflows/_ARCH.md](workflows/_ARCH.md)。

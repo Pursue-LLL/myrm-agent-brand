@@ -20,7 +20,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **诚实边界**：路由是**按 Agent 开启**的——需要在 Smart Routing 里选择轻量/推理模型后生效（3 个 Pareto 预置已内置配置），不是所有 Agent 默认开启；我们也**不会**为每次请求并行调用多个模型再挑最好（拿延迟和成本换边际收益，不划算）。
 - **为什么重要**：换模型不应该悄悄改变回答质量与账单。用户能看见谁答的、为什么是它、花了多少，而不是信任一个黑盒。
 - **便宜的判官没有「一票定生死」的权力**：要不要找你批准是规则算出来的，不是分类器判出来的（`myrm-agent-harness/.../security/self_rule_integrity_guard.py:103-154`）；花钱与不可逆动作的弹窗里没有「总是允许」（`PolymorphicApprovalCard.tsx:360-372`）；你在掩码卡片里填的密钥，只对批准过的那条命令生效一次（按命令 SHA-256 绑定，`executors/local/executor.py:685-693`）。**判错一次的代价是一次重试，而不是一个被静默放弃的任务或一把泄露的密钥。**
-- **还没做的，我们明说**：类型化决策原语（`choice`/`score`/`noul` 与校准概率）和路由策略影子试跑 / 决策账本仍在路线图上（`topic_07 #299`、`#97`），**不在已交付清单里**。
+- **还没做的，我们明说**：类型化决策原语（`choice`/`score`/`noul` 与校准概率）和路由策略影子试跑 / 决策账本仍在路线图上，**不在已交付清单里**。
 - **模型厂商自建 harness，也不等于你只能用它的壳**：厂商出了自己的 Agent，同一个模型仍然绑在它的套餐、额度与日志里。Myrm 走 BYOK + 开源，换厂商不用重写技能、记忆与规则，而且上面那条逐答案归因与成本照样保留。
 
 ## 不盯梢：交出去，回来拿结果（2026-10-27 实测）
@@ -30,7 +30,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 - **后台任务耐久**：离线任务断线/重启后从数据库恢复；桌面端在长任务期间阻止休眠。
 - **完成会找到你**：26 个渠道、站内通知、Catchup 收件箱，回来一眼看清「完成了什么、哪些在等你、哪些失败了」。
 - **空报告不打扰**：定时任务支持 `[SILENT]` 契约，例行检查没变化就不推送。
-- **诚实边界**：过程可见度三档（结果 / 关键里程碑 / 全轨迹，topic_09 #226）与通知聚合（topic_09 #448）仍在 roadmap，尚未交付；目前可以通过后台任务、cron、Goal Mode 实现「交出去、完成再叫我」，但还没有一键「专注一小时」入口。
+- **诚实边界**：过程可见度三档（结果 / 关键里程碑 / 全轨迹）与通知聚合仍在 roadmap，尚未交付；目前可以通过后台任务、cron、Goal Mode 实现「交出去、完成再叫我」，但还没有一键「专注一小时」入口。
 
 ## 技能质量：adherence × effect（2026-10-27 实测）
 
@@ -38,7 +38,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 
 - **已交付**：技能使用三态归因（selected / used / observable）、26 类威胁 / 113 条模式静态扫描、权限模板与技能体检、渐进披露（技能再多也不会每轮全量塞进 Prompt）。
 - **项目级技能**：工作区内任意目录的 `SKILL.md`（默认深度 3）都会被识别，带 workspace 信任门禁与 SQLite 快照；仓库可以把自己的专家模式随代码版本化，`.claude/skills/` 可直接复用。
-- **roadmap（未交付）**：双分评测本身——activation → fidelity → benefit 三段分解（`topic_14 #198`）、技能沙箱黄金轨迹（`topic_14 #178`）、A/B 选用感知（`topic_14 #171`）。
+- **roadmap（未交付）**：双分评测本身——activation → fidelity → benefit 三段分解、技能沙箱黄金轨迹、A/B 选用感知。
 - **诚实边界**：不宣称「每个技能都过了双分评测」，也不发布「技能榜第一」类排名——星标月漂移约 43%，不能当质量信号。
 
 ## Agent 团队：验证优先，不是数量优先（2026-10-27 实测）
@@ -46,7 +46,7 @@ Myrm 被设计为完整的 AI Agent 工作空间。与仅面向终端的编程 A
 竞品喜欢宣传「25+ agents」「200+ agents」。数量不是能力——**一个无法验证自己工作的团队，只是噪音**。Myrm 的设计围绕验证展开：
 
 - **已交付**：5 个团队模板（leader + members）、Kanban worker/lead 与任务 DAG、goals 验收（真实 shell/语义断言，不通过就 pause，而不是假装完成）、无人值守只放行声明过的能力集、26 渠道完成通知、Fleet KPI 看板。
-- **roadmap（未交付）**：完整 Chief of Staff 角色（topic_18 #52）与 `/fleet` 指挥台。
+- **roadmap（未交付）**：完整 Chief of Staff 角色与 `/fleet` 指挥台。
 - **诚实边界**：我们不卖「支持多少 Agent」，卖的是「没过验收就不算完成」。
 
 ## 复杂任务：完成条件、独立验收、结构化交接（2026-10-28 实测）
@@ -115,10 +115,10 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
   - **「除了自我优化还能输出什么」→ 产出必须过物理证据**：`agent/goals/verification/gatekeeper.py:44` 按判据核验，`agent/goals/verification/fault_attribution.py:132` 区分应用逻辑 / 编译 / 测试断言类故障——「做完了」不是模型自己说了算。
   - **进化管道已生产接线**：`agent/skills/evolution/infra/integration.py:214` 构造引擎；server 侧 `app/api/skills/evolution/derive.py:55` 与 `app/api/skills/evolution/fix.py:45`；人工审批闸在前面（`app/services/agent/confidence_approval_flow.py:52`，自动合并阈值 0.8）。
 - **我们自己两处诚实差距（未交付，不得宣传）**：
-  1. **评审者与提案者是同一个模型** —— `agent/skills/evolution/core/engine.py:105-106` 用同一 LLM 实例既生成变体又打分；专为「异源评审」造的独立 judge 通道 `agent/skills/evolution/safety/judge.py:46` **全仓无任何构造点**。⇒ 「近亲繁殖」这条批评，用在我们身上也成立一部分。已由 `topic_08 #457` 承接。
+  1. **评审者与提案者是同一个模型** —— `agent/skills/evolution/core/engine.py:105-106` 用同一 LLM 实例既生成变体又打分；专为「异源评审」造的独立 judge 通道 `agent/skills/evolution/safety/judge.py:46` **全仓无任何构造点**。⇒ 「近亲繁殖」这条批评，用在我们身上也成立一部分。已在路线图上。
   2. **回归门禁的尺子本身可被提案者改写** —— `agent/skills/evolution/pipeline/variant_generator.py:320-336` 让同一个模型把 `eval_cases` 随内容一起共演化，`app/services/agent/confidence_approval_flow.py:140` 把它写回技能记录，于是**下一轮**的门禁（`agent/skills/evolution/core/eval_regression.py:49`）就是用被改写后的用例在量。**单轮内不漂移**（原版是基线），**跨轮会漂移**。
   3. **我们不做「多 bot 群聊自改」这个形态** —— 我方是单 Agent 技能演化 + 子代理编排（`agent/sub_agents/`）；不抄这个形态，也不宣称我们在「群体智能」上更强。
-- **一条路线图条目，只做增补不重复开条**：`topic_08 #457`（技能演进的异构评审与有界收敛闭环套件）—— 本轮独立复核了它的核心判断成立，并补上它原本没覆盖的另一半：**解耦评审者还不够，尺子也要解耦**。
+- **路线图上**：技能演进的异构评审与有界收敛闭环套件——**解耦评审者还不够，尺子也要解耦**。
 - **SSOT**：`https://x.com/dingyi/status/2108395750128542180`
 
 ## 最新验证快照（2026-10-22 · 顶级高校用整整一周讲 Agent Skills · 斯坦福 CS146S 第三周就是「Agent Skills 与 CLI」 · 讲义里的规矩我们大多已是产品默认，缺的那两条正是我们要补的）
@@ -138,10 +138,10 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
   - **验收标准写在技能里**：技能自带绑定回归用例（捕获时生成），背后是改进闸与回归门禁（`agent/skills/evolution/pipeline/structured_extractor.py:113`、`pipeline/variant_generator.py:104`、`core/engine.py:241-253`、`core/eval_regression.py:30,34`）。
   - **「干预点 = 技能点」我们做成了自动的**：轨迹复盘把会话变成技能草稿（或判定无价值），失败归因写进技能正文（`agent/skills/evolution/review/reviewer.py`、`core/engine.py:430`、`pipeline/variant_generator.py:80`）。
 - **我们不宣称的部分（诚实差距）**：
-  1. **「大多数技能失败于从未被触发」这一格的 description 侧我们还没解** —— 课程给的是概率性建议，@Thomas3cnl 指出显式指定更稳，我们交付了显式指定，**但没有帮用户自动写出好 description 的工具**（与 `topic_08 #480` 同族）。
-  2. **技能产物仍缺「改对的例子」段** —— 讲义与社区都提了（已登记在 `topic_08 #71`）。
+  1. **「大多数技能失败于从未被触发」这一格的 description 侧我们还没解** —— 课程给的是概率性建议，@Thomas3cnl 指出显式指定更稳，我们交付了显式指定，**但没有帮用户自动写出好 description 的工具**。
+  2. **技能产物仍缺「改对的例子」段** —— 讲义与社区都提了（已在路线图上）。
   3. **我们没有课程化的学习路径** —— 斯坦福用五周从「Agent 会用工具」走到「代码库为 Agent 而生」，我方对应的能力路径条目尚未交付，**不宣传**。
-- **一条路线图条目，只做增补不重复开条**：`topic_08 #481`（能力路径与渐进上手套件）—— 本轮补入它最强的外部证据（顶级高校单开一周讲技能）与「显式路径优于描述概率」的边界；`topic_08 #71` 追加一句外部印证。
+- **路线图上**：能力路径与渐进上手套件——目前最强的外部证据是顶级高校单开一周讲技能，以及「显式路径优于描述概率」的边界。
 - **SSOT**：`https://themodernsoftware.dev` · `https://x.com/shao__meng/status/2108400281402908960`
 
 ## 最新验证快照（2026-10-22 · 「做 2–3 次，然后喂会话 ID 生成技能」 · 一份被 130 赞验证过的**人工版**技能蒸馏配方 · 我们做的是同一件事，但自动、并且多两道它没有的质量门）
@@ -155,10 +155,10 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
   - **它没有的两道质量门**：技能**自带回归用例**（`variant_generator.py:104`、`agent/skills/evolution/pipeline/structured_extractor.py:113`）；**改进闸**把原版作基线候选一起参评，没有变体更好就跳过这次进化（`agent/skills/evolution/core/engine.py:241-253`）；**回归门禁**只守护原技能已通过的用例（`agent/skills/evolution/core/eval_regression.py:30,34`）。
   - **最后仍要人签字**：草稿列表 / 详情 / 批准 / 驳回端点 + 实体化（`myrm-agent/myrm-agent-server/app/api/skills/drafts.py:104,125`、`app/api/skills/draft_materialize.py:99`、前端 `myrm-agent/myrm-agent-frontend/src/services/skill/core.ts:709-762`）。
 - **我们不宣称的部分（诚实差距）**：
-  1. **我们的技能产物缺两段显式结构：决策点与良好输出示例**。原帖明确要求「参考文件、我的更正、**决策点**和**良好输出的示例**」；我们的骨架（`variant_generator.py:51-111`）有 Editing Principles / Hard Constraints / Conservative Editing / Failure Attribution / User Preference Embedding / Bound EvalCases / Output Requirements —— **更正与参考都有，决策点与好输出示例没有**。这条低成本缺口已写入 `topic_08 #71`。
+  1. **我们的技能产物缺两段显式结构：决策点与良好输出示例**。原帖明确要求「参考文件、我的更正、**决策点**和**良好输出的示例**」；我们的骨架（`variant_generator.py:51-111`）有 Editing Principles / Hard Constraints / Conservative Editing / Failure Attribution / User Preference Embedding / Bound EvalCases / Output Requirements —— **更正与参考都有，决策点与好输出示例没有**。这条低成本缺口已列入路线图。
   2. **没有「采样 2–3 次」的显式要求，也没有跨任务验收闭环** —— 我们的改进闸是**同一技能内**与原版基线竞争，不是**在新任务上验证再回补**。
   3. **没有「什么时候该沉淀」的引导** —— @thekuchh 的 152 赞问题在我们这边同样成立，属能力路径条目的范畴，未交付、不宣传。
-- **一条路线图条目，只做增补不重复开条**：`topic_08 #71`（会话成功经验一键逆向固化为技能与跨会话交接档案套件）—— 本轮证明**这条要自动化的东西已被社区当成人人可用的配方在用**，并把缺的两段结构写成了验收标准。
+- **路线图上**：会话成功经验一键逆向固化为技能与跨会话交接档案套件——**这条要自动化的东西已被社区当成人人可用的配方在用**，缺的两段结构由此成为验收标准。
 - **SSOT**：`https://x.com/shannholmberg/status/2108459414961389680`
 
 ## 最新验证快照（2026-10-22 · 一个文件夹 + 两行 symlink：把同一份规则与技能送到每个 Agent 客户端 · 评论区点名了这套方案真正的洞，也点出了我们真正更强的那一格）
@@ -187,14 +187,14 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
   2. **我们的项目规则仍是整块静态注入**（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/workspace_rules/scanner.py` 与 `middleware.py`），**尚未按域分片与按需加载**。
   3. **我们的一切带不走** —— 记忆、技能与审计都锁在我方产品内，**换工具就断**。
   4. **我们没有「fork 别人整套设置再删减」的形态** —— 我们的技能来自市场与内置集，不是 fork 一个配置包。
-- **一条路线图条目，只做增补不重复开条**：`topic_08 #54`（项目根目录规程 [CLAUDE.md/.cursorrules/AGENTS.md] 多规范智能感知、语义结构化解析与一键无缝技能化桥接套件）—— 本轮补入 **指针式路线**（每仓库一行 + symlink + 一处管理）与该条规划的**解析式路线**（感知 → 结构化 → 技能化 → 按需加载）的路线对照，并把六条评论写成该条的验收约束。
+- **路线图上**：项目根目录规程 [CLAUDE.md/.cursorrules/AGENTS.md] 多规范智能感知、语义结构化解析与一键无缝技能化桥接套件——**指针式路线**（每仓库一行 + symlink + 一处管理）与规划中的**解析式路线**（感知 → 结构化 → 技能化 → 按需加载）互为对照，六条评论成为验收约束。
 - **SSOT**：`https://x.com/sairahul1/status/2108559612173574533`
 
 ## 最新验证快照（2026-10-22 · 微软论文：用离线使用日志挖技能 · 我们早就有这些日志，缺的是那把尺子 · 顺带订正我们路线图里自己写的一处口径）
 
 - **触发来源**：X @rohanpaul_ai（`https://x.com/rohanpaul_ai/status/2108543003505705304`，2026-10-09 21:00 北京时间；**25 回复 / 18 转推 / 87 赞 / 58 书签**，附 1 张图）解读微软 + UNC Chapel Hill 的 **TeleTune**（`arXiv:2610.05437`）。本轮用 ChromeAgent :9410 + chrome-devtools MCP 抽主帖 + **11 条可见回复**。
 - **本帖比论文多讲清的一件事（适用边界）**：「使用日志包含大量专业知识，但它们**不记录目标**、经常**混合多个任务**、且**无法重放**。早期方法（如 Agent Workflow Memory）需要**带目标标注的样本**或**实时环境**来测试改动。」做法是：猜每个会话的目标 → 用文本技能库预测每个记录动作 → **只在留出日志上准确率上升时才保留编辑**。适用对象也被点名：「如果你的产品记录用户活动」。
-- **评论区新增四条**（该线程其余内容已在路线图 `topic_08 #439` 收录）：
+- **评论区新增四条**（该线程其余内容已在路线图上覆盖）：
   - @Greg_GL_87（**57 赞**）：「Would this work for a **Chrome extension that records browser tasks**, or only for the benchmark sites?」—— 正好问在我们主战场上。
   - @overshadowed_x（43）：「**most skill libraries I see just grow forever**」—— 熵增。
   - @lwkfFiki9496664（56）：「real usage logs are usually a **noisy mess**」—— 日志噪声。
@@ -209,7 +209,7 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
   2. **我们没有像论文那样从原始动作日志挖技能** —— 我们的技能演化由会话复盘与挫败信号触发，没有「猜目标 → 逐动作预测」这一步。
   3. **噪声与故意异常尚无对策** —— 用户有意为之的怪操作目前没有任何机制阻止它被蒸馏成技能；这必须进该条的设计约束，而不是事后补丁。
   4. **不对外宣传** —— 核心能力未交付，只进 materials。
-- **一条路线图条目，只做增补不重复开条**：`topic_08 #439`（离线遥测轨迹 Teacher-Forced 下一动作预测进度门禁套件）—— 论文机制早已在该条逐段留证；本轮补入四条新评论、复核后的缺口状态与上面那处订正，并明确写下：**我们的日志已经有了，尺子还没有**。
+- **路线图上**：离线遥测轨迹 Teacher-Forced 下一动作预测进度门禁套件——论文机制已逐段对照到我们的设计；四条新评论、复核后的缺口状态与上面那处订正一并纳入，并明确写下：**我们的日志已经有了，尺子还没有**。
 - **SSOT**：`https://arxiv.org/abs/2610.05437` · `https://x.com/rohanpaul_ai/status/2108543003505705304`
 
 ## 最新验证快照（2026-10-22 · 包管理器也能装技能了 · pnpm v12.11 发布 Agent Skills，而它自己的文档就写明了代价：一次批准覆盖后续所有版本 · 我们读了官方文档，我们的答案是「逐次改动可见」）
@@ -237,7 +237,7 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
   2. **我们不提供「整包一次批准」的轻量模式**：我们是逐技能准入 + 逐次差异，**更严但也更啰嗦**；对只想「一次装一包」的用户，pnpm 确实更省事。
   3. **技能目录的白话可读性不足**：pnpm 靠一条命令 + 社区漫画把概念讲清楚；**我们若要接包管理器渠道，先要修的是「技能目录的白话说明」，而不是再加一个安装入口**。
   4. **我们没有 pnpm 那套克制的链接语义**（链接 + `.gitignore` + 绝不碰非自己创建的条目），我们的技能安装是目录式接管，两者不可直接比较。
-- **一条路线图条目，只做增补不重复开条**：`topic_08 #49`（技能三方合并安全更新与装前沙箱安全审计套件）—— 本轮补入的是该条最强的外部证据：**竞品自己的文档写明一次批准会静默覆盖该包后续版本的每个技能，而它的用户已经在要求「技能变了就把差异给我看」**。
+- **路线图上**：技能三方合并安全更新与装前沙箱安全审计套件——最强的外部证据来自对方自己的文档：**一次批准会静默覆盖该包后续版本的每个技能，而它的用户已经在要求「技能变了就把差异给我看」**。
 - **SSOT**：`https://pnpm.io/agent-skills` · `https://x.com/pnpmjs/status/2108646891902640466`
 
 ## 最新验证快照（2026-10-22 · Hyperliquid 上出现「自主交易代理」 · 我们读了四个真实项目，而不是照信帖子 · 他们共同的安全模型是「凭据分层 + 硬性上限」，我方在「花钱」这一侧是同构形态且已交付）
@@ -255,7 +255,7 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
   2. **没有链上或交易所接入**：没有钱包、没有撮合、没有资金费、没有强平。
   3. 我们的限额语义是「商户 + 类目 + 金额」，不是交易所级的「仓位上限 + 杠杆上限 + 强平线」；**没有逐仓风控，也没有自动平仓**。
   4. **我们不提供「把签名器交给外部 CLI」的形态**：我方是产品内的工作流与审批面（WebUI / 桌面端 / 渠道）。
-- **一条路线图条目，只做增补不重复开条**：`topic_16 #320`（预算即授权预审批契约、无感自主支付限额与合格交付总成本 TCQT 全景对账套件）—— 本轮补入：他们「凭据分层」的写法值得抄进我方对外话术，以及我方一处真实缺口 —— **没有统一的「按工具」机器可读风险契约，也没有 dry-run 预演面**，而那个生态的每个变更命令都带一份。
+- **路线图上**：预算即授权预审批契约、无感自主支付限额与合格交付总成本 TCQT 全景对账套件——他们「凭据分层」的写法很清楚；我方有一处真实缺口：**没有统一的「按工具」机器可读风险契约，也没有 dry-run 预演面**，而那个生态的每个变更命令都带一份。
 - **SSOT**：`https://x.com/mariagpts/status/2108508768111624330`
 
 ## 最新验证快照（2026-10-22 · 竞品给 2027 总统候选人做语音辩论陪练 · 我们核对了源码：Hermes 只提供语音底座，最出彩的那部分并不存在 · 我们这边是完整闭环 —— 实时语音、对齐看板真相的复盘、以及能留下经验的技能）
@@ -275,7 +275,7 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
   1. **没有非言语表现分析** —— 情绪、停顿、口头禅、语速在**竞品镜像里零命中、在我方也零命中**，演示里那套是手工自建；**双方都没有**，因此只登记为需求，不作可对标机制。
   2. **没有开箱即用的「对手陪练」产品形态** —— 我们能做 persona 与多角色编排，但没有一个现成的「记者 / 对手」陪练器。
   3. **我们的复盘面向工作与项目**（看板、记忆、工件、周报），**不是个人表现评估**，两者不混为一谈。
-- **一条路线图条目，只做增补不重复开条**：`topic_16 #84`（本地优先音视频引擎）—— 本轮补入：竞品的语音是打包可选件、我们的实时语音桥与复盘闭环已交付、以及**隐私与自托管必须写进价值主张本身**而不是脚注。
+- **路线图上**：本地优先音视频引擎——竞品的语音是打包可选件，我们的实时语音桥与复盘闭环已交付，**隐私与自托管必须写进价值主张本身**而不是脚注。
 - **SSOT**：`https://x.com/leploutos/status/2108497163688779891`
 
 ## 最新验证快照（2026-10-22 · 竞品把 Word / Excel / PowerPoint 装进操作系统 · 我们逐行核对了它的源码 —— 它不是从零自研，安全网只是一条撤销栈 · 我们这边是「写完自动体检」+「可退到任意一版」）
@@ -302,7 +302,7 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
   2. **没有独立的精确计算面**（他们的 Calc 做精确算术、单位、汇率、时区与函数作图）。
   3. **我们的写后体检是 warn-only，不是 fail-closed**；云端没有 LibreOffice 时，重算与排版 QA 会被跳过 —— 这一点我方 materials 里已如实写明。
   4. **幻灯片与源文档联动**双方都缺，不作可对标机制。
-- **一条路线图条目，只做增补不重复开条**：`topic_16 #365`（真实保真探测、无损保存与「用户手改 → Agent 可见」变更摘要闭环）—— 本轮补入的事实是：竞品的保真报告发生在**读取**侧，安全网是撤销栈，而我们要覆盖的是**写回**侧。
+- **路线图上**：真实保真探测、无损保存与「用户手改 → Agent 可见」变更摘要闭环——竞品的保真报告发生在**读取**侧，安全网是撤销栈，而我们要覆盖的是**写回**侧。
 - **SSOT**：`https://x.com/iamlukethedev/status/2108520360052433317`
 
 ## 最新验证快照（2026-10-22 · 竞品把 Agent 装进操作系统：Herald OS 的权限分层、零模型快路径与崩溃白话诊断 · 我们逐条核对了它的源码，也纠正了它自己的架构图）
@@ -330,7 +330,7 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
   5. **崩溃白话诊断没有接线**——`myrm-agent/myrm-agent-frontend/src/components/features/diagnostics/stderrClassifier.ts:34` 的中文分类器只被 `useStderrDiagnosticStore.ts:27` 调用，而该 store 只在测试里被调用；`ActionableDiagnosticSurfaceCard` 零渲染点；`POST /api/system/failure-triage` 的 `TriageReport`（`myrm-agent/myrm-agent-server/app/core/infra/health/failure_triage.py:63-80`）无前端消费者；**系统健康分是写死的「98/100」假数据（`myrm-agent/myrm-agent-server/app/api/system_assistant/routes.py:64`），任何对外材料不得引用**。
   6. **插件没有「启用前能力清单」这一层 UX**——竞品那套「清单 + 默认关闭 + 逐条展示」我方没有等价物。**禁止把「有权限门禁」说成「有启用前能力披露」——两者不是一回事。**
   7. **没有文件监听触发源，WebUI 对话路径也没有确定性分派**——`TriggerKind` 七档里没有 file-watch（`watchdog` 只用于技能库热重载，`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/backends/skills/watcher.py:21-23`）；确定性命令表只在渠道入站路径。
-- **新增两条尚未交付的路线图条目**：`topic_18 #178`（文件系统观察触发源与零模型原生命令通路，**待分析**）· `topic_10 #253`（运行时崩溃白话诊断与复现性判定接线，**待分析**）。
+- **路线图上，两项均尚未交付**：文件系统观察触发源与零模型原生命令通路· 运行时崩溃白话诊断与复现性判定接线。
 - **官网本轮未改动的理由**：可核对的、我方确实更强的部分（确定性权限闸门、计划→变更→回滚、真实 ACP 委派）**官网已有对应表述**；本轮新发现的三条全部是**尚未交付的差距**，按本项目「不宣传未交付能力」的纪律**不得写进官网**；六项核心能力版块未动。
 - **SSOT**：`https://x.com/iamlukethedev/status/2107765448343261506`
 
@@ -349,7 +349,7 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
   2. **没有公开的「攻击成本 / 残留攻击面」对照表**——只报发现数，不报这套扫描**挡住了什么、挡不住什么**。
   3. **接入不可信 MCP 时缺能力分级降级**——现状是工具不可用 → 该次运行失败（不是「敏感工具被拒、只读继续可用」）。
   4. **技能作者规范里没有强制「不许编造 / 被拒时如实说 / 密钥不上命令行」的硬约束模板**——我们靠执行层拦截兜底，**技能文本本身**没有统一要求。
-- **新增一条尚未交付的路线图条目**：`topic_08 #479`（第三方凭据可重算性与能力分级降级纪律套件，**待分析**）。
+- **路线图上，尚未交付**：第三方凭据可重算性与能力分级降级纪律套件。
 - **SSOT**：`https://x.com/priors_trade/status/2107819071836147885`
 
 ## 最新验证快照（2026-10-22 · 竞品把团队 Agent 接上 X 来触发工作 · 按责任找人 + 让人能拒绝的认领式派单 · 评论区 11 条质疑比主帖更有价值，我们七条诚实差距与一条尚未交付的路线图条目）
@@ -357,7 +357,7 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
 - **触发事件**：X @steipete（OpenClaw 创始人）`https://x.com/steipete/status/2107697554448421160`（2026-10-07 17:00；**6.1 万浏览 / 74 回复 / 25 转推 / 306 赞 / 75 书签**），帖内引用其团队 bot @roboclawbot 开出的 PR 审查会话（PR #166379）。本轮用 ChromeAgent :9410 + chrome-devtools MCP 抽取主帖全文 + **60 余条回复**。
 - **竞品做了什么（三件事接在一起）**：① 用 **X（Twitter）当工作触发入口**；② **未分配会话对所有人开放，先到先领**；③ **Agent 查「最后动过这段代码的人」并在团队服务器上直接 ping 他**；整件事「只是一个提示 + 团队服务器因插件可热重载而自我扩展」。
 - **社区当场指出的代价（信息价值高于主帖）**：@JMkernt「这本质是自助式寻呼……**有意思的失败模式是 Agent 半夜三点 ping 错人，吵醒一年没碰过那段代码的人**」；@leohuanfang「ping 到最后改动者后，**是等认领还是超时改派**？」；@mynameisdesmond「两个人抢同一会话怎么办？**清晰的声明和释放机制**」；@jjfleagle「**让人能带理由拒绝**，能教会它区分『谁改了代码』和『谁拥有它』」；@jeffbruchado「**最后碰过文件的人不应自动成为它的 owner**」；@Atlas_fomo「ping 最后作者就是一次 git log 查询，**比轮转队列强，因为那个人已经把上下文加载好了**；风险是热点文件上同一个人被反复 ping」；@sakshjn「希望它遵守 **.git-blame-ignore-revs**」；@emonuxui「未分配会话把 backlog 变成 **pull 系统**」；@wlodarczykacper「工作从 X 进来，**X 触发的会话也能写插件吗？公开帖是不可信输入** 🙂」。
-- **我方现状（均已用真实代码核对）**：**认领的原子性已有**（`app/core/kanban/adapters/sqlalchemy_store.py:730-758` 的 `claim_task`：`READY → RUNNING` + `worker_id` 落 metadata）；**心跳超时判僵尸已有**（同文件 `:376-378`、`:825-828`）；**`git blame` 可执行已有**（`toolkits/code_execution/security/safe_command_configs/git.py:183`）；**外部入口的写入围栏已有**（不可信入口只读白名单，归 topic_03 #423）。
+- **我方现状（均已用真实代码核对）**：**认领的原子性已有**（`app/core/kanban/adapters/sqlalchemy_store.py:730-758` 的 `claim_task`：`READY → RUNNING` + `worker_id` 落 metadata）；**心跳超时判僵尸已有**（同文件 `:376-378`、`:825-828`）；**`git blame` 可执行已有**（`toolkits/code_execution/security/safe_command_configs/git.py:183`）；**外部入口的写入围栏已有**（不可信入口只读白名单）。
 - **我们不宣称的（诚实差距）**：
   1. **没有「最后修改者」这个一等结构化事实**——server 侧零模块产出「谁最后动过这段代码」的结构化结果，模型只能自己跑 blame 拿一段自由文本。
   2. **认领之后没有「释放 / 带理由拒绝」**——`grep "release_claim\|reassign"` 零命中。
@@ -367,7 +367,7 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
   6. **公共渠道不是我们的工作触发入口**——我们有 X 实时检索与取证，但不是派单入口；且从 X 触发属不可信输入，须先按围栏定写入边界，**不照抄「X 里一句话就能改服务器」**。
   7. **队列范式仍是 push**——没有「未分配即领」的 pull 语义。
   8. **不采用「服务器自我扩展」**——我方是用户自持沙箱 + 三端同构，不做运行时自我扩展。
-- **新增一条尚未交付的路线图条目**：`topic_20 #64`（最后修改者责任路由与可拒绝的认领式派单套件，**待分析**）。
+- **路线图上，尚未交付**：最后修改者责任路由与可拒绝的认领式派单套件。
 - **SSOT**：`https://x.com/steipete/status/2107697554448421160`
 
 ## 最新验证快照（2026-10-22 · 技能渐进披露终于有了可对标的数字：索引 1.2k / 正文 3.1k–5.2k / 交付后卸载回落 · 评论区指出失败点搬到了「选哪个技能」上 · 我们已有「装了不等于用对了」的归因口径，但缺同口径公开数字、缺卸载、缺歧义检查）
@@ -385,7 +385,7 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
   3. **没有描述歧义的执行前检查**——`grep "ambigu\|similar_desc\|description_similarity"` **零命中**；护栏是人工旁路，不是自动的「这两条太像，先问一句」。
   4. **「选了哪个技能」只有个数没有身份**——社区要的逐次可追溯身份我方在会话统计侧尚未成列。
   5. **在拿到同口径实测数字之前，不预设「谁更省」**。
-- **新增一条尚未交付的路线图条目**：`topic_08 #480`（技能渐进披露的加载-卸载闭环与选中可追溯套件，**待分析**）。
+- **路线图上，尚未交付**：技能渐进披露的加载-卸载闭环与选中可追溯套件。
 - **SSOT**：`https://x.com/vibelancer/status/2107773037739204914`
 
 ## 最新验证快照（2026-10-22 · 记忆该怎么放、怎么改、能不能只看一处：Hermes 记忆五条 + 社区追问 · 我们四项基础能力已与竞品同构，真正的差距只有「判据 / 统一时间线 / 冲突检测 / 边界表述」）
@@ -395,7 +395,7 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
 - **社区补上的三件事（作者没讲）**：@hypermageia「我经常遇到 **Agent 把记忆存错地方、或记录互相冲突**」；@humblyonline（对第 4 条的补充）「有时事实**该进数据库，用 CLI 或 MCP 接上**」；@juliusg「本机跑本地 LLM + Nous 云端代理时，**云端能读本地产物，那还算私有吗**？」
 - **我方现状（均已用真实代码核对）**：**纯文本记忆面同构**（`app/schemas/profile_notes.py:59-60,68-69` 的 `user_content` / `memory_content`，字段描述直写「Updated USER.md content」/「Updated MEMORY.md content」；`app/schemas/markdown_chunker.py:58` 的 `source_path` 默认 `"MEMORY.md"`）· **写入审批已有**（`app/schemas/memory/command_center.py:657`「Candidate memory awaiting user approval or graduation」、`app/schemas/memory/crud.py:93`「Pending memory item awaiting user approval」）· **Obsidian 友好导出已有**（`app/api/wiki/router.py:2905` `export_wiki_vault`、`:2920` `build_wiki_export_zip`）· **记忆侧时间线 + 纠正链已交付**· 存储可插拔与语义检索 / 知识图谱 / 自动事实抽取。
 - **我们不宣称的（诚实差距）**：① **没有「这条该放哪」的统一判据**（记忆 / 技能 / 工具 / 知识库四类去处各有机制，但写入前无统一归属判定）② **记忆与技能不在同一条时间线**（技能进化审核在另一套面板）③ **写入前的位置正确性与冲突检测缺位** ④ **「本地 ≠ 私有」这条边界要讲得更硬**（云托管沙箱产物与本机产物的可见性必须说清，不能只说「本地存储」）。
-- **新增一条尚未交付的路线图条目**：`topic_01 #211`（记忆·技能·工件的归属判据与统一时间线套件，**待分析**）。
+- **路线图上，尚未交付**：记忆·技能·工件的归属判据与统一时间线套件。
 - **SSOT**：`https://x.com/witcheer/status/2107866669041283548`
 
 ## 最新验证快照（2026-10-22 · 竞品把「对编程 Agent 说人话，它自己剪片」做到 6.5 万 star · 评论区问出三个真问题：失败该不该停、素材能不能商用、改一处要不要重跑全片 · 我们的三项强项与一个明确缺口）
@@ -405,13 +405,13 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
 - **⚠️ 规模口径校正（本地镜像实测 vs 帖内宣传）**：镜像 `SKILL.md` = **139** 个、工具脚本 = **265** 个、`pipeline` 目录 = **4** 个；帖内称「12 条流水线、100+ 工具、700+ agent skills」，**两者不一致**。**对外一律用镜像实测数并标注快照日期。**
 - **社区问出的三个真问题（比主帖有价值）**：@llloooo24（615 赞）「**我想看的是失败的那次。素材找不到、配音和画面对不上的时候，它停下来问，还是继续把一条完整视频交出来？能交作业很容易。知道哪一步不该继续，才像能用的流水线。**」· @hinanwang（698 赞）「**素材版权**：AI 自己搜来的素材和配的 BGM，**商用会不会埋雷**？没交代清楚之前不敢拿来接单」· @linyiq（421 赞）「最怕『**成片很快，改一处又得重抽奖**』……得能单改镜头、换 BGM、锁字幕，**不用重跑全片**；产出的时间线和素材引用能进常用剪辑软件继续改吗？」
 - **我方现状（均已用真实代码核对）**：**完成与否由物理事实判定**（`agent/_internals/_agent_build.py:98-107` 的中间件链含 `CompletionGuard()` 与 `ToolApprovalMiddleware`）——**「失败就停」在我方是既有机制，在竞品侧还是社区的开放问题**；**交付的是可编辑的中间产物**（`agent/artifacts/vault.py:35-45,42` 的 `VAULT_PREFIX` 与 `sha256_hash`、`core/artifacts/manifest.py:110-140` 的 `DeliverableItem` 含 `version_id` / `vault_uri`、增量 diff 上屏 `fileDiffEvents.ts:31`）；**许可自由度**：我方双仓均 MIT，竞品为 AGPL-3.0。
-- **我们不宣称的（诚实差距）**：① **没有「素材来源与许可谱系」**——在 `app/api/artifacts` 与 `app/services/artifacts` 下检索 `copyright` / `attribution` / `license` / `授权` / `版权` **零命中**；② **我们没有成体系的视频流水线**（`topic_16` 第 12 / 33 / 35 条均为**待分析**，不得当作已交付）；③ **规模不与对手比**：我们不比技能条数，比「每一条都过安全与证据门禁」；④ **不引用对方成本数字**（「1.33 刀 / 60 秒」是对方演示口径）。
-- **新增一条尚未交付的路线图条目**：`topic_16 #411`（媒体产物的素材来源与许可谱系套件，**待分析**）。
+- **我们不宣称的（诚实差距）**：① **没有「素材来源与许可谱系」**——在 `app/api/artifacts` 与 `app/services/artifacts` 下检索 `copyright` / `attribution` / `license` / `授权` / `版权` **零命中**；② **我们没有成体系的视频流水线**（尚未交付，不得当作已交付）；③ **规模不与对手比**：我们不比技能条数，比「每一条都过安全与证据门禁」；④ **不引用对方成本数字**（「1.33 刀 / 60 秒」是对方演示口径）。
+- **路线图上，尚未交付**：媒体产物的素材来源与许可谱系套件。
 
 ## 最新验证快照（2026-10-22 · 官方把「Agent Skills」和「subagents」写进了认证课程 · 证书是副产品，**路径顺序**才是关键 · 我方「教 AI 写技能」已是完整闭环且官网已表述，缺的是面向用户的能力路径）
 
 - **触发事件**：X @Amelia_With_Ai（Amelia Brooks）《Claude is offering 18 official AI courses with certificates. And it's 100% free》（`https://x.com/Amelia_With_Ai/status/2108142676881362977`，2026-10-08 18:29；**2,292 浏览 / 19 回复 / 43 转推 / 75 赞 / 37 书签**）—— Anthropic Academy（`anthropic.skilljar.com`）18 门免费课，其中第 5 门「Introduction to Agent Skills」、第 18 门「Introduction to subagents」、第 8/9 门 MCP、第 7 门 Claude Code in Action。本轮用 ChromeAgent :9410 + chrome-devtools MCP 抽取主帖全文 + **17 条回复**。
-- **信号**：技能、子代理、MCP 已进入**官方认证课程的一级目录**（不是社区教程，是课程 + 证书）→ 技能从「玩票」变成**可教、可考、可写进简历**的职业能力。这与本仓路线图里已有的判断（topic_08「Apple 官方将技能作为一等公民内置」）是同一趋势的**第二次独立确认**。
+- **信号**：技能、子代理、MCP 已进入**官方认证课程的一级目录**（不是社区教程，是课程 + 证书）→ 技能从「玩票」变成**可教、可考、可写进简历**的职业能力。这与我们已在跟踪的判断（「Apple 官方将技能作为一等公民内置」）是同一趋势的**第二次独立确认**。
 - **评论区唯一有信息的一条（@AleksejAros，42 赞）**：「18 free courses is a lot of homework, but Claude 101 then the Cowork workflows one is a sensible order. **Certificates I'd treat as a side effect.**」→ **证书是副产品，路径顺序才是关键**。
 - **生态侧更可借的一件**：「教 AI 写技能」已被做成**可安装的技能**——镜像里至少四处存在 `skill-creator`（`anthropics-skills/skills/skill-creator`、`openclaw/skills/skill-creator`、`LobsterAI/SKILLs/skill-creator`、`awesome-claude-skills/skill-creator`）。
 - **我方现状（均已用真实代码核对）**：**我们比通用 `skill-creator` 多做了一整圈闭环**——入口 `myrm-agent-frontend/src/lib/skills/composeLearnSlashMessage.ts:51`（构造 `/learn`）+ 官网已表述的「Settings 学习向导：目录+URL+说明+五场景 chip → 一键 `/learn` → 草稿审阅 → `[use skill]` 调用引导」；沉淀与把关 `myrm-agent/myrm-agent-harness/.../agent/skills/evolution/core/engine.py`（进化引擎）+ `eval_regression.py`（进化后回归断言）+ `myrm-agent-server/app/services/skills/evolution_review/actions.py`（人工审核）；门禁为安装前 26 类 / 113 条静态扫描 + 信任四档 + 用户可撤销。**⇒ 这条优势官网已有如实表述，本轮无需新增宣传。**
@@ -425,7 +425,7 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
 - **他们自己的一句行业判断**：「So far, most of the effort has gone into making agents smarter. **Much less has gone into making sure they're safe to hand your wallet to.**」
 - **评论区唯一有信息量的一句（@INIODU 💛，112 赞）**：「**trust needs proof not promises** — appreciate the guide!」→ **信任要的是证明，不是承诺。**
 - **我方现状（均已用真实代码核对）**：**归属这一半有本地可核对的对应物**——统一审批记录表 `approvals`（`myrm-agent-server/app/database/models/approval.py:15-30`：含 `agent_id` / `chat_id` / `thread_id` / `action_type` / `reason` / 状态与到期）+ 审计账本逐条记（`myrm-agent/myrm-agent-harness/.../core/security/audit.py:191-200` 的 `record_decision`）+ **Agent 能力范围用签名令牌限定**（`core/security/ocap/token.py:49-53` 的 `sign_capability_handle`：HMAC-SHA256 签名、常数时间验签、可衰减）；**事实这一半走可回溯**（有据声明 / 发布合规门禁 / 数字回溯官方披露的事实仲裁 / 全链证据溯源）；**「买错了怎么办」是我方多出的一格**：计划预审 → 增量 diff → 影子快照 → 一键回滚。
-- **我们不宣称的（诚实边界）**：① **不引用对方的规模预测数字**（McKinsey 3–5 万亿美元、Deloitte 400 亿美元是**第三方预测**，不是实测能力）；② **不做 ZKP 与链上身份**——我们的路径是本地可核对、可离线自持的证据链 + 审批归属；③ **我们没有「对外第三方可独立验证的身份卡」这一层**——若你的业务硬性要求对方能独立验你，那是他们的主场，我们不假装有；④ 本条**不开新路线图条目**——缺口需链上或第三方服务，与本地自持路线冲突；形态诉求已落在 `topic_20 #64`（责任路由与可拒绝的认领式派单）与 `topic_01 #211`（归属判据与统一时间线）。
+- **我们不宣称的（诚实边界）**：① **不引用对方的规模预测数字**（McKinsey 3–5 万亿美元、Deloitte 400 亿美元是**第三方预测**，不是实测能力）；② **不做 ZKP 与链上身份**——我们的路径是本地可核对、可离线自持的证据链 + 审批归属；③ **我们没有「对外第三方可独立验证的身份卡」这一层**——若你的业务硬性要求对方能独立验你，那是他们的主场，我们不假装有；④ **不为此另开路线图条目**——缺口需链上或第三方服务，与本地自持路线冲突；形态诉求（责任路由与可拒绝的认领式派单、归属判据与统一时间线）已在路线图上。
 - **SSOT**：`https://x.com/billions_ntwk/status/2108212989585154475`
 
 ## 最新验证快照（2026-10-22 · 竞品给出 24 个组件的安装目录，评论区一句「装了 24 个只有 3 个在用」 · 装得下 ≠ 用得上：我方把这件事做成**可测的**，但「一个关键词就触发」我方还没有）
@@ -435,7 +435,7 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
 - **评论区最锋利的一句（@squirrelprompts，65 赞）**：「Installed 3. The other 21 went wherever my buried acorns go. **If you could only keep one, which one earns the spot?**」→ **装 24 个、3 个在用、21 个吃灰：安装数不是能力**。（作者本人（170 赞）亦接：「Exactly the magic happens between the tools.」）
 - **我方现状（均已用真实代码核对）**：**「装得下 ≠ 用得上」我方是可测的**——三态归因（`backends/skills/types/types_usage.py:101` 的「selections without tool calls and ambiguous runs are not」、`backends/skills/stats_collector.py:88` 的「the skill was only loaded, or several loaded skills made the owner ambiguous」）；**技能来源已接同一生态**（`agent/skills/market/sources/clawhub.py:1-4`：「ClawHub 是最大的技能生态平台，6 个主流竞品均已接入」）；自带 **134 个 `SKILL.md`**。
 - **我们不宣称的（诚实差距）**：**我方没有「一个关键词即从对话确定性触发某个技能」的关键词触发表**——`backends/skills/market_protocols.py:40` 的 `keywords` 是**市场源元数据字段**，不是运行时触发规则；我方隐式触发靠模型语义判断 + 会话级技能精选（人工指定子集）。**规模不与对方比大小**（对方 263+ 是社区插件池，我方 134 是出厂自带，量纲不同）。
-- **本轮不开新路线图条目**：关键词确定性触发与使用率度量已并入 `topic_08 #480`（渐进披露的加载-卸载闭环与选中可追溯）的增补，**不另开同轴条目**。
+- **不另开路线图条目**：关键词确定性触发与使用率度量已并入计划中的渐进披露加载-卸载闭环与选中可追溯工作。
 - **SSOT**：`https://x.com/charliejhills/status/2108222962306548005`
 
 ## 最新验证快照（2026-10-21 · 竞品把 Agent 塞进任意设备：Hermes Gadget SDK 的四个可核对机制 · 我方的诚实差距，以及两条尚未交付的路线图条目）
@@ -447,9 +447,9 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
   3. **逐型号的硬件验证矩阵 + 只有两档的支持标签**——`docs/hardware-validation.md:7`（「A passing build alone does not establish that a microphone, power circuit, or display works on a device」）、19 行型号表各自带验证列（`:11-31`，旗舰开发板那格写的是「CI build; physical report not recorded」）、两档标签 Experimental / Hardware verified（`:236-239`），以及「一份报告只覆盖一个型号或修订版」「新增端口或改变已验证能力时必须同 PR 更新本页」两条纪律（`:241`）。
   4. **社区硬件生态，逐型号列出已验证与未验证项**——LilyGO T-Display-S3（`:29`）、Xorigin AIPI Lite（`:24`）、Elecrow CrowPanel Advanced P4（`:23`）、Espressif ESP-VoCat（`:22`）、Spotpear 1.28-BOX（`:25`）、Waveshare AMOLED 1.75 / 1.8 / 2.06 / 2.16（`:16-19`）。
 - **我方现状（均已用真实代码核对，不做夸大）**：
-  1. **尚无设备渠道**——`app/channels/providers/` 下是 24 个 IM / 邮件 / 语音实现，零设备渠道；设备渠道本体仍是路线图条目 `topic_19 #60`（**待分析 / 未交付**）。
-  2. **尚无虚拟替身**——`myrm-agent` 全仓检索 `esp32` / `gadget` 零命中，唯一名为 `simulator` 的模块是记忆召回模拟器（`app/services/memory/recall_simulator_service.py`）；新增条目 `topic_19 #67`（**待分析**）。
-  3. **尚无能力验证矩阵**——平台开关是零散内联的（`myrm-agent-desktop/src-tauri/src/commands/screen_lock.rs:82`），而文档用统一口径陈述平台能力（`docs/getting-started/desktop-app.mdx:30,44,53`）却不标验证状态，尽管我们自己的路线图里已经留着「未验证：Windows 真机」的尾巴；新增条目 `topic_19 #68`（**待分析**）。
+  1. **尚无设备渠道**——`app/channels/providers/` 下是 24 个 IM / 邮件 / 语音实现，零设备渠道；设备渠道本体仍在路线图上，尚未交付。
+  2. **尚无虚拟替身**——`myrm-agent` 全仓检索 `esp32` / `gadget` 零命中，唯一名为 `simulator` 的模块是记忆召回模拟器（`app/services/memory/recall_simulator_service.py`）；已列入路线图，尚未交付。
+  3. **尚无能力验证矩阵**——平台开关是零散内联的（`myrm-agent-desktop/src-tauri/src/commands/screen_lock.rs:82`），而文档用统一口径陈述平台能力（`docs/getting-started/desktop-app.mdx:30,44,53`）却不标验证状态，尽管我们自己的能力记录里已经留着「未验证：Windows 真机」的尾巴；已列入路线图，尚未交付。
   4. **我方已交付的部分（不依赖硬件的那部分）**——语音打断（`app/api/voice/agent_bridge.py:187-206`）、会中实时纪要（`app/services/meeting_notes/live_notes.py:42,59,183`）、移动端指挥台（`app/remote_access/mobile_hub_payload.py:20,28,45` 加 `components/features/mobile/`）、网页剪藏入知识库（`app/services/wiki/clip/runner.py:37-45,82`）。
 - **我们不宣称的**：开放外设状态总线、本地开放 Vault、环回会议内录、个人专属热词库、YoooClaw 资产迁移**均未实现**。
 - **SSOT：** `https://x.com/adolandev/status/2107813150686888407`
@@ -464,7 +464,7 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
   4. **开源社区对商业化的敌意**：@ceteravium「**A sad day for the open source community.**」· @lauraswoosh「eleven dudes and one thumbs up each like that settles the whole open source debate」；
   5. **桌面端欠债被点名**：@diablovoxx「Do you now have tokens to fix the dekstop app please? 😬」；
   6. **社区资产面**：@waefrebeorn「thank you for letting me use your teams hard work for my own gainz」· @_BILLDING_「Hermes 3 was the first local model I actually ran at more than 15 tps」· @fireandvision「I remember discovering your work in the WorldSim days」。
-- **Myrm 对照（均为既有事实，不新增宣称）**：① **一条主线不分裂** —— 同一套产品三端同构（Local WebUI / Tauri 桌面 / 云托管专属沙箱 + 持久卷），不做「企业版 + 消费版」两套产品；② **移动端是指挥台与接力，不是重做主机能力**（对应 `topic_19` 移动指挥台 / 跨端会话接力），正面回应社区那条「Web 同能力 + 连远端」；③ **商业化边界写在明处** —— `myrm-agent` 与 harness 均 MIT 开源、本地/桌面永久免费 BYOK、云托管订阅价格在官网明示（$19–$149/月），用**许可与价格可核**回答社区的担忧；④ **桌面端无欠账叙事** —— Tauri 原生（非 Electron 黑盒）+ 25+ 原生 OS 能力；⑤ **宣发纪律** —— 只讲可核验能力与数据，不讲融资与估值叙事（竞品这次正被自己的叙事反噬）。
+- **Myrm 对照（均为既有事实，不新增宣称）**：① **一条主线不分裂** —— 同一套产品三端同构（Local WebUI / Tauri 桌面 / 云托管专属沙箱 + 持久卷），不做「企业版 + 消费版」两套产品；② **移动端是指挥台与接力，不是重做主机能力**（移动指挥台 / 跨端会话接力），正面回应社区那条「Web 同能力 + 连远端」；③ **商业化边界写在明处** —— `myrm-agent` 与 harness 均 MIT 开源、本地/桌面永久免费 BYOK、云托管订阅价格在官网明示（$19–$149/月），用**许可与价格可核**回答社区的担忧；④ **桌面端无欠账叙事** —— Tauri 原生（非 Electron 黑盒）+ 25+ 原生 OS 能力；⑤ **宣发纪律** —— 只讲可核验能力与数据，不讲融资与估值叙事（竞品这次正被自己的叙事反噬）。
 - **SSOT：** `https://x.com/NousResearch/status/2107874963382538469` · WSJ 报道截图（帖内配图 `pbs.twimg.com/media/HUCde70XQAAtlCg`）
 
 ## 最新验证快照（2026-10-21 · 技能生态的「按 star 排序」实测：star 一月漂 43% 且名次换位 · 真正可信的排序信号只能来自真实安装量与口碑）
@@ -472,9 +472,9 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
 - **社区技能生态的排序现状与漂移实测（对标 X 帖 @I_am_Aiabir「Top 10 Hermes skills ranked by Github stars」）**：社区当下正是拿 GitHub Star 当技能质量代理，但这个代理**不稳态**。
   1. **帖图口径（skillleaderboard.com，数据截至 2026-09-20）**：superpowers 289k · ponytail 143k · graphify 120k · caveman 107k · Understand-Anything 83.4k · last30days 62.4k · i-have-adhd 49.1k · agentic-awesome-skills 46.6k · scientific-agent-skills 45.7k · diagram-design 41.5k；
   2. **同口径 GitHub API 实测（2026-10-21）**：302,914 / 170,840 / 131,042 / 114,028 / 87,395 / — / 58,109 / 48,249 / 53,497 / 59,330 → **diagram-design 由第 10 位（41.5k）升至约第 6-7 位（59,330，一月 +43%）**，scientific-agent-skills 与 agentic-awesome-skills 位次互换；
-  3. **结论**：star 既可被刷、也会随热度漂移，**不能作为「哪个技能更值得装」的判据**；可信排序必须来自**真实活跃安装量 + 留存 + 审计无报警**（我方 `topic_08 #279④`，**规划中，交付前严禁宣传为已实现**）；
+  3. **结论**：star 既可被刷、也会随热度漂移，**不能作为「哪个技能更值得装」的判据**；可信排序必须来自**真实活跃安装量 + 留存 + 审计无报警**（我方：**规划中，交付前严禁宣传为已实现**）；
   4. **另一个结构性事实**：star 榜前十**几乎全是编码向技能**（方法论框架 / 代码库知识图谱 / 省 token 写法 / 输出风格 / 跨平台调研 / 图表审美），而我方是 **GUI 通用办公与个人助理** → 我们的选品战场与 star 榜主流技能**不在同一象限**，不能拿「编码社区最热门的技能」当默认选品依据；
-  5. **四个值得对标的机制**：① **复用优先纪律**（`ponytail` 的 `AGENTS.md`「Before you write」「The smallest complete change」）——我方有技能市场、`/learn` 提炼技能与代码/知识图谱，但**缺一条默认的「先找现成方案 + 最小完整改动」行为纪律**；② **代码库/知识库 → 可交互知识图谱**（`Understand-Anything`：多 Agent 管线把文件/函数/类/依赖建成节点，节点带自然语言摘要与导览）——我方有代码关系图与记忆知识图谱，**节点级摘要与导览**可补；③ **产物审美与可访问性硬参数**（`diagram-design`：单一强调色 / 1px 细线 / 无阴影 / 4px 网格 / 对比度自动检查 / 可访问性默认 / 离线字体 / 自包含 HTML+SVG，并诚实自述产物不可 diff → 只用于「要发布的图」）——已并入 `topic_14 #255`；④ **按领域/数据源成包 + 示例与安全报告随包发布**（`scientific-agent-skills`：按科学领域分目录，附 examples / security report / 赞助商透明化）——我方已有 14 类筛选与信任分级，可补成包与随包透明化；
+  5. **四个值得对标的机制**：① **复用优先纪律**（`ponytail` 的 `AGENTS.md`「Before you write」「The smallest complete change」）——我方有技能市场、`/learn` 提炼技能与代码/知识图谱，但**缺一条默认的「先找现成方案 + 最小完整改动」行为纪律**；② **代码库/知识库 → 可交互知识图谱**（`Understand-Anything`：多 Agent 管线把文件/函数/类/依赖建成节点，节点带自然语言摘要与导览）——我方有代码关系图与记忆知识图谱，**节点级摘要与导览**可补；③ **产物审美与可访问性硬参数**（`diagram-design`：单一强调色 / 1px 细线 / 无阴影 / 4px 网格 / 对比度自动检查 / 可访问性默认 / 离线字体 / 自包含 HTML+SVG，并诚实自述产物不可 diff → 只用于「要发布的图」）——已并入我们的规划工作；④ **按领域/数据源成包 + 示例与安全报告随包发布**（`scientific-agent-skills`：按科学领域分目录，附 examples / security report / 赞助商透明化）——我方已有 14 类筛选与信任分级，可补成包与随包透明化；
   6. **链接核对**：帖内 t.co 指向的 GitHub 路径**被作者截断**（如 `github.com/obra/superpowe`），无法直接访问 → 完整仓库名与 star 均由 GitHub API 反查核验；本地 `Understand-Anything` 为 `Lum1104` 分叉，帖面指向上游 `Egonex-AI/Understand-Anything`；
   7. **SSOT：** `https://api.github.com/repos/NousResearch/hermes-agent`
 
@@ -484,7 +484,7 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
   1. **竞品实测（GitHub API，2026-10-21）**：`NousResearch/hermes-agent` **255,767 stars / 55,740 forks**；帖中当时的口径是「214K stars」，说明仍在快速增长；OpenRouter 侧（社区帖口径，**未独立核验**）：累计 51T+ tokens、约 500 个模型、在 Productivity / Coding / Personal & CLI Agents 四类目居首，周增量约 13.9T tokens（+11%）。
   2. **我方实测（同日同口径）**：`Pursue-LLL/myrm-agent` **0 stars / 0 forks**（仓库已公开、代码持续推送，尚未形成社区规模）。
   3. **差距定性**：这不是能力差距，是**分发与社区冷启动差距**——我们的技能市场、装前体检、原子安装、信任分级做得更细，但「有多少人真装了、在用、说好」目前**无法证明**。
-  4. **对应待办（**规划中，交付前严禁宣传为已实现**）**：`topic_08 #279④ 真实活跃安装量与好评信任榜`、`topic_08 #280 真实活跃安装量信誉榜`。
+  4. **对应待办（规划中，交付前严禁宣传为已实现）**：真实活跃安装量与好评信任榜、真实活跃安装量信誉榜。
   5. **对外口径纪律**：当前**不宣传社区规模**（0 就是 0）；等真实安装量与口碑可验证后，只讲可核验数字，不讲「有多少人用」这类无法举证的形容。
   6. **SSOT：** `https://api.github.com/repos/NousResearch/hermes-agent` · `https://api.github.com/repos/Pursue-LLL/myrm-agent`
 
@@ -2418,7 +2418,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   - **「不用等顶级域，也能给 Agent 一个地址」** —— OpenClaw 的 `.claw` **仍处 ICANN `Pre-Evaluation Processing`**（Application ID `OF2656T-T69841`），成本 **22.7 万美元**、预计 **2027 年底–2028 年初** 入根区；而**竞品自己的仓库里至今没有任何顶级域 / DNS 实现**（其中所有 `.claw` 命中都是 `claw` 词根假阳性，如 `ui/src/components/lobster-pet-identity.ts:242`、`src/infra/sqlite-worker-claw-read.test.ts:84`）。我们的路线正相反：**可读标识本来就有**（`app/services/plugins/agent_surface.py:291` 的 `agent.metadata.get("slug")`；harness 侧 profile 以 `ai.myrm/agents/<slug>.md` 命名），地址可以直接由它派生。
 - **我们自己的三个诚实差距（未交付、不宣传）**：
   1. **9 万美元那则故事暴露的审批缺口，我们这边仍开着**：「批准必须发生在 Agent 之外」与「执行的就是被批准的那份载荷」目前是**路线图条目、不是已上线行为**——我们的审批记录确实存住了载荷、也确实按期过期回收，但**执行点还没有做载荷指纹比对**。**不要把「审批可核对」读成「审批防篡改」。**
-  2. **短句柄与自带域名是「已设计」而非「已上线」**：`topic_13 #91` 仍是 `待分析`，所以我们可以诚实地说「我们选择不花 22.7 万美元买顶级域，并给出了替代设计」，但**还不能说「你的 Agent 已经有一个公开短地址」**。
+  2. **短句柄与自带域名是「已设计」而非「已上线」**：该项仍只是规划，所以我们可以诚实地说「我们选择不花 22.7 万美元买顶级域，并给出了替代设计」，但**还不能说「你的 Agent 已经有一个公开短地址」**。
 
 
 ## 最新对标快照（2026-10-24 · Revolut AIR 把「卡数据留在银行内」称作完全安全 · 这句承诺背后的诚实拆解：银行侧发卡与 Agent 运行时凭证加预算的分工 · 评论区真正问的问题与我们已交付的答案）
@@ -2437,10 +2437,10 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   - **三端同构**：本地 WebUI、Tauri 桌面与云沙箱行为一致——保护长在 Agent 运行时里，不取决于你用哪家银行。
 - **诚实差距（未交付，禁止宣传）**：
   1. **发卡是域外能力**：我们不发行虚拟卡（卡组织、BIN、PCI-DSS 范围）；以「不发真卡 + 受控额度 + 审批前置」达成同一目标，绝不宣称自己是发卡方。
-  2. **卡号字段写入面校验仍是路线图项**：拒绝普通 fill/type 写入卡号字段并强制人工接管，是 `topic_04 #109` ④ 的待分析项；现状写入面校验只拒绝 `type=password`（`toolkits/browser/session/interactor.py:371`），语义层没有卡号词表（`core/security/detection/semantic_risk.py`）。**不得宣称「已能拦截所有卡号输入」。**
+  2. **卡号字段写入面校验仍是路线图项**：拒绝普通 fill/type 写入卡号字段并强制人工接管，仍是规划中、尚未分析的项目；现状写入面校验只拒绝 `type=password`（`toolkits/browser/session/interactor.py:371`），语义层没有卡号词表（`core/security/detection/semantic_risk.py`）。**不得宣称「已能拦截所有卡号输入」。**
   3. **第三方钱包适配**：目前只有首个提供方实现，覆盖率与地区可用性未实测。
-  4. **跨渠道付款审批**：在 IM 里批准付款归 `topic_13 #128`（规划中），当前三端可用的是图形界面审批。
-  5. **订单三要素卡片（商户、总价、送达时间）**：归 `topic_03 #124` ②，尚未交付。现状是「结账点击每次必问」，**还不是「问之前先把三要素摆清楚」**——不要把两者混为一谈。
+  4. **跨渠道付款审批**：在 IM 里批准付款仍在规划中，当前三端可用的是图形界面审批。
+  5. **订单三要素卡片（商户、总价、送达时间）**：尚未交付。现状是「结账点击每次必问」，**还不是「问之前先把三要素摆清楚」**——不要把两者混为一谈。
 - **对迁移意味着什么**：用 AIR，你必须把银行关系搬进一家银行才能得到那份保证；用 Myrm，保证是长在你自己 Agent 运行时里的「凭据金库 + 预算 + 审批 + 账本」，跨商户、跨渠道、跨部署形态可迁移，且逐笔可查。
 
 ## 2026-10-25 架构升级与迁移收益（搜索高精收敛、长会话无损交接、单机轻量用量核算与本地私有遥测阻断）
