@@ -702,9 +702,9 @@ The gateway runs a periodic health check cycle (60s interval). If a channel fail
 
 ### Message Recovery
 
-A message is written to a local journal when its turn starts and removed when that turn ends. If the service crashes or restarts in between, the message is replayed on the next start, as long as it is less than 10 minutes old. Messages still waiting in a chat's queue when the service is stopped normally are written to the journal and replayed the same way.
+A message is written to a local journal when its turn starts and removed when that turn ends. If the service crashes or restarts in between, the message is replayed on the next start, as long as it is less than 10 minutes old. Messages still waiting in a chat's queue when the service is stopped normally are written to the journal and replayed the same way. A replayed message is the one that was sent, with its attachments, quoted reply and group context. If the temporary local file of an attachment no longer exists when the message is replayed, the agent is told which attachment is missing.
 
-What is not covered: a message that was still being received when the process was killed, a message that arrives while the service is shutting down, and the request that was running at a normal shutdown (it is not run again, so send it again if you get no answer).
+What is not covered: a message that was still being received when the process was killed, and a message that arrives while the service is shutting down. The request that was running at a normal shutdown is not run again; its chat is sent a notice to send it again. If you get no answer, send it again.
 
 ### Dead Letter Queue
 
