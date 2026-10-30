@@ -644,7 +644,7 @@ Transfer a conversation from one platform to another without losing context.
 - **Web UI** — right-click any conversation in the sidebar → "Transfer to..." → a dialog auto-discovers all connected channels with icons and status indicators → select and transfer in one click
 - **IM command** — type `/handoff <target_channel>` in any IM channel (Telegram, Discord, Slack, etc.)
 
-**How it works:** The handoff rebinds the session key to the target channel in a single atomic DB update — millisecond latency, zero data copy, full prompt cache preserved. If the target key is already occupied by another session, it is automatically unbound to avoid conflicts.
+**How it works:** The handoff rebinds the session key to the target channel in a single atomic DB update — zero data copy, full prompt cache preserved. If the target key is already occupied by another session, it is automatically unbound to avoid conflicts.
 
 **Session policies:** Three modes control how sessions behave after transfer — `persistent` (never resets), `daily` (resets at a configured hour), or `idle` (resets after inactivity). Agent identity (`agent_id`) is preserved across transfers, so the same Agent personality, tools, and memory continue on the new channel.
 

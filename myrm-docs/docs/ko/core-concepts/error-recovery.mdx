@@ -80,9 +80,9 @@ CLOSED (normal) → OPEN (failures detected) → HALF-OPEN (probe) → CLOSED (r
 
 | Error | Button | Action |
 |-------|--------|--------|
-| API key invalid/expired | "Update API Key" | Opens Settings page |
+| API key invalid/expired | "Update API Key" | Opens Settings > Model Service |
 | Billing quota exceeded | "Top Up Balance" | Opens Settings page |
-| Model not found | "Change Model" | Opens Settings page |
+| Model not found | "Change Model" | Opens Settings > Model Service |
 
 버튼 라벨은 5개 언어(영어, 중국어, 일본어, 한국어, 독일어)로 현지화되어 있으며 인터페이스 언어와 자동으로 일치합니다. 진단 엔진에 예기치 않은 오류가 발생하면 정상적으로 성능이 저하됩니다. 기본 오류 메시지는 복구 버튼 없이 계속 표시됩니다.
 
@@ -407,7 +407,7 @@ Myrm의 에이전트는 실패로부터 학습하고 자율적으로 기술을 �
 - **업그레이드가 중단되었나요?** — 마이그레이션 전 스냅샷이 데이터를 자동으로 복원합니다.
 - **하위 에이전트가 충돌합니까?** — 오류가 자동으로 압축되고, 상위가 명확한 요약을 받고 추론이 오염되지 않은 상태로 유지됩니다.
 - **도구 호출이 실패합니까?** — 하트비트 타이머를 사용한 자동 재시도; 오류 대신 "실행 중... 15초"가 표시됩니다.
-- **실행 가능한 복구가 포함된 스트림 오류?** — 오류에는 채팅 UI에 직접 있는 `recovery_actions` 버튼(재시도, 모델 전환, 종속성 설치)과 i18n 오류 메시지 및 단계별 해결 가이드가 포함된 `diagnostic_result`이 포함됩니다. 추측할 필요가 없습니다. 제안된 작업을 클릭하기만 하면 됩니다.
+- **실행 가능한 복구가 포함된 스트림 오류?** — 오류에는 채팅 UI에 직접 있는 `recovery_actions` 버튼(API 키 업데이트, 잔액 충전, 모델 전환)과 i18n 오류 메시지 및 단계별 해결 가이드가 포함된 `diagnostic_result`이 포함됩니다. 추측할 필요가 없습니다. 제안된 작업을 클릭하기만 하면 됩니다.
 - **반복적인 실패?** — 3-Strike 프로토콜은 도움을 요청하기 위해 자동으로 에스컬레이션됩니다. 무한 루프가 없습니다.
 - **환경이 손상되었나요?** — Doctor Dashboard는 9개의 병렬 진단 프로브(Python 버전, 종속성, LLM 연결, 네트워크, 작업 공간 저장소, 데이터베이스, 브라우저, 후크, 데스크톱 제어)를 실행하고 원클릭 복구 작업으로 상태를 한눈에 보여줍니다. 터미널 액세스가 필요한 CLI 전용 경쟁업체와 달리 GUI 건강 카드는 실행 가능한 수정 버튼을 통해 실시간 상태를 표시합니다.
 - **SSE 작업 중간에 연결이 끊어지나요?** — 목표 진행률 패널은 다시 연결할 때 오래된 표시기를 자동으로 지우고 서버에서 다시 동기화하며 완료된 단계를 보존합니다. 고스트 스피너가 없고 에이전트가 중지된 후 오해의 소지가 있는 "진행 중"이 없습니다.

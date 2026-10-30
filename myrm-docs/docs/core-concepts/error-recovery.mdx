@@ -104,9 +104,9 @@ For common LLM errors, the error card includes one-click fix buttons that take y
 
 | Error | Button | Action |
 |-------|--------|--------|
-| API key invalid/expired | "Update API Key" | Opens Settings page |
+| API key invalid/expired | "Update API Key" | Opens Settings > Model Service |
 | Billing quota exceeded | "Top Up Balance" | Opens Settings page |
-| Model not found | "Change Model" | Opens Settings page |
+| Model not found | "Change Model" | Opens Settings > Model Service |
 
 Button labels are localized into 5 languages (English, Chinese, Japanese, Korean, German) and automatically match your interface language. If the diagnostic engine encounters an unexpected error, it degrades gracefully — the base error message still displays without recovery buttons.
 
@@ -431,7 +431,7 @@ All recovery happens transparently:
 - **Upgrade interrupted?** — Pre-migration snapshot restores your data automatically
 - **Child agent crashes?** — Error auto-compacted, parent receives a clean summary, reasoning stays unpolluted
 - **Tool call fails?** — Silent retry with heartbeat timer; you see "running... 15s" instead of an error
-- **Stream error with actionable recovery?** — Errors include `recovery_actions` buttons (retry, switch model, install dependency) directly in the chat UI, plus `diagnostic_result` with i18n error messages and step-by-step resolution guides. No guesswork needed — just click the suggested action
+- **Stream error with actionable recovery?** — Errors include `recovery_actions` buttons (update API key, top up balance, switch model) directly in the chat UI, plus `diagnostic_result` with i18n error messages and step-by-step resolution guides. No guesswork needed — just click the suggested action
 - **Repeated failures?** — 3-Strike protocol auto-escalates to ask for your help — no infinite loops
 - **Environment broken?** — Doctor Dashboard runs 9 parallel diagnostic probes (Python version, dependencies, LLM connectivity, network, workspace storage, database, browser, hooks, desktop control) and shows health status at a glance with one-click repair actions. Unlike CLI-only competitors that require terminal access, the GUI health cards display real-time status with actionable fix buttons
 - **SSE disconnects mid-task?** — Goal progress panel auto-clears stale indicators on reconnect, re-syncs from server, and preserves completed steps. No ghost spinners, no misleading "in progress" after the agent has stopped

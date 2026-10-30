@@ -523,13 +523,13 @@ AI 분류자(`TranscriptClassifier`)는 도구 호출을 검토하여 사용자�
 
 기업 네트워크에서는 모든 HTTPS 연결이 실패할 수 있는 TLS 검사 프록시(Zscaler, Netskope, Palo Alto Prisma)를 배포하는 경우가 많습니다. Myrm은 원클릭 엔터프라이즈 네트워크 호환성을 제공합니다.
 
-- **설정 → 고급 → 기업 네트워크 호환성** 또는 `MYRM_TLS_STRICT=0` 설정
+- **설정 → 기본 설정 → 고급 설정 → 엔터프라이즈 네트워크 호환성** 또는 `MYRM_TLS_STRICT=0` 설정
 - Python 3.13+ `VERIFY_X509_STRICT` 플래그의 정밀 완화 — 인증서 확인을 비활성화하지 않습니다.
 - 사용자 정의 CA 번들 지원: `SSL_CERT_FILE`(시스템 신뢰 저장소 교체) 또는 `NODE_EXTRA_CA_CERTS`(시스템 신뢰 저장소에 추가)
 - **MCP서버별 TLS**: 각 MCP 서버는 전체 mTLS에 대해 자체 `ssl_verify`(참/거짓/사용자 지정 CA 경로) 및 `client_cert`/`client_key`/`client_key_password`을 지정할 수 있습니다.
 - 4계층 자동 주입: 인프라(`tls_compat.py`) → 서버(`tls_config.py`) → MCP(`client.py`) → LLM(`llm.py`), 28개 이상의 HTTP 클라이언트 호출 사이트 포함
 - 자동 TLS 오류 진단: 8개 오류 패턴 감지, 5개 언어 수정 힌트
-- **144개의 TLS 관련 테스트 검증**(38개의 TLS 코어 + 31개의 MCP TLS + 75개의 오류 진단)
+- **TLS 관련 테스트 범위**: TLS 호환성 코어, MCP 서버별 TLS(실제 연결 통합 테스트), TLS 오류 진단
 
 ### 시크릿 모드 심층 분석
 
