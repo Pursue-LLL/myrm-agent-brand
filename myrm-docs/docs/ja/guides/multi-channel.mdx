@@ -161,7 +161,7 @@ iPhone・iPad・Mac、そして**アプリ不要のApple Watch手首操作**ま�
 
 **要点ハイライト**：
 - **Apple Watch手首到達**：サードパーティWatchアプリ不要。ネイティブメッセージアプリでエージェントに text し、高リスクツール実行（HITL）をTapback 👍リアクションで承認
-- **グループ wake-word と prefix 清掃**：グループ chat でwake-wordを自動照合・句読点ごと除去。**100% Prompt Cache保持**を保証
+- **グループ wake-word と prefix 清掃**：グループ chat でwake-wordを自動照合・句読点ごと除去し、モデルには先頭の wake-word を除いたメッセージを渡します
 - **ヘルス診断とヘルパー状態**：BlueBubbles Private APIとヘルパー接続のリアルタイム診断インジケータ
 
 ### Slack
@@ -662,7 +662,7 @@ IM経由リモート操作は文脈を決して欠損しない——四層が継
 | **履歴 backfill** | コールドスタート時、チャネル直近15通を自動 replay して即文脈 |
 | **共有コンテキスト** | cross-agent・ cross-channel メモリ共有——デスクトップ開始作業はモバイルIM切替で継ぎ目なし継続 |
 
-メッセージ転送アーキテクチャ（例Coze → Claude Code）と違い、 transit で workspace 文脈を欠損しません。Myrmエージェントは workspace 直上で動作。完全ファイル系到達、linter実行、git status確認、 project tree 探索——IDE状態同期層不要。
+メッセージ転送アーキテクチャと違い、 transit で workspace 文脈を欠損しません。Myrmエージェントは workspace 直上で動作。完全ファイル系到達、linter実行、git status確認、 project tree 探索——IDE状態同期層不要。
 
 ## IMでUndo・Retry・ファイル復元
 

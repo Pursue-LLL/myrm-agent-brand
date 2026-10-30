@@ -625,14 +625,14 @@ IM 채널 내에서 직접 구성된 에이전트 간에 전환하세요. 웹 UI
 
 IM을 통한 원격 제어는 상황을 결코 잃지 않습니다. 4개의 레이어가 원활한 연속성을 보장합니다.
 
-| Layer | What it does |
+| 레이어 | 동작 |
 |-------|-------------|
-| **Session Strategy** | Choose Persistent (never reset), Daily (fresh each morning), or Idle (reset after N minutes of inactivity) |
-| **Auto-Reset Notification** | When a session resets, the agent is told "this is a fresh conversation" and the user sees a notice — no hallucinated references to prior context |
-| **History Backfill** | On cold start, the last 15 messages from the channel are automatically replayed into the session so the agent has immediate context |
-| **Shared Context** | Cross-agent and cross-channel memory sharing — work started on desktop continues seamlessly when you switch to mobile IM |
+| **세션 전략** | Persistent(리셋 없음), Daily(매일 아침 새로 시작), Idle(N분 동안 활동이 없으면 리셋) 중에서 선택합니다 |
+| **자동 리셋 알림** | 세션이 리셋되면 에이전트는 "새 대화"임을 전달받고 사용자에게도 알림이 표시됩니다. 이전 컨텍스트를 잘못 참조하는 환각이 생기지 않습니다 |
+| **기록 백필** | 콜드 스타트 시 채널의 최근 메시지 15개가 세션에 자동으로 재생되어 에이전트가 즉시 컨텍스트를 갖습니다 |
+| **공유 컨텍스트** | 에이전트 간, 채널 간 메모리 공유 — 데스크톱에서 시작한 작업이 모바일 IM으로 전환해도 끊김 없이 이어집니다 |
 
-전송 중에 작업 공간 컨텍스트를 잃는 메시지 전달 아키텍처(예: Coze → Claude Code)와 달리 Myrm의 에이전트는 작업 공간에서 직접 실행됩니다. 전체 파일 시스템 액세스 권한이 있고, 린터를 실행하고, git 상태를 확인하고, 프로젝트 트리를 탐색할 수 있습니다. IDE 상태 동기화 레이어가 필요하지 않습니다.
+전송 중에 작업 공간 컨텍스트를 잃는 메시지 전달 아키텍처와 달리 Myrm의 에이전트는 작업 공간에서 직접 실행됩니다. 전체 파일 시스템 액세스 권한이 있고, 린터를 실행하고, git 상태를 확인하고, 프로젝트 트리를 탐색할 수 있습니다. IDE 상태 동기화 레이어가 필요하지 않습니다.
 
 ## IM에서 실행 취소, 재시도 및 파일 되돌리기
 

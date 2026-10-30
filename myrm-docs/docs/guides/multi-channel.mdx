@@ -171,7 +171,7 @@ Connect your Agent to the Apple ecosystem across iPhone, iPad, Mac, and **zero-a
 
 **Key Highlights**:
 - **Apple Watch Wrist Reach**: No third-party Watch app required. Text your agent in the native Messages app, and approve high-risk tool execution (HITL) via Tapback 👍 reactions.
-- **Group Wake-Word & Prefix Cleaning**: In group chats, wake words are automatically matched and stripped along with punctuation, guaranteeing **100% Prompt Cache preservation**.
+- **Group Wake-Word & Prefix Cleaning**: In group chats, wake words are automatically matched and stripped along with the punctuation after them, so the model sees the message without the leading wake word.
 - **Health Diagnostics & Helper Status**: Real-time diagnostic indicators for BlueBubbles Private API and Helper connection.
 
 ### Slack
@@ -672,7 +672,7 @@ Remote control through IM never loses context — four layers guarantee seamless
 | **History Backfill** | On cold start, the last 15 messages from the channel are automatically replayed into the session so the agent has immediate context |
 | **Shared Context** | Cross-agent and cross-channel memory sharing — work started on desktop continues seamlessly when you switch to mobile IM |
 
-Unlike message-forwarding architectures (e.g., Coze → Claude Code) that lose workspace context in transit, Myrm's agent runs directly on your workspace. It has full filesystem access, can run linters, check git status, and explore the project tree — no IDE state synchronization layer needed.
+Unlike message-forwarding architectures that lose workspace context in transit, Myrm's agent runs directly on your workspace. It has full filesystem access, can run linters, check git status, and explore the project tree — no IDE state synchronization layer needed.
 
 ## Undo, Retry & File Revert in IM
 
@@ -1019,7 +1019,7 @@ Long jobs and quiet threads get closed without babysitting:
 
 Managing token usage, rate limits, and member permissions across messaging channels requires zero-latency transparency without consuming LLM inference budgets:
 
-1. **Zero-LLM Token Direct Output (&lt; 2ms)**:
+1. **Zero-LLM Token Direct Output**:
    - When a user sends `/quota` (or `@bot /quota` in groups), the router intercepts the request in the Inbound Pipeline and immediately aggregates usage records from local SQLite;
    - Consumes **0 LLM Tokens**, eliminates API network latency, and preserves Prompt Cache prefix hit rates;
 2. **Group RBAC & Bypass White-listing**:
