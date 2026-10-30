@@ -36,13 +36,14 @@ hooks:
       tools: ["bash_*"]
   SessionEnd:
     - url: https://ops.example.com/agent-webhook
-      secret: ${OPS_WEBHOOK_SECRET}
+      secret: ${MYRM_HOOK_OPS_WEBHOOK_SECRET}
       fire_and_forget: true
 ---
 ```
 
 - 認識されるイベント名: `SessionStart`、`SessionEnd`（`Stop` と書いても可）、`BeforeToolUse` / `PreToolUse`、`AfterToolUse` / `PostToolUse`、`PostToolUseFailure`。他の名前はスキップされ、ログに警告が出ます。`hooks` やイベント値の書き方が上の例の構造と異なる（イベント名の下はリスト）場合もスキップされ、警告されます
 - `script` でコマンドフックを、`url` で HTTP フックを構成します。`secret` は HMAC 署名を有効にし、`fire_and_forget` は呼び出しを非ブロッキングにします
+- `auth` と `secret` にはリテラル値、または `${NAME}` 形式の環境変数を書けます（`auth` は `Authorization` ヘッダーになります）。スキルはサードパーティのテキストなので、`OPENAI_API_KEY` や `DB_PASSWORD` のように認証情報らしい名前の変数は拒否され、そのエントリーは警告つきでスキップされます。フックに公開したい変数は `MYRM_HOOK_…` という名前にしてください。
 - `tools` はフックが見えるツールを絞ります: パターン 1 つ、またはリスト（`bash_*`、`[bash_*, write_file_tool]`）。実行時のツール名に fnmatch で照合します（bash ツール名は `bash_code_execute_tool`）。`tools` の書き方が不正な場合、そのフックはスキップされ「全ツール一致」に緩められません
 - `failure_mode: fail_closed` は、フックが失敗または拒否された場合に該当の操作をブロックします（既定は `fail_open`: スキップしてログに残す）。`timeout` の単位は秒（既定 10、範囲 1〜600）。無効な項目はスキップされ警告が出ますが、同じ技能の他のフックには影響しません
 

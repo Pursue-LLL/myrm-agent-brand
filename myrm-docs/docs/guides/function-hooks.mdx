@@ -31,13 +31,14 @@ hooks:
       tools: ["bash_*"]
   SessionEnd:
     - url: https://ops.example.com/agent-webhook
-      secret: ${OPS_WEBHOOK_SECRET}
+      secret: ${MYRM_HOOK_OPS_WEBHOOK_SECRET}
       fire_and_forget: true
 ---
 ```
 
 - Recognized event names: `SessionStart`, `SessionEnd` (also `Stop`), `BeforeToolUse` / `PreToolUse`, `AfterToolUse` / `PostToolUse`, `PostToolUseFailure`. Any other name is skipped with a warning in the log, and so is a `hooks` block or an event value that is not shaped like the example above (event name, then a list of entries).
 - `script` becomes a command hook; `url` becomes an HTTP hook. `secret` enables HMAC signing; `fire_and_forget` makes the call non-blocking.
+- `auth` and `secret` take a literal, or an environment variable written `${NAME}` (`auth` becomes the `Authorization` header). A skill is third-party text, so a variable whose name looks like a credential (`OPENAI_API_KEY`, `DB_PASSWORD`) is refused and the entry is skipped with a warning; name the variable `MYRM_HOOK_…` to expose it to hooks.
 - `tools` filters which tools the hook sees: one pattern or a list (`bash_*`, `[bash_*, write_file_tool]`), matched with fnmatch against the runtime tool name (the bash tool is `bash_code_execute_tool`). A malformed `tools` value skips that hook instead of widening it to every tool.
 - `failure_mode: fail_closed` blocks the action when the hook fails or is refused (default `fail_open`: skip and log). `timeout` is in seconds (default 10, range 1–600). An invalid entry is skipped with a warning and never discards the other hooks of the skill.
 
