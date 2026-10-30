@@ -78,6 +78,21 @@ Competitors market agent counts. Agent count is not capability — **a team that
 | The human is the bottleneck | "more permissions requested, intervention more often" | 3-tier autonomy (strict / semi-auto / full-auto), TOTP vault, mobile HITL |
 | Agent is not in your environment | "you must control the substrate" | Local WebUI, Tauri desktop, per-user sandbox + persistent volume |
 
+## Memory backends: Myrm vs hosted memory services (GBrain)
+
+GBrain (Oct 2026) sells a hosted Postgres + pgvector memory that any agent can point at. The pitch is real — setup friction is the top reason non-technical users quit — but it concentrates every agent on one shared vector store with application-level scoping, which is exactly what its own comment thread worries about.
+
+- **Isolation by construction**: each Myrm user's memory lives in their own sandbox (own SQLite + own vector index). There is no shared store to scope.
+- **Write governance**: contradictory writes land in a review queue; high-risk contradictions never auto-resolve; deletes move to an archive with explicit purge.
+- **Exit cost**: the vector index is rebuildable (estimate → run → status) and memory exports carry SHA-256 checksums.
+- Honest gap: "paste one link and the agent configures itself" is smoother than our copy-a-snippet flow. We ship a portable Agent Plugins bundle and step-by-step snippets instead of a fetchable manifest.
+
+## Updates and recovery: Myrm vs OpenClaw v2026.10.9
+
+OpenClaw's patch release is entirely about update failures: rollbacks that preserve local edits, recovery from stale indexes, and restarts that no longer leave the gateway stopped. Credit where due — that is the right priority.
+
+We are candid about where we stand: our **data layer is stronger** (page-level salvage, checksummed backups, reversible state swaps), while our source/CLI updater is still a plain git pull with no staged validation or rollback. Staged upgrades, a cross-version regression gate and a rollback entry point are on the roadmap (#167 / #215 / #478); we do not claim them until they ship.
+
 ## Migration path
 
 | From | How to migrate |
@@ -85,6 +100,7 @@ Competitors market agent counts. Agent count is not capability — **a team that
 | **Hermes** | Export skills as ZIP → import via Myrm GUI wizard. BYOK models and MCP tools carry over. |
 | **OpenClaw** | Workspace context (USER.md) maps to Myrm memory rules. MCP servers reattach directly. |
 | **Codex / Claude Code** | CLI-oriented workflows map to Goal Mode + cron. BYOK API keys transfer as-is. |
+| **GBrain** | Export Postgres rows to JSON → import through the memory API, then run a reindex and a conflict check. There is no turnkey loader yet. |
 | **DeepSeek Harness** | BYOK models and MCP tools carry over; DSH-specific plugins must be re-mounted as `SKILL.md` or MCP. |
 
 > Myrm runs as **SaaS**, **self-hosted WebUI**, or **desktop**. Your skills and memory follow via the GUI migration wizard (desktop / local WebUI).
