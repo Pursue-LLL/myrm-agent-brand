@@ -177,7 +177,7 @@ The result: ask the agent to "push this and open a PR" and it works end-to-end �
 Sandboxes go through three resource stages to minimize cost while maximizing responsiveness:
 
 1. **CPU Throttle** — after 5 idle minutes with no agent run or background shell job in progress, the `ResourceScaler` reduces CPU quota to 25% of the plan's CPU allocation. The next request instantly restores full CPU — no cold start delay.
-2. **Sleep** — after a longer idle period (plan-dependent: 5 min for Free → 24 hours for Max), the `SandboxRecycler` suspends the container but preserves the persistent Volume. Docker pauses it (processes freeze and memory state is kept; a host that cannot pause falls back to a full stop, which keeps the workspace, session and checkpoints but not in-process memory — the task resumes from its last checkpoint), and Fly.io stops the machine. Sleep periods incur zero WU cost.
+2. **Sleep** — after a longer idle period (plan-dependent: 5 min for Free → 24 hours for Max), the `SandboxRecycler` suspends the container but preserves the persistent Volume. Docker pauses it (processes freeze and memory state is kept; a host that cannot pause falls back to a full stop, which keeps the workspace, session and persisted messages but not in-process memory — an interrupted turn is re-run by the crash-recovery policy within its freshness window and retry cap, not restored from process memory), and Fly.io stops the machine. Sleep periods incur zero WU cost.
 3. **Destroy** — after extended inactivity (configurable, default 7 days), the sandbox is fully reclaimed.
 
 **Idle detection** pairs an activity timestamp with a check for work still running inside the sandbox, because suspending a sandbox interrupts everything running in it:
