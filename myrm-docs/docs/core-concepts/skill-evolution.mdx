@@ -74,14 +74,13 @@ Every time you complete a task, the agent automatically analyzes the full conver
 
 **Why this matters:** You don't have to repeat yourself three times before the agent "notices" a pattern. One well-executed workflow is enough — the agent learns immediately and adapts the knowledge to future variations.
 
-## Four Evolution Types
+## Three Evolution Types
 
 | Type | Trigger | What It Does |
 |------|---------|-------------|
 | **FIX** | A tool failure is attributed to a skill (credential, missing-dependency and transient network errors are excluded), or you request a repair manually | Drafts a repair from the failure trace; failures found at runtime always wait for your approval |
 | **DERIVED** | User feedback or frustration signals | Optimize skill based on explicit or implicit feedback |
 | **CAPTURED** | Session anti-patterns detected during idle | Background extraction → 10-dim scoring → dedup → safety scan → Insights Inbox approval |
-| **OPTIMIZE_DESCRIPTION** | Requested explicitly (no automatic trigger) | Refine skill description for better semantic matching |
 
 ## 5-Layer Safety
 
@@ -157,22 +156,19 @@ Every run that uses a skill adds one usage record to its `.stats.json`. While ex
 
 **vs competitors:** OpenClaw ships a GUI revision picker for skills (rollback to a chosen revision); Hermes restores filesystem checkpoints through the CLI `/rollback`.
 
-## Decision History: Dual-Loop Learning
+## Decision History: Your Rejections Are Remembered
 
-Every evolution outcome — success or failure — is permanently recorded and automatically fed into future evolution attempts. The agent accumulates institutional knowledge over time, remembering both what worked and what didn't.
+When you reject a proposed change in the GUI, your reason is stored with that skill and stays there. The next time the skill evolves, its five most recent reasons are injected into the prompt as "Historical Constraints (MUST obey or rejection is guaranteed)", so the new proposal is written knowing which approach you turned down.
 
 | Source | What is recorded | When |
 |--------|-----------------|------|
-| **FIX success** | Error description + fix reasoning | After successful auto-repair (score ≥ 0.7) |
-| **User-driven optimization** | User feedback + optimization reasoning | After successful DERIVED evolution (score ≥ 0.7) |
-| **Screener rejection** | Rejection reasoning with confidence score | When an evolution proposal is rejected (confidence ≥ 0.7) |
-| **Manual rejection** | Human reviewer's rejection reasoning | When a user rejects a proposed change in the GUI |
+| **Manual rejection** | Your reason for rejecting | When you reject a proposed change in the GUI |
 
-**How it works:** The 5 most recent constraints are automatically injected into the LLM prompt as "Historical Constraints (MUST obey or rejection is guaranteed)" — so the next evolution attempt builds on accumulated wisdom instead of starting from scratch.
+Only your own reasons become constraints. When the evolution screener rejects a proposal automatically, the verdict goes to the Evolution Rejections audit list and sets a cooldown before the skill is retried; it is not fed back into the prompt.
 
-**Plain language:** Your agent gets smarter with each evolution cycle. If a fix worked well, it remembers why. If a proposal was rejected, it won't try the same approach again. Over months of use, your skills accumulate a rich history of lessons learned — all automatic, zero maintenance.
+**Plain language:** Your corrections stick. If you reject a proposal and say why, the agent is told your reason before it drafts the next one for that skill.
 
-**vs competitors:** SkillHone (Tencent) uses a Git server (Forgejo) with Issues/PRs/Wiki to record decision history — requiring docker compose setup and manual browsing. Myrm stores everything in SQLite with zero external dependencies and automatically injects lessons into future prompts. No other competitor offers dual-loop (success + failure) persistent learning.
+**vs competitors:** SkillHone (Tencent) uses a Git server (Forgejo) with Issues/PRs/Wiki to record decision history, which requires a docker compose setup and manual browsing. Myrm stores your rejection reasons in SQLite with zero external dependencies and injects them into later prompts automatically.
 
 ## Curator: Lifecycle Governance
 

@@ -129,14 +129,14 @@ DeepSeek Harness 公布的路线图列了六个方向：**远程/移动、长期
   4. **共识塌缩**——@An_yhl（98 赞）：「几个 bot 聊着聊着会不会开始互相捧场。」
   另记：@CrazySoyo（328 赞）bot 从 Cursor 拉一队不同 AI 激辩、先附和再开撕；@ren3634421（701 赞）「自我进化第一步：自己交电费」；@PANewsLab（655 赞）「好用，就是有点乱」；@DesignerBingyi（571 赞）谈产品/设计思维与工程师思维的差距。
 - **我方现状（经真实代码核对）——四个问题逐条有对应物**：
-  - **「这轮改好了」→ 改进闸把原版摆上台面竞争**：`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:237-249` 把原技能作为 baseline 候选注入评测，**没有变体分数更高就跳过这次进化**；FIX 路径没有基线候选，变体只经过回归门禁与评审（`engine.py:153-175`）。
+  - **「这轮改好了」→ 改进闸把原版摆上台面竞争**：`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py::derive_skill_simple` 把原技能作为 baseline 候选注入评测，**没有变体分数更高就跳过这次进化**；FIX 路径没有基线候选，变体只经过回归门禁与评审（`engine.py:153-175`）。
   - **「是变好还是只是聊得更起劲」→ 回归用例门禁**：`agent/skills/evolution/core/eval_regression.py:34` 只守护原技能本身能通过的用例，变体每丢一个守护用例扣 0.15（`eval_regression.py:30`），全丢则硬过滤。
   - **「互相捧场 / 假通过」→ 空心测试拦截**：`agent/skills/evolution/execution/hollow_detector.py:40` 与 `execution/sandbox_validator.py:140-146` 拒绝平凡断言、假打印与空验证脚本。
   - **「除了自我优化还能输出什么」→ 产出必须过物理证据**：`agent/goals/verification/gatekeeper.py:44` 按判据核验，`agent/goals/verification/fault_attribution.py:132` 区分应用逻辑 / 编译 / 测试断言类故障——「做完了」不是模型自己说了算。
-  - **进化管道已生产接线**：`agent/skills/evolution/infra/integration.py:200` 构造引擎；server 侧 `app/api/skills/evolution/derive.py:55` 与 `app/api/skills/evolution/fix.py:45`；人工审批闸在前面（`app/services/agent/confidence_approval_flow.py:52`，自动合并阈值 0.8）。
+  - **进化管道已生产接线**：`agent/skills/evolution/infra/integration.py::EvolutionIntegration.__init__` 构造引擎；server 侧 `app/api/skills/evolution/derive.py:55` 与 `app/api/skills/evolution/fix.py:45`；人工审批闸在前面（`app/services/agent/confidence_approval_flow.py:52`，自动合并阈值 0.8）。
 - **我们自己两处诚实差距（未交付，不得宣传）**：
-  1. **评审者与提案者是同一个模型** —— `agent/skills/evolution/core/engine.py:101-102` 用同一 LLM 实例既生成变体又打分；专为「异源评审」造的独立 judge 通道 `agent/skills/evolution/safety/judge.py:46` **全仓无任何构造点**。⇒ 「近亲繁殖」这条批评，用在我们身上也成立一部分。已在路线图上。
-  2. **回归门禁的尺子本身可被提案者改写** —— `agent/skills/evolution/pipeline/variant_generator.py:320-336` 让同一个模型把 `eval_cases` 随内容一起共演化，`app/services/agent/confidence_approval_flow.py:140` 把它写回技能记录，于是**下一轮**的门禁（`agent/skills/evolution/core/eval_regression.py:49`）就是用被改写后的用例在量。**单轮内不漂移**（原版是基线），**跨轮会漂移**。
+  1. **评审者与提案者是同一个模型** —— `agent/skills/evolution/core/engine.py::SkillEvolutionEngine.__init__` 用同一 LLM 实例既生成变体又打分；专为「异源评审」造的独立 judge 通道 `agent/skills/evolution/safety/judge.py:46` **全仓无任何构造点**。⇒ 「近亲繁殖」这条批评，用在我们身上也成立一部分。已在路线图上。
+  2. **回归门禁的尺子本身可被提案者改写** —— `agent/skills/evolution/pipeline/variant_generator.py::_build_eval_cases_section` 让同一个模型把 `eval_cases` 随内容一起共演化，`app/services/agent/confidence_approval_flow.py:140` 把它写回技能记录，于是**下一轮**的门禁（`agent/skills/evolution/core/eval_regression.py:49`）就是用被改写后的用例在量。**单轮内不漂移**（原版是基线），**跨轮会漂移**。
   3. **我们不做「多 bot 群聊自改」这个形态** —— 我方是单 Agent 技能演化 + 子代理编排（`agent/sub_agents/`）；不抄这个形态，也不宣称我们在「群体智能」上更强。
 - **路线图上**：技能演进的异构评审与有界收敛闭环套件——**解耦评审者还不够，尺子也要解耦**。
 - **SSOT**：`https://x.com/dingyi/status/2108395750128542180`
@@ -155,7 +155,7 @@ DeepSeek Harness 公布的路线图列了六个方向：**远程/移动、长期
 - **我方现状（经真实代码核对）—— 讲义里的建议我们大多已是产品默认**：
   - **渐进披露是默认行为**：技能元数据只留声明与运行时计算字段 ——「**Full content and resources are loaded on-demand (progressive loading)**」，正文 token 成本**预计算**（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/backends/skills/types/types_metadata.py:30-35,48-50`）。
   - **@Thomas3cnl 说的「显式指定」那一半我们已交付**：会话级技能精选 —— 你直接选定本轮要用的技能，不必等模型读完描述再决定；技能使用另有**三态归因**（选中 / 真被执行 / 结果可归因）（`myrm-agent/myrm-agent-frontend/src/components/features/chat-window/MessageInput.tsx`、`backends/skills/types/types_usage.py:101`）。
-  - **验收标准写在技能里**：技能自带绑定回归用例（复盘时生成），背后是改进闸与回归门禁（`agent/skills/evolution/review/reviewer.py:170`、`pipeline/variant_generator.py:104`、`core/engine.py:237-249`、`core/eval_regression.py:30,34`）。
+  - **验收标准写在技能里**：技能自带绑定回归用例（复盘时生成），背后是改进闸与回归门禁（`agent/skills/evolution/review/reviewer.py:170`、`pipeline/variant_generator.py:104`、`core/engine.py::derive_skill_simple`、`core/eval_regression.py:30,34`）。
   - **「干预点 = 技能点」我们做成了自动的**：轨迹复盘把会话变成技能草稿（或判定无价值），失败归因写进技能正文（`agent/skills/evolution/review/reviewer.py:231`、`agent/skill_agent/review.py:299`、`pipeline/variant_generator.py:80`）。
 - **我们不宣称的部分（诚实差距）**：
   1. **「大多数技能失败于从未被触发」这一格的 description 侧我们还没解** —— 课程给的是概率性建议，@Thomas3cnl 指出显式指定更稳，我们交付了显式指定，**但没有帮用户自动写出好 description 的工具**。
@@ -171,8 +171,8 @@ DeepSeek Harness 公布的路线图列了六个方向：**远程/移动、长期
 - **评论区补上的东西**：@thekuchh（**152 赞**）「what kind of task could this be?」（**最难的不是技巧，是知道哪个重复任务值得沉淀**）· @shannholmberg 回复（111 赞）以跨 2 个会话开发的 lead magnet 合并成一个技能为例 · @seeksahib（80 赞）「大多数团队每周都在解同一个问题」· @Kelvin_json（23 赞）「**技能从你改过的地方学到的品味，比从你说的话多得多**」· @chenzhangreal（13 赞）「**一次跑必然漏掉那些奇怪的小毛病**」· @MauroJPelle（14 赞）沉淀也要有阈值。
 - **我方现状（经真实代码核对）—— 同一件事，我们交给系统，并多两道它没有的关**：
   - **轨迹直接变成技能草稿**：`review_trajectory_with_llm()` 分析剪枝后的会话轨迹，产出 skill draft / semantic memory / 「无价值」判定（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/review/reviewer.py:231`、`agent/skill_agent/review.py:299`）。
-  - **你的更正进技能正文**：骨架含 `## User Preference Embedding` 与 `## Failure Attribution`，运行时注入 `## Historical Constraints (MUST obey or rejection is guaranteed)` 与执行轨迹（`agent/skills/evolution/pipeline/variant_generator.py:91`、`:80`、`:259`、`:239`）。
-  - **它没有的两道质量门**：技能**自带回归用例**（`variant_generator.py:104`、`agent/skills/evolution/review/reviewer.py:170`）；**改进闸**把原版作基线候选一起参评，没有变体更好就跳过这次进化（`agent/skills/evolution/core/engine.py:237-249`）；**回归门禁**只守护原技能已通过的用例（`agent/skills/evolution/core/eval_regression.py:30,34`）。
+  - **你的更正进技能正文**：骨架含 `## User Preference Embedding` 与 `## Failure Attribution`，运行时注入 `## Historical Constraints (MUST obey or rejection is guaranteed)` 与执行轨迹（`agent/skills/evolution/pipeline/variant_generator.py::_PREFERENCE_EMBEDDING`、`::_FAILURE_ATTRIBUTION`、`::_build_variant_prompt`）。
+  - **它没有的两道质量门**：技能**自带回归用例**（`variant_generator.py:104`、`agent/skills/evolution/review/reviewer.py:170`）；**改进闸**把原版作基线候选一起参评，没有变体更好就跳过这次进化（`agent/skills/evolution/core/engine.py::derive_skill_simple`）；**回归门禁**只守护原技能已通过的用例（`agent/skills/evolution/core/eval_regression.py:30,34`）。
   - **最后仍要人签字**：草稿列表 / 详情 / 批准 / 驳回端点 + 实体化（`myrm-agent/myrm-agent-server/app/api/skills/drafts.py:104,125`、`app/api/skills/draft_materialize.py:99`、前端 `myrm-agent/myrm-agent-frontend/src/services/skill/core.ts:709-762`）。
 - **我们不宣称的部分（诚实差距）**：
   1. **我们的技能产物缺两段显式结构：决策点与良好输出示例**。原帖明确要求「参考文件、我的更正、**决策点**和**良好输出的示例**」；我们的骨架（`variant_generator.py:51-111`）有 Editing Principles / Hard Constraints / Conservative Editing / Failure Attribution / User Preference Embedding / Bound EvalCases / Output Requirements —— **更正与参考都有，决策点与好输出示例没有**。这条低成本缺口已列入路线图。
@@ -223,7 +223,7 @@ DeepSeek Harness 公布的路线图列了六个方向：**远程/移动、长期
   - **前提我们天然满足**：会话轨迹（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/review/reviewer.py`）、长期记忆、看板与工件都是现成的用户活动日志 —— 「产品本来就在记用户活动」这条我们成立。
   - **缺的是那把尺子**：全仓检索 `teacher_forced`、`next_action_accuracy`、留出日志门禁与 `progress_gate` **零命中** —— 「改完之后到底更好了吗」在我们这边**还不是一个能自动算出来的数**。
   - **仍开着**：纯提示词技能跳过沙箱验证（`agent/skills/evolution/execution/sandbox_validator.py:64` 与 `:109`）；无用户文本轨迹时的「空轨迹」硬编码回退（`eval/builder.py:49`）。
-  - **订正我们自己的一处口径**：我们此前写「`evolution_rejections` 只写不读、从未注入优化器」—— 这把两张表混为一谈了。**被拒教训确实会读回并注入下一次生成**（`agent/skills/evolution/core/engine.py:137` 与 `:213` → `agent/skills/evolution/pipeline/variant_generator.py:158` 与 `:259`「Historical Constraints (MUST obey or rejection is guaranteed)」，读回接口 `agent/skills/evolution/db/_store_evolution_tracking.py:180`），而 `evolution_rejections` 表**只用于冷却期判定**（`agent/skills/evolution/pipeline/screener.py:269`）。
+  - **被拒原因如何回到优化器**：你拒绝历史提案时给出的原因会读回并注入下一次生成（`agent/skills/evolution/core/engine.py::fix_skill` 与 `::derive_skill_simple` → `agent/skills/evolution/pipeline/variant_generator.py::generate_variants` 与 `::_build_variant_prompt`「Historical Constraints (MUST obey or rejection is guaranteed)」，读回接口 `agent/skills/evolution/db/_store_evolution_tracking.py::get_evolution_constraints`），而 `evolution_rejections` 表记录筛选器的拒绝结论，**只用于冷却期判定**（`agent/skills/evolution/pipeline/screener.py::screen_request`）。
 - **我们不宣称的部分（诚实差距）**：
   1. **没有离线留出判据** —— 我们还不能说「这次技能编辑让下一个动作更可能被做对」，论文的核心指标未实现。
   2. **我们没有像论文那样从原始动作日志挖技能** —— 我们的技能演化由会话复盘与挫败信号触发，没有「猜目标 → 逐动作预测」这一步。
@@ -290,7 +290,7 @@ DeepSeek Harness 公布的路线图列了六个方向：**远程/移动、长期
   - **双向语音通道** —— 入站 TwiML → ConversationRelay WebSocket → STT，出站文本 → WebSocket → TTS（`app/channels/providers/voice_channel.py:1-6`）。
   - **全离线零 API 语音** —— 本地 Piper TTS + faster-whisper STT + 本地模型：**0 字节出机、0 元账单**（`app/channels/voice/tts.py:20,83-86`、`app/api/health/router.py:150-167`）。对候选人的语音与政治观点来说，这不是加分项，而是**能不能入场的门槛**。
   - **复盘是真工件，不是聊天气泡** —— `/memo` 把语音备忘拆成四份资产（Markdown 纪要 + 看板待办 + 记忆事实 + Excel 数据表），配 Actionability 门禁与确定性幂等键；`/review-week` 拉全跨会话素材、按严格时间窗收敛、**与真实看板交叉比对**、按四维根因归因并落成 Markdown 报告工件（`app/channels/routing/command_defs.py:278-279` 与 `:288`）。
-  - **经验不会随会话蒸发** —— 轨迹复盘把这次陪练沉淀成可复用技能草稿，后续修改由改进闸与回归门禁兜底（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/review/reviewer.py:231`、`agent/skill_agent/review.py:299`、`agent/skills/evolution/core/engine.py:237-249`、`agent/skills/evolution/core/eval_regression.py:34`）。
+  - **经验不会随会话蒸发** —— 轨迹复盘把这次陪练沉淀成可复用技能草稿，后续修改由改进闸与回归门禁兜底（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/review/reviewer.py:231`、`agent/skill_agent/review.py:299`、`agent/skills/evolution/core/engine.py::derive_skill_simple`、`agent/skills/evolution/core/eval_regression.py:34`）。
 - **我们不宣称的部分（诚实差距）**：
   1. **没有非言语表现分析** —— 情绪、停顿、口头禅、语速在**竞品镜像里零命中、在我方也零命中**，演示里那套是手工自建；**双方都没有**，因此只登记为需求，不作可对标机制。
   2. **没有开箱即用的「对手陪练」产品形态** —— 我们能做 persona 与多角色编排，但没有一个现成的「记者 / 对手」陪练器。

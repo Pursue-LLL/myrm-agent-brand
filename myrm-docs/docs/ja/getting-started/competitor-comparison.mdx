@@ -35,7 +35,7 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
 - **我々の現状（実コードで確認）** —— 講義ノートの指針のほとんどは既に従っている:
   - **プログレッシブ開示は既定動作**: スキルメタデータは宣言と実行時計算の項目だけを保持し、「**Full content and resources are loaded on-demand (progressive loading)**」、本文の token コストは事前計算する（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/backends/skills/types/types_metadata.py:30-35,48-50`）。
   - **@Thomas3cnl の「明示指定」側は既に実装済み**: セッション単位のスキル選択で、モデルに判断させるのではなく利用者が今ターンの技能を直接選ぶ。効果の帰属は 3 状態（選択 / 実際に実行 / 結果を帰属可能）（`myrm-agent/myrm-agent-frontend/src/components/features/chat-window/MessageInput.tsx`、`backends/skills/types/types_usage.py:101`）。
-  - **受け入れ基準は skill の中へ**: スキルは束縛された回帰テストケースを自带し（レビュー時に生成）、改善ゲートと回帰ゲートの背後にある（`agent/skills/evolution/review/reviewer.py:170`、`pipeline/variant_generator.py:104`、`core/engine.py:237-249`、`core/eval_regression.py:30,34`）。
+  - **受け入れ基準は skill の中へ**: スキルは束縛された回帰テストケースを自带し（レビュー時に生成）、改善ゲートと回帰ゲートの背後にある（`agent/skills/evolution/review/reviewer.py:170`、`pipeline/variant_generator.py:104`、`core/engine.py::derive_skill_simple`、`core/eval_regression.py:30,34`）。
   - **「介入ポイント = スキルポイント」を自動化した**: 軌跡レビューがセッションをスキル草稿へ変換し（価値なしと判断することも）、失敗の帰属を skill 本文へ書き込む（`agent/skills/evolution/review/reviewer.py:231`、`agent/skill_agent/review.py:299`、`pipeline/variant_generator.py:80`）。
 - **我々が主張しない部分（正直な差距）**:
   1. **「多くの skill は一度も発動しない」問題.description 側は未解決** —— 講義が示すのは確率的対策（トリガー語句を書く）で、@Thomas3cnl は明示指定の方が确实だと指摘する。我々は明示指定を実装済みだが、**良い description を自動で書かせるツールは無い**。
@@ -51,8 +51,8 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
 - **コメントが加えたもの**: @thekuchh（**152 いいね**）「what kind of task could this be?」（**難しいのは手順ではなく、同じ繰り返しタスクをスキルにすべきかを見極めること**）· @shannholmberg（111）2 つのセッションにまたがるリードマグネットの開発を 1 つのスキルにまとめる例 · @seeksahib（80 ）「Most teams keep solving the same problem every week.」· @Kelvin_json（23）「**the skill picks up your taste from what you fixed way more than from what you asked for**」· @chenzhangreal（13）「**one run always misses weird little snags**」· @MauroJPelle（14）沉淀にも閾値が必要。
 - **我々の現状（実コードで確認）** —— 同じ Jobs をシステムに任せ、レシピにない 2 つの品質ゲートを足す:
   - **軌跡がそのままスキル草稿になる**: `review_trajectory_with_llm()` が剪枝した会話軌跡を解析し、skill draft / semantic memory /「価値なし」を返す（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/review/reviewer.py:231`、`agent/skill_agent/review.py:299`）。
-  - **あなたの訂正がスキル本文に入る**: 編集骨格に `## User Preference Embedding` と `## Failure Attribution` があり、実行時は `## Historical Constraints (MUST obey or rejection is guaranteed)` と実行軌跡を注入する（`agent/skills/evolution/pipeline/variant_generator.py:91`、`:80`、`:259`、`:239`）。
-  - **レシピにない品質ゲート**: スキルは自分の回帰テスト用例を自带（`variant_generator.py:104`、`agent/skills/evolution/review/reviewer.py:170`）、**改善ゲート**は原版を基準候補として評価に載せ、勝者が居なければ進化自体を中止する（`agent/skills/evolution/core/engine.py:237-249`）、**回帰ゲート**は元スキルが元々通っていた用例だけを守る（`agent/skills/evolution/core/eval_regression.py:30,34`）。
+  - **あなたの訂正がスキル本文に入る**: 編集骨格に `## User Preference Embedding` と `## Failure Attribution` があり、実行時は `## Historical Constraints (MUST obey or rejection is guaranteed)` と実行軌跡を注入する（`agent/skills/evolution/pipeline/variant_generator.py::_PREFERENCE_EMBEDDING`、`::_FAILURE_ATTRIBUTION`、`::_build_variant_prompt`）。
+  - **レシピにない品質ゲート**: スキルは自分の回帰テスト用例を自带（`variant_generator.py:104`、`agent/skills/evolution/review/reviewer.py:170`）、**改善ゲート**は原版を基準候補として評価に載せ、勝者が居なければ進化自体を中止する（`agent/skills/evolution/core/engine.py::derive_skill_simple`）、**回帰ゲート**は元スキルが元々通っていた用例だけを守る（`agent/skills/evolution/core/eval_regression.py:30,34`）。
   - **最後は人が署名する**: 下書きの一覧 / 詳細 / 承認 / 却下エンドポイントと実体化（`myrm-agent/myrm-agent-server/app/api/skills/drafts.py:104,125`、`app/api/skills/draft_materialize.py:99`、フロント `myrm-agent/myrm-agent-frontend/src/services/skill/core.ts:709-762`）。
 - **我々が主張しない部分（正直な差距）**:
   1. **私たちのスキル生成物に二つの明示的な節が欠けている: 判断点とよい出力の例**。レシピは「参照ファイル、私の訂正、**判断点**と**よい出力の例**」を求めるが、私たちの編集骨格（`variant_generator.py:51-111`）は Editing Principles / Hard Constraints / Conservative Editing / Failure Attribution / User Preference Embedding / Bound EvalCases / Output Requirements —— **訂正と参照はあるが、判断点とよい出力の例はない**。安価で具体的な欠落であり、ロードマップに載せている。
@@ -103,7 +103,7 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
   - **前提は我々は満たしている**: セッション軌跡（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/review/reviewer.py`）、長期記憶、カン，工件はいずれも既に残っているユーザー活動ログ ——「製品が利用を記録している」は我々に当てはまる。
   - **足りないのは物差し**: `teacher_forced`、`next_action_accuracy`、残したログの門禁、`progress_gate` を全倉検索して**ヒット 0** ——「この編集で次の行動の確率が上がったか」は、我々の側では**自動計算できる数値になっていない**。
   - **未解決のまま**: 純プロンプトスキルはサンドボックス検証を飛ばす（`agent/skills/evolution/execution/sandbox_validator.py:64` と `:109`）、ユーザテキスト軌跡が無い場合の「空軌跡」ハードコード（`eval/builder.py:49`）。
-  - **我々の記述の 1 か所を訂正**: 「`evolution_rejections` は書くだけで読まれず、最適化器にも注入されない」と書いたのは 2 つの表を混ぜたものだった。**拒否された教訓は実際に読み戻され次の生成へ注入される**（`agent/skills/evolution/core/engine.py:137` と `:213` → `agent/skills/evolution/pipeline/variant_generator.py:158` と `:259`「Historical Constraints (MUST obey or rejection is guaranteed)」、読取口は `agent/skills/evolution/db/_store_evolution_tracking.py:180`）。一方 `evolution_rejections` 表は**クールダウン判定にのみ**使われる（`agent/skills/evolution/pipeline/screener.py:269`）。
+  - **拒否の理由が最適化器へ戻る経路**: ユーザーが過去の提案を拒否したときに残した理由が読み戻され、次の生成へ注入される（`agent/skills/evolution/core/engine.py::fix_skill` と `::derive_skill_simple` → `agent/skills/evolution/pipeline/variant_generator.py::generate_variants` と `::_build_variant_prompt`「Historical Constraints (MUST obey or rejection is guaranteed)」、読取口は `agent/skills/evolution/db/_store_evolution_tracking.py::get_evolution_constraints`）。一方 `evolution_rejections` 表はスクリーナーの拒否判定を記録し、**クールダウン判定にのみ**使われる（`agent/skills/evolution/pipeline/screener.py::screen_request`）。
 - **我々が主張しない部分（正直な差距）**:
   1. **オフラインの残したログによる物差しが無い** ——「この編集で次の行動が正しくなりやすい」とはまだ言えず、論文の中心指標は未実装。
   2. **論文のように生の行動ログからスキルを掘っていない** —— 我々のスキル進化はセッション復盤とフラストレーション信号が起点であり、「目的を推測して各行動を予測する」段階は無い。
@@ -170,7 +170,7 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
   - **双方向音声チャンネル** —— 入着 TwiML → ConversationRelay WebSocket → STT、出着テキスト → WebSocket → TTS（`app/channels/providers/voice_channel.py:1-6`）。
   - **完全オフラインで API 従属なしの音声** —— ローカル Piper TTS + faster-whisper STT + ローカルモデルで、**外へ出るバイト 0、API 費用 0**（`app/channels/voice/tts.py:20,83-86`、`app/api/health/router.py:150-167`）。候補者の音声と政治的発言にとって、これは加点要素ではなく**参加できるかどうかの入場条件**である。
   - **ふりかえりは本物の成果物** —— `/memo` は音声メモを 4 つの資産（Markdown の議事録・盤面の todo・記憶事実・Excel シート）へ分解し、Actionability ゲートと決定的な冪等鍵を添えて、`/review-week` はセッション横断の素材全体を集めて厳密な時間窓で絞り、**実際の盤面と突き合わせ**、4 次元の根本原因で分類し、Markdown のレポート成果物として残す（`app/channels/routing/command_defs.py:278-279` と `:288`）。
-  - **学びはセッションとともに消えない** —— 軌跡のふりかえりが再利用できるスキル草稿へ蒸留され、その後の修正は改善ゲートと回帰ゲートが守る（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/review/reviewer.py:231`、`agent/skill_agent/review.py:299`、`agent/skills/evolution/core/engine.py:237-249`、`agent/skills/evolution/core/eval_regression.py:34`）。
+  - **学びはセッションとともに消えない** —— 軌跡のふりかえりが再利用できるスキル草稿へ蒸留され、その後の修正は改善ゲートと回帰ゲートが守る（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/review/reviewer.py:231`、`agent/skill_agent/review.py:299`、`agent/skills/evolution/core/engine.py::derive_skill_simple`、`agent/skills/evolution/core/eval_regression.py:34`）。
 - **我々が主張しない部分（正直な差距）**:
   1. **非言語Guarantee ではなく、非言語の表現分析は無い** —— 感情・間・う分配的語・話す速さは**競合ミラーでも我方でもヒット 0**。デモ版は手自社製であり、**どちらにも無い**ので、借用できる機構ではなく需要として記録する。
   2. **「対抗相手役の sparring」製品形态が無い** —— persona と複数役の連携は作れるが、「記者役」「相手役」の練習相手になる製品が無い。
@@ -215,14 +215,14 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
   4. **合意の偏り**——@An_yhl（98 いいね）:「数体のボットが話していたら、いつの間にかお互い褒め合っていないか」。
   併記: @CrazySoyo（328 いいね）は bot が Cursor から別の AI を一隊招集して議論させ、最初こそ同調するが、そのあとは互いに衝突し合う場面を綴っている。@ren3634421（701 いいね）は自己進化の第一歩が電気代を自分で払うことだと冗談めかして言い、@PANewsLab（655 いいね）は「便利だがプランが分かりにくい」と評し、@DesignerBingyi（571 いいね）はプロダクトの発想とエンジニアの発想の隔たりを指摘している。
 - **我々の現状（実コードで確認）——難問 4 つすべてに対応策がある**:
-  - **「このラウンドはよくなったか」→ 改善ゲートが原版を基準候補として追加する**: `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py:237-249` が原スキルの内容を基準候補として評価に投入し、**どの変案も原版を上回らなければ進化そのものを中止する**。FIX 経路には基準候補がなく、変案は回帰ゲートと評価だけを通る（`engine.py:153-175`）。
+  - **「このラウンドはよくなったか」→ 改善ゲートが原版を基準候補として追加する**: `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/agent/skills/evolution/core/engine.py::derive_skill_simple` が原スキルの内容を基準候補として評価に投入し、**どの変案も原版を上回らなければ進化そのものを中止する**。FIX 経路には基準候補がなく、変案は回帰ゲートと評価だけを通る（`engine.py:153-175`）。
   - **「よくなったのか、ただ盛り上がっただけか」→ 回帰ケース門番**: `agent/skills/evolution/core/eval_regression.py:34` が守る用例は原スキルが元から通るものだけ。変案が守備用例を 1 つ失うごとに 0.15 の減点（`eval_regression.py:30`）、すべて失った場合は hard filter で弾かれる。
   - **「お互い褒め合う / 偽の合格」→ 空心テストの検出**: `agent/skills/evolution/execution/hollow_detector.py:40` と `execution/sandbox_validator.py:140-146` が、形式だけの断言・意味のない print・空っぽの検証スクリプトを拒否する。
   - **「自己最適化以外に何を出せるのか」→ 成果物は物理的証拠を通ること**: `agent/goals/verification/gatekeeper.py:44` が判定基準で検める、`agent/goals/verification/fault_attribution.py:132` がアプリロジック / コンパイル / テスト断言の失敗を切り分ける——「終わった」をモデル自身の宣言で済ませるわけではない。
-  - **進化パイプラインは本番で配線済み**: `agent/skills/evolution/infra/integration.py:200` がエンジンを組み立て、サーバー側は `app/api/skills/evolution/derive.py:55` と `app/api/skills/evolution/fix.py:45` を提供し、手前に human review 門（`app/services/agent/confidence_approval_flow.py:52`、自動統合の閾値 0.8）が立つ。
+  - **進化パイプラインは本番で配線済み**: `agent/skills/evolution/infra/integration.py::EvolutionIntegration.__init__` がエンジンを組み立て、サーバー側は `app/api/skills/evolution/derive.py:55` と `app/api/skills/evolution/fix.py:45` を提供し、手前に human review 門（`app/services/agent/confidence_approval_flow.py:52`、自動統合の閾値 0.8）が立つ。
 - **我々自身の正直な弱点 2 つ（未納品なので宣伝しない）**:
-  1. **評価者と提案者が同じモデル** —— `agent/skills/evolution/core/engine.py:101-102` は変案の生成と採点を同一の LLM インスタンスで賄い、「異種の評価者」専用に作られた judge 経路 `agent/skills/evolution/safety/judge.py:46` は**リポジトリ全体で生成箇所が一つも無い**。つまり「近親交配」という指摘は我々にも一部当てはまる。既にロードマップに載っている。
-  2. **尺そのものを提案者が書き換えられる** —— `agent/skills/evolution/pipeline/variant_generator.py:320-336` が `eval_cases` を同じモデルに本文と一緒に共進化させ、`app/services/agent/confidence_approval_flow.py:140` がそれをスキル記録へ書き戻す。すると**次の**ラウンドの門番（`agent/skills/evolution/core/eval_regression.py:49`）は書き換えられた用例で測ることになる。**単一ラウンド内では漂わない**（原版が基準だから）が、**ラウンドをまたぐと漂う**。
+  1. **評価者と提案者が同じモデル** —— `agent/skills/evolution/core/engine.py::SkillEvolutionEngine.__init__` は変案の生成と採点を同一の LLM インスタンスで賄い、「異種の評価者」専用に作られた judge 経路 `agent/skills/evolution/safety/judge.py:46` は**リポジトリ全体で生成箇所が一つも無い**。つまり「近親交配」という指摘は我々にも一部当てはまる。既にロードマップに載っている。
+  2. **尺そのものを提案者が書き換えられる** —— `agent/skills/evolution/pipeline/variant_generator.py::_build_eval_cases_section` が `eval_cases` を同じモデルに本文と一緒に共進化させ、`app/services/agent/confidence_approval_flow.py:140` がそれをスキル記録へ書き戻す。すると**次の**ラウンドの門番（`agent/skills/evolution/core/eval_regression.py:49`）は書き換えられた用例で測ることになる。**単一ラウンド内では漂わない**（原版が基準だから）が、**ラウンドをまたぐと漂う**。
   3. **我々は「ボットが集まって話して改良する」形式のやらない** —— 我々の形は単一エージェントのスキル進化 + サブエージェント連携（`agent/sub_agents/`）で、その形式を真似たことも「群衆の知」という点で勝っていると主張することもない。
 - **ロードマップ上にある**: スキル進化の異種評価と有界収束の閉ループ一式——**評価者の分離だけでは足りず、尺そのものも分離すること**。
 - **SSOT**: `https://x.com/dingyi/status/2108395750128542180`
