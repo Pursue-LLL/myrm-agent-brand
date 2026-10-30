@@ -69,6 +69,26 @@ X @nvandewetering 的 351 回复长帖，是一份很清晰的「个人 Agent �
 
 **诚实边界**：Myrm 是「有界自主」——用户定义完成条件、写操作要审批、任何运行可随时停止；不是「设完就不管」，我们也不这样卖。
 
+## DeepSeek Harness 六方向路线图 · 逐条对照已交付代码（2026-10-30 实测）
+
+DeepSeek Harness 公布的路线图列了六个方向：**远程/移动、长期记忆、浏览器与 GUI 自动化、沙箱安全、多智能体团队、会话共享**。路线图是方向，不是交付日期。下表把每个方向对到 Myrm 今天真正交付的能力，并在同一行写清边界。
+
+| 方向 | 路线图指向什么 | Myrm 今天已交付 | 诚实边界 |
+|---|---|---|---|
+| **远程 / 移动** | 在手机或远端机器上使用 Agent，而不是只守在桌前 | 独立手机指挥台：会话中心（`myrm-agent/myrm-agent-frontend/src/app/mobile/page.tsx:1-9`）、键盘上方辅助栏（`.../chat-window/mobile/MobileQuickControlAccessoryToolbar.tsx:10-14`）、长按审批（`.../mobile/HoldToApproveButton.tsx:15-21`）、语音暂存输入（`.../features/mobile/MobileVoiceStagedInput.tsx:3-13`）、后台任务回告（`myrm-agent/myrm-agent-server/app/core/channel_bridge/webui_voice_work_notifier.py:1-14`） | 仍是 PWA/Web，不是原生 iOS/Android；远端可达性取决于你的网络出口（Tailscale 或云托管）；离线只覆盖已缓存内容与已登记后台任务，不是「任何网络零配置直连」 |
+| **长期记忆** | 会话结束或重启后，记忆仍然在 | 跨会话持久记忆（`.../toolkits/memory/setup.py:11-13`）、跨会话整合（`.../memory/strategies/consolidation_prompts.py:1`）、用户打字时主动避让的四频认知时钟（`.../lifecycle/cognitive_clock/coordinator.py:54`、`:149-152`）、合并审计时间线与纠正链（`.../memory/cards/MemoryDetailSheet.tsx:43-84`） | 没有同条件公开召回基准，所以**不宣称召回率更高**。DSH 自己的 issue 区仍把记忆描述为会话内并请求持久化（[discussion #1345](https://github.com/deepseek-ai/deepseek-harness/discussions/1345)），这说明差异是「已交付 vs 路线图」，不是质量结论。Memory Doctor 默认关闭，部分诊断仍在 `topic_09 #201` |
+| **浏览器 / GUI 自动化** | 网页与桌面 GUI 操作是一等能力，而不是外挂插件 | 通过扩展桥复用你真实登录的 Chrome 会话（`myrm-agent/myrm-agent-extension/_ARCH.md:49`）、三档拟人化（`.../toolkits/browser/pool/config.py:17-24`、`:233-254`）、桌面语义控制 MCP（`.../toolkits/computer_use/mcp_server.py:1-5`）、逐应用前台授权（`.../ai_agents/desktop_control/gate.py:1-17`） | 不承诺击败所有反爬或验证码，仍可能转人工接管；桌面控制验证在 macOS 上强于 Linux/Windows；这里的 GUI 自动化不是「无人值守万能」 |
+| **沙箱 / 安全** | 加固隔离与权限，避免 Agent 越权 | 容器可重建而持久卷保留文件/会话/记忆/设置（`.../api/system/sandbox_recreate.py:75-81`）、三档权限（`.../core/security/types.py:60-65`）、确定性策略评估（`.../agent/security/engine.py:283-305`）、不可逆动作强制逐次确认（`.../middlewares/approval/batch_processor.py:605-627`）、签名且可衰减的能力令牌（`.../core/security/ocap/token.py:49-53`） | DSH 本身也有 OS 级沙箱；差异不是「有没有沙箱」，而是权限边界、逐次确认与可回退。我们没有第三方安全认证，也不说沙箱「不可攻破」 |
+| **多智能体团队** | 从单个 subagent 走向有角色、有协作的团队 | 团队模板 + Kanban 任务图、shell 优先的完成验收（`.../core/kanban/verifier.py:102-110`）、有界重试的对抗式验证（`.../sub_agents/_orchestrator_verification.py:127-131`）、结构化交接（`.../sub_agents/handover.py:52-74`）、目标验收注册表（`.../goals/verification/gatekeeper.py:36-53`） | 不卖 Agent 数量；Chief-of-Staff 与 `/fleet` 指挥中心仍未交付；没有多人共用的单一 Bot 实例。价值在验收与交接，不在人头 |
+| **会话共享** | 把会话分享给他人，或跨人/跨端接续 | 限时只读会话链接，可选密码、可立即撤销，入口在会话侧边栏（`.../features/sidebar/ShareConversationDialog.tsx:19-25`；`.../api/chats/chat/share/manage.py:70-86`）；公开页密码不进 URL、5 次失败锁定、noindex/no-store/no-referrer（`.../share/public.py:20-30`）；可撤销的工件分享链接（`.../app/api/files/artifact_share_api.py:1-25`） | **只交付了只读快照**。多人实时在场、打字冲突规避、会话 fork/review/merge（Session-as-a-PR）都未交付，仍在 `topic_17 #18` 与 `#26`。不要把它说成「多人协作会话已交付」 |
+
+**如果你在评估 DSH**：
+
+- **五个方向今天有可核对的对应实现**：远程/移动、记忆、浏览器/GUI、沙箱、团队。你可以按上面的路径自己查，而不是只看发布帖。
+- **会话共享只有一半**：只读分享链接能用，实时协作不能。如果你是为了这一条迁移，双方都还没准备好，别为它买单。
+- **成熟度标签值得学，但我们还没做**：DSH 给每个方向标成熟度；Myrm 还没有统一的功能成熟度注册表（`topic_10 #69`），所以文档只用「已交付 / 未交付」二分法。
+- **迁移不是插件原样导入**：BYOK 模型与 MCP 工具可以继续用，但 DSH 专用插件需要按 `SKILL.md` 或 MCP 重新挂载；我们不承诺插件零改造迁移。
+
 ## 一眼对比（2026-10-24）
 
 | | Myrm | Hermes | OpenClaw | Codex | DeepSeek-Harness | Pi | OpenCode |
