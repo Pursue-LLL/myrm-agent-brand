@@ -87,7 +87,7 @@ const COUNT_CLAIMS = [
   {
     id: 'lifecycleHooks',
     anchor: 'myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/hooks/types.py',
-    expect: 13,
+    expect: 12,
     literal: null,
     countPattern: /^\s{4}([A-Z_]+)\s*=\s*"([a-z_]+)"$/gm,
     slide: 'functionHooks',
