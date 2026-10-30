@@ -78,10 +78,6 @@ describe('getMobileHubDocsUrl', () => {
     expect(getMobileHubDocsUrl('zh')).toContain('/zh/getting-started/desktop-app#远程访问mobile-hub');
   });
 
-  test('returns korean anchor for ko locale', () => {
-    expect(getMobileHubDocsUrl('ko')).toContain('/ko/getting-started/desktop-app#원격-액세스mobile-hub');
-  });
-
   test('returns japanese anchor for ja locale', () => {
     expect(getMobileHubDocsUrl('ja')).toContain('/ja/getting-started/desktop-app#リモートアクセスmobile-hub');
   });

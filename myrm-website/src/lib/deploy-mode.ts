@@ -38,8 +38,6 @@ export function getDocsUrl(path: string = '/', locale: DocsLocale = 'en'): strin
   let localized = normalized;
   if (locale === 'zh' && !normalized.startsWith('/zh/')) {
     localized = `/zh${normalized}`;
-  } else if (locale === 'ko' && !normalized.startsWith('/ko/')) {
-    localized = `/ko${normalized}`;
   } else if (locale === 'ja' && !normalized.startsWith('/ja/')) {
     localized = `/ja${normalized}`;
   }

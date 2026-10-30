@@ -8,7 +8,7 @@
 | `cp-billing-contract.json` | 核心 | 独立仓 CI 云定价回退（对齐 CP catalog/plans） | — |
 | `validate-marketing-locales.ts` | 核心 | locales 键契约（zh/en/ko）+ cloud 定价与 CP `catalog.py`/`plans.py` 数值对齐（本地优先读 CP，否则读 contract）+ legacy URL 扫描 | ✅ |
 | `i18n-ko-bulk-translate.py` | 辅助 | 从 en SSOT 批量机翻 `locales/ko.json`（Google Translate + placeholder 保护；缓存 `locales/.ko-translate-cache.json`） | ✅ |
-| `validate-docs-slugs.ts` | 核心 | 营销 slug ↔ Mintlify nav ↔ MDX orphan（en/zh/ko 三语） | ✅ |
+| `validate-docs-slugs.ts` | 核心 | 营销 slug ↔ Mintlify nav ↔ MDX orphan（en/zh/ja 三语） | ✅ |
 | `bake-desktop-release.ts` | 核心 | 构建前写入 `public/desktop-release.json` | ✅ |
 | `release-website.ts` | 核心 | 本地应急：preflight（claims + build + test）+ push tag（GHA POST Hook） | ✅ |
 | `check-marketing-claims.ts` | 核心 | 营销宣称守门：数量型宣称对照 monorepo 里的代码锚点（`myrm-agent/…`），轮播不得出现 100% 磁贴，官网不得含未交付能力词；锚点只在 monorepo 检出里存在，所以只在本地 preflight 运行，不进 `bun run build` | ✅ |

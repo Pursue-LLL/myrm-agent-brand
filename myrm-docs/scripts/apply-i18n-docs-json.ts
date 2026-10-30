@@ -24,7 +24,7 @@ const enTabs: Tab[] =
 
 if (!doc.navigation.tabs && doc.navigation.languages?.length) {
   console.error(
-    'docs.json already uses navigation.languages[] (en/zh/ko). ' +
+    'docs.json already uses navigation.languages[] (en/zh/ja). ' +
       'This one-shot en+zh migration tool is obsolete; refusing to overwrite.',
   );
   process.exit(1);

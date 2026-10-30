@@ -121,9 +121,7 @@ export function getMobileHubDocsUrl(docsLocale: DocsLocale = 'en'): string {
       ? '#リモートアクセスmobile-hub'
       : docsLocale === 'zh'
         ? '#远程访问mobile-hub'
-        : docsLocale === 'ko'
-          ? '#원격-액세스mobile-hub'
-          : '#remote-access-mobile-hub';
+        : '#remote-access-mobile-hub';
   return `${getDocsUrl('/getting-started/desktop-app', docsLocale)}${anchor}`;
 }
 

@@ -2,10 +2,10 @@
  * [INPUT]
  * - myrm-docs/_ARCH.md, scripts/_ARCH.md (POS: Mintlify 模块分形文档)
  * - docs.json navigation page ids
- * - docs/** and docs/zh/** / docs/ko/** section directories
+ * - docs/** and docs/zh/** section directories
  *
  * [OUTPUT]
- * - 分形文档门禁：必检 _ARCH 存在、无 stub 占位符、导航页可解析、EN/zh/ko 分区对齐
+ * - 分形文档门禁：必检 _ARCH 存在、无 stub 占位符、导航页可解析、EN/zh 分区对齐
  *
  * [POS]
  * Mintlify 文档站轻量分形 CI 守门；导航 orphan 仍由 myrm-website validate-docs-slugs 负责。
@@ -68,7 +68,7 @@ function listTopLevelMdxSections(root: string): Set<string> {
   const sections = new Set<string>();
   for (const entry of readdirSync(root)) {
     const fullPath = join(root, entry);
-    if (!statSync(fullPath).isDirectory() || entry === 'zh' || entry === 'ko') {
+    if (!statSync(fullPath).isDirectory() || entry === 'zh') {
       continue;
     }
     const hasMdx = readdirSync(fullPath).some((name) => name.endsWith('.mdx'));
@@ -125,15 +125,11 @@ export function collectFractalDocViolations(): string[] {
   for (const section of DOC_SECTIONS) {
     const enDir = join(DOCS_DIR, section);
     const zhDir = join(DOCS_DIR, 'zh', section);
-    const koDir = join(DOCS_DIR, 'ko', section);
     if (!existsSync(enDir)) {
       errors.push(`missing EN docs section directory: docs/${section}`);
     }
     if (!existsSync(zhDir)) {
       errors.push(`missing ZH docs section directory: docs/zh/${section}`);
-    }
-    if (!existsSync(koDir)) {
-      errors.push(`missing KO docs section directory: docs/ko/${section}`);
     }
   }
 
@@ -153,17 +149,6 @@ export function collectFractalDocViolations(): string[] {
     errors.push(
       `undocumented ZH docs sections (update DOC_SECTIONS in check-fractal-docs.ts): ${extraZh.sort().join(', ')}`,
     );
-  }
-
-  const koRoot = join(DOCS_DIR, 'ko');
-  if (existsSync(koRoot)) {
-    const koSections = listTopLevelMdxSections(koRoot);
-    const extraKo = [...koSections].filter((section) => !expectedSections.has(section));
-    if (extraKo.length > 0) {
-      errors.push(
-        `undocumented KO docs sections (update DOC_SECTIONS in check-fractal-docs.ts): ${extraKo.sort().join(', ')}`,
-      );
-    }
   }
 
   return errors;
