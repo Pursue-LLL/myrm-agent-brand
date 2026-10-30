@@ -2468,3 +2468,13 @@ LFM3 这类「2B 级、面向 agent harness 训练、256K 上下文」的模型�
 - **敏感数据自动走本地**：配置本地模型后，隐私路由会按敏感级别把请求留在本地（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/types.py:252-260`），不需要用户每次手动切模型。
 - **模型行不行，用你自己的 harness 复现**：EvalLab 支持同一 Profile 的三臂对比（`app/core/eval/skill_ab.py:1-25`）、配置层消融（`layered.py:1-20`）、会话一键转用例（`POST /cases/from-chat/{chat_id}`）与 Golden 5-Pack；报告按 **harness + model 双维**标注，逐条 case 看退化，而不是只看厂商的总分。
 - **诚实边界**：Fit Score 与 tok/s 是估算，不是实测；隐私路由需要你先配置本地模型；长上下文「尾部召回」没有内置 needle 维度，可用长文本用例手工表达。我们不会把「可复现」说成「已验证」，也不会把厂商自评当成交付事实。
+
+## 2026-10-30 增补：云计划与用量，怎么做到「花得明白、停得下来」
+
+Hermes Cloud 最近把订阅改成「每个计划自带一个云 Agent + 日/周/月多窗口额度 + 大模型专属额度 + PAYG 可选超额」。这套设计的核心是**让用户在多个窗口里被限制**；Myrm 的选择相反——**少一层窗口，多一层任务预算**：
+
+- **额度可攒，不做周窗口硬刹车**：月度订阅 WU + 每日刷新（免费档）+ 未用额度 rollover（付费档），突发任务不用等下周重置（`myrm-control-plane/src/myrm_control_plane/billing/work_unit_ledger.py:285-310`）。
+- **预算硬闸在任务层**：Settings 里可设 session / daily / per-call 三档上限与超额动作（`BudgetPolicySection.tsx:77-82、263-277、344-356`），任务跑飞先停，而不是先烧完余额再提示。
+- **用量看得见**：QuotaDisplay 展示月度额度、topup、每日刷新与重置时间（`QuotaDisplay.tsx:141-182、254-260`），逐轮成本在 TokenUsageDisplay。
+- **模型不被套餐锁死**：所有计划可访问所有模型，按 WU 档位倍率（LITE/STANDARD/FRONTIER）计费；BYOK 直连不经过平台加价。
+- **诚实差距**：我们没有周窗口与大模型专属额度（定价策略选择）；没有多沙箱按量加购（CP 目前每用户一个沙箱）；没有 CP MCP Server（GUI-first，远程接入走网关/Tailscale）；充值余额会自动扣减，靠任务预算上限兜底。

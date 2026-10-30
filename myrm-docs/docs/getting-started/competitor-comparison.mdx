@@ -2807,3 +2807,13 @@ With releases like LFM3 (~2B, trained for agent harnesses, 256K context), the qu
 - **Sensitive data stays local automatically**: once a local model is configured, privacy routing keeps S2/S3 requests on-device (`core/security/types.py:252-260`) instead of asking the user to switch models per message.
 - **Reproduce on your own harness**: EvalLab supports same-profile three-arm comparisons (`app/core/eval/skill_ab.py:1-25`), layer ablation (`layered.py:1-20`), one-click case capture from a chat (`POST /cases/from-chat/{chat_id}`) and the Golden 5-Pack; reports are labeled by **harness + model** and compared per case, not by a single vendor score.
 - **Honest boundaries**: Fit Score and tok/s are estimates, not measurements; privacy routing only applies when a local model is configured; there is no built-in needle dimension for long-context tail recall yet (you can express it as a long-text case). We do not present "reproducible" as "verified", nor vendor self-reports as delivered facts.
+
+## 2026-10-30: Cloud Plans and Usage — Spend Understandably, Stop Cleanly
+
+Hermes Cloud now bundles one cloud agent per plan with daily/weekly/monthly windows, a separate allowance for expensive models and optional PAYG overage. That design puts the user inside more windows; Myrm does the opposite — fewer billing windows, a hard budget at the task layer:
+
+- **Allowances accumulate, no weekly hard stop**: monthly subscription WU + daily refresh (free tier) + rollover (paid tiers), so burst work does not have to wait for next week (`billing/work_unit_ledger.py:285-310`).
+- **Budget caps in the task layer**: session / daily / per-call limits with an exceeded action (`BudgetPolicySection.tsx:77-82, 263-277, 344-356`) stop a runaway task before it drains the balance.
+- **Usage you can see**: QuotaDisplay shows monthly allowance, topup, daily refresh and reset time (`QuotaDisplay.tsx:141-182, 254-260`); per-turn cost sits in TokenUsageDisplay.
+- **Models are not plan-gated**: every plan can use every model, billed by WU tier multiplier (LITE/STANDARD/FRONTIER); BYOK goes direct with no platform markup.
+- **Honest gaps**: no weekly window or large-model allowance (a pricing choice); no multi-sandbox add-on (one sandbox per user today); no control-plane MCP server (GUI-first; remote access via gateway/Tailscale); topup balance is consumed automatically, with task-level budget caps as the backstop.
