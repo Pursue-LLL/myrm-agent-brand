@@ -2459,3 +2459,12 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
 5. **多渠道 IM 消息纯净度与配额保护**：智能识别并过滤三方网关错误塞进文本流的大段工具 JSON，仅保留自然语言旁白，微信与 Telegram 消息干净整洁，杜绝代码刷屏与配额损耗。
 6. **本地与沙箱运行物理级遥测阻断**：在本地单机与私有沙箱环境下，无论底层三方依赖是否被注入全局 Tracing Key，框架层坚决阻断 Prompt 样本与元数据向公网上传，代码与商业机密绝不出局域网。
 
+
+## 2026-10-30 增补：小模型 agent 化后，本地模型怎么「敢选」
+
+LFM3 这类「2B 级、面向 agent harness 训练、256K 上下文」的模型出现后，用户的问题从「能不能接本地模型」变成了三个更实际的问题：**这台机器跑得动吗？敏感数据会不会出域？厂商跑分能复现吗？** Myrm 的答案都在产品里，而不是文档里：
+
+- **硬件适配是一等公民**：设置里的本地模型 Cookbook 会读取 RAM / GPU / VRAM / 带宽，按权重体积与 64K 上下文的 KV Cache（fp16 / q8 / q4）算出 Fit Score、预计 tok/s 与磁盘占用（`myrm-agent/myrm-agent-server/app/api/integrations/hardware/cookbook.py:300-330`、`myrm-agent-frontend/src/components/features/settings/model-service/HardwareCookbook.tsx:27-48`）。竞品通常只给一个端点输入框，显存够不够要下载完才知道。
+- **敏感数据自动走本地**：配置本地模型后，隐私路由会按敏感级别把请求留在本地（`myrm-agent/myrm-agent-harness/src/myrm_agent_harness/core/security/types.py:252-260`），不需要用户每次手动切模型。
+- **模型行不行，用你自己的 harness 复现**：EvalLab 支持同一 Profile 的三臂对比（`app/core/eval/skill_ab.py:1-25`）、配置层消融（`layered.py:1-20`）、会话一键转用例（`POST /cases/from-chat/{chat_id}`）与 Golden 5-Pack；报告按 **harness + model 双维**标注，逐条 case 看退化，而不是只看厂商的总分。
+- **诚实边界**：Fit Score 与 tok/s 是估算，不是实测；隐私路由需要你先配置本地模型；长上下文「尾部召回」没有内置 needle 维度，可用长文本用例手工表达。我们不会把「可复现」说成「已验证」，也不会把厂商自评当成交付事实。

@@ -2798,3 +2798,12 @@ Based on incremental sync of 527 external reference repositories and deep analys
 5. **Outbound Tool Noise Scrubbing**: Safely catches unparsed tool JSON dumps leaked into text streams by third-party gateways and extracts pure natural language narration, keeping IM channels (WeChat, Telegram) clean while preserving daily messaging quotas.
 6. **Physical Telemetry Egress Blocking in Local/Sandbox Modes**: In local standalone and isolated sandbox modes, Myrm enforces fail-closed network blocking against third-party telemetry libraries, ensuring proprietary code and prompts never leave your local environment.
 
+
+## 2026-10-30: Choosing a Local Model When Small Models Become Agent-Ready
+
+With releases like LFM3 (~2B, trained for agent harnesses, 256K context), the question is no longer "can I connect a local model?" but three practical ones: **will it fit this machine, will sensitive data leave the device, and can I reproduce the vendor's numbers?** Myrm answers all three in the product:
+
+- **Hardware fit is a first-class citizen**: the local-model Cookbook reads RAM / GPU / VRAM / bandwidth and computes Fit Score, estimated tok/s and disk usage against the 64K-context KV cache (fp16 / q8 / q4) — `myrm-agent-server/app/api/integrations/hardware/cookbook.py:300-330`, `HardwareCookbook.tsx:27-48`. Most competitors give you an endpoint field and let you discover the OOM after the download.
+- **Sensitive data stays local automatically**: once a local model is configured, privacy routing keeps S2/S3 requests on-device (`core/security/types.py:252-260`) instead of asking the user to switch models per message.
+- **Reproduce on your own harness**: EvalLab supports same-profile three-arm comparisons (`app/core/eval/skill_ab.py:1-25`), layer ablation (`layered.py:1-20`), one-click case capture from a chat (`POST /cases/from-chat/{chat_id}`) and the Golden 5-Pack; reports are labeled by **harness + model** and compared per case, not by a single vendor score.
+- **Honest boundaries**: Fit Score and tok/s are estimates, not measurements; privacy routing only applies when a local model is configured; there is no built-in needle dimension for long-context tail recall yet (you can express it as a long-text case). We do not present "reproducible" as "verified", nor vendor self-reports as delivered facts.
