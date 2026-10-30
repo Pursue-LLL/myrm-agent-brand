@@ -54,6 +54,18 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
 
 - **出荷済み**：5チームテンプレート、Kanban タスクDAG、shell/セマンティック検証、26チャネル完了通知、Fleet KPIボード。
 
+## 複雑なタスク：完了条件・独立検証・構造化された引き継ぎ
+
+| 断絶点 | ユーザーが実際に遭遇する問題 | Myrm の現状 |
+|---|---|---|
+| 完了条件がない | "vague asks are where they all fall apart" | Kanban タスク DAG + 編集可能な完了条件。基準未達なら pause |
+| Agent が done と言うが done ではない | "all 6 said done, none passed every hidden test" | CompletionVerifier：shell のハードチェック + セマンティック判定。モデル自身は完了を宣言できない |
+| セッションが切れると失われる | "most agents restart cold every run" | 永続セッションログ + コンテキスト圧縮 + ACP CLI セッション再開 |
+| 進行中タスクの登録簿がない | "one registry of everything in flight so nothing gets built twice" | Kanban タスクグラフ + 依存関係/owner + heartbeat/zombie 検出 |
+| 引き継ぎで情報が失われる | "each interaction the idea gets lost" | AgentHandoverState + Kanban handoff metadata |
+| 人がボトルネックになる | "more permissions requested, intervention more often" | 3段階の自律性（strict / semi-auto / full-auto）+ TOTP 金庫 + モバイル HITL |
+| Agent が自分の環境にいない | "you must control the substrate" | ローカル WebUI / Tauri デスクトップ / ユーザーごとのサンドボックス + 永続ボリューム |
+
 ## 移行パス
 
 | 移行元 | 方法 |

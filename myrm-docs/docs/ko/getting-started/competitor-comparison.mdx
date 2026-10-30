@@ -54,6 +54,18 @@ Myrm은 완전한 AI 에이전트 작업공간으로 설계되었습니다. 터�
 
 - **출시**: 5개 팀 템플릿, Kanban 작업 DAG, shell/의미 검증, 26채널 완료 알림, Fleet KPI 보드.
 
+## 복잡한 작업: 완료 조건, 독립 검증, 구조화된 인수인계
+
+| 끊기는 지점 | 사용자가 겪는 일 | Myrm의 현재 |
+|---|---|---|
+| 완료 조건 없음 | "vague asks are where they all fall apart" | Kanban 작업 DAG + 편집 가능한 완료 조건; 기준 미달이면 pause |
+| Agent가 done이라지만 아님 | "all 6 said done, none passed every hidden test" | CompletionVerifier: shell 하드 체크 + 의미 판정; 모델이 스스로 완료를 선언할 수 없음 |
+| 세션이 끊기면 사라짐 | "most agents restart cold every run" | 영속 세션 로그 + 컨텍스트 압축 + ACP CLI 세션 재개 |
+| 진행 중 작업 등록부 없음 | "one registry of everything in flight so nothing gets built twice" | Kanban 작업 그래프 + 의존성/owner + heartbeat/zombie 감지 |
+| 인수인계 손실 | "each interaction the idea gets lost" | AgentHandoverState + Kanban handoff metadata |
+| 사람이 병목 | "more permissions requested, intervention more often" | 3단계 자율성(strict / semi-auto / full-auto) + TOTP 금고 + 모바일 HITL |
+| Agent가 내 환경에 없음 | "you must control the substrate" | 로컬 WebUI / Tauri 데스크톱 / 사용자별 샌드박스 + 영구 볼륨 |
+
 ## 마이그레이션 경로
 
 | 출발 | 방법 |
