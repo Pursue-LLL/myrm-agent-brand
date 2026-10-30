@@ -729,6 +729,7 @@ DeepSeek Harness 公布的路线图列了六个方向：**远程/移动、长期
   3. **云端无头虚拟显示（Xvfb/Wayland）与双模穿透 Computer Use 视觉引擎（Headless Virtual Display & WebRTC Streaming）**：攻破传统云端 VPS 无法执行桌面操作的致命死穴。在云端 Docker 容器中内置轻量级 Xvfb/Wayland 虚拟屏幕缓冲与低延迟 WebRTC 流化通道，云端沙箱具备与本地桌面 100% 一致的多模态屏幕截图、DOM/OCR 识别与鼠标键盘交互能力；
   4. **宿主侧 Governed Egress Proxy 盲盒凭据防护（Governed Blind Egress）**：沙箱内部绝对不注入真实明文 API Key，LLM 请求统一强制经由宿主侧代理透明签名与审计，第三方开源脚本或恶意代码完全无法刺探主 Key；
   5. **Local WebUI / Desktop / Cloud 三端同构与一键双向漫游向导（Three-Tier Isomorphic Roaming）**：打破“本地单机”与“云端黑盒”的阵营对立。支持在本地 Desktop 发起长任务后一键「关盖托管至云端」脱机自主运行，并在次日一键全量打包下载回迁本地物理 Mac Mini，兼具银行级隐私主权与云端弹性低成本。
+- **边界：** `<300ms` 指 pause/unpause 路径；不支持 pause 的宿主回退 stop/start，工作区、会话与检查点保留，但进程内存不保留，任务从最近检查点续跑。
 - **SSOT 来源：** `myrm-control-plane/` · `myrm-agent-server/app/core/sandbox/` · `myrm-agent/myrm-agent-harness/src/myrm_agent_harness/toolkits/computer_use/`
 
 ## 最新验证快照（2026-10-02 · 双旗舰 SOTA 盲审对质、100% 共识提炼与轻中度负载秒级直通套件 · 彻底消除单模型决策幻觉盲区、多模型手忙脚乱切换与日常轻任务黏滞等待）
