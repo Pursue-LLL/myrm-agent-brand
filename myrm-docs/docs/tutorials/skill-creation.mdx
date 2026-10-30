@@ -54,6 +54,32 @@ A reusable Skill stored in your agent's Skill library, callable via slash comman
 - [ ] Skill is visible in Settings → Skills
 - [ ] Slash command activates the Skill correctly
 
+## Package a workflow as a skill pack (ad creative example)
+
+A **skill pack** is a small set of focused skills that hand off inputs and outputs. It is the right shape when a workflow has fixed stages: each skill stays short, and the agent loads only the stage it needs instead of one giant prompt.
+
+Example — a 5-stage ad creative pipeline:
+
+| Stage | Skill | Output |
+|---|---|---|
+| 1 | Audience Map | audience segments, pains, buying triggers |
+| 2 | Angle Ranker | ranked angles tied to funnel stage |
+| 3 | Copy Engine | production-ready copy in the buyer's voice |
+| 4 | Visual Brief Builder | design-ready visual direction |
+| 5 | Variation Machine | hooks, tones, formats, batch variants |
+
+Build it in five steps:
+
+1. Create a folder `ad-creative/` with one `SKILL.md` per stage; keep each contract narrow (input, steps, output file, success criteria, traps).
+2. Put shared state in one workspace file such as `ad-context.md` — brand voice, audience facts, past winners. Every stage reads and updates it, so context compounds across runs without stuffing every prompt.
+3. Adopt the folder via **Settings → Skills → Local skill paths**, or describe the workflow to the agent and use `/learn` to draft the skills.
+4. Review drafts in **Pending Evolutions**; approve, edit, or reject each one.
+5. Run a small A/B in **Eval Lab** before trusting the pack, then bind a **Weekly Sprint** cron if you want a recurring cadence.
+
+<Note>
+  Myrm does not ship a dedicated ad-creative pack today. You can compose the existing **Social Media Strategist**, **Writer**, and **Designer** agents, or author the five skills yourself with the steps above. Treat any "comment MAP to get a PDF" pack as content, not a tested capability.
+</Note>
+
 ## What's Next
 
 - **Discover community skills** → [Skill Discovery & Registry Mirror](/guides/skill-discovery)

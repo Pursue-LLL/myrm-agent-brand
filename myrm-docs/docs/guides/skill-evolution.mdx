@@ -92,6 +92,19 @@ When your Agent Profile has many skills bound, not every skill is relevant to ev
 When you switch to a different Agent, the session skill override is automatically cleared — so you always start fresh with the new Agent's full skill set.
 </Tip>
 
+## Compounding without per-skill silos
+
+A skill is a reusable **contract**, not a database. The "skills compound" claim is only real when the context a skill produces survives the run and is governed. Myrm does that through four layers:
+
+1. **Agent memory + Shared Context** — brand voice, audience facts, decisions and past winners persist across conversations; multiple agents can read the same governed context.
+2. **Session-to-Skill / Skill Chaining** — a successful run can be distilled into a skill, and skills can hand off to the next stage instead of one giant prompt.
+3. **Skill Evolution** — every change is regression-checked, scored before/after, and approved by you; one-click rollback if it regresses.
+4. **Artifacts** — audience maps, angle tables, copy and visual briefs land in the workspace, so the next run reads them instead of re-deriving them.
+
+Why not give every skill its own state store? That creates N silos that drift, duplicate facts and are hard to audit. Myrm keeps operational state in memory/workspace and keeps skills as small, portable contracts. If a future use case proves a per-skill sandbox is safer, it should be added behind the same governance — not by default.
+
+Example: the five-stage ad pipeline in [Skill Creation](/tutorials/skill-creation) shares one `ad-context.md`; the Audience Map writes it, the Angle Ranker reads it, and the Variation Machine reuses the winners. That is compounding you can inspect.
+
 ## Built-in prebuilt skills
 
 Beyond self-evolving skills, Myrm ships with **53+ prebuilt skills** ready to use out of the box. Notable examples:

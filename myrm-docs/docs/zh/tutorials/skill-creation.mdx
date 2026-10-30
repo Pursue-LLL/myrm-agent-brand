@@ -54,6 +54,32 @@ description: 将一次成功的任务转化为可复用的 Skill —— 任何�
 - [ ] Skill 在设置 → 技能中可见
 - [ ] 斜杠命令能正确激活 Skill
 
+## 把一套工作流做成技能包（以广告创意为例）
+
+**技能包**是一组职责单一、彼此交接输入输出的小技能。工作流有固定阶段时，它比一个巨型提示词更合适：每个技能保持简短，Agent 只加载当前阶段需要的那一个。
+
+示例：5 段广告创意流水线：
+
+| 阶段 | 技能 | 产出 |
+|---|---|---|
+| 1 | Audience Map | 受众分层、痛点、购买触发 |
+| 2 | Angle Ranker | 按漏斗阶段排序的广告角度 |
+| 3 | Copy Engine | 用买家口吻写的可投放文案 |
+| 4 | Visual Brief Builder | 可直接交给设计的视觉方向 |
+| 5 | Variation Machine | 钩子、语气、格式的批量变体 |
+
+五步落地：
+
+1. 建一个 `ad-creative/` 目录，每个阶段一个 `SKILL.md`；契约保持窄：输入、步骤、输出文件、成功标准、坑。
+2. 把共享状态放在一个工作区文件，如 `ad-context.md`——品牌语气、受众事实、历史优胜素材。每个阶段读写它，让上下文跨运行复利，而不是把全部内容塞进每个提示词。
+3. 通过 **设置 → 技能 → 本地技能路径** 采纳该目录，或把流程描述给 Agent，用 `/learn` 起草技能。
+4. 在 **Pending Evolutions** 里审阅草稿；逐项批准、编辑或拒绝。
+5. 先在 **Eval Lab** 做小规模 A/B，再决定是否绑定 **Weekly Sprint** 定时任务。
+
+<Note>
+  Myrm 目前没有开箱即用的广告创意技能包。你可以组合现有的 **Social Media Strategist / Writer / Designer**，或按上面的步骤自己写 5 个技能。把「评论 MAP 换 PDF」的包当作内容，而不是经过验证的能力。
+</Note>
+
 ## 下一步
 
 - **分享给团队** → 将 Skill 发布到 [Agent 市场](/docs/zh/guides/agent-templates#agent-marketplace-enterprise)（企业版）
