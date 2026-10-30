@@ -723,7 +723,7 @@ Corporate networks often deploy TLS inspection proxies (Zscaler, Netskope, Palo 
 - Custom CA bundle support: `SSL_CERT_FILE` (replace system trust store) or `NODE_EXTRA_CA_CERTS` (append to system trust store)
 - **Per-MCP-server TLS**: each MCP server can specify its own `ssl_verify` (true/false/custom CA path) and `client_cert`/`client_key`/`client_key_password` for full mTLS
 - 4-layer auto-injection: infra (`tls_compat.py`) → server (`tls_config.py`) → MCP (`client.py`) → LLM (`llm.py`), covering 28+ HTTP client call sites
-- Automatic TLS error diagnosis: 8 error patterns detected, 5-language remediation hints
+- Automatic TLS error diagnosis: tells a rejected certificate chain from an interrupted handshake, with remediation hints in 5 languages
 - **TLS-specific test coverage**: the TLS compatibility core, per-MCP-server TLS (live integration) and TLS error diagnosis
 
 ### Incognito Mode Deep Dive

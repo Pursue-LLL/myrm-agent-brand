@@ -657,7 +657,7 @@ Myrm은(는) 완전한 AI 에이전트 작업공간으로 설계되었습니다.
   2. **3단계 6레인 실시간 진행률 스태퍼 및 데스크톱 네이티브 미러링 (`ExecutionPhaseStepper.tsx` · `phase_stepper.py` · 노드 1-30)**: planning/executing/verifying 3단계와 6개 동시 실행 레인(agent, llm, mcp, skills, sandbox, user)을 스트리밍 표시; Tauri 데스크톱 트레이 펄스 표시기 및 OS 독 진행률 표시줄과 연동하여 작업 불안감 해소;
   3. **호출 전 슬롯 완전성 사전 검증 및 NEVER_PARALLEL 물리적 격리 (`ask_question.py` · `clarification_guard_middleware.py` · 노드 5 & 5.1)**: 매개변수 누락 또는 모호성 발생 시 구조화된 명확화 카드를 강제 실행; 미들웨어 계층에서 질문과 부작용 도구의 단일 턴 병렬 호출을 물리적으로 차단;
   4. **도구 호출 단위 세분화 정책 가로채기 및 Confused Deputy 격리 (`ToolApprovalMiddleware` · `approval_flow.py` · 노드 15)**: 호출자 `agent_id` 및 `session_id`에 바인딩된 4계층 화이트리스트 매칭으로 권한 상승 차단; ToolTurnBudgetGuard 단일 턴 예산 차단 및 완벽한 감사 로깅 제공;
-  5. **우아한 성능 저하 안전 종료 및 사용자 친화적 진단 복구 (`stream_finalize.py` · `engine.py` · 노드 26)**: 10개 이상의 최종 예外 클래스를 `LLMErrorDiagnostic`으로 분류하여 사용자 친화적인 진단 단계 및 원클릭 복구 작업(`recovery_actions`: 재시도/모델 전환/충전/키 확인)을 제공하여 원시 충돌 방지;
+  5. **우아한 성능 저하 안전 종료 및 사용자 친화적 진단 복구 (`stream_finalize.py` · `engine.py` · 노드 26)**: 10개 이상의 최종 예外 클래스를 `LLMErrorDiagnostic`으로 분류하여 사용자 친화적인 진단 단계 및 원클릭 복구 작업(`recovery_actions`: 키 업데이트/충전/모델 전환)을 제공하여 원시 충돌 방지;
   6. **호출 전 엄격한 스키마 가로채기 및 제로 네트워크 자가 치유 (`_tool_helpers.py` · `semantic_failure_sniffer.py` · 노드 9)**: Pydantic 사전 스키마 검증으로 잘못된 페이로드를 0ms 내에 로컬 거부하고 `is_non_retryable` 태그를 부착하여 재시도 폭풍 방지; 외부 HTTP 200 시맨틱 오류 감지;
   7. **영향도 기반 적응형 동적 승인 에스컬레이션 매트릭스 (`batch_processor.py` · `spend_governance.py` · 노드 16 & 16.1)**: 읽기 전용 작업은 밀리초 내 자동 승인; 금융 거래 및 되돌릴 수 없는 외부 작업은 금액 및 해시 검증을 통한 YOLO 면역 하드 락 강제;
   8. **실행 후 접지 이중 트랙 사실 대조 및 구조화된 인용 표기 (`CompletionGuard` · `stream_finalize.py` · 노드 28)**: 최종 답변과 `CallRecord` 실행 추적 간 양방향 대조 강제; `<cite:...>` 구조화된 인용을 자동 추출하여 프론트엔드 인용 칩 클릭 시 원본 증거 하이라이트;

@@ -1449,7 +1449,7 @@ OpenCode 是一款扎实的 MIT 开源终端编码 Agent：TUI 原生、多供�
   2. **三阶段六泳道全链路流式执行进度看板与桌面端同构（`ExecutionPhaseStepper.tsx` · `phase_stepper.py` · 节点 1-30）**：planning/executing/verifying 三阶段阶梯流式进度条，覆盖 agent/llm/mcp/skills/sandbox/user 六大执行泳道；结合 Tauri 桌面端原生托盘呼吸灯与任务栏原生进度条，彻底消灭长任务黑盒焦虑；
   3. **前置槽位完整性机检与 NEVER_PARALLEL 物理阻断（`ask_question.py` · `clarification_guard_middleware.py` · 节点 5 & 5.1）**：参数缺失或歧义时强制触发结构化反问卡片；中间件层物理切除澄清与副作用工具的单轮并发，杜绝一边发问一边乱调工具；
   4. **单工具调用级 Policy 策略拦截与 Confused Deputy 隔离（`ToolApprovalMiddleware` · `approval_flow.py` · 节点 15）**：四级 Allowlist 细粒度匹配，强绑定 `agent_id` 与 `session_id` 阻断子 Agent 越权继承；配合 ToolTurnBudgetGuard 单轮预算阻断与 audit 全量审计链路；
-  5. **优雅降级安全收场与可操作排查指引（`stream_finalize.py` · `engine.py` · 节点 26）**：10+ 类终态异常统一分流打包，结合 `LLMErrorDiagnostic` 生成人话排查步骤与一键恢复按钮（`recovery_actions`：重试/切换模型/前往充值/检查密钥），杜绝裸报错崩溃；
+  5. **优雅降级安全收场与可操作排查指引（`stream_finalize.py` · `engine.py` · 节点 26）**：10+ 类终态异常统一分流打包，结合 `LLMErrorDiagnostic` 生成人话排查步骤与一键恢复按钮（`recovery_actions`：更新密钥/前往充值/切换模型），杜绝裸报错崩溃；
   6. **调用前强契约 Schema 拦截与零网络开销自愈（`_tool_helpers.py` · `semantic_failure_sniffer.py` · 节点 9）**：Pydantic 前置强校验，参数不合规即刻本地打回纠偏并标记 `is_non_retryable`，毫秒级阻断重试风暴；嗅探外部 HTTP 200 语义失败并提取错误码；
   7. **基于影响面的自适应动态放权矩阵（`batch_processor.py` · `spend_governance.py` · 节点 16 & 16.1）**：只读操作 100% 毫秒级静默自动放行；资金退款与不可逆外部操作实施 YOLO 免疫绝对锁定，必须携带金额与哈希触发多端全双工审批；
   8. **终态事实反向溯源与结构化引用链上屏（`CompletionGuard` · `stream_finalize.py` · 节点 28）**：答复收尾前强制与 `CallRecord` 执行流水双向对账；自动解析提取 `<cite:...>` 结构化引用，前端 Citation 微标点击高亮定位原始工具调用证据；
