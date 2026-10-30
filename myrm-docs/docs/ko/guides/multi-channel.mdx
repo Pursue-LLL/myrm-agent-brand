@@ -375,15 +375,15 @@ LLM이 힌트를 무시하더라도 렌더링 파이프라인은 형식 다운�
 
 ## 결정적 사전 LLM 처리
 
-모든 인바운드 메시지는 모델에 도달하기 전에 LLM 비용이 전혀 들지 않는 5개 계층 처리를 거칩니다. 이는 일반적인 작업이 토큰을 소비하지 않고 밀리초 내에 응답함을 의미합니다.
+모든 인바운드 메시지는 모델에 도달하기 전에 LLM 비용이 전혀 들지 않는 5개 계층 처리를 거칩니다. 이는 일반적인 작업이 모델을 호출하지 않으므로 토큰을 소비하지 않음을 의미합니다.
 
-| Layer | What it does | Latency |
-|-------|-------------|---------|
-| **Message Dedup** | TTL-based deduplication (`channel:message_id`) prevents Webhook retries from triggering duplicate processing | <0.1ms |
-| **Slash Commands** | 21 system commands + dynamic Skill bindings + Agent routing — O(1) registry lookup | <0.1ms |
-| **Risk Detection** | Compiled regex engine blocks or warns on sensitive content; ReDoS-safe with audit trail | <1ms |
-| **FAQ Semantic Cache** | Embedding similarity + score/gap dual verification — cache hits return template answers instantly (40–100× faster than LLM) | 5–20ms |
-| **Policy + Session Gate** | DM/Group policy enforcement, message debouncing (300ms), merge, and concurrency control | <1ms |
+| 계층 | 동작 |
+|------|------|
+| **메시지 중복 제거** | TTL 기반 중복 제거(`channel:message_id`)로 Webhook 재시도가 중복 처리를 일으키지 않도록 방지 |
+| **슬래시 명령** | 시스템 명령 21개 + 동적 Skill 바인딩 + Agent 라우팅 — O(1) 레지스트리 조회 |
+| **위험 탐지** | 컴파일된 정규식 엔진이 민감한 내용을 차단하거나 경고. ReDoS 안전, 감사 추적 포함 |
+| **FAQ 시맨틱 캐시** | 임베딩 유사도 + score/gap 이중 검증 — 캐시가 적중하면 LLM을 호출하지 않고 템플릿 답변을 반환 |
+| **정책 + 세션 게이트** | DM/그룹 정책 적용, 메시지 디바운스(300ms), 병합, 동시성 제어 |
 
 ### 이것이 사용자에게 의미하는 것
 

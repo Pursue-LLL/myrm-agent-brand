@@ -414,15 +414,15 @@ Rapid-fire messages from the same conversation are debounced (default 300ms wind
 
 ## Deterministic Pre-LLM Processing
 
-Every inbound message passes through 5 layers of zero-LLM-cost processing before reaching the model. This means common operations respond in milliseconds without spending any tokens.
+Every inbound message passes through 5 layers of zero-LLM-cost processing before reaching the model. This means common operations are handled without calling the model, so they spend no tokens.
 
-| Layer | What it does | Latency |
-|-------|-------------|---------|
-| **Message Dedup** | TTL-based deduplication (`channel:message_id`) prevents Webhook retries from triggering duplicate processing | &lt;0.1ms |
-| **Slash Commands** | 21 system commands + dynamic Skill bindings + Agent routing — O(1) registry lookup | &lt;0.1ms |
-| **Risk Detection** | Compiled regex engine blocks or warns on sensitive content; ReDoS-safe with audit trail | &lt;1ms |
-| **FAQ Semantic Cache** | Embedding similarity + score/gap dual verification — cache hits return template answers instantly (40–100× faster than LLM) | 5–20ms |
-| **Policy + Session Gate** | DM/Group policy enforcement, message debouncing (300ms), merge, and concurrency control | &lt;1ms |
+| Layer | What it does |
+|-------|-------------|
+| **Message Dedup** | TTL-based deduplication (`channel:message_id`) prevents Webhook retries from triggering duplicate processing |
+| **Slash Commands** | 21 system commands + dynamic Skill bindings + Agent routing — O(1) registry lookup |
+| **Risk Detection** | Compiled regex engine blocks or warns on sensitive content; ReDoS-safe with audit trail |
+| **FAQ Semantic Cache** | Embedding similarity + score/gap dual verification — cache hits return template answers without calling the LLM |
+| **Policy + Session Gate** | DM/Group policy enforcement, message debouncing (300ms), merge, and concurrency control |
 
 ### What this means for users
 
