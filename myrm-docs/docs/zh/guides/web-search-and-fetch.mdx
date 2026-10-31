@@ -159,7 +159,7 @@ Agent 可通过 `web_search_tool` 的 `time_range` 显式限制结果时间窗�
 
 **策略 D（参数递进）：** 当充分性守卫（RSG）报告结果不足时，Agent 自主决策重试并调整 query 或缩窄 `time_range`，无需修改 RSG 内部逻辑。
 
-**单轮搜索配额：** 在每个委托子 Agent run（例如深度研究的 worker）内，`ToolTurnBudgetGuard` 将 `web_search_tool` 的上限设为 20 条搜索问题（详见 harness `SECURITY_SYSTEM.md` §6.3），与 FrequencyGuard 的 60 秒滑动窗口限制互补。主 Agent 自己的搜索由 LoopGuard 与迭代预算约束。
+**单轮搜索配额：** 在每个委托子 Agent run（例如深度研究的 worker）内，`ToolTurnBudgetGuard` 将 `web_search_tool` 的上限设为 20 条搜索问题（详见 harness `SECURITY_SYSTEM.md` §6.2）。主 Agent 自己的搜索由 LoopGuard 与迭代预算约束。
 
 ### 视觉参考（无独立 image search 工具）
 
