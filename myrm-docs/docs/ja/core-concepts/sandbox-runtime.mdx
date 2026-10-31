@@ -64,7 +64,7 @@ description: ユーザーごとに永続化されるサンドボックス。コ�
 長時間動く Agent の複雑なワークフローや複数ターンのセッションでは、バックグラウンド常駐プロセスとファイルハンドルFusion の決定的な解放が重要です。Myrm は**二層の明示的 async 解放プロトコル**を実装しています。
 
 1. **`CodeExecutor` ライフサイクル契約**: 抽象基底クラスとミドルウェアの連鎖上で `async def close(self) -> None:` と `__aenter__` / `__aexit__` を async コンテキストマネージャとして規格化。
-2. **プロセスツリーの一斉終了**: `LocalExecutor.close()` は常駐 bash 子プロセスツリーへ `SIGTERM` / `SIGKILL` を冪等に送り、I/O パイプを安全にクローズ。
+2. **プロセスツリーの一斉終了**: `LocalExecutor.close()` は常駐 bash 子プロセスツリーを冪等に終了させ（macOS / Linux では `SIGTERM` の後、猶予期間を経て `SIGKILL`。Windows では `taskkill /F /T` で即座に強制終了）、I/O パイプを安全にクローズ。
 3. **OS レベル ACL セキュリティ記述子の取り消し**: `SandboxProvider.cleanup()` がプラットフォームのセキュリティトークン（Windows AppContainer の SID 権限など）を自動で取り消し、ハンドルとセキュリティ記述子の蓄積漏れを防止。
 4. **セッションキャッシュの自動アンバインド**: `run_lifecycle` の `finally` フックでキャッシュされた実行インスタンスをスタックから出し、async にクローズ。
 
