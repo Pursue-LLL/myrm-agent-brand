@@ -24,6 +24,7 @@ export type BentoKey = (typeof BENTO_KEYS)[number];
 export const HIGHLIGHT_SLIDE_KEYS = [
   'aiWorkstation',
   'agentSandbox',
+  'browserSidePanel',
   'memoryKnowsYou',
   'memoryPoisonGuard',
   'memoryStorageResilience',

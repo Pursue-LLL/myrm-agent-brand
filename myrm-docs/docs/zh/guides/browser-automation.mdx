@@ -863,6 +863,32 @@ Extension Bridge 跨越 5 层：
 4. **Chrome 扩展** — MV3 Service Worker，具备 chrome.debugger 附加能力
 5. **前端面板** — React 设置组件，用于状态和域名管理
 
+### Side Panel Chat — 不离开网页的 AI 助手
+
+Chrome 扩展内置 **Side Panel**，在任意网页旁边打开沉浸式对话，不用切回 WebUI。
+
+**核心能力**：
+
+- **页面上下文** — 每条消息自动带上当前页标题与 URL，Agent 知道你在看什么。
+- **选中文本转发** — 在页面上选中文字，会作为引用出现在输入框；右键「Ask Myrm about this」可直接发送。
+- **完整 Agent 能力** — Side Panel 与 WebUI 共用同一套 server API：代码执行、网页研究、文件操作、工具审批都能用。
+- **实时流式** — SSE 流式输出 + 工具进度（运行/完成/失败），与主界面同一套事件协议。
+- **面板内审批** — 文件写入、shell 命令等敏感操作，审批弹窗直接出现在 Side Panel；危险命令不被盲批。
+- **随时取消** — 取消按钮同时中止前端流与后端 Agent 执行。
+- **视口光晕** — Agent 工作时网页边缘出现轻微光晕，不打断你。
+- **快捷键** — `Ctrl+Shift+M`（macOS `Cmd+Shift+M`）开关面板。
+
+**使用步骤**：
+
+1. 安装 Myrm 扩展（与 Extension Bridge 同一个扩展）。
+2. 在扩展 popup 配置 server URL 与 token。
+3. 点击扩展图标或按 `Ctrl+Shift+M` 打开 Side Panel。
+4. 直接对话——当前页面上下文会自动带上。
+
+<Note>
+Side Panel 与 Extension Bridge 共用同一个扩展，一次安装同时获得两种能力；页面数据留在你自己的 Agent，不交给第三方云。
+</Note>
+
 ### Wiki 网页剪藏 — 右键保存到 Agent 知识库
 
 在浏览器内将任意网页剪藏进智能体 Wiki **raw** 语料，无需打开 WebUI：
