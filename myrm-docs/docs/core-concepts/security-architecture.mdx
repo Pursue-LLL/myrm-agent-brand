@@ -1153,7 +1153,7 @@ When multiple agents work in the same workspace simultaneously, file conflicts a
 
 | Layer | Mechanism | What It Prevents |
 |-------|-----------|-----------------|
-| **L1** | **Read-Before-Write** (staleness_guard) | Blind edits on unread files — agent must read a file before writing |
+| **L1** | **Read-Before-Write** (file_integrity_guard) | Blind edits on unread files — agent must read a file before writing |
 | **L2** | **Version Match** (file_integrity_guard) | Stale edits — rejects writes when file content changed since last read |
 | **L3** | **Full-Read-Before-Edit** (file_integrity_guard) | Partial reads — rejects edits if only part of a file was read |
 | **L4** | **Line-Level Conflict Detection** (file_conflict_guard) | Overlapping edits — detects when two agents modify the same line range |
