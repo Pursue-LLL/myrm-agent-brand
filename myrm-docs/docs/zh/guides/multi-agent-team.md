@@ -147,6 +147,27 @@ BAND 这类工具的思路是：Claude Code、Codex、Hermes 仍在本地跑，�
 
 从 BAND 迁过来：外部 CLI 照用，审批习惯保留，多出来的是验证、成本可见、持久记忆与 MIT 自托管。唯一可能想念的是那间房——它在 roadmap 里，还没进产品。
 
+### 16. 用 4 个 Agent 搭一个内容团队（研究 → 写作 → 建站 → 评审）
+
+社区里很火的一套内容创业配方是：Grok Bot 做研究、Claude Code 做写作、DeepSeek 做建站、一个 reviewer 做检查。搬到 Myrm，不需要四个产品加一个 relay——用 4 个 Agent Profile、共享记忆和看板交接就能搭起来。
+
+| 角色 | 建议配置 | 产出 |
+| :--- | :--- | :--- |
+| 研究 | 低价模型 + Web/X 浏览器 + 搜索工具 | 选题、竞品 top 10、事实与来源 |
+| 写作 | 强模型 + SEO/内容技能 + 品牌全局记忆 | 文章、落地页、邮件序列 |
+| 建站 | 代码执行 + 工件 + 浏览器 | 页面、表单、dashboard |
+| 评审 | 独立 adversarial-reviewer（禁用 file_write/file_edit；bash 仍可执行验证命令） | 事实/品牌/合规检查，只负责说 no |
+
+做法：
+
+1. **全局记忆放品牌与产品事实**：卖什么、语气、禁用声明、链接；每个 Agent 的专属记忆放角色上下文。
+2. **看板或 `delegate_task` 串起来**：上游完成后的摘要、findings、citations 与工件引用交给下游，不需要复制粘贴原始聊天。
+3. **评审独立**：评审 Agent 以 diff / 工件与可执行验证为证据，不看干活 Agent 的自述；发布、外发、花钱走审批卡。
+4. **外部工具按需接**：DataForSEO、Firecrawl、fal.ai、mem0 等用 MCP 接入；它们不是内置账号。
+5. **不追求「autopilot」**：外发、发布、付款永远由你点头；这也是社区里对这类内容团队最一致的反馈。
+
+迁移对照：Grok Bot → 研究 Agent；Claude Code → 写作 Agent（可用 ACP 接现有订阅）；DeepSeek/Pi → 建站 Agent；Viktor/Tincan → 主 Agent + peer messaging + Kanban handoff；git vault/mem0 → 全局记忆 + 工作区（mem0 可按 MCP 接）。
+
 ## 如何开始使用？
 
 1.  打开 **Myrm Agent WebUI**，进入工作流（Workflow）或看板（Kanban）界面。
