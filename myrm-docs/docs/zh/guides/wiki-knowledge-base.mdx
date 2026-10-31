@@ -24,7 +24,7 @@ Myrm 提供**编译型知识库（Wiki）**——不是让 Agent 解读的一堆
 | **共享工作区三层事实信任结构** | `FactTrustPolicy`（Truth 1.2x / Draft 0.3x / Deprecated 0.1x）+ `StaleFileArchiver` | 区分拍板真理、过程草稿与废弃材料，检索底层动态置信加权，彻底消灭 Agent 跨版本知识幻觉，草稿自动巡检安全归档。 |
 | **全流程 HITL 审批** | `WikiPendingEdits` 队列 | 所有生成的新概念必须经过用户审阅方可落盘。 |
 | **沙箱原生 Git 快照** | `vault_git.py` SSOT 钩子 | 13 处写路径自动产生本地 Git 提交快照，杜绝远端同步鉴权死锁与凭据泄露。 |
-| **每轮规程主动注入与 150ms 超时降级** | `KnowledgePackSelector` + `TurnPrewarmCoordinator` | Turn 前并发预热，相关度门槛（库里没有答案的问题不注入任何片段），Jaccard ≥0.70 语义去重，硬预算 ≤600 字符，检索超过 150ms 就放弃本轮注入、对话照常进行，提示词缓存 100% 保护。 |
+| **每轮规程主动注入与 150ms 超时降级** | `KnowledgePackSelector` + `TurnPrewarmCoordinator` | Turn 前并发预热，相关度门槛（挡掉大多数库里没有答案的问题），Jaccard ≥0.70 语义去重，硬预算 ≤600 字符，检索超过 150ms 就放弃本轮注入、对话照常进行，提示词缓存 100% 保护。 |
 | **会话级即时多选挂载** | `KnowledgePickerPopover` + SQLite ATTACH 联邦 | 输入区即席勾选多知识库，零 IPC 单进程 FTS5 联邦检索，毫秒级 Quick Lane 免模型流式直出。 |
 
 
