@@ -718,9 +718,9 @@ This prevents **slopsquatting attacks** — where an attacker registers a packag
 
 Corporate networks often deploy TLS inspection proxies (Zscaler, Netskope, Palo Alto Prisma) that can cause all HTTPS connections to fail. Myrm provides one-click enterprise network compatibility:
 
-- **Settings → Preferences → Advanced Settings → Enterprise Network Compatibility**, or set `MYRM_TLS_STRICT=0`
-- Precision relaxation of Python 3.13+ `VERIFY_X509_STRICT` flag — does NOT disable certificate verification
-- Custom CA bundle support: `SSL_CERT_FILE` (replace system trust store) or `NODE_EXTRA_CA_CERTS` (append to system trust store)
+- **Settings → Preferences → Advanced Settings → Enterprise Network Compatibility**, or set `MYRM_TLS_STRICT=0`; the change takes effect after the app restarts
+- Precision relaxation: certificate chains are validated against the operating system's trust store (where administrators push the inspection root) plus any CA bundle named by `SSL_CERT_FILE`, `REQUESTS_CA_BUNDLE` or `NODE_EXTRA_CA_CERTS` (added to it, never replacing it), and only Python 3.13+'s `VERIFY_X509_STRICT` flag is cleared — chain, hostname and expiry checks stay on, so it does NOT disable certificate verification
+- Covers the chat-model transport and the Python HTTP clients the agent uses (httpx, aiohttp, `requests`, `urllib`); MCP servers built on Node.js (for example those started through `npx`) are told to use the system trust store as well
 - **Per-MCP-server TLS**: each MCP server can specify its own `ssl_verify` (true/false/custom CA path) and `client_cert`/`client_key`/`client_key_password` for full mTLS
 - 4-layer auto-injection: infra (`tls_compat.py`) → server (`tls_config.py`) → MCP (`client.py`) → LLM (`llm.py`), covering 28+ HTTP client call sites
 - Automatic TLS error diagnosis: tells a rejected certificate chain from an interrupted handshake, with remediation hints in 5 languages
@@ -1293,7 +1293,7 @@ To ensure seamless, secure outbound connectivity across complex corporate firewa
 
 1. **Native Asynchronous Network Stack (httpx)**: Fully inherits system `HTTP_PROXY`, `HTTPS_PROXY`, `ALL_PROXY`, and `NO_PROXY` without fragile Node.js-style global dispatcher patches.
 2. **Mandatory Loopback Exemption (Anti-Deadlock Invariant)**: Automatically injects `localhost`, `127.0.0.1`, and `::1` into bypass rules, completely preventing local UI, WebSocket, and IPC traffic from routing into external proxies.
-3. **Enterprise TLS Inspection Compatibility (`tls_compat.py`)**: Precisely relaxes `VERIFY_X509_STRICT` for corporate proxies without disabling certificate chain verification, eliminating SSL handshake errors across all outbound exits.
+3. **Enterprise TLS Inspection Compatibility (`tls_compat.py`)**: Trusts the operating system's certificate store plus the CA bundles you name and relaxes only `VERIFY_X509_STRICT` for corporate proxies, without disabling certificate chain verification, eliminating SSL handshake errors across the agent's Python HTTP clients.
 4. **Child Process Proxy Credential Scrubbing**: Strips embedded basic-auth proxy passwords before passing environments to untrusted workers, defeating credential extraction attacks.
 
 ## Protected Instructions & Anti-Persistence Injection Shield
