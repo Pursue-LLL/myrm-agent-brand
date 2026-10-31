@@ -657,6 +657,7 @@ AI 分类器（`TranscriptClassifier`）审查工具调用是否符合用户原�
 - **设置 → 偏好设置 → 高级配置 → 企业网络兼容模式** 开启，或设置环境变量 `MYRM_TLS_STRICT=0`；修改后需重启应用生效
 - 精确放松：证书链按操作系统信任库（管理员下发检查代理根证书的位置）加上 `SSL_CERT_FILE`、`REQUESTS_CA_BUNDLE`、`NODE_EXTRA_CA_CERTS` 指定的 CA 文件校验（追加，不替换；连接远程 MCP 服务器时只读 `SSL_CERT_FILE`），只清除 Python 3.13+ 的 `VERIFY_X509_STRICT` 标志；证书链、主机名与有效期检查仍然开启，因此不禁用证书验证
 - 覆盖聊天模型传输、S3 远程备份、邮件渠道的 IMAP 与 SMTP 连接，以及 Agent 使用的 Python HTTP 客户端（httpx、aiohttp、`requests`、`urllib`）；基于 Node.js 的 MCP 服务器（例如通过 `npx` 启动的）、WhatsApp 渠道的桥接进程及其依赖安装、外部 CLI 智能体的安装步骤和智能体自身的进程也会被告知使用系统信任库（Node 22.19+ 与 24.6+ 认这个提示，更旧的 Node 会忽略）
+- 内置的邮件技能（`imap-smtp-email`）的脚本跑在另一个进程里，这个设置够不到它：脚本按 Python 默认的 CA 包校验邮件服务器证书（macOS 上是一个文件，不是系统钥匙串），只认 `SSL_CERT_FILE`。在脚本里该变量替换默认 CA 包而不是追加，所以文件里还要包含脚本仍需信任的所有公共 CA；在运行智能体服务端的环境里设置它。证书被拒时会带着这条提示报错，不会跳过校验
 - **MCP 服务器级 TLS**：每个 MCP server 可独立配置 `ssl_verify`（true/false/自定义CA路径）和 `client_cert`/`client_key`/`client_key_password` 实现完整 mTLS 双向认证
 - 设置如何到达各个客户端：基础设施模块 `tls_compat.py` 在应用启动时装好信任策略，服务端的 `tls_config.py` 把偏好设置里的开关同步到 `MYRM_TLS_STRICT`。策略落在客户端取 TLS 上下文的地方：`ssl.create_default_context()`（httpx、`urllib`、asyncio，以及邮件渠道）和 `requests`、aiohttp 的上下文构建器，因此这些客户端无需各自带开关；S3 远程备份的客户端库自己构建上下文，直接读取这个设置
 - TLS 连接失败时自动诊断：区分「证书链被拒绝」与「握手被中断」两类故障，并给出 5 语言修复提示
