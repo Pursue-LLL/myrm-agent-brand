@@ -656,7 +656,7 @@ AI 分类器（`TranscriptClassifier`）审查工具调用是否符合用户原�
 
 - **设置 → 偏好设置 → 高级配置 → 企业网络兼容模式** 开启，或设置环境变量 `MYRM_TLS_STRICT=0`；修改后需重启应用生效
 - 精确放松：证书链按操作系统信任库（管理员下发检查代理根证书的位置）加上 `SSL_CERT_FILE`、`REQUESTS_CA_BUNDLE`、`NODE_EXTRA_CA_CERTS` 指定的 CA 文件校验（追加，不替换；连接远程 MCP 服务器时只读 `SSL_CERT_FILE`），只清除 Python 3.13+ 的 `VERIFY_X509_STRICT` 标志；证书链、主机名与有效期检查仍然开启，因此不禁用证书验证
-- 覆盖聊天模型传输与 Agent 使用的 Python HTTP 客户端（httpx、aiohttp、`requests`、`urllib`）；基于 Node.js 的 MCP 服务器（例如通过 `npx` 启动的）、外部 CLI 智能体的安装步骤和智能体自身的进程也会被告知使用系统信任库（Node 22.15+ 与 23.8+ 认这个提示，更旧的 Node 会忽略）
+- 覆盖聊天模型传输与 Agent 使用的 Python HTTP 客户端（httpx、aiohttp、`requests`、`urllib`）；基于 Node.js 的 MCP 服务器（例如通过 `npx` 启动的）、WhatsApp 渠道的桥接进程及其依赖安装、外部 CLI 智能体的安装步骤和智能体自身的进程也会被告知使用系统信任库（Node 22.19+ 与 24.6+ 认这个提示，更旧的 Node 会忽略）
 - **MCP 服务器级 TLS**：每个 MCP server 可独立配置 `ssl_verify`（true/false/自定义CA路径）和 `client_cert`/`client_key`/`client_key_password` 实现完整 mTLS 双向认证
 - 4 层自动注入：infra (`tls_compat.py`) → server (`tls_config.py`) → MCP (`client.py`) → LLM (`llm.py`)，覆盖 28+ 个 HTTP 客户端调用点
 - TLS 连接失败时自动诊断：区分「证书链被拒绝」与「握手被中断」两类故障，并给出 5 语言修复提示
