@@ -164,7 +164,7 @@ const MISATTRIBUTED_PHRASES = ['竞品式通道', 'capped channel matched'];
 /** 未交付能力词：出现即说明官网把路线图当现货宣传。 */
 const UNDELIVERED_WORDS = [
   '外设状态总线', 'Peripheral State Bus', '开放 Vault', '热词', 'YoooClaw', '无损迁移',
-  '环回内录', 'mDNS', 'UPnP',
+  '环回内录', 'mDNS', 'UPnP', '出厂订阅', 'factory-subscribed', '출고 시 구독',
 ];
 
 /**
