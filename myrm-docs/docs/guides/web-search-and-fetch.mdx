@@ -159,7 +159,7 @@ For official or authoritative sources, add `site:` operators in the query (e.g. 
 
 **Strategy D (Parameter Escalation):** When the Retrieval Sufficiency Guard reports insufficient results, the Agent autonomously retries with adjusted queries or a narrower `time_range` — no RSG code changes needed.
 
-**Per-turn search budget:** `ToolTurnBudgetGuard` limits `web_search_tool` to 20 calls per user message (harness `SECURITY_SYSTEM.md` §6.3). This complements the 60s sliding-window limits in FrequencyGuard.
+**Per-turn search budget:** inside each delegated sub-agent run (for example a Deep Research worker), `ToolTurnBudgetGuard` limits `web_search_tool` to 20 search queries (harness `SECURITY_SYSTEM.md` §6.3). This complements the 60s sliding-window limits in FrequencyGuard. The main agent's own searches are bounded by LoopGuard and the iteration budget.
 
 ### Visual references (no dedicated image search tool)
 

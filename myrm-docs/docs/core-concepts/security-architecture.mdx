@@ -14,7 +14,7 @@ Myrm implements a defense-in-depth security model with six layers, ensuring agen
 | **L1** | Budget Control | MultidimensionalBudgetGuard (per-session / daily / per-call) with 4-level progressive response (warn → eco → finalize → block) + Per-channel budget isolation (DailyBudgetGuard + SSE alerts + DB persistence) + GoalBudget (max_tokens / max_usd / max_time / max_turns) |
 | **L2** | Permission | 12-dimension tool and resource access policies |
 | **L3** | Rate Limiting | HTTP signature detection + minimum recovery time + SSE event throttling |
-| **L4** | Loop Detection | 7 detectors (repetition, ping-pong, no-progress, divergence, output-diminishing, consecutive-failures, error-signature) + FrequencyGuard (100 calls/60s global, 30/tool/60s) + progressive WARN→BREAK hard-stop |
+| **L4** | Loop Detection | 7 detectors (repetition, ping-pong, no-progress, divergence, output-diminishing, consecutive-failures, error-signature) + FrequencyGuard in delegated sub-agent runs (100 calls/60s global, 30/tool/60s) + progressive WARN→BREAK hard-stop |
 | **L5** | PII Protection | Automatic PII detection, redaction, and taint tracking |
 | **L5.5** | Trajectory Classification | Behavioral analysis with blind trajectory classifier for anomaly detection |
 | **L6** | Untrusted Ingress Sandbox | Physical decoupling of external input data from system instructions; immune to forged `<system_prompt>` attacks |
