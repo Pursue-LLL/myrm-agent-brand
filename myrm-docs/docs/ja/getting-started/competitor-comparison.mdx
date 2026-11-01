@@ -19,10 +19,11 @@ Myrmは、完全なAIエージェント統合ワークスペースとして設�
 | コンテキスト可視性 | **カテゴリ別パネル（messages / system / MCP / skills / builtin / memory / rules / other）** | — | — | — | — | — | — |
 | 推論の可視性 + 停止 | **リアルタイムタイマー + 思考停止 + 実際の reasoning token + 履歴再生 + 6言語** | ステータス行のみ(TUI) | デフォルトで非表示 | reasoning summary | `reasoning_effort`のみ | Ctrl+T 折りたたみ | Thinking + トピック副題 |
 | クロスセッション作業状態 | **TaskDigest 自動記録 + 手動編集 + priority=0 + 7日TTL + Chat Badge** | memory ファイルは手動 | USER.md active-project context は手動 | Goals + memories; 活動タスクメモなし | 同一セッション goal + memory MCP | 未検証 | セッション内 todo/plan |
+| チャットのナレッジベース | **コンポーザーから複数マウント。毎ターン、公開済みページから一致する断片だけを追加するため、下書きは回答に届かない。シークレット会話とメモリ無効の会話には追加しない** | 各ターン、メモリプロバイダーの想起を囲みでプロンプトに入れる。会話ごとのナレッジベースは見つからず | Active Memory が返信前に想起。読んだクエリコードでは、wiki ページの `draft` 状態は検索条件ではない | `memories`。マウント可能なナレッジベースは見つからず | — | — | — |
 | 配備形態 | **WebUI + Tauri デスクトップ + クラウドサンドボックス、同一 server** | セルフホスト / チャネル | ゲートウェイ | CLI | デスクトップ / フレームワーク | CLI | CLI |
 | サブエージェントカタログ | **既定はなし。厳選 6 + 22 のバイリンガル Agent/チームテンプレート + 4 のセッション別ワーカー** | 汎用 delegate | `sessions_spawn` + `allowAgents` | `multi_agent` / `spawn_agent` | base subagent + presets | サンプル拡張 | 3 組み込み + task 権限 |
 
-> `—` は検証範囲外であり、競合に能力がないという主張ではありません。
+> `—` は検証範囲外であり、競合に能力がないという主張ではありません。 「チャットのナレッジベース」の行は、各競合の 2026-11-01 時点のソースを読んだ結果です。
 
 ## 推論過程：可視・停止・再生
 
