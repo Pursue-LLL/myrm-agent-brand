@@ -5,18 +5,18 @@ description: 内置 web_search 与 web_fetch — 多引擎搜索、3 级抓取�
 
 # Web 搜索与抓取
 
-Myrm 内置 **web_search** 与 **web_fetch**，协同工作：搜索找来源，抓取读页面 — 均在进入 LLM **之前**过滤内容。
+Myrm 内置 **web_search** 与 **web_fetch**，协同工作：搜索找来源，抓取读页面 — 均在进入 LLM **之前**清洗内容。
 
 ## 为何重要
 
-多数 Agent 把原始搜索片段或整页 HTML 塞进模型，浪费 Token 且降低质量。Myrm 本地过滤流水线：
+多数 Agent 把原始搜索片段或整页 HTML 塞进模型，浪费 Token 且降低质量。Myrm 在内容进入 LLM 之前先在本地清洗：
 
 ```
-查询 → 多引擎搜索 → BM25/Reranker → 相关片段
+查询 → 多引擎搜索 → 合并 + 去重（按问题轮流取）→ 靠前结果
 URL  → 3 级抓取 → DOM 剪枝 →（可选）BM25+向量+Reranker → 干净文本
 ```
 
-**结果：** Web 密集任务约少 40–50% Token，本地运行 **$0/月**。
+**结果：** 读取网页时约少 40–50% Token（`web_fetch` 的 DOM 剪枝），本地运行 **$0/月**。
 
 :::note 客观对比
 Hermes、OpenClaw、OpenCode、Claude Code 都有基础 web 搜索/抓取。Myrm 优势是**完整本地过滤流水线** — 不仅是「有工具」，而是在进 LLM 前清洗内容。
@@ -89,14 +89,9 @@ OAuth token 以 AES-256-GCM 加密存储，过期前自动刷新，在 5 项 xAI
 
 效果：零额外延迟、不破坏 prompt cache、比静态预规划更灵活。
 
-### 检索模式
+### 多查询合并
 
-| 模式 | 何时 | 流水线 |
-|------|------|----------|
-| **Basic**（默认） | 多数查询 | BM25 + RRF 多查询融合 → 智能截断 |
-| **Precision** | 长文档 | 分块 → BM25 top-50 → Reranker top-20 → 合并相邻 |
-
-Precision 用语义重排（阈值 **0.6**）— 低相关块丢弃。
+一次调用带多个问题时，结果按问题轮流取用，避免某个问题被其他问题挤掉；再按 URL 与内容去重，经下面的同源衰减排序后，前 10 条结果交给模型。
 
 ### 同源衰减排序（Domain Diversity Sort）
 
@@ -319,7 +314,7 @@ Myrm 的 Deep Research 采用结构化的 **CLARIFY → PLAN → EXPLORE → RES
 | | Myrm | Hermes | OpenClaw | OpenCode |
 |---|:---:|:------:|:--------:|:--------:|
 | 内置搜索 | ✅ | ✅ | ✅ | ✅ |
-| 结果过滤 | ✅ BM25/Reranker | ❌ API 直通 | ❌ 原始片段 | ❌ API 直通 |
+| 多查询合并与去重 | ✅ 轮流取 + URL/内容去重 | ❌ API 直通 | ❌ 原始片段 | ❌ API 直通 |
 | 内置抓取 | ✅ 3 级本地 + L4 Firecrawl v2 Keyless | ⚠️ Firecrawl+LLM（需 Key） | ⚠️ HTTP/Firecrawl（需 Key） | ⚠️ 仅 HTTP |
 | 向量提取模式 | ✅ fetch_and_extract | ❌（LLM 摘要） | ❌ | ❌ |
 | DOM 剪枝 | ✅ | ❌ | ❌ 正则/文本 | ❌ Turndown 整页 |
@@ -342,7 +337,7 @@ Myrm 的 Deep Research 采用结构化的 **CLARIFY → PLAN → EXPLORE → RES
 | 清洗搜索片段 | ✅ | ❌ | ❌ | ❌ |
 | 多查询去重 | ✅ URL+内容 hash | ❌ | ❌ | ❌ |
 | 同源衰减排序 | ✅ decay_factor=0.8 | ❌ | ❌ | ❌ |
-| 丢弃低相关段落 | ✅ Reranker 0.6 | ❌ | ❌ | ❌ |
+| 只保留相关段落（fetch_and_extract） | ✅ BM25+向量+Reranker | ❌ | ❌ | ❌ |
 
 **通俗说：** 我们不把整页丢给 AI — 提取正文、去广告导航、去重，只保留与问题相关的段落。
 
@@ -413,7 +408,7 @@ page = await tools.web_fetch("https://example.com/pricing")
 ## 配置
 
 1. **设置 → 搜索** — 选引擎、API Key、SearxNG URL
-2. 检索设置启用 **Reranker** — 长文档 Precision 模式
+2. 配置嵌入与重排序模型，并在偏好设置中开启「高级检索」— `web_fetch` 只提取长网页中的相关段落
 3. **Web Fetch** 开箱可用（浏览器级用 Patchright 若已安装）
 
 ## 迁移提示

@@ -5,18 +5,18 @@ description: Built-in web_search and web_fetch — multi-engine search, 3-tier f
 
 # Web Search & Fetch
 
-Myrm includes **web_search** and **web_fetch** as built-in tools. They work together: search finds sources, fetch reads pages — both filter content **before** it reaches the LLM.
+Myrm includes **web_search** and **web_fetch** as built-in tools. They work together: search finds sources, fetch reads pages — both clean up content **before** it reaches the LLM.
 
 ## Why It Matters
 
-Most agents pass raw search snippets or full HTML into the model. That wastes tokens and hurts answer quality. Myrm runs a local filter pipeline:
+Most agents pass raw search snippets or full HTML into the model. That wastes tokens and hurts answer quality. Myrm cleans content locally before it reaches the LLM:
 
 ```
-Query → multi-engine search → BM25/Reranker → relevant snippets
+Query → multi-engine search → merge + dedup (round-robin across questions) → top results
 URL   → 3-tier fetch → DOM prune → (optional) BM25+vector+Reranker → clean text
 ```
 
-**Result:** ~40–50% fewer tokens on web-heavy tasks, $0/month local operation.
+**Result:** ~40–50% fewer tokens when reading pages (DOM pruning in `web_fetch`), $0/month local operation.
 
 :::note Honest comparison
 Hermes, OpenClaw, OpenCode, and Claude Code all have basic web search/fetch tools. Myrm's advantage is the **full local filter pipeline** — not merely having the tools, but cleaning content before it hits the LLM.
@@ -89,14 +89,9 @@ When both **web_fetch** and **browser** tools are enabled, Myrm guides the Agent
 
 This means: no extra latency, no prompt cache break, and more flexible than a static pre-planner.
 
-### Retrieval Modes
+### Multi-Query Merge
 
-| Mode | When | Pipeline |
-|------|------|----------|
-| **Basic** (default) | Most queries | BM25 + RRF multi-query fusion → smart truncation |
-| **Precision** | Long documents | Chunk → BM25 top-50 → Reranker top-20 → merge adjacent |
-
-Precision mode uses semantic reranking (score threshold **0.6**) — low-relevance chunks are dropped.
+When one call carries several questions, results are merged round-robin across the questions, so no single question crowds out the others. Duplicates are removed by URL and content, then the merged list goes through the domain diversity sort below and the first 10 results reach the model.
 
 ### Domain Diversity Sort
 
@@ -319,7 +314,7 @@ The `/research` route provides a dedicated three-column layout optimized for dee
 | | Myrm | Hermes | OpenClaw | OpenCode |
 |---|:---:|:------:|:--------:|:--------:|
 | Built-in search | ✅ | ✅ | ✅ | ✅ |
-| Result filtering | ✅ BM25/Reranker | ❌ API passthrough | ❌ raw snippet | ❌ API passthrough |
+| Multi-query merge + dedup | ✅ round-robin + URL/content dedup | ❌ API passthrough | ❌ raw snippet | ❌ API passthrough |
 | Built-in fetch | ✅ 3-tier local + L4 Firecrawl v2 keyless | ⚠️ Firecrawl+LLM (key required) | ⚠️ HTTP/Firecrawl (key required) | ⚠️ HTTP only |
 | Vector extract mode | ✅ fetch_and_extract | ❌ (LLM summary) | ❌ | ❌ |
 | DOM pruning | ✅ | ❌ | ❌ regex/text | ❌ Turndown full page |
@@ -342,7 +337,7 @@ The `/research` route provides a dedicated three-column layout optimized for dee
 | Clean search snippets | ✅ | ❌ | ❌ | ❌ |
 | Dedup multi-query results | ✅ URL+content hash | ❌ | ❌ | ❌ |
 | Domain diversity sort | ✅ decay_factor=0.8 | ❌ | ❌ | ❌ |
-| Drop low-relevance passages | ✅ Reranker threshold 0.6 | ❌ | ❌ | ❌ |
+| Keep only relevant passages (fetch_and_extract) | ✅ BM25+vector+Reranker | ❌ | ❌ | ❌ |
 
 **Plain language:** We don't dump whole pages into the AI — we extract body text, strip ads and nav, dedupe, and keep only passages that match your question.
 
@@ -413,7 +408,7 @@ No extra API round-trips — search and fetch run inside the sandbox.
 ## Configuration
 
 1. Open **Settings → Search** — pick engine, API keys, SearxNG URL
-2. Enable **Reranker** in retriever settings for Precision mode on long docs
+2. Configure the embedding and reranking models, then turn on **Advanced Retrieval** in Preferences so `web_fetch` extracts only the relevant passages of long pages
 3. **Web Fetch** works out of the box (browser tier uses Patchright if installed)
 
 ## Migration Tips
