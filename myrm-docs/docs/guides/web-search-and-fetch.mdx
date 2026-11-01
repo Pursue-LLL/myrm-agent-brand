@@ -137,7 +137,7 @@ The Agent can explicitly restrict search results by time through `time_range` on
 |-----------|--------|--------|
 | `time_range` | `day`, `week`, `month`, `year`, or `YYYY-MM-DD..YYYY-MM-DD` | Restricts results to the specified time window |
 
-For official or authoritative sources, add `site:` operators in the query (e.g. `site:gov.cn`, `site:github.com`) instead of a separate tool parameter.
+For official or authoritative sources, add `site:` operators in the query (e.g. `site:gov.cn`, `site:github.com`).
 
 **Three-layer parameter priority fusion:**
 
@@ -158,7 +158,7 @@ For official or authoritative sources, add `site:` operators in the query (e.g. 
 
 ### Visual references (no dedicated image search tool)
 
-When reference images are needed, the agent uses **web_search → web_fetch / browser** to obtain image URLs from pages, then **image_tool** for generation — same pattern as OpenClaw / Hermes; no separate DuckDuckGo image-search dependency.
+When reference images are needed, the agent uses **web_search → web_fetch / browser** to obtain image URLs from pages, then **image_tool** for generation; there is no separate DuckDuckGo image-search dependency.
 
 ### Resilience
 
@@ -233,14 +233,14 @@ L2 and L3 automatically block **3500+ known advertising and tracking domains** a
 
 ### fetch_and_extract (Smart Extraction)
 
-When reranker + embedding are configured, `web_fetch` supports **fetch_and_extract**:
+When the embedding and reranking models are configured and **Advanced Retrieval** is on in Preferences, `web_fetch` supports **fetch_and_extract**:
 
 1. 3-tier crawl (HTTP → Browser → Stealth)
 2. Chunk page content
-3. **BM25 + vector hybrid retrieval** (Qdrant embeddings)
+3. **BM25 + vector hybrid retrieval** narrows large chunk sets in memory (50 chunks or fewer by default skip straight to reranking)
 4. Reranker re-ranking → top relevant passages only
 
-This replaces cloud LLM summarization (e.g. Hermes `web_extract` + Gemini) with **zero-LLM local filtering**.
+Unlike cloud LLM summarization (e.g. Hermes `web_extract` + Gemini), this is **zero-LLM local filtering**.
 
 ### Content Cleaning
 
