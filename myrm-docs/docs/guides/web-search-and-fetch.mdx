@@ -95,13 +95,13 @@ When one call carries several questions, results are merged round-robin across t
 
 ### Domain Diversity Sort
 
-Multi-query results are automatically reordered to prevent any single domain from dominating. Each subsequent result from the same domain is penalized by an exponential decay factor (default **0.8**):
+Search results are automatically reordered to prevent any single domain from dominating. Each subsequent result from the same domain is penalized by an exponential decay factor (default **0.8**):
 
 - 1st result from `example.com` — full score
 - 2nd result from `example.com` — score × 0.8
 - 3rd result from `example.com` — score × 0.64
 
-This ensures the Agent sees diverse sources rather than multiple pages from one website. No configuration needed — enabled by default in `combine_search_results_unified`.
+This ensures the Agent sees diverse sources rather than multiple pages from one website. No configuration needed — every search call goes through `apply_domain_diversity_sort`.
 
 ### Structured Hit Fields
 
