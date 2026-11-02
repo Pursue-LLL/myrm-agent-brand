@@ -57,11 +57,13 @@ Myrm 是一个**开源** AI Agent 工作空间：WebUI、API 服务端、Tauri �
 
 ## Token 效率
 
-Myrm 优化后的系统提示词仅约 **1,765 tokens**——比同类平台少 **86%**。配合 Prompt 缓存，有效成本最高可降低 **97%**。
+在基准配置下，Myrm 首轮工具披露约 **1,765 tokens**（启用更完整工具集时约 2,167），明显低于一次性平铺所有工具的做法。配合 Prompt 缓存，有效成本还可以进一步下降。请把这些数字理解为特定工具集下的实测默认值，而不是普适保证：你启用的工具、技能和模型都会改变结果。
 
-## 开源与 Harness
+## 哪些部分开源
 
-**WebUI 与 API 服务端**为开源。**Agent Harness**（工具、记忆引擎、浏览器池）作为生产运行时打包在你的沙箱内。完整架构见[产品架构](/zh/getting-started/product-architecture)。
+**WebUI、API 服务端、Agent Harness 与 Tauri 桌面壳均为 MIT 开源**。可选的 SaaS 控制平面（多租户计费、LLM 中继、舰队管理）为专有组件；你不是必须用它才能自己运行产品。
+
+这个分层是刻意设计的：接触你的文件、记忆、技能与模型 Key 的部分，可以被审计、fork 和自托管。逐层契约见[产品架构](/zh/getting-started/product-architecture)。
 
 ## 下一步
 
@@ -80,5 +82,11 @@ Myrm 优化后的系统提示词仅约 **1,765 tokens**——比同类平台少 
   </Card>
   <Card title="MCP 集成" icon="plug" href="/zh/guides/mcp-integration">
     连接外部工具与服务。
+  </Card>
+  <Card title="从其他 Agent 迁移" icon="arrow-right-arrow-left" href="/zh/guides/data-migration">
+    扫描、预览、导入、回滚，并写清诚实边界。
+  </Card>
+  <Card title="竞品对比" icon="scale-balanced" href="/zh/getting-started/competitor-comparison">
+    逐项对照 Hermes、OpenClaw、Codex、Claude Code 与闭源 Personal Agent。
   </Card>
 </CardGroup>

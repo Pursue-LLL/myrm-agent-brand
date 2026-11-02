@@ -57,11 +57,13 @@ All three modes share the same codebase and feature set. Your data and configura
 
 ## Token Efficiency
 
-Myrm's optimized system prompt uses only **~1,765 tokens** — 86% less than comparable platforms. With prompt caching, effective cost is reduced by up to **97%**.
+Myrm's turn-one tool disclosure starts at about **1,765 tokens** in our benchmark profile (about 2,167 with a fuller toolset) — materially below loading every tool up front. With prompt caching, effective cost can drop further. Treat these as measured defaults for the stated toolset, not a universal guarantee: your enabled tools, skills, and model change the number.
 
-## Open vs harness
+## What is open
 
-The **WebUI and API server** are open source. The **agent harness** (tools, memory engine, browser pool) ships as the production runtime inside your sandbox. See [Product Architecture](/getting-started/product-architecture) for the full picture.
+The **WebUI, API server, agent harness, and Tauri desktop shell are MIT-licensed**. The optional SaaS control plane (multi-tenant billing, LLM relay, fleet management) is proprietary; you do not need it to run the product yourself.
+
+That split is deliberate: the part that touches your files, memory, skills, and model keys can be audited, forked, and self-hosted. See [Product Architecture](/getting-started/product-architecture) for the layer-by-layer contract.
 
 ## Next Steps
 
@@ -80,5 +82,11 @@ The **WebUI and API server** are open source. The **agent harness** (tools, memo
   </Card>
   <Card title="MCP Integration" icon="plug" href="/docs/guides/mcp-integration">
     Connect external tools and services.
+  </Card>
+  <Card title="Migrate from another agent" icon="arrow-right-arrow-left" href="/docs/guides/data-migration">
+    Scan, preview, import, and roll back — with the honest boundaries.
+  </Card>
+  <Card title="Competitor comparison" icon="scale-balanced" href="/docs/getting-started/competitor-comparison">
+    Row-by-row against Hermes, OpenClaw, Codex, Claude Code, and closed Personal Agents.
   </Card>
 </CardGroup>

@@ -207,7 +207,7 @@ Migrating between Local WebUI, Tauri Desktop, and Cloud-hosted goes through a ba
 
 Don't copy individual database files between deployments: your data lives in several databases and files, and part of it is bound to the machine it was created on.
 
-No competitor supports this level of deployment portability; most are locked to a single deployment mode.
+Among the open-source agents we inspected, we did not find an equivalent end-to-end backup/restore path across local, desktop, and cloud; most are designed around a single deployment mode. That is an observation from the sources we read, not a claim that no competitor could add it later.
 
 ### Memory Archive Export
 
@@ -243,6 +243,8 @@ As projects accumulate over long operational cycles, session memory, vector inde
    - Breaks storage down by category (chat and settings database, conversation state, agent workspaces, search index, long-term memory, activity logs, database backups, snapshots, and everything else); a background job drops superseded conversation checkpoints and shrinks the checkpoint database once enough space is free, and the chat database can be compacted on demand while the app keeps running.
 
 ## Comparison with Competitors
+
+**How to read this table:** `✅` means we found and verified the capability in the product or source we inspected; `❌` means we did not find it in the scope we checked, not proof that it is impossible. The comparison is a snapshot, and competitors change.
 
 Comparison targets: **Hermes**, **OpenClaw**, **Codex**, **DeepSeek-Harness**, **Pi**, **OpenCode**.
 

@@ -57,11 +57,13 @@ Myrm は**オープンソース**の AI Agent ワークスペースです。WebU
 
 ## Token 効率
 
-Myrm の最適化済みシステムプロンプトは約 **1,765 tokens** だけで、同種プラットフォームより **86%** 少なくなります。Prompt キャッシュと組み合わせれば、有効コストは最大 **97%** まで下がります。
+ベンチマーク構成では、Myrm の初回ツール開示は約 **1,765 tokens**（より完全なツールセットでは約 2,167）で、すべてのツールを最初に並べる方式より明確に少なくなります。Prompt キャッシュと組み合わせれば、実効コストはさらに下がります。これらは特定のツールセットにおける実測の初期値であり、普遍的な保証ではありません。有効化するツール、スキル、モデルによって数値は変わります。
 
-## オープンソースと Harness
+## 何がオープンソースか
 
-**WebUI と API サーバー**はオープンソースです。**Agent Harness**（ツール、記憶エンジン、ブラウザプール）は本番ランタイムとしてあなたのサンドボックス内に同梱されます。完全な構成は[製品アーキテクチャ（英語）](/getting-started/product-architecture)を参照してください。
+**WebUI、API サーバー、Agent Harness、Tauri デスクトップシェルは MIT ライセンス**です。任意の SaaS 制御プレーン（マルチテナント課金、LLM リレー、フリート管理）は専有コンポーネントで、自分で製品を動かすのに必須ではありません。
+
+この分割は意図的です。ファイル、記憶、スキル、モデルキーに触れる部分は、監査・fork・セルフホストが可能です。レイヤーごとの契約は[製品アーキテクチャ](/ja/getting-started/product-architecture)を参照してください。
 
 ## 次のステップ
 
@@ -80,5 +82,11 @@ Myrm の最適化済みシステムプロンプトは約 **1,765 tokens** だけ
   </Card>
   <Card title="MCP 連携" icon="plug" href="/ja/guides/mcp-integration">
     外部ツールとサービスに接続します。
+  </Card>
+  <Card title="他の Agent から移行" icon="arrow-right-arrow-left" href="/ja/guides/data-migration">
+    スキャン、プレビュー、インポート、ロールバック。正直な境界も記載。
+  </Card>
+  <Card title="競合比較" icon="scale-balanced" href="/ja/getting-started/competitor-comparison">
+    Hermes、OpenClaw、Codex、Claude Code、閉鎖型 Personal Agent と項目別に比較。
   </Card>
 </CardGroup>

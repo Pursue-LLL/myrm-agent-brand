@@ -11,6 +11,23 @@ Myrm is designed as a complete AI agent workspace. Unlike terminal-only coding a
 **Migration confidence** — You keep control: pick SaaS, self-hosted, or desktop; import Hermes skills via GUI ZIP; compare channels, memory, and security row-by-row below before you commit. Docs are published in **3 languages** (en/zh/ja) while the app UI supports **6** (zh/en/ja/ko/de/zh-TW); the app auto-detects your browser language on first visit across all deployment modes.
 </Note>
 
+<Note>
+**Ownership is the concrete difference.** Myrm's WebUI, API server, agent harness, and Tauri desktop shell are **MIT-licensed**; only the optional SaaS control plane is proprietary. If auditability, self-hosting, or exit cost is why you are switching, this is the part you can verify in the repository rather than take on trust.
+</Note>
+
+## What you gain by migrating
+
+Most migrations are not "move a chat history". They are a chance to replace five disconnected tools with one workspace that has a memory, a control surface, and an exit path.
+
+| What you are replacing | What Myrm gives you | What stays possible |
+|---|---|---|
+| A closed Personal Agent with vendor-controlled memory and models | MIT product layers, BYOK, local/desktop/cloud deployment, 26 channels | Keep your model keys, `SKILL.md`, MCP servers, prompts, and rules; rebuild vendor-private memory and bot relationships |
+| A CLI coding agent plus a memory plugin plus cron scripts | One session model across chat, files, browser, code, Office artifacts, Kanban, and scheduled tasks | Keep the coding depth of your existing CLI by delegating to it through ACP where configured |
+| A hosted memory service with application-level scoping | Per-user sandbox and local memory, conflict review, edit/delete/export, CJK keyword fallback | Import supported formats; use the memory API for custom data, then reindex and run a conflict check |
+| An automation stack with no audit trail | Deterministic permissions, approval cards, incremental diff, shadow Git snapshot, one-click rollback | High-risk actions remain human-gated; ordinary writes are not snapshotted by default |
+
+**The honest part:** there is no one-click import from closed Personal Agents, because their memory and bot graph have no public export format. Migration means keeping the portable assets and rebuilding the private ones. We say that before you commit, not after.
+
 ## At a Glance
 
 | | Myrm | Hermes | OpenClaw | Codex | DeepSeek-Harness | Pi | OpenCode |
@@ -121,6 +138,20 @@ Closed Personal Agents (Meta Muse, Today, xAI GrokBot, Instinct, OpenAI Dots) ar
 | Codex / Claude Code | BYOK keys, MCP, project context | IDE-only workflows |
 
 > There is **no one-click import** from a closed Personal Agent: their memory and bot graph have no public export format. Migrating means rebuilding those parts while keeping your keys, skills, MCP, prompts, and channels. We do not claim otherwise.
+
+## Where competitors are still ahead
+
+A comparison page that never says "they are better here" is a brochure, not a comparison. As of **2026-11**, these are the areas where we do not claim to lead:
+
+| Area | Who is stronger today | What that means for you |
+|---|---|---|
+| **Pure coding depth** | Claude Code, Codex, and terminal-first agents | If your work is 90% code editing inside an IDE, start there. Myrm is the workspace around the work — memory, files, browser, Office, channels, approvals — not a claim to beat them at every coding benchmark. |
+| **Emotional polish and zero-config onboarding** | Muse, Today, GrokBot, Instinct, Dots | 3D presence, calm replies, naming rituals, message reactions, and consumer-grade first-run polish are stronger there. Several are on our roadmap; they are not shipped. |
+| **Hardware and open device SDK** | Hermes Gadget | Hermes already ships an open SDK, a desktop simulator, and a per-board verification matrix. We do not produce firmware and do not market hardware support we do not have. |
+| **Plugin and skill ecosystem size** | OpenClaw, Hermes | Their communities have more third-party plugins and skills. We compete on install-time scanning, permission gates, progressive disclosure, and rollback, not on raw count. |
+| **One-click migration from closed apps** | Nobody, honestly | Closed Personal Agents do not publish a portable memory/bot format. Any vendor claiming a true one-click import of another closed assistant's private memory should be asked for the export file. |
+
+**How to read the rest of this page:** `✅` means we found the capability in the product or source we inspected; `—` means it was outside the verified scope, not proof that the competitor lacks it. We update the "as of" dates when we re-check.
 
 ## Migration path
 

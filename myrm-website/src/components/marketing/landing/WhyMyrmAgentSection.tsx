@@ -31,6 +31,8 @@ const COMPETITOR_KEYS: CompetitorCol[] = ['hermes', 'openclaw'];
 const PILLAR_KEYS = ['memory', 'ptcEngine', 'orchestration', 'omnichannel', 'security'] as const;
 type PillarKey = (typeof PILLAR_KEYS)[number];
 
+const MIGRATION_STEP_KEYS = ['step1', 'step2', 'step3'] as const;
+
 const PILLAR_ICONS: Record<PillarKey, typeof Brain02Icon> = {
   memory: Brain02Icon,
   ptcEngine: FlashIcon,
@@ -166,7 +168,7 @@ export default function WhyMyrmAgentSection() {
 
                     {/* Competitor pain point */}
                     <div className="mt-3 text-[12px] leading-relaxed p-2.5 rounded-lg border border-red-500/15 bg-red-500/5">
-                      <span className="font-semibold text-red-400 block mb-0.5">⚠️ 竞品通病</span>
+                      <span className="font-semibold text-red-400 block mb-0.5">{t('whyMyrmAgent.pillars.competitorLabel')}</span>
                       <span className="text-red-300/80 font-light">
                         {t(`whyMyrmAgent.pillars.items.${pillarKey}.competitorPain`)}
                       </span>
@@ -175,7 +177,7 @@ export default function WhyMyrmAgentSection() {
                     {/* Myrm moat */}
                     <div className="mt-2 text-[12px] leading-relaxed p-2.5 rounded-lg border border-[var(--ed-accent)]/20 bg-[var(--ed-accent-soft)]/20">
                       <span className="font-semibold block mb-0.5" style={{ color: 'var(--ed-accent)' }}>
-                        🛡️ Myrm 护城河
+                        {t('whyMyrmAgent.pillars.myrmLabel')}
                       </span>
                       <span className="font-light" style={{ color: 'var(--ed-dim)' }}>
                         {t(`whyMyrmAgent.pillars.items.${pillarKey}.myrmMoat`)}
@@ -186,7 +188,7 @@ export default function WhyMyrmAgentSection() {
                   {/* Real user benefit */}
                   <div className="mt-4 pt-3 border-t border-dashed" style={{ borderColor: 'var(--ed-border)' }}>
                     <p className="text-[12px] font-medium ed-mono" style={{ color: 'var(--ed-ink)' }}>
-                      💡 {t(`whyMyrmAgent.pillars.items.${pillarKey}.userBenefit`)}
+                      {t('whyMyrmAgent.pillars.benefitLabel')} {t(`whyMyrmAgent.pillars.items.${pillarKey}.userBenefit`)}
                     </p>
                   </div>
                 </div>
@@ -223,11 +225,39 @@ export default function WhyMyrmAgentSection() {
                   className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl text-[12px] font-medium text-white transition-opacity hover:opacity-90 ed-mono"
                   style={{ background: 'var(--ed-accent)' }}
                 >
-                  <span>查阅完整代码级对比</span>
+                  <span>{t('whyMyrmAgent.docsCta.linkLabel')}</span>
                   <ArrowRight02Icon className="h-4 w-4" />
                 </a>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Migration strip: make the "seamless migration" claim concrete and bounded. */}
+        <div className="ed-reveal mt-14">
+          <div className="text-center">
+            <h3 className="text-[16px] sm:text-[18px] font-semibold tracking-[-0.01em]">
+              {t('whyMyrmAgent.migration.title')}
+            </h3>
+          </div>
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+            {MIGRATION_STEP_KEYS.map((step) => (
+              <div
+                key={step}
+                className="ed-card rounded-xl p-4 border"
+                style={{
+                  background: 'color-mix(in oklch, var(--ed-surface) 70%, transparent)',
+                  borderColor: 'color-mix(in oklch, var(--ed-border) 65%, transparent)',
+                }}
+              >
+                <p className="text-[12px] font-semibold ed-mono" style={{ color: 'var(--ed-accent)' }}>
+                  {t(`whyMyrmAgent.migration.${step}.title`)}
+                </p>
+                <p className="mt-1.5 text-[12px] leading-relaxed font-light" style={{ color: 'var(--ed-dim)' }}>
+                  {t(`whyMyrmAgent.migration.${step}.desc`)}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
 
