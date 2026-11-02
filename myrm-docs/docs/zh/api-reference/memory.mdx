@@ -90,7 +90,7 @@ DELETE /api/memory/:id
 
 ## 记忆指挥中心
 
-获取完整的记忆系统健康状态和诊断快照，用于设置页面展示。Memory Labs 为实验功能，默认关闭（服务端 `MYRM_MEMORY_LABS`，WebUI `NEXT_PUBLIC_MEMORY_LABS=1`），`/memory/command-center*` 路由仅在开启后挂载。
+获取完整的记忆系统健康状态和诊断快照，用于设置页面展示。Memory Labs 为实验功能，默认关闭（服务端 `MYRM_MEMORY_LABS`，WebUI `NEXT_PUBLIC_MEMORY_LABS=1`），`/memory/command-center*` 路由仅在开启后挂载，但 `GET /memory/command-center/graph` 与 `GET /memory/command-center/evidence/playback` 例外：默认的成长页知识图谱标签页和记忆证据抽屉依赖它们，所以始终挂载。
 
 ```bash
 GET /api/v1/memory/command-center?project_id=<可选>

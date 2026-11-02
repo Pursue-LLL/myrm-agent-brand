@@ -893,7 +893,7 @@ Myrm 在 Harness 层与 Server 端落地了**严格诱导子图下推（Induced 
 
 ### 1. 严格数学诱导子图下推（Induced Subgraph Pushdown）
 - **痛点**：传统方案（如 Mem0/Letta 实验图模块）在拉取节点关联边时，采用全表盲目 `LIMIT` 截断，导致视口内节点的大量关联边被无辜丢弃，前端力导向画布上出现大量“孤岛散点”，节点度数统计失真；
-- **实现**：WebUI 记忆指挥中心与 API 路由（`GET /api/memory/command-center/graph`，开启 Memory Labs 后挂载）将当前视口选定的 `filtered_node_ids` 精准下推至底层存储；
+- **实现**：WebUI 记忆指挥中心与 API 路由（`GET /api/memory/command-center/graph`，始终挂载）将当前视口选定的 `filtered_node_ids` 精准下推至底层存储；
 - **SQL 下推**：`sqlite_store.py` 严格执行 `WHERE source_id IN (...) AND target_id IN (...)` 参数化绑定，并在空列表时毫秒级短路，100% 连通当前视口节点的所有真实因果边，度数统计绝对可信。
 
 ### 2. 多智能体命名空间原生隔离（Namespace Isolation）
