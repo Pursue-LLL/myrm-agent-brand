@@ -189,6 +189,19 @@ A blocking or stdin-swallowing command (`cat`, `ssh`, `python -c "input()"`, `ta
 
 **Verified**: 110 persistent-session/shell-flavor tests + 32 PII/models/exit tests passing (Aug 2026). Competitors using one-shot processes (Hermes `env.execute`, jiuwenclaw sandbox daemon) never face the quoting or wedging problem because they carry no state — but they also lose `cd`/`export` state on every call and cannot self-recover mid-task.
 
+### Background Jobs That Leave Processes Behind
+
+A background job can finish while something it started — a dev server, a file watcher — keeps running and keeps holding its port and files. Myrm records which processes of the job's process group are still alive when the job ends, instead of reporting a clean finish:
+
+- **You see it**: a finished task in the Background Tasks panel shows "This task has finished, but something it started is still running in the background" with a **Stop it** button, and the result tells you whether anything is still alive afterwards
+- **The model sees it**: the `bash_process_tool` `output`, `wait` and `kill` reports carry `leftover_processes`, and `kill` says what it stopped, so the model does not assume a finished job has freed its port
+- **Only what belongs to the job is stopped**: before every signal Myrm checks that another process has not taken over the leader's process id (a different start time is positive proof) and withholds the signal if it has, so a reused process id is never hit
+- **After a restart**: a job the ledger still shows as running is stopped at startup only when the server that registered it is confirmed gone and the leader still matches the recorded start time and group leadership; any doubt leaves it running
+
+Tracking is by process group, so a process that moves itself into a new session or group is outside it, and what a finished job left running is remembered in memory only, so after a crash the next start does not list it. Without a POSIX process table (Windows) no list is shown and a stop ends the leader's process tree.
+
+**Verified**: 989 bash-tool and process-lifecycle tests passing with real child processes, the Background Tasks Chrome E2E, which includes the stop flow in light and dark themes (9 passed), and a live-model run through the chat composer (1 passed) (Nov 2026).
+
 ## Model Self-Escalation
 
 When a lightweight model detects it lacks the capability to complete a task:
