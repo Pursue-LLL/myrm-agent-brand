@@ -94,6 +94,34 @@ OpenClaw's patch release is entirely about update failures: rollbacks that prese
 
 We are candid about where we stand: our **data layer is stronger** (page-level salvage, checksummed backups, reversible state swaps), while our source/CLI updater is still a plain git pull with no staged validation or rollback. Staged upgrades, a cross-version regression gate and a rollback entry point are on the roadmap (#167 / #215 / #478); we do not claim them until they ship.
 
+## Personal Agent era: Myrm vs Muse / Today / GrokBot / Instinct / Dots
+
+Closed Personal Agents (Meta Muse, Today, xAI GrokBot, Instinct, OpenAI Dots) are optimized for emotional polish and zero-config onboarding. Myrm is optimized for **ownership, control, and extensibility**. We are explicit about the trade-off: if you want the most polished consumer companion today, those products are ahead on 3D avatar, calm replies, message reactions, naming rituals, and single-assistant presentation. Those details are on our roadmap (#496 / #497 / #498 / #89) — we do not claim them as shipped.
+
+| Dimension | Myrm Agent | Closed Personal Agents |
+|---|---|---|
+| **Source & hosting** | WebUI, API server, Tauri desktop, and harness are MIT-licensed; self-host locally or run your own cloud | Closed cloud/app; model and data path controlled by the vendor |
+| **Deployment** | Local WebUI, Tauri desktop, or per-user cloud sandbox — one server, three modes | Usually cloud-only or a single desktop client |
+| **Models & cost** | BYOK, 100+ providers, local models, smart routing, prompt-cache savings | Model choice hidden or fixed; subscription tiers |
+| **Data** | Local/desktop data stays on your machine; cloud uses a per-user persistent sandbox | Vendor cloud; retention/training policy set by the vendor |
+| **Persistent computer** | Browser, terminal, files, installed software survive sessions | Often a cloud computer tied to the vendor account |
+| **Memory** | 8 memory types, white-box editable, conflict review, export/import | Often black-box; export is rare |
+| **Multi-agent** | Configurable agents, per-agent + shared memory, default agent bound to web/cron/channels | Usually one perceived assistant; multi-bot flows can be complex |
+| **Extensibility** | Skill market, progressive disclosure, evolution/permission gates, MCP | Built-in skills/plugins; extension surface controlled by the vendor |
+| **Safety** | Layered permissions, HITL approvals, sandbox isolation, credential vault, audit | Account-level security; action-level approval varies |
+| **Channels** | 26 providers (Telegram, Slack, Discord, Feishu, WeChat, email, etc.) | Usually a few primary channels |
+| **Observability** | Token/cost HUD, OTel traces, Eval Lab, Doctor diagnostics | Usage dashboards; cost/quality often opaque |
+
+### What actually carries over
+
+| From | You can bring | You cannot bring |
+|---|---|---|
+| Muse / Today / GrokBot / Instinct / Dots | Model keys, `SKILL.md` skills, MCP servers, prompts, channels | Vendor-private memory, bot relationships, subscription compute |
+| Hermes / OpenClaw | Skills ZIP, MCP, `USER.md` / memory rules, BYOK keys | Vendor-specific plugins/runtimes |
+| Codex / Claude Code | BYOK keys, MCP, project context | IDE-only workflows |
+
+> There is **no one-click import** from a closed Personal Agent: their memory and bot graph have no public export format. Migrating means rebuilding those parts while keeping your keys, skills, MCP, prompts, and channels. We do not claim otherwise.
+
 ## Migration path
 
 | From | How to migrate |
