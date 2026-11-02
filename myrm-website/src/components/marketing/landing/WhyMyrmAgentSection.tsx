@@ -6,10 +6,10 @@ import {
   CheckmarkCircle01Icon,
   Cancel01Icon,
   Brain02Icon,
-  FlashIcon,
+  Database02Icon,
+  CpuIcon,
+  Shield01Icon,
   TaskDone01Icon,
-  ComputerPhoneSyncIcon,
-  SecurityIcon,
   ArrowRight02Icon,
 } from 'hugeicons-react';
 import { COMPETITOR_COMPARISON_DOC_PATH } from '@/lib/docs-contract';
@@ -34,11 +34,11 @@ type PillarKey = (typeof PILLAR_KEYS)[number];
 const MIGRATION_STEP_KEYS = ['step1', 'step2', 'step3'] as const;
 
 const PILLAR_ICONS: Record<PillarKey, typeof Brain02Icon> = {
-  memory: Brain02Icon,
-  ptcEngine: FlashIcon,
+  memory: Database02Icon,
+  ptcEngine: Brain02Icon,
   orchestration: TaskDone01Icon,
-  omnichannel: ComputerPhoneSyncIcon,
-  security: SecurityIcon,
+  omnichannel: Shield01Icon,
+  security: CpuIcon,
 };
 
 function parseCompareCell(raw: string): CellValue {
