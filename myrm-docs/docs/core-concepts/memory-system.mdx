@@ -868,7 +868,7 @@ Myrm provides **rigorous Induced Subgraph Pushdown and robust Causal Traversal**
 
 ### 1. Mathematical Induced Subgraph Pushdown
 - **The Problem**: Experimental graph features in traditional frameworks (e.g. Mem0/Letta) pull relationships using arbitrary `LIMIT` caps on global tables. As graph density grows, edges between visible viewport nodes get silently dropped, creating misleading "orphan islands" on force-directed canvases and zeroing out node degree metrics.
-- **Pushdown Solution**: The Memory Command Center route (`GET /api/memory/command-center/graph`, mounted when Memory Labs is enabled) passes the exact viewport node IDs (`filtered_node_ids`) directly down to the storage engine.
+- **Pushdown Solution**: The Memory Command Center route (`GET /api/memory/command-center/graph`, always mounted) passes the exact viewport node IDs (`filtered_node_ids`) directly down to the storage engine.
 - **SQL Execution**: `sqlite_store.py` executes `WHERE source_id IN (...) AND target_id IN (...)` with parameterized bindings, short-circuiting on empty lists and guaranteeing 100% edge connectivity among active nodes.
 
 ### 2. Multi-Agent Namespace Pushdown
