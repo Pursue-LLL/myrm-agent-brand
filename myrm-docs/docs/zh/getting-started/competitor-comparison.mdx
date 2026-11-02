@@ -139,6 +139,22 @@ OpenClaw 这个补丁版全部在修升级失败：回滚保留本地改动、�
 
 **诚实边界：** 闭源 Personal Agent 没有公开的记忆/Bot 导出格式，所以不存在真正的一键迁移；迁移是「带走可移植资产 + 重建私有部分」。我们在你决定之前说清楚，而不是事后解释。
 
+## Claude Code 的「七层生态」：迁过来能带走什么
+
+网上流传的「7 个仓库升级 Claude Code」是一套栈，不是一个产品。逐层对照，Claude Code 用户迁到 Myrm 能留下什么、不该期待什么：
+
+| 层 | Claude Code 生态 | Myrm 现状 | 诚实边界 |
+|---|---|---|---|
+| **编码会话** | Claude Code（终端） | GUI 个人 Agent + 持久沙箱内编码 | 纯 IDE 深度与终端手感仍是 Claude Code 的主场 |
+| **Agent Skills** | `SKILL.md` 打包可复用工作流 | 技能契约、版本/回滚、A/B 评测、Curator；`.claude/skills/` 直接识别 | 社区技能数量小于头部生态 |
+| **Plugins** | 命令 + 子代理 + MCP 打包 | **Agent Plugins 1.0** 导入/导出：技能 + MCP + 专家 + 模板，带安全扫描、权限收紧、回滚 | 插件生态规模更小 |
+| **Serena** | LSP 符号导航 | `code_graph_tool`：定义、调用者/被调用、实现、导入、触及测试；按文件指纹增量索引 | AST 精度不等于 LSP；LSP 语义导航在路线图中 |
+| **Context7** | 版本准确的库文档 | `context7` 已在内置集成目录（另有 Microsoft Learn、AWS Docs） | 段落级注入由该 MCP 自身负责 |
+| **E2B** | 隔离执行 | agent-in-sandbox：本地 WebUI / Tauri 桌面 / 云托管 | 无 GPU 直通，重生成走云端 API |
+| **Claude Code Action** | CI 里的 Issue/PR 触发 Agent | PR 交付（push → PR → 评审响应）+ Webhook 触发器可组合 Issue 事件 | 不提供开箱 CI Action——Myrm 是个人 Agent，不是 CI Bot |
+
+**迁移结论**：`.claude/skills/`、`SKILL.md`、插件包、MCP 配置、BYOK Key 与项目规则都可以带走；真正变化的是外围工作区——长期记忆、26 渠道、Kanban、审批，以及本地/桌面/云同一套 server。
+
 ## 竞品今天仍然更强的地方
 
 只说自己强、不说别人强的对比页是宣传册，不是对比。截至 **2026-11**，以下方面我们不宣称领先：
@@ -159,7 +175,7 @@ OpenClaw 这个补丁版全部在修升级失败：回滚保留本地改动、�
 |---|---|
 | **Hermes** | 导出技能为 ZIP → 通过 Myrm GUI 向导导入。BYOK 模型与 MCP 工具直接沿用。 |
 | **OpenClaw** | 工作区上下文（USER.md）映射为 Myrm 记忆规则。MCP server 直接重连。 |
-| **Codex / Claude Code** | CLI 工作流映射为 Goal Mode + cron。BYOK API Key 直接转移。 |
+| **Codex / Claude Code** | CLI 工作流映射为 Goal Mode + cron；`.claude/skills/`、插件包与 MCP 配置可导入；BYOK Key 直接转移。 |
 | **DeepSeek Harness** | BYOK 模型与 MCP 工具直接沿用；DSH 专用插件需按 `SKILL.md` 或 MCP 重新挂载。 |
 
 > Myrm 支持 **SaaS 云端**、**自托管 WebUI**、**桌面客户端** 三种部署。技能与记忆可通过 GUI 迁移向导跟随（桌面端 / 本地 WebUI）。

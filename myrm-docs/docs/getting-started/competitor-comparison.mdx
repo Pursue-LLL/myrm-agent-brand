@@ -139,6 +139,22 @@ Closed Personal Agents (Meta Muse, Today, xAI GrokBot, Instinct, OpenAI Dots) ar
 
 > There is **no one-click import** from a closed Personal Agent: their memory and bot graph have no public export format. Migrating means rebuilding those parts while keeping your keys, skills, MCP, prompts, and channels. We do not claim otherwise.
 
+## Claude Code's 7-layer stack: what carries over
+
+The widely shared "7 repos that upgrade Claude Code" list is a stack, not a product. Layer by layer, here is what a Claude Code user keeps when moving to Myrm — and what they should not expect.
+
+| Layer | Claude Code ecosystem | Myrm today | Honest boundary |
+|---|---|---|---|
+| **Coding session** | Claude Code (terminal) | GUI Personal Agent + coding inside a persistent sandbox | Pure IDE depth and terminal feel remain Claude Code's home turf |
+| **Agent Skills** | `SKILL.md` packages reusable workflows | Skill system with contracts, versioning, rollback, A/B evaluation, Curator; `.claude/skills/` is discovered as-is | Community skill count is smaller than the largest ecosystems |
+| **Plugins** | Commands + agents + MCP bundled | **Agent Plugins 1.0** import/export: skills + MCP + experts + templates, with security scan, permission tightening, rollback | Plugin ecosystem size is smaller |
+| **Serena** | LSP symbol navigation | `code_graph_tool`: definitions, callers/callees, implementors, importers, tests reaching a symbol; incremental index by file fingerprint | AST precision is not LSP; opt-in LSP navigation is on the roadmap |
+| **Context7** | Version-accurate library docs | `context7` is in the built-in integration catalog, alongside Microsoft Learn and AWS Docs | Section-level injection is handled by that MCP itself |
+| **E2B** | Isolated execution | agent-in-sandbox across local WebUI, Tauri desktop, and cloud | No GPU passthrough; heavy generation goes through cloud APIs |
+| **Claude Code Action** | Issue/PR-triggered agent in CI | PR delivery (push → PR → review response) plus webhook triggers can compose issue events | No turnkey CI Action — Myrm is a personal Agent, not a CI bot |
+
+**Migration:** `.claude/skills/`, `SKILL.md`, plugin bundles, MCP configs, BYOK keys, and project rules carry over. What changes is the surrounding workspace: long-term memory, 26 channels, Kanban, approvals, and one server for local, desktop, and cloud.
+
 ## Where competitors are still ahead
 
 A comparison page that never says "they are better here" is a brochure, not a comparison. As of **2026-11**, these are the areas where we do not claim to lead:
@@ -159,7 +175,7 @@ A comparison page that never says "they are better here" is a brochure, not a co
 |---|---|
 | **Hermes** | Export skills as ZIP → import via Myrm GUI wizard. BYOK models and MCP tools carry over. |
 | **OpenClaw** | Workspace context (USER.md) maps to Myrm memory rules. MCP servers reattach directly. |
-| **Codex / Claude Code** | CLI-oriented workflows map to Goal Mode + cron. BYOK API keys transfer as-is. |
+| **Codex / Claude Code** | CLI-oriented workflows map to Goal Mode + cron. `.claude/skills/`, plugin bundles and MCP configs import; BYOK API keys transfer as-is. |
 | **GBrain** | Export Postgres rows to JSON → import through the memory API, then run a reindex and a conflict check. There is no turnkey loader yet. |
 | **DeepSeek Harness** | BYOK models and MCP tools carry over; DSH-specific plugins must be re-mounted as `SKILL.md` or MCP. |
 
