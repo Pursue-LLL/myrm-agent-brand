@@ -96,6 +96,17 @@ A recurring complaint about subsidized consumer agents is the cycle: heavy usage
 
 **Honest boundary:** platform WU plans can change; we cannot promise "never change". What we can promise is that the platform does not depend on "give it away, then nerf it" as a growth model, and that BYOK is always the exit.
 
+## Team Bot, Data Bot, and why Slack matters
+
+Grok Bot's November 2026 Team Bot post is a useful adoption signal: a company-wide Data Bot handled an estimated 70 hours of data-scientist work in a week, and its own analysis found that **60% of messages for "broad and sticky" bots came from Slack, versus 12% for low-retention bots**. The lesson is not "build a data bot"; it is "put the agent where people already work".
+
+- **Channel-native, not another app**: Myrm ships 26 channel providers (Slack, Feishu, WeChat, Telegram, Discord, email, and more) with the same memory, approvals, artifacts, and task state. A Slack thread can start a task; the result can come back to the same thread.
+- **Data work is a template, not a separate product**: code execution, datasets, spreadsheets, interactive canvas, and artifacts cover the data-analyst workflow; 22 role templates include financial and research analysts. A dedicated "Data Bot" template is content work, not a missing core capability.
+- **Shared team bots are a deployment mode**: Myrm's model is one Agent cloud computer per user. Cross-employee shared agents belong to the enterprise multi-tenant publishing path (permissioned app, read-only shared knowledge, per-member memory isolation); we do not claim a "one shared bot computer for the whole company" today.
+- **Usage metrics stay aggregate**: token, cost, and call counts are aggregated per agent; prompt content is not part of the metrics. The Data Flow & Privacy Disclosure panel shows what egresses.
+
+**Honest boundary:** if your requirement is literally "everyone in the company uses one shared bot on one computer", we do not ship that; our isolation model is per user, and shared publishing is on the roadmap. If your requirement is "the agent lives in Slack/Feishu/WeChat and keeps one memory and one approval surface", Myrm's channel-native design is broader than a Slack-only Team Bot.
+
 ## Reasoning: visible, stoppable, replayable
 
 Most agents leave a static skeleton while the model thinks. Myrm makes the chain part of the message:
