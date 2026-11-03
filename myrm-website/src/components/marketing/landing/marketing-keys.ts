@@ -143,7 +143,6 @@ export const COMPARE_ROW_KEYS = [
   'skillEffectAttribution',
   'credentialVault',
   'visionFusion',
-  'codeGraph',
   'searchIntelligence',
   'smartDesktopDistribution',
   'desktopNativeBridge',
@@ -293,7 +292,7 @@ export const COMPARE_TAB_ROWS: Record<CompareTabKey, readonly CompareRowKey[]> =
     'modelFailoverKeepsContext',
     'desktopStateVisibility',
   ],
-  platform: ['gui', 'chatHistoryManagement', 'parallelSessionIsolation', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'harnessUpgradeContract', 'codeGraph', 'crossPlatformHandoff', 'configSync', 'taskResilience', 'steerToken', 'threeDGraph', 'chatOpsIM', 'serverless', 'smartCommandInput', 'agentPluginRuntime', 'newTaskWorkContextCard', 'desktopNativeBridge', 'agentPublicIdentity'],
+  platform: ['gui', 'chatHistoryManagement', 'parallelSessionIsolation', 'desktopApp', 'smartDesktopDistribution', 'appshotFlowPad', 'configRuntime', 'harnessUpgradeContract', 'crossPlatformHandoff', 'configSync', 'taskResilience', 'steerToken', 'threeDGraph', 'chatOpsIM', 'serverless', 'smartCommandInput', 'agentPluginRuntime', 'newTaskWorkContextCard', 'desktopNativeBridge', 'agentPublicIdentity'],
 };
 
 export function highlightSlideBasePath(slideKey: HighlightSlideKey): string {
