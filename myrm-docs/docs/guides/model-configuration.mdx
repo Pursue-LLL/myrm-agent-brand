@@ -9,13 +9,17 @@ Myrm uses LiteLLM for unified access to 100+ models from 28 built-in providers, 
 
 ## First-Time Setup
 
-When you first launch Myrm, the onboarding wizard guides you through model configuration:
+Local and desktop installs open straight on the home page — there is no setup wizard. Until a model provider is enabled, a banner above the message box points you to it:
 
-- **Local model auto-detection**: Myrm automatically scans for running Ollama or LM Studio instances and recommends the best available model with a one-click activation button.
-- **Cloud Quick Start**: No local GPU? The wizard shows cloud providers with free tiers — Google Gemini, SiliconFlow (registration credits), and OpenRouter (free open-source models) — with one-click navigation to the configuration page.
+- **Configure**: opens **Settings > Models**. Pick a provider (its API URL is already filled in), add your key and enable the models you want.
+- **Have subscriptions? Connect in 1-Click**: connects an xAI SuperGrok subscription through the official device-code flow, so you get Grok models without an API key.
+- **Use Ollama: model-name**: shown only when a local Ollama is running and has an installed model that can both chat and call tools. Embedding-only models and cloud-routed models are skipped, and when several models qualify the first one Ollama lists is used (only the first five local models are checked). One click enables the built-in Ollama provider at the address that was probed (so `OLLAMA_HOST` setups work) and fills the default model only if you have not picked one yet. Hosted workspaces never show it.
+- **Local models**: the Hardware Cookbook in **Settings > Models** rates local models against your hardware and downloads them through Ollama. The first download also adds the built-in Ollama provider and enables the model for you (see [Local Models & Hardware Cookbook](#local-models--hardware-cookbook)).
+
+Hosted workspaces keep a first-run wizard with two extra steps:
+
 - **Smart Routing onboarding**: When two or more models are configured, the wizard offers a one-click Smart Routing activation. It auto-classifies your models into quick/standard/reasoning tiers and shows estimated cost savings (40–70%). Enable it to automatically route simple messages to lighter models while reserving powerful models for complex tasks.
 - **Workspace theme pick**: As the final wizard step, choose one of three curated Theme Profiles (Official Default, Calm Readable, Ocean) or skip to keep the default. Your choice syncs via ConfigSync to chat, kanban, and settings — and Agent HTML widgets inherit the same colors automatically.
-- **Persistent guidance**: Even if you skip the wizard, a gentle banner on the chat screen reminds you to configure a model provider before you can start chatting.
 
 All three deployment modes (Local WebUI, Tauri Desktop, Cloud-hosted) share the same configuration UI in **Settings > Models**.
 
@@ -68,7 +72,7 @@ Speed test results reflect your actual network conditions and API key quotas —
 For reasoning-capable models (Claude 3.7+, o1/o3/o4-mini, Gemini 2.5, DeepSeek R1, DeepSeek-Reasoner, Qwen3, etc.), Myrm provides fine-grained control over how deeply the model "thinks" alongside intelligent multi-tier onboarding routing.
 
 **Hybrid Open/Closed-Source Smart Routing (Onboarding):**
-In the onboarding wizard, Myrm natively reuses the rigorously tested single source of truth (`isReasoningModelByName`) to accurately identify official `deepseek-reasoner` and front-line thinking models. When both self-hosted local endpoints (Ollama / split-stack LAN) and commercial cloud models are detected, the system heuristically recommends the local model for zero-marginal-cost routine throughput (`lite`) and the cloud frontier model for complex fallback reasoning (`reasoning`), reducing overall API expenses by 75%+ out of the box.
+In the Smart Routing step of a hosted workspace's setup wizard, Myrm natively reuses the rigorously tested single source of truth (`isReasoningModelByName`) to accurately identify official `deepseek-reasoner` and front-line thinking models. When both self-hosted local endpoints (Ollama / split-stack LAN) and commercial cloud models are detected, the system heuristically recommends the local model for zero-marginal-cost routine throughput (`lite`) and the cloud frontier model for complex fallback reasoning (`reasoning`), reducing overall API expenses by 75%+ out of the box.
 
 **6 preset levels:** Off / Low / Medium / High / Extra High / Max — covering everything from quick answers to deep multi-step reasoning.
 
@@ -169,9 +173,9 @@ Myrm natively integrates Vercel AI Gateway as a first-class provider preset:
 
 ## Local Models & Hardware Cookbook
 
-Myrm auto-detects local model services and your hardware capabilities for a zero-friction local AI experience:
+Myrm reads your hardware and works with a local Ollama for a low-friction local AI experience:
 
-**First Launch — Auto-Discovery:** During onboarding, Myrm probes for Ollama and LM Studio on their default ports. If found, it offers one-click activation — configuring the provider, selecting the recommended model, and setting it as default in a single step.
+**Ollama integration:** The Hardware Cookbook shows whether Ollama is running and downloads or deletes models through it. Your first download adds the built-in Ollama provider (`http://localhost:11434/v1`) and enables the model — no manual provider setup.
 
 **Hardware Cookbook:** In Settings, the Hardware Cookbook panel displays your machine's specs (CPU, RAM, GPU, VRAM, disk space) and calculates a Fit Score for each available local model. Models are rated perfect / good / fair / poor based on your VRAM or RAM. The download button is disabled when disk space is insufficient, preventing system hangs from downloading models that won't fit.
 

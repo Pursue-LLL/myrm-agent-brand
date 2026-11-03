@@ -129,23 +129,8 @@ WeChatもWhatsAppも同じ`AsyncLoginProtocol`——チャネルをまたいで�
 
 ### Telegram
 
-Telegram接続は二経路——状況で選択：
-
-**経路A：オンボーディングウィザード（初回ユーザー推奨）**
-
-初回セットアップウィザードで、モデルと振分設定の後に**Telegramパーソナルアシスタント**ステップ出現：
-
-1. **Bot Token**を貼付け（[@BotFather](https://t.me/BotFather)で取得）
-2. 任意で**Webhook URL**（公開ドメイン背後のVPS/クラウドデプロイのみ要）
-3. 任意でアシスタント名（既定`Myrm Assistant`）
-4. **有効化**をクリック——トークン検証・認証情報書込・DMポリシー"open"設定・既定Agent束縛を原子的に実行
-
-どこか失敗したら全変更を自動ロールバック——中途半端な状態なし。並行送信も優雅に処理：他要求が進行中なら自動再試行し、生エラーでなく親切メッセージ表示。
-
-**経路B：設定頁（後からTelegram追加）**
-
 1. **設定 > チャネル > Telegram**へ
-2. **Bot Token**と任意の**Webhook URL**を入力
+2. **Bot Token**（[@BotFather](https://t.me/BotFather)で取得）と任意の**Webhook URL**を入力
 3. 保存——bot接続・受信開始
 
 **Webhook vs ポーリング**：Webhook URLなしはロングポーリング（ローカル/デスクトップ向け）。Webhook URLありはTelegramがサーバーへpush（botがインターネット到達必須のVPS/クラウド向け）。
