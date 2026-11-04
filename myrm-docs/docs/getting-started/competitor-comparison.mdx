@@ -85,6 +85,22 @@ There is no one-click import from Muse because its private memory and bot graph 
 
 **The trade**: if you want the most polished consumer app today, Muse is a strong choice. If you want an agent workspace you can own, audit, extend, self-host, and take with you — including your keys, skills, MCP servers, rules, and exported memory — Myrm is built for that. We name the gaps instead of hiding them.
 
+### Running a closed agent inside Discord (Muse / Grok Bot connectors)
+
+There is no official Discord entry point for Muse or Grok Bot. Users install a community connector, create a Discord application in the developer portal, enable the privileged Message Content Intent (without it the bot silently receives nothing), and paste the bot token into the chat. The connector's permission model is "owner" or "everyone else": the owner unlocks web search or image generation for other members by asking in the chat. Long tasks go quiet until they finish, and quotas are set by the vendor.
+
+Myrm treats channels as a product surface, not a bridge:
+
+- **20+ built-in channels** (Slack, Discord, Telegram, Feishu, WeChat, WeCom, DingTalk, WhatsApp, email, …) with the same memory, approvals, artifacts and task state. Discord has threads, forum channels, native reply chains and voice.
+- **Per-person controls**: paired roles (admin/member) and a daily message quota per sender; unpaired senders are downgraded to a restricted guest identity.
+- **Runtime fence for untrusted turns**: shell, file writes, memory writes, desktop control, sub-agent spawning, cron and skill management are physically stripped for guests, unpaired senders and non-admin members.
+- **Visible long tasks**: a silence heartbeat posts once and updates in place with elapsed time.
+- **Approvals in the chat**: one-time confirmation tokens, no "allow forever" for socially irreversible actions.
+- **Deliverables you can open**: workspace files become native attachments, and HTML/PDF reports get a signed share button that lands on the same artifact version.
+- **Ownership**: self-host on local WebUI, Tauri desktop or a cloud sandbox; BYOK; memory and credentials stay in your environment.
+
+**Not shipped yet (do not treat as supported):** read-surface isolation for guest turns (file reads and a logged-in browser context), masked secret intake inside IM, native Discord slash commands beyond `/voice`, and a structured Discord preflight (intent/permission/invite checks). Each is tracked in the roadmap; until it ships, the honest claim is the fence on writes and control, not "guests can never see your data".
+
 ## Usage policy: no bait-and-switch
 
 A recurring complaint about subsidized consumer agents is the cycle: heavy usage at launch, users build habits, then limits are cut or prices rise. The pattern is hard to verify from outside, but the trust damage is real. Myrm is structured differently:
