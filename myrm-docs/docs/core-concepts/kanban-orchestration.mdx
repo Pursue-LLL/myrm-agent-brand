@@ -112,10 +112,10 @@ Kanban tools are **opt-in** and **role-gated** to save tokens and reduce misuse:
 | Context | Tools bound | Count |
 |---------|-------------|------:|
 | Default chat (Kanban off) | None | 0 |
-| Chat with Kanban enabled | Orchestrator set (add, list with optional stats, unblock) | 3 |
+| Chat with Kanban enabled | Orchestrator set (add, list with optional stats, unblock, cancel, retry, revise plan) | 6 |
 | Kanban task worker | Worker set (show, complete, block, heartbeat, comment, attach) | 6 |
 
-Board create/list CRUD stays **REST/GUI only** — no LLM tool slots wasted. Use `kanban_add_task.depends_on` for DAG edges; `kanban_list_tasks` accepts optional `task_id` for single-task lookup and `include_stats=true` for board counts. Board listings default to **50 tasks** (max 200) with `truncated` metadata when more rows exist — aligned with the REST API and Hermes.
+Board create/list CRUD stays **REST/GUI only** — no LLM tool slots wasted. Use `kanban_add_task.depends_on` for DAG edges; `kanban_list_tasks` accepts optional `task_id` for single-task lookup and `include_stats=true` for board counts. Board listings default to **50 tasks** (max 200) with `truncated` metadata when more rows exist — consistent with the REST API.
 
 Hermes users migrating to Myrm get the same **worker vs orchestrator** split, plus a visual Kanban GUI, DAG scheduling, and CompletionVerifier. OpenClaw has a display-only Workboard with **zero** LLM tools; deer-flow / LobsterAI / CoPaw / jiuwenclaw expose **zero** native Kanban LLM tools.
 
@@ -135,7 +135,7 @@ With Kanban enabled in Chat, a successful `kanban_add_task` renders **`KanbanTas
 
 | Capability | Hermes | OpenClaw | Myrm |
 |------------|--------|----------|------|
-| Chat-side Kanban tools | ✅ modular @tools | ❌ none | ✅ orchestrator 3 (opt-in) |
+| Chat-side Kanban tools | ✅ modular @tools | ❌ none | ✅ orchestrator 6 (opt-in) |
 | GUI success receipt card | ❌ CLI output | ❌ none | ✅ KanbanTaskCreatedCard |
 | One-click filtered board jump | ❌ | ❌ | ✅ source_chat deep link |
 | Large-board list token guard | ⚠️ config-dependent | N/A | ✅ auto scope + 50/200 limit |

@@ -117,10 +117,10 @@ LLM 细化 Triage 任务（Specify / Decompose）时，它写下的验收标准�
 | 场景 | 绑定工具集 | 数量 |
 |------|-----------|-----:|
 | 默认聊天（未勾选 Kanban） | 无 | 0 |
-| 聊天启用 Kanban | orchestrator（add、list 含可选 stats、unblock） | 3 |
+| 聊天启用 Kanban | orchestrator（add、list 含可选 stats、unblock、cancel、retry、revise plan） | 6 |
 | 看板任务 Worker | worker（show/complete/block/heartbeat/comment/attach） | 6 |
 
-看板创建/列表等 **Board CRUD 仅 REST/GUI**，不占用 LLM tool slot。用 `kanban_add_task.depends_on` 建 DAG 边；`kanban_list_tasks` 可选 `task_id` 单查任务与依赖，或 `include_stats=true` 获取板级计数。板级列表默认 **50 条**（上限 200），超出时返回 `truncated` 元数据，与 REST API 及 Hermes 行为一致。
+看板创建/列表等 **Board CRUD 仅 REST/GUI**，不占用 LLM tool slot。用 `kanban_add_task.depends_on` 建 DAG 边；`kanban_list_tasks` 可选 `task_id` 单查任务与依赖，或 `include_stats=true` 获取板级计数。板级列表默认 **50 条**（上限 200），超出时返回 `truncated` 元数据，与 REST API 行为一致。
 
 Hermes 用户迁移后可保留 **worker / orchestrator** 分角色体验，并额外获得可视化看板、DAG 调度与 CompletionVerifier。OpenClaw 仅有展示看板、**0** LLM 工具；deer-flow / LobsterAI / CoPaw / jiuwenclaw 等 **无** 原生 Kanban LLM 工具。
 
@@ -144,7 +144,7 @@ Worker 通过 **`kanban_attach`**（path/url，SSRF 安全）挂附件后，任�
 
 | 能力 | Hermes | OpenClaw | Myrm |
 |------|--------|----------|------|
-| Chat 侧 Kanban 工具 | ✅ 模块化 @tools | ❌ 0 个 | ✅ orchestrator 3 工具（opt-in） |
+| Chat 侧 Kanban 工具 | ✅ 模块化 @tools | ❌ 0 个 | ✅ orchestrator 6 工具（opt-in） |
 | GUI 成功回执卡 | ❌ CLI 输出 | ❌ 无 | ✅ KanbanTaskCreatedCard |
 | 一键跳过滤看板 | ❌ | ❌ | ✅ source_chat 深链 |
 | 大板 list 防 token 爆炸 | ⚠️ 视配置 | N/A | ✅ 自动 scope + 50/200 limit |
