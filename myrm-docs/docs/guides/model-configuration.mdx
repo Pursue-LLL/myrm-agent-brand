@@ -14,7 +14,7 @@ Local and desktop installs open straight on the home page — there is no setup 
 - **Configure**: opens **Settings > Models**. Pick a provider (its API URL is already filled in), add your key and enable the models you want.
 - **Have subscriptions? Connect in 1-Click**: connects an xAI SuperGrok subscription through the official device-code flow, so you get Grok models without an API key.
 - **Use Ollama: model-name**: shown only when a local Ollama is running and has an installed model that can both chat and call tools. Embedding-only models and cloud-routed models are skipped, and when several models qualify the first one Ollama lists is used (only the first five local models are checked). One click enables the built-in Ollama provider at the address that was probed (so `OLLAMA_HOST` setups work) and fills the default model only if you have not picked one yet. Hosted workspaces never show it.
-- **Local models**: the Hardware Cookbook in **Settings > Models** rates local models against your hardware and downloads them through Ollama. The first download also adds the built-in Ollama provider and enables the model for you (see [Local Models & Hardware Cookbook](#local-models--hardware-cookbook)).
+- **Local models**: **Settings > Models** accepts a local Ollama or any OpenAI-compatible endpoint like any other provider (see [Local Models](#local-models)).
 
 Hosted workspaces keep a first-run wizard with two extra steps:
 
@@ -102,13 +102,12 @@ The result: new models just work — plug in any OpenAI-compatible or Anthropic-
 
 ## Per-Model Prompt Adaptation
 
-Different AI models have different behavioral tendencies. Myrm automatically adapts its system prompt for each model family to get the best results:
+Different AI models have different behavioral tendencies. Every model runs on the same core rules; Myrm adds model-specific text only where the model vendor's own prompting guide prescribes it:
 
-- **GPT / Codex / Grok**: Tool persistence enforcement, mandatory tool use for facts, act-don't-ask bias
-- **Claude**: Disclaimer minimization, execution-first mindset
-- **Gemini / Gemma**: Absolute file path construction, dependency verification
-- **DeepSeek / Qwen / GLM**: Concise Chinese-aware discipline
+- **GPT / Codex**: A one-line persistence reminder — keep going until the request is completely resolved before ending the turn
 - **Claude Opus 5+**: Automatic behavioral tuning for three Anthropic-documented issues — scope expansion (doing more than asked), self-correction narration (unnecessary "I was wrong" statements), and default verbosity (responses longer than needed)
+
+All other models, including Gemini, DeepSeek, Qwen, Grok and the rest of the Claude line, run on the core rules alone. Failure modes such as a tool call written out as plain text are handled in code, not by per-model prompts.
 
 All prompt adaptations are **fixed at agent initialization** and cached in the system prompt, ensuring zero impact on KV Cache hit rates. You don't need to configure anything — Myrm detects the model family from the model name and applies the appropriate discipline automatically.
 
@@ -171,32 +170,11 @@ Myrm natively integrates Vercel AI Gateway as a first-class provider preset:
 - **Automatic Attribution Headers**: Requests sent to `ai-gateway.vercel.sh` automatically inject `HTTP-Referer: https://myrmagent.ai` and `X-Title: Myrm Agent` headers for transparent attribution in the Vercel dashboard.
 - **Dashboard Deep Links**: Quick access links directly to the official Vercel AI Gateway metrics page right from the provider card.
 
-## Local Models & Hardware Cookbook
+## Local Models
 
-Myrm reads your hardware and works with a local Ollama for a low-friction local AI experience:
+Myrm works with a local Ollama for a low-friction local AI experience:
 
-**Ollama integration:** The Hardware Cookbook shows whether Ollama is running and downloads or deletes models through it. Your first download adds the built-in Ollama provider (`http://localhost:11434/v1`) and enables the model — no manual provider setup.
-
-**Hardware Cookbook:** In Settings, the Hardware Cookbook panel displays your machine's specs (CPU, RAM, GPU, VRAM, disk space) and calculates a Fit Score for each available local model. Models are rated perfect / good / fair / poor based on your VRAM or RAM. The download button is disabled when disk space is insufficient, preventing system hangs from downloading models that won't fit.
-
-**Inference Speed Preview (~tok/s):** Alongside the VRAM estimate, Myrm shows a pre-download inference speed badge for each model, calculated from your GPU's memory bandwidth and the model's parameter count (Q4_K_M quantization). Speed is color-coded for instant readability:
-- 🟢 ≥ 20 tok/s — smooth, real-time conversation
-- 🟡 8–19 tok/s — usable with slight latency
-- 🔴 < 8 tok/s — noticeably slow for live chat
-
-This means you know whether a model will feel snappy or sluggish *before* committing to a multi-GB download. Vendor efficiency is factored in (Apple Silicon, Nvidia, AMD, Intel each have different real-world bandwidth utilization).
-
-**Smart Recommendation — Best Fit First:** Models are sorted by hardware fit level, then by capability (parameter count) within each tier. This means Myrm recommends the most powerful model your hardware can handle, not just the smallest. The top-ranked model is highlighted with a "Best Fit" badge.
-
-**MoE-Aware Speed Estimation:** Mixture-of-Experts models like DeepSeek R1 32B activate only a fraction of their total parameters per token (e.g. 7B out of 32B). Myrm uses the active parameter count for speed estimation, so MoE models show their true inference speed rather than a misleadingly slow estimate based on total parameters.
-
-**100% Offline — Zero Network Dependency:** The entire recommendation flow works without any internet connection. Model specifications are bundled as a static asset shipped with the application — no external API calls, no cache expiration, no "first launch needs internet" requirement. Hardware detection is a local system call, and Ollama probing targets localhost only. This means the Hardware Cookbook works identically in air-gapped environments, on planes, in offline server rooms, or anywhere without connectivity.
-
-**Curated & Fraud-Proof Model List:** Unlike tools that dynamically scrape model repositories and must defend against inflated benchmark scores, Myrm's Hardware Cookbook uses a team-curated model list. Every data point (parameter count, VRAM requirement, disk size, active parameters) is an objective, verifiable fact — not a subjective benchmark score. This eliminates the risk of manipulated leaderboard rankings influencing your recommendations.
-
-**One-Click Install & Remove:** Download models directly from the UI with SSE streaming progress and cancel support. After install, models appear instantly in the selector. Uninstall reclaims disk space immediately.
-
-**Deploy Mode Awareness:** In SaaS mode, local model features are automatically hidden — no clutter for cloud-only users. In Local WebUI or Desktop modes, the full Hardware Cookbook is available.
+**Ollama integration:** **Settings > Models** accepts an Ollama endpoint (`http://localhost:11434/v1`) like any other provider, and lists the models installed on that host. The home banner can also connect an already-installed model in one click: it offers only models that can both chat and call tools, enables the built-in Ollama provider, points it at the probed address (so `OLLAMA_HOST` setups work), and fills the default model only if you have not picked one yet. Hosted workspaces never show it.
 
 **Adaptive Stall Detection for Local Endpoints:** When your API URL points to a local address (localhost, 192.168.x.x, 10.x.x.x, or any private network), Myrm automatically relaxes internal timeout thresholds. Large local models (70B+) can take minutes for initial token generation with big contexts — cloud-optimized 60-second timeouts would kill these requests prematurely, triggering futile retry loops. Myrm detects local endpoints via RFC1918/IPv6 address analysis and extends timeouts to 5–30 minutes, ensuring your local inference completes successfully. Remote API behavior remains unchanged. No configuration needed — it just works.
 
