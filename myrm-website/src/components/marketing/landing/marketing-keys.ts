@@ -48,7 +48,6 @@ export const HIGHLIGHT_SLIDE_KEYS = [
   'skillGrowth',
   'richRendering',
   'evidenceDiscipline',
-  'marketplaceAgentInstall',
   'rewindUndo',
   'threeCeilingRead',
   'filePreview',

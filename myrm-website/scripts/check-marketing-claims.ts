@@ -165,6 +165,7 @@ const MISATTRIBUTED_PHRASES = ['竞品式通道', 'capped channel matched'];
 const UNDELIVERED_WORDS = [
   '外设状态总线', 'Peripheral State Bus', '开放 Vault', '热词', 'YoooClaw', '无损迁移',
   '环回内录', 'mDNS', 'UPnP', '出厂订阅', 'factory-subscribed', '출고 시 구독',
+  'Org Marketplace', 'Enterprise Marketplace', '企业级Marketplace', '组织集市',
 ];
 
 /**
