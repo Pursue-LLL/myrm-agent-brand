@@ -36,7 +36,7 @@ type IconProps = { className?: string; style?: React.CSSProperties };
 interface BentoItem {
   key: BentoKey;
   icon: ComponentType<IconProps>;
-  stat: string;
+  stat?: string;
 }
 
 const BENTO_ICONS: Record<BentoKey, ComponentType<IconProps>> = {
@@ -48,11 +48,11 @@ const BENTO_ICONS: Record<BentoKey, ComponentType<IconProps>> = {
   taskModes: RepeatIcon,
 };
 
-const BENTO_STATS: Record<BentoKey, string> = {
+/** Headline counts; a card without a verified number renders no stat. */
+const BENTO_STATS: Partial<Record<BentoKey, string>> = {
   selfEvolution: '8',
   security: '6',
   reliability: '6',
-  costEfficiency: '86%',
   visualControl: '26',
   taskModes: '5+',
 };
@@ -107,9 +107,11 @@ function BentoCard({ item, index }: { item: BentoItem; index: number }) {
           >
             <Icon className="h-5 w-5" />
           </div>
-          <p className="ed-bento-stat ed-mono text-[clamp(1.75rem,4vw,2.5rem)] font-black tracking-tighter leading-none">
-            {stat}
-          </p>
+          {stat && (
+            <p className="ed-bento-stat ed-mono text-[clamp(1.75rem,4vw,2.5rem)] font-black tracking-tighter leading-none">
+              {stat}
+            </p>
+          )}
         </div>
 
         <p className="mt-4 text-[16px] sm:text-[17px] font-semibold leading-snug">
