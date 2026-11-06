@@ -1,7 +1,8 @@
 /**
  * [INPUT]
  * - src/components/marketing/landing/marketing-keys.ts (POS: 落地页 i18n 键清单)
- * - scripts/cp-billing-contract.json (POS: 独立仓 CI 定价回退契约)
+ * - scripts/locale-files.ts (POS: locale 读取与键断言)
+ * - scripts/cloud-pricing-contract.ts (POS: 云定价与控制面计费目录对账)
  *
  * [OUTPUT]
  * - CI 校验：manifest 键存在、Bento/对比/轮播/用例/FAQ/集成键完整、integration chip 长度、legal 法务键、cloud 全键契约与 CP catalog/plans 对齐、notFound 键、locales 无 legacy URL
@@ -9,7 +10,7 @@
  * [POS]
  * 营销文案 locale 契约校验；`bun run build` 前自动执行。
  */
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   BENTO_KEYS,
@@ -31,13 +32,9 @@ import {
   CLOUD_USE_CASE_KEYS,
 } from '../src/components/marketing/cloud/cloud-marketing-keys';
 import { appendLegacyUrlViolations } from './brand-url-patterns';
+import { validateCloudPricingAgainstCp } from './cloud-pricing-contract';
+import { LOCALES, ROOT, assertKey, getAt, loadCloud, loadMarketing, loadNotFound } from './locale-files';
 
-const ROOT = join(import.meta.dir, '..');
-const CP_BILLING_ROOT = join(ROOT, '../../myrm-control-plane/src/myrm_control_plane/billing');
-const CP_BILLING_CONTRACT_PATH = join(import.meta.dir, 'cp-billing-contract.json');
-const CP_CATALOG_PATH = join(CP_BILLING_ROOT, 'catalog.py');
-const CP_PLANS_PATH = join(CP_BILLING_ROOT, 'plans.py');
-const LOCALES = ['zh', 'en', 'ko'] as const;
 /**
  * Tier-1 scoped locales (JA GTM pack): only download + metadata + notFound are
  * translated; all other namespaces fall back to en at runtime (LocaleRootProvider
@@ -68,155 +65,6 @@ const LEGAL_REQUIRED_PATHS = [
   'legal.refund.updatedAt',
   'legal.refund.intro',
 ] as const;
-
-function loadMarketing(locale: (typeof LOCALES)[number]): Record<string, unknown> {
-  const raw = readFileSync(join(ROOT, 'locales', `${locale}.json`), 'utf8');
-  const json = JSON.parse(raw) as { marketing: Record<string, unknown> };
-  return json.marketing;
-}
-
-function loadCloud(locale: (typeof LOCALES)[number]): Record<string, unknown> {
-  const raw = readFileSync(join(ROOT, 'locales', `${locale}.json`), 'utf8');
-  const json = JSON.parse(raw) as { cloud: Record<string, unknown> };
-  return json.cloud;
-}
-
-function loadNotFound(locale: (typeof LOCALES)[number]): Record<string, unknown> {
-  const raw = readFileSync(join(ROOT, 'locales', `${locale}.json`), 'utf8');
-  const json = JSON.parse(raw) as { notFound: Record<string, unknown> };
-  return json.notFound;
-}
-
-function getAt(obj: Record<string, unknown>, path: string): unknown {
-  let cur: unknown = obj;
-  for (const part of path.split('.')) {
-    if (cur === null || typeof cur !== 'object' || !(part in (cur as Record<string, unknown>))) {
-      return undefined;
-    }
-    cur = (cur as Record<string, unknown>)[part];
-  }
-  return cur;
-}
-
-type CloudPlanKey = (typeof CLOUD_PLAN_KEYS)[number];
-
-function billingPlanEnum(planKey: CloudPlanKey): string {
-  return planKey.toUpperCase();
-}
-
-type CpBillingContract = {
-  plans: Record<CloudPlanKey, { monthlyUsd: number; monthlyWu: number }>;
-};
-
-function loadCpBillingContract(): CpBillingContract {
-  const raw = readFileSync(CP_BILLING_CONTRACT_PATH, 'utf8');
-  return JSON.parse(raw) as CpBillingContract;
-}
-
-function parseCpMonthlyUsd(planKey: CloudPlanKey): number {
-  if (existsSync(CP_CATALOG_PATH)) {
-    const catalogText = readFileSync(CP_CATALOG_PATH, 'utf8');
-    const pattern = new RegExp(
-      `BillingPlan\\.${billingPlanEnum(planKey)}:\\s*\\(\\s*(\\d+)\\s*,`,
-    );
-    const match = catalogText.match(pattern);
-    if (!match) {
-      throw new Error(`Could not parse PLAN_DISPLAY_USD for ${planKey} in catalog.py`);
-    }
-    return Number.parseInt(match[1] ?? '', 10);
-  }
-  const contract = loadCpBillingContract();
-  const entry = contract.plans[planKey];
-  if (!entry) {
-    throw new Error(`Missing ${planKey} in cp-billing-contract.json`);
-  }
-  return entry.monthlyUsd;
-}
-
-function parseCpMonthlyWu(planKey: CloudPlanKey): number {
-  if (existsSync(CP_PLANS_PATH)) {
-    const plansText = readFileSync(CP_PLANS_PATH, 'utf8');
-    const pattern = new RegExp(
-      `BillingPlan\\.${billingPlanEnum(planKey)}:[\\s\\S]*?monthly_wu=(\\d+)`,
-    );
-    const match = plansText.match(pattern);
-    if (!match) {
-      throw new Error(`Could not parse monthly_wu for ${planKey} in plans.py`);
-    }
-    return Number.parseInt(match[1] ?? '', 10);
-  }
-  const contract = loadCpBillingContract();
-  const entry = contract.plans[planKey];
-  if (!entry) {
-    throw new Error(`Missing ${planKey} in cp-billing-contract.json`);
-  }
-  return entry.monthlyWu;
-}
-
-function parseLocalePriceUsd(raw: unknown): number | null {
-  if (typeof raw !== 'string') return null;
-  const match = raw.match(/\$?\s*(\d+)/);
-  if (!match) return null;
-  return Number.parseInt(match[1] ?? '', 10);
-}
-
-function parseLocaleWu(raw: unknown): number | null {
-  if (typeof raw !== 'string') return null;
-  const normalized = raw.replace(/,/g, '');
-  const match = normalized.match(/(\d+)\s*WU/i);
-  if (!match) return null;
-  return Number.parseInt(match[1] ?? '', 10);
-}
-
-function validateCloudPricingAgainstCp(errors: string[]): void {
-  for (const planKey of CLOUD_PLAN_KEYS) {
-    let expectedUsd: number;
-    let expectedWu: number;
-    try {
-      expectedUsd = parseCpMonthlyUsd(planKey);
-      expectedWu = parseCpMonthlyWu(planKey);
-    } catch (error) {
-      errors.push(`[cp] ${error instanceof Error ? error.message : String(error)}`);
-      continue;
-    }
-
-    for (const locale of LOCALES) {
-      const cloud = loadCloud(locale);
-      const priceRaw = getAt(cloud, `pricingPreview.plans.${planKey}.price`);
-      const wuRaw = getAt(cloud, `pricingPreview.plans.${planKey}.wu`);
-      const localeUsd = parseLocalePriceUsd(priceRaw);
-      const localeWu = parseLocaleWu(wuRaw);
-
-      if (localeUsd === null) {
-        errors.push(`[${locale}] cloud.pricingPreview.plans.${planKey}.price is not parseable USD`);
-      } else if (localeUsd !== expectedUsd) {
-        errors.push(
-          `[${locale}] cloud.pricingPreview.plans.${planKey}.price=$${localeUsd} != CP catalog $${expectedUsd}`,
-        );
-      }
-
-      if (localeWu === null) {
-        errors.push(`[${locale}] cloud.pricingPreview.plans.${planKey}.wu is not parseable WU`);
-      } else if (localeWu !== expectedWu) {
-        errors.push(
-          `[${locale}] cloud.pricingPreview.plans.${planKey}.wu=${localeWu} != CP plans monthly_wu=${expectedWu}`,
-        );
-      }
-    }
-  }
-}
-
-function assertKey(
-  locale: string,
-  root: Record<string, unknown>,
-  namespace: string,
-  path: string,
-  errors: string[],
-): void {
-  if (getAt(root, path) === undefined) {
-    errors.push(`[${locale}] missing ${namespace}.${path}`);
-  }
-}
 
 function assertIntegrationChipList(
   locale: string,
