@@ -21,7 +21,7 @@ You can assign different capabilities and default models to each agent persona:
 *   **Architect**: Configured with strong reasoning models.
 *   **Coder**: Assigned the most powerful code generation model (e.g., Claude 3.5 Sonnet) and write permissions.
 
-The system will intelligently route requests based on your Agent Profiles and task complexity, **saving up to 86% in Token costs** for the same workload compared to un-optimized multi-agent frameworks.
+The system will intelligently route requests based on your Agent Profiles and task complexity.
 
 ### 4. Bulletproof Safety & Fault Tolerance (Hard Halt)
 Unoptimized AI can easily get stuck in "infinite retry loops" when encountering errors, burning through resources.

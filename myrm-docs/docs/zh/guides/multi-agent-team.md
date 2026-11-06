@@ -21,7 +21,7 @@ Myrm 拥有原生的 **31 组件 GUI 任务看板**，每个任务包含 `backlo
 *   **架构师 (Architect)**：配置强推理模型。
 *   **程序员 (Coder)**：分配最强大的代码生成模型（如 Claude 3.5 Sonnet）和代码修改权限。
 
-系统将自动根据你设定的 Agent Profile 和复杂度阈值进行智能路由（Cost-Aware Routing），实测在同等任务量下，能为你**节省超过 86% 的 Token 费用**。
+系统将自动根据你设定的 Agent Profile 和复杂度阈值进行智能路由（Cost-Aware Routing）。
 
 ### 4. 无死角的安全与容错 (Hard Halt & Privacy Bound)
 遇到报错时，未经优化的 AI 极易陷入无尽的“死循环重试”中消耗资源。
