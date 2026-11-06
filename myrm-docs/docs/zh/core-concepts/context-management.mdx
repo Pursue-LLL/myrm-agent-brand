@@ -156,23 +156,16 @@ Myrm 支持四档提示词模式，按场景控制注入 LLM 的系统指令密�
 
 所有系统提示词规则均用语义化 XML 标签包裹，让 LLM 能精确解析规则边界，避免长会话中的注意力漂移：
 
-- **框架层**（`model_discipline.py`）：`<agent_behavior_rules>`、`<tool_use_enforcement>`、`<execution_discipline>`（per-model）、`<escalation_contract>`
+- **框架层**（`agent_core_rules.py`）：`<agent_behavior_rules>`、`<escalation_contract>`
 - **业务层**（`shared_rules.py`）：`<security_rules>`、`<memory_rules>`、`<task_integrity>`、`<response_rules>`、`<desktop_control_rules>`、`<absolute_obedience_override>`
 - **身份层**（`general_agent_prompt.py`）：`<identity>`、`<ruleset>`、`<tool_guidance>`
 - **中间件层**：`<user_instructions>`、`<workspace_context>`、`<cli_tools>`
 
-### Per-Model 执行纪律
+### 执行纪律
 
-不同 LLM 家族有已知的失败模式。Myrm 使用模型特定的纪律提示自动修正：
+所有模型使用同一套核心规则（禁止只叙述不行动、工具结果诚实、断言事实前先搜索），提示词不随模型名变化。某个模型特有的失败模式（例如把工具调用写成纯文本）由代码处理（工具调用解析器、流恢复、完成守卫），而不是靠按模型写的提示词。
 
-| 模型家族 | 修正内容 |
-|-------------|-------------------|
-| GPT / Codex / Grok | 工具持久调用、强制工具使用、行动而非询问 |
-| Gemini / Gemma | 绝对路径、并行调用、非交互 |
-| Claude | 被指示时执行、减少免责声明 |
-| DeepSeek / Qwen / GLM | 减少过度解释、强制工具调用 |
-
-这些修正在初始化时确定且会话期间不变——完全 KV Cache 安全。
+这些规则是固定文本，会话期间不变——完全 KV Cache 安全。
 
 ## Prompt Cache 优化
 

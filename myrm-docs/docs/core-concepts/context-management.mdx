@@ -169,23 +169,16 @@ Each mode is pre-built as a static string at startup, ensuring the same paramete
 
 All system prompt rules are wrapped in semantic XML tags, enabling LLMs to parse rule boundaries precisely and avoid attention drift during long sessions:
 
-- **Framework layer** (`model_discipline.py`): `<agent_behavior_rules>`, `<tool_use_enforcement>`, `<execution_discipline>` (per-model), `<escalation_contract>`
+- **Framework layer** (`agent_core_rules.py`): `<agent_behavior_rules>`, `<escalation_contract>`
 - **Business layer** (`shared_rules.py`): `<security_rules>`, `<memory_rules>`, `<task_integrity>`, `<response_rules>`, `<desktop_control_rules>`, `<absolute_obedience_override>`
 - **Identity layer** (`general_agent_prompt.py`): `<identity>`, `<ruleset>`, `<tool_guidance>`
 - **Middleware layer**: `<user_instructions>`, `<workspace_context>`, `<cli_tools>`
 
-### Per-Model Execution Discipline
+### Execution Discipline
 
-Different LLM families have known failure modes. Myrm corrects these automatically with model-specific discipline prompts:
+Every model gets the same core rules (anti-narration, tool honesty, search before asserting facts); the prompt never depends on the model's name. Failure modes of a particular model, such as a tool call written out as plain text, are handled in code (tool-call parsers, stream recovery, a completion guard) rather than by per-model prompt text.
 
-| Model Family | Corrections Applied |
-|-------------|-------------------|
-| GPT / Codex / Grok | Tool persistence, mandatory tool use, act-don't-ask |
-| Gemini / Gemma | Absolute paths, parallel calls, non-interactive |
-| Claude | Execute-when-instructed, reduce disclaimers |
-| DeepSeek / Qwen / GLM | Reduce over-explanation, enforce tool calls |
-
-These corrections are determined at initialization and never change during a session — fully KV Cache safe.
+The rules are fixed text and never change during a session — fully KV Cache safe.
 
 ## Prompt Cache Optimization
 

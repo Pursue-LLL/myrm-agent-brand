@@ -100,17 +100,6 @@ Judge-style outputs (task completion verdicts, semantic comparisons, goal evalua
 
 The result: new models just work — plug in any OpenAI-compatible or Anthropic-compatible reasoning model and the whole product (chat, agents, kanban, wiki, scripts) keeps returning clean, stable answers.
 
-## Per-Model Prompt Adaptation
-
-Different AI models have different behavioral tendencies. Every model runs on the same core rules; Myrm adds model-specific text only where the model vendor's own prompting guide prescribes it:
-
-- **GPT / Codex**: A one-line persistence reminder — keep going until the request is completely resolved before ending the turn
-- **Claude Opus 5+**: Automatic behavioral tuning for three Anthropic-documented issues — scope expansion (doing more than asked), self-correction narration (unnecessary "I was wrong" statements), and default verbosity (responses longer than needed)
-
-All other models, including Gemini, DeepSeek, Qwen, Grok and the rest of the Claude line, run on the core rules alone. Failure modes such as a tool call written out as plain text are handled in code, not by per-model prompts.
-
-All prompt adaptations are **fixed at agent initialization** and cached in the system prompt, ensuring zero impact on KV Cache hit rates. You don't need to configure anything — Myrm detects the model family from the model name and applies the appropriate discipline automatically.
-
 ## In-Chat Model Transparency
 
 Every assistant message shows a Token Economics badge in the action bar. Click it to see exactly which model handled the request, how it was routed, what it cost, and how fast it ran:
