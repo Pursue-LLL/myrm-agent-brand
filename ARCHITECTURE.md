@@ -79,7 +79,7 @@
 ## 模块依赖
 
 - 官网桌面下载元数据：`myrm-website/src/lib/desktop-release.ts` → GitHub Releases `Pursue-LLL/myrm-agent`；无 release 时 `/download` SaaS 优先、`CliInstallFallback` 诚实标注 localWebui 终端路径（非桌面 App），主 CTA 不暴露 GitHub Releases
-- 营销 ↔ 文档 slug 契约：`myrm-website/scripts/validate-docs-slugs.ts`（orphan MDX + legacy URL grep：`myrm.ai`、`app.myrm.ai`、`github.com/myrm-ai`）
+- 营销 ↔ 文档 slug 契约：`myrm-website/scripts/validate-docs-slugs.ts`（orphan MDX + 文本禁止项 grep：legacy URL `myrm.ai`、`app.myrm.ai`、`github.com/myrm-ai`，以及已撤回的未实测数字宣称）
 - 分形文档门禁：`myrm-website/scripts/check-fractal-docs.ts`（`bun run test` / `validate:fractal-docs`）；`myrm-docs/scripts/check-fractal-docs.ts`（`cd myrm-docs && bun run validate:fractal-docs` / `bun run test`）
 - `public/desktop-release.json`：构建链 `bake:release` 产物（CF Pages / 本地 build），静态 export 首屏用；**不入库**（见 `myrm-website/.gitignore`），本地 dev 可选 `bun run bake:release` 或依赖 live GitHub fetch
 

@@ -5,12 +5,13 @@
 | 文件 | 地位 | 职责 | I/O/P |
 |------|------|------|-------|
 | `brand-url-patterns.ts` | 核心 | 禁止 legacy 域名/org 的正则；validate 脚本共用 | ✅ |
+| `retired-claim-patterns.ts` | 核心 | 禁止已撤回的未实测数字宣称（首轮 86% 降本、97% 缓存命中、~7× 任务量）的正则；validate 脚本共用 | ✅ |
 | `cp-billing-contract.json` | 核心 | 独立仓 CI 云定价回退（对齐 CP catalog/plans） | — |
 | `cloud-pricing-contract.ts` | 核心 | cloud 定价文案（美元价、WU 额度）与 CP `catalog.py`/`plans.py` 数值对账（本地优先读 CP，否则读 contract） | ✅ |
 | `locale-files.ts` | 核心 | locale JSON 读取（`ROOT`/`LOCALES`/loaders）+ 点路径取值与键断言；locale 校验脚本共用 | ✅ |
-| `validate-marketing-locales.ts` | 核心 | locales 键契约（zh/en/ko）+ legacy URL 扫描；cloud 定价对账委托 `cloud-pricing-contract.ts` | ✅ |
+| `validate-marketing-locales.ts` | 核心 | locales 键契约（zh/en/ko）+ legacy URL / 已撤回宣称扫描；cloud 定价对账委托 `cloud-pricing-contract.ts` | ✅ |
 | `i18n-ko-bulk-translate.py` | 辅助 | 从 en SSOT 批量机翻 `locales/ko.json`（Google Translate + placeholder 保护；缓存 `locales/.ko-translate-cache.json`） | ✅ |
-| `validate-docs-slugs.ts` | 核心 | 营销 slug ↔ Mintlify nav ↔ MDX orphan（en/zh/ja 三语） | ✅ |
+| `validate-docs-slugs.ts` | 核心 | 营销 slug ↔ Mintlify nav ↔ MDX orphan（en/zh/ja 三语）+ 文档文本禁止项扫描（legacy URL、已撤回宣称） | ✅ |
 | `bake-desktop-release.ts` | 核心 | 构建前写入 `public/desktop-release.json` | ✅ |
 | `release-website.ts` | 核心 | 本地应急：preflight（claims + build + test）+ push tag（GHA POST Hook） | ✅ |
 | `check-marketing-claims.ts` | 核心 | 营销宣称守门：数量型宣称对照 monorepo 里的代码锚点（`myrm-agent/…`），轮播不得出现 100% 磁贴，官网不得含未交付能力词；锚点只在 monorepo 检出里存在，所以只在本地 preflight 运行，不进 `bun run build` | ✅ |

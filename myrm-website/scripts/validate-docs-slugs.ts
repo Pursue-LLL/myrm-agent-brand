@@ -4,7 +4,7 @@
  * - myrm-docs/docs.json, myrm-docs/docs 下全部 .mdx
  *
  * [OUTPUT]
- * - CI 校验：营销外链 slug 存在、MDX 文件存在、磁盘 MDX 无 orphan、禁止 legacy 域名、zh 关键页英文句门禁
+ * - CI 校验：营销外链 slug 存在、MDX 文件存在、磁盘 MDX 无 orphan、禁止 legacy 域名与已撤回数字宣称、zh 关键页英文句门禁
  *
  * [POS]
  * 营销站与 Mintlify 文档导航一致性校验脚本；`bun run build` 前自动执行。
@@ -19,6 +19,7 @@ import {
 } from '../src/lib/docs-contract';
 import { getMobileHubDocsUrl } from '../src/lib/deploy-paths';
 import { appendLegacyUrlViolations } from './brand-url-patterns';
+import { appendRetiredClaimViolations } from './retired-claim-patterns';
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const WEBSITE_ROOT = join(SCRIPT_DIR, '..');
@@ -186,7 +187,7 @@ function scanZhEnglishProse(docsRoot: string, errors: string[]): void {
   );
 }
 
-function scanLegacyUrls(docsRoot: string, errors: string[]): void {
+function scanForbiddenContent(docsRoot: string, errors: string[]): void {
   const files = [
     join(docsRoot, 'docs.json'),
     ...collectDocsTextFiles(join(docsRoot, 'docs')),
@@ -195,9 +196,10 @@ function scanLegacyUrls(docsRoot: string, errors: string[]): void {
     if (!existsSync(filePath)) {
       continue;
     }
-    const rel = relative(docsRoot, filePath).replace(/\\/g, '/');
+    const relPath = `myrm-docs/${relative(docsRoot, filePath).replace(/\\/g, '/')}`;
     const content = readFileSync(filePath, 'utf8');
-    appendLegacyUrlViolations(content, `myrm-docs/${rel}`, errors);
+    appendLegacyUrlViolations(content, relPath, errors);
+    appendRetiredClaimViolations(content, relPath, errors);
   }
 }
 
@@ -285,7 +287,7 @@ function main(): void {
     }
   }
 
-  scanLegacyUrls(DOCS_ROOT, errors);
+  scanForbiddenContent(DOCS_ROOT, errors);
   scanZhEnglishProse(DOCS_ROOT, errors);
   scanMobileHubHeadingAnchors(DOCS_ROOT, errors);
 

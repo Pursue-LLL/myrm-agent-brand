@@ -16,7 +16,7 @@
 ```bash
 bun run dev:3002          # 本地营销站（端口 3002，与 App :3000 分离）
 bun run build             # validate → bake release → next export
-bun run validate:locales  # i18n 键契约 + legacy URL 扫描
+bun run validate:locales  # i18n 键契约 + legacy URL / 已撤回宣称扫描
 bun run validate:docs-slugs  # 营销 slug ↔ Mintlify nav ↔ MDX orphan
 bun run test              # scripts 契约单测（docs/deploy/release/desktop-release/fractal-docs）
 bun run validate:fractal-docs  # 分形 _ARCH + 核心 IOP 门禁

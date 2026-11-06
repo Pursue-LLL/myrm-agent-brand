@@ -3,9 +3,10 @@
  * - src/components/marketing/landing/marketing-keys.ts (POS: 落地页 i18n 键清单)
  * - scripts/locale-files.ts (POS: locale 读取与键断言)
  * - scripts/cloud-pricing-contract.ts (POS: 云定价与控制面计费目录对账)
+ * - scripts/brand-url-patterns.ts, scripts/retired-claim-patterns.ts (POS: locale 原文禁止项)
  *
  * [OUTPUT]
- * - CI 校验：manifest 键存在、Bento/对比/轮播/用例/FAQ/集成键完整、integration chip 长度、legal 法务键、cloud 全键契约与 CP catalog/plans 对齐、notFound 键、locales 无 legacy URL
+ * - CI 校验：manifest 键存在、Bento/对比/轮播/用例/FAQ/集成键完整、integration chip 长度、legal 法务键、cloud 全键契约与 CP catalog/plans 对齐、notFound 键、locales 无 legacy URL 与已撤回数字宣称
  *
  * [POS]
  * 营销文案 locale 契约校验；`bun run build` 前自动执行。
@@ -34,6 +35,7 @@ import {
 import { appendLegacyUrlViolations } from './brand-url-patterns';
 import { validateCloudPricingAgainstCp } from './cloud-pricing-contract';
 import { LOCALES, ROOT, assertKey, getAt, loadCloud, loadMarketing, loadNotFound } from './locale-files';
+import { appendRetiredClaimViolations } from './retired-claim-patterns';
 
 /**
  * Tier-1 scoped locales (JA GTM pack): only download + metadata + notFound are
@@ -65,6 +67,13 @@ const LEGAL_REQUIRED_PATHS = [
   'legal.refund.updatedAt',
   'legal.refund.intro',
 ] as const;
+
+/** Raw-text policy scan shared by the full and the partial locales. */
+function appendLocaleTextViolations(locale: string, raw: string, errors: string[]): void {
+  const relPath = `myrm-website/locales/${locale}.json`;
+  appendLegacyUrlViolations(raw, relPath, errors);
+  appendRetiredClaimViolations(raw, relPath, errors);
+}
 
 function assertIntegrationChipList(
   locale: string,
@@ -116,7 +125,7 @@ if (COMPARE_TAB_ROWS.all.length !== COMPARE_ROW_KEYS.length) {
 for (const locale of LOCALES) {
   const localePath = join(ROOT, 'locales', `${locale}.json`);
   const localeRaw = readFileSync(localePath, 'utf8');
-  appendLegacyUrlViolations(localeRaw, `myrm-website/locales/${locale}.json`, errors);
+  appendLocaleTextViolations(locale, localeRaw, errors);
 
   const marketing = loadMarketing(locale);
 
@@ -338,7 +347,7 @@ function validatePartialLocale(
 ): void {
   const localePath = join(ROOT, 'locales', `${locale}.json`);
   const localeRaw = readFileSync(localePath, 'utf8');
-  appendLegacyUrlViolations(localeRaw, `myrm-website/locales/${locale}.json`, errors);
+  appendLocaleTextViolations(locale, localeRaw, errors);
   const json = JSON.parse(localeRaw) as Record<string, unknown>;
   const enRaw = readFileSync(join(ROOT, 'locales', 'en.json'), 'utf8');
   const enJson = JSON.parse(enRaw) as Record<string, unknown>;

@@ -37,4 +37,4 @@ bun run build-zh-nav         # 新增 EN 页面后同步 zh 路径
 ## 模块依赖
 
 - `docs.json`（POS: Mintlify 站点配置与导航 SSOT）
-- `myrm-website/scripts/validate-docs-slugs.ts`（orphan MDX 与 legacy URL 门禁）
+- `myrm-website/scripts/validate-docs-slugs.ts`（orphan MDX、legacy URL 与已撤回宣称门禁）
