@@ -100,7 +100,7 @@ function BentoCard({ item, index }: { item: BentoItem; index: number }) {
         <span className="ed-bento-idx ed-mono" aria-hidden>
           {String(index + 1).padStart(2, '0')}
         </span>
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center justify-between gap-3">
           <div
             className="ed-icon inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
             style={{ background: 'var(--ed-accent-soft)', color: 'var(--ed-accent)' }}
