@@ -35,7 +35,7 @@
         "Deep memory · precise answers · steady execution — powerful, with everything under your control",
         "Zero setup, zero plugins — five office skills ready on install: read documents · analyze data · research online · create Word/PPT/Excel · export PDF"
       ],
-      "differentiator": "Open-source & self-hostable · ~86% fewer tokens · 26 channels · 100+ models · multi-device remote access · polished GUI · cutting-edge capabilities",
+      "differentiator": "Open-source & self-hostable · 26 channels · 100+ models · multi-device remote access · polished GUI · cutting-edge capabilities",
       "pathHint": "Native App · BYOK · your data stays local",
       "cloudPricingStrip": "MyrmAgent Cloud · $19–$149/mo",
       "cloudPricingStripA11y": "View MyrmAgent Cloud paid plans from $19 to $149 per month",
@@ -620,7 +620,7 @@
           "myrmAgent": "28 built-in providers via LiteLLM (with pre-filled API URLs + one-click region switch domestic/international) + **Four Paradigms Model Orchestration Playbook**: Built directly into New Chat (EmptyChat) and Settings, offering visual interactive guides for Brain & Hands division of labor, Dynamic Tier Routing, Routing vs MoA Orthogonality, and Specialist Slots (vision, background evolution) with one-click deep-link config + **Streaming Multi-Tier Ordered Fallback**: Automatically cascades across user-configured fallback chains (e.g. Claude 3.7 -> DeepSeek V3 -> GPT-4o) during 429/503/billing outages within the streaming lifecycle, auto-adapting context limits and rebuilding execution graphs without dropping mission state + **SuperGrok / xAI OAuth Device Code Flow & Priority Resolution**: Native RFC 8628 device-code authorization strictly prioritizing subscription OAuth over user API keys + 3 protocol adapters (OpenAI/Gemini/Anthropic-like) for custom providers + models.dev real-time discovery (auto-fill params) + model search + batch import + capability tags (vision/tool/reasoning/audio/video) + multi-key rotation + drag-and-drop provider priority + 2M token context full-pipeline + API dialect auto-convert + 6-level thinking intensity + reasoning panel + 20+ reasoning model detection + **Thinking Headroom**: auto-detects Claude/DeepSeek R1/OpenAI o-series/Gemini 2.5+ thinking models, raises max_tokens to safe floor (8K–65K) based on 5-level effort, preventing thinking tokens from exhausting the output budget and causing truncation — dual-layer defense with stream recovery, no competitor offers this + per-model timeout floor (19 model families auto-adapted, never timeout during thinking) + dual-layer Schema Normalizer (Myrm generic + LiteLLM per-provider): Anthropic constraint-to-description folding + Gemini 8-step sanitization + **Model SSOT protection**: toolbar model switch is memory-sticky only — never auto-writes to DB; explicit Config Panel Update to persist; page refresh reverts to saved Agent profile (Hermes localStorage permanent override causes bill shock #62055; CoPaw setActiveLlm writes DB on every click) + **199 model config/routing/capability/tier/parser tests all passed (2026-07-15 verified)** — switch any model, zero tool 400 errors + **Model-Switch Preflight** (GUI, exclusive): open the model picker and each target model shows a real-time badge — if the current chat's estimated tokens would immediately trigger context compression on that model's window, you see it *before* switching (runtime-same compression formula, per-model tier-aware thresholds, dynamic turn-count tightening, anti-thrash aware); competitors warn only about price or after compression already failed. Swap the model without restarting the workflow: memory, skills, approvals, and workspace stay put."
         },
         "tokenEfficiency": {
-          "feature": "Token cost · ~7× tasks on same budget + zero-LLM rule compression",
+          "feature": "Token cost · zero-LLM rule compression",
           "hermes": "~15,520",
           "openclaw": "~18,000",
           "myrmAgent": "2,167 (knowledge Q&A benchmark) + **zero-LLM rule engine** (session dedup + semantic output compression (graded by content type) + image/data-URI strip + checkpoint archive) **>> Tokenomics Lite single-layer 8–15%/turn**; Turn1 built-in tools + MCP discover→skill_select progressive load (far cheaper than full injection); **real-time token observability** (dedup savings + cached_tokens + CacheBreakDetector attribution) + model-switch compression preflight + transparent SaaS tier multipliers · **Tool Search Prompt Cache Alignment**: Keeps tool schemas and prompt prefixes strictly stable, preventing cache churn and saving up to 90% in multi-turn Cache Write costs."
@@ -1178,7 +1178,7 @@
     },
     "tokenBenchmark": {
       "title": "Same task — who uses fewer tokens?",
-      "subtitle": "Same question, same model: about 86% fewer tokens on average — roughly 7× more work for the same budget.",
+      "subtitle": "Prompt tokens per request in our knowledge Q&A benchmark; your tools, skills, and model change the numbers.",
       "label": "prompt tokens / request",
       "myrmAgent": "MyrmAgent",
       "hermes": "Hermes Agent",
@@ -1186,8 +1186,8 @@
       "myrmAgentValue": "2,167",
       "hermesValue": "15,520",
       "openclawValue": "~18,000",
-      "savings": "86% fewer tokens · ~7x tasks same budget",
-      "savingsCache": "97% more with cache hits · repeat queries cost almost nothing",
+      "savings": "Measured values, not a guarantee",
+      "savingsCache": "Prompt caching lowers the cost of repeated context on providers that support it",
       "footnote": "Based on the same knowledge Q&A scenario in real use; bars show prompt tokens per request.",
       "ptcFootnote": "Dual-Track Programmatic Tool Calling (PTC): collapses multi-step dependency chains (e.g., station code lookup ➔ ticket search ➔ seat filter) into atomic in-memory sandbox scripts, reducing 4 network round-trips to a single 1-round execution (<2s vs 25s, 85% token reduction) with 100% of raw payload absorbed in sandbox memory. In complex workflows, orchestrated execution saves about half the input tokens vs. calling tools directly. Kanban LLM tools use role gates (6 orchestrator / 6 worker, full opt-in 12). PTC: batch local tools in one script; single web search stays native. Planning stays off by default (~200 tok/turn when enabled); `todo_write` persists todos to sandbox SSOT, CompletionGuard blocks early exit. MAX_TODOS=20 + single in_progress constraint prevents planning explosion and execution drift.",
       "breakdown": {

@@ -35,7 +35,7 @@
         "记得深、答的准、跑的稳——强大又一切都在掌控之中",
         "0门槛、0折腾、0配置——装完就自带 5 个通用办公技能：读文档 · 数据分析 · 联网调研 · 生成 Word/PPT/Excel · 导出 PDF"
       ],
-      "differentiator": "开源自托管 · 约省 86% Token · 26 渠道 · 100+全模型 · 多端远程访问 · 精美GUI可视化 · 前沿能力覆盖",
+      "differentiator": "开源自托管 · 26 渠道 · 100+全模型 · 多端远程访问 · 精美GUI可视化 · 前沿能力覆盖",
       "pathHint": "原生桌面 App · BYOK · 数据留在本机",
       "cloudPricingStrip": "MyrmAgent Cloud · $19–$149/月",
       "cloudPricingStripA11y": "查看 MyrmAgent Cloud 付费方案，$19–$149/月",
@@ -620,7 +620,7 @@
           "myrmAgent": "28 内置供应商经 LiteLLM（含预填 API URL + 国内/国际区域一键切换）+ **四大模型编排经典范式全景指南（Model Orchestration Playbook）**：新对话（EmptyChat）与模型设置页内置一键呼出式可视化教学（Brain & Hands 大脑规划与敏捷双手分工、Dynamic Tier Routing 动态阶梯智能路由、Routing vs MoA 正交解耦、Specialist Slots 视觉与自进化专家槽位），告别参数黑盒与瞎选翻车 + **原生流式多级有序回退（Multi-Tier Resilient Fallback）**：主模型遭遇 429/503 或配额耗尽时，在流式生命周期内部无感按序降级切换（如 Claude 3.7 -> DeepSeek V3 -> GPT-4o），自动校验目标上下文并重建执行图，长任务永不掉线 + **SuperGrok / xAI OAuth 官方设备码鉴权与高优先级裁决**：原生支持 RFC 8628 设备码授权流，凭证组装严格执行 OAuth > API Key，确保订阅权益优先消耗 + 三种兼容协议(OpenAI/Gemini/Anthropic-like)无极接入自定义供应商 + models.dev 实时模型发现（自动填充参数）+ **受信任局域网与 Tailscale 私网分机免密直连（Split-Stack 架构）**：环境自适应白名单 + RFC1918/CGNAT/.local 零门槛直连 + 显式阻断 169.254 Link-Local 元数据，盘活闲置算力且安全防穿透 + 模型搜索+批量导入+能力标签(vision/tool/reasoning/audio/video) + 多密钥轮换 + 拖拽排序供应商优先级 + 2M Token 超大上下文全链路 + API 方言自动转换 + 6 级思考强度调节 + 思考面板 + 20+ 推理模型检测 + **推理模型智能预算（Thinking Headroom）**：自动检测 Claude/DeepSeek R1/OpenAI o系列/Gemini 2.5+ 等思考模型，按 5 级 effort 提升 max_tokens 到安全下限（8K~65K），防止思考 token 耗尽预算导致回复截断，配合 stream recovery 双层防线，竞品均无此能力 + 逐模型超时底线（19 模型族自动适配，思考期间永不超时）+ 双层 Schema Normalizer（Myrm 通用层 + LiteLLM per-provider 层）：Anthropic 约束-描述语义折叠 + Gemini 8 步净化 + **模型 SSOT 保护**：工具栏临时切换仅为内存 Sticky，不自动写入数据库；只有在配置面板显式点击 Update 才持久化；刷新页面自动回退到 Agent 默认模型（Hermes localStorage 永久覆盖导致账单惊吓 #62055；CoPaw setActiveLlm 每次点击直接写 DB 污染配置）+ **199 项模型配置/路由/能力/Tier/解析器测试全通过（2026-07-15 实测）**——随意切换模型，工具零 400 报错 + **切换压缩预检**（GUI 原生，独家）：打开模型选择器，每个目标模型实时显示徽标——若当前对话的估算 Token 会在该模型窗口下立即触发上下文压缩，切换前就能看到（复用运行时同源压缩公式、按模型 Tier 推断阈值、长会话动态收紧、anti-thrash 防误报）；竞品要么只提示价格，要么等压缩失败后才报错。换模型不换工作流：记忆、技能、审批、工作区都留在原处。"
         },
         "tokenEfficiency": {
-          "feature": "Token 消耗 · 同样预算约 7 倍任务量 + 零 LLM 规则压缩",
+          "feature": "Token 消耗 · 零 LLM 规则压缩",
           "hermes": "~15,520",
           "openclaw": "~18,000",
           "myrmAgent": "2,167（知识问答基准） + **零 LLM 规则引擎**（Session 去重 + 语义输出压缩（按内容类型分级） + 图片/data URI 剥离 + checkpoint 归档）**>> Tokenomics Lite 单层 8–15%/轮**；内置工具 Turn1 直出零代理开销 + MCP 技能 discover→skill_select 渐进加载（比全量注入省下绝大部分技能 Token）；**实时 Token 可观测**（dedup 节省 + cached_tokens + CacheBreakDetector 归因）+ 切换模型压缩预检 + SaaS 三级倍率透明面板 · **工具搜索与 Prompt 缓存对齐**：长会话动态工具按需暴露并保持前缀严格静态化，杜绝 Schema 频繁微抖击穿提示词缓存，长会话 Cache Write 成本立省 90%"
@@ -1178,7 +1178,7 @@
     },
     "tokenBenchmark": {
       "title": "同样任务，谁更省 Token？",
-      "subtitle": "同样问题、同样模型，平均少花约 86% Token——预算不变，大约能多完成 7 倍任务。",
+      "subtitle": "我们知识问答基准下的单次请求提示词用量；你启用的工具、技能和模型都会改变这些数字。",
       "label": "prompt tokens / 请求",
       "myrmAgent": "MyrmAgent",
       "hermes": "Hermes Agent",
@@ -1186,8 +1186,8 @@
       "myrmAgentValue": "2,167",
       "hermesValue": "15,520",
       "openclawValue": "~18,000",
-      "savings": "省 86% Token · 同样预算约 7 倍任务量",
-      "savingsCache": "缓存命中后再省 97% · 重复问题几乎不花钱",
+      "savings": "实测值，不是保证",
+      "savingsCache": "在支持 Prompt 缓存的服务商上，缓存会降低重复上下文的成本",
       "footnote": "基于相同知识问答场景的真实使用对比；柱状图为单次请求的提示词用量。",
       "ptcFootnote": "两轨制程序化工具调用（PTC）：将查车站代码➔查票➔余票过滤等多步骤依赖链折叠至沙箱内存原子串联，从 4 轮模型网络交互缩短为 1 轮单次脚本执行，耗时从 25 秒降至 2 秒内，Token 消耗节省 85%，中间 60 趟车次原始报文在沙箱内被吸收，不污染上下文。复杂工作流场景下，编排执行比直连工具再省约一半输入用量。Kanban LLM 工具按角色绑定（聊天 orchestrator 6 / Worker 6，full 仅 opt-in 12）。PTC 适合同脚本批量本地工具；单次搜网仍走 native。Planning 默认关闭，按需启用约 200 tok/轮；启用后 `todo_write` 写入沙箱 todos SSOT，CompletionGuard 防早退。MAX_TODOS=20 + 单一 in_progress 约束防止规划爆炸和执行失焦。",
       "breakdown": {
